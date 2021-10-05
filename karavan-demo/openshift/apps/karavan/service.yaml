@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: karavan
+    app.kubernetes.io/part-of: karavan
+  name: karavan
+spec:
+  ports:
+  - name: 8080-tcp
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: karavan
+  sessionAffinity: None
+  type: ClusterIP

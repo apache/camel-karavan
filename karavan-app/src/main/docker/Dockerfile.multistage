@@ -1,0 +1,31 @@
+## Stage 1 : build with maven builder image with native capabilities
+FROM quay.io/quarkus/ubi-quarkus-native-image:21.2.0-java11 AS build
+
+## rsync required for npm to build frontend
+USER root
+RUN microdnf install rsync
+
+## Copy code
+COPY --chown=quarkus:quarkus mvnw /code/mvnw
+COPY --chown=quarkus:quarkus .mvn /code/.mvn
+COPY --chown=quarkus:quarkus generator/ /code/generator/
+COPY --chown=quarkus:quarkus karavan/ /code/karavan/
+COPY --chown=quarkus:quarkus pom.xml /code/
+
+USER quarkus
+WORKDIR /code
+
+## Build Karavan
+## RUN ./mvnw -B org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline
+RUN ./mvnw clean compile exec:java -Dexec.mainClass="org.apache.camel.karavan.generator.KaravanGenerator" -f /code/generator/pom.xml
+RUN ./mvnw clean package -Pnative  -f /code/karavan/pom.xml
+
+## Stage 2 : create the docker final image
+FROM quay.io/quarkus/quarkus-distroless-image:1.0
+COPY --chown=nonroot --from=build /code/karavan/target/*-runner /deployments/application
+COPY --chown=nonroot --from=build /code/karavan/src/main/resources/kamelets/* /deployments/kamelets/
+
+EXPOSE 8080
+USER nonroot
+WORKDIR /deployments
+CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]

@@ -1,0 +1,53 @@
+{
+  "name": "karavan-designer",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@patternfly/patternfly": "^4.132.2",
+    "@patternfly/react-code-editor": "^4.3.42",
+    "@patternfly/react-core": "^4.147.0",
+    "@patternfly/react-table": "^4.29.37",
+    "@types/js-yaml": "^4.0.2",
+    "@types/uuid": "^8.3.1",
+    "axios": "^0.21.1",
+    "dagre": "^0.8.5",
+    "localforage": "^1.10.0",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "4.0.3",
+    "rxjs": "^7.3.0",
+    "typescript": "^4.3.5",
+    "uuid": "^8.3.2"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "prod": "react-scripts build --dest && rsync -a build/* ../resources/META-INF/resources"
+  },
+  "proxy": "http://localhost:8080/",
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/dagre": "^0.7.46",
+    "@types/localforage": "0.0.34",
+    "@types/react": "^17.0.19",
+    "@types/react-dom": "^17.0.9",
+    "@types/react-router-dom": "^5.1.8"
+  }
+}

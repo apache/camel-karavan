@@ -1,0 +1,95 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: mariadb-source
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBoZWlnaHQ9IjExOC4xIiB2aWV3Qm94PSIwLDAsNDE2LjQsMTE4LjEiIHdpZHRoPSI0MTYuNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KIDxtZXRhZGF0YS8+CiA8c3dpdGNoIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMy45MSAtMjMuOTUpIj4KICA8Zm9yZWlnbk9iamVjdCBoZWlnaHQ9IjEiIHJlcXVpcmVkRXh0ZW5zaW9ucz0iaHR0cDovL25zLmFkb2JlLmNvbS9BZG9iZUlsbHVzdHJhdG9yLzEwLjAvIiB3aWR0aD0iMSIvPgogIDxnPgogICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMTYxNCAtMTQuMTgpIj4KICAgIDxwYXRoIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0ibTE4MTIgMzguMTNjLTIuNzMuMDktMS45NCAxLjMyLTcuODUgMi43OC01Ljk3IDEuNDctMTMuMTkuNTctMTkuNjEgMy4yNy0xNi44IDcuMDQtMTkuNTIgMzQuMjYtMzkuNTMgNDQuNzktMTMuMTIgNy40MS0yNi41IDkuMTEtMzguNDYgMTIuODYtOS42IDMuODUtMTUuNTcgNi40LTIyLjYxIDEyLjQ3LTUuNDYgNC43MS02Ljc5IDkuMjgtMTIuNSAxNS4xOS01Ljc5IDcuODctMjcuNzQuODgtMzMuMzkgMTAuNzUgMi45OCAxLjkzIDQuNyAyLjQ2IDkuOTMgMS43Ny0xLjA4IDIuMDUtNy45NiA0Ljc1LTYuNzEgNy43NyAwIDAgMTYuNjMgMy4wMyAzMC42NS01LjQzIDYuNTQtMi42NiAxMi42Ny04LjI5IDIyLjgzLTkuNjQgMTMuMTYtMS43NSAyNy45OSAyLjc2IDQzLjkgNC4wMy0zLjI5IDYuNS02LjY4IDEwLjM0LTEwLjMxIDE1LjctMS4xMiAxLjIxLjk2IDIuMjggNC44MiAxLjU1IDYuOTQtMS43MiAxMS45Ny0zLjU4IDE2Ljk2LTcuMDMgNi41MS00LjQ5IDkuMzEtOC42IDE0LjgtMTUuMTEgNC43NyA3LjY1IDIxLjU5IDkuMzMgMjUuMDQgMi43Mi02LjQyLTIuNzItNy43OS0xNi44Ny01LjU5LTIyLjk4IDIuNi01LjgyIDQuNDctMTQuMDUgNi41Ny0yMS43IDEuODktNi44OSAzLjA2LTE3LjQgNS4zMi0yMi43OCAyLjctNi42OSA3Ljk1LTguNzggMTEuODktMTIuMzNzNy44Ni02LjUxIDcuNzQtMTQuNjNjLS4wNC0yLjY0LTEuNC00LjEtMy44OS00LjAyeiIgZmlsbD0iIzFmMzA1ZiIgZmlsbC1ydWxlPSJldmVub2RkIi8+CiAgICA8cGF0aCBkPSJtMTY0MyAxNDguNGMxMC4zMS4zMSAxMy4xMS4wNCAyMS4yNi0zLjUgNi45My0zLjAxIDE2LjItMTEuMTIgMjQuMzktMTMuNzQgMTIuMDItMy44NiAyNC45MS0zLjI4IDM3LjctMS43NyA0LjI4LjUxIDguNTggMS4yMiAxMS42NS44OSA0Ljc5LTIuOTQgNS4wMi0xMC45MiA3Ljk5LTExLjU2LS44MSAxNS40NC03LjQzIDI1LjMyLTE0LjA1IDM0LjI4IDEzLjk1LTIuNDYgMjMuMjctMTEuMTcgMjguOTEtMjEuOTUgMS43MS0zLjI3IDQuNTUtOC42MiA1Ljg1LTEyLjMgMS4wMyAyLjQ0LTEuMzQgMy45OS0uMjMgNi42NSA4Ljk4LTcuNDEgMTMuMjItMTUuODUgMTYuODYtMjguMjEgNC4yMi0xNC4zIDguNTUtMjYuNTkgMTEuMjctMzAuODIgMi42NS00LjEzIDYuNzgtNi42OCAxMC41NS05LjMyIDQuMjgtMy4wMSA4LjExLTYuMTQgOC43Ny0xMS44Ny00LjUyLS40Mi01LjU2LTEuNDYtNi4yMy0zLjc0LTIuMjYgMS4yNy00LjM0IDEuNTUtNi42OSAxLjYyLTIuMDQuMDYtNC4yOC0uMDMtNy4wMi4yNS0yMi42MyAyLjMyLTIzLjY4IDI0LjQ0LTQwLjEzIDQwLjY4LTEuMDYgMS4wMy0yLjg3IDIuNTUtNC4wNyAzLjQ1LTUuMDggMy43OS0xMC41MiA1Ljg3LTE2LjI1IDguMDYtOS4yOCAzLjU0LTE4LjA4IDQuNTctMjYuNzggNy42My02LjM5IDIuMjQtMTIuMzMgNC44MS0xNy41OCA4LjQtMS4zMS45LTMuMDkgMi41LTQuMjMgMy40My0zLjA4IDIuNTItNS4xIDUuMzEtNy4wNiA4LjE5LTIuMDIgMi45Ni0zLjk2IDYuMDEtNi45MyA4LjkyLTQuODEgNC43Mi0yMi43NyAxLjM4LTI5LjEgNS43Ni0uNy40OS0xLjI3IDEuMDctMS42NSAxLjc3IDMuNDUgMS41NyA1Ljc2LjYxIDkuNzMgMS4wNC40OSAzLjc5LTguMjIgNi4wMy02LjkzIDcuNzZ6IiBmaWxsPSIjYzA3NjVhIi8+CiAgICA8cGF0aCBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Im0xNzg3IDUyLjY1YzMuMiAyLjc4IDkuOTIuNTUgOC43Mi00Ljk4LTQuOTgtLjQyLTcuODYgMS4yNy04LjcyIDQuOTh6IiBmaWxsPSIjMWYzMDVmIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz4KICAgIDxwYXRoIGQ9Im0xODA5IDQ2LjE4Yy0uODUgMS43OS0yLjQ4IDQuMDktMi40OCA4LjY0LS4wMS43OC0uNTkgMS4zMi0uNi4xMS4wNC00LjQ1IDEuMjItNi4zNyAyLjQ3LTguODkuNTctMS4wMy45Mi0uNjEuNjEuMTR6IiBmaWxsPSIjMWYzMDVmIi8+CiAgICA8cGF0aCBkPSJtMTgwOCA0NS41MWMtMS4wMSAxLjctMy40MyA0LjgxLTMuODIgOS4zNS0uMDcuNzgtLjcxIDEuMjYtLjYxLjA2LjQ0LTQuNDIgMi4zNy03LjE5IDMuODQtOS42LjY2LS45OC45Ny0uNTMuNTkuMTl6IiBmaWxsPSIjMWYzMDVmIi8+CiAgICA8cGF0aCBkPSJtMTgwNyA0NC42MmMtMS4xNSAxLjYxLTQuODcgNS4zNS01LjY1IDkuODMtLjE0Ljc3LS44MSAxLjE5LS42MS4wMS44MS00LjM3IDQuMDItNy44MSA1LjY4LTEwLjA4Ljc0LS45MyAxLjAyLS40NS41OC4yNHoiIGZpbGw9IiMxZjMwNWYiLz4KICAgIDxwYXRoIGQ9Im0xODA3IDQzLjYyYy0xLjM2IDEuNDQtNS44IDYuMi03LjIgMTAuNTMtLjI1Ljc0LS45NyAxLjA3LS42MS0uMDggMS40MS00LjIyIDUuMy04Ljc2IDcuMjctMTAuNzcuODctLjgxIDEuMDctLjI5LjU0LjMyeiIgZmlsbD0iIzFmMzA1ZiIvPgogICA8L2c+CiAgIDxwYXRoIGQ9Im00NDkuNy0xOS40NHYzMS4yMmgtMy45NHYtNS4zNWMtMy41NyA0LjI3LTcuNjQgNi40MS0xMi4yMyA2LjQxcy04LjQ3LTEuNjMtMTEuNjQtNC44OGMtMy4xNC0zLjI5LTQuNy03LjE5LTQuNy0xMS43IDAtNC41NSAxLjU5LTguNDMgNC43Ni0xMS42NCAzLjE3LTMuMjUgNi45OC00Ljg4IDExLjQxLTQuODggNS4xIDAgOS4yMyAyLjE4IDEyLjQxIDYuNTN2LTUuN2gzLjkzbS0zLjcgMTUuNzRjMC0zLjU3LTEuMi02LjU3LTMuNTktOS0yLjM5LTIuNDctNS4zMy0zLjctOC44Mi0zLjctMy40NSAwLTYuMzcgMS4yNy04Ljc2IDMuODItMi4zOSAyLjUxLTMuNTkgNS40OS0zLjU5IDguOTRzMS4yMiA2LjQ1IDMuNjUgOWMyLjQzIDIuNTEgNS4zMyAzLjc2IDguNyAzLjc2IDMuNDEgMCA2LjMzLTEuMjIgOC43Ni0zLjY1IDIuNDQtMi40MiAzLjY1LTUuNDggMy42NS05LjE3IiBmaWxsPSIjMWYzMDVmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtODMuMDcgOTIuNTUpIi8+CiAgIDxwYXRoIGQ9Im00NTguNCAxMS43OHYtNDIuMjFoOC43NmM2IDAgMTAuMzkuNDUgMTMuMTcgMS4zNSAyLjgyLjg2IDUuMjUgMi4yNSA3LjI5IDQuMTcgMi4wNCAxLjg4IDMuNjEgNC4xOSA0LjcgNi45NCAxLjEgMi43NCAxLjY1IDUuOTYgMS42NSA5LjY0IDAgMy42NS0uODYgNy4wOS0yLjU5IDEwLjM1LTEuNjkgMy4yMS00IDUuNjQtNi45NCA3LjI5LTIuOSAxLjY1LTcuMDkgMi40Ny0xMi41OCAyLjQ3em00LjA2LTRoNC44OGM1LjEgMCA4Ljc4LS4yNSAxMS4wNS0uNzYgMi4zMS0uNTEgNC4zMy0xLjUxIDYuMDYtMyAxLjcyLTEuNTMgMy4wNC0zLjM3IDMuOTQtNS41M3MxLjM1LTQuNjIgMS4zNS03LjQxYzAtMi43OC0uNTMtNS4zNS0xLjU5LTcuNy0xLjAyLTIuMzUtMi40OS00LjI5LTQuNDEtNS44MnMtNC4xOS0yLjU1LTYuODItMy4wNmMtMi41OS0uNTUtNi40MS0uODItMTEuNDYtLjgyaC0zeiIgZmlsbD0iIzFmMzA1ZiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTgzLjgyIDkyLjU1KSIvPgogICA8cGF0aCBkPSJtNDA2LTI4LjE0YzAtLjkuMzEtMS42OS45NC0yLjM1LjY3LS42NyAxLjQ1LTEgMi4zNS0xIC45NCAwIDEuNzIuMzMgMi4zNSAxIC42Ny42MyAxIDEuNDEgMSAyLjM1IDAgLjktLjMzIDEuNjktMSAyLjM1LS42My42My0xLjQxLjk0LTIuMzUuOTQtLjkgMC0xLjY5LS4zMy0yLjM1LTEtLjYzLS42Ny0uOTQtMS40My0uOTQtMi4yOW0xLjI5IDguN2g0LjA2djMxLjIyaC00LjA2eiIgZmlsbD0iIzFmMzA1ZiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTgzLjgyIDkyLjU1KSIvPgogICA8cGF0aCBkPSJtMjk2LjcgMTEuNzggNi00Mi4yMWguNjVsMTcuMTYgMzQuNjIgMTcuMDUtMzQuNjNoLjY1bDYuMDYgNDIuMjFoLTQuMTdsLTQuMTItMzAuMjItMTQuOTMgMzAuMjJoLTEuMDZsLTE1LjExLTMwLjQ1LTQuMTIgMzAuNDVoLTQuMDYiIGZpbGw9IiMxZjMwNWYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC04NC4zMyA5Mi41NSkiLz4KICAgPHBhdGggZD0ibTM4MS4xLTE5LjQ0djMxLjIyaC0zLjk0di01LjM1Yy0zLjU3IDQuMjctNy42NCA2LjQxLTEyLjIzIDYuNDFzLTguNDctMS42My0xMS42NC00Ljg4Yy0zLjE0LTMuMjktNC43LTcuMTktNC43LTExLjcgMC00LjU1IDEuNTktOC40MyA0Ljc2LTExLjY0IDMuMTctMy4yNSA2Ljk4LTQuODggMTEuNDEtNC44OCA1LjEgMCA5LjIzIDIuMTggMTIuNDEgNi41M3YtNS43aDMuOTNtLTMuNyAxNS43NGMwLTMuNTctMS4yLTYuNTctMy41OS05LTIuMzktMi40Ny01LjMzLTMuNy04LjgyLTMuNy0zLjQ1IDAtNi4zNyAxLjI3LTguNzYgMy44Mi0yLjM5IDIuNTEtMy41OSA1LjQ5LTMuNTkgOC45NHMxLjIxIDYuNDUgMy42NSA5YzIuNDMgMi41MSA1LjMzIDMuNzYgOC43IDMuNzYgMy40MSAwIDYuMzMtMS4yMiA4Ljc2LTMuNjUgMi40My0yLjQyIDMuNjUtNS40OCAzLjY1LTkuMTciIGZpbGw9IiMxZjMwNWYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC04NC41OCA5Mi41NSkiLz4KICAgPHBhdGggZD0ibTM4OC43LTE5LjQ0aDQuMTJ2NC41M2MxLjEtMS44NCAyLjE2LTMuMTkgMy4xNy00LjA2IDEuMDYtLjg2IDIuMjEtMS4yOSAzLjQ3LTEuMjkgMS4yOSAwIDIuNTkuMzUgMy44OCAxLjA2bC0yLjEyIDMuNDFjLS41OS0uMzUtMS4yLS41My0xLjgyLS41My0xLjIxIDAtMi4zNy42My0zLjQ3IDEuODgtMS4wNiAxLjI1LTEuODQgMi44OC0yLjM1IDQuODgtLjUxIDEuOTYtLjc2IDUuNTUtLjc2IDEwLjc2djEwLjU4aC00LjEyeiIgZmlsbD0iIzFmMzA1ZiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTg1LjM0IDkyLjU1KSIvPgogICA8cGF0aCBkPSJtNDk4LjMtMzAuNDRoOC4zNWM0LjQzIDAgNy43OC45IDEwLjA1IDIuNyAyLjMxIDEuNzYgMy40NyA0LjMxIDMuNDcgNy42NCAwIDEuODQtLjQ3IDMuNTUtMS40MSA1LjExLS45IDEuNTMtMi4yMyAyLjc2LTQgMy43IDIuOS45NCA1LjEgMi4zNSA2LjU4IDQuMjMgMS41MyAxLjg4IDIuMjkgNC4xMiAyLjI5IDYuNyAwIDMuNDktMS4yNyA2LjM5LTMuODIgOC43LTIuNTUgMi4yNy01Ljg0IDMuNDEtOS44OCAzLjQxaC0xMS42M3ptNC4xNyA0LjEydjEzLjUyaDIuNDFjMy42OCAwIDYuNDMtLjU5IDguMjMtMS43NiAxLjgtMS4xOCAyLjctMy4wMiAyLjctNS41MyAwLTQuMTUtMi44Mi02LjIzLTguNDctNi4yM3ptMCAxNy43NnYxNi4yMmg1LjIzYzMuMDIgMCA1LjIzLS4yOSA2LjY0LS44OCAxLjQ1LS42MyAyLjYzLTEuNTcgMy41My0yLjgyLjktMS4yOSAxLjM1LTIuNjEgMS4zNS0zLjk0cy0uMjUtMi41MS0uNzYtMy41My0xLjI3LTEuOTItMi4yOS0yLjdjLS45OC0uNzgtMi4xOC0xLjM3LTMuNTktMS43Ni0xLjM3LS4zOS0zLjk2LS41OS03Ljc2LS41OXoiIGZpbGw9IiMxZjMwNWYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC04My4zMiA5Mi41NSkiLz4KICA8L2c+CiA8L3N3aXRjaD4KPC9zdmc+Cg=="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "SQL"
+  labels:
+    camel.apache.org/kamelet.type: "source"
+spec:
+  definition:
+    title: "MariaDB Source"
+    description: |-
+      Query data from a MariaDB Database.
+
+      In you KameletBinding file you'll need to explicitly declare the MariaDB Server driver dependency in spec->integration->dependencies
+      
+      - "mvn:org.mariadb.jdbc:mariadb-java-client:<version>"
+    required:
+      - serverName
+      - username
+      - password
+      - query
+      - databaseName
+    type: object
+    properties:
+      serverName:
+        title: Server Name
+        description: Server Name for the data source
+        type: string
+        example: localhost
+      port:
+        title: Port
+        description: Server Port for the data source
+        type: string
+        default: 3306
+      username:
+        title: Username
+        description: The username to use for accessing a secured MariaDB Database
+        type: string
+      password:
+        title: Password
+        description: The password to use for accessing a secured MariaDB Database
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      query:
+        title: Query
+        description: The Query to execute against the MariaDB Database
+        type: string
+        example: 'INSERT INTO accounts (username,city) VALUES (:#username,:#city)'
+      databaseName:
+        title: Database Name
+        description: The Database Name we are pointing
+        type: string
+      consumedQuery:
+        title: Consumed Query
+        description: A query to run on a tuple consumed
+        type: string
+        example: 'DELETE FROM accounts where user_id = :#user_id'
+  types:
+    in:
+      mediaType: application/json
+  dependencies:
+  - "camel:jackson"
+  - "camel:kamelet"
+  - "camel:sql"
+  - "mvn:org.apache.commons:commons-dbcp2:2.8.0"
+  flow:
+    beans:
+      - name: dsBean
+        type: "#class:org.apache.commons.dbcp2.BasicDataSource"
+        property:
+          - key: username
+            value: '{{username}}'
+          - key: password
+            value: '{{password}}'
+          - key: url
+            value: 'jdbc:mariadb://{{serverName}}:{{port}}/{{databaseName}}'
+          - key: driverClassName
+            value: 'org.mariadb.jdbc.Driver'
+    from:
+      uri: "sql:{{query}}"
+      parameters:
+        dataSource: "#bean:{{dsBean}}"
+        onConsume: "{{?consumedQuery}}"
+      steps:
+      - marshal:
+          json: 
+            library: Jackson
+      - to: "kamelet:sink"

@@ -1,0 +1,93 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: earthquake-source
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9JzEwMHB4JyB3aWR0aD0nMTAwcHgnICBmaWxsPSIjMDAwMDAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgMTAwLjAwMyA3OS45OTciIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDEwMC4wMDMgNzkuOTk3IiB4bWw6c3BhY2U9InByZXNlcnZlIj48cGF0aCBkPSJNODEuNjUzLDQyLjk0Yy0xLjM4NywwLTIuNjY2LDAuNzY3LTMuMzE1LDEuOTkyTDcyLjk0Miw1NS4xbC02LjY0OS0xOS40NzljLTAuNTA4LTEuNDcyLTEuODY1LTIuNDgtMy40MjMtMi41MzQgIGMtMS42MDItMC4wNDYtMi45ODMsMC44NTktMy41ODksMi4yOTJsLTQuNTYxLDEwLjgzNGwtNy4yLTQzLjEyOGMtMC4zMy0xLjgxMi0yLjAyOS0zLjE4OC0zLjc3LTMuMDc5ICBjLTEuODQzLDAuMDQyLTMuMzg0LDEuMjUyLTMuNjM1LDMuMDc5bC02LjM1Nyw1MC4wNTJsLTUuMTU2LTI2Ljg2NGMtMC4zMDMtMS41ODktMS41OTQtMi44MDMtMy4yMDEtMy4wMSAgYy0xLjU3Ny0wLjIxLTMuMTYyLDAuNjM1LTMuODYyLDIuMDk3bC04LjQzNSwxNy41OEgwdjcuNDk3aDE1LjQ2NmMxLjQ0MywwLDIuNzU2LTAuODI1LDMuMzgxLTIuMTI5bDQuNTM2LTkuNDVsNy4zMTIsMzguMDk4ICBjMC4zMzksMS43NzEsMS44ODcsMy4wNDEsMy42ODIsMy4wNDFjMC4wMzIsMCwwLjA2NiwwLDAuMSwwYzEuODM2LTAuMDQ5LDMuMzY3LTEuNDIxLDMuNjE2LTMuMjQxbDYuMjU5LTQ5LjE4Mmw1LjI0NywzMi4zODUgIGMwLjI5NSwxLjYzMSwxLjYzMSwyLjg3NiwzLjI3NiwzLjA1N2MxLjY3LDAuMTYxLDMuMjIzLTAuNzQyLDMuODY3LTIuMjc1bDUuNjM1LTEzLjM3NGw2LjI3LDE4LjM1OSAgYzAuNDgzLDEuNDExLDEuNzYzLDIuNDA3LDMuMjUxLDIuNTI0YzEuNDk0LDAuMDgzLDIuOTEtMC42NTksMy42MTMtMS45ODJsOC4zOTgtMTUuODNoMTYuMDk0VjQyLjk0SDgxLjY1M3oiPjwvcGF0aD48L3N2Zz4="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "Earthquake"
+  labels:
+    camel.apache.org/kamelet.type: "source"
+    camel.apache.org/kamelet.verified: "true"
+spec:
+  definition:
+    title: Earthquake Source
+    description: |-
+      Get data about current earthquake events happening in the world using the USGS API
+    type: object
+    properties:
+      period:
+        title: Period between Polls
+        description: The interval between fetches to the earthquake API in milliseconds
+        type: integer
+        default: 60000
+      lookAhead:
+        title: Look-ahead Minutes
+        description: The amount of minutes to look ahead when starting the integration afresh
+        type: integer
+        default: 120
+  types:
+    out:
+      mediaType: application/json
+  dependencies:
+    - "camel:caffeine"
+    - "camel:http"
+    - "camel:kamelet"
+    - "camel:core"
+    - "camel:jackson"
+    - "camel:jsonpath"
+    - "camel:timer"
+  flow:
+    from:
+      uri: "timer:earthquake"
+      parameters:
+        period: "{{period}}"
+      steps:
+      - set-header:
+          name: CamelCaffeineAction
+          constant: GET
+      - tod: "caffeine-cache:cache-${routeId}?key=lastUpdate"
+      - choice:
+          when:
+          - simple: "${header.CamelCaffeineActionHasResult}"
+            steps:
+            - set-property:
+                name: lastUpdate
+                simple: "${body}"
+          otherwise:
+            steps:
+            - set-property:
+                name: lastUpdate
+                simple: "${date-with-timezone:now-{{lookAhead}}m:UTC:yyyy-MM-dd'T'HH:mm:ss.SSS}"
+      - set-header:
+          name: CamelHttpMethod
+          constant: GET
+      - tod: "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&updatedafter=${exchangeProperty.lastUpdate}&orderby=time-asc"
+      - remove-header:
+          header-name: CamelHttpMethod
+      - unmarshal:
+          json: {}
+      - set-property:
+          name: generated
+          simple: "${body[metadata][generated]}"
+      - set-property:
+          name: lastUpdate
+          simple: "${date-with-timezone:exchangeProperty.generated:UTC:yyyy-MM-dd'T'HH:mm:ss.SSS}"
+      - claim-check:
+          operation: Push
+      - set-body:
+          exchange-property: lastUpdate
+      - set-header:
+          name: CamelCaffeineAction
+          constant: PUT
+      - tod: "caffeine-cache:cache-${routeId}?key=lastUpdate"
+      - claim-check:
+          operation: Pop
+      - split:
+          jsonpath: "$.features[*]"
+          steps:
+            - marshal:
+                json: {}
+            - to: "kamelet:sink"

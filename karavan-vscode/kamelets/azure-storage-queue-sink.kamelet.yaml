@@ -1,0 +1,69 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: azure-storage-queue-sink
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgOTEgODEiIGZpbGw9IiNmZmYiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjx1c2UgeGxpbms6aHJlZj0iI0EiIHg9Ii41IiB5PSIuNSIvPjxzeW1ib2wgaWQ9IkEiIG92ZXJmbG93PSJ2aXNpYmxlIj48cGF0aCBkPSJNNzAuMDUzIDM0LjYzNEg1MC41OGw5LjczNiA3LjgwNXptLTM5LjQyIDEwLjQ4OGMtLjIzOCAwLS40NzUgMC0uNzEzLS4yNDRsLTkuMDI0LTcuMzE3djExLjk1MWgyMC42NlYzNy4zMTdsLTkuNzM2IDcuNTYxYy0uNDc1LjI0NC0uOTUuMjQ0LTEuMTg3LjI0NHptMjkuNjgzIDBjLS4yMzggMC0uNzEzIDAtLjcxMy0uMjQ0bC05LjI2MS03LjMxN3YxMS45NTFoMjAuNjZWMzcuMzE3bC05LjczNiA3LjU2MWMtLjQ3NS4yNDQtLjcxMy4yNDQtLjk1LjI0NHpNNjcuNjc4IDBIMjIuNTU5TDAgNDBsMjIuNTU5IDQwSDY3LjQ0TDkwIDQwIDY3LjY3OCAwem03LjgzNiA1Ny4wNzNIMTQuMDExYy0xLjkgMC0zLjMyNS0xLjcwNy0zLjMyNS0zLjY1OVYyOS4yNjhjMC0xLjk1MSAxLjQyNS0zLjY1OCAzLjMyNS0zLjY1OGg2MS41MDRjLjcxMyAwIDEuOSAwIDkuOTc0IDE1LjYxbC4yMzcuNzMyLS4yMzcuNzMyYy04LjA3NCAxNC4zOS05LjI2MSAxNC4zOS05Ljk3NCAxNC4zOXpNNDAuMzcgMzQuNjM0SDIwLjY2bDkuNzM2IDcuODA1em0tMjYuMzU5LTYuMzQxYy0uNDc1IDAtLjk1LjQ4OC0uOTUuOTc2djI0LjE0NmMwIC40ODguNDc1IDEuMjIuOTUgMS4yMkg3NS4wNGMxLjE4OC0xLjIyIDQuNzQ5LTcuMDczIDcuODM3LTEyLjY4My0zLjA4Ny02LjA5OC02Ljg4Ni0xMi40MzktNy44MzctMTMuNjU5SDE0LjAxMXptMjkuOTIxIDIyLjQzOWMwIC43MzItLjcxMyAxLjQ2My0xLjY2MyAxLjQ2M0gxOC45OThjLS43MTMgMC0uOTUtLjczMi0uOTUtMS40NjNWMzIuOTI3YzAtLjczMi4yMzgtLjk3Ni45NS0uOTc2SDQyLjI3Yy43MTIgMCAxLjY2My4yNDQgMS42NjMuOTc2djE3LjgwNXptMjkuMjA5IDBjMCAuNzMyLS40NzUgMS40NjMtMS4xODggMS40NjNINDguOTE5Yy0uNzEyIDAtMS4xODctLjczMi0xLjE4Ny0xLjQ2M1YzMi45MjdjMC0uNzMyLjQ3NS0uOTc2IDEuMTg3LS45NzZoMjMuMDM0Yy43MTMgMCAxLjE4OC4yNDQgMS4xODguOTc2djE3LjgwNXoiIGZpbGw9IiMwMDc4ZDciIHN0cm9rZT0ibm9uZSIvPjwvc3ltYm9sPjwvc3ZnPg=="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "Azure Storage Queue"
+  labels:
+    camel.apache.org/kamelet.type: "sink"
+spec:
+  definition:
+    title: "Azure Storage Queue Sink"
+    description: |-
+      Send Messages to Azure Storage queues.
+
+      The Kamelet is able to understand the following headers to be set:
+
+      - `expiration` / `ce-expiration`: as the time to live of the message in the queue.
+
+      If the header won't be set the default of 7 days will be used.
+
+      The format should be in this form: PnDTnHnMn.nS., e.g: PT20.345S — parses as 20.345 seconds, P2D — parses as 2 days.
+    required:
+      - accountName
+      - queueName
+      - accessKey
+    type: object
+    properties:
+      accountName:
+        title: Account Name
+        description: The Azure Storage Queue account name.
+        type: string
+      queueName:
+        title: Queue Name
+        description: The Azure Storage Queue container name.
+        type: string
+      accessKey:
+        title: Access Key
+        description: The Azure Storage Queue access Key.
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+  dependencies:
+    - "camel:azure-storage-queue"
+    - "camel:kamelet"
+  flow:
+    from:
+      uri: "kamelet:source"
+      steps:
+      - choice:
+          when:
+          - simple: "${header[expiration]}"
+            steps:
+            - set-header:
+                name: CamelAzureStorageQueueTimeToLive
+                simple: "${header[expiration]}"
+          - simple: "${header[ce-expiration]}"
+            steps:
+            - set-header:
+                name: CamelAzureStorageQueueTimeToLive
+                simple: "${header[ce-expiration]}"
+      - to:
+          uri: "azure-storage-queue://{{accountName}}/{{queueName}}"
+          parameters:
+            accessKey: "{{accessKey}}"

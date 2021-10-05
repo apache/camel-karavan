@@ -1,0 +1,89 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: infinispan-source
+  labels:
+    camel.apache.org/kamelet.type: "source"
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "Infinispan"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyBpZD0iYXJ0d29yayIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMTAyNCAyMTUiPjxkZWZzPjxzdHlsZT4uY2xzLTF7ZmlsbDojMGIyNTQ1O30uY2xzLTJ7ZmlsbDojNTk5ZmM2O308L3N0eWxlPjwvZGVmcz48cmVjdCBjbGFzcz0iY2xzLTEiIHg9IjI5Ny4yNCIgeT0iMS45OCIgd2lkdGg9IjExLjkiIGhlaWdodD0iMTU4LjEyIi8+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMzk1LjI1LDY0Ljg4Yy03LjgxLTkuNDUtMTguOS0xNC4yNC0zMy0xNC4yNC0xMy43NywwLTI0LjczLDQuNzUtMzIuNjQsMTQuMTFWNTIuMzlIMzE4LjI3djEwNy43aDExLjM3Vjk0LjE4YzAtMTAsMy0xOC4wOCw4LjgyLTI0LjA1czEzLjg3LTksMjMuODItOSwxOC4xLDMuNDYsMjQuMSwxMC4yOGM1Ljc0LDYuNTEsOC42NSwxNSw4LjY1LDI1LjE4djYzLjQ5aDExLjE0Vjk5LjQzQzQwNi4xNyw4NS4xNSw0MDIuNDksNzMuNTIsMzk1LjI1LDY0Ljg4WiIvPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTQzMS43OSwyMC43YzQuMS01LjgzLDEwLTguNjcsMTcuOTMtOC42N2EzNS41LDM1LjUsMCwwLDEsNi41NC42M0w0NjguOSwxNS4xVjQuMzdMNDU4LjIzLDJhNDMuMTQsNDMuMTQsMCwwLDAtOS4xNy0xYy0xMC44MywwLTE5LjQsNC0yNS40NywxMS43NC01LjU4LDcuMDctOC40MSwxNi4yLTguNDEsMjcuMTRWMTYwLjA5aDExLjE1VjYzLjQyaDMzLjg2VjUyLjZINDI2LjMzVjQwLjg2QzQyNi4zMywzMi41Nyw0MjguMTcsMjUuNzksNDMxLjc5LDIwLjdaIi8+PHJlY3QgY2xhc3M9ImNscy0xIiB4PSI0NzMuODgiIHk9IjUyLjYiIHdpZHRoPSIxMS4zNyIgaGVpZ2h0PSIxMDcuNDkiLz48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik00NzkuNDYsMTYuNTZjLTQuOTMsMC03LjUzLDIuNjEtNy41Myw3LjU0czIuNiw3Ljc1LDcuNTMsNy43NWM1LjE0LDAsNy44Ni0yLjY4LDcuODYtNy43NVM0ODQuNiwxNi41Niw0NzkuNDYsMTYuNTZaIi8+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNTczLjMxLDY0Ljg4Yy03LjgxLTkuNDUtMTguOTEtMTQuMjQtMzMtMTQuMjQtMTMuNzYsMC0yNC43Miw0Ljc1LTMyLjY0LDE0LjEyVjUyLjM5SDQ5Ni4zM3YxMDcuN2gxMS4zNlY5NC4xOGMwLTEwLDMtMTguMDgsOC44My0yNC4wNXMxMy44Ni05LDIzLjgxLTksMTguMTEsMy40NiwyNC4xLDEwLjI5YzUuNzUsNi41MSw4LjY2LDE1LDguNjYsMjUuMTh2NjMuNDloMTEuMTRWOTkuNDNDNTg0LjIzLDg1LjE1LDU4MC41NSw3My41Miw1NzMuMzEsNjQuODhaIi8+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTAxMi4wOCw2NC44OGMtNy44MS05LjQ1LTE4LjkxLTE0LjI0LTMzLTE0LjI0LTEzLjc2LDAtMjQuNzIsNC43NS0zMi42NCwxNC4xMlY1Mi4zOUg5MzUuMXYxMDcuN2gxMS4zNlY5NC4xOGMwLTEwLDMtMTguMDgsOC44My0yNC4wNXMxMy44Ny05LDIzLjgxLTksMTguMTEsMy40NiwyNC4xLDEwLjI5YzUuNzUsNi41MSw4LjY2LDE1LDguNjYsMjUuMTh2NjMuNDlIMTAyM1Y5OS40M0MxMDIzLDg1LjE1LDEwMTkuMzIsNzMuNTIsMTAxMi4wOCw2NC44OFoiLz48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik02MDAuNzcsMTYuNTZjLTQuOTIsMC03LjUzLDIuNjEtNy41Myw3LjU0czIuNjEsNy43NSw3LjUzLDcuNzVjNS4xNCwwLDcuODYtMi42OCw3Ljg2LTcuNzVTNjA1LjkxLDE2LjU2LDYwMC43NywxNi41NloiLz48cmVjdCBjbGFzcz0iY2xzLTEiIHg9IjU5NS4yIiB5PSI1Mi42IiB3aWR0aD0iMTEuMzYiIGhlaWdodD0iMTA3LjQ5Ii8+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNjcxLjUzLDEwMi4xOGwtMjEuMjMtNmMtMTMuNjItMy44Mi0yMC41My05LjY3LTIwLjUzLTE3LjQsMC0xMC4zNSw2LjQtMTUuMzksMTkuNTgtMTUuMzlINjY4YzkuMjQsMCwxNi4yMiwyLjM0LDIwLjc3LDdsLjYxLjYyLDEwLTYtLjgtMWMtNi4wOC03LjYtMTYtMTEuNDUtMjkuNjEtMTEuNDVINjUyLjcyYy0yMi43NywwLTM0LjMxLDguNjYtMzQuMzEsMjUuNzIsMCwxMy41Nyw5LjEsMjMsMjcsMjhsMjAuMzcsNS42NGMxNS40Myw0LjI2LDIzLjI1LDExLjI1LDIzLjI1LDIwLjc3LDAsMTEuMTYtNy45LDE2LjU4LTI0LjE2LDE2LjU4aC0xNy4zYy04LjQzLDAtMTUuMTItMi41Mi0xOS44OS03LjVsLS42MS0uNjQtMTAsNiwuNzgsMWM2LjMsNy45NCwxNi4zLDEyLDI5LjczLDEyaDEwLjY2YzI4LDAsNDIuMTYtOS40NSw0Mi4xNi0yOC4xMUM3MDAuNDMsMTE3LjY0LDY5MC43MSwxMDcuNjEsNjcxLjUzLDEwMi4xOFoiLz48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik04MTMsMTM4LjQ4QTU2LjY3LDU2LjY3LDAsMCwxLDc2Ni43LDE2Myw1NS4xLDU1LjEsMCwwLDEsNzIxLDEzOS4xMmwuMDYsNzFINzA5LjQ0VjUwLjA3bDExLjE2LS44NFY3NS4xNHMxNS4zLTI0LjIxLDQ2LjEtMjQuMjEsNTYuMSwyNS42Niw1Ni4xLDUzLjIxYzAsLjQyLDAsNS4yNCwwLDUuNjRhNDQuNjMsNDQuNjMsMCwxLDAsNS0yMy4yOGwtMS4zNCwyLjU1LS43Mi0yLjc5YTQ0LjMzLDQ0LjMzLDAsMCwwLTQuNDEtMTAuMDlsLS4zNy0uNjEuMy0uNDFhNTYsNTYsMCwwLDEsOTEuNDItLjg0VjUyLjYyaDExLjgxVjE2MC4yM2wtMTEuODUsMCwwLTIwLjMzYTU2LDU2LDAsMCwxLTkzLjA4LTMuMzZjLTEtMS42NS0zLjY2LTYuODYtMy42Ni02Ljg2YTU1LjM5LDU1LjM5LDAsMCwxLTQuOC0xOS40NnYtLjA4cy4xMy00LjUxLjEzLTQuNzRhNDQuNyw0NC43LDAsMSwwLTUuMDcsMjIuMTdMODA3LjUsMTI1bC43MiwyLjc5YzEuMjEsNC42OCw0Ljc4LDEwLjcsNC43OCwxMC43Ii8+PHJlY3QgY2xhc3M9ImNscy0yIiB4PSIxIiB5PSIxIiB3aWR0aD0iMjA5LjE3IiBoZWlnaHQ9IjIwOS4xNyIvPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTExNi44MSwxMDUuNThoMGE4Miw4MiwwLDAsMC04Mi04MlY0NmE1OS42NSw1OS42NSwwLDAsMSw1OS41OSw1OS41OWgwYTgyLDgyLDAsMCwwLDgyLDgyLjA1VjE2NS4xOEE1OS42Niw1OS42NiwwLDAsMSwxMTYuODEsMTA1LjU4WiIvPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTkwLjE5LDEyNy40NmE1OS42OSw1OS42OSwwLDAsMS01NS40MiwzNy43MnYyMi40NWE4MS45Miw4MS45MiwwLDAsMCw2Ni42Ny0zNC4yNkE4OC41Miw4OC41MiwwLDAsMSw5MC4xOSwxMjcuNDZaIi8+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTIxLDgzLjcxQTU5LjY5LDU5LjY5LDAsMCwxLDE3Ni40LDQ2VjIzLjU0QTgxLjkyLDgxLjkyLDAsMCwwLDEwOS43Myw1Ny44LDg4LjUyLDg4LjUyLDAsMCwxLDEyMSw4My43MVoiLz48L3N2Zz4="
+spec:
+  sources:
+    - content: |-
+        public class InfinispanWorkaround extends org.apache.camel.builder.RouteBuilder {
+          @Override
+          public void configure() throws Exception {
+            getContext().setAutowiredEnabled(false);
+          }
+        }
+      name: InfinispanWorkaround.java
+  definition:
+    title: "Infinispan Source"
+    description: |-
+      Get Events from an Infinispan cache
+    required:
+      - hosts
+      - username
+      - password
+      - hosts
+    type: object
+    properties:
+      hosts:
+        title: Hosts
+        description: Specifies the host of the cache on Infinispan instance
+        type: String
+      secure:
+        title: Secure
+        description: If the Infinispan instance is secured or not
+        type: boolean
+        default: true
+        x-descriptors:
+        - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+      username:
+        title: Username
+        description: Username to connect to Infinispan.
+        type: string
+      password:
+        title: Password
+        description: Password to connect to Infinispan.
+        type: string
+      saslMechanism:
+        title: SASL Mechanism
+        description: The SASL Mechanism to use
+        type: String
+        default: "DIGEST-MD5"
+      securityRealm:
+        title: Security Realm
+        description: Define the security realm to access the infinispan instance
+        type: string
+        default: "default"
+      securityServerName:
+        title: Security Server name
+        description: Define the security server name to access the infinispan instance
+        type: string
+        default: "infinispan"
+      eventTypes:
+        title: Infinispan Cluster Name
+        description: Specifies the set of event types to register by the consumer.Multiple event can be separated by comma. The possible event types are CLIENT_CACHE_ENTRY_CREATED, CLIENT_CACHE_ENTRY_MODIFIED, CLIENT_CACHE_ENTRY_REMOVED, CLIENT_CACHE_ENTRY_EXPIRED, CLIENT_CACHE_FAILOVER
+        type: string
+  dependencies:
+    - "mvn:org.apache.camel.k:camel-k-kamelet-reify"
+    - "camel:kamelet"
+    - "camel:infinispan"
+  flow:
+    from:
+      uri: "kamelet-reify:infinispan:{{cacheName}}"
+      parameters:
+        hosts: "{{hosts}}"
+        secure: "{{secure}}"
+        username: "{{username}}"
+        password: "{{password}}"
+        saslMechanism: "{{saslMechanism}}"
+        securityRealm: "{{securityRealm}}"
+        securityServerName: "{{securityServerName}}"
+        eventTypes: "{{eventTypes}}"
+      steps:
+        - to: kamelet:sink

@@ -1,0 +1,102 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: mongodb-sink
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgMzEgNjciIGZpbGw9IiNmZmYiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjx1c2UgeGxpbms6aHJlZj0iI0EiIHg9IjEiIHk9IjEiLz48c3ltYm9sIGlkPSJBIiBvdmVyZmxvdz0idmlzaWJsZSI+PGcgc3Ryb2tlPSJub25lIiBmaWxsLXJ1bGU9Im5vbnplcm8iPjxwYXRoIGQ9Ik0xNC4xNzQuMTc1bDEuNzA4IDMuMjA4Yy4zNzEuNTc5LjgwNCAxLjExNyAxLjI5IDEuNjA0IDEuNDMgMS40MyAyLjc4OCAyLjkyOCA0LjAwOCA0LjUzMiAyLjg5NCAzLjggNC44NDYgOCA2LjI0IDEyLjU4NGEzMC45NCAzMC45NCAwIDAgMSAxLjMyNCA4LjU0Yy4xNCA4LjY0Ni0yLjgyNCAxNi4wNy04LjggMjIuMjQtLjk3Mi45NzgtMi4wMjIgMS44NzYtMy4xNCAyLjY4NC0uNTkyIDAtLjg3Mi0uNDU0LTEuMTE2LS44NzItLjQ1NC0uNzY2LS43MzItMS42NC0uODcyLTIuNTEtLjIxLTEuMDQ2LS4zNDgtMi4wOTItLjI4LTMuMTcydi0uNDg4Yy0uMDQ4LS4xMjQtLjU3LTQ4LjEyNC0uMzYyLTQ4LjM1eiIgZmlsbD0iIzU5OTYzNiIvPjxwYXRoIGQ9Ik0xNC4xNzQuMDY5Yy0uMDctLjE0LS4xNC0uMDM0LS4yMS4wMzQuMDM0LjctLjIxIDEuMzI0LS41OTIgMS45Mi0uNC41OTItLjk3NiAxLjA0Ni0xLjUzNCAxLjUzNC0zLjEgMi42ODQtNS41NCA1LjkyNi03LjQ5NCA5LjU1Mi0yLjYgNC44OC0zLjk0IDEwLjExLTQuMzIgMTUuNjE2LS4xNzQgMS45ODYuNjI4IDguOTk0IDEuMjU0IDExLjAxNiAxLjcwOCA1LjM2OCA0Ljc3NiA5Ljg2NiA4Ljc1IDEzLjc3YTM1LjA4IDM1LjA4IDAgMCAwIDMuMSAyLjY1Yy4zMTQgMCAuMzQ4LS4yOC40LS40ODhhOS41NyA5LjU3IDAgMCAwIC4zMTQtMS4zNmwuNy01LjIyOEwxNC4xNzQuMDY5eiIgZmlsbD0iIzZjYWM0OCIvPjxwYXRoIGQ9Ik0xNS44ODIgNTcuNjkxYy4wNy0uOC40NTQtMS40NjQuODcyLTIuMTI2LS40LS4xNzQtLjczMi0uNTItLjk3Ni0uOTA2YTYuNDcgNi40NyAwIDAgMS0uNTItMS4xNWMtLjQ4OC0xLjQ2NC0uNTkyLTMtLjczMi00LjQ5NnYtLjkwNmMtLjE3NC4xNC0uMjEgMS4zMjQtLjIxIDEuNS0uMTAyIDEuNTgxLS4zMTIgMy4xNTQtLjYyOCA0LjcwNi0uMTA0LjYyOC0uMTc0IDEuMjU0LS41NiAxLjgxMiAwIC4wNyAwIC4xNC4wMzQuMjQ0LjYyOCAxLjg0OC44IDMuNzMuOTA2IDUuNjQ4di43YzAgLjgzNi0uMDM0LjY2LjY2Ljk0LjI4LjEwNC41OTIuMTQuODcyLjM0OC4yMSAwIC4yNDQtLjE3NC4yNDQtLjMxNGwtLjEwNC0xLjE1di0zLjIwOGMtLjAzNC0uNTYuMDctMS4xMTYuMTQtMS42NHoiIGZpbGw9IiNjMmJmYmYiLz48L2c+PC9zeW1ib2w+PC9zdmc+"
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "MongoDB"
+  labels:
+    camel.apache.org/kamelet.type: "sink"
+spec:
+  definition:
+    title: "MongoDB Sink"
+    description: |-
+      Send documents to MongoDB.
+
+      This Kamelet expects a JSON as body.
+
+      Properties you can as headers:
+
+      `db-upsert` / `ce-db-upsert` If the database should create the element if it does not exist. Boolean value.
+    required:
+      - hosts
+      - collection
+      - password
+      - username
+      - database
+    type: object
+    properties:
+      hosts:
+        title: MongoDB Hosts
+        description: Comma separated list of MongoDB Host Addresses in host:port format.
+        type: string
+      collection:
+        title: MongoDB Collection
+        description: Sets the name of the MongoDB collection to bind to this endpoint.
+        type: string
+      password:
+        title: MongoDB Password
+        description: User password for accessing MongoDB.
+        type: string
+        format: password
+        x-descriptors:
+          - urn:alm:descriptor:com.tectonic.ui:password
+      username:
+        title: MongoDB Username
+        description: Username for accessing MongoDB.
+        type: string
+      database:
+        title: MongoDB Database
+        description: Sets the name of the MongoDB database to target.
+        type: string
+      writeConcern:
+        title: Write Concern
+        description: Configure the level of acknowledgment requested from MongoDB for write operations, possible values are ACKNOWLEDGED, W1, W2, W3, UNACKNOWLEDGED, JOURNALED, MAJORITY.
+        type: string
+      createCollection:
+        title: Collection
+        description: Create collection during initialisation if it doesn't exist.
+        type: boolean
+        default: false
+        x-descriptors:
+        - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+  types:
+    in:
+      mediaType: application/json
+  dependencies:
+    - "camel:kamelet"
+    - "camel:mongodb"
+    - "camel:jackson"
+  flow:
+    beans:
+      - name: local-mongodb
+        type: "#class:org.apache.camel.component.mongodb.MongoDbComponent"
+    from:
+      uri: kamelet:source
+      steps:
+      - choice:
+          when:
+          - simple: "${header[db-upsert]}"
+            steps:
+            - set-header:
+                name: CamelMongoDbUpsert
+                simple: "${header[db-upsert]}"
+          - simple: "${header[ce-db-upsert]}"
+            steps:
+            - set-header:
+                name: CamelMongoDbUpsert
+                simple: "${header[ce-db-upsert]}"
+      - to: 
+          uri: "{{local-mongodb}}:test"
+          parameters:
+            createCollection: "{{?createCollection}}"
+            writeConcern: "{{?writeConcern}}"
+            hosts: "{{hosts}}"
+            collection: "{{collection}}"
+            password: "{{password}}"
+            username: "{{username}}"
+            database: "{{database}}"
+            operation: "insert"

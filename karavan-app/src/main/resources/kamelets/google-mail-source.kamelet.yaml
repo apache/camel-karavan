@@ -1,0 +1,109 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: google-mail-source
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjUyIDQyIDg4IDY2Ij4KPHBhdGggZmlsbD0iIzQyODVmNCIgZD0iTTU4IDEwOGgxNFY3NEw1MiA1OXY0M2MwIDMuMzIgMi42OSA2IDYgNiIvPgo8cGF0aCBmaWxsPSIjMzRhODUzIiBkPSJNMTIwIDEwOGgxNGMzLjMyIDAgNi0yLjY5IDYtNlY1OWwtMjAgMTUiLz4KPHBhdGggZmlsbD0iI2ZiYmMwNCIgZD0iTTEyMCA0OHYyNmwyMC0xNXYtOGMwLTcuNDItOC40Ny0xMS42NS0xNC40LTcuMiIvPgo8cGF0aCBmaWxsPSIjZWE0MzM1IiBkPSJNNzIgNzRWNDhsMjQgMTggMjQtMTh2MjZMOTYgOTIiLz4KPHBhdGggZmlsbD0iI2M1MjIxZiIgZD0iTTUyIDUxdjhsMjAgMTVWNDhsLTUuNi00LjJjLTUuOTQtNC40NS0xNC40LS4yMi0xNC40IDcuMiIvPgo8L3N2Zz4="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "Google Mail"
+  labels:
+    camel.apache.org/kamelet.type: "source"
+spec:
+  definition:
+    title: "Google Mail Source"
+    description: |-
+      Receive data from Google Mail.
+    required:
+      - index
+      - clientId
+      - accessToken
+      - refreshToken
+      - clientSecret
+      - applicationName
+    type: object
+    properties:
+      index:
+        title: Index
+        description: An index for the google mail endpoint
+        type: string
+      clientId:
+        title: Client ID
+        description: Client ID of the gmail application
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      clientSecret:
+        title: Client Secret
+        description: Client Secret of the gmail application
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      accessToken:
+        title: Access Token
+        description: OAuth 2 access token for google mail application. This typically expires after an hour so refreshToken is recommended for long term usage.
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      refreshToken:
+        title: Refresh Token
+        description: OAuth 2 refresh token for google mail application. Using this, the Google Calendar component can obtain a new accessToken whenever the current one expires - a necessity if the application is long-lived.
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      delay:
+        title: Delay
+        description: Milliseconds before the next poll
+        type: integer
+        default: 500
+      applicationName:
+        title: Application name
+        description: Google Mail application name
+        type: string
+      markAsRead:
+        title: Mark as Read
+        description: Mark the message as read once it has been consumed
+        type: boolean
+        x-descriptors:
+        - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: true
+      labels:
+        title: Gmail Labels
+        description: Comma separated list of labels to take into account
+        type: string
+        example: "inbox"
+      query:
+        title: Gmail Query
+        description: The query to execute on gmail box
+        type: string
+        example: "is:unread -category:(promotions OR social)"
+        default: "is:unread"
+  types:
+    out:
+      mediaType: application/json
+  dependencies:
+  - "camel:jackson"
+  - "camel:kamelet"
+  - "camel:google-mail"
+  flow:
+    from:
+      uri: "google-mail-stream://{{index}}"
+      parameters:
+        clientId: "{{clientId}}"
+        accessToken: "{{accessToken}}"
+        refreshToken: "{{refreshToken}}"
+        clientSecret: "{{clientSecret}}"
+        delay: "{{delay}}"
+        applicationName: "{{applicationName}}"
+        markAsRead: "{{markAsRead}}"
+        labels: "{{labels}}"
+        query: "{{query}}"
+      steps:
+      - marshal:
+          json: {}
+      - to: "kamelet:sink"

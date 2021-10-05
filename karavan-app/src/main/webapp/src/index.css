@@ -1,0 +1,42 @@
+:root {
+  --pf-global--primary-color--100: var(--pf-global--palette--orange-300) !important;
+  --pf-global--primary-color--200: var(--pf-global--palette--orange-300) !important;
+  --pf-global--primary-color--light-100: var(--pf-global--palette--orange-300) !important;
+  --pf-global--primary-color--dark-100: var(--pf-global--palette--orange-300) !important;
+
+  --pf-global--link--Color: var(--pf-global--palette--orange-300) !important;
+  --pf-global--link--Color--hover: var(--pf-global--palette--orange-500) !important;
+  --pf-global--link--Color--light: var(--pf-global--palette--orange-100) !important;
+  --pf-global--link--Color--light--hover: var(--pf-global--palette--orange-300) !important;
+  --pf-global--link--Color--dark: var(--pf-global--palette--orange-600) !important;
+  --pf-global--link--Color--dark--hover: var(--pf-global--palette--orange-900) !important;
+
+  --pf-global--active-color--100: var(--pf-global--palette--orange-100) !important;
+  --pf-global--active-color--200: var(--pf-global--palette--orange-200) !important;
+  --pf-global--active-color--300: var(--pf-global--palette--orange-300) !important;
+  --pf-global--active-color--400: var(--pf-global--palette--orange-400) !important;
+
+}
+
+#root {
+  margin: 0;
+  height: 100%;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  display: flex;
+}
+
+.logo  .pf-c-brand {
+  height: 30px;
+  margin-right: 10px;
+}
+
+.logo .pf-c-title {
+  color: #e97826;
+}

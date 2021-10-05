@@ -1,0 +1,14 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app: karavan
+    app.kubernetes.io/part-of: karavan
+  name: karavan
+spec:
+  port:
+    targetPort: 8080-tcp
+  to:
+    kind: Service
+    name: karavan
+    weight: 100

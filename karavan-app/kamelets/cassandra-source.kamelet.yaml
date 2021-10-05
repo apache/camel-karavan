@@ -1,0 +1,86 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: cassandra-source
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDIyLjEuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAzMiAzMiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMzIgMzI7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPHRpdGxlPmNhc3NhbmRyYTwvdGl0bGU+CjxwYXRoIGQ9Ik0yMy4zLDguN2MwLDAtMC4zLDAuMy0wLjUsMC41Yy0wLjUsMC41LTEuMiwxLjMtMS43LDEuNWgwYy0wLjEsMC0wLjEsMC0wLjItMC4xbDAuOS0xLjlsMCwwYzAsMC4xLTEsMS45LTIuMiwxLjZsMCwwCgljMCwwLDAsMC0wLjEsMGMwLjYtMC44LDAuOC0xLjUsMC44LTEuNXMtMSwxLjYtMi4zLDEuMmMwLDAtMC4xLDAtMC4xLTAuMWMwLDAsMC0wLjEsMC0wLjFjMC0wLjEsMC4xLTAuMSwwLjEtMC4yCgljMC4xLTAuMiwwLjMtMC41LDAuMy0wLjVTMTguMyw5LjUsMTgsOS43bDAsMGMtMC4yLDAuMS0wLjUsMC4zLTAuNywwLjNjLTAuMSwwLTAuMSwwLTAuMiwwYy0wLjMtMC4xLTAuMy0wLjMtMC4yLTAuNgoJYzAuMS0wLjMsMC4yLTAuNSwwLjItMC41cy0wLjMsMC40LTAuNSwwLjhjLTAuMiwwLjMtMC40LDAuNS0wLjYsMC42bC0wLjIsMGMtMC4xLTAuMiwwLjEtMSwwLjEtMWMtMC4xLDAuMi0wLjMsMC40LTAuNCwwLjYKCWMtMC4xLDAuMi0wLjMsMC4zLTAuNSwwLjRoMGMtMC4xLDAtMC4yLDAtMC4zLDBjMCwwLTAuMS0wLjEtMC4xLTAuMmMtMC4xLTAuNCwwLjItMSwwLjItMWMwLDAtMC4xLDAuMy0wLjMsMC43djAKCWMwLDAuMS0wLjEsMC4yLTAuMSwwLjJjLTAuMSwwLjItMC4yLDAuMy0wLjMsMC4zYy0wLjItMC4xLTAuMy0wLjMtMC4zLTAuNWMtMC4xLTAuMi0wLjEtMC40LTAuMS0wLjRzMCwwLjMtMC4yLDAuNwoJYzAsMC4xLTAuMSwwLjItMC4yLDAuM2MwLDAtMC4xLDAuMS0wLjEsMC4xYy0xLjIsMC4yLTIuNCwwLjYtMy41LDFjLTAuMywwLjEtMC42LDAuMi0wLjksMC4zYy0xLDAuNC0yLDEtMy4xLDEuNwoJYy0xLjIsMC44LTIuMywxLjYtMy40LDIuNmMtMC42LDAuNS0xLjIsMS4xLTEuOCwxLjdjNC43LTIuNiw2LjYtNi4zLDE1LjUtNi43YzYuNy0wLjMsOS45LDIuOCwxMC45LDIuOWMyLjYsMC4xLDQuMy0xLjksNC45LTIuNgoJYzAuMS0wLjIsMC4yLTAuMywwLjItMC4zYzAsMC0wLjQsMC41LTEsMWwwLDBjLTAuNiwwLjUtMS40LDAuOS0yLjEsMC44aDBjLTAuMSwwLTAuMiwwLTAuMywwYzEtMC42LDEuNi0xLjYsMi0yLjEKCWMwLjEtMC4yLDAuMy0wLjUsMC4zLTAuNXMtMi4zLDIuNC00LjEsMi4yYy0wLjEsMC0wLjEsMC0wLjIsMGMwLjgtMC42LDEuMy0xLjQsMS43LTIuMXYwaDBjMC40LTAuNywwLjYtMS4zLDAuNi0xLjMKCWMwLDAtMC40LDAuNy0xLDEuNGwwLDBjLTAuNiwwLjctMS4zLDEuNS0yLDEuN2MtMC4xLDAtMC4yLDAuMS0wLjMsMC4xYzEuNC0xLjMsMi4xLTMuMSwyLjEtMy4xcy0xLjUsMi4xLTIuNywyLjUKCWMtMC4xLDAtMC4yLDAuMS0wLjIsMC4xYzAuOC0wLjcsMS4yLTEuMiwxLjQtMS43YzAuMy0wLjUsMC40LTAuOSwwLjQtMC45bDAsMGMtMC4xLDAuMi0wLjIsMC4zLTAuNCwwLjRsMCwwYy0wLjMsMC40LTAuOSwxLTEuNCwxLjQKCWwwLDBjLTAuMSwwLjEtMC4zLDAuMi0wLjQsMC4zYzAsMC0wLjEsMC4xLTAuMSwwLjFjLTAuMSwwLjEtMC4yLDAuMS0wLjQsMC4yYzAsMC0wLjEsMC0wLjEsMGMtMC4xLTAuMS0wLjItMC4xLTAuMy0wLjIKCWMtMC4xLDAuMS0wLjEsMC4yLTAuMiwwLjJoMGMwLDAtMC4xLDAtMC4xLDBjMS4xLTEuMiwxLjktMi44LDEuOS0yLjhsMCwwYzAsMC0xLjYsMi4xLTIuMywyLjNjLTAuMSwwLTAuMi0wLjEtMC4zLTAuMQoJYzAtMC4xLDAtMC4xLDAuMS0wLjJjMC4yLTAuNCwwLjYtMSwwLjYtMXMtMC4xLDAuMS0wLjIsMC4xYy0wLjEsMC4xLTAuMywwLjItMC40LDAuM2MtMC4xLDAuMS0wLjIsMC4xLTAuMiwwLjEKCWMtMC4xLDAuMS0wLjIsMC4xLTAuMywwLjFjLTAuMSwwLjEtMC4yLDAuMS0wLjMsMC4xYy0wLjEsMC0wLjEsMC0wLjEsMEMyMi4zLDEwLjUsMjMuMyw4LjcsMjMuMyw4LjdMMjMuMyw4Ljd6IE0xNywxMS42CgljLTAuNCwwLTAuOCwwLTEuMiwwYy0wLjQsMC0wLjcsMC0xLjEsMC4xYy0wLjQsMC4yLTAuNywwLjQtMSwwLjZjMCwwLjEsMCwwLjEsMCwwLjJjMCwwLjEsMCwwLjItMC4xLDAuMmwxLjIsMC45bDAsMGwtMC41LTEuNwoJbDAuOCwxLjVjMCwwLDAuMSwwLDAuMSwwbDAtMS42bDAuNSwxLjZsMC42LTEuNWwwLDEuN2MwLDAsMCwwLDAsMGwwLjktMS4zbC0wLjUsMS42bDAsMGwxLjQtMC45bC0xLDEuNHYwbDEuMy0wLjVjMCwwLDAsMCwwLjEtMC4xCgljLTAuMy0wLjQsMC0wLjksMC41LTAuOGMwLjItMC4zLDAuMy0wLjcsMC40LTFDMTguNiwxMS43LDE3LjgsMTEuNiwxNywxMS42TDE3LDExLjZ6IE0xMy42LDExLjhMMTMuNiwxMS44Yy0wLjQsMC0wLjgsMC4xLTEuMiwwLjIKCXMtMC44LDAuMS0xLjEsMC4yaDBjMC4yLDAuNSwwLjQsMSwwLjcsMS40YzAuMS0wLjMsMC4zLTAuNiwwLjUtMC45Yy0wLjItMC41LDAuMy0wLjksMC44LTAuN0MxMy40LDExLjksMTMuNSwxMS44LDEzLjYsMTEuOAoJTDEzLjYsMTEuOHogTTE5LjYsMTEuOWMwLDAuNC0wLjEsMC43LTAuMiwxLjFjMC40LDAuMywwLjEsMS0wLjQsMC45Yy0wLjIsMC4zLTAuNSwwLjYtMC43LDAuOGwwLjksMGwtMS4zLDAuM2MwLDAtMC4xLDAuMS0wLjEsMC4xCgljMC44LDAuMSwxLjUsMC40LDIuMSwwLjljMC40LTAuOCwwLjctMS42LDAuNy0yLjZDMjAuNCwxMi44LDIwLDEyLjMsMTkuNiwxMS45TDE5LjYsMTEuOXogTTExLjEsMTIuMmMtMC40LDAuMS0wLjgsMC4yLTEuMSwwLjMKCWMtMC4yLDAuMy0wLjMsMC43LTAuMywxYzAsMi4yLDEuMyw0LDMuMSw0LjlsMCwwYy0wLjMtMC4zLTAuNi0wLjctMC44LTEuMWMtMC45LDAuMS0xLjItMS4xLTAuNC0xLjRjLTAuMS0wLjYsMC0xLjMsMC4yLTEuOQoJQzExLjUsMTMuNSwxMS4yLDEyLjksMTEuMSwxMi4yTDExLjEsMTIuMnogTTIxLjMsMTIuMmMwLjIsMC41LDAuMywxLjEsMC4zLDEuN2MwLDMuMy0yLjksNS45LTYuNiw1LjljLTMuNiwwLTYuNi0yLjYtNi42LTUuOQoJYzAtMC4zLDAtMC42LDAuMS0wLjljLTEsMC40LTEuOSwwLjktMi44LDEuNWMtMC4zLDAuNS0wLjQsMS4xLTAuNCwxLjZjMC4xLDEuMywxLjMsMi40LDMsMy4ybC0wLjMtMC4xYy0zLjEtMC45LTUuNSwwLjctOC4xLTAuNwoJYzAuNiwwLjUsMS4zLDEsMy4zLDFjMC43LDAsMi45LTAuMSwzLjMsMC4yYzAuNCwwLjMtMS40LDItMS40LDJzMy0yLjUsMy4zLTEuN2MwLjIsMC41LTAuOSwyLTAuOSwyczEtMS40LDEuOC0xLjcKCWMwLjUtMC4yLDEtMC4yLDEuNCwwLjRjMC4yLDAuMy0xLjIsMi4xLTEuMiwyLjFzMi0xLjksMi4zLTEuOGMwLjQsMC4xLDAsMS44LDAsMS44czAuNy0xLjcsMS4xLTEuOWMwLjUtMC4yLTEuMiw0LTEuMiw0CglzMi4xLTMuOSwyLjUtNGMwLjctMC4yLDEuMSwyLjcsMS4xLDIuN3MtMC4zLTIuNSwwLTIuN2MyLjMtMSwxLDQuMywxLDQuM3MxLjUtMy42LDAuNi00LjRjMi40LDEuNiwyLjEsNC40LDIuMSw0LjRzMC42LTEuNC0xLjEtNC43CgljMSwwLDIuNCwyLjUsMi40LDIuNXMtMS42LTIuOC0wLjUtMi44YzIuMS0wLjEsMi4zLDMuNywyLjMsMy43czAuNi0wLjUtMS4xLTQuMmMxLjEtMC43LDMuNywzLjQsMy43LDMuNHMtMi40LTQtMi00LjMKCWMwLjQtMC4zLDEuOCwxLjMsMS44LDEuM3MtMS4xLTEuNS0wLjgtMS42YzAuMy0wLjIsMy4yLDIuOSwzLjIsMi45cy0yLjUtMy0yLjEtMy40YzAuNC0wLjQsMi4zLDEsMi4zLDFzLTIuOC0xLjktMi4zLTIuMgoJYzAuOC0wLjQsMywxLDMsMXMtMS4zLTEuMS0xLjEtMS40YzAuMi0wLjMsMi44LDEuNywyLjgsMS43cy0yLjMtMS44LTIuNC0yLjNjLTAuMS0wLjUsMS44LDAuMiwxLjgsMC4ycy0yLjEtMS0yLjItMS4zCgljMC0wLjMsMS40LDAuMywxLjQsMC4zcy0yLTEuNi0yLjUtMC4zYy0wLjEsMC4yLTAuMiwwLjQtMC40LDAuNmMwLjEtMC40LDAuMi0wLjcsMC4xLTEuMWMwLTAuMSwwLTAuMi0wLjEtMC40CglDMjQuNiwxMy41LDIzLjIsMTIuOCwyMS4zLDEyLjJMMjEuMywxMi4yeiBNMTMuNSwxMi44Yy0wLjEsMC4yLTAuNCwwLjMtMC43LDAuMmMtMC4xLDAuMS0wLjEsMC4yLTAuMiwwLjNsMS43LDAuNmMwLDAsMCwwLDAtMC4xCglMMTMuNSwxMi44eiBNMTIuNywxMy40Yy0wLjEsMC4yLTAuMiwwLjQtMC4zLDAuN2MwLjIsMC4yLDAuMywwLjMsMC41LDAuNWwxLjIsMGwwLDBMMTIuNywxMy40eiBNMTguMiwxNC4xbC0wLjgsMC42bDAuMSwwCglDMTcuOCwxNC41LDE4LDE0LjMsMTguMiwxNC4xeiBNMTIuMiwxNC41QzEyLjIsMTQuNSwxMi4yLDE0LjUsMTIuMiwxNC41Yy0wLjEsMC41LTAuMSwwLjktMC4xLDEuM2MwLjMsMC4xLDAuNiwwLjMsMC42LDAuNmwxLjItMC44CgljLTAuMSwwLTAuMi0wLjEtMC4zLTAuMWwtMS40LTAuMWwwLjgtMC4yQzEyLjgsMTUsMTIuNSwxNC44LDEyLjIsMTQuNUwxMi4yLDE0LjV6IE0xMy4zLDE0LjhjMC4yLDAuMSwwLjQsMC4yLDAuNiwwLjNsMC4yLDAKCWMwLDAsMCwwLDAtMC4xTDEzLjMsMTQuOHogTTE3LjQsMTUuN2wxLjIsMS4yTDE3LDE2LjJsMC45LDEuNGwtMS40LTEuMWwwLDBsMC41LDEuN2wtMC44LTEuNWwtMC4xLDEuOGwtMC41LTEuOGwtMC42LDEuN2wwLjItMS44CglsMCwwTDE0LDE4LjJsMC40LTEuNWMtMC41LDAuNC0wLjgsMS0xLjEsMS42YzAuMSwwLjEsMC4zLDAuMywwLjQsMC40YzIuMiwwLjYsNC42LTAuMyw1LjgtMi4zYy0wLjUtMC4zLTEuMS0wLjYtMS43LTAuN0wxNy40LDE1Ljd6CgkgTTE0LjIsMTZsLTEuNCwwLjVjMCwwLDAsMCwwLDAuMWMwLDAuMi0wLjEsMC40LTAuMiwwLjZjMC4xLDAuMywwLjMsMC42LDAuNSwwLjhjMC4xLTAuMywwLjMtMC42LDAuNC0wLjhMMTMsMTcuNEwxNC4yLDE2egoJIE0xOSwxOS43Yy0wLjIsMC4xLTAuNSwwLjEtMC44LDAuMkMxOC41LDE5LjgsMTguOCwxOS43LDE5LDE5Ljd6IE0xNy42LDIwYy0wLjIsMC0wLjMsMC4xLTAuNSwwLjFjLTAuMywwLTAuNSwwLjEtMC44LDAuMQoJQzE2LjgsMjAuMSwxNy4yLDIwLjEsMTcuNiwyMEwxNy42LDIweiBNMTUuOCwyMC4yYy0wLjEsMC0wLjMsMC0wLjQsMEMxNS41LDIwLjIsMTUuNiwyMC4yLDE1LjgsMjAuMnoiLz4KPC9zdmc+Cg=="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "Cassandra"
+  labels:
+    camel.apache.org/kamelet.type: "source"
+spec:
+  definition:
+    title: "Cassandra Source"
+    description: |-
+      Query a Cassandra cluster table.
+    required:
+      - host
+      - port
+      - keyspace
+      - username
+      - password
+      - query
+    type: object
+    properties:
+      host:
+        title: Host
+        description: Hostname(s) cassandra server(s). Multiple hosts can be separated by comma.
+        type: string
+        example: localhost
+      port:
+        title: Port
+        description: Port number of cassandra server(s)
+        type: string
+        example: 9042
+      keyspace:
+        title: Keyspace 
+        description: Keyspace to use
+        type: string
+        example: customers
+      username:
+        title: Username
+        description: The username to use for accessing a secured Cassandra Cluster
+        type: string
+      password:
+        title: Password
+        description: The password to use for accessing a secured Cassandra Cluster
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      resultStrategy:
+        title: Result Strategy
+        description: The strategy to convert the result set of the query. Possible values are ALL, ONE, LIMIT_10, LIMIT_100...
+        type: string
+        default: ALL
+      consistencyLevel:
+        title: Consistency Level
+        description: Consistency level to use. The value can be one of ANY, ONE, TWO, THREE, QUORUM, ALL, LOCAL_QUORUM, EACH_QUORUM, SERIAL, LOCAL_SERIAL, LOCAL_ONE
+        type: string
+        default: ANY
+      query:
+        title: Query
+        description: The query to execute against the Cassandra cluster table
+        type: string
+  types:
+    out:
+      mediaType: application/json
+  dependencies:
+  - "camel:jackson"
+  - "camel:kamelet"
+  - "camel:cassandraql"
+  flow:
+    from:
+      uri: "cql://{{host}}:{{port}}/{{keyspace}}"
+      parameters:
+        username: "{{username}}"
+        password: "{{password}}"
+        cql: "{{query}}"
+        consistencyLevel: "{{consistencyLevel}}"
+        resultSetConversionStrategy: "{{resultStrategy}}"
+      steps:
+      - marshal:
+          json: {}
+      - to: "kamelet:sink"

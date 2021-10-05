@@ -1,0 +1,110 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: google-calendar-source
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjE4NiAzOCA3NiA3NiI+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTI0NCA1NmgtNDB2NDBoNDBWNTZ6Ii8+PHBhdGggZmlsbD0iI0VBNDMzNSIgZD0iTTI0NCAxMTRsMTgtMThoLTE4djE4eiIvPjxwYXRoIGZpbGw9IiNGQkJDMDQiIGQ9Ik0yNjIgNTZoLTE4djQwaDE4VjU2eiIvPjxwYXRoIGZpbGw9IiMzNEE4NTMiIGQ9Ik0yNDQgOTZoLTQwdjE4aDQwVjk2eiIvPjxwYXRoIGZpbGw9IiMxODgwMzgiIGQ9Ik0xODYgOTZ2MTJjMCAzLjMxNSAyLjY4NSA2IDYgNmgxMlY5NmgtMTh6Ii8+PHBhdGggZmlsbD0iIzE5NjdEMiIgZD0iTTI2MiA1NlY0NGMwLTMuMzE1LTIuNjg1LTYtNi02aC0xMnYxOGgxOHoiLz48cGF0aCBmaWxsPSIjNDI4NUY0IiBkPSJNMjQ0IDM4aC01MmMtMy4zMTUgMCAtNiAyLjY4NS02IDZ2NTJoMThWNTZoNDBWMzh6Ii8+PHBhdGggZmlsbD0iIzQyODVGNCIgZD0iTTIxMi4yMDUgODcuMDNjLTEuNDk1LTEuMDEtMi41My0yLjQ4NS0zLjA5NS00LjQzNWwzLjQ3LTEuNDNjLjMxNSAxLjIuODY1IDIuMTMgMS42NSAyLjc5Ljc4LjY2IDEuNzMuOTg1IDIuODQuOTg1IDEuMTM1IDAgMi4xMS0uMzQ1IDIuOTI1LTEuMDM1czEuMjI1LTEuNTcgMS4yMjUtMi42MzVjMC0xLjA5LS40My0xLjk4LTEuMjktMi42Ny0uODYtLjY5LTEuOTQtMS4wMzUtMy4yMy0xLjAzNWgtMi4wMDVWNzQuMTNoMS44YzEuMTEgMCAyLjA0NS0uMyAyLjgwNS0uOS43Ni0uNiAxLjE0LTEuNDIgMS4xNC0yLjQ2NSAwIC0uOTMtLjM0LTEuNjctMS4wMi0yLjIyNS0uNjgtLjU1NS0xLjU0LS44MzUtMi41ODUtLjgzNS0xLjAyIDAgLTEuODMuMjctMi40My44MTVhNC43ODQgNC43ODQgMCAwIDAgLTEuMzEgMi4wMDVsLTMuNDM1LTEuNDNjLjQ1NS0xLjI5IDEuMjktMi40MyAyLjUxNS0zLjQxNSAxLjIyNS0uOTg1IDIuNzktMS40OCA0LjY5LTEuNDggMS40MDUgMCAyLjY3LjI3IDMuNzkuODE1IDEuMTIuNTQ1IDIgMS4zIDIuNjM1IDIuMjYuNjM1Ljk2NS45NSAyLjA0NS45NSAzLjI0NSAwIDEuMjI1LS4yOTUgMi4yNi0uODg1IDMuMTEtLjU5Ljg1LTEuMzE1IDEuNS0yLjE3NSAxLjk1NXYuMjA1YTYuNjA1IDYuNjA1IDAgMCAxIDIuNzkgMi4xNzVjLjcyNS45NzUgMS4wOSAyLjE0IDEuMDkgMy41IDAgMS4zNi0uMzQ1IDIuNTc1LTEuMDM1IDMuNjRzLTEuNjQ1IDEuOTA1LTIuODU1IDIuNTE1Yy0xLjIxNS42MS0yLjU4LjkyLTQuMDk1LjkyLTEuNzU1LjAwNS0zLjM3NS0uNS00Ljg3LTEuNTF6TTIzMy41MiA2OS44MWwtMy44MSAyLjc1NS0xLjkwNS0yLjg5IDYuODM1LTQuOTNoMi42MlY4OGgtMy43NFY2OS44MXoiLz48L3N2Zz4="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "Google Calendar"
+  labels:
+    camel.apache.org/kamelet.type: "source"
+spec:
+  definition:
+    title: "Google Calendar Source"
+    description: |-
+      Receive data from Google Calendar.
+    required:
+      - index
+      - calendarId
+      - clientId
+      - accessToken
+      - refreshToken
+      - clientSecret
+      - applicationName
+    type: object
+    properties:
+      index:
+        title: Index
+        description: An index for the google calendar endpoint
+        type: string
+      calendarId:
+        title: Calendar ID
+        description: The calendar ID to be used as events source
+        type: string
+      clientId:
+        title: Client Id
+        description: Client ID of the calendar application
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      clientSecret:
+        title: Client Secret
+        description: Client Secret of the calendar application
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      accessToken:
+        title: Access Token
+        description: OAuth 2 access token for google calendar application. This typically expires after an hour so refreshToken is recommended for long term usage.
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      refreshToken:
+        title: Refresh Token
+        description: OAuth 2 refresh token for google calendar application. Using this, the Google Calendar component can obtain a new accessToken whenever the current one expires - a necessity if the application is long-lived.
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      delay:
+        title: Delay
+        description: Milliseconds before the next poll
+        type: integer
+        default: 500
+      applicationName:
+        title: Application name
+        description: Google Calendar application name
+        type: string
+      syncFlow:
+        title: Sync Flow
+        description: Sync events for incremental synchronization
+        type: boolean
+        x-descriptors:
+        - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: false
+      consumeFromNow:
+        title: Consume from now
+        description: Consume events in the selected calendar from now on
+        type: boolean
+        x-descriptors:
+        - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: true
+  types:
+    out:
+      mediaType: application/json
+  dependencies:
+  - "camel:jackson"
+  - "camel:google-calendar"
+  - "camel:kamelet"
+  flow:
+    from:
+      uri: "google-calendar-stream://{{index}}"
+      parameters:
+        clientId: "{{clientId}}"
+        calendarId: "{{calendarId}}"
+        accessToken: "{{accessToken}}"
+        refreshToken: "{{refreshToken}}"
+        clientSecret: "{{clientSecret}}"
+        delay: "{{delay}}"
+        applicationName: "{{applicationName}}"
+        syncFlow: "{{syncFlow}}"
+        consumeFromNow: "{{consumeFromNow}}"
+      steps:
+      - marshal:
+          json: {}
+      - to: "kamelet:sink"

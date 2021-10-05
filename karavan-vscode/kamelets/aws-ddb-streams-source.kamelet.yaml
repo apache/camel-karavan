@@ -1,0 +1,79 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: aws-ddb-streams-source
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMCIgd2lkdGg9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBmaWxsPSIjMkQ3MkI4IiBkPSJNNzQuMTc0IDMxLjgwN2w3LjQzNyA1LjM2N3YtNy42MDJsLTcuNDgtOC43NjV2MTAuOTU3bC4wNDMuMDE1eiIvPjxwYXRoIGZpbGw9IiM1Mjk0Q0YiIGQ9Ik01OS44MzggODUuNjY2bDE0LjI5My03LjE0NlYyMC43OTFsLTE0LjMwMy03LjEyNHoiLz48cGF0aCBmaWxsPSIjMjA1Qjk4IiBkPSJNMzkuNDk2IDg1LjY2NkwyNS4yMDMgNzguNTJWMjAuNzkxbDE0LjMwMy03LjEyNHoiLz48cGF0aCBmaWxsPSIjMkQ3MkI4IiBkPSJNMzkuNTA2IDEzLjY2N2gyMC4zMjF2NzEuOTk5SDM5LjUwNnpNNzQuMTMxIDY3LjU2NFY3OC41Mmw3LjQ4LTguNzY0di03LjYwMmwtNy40MzcgNS4zOTd6TTc0LjEzMSA2Mi45MzZsLjA0My0uMDEgNy40MzctNHYtNy42NDlsLTcuNDguNjg4ek03NC4xNzQgMzYuNDI5bC0uMDQzLS4wMVY0Ny4zNWw3LjQ4LjY5OXYtNy42NDV6Ii8+PHBhdGggZmlsbD0iIzFBNDc2RiIgZD0iTTgxLjYxMSA0OC4wNDlsLTcuNDgtLjY5OS0xNC4zMDMtLjU3MkgzOS41MDZsLTE0LjMwMy41NzJWMzYuNDQzbC0uMDE1LjAwOC4wMTUtLjAzMiAxNC4zMDMtMy4zMTRINTkuODI4bDE0LjMwMyAzLjMxNCA1LjI1OCAyLjc5NXYtMS43OTdsMi4yMjItLjI0My03LjQ4LTUuNDEtMTQuMzAzLTQuNDMySDM5LjUwNmwtMTQuMzAzIDQuNDMyVjIwLjgwN2wtNy40OCA4Ljc2M3Y3LjY1M2wuMDU4LS4wNDIgMi4xNjQuMjM2djEuODM0bC0yLjIyMiAxLjE4OXY3LjYxNWwuMDU4LS4wMDYgMi4xNjQuMDMydjMuMTk2bC0xLjg2Ny4wMjgtLjM1NS0uMDM0djcuNjE4bDIuMjIyIDEuMTk1djEuODU1bC0yLjEyOS4yMzUtLjA5My0uMDd2Ny42NTJsNy40OCA4Ljc2NFY2Ny41NjRsMTQuMzAzIDQuNDMySDU5LjgyOGwxNC4zNDUtNC40NDUgNy40MzgtNS4zNjctMi4yMjItLjI0NXYtMS44MThsLTUuMjE2IDIuODA1LTE0LjM0NSAzLjI5NXYuMDA0SDM5LjUwNnYtLjAwNGwtMTQuMzQ4LTMuMjk1LS4wMjUtLjA1MS4wNy4wMzdWNTEuOTY1bDE0LjMwMy41N3YuMDE0SDU5LjgyOHYtLjAxNGwxNC4zMDMtLjU3IDcuNDgtLjY1Ni0yLjIyMi0uMDMydi0zLjE5NnoiLz48L3N2Zz4="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "AWS DynamoDB Streams"
+  labels:
+    camel.apache.org/kamelet.type: "source"
+spec:
+  definition:
+    title: "AWS DynamoDB Streams Source"
+    description: |-
+      Receive events from AWS DynamoDB Streams.
+    required:
+      - table
+      - accessKey
+      - secretKey
+      - region
+    type: object
+    properties:
+      table:
+        title: Table
+        description: Name of the DynamoDB table to look at
+        type: string
+      accessKey:
+        title: Access Key
+        description: The access key obtained from AWS
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      secretKey:
+        title: Secret Key
+        description: The secret key obtained from AWS
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      region:
+        title: AWS Region
+        description: The AWS region to connect to
+        type: string
+        example: eu-west-1
+      iteratorType:
+        title: Iterator Type
+        description: Defines where in the DynaboDB stream to start getting records. Note that using TRIM_HORIZON can cause a significant delay before the stream has caught up to real-time. if {AT,AFTER}_SEQUENCE_NUMBER are used, then a sequenceNumberProvider MUST be supplied. There are 4 enums and the value can be one of TRIM_HORIZON, LATEST, AT_SEQUENCE_NUMBER, AFTER_SEQUENCE_NUMBER
+        type: string
+        default: LATEST
+      sequenceNumberProvider:
+        title: Sequence Number Provider
+        description: Provider for the sequence number when using one of the two ShardIteratorType AT_SEQUENCE_NUMBER or AFTER_SEQUENCE_NUMBER iterator types. Can be a registry reference or a literal sequence number.
+        type: string
+        example: "900000000005745712447"
+        default: "000000000000000000000"
+  types:
+    out:
+      mediaType: application/json
+  dependencies:
+  - "camel:gson"
+  - "camel:aws2-ddb"
+  - "camel:kamelet"
+  flow:
+    from:
+      uri: "aws2-ddbstream:{{table}}"
+      parameters:
+        secretKey: "{{secretKey}}"
+        accessKey: "{{accessKey}}"
+        region: "{{region}}"
+        iteratorType: "{{iteratorType}}"
+        sequenceNumberProvider: "{{sequenceNumberProvider}}"
+      steps:
+      - marshal:
+          json: 
+            library: Gson
+      - to: "kamelet:sink"

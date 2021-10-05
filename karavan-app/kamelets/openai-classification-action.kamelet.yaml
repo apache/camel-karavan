@@ -1,0 +1,128 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: openai-classification-action
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB3aWR0aD0iODk0IiBoZWlnaHQ9IjE3MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNjI1LjU1IDM1LjIyYy0xMy43NSAwLTIzLjU3IDQuNy0yOC4zOSAxMy41OWwtMi41OSA0Ljc5VjM3LjU0aC0yMi40djk3Ljg1aDIzLjU2Vjc3LjE4YzAtMTMuOTEgNy41NS0yMS44OSAyMC43My0yMS44OSAxMi41NiAwIDE5Ljc2IDcuNzYgMTkuNzYgMjEuMzF2NTguNzloMjMuNTZ2LTYzYzAtMjMuMjYtMTIuOC0zNy4xNy0zNC4yMy0zNy4xN3ptLTExNC4yMiAwYy0yNy43OSAwLTQ1LjA2IDE3LjMzLTQ1LjA2IDQ1LjI1djEzLjc0YzAgMjYuODMgMTcuNDIgNDMuNTEgNDUuNDUgNDMuNTEgMTguNzQgMCAzMS44OC02Ljg4IDQwLjE1LTIxbC0xNC42MS04LjM5Yy02LjExIDguMTUtMTUuODYgMTMuMTktMjUuNTQgMTMuMTktMTQuMTkgMC0yMi42Ny04Ljc2LTIyLjY3LTIzLjQ0di0zLjg5aDY1Ljc5Vjc3Ljk1YzAtMjYtMTcuMDgtNDIuNzMtNDMuNTEtNDIuNzN6bTIyLjA4IDQzLjE0aC00NC4zNnYtMi4zNGMwLTE2LjEyIDcuOTEtMjUgMjIuMjgtMjUgMTMuODMgMCAyMi4wOCA4Ljc2IDIyLjA4IDIzLjQ0djMuOXptMzYwLjI0LTU2LjkzVjIuNzFIODEyLjJ2MTguNzJoMjguNTZ2OTUuMjVIODEyLjJ2MTguNzFoODEuNDV2LTE4LjcxaC0yOC41NlYyMS40M2gyOC41NnpNMjc2IDBjLTM2LjM5IDAtNTkgMjIuNjgtNTkgNTkuMTh2MTkuNzRjMCAzNi41MSAyMi42IDU5LjE4IDU5IDU5LjE4czU5LTIyLjY3IDU5LTU5LjE4VjU5LjE4QzMzNC45OSAyMi42OCAzMTIuMzggMCAyNzYgMHptMzQuNjYgODAuMjdjMCAyNC4yNC0xMi42MyAzOC4xNS0zNC42NiAzOC4xNS0yMi4wMyAwLTM0LjY3LTEzLjkxLTM0LjY3LTM4LjE1VjU3LjgzYzAtMjQuMjQgMTIuNjMtMzguMTUgMzQuNjYtMzguMTUgMjIuMDMgMCAzNC42NiAxMy45MSAzNC42NiAzOC4xNWwuMDEgMjIuNDR6bTk4LjMxLTQ1Yy0xMi4zNiAwLTIzLjA3IDUuMTEtMjguNjQgMTMuNjlsLTIuNTQgMy45VjM3LjU0SDM1NS40djEzMS41MmgyMy41NXYtNDcuNjNsMi41MyAzLjc0YzUuMyA3Ljg1IDE1LjY1IDEyLjU1IDI3LjY4IDEyLjU1IDIwLjMxIDAgNDAuOC0xMy4yOCA0MC44LTQyLjkzVjc4LjEzYzAtMjEuMzUtMTIuNjMtNDIuOTEtNDEtNDIuOTFsLjAxLjA1em0xNy40NCA1OC40YzAgMTUuNzctOS4yIDI1LjU3LTI0IDI1LjU3LTEzLjggMC0yMy40NC0xMC4zNS0yMy40NC0yNS4xOHYtMTQuN2MwLTE1LjA2IDkuNzItMjUuNTcgMjMuNjMtMjUuNTcgMTQuNyAwIDIzLjgzIDkuOCAyMy44MyAyNS41N2wtLjAyIDE0LjMxek03MjQuODggMi43NmwtNDcuNTUgMTMyLjYzaDIzLjlsOS4xLTI4LjQ0aDU0LjY1bC4wOS4yOCA5IDI4LjE2SDc5OEw3NTAuNDEgMi43MWwtMjUuNTMuMDV6bS04LjY3IDg1LjUybDIxLjQ0LTY3LjE1IDIxLjIzIDY3LjA3LTQyLjY3LjA4ek0xNTUuODA4IDY5LjE4MmE0Mi4xNTcgNDIuMTU3IDAgMCAwLTMuNjMyLTM0LjU5MmMtOS4yMjItMTYuMDUxLTI3Ljc1Ni0yNC4zMDgtNDUuODU2LTIwLjQyOWE0Mi43MjQgNDIuNzI0IDAgMCAwLTcyLjM4NCAxNS4yOTcgNDIuMTU3IDQyLjE1NyAwIDAgMC0yOC4xNiAyMC40MjljLTkuMzIyIDE2LjAyNS03LjIwNiAzNi4yNCA1LjIzMiA0OS45ODhhNDIuMTI0IDQyLjEyNCAwIDAgMCAzLjYgMzQuNTkyYzkuMjMyIDE2LjA1NyAyNy43NzggMjQuMzEzIDQ1Ljg4OSAyMC40MjlhNDIuMTU3IDQyLjE1NyAwIDAgMCAzMS43NiAxNC4xNjNjMTguNTUyLjAxNyAzNC45OS0xMS45NiA0MC42NTYtMjkuNjI2YTQyLjE5IDQyLjE5IDAgMCAwIDI4LjE2LTIwLjQyOWM5LjIxLTE1Ljk5NyA3LjA4NS0zNi4xMDMtNS4yNjUtNDkuODIyem0tNjMuNTUyIDg4LjgxM2EzMS41MjYgMzEuNTI2IDAgMCAxLTIwLjI2Mi03LjMzMWwxLS41NjcgMzMuNjU5LTE5LjQyOWE1LjU5OSA1LjU5OSAwIDAgMCAyLjc2Ni00Ljc5OVY3OC40MTNsMTQuMjMgOC4yMzJhLjUuNSAwIDAgMSAuMjY3LjM2NnYzOS4zMjVjLS4wMzcgMTcuNDctMTQuMTkgMzEuNjIzLTMxLjY2IDMxLjY2em0tNjguMDUxLTI5LjA2YTMxLjQ5MyAzMS40OTMgMCAwIDEtMy43NjYtMjEuMjI4bDEgLjYgMzMuNjkyIDE5LjQyOGE1LjQzMiA1LjQzMiAwIDAgMCA1LjQ5OSAwbDQxLjE1Ny0yMy43Mjd2MTYuNDNhLjU2Ny41NjcgMCAwIDEtLjIzMy40MzJsLTM0LjA5MiAxOS42NjNjLTE1LjE1IDguNzI3LTM0LjUwNSAzLjUzOC00My4yNTctMTEuNTk4ek0xNS4zNCA1NS42MmEzMS41OTMgMzEuNTkzIDAgMCAxIDE2LjY2My0xMy44OTd2MzkuOTlhNS4zOTkgNS4zOTkgMCAwIDAgMi43MzMgNC43NjZsNDAuOTU3IDIzLjYyOC0xNC4yMyA4LjIzMmEuNTMzLjUzMyAwIDAgMS0uNSAwbC0zNC4wMjUtMTkuNjNDMTEuODE4IDg5Ljk0NiA2LjYzMyA3MC42MDUgMTUuMzQgNTUuNDUzdi4xNjd6bTExNi45MDcgMjcuMTZsLTQxLjA5LTIzLjg2MSAxNC4xOTYtOC4xOThhLjUzMy41MzMgMCAwIDEgLjUgMGwzNC4wMjYgMTkuNjYyYTMxLjY2IDMxLjY2IDAgMCAxLTQuNzY2IDU3LjA4N1Y4Ny40NzhhNS41NjUgNS41NjUgMCAwIDAtMi44NjYtNC42OTl6bTE0LjE2My0yMS4yOTVsLTEtLjYtMzMuNjI1LTE5LjU5NWE1LjQ2NSA1LjQ2NSAwIDAgMC01LjUzMiAwTDY1LjEyOSA2NS4wMTZ2LTE2LjQzYS40NjcuNDY3IDAgMCAxIC4yLS40MzJsMzQuMDI1LTE5LjYzYTMxLjY5MyAzMS42OTMgMCAwIDEgNDcuMDU2IDMyLjgyN3YuMTMzek01Ny4zNjQgOTAuNjExbC0xNC4yMy04LjE5OGEuNTY3LjU2NyAwIDAgMS0uMjY3LS40VjQyLjc4OEEzMS42OTMgMzEuNjkzIDAgMCAxIDk0LjgyMiAxOC40NmwtMSAuNTY3LTMzLjY1OSAxOS40MjlhNS41OTkgNS41OTkgMCAwIDAtMi43NjYgNC43OTlsLS4wMzMgNDcuMzU2em03LjczMi0xNi42NjNsMTguMzI5LTEwLjU2NCAxOC4zNjIgMTAuNTY0djIxLjEyOGwtMTguMjk2IDEwLjU2NUw2NS4xMyA5NS4wNzZsLS4wMzMtMjEuMTI4eiIvPjwvc3ZnPg=="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "OpenAI"
+  labels:
+    camel.apache.org/kamelet.type: "action"
+spec:
+  definition:
+    title: "OpenAI Classification Action"
+    description: |
+      Classifies a sentence using the OpenAI API.
+
+      It requires an OpenAI account (beta accounts available at https://beta.openai.com/).
+
+      Training data for classification can be provided in advance by uploading a file with purpose="classifications", see: https://beta.openai.com/docs/api-reference/files/upload.
+
+      The Kamelet accepts data in:
+      
+      - `text/plain` format (default)
+      - `application/json` format: see reference at https://beta.openai.com/docs/api-reference/classifications/create
+
+    required:
+      - authorizationToken
+    type: object
+    properties:
+      authorizationToken:
+        title: Authorization Token
+        description: The authorization token to use to contact the openAI API
+        type: string
+      format:
+        title: Format
+        description: The response format ('text/plain' or 'application/json' are supported)
+        type: string
+        default: text/plain
+      engine:
+        title: Engine
+        description: The OpenAI engine to use
+        type: string
+        default: davinci
+      file:
+        title: Examples File
+        description: The ID of an uploaded file containing examples for classification
+        type: string
+        example: "file-9HbeJXxtG7pg1YTXRx1v1fmn"
+  types:
+    in:
+      mediaType: text/plain
+    out:
+      mediaType: text/plain
+  dependencies:
+  - "mvn:org.apache.camel.kamelets:camel-kamelets-utils:0.3.0"
+  - "camel:jackson"
+  - "camel:jsonpath"
+  - "camel:core"
+  - "camel:kamelet"
+  - "camel:http"
+  flow:
+    from:
+      uri: kamelet:source
+      steps:
+      - choice:
+          when:
+          - simple: "${header[Content-Type]} == null || ${header[Content-Type]} == 'text/plain'"
+            steps:
+            - convert-body-to:
+                type: "java.lang.String"
+            - transform:
+                simple: "${bean:type:java.util.Map?method=of('query', ${body})}"
+            - marshal:
+                json: {}
+      - unmarshal:
+          json: 
+            library: Jackson
+            unmarshalTypeName: com.fasterxml.jackson.databind.JsonNode
+      - choice:
+          when:
+          - simple: "${body.has('model')} == false"
+            steps:
+            - set-property:
+                name: "field"
+                constant: "model"
+            - set-property:
+                name: "value"
+                constant: "{{engine}}"
+            - bean: "org.apache.camel.kamelets.utils.transform.InsertField"
+      - set-property:
+          name: "file"
+          constant: "{{file:}}"
+      - choice:
+          when:
+          - simple: "${body.has('file')} == false && ${exchangeProperty.file} != null"
+            steps:
+            - set-property:
+                name: "field"
+                constant: "file"
+            - set-property:
+                name: "value"
+                simple: "${exchangeProperty.file}"
+            - bean: "org.apache.camel.kamelets.utils.transform.InsertField"
+      - marshal:
+          json: {}
+      - set-header:
+          name: "Authorization"
+          simple: "Bearer {{authorizationToken}}"
+      - set-header:
+          name: "Content-Type"
+          constant: "application/json"
+      - to: "https://api.openai.com/v1/classifications"
+      - remove-header:
+          header-name: "Authorization"
+      - set-property:
+          name: format
+          constant: "{{format}}"
+      - choice:
+          when:
+          - simple: "${exchangeProperty.format} == 'text/plain'"
+            steps:
+            - transform:
+                jsonpath: "$.label"
+            - set-header:
+                name: "Content-Type"
+                constant: "text/plain"

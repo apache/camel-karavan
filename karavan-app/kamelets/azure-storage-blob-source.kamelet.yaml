@@ -1,0 +1,71 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: azure-storage-blob-source
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgOTEgODEiIGZpbGw9IiNmZmYiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjx1c2UgeGxpbms6aHJlZj0iI0EiIHg9Ii41IiB5PSIuNSIvPjxzeW1ib2wgaWQ9IkEiIG92ZXJmbG93PSJ2aXNpYmxlIj48cGF0aCBkPSJNNjcuNTU4IDBIMjIuNDQxTDAgNDBsMjIuNDQxIDQwaDQ1LjExN0w5MCA0MCA2Ny41NTggMHptLjIzNCA1Ny45NjRjMCAzLjM1My0yLjgwNSA2LjIyNy02LjA3OCA2LjIyN0gyOC41MmMtMy4yNzMgMC02LjA3OC0yLjg3NC02LjA3OC02LjIyN1YyMi4yNzZjMC0zLjM1MyAyLjgwNS02LjIyOCA2LjA3OC02LjIyOGgyOS45MjJsOS4zNTEgOS41ODF2MzIuMzM1ek00MS42MSA0Ni40NjdjMC0uNDc5LS4yMzQtLjcxOC0uMjM0LS45NThzLS4yMzQtLjQ3OS0uNDY3LS43MTgtLjIzNC0uMjQtLjQ2OC0uMjRoLS43MDFjLS40NjggMC0uNzAyIDAtLjkzNS4yNHMtLjQ2OC40NzktLjcwMS45NTgtLjIzNC45NTgtLjIzNCAxLjQzN3Y0LjU1MWMwIC43MTkuMjM0IDEuMTk3LjQ2OCAxLjQzNy4yMzQuNDc5LjQ2OC43MTkuNzAxLjcxOS4yMzQuMjQuNDY4LjI0LjkzNS4yNC4yMzQgMCAuNDY4IDAgLjcwMS0uMjRhLjUxLjUxIDAgMCAwIC40NjgtLjQ3OWMuMjM0LS4yNC4yMzQtLjQ3OS40NjctLjcxOCAwLS4yNC4yMzQtLjQ3OS4yMzQtLjk1OCAwLS4yMzkgMC0uNzE5LjIzMy0xLjE5OHYtMy4xMTRjLS40NjctLjI0LS40NjctLjQ3OS0uNDY3LS45NTh6bTEwLjUyLTE4LjY4M2MwLS40NzktLjIzNC0uNzE4LS4yMzQtLjk1OHMtLjIzNC0uNDc5LS40NjgtLjcxOS0uMjM0LS4yNC0uNDY4LS4yNGgtLjcwMWMtLjQ2NyAwLS43MDEgMC0uOTM1LjI0cy0uNDY4LjQ3OS0uNzAyLjk1OC0uMjMzLjk1OC0uMjMzIDEuNDM3djQuNTUxYzAgLjcxOS4yMzMgMS4xOTguNDY3IDEuNDM3LjIzNC40NzkuNDY4LjcxOS43MDEuNzE5LjIzNC4yNC40NjcuMjQuOTM1LjI0LjIzNCAwIC40NjcgMCAuNzAxLS4yNGEuNTEuNTEgMCAwIDAgLjQ2OC0uNDc5Yy4yMzQtLjI0LjIzNC0uNDc5LjQ2OC0uNzE5IDAtLjIzOS4yMzQtLjQ3OS4yMzQtLjk1OCAwLS4yMzkgMC0uNzE4LjIzNC0xLjE5OHYtMy4xMTRjLS4yMzQgMC0uMjM0LS40NzktLjQ2Ny0uOTU4em00LjY3NS04LjM4M0gyOC41MTljLTEuNjM2IDAtMi44MDUgMS4xOTgtMi44MDUgMi44NzR2MzUuNjg5YzAgMS42NzcgMS4xNjkgMi44NzQgMi44MDUgMi44NzRoMzMuMTk1YTIuODggMi44OCAwIDAgMCAyLjgwNS0yLjg3NFYyNy4zMDVoLTcuNDh2LTcuOTA0ek0zNiAyNi41ODd2LS40NzlsLjIzNC0uMjQgMi44MDUtMS45MTZoMi41NzF2MTEuNDk3aDIuMzM4bC4yMzMuMjRjLjIzNC4yMzkgMCAuMjM5IDAgLjIzOXYxLjE5N3MwIC4yNC0uMjMzLjI0aC03LjcxNGwtLjIzNC0uMjR2LTEuNDM3czAtLjI0LjIzNC0uMjRoMi44MDV2LTguODYybC0yLjEwNCAxLjE5OGMtLjIzNCAwLS4yMzQuMjM5LS40NjcuMjM5aC0uMjM0czAtLjIzOS0uMjM0LS4yMzl2LTEuMTk4em04LjE4MiAyNS42MjljLS4yMzMuOTU4LS40NjcgMS42NzctLjkzNSAyLjE1Ni0uNDY4LjcxOC0uOTM1IDEuMTk4LTEuNDAzIDEuNDM3LS43MDEuMjM5LTEuNDAzLjQ3OS0yLjMzOC40NzlzLTEuNjM2LS4yNC0yLjMzOC0uNDc5YTIuMTMgMi4xMyAwIDAgMS0xLjQwMy0xLjQzN2MtLjIzNC0uNzE4LS43MDEtMS40MzctLjcwMS0yLjE1Ni0uMjM0LS45NTgtLjIzNC0xLjkxNi0uMjM0LTIuODc0IDAtMS4xOTggMC0yLjE1Ni4yMzQtMi44NzQuMjM0LS45NTguNDY3LTEuNjc3LjkzNS0yLjE1NnMuOTM1LTEuMTk4IDEuNDAzLTEuNDM3Yy43MDEtLjI0IDEuNDAzLS40NzkgMi4zMzgtLjQ3OXMxLjYzNi4yMzkgMi4zMzcuNDc5YTIuMTMgMi4xMyAwIDAgMSAxLjQwMyAxLjQzN2MuMjM0LjcxOS43MDEgMS40MzcuNzAxIDIuMTU2LjIzNC45NTguMjM0IDEuOTE2LjIzNCAyLjg3NCAwIDEuMTk4IDAgMi4xNTYtLjIzNCAyLjg3NHptMTAuNTIgMy4zNTN2LjI0czAgLjIzOS0uMjM0LjIzOWgtNy43MTRsLS4yMzQtLjIzOXYtMS40MzdzMC0uMjM5LjIzNC0uMjM5aDIuODA1di04Ljg2MmwtMi4xMDQgMS4xOThjLS4yMzQgMC0uMjM0LjIzOS0uNDY4LjIzOWgtLjIzNHMwLS4yMzktLjIzNC0uMjM5VjQ0Ljc5bC4yMzQtLjI0IDIuODA1LTEuOTE2aDIuNTcydjExLjQ5N2gyLjMzOGwuMjM0LjIzOXYxLjE5OHptLjIzNC0yMi4wMzZjLS4yMzQuOTU4LS40NjggMS42NzctLjkzNSAyLjE1Ni0uNDY4LjcxOC0uOTM1IDEuMTk4LTEuNDAzIDEuNDM3LS43MDEuMjQtMS40MDMuNDc5LTIuMzM4LjQ3OXMtMS42MzYtLjI0LTIuMzM4LS40NzlhMi4xMyAyLjEzIDAgMCAxLTEuNDAzLTEuNDM3Yy0uMjM0LS40NzktLjcwMS0xLjQzNy0uNzAxLTIuMTU2cy0uMjM0LTEuOTE2LS4yMzQtMi44NzRjMC0xLjE5OCAwLTIuMTU2LjIzNC0yLjg3NC4yMzQtLjk1OC40NjgtMS42NzcuOTM1LTIuMTU2LjQ2OC0uNzE4LjkzNS0xLjE5OCAxLjQwMy0xLjQzNy43MDEtLjI0IDEuNDAzLS40NzkgMi4zMzgtLjQ3OXMxLjYzNi4yNCAyLjMzOC40NzlhMi4xMyAyLjEzIDAgMCAxIDEuNDAzIDEuNDM3Yy4yMzQuNzE4LjcwMSAxLjQzNy43MDEgMi4xNTYuMjM0Ljk1OC4yMzQgMS45MTYuMjM0IDIuODc0IDAgMS4xOTgtLjIzNCAyLjE1Ni0uMjM0IDIuODc0eiIgZmlsbD0iIzAwNzhkNyIgc3Ryb2tlPSJub25lIi8+PC9zeW1ib2w+PC9zdmc+"
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "Azure Storage Blob"
+  labels:
+    camel.apache.org/kamelet.type: "source"
+spec:
+  definition:
+    title: "Azure Storage Blob Source"
+    description: |-
+      Consume Files from Azure Storage Blob.
+    required:
+      - period
+      - accountName
+      - containerName
+      - accessKey
+    type: object
+    properties:
+      period:
+        title: Period between Polls
+        description: The interval between fetches to the Azure Storage Container in milliseconds
+        type: integer
+        default: 10000
+      accountName:
+        title: Account Name
+        description: The Azure Storage Blob account name.
+        type: string
+      containerName:
+        title: Container Name
+        description: The Azure Storage Blob container name.
+        type: string
+      accessKey:
+        title: Access Key
+        description: The Azure Storage Blob access Key.
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+  dependencies:
+    - "camel:azure-storage-blob"
+    - "camel:kamelet"
+    - "camel:core"
+    - "camel:jsonpath"
+    - "camel:timer"
+  flow:
+    from:
+      uri: "timer:azure-storage-blob-stream"
+      parameters:
+        period: "{{period}}"
+      steps:
+      - to:
+          uri: "azure-storage-blob:{{accountName}}/{{containerName}}"
+          parameters:
+            operation: "listBlobs"
+            accessKey: "{{accessKey}}"
+      - split:
+          jsonpath: "$.*"
+          steps:
+          - set-property:
+              name: azureBlobName
+              simple: ${body.name}
+          - to-d: "azure-storage-blob:{{accountName}}/{{containerName}}?accessKey=RAW({{accessKey}})&operation=getBlob&blobName=${exchangeProperty.azureBlobName}"
+          - to: "kamelet:sink"
+          - to-d: "azure-storage-blob:{{accountName}}/{{containerName}}?accessKey=RAW({{accessKey}})&operation=deleteBlob&blobName=${exchangeProperty.azureBlobName}"
+

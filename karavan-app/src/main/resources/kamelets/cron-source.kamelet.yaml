@@ -1,0 +1,49 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: cron-source
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNTAwIiBoZWlnaHQ9IjI1MDAiIHZpZXdCb3g9IjAgMCAxOTIuNzU2IDE5Mi43NTYiPjxnIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMCAwaDE5Mi43NTZ2MTkyLjc1NkgwVjB6Ii8+PHBhdGggZD0iTTQyLjE2IDEwMy4wNzJsNS45MDEgMS40OTZjLTEuMjQyIDQuODY1LTMuNDc2IDguNTc0LTYuNzAxIDExLjEyOXMtNy4xNjcgMy44MzItMTEuODI2IDMuODMyYy00LjgyMyAwLTguNzQ2LS45ODItMTEuNzY3LTIuOTQ3LTMuMDIxLTEuOTY1LTUuMzIyLTQuODExLTYuODk4LTguNTM3LTEuNTc2LTMuNzI1LTIuMzY1LTcuNzI3LTIuMzY1LTEyLjAwMiAwLTQuNjYzLjg5LTguNzMgMi42NjktMTIuMjAyIDEuNzc5LTMuNDcyIDQuMzEyLTYuMTA4IDcuNTk3LTcuOTEgMy4yODUtMS44MDIgNi45LTIuNzA0IDEwLjg0Ny0yLjcwNCA0LjQ3NCAwIDguMjM2IDEuMTQgMTEuMjg4IDMuNDE4IDMuMDUxIDIuMjggNS4xNzcgNS40ODUgNi4zNzcgOS42MTZsLTUuODM2IDEuMzc2Yy0xLjAzOC0zLjI1OS0yLjU0My01LjYzMy00LjUxNi03LjEyMS0xLjk3My0xLjQ4Ny00LjQ1NS0yLjIzMS03LjQ0My0yLjIzMS0zLjQzNyAwLTYuMzEuODI2LTguNjE5IDIuNDc3LTIuMzA4IDEuNjUtMy45MyAzLjg2Ni00Ljg2NSA2LjY0N2EyNi43NiAyNi43NiAwIDAgMC0xLjQwMyA4LjYwM2MwIDMuODExLjU1NCA3LjEzNyAxLjY2NSA5Ljk3OXMyLjgzNyA0Ljk2NyA1LjE4IDYuMzcxYTE0LjUyIDE0LjUyIDAgMCAwIDcuNjA3IDIuMTA5YzMuMzIgMCA2LjEzMS0uOTU3IDguNDMzLTIuODczIDIuMzAyLTEuOTE0IDMuODYtNC43NTYgNC42NzUtOC41MjZ6TTYxLjM0NSA3OC45MzRoMTQuMTUyYzMuMzE1IDAgNS43NDIuNjg0IDcuMjc4IDIuMDUyIDEuNTM2IDEuMzY4IDIuMzA0IDMuMTEyIDIuMzA0IDUuMjM1IDAgMS40NS0uMzk3IDIuNzkzLTEuMTkgNC4wMjctLjc5NCAxLjIzNS0xLjk1NCAyLjEzMy0zLjQ3OSAyLjY5NC0xLjUyNi41NjItMy42NDIuODQyLTYuMzQ1Ljg0MmgtMTIuNzJ2LTE0Ljg1em0wIDM5LjgxNlY5OC45MDZoNi44NjNjMS41MjQgMCAyLjYyMy4wNzIgMy4yOTMuMjExLjkxNi4yMjEgMS44MTUuNjEzIDIuNyAxLjE3Ni44ODQuNTYyIDEuODg2IDEuNTU1IDMuMDA0IDIuOTggMS4xMTkgMS40MjQgMi41NDIgMy40OCA0LjI3MSA2LjE2Nmw1LjkxNyA5LjMxMWg3LjRsLTcuNzQzLTEyLjE4Yy0xLjUzOC0yLjM4My0zLjE3Mi00LjM2OS00LjkwMS01Ljk1NS0uODEzLS43My0yLjAwMy0xLjQ3NS0zLjU2OS0yLjIyNyA0LjI5LS41OSA3LjQ2MS0xLjk3MyA5LjUxNS00LjE1MSAyLjA1NC0yLjE3NiAzLjA4Mi00Ljg1MiAzLjA4Mi04LjAyNSAwLTIuNDYxLS42Mi00LjcxLTEuODYtNi43NDQtMS4yNC0yLjAzNS0yLjg5OC0zLjQ1My00Ljk3Mi00LjI1Ny0yLjA3NC0uODA0LTUuMTA0LTEuMjA2LTkuMDg4LTEuMjA2aC0xOS44MXY0NC43NDVoNS44OTh6TTEwOS4zMTggODIuNjY3YzMuMDIzLTIuODc3IDYuNjM1LTQuMzE3IDEwLjgyOC00LjMxNyAyLjk1MyAwIDUuNjE1Ljc0OCA3Ljk4OCAyLjI0MiAyLjM3MyAxLjQ5NiA0LjE3NiAzLjYgNS40MDYgNi4zMTYgMS4yMzIgMi43MTUgMS44NSA1Ljg5MyAxLjg1IDkuNTMzIDAgNS43NTYtMS40NDEgMTAuMTk5LTQuMzIyIDEzLjMzMi0yLjg4MyAzLjEzMS02LjU1MyA0LjY5Ny0xMS4wMTIgNC42OTctNC4zODEgMC04LjAyLTEuNTUxLTEwLjkyMi00LjY1Mi0yLjktMy4xLTQuMzUyLTcuMzQ2LTQuMzUyLTEyLjczNi4wMDEtNi43MzIgMS41MTMtMTEuNTM3IDQuNTM2LTE0LjQxNXptLTguMDY4IDI1LjQ3OGMxLjcxMSAzLjUyIDQuMjI1IDYuMjk3IDcuNTQxIDguMzMyczcuMDgyIDMuMDUzIDExLjI5NSAzLjA1M2MzLjg4NyAwIDcuNTEtLjkyMiAxMC44NjctMi43NjQgMy4zNTctMS44NCA1Ljk1My00LjU1MSA3Ljc4NS04LjEzMyAxLjgzMi0zLjU4IDIuNzQ4LTcuNjQxIDIuNzQ4LTEyLjE3OCAwLTQuNDc3LS44NzEtOC40OC0yLjYxMS0xMi4wMXMtNC4yNjgtNi4yODMtNy41ODYtOC4yNTZjLTMuMzE2LTEuOTc0LTcuMDQxLTIuOTYxLTExLjE3Mi0yLjk2MS02LjMxMSAwLTExLjQ1OSAyLjEwMi0xNS40NDcgNi4zMDMtMy45ODggNC4yMDItNS45ODIgMTAuMDE2LTUuOTgyIDE3LjQ0NCAwIDMuOTI1Ljg1MyA3LjY1IDIuNTYyIDExLjE3ek0xNDguOTc1IDExOC43NVY3NC4wMDVoNi4xMDNsMjMuNDY3IDM1LjEydi0zNS4xMmg1LjcwN3Y0NC43NDVoLTYuMTA0bC0yMy40NjYtMzUuMTE5djM1LjExOWgtNS43MDd6IiBmaWxsPSIjY2MyMjI5Ii8+PC9nPjwvc3ZnPg=="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "Cron"
+  labels:
+    camel.apache.org/kamelet.type: "source"
+spec:
+  definition:
+    title: "Cron Source"
+    description: |-
+      Send events at specific time.
+    required:
+      - schedule
+      - message
+    type: object
+    properties:
+      schedule:
+        title: Cron Schedule
+        description: A cron expression that will be used to trigger events generation.
+        type: string
+        example: "0/3 10 * * * ?"
+      message:
+        title: Message
+        description: The message to generate
+        type: string
+        example: hello world
+  types:
+    out:
+      mediaType: text/plain
+  dependencies:
+  - "camel:quartz"
+  - "camel:core"
+  - "camel:cron"
+  - "camel:kamelet"
+  flow:
+    from:
+      uri: "cron:tick"
+      parameters:
+        schedule: "{{schedule}}"
+      steps:
+      - set-body:
+          constant: "{{message}}"
+      - to: "kamelet:sink"

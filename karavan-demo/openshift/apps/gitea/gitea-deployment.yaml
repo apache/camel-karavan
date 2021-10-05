@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: gitea
+    app.kubernetes.io/component: gitea
+    app.kubernetes.io/instance: gitea
+    app.kubernetes.io/part-of: gitea
+  name: gitea
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: gitea
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftWebConsole
+      creationTimestamp: null
+      labels:
+        app: gitea
+        deploymentconfig: gitea
+    spec:
+      containers:
+      - image: docker.io/gitea/gitea:1.14-rootless
+        imagePullPolicy: Always
+        name: gitea
+        env:
+        - name: GITEA__database__DB_TYPE
+          value: "mysql"
+        - name: GITEA__database__HOST
+          value: "giteadb:3306"
+        - name: GITEA__database__NAME
+          value: "giteadb"
+        - name: GITEA__database__USER
+          value: "gitea"
+        - name: GITEA__database__PASSWD
+          value: "password"
+        ports:
+        - containerPort: 2222
+          protocol: TCP
+        - containerPort: 3000
+          protocol: TCP
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/gitea
+          name: config
+        - mountPath: /var/lib/gitea
+          name: config
+        - mountPath: /data
+          name: data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: config
+      - name: gitea-2
+      - name: data
+        persistentVolumeClaim:
+          claimName: data

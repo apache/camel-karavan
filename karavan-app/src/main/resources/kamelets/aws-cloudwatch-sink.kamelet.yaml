@@ -1,0 +1,131 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: aws-cloudwatch-sink
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjIwNyIgaGVpZ2h0PSIyNTAwIiB2aWV3Qm94PSIwIDAgMjU2IDI5MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCI+PHBhdGggZD0iTTI1NiAxOTkuMzA1bC0xMjcuOTU3LTE4Ljc5N0wwIDE5OS4zMjlsMTI4LjAxIDQ3LjQzOUwyNTYgMTk5LjMwNSIgZmlsbD0iI0I3Q0E5RCIvPjxwYXRoIGQ9Ik0yNS42MjEgMTk3LjExM2wyMS42MyA2Ljc2MSAxLjk3MS0yLjIzOFY1MC4yODRsLTEuOTcxLTIuNTg1LTIxLjYzIDguMjc0djE0MS4xNCIgZmlsbD0iIzRCNjEyQyIvPjxwYXRoIGQ9Ik0xMjMuODMyIDE5MC40MjNsLTc2LjU4MSAxMy40NTFWNDcuNzAzbDc2LjU4MSAxNy4yMjJ2MTI1LjQ5OCIgZmlsbD0iIzc1OUMzRSIvPjxwYXRoIGQ9Ik04OS42ODYgMjE2Ljg4OWwtMjkuODQ4LTkuMjAxVjE0LjkyOEw4OS42ODYuMDA0bDIuNjEyIDIuODQ1djIxMC44NThsLTIuNjEyIDMuMTgyIiBmaWxsPSIjNEI2MTJDIi8+PHBhdGggZD0iTTE5MS45NjcgMTkyLjg5NEw4OS42ODYgMjE2Ljg4OVYwbDEwMi4yODEgMzkuODY2djE1My4wMjgiIGZpbGw9IiM3NTlDM0UiLz48cGF0aCBkPSJNMTI3Ljk2NSAyNDQuNzE0TDAgMTk5LjMyOXYyNi4zMjRsMTI3Ljk2NSA2My45ODN2LTQ0LjkyMiIgZmlsbD0iIzRCNjEyQyIvPjxwYXRoIGQ9Ik0yNTYgMjI1LjYyMmwtMTI4LjAzNSA2NC4wMTR2LTQ0LjkyMkwyNTYgMTk5LjMwNXYyNi4zMTciIGZpbGw9IiM3NTlDM0UiLz48cGF0aCBkPSJNMjIwLjAzOSAxNTUuNjkyaC0zMS4wMjZsLTg4LjQ0NSA2LjAyNkwxMjggMTY2Ljc3NWw5Mi4wMzktMTEuMDgzIiBmaWxsPSIjQjdDQTlEIi8+PHBhdGggZD0iTTEwMC41NjggMjE5LjkwNmwyNy40MiA4LjIyNi43ODktLjg0OS0uMDIzLTYxLjg0OS0uNzg5LS43NTgtMjcuMzk3LTIuOTU4djU4LjE4OCIgZmlsbD0iIzRCNjEyQyIvPjxwYXRoIGQ9Ik0yMjAuMDM5IDE1NS42OTJsLTkyLjA3NCA4Ljk4LjAyMyA2My40NiA5Mi4wNTEtMjcuNzExdi00NC43MjkiIGZpbGw9IiM3NTlDM0UiLz48L3N2Zz4K"
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "AWS Cloudwatch"
+  labels:
+    camel.apache.org/kamelet.type: "sink"
+spec:
+  definition:
+    title: "AWS CloudWatch Metrics Sink"
+    description: |-
+      Send messages to AWS CloudWatch metrics.
+
+      There are several properties you can set in the headers, such as:
+
+      `metric-name` / `ce-metric-name` for the metric name.
+      `metric-value` / `ce-metric-value` for the metric value.
+      `metric-unit` / `ce-metric-unit` for the metric unit.
+      `metric-timestamp` / `ce-metric-timestamp` for the metric timestamp.
+      `metric-dimension-name` / `ce-metric-dimension-name` for the dimension name.
+      `metric-dimension-value` / `ce-metric-dimension-value` for the dimension value.
+    required:
+      - cw_namespace
+      - accessKey
+      - secretKey
+      - region
+    type: object
+    properties:
+      cw_namespace:
+        title: Cloud Watch Namespace
+        description: The cloud watch metric namespace.
+        type: string
+      accessKey:
+        title: Access Key
+        description: The access key obtained from AWS.
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      secretKey:
+        title: Secret Key
+        description: The secret key obtained from AWS.
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      region:
+        title: AWS Region
+        description: The AWS region to connect to.
+        type: string
+        example: eu-west-1
+  dependencies:
+    - "camel:aws2-cw"
+    - "camel:kamelet"
+  flow:
+    from:
+      uri: kamelet:source
+      steps:
+      - choice:
+          when:
+          - simple: "${header[metric-name]}"
+            steps:
+            - set-header:
+                name: CamelAwsCwMetricName
+                simple: "${header[metric-name]}"
+          - simple: "${header[ce-metric-name]}"
+            steps:
+            - set-header:
+                name: CamelAwsCwMetricName
+                simple: "${header[ce-metric-name]}"
+          - simple: "${header[metric-value]}"
+            steps:
+            - set-header:
+                name: CamelAwsCwMetricValue
+                simple: "${header[metric-value]}"
+          - simple: "${header[ce-metric-value]}"
+            steps:
+            - set-header:
+                name: CamelAwsCwMetricValue
+                simple: "${header[ce-metric-value]}"
+          - simple: "${header[metric-unit]}"
+            steps:
+            - set-header:
+                name: CamelAwsCwMetricUnit
+                simple: "${header[metric-unit]}"
+          - simple: "${header[ce-metric-unit]}"
+            steps:
+            - set-header:
+                name: CamelAwsCwMetricUnit
+                simple: "${header[ce-metric-unit]}"
+          - simple: "${header[metric-timestamp]}"
+            steps:
+            - set-header:
+                name: CamelAwsCwMetricTimestamp
+                simple: "${header[metric-timestamp]}"
+          - simple: "${header[ce-metric-timestamp]}"
+            steps:
+            - set-header:
+                name: CamelAwsCwMetricTimestamp
+                simple: "${header[ce-metric-timestamp]}"
+          - simple: "${header[metric-dimension-name]}"
+            steps:
+            - set-header:
+                name: CamelAwsCwMetricDimensionName
+                simple: "${header[metric-dimension-name]}"
+          - simple: "${header[ce-metric-dimension-name]}"
+            steps:
+            - set-header:
+                name: CamelAwsCwMetricDimensionName
+                simple: "${header[ce-metric-dimension-name]}"
+          - simple: "${header[metric-dimension-value]}"
+            steps:
+            - set-header:
+                name: CamelAwsCwMetricDimensionValue
+                simple: "${header[metric-dimension-value]}"
+          - simple: "${header[ce-metric-dimension-value]}"
+            steps:
+            - set-header:
+                name: CamelAwsCwMetricDimensionValue
+                simple: "${header[ce-metric-dimension-value]}"
+      - to:
+          uri: "aws2-cw:{{cw_namespace}}"
+          parameters:
+            secretKey: "{{secretKey}}"
+            accessKey: "{{accessKey}}"
+            region: "{{region}}"

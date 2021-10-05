@@ -1,0 +1,60 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: aws-lambda-sink
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjA2NSIgaGVpZ2h0PSIyNTAwIiB2aWV3Qm94PSIwIDAgMjU2IDMxMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCI+PHBhdGggZD0iTTAgMjQ1LjI2MmwxNi4zMjIgOC4xNjFMMTkgMjQ4LjY2OFY1OS4zMzNsLTIuNjc4LTMuNDk0TDAgNjR2MTgxLjI2MiIgZmlsbD0iIzlENTAyNSIvPjxwYXRoIGQ9Ik00Ny42NzggNjMuNTdsLTMxLjM1Ni03LjczMXYxOTcuNTg0bDMxLjM1Ni03LjMwMlY2My41NyIgZmlsbD0iI0Y2ODUzNiIvPjxwYXRoIGQ9Ik0xNDMuODkzIDc4LjYwNGwyMi4zMzUtMTEuNTk3IDc0LjMwOSAyOC43NzgtMTkuNzU4IDIuNTc3LTc2Ljg4Ni0xOS43NTgiIGZpbGw9IiM2QjNBMTkiLz48cGF0aCBkPSJNMTQ0Ljc1MiAyMzAuNjU4bDIxLjkwNiAxMS41OTcgNzQuMzA4LTI4Ljc3OC0xOS43NTgtMi41NzgtNzYuNDU2IDE5Ljc1OSIgZmlsbD0iI0ZCQkY5MyIvPjxwYXRoIGQ9Ik0xNTAuMzM2IDE5OC44NzJsMzkuMDg3IDUuMTU1IDIuMjQ0LTQuMDI3di05MGwtMi4yNDQtNC43NjUtMzkuMDg3IDUuMTU0djg4LjQ4M00zNS42NTEgNDUuOTZsMjQuMDU0LTEyLjAyN0w2Mi4zMzMgMzl2MjMxbC0yLjYyOCA1LjMyOS0yNC4wNTQtMTIuMDI3VjQ1Ljk2IiBmaWxsPSIjOUQ1MDI1Ii8+PHBhdGggZD0iTTEwOC42NzEgMjU5LjAwN2wtNDguOTY2IDE1Ljg5MlYzMy45MzNsNDguOTY2IDE1Ljg5M3YyMDkuMTgxIiBmaWxsPSIjRjY4NTM2Ii8+PHBhdGggZD0iTTg5Ljc3MiAyODkuOTMzTDEyOCAzMDkuMjYybDQtNC41OTV2LTI5OUwxMjggMCA4OS43NzIgMTkuMzI5djI3MC42MDRNMjE5LjkxOSA5OC4zNjJsMTkuNzU5LTIuNTc3IDEuNjk3IDIuNDY1VjIxMWwtMS42OTcgMi45MDYtMTkuNzU5LTIuNTc3Vjk4LjM2MiIgZmlsbD0iIzlENTAyNSIvPjxwYXRoIGQ9Ik0xODkuNDIzIDEwNS4yMzV2OTkuMjIxbDQwLjgwNS00OS44MjUtNDAuODA1LTQ5LjM5NiIgZmlsbD0iI0Y2ODUzNiIvPjxwYXRoIGQ9Ik0yMzkuNjc4IDU1LjgzOUwxMjggMHYzMDkuMjYybDEyOC02NFY2NGwtMTYuMzIyLTguMTYxem0wIDE1OC4yMTdsLTczLjQ1IDIxLjkzNlY3My4yN2w3My40NSAyMS45MzZ2MTE4Ljg1eiIgZmlsbD0iI0Y2ODUzNiIvPjwvc3ZnPg=="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "AWS Lambda"
+  labels:
+    camel.apache.org/kamelet.type: sink
+spec:
+  definition:
+    title: AWS Lambda Sink
+    description: |-
+      Send a payload to an AWS Lambda function
+    required:
+      - function
+      - accessKey
+      - secretKey
+      - region
+    type: object
+    properties:
+      function:
+        title: Function Name
+        description: The Lambda Function name
+        type: string
+      accessKey:
+        title: Access Key
+        description: The access key obtained from AWS
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      secretKey:
+        title: Secret Key
+        description: The secret key obtained from AWS
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      region:
+        title: AWS Region
+        description: The AWS region to connect to
+        type: string
+        example: eu-west-1
+  dependencies:
+    - "camel:aws2-lambda"
+    - "camel:kamelet"
+  flow:
+    from:
+      uri: kamelet:source
+      steps:
+      - to:
+          uri: "aws2-lambda:{{function}}"
+          parameters:
+            accessKey: "{{accessKey}}"
+            secretKey: "{{secretKey}}"
+            region: "{{region}}"

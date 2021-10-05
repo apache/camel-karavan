@@ -1,0 +1,5 @@
+FROM gcr.io/distroless/java:11
+COPY target/*-runner.jar /deployments/karavan.jar
+COPY src/main/resources/kamelets/* /deployments/kamelets/
+WORKDIR /deployments
+CMD ["karavan.jar"]

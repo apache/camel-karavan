@@ -1,0 +1,107 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  annotations:
+    template.alpha.openshift.io/wait-for-ready: "true"
+  labels:
+    template: mysql-persistent-template
+    template.openshift.io/template-instance-owner: cf30ddb5-ffa8-4d1c-b7cb-7334d7ecf487
+    app.kubernetes.io/part-of: gitea
+  name: giteadb
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    name: giteadb
+  strategy:
+    activeDeadlineSeconds: 21600
+    recreateParams:
+      timeoutSeconds: 600
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        name: giteadb
+    spec:
+      containers:
+      - env:
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              key: database-user
+              name: giteadb
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: database-password
+              name: giteadb
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: database-root-password
+              name: giteadb
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: database-name
+              name: giteadb
+        image: image-registry.openshift-image-registry.svc:5000/openshift/mysql@sha256:1c65c90a5ffc40d0454d27e6c8a13b7a746a08ea151ed24edce96c61aeb28801
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -i
+            - -c
+            - MYSQL_PWD="$MYSQL_PASSWORD" mysqladmin -u $MYSQL_USER ping
+          failureThreshold: 3
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: mysql
+        ports:
+        - containerPort: 3306
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -i
+            - -c
+            - MYSQL_PWD="$MYSQL_PASSWORD" mysqladmin -u $MYSQL_USER ping
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            memory: 512Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/lib/mysql/data
+          name: giteadb-data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: giteadb-data
+        persistentVolumeClaim:
+          claimName: giteadb
+  test: false
+  triggers:
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - mysql
+      from:
+        kind: ImageStreamTag
+        name: mysql:8.0-el8
+        namespace: openshift
+      lastTriggeredImage: image-registry.openshift-image-registry.svc:5000/openshift/mysql@sha256:1c65c90a5ffc40d0454d27e6c8a13b7a746a08ea151ed24edce96c61aeb28801
+    type: ImageChange
+  - type: ConfigChange

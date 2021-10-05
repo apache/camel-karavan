@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: giteadb
+spec:
+  ports:
+  - name: mysql
+    port: 3306
+  selector:
+    name: giteadb

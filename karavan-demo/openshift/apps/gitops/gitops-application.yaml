@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karavan
+  namescape: karavan
+spec:
+  destination:
+    namespace: karavan-demo
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: .
+    repoURL: http://gitea:3000/git/karavan.git
+    targetRevision: master
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    retry:
+      limit: 1 # number of failed sync attempt retries; unlimited number of attempts if less than 0
+      backoff:
+        duration: 5s # the amount to back off. Default unit is seconds, but could also be a duration (e.g. "2m", "1h")
+        factor: 2 # a factor to multiply the base duration after each failed retry
+        maxDuration: 3m # the maximum amount of time allowed for the backoff strategy

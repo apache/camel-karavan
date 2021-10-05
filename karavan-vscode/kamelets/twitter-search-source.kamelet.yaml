@@ -1,0 +1,80 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: twitter-search-source
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+Cjxzdmcgd2lkdGg9IjI1NnB4IiBoZWlnaHQ9IjIwOXB4IiB2aWV3Qm94PSIwIDAgMjU2IDIwOSIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCI+CiAgICA8Zz4KICAgICAgICA8cGF0aCBkPSJNMjU2LDI1LjQ1MDAyNTkgQzI0Ni41ODA4NDEsMjkuNjI3MjY3MiAyMzYuNDU4NDUxLDMyLjQ1MDQ4NjggMjI1LjgzNDE1NiwzMy43MjAyMzMzIEMyMzYuNjc4NTAzLDI3LjIxOTgwNTMgMjQ1LjAwNTgzLDE2LjkyNjk5MjkgMjQ4LjkyNzQzNyw0LjY2MzA3Njg1IEMyMzguNzc5NzY1LDEwLjY4MTI2MzMgMjI3LjUzOTMyNSwxNS4wNTIzMzc2IDIxNS41NzU5OSwxNy40MDgyOTggQzIwNS45OTQ4MzUsNy4yMDA2OTcxIDE5Mi4zNDUwNiwwLjgyMiAxNzcuMjM5MTk3LDAuODIyIEMxNDguMjMyNjA1LDAuODIyIDEyNC43MTYwNzYsMjQuMzM3NTkzMSAxMjQuNzE2MDc2LDUzLjM0MjMxMTYgQzEyNC43MTYwNzYsNTcuNDU4Njg3NSAxMjUuMTgxNDYyLDYxLjQ2NzM3ODQgMTI2LjA3NjY1Miw2NS4zMTEyNjQ0IEM4Mi40MjU4Mzg1LDYzLjEyMTA0NTMgNDMuNzI1NzI1Miw0Mi4yMTE0MjkgMTcuODIxMzk4LDEwLjQzNTkyODggQzEzLjMwMDUwMTEsMTguMTkyOTkzOCAxMC43MTA0NDMsMjcuMjE1MTIzNCAxMC43MTA0NDMsMzYuODQwMjg4OSBDMTAuNzEwNDQzLDU1LjA2MTUyNiAxOS45ODM1MjU0LDcxLjEzNzQ5MDcgMzQuMDc2MjEzNSw4MC41NTU3MTM3IEMyNS40NjYwOTYxLDgwLjI4MzIyMzkgMTcuMzY4MTg0Niw3Ny45MjA3MDg4IDEwLjI4NjI1NzcsNzMuOTg2OTI5MiBDMTAuMjgyNTEyMiw3NC4yMDYwNDQ4IDEwLjI4MjUxMjIsNzQuNDI2MDk2NyAxMC4yODI1MTIyLDc0LjY0NzA4NSBDMTAuMjgyNTEyMiwxMDAuMDk0NDUzIDI4LjM4NjcwMDMsMTIxLjMyMjQ0MyA1Mi40MTM1NjMsMTI2LjE0NjczIEM0OC4wMDU5Njk1LDEyNy4zNDcxODQgNDMuMzY2MTUwOSwxMjcuOTg4NjEyIDM4LjU3NTU3MzQsMTI3Ljk4ODYxMiBDMzUuMTkxNDU1NCwxMjcuOTg4NjEyIDMxLjkwMDk3NjYsMTI3LjY1OTkzOCAyOC42OTQ3NzMsMTI3LjA0NjYwMiBDMzUuMzc3Nzk3MywxNDcuOTEzMTQ1IDU0Ljc3NDIwNTMsMTYzLjA5NzY2NSA3Ny43NTY5OTE4LDE2My41MjE4NSBDNTkuNzgyMDI1NywxNzcuNjA3OTgzIDM3LjEzNTQwMzYsMTg2LjAwNDYwNCAxMi41Mjg5MTQ3LDE4Ni4wMDQ2MDQgQzguMjg5ODcxNjEsMTg2LjAwNDYwNCA0LjEwODg4NDc0LDE4NS43NTY0NiAwLDE4NS4yNzE0MDkgQzIzLjI0MzEwMzMsMjAwLjE3MzEzOSA1MC44NTA3MjYxLDIwOC44Njc1MzIgODAuNTEwOTE4NSwyMDguODY3NTMyIEMxNzcuMTE2NTI5LDIwOC44Njc1MzIgMjI5Ljk0Mzk3NywxMjguODM2OTgyIDIyOS45NDM5NzcsNTkuNDMyNjAwMiBDMjI5Ljk0Mzk3Nyw1Ny4xNTUyOTY4IDIyOS44OTM0MTIsNTQuODkwMTY2NCAyMjkuNzkyMjgyLDUyLjYzODE0NTQgQzI0MC4wNTMyNTcsNDUuMjMzMTYzNSAyNDguOTU4MzM4LDM1Ljk4MjU1NDUgMjU2LDI1LjQ1MDAyNTkiIGZpbGw9IiM1NWFjZWUiPjwvcGF0aD4KICAgIDwvZz4KPC9zdmc+"
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "Twitter"
+  labels:
+    camel.apache.org/kamelet.type: "source"
+spec:
+  definition:
+    title: "Twitter Search Source"
+    description: |-
+      Allows to get all tweets on particular keywords from Twitter.
+
+      It requires tokens that can be obtained by creating an application 
+      in the Twitter developer portal: https://developer.twitter.com/.
+    required:
+    - keywords
+    - apiKey
+    - apiKeySecret
+    - accessToken
+    - accessTokenSecret
+    type: object
+    properties:
+      keywords:
+        title: Keywords
+        description: The keywords to use in the Twitter search (Supports Twitter standard operators)
+        type: string
+        example: "Apache Camel"
+      apiKey:
+        title: API Key
+        description: The API Key from the Twitter application in the developer portal
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      apiKeySecret:
+        title: API Key Secret
+        description: The API Key Secret from the Twitter application in the developer portal
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      accessToken:
+        title: Access Token
+        description: The Access Token from the Twitter application in the developer portal
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      accessTokenSecret:
+        title: Access Token Secret
+        description: The Access Token Secret from the Twitter application in the developer portal
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+  types:
+    out:
+      mediaType: application/json
+  dependencies:
+    - "camel:jackson"
+    - "camel:twitter"
+    - "camel:kamelet"
+  flow:
+    from:
+      uri: "twitter-search:{{keywords}}"
+      parameters:
+        accessToken: "{{accessToken}}"
+        accessTokenSecret: "{{accessTokenSecret}}"
+        consumerKey: "{{apiKey}}"
+        consumerSecret: "{{apiKeySecret}}"
+      steps:
+      - marshal:
+          json: {}
+      - to: "kamelet:sink"

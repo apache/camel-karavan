@@ -1,0 +1,41 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: file-watch-source
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjEuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgMzY4LjU1MyAzNjguNTUzIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAzNjguNTUzIDM2OC41NTM7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxnPg0KCQk8cGF0aCBkPSJNMjM5LjY4LDBINDIuNjk1djM2OC41NTNoMjgzLjE2NFY4Ni44MTFMMjM5LjY4LDB6IE0yNDQuMDU3LDI1LjdsNTYuMjg4LDU2LjcwMWgtNTYuMjg4VjI1Ljd6IE01Ny42OTUsMzUzLjU1M1YxNQ0KCQkJaDE3MS4zNjJ2ODIuNDAxaDgxLjgwMnYyNTYuMTUxSDU3LjY5NVYzNTMuNTUzeiIvPg0KCQk8cmVjdCB4PSI4Ni40MzUiIHk9IjgyLjQwMSIgd2lkdGg9IjEyMS44NzUiIGhlaWdodD0iMTUiLz4NCgkJPHJlY3QgeD0iODYuNDM1IiB5PSIxNTEuMTIyIiB3aWR0aD0iMTk1LjY4NSIgaGVpZ2h0PSIxNSIvPg0KCQk8cmVjdCB4PSI4Ni40MzUiIHk9IjIxOS44NDMiIHdpZHRoPSIxOTUuNjg1IiBoZWlnaHQ9IjE1Ii8+DQoJCTxyZWN0IHg9Ijg2LjQzNSIgeT0iMjg4LjU2MyIgd2lkdGg9IjE5NS42ODUiIGhlaWdodD0iMTUiLz4NCgk8L2c+DQoJPGc+DQoJPC9nPg0KCTxnPg0KCTwvZz4NCgk8Zz4NCgk8L2c+DQoJPGc+DQoJPC9nPg0KCTxnPg0KCTwvZz4NCgk8Zz4NCgk8L2c+DQoJPGc+DQoJPC9nPg0KCTxnPg0KCTwvZz4NCgk8Zz4NCgk8L2c+DQoJPGc+DQoJPC9nPg0KCTxnPg0KCTwvZz4NCgk8Zz4NCgk8L2c+DQoJPGc+DQoJPC9nPg0KCTxnPg0KCTwvZz4NCgk8Zz4NCgk8L2c+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8L3N2Zz4NCg=="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "File Watch"
+  labels:
+    camel.apache.org/kamelet.type: "source"
+spec:
+  definition:
+    title: "File Watch Source"
+    description: |-
+      Receive events related to a file or folder. It may require a volume mounting on Kubernetes.
+    required:
+      - path
+      - events
+    type: object
+    properties:
+      path:
+        title: Path to Watch
+        description: Path of file or folder to watch
+        type: string
+      events:
+        title: Events
+        description: The type of events to consume
+        type: string
+        default: "CREATE,MODIFY,DELETE"
+  dependencies:
+    - "camel:file-watch"
+    - "camel:kamelet"
+  flow:
+    from:
+      uri: "file-watch:{{path}}"
+      parameters:
+        events: "{{events}}"
+      steps:
+      - to: "kamelet:sink"

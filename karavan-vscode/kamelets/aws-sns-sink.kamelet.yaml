@@ -1,0 +1,68 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: aws-sns-sink
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+DQo8c3ZnICAgdmlld0JveD0iMCAwIDI1NiAyNTciIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQiPg0KCTxnPg0KCQk8cGF0aCBkPSJNOTguODc1LDIzMi4wMzMgTDcyLjQ0MiwyMjQuNjI1IEw0Ny40NDEsMTk2LjExNyBMNzguNzEzLDE5NS4yNTQgTDk4Ljg3NSwyMzIuMDMzIiBmaWxsPSIjOTk1QjgwIj48L3BhdGg+DQoJCTxwYXRoIGQ9Ik0zNy43NSwyMTMuMjMzIEwyMi44NzUsMjA5LjA2NyBMOC44MTcsMTkzLjAzMyBMMjUuODk5LDE5MC4yMjQgTDM3Ljc1LDIxMy4yMzMiIGZpbGw9IiM5OTVCODAiPjwvcGF0aD4NCgkJPHBhdGggZD0iTTAsMTkxLjAxNyBMMTUuMjA0LDE5NC4xMDggTDE3LjQxMSwxOTAuMjI2IEwxNy40MTEsNTguNTAzIEwxNS4yMDQsNTUuOTQyIEwwLDY0LjYgTDAsMTkxLjAxNyIgZmlsbD0iIzdCM0Y2NSI+PC9wYXRoPg0KCQk8cGF0aCBkPSJNNzMuOTMzLDY5LjcwOCBMMTUuMjA4LDU1Ljk0MiBMMTUuMjA4LDE5NC4xMDggTDI0LjAwNiwxOTMuMjkgTDM3Ljc1LDIxMy4yMzMgTDQ4LjM1LDE5MS4wMjggTDczLjkzMywxODguNjUgTDczLjkzMyw2OS43MDgiIGZpbGw9IiNDMTdCOUQiPjwvcGF0aD4NCgkJPHBhdGggZD0iTTMzLjk1OCwxOTguMTMzIEw2MC4wMjEsMjAzLjM4MyBMNjEuNzM3LDE5OS4zMzggTDYxLjczNywzNy40NCBMNjAuMDIxLDMzLjc3NSBMMzMuOTU4LDQ2Ljk4MyBMMzMuOTU4LDE5OC4xMzMiIGZpbGw9IiM3QjNGNjUiPjwvcGF0aD4NCgkJPHBhdGggZD0iTTIwOC43MzQsODEuNTE2IEw2MC4wMjEsMzMuNzc1IEw2MC4wMjEsMjAzLjM4NyBMNzcuMjQyLDIwMS4xNzEgTDk4Ljg3NSwyMzIuMDMzIEwxMTYuMDAxLDE5Ni4xODMgTDIwOC43MzQsMTg0LjI1IEwyMDguNzM0LDgxLjUxNiIgZmlsbD0iI0MxN0I5RCI+PC9wYXRoPg0KCQk8cGF0aCBkPSJNMTgxLjgzMywyNTYuNDkyIEwxNDQuMjY3LDI0NS45NjcgTDEwOC43NTgsMjA1LjQ2NyBMMTU0Ljc5MSwyMDQuOTk5IEwxODEuODMzLDI1Ni40OTIiIGZpbGw9IiM5OTVCODAiPjwvcGF0aD4NCgkJPHBhdGggZD0iTTg5LjU5MSwyMDguOTUgTDEyNy45MjEsMjE2LjM2NyBMMTMwLjg5OCwyMTMuODAxIEwxMzAuODk4LDQuMTE3IEwxMjcuOTIxLDAgTDg5LjU5MSwxOS4xNTggTDg5LjU5MSwyMDguOTUiIGZpbGw9IiM3QjNGNjUiPjwvcGF0aD4NCgkJPHBhdGggZD0iTTI1Niw2NC4wMzMgTDEyNy45MjUsMCBMMTI3LjkyNSwyMTYuMzY3IEwxNTAuNTIyLDIxMS44MzkgTDE4MS44MzMsMjU2LjQ5MiBMMjA4LjczNCwyMDAuMTgzIEwyMDguNzE3LDIwMC4xODEgTDI1NiwxOTAuNzA4IEwyNTYsNjQuMDMzIiBmaWxsPSIjQzE3QjlEIj48L3BhdGg+DQoJPC9nPg0KPC9zdmc+DQo="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "AWS SNS"
+  labels:
+    camel.apache.org/kamelet.type: sink
+spec:
+  definition:
+    title: AWS SNS Sink
+    description: |-
+      Send message to an AWS SNS Topic
+    required:
+      - topicNameOrArn
+      - accessKey
+      - secretKey
+      - region
+    type: object
+    properties:
+      topicNameOrArn:
+        title: Topic Name
+        description: The SQS Topic name or ARN
+        type: string
+      accessKey:
+        title: Access Key
+        description: The access key obtained from AWS
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      secretKey:
+        title: Secret Key
+        description: The secret key obtained from AWS
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      region:
+        title: AWS Region
+        description: The AWS region to connect to
+        type: string
+        example: eu-west-1
+      autoCreateTopic:
+        title: Autocreate Topic
+        description: Setting the autocreation of the SNS topic. 
+        type: boolean
+        x-descriptors:
+        - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: false
+  dependencies:
+    - "camel:aws2-sns"
+    - "camel:kamelet"
+  flow:
+    from:
+      uri: kamelet:source
+      steps:
+      - to:
+          uri: "aws2-sns:{{topicNameOrArn}}"
+          parameters:
+            autoCreateTopic: "{{autoCreateTopic}}"
+            accessKey: "{{accessKey}}"
+            secretKey: "{{secretKey}}"
+            region: "{{region}}"

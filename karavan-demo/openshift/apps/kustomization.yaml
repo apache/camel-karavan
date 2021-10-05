@@ -1,0 +1,12 @@
+kind: Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+
+namespace: karavan
+
+bases:
+  - gitops
+  - gitea
+  - karavan
+
+resources:
+  - namespaces.yaml

@@ -1,0 +1,55 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: exec-sink
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iMTI4MC4wMDAwMDBwdCIgaGVpZ2h0PSIxMDEyLjAwMDAwMHB0IiB2aWV3Qm94PSIwIDAgMTI4MC4wMDAwMDAgMTAxMi4wMDAwMDAiCiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCBtZWV0Ij4KPG1ldGFkYXRhPgpDcmVhdGVkIGJ5IHBvdHJhY2UgMS4xNSwgd3JpdHRlbiBieSBQZXRlciBTZWxpbmdlciAyMDAxLTIwMTcKPC9tZXRhZGF0YT4KPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsMTAxMi4wMDAwMDApIHNjYWxlKDAuMTAwMDAwLC0wLjEwMDAwMCkiCmZpbGw9IiMwMDAwMDAiIHN0cm9rZT0ibm9uZSI+CjxwYXRoIGQ9Ik04NTg1IDEwMTE0IGMtMTYgLTMgLTIyMSAtMzQgLTQ1NSAtNzAgLTg5MCAtMTM2IC0xNDg3IC0yMjcgLTIxMjUKLTMyNCAtMzYzIC01NSAtODk0IC0xMzYgLTExODAgLTE4MCAtMjg2IC00NCAtODE3IC0xMjUgLTExODAgLTE4MCAtMzYzIC01NQotODk2IC0xMzcgLTExODUgLTE4MSAtNTQ4IC04MyAtNjE5IC05NiAtNzExIC0xMzUgLTIwOCAtODYgLTM2NSAtMjM3IC00NjkKLTQ0OSAtOTEgLTE4NyAtMTA3IC0zMjUgLTcxIC02MTYgMTIgLTk2IDU3IC00NzggMTAxIC04NDkgNDQgLTM3MSAxMjMgLTEwMzMKMTc1IC0xNDcwIDUyIC00MzcgMTgwIC0xNTE1IDI4NSAtMjM5NSAxMDQgLTg4MCAxOTQgLTE2MjggMjAwIC0xNjYzIDI4IC0xNjQKMTI5IC0zNTEgMjU2IC00NzMgMzggLTM2IDc4IC03MiA4OSAtODAgMjcgLTE4IDc3IC0xMDQgNjcgLTExNCAtNCAtNSAtMSAtNSA3CjAgOSA1IDEyIDMgOCAtNiAtMiAtOCA5IC0zOSAyNSAtNjkgODAgLTE0NCAyMTEgLTI2NiAzNzEgLTM0NSAxMDYgLTUyIDE3NQotNzEgMzA1IC04NiAxMzMgLTE1IDIyMyAtNiA3NjAgNzYgMTYwIDI1IDQyNiA2NSA1OTAgOTAgMzc4IDU4IDgwNyAxMjQgMTE4MAoxODAgMTYwIDI1IDQyNCA2NSA1ODUgOTAgMTYwIDI0IDQyNiA2NSA1OTAgOTAgMTYzIDI1IDQzMCA2NSA1OTIgOTAgMTYyIDI1CjQyOCA2NSA1OTAgOTAgMTYyIDI1IDQyNyA2NSA1ODggOTAgMTYwIDI0IDQyNyA2NSA1OTIgOTAgMTE0NyAxNzUgMTE1NiAxNzYKMTMyMCAyNTQgMjY0IDEyNSA0NDIgMzY1IDQ4NSA2NDkgNiAzNyA4IDE2NiA2IDI4NyBsLTMgMjIwIC05MSA0MzAgYy04NyA0MTIKLTE5MyA5MTkgLTM0MiAxNjMwIC0zOCAxODIgLTE0MSA2NzQgLTIyOSAxMDk1IC04OCA0MjEgLTI2NCAxMjYyIC0zOTEgMTg2OQotMTI3IDYwNyAtMjU1IDEyMjIgLTI4NSAxMzY1IC0zMSAxNDQgLTY3IDMwMSAtODEgMzUwIC04OSAzMTAgLTMzMCA1NDYgLTY0Mgo2MjcgLTc2IDIwIC0yNjQgMzMgLTMyNyAyM3ogbTIzODIgLTc3MTYgYy0zIC03IC01IC0yIC01IDEyIDAgMTQgMiAxOSA1IDEzIDIKLTcgMiAtMTkgMCAtMjV6IG0tODU0MiAtMTQ5OCBjMTAgLTExIDE2IC0yMCAxMyAtMjAgLTMgMCAtMTMgOSAtMjMgMjAgLTEwIDExCi0xNiAyMCAtMTMgMjAgMyAwIDEzIC05IDIzIC0yMHoiLz4KPC9nPgo8L3N2Zz4K"
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "Exec"
+  labels:
+    camel.apache.org/kamelet.type: sink
+spec:
+  definition:
+    title: Exec Sink
+    description: |-
+      Execute system commands
+
+      The Kamelet expects the following headers to be set:
+
+      - `args` / `ce-args`: as the args to be set on the executable.
+
+      If the header won't be set the executable will be run without arguments.
+    required:
+    - executable
+    type: object
+    properties:
+      executable:
+        title: Executable Command
+        description: The command to execute
+        type: string
+  dependencies:
+    - "camel:core"
+    - "camel:exec"
+    - "camel:kamelet"
+  flow:
+    from:
+      uri: kamelet:source
+      steps:
+      - choice:
+          when:
+          - simple: "${header[args]}"
+            steps:
+            - set-header:
+                name: CamelExecCommandArgs
+                simple: "${header[args]}"
+          - simple: "${header[ce-args]}"
+            steps:
+            - set-header:
+                name: CamelExecCommandArgs
+                simple: "${header[ce-args]}"
+      - to:
+          uri: "exec:{{executable}}"
+      - set-body:
+          simple: "${body.stdout}"

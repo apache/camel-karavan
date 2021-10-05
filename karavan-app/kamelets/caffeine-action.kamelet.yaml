@@ -1,0 +1,79 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: caffeine-action
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDIxLjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9ItCh0LvQvtC5XzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAyODEuOCAyNzMuOCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMjgxLjggMjczLjg7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPGc+Cgk8cmVjdCB4PSIxODYuNyIgeT0iMTIxLjYiIHdpZHRoPSIyLjQiIGhlaWdodD0iNDUuNiIvPgoJPHJlY3QgeD0iNDMuNCIgeT0iNzcuMiIgdHJhbnNmb3JtPSJtYXRyaXgoMC41MDA0IC0wLjg2NTggMC44NjU4IDAuNTAwNCAtNjEuMjQ1NCA4Ni43Nzc1KSIgd2lkdGg9IjIuNCIgaGVpZ2h0PSIzOC41Ii8+Cgk8cmVjdCB4PSIxMjYuNSIgeT0iMjIyLjMiIHdpZHRoPSIyLjQiIGhlaWdodD0iMzcuNCIvPgoJPHBvbHlnb24gcG9pbnRzPSIyNjcuMSwxNDUuMSAyNjcuNywxNDQuNCAyNjcuMSwxNDMuNyAyNjcuMSwxNDMuNyAyNjYuNSwxNDIuOCAyNjYsMTQyLjEgMjY2LDE0Mi4xIDI0Ny4xLDExNi4xIDI0NS4yLDExNy41IAoJCTI2NCwxNDMuNSAyNjQsMTQzLjUgMjY0LjQsMTQ0IDI2NC43LDE0NC40IDI0NS45LDE3MC4zIDI0Ny44LDE3MS43IDI2NiwxNDYuNyAyNjYsMTQ2LjcgMjY2LDE0Ni42IDI2Ny4xLDE0NS4xIAkiLz4KCTxyZWN0IHg9IjIzMi45IiB5PSIxNTIuOSIgdHJhbnNmb3JtPSJtYXRyaXgoMC41ODc2IC0wLjgwOTEgMC44MDkxIDAuNTg3NiAtMjMuMDYyNCAyNjIuODY1OCkiIHdpZHRoPSIyNi45IiBoZWlnaHQ9IjIuNCIvPgoJPHBvbHlnb24gcG9pbnRzPSIyMTQuOSwxMDIuMiAxNzcuNywxMTQuMyAxMzQsODkuMSAxMzQsNTAuMiAxMzEuNyw1MC4yIDEzMS43LDg3LjcgMTI4LjUsODUuOSAxMjcuNyw4NS40IDEyNi44LDg1LjkgMTIzLjcsODcuNyAKCQkxMjMuNyw1MC4yIDEyMS4zLDUwLjIgMTIxLjMsODkuMSA5My43LDEwNS4xIDk0LjksMTA3LjEgMTI2LjUsODguOSAxMjYuNSw4OC45IDEyNy43LDg4LjIgMTI4LjgsODguOSAxMjguOCw4OC44IDE3Ni4zLDExNi4zIAoJCTE3Ni4zLDE3Mi41IDE0My42LDE5MS41IDE0NC44LDE5My41IDE3Ny43LDE3NC41IDIxNC45LDE4Ni42IDIxNS42LDE4NC4zIDE3OC43LDE3Mi4zIDE3OC43LDExNi41IDIxNS42LDEwNC41IAkiLz4KCTxyZWN0IHg9IjIyNi44IiB5PSI1OC44IiB0cmFuc2Zvcm09Im1hdHJpeCgwLjMwOTQgLTAuOTUwOSAwLjk1MDkgMC4zMDk0IDExMS44OTczIDI3NC4wMzI1KSIgd2lkdGg9IjM1LjciIGhlaWdodD0iMi40Ii8+Cgk8cG9seWdvbiBwb2ludHM9IjcwLjQsMTA3LjEgNzAuNSwxMDcuMSA4NC45LDEyOS41IDg4LjcsMTI5LjUgODguNywxMDAuOCA4NS4xLDEwMC44IDg1LjEsMTIzLjEgODUuMSwxMjMuMSA3MC43LDEwMC44IDY2LjgsMTAwLjggCgkJNjYuOCwxMjkuNSA3MC40LDEyOS41IAkiLz4KCTxwb2x5Z29uIHBvaW50cz0iNzksMTcxLjIgNzksMTM1LjkgNzYuNiwxMzUuOSA3Ni42LDE2Ni41IDQyLjYsMTg2LjEgNDMuOSwxODguMiA3Ni42LDE2OS4zIDc2LjYsMTcxLjIgNzYuNiwxNzMuMiA3Ni42LDE3My45IAoJCTc4LjksMTc1LjMgNzguOSwxNzUuMyA4MC42LDE3Ni4yIDQ3LjgsMTk1LjEgNDksMTk3LjIgODMsMTc3LjYgMTEwLjUsMTkzLjUgMTExLjcsMTkxLjUgNzksMTcyLjUgCSIvPgoJPHBvbHlnb24gcG9pbnRzPSIxMzUuMSwyMDkuNSAxMzUsMjA5LjUgMTIwLjYsMTg3LjIgMTE2LjcsMTg3LjIgMTE2LjcsMjE1LjkgMTIwLjMsMjE1LjkgMTIwLjMsMTkzLjUgMTIwLjMsMTkzLjUgMTM0LjcsMjE1LjkgCgkJMTM4LjYsMjE1LjkgMTM4LjYsMTg3LjIgMTM1LjEsMTg3LjIgCSIvPgoJPHBhdGggZD0iTTM0LjksMTg4LjhjLTMuMS0xLjgtNy0xLjgtNy0xLjhjLTMuOSwwLTcsMS44LTcsMS44Yy0zLjIsMS44LTQuOSw1LjItNC45LDUuMmMtMS44LDMuNC0xLjgsNy44LTEuOCw3LjgKCQljMCw0LjMsMS44LDcuNywxLjgsNy43YzEuOCwzLjQsNC45LDUuMiw0LjksNS4yYzMuMSwxLjgsNy4xLDEuOCw3LjEsMS44YzMuOSwwLDctMS44LDctMS44YzMuMS0xLjgsNC45LTUuMiw0LjktNS4yCgkJYzEuOC0zLjQsMS44LTcuOCwxLjgtNy44YzAtNC41LTEuOC03LjgtMS44LTcuOEMzOC4xLDE5MC42LDM0LjksMTg4LjgsMzQuOSwxODguOHogTTM2LjQsMjA4Yy0xLjIsMi42LTMuNSw0LTMuNSw0CgkJYy0yLjIsMS40LTUsMS40LTUsMS40Yy0yLjgsMC01LjEtMS40LTUuMS0xLjRjLTIuMi0xLjQtMy40LTQtMy40LTRjLTEuMy0yLjYtMS4zLTYuMS0xLjMtNi4xYzAtMy42LDEuMi02LjMsMS4yLTYuMwoJCWMxLjItMi42LDMuNC00LDMuNC00YzIuMi0xLjQsNS4xLTEuNCw1LjEtMS40YzIuOSwwLDUuMSwxLjQsNS4xLDEuNGMyLjIsMS40LDMuNCw0LDMuNCw0YzEuMiwyLjYsMS4yLDYuMiwxLjIsNi4yCgkJQzM3LjcsMjA1LjQsMzYuNCwyMDgsMzYuNCwyMDh6Ii8+Cgk8cGF0aCBkPSJNMTIwLjYsNDEuOWMzLjIsMS44LDcuMSwxLjgsNy4xLDEuOGMzLjksMCw3LTEuOCw3LTEuOGMzLjEtMS44LDQuOS01LjIsNC45LTUuMmMxLjgtMy40LDEuOC03LjgsMS44LTcuOAoJCWMwLTQuNS0xLjgtNy44LTEuOC03LjhjLTEuOC0zLjMtNC45LTUuMi00LjktNS4yYy0zLjEtMS44LTctMS44LTctMS44Yy0zLjksMC03LDEuOC03LDEuOGMtMy4yLDEuOC00LjksNS4yLTQuOSw1LjIKCQljLTEuOCwzLjQtMS44LDcuOC0xLjgsNy44YzAsNC4zLDEuOCw3LjcsMS44LDcuN0MxMTcuNSw0MC4xLDEyMC42LDQxLjksMTIwLjYsNDEuOXogTTExOS4xLDIyLjhjMS4yLTIuNiwzLjUtNCwzLjUtNAoJCWMyLjItMS40LDUuMS0xLjQsNS4xLTEuNGMyLjksMCw1LjEsMS40LDUuMSwxLjRjMi4yLDEuNCwzLjUsNCwzLjUsNGMxLjIsMi42LDEuMiw2LjIsMS4yLDYuMmMwLDMuNi0xLjIsNi4yLTEuMiw2LjIKCQljLTEuMiwyLjYtMy41LDQtMy41LDRjLTIuMiwxLjQtNSwxLjQtNSwxLjRjLTIuOCwwLTUtMS40LTUtMS40Yy0yLjItMS40LTMuNS00LTMuNS00Yy0xLjItMi42LTEuMi02LjEtMS4yLTYuMQoJCUMxMTcuOSwyNS41LDExOS4xLDIyLjgsMTE5LjEsMjIuOHoiLz4KCTxwb2x5Z29uIHBvaW50cz0iMjM5LjcsMTk4LjUgMjM5LjYsMTk4LjUgMjI1LjMsMTc2LjIgMjIxLjMsMTc2LjIgMjIxLjMsMjA0LjkgMjI0LjksMjA0LjkgMjI0LjksMTgyLjUgMjI1LDE4Mi41IDIzOS40LDIwNC45IAoJCTI0My4zLDIwNC45IDI0My4zLDE3Ni4yIDIzOS43LDE3Ni4yIAkiLz4KCTxwb2x5Z29uIHBvaW50cz0iMjI0LjksODkuMyAyMjUsODkuMyAyMzkuNCwxMTEuNyAyNDMuMywxMTEuNyAyNDMuMyw4MyAyMzkuNyw4MyAyMzkuNywxMDUuMyAyMzkuNiwxMDUuMyAyMjUuMyw4MyAyMjEuMyw4MyAKCQkyMjEuMywxMTEuNyAyMjQuOSwxMTEuNyAJIi8+CjwvZz4KPC9zdmc+Cg=="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "Caffeine"
+  labels:
+    camel.apache.org/kamelet.type: "action"
+spec:
+  definition:
+    title: "Caffeine Action"
+    description: |-
+      Perform operations on a caffeine cache
+
+      The Kamelet expects the following headers to be set:
+
+      - `caffeine-key` / `ce-caffeine-key`: as the cache key used in the operation
+
+      - `caffeine-operation` / `ce-caffeine-operation`: as the operation to perform. It can be PUT, GET, INVALIDATE and CLEANUP.
+
+      If the caffeine-key header won't be set the exchange ID will be used as key.
+
+      If the caffeine-operation header won't be set, the GET operation will be performed.
+    required:
+      - cacheName
+    type: object
+    properties:
+      cacheName:
+        title: Cache name
+        description: The name of the cache we want to use
+        type: string
+        default: caffeine-cache
+  dependencies:
+    - "camel:caffeine"
+    - "camel:kamelet"
+  flow:
+    from:
+      uri: "kamelet:source"
+      steps:
+      - choice:
+          when:
+          - simple: "${header[caffeine-key]}"
+            steps:
+            - set-header:
+                name: CamelCaffeineKey
+                simple: "${header[caffeine-key]}"
+          - simple: "${header[ce-caffeine-key]}"
+            steps:
+            - set-header:
+                name: CamelCaffeineKey
+                simple: "${header[ce-caffeine-key]}"
+          otherwise:
+            steps:
+            - set-header:
+                name: CamelCaffeineKey
+                simple: "${body}"
+      - choice:
+          when:
+          - simple: "${header[caffeine-operation]}"
+            steps:
+            - set-header:
+                name: CamelCaffeineAction
+                simple: "${header[caffeine-operation]}"
+          - simple: "${header[ce-caffeine-operation]}"
+            steps:
+            - set-header:
+                name: CamelCaffeineAction
+                simple: "${header[ce-caffeine-operation]}"
+          otherwise:
+            steps:
+            - set-header:
+                name: CamelCaffeineAction
+                constant: "GET"
+      - to:
+          uri: "caffeine-cache:{{cacheName}}"

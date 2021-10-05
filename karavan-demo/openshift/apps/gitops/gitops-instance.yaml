@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ArgoCD
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+  name: argocd
+  namespace: karavan
+spec:
+  server:
+    insecure: true
+    route:
+      enabled: true
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect

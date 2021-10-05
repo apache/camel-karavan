@@ -1,0 +1,96 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: mysql-source
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmVyc2lvbj0iMSI+CiA8cmVjdCBmaWxsPSIjMjY1NTdjIiB3aWR0aD0iMjgiIGhlaWdodD0iMjgiIHg9Ii0zMCIgeT0iLTMwIiByeD0iMS40IiByeT0iMS40IiB0cmFuc2Zvcm09Im1hdHJpeCgwLC0xLC0xLDAsMCwwKSIvPgogPHBhdGggb3BhY2l0eT0iLjIiIGQ9Im04LjAyNTQgOC4wMDAxYy0wLjc4MjUtMC4wMTY2LTEuMTQ5NCAwLjUyNDQtMC45ODgzIDEuNDU3IDAuMDUyIDAuMzAwNiAwLjMxNTIgMC43Mjk5IDAuODgyOCAxLjQ0MTkgMC42MzEyMiAwLjc5MDkgMC44ODUxNCAxLjIyMjcgMS4xNjAyIDEuOTcwNyAwLjQzMzYgMS4xNzkzIDAuNjM0MDMgMS41NzQ4IDAuOTg2MzMgMS45NDM0IDAuMjczNjYgMC4yODYzIDAuMjczNjkgMC4yODcxMiAwLjA4OTg0IDAuODcxMDktMC4yODUwNyAwLjkwNTU2LTAuMzQ0MDcgMi43MjA3LTAuMTE1MjMgMy41NzQyIDAuMzQyNDggMS4yNzc0IDAuNzY0MDIgMS44NTc0IDEuMzUxNiAxLjg1NzQgMC40MTk2OCAwIDAuNzYzNjQtMC4zNTA5MiAwLjg4NjcyLTAuOTA0MyAwLjA0MjY4LTAuMTkxODYgMC4xMjI0OS0wLjQ2NjA3IDAuMTc3NzMtMC42MDkzOCAwLjA5NTM1LTAuMjQ3MjggMC4xMjA5My0wLjIyODE4IDAuNDk0MTQgMC4zODA4NiAwLjIxNjI4IDAuMzUyOTYgMC42Mjg2NiAwLjg3ODYxIDAuOTE2MDIgMS4xNjggMC42NjM4IDAuNjY4NDUgMS41NzQ5IDEuNDIxNyAxLjY0MDYgMS4zNTc0IDAuMDI3NzUtMC4wMjcxMy0wLjIzOC0wLjQyMTc3LTAuNTg5ODQtMC44Nzg5MXMtMS4wMTUxLTEuNTE4OS0xLjQ3NDYtMi4zNTk0Yy0wLjUzNTkzLTAuOTgwMjktMC44OTk3LTEuNTI4Ni0xLjAxMzctMS41MjkzLTAuMzcwNDUtMC4wMDI1LTAuNzE1ODggMC41ODAwNC0wLjkxNjAyIDEuNTQ2OS0wLjIzMDU2IDEuMTEzOC0wLjYzNjc1IDAuOTI3MDgtMC45NjY4LTAuNDQ1MzEtMC4xOTAxOS0wLjc5MDg1LTAuMDkxMDYtMS44NTYgMC4yNjM2Ny0yLjg1MzUgMC4xNjEzNy0wLjQ1Mzc2IDAuMjkyOTctMC44NzM3MyAwLjI5Mjk3LTAuOTMxNjRzLTAuMjU3MzEtMC41NDM0OC0wLjU3MjI3LTEuMDgwMWMtMC4zMTUtMC41MzctMC42ODUxLTEuMjk3LTAuODIyLTEuNjktMC4zMzI2LTAuOTU0LTAuNDkwNS0xLjIzMi0xLjE1ODItMi4wNDMtMC42ODc5LTAuODM0Ni0wLjc1My0xLjIyMDMtMC4yMDUxLTEuMjE2NiAwLjQyNTU0IDAuMDAyODEgMS4xMTIzIDAuMjg5NDQgMS44MDI3IDAuNzUzOTEgMC40MzcxIDAuMjk0MDQgMC41ODUyMyAwLjMzMzk4IDEuMjg3MSAwLjMzMzk4IDAuODgxNDIgMCAxLjA3MDkgMC4wNzIyIDIuMjkzIDAuODc2OTUgMS4yNDQ1IDAuODE5NTggMi4xNzIyIDEuNTgxMyAyLjgxNDUgMi4zMTI1IDAuNTcwNCAwLjY0OTM3IDAuODgyMDEgMS4yMTM4IDIuNTYwNSA0LjY1NjIgMC42NDQzMyAxLjMyMTQgMS4yMTU4IDEuOTU5MyAyLjAwMzkgMi4yMzI0IDEuMjE3MyAwLjQyMTg1IDEuNjMxNyAwLjYxMzE0IDIuMTY4IDAuOTk4MDVsMC41NjY0MSAwLjQwNjI1LTAuMzgwODYgMC4wNzQyMmMtMC4yMTAzIDAuMDQwMzMtMC42Njg0NyAwLjEwNjE2LTEuMDE3NiAwLjE0NjQ4LTAuNzI3NDEgMC4wODQtMS4yMDMxIDAuMzg1NzMtMS4yMDMxIDAuNzYzNjcgMCAwLjQyNTkyIDEuNDUxMyAxLjY0NTMgMi45MDYyIDIuNDQxNCAwLjY5OTAzIDAuMzgyNDcgMS4zNzE2IDAuNzU5MjcgMS40OTQxIDAuODM3ODkgMC4zMjU5OCAwLjIwOTIyIDAuNDE0MjQgMC4xODM4OSAwLjMzMDA4LTAuMDkxOC0wLjE3NjI0LTAuNTc3MzgtMC43NzI3OS0xLjEzOTgtMi40Mjk3LTIuMjk0OS0wLjk3MTk3LTAuNjc3Ni0wLjk4MTk5LTAuNjUyNDQgMC4zMTY0MS0wLjc4MTI1IDAuOTI1LTAuMDkxIDEuMzkyLTAuMjQ5IDEuMzkyLTAuNDcyIDAtMC4xMDItMC40Ny0wLjY0NC0xLjA0NS0xLjIwMy0wLjktMC44NzYtMS4yMDQtMS4wOTQtMi4xOTUtMS41NzctMS4zNS0wLjY1Ni0xLjg0Mi0xLjE3Ny0yLjE1My0yLjI4My0wLjQ2NC0xLjY0OS0xLjcxMi0zLjU4Ny0zLjM3MS01LjIzLTEuNzEyLTEuNjk2LTMuMzQ3LTIuNjM0NC00Ljg0NS0yLjc4MTQtMC42MDktMC4wNTk4LTAuOTI0LTAuMTUyMi0xLjIzOS0wLjM2NTMtMC41MzMyLTAuMzYxMS0xLjc3MTctMC43Njg0LTIuMzc2Ni0wLjc4MTJ6bTIuOTYyOSAzLjAwMmMtMC4xMjI2Ni0wLjAwNzktMC4yMjk0NSAwLjAwODUtMC4zMDI3MyAwLjA1ODU5LTAuMjczNDEgMC4xODY5OS0wLjI0MDk5IDAuNDE1MDQgMC4wODAwOCAwLjU1NjY0IDAuMTUwOTIgMC4wNjY1NiAwLjM2NTAxIDAuMzAxNDcgMC40NzY1NiAwLjUyMTQ4IDAuMzc1MSAwLjczOTc4IDAuOTQ5ODUgMC4yNDQ1IDAuNjkzMzYtMC41OTc2Ni0wLjA4MDg1LTAuMjY1NDYtMC41NzkzLTAuNTE1NDctMC45NDcyNy0wLjUzOTA2eiIvPgogPHBhdGggZmlsbD0iI2ZmZiIgZD0ibTguMDI1NCA3Yy0wLjc4MjUtMC4wMTY2LTEuMTQ5NCAwLjUyNDQtMC45ODgzIDEuNDU3IDAuMDUyIDAuMzAwNiAwLjMxNTIgMC43MzAyIDAuODgyOCAxLjQ0MTQgMC42MzEyIDAuNzkwNiAwLjg4NTIgMS4yMjI2IDEuMTYwMiAxLjk3MDYgMC40MzM2IDEuMTc5IDAuNjM0IDEuNTc1IDAuOTg1OSAxLjk0MyAwLjI3NCAwLjI4NyAwLjI3NCAwLjI4OCAwLjA5IDAuODcyLTAuMjg0OCAwLjkwNS0wLjM0MzggMi43Mi0wLjExNSAzLjU3NCAwLjM0MiAxLjI3NyAwLjc2NCAxLjg1NyAxLjM1MiAxLjg1NyAwLjQxOSAwIDAuNzYzLTAuMzUxIDAuODg2LTAuOTA0IDAuMDQzLTAuMTkyIDAuMTIzLTAuNDY2IDAuMTc4LTAuNjA5IDAuMDk1LTAuMjQ4IDAuMTIxLTAuMjI5IDAuNDk0IDAuMzggMC4yMTYgMC4zNTMgMC42MjkgMC44NzkgMC45MTYgMS4xNjggMC42NjQgMC42NjkgMS41NzUgMS40MjIgMS42NDEgMS4zNTggMC4wMjgtMC4wMjctMC4yMzgtMC40MjItMC41OS0wLjg3OXMtMS4wMTUtMS41MTktMS40NzUtMi4zNTljLTAuNTM2LTAuOTgxLTAuODk5LTEuNTI5LTEuMDEzLTEuNTMtMC4zNzEtMC4wMDItMC43MTYgMC41OC0wLjkxNiAxLjU0Ny0wLjIzMSAxLjExNC0wLjYzNyAwLjkyNy0wLjk2Ny0wLjQ0NS0wLjE5LTAuNzkxLTAuMDkxLTEuODU2IDAuMjY0LTIuODU0IDAuMTYxLTAuNDUzIDAuMjkzLTAuODczIDAuMjkzLTAuOTMxcy0wLjI1OC0wLjU0NC0wLjU3My0xLjA4Yy0wLjMxNS0wLjUzNy0wLjY4NTEtMS4yOTctMC44MjItMS42OS0wLjMzMjYtMC45NTQtMC40OTA1LTEuMjMyLTEuMTU4Mi0yLjA0MjktMC42ODc5LTAuODM0OC0wLjc1My0xLjIyMDQtMC4yMDUxLTEuMjE2OCAwLjQyNTUgMC4wMDI5IDEuMTEyMyAwLjI4OTUgMS44MDIzIDAuNzUzOSAwLjQzOCAwLjI5NDEgMC41ODYgMC4zMzQgMS4yODggMC4zMzQgMC44ODEgMCAxLjA3IDAuMDcyMiAyLjI5MyAwLjg3NyAxLjI0NCAwLjgxOTggMi4xNzIgMS41ODE4IDIuODE0IDIuMzEyOCAwLjU3IDAuNjQ5IDAuODgyIDEuMjE0IDIuNTYxIDQuNjU2IDAuNjQ0IDEuMzIxIDEuMjE1IDEuOTU5IDIuMDAzIDIuMjMyIDEuMjE4IDAuNDIyIDEuNjMyIDAuNjEzIDIuMTY4IDAuOTk4bDAuNTY3IDAuNDA3LTAuMzgxIDAuMDc0Yy0wLjIxIDAuMDQtMC42NjkgMC4xMDYtMS4wMTggMC4xNDYtMC43MjcgMC4wODQtMS4yMDMgMC4zODYtMS4yMDMgMC43NjQgMCAwLjQyNiAxLjQ1MSAxLjY0NSAyLjkwNiAyLjQ0MSAwLjcgMC4zODMgMS4zNzIgMC43NiAxLjQ5NSAwLjgzOCAwLjMyNiAwLjIxIDAuNDE0IDAuMTg0IDAuMzMtMC4wOTEtMC4xNzctMC41NzgtMC43NzMtMS4xNC0yLjQzLTIuMjk1LTAuOTcyLTAuNjc4LTAuOTgyLTAuNjUzIDAuMzE2LTAuNzgyIDAuOTI2LTAuMDkyIDEuMzkzLTAuMjUgMS4zOTMtMC40NzIgMC0wLjEwMi0wLjQ3LTAuNjQ0LTEuMDQ1LTEuMjAzLTAuOS0wLjg3Ny0xLjIwNC0xLjA5NC0yLjE5NS0xLjU3Ny0xLjM1LTAuNjU2LTEuODQyLTEuMTc3LTIuMTUzLTIuMjgzLTAuNDY0LTEuNjUtMS43MTItMy41ODctMy4zNzEtNS4yMy0xLjcxMi0xLjY5NjUtMy4zNDctMi42MzQ1LTQuODQ1LTIuNzgxNS0wLjYwOS0wLjA1OTgtMC45MjQtMC4xNTIyLTEuMjM5LTAuMzY1My0wLjUzMzItMC4zNjExLTEuNzcxNy0wLjc2ODQtMi4zNzY2LTAuNzgxMnptMi45NjI2IDMuMDAyYy0wLjEyMi0wLjAwNzktMC4yMjkgMC4wMDgtMC4zMDIgMC4wNTktMC4yNzQgMC4xODctMC4yNDEgMC40MTUgMC4wOCAwLjU1NiAwLjE1MSAwLjA2NyAwLjM2NSAwLjMwMiAwLjQ3NiAwLjUyMiAwLjM3NSAwLjczOSAwLjk1IDAuMjQ0IDAuNjk0LTAuNTk4LTAuMDgxLTAuMjY1LTAuNTgtMC41MTUtMC45NDgtMC41Mzl6Ii8+CiA8cGF0aCBmaWxsPSIjZmZmIiBvcGFjaXR5PSIuMSIgZD0ibTMuNDAwNCAyYy0wLjc3NTYgMC0xLjQwMDQgMC42MjQ4LTEuNDAwNCAxLjQwMDR2MWMwLTAuNzc1NiAwLjYyNDgtMS40MDA0IDEuNDAwNC0xLjQwMDRoMjUuMmMwLjc3NSAwIDEuNCAwLjYyNDggMS40IDEuNDAwNHYtMWMwLTAuNzc1Ni0wLjYyNS0xLjQwMDQtMS40LTEuNDAwNGgtMjUuMnoiLz4KIDxwYXRoIG9wYWNpdHk9Ii4yIiBkPSJtMiAyOC42djFjMCAwLjc3NSAwLjYyNDggMS40IDEuNDAwNCAxLjRoMjUuMmMwLjc3NSAwIDEuNC0wLjYyNSAxLjQtMS40di0xYzAgMC43NzUtMC42MjUgMS40LTEuNCAxLjRoLTI1LjJjLTAuNzc1MiAwLTEuNC0wLjYyNS0xLjQtMS40eiIvPgo8L3N2Zz4K"
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "SQL"
+  labels:
+    camel.apache.org/kamelet.type: "source"
+spec:
+  definition:
+    title: "MySQL Source"
+    description: |-
+      Query data from a MySQL Database.
+
+      In you KameletBinding file you'll need to explicitly declare the SQL Server driver dependency in spec->integration->dependencies
+      
+      - "mvn:mysql:mysql-connector-java:<version>"
+    required:
+      - serverName
+      - username
+      - password
+      - query
+      - databaseName
+    type: object
+    properties:
+      serverName:
+        title: Server Name
+        description: Server Name for the data source
+        type: string
+        example: localhost
+      port:
+        title: Port
+        description: Server Port for the data source
+        type: string
+        default: 3306
+      username:
+        title: Username
+        description: The username to use for accessing a secured MySQL Database
+        type: string
+      password:
+        title: Password
+        description: The password to use for accessing a secured MySQL Database
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      query:
+        title: Query
+        description: The Query to execute against the MySQL Database
+        type: string
+        example: 'INSERT INTO accounts (username,city) VALUES (:#username,:#city)'
+      databaseName:
+        title: Database Name
+        description: The Database Name we are pointing
+        type: string
+      consumedQuery:
+        title: Consumed Query
+        description: A query to run on a tuple consumed
+        type: string
+        example: 'DELETE FROM accounts where user_id = :#user_id'
+  types:
+    out:
+      mediaType: application/json
+  dependencies:
+  - "camel:jackson"
+  - "camel:kamelet"
+  - "camel:sql"
+  - "mvn:org.apache.commons:commons-dbcp2:2.8.0"
+  flow:
+    beans:
+      - name: dsBean
+        type: "#class:org.apache.commons.dbcp2.BasicDataSource"
+        property:
+          - key: username
+            value: '{{username}}'
+          - key: password
+            value: '{{password}}'
+          - key: url
+            value: 'jdbc:mysql://{{serverName}}:{{port}}/{{databaseName}}'
+          - key: driverClassName
+            value: 'com.mysql.cj.jdbc.Driver'
+    from:
+      uri: "sql:{{query}}"
+      parameters:
+        dataSource: "#bean:{{dsBean}}"
+        onConsume: "{{?consumedQuery}}"
+      steps:
+      - marshal:
+          json: 
+            library: Jackson
+      - to: "kamelet:sink"
+

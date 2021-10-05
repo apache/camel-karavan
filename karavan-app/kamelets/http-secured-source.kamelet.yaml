@@ -1,0 +1,79 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: http-secured-source
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MjAiCmhlaWdodD0iNDIwIiBzdHJva2U9IiMwMDAiIGZpbGw9Im5vbmUiPgo8cGF0aCBzdHJva2Utd2lkdGg9IjI2IgpkPSJNMjA5LDE1YTE5NSwxOTUgMCAxLDAgMiwweiIvPgo8cGF0aCBzdHJva2Utd2lkdGg9IjE4IgpkPSJtMjEwLDE1djM5MG0xOTUtMTk1SDE1TTU5LDkwYTI2MCwyNjAgMCAwLDAgMzAyLDAgbTAsMjQwIGEyNjAsMjYwIDAgMCwwLTMwMiwwTTE5NSwyMGEyNTAsMjUwIDAgMCwwIDAsMzgyIG0zMCwwIGEyNTAsMjUwIDAgMCwwIDAtMzgyIi8+Cjwvc3ZnPg=="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "HTTP"
+  labels:
+    camel.apache.org/kamelet.type: "source"
+spec:
+  definition:
+    title: "HTTP Secured Source"
+    description: |-
+      Periodically fetches a secured HTTP resource and provides the content as output.
+    required:
+    - url
+    type: object
+    properties:
+      period:
+        title: Period between Updates
+        description: The interval between fetches in milliseconds
+        type: integer
+        default: 10000
+      contentType:
+        title: Content Type
+        description: The content type accepted for the resource
+        type: string
+        default: "application/json"
+      url:
+        title: URL
+        description: The URL to fetch for data
+        type: string
+        example: "https://gist.githubusercontent.com/nicolaferraro/e3c72ace3c751f9f88273896611ce5fe/raw/3b6f54060bacb56b6719b7386a4645cb59ad6cc1/quote.json"
+        pattern: "^(http|https)://.*"
+      authMethod:
+        title: Authentication Method
+        description: Authentication methods allowed to use as a comma separated list of values Basic, Digest or NTLM.
+        type: string
+        default: "Basic"
+      authenticationPreemptive:
+        title: Authentication Preemptive
+        description: If this option is true, camel-http sends preemptive basic authentication to the server.
+        type: boolean
+        x-descriptors:
+        - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: false
+      authUsername:
+        title: Authentication Username
+        description: Authentication username
+        type: string
+      authPassword:
+        title: Authentication Password
+        description: Authentication password
+        type: string
+  dependencies:
+    - "camel:http"
+    - "camel:kamelet"
+    - "camel:core"
+    - "camel:timer"
+  flow:
+    from:
+      uri: "timer:fetch"
+      parameters:
+        period: "{{period}}"
+      steps:
+      - set-header:
+          name: "Accept"
+          constant: "{{contentType}}"
+      - to:
+          uri: "{{url}}"
+          parameters: 
+            authMethod: "{{authMethod}}"
+            authUsername: "{{authUsername}}"
+            authPassword: "{{authPassword}}"
+            authenticationPreemptive: "{{authenticationPreemptive}}"
+      - to: "kamelet:sink"

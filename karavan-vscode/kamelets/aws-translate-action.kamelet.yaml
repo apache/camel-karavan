@@ -1,0 +1,70 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: aws-translate-action
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgMTIyLjg4IDg0LjgxIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMjIuODggODQuODEiIHhtbDpzcGFjZT0icHJlc2VydmUiPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LnN0MHtmaWxsLXJ1bGU6ZXZlbm9kZDtjbGlwLXJ1bGU6ZXZlbm9kZDt9PC9zdHlsZT48Zz48cGF0aCBjbGFzcz0ic3QwIiBkPSJNMTE4LjI5LDEwLjljMi4zMSwyLjMxLDMuOSw1LjM0LDQuNDEsOC43MmMwLjE5LDEuMywwLjE4LDIuNDIsMC4xOCwzLjd2MjEuMDljMCwxLjE0LDAuMDMsMi4yNy0wLjA3LDMuNDEgYy0wLjQ0LDQuNzItMy4wOCw5LjA3LTcuMDYsMTEuNjRjLTUuMDQsMy4yNy0xMC44LDIuNTItMTYuODMsMi41MmMxLjk5LDUuNDgsNiwxMC41NCwxMC4zMywxNC4zN2wtMS42MiwzLjA0bC0wLjA1LTAuMDIgYy0xMC40OS0yLjctMjEuNTUtOC45LTI4LjI5LTE3LjRjLTQuMTctMC4wNC03LjU4LDAuMDEtMTEuNzQtMC41NWMtNC41OCwyLjc4LTEwLjAzLDQuNTktMTUuNDEsNC41OSBjLTMuNDksNC4zNS03LjU1LDguMDctMTIuMTksMTEuMTJjLTUuMDEsMy4yOS0xMC42Nyw1Ljc5LTE2Ljk4LDcuNDVjLTAuMzEsMC4wOC0wLjYyLDAuMTYtMC45NCwwLjIgYy0xLjA5LDAuMTItMi4yMy0wLjI3LTMuMDEtMS4xNWMtMS4yOC0xLjQ0LTEuMTQtMy42NSwwLjMtNC45M2M0LjA4LTMuNjEsNi4zNi03LjU3LDcuOTktMTIuNjdjLTcuOTYsMC0xNC42MiwwLjg0LTIxLjEtNS42MyBjLTguMDktOC4xLTYuMDgtMjYuOTMtNS42Ny0zOC4yM2MwLjEzLTMuNjMtMC4xMi02LjAyLDEuMzMtOS44MUMzLjc1LDcuNDIsNy42NSwzLjQzLDEyLjU4LDEuNDVjNC42MS0xLjg2LDkuNjItMS40LDE0LjQ4LTEuNCBoMjkuNTVjMi4xNywwLDMuOTQtMC4wMSw2LjE2LDAuNTFjMy43NCwwLjg2LDcuMTMsMi44NSw5Ljc4LDUuNzRsMzQuMTIsMC4wMUMxMTEuMTgsNi4zMSwxMTUuMDUsNy42NSwxMTguMjksMTAuOUwxMTguMjksMTAuOXogTTk5LjkzLDQyLjc5aC04Ljk3bC0xLjI0LDQuNDZoLTguMDRjMi42OS03LjYsNS4zOS0xNS4yMSw4LjA4LTIyLjgyYzAuOTctMi43NSwyLjA3LTcuMyw1LjYtNy4zYzMuNjYsMCw0Ljg3LDQuMTcsNS44OSw3LjA1IGw4LjE4LDIzLjA2aC04LjI0TDk5LjkzLDQyLjc5TDk5LjkzLDQyLjc5eiBNOTguMjgsMzYuOTRsLTIuODItOS43MmwtMi44LDkuNzJIOTguMjhMOTguMjgsMzYuOTR6IE04My4xNSw3MS42NmwtNS44My00LjgyIGwtNy4yOCw4Ljk5bC0xMC41Ny05LjE3bC00Ljk5LDUuNjRsMTEuNDUsOS4xMWw5LjI4LTAuOEw4My4xNSw3MS42Nkw4My4xNSw3MS42NnogTTc2LjY1LDkuODZjMy40MiwxMy4zMSw3LjA3LDM2LjY5LTIuMTEsNDguNTMgYzIuMTcsMC4wMyw0LjMxLDAuMDMsNi40OCwwLjAzYzQuOTIsNi41NCwxMS4yNCwxMS4xMSwxOC42OCwxNC40NWMwLjcsMC4zMSwxLjQxLDAuNjIsMi4xMiwwLjljLTIuNTMtMy4wNi00Ljc1LTYuNTktNi4xNi0xMC4zMyBjLTAuNjUtMS43My0xLTMuMjUtMS40NC01LjAyYzIuMDQsMCw0LjA0LDAuMDIsNi4wOSwwLjA5YzQuNTMsMC4xNiw5LjMsMC4yOSwxMy4wNy0xLjgyYzEuNjMtMC45MSwyLjk0LTIuMiwzLjk3LTMuNzUgYzAuOTEtMS4zOSwxLjU1LTIuOTgsMS44My00LjY3YzAuMjEtMS4yOCwwLjE0LTIuNjksMC4xNC0zLjk5VjIyLjYzYzAtMC41NywwLjAxLTEuMDktMC4wMy0xLjY2Yy0wLjIzLTIuOTMtMS41My01LjU5LTMuNTEtNy41NyBjLTEuOTItMS45My00LjQ5LTMuMjEtNy4zMy0zLjQ5Yy0wLjczLTAuMDctMS40NS0wLjA2LTIuMTgtMC4wNkw3Ni42NSw5Ljg2TDc2LjY1LDkuODZ6IE0yMS4yMSwxMy40OWgxMy40NFY5LjdoNnYzLjc5aDEzLjQ5djYuMjIgaC0yLjc3Yy0wLjIyLDEuNzUtMC42MywzLjQ5LTEuMTksNS4yMWwwLjAxLDBjLTAuNTcsMS43NS0xLjM1LDMuNTEtMi4yOCw1LjI1Yy0xLjU4LDIuOTUtMy42Miw1Ljc4LTUuOTgsOC41IGMzLjc4LDQuNTIsOC40Niw4LjQ1LDE0LjA1LDEyLjAzbC0zLjA5LDQuODFjLTUuODYtMy43Ni0xMC44NC03LjktMTQuOTMtMTIuNjdjLTMuNjYsMy41NC03LjgxLDYuODQtMTIuMTcsOS44NWwtMy4yNS00LjcgYzQuMzEtMi45OCw4LjQtNi4yNCwxMS45Mi05LjcxYy0zLjI1LTQuNzUtNS43My0xMC4wOC03LjQ1LTE2LjIxbDUuNTEtMS41NGMxLjQxLDUuMDMsMy4zOSw5LjQ1LDUuOTMsMTMuNDEgYzEuNzMtMi4xLDMuMjMtNC4yNSw0LjQyLTYuNDZjMC43NS0xLjQsMS4zOS0yLjg2LDEuODgtNC4zNWwwLjAxLDB2MGMwLjM3LTEuMTEsMC42NS0yLjI2LDAuODQtMy40MkgyMS4yMVYxMy40OUwyMS4yMSwxMy40OXoiLz48L2c+PC9zdmc+"
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "AWS Translate"
+  labels:
+    camel.apache.org/kamelet.type: "action"
+spec:
+  definition:
+    title: "AWS Translate Action"
+    description: |-
+      Translate a text in a specific language
+    required:
+      - accessKey
+      - secretKey
+      - region
+      - sourceLanguage
+      - targetLanguage
+    type: object
+    properties:
+      accessKey:
+        title: Access Key
+        description: The access key obtained from AWS.
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      secretKey:
+        title: Secret Key
+        description: The secret key obtained from AWS.
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      region:
+        title: AWS Region
+        description: The AWS region to connect to.
+        type: string
+        example: eu-west-1
+      sourceLanguage:
+        title: Source Language
+        description: The source language of the translating text. Possible values are ARABIC("ar"), CHINESE_SIMPLIFIED("zh"), CHINESE_TRADITIONAL("zh-TW"), CZECH("cs"), DANISH("da"), DUTCH("nl"), ENGLISH("en"), FINNISH("fi"), FRENCH("fr"), GERMAN("de"), HEBREW("he"), HINDI("hi"), INDONESIAN("id"), ITALIAN("it"), JAPANESE("ja"), KOREAN("ko"), MALAY("ms"), NORWEGIAN("no"), PERSIAN("fa"), POLISH("pl"), PORTUGUESE("pt"), RUSSIAN("ru"), SPANISH("es"), SWEDISH("sv") and TURKISH("tr").
+        type: string
+        example: it
+      targetLanguage:
+        title: Target Language
+        description: The target language of the translating text. Possible values are ARABIC("ar"), CHINESE_SIMPLIFIED("zh"), CHINESE_TRADITIONAL("zh-TW"), CZECH("cs"), DANISH("da"), DUTCH("nl"), ENGLISH("en"), FINNISH("fi"), FRENCH("fr"), GERMAN("de"), HEBREW("he"), HINDI("hi"), INDONESIAN("id"), ITALIAN("it"), JAPANESE("ja"), KOREAN("ko"), MALAY("ms"), NORWEGIAN("no"), PERSIAN("fa"), POLISH("pl"), PORTUGUESE("pt"), RUSSIAN("ru"), SPANISH("es"), SWEDISH("sv") and TURKISH("tr").
+        type: string
+        example: en
+  dependencies:
+    - "camel:dns"
+    - "camel:kamelet"
+    - "camel:aws2-translate"
+  flow:
+    from:
+      uri: "kamelet:source"
+      steps:
+      - to:
+          uri: "aws2-translate://translate"
+          parameters:
+            secretKey: "{{secretKey}}"
+            accessKey: "{{accessKey}}"
+            region: "{{region}}"
+            sourceLanguage: "{{sourceLanguage}}"
+            targetLanguage: "{{targetLanguage}}"

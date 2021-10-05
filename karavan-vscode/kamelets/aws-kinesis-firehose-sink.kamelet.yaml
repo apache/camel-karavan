@@ -1,0 +1,60 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: aws-kinesis-firehose-sink
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgODUgODUiIGZpbGw9IiNmZmYiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjx1c2UgeGxpbms6aHJlZj0iI0EiIHg9IjIuNSIgeT0iMi41Ii8+PHN5bWJvbCBpZD0iQSIgb3ZlcmZsb3c9InZpc2libGUiPjxnIHN0cm9rZT0ibm9uZSI+PHBhdGggZD0iTTEzLjc2NiAzLjEyaDUyLjQ2OGMzLjY1MSAwIDcuMTUyIDEuMzYzIDkuNzM0IDMuNzg4UzgwIDEyLjYyNCA4MCAxNi4wNTR2MjEuNjk4Yy0yLjcxNy0xLjMxOS04LjY2NC0yLjcyMy0xNy40NjQtMi43MjMtMy4zNy0uMDEzLTYuNzM3LjIyNC0xMC4wNjguNzA5LTUuOTMyLjkyMi05LjA1NyAyLjUxLTkuMDU3IDMuNDg5djM2Ljg3M2MwIC42MS44OTEgMS40MTggMi41ODEgMi4yMTJIMTMuNzY2QzYuMTYzIDc4LjMxMyAwIDcyLjUyMiAwIDY1LjM3OVYxNi4wNTRDMCA4LjkxMSA2LjE2MyAzLjEyIDEzLjc2NiAzLjEyeiIgZmlsbD0iIzlkNTAyNSIvPjxwYXRoIGQ9Ik0xMy43NjYgMGg1Mi40NjhjMy42NTEgMCA3LjE1MiAxLjM2MyA5LjczNCAzLjc4OFM4MCA5LjUwNCA4MCAxMi45MzR2MjEuNjdjLTIuNzE3LTEuMzE5LTguNjY0LTIuNzIzLTE3LjQ2NC0yLjcyM2E2Ny45NCA2Ny45NCAwIDAgMC0xMC4wNjguNzA5Yy01LjkzMi45MjItOS4wNTcgMi41MS05LjA1NyAzLjQ4OXYzNi44MTZjMCAuNjEuODkxIDEuNDE4IDIuNTgxIDIuMjEySDEzLjc2NmMtMy42NTEgMC03LjE1Mi0xLjM2My05LjczNC0zLjc4OFMwIDY1LjYwNCAwIDYyLjE3NHYtNDkuMjRDMCA1Ljc5MSA2LjE2MyAwIDEzLjc2NiAweiIgZmlsbD0iI2Y1ODUzNCIvPjxwYXRoIGQ9Ik02My45MjQgNDEuODA4YTU3LjAzIDU3LjAzIDAgMCAwLTguNDUzLjU5NiAyNi40NCAyNi40NCAwIDAgMS03LjU0Ny0uNjI0djMuNTQ2YzAgLjgyMyAyLjY0MSAyLjE1NiA3LjU0NyAyLjkwN2E1NC40NyA1NC40NyAwIDAgMCA4LjQ1My41OTZDNzQuMzM5IDQ4LjgyOCA4MCA0Ni41MTcgODAgNDUuMzI2VjQxLjc4em0tMTYuMzc3IDEwLjQxdjI0LjI1MWMwIDEuMjIgNC41MjggMy41MTcgMTUuMzIxIDMuNTE3YTUxLjY4IDUxLjY4IDAgMCAwIDEzLjI2OC0xLjQxOGMyLjE0My0uNjUyIDMuNjY4LTEuNDE4IDMuODM0LTEuOTQzVjUyLjUxNmMtMy4xNCAxLjgyOS05LjYxNSAyLjgzNi0xNi4wNDUgMi44MzZoLTIuNjcxbC0xLjYzLS4yN2gtLjgxNWwtMS4yNjgtLjA5OS0uNjc5LS4wOTktMS4zNTgtLjE3YTIyLjQ5IDIyLjQ5IDAgMCAxLTcuOTU1LTIuNDk2eiIgZmlsbD0iIzlkNTAyNSIvPjxwYXRoIGQ9Ik02My45MjQgMzguMjc3YTU3LjAxIDU3LjAxIDAgMCAwLTguNDUzLjU5NmMtNC45ODEuNzgtNy41NDcgMi4xMTMtNy41NDcgMi45MjJzMi42NDEgMi4xNTYgNy41NDcgMi45MDdhNTQuNDYgNTQuNDYgMCAwIDAgOC40NTMuNTk2Qzc0LjMzOSA0NS4yOTggODAgNDIuOTg2IDgwIDQxLjc5NXMtNS42Ni0zLjUxNy0xNi4wNzYtMy41MTd6TTQ3LjU0NyA0OC42NzN2MjQuMjIzYzAgMS4yMzQgNC41MjggMy41MDMgMTUuMjc1IDMuNTAzYTUxLjY4IDUxLjY4IDAgMCAwIDEzLjI2OC0xLjQxOGMyLjE0My0uNjUyIDMuNjY4LTEuNDE4IDMuODM0LTEuOTQzdi0yNC4xMWMtMy4xNCAxLjgzLTkuNjE1IDIuODM2LTE2LjA0NSAyLjgzNmgtMi42NzJsLTEuNTg1LS4yMjdoLS44MTVsLTEuMjY4LS4wOTktLjY3OS0uMDk5LTEuMzU4LS4xN2EyMi40OSAyMi40OSAwIDAgMS03Ljk1NS0yLjQ5NnoiIGZpbGw9IiNmNTg1MzQiLz48cGF0aCBkPSJNMTMuNzY2IDc1LjE2NWgzMi4xOTZ2My4xMkgxMy43NjZDNi4xNjMgNzguMjg1IDAgNzIuNDk0IDAgNjUuMzUxdi0zLjEyYzAgNy4xNDMgNi4xNjMgMTIuOTM0IDEzLjc2NiAxMi45MzR6IiBmaWxsPSIjOWQ1MDI1Ii8+PHBhdGggZD0iTTY1LjE3NyAxNi4xNjhMNTMuMTAyIDQuODIydjUuNjczSDM0LjI0OVYzMC4zNWgxOC44MjN2Mi4xODRsNC4yNTYtLjQ0TDY5LjcyIDIwLjQyMnptLTU3LjU2OS0uMDAxdjE0LjE4MmgyMC44M1YxMC40NTJINy42MDh2NS43MTV6bTUuODExIDMzLjUxMnYxNC4xODJoMjAuODNWNDMuOTY0aC0yMC44M3Y1LjcxNXoiLz48L2c+PC9zeW1ib2w+PC9zdmc+"
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "AWS Kinesis Firehose"
+  labels:
+    camel.apache.org/kamelet.type: sink
+spec:
+  definition:
+    title: AWS Kinesis Firehose Sink
+    description: |-
+      Send message to an AWS Kinesis Firehose Stream
+    required:
+      - streamName
+      - accessKey
+      - secretKey
+      - region
+    type: object
+    properties:
+      streamName:
+        title: Stream Name
+        description: The name of the stream we want to send to data to
+        type: string
+      accessKey:
+        title: Access Key
+        description: The access key obtained from AWS
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      secretKey:
+        title: Secret Key
+        description: The secret key obtained from AWS
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      region:
+        title: AWS Region
+        description: The AWS region to connect to
+        type: string
+        example: eu-west-1
+  dependencies:
+    - "camel:aws2-kinesis"
+    - "camel:kamelet"
+  flow:
+    from:
+      uri: kamelet:source
+      steps:
+      - to:
+          uri: "aws2-kinesis-firehose:{{streamName}}"
+          parameters:
+            accessKey: "{{accessKey}}"
+            secretKey: "{{secretKey}}"
+            region: "{{region}}"

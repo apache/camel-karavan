@@ -1,0 +1,103 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: elasticsearch-search-source
+  labels:
+    camel.apache.org/kamelet.type: "source"
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.group: "ElasticSearch"
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA1NTAgMjUwIiB2aWV3Qm94PSI3Nyw4Myw0MTAsOTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiA8cGF0aCBkPSJtMTc4IDEwMi41aDMxM3Y0MWgtMzEzeiIgZmlsbD0ibm9uZSIvPgogPGcgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyI+CiAgPHBhdGggZD0ibTE5My4zIDEzOS40Yy00IDAtNy4yLTEuMi05LjUtMy41cy0zLjQtNS42LTMuNC05LjdjMC00LjIgMS4xLTcuNiAzLjItMTBzNS0zLjYgOC43LTMuNmMzLjQgMCA2LjEgMSA4LjEgMy4xczMgNC45IDMgOC42djNoLTE3LjNjLjEgMi41LjggNC40IDIgNS44czMuMSAyIDUuNCAyYzEuNSAwIDMtLjEgNC4zLS40czIuNy0uOCA0LjMtMS40djQuNWMtMS4zLjYtMi43IDEuMS00LjEgMS40cy0zIC4yLTQuNy4yem0tMS4xLTIyLjZjLTEuOCAwLTMuMi42LTQuMiAxLjdzLTEuNyAyLjctMS45IDQuOWgxMS44YzAtMi4xLS41LTMuOC0xLjUtNC45cy0yLjQtMS43LTQuMi0xLjd6Ii8+CiAgPHBhdGggZD0ibTIxNS4xIDEzOWgtNS41di0zNi41aDUuNXoiLz4KICA8cGF0aCBkPSJtMjM5LjIgMTM5LTEuMS0zLjZoLS4yYy0xLjIgMS42LTIuNSAyLjctMy44IDMuMnMtMi45LjktNC45LjljLTIuNSAwLTQuNS0uNy02LTIuMXMtMi4xLTMuMy0yLjEtNS44YzAtMi43IDEtNC43IDMtNnM1LTIuMSA5LjEtMi4ybDQuNS0uMXYtMS40YzAtMS43LS40LTIuOS0xLjItMy43cy0yLTEuMi0zLjYtMS4yYy0xLjMgMC0yLjYuMi0zLjguNnMtMi40LjktMy41IDEuNGwtMS44LTMuOWMxLjQtLjcgMi45LTEuMyA0LjYtMS43czMuMi0uNiA0LjctLjZjMy4zIDAgNS44LjcgNy41IDIuMnMyLjUgMy43IDIuNSA2Ljh2MTcuMnptLTguMi0zLjhjMiAwIDMuNi0uNiA0LjgtMS43czEuOC0yLjcgMS44LTQuN3YtMi4ybC0zLjMuMWMtMi42LjEtNC41LjUtNS43IDEuM3MtMS44IDItMS44IDMuNmMwIDEuMi4zIDIuMSAxIDIuN3MxLjguOSAzLjIuOXoiLz4KICA8cGF0aCBkPSJtMjY4LjIgMTMxLjZjMCAyLjUtLjkgNC41LTIuOCA1LjhzLTQuNSAyLTcuOSAyYy0zLjUgMC02LjItLjUtOC4zLTEuNnYtNC44YzMgMS40IDUuOSAyLjEgOC41IDIuMSAzLjQgMCA1LjEtMSA1LjEtMy4xIDAtLjctLjItMS4yLS42LTEuNnMtMS0uOS0xLjktMS40LTIuMS0xLTMuNi0xLjZjLTMtMS4yLTUtMi4zLTYuMS0zLjVzLTEuNi0yLjctMS42LTQuNWMwLTIuMi45LTMuOSAyLjctNS4yczQuMi0xLjggNy4zLTEuOGMzIDAgNS45LjYgOC42IDEuOWwtMS44IDQuMWMtMi44LTEuMi01LjEtMS43LTcuMS0xLjctMi45IDAtNC40LjgtNC40IDIuNSAwIC44LjQgMS41IDEuMSAyLjFzMi40IDEuMyA1IDIuM2MyLjEuOCAzLjcgMS42IDQuNyAyLjNzMS43IDEuNSAyLjIgMi40Yy43IDEgLjkgMiAuOSAzLjN6Ii8+CiAgPHBhdGggZD0ibTI4My44IDEzNWMxLjMgMCAyLjctLjIgNC0uNnY0LjFjLS42LjMtMS40LjUtMi40LjdzLTIgLjMtMyAuM2MtNS4yIDAtNy44LTIuOC03LjgtOC4ydi0xNGgtMy41di0yLjRsMy44LTIgMS45LTUuNWgzLjR2NS44aDcuNHY0LjJoLTcuNHYxMy45YzAgMS4zLjMgMi4zIDEgMi45czEuNi44IDIuNi44eiIvPgogIDxwYXRoIGQ9Im0yOTIuNyAxMDYuMmMwLTEgLjMtMS43LjgtMi4zczEuMy0uOCAyLjMtLjggMS43LjMgMi4zLjguOCAxLjMuOCAyLjNjMCAuOS0uMyAxLjctLjggMi4ycy0xLjMuOC0yLjMuOC0xLjgtLjMtMi4zLS44LS44LTEuMy0uOC0yLjJ6bTUuOSAzMi44aC01LjV2LTI1LjloNS41eiIvPgogIDxwYXRoIGQ9Im0zMTYuOSAxMzkuNGMtMy45IDAtNi45LTEuMS04LjktMy40cy0zLjEtNS42LTMuMS05LjljMC00LjQgMS4xLTcuNyAzLjItMTAuMXM1LjItMy41IDkuMi0zLjVjMi43IDAgNS4yLjUgNy40IDEuNWwtMS43IDQuNGMtMi4zLS45LTQuMi0xLjQtNS44LTEuNC00LjUgMC02LjcgMy02LjcgOC45IDAgMi45LjYgNS4xIDEuNyA2LjZzMi44IDIuMiA0LjkgMi4yYzIuNSAwIDQuOC0uNiA3LTEuOHY0LjhjLTEgLjYtMiAxLTMuMiAxLjJzLTIuNC41LTQgLjV6Ii8+CiAgPHBhdGggZD0ibTM0Ny42IDEzMS42YzAgMi41LS45IDQuNS0yLjggNS44cy00LjUgMi03LjkgMmMtMy41IDAtNi4yLS41LTguMy0xLjZ2LTQuOGMzIDEuNCA1LjkgMi4xIDguNSAyLjEgMy40IDAgNS4xLTEgNS4xLTMuMSAwLS43LS4yLTEuMi0uNi0xLjZzLTEtLjktMS45LTEuNC0yLjEtMS0zLjYtMS42Yy0zLTEuMi01LTIuMy02LjEtMy41cy0xLjYtMi43LTEuNi00LjVjMC0yLjIuOS0zLjkgMi43LTUuMnM0LjItMS44IDcuMy0xLjhjMyAwIDUuOS42IDguNiAxLjlsLTEuOCA0LjFjLTIuOC0xLjItNS4xLTEuNy03LjEtMS43LTIuOSAwLTQuNC44LTQuNCAyLjUgMCAuOC40IDEuNSAxLjEgMi4xczIuNCAxLjMgNSAyLjNjMi4xLjggMy43IDEuNiA0LjcgMi4zczEuNyAxLjUgMi4yIDIuNGMuNyAxIC45IDIgLjkgMy4zeiIvPgogIDxwYXRoIGQ9Im0zNjQuOSAxMzkuNGMtNCAwLTcuMi0xLjItOS41LTMuNXMtMy40LTUuNi0zLjQtOS43YzAtNC4yIDEuMS03LjYgMy4yLTEwczUtMy42IDguNy0zLjZjMy40IDAgNi4xIDEgOC4xIDMuMXMzIDQuOSAzIDguNnYzaC0xNy4zYy4xIDIuNS44IDQuNCAyIDUuOHMzLjEgMiA1LjQgMmMxLjUgMCAzLS4xIDQuMy0uNHMyLjctLjggNC4zLTEuNHY0LjVjLTEuMy42LTIuNyAxLjEtNC4xIDEuNHMtMi45LjItNC43LjJ6bS0xLTIyLjZjLTEuOCAwLTMuMi42LTQuMiAxLjdzLTEuNyAyLjctMS45IDQuOWgxMS44YzAtMi4xLS41LTMuOC0xLjUtNC45cy0yLjUtMS43LTQuMi0xLjd6Ii8+CiAgPHBhdGggZD0ibTM5Ny40IDEzOS0xLjEtMy42aC0uMmMtMS4yIDEuNi0yLjUgMi43LTMuOCAzLjJzLTIuOS45LTQuOS45Yy0yLjUgMC00LjUtLjctNi0yLjFzLTIuMS0zLjMtMi4xLTUuOGMwLTIuNyAxLTQuNyAzLTZzNS0yLjEgOS4xLTIuMmw0LjUtLjF2LTEuNGMwLTEuNy0uNC0yLjktMS4yLTMuN3MtMi0xLjItMy42LTEuMmMtMS4zIDAtMi42LjItMy44LjZzLTIuNC45LTMuNSAxLjRsLTEuOC0zLjljMS40LS43IDIuOS0xLjMgNC42LTEuN3MzLjItLjYgNC43LS42YzMuMyAwIDUuOC43IDcuNSAyLjJzMi41IDMuNyAyLjUgNi44djE3LjJ6bS04LjItMy44YzIgMCAzLjYtLjYgNC44LTEuN3MxLjgtMi43IDEuOC00Ljd2LTIuMmwtMy4zLjFjLTIuNi4xLTQuNS41LTUuNyAxLjNzLTEuOCAyLTEuOCAzLjZjMCAxLjIuMyAyLjEgMSAyLjdzMS45LjkgMy4yLjl6Ii8+CiAgPHBhdGggZD0ibTQyMi4yIDExMi42YzEuMSAwIDIgLjEgMi43LjJsLS41IDUuMWMtLjgtLjItMS42LS4zLTIuNC0uMy0yLjIgMC00IC43LTUuNCAyLjJzLTIuMSAzLjMtMi4xIDUuNnYxMy42aC01LjV2LTI1LjloNC4zbC43IDQuNmguM2MuOS0xLjUgMi0yLjggMy40LTMuN3MyLjktMS40IDQuNS0xLjR6Ii8+CiAgPHBhdGggZD0ibTQ0MC4yIDEzOS40Yy0zLjkgMC02LjktMS4xLTguOS0zLjRzLTMuMS01LjYtMy4xLTkuOWMwLTQuNCAxLjEtNy43IDMuMi0xMC4xczUuMi0zLjUgOS4yLTMuNWMyLjcgMCA1LjIuNSA3LjQgMS41bC0xLjcgNC40Yy0yLjMtLjktNC4yLTEuNC01LjgtMS40LTQuNSAwLTYuNyAzLTYuNyA4LjkgMCAyLjkuNiA1LjEgMS43IDYuNnMyLjggMi4yIDQuOSAyLjJjMi41IDAgNC44LS42IDctMS44djQuOGMtMSAuNi0yIDEtMy4yIDEuMnMtMi40LjUtNCAuNXoiLz4KICA8cGF0aCBkPSJtNDc2LjMgMTM5aC01LjV2LTE2YzAtMi0uNC0zLjUtMS4yLTQuNXMtMi4xLTEuNS0zLjgtMS41Yy0yLjMgMC00IC43LTUuMSAyLjFzLTEuNiAzLjctMS42IDYuOXYxM2gtNS41di0zNi41aDUuNXY5LjNjMCAxLjUtLjEgMy4xLS4zIDQuOGguNGMuOC0xLjIgMS44LTIuMiAzLjEtMi45czIuOS0xIDQuNy0xYzYuMyAwIDkuNCAzLjIgOS40IDkuNXYxNi44eiIvPgogPC9nPgogPHBhdGggZD0ibTE0MS44IDExNS41aC0yMC45Yy4xLjUuMyAxIC40IDEuNC43IDIuNCAxLjEgNC45IDEuMyA3LjUuMSAxIC4xIDIuMS4xIDMuMXMwIDIuMS0uMSAzLjFjLS4yIDIuNi0uNiA1LjEtMS4zIDcuNS0uMS41LS4zIDEtLjQgMS40aDIwLjljNi42IDAgMTEuOS01LjQgMTEuOS0xMnMtNS4zLTEyLTExLjktMTJ6IiBmaWxsPSIjMDBhOWU1Ii8+CiA8cGF0aCBkPSJtMTIyLjYgMTMwLjZjLjEtMSAuMS0yLjEuMS0zLjFzMC0yLjEtLjEtMy4xYy0uMi0yLjYtLjYtNS4xLTEuMy03LjUtLjEtLjUtLjMtMS0uNC0xLjRoLTMyLjNjLTEuMiAzLjgtMS44IDcuOC0xLjggMTJzLjYgOC4yIDEuOCAxMmgzMi4zYy4xLS41LjMtMSAuNC0xLjQuNy0yLjQgMS4xLTQuOSAxLjMtNy41eiIgZmlsbD0iIzM1MzUzNSIvPgogPHBhdGggZD0ibTE0NS40IDE0My41aC0yNmMtLjggMS44LTEuNyAzLjUtMi43IDUuMS0xLjUgMi41LTMuMyA0LjctNS4zIDYuOC0uNy43LTEuNCAxLjMtMi4xIDItMS40IDEuMy0zIDIuNC00LjYgMy41IDYuMyA0LjIgMTMuOSA2LjYgMjIgNi42IDEzLjkgMCAyNi4xLTcuMSAzMy4zLTE3LjgtMy43LTMuOC04LjktNi4yLTE0LjYtNi4yeiIgZmlsbD0iIzAwYmZiMyIvPgogPHBhdGggZD0ibTExNi43IDE0OC42YzEtMS42IDEuOS0zLjMgMi43LTUuMWgtMjkuM2MzLjEgNy4xIDguMiAxMy4yIDE0LjcgMTcuNCAxLjYtMS4xIDMuMS0yLjIgNC42LTMuNS43LS42IDEuNC0xLjMgMi4xLTIgMS45LTIgMy43LTQuMyA1LjItNi44eiIgZmlsbD0iIzAxOWI4ZiIvPgogPHBhdGggZD0ibTExMS40IDk5LjZjLS43LS43LTEuNC0xLjMtMi4xLTItMS40LTEuMy0zLTIuNC00LjYtMy41LTYuNCA0LjItMTEuNSAxMC4zLTE0LjcgMTcuNGgyOS4zYy0uOC0xLjgtMS43LTMuNS0yLjctNS4xLTEuNC0yLjUtMy4yLTQuOC01LjItNi44eiIgZmlsbD0iI2Y5YjExMCIvPgogPHBhdGggZD0ibTEyNi43IDg3LjVjLTguMSAwLTE1LjcgMi40LTIyIDYuNiAxLjYgMS4xIDMuMSAyLjIgNC42IDMuNS43LjYgMS40IDEuMyAyLjEgMiAyIDIuMSAzLjggNC4zIDUuMyA2LjggMSAxLjYgMS45IDMuMyAyLjcgNS4xaDI2YzUuNyAwIDEwLjktMi40IDE0LjYtNi4yLTcuMi0xMC43LTE5LjQtMTcuOC0zMy4zLTE3Ljh6IiBmaWxsPSIjZmVkMTBhIi8+Cjwvc3ZnPg=="
+spec:
+  sources:
+    - content: |-
+        public class ESWorkaround extends org.apache.camel.builder.RouteBuilder {
+          @Override
+          public void configure() throws Exception {
+            getContext().setAutowiredEnabled(false);
+          }
+        }
+      name: ESWorkaround.java
+  definition:
+    title: "ElasticSearch Index Source"
+    description: |-
+      Search data on ElasticSearch
+    required:
+      - query
+      - clusterName
+      - indexName
+      - hostAddresses
+    type: object
+    properties:
+      period:
+        title: Period
+        description: The time interval between two searches
+        type: integer
+        default: 1000
+      query:
+        title: Query
+        description: The query we want to use to search on ElasticSearch.
+        type: string
+      user:
+        title: Username
+        description: Username to connect to ElasticSearch.
+        type: string
+      password:
+        title: Password
+        description: Password to connect to ElasticSearch.
+        type: string
+      enableSSL:
+        title: Enable SSL
+        description: Do we want to connect using SSL?
+        type: boolean
+        default: true
+        x-descriptors:
+        - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+      hostAddresses:
+        title: Host Addresses
+        description: Comma separated list with ip:port formatted remote transport addresses to use.
+        type: string
+      indexName:
+        title: Index in ElasticSearch
+        description: The name of the index to act against.
+        type: string
+      clusterName:
+        title: ElasticSearch Cluster Name
+        description: Name of the cluster.
+        type: string
+  types:
+    out:
+      mediaType: application/json
+  dependencies:
+      - "camel:core"
+      - "camel:kamelet"
+      - "camel:timer"
+      - "mvn:org.apache.camel.k:camel-k-kamelet-reify"
+      - "camel:elasticsearch-rest"
+      - "camel:gson"
+  flow:
+    from:
+      uri: timer:tick
+      parameters:
+        period: "{{period}}"
+      steps:
+        - set-body:
+            constant: "{{query}}"
+        - set-header:
+            name: "Content-Type"
+            constant: "text/plain"
+        - to:
+            uri: "kamelet-reify:elasticsearch-rest:{{clusterName}}"
+            parameters:
+              operation: "SEARCH"
+              indexName: "{{indexName}}"
+              hostAddresses: "{{hostAddresses}}"
+              enableSSL: "{{enableSSL}}"
+              user: "{{user}}"
+              password: "{{password}}"
+        - marshal:
+            json:
+              library: Gson
+        - to: kamelet:sink

@@ -1,0 +1,110 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: google-sheets-source
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDI1LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCA2NCA4OCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNjQgODg7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPHN0eWxlIHR5cGU9InRleHQvY3NzIj4KCS5zdDB7ZmlsbDojMERDNTRDO30KCS5zdDF7ZmlsbDojMDg5NjJEO30KCS5zdDJ7ZmlsbDojRkRGRkZGO30KPC9zdHlsZT4KPGcgaWQ9IkxheWVyXzQiPgoJPHBhdGggY2xhc3M9InN0MCIgZD0iTTU4LDg4SDZjLTMuMywwLTYtMi43LTYtNlY2YzAtMy4zLDIuNy02LDYtNmgzNmwyMiwyMnY2MEM2NCw4NS4zLDYxLjMsODgsNTgsODh6Ii8+Cgk8cGF0aCBjbGFzcz0ic3QxIiBkPSJNNDIsMGwyMiwyMkg0MlYweiIvPgoJPHBhdGggY2xhc3M9InN0MiIgZD0iTTEyLDM0LjV2MjhoNDB2LTI4SDEyeiBNMTcsMzkuNWgxMi41VjQ2SDE3VjM5LjV6IE0xNyw1MWgxMi41djYuNUgxN1Y1MXogTTQ3LDU3LjVIMzQuNVY1MUg0N1Y1Ny41eiBNNDcsNDYKCQlIMzQuNXYtNi41SDQ3VjQ2eiIvPgo8L2c+Cjwvc3ZnPgo="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "Google Sheets"
+  labels:
+    camel.apache.org/kamelet.type: "source"
+spec:
+  definition:
+    title: "Google Sheets Source"
+    description: |-
+      Receive data from Google Sheets.
+    required:
+      - index
+      - spreadsheetId
+      - clientId
+      - accessToken
+      - refreshToken
+      - clientSecret
+      - applicationName
+    type: object
+    properties:
+      index:
+        title: Index
+        description: An index for the google sheets endpoint
+        type: string
+      spreadsheetId:
+        title: Spreadsheet ID
+        description: The Spreadsheet ID to be used as events source
+        type: string
+      clientId:
+        title: Client Id
+        description: Client ID of the sheets application
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      clientSecret:
+        title: Client Secret
+        description: Client Secret of the sheets application
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      accessToken:
+        title: Access Token
+        description: OAuth 2 access token for google sheets application. This typically expires after an hour so refreshToken is recommended for long term usage.
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      refreshToken:
+        title: Refresh Token
+        description: OAuth 2 refresh token for google sheets application. Using this, the Google Calendar component can obtain a new accessToken whenever the current one expires - a necessity if the application is long-lived.
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+      delay:
+        title: Delay
+        description: Milliseconds before the next poll
+        type: integer
+        default: 500
+      applicationName:
+        title: Application name
+        description: Google Sheets application name
+        type: string
+      splitResults:
+        title: Split Results
+        description: True if value range result should be split into rows or columns to process each of them individually. 
+        type: boolean
+        x-descriptors:
+        - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: true
+      range:
+        title: Consume from now
+        description: the range of rows and columns in a sheet to get data from.
+        type: boolean
+        x-descriptors:
+        - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        example: "A1:B3"
+  types:
+    out:
+      mediaType: application/json
+  dependencies:
+  - "camel:jackson"
+  - "camel:kamelet"
+  - "camel:google-sheets"
+  flow:
+    from:
+      uri: "google-sheets-stream://{{index}}"
+      parameters:
+        clientId: "{{clientId}}"
+        spreadsheetId: "{{spreadsheetId}}"
+        accessToken: "{{accessToken}}"
+        refreshToken: "{{refreshToken}}"
+        clientSecret: "{{clientSecret}}"
+        delay: "{{delay}}"
+        applicationName: "{{applicationName}}"
+        splitResults: "{{splitResults}}"
+        range: "{{range}}"
+      steps:
+      - marshal:
+          json: {}
+      - to: "kamelet:sink"
