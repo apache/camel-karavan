@@ -390,51 +390,62 @@
     margin-left: auto;
     margin-right: auto;
     border-color: #e97826;
-    border-style: solid;
     border-radius: 3px;
     border-width: 1px;
-    background: #fff;
     min-width: 160px;
-    min-height: 73px;
-    padding: 4px 10px;
+    padding: 4px 6px;
     position: relative;
 }
 
+.karavan .dsl-page .flows .step-element .choice .whens {
+    margin-top: -23px;
+}
 .karavan .dsl-page .flows .step-element .header {
     display: block;
     justify-content: center;
     position: relative;
-    width: 100%;
-    z-index: 101;
-}
-
-.element-builder {
-    min-width: 160px;
-    min-height: 65px;
     border-color: #e97826;
     border-style: solid;
     border-radius: 3px;
     border-width: 1px;
-    padding: 4px 6px 0px 6px;
-    margin: 0px auto 0px auto;
-    display: flex;
-    flex-direction: column;
-    /*justify-content: space-between;*/
-    width: fit-content;
+    background: #fff;
+    padding: 3px 0px 3px 0px;
+    margin-bottom: 10px;
+    min-width: 160px;
+    z-index: 101;
 }
 
-.element-builder .header {
-    display: block;
-    justify-content: center;
-    position: relative;
-    margin-bottom: 6px;
+.karavan .dsl-page .flows .step-element-with-steps {
+    border-style: dotted;
+    background: transparent;
+    min-width: 160px;
+}
+
+.karavan .dsl-page .flows .step-element-with-steps .header {
+    border-color: #e97826;
+    border-style: solid;
+    border-radius: 3px;
+    border-width: 1px;
+    background: #fff;
+    margin-bottom: 0;
+    min-width: 160px;
+}
+
+.karavan .dsl-page .flows .step-element-without-steps {
+    border-style: none;
+    background: transparent;
+    padding: 0;
+}
+
+.karavan .dsl-page .flows .step-element-without-steps .header {
+    margin-bottom: 0;
 }
 
 .step-element .header .delete-button,
 .element-builder .header .delete-button {
     position: absolute;
     top: 0;
-    right: -5px;
+    right: 0;
     font-size: 13px;
     line-height: 1;
     border: 0;
@@ -474,8 +485,6 @@
 
 .step-element .arrow-down {
     font-size: 13px;
-    /*margin-top: -10px;*/
-    /*margin-bottom: -15px;*/
     height: 16px;
     color: #e97826;
 }
