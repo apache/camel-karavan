@@ -1,0 +1,43 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: http-sink
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MjAiCmhlaWdodD0iNDIwIiBzdHJva2U9IiMwMDAiIGZpbGw9Im5vbmUiPgo8cGF0aCBzdHJva2Utd2lkdGg9IjI2IgpkPSJNMjA5LDE1YTE5NSwxOTUgMCAxLDAgMiwweiIvPgo8cGF0aCBzdHJva2Utd2lkdGg9IjE4IgpkPSJtMjEwLDE1djM5MG0xOTUtMTk1SDE1TTU5LDkwYTI2MCwyNjAgMCAwLDAgMzAyLDAgbTAsMjQwIGEyNjAsMjYwIDAgMCwwLTMwMiwwTTE5NSwyMGEyNTAsMjUwIDAgMCwwIDAsMzgyIG0zMCwwIGEyNTAsMjUwIDAgMCwwIDAtMzgyIi8+Cjwvc3ZnPg=="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "HTTP"
+  labels:
+    camel.apache.org/kamelet.type: sink
+spec:
+  definition:
+    title: HTTP Sink
+    description: Forwards an event to a HTTP endpoint
+    required:
+    - url
+    type: object
+    properties:
+      url:
+        title: URL
+        description: The URL to send data to
+        type: string
+        example: "https://my-service/path"
+        pattern: "^(http|https)://.*"
+      method:
+        title: Method
+        description: The HTTP method to use
+        type: string
+        default: POST
+  dependencies:
+  - "camel:http"
+  - "camel:kamelet"
+  - "camel:core"
+  flow:
+    from:
+      uri: kamelet:source
+      steps:
+      - set-header:
+          name: CamelHttpMethod
+          constant: "{{method}}"
+      - to: "{{url}}"
