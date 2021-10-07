@@ -50,3 +50,4 @@ yarn-error.log*
 /.java-version
 /keys/*
 
+/karavan-app/src/main/webapp/src/designer/

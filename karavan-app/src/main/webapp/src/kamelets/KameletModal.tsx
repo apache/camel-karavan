@@ -8,7 +8,7 @@ import {
     CardActions,
     Badge, Flex, CardTitle,
 } from '@patternfly/react-core';
-import '../karavan.css';
+import '../designer/karavan.css';
 import {Kamelet, Property} from "../designer/model/KameletModels";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 

@@ -491,7 +491,6 @@
 
 .step-element .add-button {
     top: 0;
-    right: 5px;
     font-size: 15px;
     line-height: 1;
     border: 0;
@@ -500,6 +499,8 @@
     background: transparent;
     color: #e97826;
     visibility: hidden;
+    z-index: 100;
+    position: relative;
 }
 
 .element-builder .add-button {

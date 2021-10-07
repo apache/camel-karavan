@@ -2,7 +2,7 @@ import React from 'react';
 import {
     CardHeader, Card, CardTitle, CardBody, CardActions, CardFooter,Badge
 } from '@patternfly/react-core';
-import '../karavan.css';
+import '../designer/karavan.css';
 import {Kamelet} from "../designer/model/KameletModels";
 import {CamelUi} from "../designer/api/CamelUi";
 
