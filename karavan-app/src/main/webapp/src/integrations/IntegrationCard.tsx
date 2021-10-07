@@ -3,7 +3,7 @@ import {
     CardHeader, Card, CardTitle, CardBody, Button, CardActions,
 } from '@patternfly/react-core';
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
-import '../karavan.css';
+import '../designer/karavan.css';
 import {CamelUi} from "../designer/api/CamelUi";
 
 interface Props {

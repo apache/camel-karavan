@@ -3,7 +3,7 @@ import {
     Gallery,
     PageSection
 } from '@patternfly/react-core';
-import '../karavan.css';
+import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
 
 interface Props {

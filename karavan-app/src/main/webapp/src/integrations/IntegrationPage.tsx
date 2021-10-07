@@ -8,13 +8,14 @@ import {
     PageSection,
     TextContent,
     Text,
-    Button
+    Button, Modal, FormGroup, ModalVariant
 } from '@patternfly/react-core';
-import '../karavan.css';
+import '../designer/karavan.css';
 import {IntegrationCard} from "./IntegrationCard";
 import {MainToolbar} from "../MainToolbar";
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
+import {Integration} from "../designer/model/CamelModel";
 
 interface Props {
     integrations: []
@@ -28,6 +29,8 @@ interface State {
     repository: string,
     path: string,
     integrations: [],
+    isModalOpen: boolean,
+    newName: string
 }
 
 export class IntegrationPage extends React.Component<Props, State> {
@@ -36,6 +39,8 @@ export class IntegrationPage extends React.Component<Props, State> {
         repository: '',
         path: '',
         integrations: this.props.integrations,
+        isModalOpen: false,
+        newName: ''
     };
 
     tools = () => (<Toolbar id="toolbar-group-types">
@@ -48,7 +53,7 @@ export class IntegrationPage extends React.Component<Props, State> {
                 <Button variant="secondary" icon={<RefreshIcon />} onClick={e => this.props.onRefresh.call(this)}>Refresh</Button>
             </ToolbarItem>
             <ToolbarItem>
-                <Button icon={<PlusIcon />} onClick={e => this.props.onCreate.call(this)}>Create</Button>
+                <Button icon={<PlusIcon />} onClick={e => this.setState({isModalOpen:true})}>Create</Button>
             </ToolbarItem>
         </ToolbarContent>
     </Toolbar>);
@@ -56,6 +61,15 @@ export class IntegrationPage extends React.Component<Props, State> {
     title = () => (<TextContent>
         <Text component="h1">Integrations</Text>
     </TextContent>);
+
+    closeModal = () => {
+        this.setState({isModalOpen:false, newName:""});
+    }
+    saveAndCloseModal = () => {
+        const i = Integration.createNew(this.state.newName);
+        this.props.onCreate.call(this, i);
+        this.setState({isModalOpen:false, newName:""});
+    }
 
     render() {
         return (
@@ -69,6 +83,22 @@ export class IntegrationPage extends React.Component<Props, State> {
                         ))}
                     </Gallery>
                 </PageSection>
+                <Modal
+                    title="Create new Integration"
+                    variant={ModalVariant.small}
+                    isOpen={this.state.isModalOpen}
+                    onClose={this.closeModal}
+                    actions={[
+                        <Button key="confirm" variant="primary" onClick={this.saveAndCloseModal}>Save</Button>,
+                        <Button key="cancel" variant="secondary" onClick={this.closeModal}>Cancel</Button>
+                    ]}
+                >
+                    <FormGroup label="Title" fieldId="title" isRequired>
+                        <TextInput className="text-field" type="text" id="title" name="title"
+                                   value={this.state.newName}
+                                   onChange={e => this.setState({newName: e})}/>
+                    </FormGroup>
+                </Modal>
             </PageSection>
         );
     }

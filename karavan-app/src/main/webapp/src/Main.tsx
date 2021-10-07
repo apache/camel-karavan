@@ -27,12 +27,12 @@ import {KaravanApi} from "./api/KaravanApi";
 import {IntegrationPage} from "./integrations/IntegrationPage";
 import {KameletApi} from "./designer/api/KameletApi";
 import logo from './logo.svg';
-import './karavan.css';
+import './designer/karavan.css';
 import {ConfigurationPage} from "./config/ConfigurationPage";
 import {KameletsPage} from "./kamelets/KameletsPage";
 import {Integration} from "./designer/model/CamelModel";
 import {v4 as uuidv4} from "uuid";
-import {DesignerPage} from "./designer/DesignerPage";
+import {DesignerPage} from "./integrations/DesignerPage";
 import {CamelYaml} from "./designer/api/CamelYaml";
 import avatarImg from './avatarImg.svg';
 
@@ -90,7 +90,9 @@ export class Main extends React.Component<Props, State> {
                 mode: config?.['karavan.mode'],
             })
         });
-        KameletApi.prepareKamelets();
+        KaravanApi.getKameletNames(names => names.forEach(name => {
+            KaravanApi.getKamelet(name, yaml => KameletApi.saveKamelet(yaml))
+        }));
         this.onGetIntegrations();
     }
 
@@ -215,9 +217,7 @@ export class Main extends React.Component<Props, State> {
         });
     };
 
-    onIntegrationCreate = () => {
-        this.setState({isNavOpen: false, pageId: 'designer'});
-        const i = Integration.createNew();
+    onIntegrationCreate = (i: Integration) => {
         this.setState({isNavOpen: false, pageId: 'designer', integration: i});
     };
 

@@ -65,4 +65,28 @@ export const KaravanApi = {
             after(err);
         });
     },
+
+    getKameletNames: async (after: (names: []) => void) => {
+        axios.get('/kamelet',
+            {headers: {'Accept': 'application/json'}})
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    },
+
+    getKamelet: async (name: string, after: (yaml: string) => void) => {
+        axios.get('/kamelet/' + name,
+            {headers: {'Accept': 'text/plain'}})
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    },
 }

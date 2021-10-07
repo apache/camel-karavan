@@ -7,7 +7,7 @@ import {
     TextInput,
     PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem
 } from '@patternfly/react-core';
-import '../karavan.css';
+import '../designer/karavan.css';
 import {KameletCard} from "./KameletCard";
 import {Kamelet} from "../designer/model/KameletModels";
 import {KameletApi} from "../designer/api/KameletApi";

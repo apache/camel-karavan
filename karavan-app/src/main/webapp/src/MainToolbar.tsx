@@ -2,7 +2,7 @@ import React from 'react';
 import {
     PageSectionVariants, Flex, PageSection, FlexItem
 } from '@patternfly/react-core';
-import './karavan.css';
+import './designer/karavan.css';
 
 interface Props {
     title: any
