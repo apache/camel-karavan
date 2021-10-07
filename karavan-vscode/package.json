@@ -1,33 +1,43 @@
 {
-  "name": "karavan",
-  "publisher": "mgubaidullin",
-  "displayName": "Karavan",
+  "name": "karavan-vscode",
+  "publisher": "Apache Camel",
+  "displayName": "Camel Karavan Designer",
   "icon": "icons/icon.png",
   "description": "Integration Designer for Apache Camel",
   "version": "0.0.1",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/mgubaidullin/karavan-vscode"
+    "url": "https://github.com/camel/camel-karavan/issues"
   },
   "author": {
     "name": "Marat Gubaidullin",
     "email": "marat.gubaidullin@gmail.com"
   },
+  "maintainers": [
+		{
+			"name": "Marat Gubaidullin",
+			"email": "marat.gubaidullin@gmail.com"
+		}
+	],
   "repository": {
     "type": "git",
-    "url": "https://github.com/mgubaidullin/karavan-vscode"
+    "url": "https://github.com/camel/camel-karavan"
   },
   "engines": {
     "vscode": "^1.56.0"
   },
   "categories": [
-    "Programming Languages"
+    "Other"
   ],
+  "homepage": "https://github.com/camel/camel-karavan",
   "keywords": [
-    "camel",
-    "integration",
-    "camel-k",
-    "yaml"
+    "Camel",
+		"Camel K",
+		"Camel-K",
+		"camelk",
+		"kamel",
+		"Tool",
+    "Integration"
   ],
   "activationEvents": [
     "onCommand:karavan.create",
