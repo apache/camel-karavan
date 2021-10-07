@@ -15,6 +15,10 @@
 # limitations under the License.
 #
 
+notifications:
+  commits: commits@camel.apache.org
+  issues: commits@camel.apache.org
+  pullrequests: commits@camel.apache.org
 github:
   description: "Karavan the Camel Integration Designer"
   homepage: https://camel.apache.org
@@ -22,5 +26,9 @@ github:
     - camel
     - integration
     - java
-notifications:
-  pullrequests: commits@camel.apache.org
+  enabled_merge_buttons:
+    squash:  true
+    merge:   false
+    rebase:  true
+  features:
+    issues: true
