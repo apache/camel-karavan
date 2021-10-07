@@ -1,0 +1,69 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: http-secured-sink
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.3.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MjAiCmhlaWdodD0iNDIwIiBzdHJva2U9IiMwMDAiIGZpbGw9Im5vbmUiPgo8cGF0aCBzdHJva2Utd2lkdGg9IjI2IgpkPSJNMjA5LDE1YTE5NSwxOTUgMCAxLDAgMiwweiIvPgo8cGF0aCBzdHJva2Utd2lkdGg9IjE4IgpkPSJtMjEwLDE1djM5MG0xOTUtMTk1SDE1TTU5LDkwYTI2MCwyNjAgMCAwLDAgMzAyLDAgbTAsMjQwIGEyNjAsMjYwIDAgMCwwLTMwMiwwTTE5NSwyMGEyNTAsMjUwIDAgMCwwIDAsMzgyIG0zMCwwIGEyNTAsMjUwIDAgMCwwIDAtMzgyIi8+Cjwvc3ZnPg=="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "HTTP"
+  labels:
+    camel.apache.org/kamelet.type: sink
+spec:
+  definition:
+    title: Secured HTTP Sink
+    description: Forwards an event to a secured HTTP endpoint
+    required:
+    - url
+    type: object
+    properties:
+      url:
+        title: URL
+        description: The URL to send data to
+        type: string
+        example: "https://my-service/path"
+        pattern: "^(http|https)://.*"
+      method:
+        title: Method
+        description: The HTTP method to use
+        type: string
+        default: POST
+      authMethod:
+        title: Authentication Method
+        description: Authentication methods allowed to use as a comma separated list of values Basic, Digest or NTLM.
+        type: string
+        default: "Basic"
+      authenticationPreemptive:
+        title: Authentication Preemptive
+        description: If this option is true, camel-http sends preemptive basic authentication to the server.
+        type: boolean
+        x-descriptors:
+        - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: false
+      authUsername:
+        title: Authentication Username
+        description: Authentication username
+        type: string
+      authPassword:
+        title: Authentication Password
+        description: Authentication password
+        type: string
+  dependencies:
+  - "camel:http"
+  - "camel:kamelet"
+  - "camel:core"
+  flow:
+    from:
+      uri: kamelet:source
+      steps:
+      - set-header:
+          name: CamelHttpMethod
+          constant: "{{method}}"
+      - to:
+          uri: "{{url}}"
+          parameters: 
+            authMethod: "{{authMethod}}"
+            authUsername: "{{authUsername}}"
+            authPassword: "{{authPassword}}"
+            authenticationPreemptive: "{{authenticationPreemptive}}"
