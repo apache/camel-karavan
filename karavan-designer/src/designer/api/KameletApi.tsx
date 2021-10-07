@@ -65,44 +65,9 @@ export const KameletApi = {
         return KameletApi.findKameletByName(uri.split(":")[1]);
     },
 
-    requestKamelet: async (name: string): Promise<Kamelet> => {
-        // const res = await axios("/kamelet/" + name);
-        // const text: string = await res.data;
-        // const fromYaml = yaml.load(text);
-        const fromYaml = '';
-        return KameletApi.jsonToKamelet(JSON.stringify(fromYaml));
-    },
-
     yamlToKamelet: (text: string):Kamelet => {
         const fromYaml = yaml.load(text);
         return KameletApi.jsonToKamelet(JSON.stringify(fromYaml));
-    },
-
-    prepareKamelets: () => {
-        Kamelets.splice(0, Kamelets.length);
-        // axios.get('/kamelet',
-        //     {headers: {'Accept': 'application/json'}})
-        //     .then(res => {
-        //         if (res.status === 200) {
-        //             KameletApi.loadKamelets(res.data);
-        //         }
-        //     }).catch(err => {
-        //     console.log(err);
-        // });
-    },
-
-    loadKamelets: (kameletNames: string[]) => {
-        const promises = kameletNames.map((name: string) => KameletApi.requestKamelet(name));
-        Promise.all(promises).then(function (list) {
-            const result: Kamelet[] = list as Kamelet[];
-            Kamelets.push(...result.sort((a, b) => {
-                    if (a.spec.definition.title < b.spec.definition.title) {
-                        return -1;
-                    }
-                    return a.spec.definition.title > b.spec.definition.title ? 1 : 0;
-                })
-            );
-        });
     },
 
     saveKamelets: (kameletYamls: string[]) => {
@@ -114,5 +79,10 @@ export const KameletApi = {
                 return a.spec.definition.title > b.spec.definition.title ? 1 : 0;
             })
         );
+    },
+
+    saveKamelet: (yaml: string) => {
+        const kamelet:Kamelet = KameletApi.yamlToKamelet(yaml);
+        Kamelets.push(kamelet);
     }
 }
