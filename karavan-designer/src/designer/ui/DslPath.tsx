@@ -25,10 +25,13 @@ interface Props {
 
 interface State {
     uuid: string,
+    inout?: "in" | "out",
     width: number,
     left: number,
     top: number,
     sub?: Subscription
+    fsub?: Subscription
+    fRect?: DOMRect
 }
 
 export class DslPath extends React.Component<Props, State> {
@@ -47,30 +50,43 @@ export class DslPath extends React.Component<Props, State> {
             }
         });
         this.setState({sub: sub});
+        const fsub = EventBus.onFlowPosition()?.subscribe(evt => {
+            this.setState({fRect: evt});
+        });
+        this.setState({fsub: fsub});
     }
 
     componentWillUnmount() {
         this.state.sub?.unsubscribe();
+        this.state.fsub?.unsubscribe();
     }
 
     setPosition(evt: DslPosition) {
         if (evt.step.dslName === 'fromStep'){
-            this.setState({left: 56, top: (evt.rect.top + 25), width: (evt.rect.x) - 56});
+            this.setState({inout:"in", left: 56, top: (evt.rect.top + 25), width: (evt.rect.x) - 56});
         } else {
-            this.setState({left: evt.rect.x + evt.rect.width, top: (evt.rect.top + 25), width: (evt.rect.x + evt.rect.width + 200)});
+            this.setState({inout:"out", left: evt.rect.x + evt.rect.width, top: (evt.rect.top + 25), width: (evt.rect.x + evt.rect.width + 200)});
         }
+    }
+
+    getTop(){
+        return this.state.fRect ? this.state.top - this.state.fRect.top : this.state.top;
+    }
+
+    getWidth(){
+        return this.state.fRect && this.state.inout === 'out' ? this.state.fRect.width - this.state.left : this.state.width;
     }
 
     render() {
         return (
             <svg style={{
-                width: this.state.width,
+                width: this.getWidth(),
                 height: '2',
                 position: "absolute",
                 left: this.state.left,
-                top: this.state.top
-            }} viewBox={"0 0 " + this.state.width + " 2"}>
-                <path d={"M 0 0, " + this.state.width + " 0"} className="path"/>
+                top: this.getTop()
+            }} viewBox={"0 0 " + this.getWidth() + " 2"}>
+                <path d={"M 0 0, " + this.getWidth() + " 0"} className="path"/>
             </svg>
         );
     }

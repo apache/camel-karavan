@@ -31,6 +31,7 @@ import {CamelApiExt} from "../api/CamelApiExt";
 import {CamelApi} from "../api/CamelApi";
 import {DslConnections} from "./DslConnections";
 import {CamelUi} from "../api/CamelUi";
+import {EventBus} from "../api/EventBus";
 
 interface Props {
     onSave?: (name: string, yaml: string) => void
@@ -62,9 +63,15 @@ export class KaravanDesigner extends React.Component<Props, State> {
     };
 
     componentDidMount() {
-        console.log("Designer");
-        console.log(this.props.name);
-        console.log(this.state.integration);
+        window.addEventListener('resize', this.handleResize);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.handleResize);
+    }
+
+    handleResize = ()=>{
+        this.setState({key: Math.random().toString()});
     }
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
@@ -139,7 +146,12 @@ export class KaravanDesigner extends React.Component<Props, State> {
         return (
             <PageSection className="dsl-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="dsl-page-columns">
-                    <div className="flows" data-click="FLOWS" onClick={event => this.unselectElement(event)}>
+                    <div className="flows"
+                         data-click="FLOWS"
+                         onClick={event => this.unselectElement(event)}
+                         ref={el => {
+                             if (el) EventBus.sendFlowPosition(el.getBoundingClientRect());
+                         }}>
                         <DslConnections key={this.state.key + "-connections"}
                                         integration={this.state.integration}
                         />
