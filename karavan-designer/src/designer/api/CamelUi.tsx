@@ -19,7 +19,8 @@ import {CamelElement} from "../model/CamelModel";
 import {Kamelet, Property} from "../model/KameletModels";
 import {DslMetaModel} from "../model/DslMetaModel";
 import {Metadata} from "./CamelMetadata";
-import {ComponentsApi} from "./ComponentsApi";
+import {ComponentApi} from "./ComponentApi";
+import {ComponentProperty} from "../model/ComponentModels";
 
 const DslElements: string[] = [
     "aggregate",
@@ -63,20 +64,20 @@ export class CamelUi {
         switch (parentType) {
             case "":
                 return [
-                    ["consumer", "component"],
                     ["source", "kamel"],
+                    ["consumer", "component"],
                 ];
             case "choice":
                 return [["routing", "dsl"]];
             default:
                 return [
-                    ["producer", "component"],
                     ["routing", "dsl"],
                     ["transformation", "dsl"],
-                    // ["error", "dsl"], TODO doTry
                     ["configuration", "dsl"],
+                    // ["error", "dsl"], TODO doTry
                     ["action", "kamel"],
                     ["sink", "kamel"],
+                    ["producer", "component"],
                 ];
         }
     };
@@ -123,7 +124,7 @@ export class CamelUi {
                     );
             }
         } if (type === "component") {
-            return ComponentsApi.getComponents()
+            return ComponentApi.getComponents()
                 .filter(
                     (c) => label === 'consumer' ? !c.component.producerOnly : !c.component.consumerOnly
                 )
@@ -195,6 +196,17 @@ export class CamelUi {
         return kamelet
             ? KameletApi.getKameletProperties(kamelet?.metadata.name)
             : [];
+    };
+
+    static getComponentProperties = (element: any, advanced: boolean): ComponentProperty[] => {
+        const uri: string = (element as any).uri;
+        const name = ComponentApi.getComponentNameFromUri(uri);
+        if (name){
+            const component = ComponentApi.findByName(name);
+            return component ? ComponentApi.getComponentProperties(component?.component.name, element.dslName === 'from' ? 'consumer' : 'producer', advanced) : [];
+        } else {
+            return [];
+        }
     };
 
     static getTitle = (element: CamelElement): string => {

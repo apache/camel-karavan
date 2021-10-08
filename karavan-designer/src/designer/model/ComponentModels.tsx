@@ -44,7 +44,6 @@ export class Header {
 
 export class Component {
   component: Header = new Header();
-  componentProperties: any;
   properties: any;
 
   public constructor(init?: Partial<Component>) {
@@ -61,6 +60,7 @@ export class ComponentProperty {
   kind: string = '';
   label: string = '';
   type: string = '';
+  secret: boolean = false;
   enum: string[] = [];
   required: boolean = false;
   defaultValue: string | number | boolean | any;

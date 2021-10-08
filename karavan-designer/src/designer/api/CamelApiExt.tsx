@@ -17,6 +17,7 @@
 import {CamelElement, FromStep, Integration, ProcessorStep} from "../model/CamelModel";
 import {CamelMetadataApi, PropertyMeta} from "./CamelMetadata";
 import {CamelApi} from "./CamelApi";
+import {ComponentApi} from "./ComponentApi";
 
 export class CamelApiExt {
 
@@ -117,9 +118,14 @@ export class CamelApiExt {
         return result
     }
 
-    static getParametersValue = (element: CamelElement | undefined, propertyName: string): any => {
-        if (element && (element as any).parameters) {
-            return (element as any).parameters[propertyName];
+    static getParametersValue = (element: CamelElement | undefined, propertyName: string, pathParameter?: boolean): any => {
+        if (pathParameter){
+            const uri = (element as any).uri;
+            return ComponentApi.getPathParameterValue(uri, propertyName);
+        } else {
+            if (element && (element as any).parameters) {
+                return (element as any).parameters[propertyName];
+            }
         }
     }
 

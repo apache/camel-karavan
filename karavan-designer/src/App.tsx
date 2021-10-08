@@ -20,7 +20,7 @@ import {
 } from "@patternfly/react-core";
 import {KaravanDesigner} from "./designer/ui/KaravanDesigner";
 import {KameletApi} from "./designer/api/KameletApi";
-import {ComponentsApi} from "./designer/api/ComponentsApi";
+import {ComponentApi} from "./designer/api/ComponentApi";
 
 interface Props {
 }
@@ -63,7 +63,7 @@ class App extends React.Component<Props, State> {
             "mvel.json"].forEach(name =>
             fetch("components/" + name)
                 .then((r) => r.text())
-                .then(value => ComponentsApi.saveComponent(value)));
+                .then(value => ComponentApi.saveComponent(value)));
     }
 
     save(name: string, yaml: string) {

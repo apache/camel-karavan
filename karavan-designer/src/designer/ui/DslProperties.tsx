@@ -25,7 +25,7 @@ import {
     Switch,
     NumberInput,
     Button,
-    TextVariants, Select, SelectVariant, SelectDirection, SelectOption, TextArea
+    TextVariants, Select, SelectVariant, SelectDirection, SelectOption, TextArea, ExpandableSection
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -38,6 +38,8 @@ import {CamelApiExt} from "../api/CamelApiExt";
 import {CamelMetadataApi, Languages, PropertyMeta} from "../api/CamelMetadata";
 import {CamelYaml} from "../api/CamelYaml";
 import {CamelUi} from "../api/CamelUi";
+import {ComponentApi} from "../api/ComponentApi";
+import {ComponentProperty} from "../model/ComponentModels";
 
 interface Props {
     integration: Integration,
@@ -52,6 +54,7 @@ interface State {
     step?: CamelElement,
     element?: CamelElement,
     selectStatus: Map<string, boolean>
+    isShowAdvanced: boolean
 }
 
 export class DslProperties extends React.Component<Props, State> {
@@ -60,7 +63,8 @@ export class DslProperties extends React.Component<Props, State> {
         step: this.props.step,
         element: this.props.step ? CamelApi.elementFromStep(this.props.step) : undefined,
         integration: this.props.integration,
-        selectStatus: new Map<string, boolean>()
+        selectStatus: new Map<string, boolean>(),
+        isShowAdvanced: false
     };
 
     setView = (view: string) => {
@@ -76,7 +80,7 @@ export class DslProperties extends React.Component<Props, State> {
     };
 
     propertyChanged = (fieldId: string, value: string | number | boolean | any) => {
-        if (this.state.step && this.state.element){
+        if (this.state.step && this.state.element) {
             const clone = CamelYaml.cloneStep(this.state.step);
             (clone as any)[this.state.element?.dslName][fieldId] = value;
             this.setStep(clone)
@@ -85,7 +89,7 @@ export class DslProperties extends React.Component<Props, State> {
     }
 
     expressionChanged = (language: string, value: string | undefined) => {
-        if (this.state.step && this.state.element){
+        if (this.state.step && this.state.element) {
             const clone = (CamelYaml.cloneStep(this.state.step));
             const e: any = {};
             e.language = language;
@@ -97,15 +101,22 @@ export class DslProperties extends React.Component<Props, State> {
         }
     }
 
-    parametersChanged = (parameter: string, value: string | number | boolean | any) => {
-        if (this.state.step && this.state.element){
-            const clone = (CamelYaml.cloneStep(this.state.step));
-            const parameters: any = {...(clone as any)[this.state.element?.dslName].parameters};
-            parameters[parameter] = value;
-            (clone as any)[this.state.element?.dslName].parameters = parameters;
-            this.setStep(clone);
-            this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid);
+    parametersChanged = (parameter: string, value: string | number | boolean | any, pathParameter?: boolean) => {
+        if (this.state.step && this.state.element) {
+            if (pathParameter){
+                const uri = ComponentApi.buildComponentUri((this.state.element as any).uri, parameter, value);
+                console.log(uri);
+                this.propertyChanged("uri", uri);
+            } else {
+                const clone = (CamelYaml.cloneStep(this.state.step));
+                const parameters: any = {...(clone as any)[this.state.element?.dslName].parameters};
+                parameters[parameter] = value;
+                (clone as any)[this.state.element?.dslName].parameters = parameters;
+                this.setStep(clone);
+                this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid);
+            }
         }
+
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
@@ -115,7 +126,11 @@ export class DslProperties extends React.Component<Props, State> {
     }
 
     setStep = (step?: CamelElement) => {
-        this.setState({ step: step, element: step ? CamelApi.elementFromStep(step) : undefined , selectStatus: new Map<string, boolean>()});
+        this.setState({
+            step: step,
+            element: step ? CamelApi.elementFromStep(step) : undefined,
+            selectStatus: new Map<string, boolean>()
+        });
     }
 
     openSelect = (propertyName: string) => {
@@ -147,7 +162,7 @@ export class DslProperties extends React.Component<Props, State> {
 
     getComponentHeader = (): JSX.Element => {
         const title = this.state.element && CamelUi.getTitle(this.state.element)
-        const kamelet = this.state.element &&  CamelUi.getKamelet(this.state.element)
+        const kamelet = this.state.element && CamelUi.getKamelet(this.state.element)
         const description = this.state.element && kamelet
             ? kamelet.spec.definition.description
             : this.state.element?.dslName ? CamelMetadataApi.getElementMeta(this.state.element?.dslName)?.description : title;
@@ -213,15 +228,89 @@ export class DslProperties extends React.Component<Props, State> {
         )
     }
 
+    createComponentProperty = (property: ComponentProperty): JSX.Element => {
+        const prefix = "parameters";
+        const id = prefix + "-" + property.name;
+        const value = CamelApiExt.getParametersValue(this.state.element, property.name, property.kind === 'path');
+        const selectOptions: JSX.Element[] = []
+        if (property.enum && property.enum.length > 0) {
+            selectOptions.push(<SelectOption key={0} value={"Select ..."} isPlaceholder/>);
+            property.enum.forEach(v => selectOptions.push(<SelectOption key={v} value={v}/>));
+        }
+        return (
+            <FormGroup
+                key={id}
+                label={property.displayName}
+                fieldId={id}
+                labelIcon={
+                    <Popover
+                        headerContent={property.displayName}
+                        bodyContent={property.description}
+                        footerContent={property.defaultValue ? "Default: " + property.defaultValue : undefined}>
+                        <button type="button" aria-label="More info" onClick={e => e.preventDefault()}
+                                className="pf-c-form__group-label-help">
+                            <HelpIcon noVerticalAlign/>
+                        </button>
+                    </Popover>
+                }>
+                {property.type === 'string' && property.enum === undefined && <TextInput
+                    className="text-field" isRequired
+                    type={property.secret ? "password" : "text"}
+                    id={id} name={id}
+                    value={value?.toString()}
+                    onChange={e => this.parametersChanged(property.name, e, property.kind === 'path')}/>
+                }
+                {property.type === 'string' && property.enum && <Select
+                    variant={SelectVariant.single}
+                    aria-label={property.name}
+                    onToggle={isExpanded => {
+                        this.openSelect(property.name)
+                    }}
+                    onSelect={(e, value, isPlaceholder) => this.parametersChanged(property.name, (!isPlaceholder ? value : undefined), property.kind === 'path')}
+                    selections={value?.toString()}
+                    isOpen={this.isSelectOpen(property.name)}
+                    aria-labelledby={property.name}
+                    direction={SelectDirection.down}
+                >
+                    {selectOptions}
+                </Select>
+                }
+                {property.type === 'boolean' && <Switch
+                    id={id} name={id}
+                    value={value?.toString()}
+                    aria-label={id}
+                    isChecked={Boolean(value) === true}
+                    onChange={e => this.parametersChanged(property.name, !Boolean(value))}/>
+                }
+                {['integer', 'int', 'number'].includes(property.type) && <div className="number">
+                    <NumberInput
+                        className="number-property"
+                        id={id} name={id}
+                        value={typeof value === 'number' ? value : undefined}
+                        inputName={id}
+                        onMinus={() => this.parametersChanged(property.name, typeof value === 'number' ? value - 1 : -1)}
+                        onPlus={() => this.parametersChanged(property.name, typeof value === 'number' ? value + 1 : 1)}
+                        onChange={(e: any) => this.parametersChanged(property.name, Number(e.target.value))}/>
+                    <Button
+                        className="clear-button"
+                        variant="tertiary"
+                        isSmall icon={<UndoIcon/>}
+                        onClick={e => this.parametersChanged(property.name, undefined)}/>
+                </div>
+                }
+            </FormGroup>
+        )
+    }
+
     createExpressionProperty = (property: PropertyMeta): JSX.Element => {
         const prefix = "language";
         const language = CamelApiExt.getExpressionLanguage(this.state.element) || 'Simple'
-        const dslLanguage = Languages.find((l:[string, string, string]) => l[0] === language);
+        const dslLanguage = Languages.find((l: [string, string, string]) => l[0] === language);
         const value = language ? CamelApiExt.getExpressionValue(this.state.element) : undefined;
         const selectOptions: JSX.Element[] = []
         // selectOptions.push(<SelectOption key={'placeholder'} value={"Select language"} isPlaceholder/>);
         Languages.forEach((lang: [string, string, string]) => {
-            const s = <SelectOption key={lang[0]} value={lang[0]} description={lang[2]} />;
+            const s = <SelectOption key={lang[0]} value={lang[0]} description={lang[2]}/>;
             selectOptions.push(s);
         })
         return (
@@ -272,17 +361,17 @@ export class DslProperties extends React.Component<Props, State> {
     }
 
     createElementProperty = (property: PropertyMeta): JSX.Element => {
-        // console.log(property)
         const value = this.state.element ? (this.state.element as any)[property.name] : undefined;
         const selectOptions: JSX.Element[] = []
         if (property.enumVals && property.enumVals.length > 0) {
             selectOptions.push(<SelectOption key={0} value={"Select " + property.name} isPlaceholder/>);
-            selectOptions.push(...property.enumVals.split(',').map((value: string) => <SelectOption key={value} value={value.trim()}/>));
+            selectOptions.push(...property.enumVals.split(',').map((value: string) =>
+                <SelectOption key={value} value={value.trim()}/>));
         }
         return (
             <FormGroup
                 key={property.name}
-                label={property.displayName}
+                label={CamelUi.capitalizeName(property.displayName)}
                 fieldId={property.name}
                 labelIcon={property.description ?
                     <Popover
@@ -298,6 +387,7 @@ export class DslProperties extends React.Component<Props, State> {
                     </Popover> : <div></div>
                 }>
                 {['string', 'duration'].includes(property.type) && !property.enumVals && <TextInput
+                    isReadOnly={property.name === 'uri'}
                     className="text-field" isRequired
                     type={property.secret ? "password" : "text"}
                     id={property.name} name={property.name}
@@ -351,7 +441,20 @@ export class DslProperties extends React.Component<Props, State> {
                 <div className="parameters">
                     {property.name === 'parameters' && CamelUi.isKameletComponent(this.state.element)
                     && CamelUi.getKameletProperties(this.state.element).map(kp => this.createKameletProperty(kp))}
+
+                    {property.name === 'parameters' && this.state.element && !CamelUi.isKameletComponent(this.state.element)
+                    && CamelUi.getComponentProperties(this.state.element, false).map(kp => this.createComponentProperty(kp))}
                 </div>
+                {property.name === 'parameters' && this.state.element && !CamelUi.isKameletComponent(this.state.element) && (
+                    <ExpandableSection
+                        toggleText={'Advanced parameters'}
+                        onToggle={isExpanded => this.setState({isShowAdvanced: !this.state.isShowAdvanced})}
+                        isExpanded={this.state.isShowAdvanced}>
+                        <div className="parameters">
+                            {CamelUi.getComponentProperties(this.state.element, true).map(kp => this.createComponentProperty(kp))}
+                        </div>
+                    </ExpandableSection>
+                )}
             </FormGroup>
         )
     }
@@ -362,7 +465,6 @@ export class DslProperties extends React.Component<Props, State> {
                 <Form autoComplete="off">
                     {this.state.element === undefined && this.getIntegrationHeader()}
                     {this.state.element && this.getComponentHeader()}
-                    {/*{this.state.element && DslPropertiesUtil.getElementProperties(this.state.element).map((property: DslProperty) => this.createElementProperty(property))}*/}
                     {this.state.element && CamelApiExt.getElementProperties(this.state.element.dslName).map((property: PropertyMeta) => this.createElementProperty(property))}
                 </Form>
             </div>
