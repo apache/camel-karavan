@@ -76,7 +76,7 @@ export class DslSelector extends React.Component<Props, State> {
                 actions={{}}>
                 <Tabs style={{overflow: 'hidden'}} activeKey={this.state.tabIndex} onSelect={this.selectTab}>
                     {CamelUi.getSelectorLabels(this.props.parentType).map((label, index) => (
-                        <Tab  eventKey={label[0]} key={"tab-" + label[0]}
+                        <Tab eventKey={label[0]} key={"tab-" + label[0]}
                         title={<TabTitleText>{CamelUi.capitalizeName(label[0])}</TabTitleText>} translate={undefined} onAuxClick={undefined} onAuxClickCapture={undefined}>
                             <Gallery key={"gallery-" + label[0]} hasGutter className="dsl-gallery">
                                 {CamelUi.sortSelectorModels(CamelUi.getSelectorModels(label[0], label[1], this.props.parentType)).map((dsl, index) => (
@@ -84,7 +84,7 @@ export class DslSelector extends React.Component<Props, State> {
                                           onClick={event => this.selectDsl(event, dsl)}>
                                         <CardHeader>
                                             <img draggable={false}
-                                                 src={dsl.uri ? CamelUi.getKameletIcon(dsl.uri) : CamelUi.getIconForName(dsl.name)}
+                                                 src={dsl.uri && dsl.uri.startsWith("kamelet") ? CamelUi.getKameletIcon(dsl.uri) : CamelUi.getIconForName(dsl.name)}
                                                  style={dsl.name === 'choice' ? {height: "18px"} : {}}  // find better icon
                                                  className="icon" alt="icon"></img>
                                             <Text>{dsl.title}</Text>
