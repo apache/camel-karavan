@@ -28,6 +28,8 @@ interface State {
     inout: InOut
     top: number
     sub?: Subscription
+    fsub?: Subscription
+    fRect?: DOMRect
 }
 
 export class DslInOut extends React.Component<Props, State> {
@@ -40,23 +42,28 @@ export class DslInOut extends React.Component<Props, State> {
     componentDidMount() {
         const sub = EventBus.onPosition()?.subscribe(evt => {
             if (evt.step.uuid === this.state.inout.uuid) {
-                this.setPosition(evt);
+                this.setState({top: evt.rect.top});
             }
         });
         this.setState({sub: sub});
+        const fsub = EventBus.onFlowPosition()?.subscribe(evt => {
+            this.setState({fRect: evt});
+        });
+        this.setState({fsub: fsub});
     }
 
     componentWillUnmount() {
         this.state.sub?.unsubscribe();
+        this.state.fsub?.unsubscribe();
     }
 
-    setPosition(evt: DslPosition) {
-        this.setState({top: evt.rect.top});
+    getTop() {
+        return this.state.fRect ? this.state.top - this.state.fRect?.top : this.state.top;
     }
 
     render() {
         return (
-            <div className={this.state.inout.type === 'out' ? 'outgoing' : 'incoming'} style={{top: this.state.top + 'px'}}>
+            <div className={this.state.inout.type === 'out' ? 'outgoing' : 'incoming'} style={{top: this.getTop() + 'px'}}>
                 <img draggable={false}
                      src={this.state.inout.icon}
                      className="icon" alt="icon">

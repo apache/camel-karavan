@@ -19,6 +19,7 @@ import {CamelElement} from "../model/CamelModel";
 import {InOut} from "../model/ConnectionModels";
 
 const positions = new Subject<DslPosition>();
+const flowsPosition = new Subject<DOMRect>();
 
 export class DslPosition {
     step: CamelElement = new CamelElement("")
@@ -43,4 +44,6 @@ export class InOutPosition {
 export const EventBus = {
     sendPosition: (step: CamelElement, rect: DOMRect) => positions.next(new DslPosition(step, rect)),
     onPosition: () => positions.asObservable(),
+    sendFlowPosition: (rect: DOMRect) => flowsPosition.next(rect),
+    onFlowPosition: () => flowsPosition.asObservable(),
 };
