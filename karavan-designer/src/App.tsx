@@ -60,6 +60,7 @@ class App extends React.Component<Props, State> {
             "sql.json",
             "file.json",
             "log.json",
+            "kubernetes-service-accounts.json",
             "mvel.json"].forEach(name =>
             fetch("components/" + name)
                 .then((r) => r.text())

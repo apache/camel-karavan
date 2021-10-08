@@ -19,6 +19,7 @@ import '../karavan.css';
 import {InOut} from "../model/ConnectionModels";
 import {Subscription} from "rxjs";
 import {DslPosition, EventBus} from "../api/EventBus";
+import {Text} from "@patternfly/react-core";
 
 interface Props {
     inout: InOut,
@@ -63,11 +64,13 @@ export class DslInOut extends React.Component<Props, State> {
 
     render() {
         return (
-            <div className={this.state.inout.type === 'out' ? 'outgoing' : 'incoming'} style={{top: this.getTop() + 'px'}}>
-                <img draggable={false}
-                     src={this.state.inout.icon}
-                     className="icon" alt="icon">
-                </img>
+            <div className={this.state.inout.type === 'out' ? 'outgoing' : 'incoming'}
+                 style={{top: this.getTop() + 'px'}}>
+                {this.state.inout.icon && <img draggable={false}
+                                               src={this.state.inout.icon}
+                                               className="icon" alt="icon">
+                </img>}
+                {this.state.inout.name && <Text className="inout-name">{this.state.inout.name.substr(0, 1).toUpperCase()}</Text>}
             </div>
         );
     }
