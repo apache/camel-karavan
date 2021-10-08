@@ -29,11 +29,11 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Path("/kamelet")
-public class KameletResources {
+@Path("/component")
+public class ComponentResources {
 
-    @ConfigProperty(name = "karavan.folder.kamelets")
-    String kamelets;
+    @ConfigProperty(name = "karavan.folder.components")
+    String components;
 
     @Inject
     Vertx vertx;
@@ -41,9 +41,9 @@ public class KameletResources {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<String> getList() {
-        return vertx.fileSystem().readDirBlocking(Paths.get(kamelets).toString())
+        return vertx.fileSystem().readDirBlocking(Paths.get(components).toString())
                 .stream()
-                .filter(s -> s.endsWith(".yaml"))
+                .filter(s -> s.endsWith(".json"))
                 .map(s -> {
                     String[] parts = s.split("/");
                     return parts[parts.length - 1];
@@ -51,9 +51,9 @@ public class KameletResources {
     }
 
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/{name}")
-    public String getYaml(@PathParam("name") String name) {
-        return vertx.fileSystem().readFileBlocking(Paths.get(kamelets, name).toString()).toString();
+    public String getJson(@PathParam("name") String name) {
+        return vertx.fileSystem().readFileBlocking(Paths.get(components, name).toString()).toString();
     }
 }

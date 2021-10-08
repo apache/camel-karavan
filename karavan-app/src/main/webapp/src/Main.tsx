@@ -20,7 +20,6 @@ import {
     Avatar,
     PageHeaderTools,
     PageHeaderToolsGroup,
-    ButtonVariant,
     PageHeaderToolsItem, Dropdown, DropdownToggle
 } from '@patternfly/react-core';
 import {KaravanApi} from "./api/KaravanApi";
@@ -35,6 +34,7 @@ import {v4 as uuidv4} from "uuid";
 import {DesignerPage} from "./integrations/DesignerPage";
 import {CamelYaml} from "./designer/api/CamelYaml";
 import avatarImg from './avatarImg.svg';
+import {ComponentApi} from "./designer/api/ComponentApi";
 
 class ToastMessage {
     id: string = ''
@@ -92,6 +92,9 @@ export class Main extends React.Component<Props, State> {
         });
         KaravanApi.getKameletNames(names => names.forEach(name => {
             KaravanApi.getKamelet(name, yaml => KameletApi.saveKamelet(yaml))
+        }));
+        KaravanApi.getComponentNames(names => names.forEach(name => {
+            KaravanApi.getComponent(name, json => ComponentApi.saveComponent(json))
         }));
         this.onGetIntegrations();
     }

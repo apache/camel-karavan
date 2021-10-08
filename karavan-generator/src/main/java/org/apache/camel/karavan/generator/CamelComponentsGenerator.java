@@ -54,7 +54,7 @@ public final class CamelComponentsGenerator {
             String json = getComponent(name);
             JsonObject obj = new JsonObject(json);
             obj.remove("componentProperties");
-            if (obj.getJsonObject("component").getBoolean("deprecated")){
+            if (!obj.getJsonObject("component").getBoolean("deprecated")){
                 saveFile(path, name + ".json", obj.toString());
                 list.append(name).append("\n");
             }
