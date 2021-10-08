@@ -367,6 +367,14 @@
     margin: auto;
 }
 
+.karavan .dsl-page .flows .connections .incoming .inout-name,
+.karavan .dsl-page .flows .connections .outgoing .inout-name {
+    margin: auto;
+    overflow: hidden;
+    font-size: 16px;
+    font-weight: bold;
+}
+
 .karavan .dsl-page .flows .connections .path {
      stroke: #e97826;
      stroke-width: 1;

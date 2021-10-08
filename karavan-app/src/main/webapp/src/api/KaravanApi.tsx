@@ -89,4 +89,28 @@ export const KaravanApi = {
             console.log(err);
         });
     },
+
+    getComponentNames: async (after: (names: []) => void) => {
+        axios.get('/component',
+            {headers: {'Accept': 'application/json'}})
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    },
+
+    getComponent: async (name: string, after: (json: string) => void) => {
+        axios.get('/component/' + name,
+            {headers: {'Accept': 'application/json'}})
+            .then(res => {
+                if (res.status === 200) {
+                    after(JSON.stringify(res.data));
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    },
 }

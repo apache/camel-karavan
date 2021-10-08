@@ -25,6 +25,7 @@ import {KameletApi} from "../api/KameletApi";
 import {DslInOut} from "./DslInOut";
 import {DslPath} from "./DslPath";
 import {DslPosition, EventBus} from "../api/EventBus";
+import {ComponentApi} from "../api/ComponentApi";
 
 interface Props {
     integration: Integration
@@ -47,7 +48,7 @@ export class DslConnections extends React.Component<Props, State> {
 
     componentDidMount() {
         const sub = EventBus.onPosition()?.subscribe(evt => {
-                // this.setPosition(evt);
+            // this.setPosition(evt);
         });
         this.setState({sub: sub});
     }
@@ -69,11 +70,12 @@ export class DslConnections extends React.Component<Props, State> {
             if (uri && uri.startsWith("kamelet")) {
                 const kamelet = KameletApi.findKameletByUri(uri);
                 if (kamelet && kamelet.metadata.labels["camel.apache.org/kamelet.type"] === 'source') {
-                    const i = new InOut('in', flow.uuid, CamelUi.getIcon(flow.from), index * 60, 0);
+                    const i = new InOut('in', flow.uuid, index * 60, 0, CamelUi.getIcon(flow.from));
                     result.push(i);
                 }
-            } else {
-                // TODO ?
+            } else if (uri && !uri.startsWith("kamelet")) {
+                const i = new InOut('in', flow.uuid, index * 60, 0, undefined, ComponentApi.getComponentNameFromUri(uri));
+                result.push(i);
             }
         })
         return result;
@@ -86,11 +88,12 @@ export class DslConnections extends React.Component<Props, State> {
             if (uri && uri.startsWith("kamelet")) {
                 const kamelet = KameletApi.findKameletByUri(uri);
                 if (kamelet && kamelet.metadata.labels["camel.apache.org/kamelet.type"] === 'sink') {
-                    const i = new InOut('out', element.uuid, CamelUi.getIcon((element as any).to), index * 60, 500);
+                    const i = new InOut('out', element.uuid, index * 60, 500, CamelUi.getIcon((element as any).to));
                     result.push(i);
                 }
-            } else {
-                // TODO ?
+            } else if (uri && !uri.startsWith("kamelet")) {
+                const i = new InOut('out', element.uuid, index * 60, 500, undefined, ComponentApi.getComponentNameFromUri(uri));
+                result.push(i);
             }
         })
         return result;

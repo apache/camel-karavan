@@ -20,6 +20,7 @@ import {
 } from "@patternfly/react-core";
 import {KaravanDesigner} from "./designer/ui/KaravanDesigner";
 import {KameletApi} from "./designer/api/KameletApi";
+import {ComponentApi} from "./designer/api/ComponentApi";
 
 interface Props {
 }
@@ -52,7 +53,18 @@ class App extends React.Component<Props, State> {
         "kafka-source.kamelet.yaml"].forEach(name =>
             fetch("kamelets/" + name)
                 .then((r) => r.text())
-                .then(value => KameletApi.saveKamelets([value])));
+                .then(value => KameletApi.saveKamelet(value)));
+
+        ["bonita.json",
+            "jms.json",
+            "sql.json",
+            "file.json",
+            "log.json",
+            "kubernetes-service-accounts.json",
+            "mvel.json"].forEach(name =>
+            fetch("components/" + name)
+                .then((r) => r.text())
+                .then(value => ComponentApi.saveComponent(value)));
     }
 
     save(name: string, yaml: string) {

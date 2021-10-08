@@ -18,7 +18,6 @@ package org.apache.camel.karavan.generator;
 
 import io.vertx.core.Vertx;
 import org.apache.camel.kamelets.catalog.KameletsCatalog;
-import org.apache.commons.io.IOUtils;
 import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
@@ -40,6 +39,7 @@ public class KameletGenerator {
     public static void generate() throws Exception {
         KameletGenerator g = new KameletGenerator();
         g.createKamelets("karavan-app/src/main/resources/kamelets");
+        g.createKamelets("karavan-vscode/kamelets");
     }
 
     public void createKamelets(String folder){
@@ -61,7 +61,13 @@ public class KameletGenerator {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeQuietly(inputStream);
+            if (inputStream != null){
+                try {
+                    inputStream.close();
+                } catch (Exception ex){
+
+                }
+            }
         }
     }
 }

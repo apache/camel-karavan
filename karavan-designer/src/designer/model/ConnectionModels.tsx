@@ -19,16 +19,18 @@ import {CamelUi} from "../api/CamelUi";
 export class InOut {
   type: 'in' | 'out'  = 'in';
   uuid: string = ''
-  icon: string = CamelUi.getIconForName("");
   top: number = 0;
   side: number = 0;
+  icon?: string;
+  name?: string;
 
-  constructor(type: 'in' | 'out', uuid: string, icon: string, top: number, side: number) {
+  constructor(type: 'in' | 'out', uuid: string, top: number, side: number, icon?: string, name?: string) {
     this.type = type;
     this.uuid = uuid;
     this.icon = icon;
     this.top = top;
     this.side = side;
+    this.name = name;
   }
 }
 
