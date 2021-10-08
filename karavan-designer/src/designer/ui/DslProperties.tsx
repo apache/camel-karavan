@@ -105,7 +105,6 @@ export class DslProperties extends React.Component<Props, State> {
         if (this.state.step && this.state.element) {
             if (pathParameter){
                 const uri = ComponentApi.buildComponentUri((this.state.element as any).uri, parameter, value);
-                console.log(uri);
                 this.propertyChanged("uri", uri);
             } else {
                 const clone = (CamelYaml.cloneStep(this.state.step));

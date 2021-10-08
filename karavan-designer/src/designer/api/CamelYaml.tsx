@@ -40,19 +40,28 @@ export class CamelYaml {
     }
 
     static cleanupElement = (element: CamelElement): CamelElement => {
-        const result: any = Object.assign({}, element)
-        if (result.dslName === 'expression'){
-            delete result.language
+        const result: any = {};
+        const object: any = Object.assign({}, element);
+        if (object.dslName === 'expression') {
+            delete object.language
         }
-        delete result.uuid
-        delete result.dslName
-        Object.keys(result).forEach(key => {
-            if (result[key] instanceof CamelElement) {
-                result[key] = CamelYaml.cleanupElement(result[key])
-            } else if (Array.isArray(result[key])) {
-                result[key] = CamelYaml.cleanupElements(result[key])
-            }
-        })
+        delete object.uuid
+        delete object.dslName
+        Object.keys(object)
+            .sort((a, b) => {
+                if (a === 'uri') return -1
+                else if (a === 'steps') return 1
+                else return 0;
+            })
+            .forEach(key => {
+                if (object[key] instanceof CamelElement) {
+                    result[key] = CamelYaml.cleanupElement(object[key])
+                } else if (Array.isArray(object[key])) {
+                    result[key] = CamelYaml.cleanupElements(object[key])
+                } else {
+                    result[key] = object[key];
+                }
+            })
         return result as CamelElement
     }
 
@@ -86,34 +95,4 @@ export class CamelYaml {
         const clone = JSON.parse(JSON.stringify(step));
         return CamelApi.createStep(dslName, clone);
     }
-
-    static demo = (): Integration => {
-        const to0 = new ToStep({uri: 'log:demo0'});
-        const to1 = new ToStep({uri: 'log:demo1'});
-        const to2 = new ToStep({uri: 'log:demo2'});
-        const to3 = new ToStep({uri: 'log:demo3'});
-        const to4 = new ToStep({uri: 'log:demo4'});
-        const to5 = new ToStep({uri: 'kamelet:ftp-sink', parameters:{host:'localhost', port:'8021'}});
-        const direct1 = new ToStep({uri: 'direct1'});
-        const direct2 = new ToStep({uri: 'direct2'});
-        const direct3 = new ToStep({uri: 'direct3'});
-
-        const otherwise = new Otherwise({steps: [to0]})
-        const expression1 = new Expression({simple: '${body} == "hello"'});
-        const when1 = new WhenStep({steps: [to1, to5], expression: expression1})
-        const expression2 = new Expression({simple: '${body} == "hello"'});
-        const when2 = new WhenStep({steps: [to2], expression: expression2})
-
-        const choice = new ChoiceStep({otherwise: otherwise, when: [when1, when2]})
-
-        const expression = new Expression({simple: '${body} == "hello"'});
-        const filter = new FilterStep({expression: expression, steps:[to3, to4]})
-
-        const multicast = new MulticastStep({steps:[direct1, direct2, direct3]})
-        const from = new FromStep({uri: 'direct1', steps: [filter, multicast, choice]});
-        const flows: FromStep[] = [from as FromStep];
-        const int = new Integration({metadata: {name: "hello-world"}, spec: {flows: flows}});
-        return int;
-    }
 }
-
