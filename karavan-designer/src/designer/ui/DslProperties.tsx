@@ -252,7 +252,7 @@ export class DslProperties extends React.Component<Props, State> {
                         </button>
                     </Popover>
                 }>
-                {property.type === 'string' && property.enum === undefined && <TextInput
+                {['string', 'duration'].includes(property.type) && property.enum === undefined && <TextInput
                     className="text-field" isRequired
                     type={property.secret ? "password" : "text"}
                     id={id} name={id}
@@ -287,14 +287,14 @@ export class DslProperties extends React.Component<Props, State> {
                         id={id} name={id}
                         value={typeof value === 'number' ? value : undefined}
                         inputName={id}
-                        onMinus={() => this.parametersChanged(property.name, typeof value === 'number' ? value - 1 : -1)}
-                        onPlus={() => this.parametersChanged(property.name, typeof value === 'number' ? value + 1 : 1)}
-                        onChange={(e: any) => this.parametersChanged(property.name, Number(e.target.value))}/>
+                        onMinus={() => this.parametersChanged(property.name, typeof value === 'number' ? value - 1 : -1, property.kind === 'path')}
+                        onPlus={() => this.parametersChanged(property.name, typeof value === 'number' ? value + 1 : 1, property.kind === 'path')}
+                        onChange={(e: any) => this.parametersChanged(property.name, Number(e.target.value), property.kind === 'path')}/>
                     <Button
                         className="clear-button"
                         variant="tertiary"
                         isSmall icon={<UndoIcon/>}
-                        onClick={e => this.parametersChanged(property.name, undefined)}/>
+                        onClick={e => this.parametersChanged(property.name, undefined,property.kind === 'path')}/>
                 </div>
                 }
             </FormGroup>

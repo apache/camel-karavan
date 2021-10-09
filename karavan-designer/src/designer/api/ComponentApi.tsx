@@ -111,6 +111,7 @@ export const ComponentApi = {
             if (!advanced) {
                 result.push(...properties.filter(p => p.label.length === 0));
                 result.push(...properties.filter(p => p.label.startsWith(type) && !p.label.includes("advanced")));
+                result.push(...properties.filter(p => p.label === "formatting"));
             } else {
                 result.push(...properties.filter(p => p.label.startsWith(type) && p.label.includes("advanced")));
                 result.push(...properties.filter(p => p.label === "advanced"));
