@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    Card, CardBody, CardHeader, Gallery, Modal,
+    Card, CardBody, CardHeader, Gallery, Modal, PageSection,
     Tab, Tabs, TabTitleText,
     Text,
 } from '@patternfly/react-core';
@@ -29,6 +29,7 @@ interface Props {
     onClose: any
     parentId: string
     parentType: string
+    dark?: boolean
 }
 
 interface State {
@@ -74,6 +75,7 @@ export class DslSelector extends React.Component<Props, State> {
                 isOpen={this.state.show}
                 onClose={() => this.props.onClose.call(this)}
                 actions={{}}>
+                <PageSection variant={this.props.dark ? "darker" : "light"}>
                 <Tabs style={{overflow: 'hidden'}} activeKey={this.state.tabIndex} onSelect={this.selectTab}>
                     {CamelUi.getSelectorLabels(this.props.parentType).map((label, index) => (
                         <Tab eventKey={label[0]} key={"tab-" + label[0]}
@@ -98,6 +100,7 @@ export class DslSelector extends React.Component<Props, State> {
                         </Tab>
                     ))}
                 </Tabs>
+                </PageSection>
             </Modal>
         );
     }

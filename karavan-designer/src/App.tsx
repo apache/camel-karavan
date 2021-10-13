@@ -75,7 +75,10 @@ class App extends React.Component<Props, State> {
         return (
             <Page className="karavan">
                 <KaravanDesigner key={this.state.key} name={this.state.name} yaml={this.state.yaml}
-                                 onSave={(name, yaml) => this.save(name, yaml)}/>
+                                 onSave={(name, yaml) => this.save(name, yaml)}
+                                 borderColor="#fb8824"
+                                 borderColorSelected="black"
+                />
             </Page>
         );
     }

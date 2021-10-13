@@ -181,6 +181,7 @@
     display: flex;
     flex-direction: row;
     height: 100%;
+    background: #fafafa;
 }
 
 /*Properties*/
@@ -336,7 +337,7 @@
 }
 
 .karavan .dsl-page .flows .connections .incoming {
-    border-color: #e97826;
+    border-color: #fb8824;
     border-style: solid;
     border-radius: 50px;
     border-width: 1px;
@@ -349,7 +350,7 @@
 }
 
 .karavan .dsl-page .flows .connections .outgoing {
-    border-color: #e97826;
+    border-color: #fb8824;
     border-style: solid;
     border-radius: 50px;
     border-width: 1px;
@@ -376,7 +377,7 @@
 }
 
 .karavan .dsl-page .flows .connections .path {
-     stroke: #e97826;
+     stroke: #fb8824;
      stroke-width: 1;
      fill: none;
 }
@@ -397,7 +398,7 @@
     width: fit-content;
     margin-left: auto;
     margin-right: auto;
-    border-color: #e97826;
+    border-color: #fb8824;
     border-radius: 3px;
     border-width: 1px;
     min-width: 160px;
@@ -412,7 +413,7 @@
     display: block;
     justify-content: center;
     position: relative;
-    border-color: #e97826;
+    border-color: #fb8824;
     border-style: solid;
     border-radius: 3px;
     border-width: 1px;
@@ -430,7 +431,7 @@
 }
 
 .karavan .dsl-page .flows .step-element-with-steps .header {
-    border-color: #e97826;
+    border-color: #fb8824;
     border-style: solid;
     border-radius: 3px;
     border-width: 1px;
@@ -488,13 +489,14 @@
     border: 0;
     padding: 0;
     background: transparent;
-    color: #e97826;
+    color: #fb8824;
 }
 
 .step-element .arrow-down {
+    margin-top: -1px;
     font-size: 13px;
     height: 16px;
-    color: #e97826;
+    color: #fb8824;
 }
 
 .step-element .add-button {
@@ -505,7 +507,7 @@
     padding: 0;
     margin: 3px 0 0 0;
     background: transparent;
-    color: #e97826;
+    color: #fb8824;
     visibility: hidden;
     z-index: 100;
     position: relative;
@@ -520,7 +522,7 @@
     padding: 0;
     margin: 3px auto 0 auto;
     background: transparent;
-    color: #e97826;
+    color: #fca338;
     visibility: hidden;
     height: 100%;
     display: flex;

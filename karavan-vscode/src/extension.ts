@@ -131,7 +131,7 @@ function readKamelets(): string[] {
     const uri: vscode.Uri = vscode.Uri.file(path.resolve(
         path.join(__dirname, './kamelets')
     ))
-    const yamls: string[] = fs.readdirSync(uri.fsPath).map(file => fs.readFileSync(uri.fsPath + "/" + file, 'utf-8'));
+    const yamls: string[] = fs.readdirSync(uri.fsPath).filter(file => file.endsWith("yaml")).map(file => fs.readFileSync(uri.fsPath + "/" + file, 'utf-8'));
     return yamls;
 }
 

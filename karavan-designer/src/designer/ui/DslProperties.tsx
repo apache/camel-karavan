@@ -25,7 +25,7 @@ import {
     Switch,
     NumberInput,
     Button,
-    TextVariants, Select, SelectVariant, SelectDirection, SelectOption, TextArea, ExpandableSection
+    TextVariants, Select, SelectVariant, SelectDirection, SelectOption, TextArea, ExpandableSection, PageSection
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -184,6 +184,7 @@ export class DslProperties extends React.Component<Props, State> {
                 fieldId={id}
                 labelIcon={
                     <Popover
+                        position={"left"}
                         headerContent={property.title}
                         bodyContent={property.description}
                         footerContent={property.example ? "Example: " + property.example : undefined}>
@@ -243,6 +244,7 @@ export class DslProperties extends React.Component<Props, State> {
                 fieldId={id}
                 labelIcon={
                     <Popover
+                        position={"left"}
                         headerContent={property.displayName}
                         bodyContent={property.description}
                         footerContent={property.defaultValue ? "Default: " + property.defaultValue : undefined}>
@@ -335,6 +337,7 @@ export class DslProperties extends React.Component<Props, State> {
                     fieldId={property.name}
                     labelIcon={property.description ?
                         <Popover
+                            position={"left"}
                             headerContent={property.displayName}
                             bodyContent={property.description}>
                             <button type="button" aria-label="More info" onClick={e => {
@@ -374,6 +377,7 @@ export class DslProperties extends React.Component<Props, State> {
                 fieldId={property.name}
                 labelIcon={property.description ?
                     <Popover
+                        position={"left"}
                         headerContent={property.displayName}
                         bodyContent={property.description}>
                         <button type="button" aria-label="More info" onClick={e => {
