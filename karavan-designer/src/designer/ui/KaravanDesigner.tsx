@@ -37,6 +37,9 @@ interface Props {
     onSave?: (name: string, yaml: string) => void
     name: string
     yaml: string
+    borderColor: string
+    borderColorSelected: string
+    dark?: boolean
 }
 
 interface State {
@@ -161,6 +164,8 @@ export class KaravanDesigner extends React.Component<Props, State> {
                                         deleteElement={this.deleteElement}
                                         selectElement={this.selectElement}
                                         selectedUuid={this.state.selectedUuid}
+                                        borderColor={this.props.borderColor}
+                                        borderColorSelected={this.props.borderColorSelected}
                                         step={flow}/>
                         ))}
                         <div className="add-flow">
@@ -181,6 +186,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
                     />
                 </div>
                 <DslSelector
+                    dark={this.props.dark}
                     parentId={this.state.parentId}
                     parentType={this.state.parentType}
                     show={this.state.showSelector}

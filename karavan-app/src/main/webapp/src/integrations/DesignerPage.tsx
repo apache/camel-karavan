@@ -128,7 +128,14 @@ export class DesignerPage extends React.Component<Props, State> {
                     </div>
                     }
                     {this.state.view === 'design' &&
-                    <KaravanDesigner key={this.state.key} name={this.state.name} yaml={this.state.yaml} onSave={(name, yaml) => this.save(name, yaml)}/>
+                    <KaravanDesigner
+                        key={this.state.key}
+                        name={this.state.name}
+                        yaml={this.state.yaml}
+                        onSave={(name, yaml) => this.save(name, yaml)}
+                        borderColor="#fb8824"
+                        borderColorSelected="black"
+                    />
                     }
                 </div>
             </PageSection>

@@ -6,45 +6,117 @@ body,
 }
 
 :root {
-  --pf-global--primary-color--100: var(--pf-global--palette--orange-300) !important;
-  --pf-global--primary-color--200: var(--pf-global--palette--orange-300) !important;
-  --pf-global--primary-color--light-100: var(--pf-global--palette--orange-300) !important;
-  --pf-global--primary-color--dark-100: var(--pf-global--palette--orange-300) !important;
-
-  --pf-global--link--Color: var(--pf-global--palette--orange-300) !important;
-  --pf-global--link--Color--hover: var(--pf-global--palette--orange-500) !important;
-  --pf-global--link--Color--light: var(--pf-global--palette--orange-100) !important;
-  --pf-global--link--Color--light--hover: var(--pf-global--palette--orange-300) !important;
-  --pf-global--link--Color--dark: var(--pf-global--palette--orange-600) !important;
-  --pf-global--link--Color--dark--hover: var(--pf-global--palette--orange-900) !important;
-
-  --pf-global--active-color--100: var(--pf-global--palette--orange-100) !important;
-  --pf-global--active-color--200: var(--pf-global--palette--orange-200) !important;
-  --pf-global--active-color--300: var(--pf-global--palette--orange-300) !important;
-  --pf-global--active-color--400: var(--pf-global--palette--orange-400) !important;
-
+  --pf-global--primary-color--100: #fca338 !important;
 }
 
-#root {
-  margin: 0;
-  height: 100%;
+.vscode-dark .karavan {
+  color: #CCCCCC;
 }
 
-#root {
-  display: flex;
-  flex-direction: column;
+.vscode-dark .karavan .dsl-page .dsl-page-columns {
+  background-color: #252526;
 }
 
-.logo {
-  display: flex;
+.vscode-dark .karavan .dsl-page .flows .step-element-with-steps {
+  border-color: #964;
 }
 
-.logo  .pf-c-brand {
-  height: 30px;
-  margin-right: 10px;
+.vscode-dark .karavan .dsl-page .flows .step-element-with-steps .header {
+  border-color: #fca338;
+  background: #fca338;
+  color: black;
 }
 
-.logo .pf-c-title {
-  color: #e97826;
+.vscode-dark .karavan .dsl-page .properties {
+  border: none;
+  background: #1C1C1D;
 }
 
+.vscode-dark .karavan .dsl-page .properties .text-field {
+    background-color: #3B3B3B;
+    border-color: #3B3B3B;
+    color: #CCCCCC;
+}
+
+.vscode-dark .pf-c-select {
+  --pf-c-select__toggle--BackgroundColor: #3B3B3B;
+  --pf-c-select__toggle--before--BorderTopColor: #3B3B3B;
+  --pf-c-select__toggle--before--BorderRightColor: #3B3B3B;
+  --pf-c-select__toggle--before--BorderBottomColor: #3B3B3B;
+  --pf-c-select__toggle--before--BorderLeftColor: #3B3B3B;
+}
+
+.vscode-dark .pf-c-select__menu {
+  background-color: #3B3B3B;
+  box-shadow: var(--pf-c-select__menu--BoxShadow);
+}
+
+.vscode-dark .karavan .dsl-page .properties .pf-c-select__menu-item {
+  color: #cccccc;
+}
+
+.vscode-dark .karavan .dsl-page .properties .pf-c-select__toggle-typeahead {
+  color: #cccccc;
+}
+
+.vscode-dark .pf-c-select__menu-wrapper:hover, .pf-c-select__menu-item:hover {
+  background-color: black;
+}
+
+.vscode-dark .pf-c-switch {
+  --pf-c-switch__toggle--BackgroundColor: #565656;
+  --pf-c-switch__toggle-icon--Color: black;
+  --pf-c-switch__toggle--before--BackgroundColor: black;
+}
+
+.vscode-dark .step-element .header .delete-button, 
+.vscode-dark .element-builder .header .delete-button {
+  color: #585858;
+}
+
+.vscode-dark .karavan .dsl-page .flows .connections .path {
+  stroke: #fee3c3;
+}
+
+.vscode-dark .karavan .dsl-page .flows .connections .outgoing,
+.vscode-dark .karavan .dsl-page .flows .connections .incoming {
+  border-color: #fee3c3;
+  background: #fee3c3;
+}
+
+
+.vscode-dark .pf-c-modal-box__title-text {
+  color: #cecece;
+}
+
+.vscode-dark .pf-c-tabs__link {
+  color: #cecece;
+}
+
+.vscode-dark .pf-c-tabs__link::after {
+  border-color: #fca338;
+}
+
+.vscode-dark .pf-c-tab-content .pf-c-card__header p {
+  color: #cecece;
+}
+
+.vscode-dark .pf-c-modal-box {
+  --pf-c-modal-box--BackgroundColor: #585858;
+}
+
+.vscode-dark .pf-c-popover {
+  --pf-c-popover__content--BackgroundColor: #585858;
+  --pf-c-popover__arrow--BackgroundColor: #585858;
+}
+
+
+.vscode-dark .pf-c-popover .pf-c-title.pf-m-md,
+.vscode-dark .pf-c-popover .pf-c-popover__body,
+.vscode-dark .pf-c-popover .pf-c-button.pf-m-plain {
+  color: #cecece;
+}
+
+.vscode-dark .pf-c-tooltip {
+  --pf-c-tooltip__content--BackgroundColor: #585858;
+}
