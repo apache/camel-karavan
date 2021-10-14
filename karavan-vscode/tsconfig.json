@@ -5,7 +5,11 @@
     "outDir": "dist",
     "module": "esnext",
     "target": "es5",
-    "lib": ["es6", "dom"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "sourceMap": true,
     "jsx": "react",
     "moduleResolution": "node",
