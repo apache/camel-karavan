@@ -144,6 +144,7 @@ const prerenderConfig = (webpackEnv) => {
             new CopyPlugin({
                 patterns: [
                     {from: "kamelets", to: "kamelets"},
+                    {from: "components", to: "components"}
                 ],
             }),
         ],
