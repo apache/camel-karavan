@@ -103,6 +103,9 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
     // Read and send Kamelets
     panel.webview.postMessage({command: 'kamelets', kamelets: readKamelets()});
 
+    // Read and send Components
+    panel.webview.postMessage({command: 'components', components: readComponents()});
+
     // Send integration
     panel.webview.postMessage({command: 'open', name: name, yaml: yaml});
 
@@ -133,6 +136,15 @@ function readKamelets(): string[] {
     ))
     const yamls: string[] = fs.readdirSync(uri.fsPath).filter(file => file.endsWith("yaml")).map(file => fs.readFileSync(uri.fsPath + "/" + file, 'utf-8'));
     return yamls;
+}
+
+function readComponents(): string[] {
+    const uri: vscode.Uri = vscode.Uri.file(path.resolve(
+        path.join(__dirname, './components')
+    ))
+    const jsons: string[] = fs.readdirSync(uri.fsPath).filter(file => file.endsWith("json")).map(file => fs.readFileSync(uri.fsPath + "/" + file, 'utf-8'));
+    console.log(jsons)
+    return jsons;
 }
 
 function isIntegration(yaml: string): [boolean, string?] {

@@ -140,7 +140,7 @@ export class DslElement extends React.Component<Props, State> {
 
     getHeaderWithTooltip = (tooltip: string | undefined) => {
         return (
-            <Tooltip position={"auto"} disabled={CamelUi.isShowExpressionTooltip(this.state.element)}
+            <Tooltip position={"auto"}
                      content={<div>{tooltip}</div>}>
                 {this.getHeader()}
             </Tooltip>
@@ -151,6 +151,11 @@ export class DslElement extends React.Component<Props, State> {
         if (CamelUi.isShowExpressionTooltip(this.state.element)) return CamelUi.getExpressionTooltip(this.state.element);
         if (CamelUi.isShowUriTooltip(this.state.element)) return CamelUi.getUriTooltip(this.state.element);
         return undefined;
+    }
+
+    getElementHeader = () => {
+        const tooltip = this.getHeaderTooltip();
+        return tooltip === undefined ? this.getHeader() : this.getHeaderWithTooltip(tooltip);
     }
 
     render() {
@@ -168,7 +173,7 @@ export class DslElement extends React.Component<Props, State> {
                  onClick={event => this.selectElement(event)}
 
             >
-                {this.getHeaderWithTooltip(this.getHeaderTooltip())}
+                {this.getElementHeader()}
                 {this.state.element.hasSteps() && !this.horizontal() && this.getArrow()}
                 <div className={this.state.element.dslName}>
                     {this.state.element.hasSteps() &&
