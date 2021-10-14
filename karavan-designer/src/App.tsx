@@ -41,30 +41,39 @@ class App extends React.Component<Props, State> {
 
 
     componentDidMount() {
+
         ["http-secured-sink.kamelet.yaml",
-        "http-secured-source.kamelet.yaml",
-        "http-sink.kamelet.yaml",
-        "http-source.kamelet.yaml",
-        "insert-field-action.kamelet.yaml",
-        "insert-header-action.kamelet.yaml",
-        "kafka-not-secured-sink.kamelet.yaml",
-        "kafka-not-secured-source.kamelet.yaml",
-        "kafka-sink.kamelet.yaml",
-        "kafka-source.kamelet.yaml"].forEach(name =>
+            "http-secured-source.kamelet.yaml",
+            "http-sink.kamelet.yaml",
+            "http-source.kamelet.yaml",
+            "insert-field-action.kamelet.yaml",
+            "insert-header-action.kamelet.yaml",
+            "kafka-not-secured-sink.kamelet.yaml",
+            "kafka-not-secured-source.kamelet.yaml",
+            "kafka-sink.kamelet.yaml",
+            "kafka-source.kamelet.yaml"].forEach(name =>
             fetch("kamelets/" + name)
                 .then((r) => r.text())
                 .then(value => KameletApi.saveKamelet(value)));
 
+
         ["bonita.json",
+            "netty-http.json",
             "jms.json",
             "sql.json",
             "file.json",
             "log.json",
+            "coap+tcp.json",
+            "pg-replication-slot.json",
+            "rest-api.json",
+            "rest-openapi.json",
             "kubernetes-service-accounts.json",
             "mvel.json"].forEach(name =>
             fetch("components/" + name)
                 .then((r) => r.text())
                 .then(value => ComponentApi.saveComponent(value)));
+
+
     }
 
     save(name: string, yaml: string) {

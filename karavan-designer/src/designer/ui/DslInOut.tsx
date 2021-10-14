@@ -18,7 +18,7 @@ import React from 'react';
 import '../karavan.css';
 import {InOut} from "../model/ConnectionModels";
 import {Subscription} from "rxjs";
-import {DslPosition, EventBus} from "../api/EventBus";
+import {EventBus} from "../api/EventBus";
 import {Text} from "@patternfly/react-core";
 
 interface Props {

@@ -18,12 +18,6 @@ import * as yaml from 'js-yaml';
 import {
     Integration,
     CamelElement,
-    ToStep,
-    Otherwise,
-    Expression,
-    WhenStep,
-    ChoiceStep,
-    FilterStep, FromStep, MulticastStep,
 } from "../model/CamelModel";
 import {CamelApi} from "./CamelApi";
 

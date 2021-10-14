@@ -104,17 +104,6 @@ export class DslElement extends React.Component<Props, State> {
         return this.state.step.dslName.startsWith("from");
     }
 
-    isShowTooltip = (): boolean => {
-        const exp = CamelApiExt.getExpressionValue(this.state.element);
-        return this.state.element.hasOwnProperty("expression") && (exp !== undefined && exp?.trim().length > 0);
-    }
-
-    getExpressionTooltip = (): string => {
-        const language = CamelApiExt.getExpressionLanguage(this.state.element) || 'simple';
-        const value = CamelApiExt.getExpressionValue(this.state.element) || '';
-        return language.concat(": ", value);
-    }
-
     getArrow = () => {
         return (
             <svg className={"arrow-down"} viewBox="0 0 483.284 483.284" width="16" height="16"
@@ -149,13 +138,19 @@ export class DslElement extends React.Component<Props, State> {
         );
     }
 
-    getHeaderWithTooltip = () => {
+    getHeaderWithTooltip = (tooltip: string | undefined) => {
         return (
-            <Tooltip position={"auto"} disabled={this.isShowTooltip()}
-                     content={<div>{this.getExpressionTooltip()}</div>}>
+            <Tooltip position={"auto"} disabled={CamelUi.isShowExpressionTooltip(this.state.element)}
+                     content={<div>{tooltip}</div>}>
                 {this.getHeader()}
             </Tooltip>
         );
+    }
+
+    getHeaderTooltip = (): string | undefined => {
+        if (CamelUi.isShowExpressionTooltip(this.state.element)) return CamelUi.getExpressionTooltip(this.state.element);
+        if (CamelUi.isShowUriTooltip(this.state.element)) return CamelUi.getUriTooltip(this.state.element);
+        return undefined;
     }
 
     render() {
@@ -173,7 +168,7 @@ export class DslElement extends React.Component<Props, State> {
                  onClick={event => this.selectElement(event)}
 
             >
-                {this.isShowTooltip() ? this.getHeaderWithTooltip() : this.getHeader()}
+                {this.getHeaderWithTooltip(this.getHeaderTooltip())}
                 {this.state.element.hasSteps() && !this.horizontal() && this.getArrow()}
                 <div className={this.state.element.dslName}>
                     {this.state.element.hasSteps() &&
