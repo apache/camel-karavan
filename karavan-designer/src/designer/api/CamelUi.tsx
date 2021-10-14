@@ -212,12 +212,13 @@ export class CamelUi {
 
     static getTitle = (element: CamelElement): string => {
         const uri: string = (element as any).uri;
-        const name = ComponentApi.getComponentNameFromUri(uri);
         const k: Kamelet | undefined = CamelUi.getKamelet(element);
         if (k) {
             return k.title();
         } else {
-            return uri ? CamelUi.capitalizeName(element.dslName) + " : " + name : CamelUi.capitalizeName(element.dslName);
+            return uri
+                ? CamelUi.capitalizeName(element.dslName) + " : " + ComponentApi.getComponentNameFromUri(uri)
+                : CamelUi.capitalizeName(element.dslName);
         }
     };
 
@@ -228,7 +229,7 @@ export class CamelUi {
 
     static isShowUriTooltip = (element: CamelElement): boolean => {
         const uri: string = (element as any).uri;
-        return uri !== undefined;
+        return uri !== undefined && !uri.startsWith("kamelet");
     }
 
     static getExpressionTooltip = (element: CamelElement): string => {
