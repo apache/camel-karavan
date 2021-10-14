@@ -823,8 +823,6 @@ export class CamelApi {
                     switch (step.dslName){
                         case 'policyStep': (step as PolicyStep).policy.steps = CamelApi.deleteStep((step as PolicyStep).policy.steps, uuidToDelete); break;
                         case 'choiceStep':
-                            console.log(step);
-                            console.log(uuidToDelete);
                             const otherwise = (step as ChoiceStep).choice.otherwise;
                             if (otherwise && otherwise.uuid === uuidToDelete) {
                                 (step as ChoiceStep).choice.otherwise = undefined;

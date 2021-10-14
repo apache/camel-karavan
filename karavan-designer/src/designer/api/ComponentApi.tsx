@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 import {Component, ComponentProperty} from "../model/ComponentModels";
-import {Kamelet, Property} from "../model/KameletModels";
 
 export const Components: Component[] = [];
 
@@ -54,31 +53,103 @@ export const ComponentApi = {
         return uri.split(":")[0];
     },
 
-    getPathParameterValue: (uri: string, pathParameter: string): string | undefined => {
+    getUriParts: (uri: string): Map<string, string> => {
+        const result: Map<string, string> = new Map<string, string>();
         const name = ComponentApi.getComponentNameFromUri(uri);
-        if (name){
+        if (name) {
             const component = ComponentApi.findByName(name);
             const syntax = component?.component.syntax;
-            const index = syntax?.split(":").findIndex(s => s === pathParameter);
-            const uriParts = uri.split(":");
-            return index && uriParts.length > index ? uriParts[index] : undefined;
+            const syntaxParts = ComponentApi.parseSyntax(syntax+'');
+            const syntaxSeparators = ComponentApi.getSyntaxSeparators(syntax+'');
+            let newUri = uri === name ? name+syntaxSeparators.join('') : uri;
+            result.set(name, name);
+            syntaxParts.filter((x,i) => i > 0).forEach((part, index) => {
+                if (index < syntaxParts.length -1) {
+                    const startSeparator = syntaxSeparators[index];
+                    const endSeparator = syntaxSeparators[index + 1];
+                    const start = newUri.indexOf(startSeparator) + startSeparator.length;
+                    const end = endSeparator ? newUri.indexOf(endSeparator, start) : newUri.length;
+                    const val = newUri.substr(start, end-start);
+                    result.set(part, val);
+                    newUri = newUri.substr(end);
+                }
+            })
         }
-        return undefined;
+        return result;
+    },
+
+    parseSyntax: (syntax: string): string[] => {
+        const separators: string[] = ['://', '//', ':', '/', '#']
+        let simplifiedSyntax = ''+ syntax;
+        separators.forEach(s => {
+            simplifiedSyntax = simplifiedSyntax?.replaceAll(s, ":");
+        });
+        return simplifiedSyntax.split(":");
+    },
+
+    getSyntaxSeparators: (syntax: string): string[] => {
+        const result: string[] = [];
+            const parts: string[] = ComponentApi.parseSyntax(syntax);
+            let str = '';
+            parts.forEach((part, index) => {
+                if (index < parts.length -1){
+                    const start = syntax.indexOf(part, str.length) + part.length;
+                    const end = syntax.indexOf(parts[index + 1], start);
+                    const separator = syntax.substr(start, end - start);
+                    result.push(separator);
+                    str = str + part + separator;
+                }
+            })
+        return result;
+    },
+
+    parseUri: (uri?: string): string[] => {
+        const separators: string[] = ['://', '//', ':', '/', '#']
+        let simplifiedUri = ''+ uri;
+        separators.forEach(s => {
+            simplifiedUri = simplifiedUri?.replaceAll(s, ":");
+        });
+        return simplifiedUri.split(":");
+    },
+
+    getUriSeparators: (uri: string): string[] => {
+        const result: string[] = [];
+        const name = ComponentApi.getComponentNameFromUri(uri);
+        if (name) {
+            const component = ComponentApi.findByName(name);
+            const syntax = '' + component?.component.syntax;
+            const parts: string[] = Array.from(ComponentApi.getUriParts(uri).keys());
+            let str = '';
+            parts.forEach((part, index) => {
+                if (index < parts.length -1){
+                    const start = syntax.indexOf(part, str.length) + part.length;
+                    const end = syntax.indexOf(parts[index + 1], start);
+                    const separator = syntax.substr(start, end - start);
+                    result.push(separator);
+                    str = str + part + separator;
+                }
+            })
+        }
+        return result;
+    },
+
+    getPathParameterValue: (uri: string, pathParameter: string): string | undefined => {
+        return ComponentApi.getUriParts(uri).get(pathParameter);
     },
 
     buildComponentUri: (uri: string, pathParameter: string, pathParameterValue: string): string | undefined => {
         const name = ComponentApi.getComponentNameFromUri(uri);
-        if (name){
-            const component = ComponentApi.findByName(name);
-            const syntax = component?.component.syntax;
-            const uriParts = uri.split(":");
-            const result:string[] = [];
-            syntax?.split(":").forEach((value, index, array) => {
-                if (value === pathParameter) result.push(pathParameterValue)
-                else if (uriParts.length > index) result.push(uriParts[index])
-                else result.push("")
+        if (name) {
+            const map = ComponentApi.getUriParts(uri);
+            map.set(pathParameter, pathParameterValue);
+            const separators = ComponentApi.getUriSeparators(uri);
+            const result: string[] = [];
+            Array.from(map.keys()).forEach((key, index) => {
+                const val = map.get(key);
+                result.push(val ? val : '');
+                result.push(separators[index]);
             });
-            return result.join(":");
+            return result.join('');
         }
         return uri;
     },
@@ -109,9 +180,11 @@ export const ComponentApi = {
         } finally {
             const result: ComponentProperty[] = [];
             if (!advanced) {
-                result.push(...properties.filter(p => p.label.length === 0));
-                result.push(...properties.filter(p => p.label.startsWith(type) && !p.label.includes("advanced")));
-                result.push(...properties.filter(p => p.label === "formatting"));
+                result.push(...properties.filter(p => p.kind === 'path'));
+                result.push(...properties.filter(p => p.kind !== 'path' && p.required));
+                result.push(...properties.filter(p => p.label.length === 0 && p.kind !== 'path' && !p.required));
+                result.push(...properties.filter(p => p.label.startsWith(type) && !p.label.includes("advanced") && !p.required));
+                result.push(...properties.filter(p => p.label === "formatting" && !p.required));
             } else {
                 result.push(...properties.filter(p => p.label.startsWith(type) && p.label.includes("advanced")));
                 result.push(...properties.filter(p => p.label === "advanced"));

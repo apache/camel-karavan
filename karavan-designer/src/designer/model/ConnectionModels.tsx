@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {CamelUi} from "../api/CamelUi";
 
 export class InOut {
   type: 'in' | 'out'  = 'in';

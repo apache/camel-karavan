@@ -93,9 +93,10 @@ export class CamelApiExt {
         let uri: any = undefined;
         let expression: any = undefined;
         let parameters: any = undefined;
-        if (name)
+        if (name) {
             CamelMetadataApi.getElementMeta(name)?.properties
                 .filter(p => p.name !== 'steps' && p.name !== 'inheritErrorHandler')
+                .filter(p => (name == 'to' && p.name !== 'pattern') || name !='to')
                 .filter(p => !p.isObject || (p.isObject && p.name === 'expression'))
                 .forEach(p => {
                     switch (p.name) {
@@ -112,6 +113,7 @@ export class CamelApiExt {
                             result.push(p)
                     }
                 })
+        }
         if (uri) result.unshift(uri)
         if (expression) result.unshift(expression)
         if (parameters) result.push(parameters)

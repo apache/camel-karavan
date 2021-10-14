@@ -25,7 +25,7 @@ import {
     Switch,
     NumberInput,
     Button,
-    TextVariants, Select, SelectVariant, SelectDirection, SelectOption, TextArea, ExpandableSection, PageSection
+    TextVariants, Select, SelectVariant, SelectDirection, SelectOption, TextArea, ExpandableSection
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -242,6 +242,7 @@ export class DslProperties extends React.Component<Props, State> {
                 key={id}
                 label={property.displayName}
                 fieldId={id}
+                isRequired={property.kind === 'path' || property.required}
                 labelIcon={
                     <Popover
                         position={"left"}
@@ -287,10 +288,10 @@ export class DslProperties extends React.Component<Props, State> {
                     <NumberInput
                         className="number-property"
                         id={id} name={id}
-                        value={typeof value === 'number' ? value : undefined}
+                        value={value !== undefined ? (typeof value === 'number' ? value : Number(value)) : property.defaultValue}
                         inputName={id}
-                        onMinus={() => this.parametersChanged(property.name, typeof value === 'number' ? value - 1 : -1, property.kind === 'path')}
-                        onPlus={() => this.parametersChanged(property.name, typeof value === 'number' ? value + 1 : 1, property.kind === 'path')}
+                        onMinus={() => this.parametersChanged(property.name, typeof value === 'number' ? value - 1 : Number(value) -1, property.kind === 'path')}
+                        onPlus={() => this.parametersChanged(property.name, typeof value === 'number' ? value + 1 : Number(value) + 1, property.kind === 'path')}
                         onChange={(e: any) => this.parametersChanged(property.name, Number(e.target.value), property.kind === 'path')}/>
                     <Button
                         className="clear-button"
