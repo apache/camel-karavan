@@ -78,7 +78,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
     }
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        if (!Object.is(prevState.integration, this.state.integration)) {
+        if (prevState.key !== this.state.key) {
             this.props.onSave?.call(this, this.state.integration.metadata.name, this.getCode(this.state.integration));
         }
     }
@@ -98,12 +98,12 @@ export class KaravanDesigner extends React.Component<Props, State> {
     onPropertyUpdate = (element: CamelElement, updatedUuid: string) => {
         const clone = CamelYaml.cloneIntegration(this.state.integration);
         const i = CamelApiExt.updateIntegration(clone, element, updatedUuid);
-        this.setState({integration: i, key: Math.random().toString()})
+        this.setState({integration: i, key: Math.random().toString()});
     }
 
     deleteElement = (id: string) => {
         const i = CamelApiExt.deleteStepFromIntegration(this.state.integration, id);
-        this.setState({integration: i, showSelector: false})
+        this.setState({integration: i, showSelector: false, key: Math.random().toString()});
     }
 
     selectElement = (element: CamelElement) => {
@@ -142,7 +142,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
     }
 
     onIntegrationUpdate = (i: Integration) => {
-        this.setState({integration: i, showSelector: false});
+        this.setState({integration: i, showSelector: false, key: Math.random().toString()});
     };
 
     render() {
