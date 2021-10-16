@@ -93,7 +93,7 @@ export class ThrowExceptionStep extends ProcessorStep {
 export class Choice extends CamelElement { 
     inheritErrorHandler?: boolean
     otherwise?: Otherwise
-    when?: WhenStep [] = []
+    when?: When [] = []
 
     public constructor(init?: Partial<Choice>) { 
         super('choice')
@@ -1266,14 +1266,6 @@ export class When extends CamelElement {
     public constructor(init?: Partial<When>) { 
         super('when')
         Object.assign(this, init)
-    }
-}
-export class WhenStep extends ProcessorStep {
-    when: When = new When()
-
-    public constructor(init?: Partial<When>) {
-        super('whenStep')
-        Object.assign(this, {when: new When({...init})})
     }
 }
 

@@ -21,11 +21,10 @@ import {
 import '../karavan.css';
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
-import {CamelElement, Otherwise, ProcessorStep, WhenStep} from "../model/CamelModel";
+import {CamelElement, Otherwise, ProcessorStep, When} from "../model/CamelModel";
 import {CamelApi} from "../api/CamelApi";
 import {CamelUi} from "../api/CamelUi";
 import {EventBus} from "../api/EventBus";
-import {CamelApiExt} from "../api/CamelApiExt";
 
 interface Props {
     step: CamelElement,
@@ -88,7 +87,7 @@ export class DslElement extends React.Component<Props, State> {
         return (this.state.element as any).steps
     }
 
-    getWhens = (): WhenStep[] => {
+    getWhens = (): When[] => {
         return (this.state.element as any).when
     }
 
