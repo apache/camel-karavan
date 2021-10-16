@@ -509,8 +509,10 @@ export class CamelApi {
     }
 
     static createChoice = (element: any): ChoiceStep => {
-        const choiceStep = element ? new ChoiceStep({...element.choice}) : new ChoiceStep()
-        choiceStep.choice.otherwise = CamelApi.createOtherwise(element?.choice?.otherwise)
+        const choiceStep = element ? new ChoiceStep({...element.choice}) : new ChoiceStep();
+        if (element?.choice?.otherwise !== undefined){
+            choiceStep.choice.otherwise =  CamelApi.createOtherwise(element?.choice?.otherwise);
+        }
         choiceStep.choice.when = element && element?.choice ? element?.choice?.when.map((x:any) => CamelApi.createWhen(x)) :[]
         choiceStep.uuid = element?.uuid ? element.uuid : choiceStep.uuid
         return choiceStep

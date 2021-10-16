@@ -89,8 +89,6 @@ export class DslProperties extends React.Component<Props, State> {
     }
 
     expressionChanged = (language: string, value: string | undefined) => {
-        console.log(this.state.step)
-        console.log(this.state.element)
         if (this.state.step && this.state.element) {
             const clone = (CamelYaml.cloneStep(this.state.step));
             const e: any = {};

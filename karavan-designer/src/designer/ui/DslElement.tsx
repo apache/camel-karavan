@@ -212,7 +212,7 @@ export class DslElement extends React.Component<Props, State> {
                     </Tooltip>
                     }
                     {this.state.element.dslName === 'choice' &&
-                    <div className="whens" style={this.horizontal() ? {display: "flex", flexDirection: "row"} : {}}>
+                    <div className={this.getWhens().length > 0 ? "whens" : ""} style={this.horizontal() ? {display: "flex", flexDirection: "row"} : {}}>
                         {this.getWhens().map((when, index) => (
                             <div key={when.uuid} style={{marginLeft: (index !== 0) ? "6px" : "0"}}>
                                 {this.getArrow()}
