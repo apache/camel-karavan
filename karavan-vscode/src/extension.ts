@@ -139,7 +139,6 @@ function readKamelets(context: vscode.ExtensionContext): string[] {
 function readComponents(context: vscode.ExtensionContext): string[] {
     const dir = path.join(context.extensionPath, 'components');
     const jsons: string[] = fs.readdirSync(dir).filter(file => file.endsWith("json")).map(file => fs.readFileSync(dir + "/" + file, 'utf-8'));
-    console.log(jsons)
     return jsons;
 }
 

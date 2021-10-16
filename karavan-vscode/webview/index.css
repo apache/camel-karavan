@@ -120,3 +120,7 @@ body,
 .vscode-dark .pf-c-tooltip {
   --pf-c-tooltip__content--BackgroundColor: #585858;
 }
+
+.vscode-dark .step-element .add-button {
+  background: #252526;
+}
