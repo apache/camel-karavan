@@ -16,12 +16,13 @@
  */
 import React from 'react';
 import {
-    Card, CardBody, CardHeader, Gallery, Modal, PageSection,
+    Card, CardBody, CardHeader, Form, FormGroup, Gallery, Modal, PageSection,
     Tab, Tabs, TabTitleText,
-    Text,
+    Text, TextInput,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {CamelUi} from "../api/CamelUi";
+import {DslMetaModel} from "../model/DslMetaModel";
 
 interface Props {
     show: boolean,
@@ -35,6 +36,7 @@ interface Props {
 interface State {
     show: boolean
     tabIndex: string | number
+    filter?: string
 }
 
 export class DslSelector extends React.Component<Props, State> {
@@ -44,8 +46,6 @@ export class DslSelector extends React.Component<Props, State> {
         tabIndex: CamelUi.getSelectorLabels(this.props.parentType)[0][0],
     };
 
-    componentDidMount() {
-    }
 
     selectTab = (evt: React.MouseEvent<HTMLElement, MouseEvent>, eventKey: string | number) => {
         this.setState({tabIndex: eventKey})
@@ -53,7 +53,7 @@ export class DslSelector extends React.Component<Props, State> {
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.show !== this.props.show) {
-            this.setState({show: this.props.show});
+            this.setState({show: this.props.show, filter:''});
         }
         if (prevProps.parentType !== this.props.parentType) {
             this.setState({tabIndex: CamelUi.getSelectorLabels(this.props.parentType)[0][0]});
@@ -66,6 +66,27 @@ export class DslSelector extends React.Component<Props, State> {
         this.props.onDslSelect.call(this, dsl, this.props.parentId);
     }
 
+    checkFilter = (dsl: DslMetaModel): boolean => {
+        if (this.state.filter != undefined){
+            return dsl.title.toLowerCase().includes(this.state.filter.toLowerCase())
+                || dsl.description.toLowerCase().includes(this.state.filter.toLowerCase());
+        } else {
+            return true;
+        }
+    }
+
+    searchInput = () => {
+        return (
+            <Form isHorizontal className="search" autoComplete="off">
+                <FormGroup fieldId="search">
+                    <TextInput className="text-field" type="text" id="search" name="search" iconVariant='search'
+                               value={this.state.filter}
+                               onChange={e => this.setState({filter: e})}/>
+                </FormGroup>
+            </Form>
+        )
+    }
+
     render() {
         return (
             <Modal
@@ -76,30 +97,34 @@ export class DslSelector extends React.Component<Props, State> {
                 onClose={() => this.props.onClose.call(this)}
                 actions={{}}>
                 <PageSection variant={this.props.dark ? "darker" : "light"}>
-                <Tabs style={{overflow: 'hidden'}} activeKey={this.state.tabIndex} onSelect={this.selectTab}>
-                    {CamelUi.getSelectorLabels(this.props.parentType).map((label, index) => (
-                        <Tab eventKey={label[0]} key={"tab-" + label[0]}
-                        title={<TabTitleText>{CamelUi.capitalizeName(label[0])}</TabTitleText>} translate={undefined} onAuxClick={undefined} onAuxClickCapture={undefined}>
-                            <Gallery key={"gallery-" + label[0]} hasGutter className="dsl-gallery">
-                                {CamelUi.sortSelectorModels(CamelUi.getSelectorModels(label[0], label[1], this.props.parentType)).map((dsl, index) => (
-                                    <Card key={dsl.name + index} isHoverable isCompact className="dsl-card"
-                                          onClick={event => this.selectDsl(event, dsl)}>
-                                        <CardHeader>
-                                            <img draggable={false}
-                                                 src={dsl.uri && dsl.uri.startsWith("kamelet") ? CamelUi.getKameletIcon(dsl.uri) : CamelUi.getIconForName(dsl.name)}
-                                                 style={dsl.name === 'choice' ? {height: "18px"} : {}}  // find better icon
-                                                 className="icon" alt="icon"></img>
-                                            <Text>{dsl.title}</Text>
-                                        </CardHeader>
-                                        <CardBody>
-                                            <Text>{dsl.description}</Text>
-                                        </CardBody>
-                                    </Card>
-                                ))}
-                            </Gallery>
-                        </Tab>
-                    ))}
-                </Tabs>
+                    {this.searchInput()}
+                    <Tabs style={{overflow: 'hidden'}} activeKey={this.state.tabIndex} onSelect={this.selectTab}>
+                        {CamelUi.getSelectorLabels(this.props.parentType).map((label, index) => (
+                            <Tab eventKey={label[0]} key={"tab-" + label[0]}
+                                 title={<TabTitleText>{CamelUi.capitalizeName(label[0])}</TabTitleText>}
+                                 translate={undefined} onAuxClick={undefined} onAuxClickCapture={undefined}>
+                                <Gallery key={"gallery-" + label[0]} hasGutter className="dsl-gallery">
+                                    {CamelUi.sortSelectorModels(CamelUi.getSelectorModels(label[0], label[1], this.props.parentType))
+                                        .filter(dsl =>this.checkFilter(dsl))
+                                        .map((dsl, index) => (
+                                            <Card key={dsl.name + index} isHoverable isCompact className="dsl-card"
+                                                  onClick={event => this.selectDsl(event, dsl)}>
+                                                <CardHeader>
+                                                    <img draggable={false}
+                                                         src={dsl.uri && dsl.uri.startsWith("kamelet") ? CamelUi.getKameletIcon(dsl.uri) : CamelUi.getIconForName(dsl.name)}
+                                                         style={dsl.name === 'choice' ? {height: "18px"} : {}}  // find better icon
+                                                         className="icon" alt="icon"></img>
+                                                    <Text>{dsl.title}</Text>
+                                                </CardHeader>
+                                                <CardBody>
+                                                    <Text>{dsl.description}</Text>
+                                                </CardBody>
+                                            </Card>
+                                        ))}
+                                </Gallery>
+                            </Tab>
+                        ))}
+                    </Tabs>
                 </PageSection>
             </Modal>
         );
