@@ -22,7 +22,7 @@ import {    CamelElement,
     RemoveHeadersStep, 
     IdempotentConsumerStep, 
     InterceptStep, 
-    WhenStep, 
+    When, 
     ProcessStep, 
     OnFallbackStep, 
     MarshalStep, 
@@ -266,12 +266,12 @@ export class CamelApi {
         return interceptStep
     }
 
-    static createWhen = (element: any): WhenStep => {
-        const whenStep = element ? new WhenStep({...element.when}) : new WhenStep()
-        whenStep.when.expression = CamelApi.createExpression(element?.when?.expression)
-        whenStep.when.steps = CamelApi.createSteps(element?.when?.steps)
-        whenStep.uuid = element?.uuid ? element.uuid : whenStep.uuid
-        return whenStep
+    static createWhen = (element: any): When => {
+        const when = element ? new When({...element}) : new When()
+        when.expression = CamelApi.createExpression(element?.expression)
+        when.steps = CamelApi.createSteps(element?.steps)
+        when.uuid = element?.uuid ? element.uuid : when.uuid
+        return when
     }
 
     static createProcess = (element: any): ProcessStep => {
@@ -612,7 +612,7 @@ export class CamelApi {
             case 'removeHeadersStep': return (step as RemoveHeadersStep).removeHeaders
             case 'idempotentConsumerStep': return (step as IdempotentConsumerStep).idempotentConsumer
             case 'interceptStep': return (step as InterceptStep).intercept
-            case 'whenStep': return (step as WhenStep).when
+            case 'when': return (step as When)
             case 'processStep': return (step as ProcessStep).process
             case 'onFallbackStep': return (step as OnFallbackStep).onFallback
             case 'marshalStep': return (step as MarshalStep).marshal
@@ -671,13 +671,13 @@ export class CamelApi {
                     break;
                 case 'choiceStep':
                     const choiceChildren = (el as ChoiceStep).choice?.when || [];
-                    if (el.uuid === parentId && step.dslName === 'whenStep') {
-                        choiceChildren.push(step as WhenStep);
+                    if (el.uuid === parentId && step.dslName === 'when') {
+                        choiceChildren.push(step as When);
                         (el as ChoiceStep).choice.when = choiceChildren;
                     }  else if (el.uuid === parentId && step.dslName === 'otherwise' && !(el as ChoiceStep).choice.otherwise) {
                         (el as ChoiceStep).choice.otherwise = step;
                     } else {
-                        (el as ChoiceStep).choice.when = CamelApi.addStep(choiceChildren, step, parentId) as WhenStep[];
+                        (el as ChoiceStep).choice.when = CamelApi.addStep(choiceChildren, step, parentId) as When[];
                         const otherwise = (el as ChoiceStep).choice.otherwise;
                         if (otherwise?.uuid === parentId){
                             otherwise.steps = otherwise.steps ? [...otherwise.steps] : [];
@@ -784,10 +784,10 @@ export class CamelApi {
                     if (el.uuid === parentId) sagaChildren.push(step)
                     else (el as SagaStep).saga.steps = CamelApi.addStep(sagaChildren, step, parentId);
                     break;
-                case 'whenStep':
-                    const whenChildren = (el as WhenStep).when?.steps || [];
+                case 'when':
+                    const whenChildren = (el as When).steps || [];
                     if (el.uuid === parentId) whenChildren.push(step)
-                    else (el as WhenStep).when.steps = CamelApi.addStep(whenChildren, step, parentId);
+                    else (el as When).steps = CamelApi.addStep(whenChildren, step, parentId);
                     break;
                 case 'doFinallyStep':
                     const doFinallyChildren = (el as DoFinallyStep).doFinally?.steps || [];
@@ -851,7 +851,7 @@ export class CamelApi {
                         case 'resequenceStep': (step as ResequenceStep).resequence.steps = CamelApi.deleteStep((step as ResequenceStep).resequence.steps, uuidToDelete); break;
                         case 'pipelineStep': (step as PipelineStep).pipeline.steps = CamelApi.deleteStep((step as PipelineStep).pipeline.steps, uuidToDelete); break;
                         case 'sagaStep': (step as SagaStep).saga.steps = CamelApi.deleteStep((step as SagaStep).saga.steps, uuidToDelete); break;
-                        case 'whenStep': (step as WhenStep).when.steps = CamelApi.deleteStep((step as WhenStep).when.steps, uuidToDelete); break;
+                        case 'when': (step as When).steps = CamelApi.deleteStep((step as When).steps, uuidToDelete); break;
                         case 'doFinallyStep': (step as DoFinallyStep).doFinally.steps = CamelApi.deleteStep((step as DoFinallyStep).doFinally.steps, uuidToDelete); break;
                         case 'filterStep': (step as FilterStep).filter.steps = CamelApi.deleteStep((step as FilterStep).filter.steps, uuidToDelete); break;
                         case 'aggregateStep': (step as AggregateStep).aggregate.steps = CamelApi.deleteStep((step as AggregateStep).aggregate.steps, uuidToDelete); break;
@@ -864,12 +864,12 @@ export class CamelApi {
         return result
     }
 
-    static deleteWhen = (whens: WhenStep[] | undefined, uuidToDelete: string): WhenStep[] => {
-        const result: WhenStep[] = []
+    static deleteWhen = (whens: When[] | undefined, uuidToDelete: string): When[] => {
+        const result: When[] = []
         if (whens !== undefined){
             whens.forEach(when => {
                 if (when.uuid !== uuidToDelete) {
-                    when.when.steps = CamelApi.deleteStep(when.when.steps, uuidToDelete);
+                    when.steps = CamelApi.deleteStep(when.steps, uuidToDelete);
                     result.push(when);
                 }
             })
