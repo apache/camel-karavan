@@ -1268,7 +1268,6 @@ export class When extends CamelElement {
         Object.assign(this, init)
     }
 }
-
 export class ClaimCheck extends CamelElement { 
     filter?: string
     inheritErrorHandler?: boolean
