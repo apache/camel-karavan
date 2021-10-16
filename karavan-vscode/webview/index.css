@@ -124,3 +124,9 @@ body,
 .vscode-dark .step-element .add-button {
   background: #252526;
 }
+
+.vscode-dark .dsl-modal .search .text-field {
+  background-color: #3B3B3B;
+  border-color: #3B3B3B;
+  color: #CCCCCC;
+}

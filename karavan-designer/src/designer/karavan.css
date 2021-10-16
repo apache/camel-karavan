@@ -567,6 +567,28 @@
     user-select: none;
 }
 
+.dsl-modal .search {
+    width: 300px;
+    position: absolute;
+    top: 24px;
+    right: 72px;
+}
+
+
+.dsl-modal .search .pf-c-form__group-label{
+    padding: 0;
+    margin: auto;
+}
+
+.dsl-modal .search .text-field {
+    font-size: 13px;
+    height: auto;
+}
+
+.dsl-modal .pf-c-form.pf-m-horizontal .pf-c-form__group {
+    display: contents;
+}
+
 .yaml-code {
     overflow: auto;
     height: 100%;
