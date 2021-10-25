@@ -25,4 +25,18 @@ jobs:
 
       - name: Karavan VS Code extension (build)
         working-directory: ./karavan-vscode  
-        run: yarn run package 
+        run: yarn run package
+
+      - name: Karavan VS Code extension (install vsce)
+        working-directory: ./karavan-vscode
+        run: npm install -g vsce
+
+      - name: Karavan VS Code extension (package)
+        working-directory: ./karavan-vscode
+        run: vsce package
+
+      - name: Karavan VS Code extension (upload)
+        uses: actions/upload-artifact@v2
+        with:
+          name: camel-karavan-vscode.vsix
+          path: ./karavan-vscode/*.vsix

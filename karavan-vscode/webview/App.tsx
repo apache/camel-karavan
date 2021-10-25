@@ -21,6 +21,7 @@ import {
 import {KaravanDesigner} from "../designer/ui/KaravanDesigner";
 import vscode from "./vscode";
 import {KameletApi} from "../designer/api/KameletApi";
+import { ComponentApi } from "../designer/api/ComponentApi";
 
 interface Props {
 }
@@ -47,6 +48,9 @@ class App extends React.Component<Props, State> {
         case 'kamelets':
           KameletApi.saveKamelets(message.kamelets);
           break;
+        case 'components':
+          ComponentApi.saveComponents(message.components);
+          break;  
         case 'open':
           if (this.state.name === '' && this.state.key === ''){
             this.setState({name: message.name, yaml: message.yaml, key: Math.random().toString()});

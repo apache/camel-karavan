@@ -1,6 +1,6 @@
 {
-  "name": "karavan-vscode",
-  "publisher": "Apache Camel",
+  "name": "camel-karavan",
+  "publisher": "camel-karavan",
   "displayName": "Camel Karavan Designer",
   "icon": "icons/icon.png",
   "description": "Integration Designer for Apache Camel",

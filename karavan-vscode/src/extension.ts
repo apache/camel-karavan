@@ -101,7 +101,10 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
     );
 
     // Read and send Kamelets
-    panel.webview.postMessage({command: 'kamelets', kamelets: readKamelets()});
+    panel.webview.postMessage({command: 'kamelets', kamelets: readKamelets(context)});
+
+    // Read and send Components
+    panel.webview.postMessage({command: 'components', components: readComponents(context)});
 
     // Send integration
     panel.webview.postMessage({command: 'open', name: name, yaml: yaml});
@@ -127,12 +130,16 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
     );
 }
 
-function readKamelets(): string[] {
-    const uri: vscode.Uri = vscode.Uri.file(path.resolve(
-        path.join(__dirname, './kamelets')
-    ))
-    const yamls: string[] = fs.readdirSync(uri.fsPath).filter(file => file.endsWith("yaml")).map(file => fs.readFileSync(uri.fsPath + "/" + file, 'utf-8'));
+function readKamelets(context: vscode.ExtensionContext): string[] {
+    const dir = path.join(context.extensionPath, 'kamelets');
+    const yamls: string[] = fs.readdirSync(dir).filter(file => file.endsWith("yaml")).map(file => fs.readFileSync(dir + "/" + file, 'utf-8'));
     return yamls;
+}
+
+function readComponents(context: vscode.ExtensionContext): string[] {
+    const dir = path.join(context.extensionPath, 'components');
+    const jsons: string[] = fs.readdirSync(dir).filter(file => file.endsWith("json")).map(file => fs.readFileSync(dir + "/" + file, 'utf-8'));
+    return jsons;
 }
 
 function isIntegration(yaml: string): [boolean, string?] {

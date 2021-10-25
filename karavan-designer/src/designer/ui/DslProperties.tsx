@@ -95,7 +95,11 @@ export class DslProperties extends React.Component<Props, State> {
             e.language = language;
             e[language] = value;
             const exp: any = new Expression(e);
-            (clone as any)[this.state.element?.dslName].expression = exp;
+            if (this.state.element?.dslName === 'when'){
+                (clone as any).expression = exp;
+            } else {
+                (clone as any)[this.state.element?.dslName].expression = exp;
+            }
             this.setStep(clone);
             this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid);
         }

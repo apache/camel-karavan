@@ -502,11 +502,12 @@
 .step-element .add-button {
     top: 0;
     font-size: 15px;
+    height: 15px;
     line-height: 1;
     border: 0;
     padding: 0;
     margin: 3px 0 0 0;
-    background: transparent;
+    background: white;
     color: #fb8824;
     visibility: hidden;
     z-index: 100;
@@ -566,9 +567,35 @@
     user-select: none;
 }
 
+.dsl-modal .search {
+    width: 300px;
+    position: absolute;
+    top: 24px;
+    right: 72px;
+}
+
+
+.dsl-modal .search .pf-c-form__group-label{
+    padding: 0;
+    margin: auto;
+}
+
+.dsl-modal .search .text-field {
+    font-size: 13px;
+    height: auto;
+}
+
+.dsl-modal .pf-c-form.pf-m-horizontal .pf-c-form__group {
+    display: contents;
+}
+
 .yaml-code {
     overflow: auto;
     height: 100%;
     width: 100%;
     padding-bottom: 100px;
+}
+
+.pf-c-popover__footer {
+    overflow-wrap: anywhere;
 }

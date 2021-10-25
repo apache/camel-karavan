@@ -21,11 +21,10 @@ import {
 import '../karavan.css';
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
-import {CamelElement, Otherwise, ProcessorStep, WhenStep} from "../model/CamelModel";
+import {CamelElement, Otherwise, ProcessorStep, When} from "../model/CamelModel";
 import {CamelApi} from "../api/CamelApi";
 import {CamelUi} from "../api/CamelUi";
 import {EventBus} from "../api/EventBus";
-import {CamelApiExt} from "../api/CamelApiExt";
 
 interface Props {
     step: CamelElement,
@@ -88,7 +87,7 @@ export class DslElement extends React.Component<Props, State> {
         return (this.state.element as any).steps
     }
 
-    getWhens = (): WhenStep[] => {
+    getWhens = (): When[] => {
         return (this.state.element as any).when
     }
 
@@ -140,7 +139,7 @@ export class DslElement extends React.Component<Props, State> {
 
     getHeaderWithTooltip = (tooltip: string | undefined) => {
         return (
-            <Tooltip position={"auto"} disabled={CamelUi.isShowExpressionTooltip(this.state.element)}
+            <Tooltip position={"auto"}
                      content={<div>{tooltip}</div>}>
                 {this.getHeader()}
             </Tooltip>
@@ -151,6 +150,11 @@ export class DslElement extends React.Component<Props, State> {
         if (CamelUi.isShowExpressionTooltip(this.state.element)) return CamelUi.getExpressionTooltip(this.state.element);
         if (CamelUi.isShowUriTooltip(this.state.element)) return CamelUi.getUriTooltip(this.state.element);
         return undefined;
+    }
+
+    getElementHeader = () => {
+        const tooltip = this.getHeaderTooltip();
+        return tooltip === undefined ? this.getHeader() : this.getHeaderWithTooltip(tooltip);
     }
 
     render() {
@@ -168,7 +172,7 @@ export class DslElement extends React.Component<Props, State> {
                  onClick={event => this.selectElement(event)}
 
             >
-                {this.getHeaderWithTooltip(this.getHeaderTooltip())}
+                {this.getElementHeader()}
                 {this.state.element.hasSteps() && !this.horizontal() && this.getArrow()}
                 <div className={this.state.element.dslName}>
                     {this.state.element.hasSteps() &&
@@ -208,7 +212,7 @@ export class DslElement extends React.Component<Props, State> {
                     </Tooltip>
                     }
                     {this.state.element.dslName === 'choice' &&
-                    <div className="whens" style={this.horizontal() ? {display: "flex", flexDirection: "row"} : {}}>
+                    <div className={this.getWhens().length > 0 ? "whens" : ""} style={this.horizontal() ? {display: "flex", flexDirection: "row"} : {}}>
                         {this.getWhens().map((when, index) => (
                             <div key={when.uuid} style={{marginLeft: (index !== 0) ? "6px" : "0"}}>
                                 {this.getArrow()}
