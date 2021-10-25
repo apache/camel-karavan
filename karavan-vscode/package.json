@@ -1,13 +1,14 @@
 {
-  "name": "camel-karavan",
+  "name": "karavan",
   "publisher": "camel-karavan",
   "displayName": "Camel Karavan Designer",
   "icon": "icons/icon.png",
   "description": "Integration Designer for Apache Camel",
   "version": "0.0.1",
   "license": "Apache-2.0",
+  "preview": true,
   "bugs": {
-    "url": "https://github.com/camel/camel-karavan/issues"
+    "url": "https://github.com/apache/camel-karavan/issues"
   },
   "author": {
     "name": "Marat Gubaidullin",
@@ -21,7 +22,7 @@
 	],
   "repository": {
     "type": "git",
-    "url": "https://github.com/camel/camel-karavan"
+    "url": "https://github.com/apache/camel-karavan"
   },
   "engines": {
     "vscode": "^1.56.0"
@@ -29,7 +30,7 @@
   "categories": [
     "Other"
   ],
-  "homepage": "https://github.com/camel/camel-karavan",
+  "homepage": "https://github.com/apache/camel-karavan/karavan-vscode/README.md",
   "keywords": [
     "Camel",
 		"Camel K",
