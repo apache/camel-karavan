@@ -5,7 +5,7 @@
 
 **Integration Designer for Apache Camel** makes integration easy and fun through visualization of integration pipeline.
 
-![karavan-vscode](../screenshots/karavan-vscode.png)
+![karavan-vscode](screenshots/karavan-vscode.png)
 
 ## Features
 
@@ -24,18 +24,20 @@
 
 1. Open your VS Code Integrated Development Environment (IDE).
 2. In the VS Code Activity Bar, select Extensions. (Alternately, press Ctrl+Shift+X).
-3. In the search bar, type **Camel Karavan**
+3. In the search bar, type **Karavan**
 4. In the **Apache Camel Karavan** box, click **Install**.
+
+![install](screenshots/install.png)
 
 ## How to 
 
 ### Create new Integration
 
-![create](../screenshots/create.png)
+![create](screenshots/create.png)
 
 ### Edit an existing Integration
 
-![open](../screenshots/open.png)
+![open](screenshots/open.png)
 
 ### Deploy
 
