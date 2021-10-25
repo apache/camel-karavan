@@ -2,10 +2,10 @@
 Integration Designer for Apache Camel
 
 ### VS Code extension
-![karavan-vscode](karavan-vscode.png)
+![karavan-vscode](screenshots/karavan-vscode.png)
 
 ### Standalone application
-![karavan](karavan.png)
+![karavan](screenshots/karavan.png)
 
 ## Project structure
 1. Karavan-generator  
