@@ -103,7 +103,13 @@ export class KaravanDesigner extends React.Component<Props, State> {
 
     deleteElement = (id: string) => {
         const i = CamelApiExt.deleteStepFromIntegration(this.state.integration, id);
-        this.setState({integration: i, showSelector: false, key: Math.random().toString()});
+        this.setState({
+            integration: i,
+            showSelector: false,
+            key: Math.random().toString(),
+            selectedStep: undefined,
+            selectedUuid: ''
+        });
     }
 
     selectElement = (element: CamelElement) => {
@@ -138,7 +144,13 @@ export class KaravanDesigner extends React.Component<Props, State> {
     addStep = (step: CamelElement, parentId: string) => {
         const i = CamelApiExt.addStepToIntegration(this.state.integration, step, parentId);
         const clone = CamelYaml.cloneIntegration(i);
-        this.setState({integration: clone, key: Math.random().toString(), showSelector: false})
+        this.setState({
+            integration: clone,
+            key: Math.random().toString(),
+            showSelector: false,
+            selectedStep: step,
+            selectedUuid: step.uuid
+        })
     }
 
     onIntegrationUpdate = (i: Integration) => {
