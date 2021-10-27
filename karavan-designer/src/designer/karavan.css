@@ -599,3 +599,21 @@
 .pf-c-popover__footer {
     overflow-wrap: anywhere;
 }
+
+.pf-c-backdrop .pf-c-tabs__item.pf-m-current {
+    --pf-c-tabs__link--after--BorderColor: #fca338;
+}
+
+.karavan .pf-c-button {
+    --pf-c-button--m-primary--hover--BackgroundColor: #fb8824;
+    --pf-c-button--m-primary--focus--BackgroundColor: #fb8824;
+    --pf-c-button--m-primary--active--BackgroundColor: #fb8824;
+}
+
+.karavan .pf-c-select__menu-item-icon {
+    color: #fb8824;
+}
+
+.karavan .pf-c-select__menu-wrapper:hover, .karavan .pf-c-select__menu-item:hover {
+    background-color: #fca338;
+}

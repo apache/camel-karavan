@@ -24,6 +24,7 @@ import {KameletApi} from "../designer/api/KameletApi";
 import { ComponentApi } from "../designer/api/ComponentApi";
 
 interface Props {
+  dark: boolean
 }
 
 interface State {
@@ -78,7 +79,7 @@ class App extends React.Component<Props, State> {
           onSave={(name, yaml) => this.save(name, yaml)}
           borderColor="#fca338"
           borderColorSelected="#fee3c3"
-          dark={true}
+          dark={this.props.dark}
          />
       </Page>
     );
