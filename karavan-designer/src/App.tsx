@@ -90,6 +90,7 @@ class App extends React.Component<Props, State> {
                                  onSave={(name, yaml) => this.save(name, yaml)}
                                  borderColor="#fb8824"
                                  borderColorSelected="black"
+                                 dark={document.body.className.includes('vscode-dark')}
                 />
             </Page>
         );

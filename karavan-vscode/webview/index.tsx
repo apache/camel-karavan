@@ -20,4 +20,5 @@ import App from "./App";
 import "./index.css";
 import "@patternfly/patternfly/patternfly.css";
 
-ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
+const dark = document.body.className.includes('vscode-dark');
+ReactDOM.render(<App dark={dark}/>, document.getElementById("root") as HTMLElement);

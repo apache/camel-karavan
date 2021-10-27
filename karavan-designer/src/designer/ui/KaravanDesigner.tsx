@@ -39,7 +39,7 @@ interface Props {
     yaml: string
     borderColor: string
     borderColorSelected: string
-    dark?: boolean
+    dark: boolean
 }
 
 interface State {

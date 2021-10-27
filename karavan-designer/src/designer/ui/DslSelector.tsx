@@ -30,7 +30,7 @@ interface Props {
     onClose: any
     parentId: string
     parentType: string
-    dark?: boolean
+    dark: boolean
 }
 
 interface State {

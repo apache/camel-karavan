@@ -44,6 +44,7 @@ body,
   --pf-c-select__toggle--before--BorderRightColor: #3B3B3B;
   --pf-c-select__toggle--before--BorderBottomColor: #3B3B3B;
   --pf-c-select__toggle--before--BorderLeftColor: #3B3B3B;
+  --pf-c-select__toggle--Color: #CCCCCC;
 }
 
 .vscode-dark .pf-c-select__menu {
@@ -55,12 +56,12 @@ body,
   color: #cccccc;
 }
 
-.vscode-dark .karavan .dsl-page .properties .pf-c-select__toggle-typeahead {
-  color: #cccccc;
+.vscode-dark .karavan .dsl-page .properties .pf-c-select__menu-item:hover {
+  color: black;
 }
 
-.vscode-dark .pf-c-select__menu-wrapper:hover, .pf-c-select__menu-item:hover {
-  background-color: black;
+.vscode-dark .karavan .dsl-page .properties .pf-c-select__toggle-typeahead {
+  color: #cccccc;
 }
 
 .vscode-dark .pf-c-switch {
@@ -129,4 +130,10 @@ body,
   background-color: #3B3B3B;
   border-color: #3B3B3B;
   color: #CCCCCC;
+}
+
+.vscode-dark .karavan .pf-c-button {
+  --pf-c-button--m-primary--hover--BackgroundColor: #fee3c3;
+  --pf-c-button--m-primary--focus--BackgroundColor: #fee3c3;
+  --pf-c-button--m-primary--active--BackgroundColor: #fee3c3;
 }
