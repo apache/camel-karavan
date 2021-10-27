@@ -95,7 +95,7 @@ export class DslProperties extends React.Component<Props, State> {
             e.language = language;
             e[language] = value;
             const exp: any = new Expression(e);
-            if (this.state.element?.dslName === 'when'){
+            if (this.state.element?.dslName === 'when') {
                 (clone as any).expression = exp;
             } else {
                 (clone as any)[this.state.element?.dslName].expression = exp;
@@ -106,8 +106,9 @@ export class DslProperties extends React.Component<Props, State> {
     }
 
     parametersChanged = (parameter: string, value: string | number | boolean | any, pathParameter?: boolean) => {
+        console.log(value)
         if (this.state.step && this.state.element) {
-            if (pathParameter){
+            if (pathParameter) {
                 const uri = ComponentApi.buildComponentUri((this.state.element as any).uri, parameter, value);
                 this.propertyChanged("uri", uri);
             } else {
@@ -119,7 +120,6 @@ export class DslProperties extends React.Component<Props, State> {
                 this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid);
             }
         }
-
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
@@ -198,12 +198,12 @@ export class DslProperties extends React.Component<Props, State> {
                         </button>
                     </Popover>
                 }>
-                {property.type === 'string' && <TextInput
+                {['string', 'integer', 'int', 'number'].includes(property.type) && <TextInput
                     className="text-field" isRequired
-                    type={property.format === 'password' ? "password" : "text"}
+                    type={['integer', 'int', 'number'].includes(property.type) ? 'number' : ( property.format ? "password" : "text")}
                     id={id} name={id}
-                    value={value?.toString()}
-                    onChange={e => this.parametersChanged(property.id, e)}/>
+                    value={value}
+                    onChange={e => this.parametersChanged(property.id, ['integer', 'int', 'number'].includes(property.type) ? Number(e) : e)}/>
                 }
                 {property.type === 'boolean' && <Switch
                     id={id} name={id}
@@ -211,22 +211,6 @@ export class DslProperties extends React.Component<Props, State> {
                     aria-label={id}
                     isChecked={Boolean(value) === true}
                     onChange={e => this.parametersChanged(property.id, !Boolean(value))}/>
-                }
-                {['integer', 'int', 'number'].includes(property.type) && <div className="number">
-                    <NumberInput
-                        className="number-property"
-                        id={id} name={id}
-                        value={typeof value === 'number' ? value : undefined}
-                        inputName={id}
-                        onMinus={() => this.parametersChanged(property.id, typeof value === 'number' ? value - 1 : -1)}
-                        onPlus={() => this.parametersChanged(property.id, typeof value === 'number' ? value + 1 : 1)}
-                        onChange={(e: any) => this.parametersChanged(property.id, Number(e.target.value))}/>
-                    <Button
-                        className="clear-button"
-                        variant="tertiary"
-                        isSmall icon={<UndoIcon/>}
-                        onClick={e => this.parametersChanged(property.id, undefined)}/>
-                </div>
                 }
             </FormGroup>
         )
@@ -259,12 +243,13 @@ export class DslProperties extends React.Component<Props, State> {
                         </button>
                     </Popover>
                 }>
-                {['string', 'duration'].includes(property.type) && property.enum === undefined && <TextInput
+                {['string', 'duration', 'integer', 'int', 'number'].includes(property.type) && property.enum === undefined &&
+                <TextInput
                     className="text-field" isRequired
-                    type={property.secret ? "password" : "text"}
+                    type={['integer', 'int', 'number'].includes(property.type) ? 'number' : ( property.secret ? "password" : "text")}
                     id={id} name={id}
-                    value={value?.toString()}
-                    onChange={e => this.parametersChanged(property.name, e, property.kind === 'path')}/>
+                    value={value}
+                    onChange={e => this.parametersChanged(property.name, ['integer', 'int', 'number'].includes(property.type) ? Number(e) : e, property.kind === 'path')}/>
                 }
                 {property.type === 'string' && property.enum && <Select
                     variant={SelectVariant.single}
@@ -287,22 +272,6 @@ export class DslProperties extends React.Component<Props, State> {
                     aria-label={id}
                     isChecked={Boolean(value) === true}
                     onChange={e => this.parametersChanged(property.name, !Boolean(value))}/>
-                }
-                {['integer', 'int', 'number'].includes(property.type) && <div className="number">
-                    <NumberInput
-                        className="number-property"
-                        id={id} name={id}
-                        value={value !== undefined ? (typeof value === 'number' ? value : Number(value)) : property.defaultValue}
-                        inputName={id}
-                        onMinus={() => this.parametersChanged(property.name, typeof value === 'number' ? value - 1 : Number(value) -1, property.kind === 'path')}
-                        onPlus={() => this.parametersChanged(property.name, typeof value === 'number' ? value + 1 : Number(value) + 1, property.kind === 'path')}
-                        onChange={(e: any) => this.parametersChanged(property.name, Number(e.target.value), property.kind === 'path')}/>
-                    <Button
-                        className="clear-button"
-                        variant="tertiary"
-                        isSmall icon={<UndoIcon/>}
-                        onClick={e => this.parametersChanged(property.name, undefined,property.kind === 'path')}/>
-                </div>
                 }
             </FormGroup>
         )
@@ -394,13 +363,14 @@ export class DslProperties extends React.Component<Props, State> {
                         </button>
                     </Popover> : <div></div>
                 }>
-                {['string', 'duration'].includes(property.type) && !property.enumVals && <TextInput
+                {['string', 'duration', 'integer', 'number'].includes(property.type) && !property.enumVals &&
+                <TextInput
                     isReadOnly={property.name === 'uri'}
                     className="text-field" isRequired
-                    type={property.secret ? "password" : "text"}
+                    type={['integer', 'number'].includes(property.type)? 'number' : (property.secret ? "password" : "text")}
                     id={property.name} name={property.name}
                     value={value?.toString()}
-                    onChange={e => this.propertyChanged(property.name, e)}/>
+                    onChange={e => this.propertyChanged(property.name, ['integer', 'number'].includes(property.type) ? Number(e) : e)}/>
                 }
                 {property.type === 'boolean' && <Switch
                     id={property.name} name={property.name}
@@ -425,22 +395,6 @@ export class DslProperties extends React.Component<Props, State> {
                 >
                     {selectOptions}
                 </Select>
-                }
-                {property.type === 'integer' && <div className="number">
-                    <NumberInput
-                        className="number-property"
-                        id={property.name} name={property.name}
-                        value={typeof value === 'number' ? value : undefined}
-                        inputName={property.name}
-                        onMinus={() => this.propertyChanged(property.name, typeof value === 'number' ? value - 1 : -1)}
-                        onPlus={() => this.propertyChanged(property.name, typeof value === 'number' ? value + 1 : 1)}
-                        onChange={(e: any) => this.propertyChanged(property.name, Number(e.target.value))}/>
-                    <Button
-                        className="clear-button"
-                        variant="tertiary"
-                        isSmall icon={<UndoIcon/>}
-                        onClick={e => this.propertyChanged(property.name, undefined)}/>
-                </div>
                 }
                 <div className="expression">
                     {property.name === 'expression' && property.type === "Expression"
