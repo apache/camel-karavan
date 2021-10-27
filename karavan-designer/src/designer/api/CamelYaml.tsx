@@ -51,9 +51,19 @@ export class CamelYaml {
                 if (object[key] instanceof CamelElement) {
                     result[key] = CamelYaml.cleanupElement(object[key])
                 } else if (Array.isArray(object[key])) {
-                    result[key] = CamelYaml.cleanupElements(object[key])
+                    if (object[key].length > 0) result[key] = CamelYaml.cleanupElements(object[key])
+                } else if (key === 'parameters' && typeof (object[key]) === 'object') {
+                    const obj = object[key];
+                    const parameters = Object.keys(obj || {}).reduce((x:any, k) => {
+                        // Check for null or undefined or empty
+                        if (obj[k] !== null && obj[k] !== undefined && obj[k].toString().trim().length > 0) {
+                            x[k] = obj[k];
+                        }
+                        return x;
+                    }, {});
+                    if (Object.keys(parameters).length > 0) result[key] = parameters;
                 } else {
-                    result[key] = object[key];
+                    if (object[key] !== undefined && object[key].toString().trim().length > 0) result[key] = object[key];
                 }
             })
         return result as CamelElement

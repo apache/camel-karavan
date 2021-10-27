@@ -106,7 +106,6 @@ export class DslProperties extends React.Component<Props, State> {
     }
 
     parametersChanged = (parameter: string, value: string | number | boolean | any, pathParameter?: boolean) => {
-        console.log(value)
         if (this.state.step && this.state.element) {
             if (pathParameter) {
                 const uri = ComponentApi.buildComponentUri((this.state.element as any).uri, parameter, value);
