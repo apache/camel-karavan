@@ -84,16 +84,17 @@ export class DslConnections extends React.Component<Props, State> {
     getOutgoings(): InOut[] {
         const result: InOut[] = [];
         CamelApiExt.getToStepsFromIntegration(this.state.integration).forEach((element, index) => {
-            const uri: string = (element as any).to.uri;
-            if (uri && uri.startsWith("kamelet")) {
-                const kamelet = KameletApi.findKameletByUri(uri);
-                if (kamelet && kamelet.metadata.labels["camel.apache.org/kamelet.type"] === 'sink') {
-                    const i = new InOut('out', element.uuid, index * 60, 500, CamelUi.getIcon((element as any).to));
-                    result.push(i);
-                }
-            } else if (uri && !uri.startsWith("kamelet")) {
+            if ((element as any).to) {
+                const uri: string = (element as any).to.uri;
                 const i = new InOut('out', element.uuid, index * 60, 500, undefined, ComponentApi.getComponentNameFromUri(uri));
                 result.push(i);
+            } else if ((element as any).kamelet) {
+                const name: string = (element as any).kamelet.name;
+                const kamelet = KameletApi.findKameletByName(name);
+                if (kamelet && kamelet.metadata.labels["camel.apache.org/kamelet.type"] === 'sink') {
+                    const i = new InOut('out', element.uuid, index * 60, 500, CamelUi.getIcon((element as any).kamelet));
+                    result.push(i);
+                }
             }
         })
         return result;

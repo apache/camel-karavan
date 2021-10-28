@@ -16,13 +16,14 @@
  */
 import {KameletApi} from "./KameletApi";
 import {CamelElement} from "../model/CamelModel";
-import {Kamelet, Property} from "../model/KameletModels";
+import {KameletModel, Property} from "../model/KameletModels";
 import {DslMetaModel} from "../model/DslMetaModel";
 import {Metadata} from "./CamelMetadata";
 import {ComponentApi} from "./ComponentApi";
 import {ComponentProperty} from "../model/ComponentModels";
 import {CamelApiExt} from "./CamelApiExt";
 import {CamelApi} from "./CamelApi";
+import {Kamelet} from "../model/CamelModel";
 
 const DslElements: string[] = [
     "aggregate",
@@ -34,6 +35,7 @@ const DslElements: string[] = [
     "enrich",
     "filter",
     "log",
+    // "kamelet",
     "loop",
     "marshal",
     "multicast",
@@ -97,7 +99,7 @@ export class CamelUi {
                 return Metadata.filter((m) => m.name === "from").map(
                     (m) =>
                         new DslMetaModel({
-                            name: m.name,
+                            dsl: m.name,
                             title: m.title,
                             description: m.description,
                         })
@@ -108,7 +110,7 @@ export class CamelUi {
                 ).map(
                     (m) =>
                         new DslMetaModel({
-                            name: m.name,
+                            dsl: m.name,
                             title: m.title,
                             description: m.description,
                         })
@@ -119,7 +121,7 @@ export class CamelUi {
                     .map(
                         (m) =>
                             new DslMetaModel({
-                                name: m.name,
+                                dsl: m.name,
                                 title: m.title,
                                 description: m.description,
                             })
@@ -133,7 +135,7 @@ export class CamelUi {
                 .map(
                     (c) =>
                         new DslMetaModel({
-                            name: parentDslName ? "to" : "from",
+                            dsl: parentDslName ? "to" : "from",
                             uri: c.component.name,
                             title: c.component.title,
                             description: c.component.description,
@@ -147,8 +149,9 @@ export class CamelUi {
                 .map(
                     (k) =>
                         new DslMetaModel({
-                            name: parentDslName ? "to" : "from",
-                            uri: "kamelet:" + k.metadata.name,
+                            dsl: parentDslName ? "kamelet" : "from",
+                            uri: parentDslName ? undefined : "kamelet:" + k.metadata.name,
+                            name: k.metadata.name,
                             title: k.title(),
                             description: k.title(),
                         })
@@ -173,7 +176,9 @@ export class CamelUi {
     };
 
     static isKameletComponent = (element: CamelElement | undefined): boolean => {
-        if (element && ["from", "to"].includes(element.dslName)) {
+        if (element?.dslName === 'kamelet') {
+            return true;
+        } else if (element && ["from", "to"].includes(element.dslName)) {
             const uri: string = (element as any).uri;
             return uri !== undefined && uri.startsWith("kamelet:");
         } else {
@@ -181,8 +186,10 @@ export class CamelUi {
         }
     };
 
-    static getKamelet = (element: CamelElement): Kamelet | undefined => {
-        if (["from", "to"].includes(element.dslName)) {
+    static getKamelet = (element: CamelElement): KameletModel | undefined => {
+        if (element.dslName === 'kamelet') {
+            return KameletApi.findKameletByName((element as Kamelet).name || '');
+        } else if (["from", "to"].includes(element.dslName)) {
             const uri: string = (element as any).uri;
             const k =
                 uri !== undefined ? KameletApi.findKameletByUri(uri) : undefined;
@@ -193,8 +200,7 @@ export class CamelUi {
     };
 
     static getKameletProperties = (element: any): Property[] => {
-        const uri: string = (element as any).uri;
-        const kamelet = KameletApi.findKameletByUri(uri);
+        const kamelet = CamelUi.getKamelet(element)
         return kamelet
             ? KameletApi.getKameletProperties(kamelet?.metadata.name)
             : [];
@@ -213,7 +219,7 @@ export class CamelUi {
 
     static getTitle = (element: CamelElement): string => {
         const uri: string = (element as any).uri;
-        const k: Kamelet | undefined = CamelUi.getKamelet(element);
+        const k: KameletModel | undefined = CamelUi.getKamelet(element);
         if (k) {
             return k.title();
         } else {
@@ -243,9 +249,13 @@ export class CamelUi {
         return (element as any).uri;
     }
 
-    static getKameletIcon = (uri: string | undefined): string => {
+    static getKameletIconByUri = (uri: string | undefined): string => {
         return uri ? KameletApi.findKameletByUri(uri)?.icon() || "" : "";
-    };
+    }
+
+    static getKameletIconByName = (name: string | undefined): string => {
+        return name ? KameletApi.findKameletByName(name)?.icon() || "" : "";
+    }
 
     static getIconForName = (dslName: string): string => {
         switch (dslName) {
@@ -277,8 +287,8 @@ export class CamelUi {
     };
 
     static getIcon = (element: CamelElement): string => {
-        const k: Kamelet | undefined = CamelUi.getKamelet(element);
-        if (["from", "to"].includes(element.dslName)) {
+        const k: KameletModel | undefined = CamelUi.getKamelet(element);
+        if (["from", "kamelet"].includes(element.dslName)) {
             return k ? k.icon() : defaultIcon;
         } else {
             return CamelUi.getIconForName(element.dslName);

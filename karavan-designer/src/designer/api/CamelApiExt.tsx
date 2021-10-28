@@ -134,19 +134,19 @@ export class CamelApiExt {
     static getToStepsFromIntegration = (integration: Integration): CamelElement[] => {
         const result: CamelElement[] = [];
         integration.spec.flows.forEach((flow, index) => {
-            const steps: CamelElement[] = CamelApiExt.getToStepsFromStep(flow.from);
+            const steps: CamelElement[] = CamelApiExt.getOutgoingStepsFromStep(flow.from);
             result.push(...steps);
         })
         return result;
     }
 
-    static getToStepsFromStep = (step: ProcessorStep): CamelElement[] => {
+    static getOutgoingStepsFromStep = (step: ProcessorStep): CamelElement[] => {
         const result: CamelElement[] = [];
-        if (step.dslName === 'toStep') result.push(step);
+        if (['toStep', 'kameletStep'].includes(step.dslName)) result.push(step);
         const element: any = Object.assign({}, step);
         Object.keys(element).forEach(key => {
             if (element[key] instanceof CamelElement) {
-                const steps = CamelApiExt.getToStepsFromStep(element[key]);
+                const steps = CamelApiExt.getOutgoingStepsFromStep(element[key]);
                 result.push(...steps);
             } else if (Array.isArray(element[key])) {
                 const steps = CamelApiExt.getStepsFromSteps(element[key]);
@@ -159,7 +159,7 @@ export class CamelApiExt {
     static getStepsFromSteps = (steps: CamelElement[]): CamelElement[] => {
         const result: CamelElement[] = [];
         steps.forEach(step => {
-            const steps = CamelApiExt.getToStepsFromStep(step);
+            const steps = CamelApiExt.getOutgoingStepsFromStep(step);
             result.push(...steps);
         })
         return result;

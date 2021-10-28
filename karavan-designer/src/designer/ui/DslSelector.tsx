@@ -108,12 +108,12 @@ export class DslSelector extends React.Component<Props, State> {
                                     {CamelUi.sortSelectorModels(CamelUi.getSelectorModels(label[0], label[1], this.props.parentType))
                                         .filter(dsl =>this.checkFilter(dsl))
                                         .map((dsl, index) => (
-                                            <Card key={dsl.name + index} isHoverable isCompact className="dsl-card"
+                                            <Card key={dsl.dsl + index} isHoverable isCompact className="dsl-card"
                                                   onClick={event => this.selectDsl(event, dsl)}>
                                                 <CardHeader>
                                                     <img draggable={false}
-                                                         src={dsl.uri && dsl.uri.startsWith("kamelet") ? CamelUi.getKameletIcon(dsl.uri) : CamelUi.getIconForName(dsl.name)}
-                                                         style={dsl.name === 'choice' ? {height: "18px"} : {}}  // find better icon
+                                                         src={dsl.dsl && dsl.dsl === "kamelet" ? CamelUi.getKameletIconByName(dsl.name) : CamelUi.getIconForName(dsl.dsl)}
+                                                         style={dsl.dsl === 'choice' ? {height: "18px"} : {}}  // find better icon
                                                          className="icon" alt="icon"></img>
                                                     <Text>{dsl.title}</Text>
                                                 </CardHeader>
