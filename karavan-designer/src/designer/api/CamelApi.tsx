@@ -71,6 +71,26 @@ import {    CamelElement,
 
 export class CamelApi { 
 
+    static capitalizeName = (name: string) => {
+        try {
+            return name[0].toUpperCase() + name.substring(1);
+        } catch (e) {
+            return name;
+        }
+    };
+
+    static camelizeName = (
+        name: string,
+        separator: string,
+        firstSmall: boolean
+    ) => {
+        const res = name
+            .split(separator)
+            .map((value) => CamelApi.capitalizeName(value))
+            .join("");
+        return firstSmall ? res[0].toLowerCase() + res.substring(1) : res;
+    };
+
     static createStep = (name: string, body: any): CamelElement => {
        switch (name){
             case 'from': return CamelApi.createFrom(body)
@@ -588,7 +608,7 @@ export class CamelApi {
         if (elements !== undefined){
             elements.forEach(e => {
                 const stepName = Object.keys(e).filter(key => !['uuid', 'dslName'].includes(key))[0];
-                result.push(CamelApi.createStep(stepName, e));
+                result.push(CamelApi.createStep(CamelApi.camelizeName(stepName, '-', true), e));
             })
         }
         return result

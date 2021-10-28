@@ -21,7 +21,8 @@ import {
 } from "../model/CamelModel";
 import {CamelApi} from "./CamelApi";
 
-// TODO need to split and regroup functions here
+const saveKebabCase = true; //TODO: Remove when https://issues.apache.org/jira/browse/CAMEL-17097 fixed
+
 export class CamelYaml {
 
     static integrationToYaml = (integration: Integration): string => {
@@ -48,10 +49,11 @@ export class CamelYaml {
                 else return 0;
             })
             .forEach(key => {
+                const rkey = saveKebabCase ? key.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase() : key;
                 if (object[key] instanceof CamelElement) {
-                    result[key] = CamelYaml.cleanupElement(object[key])
+                    result[rkey] = CamelYaml.cleanupElement(object[key])
                 } else if (Array.isArray(object[key])) {
-                    if (object[key].length > 0) result[key] = CamelYaml.cleanupElements(object[key])
+                    if (object[key].length > 0) result[rkey] = CamelYaml.cleanupElements(object[key])
                 } else if (key === 'parameters' && typeof (object[key]) === 'object') {
                     const obj = object[key];
                     const parameters = Object.keys(obj || {}).reduce((x:any, k) => {
@@ -61,9 +63,9 @@ export class CamelYaml {
                         }
                         return x;
                     }, {});
-                    if (Object.keys(parameters).length > 0) result[key] = parameters;
+                    if (Object.keys(parameters).length > 0) result[rkey] = parameters;
                 } else {
-                    if (object[key] !== undefined && object[key].toString().trim().length > 0) result[key] = object[key];
+                    if (object[key] !== undefined && object[key].toString().trim().length > 0) result[rkey] = object[key];
                 }
             })
         return result as CamelElement

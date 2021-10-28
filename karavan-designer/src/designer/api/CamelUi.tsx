@@ -22,6 +22,7 @@ import {Metadata} from "./CamelMetadata";
 import {ComponentApi} from "./ComponentApi";
 import {ComponentProperty} from "../model/ComponentModels";
 import {CamelApiExt} from "./CamelApiExt";
+import {CamelApi} from "./CamelApi";
 
 const DslElements: string[] = [
     "aggregate",
@@ -164,7 +165,7 @@ export class CamelUi {
             ? name
                 .replace(".yaml", "")
                 .split("-")
-                .map((value) => CamelUi.capitalizeName(value))
+                .map((value) => CamelApi.capitalizeName(value))
                 .reduce(
                     (previousValue, currentValue) => previousValue + " " + currentValue
                 )
@@ -217,8 +218,8 @@ export class CamelUi {
             return k.title();
         } else {
             return uri
-                ? CamelUi.capitalizeName(element.dslName) + " : " + ComponentApi.getComponentNameFromUri(uri)
-                : CamelUi.capitalizeName(element.dslName);
+                ? CamelApi.capitalizeName(element.dslName) + " : " + ComponentApi.getComponentNameFromUri(uri)
+                : CamelApi.capitalizeName(element.dslName);
         }
     };
 
@@ -284,23 +285,4 @@ export class CamelUi {
         }
     };
 
-    static capitalizeName = (name: string) => {
-        try {
-            return name[0].toUpperCase() + name.substring(1);
-        } catch (e) {
-            return name;
-        }
-    };
-
-    static camelizeName = (
-        name: string,
-        separator: string,
-        firstSmall: boolean
-    ) => {
-        const res = name
-            .split(separator)
-            .map((value) => CamelUi.capitalizeName(value))
-            .join("");
-        return firstSmall ? res[0].toLowerCase() + res.substring(1) : res;
-    };
 }

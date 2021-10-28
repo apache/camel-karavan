@@ -35,7 +35,18 @@ class App extends React.Component<Props, State> {
 
     public state: State = {
         name: '',
-        yaml: '',
+        yaml: 'apiVersion: camel.apache.org/v1\n' +
+            'kind: Integration\n' +
+            'metadata:\n' +
+            '  name: \'\'\n' +
+            'spec:\n' +
+            '  flows:\n' +
+            '    - from:\n' +
+            '        uri: \'kamelet:http-secured-source\'\n' +
+            '        steps:\n' +
+            '          - convert-body-to: {}\n' +
+            '          - pollEnrich:\n' +
+            '              expression: {}',
         key: ''
     };
 
