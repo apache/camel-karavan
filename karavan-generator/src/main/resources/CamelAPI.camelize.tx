@@ -1,0 +1,19 @@
+    static capitalizeName = (name: string) => {
+        try {
+            return name[0].toUpperCase() + name.substring(1);
+        } catch (e) {
+            return name;
+        }
+    };
+
+    static camelizeName = (
+        name: string,
+        separator: string,
+        firstSmall: boolean
+    ) => {
+        const res = name
+            .split(separator)
+            .map((value) => CamelApi.capitalizeName(value))
+            .join("");
+        return firstSmall ? res[0].toLowerCase() + res.substring(1) : res;
+    };

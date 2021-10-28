@@ -29,7 +29,6 @@ import {
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
-import UndoIcon from "@patternfly/react-icons/dist/js/icons/backspace-icon";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import {Property} from "../model/KameletModels";
 import {CamelElement, Expression, Integration} from "../model/CamelModel";
@@ -346,7 +345,7 @@ export class DslProperties extends React.Component<Props, State> {
         return (
             <FormGroup
                 key={property.name}
-                label={CamelUi.capitalizeName(property.displayName)}
+                label={CamelApi.capitalizeName(property.displayName)}
                 fieldId={property.name}
                 labelIcon={property.description ?
                     <Popover
