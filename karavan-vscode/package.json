@@ -4,7 +4,7 @@
   "displayName": "Camel Karavan Designer",
   "icon": "icons/icon.png",
   "description": "Integration Designer for Apache Camel",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "license": "Apache-2.0",
   "preview": true,
   "bugs": {

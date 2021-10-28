@@ -130,6 +130,8 @@ public final class CamelModelGenerator {
 
         camelApi.append("export class CamelApi { \n\n");
 
+        camelApi.append(getTemplateFile("CamelApi.camelize.tx").concat("\n").concat("\n"));
+
         camelApi.append(
                 "    static createStep = (name: string, body: any): CamelElement => {\n" +
                         "       switch (name){\n" +
@@ -156,7 +158,7 @@ public final class CamelModelGenerator {
                         "        if (elements !== undefined){\n" +
                         "            elements.forEach(e => {\n" +
                         "                const stepName = Object.keys(e).filter(key => !['uuid', 'dslName'].includes(key))[0];\n" +
-                        "                result.push(CamelApi.createStep(stepName, e));\n" +
+                        "                result.push(CamelApi.createStep(CamelApi.camelizeName(stepName, '-', true), e));\n" +
                         "            })\n" +
                         "        }\n" +
                         "        return result\n" +
@@ -322,6 +324,8 @@ public final class CamelModelGenerator {
             return getTemplateFile("CamelApi.createOtherwise.tx").concat("\n\n");
         } else if (name.equalsIgnoreCase("when")){
             return getTemplateFile("CamelApi.createWhen.tx").concat("\n\n");
+        } else if (name.equalsIgnoreCase("choice")){
+            return getTemplateFile("CamelApi.createChoice.tx").concat("\n\n");
         }
         String stepClass = capitalize(name).concat("Step");
         String stepField = deCapitalize(name).concat("Step");

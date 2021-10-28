@@ -35,7 +35,18 @@ class App extends React.Component<Props, State> {
 
     public state: State = {
         name: '',
-        yaml: '',
+        yaml: 'apiVersion: camel.apache.org/v1\n' +
+            'kind: Integration\n' +
+            'metadata:\n' +
+            '  name: \'\'\n' +
+            'spec:\n' +
+            '  flows:\n' +
+            '    - from:\n' +
+            '        uri: \'kamelet:http-secured-source\'\n' +
+            '        steps:\n' +
+            '          - convert-body-to: {}\n' +
+            '          - pollEnrich:\n' +
+            '              expression: {}',
         key: ''
     };
 
@@ -43,6 +54,7 @@ class App extends React.Component<Props, State> {
     componentDidMount() {
 
         ["http-secured-sink.kamelet.yaml",
+            "timer-source.kamelet.yaml",
             "http-secured-source.kamelet.yaml",
             "http-sink.kamelet.yaml",
             "http-source.kamelet.yaml",
@@ -58,6 +70,8 @@ class App extends React.Component<Props, State> {
 
 
         ["bonita.json",
+            "activemq.json",
+            "docker.json",
             "netty-http.json",
             "jms.json",
             "sql.json",
@@ -87,6 +101,7 @@ class App extends React.Component<Props, State> {
                                  onSave={(name, yaml) => this.save(name, yaml)}
                                  borderColor="#fb8824"
                                  borderColorSelected="black"
+                                 dark={document.body.className.includes('vscode-dark')}
                 />
             </Page>
         );

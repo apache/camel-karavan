@@ -19,7 +19,7 @@ import { renderToString } from "react-dom/server";
 import App from "./App";
 
 export default () => {
-  const html = renderToString(<App></App>);
+  const html = renderToString(<App dark></App>);
 
   return `
     <!DOCTYPE html>

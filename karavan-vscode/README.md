@@ -16,7 +16,7 @@
 
 ## Prerequisites
 
-* Apache Camel K installed. See the Apache Camel K installation page for details: (https://camel.apache.org/camel-k/latest/installation/installation.html).
+* Apache Camel K installed. See the Apache Camel K installation page for details: (https://camel.apache.org/camel-k/next/installation/installation.html).
 * Openshift or Kubernetes CLI
 * Microsoft VS Code installed. You can get the most recent version from (https://code.visualstudio.com/) for your chosen operating system.
 
@@ -39,7 +39,13 @@
 
 ![open](screenshots/open.png)
 
-### Deploy
+### Deploy with Camel-K on Kubernetes
+
+```shell
+kubectl apply -f integration.yaml
+```
+
+### Deploy with Camel-K on Openshift
 
 ```shell
 oc apply -f integration.yaml
