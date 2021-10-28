@@ -59,18 +59,27 @@ export class DslInOut extends React.Component<Props, State> {
     }
 
     getTop() {
-        return this.state.fRect ? this.state.top - this.state.fRect?.top : this.state.top;
+        if (this.state.fRect) {
+            return (this.state.top + this.state.inout.index * 10) - this.state.fRect?.top;
+        } else {
+            return this.state.top + this.state.inout.index * 10;
+        }
+    }
+
+    getRight() {
+        return this.state.inout.index * 15;
     }
 
     render() {
         return (
             <div className={this.state.inout.type === 'out' ? 'outgoing' : 'incoming'}
-                 style={{top: this.getTop() + 'px'}}>
+                 style={{top: this.getTop() + 'px', right: this.getRight() + 'px'}}>
                 {this.state.inout.icon && <img draggable={false}
                                                src={this.state.inout.icon}
                                                className="icon" alt="icon">
                 </img>}
-                {this.state.inout.name && <Text className="inout-name">{this.state.inout.name.substr(0, 1).toUpperCase()}</Text>}
+                {this.state.inout.name &&
+                <Text className="inout-name">{this.state.inout.name.substr(0, 1).toUpperCase()}</Text>}
             </div>
         );
     }

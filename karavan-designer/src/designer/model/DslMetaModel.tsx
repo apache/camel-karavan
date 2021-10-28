@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 export class DslMetaModel {
+    dsl: string = ''
     name: string = ''
     uri?: string
     title: string = ''
