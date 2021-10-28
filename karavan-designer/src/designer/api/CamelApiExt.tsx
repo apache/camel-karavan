@@ -131,35 +131,37 @@ export class CamelApiExt {
         }
     }
 
-    static getToStepsFromIntegration = (integration: Integration): CamelElement[] => {
-        const result: CamelElement[] = [];
+    static getToStepsFromIntegration = (integration: Integration): [CamelElement, number][] => {
+        const result: [CamelElement, number][] = [];
         integration.spec.flows.forEach((flow, index) => {
-            const steps: CamelElement[] = CamelApiExt.getOutgoingStepsFromStep(flow.from);
+            const steps: [CamelElement, number][] = CamelApiExt.getOutgoingStepsFromStep(flow.from, 0);
             result.push(...steps);
         })
         return result;
     }
 
-    static getOutgoingStepsFromStep = (step: ProcessorStep): CamelElement[] => {
-        const result: CamelElement[] = [];
-        if (['toStep', 'kameletStep'].includes(step.dslName)) result.push(step);
+    static getOutgoingStepsFromStep = (step: ProcessorStep, level: number): [CamelElement, number][] => {
+        const result: [CamelElement, number][] = [];
+        if (['toStep', 'kameletStep'].includes(step.dslName)) result.push([step, level]);
         const element: any = Object.assign({}, step);
         Object.keys(element).forEach(key => {
             if (element[key] instanceof CamelElement) {
-                const steps = CamelApiExt.getOutgoingStepsFromStep(element[key]);
+                const steps = CamelApiExt.getOutgoingStepsFromStep(element[key], level + 1);
                 result.push(...steps);
             } else if (Array.isArray(element[key])) {
-                const steps = CamelApiExt.getStepsFromSteps(element[key]);
+                const parallel = element.dslName === 'multicast' || element.dslName === 'choice';
+                const increase = element.dslName === 'otherwise' ? 3 : 1;
+                const steps = CamelApiExt.getStepsFromSteps(element[key], level + increase, parallel);
                 result.push(...steps);
             }
         })
         return result;
     }
 
-    static getStepsFromSteps = (steps: CamelElement[]): CamelElement[] => {
-        const result: CamelElement[] = [];
-        steps.forEach(step => {
-            const steps = CamelApiExt.getOutgoingStepsFromStep(step);
+    static getStepsFromSteps = (steps: CamelElement[], level: number, parallel: boolean): [CamelElement, number][] => {
+        const result: [CamelElement, number][] = [];
+        steps.forEach((step,index) => {
+            const steps = CamelApiExt.getOutgoingStepsFromStep(step, level + (parallel ? 1 : index));
             result.push(...steps);
         })
         return result;
