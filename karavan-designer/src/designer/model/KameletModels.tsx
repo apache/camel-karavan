@@ -73,13 +73,13 @@ export class KameletMetadata {
   }
 }
 
-export class Kamelet {
+export class KameletModel {
   apiVersion: string = 'camel.apache.org/v1alpha1';
   kind: string = 'Kamelet';
   metadata: KameletMetadata = new KameletMetadata();
   spec: KameletSpec = new KameletSpec();
 
-  public constructor(init?: Partial<Kamelet>) {
+  public constructor(init?: Partial<KameletModel>) {
     Object.assign(this, init);
   }
 
@@ -99,11 +99,11 @@ export class Kamelet {
     return this.spec.definition.properties;
   }
 
-  static default = (): Kamelet[] => defaultKamelets;
+  static default = (): KameletModel[] => defaultKamelets;
 }
 
-const defaultKamelets: Kamelet[] = [
-  new Kamelet({
+const defaultKamelets: KameletModel[] = [
+  new KameletModel({
     kind: 'uri',
     apiVersion: '',
     metadata: new KameletMetadata({
@@ -113,7 +113,7 @@ const defaultKamelets: Kamelet[] = [
     }),
     spec: new KameletSpec({ definition: new Definition({ title: 'URI source' }) })
   }),
-  new Kamelet({
+  new KameletModel({
     kind: 'uri',
     apiVersion: '',
     metadata: new KameletMetadata({ 

@@ -18,9 +18,11 @@ import React from 'react';
 import '../karavan.css';
 import {Subscription} from "rxjs";
 import {DslPosition, EventBus} from "../api/EventBus";
+import {Path} from "../model/ConnectionModels";
 
 interface Props {
     uuid: string,
+    path: Path,
 }
 
 interface State {
@@ -63,18 +65,27 @@ export class DslPath extends React.Component<Props, State> {
 
     setPosition(evt: DslPosition) {
         if (evt.step.dslName === 'fromStep'){
-            this.setState({inout:"in", left: 56, top: (evt.rect.top + 25), width: (evt.rect.x) - 56});
+            this.setState({inout:"in", left: 46, top: (evt.rect.top + 20), width: (evt.rect.x) - 46});
         } else {
-            this.setState({inout:"out", left: evt.rect.x + evt.rect.width, top: (evt.rect.top + 25), width: (evt.rect.x + evt.rect.width + 200)});
+            this.setState({inout:"out", left: evt.rect.x + evt.rect.width, top: (evt.rect.top + 20), width: (evt.rect.x + evt.rect.width + 200)});
         }
     }
 
     getTop(){
-        return this.state.fRect ? this.state.top - this.state.fRect.top : this.state.top;
+        if (this.state.fRect){
+            return (this.state.top + this.props.path.index * 10) - this.state.fRect?.top;
+        } else {
+            return this.state.top + this.props.path.index * 10;
+        }
     }
 
     getWidth(){
-        return this.state.fRect && this.state.inout === 'out' ? this.state.fRect.width - this.state.left : this.state.width;
+        if (this.state.fRect && this.state.inout === 'out'){
+            return this.state.fRect.width - this.state.left - (this.props.path.index * 10) - 20;
+        } else {
+            return this.state.width;
+        }
+        // return this.state.fRect && this.state.inout === 'out' ? this.state.fRect.width - this.state.left : this.state.width;
     }
 
     render() {

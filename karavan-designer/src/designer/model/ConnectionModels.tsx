@@ -20,16 +20,18 @@ export class InOut {
   uuid: string = ''
   top: number = 0;
   side: number = 0;
+  index: number = 0;
   icon?: string;
   name?: string;
 
-  constructor(type: 'in' | 'out', uuid: string, top: number, side: number, icon?: string, name?: string) {
+  constructor(type: 'in' | 'out', uuid: string, top: number, side: number, index: number, icon?: string, name?: string) {
     this.type = type;
     this.uuid = uuid;
     this.icon = icon;
     this.top = top;
     this.side = side;
     this.name = name;
+    this.index = index;
   }
 }
 
@@ -39,13 +41,15 @@ export class Path {
   startY: number = 0
   endX: number = 0
   endY: number = 0
+  index: number = 0;
 
-  constructor(uuid: string, startX: number, startY: number, endX: number, endY: number) {
+  constructor(uuid: string, startX: number, startY: number, endX: number, endY: number, index: number) {
     this.uuid = uuid;
     this.startX = startX;
     this.startY = startY;
     this.endX = endX;
     this.endY = endY;
+    this.index = index;
   }
 
   getPath(): string {

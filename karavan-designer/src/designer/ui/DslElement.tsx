@@ -122,7 +122,7 @@ export class DslElement extends React.Component<Props, State> {
                          : {fontWeight: this.isSelected() ? "bold" : "normal"}
                  }
                  ref={el => {
-                     if (el && (this.state.step.dslName === 'fromStep' || this.state.step.dslName === 'toStep')) EventBus.sendPosition(this.state.step, el.getBoundingClientRect());
+                     if (el && (this.state.step.dslName === 'fromStep' || this.state.step.dslName === 'toStep' || this.state.step.dslName === 'kameletStep')) EventBus.sendPosition(this.state.step, el.getBoundingClientRect());
                  }}>
                 <img draggable={false}
                      src={CamelUi.getIcon(this.state.element)}

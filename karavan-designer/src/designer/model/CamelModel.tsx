@@ -1147,6 +1147,25 @@ export class ServiceCallStep extends ProcessorStep {
     }
 }
 
+export class Kamelet extends CamelElement { 
+    inheritErrorHandler?: boolean
+    name?: string
+    parameters?: any
+
+    public constructor(init?: Partial<Kamelet>) { 
+        super('kamelet')
+        Object.assign(this, init)
+    }
+}
+export class KameletStep extends ProcessorStep {
+    kamelet: Kamelet = new Kamelet()
+
+    public constructor(init?: Partial<Kamelet>) {
+        super('kameletStep')
+        Object.assign(this, {kamelet: new Kamelet({...init})})
+    }
+}
+
 export class Sample extends CamelElement { 
     inheritErrorHandler?: boolean
     messageFrequency?: number

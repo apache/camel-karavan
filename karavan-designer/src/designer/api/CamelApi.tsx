@@ -38,10 +38,11 @@ import {    CamelElement,
     RoutingSlipStep, 
     BeanStep, 
     RecipientListStep, 
+    KameletStep, 
     DynamicRouterStep, 
     RollbackStep, 
-    EnrichStep, 
     InOutStep, 
+    EnrichStep, 
     SplitStep, 
     WireTapStep, 
     MulticastStep, 
@@ -128,10 +129,11 @@ export class CamelApi {
             case 'routingSlip': return CamelApi.createRoutingSlip(body)
             case 'bean': return CamelApi.createBean(body)
             case 'recipientList': return CamelApi.createRecipientList(body)
+            case 'kamelet': return CamelApi.createKamelet(body)
             case 'dynamicRouter': return CamelApi.createDynamicRouter(body)
             case 'rollback': return CamelApi.createRollback(body)
-            case 'enrich': return CamelApi.createEnrich(body)
             case 'inOut': return CamelApi.createInOut(body)
+            case 'enrich': return CamelApi.createEnrich(body)
             case 'split': return CamelApi.createSplit(body)
             case 'wireTap': return CamelApi.createWireTap(body)
             case 'multicast': return CamelApi.createMulticast(body)
@@ -397,6 +399,12 @@ export class CamelApi {
         return recipientListStep
     }
 
+    static createKamelet = (element: any): KameletStep => {
+        const kameletStep = element ? new KameletStep({...element.kamelet}) : new KameletStep()
+        kameletStep.uuid = element?.uuid ? element.uuid : kameletStep.uuid
+        return kameletStep
+    }
+
     static createDynamicRouter = (element: any): DynamicRouterStep => {
         const dynamicRouterStep = element ? new DynamicRouterStep({...element.dynamicRouter}) : new DynamicRouterStep()
         dynamicRouterStep.dynamicRouter.expression = CamelApi.createExpression(element?.dynamicRouter?.expression)
@@ -410,17 +418,17 @@ export class CamelApi {
         return rollbackStep
     }
 
+    static createInOut = (element: any): InOutStep => {
+        const inOutStep = element ? new InOutStep({...element.inOut}) : new InOutStep()
+        inOutStep.uuid = element?.uuid ? element.uuid : inOutStep.uuid
+        return inOutStep
+    }
+
     static createEnrich = (element: any): EnrichStep => {
         const enrichStep = element ? new EnrichStep({...element.enrich}) : new EnrichStep()
         enrichStep.enrich.expression = CamelApi.createExpression(element?.enrich?.expression)
         enrichStep.uuid = element?.uuid ? element.uuid : enrichStep.uuid
         return enrichStep
-    }
-
-    static createInOut = (element: any): InOutStep => {
-        const inOutStep = element ? new InOutStep({...element.inOut}) : new InOutStep()
-        inOutStep.uuid = element?.uuid ? element.uuid : inOutStep.uuid
-        return inOutStep
     }
 
     static createSplit = (element: any): SplitStep => {
@@ -650,10 +658,11 @@ export class CamelApi {
             case 'routingSlipStep': return (step as RoutingSlipStep).routingSlip
             case 'beanStep': return (step as BeanStep).bean
             case 'recipientListStep': return (step as RecipientListStep).recipientList
+            case 'kameletStep': return (step as KameletStep).kamelet
             case 'dynamicRouterStep': return (step as DynamicRouterStep).dynamicRouter
             case 'rollbackStep': return (step as RollbackStep).rollback
-            case 'enrichStep': return (step as EnrichStep).enrich
             case 'inOutStep': return (step as InOutStep).inOut
+            case 'enrichStep': return (step as EnrichStep).enrich
             case 'splitStep': return (step as SplitStep).split
             case 'wireTapStep': return (step as WireTapStep).wireTap
             case 'multicastStep': return (step as MulticastStep).multicast

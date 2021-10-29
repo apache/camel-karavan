@@ -125,17 +125,21 @@ export class KaravanDesigner extends React.Component<Props, State> {
     }
 
     onDslSelect = (dsl: DslMetaModel, parentId: string) => {
-        switch (dsl.name) {
+        switch (dsl.dsl) {
             case 'from' :
-                const from = CamelApi.createStep(dsl.name, {from: {uri: dsl.uri}});
+                const from = CamelApi.createStep(dsl.dsl, {from: {uri: dsl.uri}});
                 this.addStep(from, parentId)
                 break;
             case 'to' :
-                const to = CamelApi.createStep(dsl.name, {to: {uri: dsl.uri}});
+                const to = CamelApi.createStep(dsl.dsl, {to: {uri: dsl.uri}});
                 this.addStep(to, parentId)
                 break;
+            case 'kamelet' :
+                const kamelet = CamelApi.createStep(dsl.dsl, {kamelet: {name: dsl.name}});
+                this.addStep(kamelet, parentId)
+                break;
             default:
-                const step = CamelApi.createStep(dsl.name, {});
+                const step = CamelApi.createStep(dsl.dsl, {});
                 this.addStep(step, parentId)
                 break;
         }

@@ -75,7 +75,7 @@ public final class CamelModelGenerator {
         // fill processors name + class
         Map<String, String> processors = new HashMap();
         procList.getMap().entrySet().stream()
-                .filter(e -> !e.getKey().equals("step") && !e.getKey().equals("kamelet"))
+                .filter(e -> !e.getKey().equals("step") )
                 .collect(Collectors.toMap(
                         e -> e.getKey(),
                         e -> e.getValue()
@@ -85,7 +85,7 @@ public final class CamelModelGenerator {
                     processors.put(className, name);
                 });
         procList.getMap().entrySet().stream()
-                .filter(e -> !e.getKey().equals("step") && !e.getKey().equals("kamelet"))
+                .filter(e -> !e.getKey().equals("step") )
                 .forEach((s) -> {
                     String name = camelize(s.getKey(), "-");
                     String className = classNameFromRef(procList.getJsonObject(s.getKey()).getString("$ref"));
@@ -376,7 +376,9 @@ public final class CamelModelGenerator {
         Set<String> keys = new HashSet<>();
         properties.getMap().forEach((s, o) -> {
             String propName = deCapitalize(camelize(s, "-"));
-            if (!keys.contains(propName) && !(name.equalsIgnoreCase("Choice") && propName.equals("steps"))) {
+            boolean notStepsForChoice = !(name.equalsIgnoreCase("Choice") && propName.equals("steps"));
+            boolean notStepsForKamelet = !(name.equalsIgnoreCase("Kamelet") && propName.equals("steps"));
+            if (!keys.contains(propName) && notStepsForChoice && notStepsForKamelet) {
                 String type = properties.getJsonObject(s).getString("type");
                 String ref = properties.getJsonObject(s).getString("$ref");
                 if (type != null) {

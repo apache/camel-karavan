@@ -339,11 +339,11 @@
 .karavan .dsl-page .flows .connections .incoming {
     border-color: #fb8824;
     border-style: solid;
-    border-radius: 50px;
+    border-radius: 40px;
     border-width: 1px;
     background: #fff;
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     position: absolute;
     left: 6px;
     display: flex;
@@ -352,11 +352,11 @@
 .karavan .dsl-page .flows .connections .outgoing {
     border-color: #fb8824;
     border-style: solid;
-    border-radius: 50px;
+    border-radius: 40px;
     border-width: 1px;
     background: #fff;
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     position: absolute;
     right: 1px;
     display: flex;
@@ -364,7 +364,7 @@
 
 .karavan .dsl-page .flows .connections .incoming .icon,
 .karavan .dsl-page .flows .connections .outgoing .icon {
-    height: 36px;
+    height: 32px;
     margin: auto;
 }
 
@@ -372,7 +372,7 @@
 .karavan .dsl-page .flows .connections .outgoing .inout-name {
     margin: auto;
     overflow: hidden;
-    font-size: 16px;
+    font-size: 24px;
     font-weight: bold;
 }
 

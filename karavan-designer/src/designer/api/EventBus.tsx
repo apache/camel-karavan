@@ -32,7 +32,7 @@ export class DslPosition {
 }
 
 export class InOutPosition {
-    inout: InOut = new InOut('in', '', 0, 0)
+    inout: InOut = new InOut('in', '', 0, 0, 0)
     rect: DOMRect = new DOMRect()
 
     constructor(inout: InOut, rect: DOMRect) {

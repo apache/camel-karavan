@@ -456,6 +456,11 @@ export const Metadata: ElementMeta[] = [
         new PropertyMeta('serviceFilterRef', 'Service Filter Ref', "Sets a reference to a custom ServiceFilter to use.", 'string', '', false, false, false, false),
         new PropertyMeta('uri', 'Uri', "The uri of the endpoint to send to. The uri can be dynamic computed using the org.apache.camel.language.simple.SimpleLanguage expression.", 'string', '', false, false, false, false),
     ]),
+    new ElementMeta('kamelet', 'Kamelet', 'To call Kamelets', 'eip,routing,kamelet', [
+        new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', false, false, false, false),
+        new PropertyMeta('name', 'Name', "Name of the Kamelet (templateId/routeId) to call. Options for the kamelet can be specified using uri syntax, eg mynamecount=4&type=gold.", 'string', '', true, false, false, false),
+        new PropertyMeta('parameters', 'parameters', "parameters", 'object', '', false, false, false, false),
+    ]),
     new ElementMeta('sample', 'Sample', 'Extract a sample of the messages passing through a route', 'eip,routing', [
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', false, false, false, false),
         new PropertyMeta('messageFrequency', 'Message Frequency', "Sets the sample message count which only a single Exchange will pass through after this many received.", 'number', '', false, false, false, false),
