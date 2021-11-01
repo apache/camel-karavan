@@ -23,9 +23,13 @@ import {
     Title,
     Popover,
     Switch,
-    NumberInput,
-    Button,
-    TextVariants, Select, SelectVariant, SelectDirection, SelectOption, TextArea, ExpandableSection
+    TextVariants,
+    Select,
+    SelectVariant,
+    SelectDirection,
+    SelectOption,
+    TextArea,
+    ExpandableSection, Tooltip,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -189,7 +193,13 @@ export class DslProperties extends React.Component<Props, State> {
                         position={"left"}
                         headerContent={property.title}
                         bodyContent={property.description}
-                        footerContent={property.example ? "Example: " + property.example : undefined}>
+                        footerContent={
+                            <div>
+                                {property.default !== undefined &&
+                                <div>Default: {property.default.toString()}</div>}
+                                {property.example !== undefined && <div>Example: {property.example}</div>}
+                            </div>
+                        }>
                         <button type="button" aria-label="More info" onClick={e => e.preventDefault()}
                                 className="pf-c-form__group-label-help">
                             <HelpIcon noVerticalAlign/>
@@ -198,7 +208,7 @@ export class DslProperties extends React.Component<Props, State> {
                 }>
                 {['string', 'integer', 'int', 'number'].includes(property.type) && <TextInput
                     className="text-field" isRequired
-                    type={['integer', 'int', 'number'].includes(property.type) ? 'number' : ( property.format ? "password" : "text")}
+                    type={['integer', 'int', 'number'].includes(property.type) ? 'number' : (property.format ? "password" : "text")}
                     id={id} name={id}
                     value={value}
                     onChange={e => this.parametersChanged(property.id, ['integer', 'int', 'number'].includes(property.type) ? Number(e) : e)}/>
@@ -234,7 +244,7 @@ export class DslProperties extends React.Component<Props, State> {
                         position={"left"}
                         headerContent={property.displayName}
                         bodyContent={property.description}
-                        footerContent={property.defaultValue ? "Default: " + property.defaultValue : undefined}>
+                        footerContent={property.defaultValue !== undefined ? "Default: " + property.defaultValue : undefined}>
                         <button type="button" aria-label="More info" onClick={e => e.preventDefault()}
                                 className="pf-c-form__group-label-help">
                             <HelpIcon noVerticalAlign/>
@@ -244,7 +254,7 @@ export class DslProperties extends React.Component<Props, State> {
                 {['string', 'duration', 'integer', 'int', 'number'].includes(property.type) && property.enum === undefined &&
                 <TextInput
                     className="text-field" isRequired
-                    type={['integer', 'int', 'number'].includes(property.type) ? 'number' : ( property.secret ? "password" : "text")}
+                    type={['integer', 'int', 'number'].includes(property.type) ? 'number' : (property.secret ? "password" : "text")}
                     id={id} name={id}
                     value={value}
                     onChange={e => this.parametersChanged(property.name, ['integer', 'int', 'number'].includes(property.type) ? Number(e) : e, property.kind === 'path')}/>
@@ -281,7 +291,6 @@ export class DslProperties extends React.Component<Props, State> {
         const dslLanguage = Languages.find((l: [string, string, string]) => l[0] === language);
         const value = language ? CamelApiExt.getExpressionValue(this.state.element) : undefined;
         const selectOptions: JSX.Element[] = []
-        // selectOptions.push(<SelectOption key={'placeholder'} value={"Select language"} isPlaceholder/>);
         Languages.forEach((lang: [string, string, string]) => {
             const s = <SelectOption key={lang[0]} value={lang[0]} description={lang[2]}/>;
             selectOptions.push(s);
@@ -334,7 +343,7 @@ export class DslProperties extends React.Component<Props, State> {
         )
     }
 
-    createElementProperty = (property: PropertyMeta): JSX.Element => {
+    createEipDslProperty = (property: PropertyMeta): JSX.Element => {
         const value = this.state.element ? (this.state.element as any)[property.name] : undefined;
         const selectOptions: JSX.Element[] = []
         if (property.enumVals && property.enumVals.length > 0) {
@@ -351,7 +360,8 @@ export class DslProperties extends React.Component<Props, State> {
                     <Popover
                         position={"left"}
                         headerContent={property.displayName}
-                        bodyContent={property.description}>
+                        bodyContent={property.description}
+                        footerContent={property.defaultValue !== undefined ? "Default: " + property.defaultValue : undefined}>
                         <button type="button" aria-label="More info" onClick={e => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -365,7 +375,7 @@ export class DslProperties extends React.Component<Props, State> {
                 <TextInput
                     isReadOnly={property.name === 'uri'}
                     className="text-field" isRequired
-                    type={['integer', 'number'].includes(property.type)? 'number' : (property.secret ? "password" : "text")}
+                    type={['integer', 'number'].includes(property.type) ? 'number' : (property.secret ? "password" : "text")}
                     id={property.name} name={property.name}
                     value={value?.toString()}
                     onChange={e => this.propertyChanged(property.name, ['integer', 'number'].includes(property.type) ? Number(e) : e)}/>
@@ -425,7 +435,7 @@ export class DslProperties extends React.Component<Props, State> {
                 <Form autoComplete="off">
                     {this.state.element === undefined && this.getIntegrationHeader()}
                     {this.state.element && this.getComponentHeader()}
-                    {this.state.element && CamelApiExt.getElementProperties(this.state.element.dslName).map((property: PropertyMeta) => this.createElementProperty(property))}
+                    {this.state.element && CamelApiExt.getElementProperties(this.state.element.dslName).map((property: PropertyMeta) => this.createEipDslProperty(property))}
                 </Form>
             </div>
         );
