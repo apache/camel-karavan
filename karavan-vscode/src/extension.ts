@@ -18,6 +18,7 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import {CamelYaml} from "../designer/api/CamelYaml";
+import { CamelUi } from "../designer/api/CamelUi";
 
 export function activate(context: vscode.ExtensionContext) {
     const webviewContent = fs
@@ -83,7 +84,7 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
     // Karavan webview
     const panel = vscode.window.createWebviewPanel(
         "karavan",
-        "Karavan",
+        CamelUi.nameFomTitle(name),
         vscode.ViewColumn.One,
         {
             enableScripts: true,
