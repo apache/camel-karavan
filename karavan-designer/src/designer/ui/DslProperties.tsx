@@ -74,14 +74,6 @@ export class DslProperties extends React.Component<Props, State> {
         this.props.onChangeView.call(this, view);
     }
 
-    onIntegrationChange = (field: string, value: string) => {
-        let clone = new Integration({...this.state.integration});
-        if (field === 'title') {
-            clone.metadata.name = CamelUi.nameFomTitle(value);
-            this.props.onIntegrationUpdate?.call(this, clone);
-        }
-    };
-
     propertyChanged = (fieldId: string, value: string | number | boolean | any) => {
         if (this.state.step && this.state.element) {
             const clone = CamelYaml.cloneStep(this.state.step);
@@ -154,8 +146,7 @@ export class DslProperties extends React.Component<Props, State> {
                     <TextInput className="text-field" type="text" id="title" name="title" isReadOnly
                                value={
                                    CamelUi.titleFromName(this.state.integration.metadata.name)
-                               }
-                               onChange={e => this.onIntegrationChange('title', e)}/>
+                               }/>
                 </FormGroup>
                 <FormGroup label="Name" fieldId="name" isRequired>
                     <TextInput className="text-field" type="text" id="name" name="name" isReadOnly
