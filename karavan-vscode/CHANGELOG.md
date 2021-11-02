@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.0.4
+## 0.0.5
 1. Support plain YAML routes file 
 1. Kamelet YAML DSL for sink and action
 1. Run locally with CamelJBang (experimental)
