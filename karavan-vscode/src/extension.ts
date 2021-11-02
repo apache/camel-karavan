@@ -17,25 +17,28 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
-import {CamelYaml} from "../designer/api/CamelYaml";
+import { CamelYaml } from "../designer/api/CamelYaml";
 import { CamelUi } from "../designer/api/CamelUi";
+
+const KARAVAN_LOADED = "karavan:loaded";
+const KARAVAN_PANELS: Map<any, string> = new Map<string, string>();
 
 export function activate(context: vscode.ExtensionContext) {
     const webviewContent = fs
         .readFileSync(
             vscode.Uri.joinPath(context.extensionUri, "dist/index.html").fsPath,
-            {encoding: "utf-8"}
+            { encoding: "utf-8" }
         )
         .replace(
             "styleUri",
             vscode.Uri.joinPath(context.extensionUri, "/dist/main.css")
-                .with({scheme: "vscode-resource"})
+                .with({ scheme: "vscode-resource" })
                 .toString()
         )
         .replace(
             "scriptUri",
             vscode.Uri.joinPath(context.extensionUri, "/dist/webview.js")
-                .with({scheme: "vscode-resource"})
+                .with({ scheme: "vscode-resource" })
                 .toString()
         );
 
@@ -56,8 +59,8 @@ export function activate(context: vscode.ExtensionContext) {
                         }
                     }
                 }).then(value => {
-                    if (value) openKaravanWebView(context, webviewContent, value || '', undefined);
-            });
+                    if (value) openKaravanWebView(context, webviewContent, value, value + '.yaml', undefined);
+                });
         }
     );
 
@@ -65,26 +68,54 @@ export function activate(context: vscode.ExtensionContext) {
     const open = vscode.commands.registerCommand(
         "karavan.open",
         (...args: any[]) => {
-            if (args && args.length >0){
+            if (args && args.length > 0) {
                 const yaml = fs.readFileSync(path.resolve(args[0].path)).toString('utf8');
                 const parce = isIntegration(yaml);
-                if (parce[0]){
-                    openKaravanWebView(context, webviewContent, parce[1] || '', yaml);
+                const filename = path.basename(args[0].path);
+                if (parce[0]) {
+                    openKaravanWebView(context, webviewContent, parce[1] || '', filename || '', yaml);
                 } else {
                     vscode.window.showErrorMessage("File is not Camel-K Integration!")
                 }
             }
         }
     );
+
+    // Run Camel-K integration in designer
+    const run = vscode.commands.registerCommand(
+        "karavan.jbang-run",
+        (...args: any[]) => {
+            if (args && args.length > 0) {
+                if (args[0].path.startsWith('webview-panel/webview')) {
+                    const filename = KARAVAN_PANELS.get(args[0].path);
+                    console.log(filename)
+                    if (filename){
+                        runCamelJbang(filename);
+                    }
+                } else {
+                    const yaml = fs.readFileSync(path.resolve(args[0].path)).toString('utf8');
+                    const parce = isIntegration(yaml);
+                    const filename = path.basename(args[0].path);
+                    console.log(filename)
+                    if (parce[0]) {
+                        runCamelJbang(filename);
+                    } else {
+                        vscode.window.showErrorMessage("File is not Camel-K Integration!")
+                    }
+                }
+            }
+        }
+    );
     context.subscriptions.push(create);
     context.subscriptions.push(open);
+    context.subscriptions.push(run);
 }
 
-function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: string, name: string, yaml?:string) {
+function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: string, name: string, filename: string, yaml?: string) {
     // Karavan webview
     const panel = vscode.window.createWebviewPanel(
         "karavan",
-        CamelUi.nameFomTitle(name),
+        CamelUi.nameFomTitle(filename),
         vscode.ViewColumn.One,
         {
             enableScripts: true,
@@ -102,13 +133,13 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
     );
 
     // Read and send Kamelets
-    panel.webview.postMessage({command: 'kamelets', kamelets: readKamelets(context)});
+    panel.webview.postMessage({ command: 'kamelets', kamelets: readKamelets(context) });
 
     // Read and send Components
-    panel.webview.postMessage({command: 'components', components: readComponents(context)});
+    panel.webview.postMessage({ command: 'components', components: readComponents(context) });
 
     // Send integration
-    panel.webview.postMessage({command: 'open', name: name, yaml: yaml});
+    panel.webview.postMessage({ command: 'open', name: name, yaml: yaml });
 
 
     // Handle messages from the webview
@@ -116,19 +147,22 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
         message => {
             switch (message.command) {
                 case 'save':
-                    if (vscode.workspace.workspaceFolders){
-                        const uriFolder: vscode.Uri =  vscode.workspace.workspaceFolders[0].uri;
+                    if (vscode.workspace.workspaceFolders) {
+                        const uriFolder: vscode.Uri = vscode.workspace.workspaceFolders[0].uri;
                         const uriFile: vscode.Uri = vscode.Uri.file(path.join(uriFolder.path, message.name + '.yaml'));
                         fs.writeFile(uriFile.path, message.yaml, err => {
                             if (err) vscode.window.showErrorMessage("Error: " + err?.message);
                         });
                     }
                     return;
+                case 'url-mapping':
+                    KARAVAN_PANELS.set('webview-panel/webview-' + message.pathId, CamelUi.nameFomTitle(message.name) + '.yaml');
             }
         },
         undefined,
         context.subscriptions
     );
+    vscode.commands.executeCommand("setContext", KARAVAN_LOADED, true);
 }
 
 function readKamelets(context: vscode.ExtensionContext): string[] {
@@ -145,12 +179,19 @@ function readComponents(context: vscode.ExtensionContext): string[] {
 
 function isIntegration(yaml: string): [boolean, string?] {
     const i = CamelYaml.yamlToIntegration(yaml);
-    if (i.kind === 'Integration' && i.metadata.name){
+    if (i.kind === 'Integration' && i.metadata.name) {
         return [true, i.metadata.name];
     } else {
         return [false, undefined];
     }
 }
 
+function runCamelJbang(filename: string) {
+    const terminal = vscode.window.createTerminal(`Karavan: ` + filename);
+    terminal.show();
+    terminal.sendText("CamelJBang run " + filename);
+}
+
 export function deactivate() {
+    vscode.commands.executeCommand("setContext", KARAVAN_LOADED, false);
 }
