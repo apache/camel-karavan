@@ -42,8 +42,9 @@
   ],
   "activationEvents": [
     "onCommand:karavan.create-crd",
-    "onCommand:karavan.open-yaml",
-    "onCommand:karavan.jbang-run"
+    "onCommand:karavan.create-yaml",
+    "onCommand:karavan.jbang-run",
+    "onCommand:karavan.open"
   ],
   "main": "./dist/extension.js",
   "contributes": {
