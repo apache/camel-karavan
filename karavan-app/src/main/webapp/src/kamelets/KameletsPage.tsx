@@ -9,7 +9,7 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KameletCard} from "./KameletCard";
-import {Kamelet} from "../designer/model/KameletModels";
+import {KameletModel} from "../designer/model/KameletModels";
 import {KameletApi} from "../designer/api/KameletApi";
 import {KameletModal} from "./KameletModal";
 
@@ -17,11 +17,11 @@ interface Props {
 }
 
 interface State {
-    kamelet?: Kamelet;
+    kamelet?: KameletModel;
     isModalOpen: boolean;
     repository: string,
     path: string,
-    kamelets: Kamelet[],
+    kamelets: KameletModel[],
     filter: string
 }
 
@@ -39,7 +39,7 @@ export class KameletsPage extends React.Component<Props, State> {
         this.setState({kamelets: KameletApi.getKamelets()})
     }
 
-    select = (k: Kamelet)=> {
+    select = (k: KameletModel)=> {
         this.setState({kamelet: k, isModalOpen: true})
     }
 

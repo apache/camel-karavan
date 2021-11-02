@@ -3,16 +3,16 @@ import {
     CardHeader, Card, CardTitle, CardBody, CardActions, CardFooter,Badge
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {Kamelet} from "../designer/model/KameletModels";
+import {KameletModel} from "../designer/model/KameletModels";
 import {CamelUi} from "../designer/api/CamelUi";
 
 interface Props {
-    kamelet: Kamelet,
+    kamelet: KameletModel,
     onClickCard: any
 }
 
 interface State {
-    kamelet: Kamelet,
+    kamelet: KameletModel,
 }
 
 export class KameletCard extends React.Component<Props, State> {

@@ -310,7 +310,8 @@ public final class CamelModelGenerator {
                     String type = p != null && p.containsKey("desc") ? p.getString("type") : el.type;
                     Boolean required = p != null && p.containsKey("required") ? p.getBoolean("required") : false;
                     Boolean secret = p != null && p.containsKey("secret") ? p.getBoolean("secret") : false;
-                    metadata.append(String.format("        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', %b, %b, %b, %b),\n", pname, displayName, desc, type, en, required, secret, el.isArray, (el.isArray ? el.isArrayTypeClass : el.isObject)));
+                    String defaultValue = p != null && p.containsKey("defaultValue") ? p.getString("defaultValue") : "";
+                    metadata.append(String.format("        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b),\n", pname, displayName, desc, type, en, defaultValue, required, secret, el.isArray, (el.isArray ? el.isArrayTypeClass : el.isObject)));
                 });
                 metadata.append("    ]),\n");
             }

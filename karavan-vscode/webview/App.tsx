@@ -55,10 +55,16 @@ class App extends React.Component<Props, State> {
         case 'open':
           if (this.state.name === '' && this.state.key === ''){
             this.setState({name: message.name, yaml: message.yaml, key: Math.random().toString()});
+            this.sendUrlMapping(message.name)
           }
           break;
       }
     });
+  }
+
+  sendUrlMapping(name: string){
+    const url = new URL(window.location.href)
+    vscode.postMessage({ command: 'url-mapping', pathId: url.host, name: name })
   }
 
   save(name: string, yaml: string) {
