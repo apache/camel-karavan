@@ -46,9 +46,11 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Create new Camel-K Integration CRD command
     const createCrd = vscode.commands.registerCommand("karavan.create-crd", () => createIntegration(context, webviewContent, true));
-
+    context.subscriptions.push(createCrd);
+    
     // Create new Camel Integration YAML command
     const createYaml = vscode.commands.registerCommand("karavan.create-yaml", () => createIntegration(context, webviewContent, false));
+    context.subscriptions.push(createYaml);
 
     // Open Camel-K integration in designer
     const open = vscode.commands.registerCommand(
@@ -66,6 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }
     );
+    context.subscriptions.push(open);
 
     // Run Camel-K integration in designer
     const run = vscode.commands.registerCommand(
@@ -90,9 +93,6 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }
     );
-    context.subscriptions.push(createCrd);
-    context.subscriptions.push(createYaml);
-    context.subscriptions.push(open);
     context.subscriptions.push(run);
 }
 
@@ -142,7 +142,7 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
                     }
                     return;
                 case 'url-mapping':
-                    KARAVAN_PANELS.set('webview-panel/webview-' + message.pathId, CamelUi.nameFromTitle(message.filename));
+                    KARAVAN_PANELS.set('webview-panel/webview-' + message.pathId, message.filename);
             }
         },
         undefined,
