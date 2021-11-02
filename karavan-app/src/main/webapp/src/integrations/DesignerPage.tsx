@@ -129,6 +129,7 @@ export class DesignerPage extends React.Component<Props, State> {
                     }
                     {this.state.view === 'design' &&
                     <KaravanDesigner
+                        dark={false}
                         key={this.state.key}
                         name={this.state.name}
                         yaml={this.state.yaml}
