@@ -4,7 +4,7 @@
   "displayName": "Camel Karavan Designer",
   "icon": "icons/icon.png",
   "description": "Integration Designer for Apache Camel",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "license": "Apache-2.0",
   "preview": true,
   "bugs": {
@@ -22,7 +22,7 @@
 	],
   "repository": {
     "type": "git",
-    "url": "https://github.com/apache/camel-karavan/karavan-vscode"
+    "url": "https://github.com/apache/camel-karavan/tree/main/karavan-vscode"
   },
   "engines": {
     "vscode": "^1.56.0"
@@ -30,7 +30,7 @@
   "categories": [
     "Other"
   ],
-  "homepage": "https://github.com/apache/camel-karavan/karavan-vscode/README.md",
+  "homepage": "https://github.com/apache/camel-karavan/tree/main/karavan-vscode",
   "keywords": [
     "Camel",
 		"Camel K",
