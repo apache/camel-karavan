@@ -42,7 +42,8 @@
   ],
   "activationEvents": [
     "onCommand:karavan.create",
-    "onCommand:karavan.open"
+    "onCommand:karavan.open",
+    "onCommand:karavan.jbang-run"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -58,6 +59,11 @@
           "light": "./icons/icon.png",
           "dark": "./icons/icon.png"
         }
+      },
+      {
+        "command": "karavan.jbang-run",
+        "title": "Run with JBang",
+        "icon": "./icons/run.png"
       }
     ],
     "menus": {
@@ -69,12 +75,21 @@
         {
           "command": "karavan.open",
           "when": "resourceExtname == .yaml"
+        },
+        {
+          "command": "karavan.jbang-run",
+          "when": "resourceExtname == .yaml"
         }
       ],
       "editor/title": [
         {
           "command": "karavan.open",
           "when": "resourceExtname == .yaml",
+          "group": "navigation"
+        },
+        {
+          "command": "karavan.jbang-run",
+          "when": "resourceExtname == .yaml || karavan:loaded",
           "group": "navigation"
         }
       ]
