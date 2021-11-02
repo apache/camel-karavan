@@ -9,17 +9,17 @@ import {
     Badge, Flex, CardTitle,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {Kamelet, Property} from "../designer/model/KameletModels";
+import {KameletModel, Property} from "../designer/model/KameletModels";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 
 interface Props {
-    kamelet?: Kamelet,
+    kamelet?: KameletModel,
     isOpen: boolean;
 }
 
 interface State {
     isOpen: boolean;
-    kamelet?: Kamelet,
+    kamelet?: KameletModel,
 }
 
 export class KameletModal extends Component<Props, State> {
