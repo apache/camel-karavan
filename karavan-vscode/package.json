@@ -41,20 +41,24 @@
     "Integration"
   ],
   "activationEvents": [
-    "onCommand:karavan.create",
-    "onCommand:karavan.open",
+    "onCommand:karavan.create-crd",
+    "onCommand:karavan.open-yaml",
     "onCommand:karavan.jbang-run"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "karavan.create",
-        "title": "Karavan: Create Integration"
+        "command": "karavan.create-crd",
+        "title": "Karavan: Create CRD"
+      },
+      {
+        "command": "karavan.create-yaml",
+        "title": "Karavan: Create YAML"
       },
       {
         "command": "karavan.open",
-        "title": "Karavan: Open in Designer",
+        "title": "Karavan: Open",
         "icon": {
           "light": "./icons/icon.png",
           "dark": "./icons/icon.png"
@@ -62,14 +66,18 @@
       },
       {
         "command": "karavan.jbang-run",
-        "title": "Run with JBang",
+        "title": "Karavan: JBang Run",
         "icon": "./icons/run.png"
       }
     ],
     "menus": {
       "explorer/context": [
         {
-          "command": "karavan.create",
+          "command": "karavan.create-crd",
+           "when": "explorerResourceIsFolder && explorerResourceIsRoot"
+        },
+        {
+          "command": "karavan.create-yaml",
            "when": "explorerResourceIsFolder && explorerResourceIsRoot"
         },
         {

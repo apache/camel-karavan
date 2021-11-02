@@ -29,9 +29,16 @@ export class CamelYaml {
         const clone: any = Object.assign({}, integration);
         const flows = integration.spec.flows
         clone.spec.flows = flows.map((f: any) => CamelYaml.cleanupElement(f));
-        const i = JSON.parse(JSON.stringify(clone, null, 3)); // fix undefined in string attributes
-        const text = yaml.dump(i);
-        return text;
+        if (integration.crd) {
+            delete clone.crd 
+            const i = JSON.parse(JSON.stringify(clone, null, 3)); // fix undefined in string attributes
+            const text = yaml.dump(i);
+            return text;
+        } else {
+            const f = JSON.parse(JSON.stringify(clone.spec.flows, null, 3));
+            const text = yaml.dump(f);
+            return text;
+        }
     }
 
     static cleanupElement = (element: CamelElement): CamelElement => {
@@ -80,12 +87,22 @@ export class CamelYaml {
         return result
     }
 
-    static yamlToIntegration = (text: string): Integration => {
+    static yamlToIntegration = (filename: string, text: string): Integration => {
+        const i: Integration = Integration.createNew(filename);
         const fromYaml: any = yaml.load(text);
-        const int: Integration = new Integration({...fromYaml});
-        const flows = int.spec.flows.map(f => CamelApi.createFrom(f))
-        int.spec.flows = flows;
-        return int;
+        if (Array.isArray(fromYaml)) {
+            i.crd = false;
+            const flows: any[] = fromYaml;
+            const froms = flows.filter((e: any) => e.hasOwnProperty('from'));
+            if (froms.length > 0) {
+                froms.forEach((f: any) => i.spec.flows.push(CamelApi.createFrom(f)));
+            }
+        } else {
+            i.crd = true;
+            const int: Integration = new Integration({...fromYaml});
+            int.spec.flows.forEach((f: any) => i.spec.flows.push(CamelApi.createFrom(f)));
+        }
+        return i;
     }
 
     static cloneIntegration = (integration: Integration): Integration => {

@@ -90,15 +90,16 @@ class App extends React.Component<Props, State> {
 
     }
 
-    save(name: string, yaml: string) {
+    save(filename: string, yaml: string) {
+        console.log(filename);
         console.log(yaml);
     }
 
     public render() {
         return (
             <Page className="karavan">
-                <KaravanDesigner key={this.state.key} name={this.state.name} yaml={this.state.yaml}
-                                 onSave={(name, yaml) => this.save(name, yaml)}
+                <KaravanDesigner key={this.state.key} filename={this.state.name} yaml={this.state.yaml}
+                                 onSave={(filename, yaml) => this.save(filename, yaml)}
                                  borderColor="#fb8824"
                                  borderColorSelected="black"
                                  dark={document.body.className.includes('vscode-dark')}

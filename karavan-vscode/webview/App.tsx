@@ -28,7 +28,7 @@ interface Props {
 }
 
 interface State {
-  name: string
+  filename: string
   yaml: string
   key: string
 }
@@ -36,7 +36,7 @@ interface State {
 class App extends React.Component<Props, State> {
 
   public state: State = {
-    name: '',
+    filename: '',
     yaml: '',
     key: ''
   };
@@ -53,24 +53,24 @@ class App extends React.Component<Props, State> {
           ComponentApi.saveComponents(message.components);
           break;  
         case 'open':
-          if (this.state.name === '' && this.state.key === ''){
-            this.setState({name: message.name, yaml: message.yaml, key: Math.random().toString()});
-            this.sendUrlMapping(message.name)
+          if (this.state.filename === '' && this.state.key === ''){
+            this.setState({filename: message.filename, yaml: message.yaml, key: Math.random().toString()});
+            this.sendUrlMapping(message.filename)
           }
           break;
       }
     });
   }
 
-  sendUrlMapping(name: string){
+  sendUrlMapping(filename: string){
     const url = new URL(window.location.href)
-    vscode.postMessage({ command: 'url-mapping', pathId: url.host, name: name })
+    vscode.postMessage({ command: 'url-mapping', pathId: url.host, filename: filename })
   }
 
-  save(name: string, yaml: string) {
+  save(filename: string, yaml: string) {
     vscode.postMessage({
       command: 'save',
-      name: name,
+      filename: filename,
       yaml: yaml
     })
   }
@@ -80,9 +80,9 @@ class App extends React.Component<Props, State> {
       <Page className="karavan">
          <KaravanDesigner 
           key={this.state.key} 
-          name={this.state.name} 
+          filename={this.state.filename} 
           yaml={this.state.yaml} 
-          onSave={(name, yaml) => this.save(name, yaml)}
+          onSave={(filename, yaml) => this.save(filename, yaml)}
           borderColor="#fca338"
           borderColorSelected="#fee3c3"
           dark={this.props.dark}

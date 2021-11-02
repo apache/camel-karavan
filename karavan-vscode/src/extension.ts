@@ -19,6 +19,8 @@ import * as fs from "fs";
 import * as path from "path";
 import { CamelYaml } from "../designer/api/CamelYaml";
 import { CamelUi } from "../designer/api/CamelUi";
+import * as jsyaml from 'js-yaml';
+import { Integration } from "../designer/model/CamelModel";
 
 const KARAVAN_LOADED = "karavan:loaded";
 const KARAVAN_PANELS: Map<any, string> = new Map<string, string>();
@@ -42,27 +44,11 @@ export function activate(context: vscode.ExtensionContext) {
                 .toString()
         );
 
-    // Create new Camel-K Integration command
-    const create = vscode.commands.registerCommand(
-        "karavan.create",
-        () => {
-            vscode.window
-                .showInputBox({
-                    title: "Create Integration",
-                    ignoreFocusOut: true,
-                    prompt: "Integration name",
-                    validateInput: (text: string): string | undefined => {
-                        if (!text || text.length === 0) {
-                            return 'Name should not be empty';
-                        } else {
-                            return undefined;
-                        }
-                    }
-                }).then(value => {
-                    if (value) openKaravanWebView(context, webviewContent, value, value + '.yaml', undefined);
-                });
-        }
-    );
+    // Create new Camel-K Integration CRD command
+    const createCrd = vscode.commands.registerCommand("karavan.create-crd", () => createIntegration(context, webviewContent, true));
+
+    // Create new Camel Integration YAML command
+    const createYaml = vscode.commands.registerCommand("karavan.create-yaml", () => createIntegration(context, webviewContent, false));
 
     // Open Camel-K integration in designer
     const open = vscode.commands.registerCommand(
@@ -70,12 +56,12 @@ export function activate(context: vscode.ExtensionContext) {
         (...args: any[]) => {
             if (args && args.length > 0) {
                 const yaml = fs.readFileSync(path.resolve(args[0].path)).toString('utf8');
-                const parce = isIntegration(yaml);
                 const filename = path.basename(args[0].path);
-                if (parce[0]) {
-                    openKaravanWebView(context, webviewContent, parce[1] || '', filename || '', yaml);
+                const integration = parceYaml(filename, yaml);
+                if (integration[0]) {
+                    openKaravanWebView(context, webviewContent, filename || '', integration[1]);
                 } else {
-                    vscode.window.showErrorMessage("File is not Camel-K Integration!")
+                    vscode.window.showErrorMessage("File is not Camel Integration!")
                 }
             }
         }
@@ -88,16 +74,14 @@ export function activate(context: vscode.ExtensionContext) {
             if (args && args.length > 0) {
                 if (args[0].path.startsWith('webview-panel/webview')) {
                     const filename = KARAVAN_PANELS.get(args[0].path);
-                    console.log(filename)
-                    if (filename){
+                    if (filename) {
                         runCamelJbang(filename);
                     }
                 } else {
                     const yaml = fs.readFileSync(path.resolve(args[0].path)).toString('utf8');
-                    const parce = isIntegration(yaml);
                     const filename = path.basename(args[0].path);
-                    console.log(filename)
-                    if (parce[0]) {
+                    const integration = parceYaml(filename, yaml);
+                    if (integration[0]) {
                         runCamelJbang(filename);
                     } else {
                         vscode.window.showErrorMessage("File is not Camel-K Integration!")
@@ -106,16 +90,17 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }
     );
-    context.subscriptions.push(create);
+    context.subscriptions.push(createCrd);
+    context.subscriptions.push(createYaml);
     context.subscriptions.push(open);
     context.subscriptions.push(run);
 }
 
-function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: string, name: string, filename: string, yaml?: string) {
+function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: string, filename: string, yaml?: string) {
     // Karavan webview
     const panel = vscode.window.createWebviewPanel(
         "karavan",
-        CamelUi.nameFomTitle(filename),
+        filename,
         vscode.ViewColumn.One,
         {
             enableScripts: true,
@@ -139,30 +124,55 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
     panel.webview.postMessage({ command: 'components', components: readComponents(context) });
 
     // Send integration
-    panel.webview.postMessage({ command: 'open', name: name, yaml: yaml });
+    panel.webview.postMessage({ command: 'open', filename: filename, yaml: yaml });
 
 
     // Handle messages from the webview
     panel.webview.onDidReceiveMessage(
         message => {
+            console.log(message);
             switch (message.command) {
                 case 'save':
                     if (vscode.workspace.workspaceFolders) {
                         const uriFolder: vscode.Uri = vscode.workspace.workspaceFolders[0].uri;
-                        const uriFile: vscode.Uri = vscode.Uri.file(path.join(uriFolder.path, message.name + '.yaml'));
+                        const uriFile: vscode.Uri = vscode.Uri.file(path.join(uriFolder.path, message.filename));
                         fs.writeFile(uriFile.path, message.yaml, err => {
                             if (err) vscode.window.showErrorMessage("Error: " + err?.message);
                         });
                     }
                     return;
                 case 'url-mapping':
-                    KARAVAN_PANELS.set('webview-panel/webview-' + message.pathId, CamelUi.nameFomTitle(message.name) + '.yaml');
+                    KARAVAN_PANELS.set('webview-panel/webview-' + message.pathId, CamelUi.nameFromTitle(message.filename));
             }
         },
         undefined,
         context.subscriptions
     );
     vscode.commands.executeCommand("setContext", KARAVAN_LOADED, true);
+}
+
+function createIntegration(context: vscode.ExtensionContext, webviewContent: string, crd: boolean) {
+    vscode.window
+        .showInputBox({
+            title: crd ? "Create Camel-K Integration CRD" : "Create Camel Integration YAML",
+            ignoreFocusOut: true,
+            prompt: "Integration name",
+            validateInput: (text: string): string | undefined => {
+                if (!text || text.length === 0) {
+                    return 'Name should not be empty';
+                } else {
+                    return undefined;
+                }
+            }
+        }).then(value => {
+            if (value) {
+                const name = CamelUi.nameFromTitle(value);
+                const i = Integration.createNew(name);
+                i.crd = crd;
+                const yaml = CamelYaml.integrationToYaml(i);
+                openKaravanWebView(context, webviewContent, name + '.yaml', yaml);
+            }
+        });
 }
 
 function readKamelets(context: vscode.ExtensionContext): string[] {
@@ -177,17 +187,17 @@ function readComponents(context: vscode.ExtensionContext): string[] {
     return jsons;
 }
 
-function isIntegration(yaml: string): [boolean, string?] {
-    const i = CamelYaml.yamlToIntegration(yaml);
+function parceYaml(filename: string, yaml: string): [boolean, string?] {
+    const i = CamelYaml.yamlToIntegration(filename, yaml);
     if (i.kind === 'Integration' && i.metadata.name) {
-        return [true, i.metadata.name];
+        return [true, yaml];
     } else {
         return [false, undefined];
     }
 }
 
 function runCamelJbang(filename: string) {
-    const terminal = vscode.window.createTerminal(`Karavan: ` + filename);
+    const terminal = vscode.window.createTerminal('Karavan: ' + filename);
     terminal.show();
     terminal.sendText("CamelJBang run " + filename);
 }

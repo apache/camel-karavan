@@ -34,8 +34,8 @@ import {CamelUi} from "../api/CamelUi";
 import {EventBus} from "../api/EventBus";
 
 interface Props {
-    onSave?: (name: string, yaml: string) => void
-    name: string
+    onSave?: (filename: string, yaml: string) => void
+    filename: string
     yaml: string
     borderColor: string
     borderColorSelected: string
@@ -56,8 +56,8 @@ export class KaravanDesigner extends React.Component<Props, State> {
 
     public state: State = {
         integration: this.props.yaml
-            ? CamelYaml.yamlToIntegration(this.props.yaml)
-            : Integration.createNew(CamelUi.nameFomTitle(this.props.name)),
+            ? CamelYaml.yamlToIntegration(this.props.filename, this.props.yaml)
+            : Integration.createNew(this.props.filename),
         showSelector: false,
         parentId: '',
         parentType: '',

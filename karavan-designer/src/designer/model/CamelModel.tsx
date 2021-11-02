@@ -25,6 +25,7 @@ export class Integration {
     kind: string = 'Integration';
     metadata: Metadata = new Metadata();
     spec: Spec = new Spec();
+    crd: boolean = true;
 
     public constructor(init?: Partial<Integration>) {
         Object.assign(this, init);
