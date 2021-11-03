@@ -133,13 +133,16 @@ public final class CamelModelGenerator {
         camelApi.append(getTemplateFile("CamelApi.camelize.tx").concat("\n").concat("\n"));
 
         camelApi.append(
-                "    static createStep = (name: string, body: any): CamelElement => {\n" +
+                "    static createStep = (name: string, body: any, clone: boolean = false): CamelElement => {\n" +
+                        "       const oldKey = Object.keys(body)[0];\n" +
+                        "       const key = CamelApi.camelizeName(oldKey, '-', true);\n" +
+                        "       const newBody = !clone && key === name ? {[key]: body[oldKey]} : body;\n" +
                         "       switch (name){\n" +
-                        "            case 'from': return CamelApi.createFrom(body)\n" +
-                        "            case 'expression': return CamelApi.createExpression(body)\n");
+                        "            case 'from': return CamelApi.createFrom(newBody);\n" +
+                        "            case 'expression': return CamelApi.createExpression(newBody);\n");
         processors.values().forEach(s ->
-                camelApi.append("            case '").append(deCapitalize(s)).append("': return CamelApi.create").append(capitalize(s)).append("(body)\n"));
-        camelApi.append("            default: return new ProcessorStep('') \n");
+                camelApi.append("            case '").append(deCapitalize(s)).append("': return CamelApi.create").append(capitalize(s)).append("(newBody);\n"));
+        camelApi.append("            default: return new ProcessorStep('');\n");
         camelApi.append("        }\n");
         camelApi.append("    }\n");
 
@@ -334,18 +337,26 @@ public final class CamelModelGenerator {
         String funcName = "create".concat(capitalize(name));
         StringBuilder f = new StringBuilder();
         f.append(String.format("    static %s = (element: any): %s => {\n", funcName, stepClass));
-        f.append(String.format("        const %1$s = element ? new %2$s({...element.%3$s}) : new %2$s()\n", stepField, stepClass, elementName));
+        f.append(String.format("        const %1$s = element ? new %2$s({...element.%3$s}) : new %2$s();\n", stepField, stepClass, elementName));
         elProps.stream().forEach(e -> {
             if (e.name.equals("steps")) {
-                f.append(String.format("        %s.%s.steps = CamelApi.createSteps(element?.%s?.steps)\n", stepField, elementName, elementName));
+                f.append(String.format("        %s.%s.steps = CamelApi.createSteps(element?.%s?.steps);\n", stepField, elementName, elementName));
             } else if (e.isArray && e.isArrayTypeClass) {
-                f.append(String.format("        %1$s.%2$s.%3$s = element && element?.%2$s ? element?.%2$s?.%3$s.map((x:any) => CamelApi.create%4$s(x)) :[]\n", stepField, elementName, e.name, e.arrayType));
+                f.append(String.format("        %1$s.%2$s.%3$s = element && element?.%2$s ? element?.%2$s?.%3$s.map((x:any) => CamelApi.create%4$s(x)) :[];\n", stepField, elementName, e.name, e.arrayType));
+            } else if (e.name.equalsIgnoreCase("expression")) {
+                f.append(String.format("        const implicitExpression = CamelApi.getExpressionLanguage(element.%s);\n", elementName));
+                f.append(String.format("        if (implicitExpression){\n"));
+                f.append(String.format("            %1$s.%2$s.expression = new Expression({[implicitExpression]: element.%2$s[implicitExpression]});\n", stepField, elementName));
+                f.append(String.format("            delete (%1$s.%2$s as any)[implicitExpression];\n", stepField, elementName));
+                f.append(String.format("        } else {\n"));
+                f.append(String.format("            %1$s.%2$s.expression = CamelApi.createExpression(element?.%2$s?.expression);\n", stepField, elementName));
+                f.append(String.format("        }\n"));
             } else if (e.isObject) {
-                f.append(String.format("        %s.%s.%s = CamelApi.create%s(element?.%s?.%s)\n", stepField, elementName, e.name, e.type, elementName, e.name));
+                f.append(String.format("        %s.%s.%s = CamelApi.create%s(element?.%s?.%s);\n", stepField, elementName, e.name, e.type, elementName, e.name));
             }
         });
-        f.append(String.format("        %s.uuid = element?.uuid ? element.uuid : %s.uuid\n", stepField, stepField));
-        f.append(String.format("        return %s\n", stepField));
+        f.append(String.format("        %s.uuid = element?.uuid ? element.uuid : %s.uuid;\n", stepField, stepField));
+        f.append(String.format("        return %s;\n", stepField));
         f.append("    }\n\n");
         return f.toString();
     }

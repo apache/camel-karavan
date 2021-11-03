@@ -64,7 +64,7 @@ public final class CamelComponentsGenerator {
     }
 
     public void saveFile(String folder, String fileName, String text) {
-        LOGGER.info("Creating component " + fileName);
+//        LOGGER.info("Creating component " + fileName);
         try {
             File targetFile = Paths.get(folder, fileName).toFile();
             Files.copy(new ByteArrayInputStream(text.getBytes()), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);

@@ -116,6 +116,6 @@ export class CamelYaml {
     static cloneStep = (step: CamelElement): CamelElement => {
         const dslName = step.dslName.replace("Step", "");
         const clone = JSON.parse(JSON.stringify(step));
-        return CamelApi.createStep(dslName, clone);
+        return CamelApi.createStep(dslName, clone, true);
     }
 }

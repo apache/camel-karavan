@@ -92,200 +92,239 @@ export class CamelApi {
         return firstSmall ? res[0].toLowerCase() + res.substring(1) : res;
     };
 
-    static createStep = (name: string, body: any): CamelElement => {
+    static createStep = (name: string, body: any, clone: boolean = false): CamelElement => {
+       const oldKey = Object.keys(body)[0];
+       const key = CamelApi.camelizeName(oldKey, '-', true);
+       const newBody = !clone && key === name ? {[key]: body[oldKey]} : body;
        switch (name){
-            case 'from': return CamelApi.createFrom(body)
-            case 'expression': return CamelApi.createExpression(body)
-            case 'policy': return CamelApi.createPolicy(body)
-            case 'setProperty': return CamelApi.createSetProperty(body)
-            case 'saga': return CamelApi.createSaga(body)
-            case 'tod': return CamelApi.createTod(body)
-            case 'threads': return CamelApi.createThreads(body)
-            case 'interceptSendToEndpoint': return CamelApi.createInterceptSendToEndpoint(body)
-            case 'log': return CamelApi.createLog(body)
-            case 'loop': return CamelApi.createLoop(body)
-            case 'delay': return CamelApi.createDelay(body)
-            case 'sample': return CamelApi.createSample(body)
-            case 'doFinally': return CamelApi.createDoFinally(body)
-            case 'loadBalance': return CamelApi.createLoadBalance(body)
-            case 'validate': return CamelApi.createValidate(body)
-            case 'transform': return CamelApi.createTransform(body)
-            case 'removeHeaders': return CamelApi.createRemoveHeaders(body)
-            case 'idempotentConsumer': return CamelApi.createIdempotentConsumer(body)
-            case 'intercept': return CamelApi.createIntercept(body)
-            case 'when': return CamelApi.createWhen(body)
-            case 'process': return CamelApi.createProcess(body)
-            case 'onFallback': return CamelApi.createOnFallback(body)
-            case 'marshal': return CamelApi.createMarshal(body)
-            case 'onCompletion': return CamelApi.createOnCompletion(body)
-            case 'claimCheck': return CamelApi.createClaimCheck(body)
-            case 'doCatch': return CamelApi.createDoCatch(body)
-            case 'inOnly': return CamelApi.createInOnly(body)
-            case 'convertBodyTo': return CamelApi.createConvertBodyTo(body)
-            case 'circuitBreaker': return CamelApi.createCircuitBreaker(body)
-            case 'pollEnrich': return CamelApi.createPollEnrich(body)
-            case 'otherwise': return CamelApi.createOtherwise(body)
-            case 'resequence': return CamelApi.createResequence(body)
-            case 'routingSlip': return CamelApi.createRoutingSlip(body)
-            case 'bean': return CamelApi.createBean(body)
-            case 'recipientList': return CamelApi.createRecipientList(body)
-            case 'kamelet': return CamelApi.createKamelet(body)
-            case 'dynamicRouter': return CamelApi.createDynamicRouter(body)
-            case 'rollback': return CamelApi.createRollback(body)
-            case 'inOut': return CamelApi.createInOut(body)
-            case 'enrich': return CamelApi.createEnrich(body)
-            case 'split': return CamelApi.createSplit(body)
-            case 'wireTap': return CamelApi.createWireTap(body)
-            case 'multicast': return CamelApi.createMulticast(body)
-            case 'stop': return CamelApi.createStop(body)
-            case 'setBody': return CamelApi.createSetBody(body)
-            case 'sort': return CamelApi.createSort(body)
-            case 'interceptFrom': return CamelApi.createInterceptFrom(body)
-            case 'throwException': return CamelApi.createThrowException(body)
-            case 'to': return CamelApi.createTo(body)
-            case 'filter': return CamelApi.createFilter(body)
-            case 'serviceCall': return CamelApi.createServiceCall(body)
-            case 'throttle': return CamelApi.createThrottle(body)
-            case 'whenSkipSendToEndpoint': return CamelApi.createWhenSkipSendToEndpoint(body)
-            case 'removeProperties': return CamelApi.createRemoveProperties(body)
-            case 'setHeader': return CamelApi.createSetHeader(body)
-            case 'choice': return CamelApi.createChoice(body)
-            case 'aggregate': return CamelApi.createAggregate(body)
-            case 'removeProperty': return CamelApi.createRemoveProperty(body)
-            case 'removeHeader': return CamelApi.createRemoveHeader(body)
-            case 'script': return CamelApi.createScript(body)
-            case 'doTry': return CamelApi.createDoTry(body)
-            case 'setExchangePattern': return CamelApi.createSetExchangePattern(body)
-            case 'transacted': return CamelApi.createTransacted(body)
-            case 'pipeline': return CamelApi.createPipeline(body)
-            case 'unmarshal': return CamelApi.createUnmarshal(body)
-            default: return new ProcessorStep('') 
+            case 'from': return CamelApi.createFrom(newBody);
+            case 'expression': return CamelApi.createExpression(newBody);
+            case 'policy': return CamelApi.createPolicy(newBody);
+            case 'setProperty': return CamelApi.createSetProperty(newBody);
+            case 'saga': return CamelApi.createSaga(newBody);
+            case 'tod': return CamelApi.createTod(newBody);
+            case 'threads': return CamelApi.createThreads(newBody);
+            case 'interceptSendToEndpoint': return CamelApi.createInterceptSendToEndpoint(newBody);
+            case 'log': return CamelApi.createLog(newBody);
+            case 'loop': return CamelApi.createLoop(newBody);
+            case 'delay': return CamelApi.createDelay(newBody);
+            case 'sample': return CamelApi.createSample(newBody);
+            case 'doFinally': return CamelApi.createDoFinally(newBody);
+            case 'loadBalance': return CamelApi.createLoadBalance(newBody);
+            case 'validate': return CamelApi.createValidate(newBody);
+            case 'transform': return CamelApi.createTransform(newBody);
+            case 'removeHeaders': return CamelApi.createRemoveHeaders(newBody);
+            case 'idempotentConsumer': return CamelApi.createIdempotentConsumer(newBody);
+            case 'intercept': return CamelApi.createIntercept(newBody);
+            case 'when': return CamelApi.createWhen(newBody);
+            case 'process': return CamelApi.createProcess(newBody);
+            case 'onFallback': return CamelApi.createOnFallback(newBody);
+            case 'marshal': return CamelApi.createMarshal(newBody);
+            case 'onCompletion': return CamelApi.createOnCompletion(newBody);
+            case 'claimCheck': return CamelApi.createClaimCheck(newBody);
+            case 'doCatch': return CamelApi.createDoCatch(newBody);
+            case 'inOnly': return CamelApi.createInOnly(newBody);
+            case 'convertBodyTo': return CamelApi.createConvertBodyTo(newBody);
+            case 'circuitBreaker': return CamelApi.createCircuitBreaker(newBody);
+            case 'pollEnrich': return CamelApi.createPollEnrich(newBody);
+            case 'otherwise': return CamelApi.createOtherwise(newBody);
+            case 'resequence': return CamelApi.createResequence(newBody);
+            case 'routingSlip': return CamelApi.createRoutingSlip(newBody);
+            case 'bean': return CamelApi.createBean(newBody);
+            case 'recipientList': return CamelApi.createRecipientList(newBody);
+            case 'kamelet': return CamelApi.createKamelet(newBody);
+            case 'dynamicRouter': return CamelApi.createDynamicRouter(newBody);
+            case 'rollback': return CamelApi.createRollback(newBody);
+            case 'inOut': return CamelApi.createInOut(newBody);
+            case 'enrich': return CamelApi.createEnrich(newBody);
+            case 'split': return CamelApi.createSplit(newBody);
+            case 'wireTap': return CamelApi.createWireTap(newBody);
+            case 'multicast': return CamelApi.createMulticast(newBody);
+            case 'stop': return CamelApi.createStop(newBody);
+            case 'setBody': return CamelApi.createSetBody(newBody);
+            case 'sort': return CamelApi.createSort(newBody);
+            case 'interceptFrom': return CamelApi.createInterceptFrom(newBody);
+            case 'throwException': return CamelApi.createThrowException(newBody);
+            case 'to': return CamelApi.createTo(newBody);
+            case 'filter': return CamelApi.createFilter(newBody);
+            case 'serviceCall': return CamelApi.createServiceCall(newBody);
+            case 'throttle': return CamelApi.createThrottle(newBody);
+            case 'whenSkipSendToEndpoint': return CamelApi.createWhenSkipSendToEndpoint(newBody);
+            case 'removeProperties': return CamelApi.createRemoveProperties(newBody);
+            case 'setHeader': return CamelApi.createSetHeader(newBody);
+            case 'choice': return CamelApi.createChoice(newBody);
+            case 'aggregate': return CamelApi.createAggregate(newBody);
+            case 'removeProperty': return CamelApi.createRemoveProperty(newBody);
+            case 'removeHeader': return CamelApi.createRemoveHeader(newBody);
+            case 'script': return CamelApi.createScript(newBody);
+            case 'doTry': return CamelApi.createDoTry(newBody);
+            case 'setExchangePattern': return CamelApi.createSetExchangePattern(newBody);
+            case 'transacted': return CamelApi.createTransacted(newBody);
+            case 'pipeline': return CamelApi.createPipeline(newBody);
+            case 'unmarshal': return CamelApi.createUnmarshal(newBody);
+            default: return new ProcessorStep('');
         }
     }
     static createExpression = (element: any): Expression => {
         return new Expression({...element})
     }
     static createFrom = (element: any): FromStep => {
-        const fromStep = element ? new FromStep({...element.from}) : new FromStep()
-        fromStep.from.steps = CamelApi.createSteps(element?.from?.steps)
-        fromStep.uuid = element?.uuid ? element.uuid : fromStep.uuid
-        return fromStep
+        const fromStep = element ? new FromStep({...element.from}) : new FromStep();
+        fromStep.from.steps = CamelApi.createSteps(element?.from?.steps);
+        fromStep.uuid = element?.uuid ? element.uuid : fromStep.uuid;
+        return fromStep;
     }
 
     static createPolicy = (element: any): PolicyStep => {
-        const policyStep = element ? new PolicyStep({...element.policy}) : new PolicyStep()
-        policyStep.policy.steps = CamelApi.createSteps(element?.policy?.steps)
-        policyStep.uuid = element?.uuid ? element.uuid : policyStep.uuid
-        return policyStep
+        const policyStep = element ? new PolicyStep({...element.policy}) : new PolicyStep();
+        policyStep.policy.steps = CamelApi.createSteps(element?.policy?.steps);
+        policyStep.uuid = element?.uuid ? element.uuid : policyStep.uuid;
+        return policyStep;
     }
 
     static createSetProperty = (element: any): SetPropertyStep => {
-        const setPropertyStep = element ? new SetPropertyStep({...element.setProperty}) : new SetPropertyStep()
-        setPropertyStep.setProperty.expression = CamelApi.createExpression(element?.setProperty?.expression)
-        setPropertyStep.uuid = element?.uuid ? element.uuid : setPropertyStep.uuid
-        return setPropertyStep
+        const setPropertyStep = element ? new SetPropertyStep({...element.setProperty}) : new SetPropertyStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.setProperty);
+        if (implicitExpression){
+            setPropertyStep.setProperty.expression = new Expression({[implicitExpression]: element.setProperty[implicitExpression]});
+            delete (setPropertyStep.setProperty as any)[implicitExpression];
+        } else {
+            setPropertyStep.setProperty.expression = CamelApi.createExpression(element?.setProperty?.expression);
+        }
+        setPropertyStep.uuid = element?.uuid ? element.uuid : setPropertyStep.uuid;
+        return setPropertyStep;
     }
 
     static createSaga = (element: any): SagaStep => {
-        const sagaStep = element ? new SagaStep({...element.saga}) : new SagaStep()
-        sagaStep.saga.steps = CamelApi.createSteps(element?.saga?.steps)
-        sagaStep.uuid = element?.uuid ? element.uuid : sagaStep.uuid
-        return sagaStep
+        const sagaStep = element ? new SagaStep({...element.saga}) : new SagaStep();
+        sagaStep.saga.steps = CamelApi.createSteps(element?.saga?.steps);
+        sagaStep.uuid = element?.uuid ? element.uuid : sagaStep.uuid;
+        return sagaStep;
     }
 
     static createTod = (element: any): TodStep => {
-        const todStep = element ? new TodStep({...element.tod}) : new TodStep()
-        todStep.uuid = element?.uuid ? element.uuid : todStep.uuid
-        return todStep
+        const todStep = element ? new TodStep({...element.tod}) : new TodStep();
+        todStep.uuid = element?.uuid ? element.uuid : todStep.uuid;
+        return todStep;
     }
 
     static createThreads = (element: any): ThreadsStep => {
-        const threadsStep = element ? new ThreadsStep({...element.threads}) : new ThreadsStep()
-        threadsStep.uuid = element?.uuid ? element.uuid : threadsStep.uuid
-        return threadsStep
+        const threadsStep = element ? new ThreadsStep({...element.threads}) : new ThreadsStep();
+        threadsStep.uuid = element?.uuid ? element.uuid : threadsStep.uuid;
+        return threadsStep;
     }
 
     static createInterceptSendToEndpoint = (element: any): InterceptSendToEndpointStep => {
-        const interceptSendToEndpointStep = element ? new InterceptSendToEndpointStep({...element.interceptSendToEndpoint}) : new InterceptSendToEndpointStep()
-        interceptSendToEndpointStep.interceptSendToEndpoint.steps = CamelApi.createSteps(element?.interceptSendToEndpoint?.steps)
-        interceptSendToEndpointStep.uuid = element?.uuid ? element.uuid : interceptSendToEndpointStep.uuid
-        return interceptSendToEndpointStep
+        const interceptSendToEndpointStep = element ? new InterceptSendToEndpointStep({...element.interceptSendToEndpoint}) : new InterceptSendToEndpointStep();
+        interceptSendToEndpointStep.interceptSendToEndpoint.steps = CamelApi.createSteps(element?.interceptSendToEndpoint?.steps);
+        interceptSendToEndpointStep.uuid = element?.uuid ? element.uuid : interceptSendToEndpointStep.uuid;
+        return interceptSendToEndpointStep;
     }
 
     static createLog = (element: any): LogStep => {
-        const logStep = element ? new LogStep({...element.log}) : new LogStep()
-        logStep.uuid = element?.uuid ? element.uuid : logStep.uuid
-        return logStep
+        const logStep = element ? new LogStep({...element.log}) : new LogStep();
+        logStep.uuid = element?.uuid ? element.uuid : logStep.uuid;
+        return logStep;
     }
 
     static createLoop = (element: any): LoopStep => {
-        const loopStep = element ? new LoopStep({...element.loop}) : new LoopStep()
-        loopStep.loop.expression = CamelApi.createExpression(element?.loop?.expression)
-        loopStep.loop.steps = CamelApi.createSteps(element?.loop?.steps)
-        loopStep.uuid = element?.uuid ? element.uuid : loopStep.uuid
-        return loopStep
+        const loopStep = element ? new LoopStep({...element.loop}) : new LoopStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.loop);
+        if (implicitExpression){
+            loopStep.loop.expression = new Expression({[implicitExpression]: element.loop[implicitExpression]});
+            delete (loopStep.loop as any)[implicitExpression];
+        } else {
+            loopStep.loop.expression = CamelApi.createExpression(element?.loop?.expression);
+        }
+        loopStep.loop.steps = CamelApi.createSteps(element?.loop?.steps);
+        loopStep.uuid = element?.uuid ? element.uuid : loopStep.uuid;
+        return loopStep;
     }
 
     static createDelay = (element: any): DelayStep => {
-        const delayStep = element ? new DelayStep({...element.delay}) : new DelayStep()
-        delayStep.delay.expression = CamelApi.createExpression(element?.delay?.expression)
-        delayStep.uuid = element?.uuid ? element.uuid : delayStep.uuid
-        return delayStep
+        const delayStep = element ? new DelayStep({...element.delay}) : new DelayStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.delay);
+        if (implicitExpression){
+            delayStep.delay.expression = new Expression({[implicitExpression]: element.delay[implicitExpression]});
+            delete (delayStep.delay as any)[implicitExpression];
+        } else {
+            delayStep.delay.expression = CamelApi.createExpression(element?.delay?.expression);
+        }
+        delayStep.uuid = element?.uuid ? element.uuid : delayStep.uuid;
+        return delayStep;
     }
 
     static createSample = (element: any): SampleStep => {
-        const sampleStep = element ? new SampleStep({...element.sample}) : new SampleStep()
-        sampleStep.uuid = element?.uuid ? element.uuid : sampleStep.uuid
-        return sampleStep
+        const sampleStep = element ? new SampleStep({...element.sample}) : new SampleStep();
+        sampleStep.uuid = element?.uuid ? element.uuid : sampleStep.uuid;
+        return sampleStep;
     }
 
     static createDoFinally = (element: any): DoFinallyStep => {
-        const doFinallyStep = element ? new DoFinallyStep({...element.doFinally}) : new DoFinallyStep()
-        doFinallyStep.doFinally.steps = CamelApi.createSteps(element?.doFinally?.steps)
-        doFinallyStep.uuid = element?.uuid ? element.uuid : doFinallyStep.uuid
-        return doFinallyStep
+        const doFinallyStep = element ? new DoFinallyStep({...element.doFinally}) : new DoFinallyStep();
+        doFinallyStep.doFinally.steps = CamelApi.createSteps(element?.doFinally?.steps);
+        doFinallyStep.uuid = element?.uuid ? element.uuid : doFinallyStep.uuid;
+        return doFinallyStep;
     }
 
     static createLoadBalance = (element: any): LoadBalanceStep => {
-        const loadBalanceStep = element ? new LoadBalanceStep({...element.loadBalance}) : new LoadBalanceStep()
-        loadBalanceStep.loadBalance.steps = CamelApi.createSteps(element?.loadBalance?.steps)
-        loadBalanceStep.uuid = element?.uuid ? element.uuid : loadBalanceStep.uuid
-        return loadBalanceStep
+        const loadBalanceStep = element ? new LoadBalanceStep({...element.loadBalance}) : new LoadBalanceStep();
+        loadBalanceStep.loadBalance.steps = CamelApi.createSteps(element?.loadBalance?.steps);
+        loadBalanceStep.uuid = element?.uuid ? element.uuid : loadBalanceStep.uuid;
+        return loadBalanceStep;
     }
 
     static createValidate = (element: any): ValidateStep => {
-        const validateStep = element ? new ValidateStep({...element.validate}) : new ValidateStep()
-        validateStep.validate.expression = CamelApi.createExpression(element?.validate?.expression)
-        validateStep.uuid = element?.uuid ? element.uuid : validateStep.uuid
-        return validateStep
+        const validateStep = element ? new ValidateStep({...element.validate}) : new ValidateStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.validate);
+        if (implicitExpression){
+            validateStep.validate.expression = new Expression({[implicitExpression]: element.validate[implicitExpression]});
+            delete (validateStep.validate as any)[implicitExpression];
+        } else {
+            validateStep.validate.expression = CamelApi.createExpression(element?.validate?.expression);
+        }
+        validateStep.uuid = element?.uuid ? element.uuid : validateStep.uuid;
+        return validateStep;
     }
 
     static createTransform = (element: any): TransformStep => {
-        const transformStep = element ? new TransformStep({...element.transform}) : new TransformStep()
-        transformStep.transform.expression = CamelApi.createExpression(element?.transform?.expression)
-        transformStep.uuid = element?.uuid ? element.uuid : transformStep.uuid
-        return transformStep
+        const transformStep = element ? new TransformStep({...element.transform}) : new TransformStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.transform);
+        if (implicitExpression){
+            transformStep.transform.expression = new Expression({[implicitExpression]: element.transform[implicitExpression]});
+            delete (transformStep.transform as any)[implicitExpression];
+        } else {
+            transformStep.transform.expression = CamelApi.createExpression(element?.transform?.expression);
+        }
+        transformStep.uuid = element?.uuid ? element.uuid : transformStep.uuid;
+        return transformStep;
     }
 
     static createRemoveHeaders = (element: any): RemoveHeadersStep => {
-        const removeHeadersStep = element ? new RemoveHeadersStep({...element.removeHeaders}) : new RemoveHeadersStep()
-        removeHeadersStep.uuid = element?.uuid ? element.uuid : removeHeadersStep.uuid
-        return removeHeadersStep
+        const removeHeadersStep = element ? new RemoveHeadersStep({...element.removeHeaders}) : new RemoveHeadersStep();
+        removeHeadersStep.uuid = element?.uuid ? element.uuid : removeHeadersStep.uuid;
+        return removeHeadersStep;
     }
 
     static createIdempotentConsumer = (element: any): IdempotentConsumerStep => {
-        const idempotentConsumerStep = element ? new IdempotentConsumerStep({...element.idempotentConsumer}) : new IdempotentConsumerStep()
-        idempotentConsumerStep.idempotentConsumer.expression = CamelApi.createExpression(element?.idempotentConsumer?.expression)
-        idempotentConsumerStep.idempotentConsumer.steps = CamelApi.createSteps(element?.idempotentConsumer?.steps)
-        idempotentConsumerStep.uuid = element?.uuid ? element.uuid : idempotentConsumerStep.uuid
-        return idempotentConsumerStep
+        const idempotentConsumerStep = element ? new IdempotentConsumerStep({...element.idempotentConsumer}) : new IdempotentConsumerStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.idempotentConsumer);
+        if (implicitExpression){
+            idempotentConsumerStep.idempotentConsumer.expression = new Expression({[implicitExpression]: element.idempotentConsumer[implicitExpression]});
+            delete (idempotentConsumerStep.idempotentConsumer as any)[implicitExpression];
+        } else {
+            idempotentConsumerStep.idempotentConsumer.expression = CamelApi.createExpression(element?.idempotentConsumer?.expression);
+        }
+        idempotentConsumerStep.idempotentConsumer.steps = CamelApi.createSteps(element?.idempotentConsumer?.steps);
+        idempotentConsumerStep.uuid = element?.uuid ? element.uuid : idempotentConsumerStep.uuid;
+        return idempotentConsumerStep;
     }
 
     static createIntercept = (element: any): InterceptStep => {
-        const interceptStep = element ? new InterceptStep({...element.intercept}) : new InterceptStep()
-        interceptStep.intercept.steps = CamelApi.createSteps(element?.intercept?.steps)
-        interceptStep.uuid = element?.uuid ? element.uuid : interceptStep.uuid
-        return interceptStep
+        const interceptStep = element ? new InterceptStep({...element.intercept}) : new InterceptStep();
+        interceptStep.intercept.steps = CamelApi.createSteps(element?.intercept?.steps);
+        interceptStep.uuid = element?.uuid ? element.uuid : interceptStep.uuid;
+        return interceptStep;
     }
 
     static createWhen = (element: any): When => {
@@ -297,71 +336,77 @@ export class CamelApi {
     }
 
     static createProcess = (element: any): ProcessStep => {
-        const processStep = element ? new ProcessStep({...element.process}) : new ProcessStep()
-        processStep.uuid = element?.uuid ? element.uuid : processStep.uuid
-        return processStep
+        const processStep = element ? new ProcessStep({...element.process}) : new ProcessStep();
+        processStep.uuid = element?.uuid ? element.uuid : processStep.uuid;
+        return processStep;
     }
 
     static createOnFallback = (element: any): OnFallbackStep => {
-        const onFallbackStep = element ? new OnFallbackStep({...element.onFallback}) : new OnFallbackStep()
-        onFallbackStep.onFallback.steps = CamelApi.createSteps(element?.onFallback?.steps)
-        onFallbackStep.uuid = element?.uuid ? element.uuid : onFallbackStep.uuid
-        return onFallbackStep
+        const onFallbackStep = element ? new OnFallbackStep({...element.onFallback}) : new OnFallbackStep();
+        onFallbackStep.onFallback.steps = CamelApi.createSteps(element?.onFallback?.steps);
+        onFallbackStep.uuid = element?.uuid ? element.uuid : onFallbackStep.uuid;
+        return onFallbackStep;
     }
 
     static createMarshal = (element: any): MarshalStep => {
-        const marshalStep = element ? new MarshalStep({...element.marshal}) : new MarshalStep()
-        marshalStep.uuid = element?.uuid ? element.uuid : marshalStep.uuid
-        return marshalStep
+        const marshalStep = element ? new MarshalStep({...element.marshal}) : new MarshalStep();
+        marshalStep.uuid = element?.uuid ? element.uuid : marshalStep.uuid;
+        return marshalStep;
     }
 
     static createOnCompletion = (element: any): OnCompletionStep => {
-        const onCompletionStep = element ? new OnCompletionStep({...element.onCompletion}) : new OnCompletionStep()
-        onCompletionStep.onCompletion.onWhen = CamelApi.createWhen(element?.onCompletion?.onWhen)
-        onCompletionStep.onCompletion.steps = CamelApi.createSteps(element?.onCompletion?.steps)
-        onCompletionStep.uuid = element?.uuid ? element.uuid : onCompletionStep.uuid
-        return onCompletionStep
+        const onCompletionStep = element ? new OnCompletionStep({...element.onCompletion}) : new OnCompletionStep();
+        onCompletionStep.onCompletion.onWhen = CamelApi.createWhen(element?.onCompletion?.onWhen);
+        onCompletionStep.onCompletion.steps = CamelApi.createSteps(element?.onCompletion?.steps);
+        onCompletionStep.uuid = element?.uuid ? element.uuid : onCompletionStep.uuid;
+        return onCompletionStep;
     }
 
     static createClaimCheck = (element: any): ClaimCheckStep => {
-        const claimCheckStep = element ? new ClaimCheckStep({...element.claimCheck}) : new ClaimCheckStep()
-        claimCheckStep.uuid = element?.uuid ? element.uuid : claimCheckStep.uuid
-        return claimCheckStep
+        const claimCheckStep = element ? new ClaimCheckStep({...element.claimCheck}) : new ClaimCheckStep();
+        claimCheckStep.uuid = element?.uuid ? element.uuid : claimCheckStep.uuid;
+        return claimCheckStep;
     }
 
     static createDoCatch = (element: any): DoCatchStep => {
-        const doCatchStep = element ? new DoCatchStep({...element.doCatch}) : new DoCatchStep()
-        doCatchStep.doCatch.onWhen = CamelApi.createWhen(element?.doCatch?.onWhen)
-        doCatchStep.doCatch.steps = CamelApi.createSteps(element?.doCatch?.steps)
-        doCatchStep.uuid = element?.uuid ? element.uuid : doCatchStep.uuid
-        return doCatchStep
+        const doCatchStep = element ? new DoCatchStep({...element.doCatch}) : new DoCatchStep();
+        doCatchStep.doCatch.onWhen = CamelApi.createWhen(element?.doCatch?.onWhen);
+        doCatchStep.doCatch.steps = CamelApi.createSteps(element?.doCatch?.steps);
+        doCatchStep.uuid = element?.uuid ? element.uuid : doCatchStep.uuid;
+        return doCatchStep;
     }
 
     static createInOnly = (element: any): InOnlyStep => {
-        const inOnlyStep = element ? new InOnlyStep({...element.inOnly}) : new InOnlyStep()
-        inOnlyStep.uuid = element?.uuid ? element.uuid : inOnlyStep.uuid
-        return inOnlyStep
+        const inOnlyStep = element ? new InOnlyStep({...element.inOnly}) : new InOnlyStep();
+        inOnlyStep.uuid = element?.uuid ? element.uuid : inOnlyStep.uuid;
+        return inOnlyStep;
     }
 
     static createConvertBodyTo = (element: any): ConvertBodyToStep => {
-        const convertBodyToStep = element ? new ConvertBodyToStep({...element.convertBodyTo}) : new ConvertBodyToStep()
-        convertBodyToStep.uuid = element?.uuid ? element.uuid : convertBodyToStep.uuid
-        return convertBodyToStep
+        const convertBodyToStep = element ? new ConvertBodyToStep({...element.convertBodyTo}) : new ConvertBodyToStep();
+        convertBodyToStep.uuid = element?.uuid ? element.uuid : convertBodyToStep.uuid;
+        return convertBodyToStep;
     }
 
     static createCircuitBreaker = (element: any): CircuitBreakerStep => {
-        const circuitBreakerStep = element ? new CircuitBreakerStep({...element.circuitBreaker}) : new CircuitBreakerStep()
-        circuitBreakerStep.circuitBreaker.onFallback = CamelApi.createOnFallback(element?.circuitBreaker?.onFallback)
-        circuitBreakerStep.circuitBreaker.steps = CamelApi.createSteps(element?.circuitBreaker?.steps)
-        circuitBreakerStep.uuid = element?.uuid ? element.uuid : circuitBreakerStep.uuid
-        return circuitBreakerStep
+        const circuitBreakerStep = element ? new CircuitBreakerStep({...element.circuitBreaker}) : new CircuitBreakerStep();
+        circuitBreakerStep.circuitBreaker.onFallback = CamelApi.createOnFallback(element?.circuitBreaker?.onFallback);
+        circuitBreakerStep.circuitBreaker.steps = CamelApi.createSteps(element?.circuitBreaker?.steps);
+        circuitBreakerStep.uuid = element?.uuid ? element.uuid : circuitBreakerStep.uuid;
+        return circuitBreakerStep;
     }
 
     static createPollEnrich = (element: any): PollEnrichStep => {
-        const pollEnrichStep = element ? new PollEnrichStep({...element.pollEnrich}) : new PollEnrichStep()
-        pollEnrichStep.pollEnrich.expression = CamelApi.createExpression(element?.pollEnrich?.expression)
-        pollEnrichStep.uuid = element?.uuid ? element.uuid : pollEnrichStep.uuid
-        return pollEnrichStep
+        const pollEnrichStep = element ? new PollEnrichStep({...element.pollEnrich}) : new PollEnrichStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.pollEnrich);
+        if (implicitExpression){
+            pollEnrichStep.pollEnrich.expression = new Expression({[implicitExpression]: element.pollEnrich[implicitExpression]});
+            delete (pollEnrichStep.pollEnrich as any)[implicitExpression];
+        } else {
+            pollEnrichStep.pollEnrich.expression = CamelApi.createExpression(element?.pollEnrich?.expression);
+        }
+        pollEnrichStep.uuid = element?.uuid ? element.uuid : pollEnrichStep.uuid;
+        return pollEnrichStep;
     }
 
     static createOtherwise = (element: any): Otherwise => {
@@ -372,168 +417,240 @@ export class CamelApi {
     }
 
     static createResequence = (element: any): ResequenceStep => {
-        const resequenceStep = element ? new ResequenceStep({...element.resequence}) : new ResequenceStep()
-        resequenceStep.resequence.expression = CamelApi.createExpression(element?.resequence?.expression)
-        resequenceStep.resequence.steps = CamelApi.createSteps(element?.resequence?.steps)
-        resequenceStep.uuid = element?.uuid ? element.uuid : resequenceStep.uuid
-        return resequenceStep
+        const resequenceStep = element ? new ResequenceStep({...element.resequence}) : new ResequenceStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.resequence);
+        if (implicitExpression){
+            resequenceStep.resequence.expression = new Expression({[implicitExpression]: element.resequence[implicitExpression]});
+            delete (resequenceStep.resequence as any)[implicitExpression];
+        } else {
+            resequenceStep.resequence.expression = CamelApi.createExpression(element?.resequence?.expression);
+        }
+        resequenceStep.resequence.steps = CamelApi.createSteps(element?.resequence?.steps);
+        resequenceStep.uuid = element?.uuid ? element.uuid : resequenceStep.uuid;
+        return resequenceStep;
     }
 
     static createRoutingSlip = (element: any): RoutingSlipStep => {
-        const routingSlipStep = element ? new RoutingSlipStep({...element.routingSlip}) : new RoutingSlipStep()
-        routingSlipStep.routingSlip.expression = CamelApi.createExpression(element?.routingSlip?.expression)
-        routingSlipStep.uuid = element?.uuid ? element.uuid : routingSlipStep.uuid
-        return routingSlipStep
+        const routingSlipStep = element ? new RoutingSlipStep({...element.routingSlip}) : new RoutingSlipStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.routingSlip);
+        if (implicitExpression){
+            routingSlipStep.routingSlip.expression = new Expression({[implicitExpression]: element.routingSlip[implicitExpression]});
+            delete (routingSlipStep.routingSlip as any)[implicitExpression];
+        } else {
+            routingSlipStep.routingSlip.expression = CamelApi.createExpression(element?.routingSlip?.expression);
+        }
+        routingSlipStep.uuid = element?.uuid ? element.uuid : routingSlipStep.uuid;
+        return routingSlipStep;
     }
 
     static createBean = (element: any): BeanStep => {
-        const beanStep = element ? new BeanStep({...element.bean}) : new BeanStep()
-        beanStep.uuid = element?.uuid ? element.uuid : beanStep.uuid
-        return beanStep
+        const beanStep = element ? new BeanStep({...element.bean}) : new BeanStep();
+        beanStep.uuid = element?.uuid ? element.uuid : beanStep.uuid;
+        return beanStep;
     }
 
     static createRecipientList = (element: any): RecipientListStep => {
-        const recipientListStep = element ? new RecipientListStep({...element.recipientList}) : new RecipientListStep()
-        recipientListStep.recipientList.expression = CamelApi.createExpression(element?.recipientList?.expression)
-        recipientListStep.uuid = element?.uuid ? element.uuid : recipientListStep.uuid
-        return recipientListStep
+        const recipientListStep = element ? new RecipientListStep({...element.recipientList}) : new RecipientListStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.recipientList);
+        if (implicitExpression){
+            recipientListStep.recipientList.expression = new Expression({[implicitExpression]: element.recipientList[implicitExpression]});
+            delete (recipientListStep.recipientList as any)[implicitExpression];
+        } else {
+            recipientListStep.recipientList.expression = CamelApi.createExpression(element?.recipientList?.expression);
+        }
+        recipientListStep.uuid = element?.uuid ? element.uuid : recipientListStep.uuid;
+        return recipientListStep;
     }
 
     static createKamelet = (element: any): KameletStep => {
-        const kameletStep = element ? new KameletStep({...element.kamelet}) : new KameletStep()
-        kameletStep.uuid = element?.uuid ? element.uuid : kameletStep.uuid
-        return kameletStep
+        const kameletStep = element ? new KameletStep({...element.kamelet}) : new KameletStep();
+        kameletStep.uuid = element?.uuid ? element.uuid : kameletStep.uuid;
+        return kameletStep;
     }
 
     static createDynamicRouter = (element: any): DynamicRouterStep => {
-        const dynamicRouterStep = element ? new DynamicRouterStep({...element.dynamicRouter}) : new DynamicRouterStep()
-        dynamicRouterStep.dynamicRouter.expression = CamelApi.createExpression(element?.dynamicRouter?.expression)
-        dynamicRouterStep.uuid = element?.uuid ? element.uuid : dynamicRouterStep.uuid
-        return dynamicRouterStep
+        const dynamicRouterStep = element ? new DynamicRouterStep({...element.dynamicRouter}) : new DynamicRouterStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.dynamicRouter);
+        if (implicitExpression){
+            dynamicRouterStep.dynamicRouter.expression = new Expression({[implicitExpression]: element.dynamicRouter[implicitExpression]});
+            delete (dynamicRouterStep.dynamicRouter as any)[implicitExpression];
+        } else {
+            dynamicRouterStep.dynamicRouter.expression = CamelApi.createExpression(element?.dynamicRouter?.expression);
+        }
+        dynamicRouterStep.uuid = element?.uuid ? element.uuid : dynamicRouterStep.uuid;
+        return dynamicRouterStep;
     }
 
     static createRollback = (element: any): RollbackStep => {
-        const rollbackStep = element ? new RollbackStep({...element.rollback}) : new RollbackStep()
-        rollbackStep.uuid = element?.uuid ? element.uuid : rollbackStep.uuid
-        return rollbackStep
+        const rollbackStep = element ? new RollbackStep({...element.rollback}) : new RollbackStep();
+        rollbackStep.uuid = element?.uuid ? element.uuid : rollbackStep.uuid;
+        return rollbackStep;
     }
 
     static createInOut = (element: any): InOutStep => {
-        const inOutStep = element ? new InOutStep({...element.inOut}) : new InOutStep()
-        inOutStep.uuid = element?.uuid ? element.uuid : inOutStep.uuid
-        return inOutStep
+        const inOutStep = element ? new InOutStep({...element.inOut}) : new InOutStep();
+        inOutStep.uuid = element?.uuid ? element.uuid : inOutStep.uuid;
+        return inOutStep;
     }
 
     static createEnrich = (element: any): EnrichStep => {
-        const enrichStep = element ? new EnrichStep({...element.enrich}) : new EnrichStep()
-        enrichStep.enrich.expression = CamelApi.createExpression(element?.enrich?.expression)
-        enrichStep.uuid = element?.uuid ? element.uuid : enrichStep.uuid
-        return enrichStep
+        const enrichStep = element ? new EnrichStep({...element.enrich}) : new EnrichStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.enrich);
+        if (implicitExpression){
+            enrichStep.enrich.expression = new Expression({[implicitExpression]: element.enrich[implicitExpression]});
+            delete (enrichStep.enrich as any)[implicitExpression];
+        } else {
+            enrichStep.enrich.expression = CamelApi.createExpression(element?.enrich?.expression);
+        }
+        enrichStep.uuid = element?.uuid ? element.uuid : enrichStep.uuid;
+        return enrichStep;
     }
 
     static createSplit = (element: any): SplitStep => {
-        const splitStep = element ? new SplitStep({...element.split}) : new SplitStep()
-        splitStep.split.expression = CamelApi.createExpression(element?.split?.expression)
-        splitStep.split.steps = CamelApi.createSteps(element?.split?.steps)
-        splitStep.uuid = element?.uuid ? element.uuid : splitStep.uuid
-        return splitStep
+        const splitStep = element ? new SplitStep({...element.split}) : new SplitStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.split);
+        if (implicitExpression){
+            splitStep.split.expression = new Expression({[implicitExpression]: element.split[implicitExpression]});
+            delete (splitStep.split as any)[implicitExpression];
+        } else {
+            splitStep.split.expression = CamelApi.createExpression(element?.split?.expression);
+        }
+        splitStep.split.steps = CamelApi.createSteps(element?.split?.steps);
+        splitStep.uuid = element?.uuid ? element.uuid : splitStep.uuid;
+        return splitStep;
     }
 
     static createWireTap = (element: any): WireTapStep => {
-        const wireTapStep = element ? new WireTapStep({...element.wireTap}) : new WireTapStep()
-        wireTapStep.wireTap.body = CamelApi.createExpression(element?.wireTap?.body)
-        wireTapStep.wireTap.setHeader = element && element?.wireTap ? element?.wireTap?.setHeader.map((x:any) => CamelApi.createSetHeader(x)) :[]
-        wireTapStep.uuid = element?.uuid ? element.uuid : wireTapStep.uuid
-        return wireTapStep
+        const wireTapStep = element ? new WireTapStep({...element.wireTap}) : new WireTapStep();
+        wireTapStep.wireTap.body = CamelApi.createExpression(element?.wireTap?.body);
+        wireTapStep.wireTap.setHeader = element && element?.wireTap ? element?.wireTap?.setHeader.map((x:any) => CamelApi.createSetHeader(x)) :[];
+        wireTapStep.uuid = element?.uuid ? element.uuid : wireTapStep.uuid;
+        return wireTapStep;
     }
 
     static createMulticast = (element: any): MulticastStep => {
-        const multicastStep = element ? new MulticastStep({...element.multicast}) : new MulticastStep()
-        multicastStep.multicast.steps = CamelApi.createSteps(element?.multicast?.steps)
-        multicastStep.uuid = element?.uuid ? element.uuid : multicastStep.uuid
-        return multicastStep
+        const multicastStep = element ? new MulticastStep({...element.multicast}) : new MulticastStep();
+        multicastStep.multicast.steps = CamelApi.createSteps(element?.multicast?.steps);
+        multicastStep.uuid = element?.uuid ? element.uuid : multicastStep.uuid;
+        return multicastStep;
     }
 
     static createStop = (element: any): StopStep => {
-        const stopStep = element ? new StopStep({...element.stop}) : new StopStep()
-        stopStep.uuid = element?.uuid ? element.uuid : stopStep.uuid
-        return stopStep
+        const stopStep = element ? new StopStep({...element.stop}) : new StopStep();
+        stopStep.uuid = element?.uuid ? element.uuid : stopStep.uuid;
+        return stopStep;
     }
 
     static createSetBody = (element: any): SetBodyStep => {
-        const setBodyStep = element ? new SetBodyStep({...element.setBody}) : new SetBodyStep()
-        setBodyStep.setBody.expression = CamelApi.createExpression(element?.setBody?.expression)
-        setBodyStep.uuid = element?.uuid ? element.uuid : setBodyStep.uuid
-        return setBodyStep
+        const setBodyStep = element ? new SetBodyStep({...element.setBody}) : new SetBodyStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.setBody);
+        if (implicitExpression){
+            setBodyStep.setBody.expression = new Expression({[implicitExpression]: element.setBody[implicitExpression]});
+            delete (setBodyStep.setBody as any)[implicitExpression];
+        } else {
+            setBodyStep.setBody.expression = CamelApi.createExpression(element?.setBody?.expression);
+        }
+        setBodyStep.uuid = element?.uuid ? element.uuid : setBodyStep.uuid;
+        return setBodyStep;
     }
 
     static createSort = (element: any): SortStep => {
-        const sortStep = element ? new SortStep({...element.sort}) : new SortStep()
-        sortStep.sort.expression = CamelApi.createExpression(element?.sort?.expression)
-        sortStep.uuid = element?.uuid ? element.uuid : sortStep.uuid
-        return sortStep
+        const sortStep = element ? new SortStep({...element.sort}) : new SortStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.sort);
+        if (implicitExpression){
+            sortStep.sort.expression = new Expression({[implicitExpression]: element.sort[implicitExpression]});
+            delete (sortStep.sort as any)[implicitExpression];
+        } else {
+            sortStep.sort.expression = CamelApi.createExpression(element?.sort?.expression);
+        }
+        sortStep.uuid = element?.uuid ? element.uuid : sortStep.uuid;
+        return sortStep;
     }
 
     static createInterceptFrom = (element: any): InterceptFromStep => {
-        const interceptFromStep = element ? new InterceptFromStep({...element.interceptFrom}) : new InterceptFromStep()
-        interceptFromStep.interceptFrom.steps = CamelApi.createSteps(element?.interceptFrom?.steps)
-        interceptFromStep.uuid = element?.uuid ? element.uuid : interceptFromStep.uuid
-        return interceptFromStep
+        const interceptFromStep = element ? new InterceptFromStep({...element.interceptFrom}) : new InterceptFromStep();
+        interceptFromStep.interceptFrom.steps = CamelApi.createSteps(element?.interceptFrom?.steps);
+        interceptFromStep.uuid = element?.uuid ? element.uuid : interceptFromStep.uuid;
+        return interceptFromStep;
     }
 
     static createThrowException = (element: any): ThrowExceptionStep => {
-        const throwExceptionStep = element ? new ThrowExceptionStep({...element.throwException}) : new ThrowExceptionStep()
-        throwExceptionStep.uuid = element?.uuid ? element.uuid : throwExceptionStep.uuid
-        return throwExceptionStep
+        const throwExceptionStep = element ? new ThrowExceptionStep({...element.throwException}) : new ThrowExceptionStep();
+        throwExceptionStep.uuid = element?.uuid ? element.uuid : throwExceptionStep.uuid;
+        return throwExceptionStep;
     }
 
     static createTo = (element: any): ToStep => {
-        const toStep = element ? new ToStep({...element.to}) : new ToStep()
-        toStep.uuid = element?.uuid ? element.uuid : toStep.uuid
-        return toStep
+        const toStep = element ? new ToStep({...element.to}) : new ToStep();
+        toStep.uuid = element?.uuid ? element.uuid : toStep.uuid;
+        return toStep;
     }
 
     static createFilter = (element: any): FilterStep => {
-        const filterStep = element ? new FilterStep({...element.filter}) : new FilterStep()
-        filterStep.filter.expression = CamelApi.createExpression(element?.filter?.expression)
-        filterStep.filter.steps = CamelApi.createSteps(element?.filter?.steps)
-        filterStep.uuid = element?.uuid ? element.uuid : filterStep.uuid
-        return filterStep
+        const filterStep = element ? new FilterStep({...element.filter}) : new FilterStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.filter);
+        if (implicitExpression){
+            filterStep.filter.expression = new Expression({[implicitExpression]: element.filter[implicitExpression]});
+            delete (filterStep.filter as any)[implicitExpression];
+        } else {
+            filterStep.filter.expression = CamelApi.createExpression(element?.filter?.expression);
+        }
+        filterStep.filter.steps = CamelApi.createSteps(element?.filter?.steps);
+        filterStep.uuid = element?.uuid ? element.uuid : filterStep.uuid;
+        return filterStep;
     }
 
     static createServiceCall = (element: any): ServiceCallStep => {
-        const serviceCallStep = element ? new ServiceCallStep({...element.serviceCall}) : new ServiceCallStep()
-        serviceCallStep.uuid = element?.uuid ? element.uuid : serviceCallStep.uuid
-        return serviceCallStep
+        const serviceCallStep = element ? new ServiceCallStep({...element.serviceCall}) : new ServiceCallStep();
+        serviceCallStep.uuid = element?.uuid ? element.uuid : serviceCallStep.uuid;
+        return serviceCallStep;
     }
 
     static createThrottle = (element: any): ThrottleStep => {
-        const throttleStep = element ? new ThrottleStep({...element.throttle}) : new ThrottleStep()
-        throttleStep.throttle.correlationExpression = CamelApi.createExpression(element?.throttle?.correlationExpression)
-        throttleStep.throttle.expression = CamelApi.createExpression(element?.throttle?.expression)
-        throttleStep.uuid = element?.uuid ? element.uuid : throttleStep.uuid
-        return throttleStep
+        const throttleStep = element ? new ThrottleStep({...element.throttle}) : new ThrottleStep();
+        throttleStep.throttle.correlationExpression = CamelApi.createExpression(element?.throttle?.correlationExpression);
+        const implicitExpression = CamelApi.getExpressionLanguage(element.throttle);
+        if (implicitExpression){
+            throttleStep.throttle.expression = new Expression({[implicitExpression]: element.throttle[implicitExpression]});
+            delete (throttleStep.throttle as any)[implicitExpression];
+        } else {
+            throttleStep.throttle.expression = CamelApi.createExpression(element?.throttle?.expression);
+        }
+        throttleStep.uuid = element?.uuid ? element.uuid : throttleStep.uuid;
+        return throttleStep;
     }
 
     static createWhenSkipSendToEndpoint = (element: any): WhenSkipSendToEndpointStep => {
-        const whenSkipSendToEndpointStep = element ? new WhenSkipSendToEndpointStep({...element.whenSkipSendToEndpoint}) : new WhenSkipSendToEndpointStep()
-        whenSkipSendToEndpointStep.whenSkipSendToEndpoint.expression = CamelApi.createExpression(element?.whenSkipSendToEndpoint?.expression)
-        whenSkipSendToEndpointStep.whenSkipSendToEndpoint.steps = CamelApi.createSteps(element?.whenSkipSendToEndpoint?.steps)
-        whenSkipSendToEndpointStep.uuid = element?.uuid ? element.uuid : whenSkipSendToEndpointStep.uuid
-        return whenSkipSendToEndpointStep
+        const whenSkipSendToEndpointStep = element ? new WhenSkipSendToEndpointStep({...element.whenSkipSendToEndpoint}) : new WhenSkipSendToEndpointStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.whenSkipSendToEndpoint);
+        if (implicitExpression){
+            whenSkipSendToEndpointStep.whenSkipSendToEndpoint.expression = new Expression({[implicitExpression]: element.whenSkipSendToEndpoint[implicitExpression]});
+            delete (whenSkipSendToEndpointStep.whenSkipSendToEndpoint as any)[implicitExpression];
+        } else {
+            whenSkipSendToEndpointStep.whenSkipSendToEndpoint.expression = CamelApi.createExpression(element?.whenSkipSendToEndpoint?.expression);
+        }
+        whenSkipSendToEndpointStep.whenSkipSendToEndpoint.steps = CamelApi.createSteps(element?.whenSkipSendToEndpoint?.steps);
+        whenSkipSendToEndpointStep.uuid = element?.uuid ? element.uuid : whenSkipSendToEndpointStep.uuid;
+        return whenSkipSendToEndpointStep;
     }
 
     static createRemoveProperties = (element: any): RemovePropertiesStep => {
-        const removePropertiesStep = element ? new RemovePropertiesStep({...element.removeProperties}) : new RemovePropertiesStep()
-        removePropertiesStep.uuid = element?.uuid ? element.uuid : removePropertiesStep.uuid
-        return removePropertiesStep
+        const removePropertiesStep = element ? new RemovePropertiesStep({...element.removeProperties}) : new RemovePropertiesStep();
+        removePropertiesStep.uuid = element?.uuid ? element.uuid : removePropertiesStep.uuid;
+        return removePropertiesStep;
     }
 
     static createSetHeader = (element: any): SetHeaderStep => {
-        const setHeaderStep = element ? new SetHeaderStep({...element.setHeader}) : new SetHeaderStep()
-        setHeaderStep.setHeader.expression = CamelApi.createExpression(element?.setHeader?.expression)
-        setHeaderStep.uuid = element?.uuid ? element.uuid : setHeaderStep.uuid
-        return setHeaderStep
+        const setHeaderStep = element ? new SetHeaderStep({...element.setHeader}) : new SetHeaderStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.setHeader);
+        if (implicitExpression){
+            setHeaderStep.setHeader.expression = new Expression({[implicitExpression]: element.setHeader[implicitExpression]});
+            delete (setHeaderStep.setHeader as any)[implicitExpression];
+        } else {
+            setHeaderStep.setHeader.expression = CamelApi.createExpression(element?.setHeader?.expression);
+        }
+        setHeaderStep.uuid = element?.uuid ? element.uuid : setHeaderStep.uuid;
+        return setHeaderStep;
     }
 
     static createChoice = (element: any): ChoiceStep => {
@@ -547,68 +664,74 @@ export class CamelApi {
     }
 
     static createAggregate = (element: any): AggregateStep => {
-        const aggregateStep = element ? new AggregateStep({...element.aggregate}) : new AggregateStep()
-        aggregateStep.aggregate.completionPredicate = CamelApi.createExpression(element?.aggregate?.completionPredicate)
-        aggregateStep.aggregate.completionSizeExpression = CamelApi.createExpression(element?.aggregate?.completionSizeExpression)
-        aggregateStep.aggregate.completionTimeoutExpression = CamelApi.createExpression(element?.aggregate?.completionTimeoutExpression)
-        aggregateStep.aggregate.correlationExpression = CamelApi.createExpression(element?.aggregate?.correlationExpression)
-        aggregateStep.aggregate.steps = CamelApi.createSteps(element?.aggregate?.steps)
-        aggregateStep.uuid = element?.uuid ? element.uuid : aggregateStep.uuid
-        return aggregateStep
+        const aggregateStep = element ? new AggregateStep({...element.aggregate}) : new AggregateStep();
+        aggregateStep.aggregate.completionPredicate = CamelApi.createExpression(element?.aggregate?.completionPredicate);
+        aggregateStep.aggregate.completionSizeExpression = CamelApi.createExpression(element?.aggregate?.completionSizeExpression);
+        aggregateStep.aggregate.completionTimeoutExpression = CamelApi.createExpression(element?.aggregate?.completionTimeoutExpression);
+        aggregateStep.aggregate.correlationExpression = CamelApi.createExpression(element?.aggregate?.correlationExpression);
+        aggregateStep.aggregate.steps = CamelApi.createSteps(element?.aggregate?.steps);
+        aggregateStep.uuid = element?.uuid ? element.uuid : aggregateStep.uuid;
+        return aggregateStep;
     }
 
     static createRemoveProperty = (element: any): RemovePropertyStep => {
-        const removePropertyStep = element ? new RemovePropertyStep({...element.removeProperty}) : new RemovePropertyStep()
-        removePropertyStep.uuid = element?.uuid ? element.uuid : removePropertyStep.uuid
-        return removePropertyStep
+        const removePropertyStep = element ? new RemovePropertyStep({...element.removeProperty}) : new RemovePropertyStep();
+        removePropertyStep.uuid = element?.uuid ? element.uuid : removePropertyStep.uuid;
+        return removePropertyStep;
     }
 
     static createRemoveHeader = (element: any): RemoveHeaderStep => {
-        const removeHeaderStep = element ? new RemoveHeaderStep({...element.removeHeader}) : new RemoveHeaderStep()
-        removeHeaderStep.uuid = element?.uuid ? element.uuid : removeHeaderStep.uuid
-        return removeHeaderStep
+        const removeHeaderStep = element ? new RemoveHeaderStep({...element.removeHeader}) : new RemoveHeaderStep();
+        removeHeaderStep.uuid = element?.uuid ? element.uuid : removeHeaderStep.uuid;
+        return removeHeaderStep;
     }
 
     static createScript = (element: any): ScriptStep => {
-        const scriptStep = element ? new ScriptStep({...element.script}) : new ScriptStep()
-        scriptStep.script.expression = CamelApi.createExpression(element?.script?.expression)
-        scriptStep.uuid = element?.uuid ? element.uuid : scriptStep.uuid
-        return scriptStep
+        const scriptStep = element ? new ScriptStep({...element.script}) : new ScriptStep();
+        const implicitExpression = CamelApi.getExpressionLanguage(element.script);
+        if (implicitExpression){
+            scriptStep.script.expression = new Expression({[implicitExpression]: element.script[implicitExpression]});
+            delete (scriptStep.script as any)[implicitExpression];
+        } else {
+            scriptStep.script.expression = CamelApi.createExpression(element?.script?.expression);
+        }
+        scriptStep.uuid = element?.uuid ? element.uuid : scriptStep.uuid;
+        return scriptStep;
     }
 
     static createDoTry = (element: any): DoTryStep => {
-        const doTryStep = element ? new DoTryStep({...element.doTry}) : new DoTryStep()
-        doTryStep.doTry.doCatch = element && element?.doTry ? element?.doTry?.doCatch.map((x:any) => CamelApi.createDoCatch(x)) :[]
-        doTryStep.doTry.doFinally = CamelApi.createDoFinally(element?.doTry?.doFinally)
-        doTryStep.doTry.steps = CamelApi.createSteps(element?.doTry?.steps)
-        doTryStep.uuid = element?.uuid ? element.uuid : doTryStep.uuid
-        return doTryStep
+        const doTryStep = element ? new DoTryStep({...element.doTry}) : new DoTryStep();
+        doTryStep.doTry.doCatch = element && element?.doTry ? element?.doTry?.doCatch.map((x:any) => CamelApi.createDoCatch(x)) :[];
+        doTryStep.doTry.doFinally = CamelApi.createDoFinally(element?.doTry?.doFinally);
+        doTryStep.doTry.steps = CamelApi.createSteps(element?.doTry?.steps);
+        doTryStep.uuid = element?.uuid ? element.uuid : doTryStep.uuid;
+        return doTryStep;
     }
 
     static createSetExchangePattern = (element: any): SetExchangePatternStep => {
-        const setExchangePatternStep = element ? new SetExchangePatternStep({...element.setExchangePattern}) : new SetExchangePatternStep()
-        setExchangePatternStep.uuid = element?.uuid ? element.uuid : setExchangePatternStep.uuid
-        return setExchangePatternStep
+        const setExchangePatternStep = element ? new SetExchangePatternStep({...element.setExchangePattern}) : new SetExchangePatternStep();
+        setExchangePatternStep.uuid = element?.uuid ? element.uuid : setExchangePatternStep.uuid;
+        return setExchangePatternStep;
     }
 
     static createTransacted = (element: any): TransactedStep => {
-        const transactedStep = element ? new TransactedStep({...element.transacted}) : new TransactedStep()
-        transactedStep.transacted.steps = CamelApi.createSteps(element?.transacted?.steps)
-        transactedStep.uuid = element?.uuid ? element.uuid : transactedStep.uuid
-        return transactedStep
+        const transactedStep = element ? new TransactedStep({...element.transacted}) : new TransactedStep();
+        transactedStep.transacted.steps = CamelApi.createSteps(element?.transacted?.steps);
+        transactedStep.uuid = element?.uuid ? element.uuid : transactedStep.uuid;
+        return transactedStep;
     }
 
     static createPipeline = (element: any): PipelineStep => {
-        const pipelineStep = element ? new PipelineStep({...element.pipeline}) : new PipelineStep()
-        pipelineStep.pipeline.steps = CamelApi.createSteps(element?.pipeline?.steps)
-        pipelineStep.uuid = element?.uuid ? element.uuid : pipelineStep.uuid
-        return pipelineStep
+        const pipelineStep = element ? new PipelineStep({...element.pipeline}) : new PipelineStep();
+        pipelineStep.pipeline.steps = CamelApi.createSteps(element?.pipeline?.steps);
+        pipelineStep.uuid = element?.uuid ? element.uuid : pipelineStep.uuid;
+        return pipelineStep;
     }
 
     static createUnmarshal = (element: any): UnmarshalStep => {
-        const unmarshalStep = element ? new UnmarshalStep({...element.unmarshal}) : new UnmarshalStep()
-        unmarshalStep.uuid = element?.uuid ? element.uuid : unmarshalStep.uuid
-        return unmarshalStep
+        const unmarshalStep = element ? new UnmarshalStep({...element.unmarshal}) : new UnmarshalStep();
+        unmarshalStep.uuid = element?.uuid ? element.uuid : unmarshalStep.uuid;
+        return unmarshalStep;
     }
 
     static createSteps = (elements: any[] | undefined): ProcessorStep[] => {
