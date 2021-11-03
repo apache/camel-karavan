@@ -45,13 +45,17 @@ class App extends React.Component<Props, State> {
             '    - from:\n' +
             '        uri: \'kamelet:http-secured-source\'\n' +
             '        steps:\n' +
-            '          - set-body:\n' +
-            '              expression: \n' +
-            '                constant: "Hello Yaml !!!"\n' +
-            '          - set-body:\n' +
-            '              constant: "Hello Yaml !!!"\n' +
-            '          - pollEnrich:\n' +
-            '              expression: {}',
+            // '          - set-body:\n' +
+            // '              expression: \n' +
+            // '                constant: "Hello Yaml !!!"\n' +
+            // '          - set-body:\n' +
+            // '              constant: "Hello Yaml !!!"\n' +
+            // '          - pollEnrich:\n' +
+            // '              expression: {}\n' +
+            // '          - to: \n' +
+            // '               uri: "log:info"\n' +
+            '          - to: "log:info"\n'
+            ,
         key: ''
     };
 

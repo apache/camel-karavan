@@ -81,6 +81,7 @@ public final class CamelModelGenerator {
                         e -> e.getValue()
                 )).forEach((s, o) -> {
                     String name = camelize(s, "-");
+                    if (name.equalsIgnoreCase("tod")) name = "ToD";
                     String className = classNameFromRef(procList.getJsonObject(s).getString("$ref"));
                     processors.put(className, name);
                 });
@@ -134,9 +135,7 @@ public final class CamelModelGenerator {
 
         camelApi.append(
                 "    static createStep = (name: string, body: any, clone: boolean = false): CamelElement => {\n" +
-                        "       const oldKey = Object.keys(body)[0];\n" +
-                        "       const key = CamelApi.camelizeName(oldKey, '-', true);\n" +
-                        "       const newBody = !clone && key === name ? {[key]: body[oldKey]} : body;\n" +
+                        "       const newBody = CamelApi.camelizeBody(name, body, clone);\n" +
                         "       switch (name){\n" +
                         "            case 'from': return CamelApi.createFrom(newBody);\n" +
                         "            case 'expression': return CamelApi.createExpression(newBody);\n");
@@ -337,6 +336,9 @@ public final class CamelModelGenerator {
         String funcName = "create".concat(capitalize(name));
         StringBuilder f = new StringBuilder();
         f.append(String.format("    static %s = (element: any): %s => {\n", funcName, stepClass));
+        if (stepClass.equals("ToStep") || stepClass.equals("TodStep")) {
+            f.append(String.format("        if (typeof element.%1$s !== 'object') element.%1$s = {uri: element.%1$s};\n", elementName));
+        }
         f.append(String.format("        const %1$s = element ? new %2$s({...element.%3$s}) : new %2$s();\n", stepField, stepClass, elementName));
         elProps.stream().forEach(e -> {
             if (e.name.equals("steps")) {
