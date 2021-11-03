@@ -4,7 +4,7 @@
   "displayName": "Camel Karavan Designer",
   "icon": "icons/icon.png",
   "description": "Integration Designer for Apache Camel",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "license": "Apache-2.0",
   "preview": true,
   "bugs": {
@@ -48,6 +48,22 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "Karavan",
+      "properties": {
+        "CamelJBang.maxMessages": {
+          "type": "integer",
+          "default": 10,
+          "description": "CamelJBang: Max number of messages to process before stopping"
+        },
+        "CamelJBang.debugLevel": {
+          "type": "string",
+          "default": "info",
+          "enum": ["info", "error", "debug", "trace"],
+          "description": "Default debug level"
+        }
+      }
+    },
     "commands": [
       {
         "command": "karavan.create-crd",

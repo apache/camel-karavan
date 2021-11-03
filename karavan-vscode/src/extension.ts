@@ -24,6 +24,7 @@ import { Integration } from "../designer/model/CamelModel";
 
 const KARAVAN_LOADED = "karavan:loaded";
 const KARAVAN_PANELS: Map<any, string> = new Map<string, string>();
+const TERMINALS: Map<string, vscode.Terminal> = new Map<string, vscode.Terminal>();
 
 export function activate(context: vscode.ExtensionContext) {
     const webviewContent = fs
@@ -47,7 +48,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Create new Camel-K Integration CRD command
     const createCrd = vscode.commands.registerCommand("karavan.create-crd", () => createIntegration(context, webviewContent, true));
     context.subscriptions.push(createCrd);
-    
+
     // Create new Camel Integration YAML command
     const createYaml = vscode.commands.registerCommand("karavan.create-yaml", () => createIntegration(context, webviewContent, false));
     context.subscriptions.push(createYaml);
@@ -197,9 +198,14 @@ function parceYaml(filename: string, yaml: string): [boolean, string?] {
 }
 
 function runCamelJbang(filename: string) {
-    const terminal = vscode.window.createTerminal('Karavan: ' + filename);
+    const maxMessages = vscode.workspace.getConfiguration().get("CamelJBang.maxMessages");
+    const debugLevel = vscode.workspace.getConfiguration().get("CamelJBang.debugLevel");
+    const existTerminal = TERMINALS.get(filename);
+    if (existTerminal) existTerminal.dispose();
+    const terminal = vscode.window.createTerminal('CamelJBang: ' + filename);
+    TERMINALS.set(filename, terminal);
     terminal.show();
-    terminal.sendText("CamelJBang run " + filename);
+    terminal.sendText("CamelJBang run " + filename + " --max-messages=" + maxMessages + " --debug-level=" + debugLevel);
 }
 
 export function deactivate() {
