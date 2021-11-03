@@ -36,4 +36,18 @@ public class ElementProp {
         this.isProcessor = isProcessor;
         this.typeCode = typeCode;
     }
+
+    @Override
+    public String toString() {
+        return "ElementProp{" +
+                "name='" + name + '\'' +
+                ", type='" + type + '\'' +
+                ", isObject=" + isObject +
+                ", isArray=" + isArray +
+                ", isArrayTypeClass=" + isArrayTypeClass +
+                ", arrayType='" + arrayType + '\'' +
+                ", isProcessor=" + isProcessor +
+                ", typeCode='" + typeCode + '\'' +
+                '}';
+    }
 }
