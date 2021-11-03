@@ -17,3 +17,13 @@
             .join("");
         return firstSmall ? res[0].toLowerCase() + res.substring(1) : res;
     };
+
+    static camelizeBody = (name: string, body: any, clone: boolean): any => {
+        if (body){
+            const oldKey = Object.keys(body)[0];
+            const key = CamelApi.camelizeName(oldKey, '-', true);
+            return !clone && key === name ? {[key]: body[oldKey]} : body;
+        } else {
+            return {};
+        }
+    };

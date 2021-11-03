@@ -364,7 +364,7 @@ export class DslProperties extends React.Component<Props, State> {
                 }>
                 {['string', 'duration', 'integer', 'number'].includes(property.type) && !property.enumVals &&
                 <TextInput
-                    isReadOnly={property.name === 'uri'}
+                    isReadOnly={property.name === 'uri' && this.state.element?.dslName !== 'toD'}
                     className="text-field" isRequired
                     type={['integer', 'number'].includes(property.type) ? 'number' : (property.secret ? "password" : "text")}
                     id={property.name} name={property.name}

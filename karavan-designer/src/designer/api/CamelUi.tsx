@@ -207,14 +207,20 @@ export class CamelUi {
     };
 
     static getComponentProperties = (element: any, advanced: boolean): ComponentProperty[] => {
-        const uri: string = (element as any).uri;
-        const name = ComponentApi.getComponentNameFromUri(uri);
-        if (name){
-            const component = ComponentApi.findByName(name);
-            return component ? ComponentApi.getComponentProperties(component?.component.name, element.dslName === 'from' ? 'consumer' : 'producer', advanced) : [];
-        } else {
-            return [];
-        }
+        const dslName: string = (element as any).dslName;
+       if (dslName === 'toD'){
+           const component = ComponentApi.findByName(dslName);
+           return component ? ComponentApi.getComponentProperties(component?.component.name,'producer', advanced) : [];
+       } else {
+           const uri: string = (element as any).uri;
+           const name = ComponentApi.getComponentNameFromUri(uri);
+           if (name){
+               const component = ComponentApi.findByName(name);
+               return component ? ComponentApi.getComponentProperties(component?.component.name, element.dslName === 'from' ? 'consumer' : 'producer', advanced) : [];
+           } else {
+               return [];
+           }
+       }
     };
 
     static getTitle = (element: CamelElement): string => {

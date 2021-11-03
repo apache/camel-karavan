@@ -8,7 +8,7 @@ import {    CamelElement,
     PolicyStep, 
     SetPropertyStep, 
     SagaStep, 
-    TodStep, 
+    ToDStep, 
     ThreadsStep, 
     InterceptSendToEndpointStep, 
     LogStep, 
@@ -92,17 +92,25 @@ export class CamelApi {
         return firstSmall ? res[0].toLowerCase() + res.substring(1) : res;
     };
 
+    static camelizeBody = (name: string, body: any, clone: boolean): any => {
+        if (body){
+            const oldKey = Object.keys(body)[0];
+            const key = CamelApi.camelizeName(oldKey, '-', true);
+            return !clone && key === name ? {[key]: body[oldKey]} : body;
+        } else {
+            return {};
+        }
+    };
+
     static createStep = (name: string, body: any, clone: boolean = false): CamelElement => {
-       const oldKey = Object.keys(body)[0];
-       const key = CamelApi.camelizeName(oldKey, '-', true);
-       const newBody = !clone && key === name ? {[key]: body[oldKey]} : body;
+       const newBody = CamelApi.camelizeBody(name, body, clone);
        switch (name){
             case 'from': return CamelApi.createFrom(newBody);
             case 'expression': return CamelApi.createExpression(newBody);
             case 'policy': return CamelApi.createPolicy(newBody);
             case 'setProperty': return CamelApi.createSetProperty(newBody);
             case 'saga': return CamelApi.createSaga(newBody);
-            case 'tod': return CamelApi.createTod(newBody);
+            case 'toD': return CamelApi.createToD(newBody);
             case 'threads': return CamelApi.createThreads(newBody);
             case 'interceptSendToEndpoint': return CamelApi.createInterceptSendToEndpoint(newBody);
             case 'log': return CamelApi.createLog(newBody);
@@ -202,10 +210,10 @@ export class CamelApi {
         return sagaStep;
     }
 
-    static createTod = (element: any): TodStep => {
-        const todStep = element ? new TodStep({...element.tod}) : new TodStep();
-        todStep.uuid = element?.uuid ? element.uuid : todStep.uuid;
-        return todStep;
+    static createToD = (element: any): ToDStep => {
+        const toDStep = element ? new ToDStep({...element.toD}) : new ToDStep();
+        toDStep.uuid = element?.uuid ? element.uuid : toDStep.uuid;
+        return toDStep;
     }
 
     static createThreads = (element: any): ThreadsStep => {
@@ -581,6 +589,7 @@ export class CamelApi {
     }
 
     static createTo = (element: any): ToStep => {
+        if (typeof element.to !== 'object') element.to = {uri: element.to};
         const toStep = element ? new ToStep({...element.to}) : new ToStep();
         toStep.uuid = element?.uuid ? element.uuid : toStep.uuid;
         return toStep;
@@ -751,7 +760,7 @@ export class CamelApi {
             case 'policyStep': return (step as PolicyStep).policy
             case 'setPropertyStep': return (step as SetPropertyStep).setProperty
             case 'sagaStep': return (step as SagaStep).saga
-            case 'todStep': return (step as TodStep).tod
+            case 'toDStep': return (step as ToDStep).toD
             case 'threadsStep': return (step as ThreadsStep).threads
             case 'interceptSendToEndpointStep': return (step as InterceptSendToEndpointStep).interceptSendToEndpoint
             case 'logStep': return (step as LogStep).log
