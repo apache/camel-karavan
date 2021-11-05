@@ -42,6 +42,8 @@ interface State {
     showSelector: boolean
     tabIndex: string | number
     selectedUuid: string
+    isDragging: boolean
+    isDraggedOver: boolean
 }
 
 export class DslElement extends React.Component<Props, State> {
@@ -51,7 +53,9 @@ export class DslElement extends React.Component<Props, State> {
         element: this.props.step.dslName === 'otherwise' ? this.props.step : CamelApi.elementFromStep(this.props.step),
         showSelector: false,
         tabIndex: 0,
-        selectedUuid: this.props.selectedUuid
+        selectedUuid: this.props.selectedUuid,
+        isDragging: false,
+        isDraggedOver: false
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
@@ -85,6 +89,11 @@ export class DslElement extends React.Component<Props, State> {
 
     getSteps = (): ProcessorStep[] => {
         return (this.state.element as any).steps
+    }
+
+    hasSteps = (): boolean => {
+        const steps = this.getSteps();
+        return steps !== undefined && steps.length > 0;
     }
 
     getWhens = (): When[] => {
@@ -154,7 +163,10 @@ export class DslElement extends React.Component<Props, State> {
 
     getElementHeader = () => {
         const tooltip = this.getHeaderTooltip();
-        return tooltip === undefined ? this.getHeader() : this.getHeaderWithTooltip(tooltip);
+        if (tooltip !== undefined && !this.state.isDragging){
+            return this.getHeaderWithTooltip(tooltip);
+        }
+        return this.getHeader();
     }
 
     render() {
@@ -164,13 +176,61 @@ export class DslElement extends React.Component<Props, State> {
                     ? "step-element step-element-with-steps"
                     : "step-element step-element-without-steps"}
                  style={{
-                     borderStyle: this.isSelected() ? "dashed" : "dotted",
+                     borderStyle: this.isSelected() ? "dashed" : (this.hasSteps() ? "dotted" : "none"),
                      borderColor: this.isSelected() ? this.props.borderColorSelected : this.props.borderColor,
                      marginTop: this.isRoot() ? "16px" : "",
-                     zIndex: this.state.step.dslName === 'toStep' ? 20 : 10
+                     zIndex: this.state.step.dslName === 'toStep' ? 20 : 10,
+                     boxShadow: this.state.isDraggedOver ? "0px 0px 1px 2px " + this.props.borderColor : "none",
                  }}
                  onClick={event => this.selectElement(event)}
+                 onDragStart={event => {
+                     // event.stopPropagation();
+                     event.dataTransfer.setData("text/plain", this.state.step.uuid);
+                     (event.target as any).style.opacity = .5;
+                     this.setState({isDragging: true});
+                 }}
+                 onDragEnd={event => {
+                     (event.target as any).style.opacity = '';
+                     this.setState({isDragging: false});
+                 }}
+                 onDragOver={event => {
+                     event.preventDefault();
+                     event.stopPropagation();
+                     if (this.state.element.dslName !== 'from' && !this.state.isDragging) {
+                         this.setState({isDraggedOver: true});
+                     }
+                 }}
+                 onDragEnter={event => {
+                     event.preventDefault();
+                     event.stopPropagation();
+                     if (this.state.element.dslName !== 'from') {
+                         this.setState({isDraggedOver: true});
+                     }
+                 }}
+                 onDragLeave={event => {
+                     event.preventDefault();
+                     event.stopPropagation();
+                     this.setState({isDraggedOver: false});
 
+                 }}
+                 onDrop={event => {
+                     event.stopPropagation();
+                     this.setState({isDraggedOver: false});
+                     switch (this.state.element.dslName){
+                         case "from": break;
+                         case "choice": break;
+                         case "when": break;
+                         case "otherwise": break;
+                         default:
+                             const sourceUuid = event.dataTransfer.getData("text/plain");
+                             const targetUuid = this.state.step.uuid;
+                             if (sourceUuid !== targetUuid) {
+                                 // this.props.deleteElement.call(this, sourceUuid);
+                             }
+                             break;
+                     }
+                 }}
+                 draggable={!['from', 'when', 'otherwise'].includes(this.state.element.dslName)}
             >
                 {this.getElementHeader()}
                 {this.state.element.hasSteps() && !this.horizontal() && this.getArrow()}
@@ -212,7 +272,8 @@ export class DslElement extends React.Component<Props, State> {
                     </Tooltip>
                     }
                     {this.state.element.dslName === 'choice' &&
-                    <div className={this.getWhens().length > 0 ? "whens" : ""} style={this.horizontal() ? {display: "flex", flexDirection: "row"} : {}}>
+                    <div className={this.getWhens().length > 0 ? "whens" : ""}
+                         style={this.horizontal() ? {display: "flex", flexDirection: "row"} : {}}>
                         {this.getWhens().map((when, index) => (
                             <div key={when.uuid} style={{marginLeft: (index !== 0) ? "6px" : "0"}}>
                                 {this.getArrow()}
