@@ -823,13 +823,22 @@ export class CamelApi {
             default : return new CamelElement('')
         }
     }
-    static addStep = (steps: ProcessorStep[], step: ProcessorStep, parentId: string): ProcessorStep[] => {
+
+    private static move = (input: ProcessorStep[], from: number, to: number): ProcessorStep[] => {
+        let numberOfDeletedElm = 1;
+        const elm = input.splice(from, numberOfDeletedElm)[0];
+        numberOfDeletedElm = 0;
+        input.splice(to, numberOfDeletedElm, elm);
+        return input;
+    }
+
+    static addStep = (steps: ProcessorStep[], step: ProcessorStep, parentId: string, position?: number): ProcessorStep[] => {
         const result: ProcessorStep[] = [];
         steps.forEach(el => {
             switch (el.dslName) {
                 case 'policyStep':
                     const policyChildren = (el as PolicyStep).policy?.steps || [];
-                    if (el.uuid === parentId) policyChildren.push(step)
+                    if (el.uuid === parentId) position !== undefined ? policyChildren.splice(position, 0, step) : policyChildren.push(step);
                     else (el as PolicyStep).policy.steps = CamelApi.addStep(policyChildren, step, parentId);
                     break;
                 case 'choiceStep':
@@ -859,7 +868,7 @@ export class CamelApi {
                     break;
                 case 'fromStep':
                     const fromChildren = (el as FromStep).from?.steps || [];
-                    if (el.uuid === parentId) fromChildren.push(step)
+                    if (el.uuid === parentId) position !== undefined ? fromChildren.splice(position, 0, step) : fromChildren.push(step)
                     else (el as FromStep).from.steps = CamelApi.addStep(fromChildren, step, parentId);
                     break;
                 case 'onCompletionStep':
@@ -1034,6 +1043,56 @@ export class CamelApi {
                 if (when.uuid !== uuidToDelete) {
                     when.steps = CamelApi.deleteStep(when.steps, uuidToDelete);
                     result.push(when);
+                }
+            })
+        }
+        return result
+    }
+
+    static findStep = (steps: ProcessorStep[] | undefined, uuid: string, parentUuid?: string): [ProcessorStep | undefined, string | undefined, number] => {
+        let result: [ProcessorStep | undefined, string | undefined, number] = [undefined, parentUuid, 0];
+        if (steps !== undefined){
+            steps.forEach((step:ProcessorStep, index: number) => {
+                if (step.uuid !== uuid) {
+                    switch (step.dslName) {
+                        case 'policyStep': result = CamelApi.findStep((step as PolicyStep).policy.steps, uuid, step.uuid); break;
+                        // case 'choiceStep':
+                        //     const otherwise = (step as ChoiceStep).choice.otherwise;
+                        //     if (otherwise && otherwise.uuid === uuid) {
+                        //         (step as ChoiceStep).choice.otherwise = undefined;
+                        //     } else if (otherwise && otherwise.uuid !== uuid) {
+                        //         otherwise.steps = CamelApi.deleteStep(otherwise.steps, uuid);
+                        //         (step as ChoiceStep).choice.otherwise = otherwise;
+                        //     }
+                        //     (step as ChoiceStep).choice.when = CamelApi.deleteWhen((step as ChoiceStep).choice.when, uuid);
+                        //     break;
+                        case 'otherwise': result =  CamelApi.findStep((step as Otherwise).steps, uuid, step.uuid); break;
+                        case 'fromStep': result =  CamelApi.findStep((step as FromStep).from.steps, uuid, step.uuid); break;
+                        case 'onCompletionStep': result =  CamelApi.findStep((step as OnCompletionStep).onCompletion.steps, uuid, step.uuid); break;
+                        case 'splitStep': result =  CamelApi.findStep((step as SplitStep).split.steps, uuid, step.uuid); break;
+                        case 'transactedStep': result =  CamelApi.findStep((step as TransactedStep).transacted.steps, uuid, step.uuid); break;
+                        case 'interceptFromStep': result =  CamelApi.findStep((step as InterceptFromStep).interceptFrom.steps, uuid, step.uuid); break;
+                        case 'doCatchStep': result =  CamelApi.findStep((step as DoCatchStep).doCatch.steps, uuid, step.uuid); break;
+                        case 'circuitBreakerStep': result =  CamelApi.findStep((step as CircuitBreakerStep).circuitBreaker.steps, uuid, step.uuid); break;
+                        case 'interceptStep': result =  CamelApi.findStep((step as InterceptStep).intercept.steps, uuid, step.uuid); break;
+                        case 'onFallbackStep': result =  CamelApi.findStep((step as OnFallbackStep).onFallback.steps, uuid, step.uuid); break;
+                        case 'multicastStep': result =  CamelApi.findStep((step as MulticastStep).multicast.steps, uuid, step.uuid); break;
+                        case 'loadBalanceStep': result =  CamelApi.findStep((step as LoadBalanceStep).loadBalance.steps, uuid, step.uuid); break;
+                        case 'whenSkipSendToEndpointStep': result =  CamelApi.findStep((step as WhenSkipSendToEndpointStep).whenSkipSendToEndpoint.steps, uuid, step.uuid); break;
+                        case 'loopStep': result =  CamelApi.findStep((step as LoopStep).loop.steps, uuid, step.uuid); break;
+                        case 'interceptSendToEndpointStep': result =  CamelApi.findStep((step as InterceptSendToEndpointStep).interceptSendToEndpoint.steps, uuid, step.uuid); break;
+                        case 'doTryStep': result =  CamelApi.findStep((step as DoTryStep).doTry.steps, uuid, step.uuid); break;
+                        case 'resequenceStep': result =  CamelApi.findStep((step as ResequenceStep).resequence.steps, uuid, step.uuid); break;
+                        case 'pipelineStep': result =  CamelApi.findStep((step as PipelineStep).pipeline.steps, uuid, step.uuid); break;
+                        case 'sagaStep': result =  CamelApi.findStep((step as SagaStep).saga.steps, uuid, step.uuid); break;
+                        case 'when': result =  CamelApi.findStep((step as When).steps, uuid, step.uuid); break;
+                        case 'doFinallyStep': result =  CamelApi.findStep((step as DoFinallyStep).doFinally.steps, uuid, step.uuid); break;
+                        case 'filterStep': result =  CamelApi.findStep((step as FilterStep).filter.steps, uuid, step.uuid); break;
+                        case 'aggregateStep': result = CamelApi.findStep((step as AggregateStep).aggregate.steps, uuid, step.uuid); break;
+                        case 'idempotentConsumerStep': result =  CamelApi.findStep((step as IdempotentConsumerStep).idempotentConsumer.steps, uuid, step.uuid); break;
+                    }
+                } else {
+                    result =  [step, parentUuid, index];
                 }
             })
         }

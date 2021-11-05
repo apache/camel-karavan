@@ -31,6 +31,7 @@ interface Props {
     deleteElement: any
     selectElement: any
     openSelector: any
+    moveElement: (source: string, target: string) => void
     selectedUuid: string
     borderColor: string
     borderColorSelected: string
@@ -66,7 +67,7 @@ export class DslElement extends React.Component<Props, State> {
 
     openSelector = (evt: React.MouseEvent) => {
         evt.stopPropagation();
-        this.props.openSelector.call(this, this.state.step.uuid, this.state.element.dslName)
+        this.props.openSelector.call(this, this.state.step.uuid, this.state.element.dslName);
     }
 
     closeDslSelector = () => {
@@ -163,7 +164,7 @@ export class DslElement extends React.Component<Props, State> {
 
     getElementHeader = () => {
         const tooltip = this.getHeaderTooltip();
-        if (tooltip !== undefined && !this.state.isDragging){
+        if (tooltip !== undefined && !this.state.isDragging) {
             return this.getHeaderWithTooltip(tooltip);
         }
         return this.getHeader();
@@ -184,7 +185,7 @@ export class DslElement extends React.Component<Props, State> {
                  }}
                  onClick={event => this.selectElement(event)}
                  onDragStart={event => {
-                     // event.stopPropagation();
+                     event.stopPropagation();
                      event.dataTransfer.setData("text/plain", this.state.step.uuid);
                      (event.target as any).style.opacity = .5;
                      this.setState({isDragging: true});
@@ -214,20 +215,13 @@ export class DslElement extends React.Component<Props, State> {
 
                  }}
                  onDrop={event => {
+                     event.preventDefault();
                      event.stopPropagation();
                      this.setState({isDraggedOver: false});
-                     switch (this.state.element.dslName){
-                         case "from": break;
-                         case "choice": break;
-                         case "when": break;
-                         case "otherwise": break;
-                         default:
-                             const sourceUuid = event.dataTransfer.getData("text/plain");
-                             const targetUuid = this.state.step.uuid;
-                             if (sourceUuid !== targetUuid) {
-                                 // this.props.deleteElement.call(this, sourceUuid);
-                             }
-                             break;
+                     const sourceUuid = event.dataTransfer.getData("text/plain");
+                     const targetUuid = this.state.step.uuid;
+                     if (sourceUuid !== targetUuid) {
+                         this.props.moveElement?.call(this, sourceUuid, targetUuid);
                      }
                  }}
                  draggable={!['from', 'when', 'otherwise'].includes(this.state.element.dslName)}
@@ -245,6 +239,7 @@ export class DslElement extends React.Component<Props, State> {
                                     openSelector={this.props.openSelector}
                                     deleteElement={this.props.deleteElement}
                                     selectElement={this.props.selectElement}
+                                    moveElement={this.props.moveElement}
                                     selectedUuid={this.state.selectedUuid}
                                     borderColor={this.props.borderColor}
                                     borderColorSelected={this.props.borderColorSelected}
@@ -281,6 +276,7 @@ export class DslElement extends React.Component<Props, State> {
                                     openSelector={this.props.openSelector}
                                     deleteElement={this.props.deleteElement}
                                     selectElement={this.props.selectElement}
+                                    moveElement={this.props.moveElement}
                                     selectedUuid={this.state.selectedUuid}
                                     borderColor={this.props.borderColor}
                                     borderColorSelected={this.props.borderColorSelected}
@@ -295,6 +291,7 @@ export class DslElement extends React.Component<Props, State> {
                                 openSelector={this.props.openSelector}
                                 deleteElement={this.props.deleteElement}
                                 selectElement={this.props.selectElement}
+                                moveElement={this.props.moveElement}
                                 selectedUuid={this.state.selectedUuid}
                                 borderColor={this.props.borderColor}
                                 borderColorSelected={this.props.borderColorSelected}

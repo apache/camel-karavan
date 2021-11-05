@@ -21,14 +21,36 @@ import {ComponentApi} from "./ComponentApi";
 
 export class CamelApiExt {
 
-    static addStepToIntegration = (integration: Integration, step: CamelElement, parentId: string): Integration => {
+    static addStepToIntegration = (integration: Integration, step: CamelElement, parentId: string, position?: number): Integration => {
         if (step.dslName === 'fromStep') {
             integration.spec.flows.push(step as FromStep);
         } else {
-            const flows = CamelApi.addStep(integration.spec.flows, step, parentId);
+            const flows = CamelApi.addStep(integration.spec.flows, step, parentId, position);
             integration.spec.flows = flows as FromStep[];
         }
         return integration;
+    }
+
+    static moveElement = (integration: Integration, source: string, target: string) => {
+        console.log("moveElement ----------")
+        const sourceFindStep = CamelApi.findStep(integration.spec.flows, source, undefined);
+        const sourceStep = sourceFindStep[0];
+        const sourceUuid = sourceStep?.uuid;
+        const targetFindStep = CamelApi.findStep(integration.spec.flows, target, undefined);
+        console.log(targetFindStep)
+        const targetPosition = targetFindStep[2];
+        const parentUuid = targetFindStep[1];
+        if (sourceUuid) {
+            CamelApiExt.deleteStepFromIntegration(integration, sourceUuid);
+            switch (targetFindStep[0]?.dslName){
+                case 'when': break;
+                case 'otherwise': break;
+                default: if (parentUuid) {
+                    CamelApiExt.addStepToIntegration(integration, sourceStep, parentUuid, targetPosition);
+                } break;
+            }
+        }
+        console.log("----------------------")
     }
 
     static deleteStepFromIntegration = (integration: Integration, uuidToDelete: string): Integration => {

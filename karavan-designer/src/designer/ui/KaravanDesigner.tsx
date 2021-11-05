@@ -125,7 +125,6 @@ export class KaravanDesigner extends React.Component<Props, State> {
     }
 
     onDslSelect = (dsl: DslMetaModel, parentId: string) => {
-        console.log(dsl)
         switch (dsl.dsl) {
             case 'from' :
                 const from = CamelApi.createStep(dsl.dsl, {from: {uri: dsl.uri}});
@@ -164,7 +163,11 @@ export class KaravanDesigner extends React.Component<Props, State> {
 
     onIntegrationUpdate = (i: Integration) => {
         this.setState({integration: i, showSelector: false, key: Math.random().toString()});
-    };
+    }
+
+    moveElement = (source: string, target: string) => {
+        CamelApiExt.moveElement(this.state.integration, source, target);
+    }
 
     render() {
         return (
@@ -184,6 +187,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
                                         openSelector={this.openSelector}
                                         deleteElement={this.deleteElement}
                                         selectElement={this.selectElement}
+                                        moveElement={this.moveElement}
                                         selectedUuid={this.state.selectedUuid}
                                         borderColor={this.props.borderColor}
                                         borderColorSelected={this.props.borderColorSelected}
