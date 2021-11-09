@@ -78,4 +78,4 @@ docker run -it -p 8080:8080 -e KARAVAN_MODE=local -v $(pwd):/deployments/integra
 ```
 
 ## Running in cloud mode
-[Karavan demo on Openshift](karavan-demo/openshift/README.md)
+[Karavan demo on OpenShift](karavan-demo/openshift/README.md)
