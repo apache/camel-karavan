@@ -63,7 +63,7 @@ npm start
 ```shell script
 docker run -it -p 8080:8080 -e KARAVAN_MODE=local -v $(pwd):/deployments/integrations  entropy1/karavan
 ```
-For SELunux
+For SELinux
 ```shell script
 docker run -it -p 8080:8080 -e KARAVAN_MODE=local -v $(pwd):/deployments/integrations:z  entropy1/karavan
 ```
@@ -72,7 +72,7 @@ docker run -it -p 8080:8080 -e KARAVAN_MODE=local -v $(pwd):/deployments/integra
 ```shell script
 docker run -it -p 8080:8080 -e KARAVAN_MODE=local -v $(pwd):/deployments/integrations  entropy1/karavan-native
 ```
-For SELunux
+For SELinux
 ```shell script
 docker run -it -p 8080:8080 -e KARAVAN_MODE=local -v $(pwd):/deployments/integrations:z  entropy1/karavan-native
 ```
