@@ -1,0 +1,14 @@
+    static findStep = (steps: ProcessorStep[] | undefined, uuid: string, parentUuid?: string, result?: ProcessorStepMeta): ProcessorStepMeta => {
+        if (result?.step !== undefined) return result;
+        if (steps !== undefined){
+            for (let index = 0, step; step = steps[index]; index++) {
+                if (step.uuid !== uuid) {
+                    switch (step.dslName) {
+                        case 'choiceStep':
+                            const o = (step as ChoiceStep).choice.otherwise;
+                            const w = (step as ChoiceStep).choice.when;
+                            const s:ProcessorStep[] = [];
+                            if (o) s.push(o);
+                            if (w) s.push(...w);
+                            result = CamelApi.findStep(s, uuid, step.uuid, result); break;
+                            break;
