@@ -52,6 +52,20 @@ export class CamelElement {
 
 export class ProcessorStep extends CamelElement {
 }
+
+export class ProcessorStepMeta {
+    step?: ProcessorStep
+    parentUuid?: string
+    position: number = 0;
+
+
+    constructor(step?: ProcessorStep, parentUuid?: string, position?: number) {
+        this.step = step;
+        this.parentUuid = parentUuid;
+        this.position = position || 0;
+    }
+}
+
 export class Policy extends CamelElement { 
     inheritErrorHandler?: boolean
     ref?: string

@@ -32,25 +32,25 @@ export class CamelApiExt {
     }
 
     static moveElement = (integration: Integration, source: string, target: string) => {
-        console.log("moveElement ----------")
         const sourceFindStep = CamelApi.findStep(integration.spec.flows, source, undefined);
-        const sourceStep = sourceFindStep[0];
+        const sourceStep = sourceFindStep.step;
         const sourceUuid = sourceStep?.uuid;
         const targetFindStep = CamelApi.findStep(integration.spec.flows, target, undefined);
-        console.log(targetFindStep)
-        const targetPosition = targetFindStep[2];
-        const parentUuid = targetFindStep[1];
-        if (sourceUuid) {
+        const parentUuid = targetFindStep.parentUuid;
+        if (sourceUuid && parentUuid) {
             CamelApiExt.deleteStepFromIntegration(integration, sourceUuid);
-            switch (targetFindStep[0]?.dslName){
-                case 'when': break;
-                case 'otherwise': break;
-                default: if (parentUuid) {
-                    CamelApiExt.addStepToIntegration(integration, sourceStep, parentUuid, targetPosition);
-                } break;
+            switch (targetFindStep.step?.dslName) {
+                case 'when':
+                    CamelApiExt.addStepToIntegration(integration, sourceStep, targetFindStep.step?.uuid, undefined);
+                    break;
+                case 'otherwise':
+                    CamelApiExt.addStepToIntegration(integration, sourceStep, targetFindStep.step?.uuid, undefined);
+                    break;
+                default:
+                    CamelApiExt.addStepToIntegration(integration, sourceStep, parentUuid, targetFindStep.position);
+                    break;
             }
         }
-        console.log("----------------------")
     }
 
     static deleteStepFromIntegration = (integration: Integration, uuidToDelete: string): Integration => {
@@ -118,7 +118,7 @@ export class CamelApiExt {
         if (name) {
             CamelMetadataApi.getElementMeta(name)?.properties
                 .filter(p => p.name !== 'steps' && p.name !== 'inheritErrorHandler')
-                .filter(p => (name == 'to' && p.name !== 'pattern') || name !='to')
+                .filter(p => (name == 'to' && p.name !== 'pattern') || name != 'to')
                 .filter(p => !p.isObject || (p.isObject && p.name === 'expression'))
                 .forEach(p => {
                     switch (p.name) {
@@ -143,7 +143,7 @@ export class CamelApiExt {
     }
 
     static getParametersValue = (element: CamelElement | undefined, propertyName: string, pathParameter?: boolean): any => {
-        if (pathParameter){
+        if (pathParameter) {
             const uri = (element as any).uri;
             return ComponentApi.getPathParameterValue(uri, propertyName);
         } else {
@@ -182,7 +182,7 @@ export class CamelApiExt {
 
     static getStepsFromSteps = (steps: CamelElement[], level: number, parallel: boolean): [CamelElement, number][] => {
         const result: [CamelElement, number][] = [];
-        steps.forEach((step,index) => {
+        steps.forEach((step, index) => {
             const steps = CamelApiExt.getOutgoingStepsFromStep(step, level + (parallel ? 1 : index));
             result.push(...steps);
         })
