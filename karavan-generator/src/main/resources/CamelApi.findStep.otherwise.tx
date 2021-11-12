@@ -1,0 +1,3 @@
+                        case 'otherwise':
+                            result = CamelApi.findStep((step as Otherwise).steps, uuid, step.uuid, result);
+                            break;
