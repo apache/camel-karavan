@@ -6,14 +6,14 @@
                     }  else if (el.uuid === parentId && step.dslName === 'otherwise' && !(el as ChoiceStep).choice.otherwise) {
                         (el as ChoiceStep).choice.otherwise = step;
                     } else {
-                        (el as ChoiceStep).choice.when = CamelApi.addStep(choiceChildren, step, parentId) as When[];
+                        (el as ChoiceStep).choice.when = CamelApi.addStep(choiceChildren, step, parentId, position) as When[];
                         const otherwise = (el as ChoiceStep).choice.otherwise;
                         if (otherwise?.uuid === parentId){
                             otherwise.steps = otherwise.steps ? [...otherwise.steps] : [];
                             otherwise.steps.push(step);
                             (el as ChoiceStep).choice.otherwise = otherwise
                         } else if (otherwise && otherwise.steps && otherwise.steps.length > 0){
-                            otherwise.steps = CamelApi.addStep(otherwise.steps, step, parentId);
+                            otherwise.steps = CamelApi.addStep(otherwise.steps, step, parentId, position);
                             (el as ChoiceStep).choice.otherwise = otherwise;
                         }
                     }

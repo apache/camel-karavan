@@ -1,9 +1,3 @@
-                    }
-                } else {
-                    result = new  ProcessorStepMeta(step, parentUuid, index);
-                    break;
-                }
-            }
-        }
-        return new ProcessorStepMeta(result?.step, result?.parentUuid, result?.position);
-    }
+                        case 'when':
+                            result = CamelApi.findStep((step as When).steps, uuid, step.uuid, result);
+                            break;
