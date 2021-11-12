@@ -31,7 +31,12 @@ export class CamelApiExt {
         return integration;
     }
 
-    static moveElement = (integration: Integration, source: string, target: string) => {
+    static findElement = (integration: Integration, uuid: string): CamelElement | undefined => {
+        const step = CamelApi.findStep(integration.spec.flows, uuid, undefined);
+        return step.step;
+    }
+
+    static moveElement = (integration: Integration, source: string, target: string): Integration => {
         const sourceFindStep = CamelApi.findStep(integration.spec.flows, source, undefined);
         const sourceStep = sourceFindStep.step;
         const sourceUuid = sourceStep?.uuid;
@@ -41,16 +46,17 @@ export class CamelApiExt {
             CamelApiExt.deleteStepFromIntegration(integration, sourceUuid);
             switch (targetFindStep.step?.dslName) {
                 case 'when':
-                    CamelApiExt.addStepToIntegration(integration, sourceStep, targetFindStep.step?.uuid, undefined);
+                    return CamelApiExt.addStepToIntegration(integration, sourceStep, targetFindStep.step?.uuid, undefined);
                     break;
                 case 'otherwise':
-                    CamelApiExt.addStepToIntegration(integration, sourceStep, targetFindStep.step?.uuid, undefined);
+                    return CamelApiExt.addStepToIntegration(integration, sourceStep, targetFindStep.step?.uuid, undefined);
                     break;
                 default:
-                    CamelApiExt.addStepToIntegration(integration, sourceStep, parentUuid, targetFindStep.position);
+                    return CamelApiExt.addStepToIntegration(integration, sourceStep, parentUuid, targetFindStep.position);
                     break;
             }
         }
+        return integration;
     }
 
     static deleteStepFromIntegration = (integration: Integration, uuidToDelete: string): Integration => {

@@ -181,7 +181,7 @@ export class DslElement extends React.Component<Props, State> {
                      borderColor: this.isSelected() ? this.props.borderColorSelected : this.props.borderColor,
                      marginTop: this.isRoot() ? "16px" : "",
                      zIndex: this.state.step.dslName === 'toStep' ? 20 : 10,
-                     boxShadow: this.state.isDraggedOver ? "0px 0px 1px 2px " + this.props.borderColor : "none",
+                     boxShadow: this.state.isDraggedOver ? "0px 0px 1px 2px " + this.props.borderColorSelected : "none",
                  }}
                  onClick={event => this.selectElement(event)}
                  onDragStart={event => {

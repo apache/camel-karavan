@@ -158,7 +158,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
             showSelector: false,
             selectedStep: step,
             selectedUuid: step.uuid
-        })
+        });
     }
 
     onIntegrationUpdate = (i: Integration) => {
@@ -166,7 +166,16 @@ export class KaravanDesigner extends React.Component<Props, State> {
     }
 
     moveElement = (source: string, target: string) => {
-        CamelApiExt.moveElement(this.state.integration, source, target);
+        const i = CamelApiExt.moveElement(this.state.integration, source, target);
+        const clone = CamelYaml.cloneIntegration(i);
+        const selectedStep = CamelApiExt.findElement(clone, source);
+        this.setState({
+            integration: clone,
+            key: Math.random().toString(),
+            showSelector: false,
+            selectedStep: selectedStep,
+            selectedUuid: source
+        });
     }
 
     render() {
