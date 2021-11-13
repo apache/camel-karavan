@@ -8,7 +8,7 @@ import {
     PageSection,
     TextContent,
     Text,
-    Button, Modal, FormGroup, ModalVariant
+    Button, Modal, FormGroup, ModalVariant, Switch, Form
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {IntegrationCard} from "./IntegrationCard";
@@ -16,6 +16,8 @@ import {MainToolbar} from "../MainToolbar";
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import {Integration} from "../designer/model/CamelModel";
+import {CamelApi} from "../designer/api/CamelApi";
+import {CamelUi} from "../designer/api/CamelUi";
 
 interface Props {
     integrations: []
@@ -31,6 +33,7 @@ interface State {
     integrations: [],
     isModalOpen: boolean,
     newName: string
+    crd: boolean
 }
 
 export class IntegrationPage extends React.Component<Props, State> {
@@ -40,7 +43,8 @@ export class IntegrationPage extends React.Component<Props, State> {
         path: '',
         integrations: this.props.integrations,
         isModalOpen: false,
-        newName: ''
+        newName: '',
+        crd: true
     };
 
     tools = () => (<Toolbar id="toolbar-group-types">
@@ -66,7 +70,9 @@ export class IntegrationPage extends React.Component<Props, State> {
         this.setState({isModalOpen:false, newName:""});
     }
     saveAndCloseModal = () => {
-        const i = Integration.createNew(this.state.newName);
+        const name = CamelUi.nameFromTitle(this.state.newName) + ".yaml";
+        const i = Integration.createNew(name);
+        i.crd = this.state.crd;
         this.props.onCreate.call(this, i);
         this.setState({isModalOpen:false, newName:""});
     }
@@ -93,11 +99,21 @@ export class IntegrationPage extends React.Component<Props, State> {
                         <Button key="cancel" variant="secondary" onClick={this.closeModal}>Cancel</Button>
                     ]}
                 >
-                    <FormGroup label="Title" fieldId="title" isRequired>
-                        <TextInput className="text-field" type="text" id="title" name="title"
-                                   value={this.state.newName}
-                                   onChange={e => this.setState({newName: e})}/>
-                    </FormGroup>
+                    <Form isHorizontal={true}>
+                        <FormGroup label="Title" fieldId="title" isRequired>
+                            <TextInput className="text-field" type="text" id="title" name="title"
+                                       value={this.state.newName}
+                                       onChange={e => this.setState({newName: e})}/>
+                        </FormGroup>
+                        <FormGroup label="CRD" fieldId="crd" isRequired>
+                            <Switch
+                                id="crd" name="crd"
+                                value={this.state.crd.toString()}
+                                aria-label="crd"
+                                isChecked={this.state.crd}
+                                onChange={e => this.setState({crd: e})}/>
+                        </FormGroup>
+                    </Form>
                 </Modal>
             </PageSection>
         );

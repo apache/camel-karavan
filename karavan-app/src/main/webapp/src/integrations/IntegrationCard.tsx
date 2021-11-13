@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    CardHeader, Card, CardTitle, CardBody, Button, CardActions,
+    CardHeader, Card, CardTitle, CardBody, Button, CardActions, CardFooter,
 } from '@patternfly/react-core';
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import '../designer/karavan.css';
@@ -46,4 +46,4 @@ export class IntegrationCard extends React.Component<Props, State> {
             </Card>
         );
     }
-};
+}

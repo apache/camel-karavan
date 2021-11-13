@@ -40,7 +40,7 @@ export class DesignerPage extends React.Component<Props, State> {
     }
 
     post = () => {
-        KaravanApi.postIntegrations(this.state.integration.metadata.name + ".yaml", this.state.yaml, res => {
+        KaravanApi.postIntegrations(this.state.integration.metadata.name, this.state.yaml, res => {
             if (res.status === 200) {
                 console.log(res) //TODO show notification
             } else {
@@ -50,7 +50,7 @@ export class DesignerPage extends React.Component<Props, State> {
     }
 
     publish = () => {
-        KaravanApi.publishIntegration(this.state.integration.metadata.name + ".yaml", this.state.yaml, res => {
+        KaravanApi.publishIntegration(this.state.integration.metadata.name, this.state.yaml, res => {
             if (res.status === 200) {
                 console.log(res) //TODO show notification
             } else {
@@ -131,7 +131,7 @@ export class DesignerPage extends React.Component<Props, State> {
                     <KaravanDesigner
                         dark={false}
                         key={this.state.key}
-                        name={this.state.name}
+                        filename={this.state.name}
                         yaml={this.state.yaml}
                         onSave={(name, yaml) => this.save(name, yaml)}
                         borderColor="#fb8824"
