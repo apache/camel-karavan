@@ -42,7 +42,7 @@ export class CamelApiExt {
         const sourceUuid = sourceStep?.uuid;
         const targetFindStep = CamelApi.findStep(integration.spec.flows, target, undefined);
         const parentUuid = targetFindStep.parentUuid;
-        if (sourceUuid && parentUuid) {
+        if (sourceUuid && parentUuid && sourceStep) {
             CamelApiExt.deleteStepFromIntegration(integration, sourceUuid);
             switch (targetFindStep.step?.dslName) {
                 case 'when':
