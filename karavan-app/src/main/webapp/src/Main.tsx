@@ -117,8 +117,9 @@ export class Main extends React.Component<Props, State> {
 
     toolBar = (version: string) => (
         <div className="top-toolbar">
-            <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentSpaceBetween"}} style={{width:"100%"}}>
-                <FlexItem style={{marginTop: "auto", marginBottom:"auto"}}>
+            <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentSpaceBetween"}}
+                  style={{width: "100%"}}>
+                <FlexItem style={{marginTop: "auto", marginBottom: "auto"}}>
                     <Flex direction={{default: "row"}}>
                         <FlexItem>
                             <TextContent>
@@ -132,7 +133,7 @@ export class Main extends React.Component<Props, State> {
                         </FlexItem>
                     </Flex>
                 </FlexItem>
-                <FlexItem style={{marginTop: "auto", marginBottom:"auto"}}>
+                <FlexItem style={{marginTop: "auto", marginBottom: "auto"}}>
                     <PageHeaderTools>
                         <PageHeaderToolsGroup>
                             <PageHeaderToolsItem>
@@ -142,9 +143,11 @@ export class Main extends React.Component<Props, State> {
                                 <Dropdown
                                     isPlain
                                     position="right"
-                                    onSelect={event => {}}
+                                    onSelect={event => {
+                                    }}
                                     isOpen={false}
-                                    toggle={<DropdownToggle onToggle={isOpen => {}}>cameleer</DropdownToggle>}
+                                    toggle={<DropdownToggle onToggle={isOpen => {
+                                    }}>cameleer</DropdownToggle>}
                                     // dropdownItems={userDropdownItems}
                                 />
                             </PageHeaderToolsItem>
@@ -208,11 +211,11 @@ export class Main extends React.Component<Props, State> {
         this.setState({alerts: mess})
     }
 
-    onIntegrationSelect = (name: string) => {
-        KaravanApi.getIntegration(name, res => {
+    onIntegrationSelect = (filename: string) => {
+        KaravanApi.getIntegration(filename, res => {
             if (res.status === 200) {
                 const code: string = res.data;
-                const i = CamelYaml.yamlToIntegration(code);
+                const i = CamelYaml.yamlToIntegration(filename, code);
                 this.setState({isNavOpen: false, pageId: 'designer', integration: i});
             } else {
                 this.toast("Error", res.statusText, "danger");
@@ -241,7 +244,8 @@ export class Main extends React.Component<Props, State> {
                                  onCreate={this.onIntegrationCreate}/>}
                 {this.state.pageId === 'configuration' && <ConfigurationPage/>}
                 {this.state.pageId === 'kamelets' && <KameletsPage/>}
-                {this.state.pageId === 'designer' && <DesignerPage mode={this.state.mode} integration={this.state.integration}/>}
+                {this.state.pageId === 'designer' &&
+                <DesignerPage mode={this.state.mode} integration={this.state.integration}/>}
                 <Modal
                     title="Confirmation"
                     variant={ModalVariant.small}
