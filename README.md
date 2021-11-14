@@ -42,7 +42,7 @@ mvn clean package -Dquarkus.container-image.build=true
 ```
 - Build native
 ```
-DOCKER_BUILDKIT=1 docker build -f karavan/src/main/docker/Dockerfile.multistage -t entropy1/karavan-native .
+DOCKER_BUILDKIT=1 docker build -f karavan-app/src/main/docker/Dockerfile.multistage -t apache/camel-karavan .
 ```
 
 ## Development Karavan app
@@ -70,11 +70,11 @@ docker run -it -p 8080:8080 -e KARAVAN_MODE=local -v $(pwd):/deployments/integra
 
 - Run native
 ```shell script
-docker run -it -p 8080:8080 -e KARAVAN_MODE=local -v $(pwd):/deployments/integrations ghcr.io/apache/camel-karavan:latest
+docker run -it -p 8080:8080 -e KARAVAN_MODE=local -v $(pwd):/deployments/integrations ghcr.io/apache/camel-karavan-native:latest
 ```
 For SELinux
 ```shell script
-docker run -it -p 8080:8080 -e KARAVAN_MODE=local -v $(pwd):/deployments/integrations:z ghcr.io/apache/camel-karavan:latest
+docker run -it -p 8080:8080 -e KARAVAN_MODE=local -v $(pwd):/deployments/integrations:z ghcr.io/apache/camel-karavan-native:latest
 ```
 
 ## Running in cloud mode
