@@ -61,20 +61,20 @@ npm start
 ## Running in local mode
 - Run JVM Mode
 ```shell script
-docker run -it -p 8080:8080 -e KARAVAN_MODE=local -v $(pwd):/deployments/integrations ghcr.io/apache/camel-karavan:latest
+docker run -it -p 8080:8080 -v $(pwd):/deployments/integrations ghcr.io/apache/camel-karavan:latest
 ```
 For SELinux
 ```shell script
-docker run -it -p 8080:8080 -e KARAVAN_MODE=local -v $(pwd):/deployments/integrations:z ghcr.io/apache/camel-karavan:latest
+docker run -it -p 8080:8080 -v $(pwd):/deployments/integrations:z ghcr.io/apache/camel-karavan:latest
 ```
 
 - Run native
 ```shell script
-docker run -it -p 8080:8080 -e KARAVAN_MODE=local -v $(pwd):/deployments/integrations ghcr.io/apache/camel-karavan-native:latest
+docker run -it -p 8080:8080 -v $(pwd):/deployments/integrations ghcr.io/apache/camel-karavan-native:latest
 ```
 For SELinux
 ```shell script
-docker run -it -p 8080:8080 -e KARAVAN_MODE=local -v $(pwd):/deployments/integrations:z ghcr.io/apache/camel-karavan-native:latest
+docker run -it -p 8080:8080 -v $(pwd):/deployments/integrations:z ghcr.io/apache/camel-karavan-native:latest
 ```
 
 ## Running in cloud mode
