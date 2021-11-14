@@ -22,7 +22,7 @@ spec:
       containers:
       - name: karavan
         imagePullPolicy: Always
-        image: entropy1/karavan:latest
+        image: ghcr.io/apache/camel-karavan:latest
         env:
         - name: KARAVAN_MODE
           value: "cloud"
