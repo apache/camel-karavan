@@ -14,6 +14,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      #  Generate Karavan UI model and API, Kamelets and Components
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/org/apache/camel/karavan
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      - name: Generate Karavan UI model and API, Kamelets and Components
+        run: |
+          mvn clean compile exec:java -f karavan-generator \
+          -Dexec.mainClass="org.apache.camel.karavan.generator.KaravanGenerator"
+
+      #  Build Karavan standalone
+      - name: Build Karavan standalone
+        run: |
+          mvn package -f karavan-app -DskipTest \
+          -Dquarkus.container-image.build=true \
+          -Dquarkus.container-image.push=true \
+          -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}:latest \
+          -Dquarkus.container-image.username=${{ github.actor }} \
+          -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }}
+
       #  Building Karavan VSCode extensions
       - name: Set up Node
         uses: actions/setup-node@v2
@@ -42,26 +72,3 @@ jobs:
           name: camel-karavan-vscode.vsix
           path: ./karavan-vscode/*.vsix
 
-      #  Building Karavan standalone
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-
-      - name: Cache local Maven repository
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.m2/repository
-            !~/.m2/repository/org/apache/camel/karavan
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-
-      - name: Build application
-        run: |
-          mvn package -f karavan-app -DskipTest \
-          -Dquarkus.container-image.build=true \
-          -Dquarkus.container-image.push=true \
-          -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}:latest \
-          -Dquarkus.container-image.username=${{ github.actor }} \
-          -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }}
