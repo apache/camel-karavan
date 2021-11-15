@@ -2,8 +2,11 @@
 
 ## 0.0.6
 1. Extension configuration for `Run locally with CamelJBang` [#70](https://github.com/apache/camel-karavan/issues/70)
-2. Support read YAML with Implicit Expression field
-3. Support read YAML with Implicit `to`
+2. Reorder steps with drag-and-drop [#39](https://github.com/apache/camel-karavan/issues/39)
+3. Kamelets 0.5.0 [#84](https://github.com/apache/camel-karavan/issues/84)
+4. Components Catalogue 3.12.0
+5. Support read YAML with Implicit Expression field
+6. Support read YAML with Implicit `to`
 
 ## 0.0.5
 1. Support plain YAML routes file 

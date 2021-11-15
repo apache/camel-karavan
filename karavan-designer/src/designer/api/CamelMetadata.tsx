@@ -57,25 +57,25 @@ export class CamelMetadataApi {
 }
 export const Languages: [string, string, string][] = [
     ['constant','Constant',"A fixed value set only once during the route startup."],
-    ['csimple','CSimple',"Evaluate a compile simple expression language."],
-    ['datasonnet','DataSonnet',"To use DataSonnet scripts in Camel expressions or predicates."],
-    ['exchangeProperty','ExchangeProperty',"Get the value of named Camel Exchange property."],
-    ['groovy','Groovy',"Evaluate a Groovy script."],
-    ['header','Header',"Get the value of the named Camel Message header."],
-    ['hl7terser','HL7 Terser',"Get the value of an HL7 message field specified by terse location specification syntax."],
-    ['joor','jOOR',"Evaluate a jOOR (Java compiled once at runtime) expression language."],
-    ['jsonpath','JsonPath',"Evaluate a JsonPath expression against a JSON message body."],
-    ['language','Language',"Evaluate the given expression using the specified language."],
-    ['method','Bean method',"Call a method of the specified Java bean passing the Exchange, Body or specific headers to it."],
-    ['mvel','MVEL',"Evaluate an MVEL template against the Camel Exchange."],
-    ['ognl','OGNL',"Evaluate an Apache Commons Object Graph Navigation Library (OGNL) expression against the Camel Exchange."],
-    ['ref','Ref',"Look up an expression in the Camel Registry and evaluate it."],
-    ['simple','Simple',"Evaluate Camel's built-in Simple language expression against the Camel Exchange."],
-    ['spel','SpEL',"Evaluate a Spring Expression Language (SpEL) expression against the Camel Exchange."],
-    ['tokenize','Tokenize',"Tokenize text payloads using the specified delimiter patterns."],
-    ['xpath','XPath',"Evaluate an XPath expression against an XML payload."],
-    ['xquery','XQuery',"Evaluate an XQuery expressions against an XML payload."],
-    ['xtokenize','XML Tokenize',"Tokenize XML payloads using the specified path expression."],
+    ['csimple','CSimple',"Evaluate a compiled simple expression."],
+    ['datasonnet','DataSonnet',"To use DataSonnet scripts for message transformations."],
+    ['exchangeProperty','ExchangeProperty',"Gets a property from the Exchange."],
+    ['groovy','Groovy',"Evaluates a Groovy script."],
+    ['header','Header',"Gets a header from the Exchange."],
+    ['hl7terser','HL7 Terser',"Get the value of a HL7 message field specified by terse location specification syntax."],
+    ['joor','jOOR',"Evaluates a jOOR (Java compiled once at runtime) expression."],
+    ['jsonpath','JSONPath',"Evaluates a JSONPath expression against a JSON message body."],
+    ['language','Language',"Evaluates a custom language."],
+    ['method','Bean Method',"Calls a Java bean method."],
+    ['mvel','MVEL',"Evaluates a MVEL template."],
+    ['ognl','OGNL',"Evaluates an OGNL expression (Apache Commons OGNL)."],
+    ['ref','Ref',"Uses an existing expression from the registry."],
+    ['simple','Simple',"Evaluates a Camel simple expression."],
+    ['spel','SpEL',"Evaluates a Spring expression (SpEL)."],
+    ['tokenize','Tokenize',"Tokenize text payloads using delimiter patterns."],
+    ['xpath','XPath',"Evaluates an XPath expression against an XML payload."],
+    ['xquery','XQuery',"Evaluates an XQuery expressions against an XML payload."],
+    ['xtokenize','XML Tokenize',"Tokenize XML payloads."],
 ]
 export const Metadata: ElementMeta[] = [
     new ElementMeta('policy', 'Policy', 'Defines a policy the route will use', 'configuration', [
@@ -89,12 +89,12 @@ export const Metadata: ElementMeta[] = [
         new PropertyMeta('message', 'Message', "To create a new exception instance and use the given message as caused message (supports simple language)", 'string', '', '', false, false, false, false),
         new PropertyMeta('ref', 'Ref', "Reference to the exception instance to lookup from the registry to throw", 'string', '', '', false, false, false, false),
     ]),
-    new ElementMeta('choice', 'Choice', 'Routes messages based on a series of predicates', 'eip,routing', [
+    new ElementMeta('choice', 'Choice', 'Route messages based on a series of predicates', 'eip,routing', [
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
         new PropertyMeta('otherwise', 'Otherwise', "Sets the otherwise node", 'Otherwise', '', '', false, false, false, true),
-        new PropertyMeta('when', 'when', "when", 'array', '', '', false, false, true, true),
+        new PropertyMeta('when', 'When', "Sets the when nodes", 'array', '', '', false, false, true, true),
     ]),
-    new ElementMeta('pollEnrich', 'Poll Enrich', 'Enriches messages with data polled from a secondary resource', 'eip,transformation', [
+    new ElementMeta('pollEnrich', 'Poll Enrich', 'Enriches messages with data polled from a secondary resource', 'eip,routing', [
         new PropertyMeta('aggregateOnException', 'Aggregate On Exception', "If this option is false then the aggregate method is not used if there was an exception thrown while trying to retrieve the data to enrich from the resource. Setting this option to true allows end users to control what to do if there was an exception in the aggregate method. For example to suppress the exception or set a custom message body etc.", 'boolean', '', 'false', false, false, false, false),
         new PropertyMeta('cacheSize', 'Cache Size', "Sets the maximum size used by the org.apache.camel.spi.ConsumerCache which is used to cache and reuse consumers when uris are reused. Beware that when using dynamic endpoints then it affects how well the cache can be utilized. If each dynamic endpoint is unique then its best to turn of caching by setting this to -1, which allows Camel to not cache both the producers and endpoints; they are regarded as prototype scoped and will be stopped and discarded after use. This reduces memory usage as otherwise producers/endpoints are stored in memory in the caches. However if there are a high degree of dynamic endpoints that have been used before, then it can benefit to use the cache to reuse both producers and endpoints and therefore the cache size can be set accordingly or rely on the default size (1000). If there is a mix of unique and used before dynamic endpoints, then setting a reasonable cache size can help reduce memory usage to avoid storing too many non frequent used producers.", 'number', '', '', false, false, false, false),
         new PropertyMeta('expression', 'Expression', "Expression that computes the endpoint uri to use as the resource endpoint to enrich from", 'Expression', '', '', true, false, false, true),
@@ -102,7 +102,7 @@ export const Metadata: ElementMeta[] = [
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
         new PropertyMeta('strategyMethodAllowNull', 'Strategy Method Allow Null', "If this option is false then the aggregate method is not used if there was no data to enrich. If this option is true then null values is used as the oldExchange (when no data to enrich), when using POJOs as the AggregationStrategy.", 'boolean', '', 'false', false, false, false, false),
         new PropertyMeta('strategyMethodName', 'Strategy Method Name', "This option can be used to explicit declare the method name to use, when using POJOs as the AggregationStrategy.", 'string', '', '', false, false, false, false),
-        new PropertyMeta('strategyRef', 'Strategy Ref', "Refers to an AggregationStrategy to be used to merge the reply from the external service, into a single outgoing message. By default Camel will use the reply from the external service as outgoing message.", 'string', '', '', false, false, false, false),
+        new PropertyMeta('strategyRef', 'Strategy Ref', "Refers to an AggregationStrategy to be used to merge the reply from the external service, into a single outgoing message. By default Camel will use the reply from the external service as outgoing message. The value can either refer to a bean to lookup, or to lookup a singleton bean by its type, or to create a new bean: Lookup bean - This is the default behavior to lookup an existing bean by the bean id (value) reference by type - Values can refer to singleton beans by their type in the registry by prefixing with #type: syntax, eg #type:com.foo.MyClassType reference new class - Values can refer to creating new beans by their class name by prefixing with #class, eg #class:com.foo.MyClassType. The class is created using a default no-arg constructor, however if you need to create the instance via a factory method then you specify the method as shown: #class:com.foo.MyClassType#myFactoryMethod. And if the factory method requires parameters they can be specified as follows: #class:com.foo.MyClassType#myFactoryMethod('Hello World', 5, true). Or if you need to create the instance via constructor parameters then you can specify the parameters as shown: #class:com.foo.MyClass('Hello World', 5, true).", 'string', '', '', false, false, false, false),
         new PropertyMeta('timeout', 'Timeout', "Timeout in millis when polling from the external service. The timeout has influence about the poll enrich behavior. It basically operations in three different modes: negative value - Waits until a message is available and then returns it. Warning that this method could block indefinitely if no messages are available. 0 - Attempts to receive a message exchange immediately without waiting and returning null if a message exchange is not available yet. positive value - Attempts to receive a message exchange, waiting up to the given timeout to expire if a message is not yet available. Returns null if timed out The default value is -1 and therefore the method could block indefinitely, and therefore its recommended to use a timeout value", 'string', '', '-1', false, false, false, false),
     ]),
     new ElementMeta('setBody', 'Set Body', 'Sets the contents of the message body', 'eip,transformation', [
@@ -112,7 +112,7 @@ export const Metadata: ElementMeta[] = [
     new ElementMeta('stop', 'Stop', 'Stops the processing of the current message', 'eip,routing', [
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
     ]),
-    new ElementMeta('toD', 'To D', 'Sends the message to a dynamic endpoint You can specify multiple languages in the uri separated by the plus sign, such as mock:language:xpath:/order/uri where mock: would be a prefix to a xpath expression. For more dynamic behavior use Recipient List or Dynamic Router EIP instead.', 'eip,endpoint,routing', [
+    new ElementMeta('toD', 'To D', 'Sends the message to a dynamic endpoint', 'eip,routing', [
         new PropertyMeta('allowOptimisedComponents', 'Allow Optimised Components', "Whether to allow components to optimise toD if they are org.apache.camel.spi.SendDynamicAware .", 'boolean', '', 'true', false, false, false, false),
         new PropertyMeta('autoStartComponents', 'Auto Start Components', "Whether to auto startup components when toD is starting up.", 'boolean', '', 'true', false, false, false, false),
         new PropertyMeta('cacheSize', 'Cache Size', "Sets the maximum size used by the org.apache.camel.spi.ProducerCache which is used to cache and reuse producers when using this recipient list, when uris are reused. Beware that when using dynamic endpoints then it affects how well the cache can be utilized. If each dynamic endpoint is unique then its best to turn of caching by setting this to -1, which allows Camel to not cache both the producers and endpoints; they are regarded as prototype scoped and will be stopped and discarded after use. This reduces memory usage as otherwise producers/endpoints are stored in memory in the caches. However if there are a high degree of dynamic endpoints that have been used before, then it can benefit to use the cache to reuse both producers and endpoints and therefore the cache size can be set accordingly or rely on the default size (1000). If there is a mix of unique and used before dynamic endpoints, then setting a reasonable cache size can help reduce memory usage to avoid storing too many non frequent used producers.", 'number', '', '', false, false, false, false),
@@ -165,12 +165,12 @@ export const Metadata: ElementMeta[] = [
         new PropertyMeta('expression', 'Expression', "Optional expression to sort by something else than the message body", 'Expression', '', '', true, false, false, true),
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
     ]),
-    new ElementMeta('from', 'From', 'Act as a message source as input to a route', 'eip,endpoint,routing', [
+    new ElementMeta('from', 'From', 'Act as a message source as input to a route', 'eip,routing', [
         new PropertyMeta('parameters', 'parameters', "parameters", 'object', '', '', false, false, false, false),
         new PropertyMeta('steps', 'steps', "steps", 'array', '', '', false, false, true, true),
         new PropertyMeta('uri', 'Uri', "Sets the URI of the endpoint to use", 'string', '', '', true, false, false, false),
     ]),
-    new ElementMeta('to', 'To', 'Sends the message to a static endpoint', 'eip,endpoint,routing', [
+    new ElementMeta('to', 'To', 'Sends the message to a static endpoint', 'eip,routing', [
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
         new PropertyMeta('parameters', 'parameters', "parameters", 'object', '', '', false, false, false, false),
         new PropertyMeta('pattern', 'Pattern', "Sets the optional ExchangePattern used to invoke this endpoint", 'string', 'InOnly, InOptionalOut, InOut', '', false, false, false, false),
@@ -211,9 +211,9 @@ export const Metadata: ElementMeta[] = [
         new PropertyMeta('shareUnitOfWork', 'Share Unit Of Work', "Shares the org.apache.camel.spi.UnitOfWork with the parent and the resource exchange. Enrich will by default not share unit of work between the parent exchange and the resource exchange. This means the resource exchange has its own individual unit of work.", 'boolean', '', 'false', false, false, false, false),
         new PropertyMeta('strategyMethodAllowNull', 'Strategy Method Allow Null', "If this option is false then the aggregate method is not used if there was no data to enrich. If this option is true then null values is used as the oldExchange (when no data to enrich), when using POJOs as the AggregationStrategy.", 'string', '', '', false, false, false, false),
         new PropertyMeta('strategyMethodName', 'Strategy Method Name', "This option can be used to explicit declare the method name to use, when using POJOs as the AggregationStrategy.", 'string', '', '', false, false, false, false),
-        new PropertyMeta('strategyRef', 'Strategy Ref', "Refers to an AggregationStrategy to be used to merge the reply from the external service, into a single outgoing message. By default Camel will use the reply from the external service as outgoing message.", 'string', '', '', false, false, false, false),
+        new PropertyMeta('strategyRef', 'Strategy Ref', "Refers to an AggregationStrategy to be used to merge the reply from the external service, into a single outgoing message. By default Camel will use the reply from the external service as outgoing message. The value can either refer to a bean to lookup, or to lookup a singleton bean by its type, or to create a new bean: Lookup bean - This is the default behavior to lookup an existing bean by the bean id (value) reference by type - Values can refer to singleton beans by their type in the registry by prefixing with #type: syntax, eg #type:com.foo.MyClassType reference new class - Values can refer to creating new beans by their class name by prefixing with #class, eg #class:com.foo.MyClassType. The class is created using a default no-arg constructor, however if you need to create the instance via a factory method then you specify the method as shown: #class:com.foo.MyClassType#myFactoryMethod. And if the factory method requires parameters they can be specified as follows: #class:com.foo.MyClassType#myFactoryMethod('Hello World', 5, true). Or if you need to create the instance via constructor parameters then you can specify the parameters as shown: #class:com.foo.MyClass('Hello World', 5, true).", 'string', '', '', false, false, false, false),
     ]),
-    new ElementMeta('log', 'Log', 'Logs the defined message to the logger', 'eip,configuration', [
+    new ElementMeta('log', 'Log', 'Logs the defined message to the logger', 'eip,routing', [
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
         new PropertyMeta('logName', 'Log Name', "Sets the name of the logger", 'string', '', '', false, false, false, false),
         new PropertyMeta('loggerRef', 'Logger Ref', "To refer to a custom logger instance to lookup from the registry.", 'string', '', '', false, false, false, false),
@@ -272,7 +272,7 @@ export const Metadata: ElementMeta[] = [
         new PropertyMeta('onWhen', 'On When', "Sets an additional predicate that should be true before the onCatch is triggered. To be used for fine grained controlling whether a thrown exception should be intercepted by this exception type or not.", 'When', '', '', false, false, false, true),
         new PropertyMeta('steps', 'steps', "steps", 'array', '', '', false, false, true, true),
     ]),
-    new ElementMeta('circuitBreaker', 'Circuit Breaker', 'null', 'eip,routing,circuitbreaker', [
+    new ElementMeta('circuitBreaker', 'Circuit Breaker', 'Route messages in a fault tolerance way using Circuit Breaker', 'eip,routing', [
         new PropertyMeta('configurationRef', 'Configuration Ref', "Refers to a circuit breaker configuration (such as hystrix, resillience4j, or microprofile-fault-tolerance) to use for configuring the circuit breaker EIP.", 'string', '', '', false, false, false, false),
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
         new PropertyMeta('onFallback', 'onFallback', "onFallback", 'OnFallback', '', '', false, false, false, true),
@@ -281,7 +281,7 @@ export const Metadata: ElementMeta[] = [
     new ElementMeta('convertBodyTo', 'Convert Body To', 'Converts the message body to another type', 'eip,transformation', [
         new PropertyMeta('charset', 'Charset', "To use a specific charset when converting", 'string', '', '', false, false, false, false),
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
-        new PropertyMeta('mandatory', 'mandatory', "mandatory", 'boolean', '', '', false, false, false, false),
+        new PropertyMeta('mandatory', 'Mandatory', "When mandatory then the conversion must return a value (cannot be null), if this is not possible then NoTypeConversionAvailableException is thrown. Setting this to false could mean conversion is not possible and the value is null.", 'boolean', '', 'true', false, false, false, false),
         new PropertyMeta('type', 'Type', "The java type to convert to", 'string', '', '', true, false, false, false),
     ]),
     new ElementMeta('intercept', 'Intercept', 'Intercepts a message at each step in the route', 'configuration', [
@@ -300,7 +300,7 @@ export const Metadata: ElementMeta[] = [
         new PropertyMeta('thrift', 'thrift', "thrift", 'string', '', '', false, false, false, false),
         new PropertyMeta('xstream', 'xstream', "xstream", 'string', '', '', false, false, false, false),
     ]),
-    new ElementMeta('onFallback', 'On Fallback', 'Route to be executed when Hystrix EIP executes fallback', 'eip,routing,circuitbreaker', [
+    new ElementMeta('onFallback', 'On Fallback', 'Route to be executed when Hystrix EIP executes fallback', 'eip,routing', [
         new PropertyMeta('fallbackViaNetwork', 'Fallback Via Network', "Whether the fallback goes over the network. If the fallback will go over the network it is another possible point of failure and so it also needs to be wrapped by a HystrixCommand. It is important to execute the fallback command on a separate thread-pool, otherwise if the main command were to become latent and fill the thread-pool this would prevent the fallback from running if the two commands share the same pool.", 'boolean', '', 'false', false, false, false, false),
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
         new PropertyMeta('steps', 'steps', "steps", 'array', '', '', false, false, true, true),
@@ -309,7 +309,7 @@ export const Metadata: ElementMeta[] = [
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
         new PropertyMeta('pattern', 'Pattern', "Sets the new exchange pattern of the Exchange to be used from this point forward", 'string', 'InOnly, InOptionalOut, InOut', '', true, false, false, false),
     ]),
-    new ElementMeta('recipientList', 'Recipient List', 'Routes messages to a number of dynamically specified recipients (dynamic to)', 'eip,endpoint,routing', [
+    new ElementMeta('recipientList', 'Recipient List', 'Route messages to a number of dynamically specified recipients (dynamic to)', 'eip,routing', [
         new PropertyMeta('cacheSize', 'Cache Size', "Sets the maximum size used by the org.apache.camel.spi.ProducerCache which is used to cache and reuse producers when using this recipient list, when uris are reused. Beware that when using dynamic endpoints then it affects how well the cache can be utilized. If each dynamic endpoint is unique then its best to turn of caching by setting this to -1, which allows Camel to not cache both the producers and endpoints; they are regarded as prototype scoped and will be stopped and discarded after use. This reduces memory usage as otherwise producers/endpoints are stored in memory in the caches. However if there are a high degree of dynamic endpoints that have been used before, then it can benefit to use the cache to reuse both producers and endpoints and therefore the cache size can be set accordingly or rely on the default size (1000). If there is a mix of unique and used before dynamic endpoints, then setting a reasonable cache size can help reduce memory usage to avoid storing too many non frequent used producers.", 'number', '', '', false, false, false, false),
         new PropertyMeta('delimiter', 'Delimiter', "Delimiter used if the Expression returned multiple endpoints. Can be turned off using the value false. The default value is ,", 'string', '', ',', false, false, false, false),
         new PropertyMeta('executorServiceRef', 'Executor Service Ref', "Refers to a custom Thread Pool to be used for parallel processing. Notice if you set this option, then parallel processing is automatic implied, and you do not have to enable that option as well.", 'string', '', '', false, false, false, false),
@@ -352,7 +352,7 @@ export const Metadata: ElementMeta[] = [
         new PropertyMeta('streaming', 'Streaming', "If enabled then Camel will process replies out-of-order, eg in the order they come back. If disabled, Camel will process replies in the same order as defined by the multicast.", 'boolean', '', 'false', false, false, false, false),
         new PropertyMeta('timeout', 'Timeout', "Sets a total timeout specified in millis, when using parallel processing. If the Multicast hasn't been able to send and process all replies within the given timeframe, then the timeout triggers and the Multicast breaks out and continues. Notice if you provide a TimeoutAwareAggregationStrategy then the timeout method is invoked before breaking out. If the timeout is reached with running tasks still remaining, certain tasks for which it is difficult for Camel to shut down in a graceful manner may continue to run. So use this option with a bit of care.", 'string', '', '0', false, false, false, false),
     ]),
-    new ElementMeta('inOnly', 'In Only', 'Marks the exchange pattern for the route to one way', 'eip,endpoint,routing', [
+    new ElementMeta('inOnly', 'In Only', 'Marks the exchange pattern for the route to one way', 'eip,routing', [
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
         new PropertyMeta('parameters', 'parameters', "parameters", 'object', '', '', false, false, false, false),
         new PropertyMeta('uri', 'Uri', "Sets the uri of the endpoint to send to.", 'string', '', '', true, false, false, false),
@@ -362,7 +362,7 @@ export const Metadata: ElementMeta[] = [
         new PropertyMeta('inheritErrorHandler', 'Inherit Error Handler', "Sets whether or not to inherit the configured error handler. The default value is true. You can use this to disable using the inherited error handler for a given DSL such as a load balancer where you want to use a custom error handler strategy.", 'boolean', '', 'false', false, false, false, false),
         new PropertyMeta('steps', 'steps', "steps", 'array', '', '', false, false, true, true),
     ]),
-    new ElementMeta('routingSlip', 'Routing Slip', 'Routes a message through a series of steps that are pre-determined (the slip)', 'eip,endpoint,routing', [
+    new ElementMeta('routingSlip', 'Routing Slip', 'Routes a message through a series of steps that are pre-determined (the slip)', 'eip,routing', [
         new PropertyMeta('cacheSize', 'Cache Size', "Sets the maximum size used by the org.apache.camel.spi.ProducerCache which is used to cache and reuse producers when using this routing slip, when uris are reused. Beware that when using dynamic endpoints then it affects how well the cache can be utilized. If each dynamic endpoint is unique then its best to turn of caching by setting this to -1, which allows Camel to not cache both the producers and endpoints; they are regarded as prototype scoped and will be stopped and discarded after use. This reduces memory usage as otherwise producers/endpoints are stored in memory in the caches. However if there are a high degree of dynamic endpoints that have been used before, then it can benefit to use the cache to reuse both producers and endpoints and therefore the cache size can be set accordingly or rely on the default size (1000). If there is a mix of unique and used before dynamic endpoints, then setting a reasonable cache size can help reduce memory usage to avoid storing too many non frequent used producers.", 'number', '', '', false, false, false, false),
         new PropertyMeta('expression', 'Expression', "Expression to define the routing slip, which defines which endpoints to route the message in a pipeline style. Notice the expression is evaluated once, if you want a more dynamic style, then the dynamic router eip is a better choice.", 'Expression', '', '', true, false, false, true),
         new PropertyMeta('ignoreInvalidEndpoints', 'Ignore Invalid Endpoints', "Ignore the invalidate endpoint exception when try to create a producer with that endpoint", 'boolean', '', 'false', false, false, false, false),
@@ -380,7 +380,7 @@ export const Metadata: ElementMeta[] = [
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
         new PropertyMeta('steps', 'steps', "steps", 'array', '', '', false, false, true, true),
     ]),
-    new ElementMeta('wireTap', 'Wire Tap', 'Routes a copy of a message (or creates a new message) to a secondary destination while continue routing the original message.', 'eip,endpoint,routing', [
+    new ElementMeta('wireTap', 'Wire Tap', 'Routes a copy of a message (or creates a new message) to a secondary destination while continue routing the original message.', 'eip,routing', [
         new PropertyMeta('allowOptimisedComponents', 'Allow Optimised Components', "Whether to allow components to optimise toD if they are org.apache.camel.spi.SendDynamicAware .", 'boolean', '', 'true', false, false, false, false),
         new PropertyMeta('autoStartComponents', 'Auto Start Components', "Whether to auto startup components when toD is starting up.", 'boolean', '', 'true', false, false, false, false),
         new PropertyMeta('body', 'Body', "Uses the expression for creating a new body as the message to use for wire tapping", 'Expression', '', '', false, false, false, true),
@@ -458,7 +458,7 @@ export const Metadata: ElementMeta[] = [
         new PropertyMeta('serviceFilterRef', 'Service Filter Ref', "Sets a reference to a custom ServiceFilter to use.", 'string', '', '', false, false, false, false),
         new PropertyMeta('uri', 'Uri', "The uri of the endpoint to send to. The uri can be dynamic computed using the org.apache.camel.language.simple.SimpleLanguage expression.", 'string', '', '', false, false, false, false),
     ]),
-    new ElementMeta('kamelet', 'Kamelet', 'To call Kamelets', 'eip,routing,kamelet', [
+    new ElementMeta('kamelet', 'Kamelet', 'To call Kamelets', 'eip,routing', [
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
         new PropertyMeta('name', 'Name', "Name of the Kamelet (templateId/routeId) to call. Options for the kamelet can be specified using uri syntax, eg mynamecount=4&type=gold.", 'string', '', '', true, false, false, false),
         new PropertyMeta('parameters', 'parameters', "parameters", 'object', '', '', false, false, false, false),
@@ -469,10 +469,10 @@ export const Metadata: ElementMeta[] = [
         new PropertyMeta('samplePeriod', 'Sample Period', "Sets the sample period during which only a single Exchange will pass through.", 'string', '', '1s', false, false, false, false),
         new PropertyMeta('units', 'Units', "Sets the time units for the sample period, defaulting to seconds.", 'string', 'DAYS, HOURS, MICROSECONDS, MILLISECONDS, MINUTES, NANOSECONDS, SECONDS', 'SECONDS', false, false, false, false),
     ]),
-    new ElementMeta('dynamicRouter', 'Dynamic Router', 'Routes messages based on dynamic rules', 'eip,endpoint,routing', [
+    new ElementMeta('dynamicRouter', 'Dynamic Router', 'Route messages based on dynamic rules', 'eip,routing', [
         new PropertyMeta('cacheSize', 'Cache Size', "Sets the maximum size used by the org.apache.camel.spi.ProducerCache which is used to cache and reuse producers when using this dynamic router, when uris are reused. Beware that when using dynamic endpoints then it affects how well the cache can be utilized. If each dynamic endpoint is unique then its best to turn of caching by setting this to -1, which allows Camel to not cache both the producers and endpoints; they are regarded as prototype scoped and will be stopped and discarded after use. This reduces memory usage as otherwise producers/endpoints are stored in memory in the caches. However if there are a high degree of dynamic endpoints that have been used before, then it can benefit to use the cache to reuse both producers and endpoints and therefore the cache size can be set accordingly or rely on the default size (1000). If there is a mix of unique and used before dynamic endpoints, then setting a reasonable cache size can help reduce memory usage to avoid storing too many non frequent used producers.", 'number', '', '', false, false, false, false),
         new PropertyMeta('expression', 'Expression', "Expression to call that returns the endpoint(s) to route to in the dynamic routing. Important: The expression will be called in a while loop fashion, until the expression returns null which means the dynamic router is finished.", 'Expression', '', '', true, false, false, true),
-        new PropertyMeta('ignoreInvalidEndpoints', 'Ignore Invalid Endpoints', "Ignore the invalidate endpoint exception when try to create a producer with that endpoint", 'boolean', '', '', false, false, false, false),
+        new PropertyMeta('ignoreInvalidEndpoints', 'Ignore Invalid Endpoints', "Ignore the invalidate endpoint exception when try to create a producer with that endpoint", 'boolean', '', 'false', false, false, false, false),
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
         new PropertyMeta('uriDelimiter', 'Uri Delimiter', "Sets the uri delimiter to use", 'string', '', ',', false, false, false, false),
     ]),
@@ -480,7 +480,7 @@ export const Metadata: ElementMeta[] = [
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
         new PropertyMeta('steps', 'steps', "steps", 'array', '', '', false, false, true, true),
     ]),
-    new ElementMeta('saga', 'Saga', 'Enables sagas on the route', 'eip,routing', [
+    new ElementMeta('saga', 'Saga', 'Enables Sagas on the route', 'eip,routing', [
         new PropertyMeta('compensation', 'Compensation', "The compensation endpoint URI that must be called to compensate all changes done in the route. The route corresponding to the compensation URI must perform compensation and complete without error. If errors occur during compensation, the saga service may call again the compensation URI to retry.", 'string', '', '', false, false, false, false),
         new PropertyMeta('completion', 'Completion', "The completion endpoint URI that will be called when the Saga is completed successfully. The route corresponding to the completion URI must perform completion tasks and terminate without error. If errors occur during completion, the saga service may call again the completion URI to retry.", 'string', '', '', false, false, false, false),
         new PropertyMeta('completionMode', 'Completion Mode', "Determine how the saga should be considered complete. When set to AUTO, the saga is completed when the exchange that initiates the saga is processed successfully, or compensated when it completes exceptionally. When set to MANUAL, the user must complete or compensate the saga using the saga:complete or saga:compensate endpoints.", 'string', 'AUTO, MANUAL', 'AUTO', false, false, false, false),
@@ -504,7 +504,7 @@ export const Metadata: ElementMeta[] = [
         new PropertyMeta('threadName', 'Thread Name', "Sets the thread name to use.", 'string', '', 'Threads', false, false, false, false),
         new PropertyMeta('timeUnit', 'Time Unit', "Sets the keep alive time unit. By default SECONDS is used.", 'string', 'DAYS, HOURS, MICROSECONDS, MILLISECONDS, MINUTES, NANOSECONDS, SECONDS', '', false, false, false, false),
     ]),
-    new ElementMeta('when', 'When', 'Triggers a route when an expression evaluates to true', 'eip,routing', [
+    new ElementMeta('when', 'When', 'Triggers a route when the expression evaluates to true', 'eip,routing', [
         new PropertyMeta('expression', 'Expression', "Expression used as the predicate to evaluate whether this when should trigger and route the message or not.", 'Expression', '', '', true, false, false, true),
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
         new PropertyMeta('steps', 'steps', "steps", 'array', '', '', false, false, true, true),
@@ -515,7 +515,7 @@ export const Metadata: ElementMeta[] = [
         new PropertyMeta('key', 'Key', "To use a specific key for claim check id (for dynamic keys use simple language syntax as the key).", 'string', '', '', false, false, false, false),
         new PropertyMeta('operation', 'Operation', "The claim check operation to use. The following operations is supported: Get - Gets (does not remove) the claim check by the given key. GetAndRemove - Gets and remove the claim check by the given key. Set - Sets a new (will override if key already exists) claim check with the given key. Push - Sets a new claim check on the stack (does not use key). Pop - Gets the latest claim check from the stack (does not use key).", 'string', 'Get, GetAndRemove, Pop, Push, Set', '', false, false, false, false),
         new PropertyMeta('strategyMethodName', 'Strategy Method Name', "This option can be used to explicit declare the method name to use, when using POJOs as the AggregationStrategy.", 'string', '', '', false, false, false, false),
-        new PropertyMeta('strategyRef', 'Strategy Ref', "To use a custom AggregationStrategy instead of the default implementation. Notice you cannot use both custom aggregation strategy and configure data at the same time.", 'string', '', '', false, false, false, false),
+        new PropertyMeta('strategyRef', 'Strategy Ref', "To use a custom AggregationStrategy instead of the default implementation. Notice you cannot use both custom aggregation strategy and configure data at the same time. The value can either refer to a bean to lookup, or to lookup a singleton bean by its type, or to create a new bean: Lookup bean - This is the default behavior to lookup an existing bean by the bean id (value) reference by type - Values can refer to singleton beans by their type in the registry by prefixing with #type: syntax, eg #type:com.foo.MyClassType reference new class - Values can refer to creating new beans by their class name by prefixing with #class, eg #class:com.foo.MyClassType. The class is created using a default no-arg constructor, however if you need to create the instance via a factory method then you specify the method as shown: #class:com.foo.MyClassType#myFactoryMethod. And if the factory method requires parameters they can be specified as follows: #class:com.foo.MyClassType#myFactoryMethod('Hello World', 5, true). Or if you need to create the instance via constructor parameters then you can specify the parameters as shown: #class:com.foo.MyClass('Hello World', 5, true).", 'string', '', '', false, false, false, false),
     ]),
     new ElementMeta('doFinally', 'Do Finally', 'Path traversed when a try, catch, finally block exits', 'error', [
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
@@ -551,9 +551,9 @@ export const Metadata: ElementMeta[] = [
         new PropertyMeta('optimisticLocking', 'Optimistic Locking', "Turns on using optimistic locking, which requires the aggregationRepository being used, is supporting this by implementing org.apache.camel.spi.OptimisticLockingAggregationRepository .", 'boolean', '', 'false', false, false, false, false),
         new PropertyMeta('parallelProcessing', 'Parallel Processing', "When aggregated are completed they are being send out of the aggregator. This option indicates whether or not Camel should use a thread pool with multiple threads for concurrency. If no custom thread pool has been specified then Camel creates a default pool with 10 concurrent threads.", 'boolean', '', 'false', false, false, false, false),
         new PropertyMeta('steps', 'steps', "steps", 'array', '', '', false, false, true, true),
-        new PropertyMeta('strategyMethodAllowNull', 'Strategy Method Allow Null', "If this option is false then the aggregate method is not used for the very first aggregation. If this option is true then null values is used as the oldExchange (at the very first aggregation), when using POJOs as the AggregationStrategy.", 'boolean', '', 'false', false, false, false, false),
-        new PropertyMeta('strategyMethodName', 'Strategy Method Name', "This option can be used to explicit declare the method name to use, when using POJOs as the AggregationStrategy.", 'string', '', '', false, false, false, false),
-        new PropertyMeta('strategyRef', 'Strategy Ref', "A reference to lookup the AggregationStrategy in the Registry. Configuring an AggregationStrategy is required, and is used to merge the incoming Exchange with the existing already merged exchanges. At first call the oldExchange parameter is null. On subsequent invocations the oldExchange contains the merged exchanges and newExchange is of course the new incoming Exchange.", 'string', '', '', false, false, false, false),
+        new PropertyMeta('strategyMethodAllowNull', 'Strategy Method Allow Null', "If this option is false then the aggregate method is not used for the very first aggregation. If this option is true then null values is used as the oldExchange (at the very first aggregation), when using beans as the AggregationStrategy.", 'boolean', '', 'false', false, false, false, false),
+        new PropertyMeta('strategyMethodName', 'Strategy Method Name', "This option can be used to explicit declare the method name to use, when using beans as the AggregationStrategy.", 'string', '', '', false, false, false, false),
+        new PropertyMeta('strategyRef', 'Strategy Ref', "A reference to lookup the AggregationStrategy in the Registry. The value can either refer to a bean to lookup, or to lookup a singleton bean by its type, or to create a new bean: Lookup bean - This is the default behavior to lookup an existing bean by the bean id (value) reference by type - Values can refer to singleton beans by their type in the registry by prefixing with #type: syntax, eg #type:com.foo.MyClassType reference new class - Values can refer to creating new beans by their class name by prefixing with #class, eg #class:com.foo.MyClassType. The class is created using a default no-arg constructor, however if you need to create the instance via a factory method then you specify the method as shown: #class:com.foo.MyClassType#myFactoryMethod. And if the factory method requires parameters they can be specified as follows: #class:com.foo.MyClassType#myFactoryMethod('Hello World', 5, true). Or if you need to create the instance via constructor parameters then you can specify the parameters as shown: #class:com.foo.MyClass('Hello World', 5, true). Configuring an AggregationStrategy is required, and is used to merge the incoming Exchange with the existing already merged exchanges. At first call the oldExchange parameter is null. On subsequent invocations the oldExchange contains the merged exchanges and newExchange is of course the new incoming Exchange.", 'string', '', '', false, false, false, false),
         new PropertyMeta('timeoutCheckerExecutorServiceRef', 'Timeout Checker Executor Service Ref', "If using either of the completionTimeout, completionTimeoutExpression, or completionInterval options a background thread is created to check for the completion for every aggregator. Set this option to provide a custom thread pool to be used rather than creating a new thread for every aggregator.", 'string', '', '', false, false, false, false),
     ]),
     new ElementMeta('transform', 'Transform', 'Transforms the message body based on an expression', 'eip,transformation', [
@@ -575,7 +575,7 @@ export const Metadata: ElementMeta[] = [
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
         new PropertyMeta('name', 'Name', "Name of exchange property to set a new value. The simple language can be used to define a dynamic evaluated exchange property name to be used. Otherwise a constant name will be used.", 'string', '', '', true, false, false, false),
     ]),
-    new ElementMeta('inOut', 'In Out', 'Marks the exchange pattern for the route to request/reply', 'eip,endpoint,routing', [
+    new ElementMeta('inOut', 'In Out', 'Marks the exchange pattern for the route to request/reply', 'eip,routing', [
         new PropertyMeta('inheritErrorHandler', 'inheritErrorHandler', "inheritErrorHandler", 'boolean', '', '', false, false, false, false),
         new PropertyMeta('parameters', 'parameters', "parameters", 'object', '', '', false, false, false, false),
         new PropertyMeta('uri', 'Uri', "Sets the uri of the endpoint to send to.", 'string', '', '', true, false, false, false),
