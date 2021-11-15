@@ -4,7 +4,7 @@ metadata:
   name: google-sheets-source
   annotations:
     camel.apache.org/kamelet.support.level: "Preview"
-    camel.apache.org/catalog.version: "0.4.0"
+    camel.apache.org/catalog.version: "0.5.0"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDI1LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCA2NCA4OCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNjQgODg7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPHN0eWxlIHR5cGU9InRleHQvY3NzIj4KCS5zdDB7ZmlsbDojMERDNTRDO30KCS5zdDF7ZmlsbDojMDg5NjJEO30KCS5zdDJ7ZmlsbDojRkRGRkZGO30KPC9zdHlsZT4KPGcgaWQ9IkxheWVyXzQiPgoJPHBhdGggY2xhc3M9InN0MCIgZD0iTTU4LDg4SDZjLTMuMywwLTYtMi43LTYtNlY2YzAtMy4zLDIuNy02LDYtNmgzNmwyMiwyMnY2MEM2NCw4NS4zLDYxLjMsODgsNTgsODh6Ii8+Cgk8cGF0aCBjbGFzcz0ic3QxIiBkPSJNNDIsMGwyMiwyMkg0MlYweiIvPgoJPHBhdGggY2xhc3M9InN0MiIgZD0iTTEyLDM0LjV2MjhoNDB2LTI4SDEyeiBNMTcsMzkuNWgxMi41VjQ2SDE3VjM5LjV6IE0xNyw1MWgxMi41djYuNUgxN1Y1MXogTTQ3LDU3LjVIMzQuNVY1MUg0N1Y1Ny41eiBNNDcsNDYKCQlIMzQuNXYtNi41SDQ3VjQ2eiIvPgo8L2c+Cjwvc3ZnPgo="
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "Google Sheets"
@@ -40,6 +40,7 @@ spec:
         format: password
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:password
+        - urn:camel:group:credentials
       clientSecret:
         title: Client Secret
         description: Client Secret of the sheets application
@@ -47,6 +48,7 @@ spec:
         format: password
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:password
+        - urn:camel:group:credentials
       accessToken:
         title: Access Token
         description: OAuth 2 access token for google sheets application. This typically expires after an hour so refreshToken is recommended for long term usage.
@@ -54,6 +56,7 @@ spec:
         format: password
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:password
+        - urn:camel:group:credentials
       refreshToken:
         title: Refresh Token
         description: OAuth 2 refresh token for google sheets application. Using this, the Google Calendar component can obtain a new accessToken whenever the current one expires - a necessity if the application is long-lived.
@@ -61,11 +64,16 @@ spec:
         format: password
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:password
+        - urn:camel:group:credentials
       delay:
         title: Delay
         description: Milliseconds before the next poll
         type: integer
         default: 500
+      repeatCount:
+        title: Repeat Count
+        description: Specifies a maximum limit of number of fires
+        type: integer
       applicationName:
         title: Application name
         description: Google Sheets application name
@@ -104,6 +112,7 @@ spec:
         applicationName: "{{applicationName}}"
         splitResults: "{{splitResults}}"
         range: "{{range}}"
+        repeatCount: "{{?repeatCount}}"
       steps:
       - marshal:
           json: {}
