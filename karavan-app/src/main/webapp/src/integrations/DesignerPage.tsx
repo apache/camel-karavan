@@ -4,14 +4,16 @@ import {
     PageSection, Text, TextContent, ToggleGroup, ToggleGroupItem, Toolbar, ToolbarContent, ToolbarItem
 } from '@patternfly/react-core';
 import PublishIcon from '@patternfly/react-icons/dist/esm/icons/openshift-icon';
+import DownloadIcon from '@patternfly/react-icons/dist/esm/icons/download-icon';
 import SaveIcon from '@patternfly/react-icons/dist/esm/icons/upload-icon';
 import CopyIcon from '@patternfly/react-icons/dist/esm/icons/copy-icon';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
-import {CamelElement, Integration} from "../designer/model/CamelModel";
+import {Integration} from "../designer/model/CamelModel";
 import {KaravanApi} from "../api/KaravanApi";
 import {CamelYaml} from "../designer/api/CamelYaml";
 import {KaravanDesigner} from "../designer/ui/KaravanDesigner";
+import FileSaver from "file-saver";
 
 interface Props {
     integration: Integration,
@@ -81,6 +83,11 @@ export class DesignerPage extends React.Component<Props, State> {
         this.setState({name: name, yaml:yaml})
     }
 
+    download = () => {
+        const file = new File([this.state.yaml], this.state.integration.metadata.name, {type: "application/yaml;charset=utf-8"});
+        FileSaver.saveAs(file);
+    }
+
     tools = (view: "design" | "code") => (
         <Toolbar id="toolbar-group-types">
             <ToolbarContent>
@@ -89,11 +96,12 @@ export class DesignerPage extends React.Component<Props, State> {
                     <Button variant="secondary" icon={<PublishIcon/>} onClick={e => this.publish()}>Publish</Button>
                 </ToolbarItem>
                 }
-                {this.props.mode === 'local' &&
                 <ToolbarItem>
                     <Button variant="secondary" icon={<CopyIcon/>} onClick={e => this.copy()}>Copy</Button>
                 </ToolbarItem>
-                }
+                <ToolbarItem>
+                    <Button variant="secondary" icon={<DownloadIcon/>} onClick={e => this.download()}>Download</Button>
+                </ToolbarItem>
                 <ToolbarItem>
                     <Button variant="secondary" icon={<SaveIcon/>} onClick={e => this.post()}>Save</Button>
                 </ToolbarItem>

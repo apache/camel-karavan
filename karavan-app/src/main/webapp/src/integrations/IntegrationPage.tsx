@@ -16,7 +16,6 @@ import {MainToolbar} from "../MainToolbar";
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import {Integration} from "../designer/model/CamelModel";
-import {CamelApi} from "../designer/api/CamelApi";
 import {CamelUi} from "../designer/api/CamelUi";
 
 interface Props {
@@ -69,6 +68,7 @@ export class IntegrationPage extends React.Component<Props, State> {
     closeModal = () => {
         this.setState({isModalOpen:false, newName:""});
     }
+
     saveAndCloseModal = () => {
         const name = CamelUi.nameFromTitle(this.state.newName) + ".yaml";
         const i = Integration.createNew(name);
