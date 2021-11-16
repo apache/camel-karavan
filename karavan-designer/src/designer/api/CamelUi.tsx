@@ -87,8 +87,9 @@ export class CamelUi {
     };
 
     static sortSelectorModels = (models: DslMetaModel[]): DslMetaModel[] => {
-        return models.sort((a, b) => (a.title > b.title ? 1 : -1));
+        return models.sort((a, b) => (a.title.toLowerCase() > b.title.toLowerCase() ? 1 : -1));
     };
+
     static getSelectorModels = (
         label: string,
         type: "component" | "dsl" | "kamel",
