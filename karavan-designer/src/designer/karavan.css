@@ -604,6 +604,19 @@
     display: contents;
 }
 
+.dsl-modal .pf-c-card__body {
+    padding-bottom: 0;
+}
+
+.dsl-modal .pf-c-card__footer {
+    padding-bottom: 1em;
+}
+
+.dsl-modal .version {
+    text-align: right;
+    opacity: 0.5;
+}
+
 .yaml-code {
     overflow: auto;
     height: 100%;

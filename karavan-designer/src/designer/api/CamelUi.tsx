@@ -35,7 +35,7 @@ const DslElements: string[] = [
     "enrich",
     "filter",
     "log",
-    // "kamelet",
+    // "kamelet", ???
     "loop",
     "marshal",
     "multicast",
@@ -53,6 +53,7 @@ const DslElements: string[] = [
     "throttle",
     "toD",
     "transform",
+    "transacted",
     "unmarshal",
     "validate",
     "wireTap",
@@ -140,6 +141,7 @@ export class CamelUi {
                             uri: c.component.name,
                             title: c.component.title,
                             description: c.component.description,
+                            version: c.component.version,
                         })
                 );
         } else {
@@ -155,6 +157,7 @@ export class CamelUi {
                             name: k.metadata.name,
                             title: k.title(),
                             description: k.title(),
+                            version: k.version(),
                         })
                 );
         }

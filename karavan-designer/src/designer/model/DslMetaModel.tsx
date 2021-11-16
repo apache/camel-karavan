@@ -22,6 +22,7 @@ export class DslMetaModel {
     description: string = ''
     label: string = ''
     javaType: string = ''
+    version: string = ''
     properties: any;
 
     public constructor(init?: Partial<DslMetaModel>) {

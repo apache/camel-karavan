@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    Card, CardBody, CardHeader, Form, FormGroup, Gallery, Modal, PageSection,
+    Card, CardBody, CardFooter, CardHeader, Form, FormGroup, Gallery, Modal, PageSection,
     Tab, Tabs, TabTitleText,
     Text, TextInput,
 } from '@patternfly/react-core';
@@ -130,6 +130,9 @@ export class DslSelector extends React.Component<Props, State> {
                                                 <CardBody>
                                                     <Text>{dsl.description}</Text>
                                                 </CardBody>
+                                                <CardFooter>
+                                                    <Text className="version">{dsl.version}</Text>
+                                                </CardFooter>
                                             </Card>
                                         ))}
                                 </Gallery>
