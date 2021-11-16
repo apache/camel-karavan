@@ -207,7 +207,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
                                 variant={this.state.integration.spec.flows.length === 0 ? "primary" : "secondary"}
                                 data-click="ADD_FLOW"
                                 icon={<PlusIcon/>}
-                                onClick={e => this.openSelector(undefined, undefined)}>Add flow
+                                onClick={e => this.openSelector(undefined, undefined)}>Add new flow
                             </Button>
                         </div>
                     </div>
