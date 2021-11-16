@@ -8,7 +8,7 @@ import {
     PageSection,
     TextContent,
     Text,
-    Button, Modal, FormGroup, ModalVariant, Switch, Form
+    Button, Modal, FormGroup, ModalVariant, Switch, Form, FormSelect, FormSelectOption
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {IntegrationCard} from "./IntegrationCard";
@@ -16,7 +16,6 @@ import {MainToolbar} from "../MainToolbar";
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import {Integration} from "../designer/model/CamelModel";
-import {CamelApi} from "../designer/api/CamelApi";
 import {CamelUi} from "../designer/api/CamelUi";
 
 interface Props {
@@ -69,6 +68,7 @@ export class IntegrationPage extends React.Component<Props, State> {
     closeModal = () => {
         this.setState({isModalOpen:false, newName:""});
     }
+
     saveAndCloseModal = () => {
         const name = CamelUi.nameFromTitle(this.state.newName) + ".yaml";
         const i = Integration.createNew(name);
@@ -105,13 +105,11 @@ export class IntegrationPage extends React.Component<Props, State> {
                                        value={this.state.newName}
                                        onChange={e => this.setState({newName: e})}/>
                         </FormGroup>
-                        <FormGroup label="CRD" fieldId="crd" isRequired>
-                            <Switch
-                                id="crd" name="crd"
-                                value={this.state.crd.toString()}
-                                aria-label="crd"
-                                isChecked={this.state.crd}
-                                onChange={e => this.setState({crd: e})}/>
+                        <FormGroup label="Type" fieldId="crd" isRequired>
+                            <FormSelect value={this.state.crd} onChange={value => this.setState({crd: Boolean(JSON.parse(value))})} aria-label="FormSelect Input">
+                                <FormSelectOption key="crd" value="true" label="Camel-K CRD" />
+                                <FormSelectOption key="plain" value="false" label="Plain YAML" />
+                            </FormSelect>
                         </FormGroup>
                     </Form>
                 </Modal>

@@ -138,3 +138,8 @@ body,
   --pf-c-button--m-primary--focus--BackgroundColor: #fee3c3;
   --pf-c-button--m-primary--active--BackgroundColor: #fee3c3;
 }
+
+.vscode-dark .karavan .pf-c-expandable-section__toggle,
+.vscode-dark .karavan .pf-c-expandable-section__toggle-icon {
+  color: #fca338;
+}

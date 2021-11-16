@@ -247,17 +247,18 @@ export class DslProperties extends React.Component<Props, State> {
                     className="text-field" isRequired
                     type={['integer', 'int', 'number'].includes(property.type) ? 'number' : (property.secret ? "password" : "text")}
                     id={id} name={id}
-                    value={value}
+                    value={value !== undefined ? value : property.defaultValue}
                     onChange={e => this.parametersChanged(property.name, ['integer', 'int', 'number'].includes(property.type) ? Number(e) : e, property.kind === 'path')}/>
                 }
-                {property.type === 'string' && property.enum && <Select
+                {property.type === 'string' && property.enum &&
+                <Select
                     variant={SelectVariant.single}
                     aria-label={property.name}
                     onToggle={isExpanded => {
                         this.openSelect(property.name)
                     }}
                     onSelect={(e, value, isPlaceholder) => this.parametersChanged(property.name, (!isPlaceholder ? value : undefined), property.kind === 'path')}
-                    selections={value?.toString()}
+                    selections={value !== undefined ? value.toString() : property.defaultValue}
                     isOpen={this.isSelectOpen(property.name)}
                     aria-labelledby={property.name}
                     direction={SelectDirection.down}
@@ -269,7 +270,7 @@ export class DslProperties extends React.Component<Props, State> {
                     id={id} name={id}
                     value={value?.toString()}
                     aria-label={id}
-                    isChecked={Boolean(value) === true}
+                    isChecked={value !== undefined ? Boolean(value) === true : Boolean(property.defaultValue) === true}
                     onChange={e => this.parametersChanged(property.name, !Boolean(value))}/>
                 }
             </FormGroup>
@@ -406,7 +407,7 @@ export class DslProperties extends React.Component<Props, State> {
                     {property.name === 'parameters' && this.state.element && !CamelUi.isKameletComponent(this.state.element)
                     && CamelUi.getComponentProperties(this.state.element, false).map(kp => this.createComponentProperty(kp))}
                 </div>
-                {property.name === 'parameters' && this.state.element && !CamelUi.isKameletComponent(this.state.element) && (
+                {property.name === 'parameters' && this.state.element && !CamelUi.isKameletComponent(this.state.element) && CamelUi.getComponentProperties(this.state.element, true).length > 0 && (
                     <ExpandableSection
                         toggleText={'Advanced parameters'}
                         onToggle={isExpanded => this.setState({isShowAdvanced: !this.state.isShowAdvanced})}
