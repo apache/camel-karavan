@@ -1,10 +1,24 @@
-# Karavan
-Integration Designer for Apache Camel
+![Build](https://img.shields.io/badge/Build_with-Fun-orange.svg?style=for-the-badge)
+![Camel](https://img.shields.io/badge/-Camel-orange.svg?style=for-the-badge&)
+![Java](https://img.shields.io/badge/-Java-orange.svg?style=for-the-badge&logo=java)
+![Quarkus](https://img.shields.io/badge/-Quarkus-orange.svg?style=for-the-badge&logo=quarkus)
+![React](https://img.shields.io/badge/-React-orange.svg?style=for-the-badge&logo=react)
+![Typescript](https://img.shields.io/badge/-Typescript-orange.svg?style=for-the-badge&logo=typescript)
+![License](https://img.shields.io/badge/License-Apache-green.svg?style=for-the-badge&logo=apache)
+
+# Apache Camel Karavan
+Karavan, an Integration Designer for Apache Camel makes integration easy and fun through visualization of integration pipeline.
 
 ### VS Code extension
+Install Karavan VS Code extension from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan)
+
+
 ![karavan-vscode](screenshots/karavan-vscode.png)
 
 ### Standalone application
+
+ Install Karavan Standalone command line: `docker pull ghcr.io/apache/camel-karavan:latest`
+
 ![karavan](screenshots/karavan.png)
 
 ## Project structure
