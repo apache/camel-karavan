@@ -122,7 +122,8 @@ body,
   --pf-c-tooltip__content--BackgroundColor: #585858;
 }
 
-.vscode-dark .step-element .add-button {
+.vscode-dark .step-element .add-button,
+.vscode-dark .step-element .add-button-from {
   background: #252526;
 }
 
