@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.7
+1. Hot-fix for `Dragged element disappears when dropped into its child` [#94](https://github.com/apache/camel-karavan/issues/94)
+
 ## 0.0.6
 1. Extension configuration for `Run locally with CamelJBang` [#70](https://github.com/apache/camel-karavan/issues/70)
 2. Reorder steps with drag-and-drop [#39](https://github.com/apache/camel-karavan/issues/39)

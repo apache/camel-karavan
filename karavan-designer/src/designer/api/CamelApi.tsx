@@ -1045,12 +1045,14 @@ export class CamelApi {
 
     static findStep = (steps: ProcessorStep[] | undefined, uuid: string, parentUuid?: string, result?: ProcessorStepMeta): ProcessorStepMeta => {
         if (result?.step !== undefined) return result;
+        if (result === undefined) result = new ProcessorStepMeta(undefined, parentUuid, undefined, []);
         if (steps !== undefined){
             for (let index = 0, step; step = steps[index]; index++) {
                 if (step.uuid !== uuid) {
                     switch (step.dslName) {
                         case 'policyStep':
                             result = CamelApi.findStep((step as PolicyStep).policy.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'choiceStep':
                             const o = (step as ChoiceStep).choice.otherwise;
@@ -1059,87 +1061,115 @@ export class CamelApi {
                             if (o) s.push(o);
                             if (w) s.push(...w);
                             result = CamelApi.findStep(s, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'otherwise':
                             result = CamelApi.findStep((step as Otherwise).steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'fromStep':
                             result = CamelApi.findStep((step as FromStep).from.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'onCompletionStep':
                             result = CamelApi.findStep((step as OnCompletionStep).onCompletion.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'splitStep':
                             result = CamelApi.findStep((step as SplitStep).split.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'transactedStep':
                             result = CamelApi.findStep((step as TransactedStep).transacted.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'interceptFromStep':
                             result = CamelApi.findStep((step as InterceptFromStep).interceptFrom.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'doCatchStep':
                             result = CamelApi.findStep((step as DoCatchStep).doCatch.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'circuitBreakerStep':
                             result = CamelApi.findStep((step as CircuitBreakerStep).circuitBreaker.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'interceptStep':
                             result = CamelApi.findStep((step as InterceptStep).intercept.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'onFallbackStep':
                             result = CamelApi.findStep((step as OnFallbackStep).onFallback.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'multicastStep':
                             result = CamelApi.findStep((step as MulticastStep).multicast.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'loadBalanceStep':
                             result = CamelApi.findStep((step as LoadBalanceStep).loadBalance.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'whenSkipSendToEndpointStep':
                             result = CamelApi.findStep((step as WhenSkipSendToEndpointStep).whenSkipSendToEndpoint.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'loopStep':
                             result = CamelApi.findStep((step as LoopStep).loop.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'interceptSendToEndpointStep':
                             result = CamelApi.findStep((step as InterceptSendToEndpointStep).interceptSendToEndpoint.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'doTryStep':
                             result = CamelApi.findStep((step as DoTryStep).doTry.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'resequenceStep':
                             result = CamelApi.findStep((step as ResequenceStep).resequence.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'pipelineStep':
                             result = CamelApi.findStep((step as PipelineStep).pipeline.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'sagaStep':
                             result = CamelApi.findStep((step as SagaStep).saga.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'when':
                             result = CamelApi.findStep((step as When).steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'doFinallyStep':
                             result = CamelApi.findStep((step as DoFinallyStep).doFinally.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'filterStep':
                             result = CamelApi.findStep((step as FilterStep).filter.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'aggregateStep':
                             result = CamelApi.findStep((step as AggregateStep).aggregate.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                         case 'idempotentConsumerStep':
                             result = CamelApi.findStep((step as IdempotentConsumerStep).idempotentConsumer.steps, uuid, step.uuid, result);
+                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
                             break;
                     }
                 } else {
-                    result = new  ProcessorStepMeta(step, parentUuid, index);
+                    const paths: string[] = result?.pathUuids ? result?.pathUuids : [];
+                    paths.push(step.uuid);
+                    result = new  ProcessorStepMeta(step, parentUuid, index, paths);
                     break;
                 }
             }
         }
-        return new ProcessorStepMeta(result?.step, result?.parentUuid, result?.position);
+        const paths: string[] = result?.pathUuids ? result?.pathUuids : [];
+        return new ProcessorStepMeta(result?.step, result?.parentUuid, result?.position, result?.pathUuids);
     }
 
     static getExpressionLanguage = (init?: Partial<Expression>): string | undefined => {

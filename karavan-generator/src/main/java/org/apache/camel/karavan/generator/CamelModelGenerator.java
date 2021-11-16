@@ -281,6 +281,7 @@ public final class CamelModelGenerator {
                 camelApi.append(String.format(
                         "                        case '%1$s':\n" +
                                 "                            result = CamelApi.findStep((step as %2$s).%3$s.steps, uuid, step.uuid, result);\n" +
+                                "                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);\n" +
                                 "                            break;\n",
                         stepField, stepClass, name));
             }
