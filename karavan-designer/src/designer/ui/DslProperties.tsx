@@ -406,7 +406,7 @@ export class DslProperties extends React.Component<Props, State> {
                     {property.name === 'parameters' && this.state.element && !CamelUi.isKameletComponent(this.state.element)
                     && CamelUi.getComponentProperties(this.state.element, false).map(kp => this.createComponentProperty(kp))}
                 </div>
-                {property.name === 'parameters' && this.state.element && !CamelUi.isKameletComponent(this.state.element) && (
+                {property.name === 'parameters' && this.state.element && !CamelUi.isKameletComponent(this.state.element) && CamelUi.getComponentProperties(this.state.element, true).length > 0 && (
                     <ExpandableSection
                         toggleText={'Advanced parameters'}
                         onToggle={isExpanded => this.setState({isShowAdvanced: !this.state.isShowAdvanced})}
