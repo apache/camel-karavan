@@ -170,14 +170,18 @@ export class DslElement extends React.Component<Props, State> {
         return this.getHeader();
     }
 
+    hasBorder = ():boolean => {
+        return this.state.element.hasSteps() || ['choice', 'from'].includes(this.state.element.dslName);
+    }
+
     render() {
         return (
             <div className={
-                this.state.element.hasSteps() || this.state.element.dslName === 'choice'
+                this.hasBorder()
                     ? "step-element step-element-with-steps"
                     : "step-element step-element-without-steps"}
                  style={{
-                     borderStyle: this.isSelected() ? "dashed" : (this.hasSteps() ? "dotted" : "none"),
+                     borderStyle: this.isSelected() ? "dashed" : (this.hasBorder() ? "dotted" : "none"),
                      borderColor: this.isSelected() ? this.props.borderColorSelected : this.props.borderColor,
                      marginTop: this.isRoot() ? "16px" : "",
                      zIndex: this.state.step.dslName === 'toStep' ? 20 : 10,
@@ -253,7 +257,7 @@ export class DslElement extends React.Component<Props, State> {
                     <Tooltip position={"bottom"}
                              content={<div>{"Add element to " + CamelUi.getTitle(this.state.element)}</div>}>
                         <button type="button" aria-label="Add" onClick={e => this.openSelector(e)}
-                                className="add-button">
+                                className={this.state.element.dslName === 'from' ? "add-button-from" : "add-button"}>
                             <AddIcon noVerticalAlign/>
                         </button>
                     </Tooltip>

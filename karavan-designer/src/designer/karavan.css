@@ -499,6 +499,21 @@
     color: #fb8824;
 }
 
+.step-element .add-button-from {
+    top: 0;
+    font-size: 15px;
+    height: 15px;
+    line-height: 1;
+    border: 0;
+    padding: 0;
+    margin: 3px 0 0 0;
+    background: white;
+    color: #fb8824;
+    visibility: visible;
+    z-index: 100;
+    position: relative;
+}
+
 .step-element .add-button {
     top: 0;
     font-size: 15px;
