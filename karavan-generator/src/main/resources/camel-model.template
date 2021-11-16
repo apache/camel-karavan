@@ -57,12 +57,14 @@ export class ProcessorStepMeta {
     step?: ProcessorStep
     parentUuid?: string
     position: number = 0;
+    pathUuids: string [] = [];
 
 
-    constructor(step?: ProcessorStep, parentUuid?: string, position?: number) {
+    constructor(step?: ProcessorStep, parentUuid?: string, position?: number, pathUuids?: string []) {
         this.step = step;
         this.parentUuid = parentUuid;
         this.position = position || 0;
+        this.pathUuids = pathUuids || this.pathUuids;
     }
 }
 
