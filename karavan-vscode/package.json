@@ -51,10 +51,15 @@
     "configuration": {
       "title": "Karavan",
       "properties": {
+        "CamelJBang.version": {
+          "type": "string",
+          "default": "3.13.0",
+          "description": "Camel version"
+        },
         "CamelJBang.maxMessages": {
           "type": "integer",
           "default": 10,
-          "description": "CamelJBang: Max number of messages to process before stopping"
+          "description": "Max number of messages to process before stopping"
         },
         "CamelJBang.debugLevel": {
           "type": "string",
