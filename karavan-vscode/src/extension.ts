@@ -21,6 +21,7 @@ import { CamelYaml } from "../designer/api/CamelYaml";
 import { CamelUi } from "../designer/api/CamelUi";
 import * as jsyaml from 'js-yaml';
 import { Integration } from "../designer/model/CamelModel";
+import { homedir } from "os";
 
 const KARAVAN_LOADED = "karavan:loaded";
 const KARAVAN_PANELS: Map<any, string> = new Map<string, string>();
@@ -131,7 +132,6 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
     // Handle messages from the webview
     panel.webview.onDidReceiveMessage(
         message => {
-            console.log(message);
             switch (message.command) {
                 case 'save':
                     if (vscode.workspace.workspaceFolders) {
@@ -179,6 +179,14 @@ function createIntegration(context: vscode.ExtensionContext, webviewContent: str
 function readKamelets(context: vscode.ExtensionContext): string[] {
     const dir = path.join(context.extensionPath, 'kamelets');
     const yamls: string[] = fs.readdirSync(dir).filter(file => file.endsWith("yaml")).map(file => fs.readFileSync(dir + "/" + file, 'utf-8'));
+    try {
+        const kameletsPath:string = vscode.workspace.getConfiguration().get("CamelJBang.kameletsPath") || '';
+        const kameletsDir = path.isAbsolute(kameletsPath) ? kameletsPath : path.resolve(kameletsPath);
+        const customKamelets: string[] = fs.readdirSync(kameletsDir).filter(file => file.endsWith("yaml")).map(file => fs.readFileSync(kameletsDir + "/" + file, 'utf-8'));
+        if (customKamelets && customKamelets.length > 0) yamls.push(...customKamelets);
+    } catch(e) {
+
+    }
     return yamls;
 }
 

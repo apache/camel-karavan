@@ -71,6 +71,11 @@
           "type": "boolean",
           "default": "true",
           "description": "Reload routes on change"
+        },
+        "CamelJBang.kameletsPath": {
+          "type": "string",
+          "default": "",
+          "description": "Kamelets Path"
         }
       }
     },
