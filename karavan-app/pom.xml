@@ -33,6 +33,7 @@
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
         <version.camel-quarkus>2.4.0</version.camel-quarkus>
         <version.camel-kamelet>0.5.0</version.camel-kamelet>
+        <version.camel-k-client>5.10.1</version.camel-k-client>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -65,6 +66,15 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-arc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-kubernetes-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>camel-k-client</artifactId>
+            <version>${version.camel-k-client}</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>

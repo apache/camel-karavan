@@ -40,3 +40,22 @@
 .logo .pf-c-title {
   color: #e97826;
 }
+
+.karavan .integration-card .pf-c-card__footer {
+  text-align: end;
+}
+
+.karavan .integration-card .running{
+  color: green;
+  font-weight: bold;
+}
+
+.karavan .integration-card .error{
+  color: red;
+  font-weight: bold;
+}
+
+.karavan .integration-card .normal{
+  color: initial;
+  font-weight: initial;
+}

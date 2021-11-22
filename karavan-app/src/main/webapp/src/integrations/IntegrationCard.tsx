@@ -8,41 +8,43 @@ import {CamelUi} from "../designer/api/CamelUi";
 
 interface Props {
     name: string,
+    status?: string,
     onClick: any
     onDelete: any
 }
 
 interface State {
-    name: string,
 }
 
 export class IntegrationCard extends React.Component<Props, State> {
 
     public state: State = {
-        name: this.props.name
     };
 
     private click(evt: React.MouseEvent) {
         evt.stopPropagation();
-        this.props.onClick.call(this, this.state.name)
+        this.props.onClick.call(this, this.props.name)
     }
 
     private delete(evt: React.MouseEvent) {
         evt.stopPropagation();
-        this.props.onDelete.call(this, this.state.name);
+        this.props.onDelete.call(this, this.props.name);
     }
 
     render() {
         return (
-            <Card isHoverable isCompact key={this.state.name} className="integration-card" onClick={event => this.click(event)}>
+            <Card isHoverable isCompact key={this.props.name} className="integration-card" onClick={event => this.click(event)}>
                 <CardHeader>
                     <img src={CamelUi.getIconForName("camel")} alt='icon' className="icon"/>
                     <CardActions>
                         <Button variant="link" className="delete-button" onClick={e => this.delete(e)}><DeleteIcon/></Button>
                     </CardActions>
                 </CardHeader>
-                <CardTitle>{CamelUi.titleFromName(this.state.name)}</CardTitle>
-                <CardBody>{this.state.name}</CardBody>
+                <CardTitle>{CamelUi.titleFromName(this.props.name)}</CardTitle>
+                <CardBody>{this.props.name}</CardBody>
+                <CardFooter className={this.props.status === 'Running' ? 'running' : (this.props.status === 'Error' ? 'error' : 'normal')}>
+                    {this.props.status}
+                </CardFooter>
             </Card>
         );
     }

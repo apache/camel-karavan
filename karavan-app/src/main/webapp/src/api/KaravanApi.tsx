@@ -30,6 +30,7 @@ export const KaravanApi = {
         axios.get('/integration/' + name,
             {headers: {'Accept': 'text/plain', 'username': 'cameleer'}})
             .then(res => {
+                console.log(res.data);
                 after(res);
             }).catch(err => {
             after(err);

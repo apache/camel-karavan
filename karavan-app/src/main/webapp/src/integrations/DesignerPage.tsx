@@ -17,7 +17,7 @@ import FileSaver from "file-saver";
 
 interface Props {
     integration: Integration,
-    mode: 'local' | 'cloud',
+    mode: 'local' | 'gitops' | 'serverless',
 }
 
 interface State {
@@ -80,7 +80,7 @@ export class DesignerPage extends React.Component<Props, State> {
     }
 
     save = (name: string, yaml: string) => {
-        this.setState({name: name, yaml:yaml})
+        this.setState({name: name, yaml: yaml})
     }
 
     download = () => {
@@ -91,20 +91,27 @@ export class DesignerPage extends React.Component<Props, State> {
     tools = (view: "design" | "code") => (
         <Toolbar id="toolbar-group-types">
             <ToolbarContent>
-                {this.props.mode === 'cloud' &&
-                <ToolbarItem>
-                    <Button variant="secondary" icon={<PublishIcon/>} onClick={e => this.publish()}>Publish</Button>
-                </ToolbarItem>
-                }
                 <ToolbarItem>
                     <Button variant="secondary" icon={<CopyIcon/>} onClick={e => this.copy()}>Copy</Button>
                 </ToolbarItem>
                 <ToolbarItem>
                     <Button variant="secondary" icon={<DownloadIcon/>} onClick={e => this.download()}>Download</Button>
                 </ToolbarItem>
+                {this.props.mode === 'gitops' &&
+                <ToolbarItem>
+                    <Button variant="secondary" icon={<PublishIcon/>} onClick={e => this.publish()}>Publish</Button>
+                </ToolbarItem>
+                }
+                {this.props.mode === 'serverless' &&
+                <ToolbarItem>
+                    <Button variant="primary" icon={<PublishIcon/>} onClick={e => this.post()}>Apply</Button>
+                </ToolbarItem>
+                }
+                {this.props.mode !== 'serverless' &&
                 <ToolbarItem>
                     <Button variant="secondary" icon={<SaveIcon/>} onClick={e => this.post()}>Save</Button>
                 </ToolbarItem>
+                }
             </ToolbarContent>
         </Toolbar>);
 
