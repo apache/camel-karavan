@@ -53,7 +53,7 @@
       "properties": {
         "CamelJBang.version": {
           "type": "string",
-          "default": "3.13.0",
+          "default": "3.14.0-SNAPSHOT",
           "description": "Camel version"
         },
         "CamelJBang.maxMessages": {
@@ -61,11 +61,16 @@
           "default": 10,
           "description": "Max number of messages to process before stopping"
         },
-        "CamelJBang.debugLevel": {
+        "CamelJBang.loggingLevel": {
           "type": "string",
           "default": "info",
           "enum": ["info", "error", "debug", "trace"],
-          "description": "Default debug level"
+          "description": "Logging level"
+        },
+        "CamelJBang.reload": {
+          "type": "boolean",
+          "default": "true",
+          "description": "Reload routes on change"
         }
       }
     },
