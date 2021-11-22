@@ -17,6 +17,7 @@
 package org.apache.camel.karavan.api;
 
 import io.vertx.core.Vertx;
+import org.apache.camel.karavan.service.CamelKService;
 import org.apache.camel.karavan.service.FileSystemService;
 import org.apache.camel.karavan.service.GitService;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -28,11 +29,14 @@ import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Path("/integration")
 public class IntegrationResource {
 
-    private static final String CLOUD_MODE = "cloud";
+    private static final String GITOPS_MODE = "gitops";
+    private static final String SERVERLESS_MODE = "serverless";
 
     @ConfigProperty(name = "karavan.mode", defaultValue = "local")
     String mode;
@@ -46,26 +50,35 @@ public class IntegrationResource {
     @Inject
     FileSystemService fileSystemService;
 
+    @Inject
+    CamelKService camelKService;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> getList(@HeaderParam("username") String username) throws GitAPIException {
-        if (mode.equals(CLOUD_MODE)){
-            String dir = gitService.pullIntegrations(username);
-            return fileSystemService.getIntegrationList(dir);
-        } else {
-            return fileSystemService.getIntegrationList();
+    public Map<String, String> getList(@HeaderParam("username") String username) throws GitAPIException, IOException {
+        switch (mode){
+            case SERVERLESS_MODE:
+                return camelKService.getIntegrationList();
+            case GITOPS_MODE:
+                String dir = gitService.pullIntegrations(username);
+                return fileSystemService.getIntegrationList(dir).stream().collect(Collectors.toMap(s -> s, s-> ""));
+            default:
+                return fileSystemService.getIntegrationList().stream().collect(Collectors.toMap(s -> s, s-> ""));
         }
     }
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/{name}")
-    public String getYaml(@HeaderParam("username") String username, @PathParam("name") String name) throws GitAPIException {
-        if (mode.equals(CLOUD_MODE)){
-            String dir = gitService.pullIntegrations(username);
-            return fileSystemService.getFile(dir, name);
-        } else {
-            return fileSystemService.getIntegrationsFile(name);
+    public String getYaml(@HeaderParam("username") String username, @PathParam("name") String name) throws GitAPIException, IOException {
+        switch (mode){
+            case SERVERLESS_MODE:
+                return camelKService.getIntegration(name);
+            case GITOPS_MODE:
+                String dir = gitService.pullIntegrations(username);
+                return fileSystemService.getFile(dir, name);
+            default:
+                return fileSystemService.getIntegrationsFile(name);
         }
     }
 
@@ -74,10 +87,16 @@ public class IntegrationResource {
     @Consumes(MediaType.TEXT_PLAIN)
     @Path("/{name}")
     public String save(@HeaderParam("username") String username, @PathParam("name") String name, String yaml) throws GitAPIException, IOException, URISyntaxException {
-        if (mode.equals(CLOUD_MODE)){
-            gitService.save(username, name, yaml);
-        } else {
-            fileSystemService.saveIntegrationsFile(name, yaml);
+        switch (mode){
+            case SERVERLESS_MODE:
+                camelKService.applyIntegration(name, yaml);
+                break;
+            case GITOPS_MODE:
+                gitService.save(username, name, yaml);
+                break;
+            default:
+                fileSystemService.saveIntegrationsFile(name, yaml);
+                break;
         }
         return yaml;
     }
@@ -87,7 +106,7 @@ public class IntegrationResource {
     @Consumes(MediaType.TEXT_PLAIN)
     @Path("/{name}")
     public String publish(@HeaderParam("username") String username, @PathParam("name") String name, String yaml) throws GitAPIException, IOException, URISyntaxException {
-        if (mode.equals(CLOUD_MODE)) {
+        if (mode.equals(GITOPS_MODE)) {
             gitService.save(username, name, yaml);
             gitService.publish(username, name);
         }
@@ -97,10 +116,16 @@ public class IntegrationResource {
     @DELETE
     @Path("/{name}")
     public void delete(@HeaderParam("username") String username, @PathParam("name") String name) throws GitAPIException, IOException, URISyntaxException {
-        if (mode.equals(CLOUD_MODE)){
-            gitService.delete(username, name);
-        } else {
-            fileSystemService.deleteIntegration(name);
+        switch (mode){
+            case SERVERLESS_MODE:
+                camelKService.deleteIntegration(name);
+                break;
+            case GITOPS_MODE:
+                gitService.delete(username, name);
+                break;
+            default:
+                fileSystemService.deleteIntegration(name);
+                break;
         }
     }
 }

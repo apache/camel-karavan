@@ -55,10 +55,10 @@ interface Props {
 
 interface State {
     version: string,
-    mode: 'local' | 'cloud',
+    mode: 'local' | 'gitops' | 'serverless',
     isNavOpen: boolean,
     pageId: 'integrations' | 'configuration' | 'kamelets' | 'designer'
-    integrations: [],
+    integrations: Map<string,string>,
     integration: Integration,
     isModalOpen: boolean,
     nameToDelete: string,
@@ -73,7 +73,7 @@ export class Main extends React.Component<Props, State> {
         mode: 'local',
         isNavOpen: true,
         pageId: "integrations",
-        integrations: [],
+        integrations: new Map<string,string>(),
         integration: Integration.createNew(),
         isModalOpen: false,
         nameToDelete: '',
@@ -218,7 +218,7 @@ export class Main extends React.Component<Props, State> {
                 const i = CamelYaml.yamlToIntegration(filename, code);
                 this.setState({isNavOpen: false, pageId: 'designer', integration: i});
             } else {
-                this.toast("Error", res.statusText, "danger");
+                this.toast("Error", res.status + ", " + res.statusText, "danger");
             }
         });
     };
@@ -228,10 +228,11 @@ export class Main extends React.Component<Props, State> {
     };
 
     onGetIntegrations() {
-        KaravanApi.getIntegrations((integrations: []) =>
+        KaravanApi.getIntegrations((integrations: {}) => {
+            const map:Map<string, string> = new Map(Object.entries(integrations));
             this.setState({
-                integrations: integrations, request: uuidv4()
-            }));
+                integrations: map, request: uuidv4()
+            })});
     };
 
     render() {

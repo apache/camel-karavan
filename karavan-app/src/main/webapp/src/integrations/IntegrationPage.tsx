@@ -19,7 +19,7 @@ import {Integration} from "../designer/model/CamelModel";
 import {CamelUi} from "../designer/api/CamelUi";
 
 interface Props {
-    integrations: []
+    integrations: Map<string,string>
     onSelect: any
     onCreate: any
     onDelete: any
@@ -29,7 +29,7 @@ interface Props {
 interface State {
     repository: string,
     path: string,
-    integrations: [],
+    integrations: Map<string,string>,
     isModalOpen: boolean,
     newName: string
     crd: boolean
@@ -83,8 +83,11 @@ export class IntegrationPage extends React.Component<Props, State> {
                 <MainToolbar title={this.title()} tools={this.tools()}/>
                 <PageSection isFilled className="integration-page">
                     <Gallery hasGutter>
-                        {this.state.integrations.map(value => (
-                            <IntegrationCard key={value} name={value} onDelete={this.props.onDelete}
+                        {Array.from(this.state.integrations.keys()).map(key => (
+                             <IntegrationCard key={key}
+                                              name={key}
+                                              status={this.state.integrations.get(key)}
+                                              onDelete={this.props.onDelete}
                                              onClick={this.props.onSelect}/>
                         ))}
                     </Gallery>
