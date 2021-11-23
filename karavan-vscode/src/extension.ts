@@ -180,7 +180,7 @@ function readKamelets(context: vscode.ExtensionContext): string[] {
     const dir = path.join(context.extensionPath, 'kamelets');
     const yamls: string[] = fs.readdirSync(dir).filter(file => file.endsWith("yaml")).map(file => fs.readFileSync(dir + "/" + file, 'utf-8'));
     try {
-        const kameletsPath:string = vscode.workspace.getConfiguration().get("CamelJBang.kameletsPath") || '';
+        const kameletsPath:string = vscode.workspace.getConfiguration().get("Karavan.kameletsPath") || '';
         const kameletsDir = path.isAbsolute(kameletsPath) ? kameletsPath : path.resolve(kameletsPath);
         const customKamelets: string[] = fs.readdirSync(kameletsDir).filter(file => file.endsWith("yaml")).map(file => fs.readFileSync(kameletsDir + "/" + file, 'utf-8'));
         if (customKamelets && customKamelets.length > 0) yamls.push(...customKamelets);

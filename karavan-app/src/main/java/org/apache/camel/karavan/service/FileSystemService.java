@@ -51,7 +51,7 @@ public class FileSystemService {
         LOGGER.info("Creating folder " + name);
         if (!Files.exists(Paths.get(name))) {
             Path path = Files.createDirectory(Path.of(name));
-            LOGGER.info("Folder " + path + " created");
+            LOGGER.info("Folder " + path.toAbsolutePath() + " created");
         } else {
             getIntegrationList().forEach(s -> LOGGER.info("Integration found: " + s));
         }
@@ -80,6 +80,7 @@ public class FileSystemService {
     }
 
     public void saveIntegrationsFile(String name, String yaml) throws GitAPIException, IOException {
+        System.out.println(integrations);
         vertx.fileSystem().writeFileBlocking(Paths.get(integrations, name).toString(), Buffer.buffer(yaml));
     }
 

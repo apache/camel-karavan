@@ -72,10 +72,10 @@
           "default": "true",
           "description": "Reload routes on change"
         },
-        "CamelJBang.kameletsPath": {
+        "Karavan.kameletsPath": {
           "type": "string",
           "default": "",
-          "description": "Kamelets Path"
+          "description": "Custom Kamelets Path"
         }
       }
     },

@@ -25,6 +25,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,8 +33,11 @@ import java.util.stream.Collectors;
 @Path("/kamelet")
 public class KameletResources {
 
-    @ConfigProperty(name = "karavan.folder.kamelets")
-    String kamelets;
+    @ConfigProperty(name = "karavan.folder.kamelets-buildin")
+    String kameletsBuildin;
+
+    @ConfigProperty(name = "karavan.folder.kamelets-custom")
+    String kameletsCustom;
 
     @Inject
     Vertx vertx;
@@ -41,7 +45,16 @@ public class KameletResources {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<String> getList() {
-        return vertx.fileSystem().readDirBlocking(Paths.get(kamelets).toString())
+        List<String> kameletList = getList(kameletsBuildin);
+        if (Files.exists(Paths.get(kameletsCustom))) {
+            List<String> customKameletList = getList(kameletsCustom);
+            kameletList.addAll(customKameletList);
+        }
+        return kameletList;
+    }
+
+    public List<String> getList(String folder) {
+        return vertx.fileSystem().readDirBlocking(Paths.get(folder).toString())
                 .stream()
                 .filter(s -> s.endsWith(".yaml"))
                 .map(s -> {
@@ -54,6 +67,10 @@ public class KameletResources {
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/{name}")
     public String getYaml(@PathParam("name") String name) {
-        return vertx.fileSystem().readFileBlocking(Paths.get(kamelets, name).toString()).toString();
+        if (Files.exists(Paths.get(kameletsBuildin, name))) {
+            return vertx.fileSystem().readFileBlocking(Paths.get(kameletsBuildin, name).toString()).toString();
+        } else {
+            return vertx.fileSystem().readFileBlocking(Paths.get(kameletsCustom, name).toString()).toString();
+        }
     }
 }
