@@ -1,4 +1,4 @@
-# Karavan demo on Openshift
+# Karavan GitOps mode demo on Openshift
 Required: Openshift 4.7 installed
 
 ### Demo
