@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: camel-karavan
+    app.kubernetes.io/part-of: camel-karavan
+  name: camel-karavan
+spec:
+  ports:
+    - name: http
+      nodePort: 31171
+      port: 80
+      targetPort: 8080
+  selector:
+    app.kubernetes.io/name: camel-karavan
+    app.kubernetes.io/version: latest
+  type: NodePort

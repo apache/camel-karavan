@@ -6,7 +6,7 @@ Required: Openshift 4.7 installed
 
 
 ### Architecture
-![Architecture](karavan-cloud.png)
+![Architecture](gitops.png)
 
 ### Deploy Operators
 Deploy GitOps and Camel-K operators

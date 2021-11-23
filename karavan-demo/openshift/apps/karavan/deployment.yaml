@@ -25,7 +25,7 @@ spec:
         image: ghcr.io/apache/camel-karavan:latest
         env:
         - name: KARAVAN_MODE
-          value: "cloud"
+          value: "gitops"
         - name: KARAVAN_GIT_URI
           value: "http://gitea:3000/git/karavan.git"
         - name: KARAVAN_GIT_USERNAME

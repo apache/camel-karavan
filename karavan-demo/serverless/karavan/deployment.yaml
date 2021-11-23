@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations: 
+  labels:
+    app.kubernetes.io/name: camel-karavan
+    app.kubernetes.io/version: latest
+  name: camel-karavan
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: camel-karavan
+      app.kubernetes.io/version: latest
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: camel-karavan
+        app.kubernetes.io/version: latest
+    spec:
+      containers:
+      - name: camel-karavan
+        imagePullPolicy: Always
+        image: ghcr.io/apache/camel-karavan:latest
+        env:
+        - name: KARAVAN_MODE
+          value: "serverless"
+        ports:
+          - containerPort: 8080
+            name: http
+            protocol: TCP
+      serviceAccount: camel-karavan
