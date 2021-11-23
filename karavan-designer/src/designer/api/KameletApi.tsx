@@ -47,7 +47,12 @@ export const KameletApi = {
     },
 
     getKamelets: (): KameletModel[] => {
-        return Kamelets;
+        return Kamelets.sort((a, b) => {
+            if (a.title().toLowerCase() < b.title().toLowerCase()) {
+                return -1;
+            }
+            return a.title().toLowerCase() > b.title().toLowerCase() ? 1 : 0;
+        });
     },
 
     jsonToKamelet: (json: string) => {
@@ -73,10 +78,10 @@ export const KameletApi = {
     saveKamelets: (kameletYamls: string[]) => {
         const kamelets:KameletModel[] = kameletYamls.map(text => KameletApi.yamlToKamelet(text));
         Kamelets.push(...kamelets.sort((a, b) => {
-                if (a.spec.definition.title < b.spec.definition.title) {
+                if (a.spec.definition.title.toLowerCase() < b.spec.definition.title.toLowerCase()) {
                     return -1;
                 }
-                return a.spec.definition.title > b.spec.definition.title ? 1 : 0;
+                return a.spec.definition.title.toLowerCase() > b.spec.definition.title.toLowerCase() ? 1 : 0;
             })
         );
     },

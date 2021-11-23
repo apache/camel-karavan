@@ -37,7 +37,7 @@ RUN ./mvnw clean package -Pnative -f karavan-app
 ## Stage 2 : create the docker final image
 FROM quay.io/quarkus/quarkus-distroless-image:1.0
 COPY --chown=nonroot --from=build /code/karavan-app/target/*-runner /deployments/application
-COPY --chown=nonroot --from=build /code/karavan-app/src/main/resources/kamelets/* /deployments/kamelets/
+COPY --chown=nonroot --from=build /code/karavan-app/src/main/resources/kamelets/* /deployments/kamelets-buildin/
 COPY --chown=nonroot --from=build /code/karavan-app/src/main/resources/components/* /deployments/components/
 
 EXPOSE 8080

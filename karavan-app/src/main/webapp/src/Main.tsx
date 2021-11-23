@@ -110,7 +110,6 @@ export class Main extends React.Component<Props, State> {
             this.onGetIntegrations();
         }
         this.setState({
-            isNavOpen: result.itemId !== 'designer',
             pageId: result.itemId,
         });
     };

@@ -71,6 +71,11 @@
           "type": "boolean",
           "default": "true",
           "description": "Reload routes on change"
+        },
+        "Karavan.kameletsPath": {
+          "type": "string",
+          "default": "",
+          "description": "Custom Kamelets Path"
         }
       }
     },
