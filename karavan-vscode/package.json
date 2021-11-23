@@ -4,7 +4,7 @@
   "displayName": "Camel Karavan Designer",
   "icon": "icons/icon.png",
   "description": "Integration Designer for Apache Camel",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "license": "Apache-2.0",
   "preview": true,
   "bugs": {
@@ -15,11 +15,11 @@
     "email": "marat.gubaidullin@gmail.com"
   },
   "maintainers": [
-		{
-			"name": "Marat Gubaidullin",
-			"email": "marat.gubaidullin@gmail.com"
-		}
-	],
+    {
+      "name": "Marat Gubaidullin",
+      "email": "marat.gubaidullin@gmail.com"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/apache/camel-karavan/tree/main/karavan-vscode"
@@ -33,11 +33,11 @@
   "homepage": "https://github.com/apache/camel-karavan/tree/main/karavan-vscode",
   "keywords": [
     "Camel",
-		"Camel K",
-		"Camel-K",
-		"camelk",
-		"kamel",
-		"Tool",
+    "Camel K",
+    "Camel-K",
+    "camelk",
+    "kamel",
+    "Tool",
     "Integration"
   ],
   "activationEvents": [
@@ -64,7 +64,12 @@
         "CamelJBang.loggingLevel": {
           "type": "string",
           "default": "info",
-          "enum": ["info", "error", "debug", "trace"],
+          "enum": [
+            "info",
+            "error",
+            "debug",
+            "trace"
+          ],
           "description": "Logging level"
         },
         "CamelJBang.reload": {
@@ -106,11 +111,11 @@
       "explorer/context": [
         {
           "command": "karavan.create-crd",
-           "when": "explorerResourceIsFolder && explorerResourceIsRoot"
+          "when": "explorerResourceIsFolder && explorerResourceIsRoot"
         },
         {
           "command": "karavan.create-yaml",
-           "when": "explorerResourceIsFolder && explorerResourceIsRoot"
+          "when": "explorerResourceIsFolder && explorerResourceIsRoot"
         },
         {
           "command": "karavan.open",

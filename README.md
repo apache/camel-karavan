@@ -91,5 +91,8 @@ For SELinux
 docker run -it -p 8080:8080 -v $(pwd):/deployments/integrations:z ghcr.io/apache/camel-karavan-native:latest
 ```
 
-## Running in cloud mode
+## Running in GitOps mode
 [Karavan demo on OpenShift](karavan-demo/openshift/README.md)
+
+## Running in Serverless mode
+[Karavan demo on Kubernetes](karavan-demo/serverless/README.md)
