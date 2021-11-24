@@ -63,12 +63,12 @@ DOCKER_BUILDKIT=1 docker build -f karavan-app/src/main/docker/Dockerfile.multist
 You can run your application in dev mode that enables live coding using:
 - Backend
 ```shell script
-cd karavan
+cd karavan-app
 mvn compile quarkus:dev
 ```
 - Frontend
 ```shell script
-cd karavan/src/main/webapp/
+cd karavan-app/src/main/webapp/
 npm start
 ```
 
