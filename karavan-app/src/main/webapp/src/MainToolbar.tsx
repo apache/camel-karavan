@@ -5,43 +5,25 @@ import {
 import './designer/karavan.css';
 
 interface Props {
-    title: any
-    tools: any
+    title: React.ReactNode;
+    tools: React.ReactNode;
 }
 
-interface State {
-    title: any
-    tools: React.Component
-}
-
-export class MainToolbar extends React.Component<Props, State> {
-
-    public state: State = {
-        title: this.props.title,
-        tools: this.props.tools
-    };
-
-    // componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-    //     if (prevState.tools !== this.props.tools) {
-    //         this.setState({tools: this.props.tools});
-    //     }
-    //     if (prevState.title !== this.props.title) {
-    //         this.setState({title: this.props.title});
-    //     }
-    // }
-
+export class MainToolbar extends React.PureComponent<Props> {
     render() {
+        const { title, tools } = this.props;
+
         return (
             <PageSection className="tools-section" variant={PageSectionVariants.light}>
                 <Flex className="tools" justifyContent={{default: 'justifyContentSpaceBetween'}}>
                     <FlexItem>
-                        {this.state.title}
+                        {title}
                     </FlexItem>
                     <FlexItem>
-                        {this.state.tools}
+                        {tools}
                     </FlexItem>
                 </Flex>
             </PageSection>
         );
     }
-};
+}
