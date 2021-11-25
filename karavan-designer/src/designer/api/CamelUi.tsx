@@ -241,7 +241,7 @@ export class CamelUi {
 
     static isShowExpressionTooltip = (element: CamelElement): boolean => {
         const exp = CamelApiExt.getExpressionValue(element);
-        return element.hasOwnProperty("expression") && (exp !== undefined && exp?.trim().length > 0);
+        return element.hasOwnProperty("expression") && (typeof exp === 'string' && exp?.trim().length > 0);
     }
 
     static isShowUriTooltip = (element: CamelElement): boolean => {
