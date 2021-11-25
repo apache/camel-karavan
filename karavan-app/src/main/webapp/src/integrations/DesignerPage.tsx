@@ -158,28 +158,6 @@ export class DesignerPage extends React.Component<Props, State> {
     </Toolbar>
   );
 
-  title = ({ view }: { view: "design" | "code" }) => (
-    <div className="dsl-title">
-      <TextContent className="title">
-        <Text component="h1">Designer</Text>
-      </TextContent>
-      <ToggleGroup aria-label="Switch view" className="toggle">
-        <ToggleGroupItem
-          text="Design"
-          buttonId="design"
-          isSelected={view === "design"}
-          onChange={(e) => this.changeView("design")}
-        />
-        <ToggleGroupItem
-          text="YAML"
-          buttonId="yaml"
-          isSelected={view === "code"}
-          onChange={(e) => this.changeView("code")}
-        />
-      </ToggleGroup>
-    </div>
-  );
-
   render() {
 
     const { view, yaml, name, key } = this.state;
