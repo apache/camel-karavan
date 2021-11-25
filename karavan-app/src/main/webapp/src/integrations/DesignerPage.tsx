@@ -181,7 +181,6 @@ export class DesignerPage extends React.Component<Props, State> {
   );
 
   render() {
-    console.log(this.state.view);
 
     const { view, yaml, name, key } = this.state;
 
