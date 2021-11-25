@@ -5,16 +5,11 @@ import {
 import './designer/karavan.css';
 
 interface Props {
-    title: any
-    tools: any
+    title: React.ReactNode;
+    tools: React.ReactNode;
 }
 
-interface State {
-    title: any
-    tools: React.Component
-}
-
-export class MainToolbar extends React.PureComponent<Props, State> {
+export class MainToolbar extends React.PureComponent<Props> {
     render() {
         const { title, tools } = this.props;
 
