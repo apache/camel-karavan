@@ -47,8 +47,6 @@ export class DesignerPage extends React.Component<Props, State> {
     yaml: CamelYaml.integrationToYaml(this.props.integration),
   };
 
-  componentDidMount() {}
-
   post = () => {
     KaravanApi.postIntegrations(
       this.state.integration.metadata.name,
@@ -82,7 +80,7 @@ export class DesignerPage extends React.Component<Props, State> {
   };
 
   copyToClipboard = (data: string) => {
-    new Clipboard().writeText(data);
+    navigator.clipboard.writeText(data);
   };
 
   changeView = (view: "design" | "code") => {
