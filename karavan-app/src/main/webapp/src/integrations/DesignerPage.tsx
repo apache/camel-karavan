@@ -66,13 +66,7 @@ export class DesignerPage extends React.Component<Props, State> {
     }
 
     copyToClipboard = (data: string) => {
-        const listener = (e: ClipboardEvent) => {
-            e.clipboardData?.setData('text/plain', data);
-            e.preventDefault();
-            document.removeEventListener('copy', listener);
-        };
-        document.addEventListener('copy', listener);
-        document.execCommand('copy');
+        navigator.clipboard.writeText(data);
     }
 
     changeView = (view: "design" | "code") => {
@@ -130,24 +124,26 @@ export class DesignerPage extends React.Component<Props, State> {
     );
 
     render() {
+        const { view, yaml, name, key } = this.state;
+
         return (
             <PageSection className="dsl-page" isFilled padding={{default: 'noPadding'}}>
-                <MainToolbar title={this.title(this.state.view)}
-                             tools={this.tools(this.state.view)}/>
+                <MainToolbar title={this.title(view)}
+                             tools={this.tools(view)}/>
                 <div className="dsl-page-columns">
-                    {this.state.view === 'code' &&
+                    {view === 'code' &&
                     <div className="yaml-code">
                         <CodeBlock className="route-code">
-                            <CodeBlockCode id="code-content">{this.state.yaml}</CodeBlockCode>
+                            <CodeBlockCode id="code-content">{yaml}</CodeBlockCode>
                         </CodeBlock>
                     </div>
                     }
-                    {this.state.view === 'design' &&
+                    {view === 'design' &&
                     <KaravanDesigner
                         dark={false}
-                        key={this.state.key}
-                        filename={this.state.name}
-                        yaml={this.state.yaml}
+                        key={key}
+                        filename={name}
+                        yaml={yaml}
                         onSave={(name, yaml) => this.save(name, yaml)}
                         borderColor="#fb8824"
                         borderColorSelected="black"
