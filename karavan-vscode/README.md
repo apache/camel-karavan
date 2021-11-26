@@ -23,7 +23,7 @@
 ## How to install
 
 1. Open your VS Code Integrated Development Environment (IDE).
-2. In the VS Code Activity Bar, select Extensions. (Alternately, press Ctrl+Shift+X).
+2. In the VS Code Activity Bar, select Extensions. (Alternatively, press Ctrl+Shift+X).
 3. In the search bar, type **Karavan**
 4. In the **Apache Camel Karavan** box, click **Install**.
 
@@ -39,13 +39,13 @@
 
 ![open](screenshots/open.png)
 
-### Deploy with Camel-K on Kubernetes
+### Deploy with Camel K on Kubernetes
 
 ```shell
 kubectl apply -f integration.yaml
 ```
 
-### Deploy with Camel-K on Openshift
+### Deploy with Camel K on OpenShift
 
 ```shell
 oc apply -f integration.yaml
