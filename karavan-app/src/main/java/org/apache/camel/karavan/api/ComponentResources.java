@@ -25,8 +25,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import java.io.File;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Path("/component")
@@ -45,7 +48,7 @@ public class ComponentResources {
                 .stream()
                 .filter(s -> s.endsWith(".json"))
                 .map(s -> {
-                    String[] parts = s.split("/");
+                    String[] parts = s.split(Pattern.quote(File.separator));
                     return parts[parts.length - 1];
                 }).collect(Collectors.toList());
     }

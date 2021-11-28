@@ -28,12 +28,14 @@ import org.jboss.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -87,7 +89,7 @@ public class CamelKService {
                 .stream()
                 .filter(s -> s.endsWith(".yaml"))
                 .map(s -> {
-                    String[] parts = s.split("/");
+                    String[] parts = s.split(Pattern.quote(File.separator));
                     return parts[parts.length - 1];
                 }).collect(Collectors.toList());
     }
