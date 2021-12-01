@@ -161,7 +161,7 @@ export class DslProperties extends React.Component<Props, State> {
         const kamelet = this.state.element && CamelUi.getKamelet(this.state.element)
         const description = this.state.element && kamelet
             ? kamelet.spec.definition.description
-            : this.state.element?.dslName ? CamelMetadataApi.getElementMeta(this.state.element?.dslName)?.description : title;
+            : this.state.element?.dslName ? CamelMetadataApi.getCamelModelMetadata(this.state.element?.dslName)?.description : title;
         return (
             <div className="headers">
                 <Title headingLevel="h1" size="md">{title}</Title>
@@ -278,6 +278,64 @@ export class DslProperties extends React.Component<Props, State> {
     }
 
     createExpressionProperty = (property: PropertyMeta): JSX.Element => {
+        const prefix = "language";
+        const language = CamelApiExt.getExpressionLanguage(this.state.element) || 'Simple'
+        const dslLanguage = Languages.find((l: [string, string, string]) => l[0] === language);
+        const value = language ? CamelApiExt.getExpressionValue(this.state.element) : undefined;
+        const selectOptions: JSX.Element[] = []
+        Languages.forEach((lang: [string, string, string]) => {
+            const s = <SelectOption key={lang[0]} value={lang[0]} description={lang[2]}/>;
+            selectOptions.push(s);
+        })
+        return (
+            <div>
+                <FormGroup key={prefix + "-" + property.name} fieldId={property.name}>
+                    <Select
+                        variant={SelectVariant.typeahead}
+                        aria-label={property.name}
+                        onToggle={isExpanded => {
+                            this.openSelect(property.name)
+                        }}
+                        onSelect={(e, lang, isPlaceholder) => this.expressionChanged(lang.toString(), value)}
+                        selections={dslLanguage}
+                        isOpen={this.isSelectOpen(property.name)}
+                        aria-labelledby={property.name}
+                        direction={SelectDirection.down}
+                    >
+                        {selectOptions}
+                    </Select>
+                </FormGroup>
+                <FormGroup
+                    key={property.name}
+                    fieldId={property.name}
+                    labelIcon={property.description ?
+                        <Popover
+                            position={"left"}
+                            headerContent={property.displayName}
+                            bodyContent={property.description}>
+                            <button type="button" aria-label="More info" onClick={e => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                            }}
+                                    className="pf-c-form__group-label-help">
+                                <HelpIcon noVerticalAlign/>
+                            </button>
+                        </Popover> : <div></div>
+                    }>
+                    <TextArea
+                        autoResize
+                        className="text-field" isRequired
+                        type={"text"}
+                        id={property.name} name={property.name}
+                        height={"100px"}
+                        value={value?.toString()}
+                        onChange={e => this.expressionChanged(language, e)}/>
+                </FormGroup>
+            </div>
+        )
+    }
+
+    createDataFormatProperty = (property: PropertyMeta): JSX.Element => {
         const prefix = "language";
         const language = CamelApiExt.getExpressionLanguage(this.state.element) || 'Simple'
         const dslLanguage = Languages.find((l: [string, string, string]) => l[0] === language);

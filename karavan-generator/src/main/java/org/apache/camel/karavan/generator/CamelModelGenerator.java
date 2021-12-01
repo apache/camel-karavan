@@ -20,6 +20,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.catalog.CamelCatalog;
 
 import java.io.BufferedReader;
@@ -29,7 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public final class CamelModelGenerator {
+public final class CamelModelGenerator extends AbstractGenerator{
 
     public static void main(String[] args) throws Exception {
         CamelModelGenerator.generate();
@@ -49,7 +50,7 @@ public final class CamelModelGenerator {
     }
 
     private void createModels(String source, String template, String metadataTemplate, String targetModel, String targetApi, String targetMetadata) throws Exception {
-        Vertx vertx = Vertx.vertx();
+
 
         Buffer buffer = vertx.fileSystem().readFileBlocking(source);
         JsonObject definitions = new JsonObject(buffer).getJsonObject("items").getJsonObject("definitions");
@@ -129,6 +130,7 @@ public final class CamelModelGenerator {
             }
         });
         camelApi.append("} from '../model/CamelModel' \n\n");
+        camelApi.append("import * as dataFormat from '../model/CamelDataFormat'; \n\n");
 
         camelApi.append("export class CamelApi { \n\n");
 
@@ -302,50 +304,13 @@ public final class CamelModelGenerator {
         vertx.fileSystem().writeFileBlocking(targetApi, Buffer.buffer(camelApi.toString()));
 
 
-        // Generate Metadata
-        Buffer metadataBuffer = vertx.fileSystem().readFileBlocking(metadataTemplate);
-        StringBuilder metadata = new StringBuilder(metadataBuffer.toString());
+        // Generate Camel Models Metadata
+        StringBuilder metadata = new StringBuilder(readFileText(metadataTemplate));
+        metadata.append(generateCamelModelMetadata(models));
 
-        metadata.append("export const Languages: [string, string, string][] = [\n");
-        models.get("expression").forEach(el -> {
-            String name = el.name;
-            String json = getMetaModel(name);
-            JsonObject model = new JsonObject(json).getJsonObject("model");
-            String title = model.getString("title");
-            String description = model.getString("description");
-            metadata.append(String.format("    ['%s','%s',\"%s\"],\n", name, title, description));
-        });
-        metadata.append("]\n");
-
-
-        metadata.append("export const Metadata: ElementMeta[] = [\n");
-        models.keySet().forEach(s -> {
-            String name = deCapitalize(s);
-            String json = getMetaModel(name);
-            if (json != null) {
-                JsonObject model = new JsonObject(json).getJsonObject("model");
-                JsonObject props = new JsonObject(json).getJsonObject("properties");
-                String title = model.getString("title");
-                String description = model.getString("description");
-                String label = model.getString("label");
-                metadata.append(String.format("    new ElementMeta('%s', '%s', '%s', '%s', [\n", name, title, description, label));
-                models.get(s).forEach(el -> {
-                    String pname = el.name;
-                    JsonObject p = props.getJsonObject(pname);
-                    String displayName = p != null && p.containsKey("displayName") ? p.getString("displayName") : pname;
-                    String desc = p != null && p.containsKey("description") ? p.getString("description") : pname;
-                    String en = p != null && p.containsKey("enum") ? p.getString("enum").replace("[", "").replace("]", "") : "";
-                    String type = p != null && p.containsKey("desc") ? p.getString("type") : el.type;
-                    Boolean required = p != null && p.containsKey("required") ? p.getBoolean("required") : false;
-                    Boolean secret = p != null && p.containsKey("secret") ? p.getBoolean("secret") : false;
-                    String defaultValue = p != null && p.containsKey("defaultValue") ? p.getString("defaultValue") : "";
-                    metadata.append(String.format("        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b),\n", pname, displayName, desc, type, en, defaultValue, required, secret, el.isArray, (el.isArray ? el.isArrayTypeClass : el.isObject)));
-                });
-                metadata.append("    ]),\n");
-            }
-        });
-        metadata.append("]\n");
-        vertx.fileSystem().writeFileBlocking(targetMetadata, Buffer.buffer(metadata.toString()));
+        // Generate Camel DataFormat Metadata
+        metadata.append(generateCamelDataFormatMetadata(models));
+        writeFileText(targetMetadata, metadata.toString());
     }
 
     private String createCreateFunction(String name, List<ElementProp> elProps) {
@@ -379,6 +344,9 @@ public final class CamelModelGenerator {
                 f.append(String.format("        } else {\n"));
                 f.append(String.format("            %1$s.%2$s.expression = CamelApi.createExpression(element?.%2$s?.expression);\n", stepField, elementName));
                 f.append(String.format("        }\n"));
+            } else if (e.typeCode.startsWith("dataFormat.")) {
+                String temp = "        if (element.%3$s?.%1$s !== undefined) %2$s.%3$s.%1$s = new %4$s(element.%3$s.%1$s);\n";
+                f.append(String.format(temp, e.name, stepField, elementName, e.typeCode));
             } else if (e.isObject) {
                 f.append(String.format("        %s.%s.%s = CamelApi.create%s(element?.%s?.%s);\n", stepField, elementName, e.name, e.type, elementName, e.name));
             }
@@ -399,16 +367,6 @@ public final class CamelModelGenerator {
         });
         camelElements.append("]").append(System.lineSeparator());
         return camelElements.toString();
-    }
-
-    private JsonObject getProperties(JsonObject definitions, String classname) {
-        JsonObject props = definitions.getJsonObject(classname).getJsonObject("properties");
-        JsonArray oneOf = definitions.getJsonObject(classname).getJsonArray("oneOf");
-        if (props != null) {
-            return props;
-        } else {
-            return oneOf.getJsonObject(1).getJsonObject("properties");
-        }
     }
 
     private List<ElementProp> generateElementProp(String name, JsonObject properties, JsonObject definitions, Map<String, String> processors) {
@@ -445,6 +403,9 @@ public final class CamelModelGenerator {
                         props.add(new ElementProp(propName, "string", false, false, false, null, false, "string"));
                     } else if (processorName != null) {
                         props.add(new ElementProp(propName, processorName, true, false, false, null, false, capitalize(processorName)));
+                    } else if (className.startsWith("org.apache.camel.model.dataformat")){
+                        String dataFormatClass = className.replace("org.apache.camel.model.dataformat.", "");
+                        props.add(new ElementProp(propName, dataFormatClass, true, false, false, null, false, "dataFormat."+dataFormatClass));
                     } else if (isClassOneOfString(className, definitions)) {
                         props.add(new ElementProp(propName, "string", false, false, false, null, false, "string"));
                     } else if ("org.apache.camel.model.language.ExpressionDefinition".equals(className)
@@ -491,26 +452,100 @@ public final class CamelModelGenerator {
         return element.toString();
     }
 
+    private String generateCamelModelMetadata(Map<String, List<ElementProp>> models){
+        // Generate Metadata
+        StringBuilder metadata = new StringBuilder("export const Languages: [string, string, string][] = [\n");
+        models.get("expression").forEach(el -> {
+            String name = el.name;
+            String json = getMetaModel(name);
+            JsonObject model = new JsonObject(json).getJsonObject("model");
+            String title = model.getString("title");
+            String description = model.getString("description");
+            metadata.append(String.format("    ['%s','%s',\"%s\"],\n", name, title, description));
+        });
+        metadata.append("]\n");
+
+
+        metadata.append("export const CamelModelMetadata: ElementMeta[] = [\n");
+        models.keySet().forEach(s -> {
+            String name = deCapitalize(s);
+            String json = getMetaModel(name);
+            if (json != null) {
+                JsonObject model = new JsonObject(json).getJsonObject("model");
+                JsonObject props = new JsonObject(json).getJsonObject("properties");
+                String title = model.getString("title");
+                String description = model.getString("description");
+                String label = model.getString("label");
+                metadata.append(String.format("    new ElementMeta('%s', '%s', '%s', '%s', [\n", name, title, description, label));
+                models.get(s).forEach(el -> {
+                    String pname = el.name;
+                    JsonObject p = props.getJsonObject(pname);
+                    String displayName = p != null && p.containsKey("displayName") ? p.getString("displayName") : pname;
+                    String desc = p != null && p.containsKey("description") ? p.getString("description") : pname;
+                    String en = p != null && p.containsKey("enum") ? p.getString("enum").replace("[", "").replace("]", "") : "";
+                    String type = p != null && p.containsKey("desc") ? p.getString("type") : el.type;
+                    Boolean required = p != null && p.containsKey("required") ? p.getBoolean("required") : false;
+                    Boolean secret = p != null && p.containsKey("secret") ? p.getBoolean("secret") : false;
+                    String defaultValue = p != null && p.containsKey("defaultValue") ? p.getString("defaultValue") : "";
+                    metadata.append(String.format("        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b),\n", pname, displayName, desc, type, en, defaultValue, required, secret, el.isArray, (el.isArray ? el.isArrayTypeClass : el.isObject)));
+                });
+                metadata.append("    ]),\n");
+            }
+        });
+        metadata.append("]\n");
+        return metadata.toString();
+    }
+
+    private String generateCamelDataFormatMetadata(Map<String, List<ElementProp>> models){
+
+        List<String> dataformats = models.get("Marshal").stream()
+                .filter(e -> e.typeCode.startsWith("dataFormat."))
+                .map(e -> e.name).collect(Collectors.toList());
+        StringBuilder metadata = new StringBuilder("export const DataFormats: [string, string, string][] = [\n");
+        dataformats.forEach(name -> {
+            String json = getMetaDataFormat(name);
+            if (json !=null) {
+                JsonObject model = new JsonObject(json).getJsonObject("model");
+                String title = model.getString("title");
+                String description = model.getString("description");
+                metadata.append(String.format("    ['%s','%s',\"%s\"],\n", name, title, description));
+            }
+        });
+        metadata.append("]\n");
+
+        metadata.append("export const CamelDataFormatMetadata: ElementMeta[] = [\n");
+        dataformats.forEach(s -> {
+            String name = deCapitalize(s);
+            String json = getMetaDataFormat(name);
+            if (json != null) {
+                JsonObject model = new JsonObject(json).getJsonObject("model");
+                JsonObject props = new JsonObject(json).getJsonObject("properties");
+                String title = model.getString("title");
+                String description = model.getString("description");
+                String label = model.getString("label");
+                metadata.append(String.format("    new ElementMeta('%s', '%s', \"%s\", '%s', [\n", name, title, description, label));
+                props.stream().forEach(e -> {
+                    String pname = e.getKey();
+                    JsonObject p = props.getJsonObject(pname);
+                    String displayName = p != null && p.containsKey("displayName") ? p.getString("displayName") : pname;
+                    String desc = p != null && p.containsKey("description") ? p.getString("description") : pname;
+                    String en = p != null && p.containsKey("enum") ? p.getString("enum").replace("[", "").replace("]", "") : "";
+                    String type = p.getString("type");
+                    Boolean required = p != null && p.containsKey("required") ? p.getBoolean("required") : false;
+                    Boolean secret = p != null && p.containsKey("secret") ? p.getBoolean("secret") : false;
+                    String defaultValue = p != null && p.containsKey("defaultValue") ? p.getString("defaultValue") : "";
+                    boolean isObject = false; //(el.isArray ? el.isArrayTypeClass : el.isObject);
+                    metadata.append(String.format("        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b),\n", pname, displayName, desc, type, en, defaultValue, required, secret, "array".equals(type), isObject));
+                });
+                metadata.append("    ]),\n");
+            }
+        });
+        metadata.append("]\n");
+        return metadata.toString();
+    }
 
     private boolean isClassOneOfString(String classname, JsonObject definitions) {
         return definitions.getJsonObject(classname).containsKey("oneOf") && definitions.getJsonObject(classname).getJsonArray("oneOf").getJsonObject(0).getString("type").equals("string");
-    }
-
-
-    private String camelize(String name, String separator) {
-        return Arrays.stream(name.split(separator)).map(s -> capitalize(s)).collect(Collectors.joining());
-    }
-
-    private String capitalize(String str) {
-        return str.length() == 0 ? str
-                : str.length() == 1 ? str.toUpperCase()
-                : str.substring(0, 1).toUpperCase() + str.substring(1);
-    }
-
-    private String deCapitalize(String str) {
-        return str.length() == 0 ? str
-                : str.length() == 1 ? str.toLowerCase()
-                : str.substring(0, 1).toLowerCase() + str.substring(1);
     }
 
     private String getTabs(int n) {
@@ -551,6 +586,17 @@ public final class CamelModelGenerator {
     public String getMetaModel(String name) {
         try {
             InputStream inputStream = CamelCatalog.class.getResourceAsStream("/org/apache/camel/catalog/models/" + name + ".json");
+            String data = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines().collect(Collectors.joining(System.getProperty("line.separator")));
+            return data;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public String getMetaDataFormat(String name) {
+        try {
+            InputStream inputStream = RouteBuilder.class.getResourceAsStream("/org/apache/camel/model/dataformat/" + name + ".json");
             String data = new BufferedReader(new InputStreamReader(inputStream))
                     .lines().collect(Collectors.joining(System.getProperty("line.separator")));
             return data;

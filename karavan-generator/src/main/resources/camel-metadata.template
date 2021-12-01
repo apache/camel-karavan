@@ -47,8 +47,8 @@ export class PropertyMeta {
 
 export class CamelMetadataApi {
 
-    static getElementMeta = (name: string): ElementMeta | undefined => {
-       return Metadata.find(value => value.name === name);
+    static getCamelModelMetadata = (name: string): ElementMeta | undefined => {
+       return CamelModelMetadata.find(value => value.name === name);
     }
 
     static getLanguage = (name: string): [string, string, string] | undefined => {

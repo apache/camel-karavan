@@ -122,7 +122,7 @@ export class CamelApiExt {
         let expression: any = undefined;
         let parameters: any = undefined;
         if (name) {
-            CamelMetadataApi.getElementMeta(name)?.properties
+            CamelMetadataApi.getCamelModelMetadata(name)?.properties
                 .filter(p => p.name !== 'steps' && p.name !== 'inheritErrorHandler')
                 .filter(p => (name == 'to' && p.name !== 'pattern') || name != 'to')
                 .filter(p => !p.isObject || (p.isObject && p.name === 'expression'))
@@ -144,6 +144,7 @@ export class CamelApiExt {
         }
         if (uri) result.unshift(uri)
         if (expression) result.unshift(expression)
+        // if (name && ['marshal', 'unmarshal'].includes(name)) result.unshift(new PropertyMeta("dataFormat"))
         if (parameters) result.push(parameters)
         return result
     }
