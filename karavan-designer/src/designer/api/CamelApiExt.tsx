@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 import {CamelElement, FromStep, Integration, ProcessorStep} from "../model/CamelModel";
-import {CamelMetadataApi, PropertyMeta} from "./CamelMetadata";
+import {CamelMetadataApi, DataFormats, PropertyMeta} from "./CamelMetadata";
 import {CamelApi} from "./CamelApi";
 import {ComponentApi} from "./ComponentApi";
+import {DataFormat} from "../model/CamelDataFormat";
 
 export class CamelApiExt {
 
@@ -47,13 +48,10 @@ export class CamelApiExt {
             switch (targetFindStep.step?.dslName) {
                 case 'when':
                     return CamelApiExt.addStepToIntegration(integration, sourceStep, targetFindStep.step?.uuid, undefined);
-                    break;
                 case 'otherwise':
                     return CamelApiExt.addStepToIntegration(integration, sourceStep, targetFindStep.step?.uuid, undefined);
-                    break;
                 default:
                     return CamelApiExt.addStepToIntegration(integration, sourceStep, parentUuid, targetFindStep.position);
-                    break;
             }
         }
         return integration;
@@ -72,6 +70,12 @@ export class CamelApiExt {
         } else {
             return undefined;
         }
+    }
+
+    static getDataFormat = (element: CamelElement | undefined): [string, DataFormat] | undefined => {
+        const el: any = Object.assign({}, element);
+        const dataFormat = Object.keys(el).find(key => el[key] !== undefined && DataFormats.map(value => value[0]).includes(key));
+        return dataFormat ? [dataFormat, el[dataFormat]] : undefined;
     }
 
     static getExpressionValue = (element: CamelElement | undefined): string | undefined => {
@@ -123,8 +127,8 @@ export class CamelApiExt {
         let parameters: any = undefined;
         if (name) {
             CamelMetadataApi.getCamelModelMetadata(name)?.properties
-                .filter(p => p.name !== 'steps' && p.name !== 'inheritErrorHandler')
-                .filter(p => (name == 'to' && p.name !== 'pattern') || name != 'to')
+                .filter(p => p.name !== 'steps')
+                .filter(p => (name === 'to' && p.name !== 'pattern') || name !== 'to')
                 .filter(p => !p.isObject || (p.isObject && p.name === 'expression'))
                 .forEach(p => {
                     switch (p.name) {

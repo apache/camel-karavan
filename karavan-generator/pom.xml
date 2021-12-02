@@ -65,6 +65,11 @@
             <version>${version.camel-core}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-yaml-dsl</artifactId>
+            <version>${version.camel-core}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.camel.kamelets</groupId>
             <artifactId>camel-kamelets-catalog</artifactId>
             <version>${version.camel-kamelet}</version>

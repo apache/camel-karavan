@@ -51,6 +51,10 @@ export class CamelMetadataApi {
        return CamelModelMetadata.find(value => value.name === name);
     }
 
+    static getCamelDataFormatMetadata = (name: string): ElementMeta | undefined => {
+        return CamelDataFormatMetadata.find(value => value.name === name);
+    }
+
     static getLanguage = (name: string): [string, string, string] | undefined => {
         return Languages.find(value => value[0] === name);
     }

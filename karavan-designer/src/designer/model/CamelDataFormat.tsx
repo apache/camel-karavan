@@ -383,7 +383,6 @@ export class JsonDataFormat extends DataFormat{
     library?: 'Fastjson' | 'Gson' | 'Jackson' | 'Johnzon' | 'Jsonb' | 'XStream'; 
     moduleClassNames?: string; 
     moduleRefs?: string; 
-    namingStrategy?: string; 
     objectMapper?: string; 
     permissions?: string; 
     prettyPrint?: boolean; 

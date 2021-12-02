@@ -29,7 +29,7 @@ import {
     SelectDirection,
     SelectOption,
     TextArea,
-    ExpandableSection, Tooltip,
+    ExpandableSection,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -38,7 +38,7 @@ import {Property} from "../model/KameletModels";
 import {CamelElement, Expression, Integration} from "../model/CamelModel";
 import {CamelApi} from "../api/CamelApi";
 import {CamelApiExt} from "../api/CamelApiExt";
-import {CamelMetadataApi, Languages, PropertyMeta} from "../api/CamelMetadata";
+import {CamelMetadataApi, DataFormats, Languages, PropertyMeta} from "../api/CamelMetadata";
 import {CamelYaml} from "../api/CamelYaml";
 import {CamelUi} from "../api/CamelUi";
 import {ComponentApi} from "../api/ComponentApi";
@@ -335,64 +335,6 @@ export class DslProperties extends React.Component<Props, State> {
         )
     }
 
-    createDataFormatProperty = (property: PropertyMeta): JSX.Element => {
-        const prefix = "language";
-        const language = CamelApiExt.getExpressionLanguage(this.state.element) || 'Simple'
-        const dslLanguage = Languages.find((l: [string, string, string]) => l[0] === language);
-        const value = language ? CamelApiExt.getExpressionValue(this.state.element) : undefined;
-        const selectOptions: JSX.Element[] = []
-        Languages.forEach((lang: [string, string, string]) => {
-            const s = <SelectOption key={lang[0]} value={lang[0]} description={lang[2]}/>;
-            selectOptions.push(s);
-        })
-        return (
-            <div>
-                <FormGroup key={prefix + "-" + property.name} fieldId={property.name}>
-                    <Select
-                        variant={SelectVariant.typeahead}
-                        aria-label={property.name}
-                        onToggle={isExpanded => {
-                            this.openSelect(property.name)
-                        }}
-                        onSelect={(e, lang, isPlaceholder) => this.expressionChanged(lang.toString(), value)}
-                        selections={dslLanguage}
-                        isOpen={this.isSelectOpen(property.name)}
-                        aria-labelledby={property.name}
-                        direction={SelectDirection.down}
-                    >
-                        {selectOptions}
-                    </Select>
-                </FormGroup>
-                <FormGroup
-                    key={property.name}
-                    fieldId={property.name}
-                    labelIcon={property.description ?
-                        <Popover
-                            position={"left"}
-                            headerContent={property.displayName}
-                            bodyContent={property.description}>
-                            <button type="button" aria-label="More info" onClick={e => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                            }}
-                                    className="pf-c-form__group-label-help">
-                                <HelpIcon noVerticalAlign/>
-                            </button>
-                        </Popover> : <div></div>
-                    }>
-                    <TextArea
-                        autoResize
-                        className="text-field" isRequired
-                        type={"text"}
-                        id={property.name} name={property.name}
-                        height={"100px"}
-                        value={value?.toString()}
-                        onChange={e => this.expressionChanged(language, e)}/>
-                </FormGroup>
-            </div>
-        )
-    }
-
     createEipDslProperty = (property: PropertyMeta): JSX.Element => {
         const value = this.state.element ? (this.state.element as any)[property.name] : undefined;
         const selectOptions: JSX.Element[] = []
@@ -454,10 +396,11 @@ export class DslProperties extends React.Component<Props, State> {
                     {selectOptions}
                 </Select>
                 }
-                <div className="expression">
-                    {property.name === 'expression' && property.type === "Expression"
-                    && this.createExpressionProperty(property)}
-                </div>
+                {property.name === 'expression' && property.type === "Expression" &&
+                    <div className="expression">
+                        {this.createExpressionProperty(property)}
+                    </div>
+                }
                 <div className="parameters">
                     {property.name === 'parameters' && CamelUi.isKameletComponent(this.state.element)
                     && CamelUi.getKameletProperties(this.state.element).map(kp => this.createKameletProperty(kp))}
@@ -479,6 +422,11 @@ export class DslProperties extends React.Component<Props, State> {
         )
     }
 
+    setDataFormat = (dataFormat: string, props: any) => {
+        console.log(dataFormat);
+        console.log(props);
+    }
+
     render() {
         return (
             <div key={this.state.step ? this.state.step.uuid : 'integration'} className='properties'>
@@ -488,6 +436,6 @@ export class DslProperties extends React.Component<Props, State> {
                     {this.state.element && CamelApiExt.getElementProperties(this.state.element.dslName).map((property: PropertyMeta) => this.createEipDslProperty(property))}
                 </Form>
             </div>
-        );
+        )
     }
-};
+}

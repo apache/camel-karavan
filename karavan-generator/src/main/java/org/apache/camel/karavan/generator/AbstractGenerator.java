@@ -20,7 +20,11 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.apache.camel.dsl.yaml.YamlRoutesBuilderLoader;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -31,6 +35,17 @@ public class AbstractGenerator {
     protected JsonObject getDefinitions(String source){
         Buffer buffer = vertx.fileSystem().readFileBlocking(source);
         return new JsonObject(buffer).getJsonObject("items").getJsonObject("definitions");
+    }
+
+    protected String getCamelYamlDSL() {
+        try {
+            InputStream inputStream = YamlRoutesBuilderLoader.class.getResourceAsStream("/camel-yaml-dsl.json");
+            String data = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines().collect(Collectors.joining(System.getProperty("line.separator")));
+            return data;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     protected String readFileText(String template){

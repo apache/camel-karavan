@@ -33,15 +33,16 @@ public final class CamelDataFormatGenerator extends AbstractGenerator {
     public static void generate() throws Exception {
         CamelDataFormatGenerator g = new CamelDataFormatGenerator();
         g.createModels(
-                "karavan-generator/src/main/resources/camel-yaml-dsl.json",
                 "karavan-generator/src/main/resources/CamelDataFormat.tx",
                 "karavan-generator/src/main/resources/CamelDataFormat.template.tx",
                 "karavan-designer/src/designer/model/CamelDataFormat.tsx"
         );
     }
 
-    private void createModels(String sourcePath, String headerPath, String templatePath, String targetModelPath) throws Exception {
-        JsonObject definitions = getDefinitions(sourcePath);
+    private void createModels(String headerPath, String templatePath, String targetModelPath) throws Exception {
+
+        String camelYamlDSL = getCamelYamlDSL();
+        JsonObject definitions = new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("definitions");
 
         List<String> dataFormats = definitions.stream()
                 .filter(e -> e.getKey().startsWith("org.apache.camel.model.dataformat"))

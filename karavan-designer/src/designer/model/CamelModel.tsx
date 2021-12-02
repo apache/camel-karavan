@@ -70,7 +70,6 @@ export class ProcessorStepMeta {
 }
 
 export class Policy extends CamelElement { 
-    inheritErrorHandler?: boolean
     ref?: string
     steps?: ProcessorStep [] = []
 
@@ -90,7 +89,6 @@ export class PolicyStep extends ProcessorStep {
 
 export class ThrowException extends CamelElement { 
     exceptionType?: string
-    inheritErrorHandler?: boolean
     message?: string
     ref?: string
 
@@ -109,7 +107,6 @@ export class ThrowExceptionStep extends ProcessorStep {
 }
 
 export class Choice extends CamelElement { 
-    inheritErrorHandler?: boolean
     otherwise?: Otherwise
     when?: When [] = []
 
@@ -132,7 +129,6 @@ export class PollEnrich extends CamelElement {
     cacheSize?: number
     expression?: Expression
     ignoreInvalidEndpoint?: number
-    inheritErrorHandler?: boolean
     strategyMethodAllowNull?: boolean
     strategyMethodName?: string
     strategyRef?: string
@@ -154,7 +150,6 @@ export class PollEnrichStep extends ProcessorStep {
 
 export class SetBody extends CamelElement { 
     expression?: Expression
-    inheritErrorHandler?: boolean
 
     public constructor(init?: Partial<SetBody>) { 
         super('setBody')
@@ -171,7 +166,6 @@ export class SetBodyStep extends ProcessorStep {
 }
 
 export class Stop extends CamelElement { 
-    inheritErrorHandler?: boolean
 
     public constructor(init?: Partial<Stop>) { 
         super('stop')
@@ -192,7 +186,6 @@ export class ToD extends CamelElement {
     autoStartComponents?: boolean
     cacheSize?: number
     ignoreInvalidEndpoint?: boolean
-    inheritErrorHandler?: boolean
     parameters?: any
     pattern?: string
     uri?: string
@@ -212,7 +205,6 @@ export class ToDStep extends ProcessorStep {
 }
 
 export class Process extends CamelElement { 
-    inheritErrorHandler?: boolean
     ref?: string
 
     public constructor(init?: Partial<Process>) { 
@@ -231,7 +223,6 @@ export class ProcessStep extends ProcessorStep {
 
 export class RemoveHeaders extends CamelElement { 
     excludePattern?: string
-    inheritErrorHandler?: boolean
     pattern?: string
 
     public constructor(init?: Partial<RemoveHeaders>) { 
@@ -253,7 +244,6 @@ export class Delay extends CamelElement {
     callerRunsWhenRejected?: boolean
     executorServiceRef?: string
     expression?: Expression
-    inheritErrorHandler?: boolean
 
     public constructor(init?: Partial<Delay>) { 
         super('delay')
@@ -275,7 +265,6 @@ export class Throttle extends CamelElement {
     correlationExpression?: Expression
     executorServiceRef?: string
     expression?: Expression
-    inheritErrorHandler?: boolean
     rejectExecution?: boolean
     timePeriodMillis?: string
 
@@ -294,7 +283,6 @@ export class ThrottleStep extends ProcessorStep {
 }
 
 export class Otherwise extends CamelElement { 
-    inheritErrorHandler?: boolean
     steps?: ProcessorStep [] = []
 
     public constructor(init?: Partial<Otherwise>) { 
@@ -303,7 +291,6 @@ export class Otherwise extends CamelElement {
     }
 }
 export class RemoveProperty extends CamelElement { 
-    inheritErrorHandler?: boolean
     propertyName?: string
 
     public constructor(init?: Partial<RemoveProperty>) { 
@@ -322,7 +309,6 @@ export class RemovePropertyStep extends ProcessorStep {
 
 export class Validate extends CamelElement { 
     expression?: Expression
-    inheritErrorHandler?: boolean
 
     public constructor(init?: Partial<Validate>) { 
         super('validate')
@@ -341,7 +327,6 @@ export class ValidateStep extends ProcessorStep {
 export class Sort extends CamelElement { 
     comparatorRef?: string
     expression?: Expression
-    inheritErrorHandler?: boolean
 
     public constructor(init?: Partial<Sort>) { 
         super('sort')
@@ -377,7 +362,6 @@ export class FromStep extends ProcessorStep {
 }
 
 export class To extends CamelElement { 
-    inheritErrorHandler?: boolean
     parameters?: any
     pattern?: string
     uri?: string
@@ -398,7 +382,6 @@ export class ToStep extends ProcessorStep {
 
 export class SetHeader extends CamelElement { 
     expression?: Expression
-    inheritErrorHandler?: boolean
     name?: string
 
     public constructor(init?: Partial<SetHeader>) { 
@@ -417,7 +400,6 @@ export class SetHeaderStep extends ProcessorStep {
 
 export class OnCompletion extends CamelElement { 
     executorServiceRef?: string
-    inheritErrorHandler?: boolean
     mode?: string
     onCompleteOnly?: boolean
     onFailureOnly?: boolean
@@ -442,7 +424,6 @@ export class OnCompletionStep extends ProcessorStep {
 
 export class RemoveHeader extends CamelElement { 
     headerName?: string
-    inheritErrorHandler?: boolean
     name?: string
 
     public constructor(init?: Partial<RemoveHeader>) { 
@@ -461,7 +442,6 @@ export class RemoveHeaderStep extends ProcessorStep {
 
 export class Script extends CamelElement { 
     expression?: Expression
-    inheritErrorHandler?: boolean
 
     public constructor(init?: Partial<Script>) { 
         super('script')
@@ -483,7 +463,6 @@ export class Enrich extends CamelElement {
     cacheSize?: number
     expression?: Expression
     ignoreInvalidEndpoint?: boolean
-    inheritErrorHandler?: boolean
     shareUnitOfWork?: boolean
     strategyMethodAllowNull?: string
     strategyMethodName?: string
@@ -504,7 +483,6 @@ export class EnrichStep extends ProcessorStep {
 }
 
 export class Log extends CamelElement { 
-    inheritErrorHandler?: boolean
     logName?: string
     loggerRef?: string
     loggingLevel?: string
@@ -530,7 +508,6 @@ export class Tod extends CamelElement {
     autoStartComponents?: boolean
     cacheSize?: number
     ignoreInvalidEndpoint?: boolean
-    inheritErrorHandler?: boolean
     parameters?: any
     pattern?: string
     uri?: string
@@ -551,7 +528,6 @@ export class TodStep extends ProcessorStep {
 
 export class RemoveProperties extends CamelElement { 
     excludePattern?: string
-    inheritErrorHandler?: boolean
     pattern?: string
 
     public constructor(init?: Partial<RemoveProperties>) { 
@@ -587,7 +563,6 @@ export class Marshal extends CamelElement {
     gzip?: dataFormat.GzipDataFormat
     hl7?: dataFormat.HL7DataFormat
     ical?: dataFormat.IcalDataFormat
-    inheritErrorHandler?: boolean
     jacksonxml?: dataFormat.JacksonXMLDataFormat
     jaxb?: dataFormat.JaxbDataFormat
     json?: dataFormat.JsonDataFormat
@@ -630,7 +605,6 @@ export class Split extends CamelElement {
     delimiter?: string
     executorServiceRef?: string
     expression?: Expression
-    inheritErrorHandler?: boolean
     onPrepareRef?: string
     parallelAggregate?: boolean
     parallelProcessing?: boolean
@@ -659,7 +633,6 @@ export class SplitStep extends ProcessorStep {
 }
 
 export class Transacted extends CamelElement { 
-    inheritErrorHandler?: boolean
     ref?: string
     steps?: ProcessorStep [] = []
 
@@ -678,7 +651,6 @@ export class TransactedStep extends ProcessorStep {
 }
 
 export class InterceptFrom extends CamelElement { 
-    inheritErrorHandler?: boolean
     steps?: ProcessorStep [] = []
     uri?: string
 
@@ -698,7 +670,6 @@ export class InterceptFromStep extends ProcessorStep {
 
 export class DoCatch extends CamelElement { 
     exception?: string [] = []
-    inheritErrorHandler?: boolean
     onWhen?: When
     steps?: ProcessorStep [] = []
 
@@ -718,7 +689,6 @@ export class DoCatchStep extends ProcessorStep {
 
 export class CircuitBreaker extends CamelElement { 
     configurationRef?: string
-    inheritErrorHandler?: boolean
     onFallback?: OnFallback
     steps?: ProcessorStep [] = []
 
@@ -738,7 +708,6 @@ export class CircuitBreakerStep extends ProcessorStep {
 
 export class ConvertBodyTo extends CamelElement { 
     charset?: string
-    inheritErrorHandler?: boolean
     mandatory?: boolean
     type?: string
 
@@ -757,7 +726,6 @@ export class ConvertBodyToStep extends ProcessorStep {
 }
 
 export class Intercept extends CamelElement { 
-    inheritErrorHandler?: boolean
     steps?: ProcessorStep [] = []
 
     public constructor(init?: Partial<Intercept>) { 
@@ -793,7 +761,6 @@ export class Unmarshal extends CamelElement {
     gzip?: dataFormat.GzipDataFormat
     hl7?: dataFormat.HL7DataFormat
     ical?: dataFormat.IcalDataFormat
-    inheritErrorHandler?: boolean
     jacksonxml?: dataFormat.JacksonXMLDataFormat
     jaxb?: dataFormat.JaxbDataFormat
     json?: dataFormat.JsonDataFormat
@@ -834,7 +801,6 @@ export class UnmarshalStep extends ProcessorStep {
 
 export class OnFallback extends CamelElement { 
     fallbackViaNetwork?: boolean
-    inheritErrorHandler?: boolean
     steps?: ProcessorStep [] = []
 
     public constructor(init?: Partial<OnFallback>) { 
@@ -852,7 +818,6 @@ export class OnFallbackStep extends ProcessorStep {
 }
 
 export class SetExchangePattern extends CamelElement { 
-    inheritErrorHandler?: boolean
     pattern?: string
 
     public constructor(init?: Partial<SetExchangePattern>) { 
@@ -875,7 +840,6 @@ export class RecipientList extends CamelElement {
     executorServiceRef?: string
     expression?: Expression
     ignoreInvalidEndpoints?: boolean
-    inheritErrorHandler?: boolean
     onPrepareRef?: string
     parallelAggregate?: boolean
     parallelProcessing?: boolean
@@ -905,7 +869,6 @@ export class RecipientListStep extends ProcessorStep {
 export class Bean extends CamelElement { 
     beanType?: string
     cache?: boolean
-    inheritErrorHandler?: boolean
     method?: string
     ref?: string
     scope?: string
@@ -926,7 +889,6 @@ export class BeanStep extends ProcessorStep {
 
 export class Multicast extends CamelElement { 
     executorServiceRef?: string
-    inheritErrorHandler?: boolean
     onPrepareRef?: string
     parallelAggregate?: boolean
     parallelProcessing?: boolean
@@ -955,7 +917,6 @@ export class MulticastStep extends ProcessorStep {
 }
 
 export class InOnly extends CamelElement { 
-    inheritErrorHandler?: boolean
     parameters?: any
     uri?: string
 
@@ -996,7 +957,6 @@ export class RoutingSlip extends CamelElement {
     cacheSize?: number
     expression?: Expression
     ignoreInvalidEndpoints?: boolean
-    inheritErrorHandler?: boolean
     uriDelimiter?: string
 
     public constructor(init?: Partial<RoutingSlip>) { 
@@ -1014,7 +974,6 @@ export class RoutingSlipStep extends ProcessorStep {
 }
 
 export class Rollback extends CamelElement { 
-    inheritErrorHandler?: boolean
     markRollbackOnly?: boolean
     markRollbackOnlyLast?: boolean
     message?: string
@@ -1035,7 +994,6 @@ export class RollbackStep extends ProcessorStep {
 
 export class WhenSkipSendToEndpoint extends CamelElement { 
     expression?: Expression
-    inheritErrorHandler?: boolean
     steps?: ProcessorStep [] = []
 
     public constructor(init?: Partial<WhenSkipSendToEndpoint>) { 
@@ -1061,7 +1019,6 @@ export class WireTap extends CamelElement {
     dynamicUri?: boolean
     executorServiceRef?: string
     ignoreInvalidEndpoint?: boolean
-    inheritErrorHandler?: boolean
     onPrepareRef?: string
     parameters?: any
     pattern?: string
@@ -1088,7 +1045,6 @@ export class Loop extends CamelElement {
     copy?: boolean
     doWhile?: boolean
     expression?: Expression
-    inheritErrorHandler?: boolean
     steps?: ProcessorStep [] = []
 
     public constructor(init?: Partial<Loop>) { 
@@ -1107,7 +1063,6 @@ export class LoopStep extends ProcessorStep {
 
 export class InterceptSendToEndpoint extends CamelElement { 
     afterUri?: string
-    inheritErrorHandler?: boolean
     skipSendToOriginalEndpoint?: string
     steps?: ProcessorStep [] = []
     uri?: string
@@ -1129,7 +1084,6 @@ export class InterceptSendToEndpointStep extends ProcessorStep {
 export class DoTry extends CamelElement { 
     doCatch?: DoCatchStep [] = []
     doFinally?: DoFinally
-    inheritErrorHandler?: boolean
     steps?: ProcessorStep [] = []
 
     public constructor(init?: Partial<DoTry>) { 
@@ -1148,7 +1102,6 @@ export class DoTryStep extends ProcessorStep {
 
 export class Resequence extends CamelElement { 
     expression?: Expression
-    inheritErrorHandler?: boolean
     steps?: ProcessorStep [] = []
 
     public constructor(init?: Partial<Resequence>) { 
@@ -1206,7 +1159,6 @@ export class ServiceCall extends CamelElement {
     component?: string
     configurationRef?: string
     expressionRef?: string
-    inheritErrorHandler?: boolean
     loadBalancerRef?: string
     name?: string
     pattern?: string
@@ -1230,7 +1182,6 @@ export class ServiceCallStep extends ProcessorStep {
 }
 
 export class Kamelet extends CamelElement { 
-    inheritErrorHandler?: boolean
     name?: string
     parameters?: any
 
@@ -1249,7 +1200,6 @@ export class KameletStep extends ProcessorStep {
 }
 
 export class Sample extends CamelElement { 
-    inheritErrorHandler?: boolean
     messageFrequency?: number
     samplePeriod?: string
     units?: string
@@ -1272,7 +1222,6 @@ export class DynamicRouter extends CamelElement {
     cacheSize?: number
     expression?: Expression
     ignoreInvalidEndpoints?: boolean
-    inheritErrorHandler?: boolean
     uriDelimiter?: string
 
     public constructor(init?: Partial<DynamicRouter>) { 
@@ -1290,7 +1239,6 @@ export class DynamicRouterStep extends ProcessorStep {
 }
 
 export class Pipeline extends CamelElement { 
-    inheritErrorHandler?: boolean
     steps?: ProcessorStep [] = []
 
     public constructor(init?: Partial<Pipeline>) { 
@@ -1311,7 +1259,6 @@ export class Saga extends CamelElement {
     compensation?: string
     completion?: string
     completionMode?: string
-    inheritErrorHandler?: boolean
     propagation?: string
     sagaServiceRef?: string
     steps?: ProcessorStep [] = []
@@ -1336,7 +1283,6 @@ export class Threads extends CamelElement {
     allowCoreThreadTimeOut?: boolean
     callerRunsWhenRejected?: string
     executorServiceRef?: string
-    inheritErrorHandler?: boolean
     keepAliveTime?: number
     maxPoolSize?: number
     maxQueueSize?: number
@@ -1361,7 +1307,6 @@ export class ThreadsStep extends ProcessorStep {
 
 export class When extends CamelElement { 
     expression?: Expression
-    inheritErrorHandler?: boolean
     steps?: ProcessorStep [] = []
 
     public constructor(init?: Partial<When>) { 
@@ -1371,7 +1316,6 @@ export class When extends CamelElement {
 }
 export class ClaimCheck extends CamelElement { 
     filter?: string
-    inheritErrorHandler?: boolean
     key?: string
     operation?: string
     strategyMethodName?: string
@@ -1392,7 +1336,6 @@ export class ClaimCheckStep extends ProcessorStep {
 }
 
 export class DoFinally extends CamelElement { 
-    inheritErrorHandler?: boolean
     steps?: ProcessorStep [] = []
 
     public constructor(init?: Partial<DoFinally>) { 
@@ -1411,7 +1354,6 @@ export class DoFinallyStep extends ProcessorStep {
 
 export class Filter extends CamelElement { 
     expression?: Expression
-    inheritErrorHandler?: boolean
     steps?: ProcessorStep [] = []
 
     public constructor(init?: Partial<Filter>) { 
@@ -1449,7 +1391,6 @@ export class Aggregate extends CamelElement {
     executorServiceRef?: string
     forceCompletionOnStop?: boolean
     ignoreInvalidCorrelationKeys?: boolean
-    inheritErrorHandler?: boolean
     optimisticLocking?: boolean
     parallelProcessing?: boolean
     steps?: ProcessorStep [] = []
@@ -1474,7 +1415,6 @@ export class AggregateStep extends ProcessorStep {
 
 export class Transform extends CamelElement { 
     expression?: Expression
-    inheritErrorHandler?: boolean
 
     public constructor(init?: Partial<Transform>) { 
         super('transform')
@@ -1494,7 +1434,6 @@ export class IdempotentConsumer extends CamelElement {
     completionEager?: string
     eager?: boolean
     expression?: Expression
-    inheritErrorHandler?: boolean
     messageIdRepositoryRef?: string
     removeOnFailure?: boolean
     skipDuplicate?: boolean
@@ -1516,7 +1455,6 @@ export class IdempotentConsumerStep extends ProcessorStep {
 
 export class SetProperty extends CamelElement { 
     expression?: Expression
-    inheritErrorHandler?: boolean
     name?: string
 
     public constructor(init?: Partial<SetProperty>) { 
@@ -1534,7 +1472,6 @@ export class SetPropertyStep extends ProcessorStep {
 }
 
 export class InOut extends CamelElement { 
-    inheritErrorHandler?: boolean
     parameters?: any
     uri?: string
 
