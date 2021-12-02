@@ -68,7 +68,7 @@ export class DslSelector extends React.Component<Props, State> {
     }
 
     checkFilter = (dsl: DslMetaModel): boolean => {
-        if (this.state.filter != undefined){
+        if (this.state.filter !== undefined){
             return dsl.title.toLowerCase().includes(this.state.filter.toLowerCase())
                 || dsl.description.toLowerCase().includes(this.state.filter.toLowerCase());
         } else {

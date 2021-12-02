@@ -18,7 +18,7 @@ package org.apache.camel.karavan.generator;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import org.apache.camel.catalog.CamelCatalog;
+import org.apache.camel.builder.RouteBuilder;
 import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
@@ -75,7 +75,7 @@ public final class CamelComponentsGenerator {
 
     public List<String> getComponents() {
         try {
-            InputStream inputStream = CamelCatalog.class.getResourceAsStream("/org/apache/camel/catalog/components.properties");
+            InputStream inputStream = RouteBuilder.class.getResourceAsStream("/org/apache/camel/catalog/components.properties");
             List<String> data = new BufferedReader(new InputStreamReader(inputStream))
                     .lines().collect(Collectors.toList());
             return data;
@@ -87,7 +87,7 @@ public final class CamelComponentsGenerator {
 
     public String getComponent(String name) {
         try {
-            InputStream inputStream = CamelCatalog.class.getResourceAsStream("/org/apache/camel/catalog/components/" + name + ".json");
+            InputStream inputStream = RouteBuilder.class.getResourceAsStream("/org/apache/camel/catalog/components/" + name + ".json");
             String data = new BufferedReader(new InputStreamReader(inputStream))
                     .lines().collect(Collectors.joining(System.getProperty("line.separator")));
             return data;

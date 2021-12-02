@@ -18,12 +18,12 @@ import {KameletApi} from "./KameletApi";
 import {CamelElement} from "../model/CamelModel";
 import {KameletModel, Property} from "../model/KameletModels";
 import {DslMetaModel} from "../model/DslMetaModel";
-import {Metadata} from "./CamelMetadata";
 import {ComponentApi} from "./ComponentApi";
 import {ComponentProperty} from "../model/ComponentModels";
 import {CamelApiExt} from "./CamelApiExt";
 import {CamelApi} from "./CamelApi";
 import {Kamelet} from "../model/CamelModel";
+import {CamelModelMetadata} from "./CamelMetadata";
 
 const DslElements: string[] = [
     "aggregate",
@@ -98,7 +98,7 @@ export class CamelUi {
     ): DslMetaModel[] => {
         if (type === "dsl") {
             if (parentDslName === undefined || parentDslName.length === 0) {
-                return Metadata.filter((m) => m.name === "from").map(
+                return CamelModelMetadata.filter((m) => m.name === "from").map(
                     (m) =>
                         new DslMetaModel({
                             dsl: m.name,
@@ -107,7 +107,7 @@ export class CamelUi {
                         })
                 );
             } else if (parentDslName === "choice") {
-                return Metadata.filter((m) =>
+                return CamelModelMetadata.filter((m) =>
                     ["when", "otherwise"].includes(m.name)
                 ).map(
                     (m) =>
@@ -118,7 +118,7 @@ export class CamelUi {
                         })
                 );
             } else {
-                return Metadata.filter((m) => DslElements.includes(m.name))
+                return CamelModelMetadata.filter((m) => DslElements.includes(m.name))
                     .filter((m) => m.labels.includes(label))
                     .map(
                         (m) =>

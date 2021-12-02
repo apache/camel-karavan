@@ -16,11 +16,11 @@
  */
 package org.apache.camel.karavan.generator;
 
-import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.catalog.CamelCatalog;
+import org.apache.camel.dsl.yaml.YamlRoutesBuilderLoader;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -29,7 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public final class CamelModelGenerator {
+public final class CamelModelGenerator extends AbstractGenerator {
 
     public static void main(String[] args) throws Exception {
         CamelModelGenerator.generate();
@@ -39,7 +39,6 @@ public final class CamelModelGenerator {
     public static void generate() throws Exception {
         CamelModelGenerator g = new CamelModelGenerator();
         g.createModels(
-                "karavan-generator/src/main/resources/camel-yaml-dsl.json",
                 "karavan-generator/src/main/resources/camel-model.template",
                 "karavan-generator/src/main/resources/camel-metadata.template",
                 "karavan-designer/src/designer/model/CamelModel.tsx",
@@ -48,14 +47,12 @@ public final class CamelModelGenerator {
         );
     }
 
-    private void createModels(String source, String template, String metadataTemplate, String targetModel, String targetApi, String targetMetadata) throws Exception {
-        Vertx vertx = Vertx.vertx();
+    private void createModels(String template, String metadataTemplate, String targetModel, String targetApi, String targetMetadata) throws Exception {
 
-        Buffer buffer = vertx.fileSystem().readFileBlocking(source);
-        JsonObject definitions = new JsonObject(buffer).getJsonObject("items").getJsonObject("definitions");
+        String camelYamlDSL = getCamelYamlDSL();
+        JsonObject definitions = new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("definitions");
 
         Buffer templateBuffer = vertx.fileSystem().readFileBlocking(template);
-
 
         StringBuilder camelModel = new StringBuilder();
         camelModel.append(templateBuffer.toString());
@@ -75,7 +72,7 @@ public final class CamelModelGenerator {
         // fill processors name + class
         Map<String, String> processors = new HashMap();
         procList.getMap().entrySet().stream()
-                .filter(e -> !e.getKey().equals("step") )
+                .filter(e -> !e.getKey().equals("step"))
                 .collect(Collectors.toMap(
                         e -> e.getKey(),
                         e -> e.getValue()
@@ -86,7 +83,7 @@ public final class CamelModelGenerator {
                     processors.put(className, name);
                 });
         procList.getMap().entrySet().stream()
-                .filter(e -> !e.getKey().equals("step") )
+                .filter(e -> !e.getKey().equals("step"))
                 .forEach((s) -> {
                     String name = camelize(s.getKey(), "-");
                     String className = classNameFromRef(procList.getJsonObject(s.getKey()).getString("$ref"));
@@ -99,7 +96,7 @@ public final class CamelModelGenerator {
         models.forEach((name, elementProps) -> {
             String pcode = generateElementCode(name, elementProps);
             camelModel.append(pcode).append(System.lineSeparator());
-            if (!name.equalsIgnoreCase("otherwise") && !name.equalsIgnoreCase("when")){
+            if (!name.equalsIgnoreCase("otherwise") && !name.equalsIgnoreCase("when")) {
                 camelModel.append(generateStepCode(name)).append(System.lineSeparator());
             }
         });
@@ -123,12 +120,13 @@ public final class CamelModelGenerator {
             if (s.equalsIgnoreCase("otherwise")) {
                 camelApi.append("    Otherwise, \n");
             } else if (s.equalsIgnoreCase("when")) {
-                    camelApi.append("    When, \n");
+                camelApi.append("    When, \n");
             } else {
                 camelApi.append("    ").append(s).append("Step, \n");
             }
         });
         camelApi.append("} from '../model/CamelModel' \n\n");
+        camelApi.append("import * as dataFormat from '../model/CamelDataFormat'; \n\n");
 
         camelApi.append("export class CamelApi { \n\n");
 
@@ -175,7 +173,7 @@ public final class CamelModelGenerator {
         processors.values().forEach(s -> {
             if (s.equalsIgnoreCase("otherwise")) {
                 camelApi.append("            case 'otherwise': return (step as Otherwise)\n");
-            } else if (s.equalsIgnoreCase("when")){
+            } else if (s.equalsIgnoreCase("when")) {
                 camelApi.append("            case 'when': return (step as When)\n");
             } else {
                 camelApi.append("            case '").append(deCapitalize(s)).append("Step': return (step as ").append(capitalize(s)).append("Step).").append(deCapitalize(s)).append("\n");
@@ -191,17 +189,17 @@ public final class CamelModelGenerator {
                 "    static addStep = (steps: ProcessorStep[], step: ProcessorStep, parentId: string, position?: number): ProcessorStep[] => {\n" +
                         "        const result: ProcessorStep[] = [];\n" +
                         "        steps.forEach(el => {\n" +
-                        "            switch (el.dslName) {\n" );
+                        "            switch (el.dslName) {\n");
         models.entrySet().forEach(s -> {
             String name = deCapitalize(s.getKey());
             String stepClass = capitalize(s.getKey()).concat("Step");
             String stepField = deCapitalize(s.getKey()).concat("Step");
 
-            if (name.equals("choice")){
+            if (name.equals("choice")) {
                 camelApi.append(getTemplateFile("CamelApi.addStep.choiceStep.tx").concat("\n"));
-            } else if (name.equals("otherwise")){
+            } else if (name.equals("otherwise")) {
                 camelApi.append(getTemplateFile("CamelApi.addStep.otherwise.tx").concat("\n"));
-            } else if (name.equals("when")){
+            } else if (name.equals("when")) {
                 camelApi.append(getTemplateFile("CamelApi.addStep.when.tx").concat("\n"));
             } else if (s.getValue().stream().filter(e -> e.name.equals("steps")).count() > 0) {
                 camelApi.append(String.format(
@@ -228,16 +226,16 @@ public final class CamelModelGenerator {
                         "        if (steps !== undefined){\n" +
                         "            steps.forEach(step => {\n" +
                         "                if (step.uuid !== uuidToDelete){\n" +
-                        "                    switch (step.dslName){\n" );
+                        "                    switch (step.dslName){\n");
         models.entrySet().forEach(s -> {
             String name = deCapitalize(s.getKey());
             String stepClass = capitalize(s.getKey()).concat("Step");
             String stepField = deCapitalize(s.getKey()).concat("Step");
             if (name.equals("otherwise")) {
                 camelApi.append("                        case 'otherwise': (step as Otherwise).steps = CamelApi.deleteStep((step as Otherwise).steps, uuidToDelete); break;\n");
-            } else if (name.equals("when")){
+            } else if (name.equals("when")) {
                 camelApi.append("                        case 'when': (step as When).steps = CamelApi.deleteStep((step as When).steps, uuidToDelete); break;\n");
-            } else if (name.equals("choice")){
+            } else if (name.equals("choice")) {
                 camelApi.append("                        case 'choiceStep':\n" +
                         "                            const otherwise = (step as ChoiceStep).choice.otherwise;\n" +
                         "                            if (otherwise && otherwise.uuid === uuidToDelete) {\n" +
@@ -248,9 +246,9 @@ public final class CamelModelGenerator {
                         "                            }\n" +
                         "                            (step as ChoiceStep).choice.when = CamelApi.deleteWhen((step as ChoiceStep).choice.when, uuidToDelete);\n" +
                         "                            break;\n");
-            } else if (s.getValue().stream().filter(e -> e.name.equals("steps")).count() > 0){
+            } else if (s.getValue().stream().filter(e -> e.name.equals("steps")).count() > 0) {
                 camelApi.append(String.format("                        case '%s': (step as %s).%s.steps = CamelApi.deleteStep((step as %s).%s.steps, uuidToDelete); break;\n",
-                        stepField, stepClass, name, stepClass,name));
+                        stepField, stepClass, name, stepClass, name));
             }
         });
         camelApi.append(
@@ -271,11 +269,11 @@ public final class CamelModelGenerator {
             String stepClass = capitalize(s.getKey()).concat("Step");
             String stepField = deCapitalize(s.getKey()).concat("Step");
 
-            if (name.equals("choice")){
+            if (name.equals("choice")) {
                 camelApi.append(getTemplateFile("CamelApi.findStep.choiceStep.tx").concat("\n"));
-            } else if (name.equals("otherwise")){
+            } else if (name.equals("otherwise")) {
                 camelApi.append(getTemplateFile("CamelApi.findStep.otherwise.tx").concat("\n"));
-            } else if (name.equals("when")){
+            } else if (name.equals("when")) {
                 camelApi.append(getTemplateFile("CamelApi.findStep.when.tx").concat("\n"));
             } else if (s.getValue().stream().filter(e -> e.name.equals("steps")).count() > 0) {
                 camelApi.append(String.format(
@@ -302,58 +300,21 @@ public final class CamelModelGenerator {
         vertx.fileSystem().writeFileBlocking(targetApi, Buffer.buffer(camelApi.toString()));
 
 
-        // Generate Metadata
-        Buffer metadataBuffer = vertx.fileSystem().readFileBlocking(metadataTemplate);
-        StringBuilder metadata = new StringBuilder(metadataBuffer.toString());
+        // Generate Camel Models Metadata
+        StringBuilder metadata = new StringBuilder(readFileText(metadataTemplate));
+        metadata.append(generateCamelModelMetadata(models));
 
-        metadata.append("export const Languages: [string, string, string][] = [\n");
-        models.get("expression").forEach(el -> {
-            String name = el.name;
-            String json = getMetaModel(name);
-            JsonObject model = new JsonObject(json).getJsonObject("model");
-            String title = model.getString("title");
-            String description = model.getString("description");
-            metadata.append(String.format("    ['%s','%s',\"%s\"],\n", name, title, description));
-        });
-        metadata.append("]\n");
-
-
-        metadata.append("export const Metadata: ElementMeta[] = [\n");
-        models.keySet().forEach(s -> {
-            String name = deCapitalize(s);
-            String json = getMetaModel(name);
-            if (json != null) {
-                JsonObject model = new JsonObject(json).getJsonObject("model");
-                JsonObject props = new JsonObject(json).getJsonObject("properties");
-                String title = model.getString("title");
-                String description = model.getString("description");
-                String label = model.getString("label");
-                metadata.append(String.format("    new ElementMeta('%s', '%s', '%s', '%s', [\n", name, title, description, label));
-                models.get(s).forEach(el -> {
-                    String pname = el.name;
-                    JsonObject p = props.getJsonObject(pname);
-                    String displayName = p != null && p.containsKey("displayName") ? p.getString("displayName") : pname;
-                    String desc = p != null && p.containsKey("description") ? p.getString("description") : pname;
-                    String en = p != null && p.containsKey("enum") ? p.getString("enum").replace("[", "").replace("]", "") : "";
-                    String type = p != null && p.containsKey("desc") ? p.getString("type") : el.type;
-                    Boolean required = p != null && p.containsKey("required") ? p.getBoolean("required") : false;
-                    Boolean secret = p != null && p.containsKey("secret") ? p.getBoolean("secret") : false;
-                    String defaultValue = p != null && p.containsKey("defaultValue") ? p.getString("defaultValue") : "";
-                    metadata.append(String.format("        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b),\n", pname, displayName, desc, type, en, defaultValue, required, secret, el.isArray, (el.isArray ? el.isArrayTypeClass : el.isObject)));
-                });
-                metadata.append("    ]),\n");
-            }
-        });
-        metadata.append("]\n");
-        vertx.fileSystem().writeFileBlocking(targetMetadata, Buffer.buffer(metadata.toString()));
+        // Generate Camel DataFormat Metadata
+        metadata.append(generateCamelDataFormatMetadata(models));
+        writeFileText(targetMetadata, metadata.toString());
     }
 
     private String createCreateFunction(String name, List<ElementProp> elProps) {
-        if (name.equalsIgnoreCase("otherwise")){
+        if (name.equalsIgnoreCase("otherwise")) {
             return getTemplateFile("CamelApi.createOtherwise.tx").concat("\n\n");
-        } else if (name.equalsIgnoreCase("when")){
+        } else if (name.equalsIgnoreCase("when")) {
             return getTemplateFile("CamelApi.createWhen.tx").concat("\n\n");
-        } else if (name.equalsIgnoreCase("choice")){
+        } else if (name.equalsIgnoreCase("choice")) {
             return getTemplateFile("CamelApi.createChoice.tx").concat("\n\n");
         }
         String stepClass = capitalize(name).concat("Step");
@@ -379,6 +340,9 @@ public final class CamelModelGenerator {
                 f.append(String.format("        } else {\n"));
                 f.append(String.format("            %1$s.%2$s.expression = CamelApi.createExpression(element?.%2$s?.expression);\n", stepField, elementName));
                 f.append(String.format("        }\n"));
+            } else if (e.typeCode.startsWith("dataFormat.")) {
+                String temp = "        if (element.%3$s?.%1$s !== undefined) %2$s.%3$s.%1$s = new %4$s(element.%3$s.%1$s);\n";
+                f.append(String.format(temp, e.name, stepField, elementName, e.typeCode));
             } else if (e.isObject) {
                 f.append(String.format("        %s.%s.%s = CamelApi.create%s(element?.%s?.%s);\n", stepField, elementName, e.name, e.type, elementName, e.name));
             }
@@ -401,29 +365,32 @@ public final class CamelModelGenerator {
         return camelElements.toString();
     }
 
-    private JsonObject getProperties(JsonObject definitions, String classname) {
-        JsonObject props = definitions.getJsonObject(classname).getJsonObject("properties");
-        JsonArray oneOf = definitions.getJsonObject(classname).getJsonArray("oneOf");
-        if (props != null) {
-            return props;
-        } else {
-            return oneOf.getJsonObject(1).getJsonObject("properties");
-        }
-    }
-
     private List<ElementProp> generateElementProp(String name, JsonObject properties, JsonObject definitions, Map<String, String> processors) {
+        String modelName = deCapitalize(name.equals("Tod") ? "toD" : name);
+        String json = getMetaModel(modelName);
+        if (json == null) return List.of();
+        JsonObject p = new JsonObject(json).getJsonObject("properties");
         List<ElementProp> props = new ArrayList<>();
         Set<String> keys = new HashSet<>();
-        properties.getMap().forEach((s, o) -> {
-            String propName = deCapitalize(camelize(s, "-"));
+        properties.getMap().entrySet().stream().filter(e -> {
+                    // workaround because camel-yaml-dsl.json and camel-catalogue are not sync
+                    if (e.getKey().equals("inherit-error-handler")) {
+                        JsonObject o = p.getJsonObject("inheritErrorHandler");
+                        return o != null;
+                    }
+                    return true;
+                }
+        ).forEach(e -> {
+            String attr = e.getKey();
+            String propName = deCapitalize(camelize(attr, "-"));
             boolean notStepsForChoice = !(name.equalsIgnoreCase("Choice") && propName.equals("steps"));
             boolean notStepsForKamelet = !(name.equalsIgnoreCase("Kamelet") && propName.equals("steps"));
             if (!keys.contains(propName) && notStepsForChoice && notStepsForKamelet) {
-                String type = properties.getJsonObject(s).getString("type");
-                String ref = properties.getJsonObject(s).getString("$ref");
+                String type = properties.getJsonObject(attr).getString("type");
+                String ref = properties.getJsonObject(attr).getString("$ref");
                 if (type != null) {
-                    if (type.equals("array") && isArrayTypeIsClass(properties.getJsonObject(s))) {
-                        String arrayTypeClass = getArrayTypeClass(properties.getJsonObject(s));
+                    if (type.equals("array") && isArrayTypeIsClass(properties.getJsonObject(attr))) {
+                        String arrayTypeClass = getArrayTypeClass(properties.getJsonObject(attr));
                         String arrayType = processors.get(arrayTypeClass);
                         if (arrayType != null) {
                             String typeCode = propName.equals("when") ? getTypeCode(type, arrayType) : getTypeCode(type, arrayType.concat("Step"));
@@ -431,8 +398,8 @@ public final class CamelModelGenerator {
                         } else if (arrayTypeClass.equals("org.apache.camel.model.ProcessorDefinition")) {
                             props.add(new ElementProp(propName, type, false, true, true, arrayType, true, getTypeCode(type, "ProcessorStep")));
                         }
-                    } else if (type.equals("array") && !isArrayTypeIsClass(properties.getJsonObject(s))) {
-                        String arrayType = getArrayType(properties.getJsonObject(s));
+                    } else if (type.equals("array") && !isArrayTypeIsClass(properties.getJsonObject(attr))) {
+                        String arrayType = getArrayType(properties.getJsonObject(attr));
                         props.add(new ElementProp(propName, type, false, true, false, arrayType, false, getTypeCode(type, arrayType)));
                     } else {
                         props.add(new ElementProp(propName, type, false, false, false, null, false, getTypeCode(type, null)));
@@ -445,6 +412,9 @@ public final class CamelModelGenerator {
                         props.add(new ElementProp(propName, "string", false, false, false, null, false, "string"));
                     } else if (processorName != null) {
                         props.add(new ElementProp(propName, processorName, true, false, false, null, false, capitalize(processorName)));
+                    } else if (className.startsWith("org.apache.camel.model.dataformat")) {
+                        String dataFormatClass = className.replace("org.apache.camel.model.dataformat.", "");
+                        props.add(new ElementProp(propName, dataFormatClass, true, false, false, null, false, "dataFormat." + dataFormatClass));
                     } else if (isClassOneOfString(className, definitions)) {
                         props.add(new ElementProp(propName, "string", false, false, false, null, false, "string"));
                     } else if ("org.apache.camel.model.language.ExpressionDefinition".equals(className)
@@ -491,26 +461,102 @@ public final class CamelModelGenerator {
         return element.toString();
     }
 
+    private String generateCamelModelMetadata(Map<String, List<ElementProp>> models) {
+        // Generate Metadata
+        StringBuilder metadata = new StringBuilder("export const Languages: [string, string, string][] = [\n");
+        models.get("expression").forEach(el -> {
+            String name = el.name;
+            String json = getMetaModel(name);
+            JsonObject model = new JsonObject(json).getJsonObject("model");
+            String title = model.getString("title");
+            String description = model.getString("description");
+            metadata.append(String.format("    ['%s','%s',\"%s\"],\n", name, title, description));
+        });
+        metadata.append("]\n");
+
+        metadata.append("export const CamelModelMetadata: ElementMeta[] = [\n");
+        models.keySet().forEach(s -> {
+            String name = deCapitalize(s);
+            String json = getMetaModel(name);
+            if (json != null) {
+                JsonObject model = new JsonObject(json).getJsonObject("model");
+                JsonObject props = new JsonObject(json).getJsonObject("properties");
+                String title = model.getString("title");
+                String description = model.getString("description");
+                String label = model.getString("label");
+                metadata.append(String.format("    new ElementMeta('%s', '%s', '%s', '%s', [\n", name, title, description, label));
+                models.get(s).forEach(el -> {
+                    String pname = el.name;
+                    JsonObject p = props.getJsonObject(pname);
+                    if ("inheritErrorHandler".equals(pname) && p == null) {
+                    } else {
+                        String displayName = p != null && p.containsKey("displayName") ? p.getString("displayName") : pname;
+                        String desc = p != null && p.containsKey("description") ? p.getString("description") : pname;
+                        String en = p != null && p.containsKey("enum") ? p.getString("enum").replace("[", "").replace("]", "") : "";
+                        String type = p != null && p.containsKey("desc") ? p.getString("type") : el.type;
+                        Boolean required = p != null && p.containsKey("required") ? p.getBoolean("required") : false;
+                        Boolean secret = p != null && p.containsKey("secret") ? p.getBoolean("secret") : false;
+                        String defaultValue = p != null && p.containsKey("defaultValue") ? p.getString("defaultValue") : "";
+                        metadata.append(String.format("        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b),\n", pname, displayName, desc, type, en, defaultValue, required, secret, el.isArray, (el.isArray ? el.isArrayTypeClass : el.isObject)));
+                    }
+                });
+                metadata.append("    ]),\n");
+            }
+        });
+        metadata.append("]\n");
+        return metadata.toString();
+    }
+
+    private String generateCamelDataFormatMetadata(Map<String, List<ElementProp>> models) {
+
+        List<String> dataformats = models.get("Marshal").stream()
+                .filter(e -> e.typeCode.startsWith("dataFormat."))
+                .map(e -> e.name).collect(Collectors.toList());
+        StringBuilder metadata = new StringBuilder("export const DataFormats: [string, string, string][] = [\n");
+        dataformats.forEach(name -> {
+            String json = getMetaDataFormat(name);
+            if (json != null) {
+                JsonObject model = new JsonObject(json).getJsonObject("model");
+                String title = model.getString("title");
+                String description = model.getString("description");
+                metadata.append(String.format("    ['%s','%s',\"%s\"],\n", name, title, description));
+            }
+        });
+        metadata.append("]\n");
+
+        metadata.append("export const CamelDataFormatMetadata: ElementMeta[] = [\n");
+        dataformats.forEach(s -> {
+            String name = deCapitalize(s);
+            String json = getMetaDataFormat(name);
+            if (json != null) {
+                JsonObject model = new JsonObject(json).getJsonObject("model");
+                JsonObject props = new JsonObject(json).getJsonObject("properties");
+                String title = model.getString("title");
+                String description = model.getString("description");
+                String label = model.getString("label");
+                metadata.append(String.format("    new ElementMeta('%s', '%s', \"%s\", '%s', [\n", name, title, description, label));
+                props.stream().forEach(e -> {
+                    String pname = e.getKey();
+                    JsonObject p = props.getJsonObject(pname);
+                    String displayName = p != null && p.containsKey("displayName") ? p.getString("displayName") : pname;
+                    String desc = p != null && p.containsKey("description") ? p.getString("description") : pname;
+                    String en = p != null && p.containsKey("enum") ? p.getString("enum").replace("[", "").replace("]", "") : "";
+                    String type = p.getString("type");
+                    Boolean required = p != null && p.containsKey("required") ? p.getBoolean("required") : false;
+                    Boolean secret = p != null && p.containsKey("secret") ? p.getBoolean("secret") : false;
+                    String defaultValue = p != null && p.containsKey("defaultValue") ? p.getString("defaultValue") : "";
+                    boolean isObject = false; //(el.isArray ? el.isArrayTypeClass : el.isObject);
+                    metadata.append(String.format("        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b),\n", pname, displayName, desc, type, en, defaultValue, required, secret, "array".equals(type), isObject));
+                });
+                metadata.append("    ]),\n");
+            }
+        });
+        metadata.append("]\n");
+        return metadata.toString();
+    }
 
     private boolean isClassOneOfString(String classname, JsonObject definitions) {
         return definitions.getJsonObject(classname).containsKey("oneOf") && definitions.getJsonObject(classname).getJsonArray("oneOf").getJsonObject(0).getString("type").equals("string");
-    }
-
-
-    private String camelize(String name, String separator) {
-        return Arrays.stream(name.split(separator)).map(s -> capitalize(s)).collect(Collectors.joining());
-    }
-
-    private String capitalize(String str) {
-        return str.length() == 0 ? str
-                : str.length() == 1 ? str.toUpperCase()
-                : str.substring(0, 1).toUpperCase() + str.substring(1);
-    }
-
-    private String deCapitalize(String str) {
-        return str.length() == 0 ? str
-                : str.length() == 1 ? str.toLowerCase()
-                : str.substring(0, 1).toLowerCase() + str.substring(1);
     }
 
     private String getTabs(int n) {
@@ -548,9 +594,21 @@ public final class CamelModelGenerator {
         }
     }
 
+
     public String getMetaModel(String name) {
         try {
             InputStream inputStream = CamelCatalog.class.getResourceAsStream("/org/apache/camel/catalog/models/" + name + ".json");
+            String data = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines().collect(Collectors.joining(System.getProperty("line.separator")));
+            return data;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public String getMetaDataFormat(String name) {
+        try {
+            InputStream inputStream = RouteBuilder.class.getResourceAsStream("/org/apache/camel/model/dataformat/" + name + ".json");
             String data = new BufferedReader(new InputStreamReader(inputStream))
                     .lines().collect(Collectors.joining(System.getProperty("line.separator")));
             return data;

@@ -72,6 +72,8 @@ import {
     UnmarshalStep, 
 } from '../model/CamelModel' 
 
+import * as dataFormat from '../model/CamelDataFormat'; 
+
 export class CamelApi { 
 
     static capitalizeName = (name: string) => {
@@ -360,6 +362,47 @@ export class CamelApi {
 
     static createMarshal = (element: any): MarshalStep => {
         const marshalStep = element ? new MarshalStep({...element.marshal}) : new MarshalStep();
+        if (element.marshal?.any23 !== undefined) marshalStep.marshal.any23 = new dataFormat.Any23DataFormat(element.marshal.any23);
+        if (element.marshal?.asn1 !== undefined) marshalStep.marshal.asn1 = new dataFormat.ASN1DataFormat(element.marshal.asn1);
+        if (element.marshal?.avro !== undefined) marshalStep.marshal.avro = new dataFormat.AvroDataFormat(element.marshal.avro);
+        if (element.marshal?.barcode !== undefined) marshalStep.marshal.barcode = new dataFormat.BarcodeDataFormat(element.marshal.barcode);
+        if (element.marshal?.base64 !== undefined) marshalStep.marshal.base64 = new dataFormat.Base64DataFormat(element.marshal.base64);
+        if (element.marshal?.beanio !== undefined) marshalStep.marshal.beanio = new dataFormat.BeanioDataFormat(element.marshal.beanio);
+        if (element.marshal?.bindy !== undefined) marshalStep.marshal.bindy = new dataFormat.BindyDataFormat(element.marshal.bindy);
+        if (element.marshal?.cbor !== undefined) marshalStep.marshal.cbor = new dataFormat.CBORDataFormat(element.marshal.cbor);
+        if (element.marshal?.crypto !== undefined) marshalStep.marshal.crypto = new dataFormat.CryptoDataFormat(element.marshal.crypto);
+        if (element.marshal?.csv !== undefined) marshalStep.marshal.csv = new dataFormat.CsvDataFormat(element.marshal.csv);
+        if (element.marshal?.custom !== undefined) marshalStep.marshal.custom = new dataFormat.CustomDataFormat(element.marshal.custom);
+        if (element.marshal?.fhirJson !== undefined) marshalStep.marshal.fhirJson = new dataFormat.FhirJsonDataFormat(element.marshal.fhirJson);
+        if (element.marshal?.fhirXml !== undefined) marshalStep.marshal.fhirXml = new dataFormat.FhirXmlDataFormat(element.marshal.fhirXml);
+        if (element.marshal?.flatpack !== undefined) marshalStep.marshal.flatpack = new dataFormat.FlatpackDataFormat(element.marshal.flatpack);
+        if (element.marshal?.grok !== undefined) marshalStep.marshal.grok = new dataFormat.GrokDataFormat(element.marshal.grok);
+        if (element.marshal?.gzip !== undefined) marshalStep.marshal.gzip = new dataFormat.GzipDataFormat(element.marshal.gzip);
+        if (element.marshal?.hl7 !== undefined) marshalStep.marshal.hl7 = new dataFormat.HL7DataFormat(element.marshal.hl7);
+        if (element.marshal?.ical !== undefined) marshalStep.marshal.ical = new dataFormat.IcalDataFormat(element.marshal.ical);
+        if (element.marshal?.jacksonxml !== undefined) marshalStep.marshal.jacksonxml = new dataFormat.JacksonXMLDataFormat(element.marshal.jacksonxml);
+        if (element.marshal?.jaxb !== undefined) marshalStep.marshal.jaxb = new dataFormat.JaxbDataFormat(element.marshal.jaxb);
+        if (element.marshal?.json !== undefined) marshalStep.marshal.json = new dataFormat.JsonDataFormat(element.marshal.json);
+        if (element.marshal?.jsonApi !== undefined) marshalStep.marshal.jsonApi = new dataFormat.JsonApiDataFormat(element.marshal.jsonApi);
+        if (element.marshal?.lzf !== undefined) marshalStep.marshal.lzf = new dataFormat.LZFDataFormat(element.marshal.lzf);
+        if (element.marshal?.mimeMultipart !== undefined) marshalStep.marshal.mimeMultipart = new dataFormat.MimeMultipartDataFormat(element.marshal.mimeMultipart);
+        if (element.marshal?.pgp !== undefined) marshalStep.marshal.pgp = new dataFormat.PGPDataFormat(element.marshal.pgp);
+        if (element.marshal?.protobuf !== undefined) marshalStep.marshal.protobuf = new dataFormat.ProtobufDataFormat(element.marshal.protobuf);
+        if (element.marshal?.rss !== undefined) marshalStep.marshal.rss = new dataFormat.RssDataFormat(element.marshal.rss);
+        if (element.marshal?.secureXml !== undefined) marshalStep.marshal.secureXml = new dataFormat.XMLSecurityDataFormat(element.marshal.secureXml);
+        if (element.marshal?.soapjaxb !== undefined) marshalStep.marshal.soapjaxb = new dataFormat.SoapJaxbDataFormat(element.marshal.soapjaxb);
+        if (element.marshal?.syslog !== undefined) marshalStep.marshal.syslog = new dataFormat.SyslogDataFormat(element.marshal.syslog);
+        if (element.marshal?.tarfile !== undefined) marshalStep.marshal.tarfile = new dataFormat.TarFileDataFormat(element.marshal.tarfile);
+        if (element.marshal?.thrift !== undefined) marshalStep.marshal.thrift = new dataFormat.ThriftDataFormat(element.marshal.thrift);
+        if (element.marshal?.tidyMarkup !== undefined) marshalStep.marshal.tidyMarkup = new dataFormat.TidyMarkupDataFormat(element.marshal.tidyMarkup);
+        if (element.marshal?.univocityCsv !== undefined) marshalStep.marshal.univocityCsv = new dataFormat.UniVocityCsvDataFormat(element.marshal.univocityCsv);
+        if (element.marshal?.univocityFixed !== undefined) marshalStep.marshal.univocityFixed = new dataFormat.UniVocityFixedWidthDataFormat(element.marshal.univocityFixed);
+        if (element.marshal?.univocityTsv !== undefined) marshalStep.marshal.univocityTsv = new dataFormat.UniVocityTsvDataFormat(element.marshal.univocityTsv);
+        if (element.marshal?.xmlrpc !== undefined) marshalStep.marshal.xmlrpc = new dataFormat.XmlRpcDataFormat(element.marshal.xmlrpc);
+        if (element.marshal?.xstream !== undefined) marshalStep.marshal.xstream = new dataFormat.XStreamDataFormat(element.marshal.xstream);
+        if (element.marshal?.yaml !== undefined) marshalStep.marshal.yaml = new dataFormat.YAMLDataFormat(element.marshal.yaml);
+        if (element.marshal?.zip !== undefined) marshalStep.marshal.zip = new dataFormat.ZipDeflaterDataFormat(element.marshal.zip);
+        if (element.marshal?.zipfile !== undefined) marshalStep.marshal.zipfile = new dataFormat.ZipFileDataFormat(element.marshal.zipfile);
         marshalStep.uuid = element?.uuid ? element.uuid : marshalStep.uuid;
         return marshalStep;
     }
@@ -741,6 +784,47 @@ export class CamelApi {
 
     static createUnmarshal = (element: any): UnmarshalStep => {
         const unmarshalStep = element ? new UnmarshalStep({...element.unmarshal}) : new UnmarshalStep();
+        if (element.unmarshal?.any23 !== undefined) unmarshalStep.unmarshal.any23 = new dataFormat.Any23DataFormat(element.unmarshal.any23);
+        if (element.unmarshal?.asn1 !== undefined) unmarshalStep.unmarshal.asn1 = new dataFormat.ASN1DataFormat(element.unmarshal.asn1);
+        if (element.unmarshal?.avro !== undefined) unmarshalStep.unmarshal.avro = new dataFormat.AvroDataFormat(element.unmarshal.avro);
+        if (element.unmarshal?.barcode !== undefined) unmarshalStep.unmarshal.barcode = new dataFormat.BarcodeDataFormat(element.unmarshal.barcode);
+        if (element.unmarshal?.base64 !== undefined) unmarshalStep.unmarshal.base64 = new dataFormat.Base64DataFormat(element.unmarshal.base64);
+        if (element.unmarshal?.beanio !== undefined) unmarshalStep.unmarshal.beanio = new dataFormat.BeanioDataFormat(element.unmarshal.beanio);
+        if (element.unmarshal?.bindy !== undefined) unmarshalStep.unmarshal.bindy = new dataFormat.BindyDataFormat(element.unmarshal.bindy);
+        if (element.unmarshal?.cbor !== undefined) unmarshalStep.unmarshal.cbor = new dataFormat.CBORDataFormat(element.unmarshal.cbor);
+        if (element.unmarshal?.crypto !== undefined) unmarshalStep.unmarshal.crypto = new dataFormat.CryptoDataFormat(element.unmarshal.crypto);
+        if (element.unmarshal?.csv !== undefined) unmarshalStep.unmarshal.csv = new dataFormat.CsvDataFormat(element.unmarshal.csv);
+        if (element.unmarshal?.custom !== undefined) unmarshalStep.unmarshal.custom = new dataFormat.CustomDataFormat(element.unmarshal.custom);
+        if (element.unmarshal?.fhirJson !== undefined) unmarshalStep.unmarshal.fhirJson = new dataFormat.FhirJsonDataFormat(element.unmarshal.fhirJson);
+        if (element.unmarshal?.fhirXml !== undefined) unmarshalStep.unmarshal.fhirXml = new dataFormat.FhirXmlDataFormat(element.unmarshal.fhirXml);
+        if (element.unmarshal?.flatpack !== undefined) unmarshalStep.unmarshal.flatpack = new dataFormat.FlatpackDataFormat(element.unmarshal.flatpack);
+        if (element.unmarshal?.grok !== undefined) unmarshalStep.unmarshal.grok = new dataFormat.GrokDataFormat(element.unmarshal.grok);
+        if (element.unmarshal?.gzip !== undefined) unmarshalStep.unmarshal.gzip = new dataFormat.GzipDataFormat(element.unmarshal.gzip);
+        if (element.unmarshal?.hl7 !== undefined) unmarshalStep.unmarshal.hl7 = new dataFormat.HL7DataFormat(element.unmarshal.hl7);
+        if (element.unmarshal?.ical !== undefined) unmarshalStep.unmarshal.ical = new dataFormat.IcalDataFormat(element.unmarshal.ical);
+        if (element.unmarshal?.jacksonxml !== undefined) unmarshalStep.unmarshal.jacksonxml = new dataFormat.JacksonXMLDataFormat(element.unmarshal.jacksonxml);
+        if (element.unmarshal?.jaxb !== undefined) unmarshalStep.unmarshal.jaxb = new dataFormat.JaxbDataFormat(element.unmarshal.jaxb);
+        if (element.unmarshal?.json !== undefined) unmarshalStep.unmarshal.json = new dataFormat.JsonDataFormat(element.unmarshal.json);
+        if (element.unmarshal?.jsonApi !== undefined) unmarshalStep.unmarshal.jsonApi = new dataFormat.JsonApiDataFormat(element.unmarshal.jsonApi);
+        if (element.unmarshal?.lzf !== undefined) unmarshalStep.unmarshal.lzf = new dataFormat.LZFDataFormat(element.unmarshal.lzf);
+        if (element.unmarshal?.mimeMultipart !== undefined) unmarshalStep.unmarshal.mimeMultipart = new dataFormat.MimeMultipartDataFormat(element.unmarshal.mimeMultipart);
+        if (element.unmarshal?.pgp !== undefined) unmarshalStep.unmarshal.pgp = new dataFormat.PGPDataFormat(element.unmarshal.pgp);
+        if (element.unmarshal?.protobuf !== undefined) unmarshalStep.unmarshal.protobuf = new dataFormat.ProtobufDataFormat(element.unmarshal.protobuf);
+        if (element.unmarshal?.rss !== undefined) unmarshalStep.unmarshal.rss = new dataFormat.RssDataFormat(element.unmarshal.rss);
+        if (element.unmarshal?.secureXml !== undefined) unmarshalStep.unmarshal.secureXml = new dataFormat.XMLSecurityDataFormat(element.unmarshal.secureXml);
+        if (element.unmarshal?.soapjaxb !== undefined) unmarshalStep.unmarshal.soapjaxb = new dataFormat.SoapJaxbDataFormat(element.unmarshal.soapjaxb);
+        if (element.unmarshal?.syslog !== undefined) unmarshalStep.unmarshal.syslog = new dataFormat.SyslogDataFormat(element.unmarshal.syslog);
+        if (element.unmarshal?.tarfile !== undefined) unmarshalStep.unmarshal.tarfile = new dataFormat.TarFileDataFormat(element.unmarshal.tarfile);
+        if (element.unmarshal?.thrift !== undefined) unmarshalStep.unmarshal.thrift = new dataFormat.ThriftDataFormat(element.unmarshal.thrift);
+        if (element.unmarshal?.tidyMarkup !== undefined) unmarshalStep.unmarshal.tidyMarkup = new dataFormat.TidyMarkupDataFormat(element.unmarshal.tidyMarkup);
+        if (element.unmarshal?.univocityCsv !== undefined) unmarshalStep.unmarshal.univocityCsv = new dataFormat.UniVocityCsvDataFormat(element.unmarshal.univocityCsv);
+        if (element.unmarshal?.univocityFixed !== undefined) unmarshalStep.unmarshal.univocityFixed = new dataFormat.UniVocityFixedWidthDataFormat(element.unmarshal.univocityFixed);
+        if (element.unmarshal?.univocityTsv !== undefined) unmarshalStep.unmarshal.univocityTsv = new dataFormat.UniVocityTsvDataFormat(element.unmarshal.univocityTsv);
+        if (element.unmarshal?.xmlrpc !== undefined) unmarshalStep.unmarshal.xmlrpc = new dataFormat.XmlRpcDataFormat(element.unmarshal.xmlrpc);
+        if (element.unmarshal?.xstream !== undefined) unmarshalStep.unmarshal.xstream = new dataFormat.XStreamDataFormat(element.unmarshal.xstream);
+        if (element.unmarshal?.yaml !== undefined) unmarshalStep.unmarshal.yaml = new dataFormat.YAMLDataFormat(element.unmarshal.yaml);
+        if (element.unmarshal?.zip !== undefined) unmarshalStep.unmarshal.zip = new dataFormat.ZipDeflaterDataFormat(element.unmarshal.zip);
+        if (element.unmarshal?.zipfile !== undefined) unmarshalStep.unmarshal.zipfile = new dataFormat.ZipFileDataFormat(element.unmarshal.zipfile);
         unmarshalStep.uuid = element?.uuid ? element.uuid : unmarshalStep.uuid;
         return unmarshalStep;
     }

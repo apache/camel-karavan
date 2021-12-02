@@ -290,6 +290,7 @@
 }
 
 .karavan .dsl-page .properties .expression,
+.karavan .dsl-page .properties .dataformat,
 .karavan .dsl-page .properties .parameters {
     padding-top: 6px;
     padding-left: 16px;

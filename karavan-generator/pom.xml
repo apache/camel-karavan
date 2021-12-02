@@ -31,7 +31,7 @@
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.version>2.4.2.Final</quarkus.platform.version>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-        <version.camel-quarkus>2.4.0</version.camel-quarkus>
+        <version.camel-core>3.13.0</version.camel-core>
         <version.camel-kamelet>0.5.0</version.camel-kamelet>
     </properties>
     <dependencyManagement>
@@ -55,9 +55,19 @@
             <artifactId>quarkus-vertx</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.camel.quarkus</groupId>
-            <artifactId>camel-quarkus-catalog</artifactId>
-            <version>${version.camel-quarkus}</version>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-core-model</artifactId>
+            <version>${version.camel-core}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-catalog</artifactId>
+            <version>${version.camel-core}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-yaml-dsl</artifactId>
+            <version>${version.camel-core}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel.kamelets</groupId>

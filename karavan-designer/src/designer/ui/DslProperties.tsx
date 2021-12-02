@@ -29,7 +29,7 @@ import {
     SelectDirection,
     SelectOption,
     TextArea,
-    ExpandableSection, Tooltip,
+    ExpandableSection,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -38,7 +38,7 @@ import {Property} from "../model/KameletModels";
 import {CamelElement, Expression, Integration} from "../model/CamelModel";
 import {CamelApi} from "../api/CamelApi";
 import {CamelApiExt} from "../api/CamelApiExt";
-import {CamelMetadataApi, Languages, PropertyMeta} from "../api/CamelMetadata";
+import {CamelMetadataApi, DataFormats, Languages, PropertyMeta} from "../api/CamelMetadata";
 import {CamelYaml} from "../api/CamelYaml";
 import {CamelUi} from "../api/CamelUi";
 import {ComponentApi} from "../api/ComponentApi";
@@ -161,7 +161,7 @@ export class DslProperties extends React.Component<Props, State> {
         const kamelet = this.state.element && CamelUi.getKamelet(this.state.element)
         const description = this.state.element && kamelet
             ? kamelet.spec.definition.description
-            : this.state.element?.dslName ? CamelMetadataApi.getElementMeta(this.state.element?.dslName)?.description : title;
+            : this.state.element?.dslName ? CamelMetadataApi.getCamelModelMetadata(this.state.element?.dslName)?.description : title;
         return (
             <div className="headers">
                 <Title headingLevel="h1" size="md">{title}</Title>
@@ -396,10 +396,11 @@ export class DslProperties extends React.Component<Props, State> {
                     {selectOptions}
                 </Select>
                 }
-                <div className="expression">
-                    {property.name === 'expression' && property.type === "Expression"
-                    && this.createExpressionProperty(property)}
-                </div>
+                {property.name === 'expression' && property.type === "Expression" &&
+                    <div className="expression">
+                        {this.createExpressionProperty(property)}
+                    </div>
+                }
                 <div className="parameters">
                     {property.name === 'parameters' && CamelUi.isKameletComponent(this.state.element)
                     && CamelUi.getKameletProperties(this.state.element).map(kp => this.createKameletProperty(kp))}
@@ -421,6 +422,11 @@ export class DslProperties extends React.Component<Props, State> {
         )
     }
 
+    setDataFormat = (dataFormat: string, props: any) => {
+        console.log(dataFormat);
+        console.log(props);
+    }
+
     render() {
         return (
             <div key={this.state.step ? this.state.step.uuid : 'integration'} className='properties'>
@@ -430,6 +436,6 @@ export class DslProperties extends React.Component<Props, State> {
                     {this.state.element && CamelApiExt.getElementProperties(this.state.element.dslName).map((property: PropertyMeta) => this.createEipDslProperty(property))}
                 </Form>
             </div>
-        );
+        )
     }
-};
+}

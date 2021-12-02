@@ -22,6 +22,7 @@ public final class KaravanGenerator {
         CamelModelGenerator.generate();
         KameletGenerator.generate();
         CamelComponentsGenerator.generate();
+        CamelDataFormatGenerator.generate();
         System.exit(0);
     }
 

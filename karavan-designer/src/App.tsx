@@ -21,7 +21,6 @@ import {
 import {KaravanDesigner} from "./designer/ui/KaravanDesigner";
 import {KameletApi} from "./designer/api/KameletApi";
 import {ComponentApi} from "./designer/api/ComponentApi";
-import {Expression, SetBodyStep} from "./designer/model/CamelModel";
 
 interface Props {
 }
@@ -45,6 +44,9 @@ class App extends React.Component<Props, State> {
             '    - from:\n' +
             '        uri: \'kamelet:http-secured-source\'\n' +
             '        steps:\n' +
+            '          - unmarshal:\n' +
+            '              json:\n' +
+            '                  library: Gson\n' +
             '          - set-body:\n' +
             '              expression: \n' +
             '                constant: "Hello Yaml !!!"\n' +

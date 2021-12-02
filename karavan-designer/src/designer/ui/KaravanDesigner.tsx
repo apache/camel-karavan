@@ -30,7 +30,6 @@ import {CamelYaml} from "../api/CamelYaml";
 import {CamelApiExt} from "../api/CamelApiExt";
 import {CamelApi} from "../api/CamelApi";
 import {DslConnections} from "./DslConnections";
-import {CamelUi} from "../api/CamelUi";
 import {EventBus} from "../api/EventBus";
 
 interface Props {
