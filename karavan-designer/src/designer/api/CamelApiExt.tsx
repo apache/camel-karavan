@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {CamelElement, FromStep, Integration, ProcessorStep} from "../model/CamelModel";
+import {CamelElement, Expression, FromStep, Integration, ProcessorStep} from "../model/CamelModel";
 import {CamelMetadataApi, DataFormats, PropertyMeta} from "./CamelMetadata";
 import {CamelApi} from "./CamelApi";
 import {ComponentApi} from "./ComponentApi";
@@ -63,10 +63,10 @@ export class CamelApiExt {
         return integration;
     }
 
-    static getExpressionLanguage = (element: CamelElement | undefined): string | undefined => {
-        const el: any = Object.assign({}, element);
-        if (el.hasOwnProperty('expression') && el.expression) {
-            return el.expression.language
+    static getExpressionLanguage = (expression: Expression | undefined): string | undefined => {
+        const el: any = Object.assign({}, expression);
+        if (el.hasOwnProperty('language') && el.language) {
+            return el.language
         } else {
             return undefined;
         }
@@ -78,10 +78,10 @@ export class CamelApiExt {
         return dataFormat ? [dataFormat, el[dataFormat]] : undefined;
     }
 
-    static getExpressionValue = (element: CamelElement | undefined): string | undefined => {
-        const language = CamelApiExt.getExpressionLanguage(element);
+    static getExpressionValue = (expression: Expression | undefined): string | undefined => {
+        const language = CamelApiExt.getExpressionLanguage(expression);
         if (language) {
-            return (element as any).expression[language];
+            return (expression as any)[language];
         } else {
             return undefined;
         }
