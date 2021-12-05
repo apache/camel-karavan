@@ -240,8 +240,11 @@ export class CamelUi {
     };
 
     static isShowExpressionTooltip = (element: CamelElement): boolean => {
-        const exp = CamelApiExt.getExpressionValue(element);
-        return element.hasOwnProperty("expression") && (exp !== undefined && exp?.trim().length > 0);
+        if (element.hasOwnProperty("expression")){
+            const exp = CamelApiExt.getExpressionValue((element as any).expression);
+            return (exp !== undefined && exp?.trim().length > 0);
+        }
+        return false;
     }
 
     static isShowUriTooltip = (element: CamelElement): boolean => {
@@ -250,8 +253,9 @@ export class CamelUi {
     }
 
     static getExpressionTooltip = (element: CamelElement): string => {
-        const language = CamelApiExt.getExpressionLanguage(element) || 'simple';
-        const value = CamelApiExt.getExpressionValue(element) || '';
+        const e = (element as any).expression;
+        const language = CamelApiExt.getExpressionLanguage(e) || 'simple';
+        const value = CamelApiExt.getExpressionValue(e) || '';
         return language.concat(": ", value);
     }
 

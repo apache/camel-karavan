@@ -53,7 +53,10 @@ class App extends React.Component<Props, State> {
             '          - pollEnrich:\n' +
             '              expression: {}\n' +
             '          - to: \n' +
-            '               uri: "log:info"\n' +
+            '               uri: "log:info:xxx"\n' +
+            '               parameters:\n' +
+            '                   level: \'OFF\'\n' +
+            '                   logMask: true \n' +
             '          - choice:\n' +
             '              otherwise: {}\n' +
             '              when:\n' +
