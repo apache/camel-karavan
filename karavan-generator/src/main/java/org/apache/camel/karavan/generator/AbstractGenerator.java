@@ -58,13 +58,24 @@ public class AbstractGenerator {
     }
 
     protected JsonObject getProperties(JsonObject definitions, String classname) {
-        JsonObject props = definitions.getJsonObject(classname).getJsonObject("properties");
-        JsonArray oneOf = definitions.getJsonObject(classname).getJsonArray("oneOf");
+        JsonObject root = definitions.getJsonObject(classname);
+        JsonObject props = root.getJsonObject("properties");
+        JsonArray oneOf = root.getJsonArray("oneOf");
         if (props != null) {
             return props;
         } else {
             return oneOf.getJsonObject(1).getJsonObject("properties");
         }
+    }
+
+    protected String getPropertyToMapString(JsonObject definitions, String classname) {
+        JsonObject root = definitions.getJsonObject(classname);
+        JsonArray oneOf = root.getJsonArray("oneOf");
+        JsonArray required = root.getJsonArray("required");
+        if (oneOf !=null && required != null){
+            return required.getString(0);
+        }
+        return null;
     }
 
     protected String camelize(String name, String separator) {

@@ -181,6 +181,7 @@ export class CamelApi {
         return new Expression({...element})
     }
     static createFrom = (element: any): FromStep => {
+        if (element && element.from && typeof element.from === 'string') element.from = {uri: element.from};
         const fromStep = element ? new FromStep({...element.from}) : new FromStep();
         fromStep.from.steps = CamelApi.createSteps(element?.from?.steps);
         fromStep.uuid = element?.uuid ? element.uuid : fromStep.uuid;
@@ -215,6 +216,7 @@ export class CamelApi {
     }
 
     static createToD = (element: any): ToDStep => {
+        if (element && element.toD && typeof element.toD === 'string') element.toD = {uri: element.toD};
         const toDStep = element ? new ToDStep({...element.toD}) : new ToDStep();
         toDStep.uuid = element?.uuid ? element.uuid : toDStep.uuid;
         return toDStep;
@@ -227,6 +229,7 @@ export class CamelApi {
     }
 
     static createInterceptSendToEndpoint = (element: any): InterceptSendToEndpointStep => {
+        if (element && element.interceptSendToEndpoint && typeof element.interceptSendToEndpoint === 'string') element.interceptSendToEndpoint = {uri: element.interceptSendToEndpoint};
         const interceptSendToEndpointStep = element ? new InterceptSendToEndpointStep({...element.interceptSendToEndpoint}) : new InterceptSendToEndpointStep();
         interceptSendToEndpointStep.interceptSendToEndpoint.steps = CamelApi.createSteps(element?.interceptSendToEndpoint?.steps);
         interceptSendToEndpointStep.uuid = element?.uuid ? element.uuid : interceptSendToEndpointStep.uuid;
@@ -234,6 +237,7 @@ export class CamelApi {
     }
 
     static createLog = (element: any): LogStep => {
+        if (element && element.log && typeof element.log === 'string') element.log = {message: element.log};
         const logStep = element ? new LogStep({...element.log}) : new LogStep();
         logStep.uuid = element?.uuid ? element.uuid : logStep.uuid;
         return logStep;
@@ -313,6 +317,7 @@ export class CamelApi {
     }
 
     static createRemoveHeaders = (element: any): RemoveHeadersStep => {
+        if (element && element.removeHeaders && typeof element.removeHeaders === 'string') element.removeHeaders = {pattern: element.removeHeaders};
         const removeHeadersStep = element ? new RemoveHeadersStep({...element.removeHeaders}) : new RemoveHeadersStep();
         removeHeadersStep.uuid = element?.uuid ? element.uuid : removeHeadersStep.uuid;
         return removeHeadersStep;
@@ -430,12 +435,14 @@ export class CamelApi {
     }
 
     static createInOnly = (element: any): InOnlyStep => {
+        if (element && element.inOnly && typeof element.inOnly === 'string') element.inOnly = {uri: element.inOnly};
         const inOnlyStep = element ? new InOnlyStep({...element.inOnly}) : new InOnlyStep();
         inOnlyStep.uuid = element?.uuid ? element.uuid : inOnlyStep.uuid;
         return inOnlyStep;
     }
 
     static createConvertBodyTo = (element: any): ConvertBodyToStep => {
+        if (element && element.convertBodyTo && typeof element.convertBodyTo === 'string') element.convertBodyTo = {type: element.convertBodyTo};
         const convertBodyToStep = element ? new ConvertBodyToStep({...element.convertBodyTo}) : new ConvertBodyToStep();
         convertBodyToStep.uuid = element?.uuid ? element.uuid : convertBodyToStep.uuid;
         return convertBodyToStep;
@@ -516,6 +523,7 @@ export class CamelApi {
     }
 
     static createKamelet = (element: any): KameletStep => {
+        if (element && element.kamelet && typeof element.kamelet === 'string') element.kamelet = {name: element.kamelet};
         const kameletStep = element ? new KameletStep({...element.kamelet}) : new KameletStep();
         kameletStep.uuid = element?.uuid ? element.uuid : kameletStep.uuid;
         return kameletStep;
@@ -541,6 +549,7 @@ export class CamelApi {
     }
 
     static createInOut = (element: any): InOutStep => {
+        if (element && element.inOut && typeof element.inOut === 'string') element.inOut = {uri: element.inOut};
         const inOutStep = element ? new InOutStep({...element.inOut}) : new InOutStep();
         inOutStep.uuid = element?.uuid ? element.uuid : inOutStep.uuid;
         return inOutStep;
@@ -635,6 +644,7 @@ export class CamelApi {
 
     static createTo = (element: any): ToStep => {
         if (typeof element.to !== 'object') element.to = {uri: element.to};
+        if (element && element.to && typeof element.to === 'string') element.to = {uri: element.to};
         const toStep = element ? new ToStep({...element.to}) : new ToStep();
         toStep.uuid = element?.uuid ? element.uuid : toStep.uuid;
         return toStep;
@@ -655,6 +665,7 @@ export class CamelApi {
     }
 
     static createServiceCall = (element: any): ServiceCallStep => {
+        if (element && element.serviceCall && typeof element.serviceCall === 'string') element.serviceCall = {name: element.serviceCall};
         const serviceCallStep = element ? new ServiceCallStep({...element.serviceCall}) : new ServiceCallStep();
         serviceCallStep.uuid = element?.uuid ? element.uuid : serviceCallStep.uuid;
         return serviceCallStep;
@@ -689,6 +700,7 @@ export class CamelApi {
     }
 
     static createRemoveProperties = (element: any): RemovePropertiesStep => {
+        if (element && element.removeProperties && typeof element.removeProperties === 'string') element.removeProperties = {pattern: element.removeProperties};
         const removePropertiesStep = element ? new RemovePropertiesStep({...element.removeProperties}) : new RemovePropertiesStep();
         removePropertiesStep.uuid = element?.uuid ? element.uuid : removePropertiesStep.uuid;
         return removePropertiesStep;
@@ -729,6 +741,7 @@ export class CamelApi {
     }
 
     static createRemoveProperty = (element: any): RemovePropertyStep => {
+        if (element && element.removeProperty && typeof element.removeProperty === 'string') element.removeProperty = {propertyName: element.removeProperty};
         const removePropertyStep = element ? new RemovePropertyStep({...element.removeProperty}) : new RemovePropertyStep();
         removePropertyStep.uuid = element?.uuid ? element.uuid : removePropertyStep.uuid;
         return removePropertyStep;
@@ -763,6 +776,7 @@ export class CamelApi {
     }
 
     static createSetExchangePattern = (element: any): SetExchangePatternStep => {
+        if (element && element.setExchangePattern && typeof element.setExchangePattern === 'string') element.setExchangePattern = {pattern: element.setExchangePattern};
         const setExchangePatternStep = element ? new SetExchangePatternStep({...element.setExchangePattern}) : new SetExchangePatternStep();
         setExchangePatternStep.uuid = element?.uuid ? element.uuid : setExchangePatternStep.uuid;
         return setExchangePatternStep;
