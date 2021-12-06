@@ -3,8 +3,9 @@
 ## 0.0.8
 1. Custom Kamelets to use in Karavan [#114](https://github.com/apache/camel-karavan/issues/114)
 2. GitOps Mode https://github.com/apache/camel-karavan/blob/main/karavan-demo/openshift/README.md
-2. Serverless Mode https://github.com/apache/camel-karavan/blob/main/karavan-demo/serverless/README.md
-3. Download integration yaml file in GitOps and Serverless mode
+3. Serverless Mode https://github.com/apache/camel-karavan/blob/main/karavan-demo/serverless/README.md
+4. Download integration yaml file in GitOps and Serverless mode
+5. Add keyword for better discoverability of this extension from VS Code Kubernetes extension
 
 ## 0.0.7
 1. Hot-fix for `Dragged element disappears when dropped into its child` [#94](https://github.com/apache/camel-karavan/issues/94)

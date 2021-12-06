@@ -38,7 +38,8 @@
     "camelk",
     "kamel",
     "Tool",
-    "Integration"
+    "Integration",
+    "Camel Yaml"
   ],
   "activationEvents": [
     "onCommand:karavan.create-crd",
