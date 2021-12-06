@@ -52,6 +52,7 @@ class App extends React.Component<Props, State> {
             '                constant: "Hello Yaml !!!"\n' +
             '          - pollEnrich:\n' +
             '              expression: {}\n' +
+            '          - log: \'${body}\'\n' +
             '          - to: \n' +
             '               uri: "log:info:xxx"\n' +
             '               parameters:\n' +
@@ -66,7 +67,6 @@ class App extends React.Component<Props, State> {
             ,
         key: ''
     };
-
 
     componentDidMount() {
 
@@ -85,7 +85,6 @@ class App extends React.Component<Props, State> {
                 .then((r) => r.text())
                 .then(value => KameletApi.saveKamelet(value)));
 
-
         ["bonita.json",
             "activemq.json",
             "docker.json",
@@ -103,7 +102,6 @@ class App extends React.Component<Props, State> {
             fetch("components/" + name)
                 .then((r) => r.text())
                 .then(value => ComponentApi.saveComponent(value)));
-
 
     }
 

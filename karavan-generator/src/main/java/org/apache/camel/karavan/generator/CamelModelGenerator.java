@@ -59,6 +59,7 @@ public final class CamelModelGenerator extends AbstractGenerator {
 
         // generate properties for elements
         Map<String, List<ElementProp>> models = new HashMap<>();
+        Map<String, String> propertyToMapStrings = new HashMap<>();
         // from
         JsonObject fromList = getProperties(definitions, "org.apache.camel.dsl.yaml.deserializers.RouteFromDefinitionDeserializer");
         List<ElementProp> fProps = generateElementProp("from", fromList, definitions, Map.of());
@@ -89,6 +90,8 @@ public final class CamelModelGenerator extends AbstractGenerator {
                     String className = classNameFromRef(procList.getJsonObject(s.getKey()).getString("$ref"));
                     JsonObject props = getProperties(definitions, className);
                     List<ElementProp> elProps = generateElementProp(name, props, definitions, processors);
+                    String propertyToMapString = getPropertyToMapString(definitions, className);
+                    propertyToMapStrings.put(name, propertyToMapString);
                     models.put(name, elProps);
                 });
 
@@ -149,8 +152,8 @@ public final class CamelModelGenerator extends AbstractGenerator {
                 "    static createExpression = (element: any): Expression => {\n" +
                         "        return new Expression({...element})\n" +
                         "    }\n");
-        camelApi.append(createCreateFunction("from", models.get("from")));
-        processors.values().forEach((model) -> camelApi.append(createCreateFunction(model, models.get(model))));
+        camelApi.append(createCreateFunction("from", models.get("from"), "uri"));
+        processors.values().forEach((model) -> camelApi.append(createCreateFunction(model, models.get(model), propertyToMapStrings.get(model))));
 
 
         camelApi.append(
@@ -309,7 +312,7 @@ public final class CamelModelGenerator extends AbstractGenerator {
         writeFileText(targetMetadata, metadata.toString());
     }
 
-    private String createCreateFunction(String name, List<ElementProp> elProps) {
+    private String createCreateFunction(String name, List<ElementProp> elProps, String propertyToMapStrings) {
         if (name.equalsIgnoreCase("otherwise")) {
             return getTemplateFile("CamelApi.createOtherwise.tx").concat("\n\n");
         } else if (name.equalsIgnoreCase("when")) {
@@ -325,6 +328,11 @@ public final class CamelModelGenerator extends AbstractGenerator {
         f.append(String.format("    static %s = (element: any): %s => {\n", funcName, stepClass));
         if (stepClass.equals("ToStep") || stepClass.equals("TodStep")) {
             f.append(String.format("        if (typeof element.%1$s !== 'object') element.%1$s = {uri: element.%1$s};\n", elementName));
+        }
+        // for oneOf string or object Definitions
+        if (propertyToMapStrings != null){
+            String p = deCapitalize(camelize(propertyToMapStrings, "-"));
+            f.append(String.format("        if (element && element.%1$s && typeof element.%1$s === 'string') element.%1$s = {%2$s: element.%1$s};\n", elementName, p));
         }
         f.append(String.format("        const %1$s = element ? new %2$s({...element.%3$s}) : new %2$s();\n", stepField, stepClass, elementName));
         elProps.stream().forEach(e -> {
