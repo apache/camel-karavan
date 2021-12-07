@@ -46,7 +46,7 @@ class App extends React.Component<Props, State> {
             '        steps:\n' +
             '          - unmarshal:\n' +
             '              json:\n' +
-            '                  library: Gson\n' +
+            '                  library: gson\n' +
             '          - set-body:\n' +
             '              expression: \n' +
             '                constant: "Hello Yaml !!!"\n' +

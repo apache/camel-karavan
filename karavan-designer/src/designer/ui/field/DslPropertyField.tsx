@@ -36,12 +36,14 @@ import {CamelUi} from "../../api/CamelUi";
 import {ComponentParameterField} from "./ComponentParameterField";
 import {CamelElement} from "../../model/CamelModel";
 import {KameletPropertyField} from "./KameletPropertyField";
+import {DataFormat} from "../../model/CamelDataFormat";
 
 interface Props {
     property: PropertyMeta,
     value: any,
     onChange?: (fieldId: string, value: string | number | boolean | any) => void,
     onExpressionChange?: (language: string, value: string | undefined) => void,
+    onDataFormatChange?: (dataFormat: string, value: DataFormat) => void,
     onParameterChange?: (parameter: string, value: string | number | boolean | any, pathParameter?: boolean) => void,
     element?: CamelElement
 }
