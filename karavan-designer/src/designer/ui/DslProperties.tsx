@@ -21,14 +21,10 @@ import {
     TextInput,
     Text,
     Title,
-    Popover,
-    Switch,
     TextVariants,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
-import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
-import {Property} from "../model/KameletModels";
 import {CamelElement, Expression, Integration} from "../model/CamelModel";
 import {CamelApi} from "../api/CamelApi";
 import {CamelApiExt} from "../api/CamelApiExt";
@@ -36,8 +32,8 @@ import {CamelMetadataApi, PropertyMeta} from "../api/CamelMetadata";
 import {CamelYaml} from "../api/CamelYaml";
 import {CamelUi} from "../api/CamelUi";
 import {ComponentApi} from "../api/ComponentApi";
-import {DslPropertyField} from "./field/DslPropertyField";
 import {DataFormatField} from "./field/DataFormatField";
+import {DslPropertyField} from "./field/DslPropertyField";
 
 interface Props {
     integration: Integration,
@@ -154,51 +150,6 @@ export class DslProperties extends React.Component<Props, State> {
                 <Title headingLevel="h1" size="md">{title}</Title>
                 <Text component={TextVariants.p}>{description}</Text>
             </div>
-        )
-    }
-
-    createKameletProperty = (property: Property): JSX.Element => {
-        const prefix = "parameters";
-        const id = prefix + "-" + property.id;
-        const value = CamelApiExt.getParametersValue(this.state.element, property.id);
-        return (
-            <FormGroup
-                key={id}
-                label={property.title}
-                fieldId={id}
-                labelIcon={
-                    <Popover
-                        position={"left"}
-                        headerContent={property.title}
-                        bodyContent={property.description}
-                        footerContent={
-                            <div>
-                                {property.default !== undefined &&
-                                <div>Default: {property.default.toString()}</div>}
-                                {property.example !== undefined && <div>Example: {property.example}</div>}
-                            </div>
-                        }>
-                        <button type="button" aria-label="More info" onClick={e => e.preventDefault()}
-                                className="pf-c-form__group-label-help">
-                            <HelpIcon noVerticalAlign/>
-                        </button>
-                    </Popover>
-                }>
-                {['string', 'integer', 'int', 'number'].includes(property.type) && <TextInput
-                    className="text-field" isRequired
-                    type={['integer', 'int', 'number'].includes(property.type) ? 'number' : (property.format ? "password" : "text")}
-                    id={id} name={id}
-                    value={value}
-                    onChange={e => this.parametersChanged(property.id, ['integer', 'int', 'number'].includes(property.type) ? Number(e) : e)}/>
-                }
-                {property.type === 'boolean' && <Switch
-                    id={id} name={id}
-                    value={value?.toString()}
-                    aria-label={id}
-                    isChecked={Boolean(value) === true}
-                    onChange={e => this.parametersChanged(property.id, !Boolean(value))}/>
-                }
-            </FormGroup>
         )
     }
 
