@@ -68,6 +68,7 @@ export class DslPropertyField extends React.Component<Props, State> {
 
     propertyChanged = (fieldId: string, value: string | number | boolean | any) => {
         this.props.onChange?.call(this, fieldId, value);
+        this.setState({selectStatus: new Map<string, boolean>([[fieldId, false]])});
     }
 
     render() {
