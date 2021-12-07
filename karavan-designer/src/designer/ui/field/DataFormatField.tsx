@@ -30,44 +30,57 @@ import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import {CamelElement} from "../../model/CamelModel";
 import {CamelApiExt} from "../../api/CamelApiExt";
 import {CamelMetadataApi, DataFormats, PropertyMeta} from "../../api/CamelMetadata";
+import {DataFormat} from "../../model/CamelDataFormat";
+import {DslPropertyField} from "./DslPropertyField";
 
 interface Props {
     element: CamelElement,
+    onDataFormatChange?: (dataFormat: string, value?: DataFormat) => void
 }
 
 interface State {
-    property: PropertyMeta,
-    element?: CamelElement,
     selectStatus: Map<string, boolean>
 }
 
 export class DataFormatField extends React.Component<Props, State> {
 
     public state: State = {
-        property: new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false),
         selectStatus: new Map<string, boolean>(),
-        element: this.props.element,
     }
 
     setDataFormat = (dataFormat: string, props: any) => {
-        console.log(dataFormat);
-        console.log(props);
+        const oldDataFormat  = CamelApiExt.getDataFormat(this.props.element);
+        if (oldDataFormat && oldDataFormat[0] === dataFormat){
+            this.props.onDataFormatChange?.call(this, dataFormat, props);
+        } else {
+            this.props.onDataFormatChange?.call(this, dataFormat, undefined);
+        }
+        this.setState({selectStatus: new Map<string, boolean>([[dataFormat, false]])});
     }
 
-    openSelect = (propertyName: string) => {
-        this.setState({selectStatus: new Map<string, boolean>([[propertyName, true]])});
+    openSelect = (dataFormat: string) => {
+        this.setState({selectStatus: new Map<string, boolean>([[dataFormat, true]])});
     }
 
-    isSelectOpen = (propertyName: string): boolean => {
-        return this.state.selectStatus.has(propertyName) && this.state.selectStatus.get(propertyName) === true;
+    isSelectOpen = (dataFormat: string): boolean => {
+        return this.state.selectStatus.has(dataFormat) && this.state.selectStatus.get(dataFormat) === true;
+    }
+
+    propertyChanged = (fieldId: string, fieldValue: string | number | boolean | any) => {
+        const dataFormat  = CamelApiExt.getDataFormat(this.props.element);
+        const dataFormatName = dataFormat ? dataFormat[0] : '';
+        const value = dataFormat ? dataFormat[1] : undefined;
+        (value as any)[fieldId] = fieldValue;
+        this.setDataFormat(dataFormatName, value);
     }
 
     render() {
         const fieldId = "dataFormat";
-        const dataFormat  = CamelApiExt.getDataFormat(this.state.element)
+        const dataFormat  = CamelApiExt.getDataFormat(this.props.element);
         const dataFormatName = dataFormat ? dataFormat[0] : '';
-        const value = dataFormat ? CamelApiExt.getExpressionValue(this.state.element) : undefined;
-        const properties = CamelMetadataApi.getCamelDataFormatMetadata(dataFormatName)?.properties;
+        const value = dataFormat ? dataFormat[1] : undefined;
+        const properties = CamelMetadataApi.getCamelDataFormatMetadata(dataFormatName)?.properties
+            .sort((a, b) => a.name === 'library' ? -1: 1);
         const selectOptions: JSX.Element[] = []
         DataFormats.forEach((df: [string, string, string]) => {
             const s = <SelectOption key={df[0]} value={df[0]} description={df[2]}/>;
@@ -108,14 +121,12 @@ export class DataFormatField extends React.Component<Props, State> {
                         >
                             {selectOptions}
                         </Select>
-                        <TextArea
-                            autoResize
-                            className="text-field" isRequired
-                            type={"text"}
-                            id={fieldId+"text"} name={fieldId+"text"}
-                            height={"100px"}
-                            value={value?.toString()}
-                            onChange={e => this.setDataFormat(dataFormatName, e)}/>
+                        {properties && properties.map((property: PropertyMeta) =>
+                            <DslPropertyField property={property}
+                                              value={value ? (value as any)[property.name] : undefined}
+                                              onChange={this.propertyChanged}
+                            />
+                        )}
                     </div>
                 </FormGroup>
             </div>

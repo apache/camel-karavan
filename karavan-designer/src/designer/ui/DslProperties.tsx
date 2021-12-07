@@ -34,6 +34,7 @@ import {CamelUi} from "../api/CamelUi";
 import {ComponentApi} from "../api/ComponentApi";
 import {DataFormatField} from "./field/DataFormatField";
 import {DslPropertyField} from "./field/DslPropertyField";
+import {DataFormat} from "../model/CamelDataFormat";
 
 interface Props {
     integration: Integration,
@@ -71,6 +72,28 @@ export class DslProperties extends React.Component<Props, State> {
             (clone as any)[this.state.element?.dslName][fieldId] = value;
             this.setStep(clone)
             this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid);
+        }
+    }
+
+    dataFormatChanged = (dataFormat: string, value?: DataFormat) => {
+        if (this.state.step && this.state.element){
+            if (this.state.element?.dslName === 'unmarshal') {
+                const e:any = {unmarshal: {}};
+                e.unmarshal[dataFormat] = value ? value : {};
+                const unmarshal = CamelApi.createUnmarshal(e);
+                unmarshal.uuid = this.state.step.uuid;
+                unmarshal.unmarshal.uuid = this.state.element.uuid;
+                this.setStep(unmarshal);
+                this.props.onPropertyUpdate?.call(this, unmarshal, this.state.step.uuid);
+            } else {
+                const e:any = {marshal: {}};
+                e.marshal[dataFormat] = value ? value : {};
+                const marshal = CamelApi.createMarshal(e);
+                marshal.uuid = this.state.step.uuid;
+                marshal.marshal.uuid = this.state.element.uuid;
+                this.setStep(marshal);
+                this.props.onPropertyUpdate?.call(this, marshal, this.state.step.uuid);
+            }
         }
     }
 
@@ -165,9 +188,14 @@ export class DslProperties extends React.Component<Props, State> {
                                           value={this.state.element ? (this.state.element as any)[property.name] : undefined}
                                           onExpressionChange={this.expressionChanged}
                                           onParameterChange={this.parametersChanged}
+                                          onDataFormatChange={this.dataFormatChanged}
                                           onChange={this.propertyChanged} />
                     )}
-                    {this.state.element && ['marshal', 'unmarshal'].includes(this.state.element.dslName) && <DataFormatField element={this.state.element}/>}
+                    {this.state.element && ['marshal', 'unmarshal'].includes(this.state.element.dslName) &&
+                        <DataFormatField
+                            element={this.state.element}
+                            onDataFormatChange={this.dataFormatChanged} />
+                    }
                 </Form>
             </div>
         )
