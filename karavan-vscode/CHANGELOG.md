@@ -4,6 +4,7 @@
 1. Support Marshal and Unmarshal elements with configurable DataFormats (`any23`, `asn1`, `avro`, `barcode`, `base64`, `beanio`, `bindy`, `cbor`, `crypto`, `csv`, `custom`, `fhirJson`, `fhirXml`, `flatpack`, `grok`, `gzip`, `hl7`, `ical`, `jacksonxml`, `jaxb`, `json`, `jsonApi`, `lzf`, `mimeMultipart`, `pgp`, `protobuf`, `rss`, `secureXML`, `soapjaxb`, `syslog`, `tarfile`, `thrift`, `tidyMarkup`, `univocity-csv`, `univocity-fixed`, `univocity-tsv`, `xmlrpc`, `xstream`, `yaml`, `zip`, `zipfile`).
 2. Support of implicit dsl parameters configured as String, ex. `log: '${body}'` [#141](https://github.com/apache/camel-karavan/issues/141)
 3. Configurable JBang parameters: `Dcamel.jbang.version`, `max-messages`, `reload`, `logging-level`
+4. Fixed `Jbang Run` broken after upgrade VSCode to 1.63 [#148](https://github.com/apache/camel-karavan/issues/148)
 
 ## 0.0.8
 1. Custom Kamelets to use in Karavan [#114](https://github.com/apache/camel-karavan/issues/114)
