@@ -25,10 +25,10 @@ import {
     SelectDirection,
     SelectOption,
 } from '@patternfly/react-core';
-import '../../karavan.css';
+import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
-import {ComponentProperty} from "../../model/ComponentModels";
+import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 
 interface Props {
     property: ComponentProperty,

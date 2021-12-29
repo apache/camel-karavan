@@ -24,13 +24,13 @@ import {
     SelectOption,
     TextArea,
 } from '@patternfly/react-core';
-import '../../karavan.css';
+import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
-import {CamelElement} from "../../model/CamelModel";
-import {CamelApiExt} from "../../api/CamelApiExt";
-import {CamelMetadataApi, DataFormats, PropertyMeta} from "../../api/CamelMetadata";
-import {DataFormat} from "../../model/CamelDataFormat";
+import {CamelElement} from "karavan-core/lib/model/CamelModel";
+import {CamelApiExt} from "karavan-core/lib/api/CamelApiExt";
+import {CamelMetadataApi, DataFormats, PropertyMeta} from "karavan-core/lib/api/CamelMetadata";
+import {DataFormat} from "karavan-core/lib/model/CamelDataFormat";
 import {DslPropertyField} from "./DslPropertyField";
 
 interface Props {

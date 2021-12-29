@@ -18,9 +18,9 @@ import * as React from "react";
 import {
     Page,
 } from "@patternfly/react-core";
-import {KaravanDesigner} from "./designer/ui/KaravanDesigner";
-import {KameletApi} from "./designer/api/KameletApi";
-import {ComponentApi} from "./designer/api/ComponentApi";
+import {KaravanDesigner} from "./designer/KaravanDesigner";
+import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 
 interface Props {
 }

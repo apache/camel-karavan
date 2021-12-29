@@ -15,17 +15,17 @@
  * limitations under the License.
  */
 import React from 'react';
-import '../karavan.css';
-import {InOut, Path} from "../model/ConnectionModels";
-import {CamelElement, Integration} from "../model/CamelModel";
-import {Subscription} from "rxjs";
-import {CamelUi} from "../api/CamelUi";
-import {CamelApiExt} from "../api/CamelApiExt";
-import {KameletApi} from "../api/KameletApi";
+import './karavan.css';
+import {InOut, Path} from "karavan-core/lib/model/ConnectionModels";
+import {CamelElement, Integration} from "karavan-core/lib/model/CamelModel";
+import {CamelUi} from "karavan-core/lib/api/CamelUi";
+import {CamelApiExt} from "karavan-core/lib/api/CamelApiExt";
+import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {DslInOut} from "./DslInOut";
 import {DslPath} from "./DslPath";
-import {DslPosition, EventBus} from "../api/EventBus";
-import {ComponentApi} from "../api/ComponentApi";
+import {DslPosition, EventBus} from "karavan-core/lib/api/EventBus";
+import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
+import Rx from 'rxjs';
 
 interface Props {
     integration: Integration
@@ -34,7 +34,7 @@ interface Props {
 interface State {
     integration: Integration
     paths: Path[]
-    sub?: Subscription
+    sub?: Rx.Subscription
     outs: Map<string, DslPosition>
 }
 
