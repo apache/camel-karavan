@@ -17,10 +17,10 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
-import { CamelYaml } from "../designer/api/CamelYaml";
-import { CamelUi } from "../designer/api/CamelUi";
+import { CamelYaml } from "karavan-core/lib/api/CamelYaml";
+import { CamelUi } from "karavan-core/lib/api/CamelUi";
 import * as jsyaml from 'js-yaml';
-import { Integration } from "../designer/model/CamelModel";
+import { Integration } from "karavan-core/lib/model/CamelModel";
 import { homedir } from "os";
 
 const KARAVAN_LOADED = "karavan:loaded";
