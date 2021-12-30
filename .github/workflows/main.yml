@@ -34,22 +34,17 @@ jobs:
           mvn clean compile exec:java -f karavan-generator \
           -Dexec.mainClass="org.apache.camel.karavan.generator.KaravanGenerator"
 
-      #  Build Karavan standalone
-      - name: Build Karavan standalone
-        run: |
-          mvn package -f karavan-app -DskipTest \
-          -Dquarkus.container-image.build=true \
-          -Dquarkus.container-image.push=true \
-          -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}:latest \
-          -Dquarkus.container-image.username=${{ github.actor }} \
-          -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }}
-
-      #  Building Karavan VSCode extensions
+      #  Building Karavan Core
       - name: Set up Node
         uses: actions/setup-node@v2
         with:
           node-version: '16'
 
+      - name: Karavan Core install
+        working-directory: ./karavan-core
+        run: npm install
+
+      #  Building Karavan VSCode extensions
       - name: Karavan VS Code extension (install dependencies)
         working-directory: ./karavan-vscode  
         run: yarn install 
@@ -72,3 +67,12 @@ jobs:
           name: camel-karavan-vscode.vsix
           path: ./karavan-vscode/*.vsix
 
+      #  Build Karavan standalone
+      - name: Build Karavan standalone
+        run: |
+          mvn package -f karavan-app -DskipTest \
+          -Dquarkus.container-image.build=true \
+          -Dquarkus.container-image.push=true \
+          -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}:latest \
+          -Dquarkus.container-image.username=${{ github.actor }} \
+          -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }}
