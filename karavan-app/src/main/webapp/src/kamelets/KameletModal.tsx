@@ -9,7 +9,7 @@ import {
     Badge, Flex, CardTitle,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {KameletModel, Property} from "../designer/model/KameletModels";
+import {KameletModel, Property} from "karavan-core/lib/model/KameletModels";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 
 interface Props {
