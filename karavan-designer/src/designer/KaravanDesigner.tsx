@@ -228,4 +228,4 @@ export class KaravanDesigner extends React.Component<Props, State> {
             </PageSection>
         );
     }
-};
+}

@@ -25,7 +25,7 @@ import {DslInOut} from "./DslInOut";
 import {DslPath} from "./DslPath";
 import {DslPosition, EventBus} from "karavan-core/lib/api/EventBus";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
-import Rx from 'rxjs';
+import Rx from 'karavan-core/node_modules/rxjs';
 
 interface Props {
     integration: Integration

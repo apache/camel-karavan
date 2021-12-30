@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import './karavan.css';
-import Rx from "rxjs";
+import Rx from "karavan-core/node_modules/rxjs";
 import {DslPosition, EventBus} from "karavan-core/lib/api/EventBus";
 import {Path} from "karavan-core/lib/model/ConnectionModels";
 

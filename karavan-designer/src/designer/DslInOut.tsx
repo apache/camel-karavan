@@ -17,7 +17,7 @@
 import React from 'react';
 import './karavan.css';
 import {InOut} from "karavan-core/lib/model/ConnectionModels";
-import Rx from 'rxjs';
+import Rx from 'karavan-core/node_modules/rxjs';
 import {EventBus} from "karavan-core/lib/api/EventBus";
 import {Text} from "@patternfly/react-core";
 
