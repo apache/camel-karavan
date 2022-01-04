@@ -3,7 +3,7 @@
  */
 import {v4 as uuidv4} from 'uuid';
 import {CamelApi} from "../api/CamelApi";
-import * as dataFormat from '../model/CamelDataFormat';
+import * as dataFormat from './CamelDataFormat';
 
 export class Metadata {
     name: string = '';

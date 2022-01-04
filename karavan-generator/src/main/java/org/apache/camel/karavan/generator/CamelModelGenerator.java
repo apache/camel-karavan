@@ -41,9 +41,9 @@ public final class CamelModelGenerator extends AbstractGenerator {
         g.createModels(
                 "karavan-generator/src/main/resources/camel-model.template",
                 "karavan-generator/src/main/resources/camel-metadata.template",
-                "karavan-designer/src/designer/model/CamelModel.tsx",
-                "karavan-designer/src/designer/api/CamelApi.tsx",
-                "karavan-designer/src/designer/api/CamelMetadata.tsx"
+                "karavan-core/src/core/model/CamelModel.ts",
+                "karavan-core/src/core/api/CamelApi.ts",
+                "karavan-core/src/core/api/CamelMetadata.ts"
         );
     }
 

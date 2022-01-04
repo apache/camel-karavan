@@ -20,17 +20,17 @@ import {
     PageSection,
 } from '@patternfly/react-core';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
-import '../karavan.css';
+import './karavan.css';
 import {DslElement} from "./DslElement";
 import {DslSelector} from "./DslSelector";
-import {DslMetaModel} from "../model/DslMetaModel";
+import {DslMetaModel} from "karavan-core/lib/model/DslMetaModel";
 import {DslProperties} from "./DslProperties";
-import {CamelElement, Integration} from "../model/CamelModel";
-import {CamelYaml} from "../api/CamelYaml";
-import {CamelApiExt} from "../api/CamelApiExt";
-import {CamelApi} from "../api/CamelApi";
+import {CamelElement, Integration} from "karavan-core/lib/model/CamelModel";
+import {CamelYaml} from "karavan-core/lib/api/CamelYaml";
+import {CamelApiExt} from "karavan-core/lib/api/CamelApiExt";
+import {CamelApi} from "karavan-core/lib/api/CamelApi";
 import {DslConnections} from "./DslConnections";
-import {EventBus} from "../api/EventBus";
+import {EventBus} from "karavan-core/lib/api/EventBus";
 
 interface Props {
     onSave?: (filename: string, yaml: string) => void
@@ -228,4 +228,4 @@ export class KaravanDesigner extends React.Component<Props, State> {
             </PageSection>
         );
     }
-};
+}

@@ -18,13 +18,13 @@ import React from 'react';
 import {
     Text, Tooltip,
 } from '@patternfly/react-core';
-import '../karavan.css';
+import './karavan.css';
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
-import {CamelElement, Otherwise, ProcessorStep, When} from "../model/CamelModel";
-import {CamelApi} from "../api/CamelApi";
-import {CamelUi} from "../api/CamelUi";
-import {EventBus} from "../api/EventBus";
+import {CamelElement, Otherwise, ProcessorStep, When} from "karavan-core/lib/model/CamelModel";
+import {CamelApi} from "karavan-core/lib/api/CamelApi";
+import {CamelUi} from "karavan-core/lib/api/CamelUi";
+import {EventBus} from "karavan-core/lib/api/EventBus";
 
 interface Props {
     step: CamelElement,

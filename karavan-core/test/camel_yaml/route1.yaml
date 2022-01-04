@@ -1,0 +1,8 @@
+- from:
+    uri: kamelet:timer-source
+    steps:
+      - log:
+          message: wwwww
+    parameters:
+      period: 1000
+      message: qqq

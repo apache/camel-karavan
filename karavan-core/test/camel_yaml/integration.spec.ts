@@ -14,10 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as React from "react";
-import * as ReactDOM from "react-dom";
-import "./index.css";
-import "@patternfly/patternfly/patternfly.css";
-import App from "./App";
+import {expect} from 'chai';
+import * as fs from 'fs';
+import * as path from 'path';
+import 'mocha';
+import {CamelYaml} from "../../src/core/api/CamelYaml";
 
-ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
+describe('CRD YAML to Integration', () => {
+
+    const yaml = fs.readFileSync('test/camel_yaml/integration1.yaml',{encoding:'utf8', flag:'r'});
+
+    it('YAML <-> Object', () => {
+        const i = CamelYaml.yamlToIntegration("test1.yaml", yaml);
+        expect(i.metadata.name).to.equal('test1.yaml');
+        expect(i.kind).to.equal('Integration');
+        expect(i.spec.flows.length).to.equal(1);
+        expect(i.crd).to.equal(true);
+        const y = CamelYaml.integrationToYaml(i);
+        expect(y).to.equal(yaml);
+    });
+
+});

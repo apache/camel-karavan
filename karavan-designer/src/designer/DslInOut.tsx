@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 import React from 'react';
-import '../karavan.css';
-import {InOut} from "../model/ConnectionModels";
-import {Subscription} from "rxjs";
-import {EventBus} from "../api/EventBus";
+import './karavan.css';
+import {InOut} from "karavan-core/lib/model/ConnectionModels";
+import Rx from 'karavan-core/node_modules/rxjs';
+import {EventBus} from "karavan-core/lib/api/EventBus";
 import {Text} from "@patternfly/react-core";
 
 interface Props {
@@ -28,8 +28,8 @@ interface Props {
 interface State {
     inout: InOut
     top: number
-    sub?: Subscription
-    fsub?: Subscription
+    sub?: Rx.Subscription
+    fsub?: Rx.Subscription
     fRect?: DOMRect
 }
 

@@ -9,10 +9,10 @@ import SaveIcon from '@patternfly/react-icons/dist/esm/icons/upload-icon';
 import CopyIcon from '@patternfly/react-icons/dist/esm/icons/copy-icon';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
-import {Integration} from "../designer/model/CamelModel";
+import {Integration} from "karavan-core/lib/model/CamelModel";
 import {KaravanApi} from "../api/KaravanApi";
-import {CamelYaml} from "../designer/api/CamelYaml";
-import {KaravanDesigner} from "../designer/ui/KaravanDesigner";
+import {CamelYaml} from "karavan-core/lib/api/CamelYaml";
+import {KaravanDesigner} from "../designer/KaravanDesigner";
 import FileSaver from "file-saver";
 
 interface Props {

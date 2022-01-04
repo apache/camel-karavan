@@ -24,17 +24,17 @@ import {
 } from '@patternfly/react-core';
 import {KaravanApi} from "./api/KaravanApi";
 import {IntegrationPage} from "./integrations/IntegrationPage";
-import {KameletApi} from "./designer/api/KameletApi";
+import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import logo from './logo.svg';
 import './designer/karavan.css';
 import {ConfigurationPage} from "./config/ConfigurationPage";
 import {KameletsPage} from "./kamelets/KameletsPage";
-import {Integration} from "./designer/model/CamelModel";
+import {Integration} from "karavan-core/lib/model/CamelModel";
 import {v4 as uuidv4} from "uuid";
 import {DesignerPage} from "./integrations/DesignerPage";
-import {CamelYaml} from "./designer/api/CamelYaml";
+import {CamelYaml} from "karavan-core/lib/api/CamelYaml";
 import avatarImg from './avatarImg.svg';
-import {ComponentApi} from "./designer/api/ComponentApi";
+import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 
 class ToastMessage {
     id: string = ''

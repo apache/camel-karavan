@@ -21,10 +21,10 @@ import {
     Popover,
     Switch,
 } from '@patternfly/react-core';
-import '../../karavan.css';
+import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
-import {Property} from "../../model/KameletModels";
+import {Property} from "karavan-core/lib/model/KameletModels";
 
 interface Props {
     property: Property,

@@ -25,18 +25,18 @@ import {
     SelectDirection,
     SelectOption, ExpandableSection,
 } from '@patternfly/react-core';
-import '../../karavan.css';
+import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
-import {CamelApi} from "../../api/CamelApi";
-import { PropertyMeta} from "../../api/CamelMetadata";
-import {CamelApiExt} from "../../api/CamelApiExt";
+import {CamelApi} from "karavan-core/lib/api/CamelApi";
+import { PropertyMeta} from "karavan-core/lib/api/CamelMetadata";
+import {CamelApiExt} from "karavan-core/lib/api/CamelApiExt";
 import {ExpressionField} from "./ExpressionField";
-import {CamelUi} from "../../api/CamelUi";
+import {CamelUi} from "karavan-core/lib/api/CamelUi";
 import {ComponentParameterField} from "./ComponentParameterField";
-import {CamelElement} from "../../model/CamelModel";
+import {CamelElement} from "karavan-core/lib/model/CamelModel";
 import {KameletPropertyField} from "./KameletPropertyField";
-import {DataFormat} from "../../model/CamelDataFormat";
+import {DataFormat} from "karavan-core/lib/model/CamelDataFormat";
 
 interface Props {
     property: PropertyMeta,

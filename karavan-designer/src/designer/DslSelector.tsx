@@ -20,10 +20,10 @@ import {
     Tab, Tabs, TabTitleText,
     Text, TextInput,
 } from '@patternfly/react-core';
-import '../karavan.css';
-import {CamelUi} from "../api/CamelUi";
-import {DslMetaModel} from "../model/DslMetaModel";
-import {CamelApi} from "../api/CamelApi";
+import './karavan.css';
+import {CamelUi} from "karavan-core/lib/api/CamelUi";
+import {DslMetaModel} from "karavan-core/lib/model/DslMetaModel";
+import {CamelApi} from "karavan-core/lib/api/CamelApi";
 
 interface Props {
     show: boolean,

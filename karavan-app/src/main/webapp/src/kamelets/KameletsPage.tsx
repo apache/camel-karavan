@@ -9,8 +9,8 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KameletCard} from "./KameletCard";
-import {KameletModel} from "../designer/model/KameletModels";
-import {KameletApi} from "../designer/api/KameletApi";
+import {KameletModel} from "karavan-core/lib/model/KameletModels";
+import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {KameletModal} from "./KameletModal";
 
 interface Props {

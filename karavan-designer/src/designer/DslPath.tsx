@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 import React from 'react';
-import '../karavan.css';
-import {Subscription} from "rxjs";
-import {DslPosition, EventBus} from "../api/EventBus";
-import {Path} from "../model/ConnectionModels";
+import './karavan.css';
+import Rx from "karavan-core/node_modules/rxjs";
+import {DslPosition, EventBus} from "karavan-core/lib/api/EventBus";
+import {Path} from "karavan-core/lib/model/ConnectionModels";
 
 interface Props {
     uuid: string,
@@ -31,8 +31,8 @@ interface State {
     width: number,
     left: number,
     top: number,
-    sub?: Subscription
-    fsub?: Subscription
+    sub?: Rx.Subscription
+    fsub?: Rx.Subscription
     fRect?: DOMRect
 }
 

@@ -23,11 +23,11 @@ import {
     SelectDirection,
     SelectOption, TextArea,
 } from '@patternfly/react-core';
-import '../../karavan.css';
+import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
-import {Languages, PropertyMeta} from "../../api/CamelMetadata";
-import {CamelApiExt} from "../../api/CamelApiExt";
+import {Languages, PropertyMeta} from "karavan-core/lib/api/CamelMetadata";
+import {CamelApiExt} from "karavan-core/lib/api/CamelApiExt";
 
 interface Props {
     property: PropertyMeta,

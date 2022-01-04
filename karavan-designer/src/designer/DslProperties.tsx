@@ -23,18 +23,18 @@ import {
     Title,
     TextVariants,
 } from '@patternfly/react-core';
-import '../karavan.css';
+import './karavan.css';
 import "@patternfly/patternfly/patternfly.css";
-import {CamelElement, Expression, Integration} from "../model/CamelModel";
-import {CamelApi} from "../api/CamelApi";
-import {CamelApiExt} from "../api/CamelApiExt";
-import {CamelMetadataApi, PropertyMeta} from "../api/CamelMetadata";
-import {CamelYaml} from "../api/CamelYaml";
-import {CamelUi} from "../api/CamelUi";
-import {ComponentApi} from "../api/ComponentApi";
+import {CamelElement, Expression, Integration} from "karavan-core/lib/model/CamelModel";
+import {CamelApi} from "karavan-core/lib/api/CamelApi";
+import {CamelApiExt} from "karavan-core/lib/api/CamelApiExt";
+import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/api/CamelMetadata";
+import {CamelYaml} from "karavan-core/lib/api/CamelYaml";
+import {CamelUi} from "karavan-core/lib/api/CamelUi";
+import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {DataFormatField} from "./field/DataFormatField";
 import {DslPropertyField} from "./field/DslPropertyField";
-import {DataFormat} from "../model/CamelDataFormat";
+import {DataFormat} from "karavan-core/lib/model/CamelDataFormat";
 
 interface Props {
     integration: Integration,
