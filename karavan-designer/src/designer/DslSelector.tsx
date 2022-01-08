@@ -23,7 +23,7 @@ import {
 import './karavan.css';
 import {CamelUi} from "karavan-core/lib/api/CamelUi";
 import {DslMetaModel} from "karavan-core/lib/model/DslMetaModel";
-import {CamelApi} from "karavan-core/lib/api/CamelApi";
+import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 
 interface Props {
     show: boolean,
@@ -112,7 +112,7 @@ export class DslSelector extends React.Component<Props, State> {
                     <Tabs style={{overflow: 'hidden'}} activeKey={this.state.tabIndex} onSelect={this.selectTab}>
                         {CamelUi.getSelectorLabels(this.props.parentType).map((label, index) => (
                             <Tab eventKey={label[0]} key={"tab-" + label[0]}
-                                 title={<TabTitleText>{CamelApi.capitalizeName(label[0])}</TabTitleText>}
+                                 title={<TabTitleText>{CamelUtil.capitalizeName(label[0])}</TabTitleText>}
                                  translate={undefined} onAuxClick={undefined} onAuxClickCapture={undefined}>
                                 <Gallery key={"gallery-" + label[0]} hasGutter className="dsl-gallery">
                                     {CamelUi.sortSelectorModels(CamelUi.getSelectorModels(label[0], label[1], this.props.parentType))

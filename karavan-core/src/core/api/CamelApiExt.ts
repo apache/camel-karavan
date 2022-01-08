@@ -14,20 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {CamelElement, Expression, FromStep, Integration, ProcessorStep} from "../model/CamelModel";
+import {CamelElement, Expression, From, Integration} from "../model/CamelModel";
 import {CamelMetadataApi, DataFormats, PropertyMeta} from "./CamelMetadata";
 import {CamelApi} from "./CamelApi";
 import {ComponentApi} from "./ComponentApi";
 import {DataFormat} from "../model/CamelDataFormat";
+import {CamelUtil} from "./CamelUtil";
 
 export class CamelApiExt {
 
     static addStepToIntegration = (integration: Integration, step: CamelElement, parentId: string, position?: number): Integration => {
-        if (step.dslName === 'fromStep') {
-            integration.spec.flows.push(step as FromStep);
+        if (step.dslName === 'from') {
+            integration.spec.flows.push(step as From);
         } else {
             const flows = CamelApi.addStep(integration.spec.flows, step, parentId, position);
-            integration.spec.flows = flows as FromStep[];
+            integration.spec.flows = flows as From[];
         }
         return integration;
     }
@@ -59,7 +60,7 @@ export class CamelApiExt {
 
     static deleteStepFromIntegration = (integration: Integration, uuidToDelete: string): Integration => {
         const flows = CamelApi.deleteStep(integration.spec.flows, uuidToDelete);
-        integration.spec.flows = flows as FromStep[];
+        integration.spec.flows = flows as From[];
         return integration;
     }
 
@@ -88,8 +89,9 @@ export class CamelApiExt {
     }
 
     static updateIntegration = (integration: Integration, e: CamelElement, updatedUuid: string): Integration => {
-        const int: Integration = new Integration({...integration});
-        const flows = integration.spec.flows.map(f => CamelApiExt.updateElement(f, e) as FromStep)
+        const elementClone = CamelUtil.cloneStep(e);
+        const int: Integration = CamelUtil.cloneIntegration(integration);
+        const flows = integration.spec.flows.map(f => CamelApiExt.updateElement(f, elementClone) as From)
         const flows2 = flows.map(f => CamelApi.createFrom(f));
         int.spec.flows = flows2
         return int;
@@ -166,16 +168,16 @@ export class CamelApiExt {
 
     static getToStepsFromIntegration = (integration: Integration): [CamelElement, number][] => {
         const result: [CamelElement, number][] = [];
-        integration.spec.flows.forEach((flow, index) => {
-            const steps: [CamelElement, number][] = CamelApiExt.getOutgoingStepsFromStep(flow.from, 0);
+        integration.spec.flows.forEach((from, index) => {
+            const steps: [CamelElement, number][] = CamelApiExt.getOutgoingStepsFromStep(from, 0);
             result.push(...steps);
         })
         return result;
     }
 
-    static getOutgoingStepsFromStep = (step: ProcessorStep, level: number): [CamelElement, number][] => {
+    static getOutgoingStepsFromStep = (step: CamelElement, level: number): [CamelElement, number][] => {
         const result: [CamelElement, number][] = [];
-        if (['toStep', 'kameletStep'].includes(step.dslName)) result.push([step, level]);
+        if (['to', 'kamelet'].includes(step.dslName)) result.push([step, level]);
         const element: any = Object.assign({}, step);
         Object.keys(element).forEach(key => {
             if (element[key] instanceof CamelElement) {

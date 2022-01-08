@@ -18,18 +18,19 @@ import {expect} from 'chai';
 import * as fs from 'fs';
 import * as path from 'path';
 import 'mocha';
-import {CamelYaml} from "../../src/core/api/CamelYaml";
+import {CamelYaml} from "../src/core/api/CamelYaml";
 
-describe('CRD YAML to Integration', () => {
+describe('Plain YAML to integration', () => {
 
-    const yaml = fs.readFileSync('test/camel_yaml/integration1.yaml',{encoding:'utf8', flag:'r'});
+    const yaml = fs.readFileSync('test/plain1.yaml',{encoding:'utf8', flag:'r'});
 
     it('YAML <-> Object', () => {
         const i = CamelYaml.yamlToIntegration("test1.yaml", yaml);
         expect(i.metadata.name).to.equal('test1.yaml');
         expect(i.kind).to.equal('Integration');
         expect(i.spec.flows.length).to.equal(1);
-        expect(i.crd).to.equal(true);
+        expect(i.crd).to.equal(false);
+        expect(i.spec.flows[0].uri).to.equal('kamelet:timer-source');
         const y = CamelYaml.integrationToYaml(i);
         expect(y).to.equal(yaml);
     });

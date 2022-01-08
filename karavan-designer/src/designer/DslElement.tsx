@@ -21,8 +21,7 @@ import {
 import './karavan.css';
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
-import {CamelElement, Otherwise, ProcessorStep, When} from "karavan-core/lib/model/CamelModel";
-import {CamelApi} from "karavan-core/lib/api/CamelApi";
+import {CamelElement, Otherwise, When} from "karavan-core/lib/model/CamelModel";
 import {CamelUi} from "karavan-core/lib/api/CamelUi";
 import {EventBus} from "karavan-core/lib/api/EventBus";
 
@@ -39,7 +38,6 @@ interface Props {
 
 interface State {
     step: CamelElement,
-    element: CamelElement,
     showSelector: boolean
     tabIndex: string | number
     selectedUuid: string
@@ -51,7 +49,6 @@ export class DslElement extends React.Component<Props, State> {
 
     public state: State = {
         step: this.props.step,
-        element: this.props.step.dslName === 'otherwise' ? this.props.step : CamelApi.elementFromStep(this.props.step),
         showSelector: false,
         tabIndex: 0,
         selectedUuid: this.props.selectedUuid,
@@ -67,7 +64,7 @@ export class DslElement extends React.Component<Props, State> {
 
     openSelector = (evt: React.MouseEvent) => {
         evt.stopPropagation();
-        this.props.openSelector.call(this, this.state.step.uuid, this.state.element.dslName);
+        this.props.openSelector.call(this, this.state.step.uuid, this.state.step.dslName);
     }
 
     closeDslSelector = () => {
@@ -88,8 +85,8 @@ export class DslElement extends React.Component<Props, State> {
         return this.state.selectedUuid === this.state.step.uuid
     }
 
-    getSteps = (): ProcessorStep[] => {
-        return (this.state.element as any).steps
+    getSteps = (): CamelElement[] => {
+        return (this.state.step as any).steps
     }
 
     hasSteps = (): boolean => {
@@ -98,15 +95,15 @@ export class DslElement extends React.Component<Props, State> {
     }
 
     getWhens = (): When[] => {
-        return (this.state.element as any).when
+        return (this.state.step as any).when
     }
 
     getOtherwise = (): Otherwise => {
-        return (this.state.element as any).otherwise
+        return (this.state.step as any).otherwise
     }
 
     horizontal = (): boolean => {
-        return ['choice', 'multicast'].includes(this.state.element.dslName);
+        return ['choice', 'multicast'].includes(this.state.step.dslName);
     }
 
     isRoot = (): boolean => {
@@ -127,18 +124,18 @@ export class DslElement extends React.Component<Props, State> {
         return (
             <div className="header"
                  style={
-                     ["choice", "multicast"].includes(this.state.element.dslName)
+                     ["choice", "multicast"].includes(this.state.step.dslName)
                          ? {width: "100%", fontWeight: this.isSelected() ? "bold" : "normal"}
                          : {fontWeight: this.isSelected() ? "bold" : "normal"}
                  }
                  ref={el => {
-                     if (el && (this.state.step.dslName === 'fromStep' || this.state.step.dslName === 'toStep' || this.state.step.dslName === 'kameletStep')) EventBus.sendPosition(this.state.step, el.getBoundingClientRect());
+                     if (el && (this.state.step.dslName === 'from' || this.state.step.dslName === 'to' || this.state.step.dslName === 'kamelet')) EventBus.sendPosition(this.state.step, el.getBoundingClientRect());
                  }}>
                 <img draggable={false}
-                     src={CamelUi.getIcon(this.state.element)}
+                     src={CamelUi.getIcon(this.state.step)}
                      className="icon" alt="icon">
                 </img>
-                <Text>{CamelUi.getTitle(this.state.element)}</Text>
+                <Text>{CamelUi.getTitle(this.state.step)}</Text>
                 <button type="button" aria-label="Delete" onClick={e => this.delete(e)}
                         className="delete-button">
                     <DeleteIcon noVerticalAlign/>
@@ -157,8 +154,8 @@ export class DslElement extends React.Component<Props, State> {
     }
 
     getHeaderTooltip = (): string | undefined => {
-        if (CamelUi.isShowExpressionTooltip(this.state.element)) return CamelUi.getExpressionTooltip(this.state.element);
-        if (CamelUi.isShowUriTooltip(this.state.element)) return CamelUi.getUriTooltip(this.state.element);
+        if (CamelUi.isShowExpressionTooltip(this.state.step)) return CamelUi.getExpressionTooltip(this.state.step);
+        if (CamelUi.isShowUriTooltip(this.state.step)) return CamelUi.getUriTooltip(this.state.step);
         return undefined;
     }
 
@@ -171,7 +168,7 @@ export class DslElement extends React.Component<Props, State> {
     }
 
     hasBorder = ():boolean => {
-        return this.state.element.hasSteps() || ['choice', 'from'].includes(this.state.element.dslName);
+        return this.state.step.hasSteps() || ['choice', 'from'].includes(this.state.step.dslName);
     }
 
     render() {
@@ -184,7 +181,7 @@ export class DslElement extends React.Component<Props, State> {
                      borderStyle: this.isSelected() ? "dashed" : (this.hasBorder() ? "dotted" : "none"),
                      borderColor: this.isSelected() ? this.props.borderColorSelected : this.props.borderColor,
                      marginTop: this.isRoot() ? "16px" : "",
-                     zIndex: this.state.step.dslName === 'toStep' ? 20 : 10,
+                     zIndex: this.state.step.dslName === 'to' ? 20 : 10,
                      boxShadow: this.state.isDraggedOver ? "0px 0px 1px 2px " + this.props.borderColorSelected : "none",
                  }}
                  onClick={event => this.selectElement(event)}
@@ -201,14 +198,14 @@ export class DslElement extends React.Component<Props, State> {
                  onDragOver={event => {
                      event.preventDefault();
                      event.stopPropagation();
-                     if (this.state.element.dslName !== 'from' && !this.state.isDragging) {
+                     if (this.state.step.dslName !== 'from' && !this.state.isDragging) {
                          this.setState({isDraggedOver: true});
                      }
                  }}
                  onDragEnter={event => {
                      event.preventDefault();
                      event.stopPropagation();
-                     if (this.state.element.dslName !== 'from') {
+                     if (this.state.step.dslName !== 'from') {
                          this.setState({isDraggedOver: true});
                      }
                  }}
@@ -228,17 +225,17 @@ export class DslElement extends React.Component<Props, State> {
                          this.props.moveElement?.call(this, sourceUuid, targetUuid);
                      }
                  }}
-                 draggable={!['from', 'when', 'otherwise'].includes(this.state.element.dslName)}
+                 draggable={!['from', 'when', 'otherwise'].includes(this.state.step.dslName)}
             >
                 {this.getElementHeader()}
-                {this.state.element.hasSteps() && !this.horizontal() && this.getArrow()}
-                <div className={this.state.element.dslName}>
-                    {this.state.element.hasSteps() &&
+                {this.state.step.hasSteps() && !this.horizontal() && this.getArrow()}
+                <div className={this.state.step.dslName}>
+                    {this.state.step.hasSteps() &&
                     <div className="steps" style={this.horizontal() ? {display: "flex", flexDirection: "row"} : {}}>
                         {this.getSteps().map((step, index) => (
                             <div key={step.uuid}
                                  style={this.horizontal() ? {marginRight: (index < this.getSteps().length - 1) ? "6px" : "0"} : {}}>
-                                {this.state.element.hasSteps() && this.horizontal() && this.getArrow()}
+                                {this.state.step.hasSteps() && this.horizontal() && this.getArrow()}
                                 <DslElement
                                     openSelector={this.props.openSelector}
                                     deleteElement={this.props.deleteElement}
@@ -253,16 +250,16 @@ export class DslElement extends React.Component<Props, State> {
                         ))}
                     </div>
                     }
-                    {this.state.element.hasSteps() &&
+                    {this.state.step.hasSteps() &&
                     <Tooltip position={"bottom"}
-                             content={<div>{"Add element to " + CamelUi.getTitle(this.state.element)}</div>}>
+                             content={<div>{"Add element to " + CamelUi.getTitle(this.state.step)}</div>}>
                         <button type="button" aria-label="Add" onClick={e => this.openSelector(e)}
-                                className={this.state.element.dslName === 'from' ? "add-button-from" : "add-button"}>
+                                className={this.state.step.dslName === 'from' ? "add-button-from" : "add-button"}>
                             <AddIcon noVerticalAlign/>
                         </button>
                     </Tooltip>
                     }
-                    {this.state.element.dslName === 'choice' &&
+                    {this.state.step.dslName === 'choice' &&
                     <Tooltip position={"bottom"} content={<div>{"Add element to Choice"}</div>}>
                         <button type="button" aria-label="Add" onClick={e => this.openSelector(e)}
                                 className="add-button">
@@ -270,7 +267,7 @@ export class DslElement extends React.Component<Props, State> {
                         </button>
                     </Tooltip>
                     }
-                    {this.state.element.dslName === 'choice' &&
+                    {this.state.step.dslName === 'choice' &&
                     <div className={this.getWhens().length > 0 ? "whens" : ""}
                          style={this.horizontal() ? {display: "flex", flexDirection: "row"} : {}}>
                         {this.getWhens().map((when, index) => (

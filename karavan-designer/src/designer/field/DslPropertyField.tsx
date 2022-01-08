@@ -28,7 +28,7 @@ import {
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
-import {CamelApi} from "karavan-core/lib/api/CamelApi";
+import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import { PropertyMeta} from "karavan-core/lib/api/CamelMetadata";
 import {CamelApiExt} from "karavan-core/lib/api/CamelApiExt";
 import {ExpressionField} from "./ExpressionField";
@@ -86,7 +86,7 @@ export class DslPropertyField extends React.Component<Props, State> {
         return (
             <FormGroup
                 key={property.name}
-                label={CamelApi.capitalizeName(property.displayName)}
+                label={CamelUtil.capitalizeName(property.displayName)}
                 fieldId={property.name}
                 labelIcon={property.description ?
                     <Popover

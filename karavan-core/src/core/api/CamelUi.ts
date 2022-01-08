@@ -24,6 +24,7 @@ import {CamelApiExt} from "./CamelApiExt";
 import {CamelApi} from "./CamelApi";
 import {Kamelet} from "../model/CamelModel";
 import {CamelModelMetadata} from "./CamelMetadata";
+import {CamelUtil} from "./CamelUtil";
 
 const DslElements: string[] = [
     "aggregate",
@@ -172,7 +173,7 @@ export class CamelUi {
             ? name
                 .replace(".yaml", "")
                 .split("-")
-                .map((value) => CamelApi.capitalizeName(value))
+                .map((value) => CamelUtil.capitalizeName(value))
                 .reduce(
                     (previousValue, currentValue) => previousValue + " " + currentValue
                 )
@@ -234,8 +235,8 @@ export class CamelUi {
             return k.title();
         } else {
             return uri
-                ? CamelApi.capitalizeName(element.dslName) + " : " + ComponentApi.getComponentNameFromUri(uri)
-                : CamelApi.capitalizeName(element.dslName);
+                ? CamelUtil.capitalizeName(element.dslName) + " : " + ComponentApi.getComponentNameFromUri(uri)
+                : CamelUtil.capitalizeName(element.dslName);
         }
     };
 
