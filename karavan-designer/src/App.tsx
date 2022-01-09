@@ -52,7 +52,7 @@ class App extends React.Component<Props, State> {
             '                constant: "Hello Yaml !!!"\n' +
             '          - pollEnrich:\n' +
             '              expression: {}\n' +
-            '          - log: \'${body}\'\n' +
+            '          - log: "${body}"\n' +
             '          - to: \n' +
             '               uri: "log:info:xxx"\n' +
             '               parameters:\n' +

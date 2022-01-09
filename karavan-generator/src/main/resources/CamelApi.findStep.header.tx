@@ -1,6 +1,6 @@
-    static findStep = (steps: ProcessorStep[] | undefined, uuid: string, parentUuid?: string, result?: ProcessorStepMeta): ProcessorStepMeta => {
+    static findStep = (steps: CamelElement[] | undefined, uuid: string, parentUuid?: string, result?: CamelElementMeta): CamelElementMeta => {
         if (result?.step !== undefined) return result;
-        if (result === undefined) result = new ProcessorStepMeta(undefined, parentUuid, undefined, []);
+        if (result === undefined) result = new CamelElementMeta(undefined, parentUuid, undefined, []);
         if (steps !== undefined){
             for (let index = 0, step; step = steps[index]; index++) {
                 if (step.uuid !== uuid) {

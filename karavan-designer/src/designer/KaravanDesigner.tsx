@@ -29,6 +29,7 @@ import {CamelElement, Integration} from "karavan-core/lib/model/CamelModel";
 import {CamelYaml} from "karavan-core/lib/api/CamelYaml";
 import {CamelApiExt} from "karavan-core/lib/api/CamelApiExt";
 import {CamelApi} from "karavan-core/lib/api/CamelApi";
+import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {DslConnections} from "./DslConnections";
 import {EventBus} from "karavan-core/lib/api/EventBus";
 
@@ -90,12 +91,12 @@ export class KaravanDesigner extends React.Component<Props, State> {
     };
 
     getCode = (integration: Integration): string => {
-        const clone = CamelYaml.cloneIntegration(integration);
+        const clone = CamelUtil.cloneIntegration(integration);
         return CamelYaml.integrationToYaml(clone);
     }
 
     onPropertyUpdate = (element: CamelElement, updatedUuid: string) => {
-        const clone = CamelYaml.cloneIntegration(this.state.integration);
+        const clone = CamelUtil.cloneIntegration(this.state.integration);
         const i = CamelApiExt.updateIntegration(clone, element, updatedUuid);
         this.setState({integration: i, key: Math.random().toString()});
     }
@@ -126,19 +127,19 @@ export class KaravanDesigner extends React.Component<Props, State> {
     onDslSelect = (dsl: DslMetaModel, parentId: string) => {
         switch (dsl.dsl) {
             case 'from' :
-                const from = CamelApi.createStep(dsl.dsl, {from: {uri: dsl.uri}});
+                const from = CamelApi.createStep(dsl.dsl, {uri: dsl.uri});
                 this.addStep(from, parentId)
                 break;
             case 'to' :
-                const to = CamelApi.createStep(dsl.dsl, {to: {uri: dsl.uri}});
+                const to = CamelApi.createStep(dsl.dsl,  {uri: dsl.uri});
                 this.addStep(to, parentId)
                 break;
             case 'toD' :
-                const toD = CamelApi.createStep(dsl.dsl, {toD: {uri: dsl.uri}});
+                const toD = CamelApi.createStep(dsl.dsl, {uri: dsl.uri});
                 this.addStep(toD, parentId)
                 break;
             case 'kamelet' :
-                const kamelet = CamelApi.createStep(dsl.dsl, {kamelet: {name: dsl.name}});
+                const kamelet = CamelApi.createStep(dsl.dsl,{name: dsl.name});
                 this.addStep(kamelet, parentId)
                 break;
             default:
@@ -150,7 +151,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
 
     addStep = (step: CamelElement, parentId: string) => {
         const i = CamelApiExt.addStepToIntegration(this.state.integration, step, parentId);
-        const clone = CamelYaml.cloneIntegration(i);
+        const clone = CamelUtil.cloneIntegration(i);
         this.setState({
             integration: clone,
             key: Math.random().toString(),
@@ -166,7 +167,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
 
     moveElement = (source: string, target: string) => {
         const i = CamelApiExt.moveElement(this.state.integration, source, target);
-        const clone = CamelYaml.cloneIntegration(i);
+        const clone = CamelUtil.cloneIntegration(i);
         const selectedStep = CamelApiExt.findElement(clone, source);
         this.setState({
             integration: clone,
@@ -190,8 +191,8 @@ export class KaravanDesigner extends React.Component<Props, State> {
                         <DslConnections key={this.state.key + "-connections"}
                                         integration={this.state.integration}
                         />
-                        {this.state.integration.spec.flows.map((flow, index) => (
-                            <DslElement key={flow.uuid + this.state.key}
+                        {this.state.integration.spec.flows.map((from, index) => (
+                            <DslElement key={from.uuid + this.state.key}
                                         openSelector={this.openSelector}
                                         deleteElement={this.deleteElement}
                                         selectElement={this.selectElement}
@@ -199,7 +200,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
                                         selectedUuid={this.state.selectedUuid}
                                         borderColor={this.props.borderColor}
                                         borderColorSelected={this.props.borderColorSelected}
-                                        step={flow}/>
+                                        step={from}/>
                         ))}
                         <div className="add-flow">
                             <Button

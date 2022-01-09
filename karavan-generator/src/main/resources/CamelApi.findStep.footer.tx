@@ -2,11 +2,11 @@
                 } else {
                     const paths: string[] = result?.pathUuids ? result?.pathUuids : [];
                     paths.push(step.uuid);
-                    result = new  ProcessorStepMeta(step, parentUuid, index, paths);
+                    result = new  CamelElementMeta(step, parentUuid, index, paths);
                     break;
                 }
             }
         }
         const paths: string[] = result?.pathUuids ? result?.pathUuids : [];
-        return new ProcessorStepMeta(result?.step, result?.parentUuid, result?.position, result?.pathUuids);
+        return new CamelElementMeta(result?.step, result?.parentUuid, result?.position, result?.pathUuids);
     }

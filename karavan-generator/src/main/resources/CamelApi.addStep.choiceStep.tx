@@ -1,20 +1,20 @@
-                case 'choiceStep':
-                    const choiceChildren = (el as ChoiceStep).choice?.when || [];
+                case 'choice':
+                    const choiceChildren = (el as Choice).when || [];
                     if (el.uuid === parentId && step.dslName === 'when') {
                         choiceChildren.push(step as When);
-                        (el as ChoiceStep).choice.when = choiceChildren;
-                    }  else if (el.uuid === parentId && step.dslName === 'otherwise' && !(el as ChoiceStep).choice.otherwise) {
-                        (el as ChoiceStep).choice.otherwise = step;
+                        (el as Choice).when = choiceChildren;
+                    }  else if (el.uuid === parentId && step.dslName === 'otherwise' && !(el as Choice).otherwise) {
+                        (el as Choice).otherwise = step;
                     } else {
-                        (el as ChoiceStep).choice.when = CamelApi.addStep(choiceChildren, step, parentId, position) as When[];
-                        const otherwise = (el as ChoiceStep).choice.otherwise;
+                        (el as Choice).when = CamelApi.addStep(choiceChildren, step, parentId, position) as When[];
+                        const otherwise = (el as Choice).otherwise;
                         if (otherwise?.uuid === parentId){
                             otherwise.steps = otherwise.steps ? [...otherwise.steps] : [];
                             otherwise.steps.push(step);
-                            (el as ChoiceStep).choice.otherwise = otherwise
+                            (el as Choice).otherwise = otherwise
                         } else if (otherwise && otherwise.steps && otherwise.steps.length > 0){
                             otherwise.steps = CamelApi.addStep(otherwise.steps, step, parentId, position);
-                            (el as ChoiceStep).choice.otherwise = otherwise;
+                            (el as Choice).otherwise = otherwise;
                         }
                     }
                     break;

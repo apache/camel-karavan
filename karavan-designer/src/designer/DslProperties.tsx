@@ -35,6 +35,7 @@ import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {DataFormatField} from "./field/DataFormatField";
 import {DslPropertyField} from "./field/DslPropertyField";
 import {DataFormat} from "karavan-core/lib/model/CamelDataFormat";
+import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 
 interface Props {
     integration: Integration,
@@ -47,7 +48,6 @@ interface Props {
 interface State {
     integration: Integration,
     step?: CamelElement,
-    element?: CamelElement,
     selectStatus: Map<string, boolean>
     isShowAdvanced: boolean
 }
@@ -56,7 +56,6 @@ export class DslProperties extends React.Component<Props, State> {
 
     public state: State = {
         step: this.props.step,
-        element: this.props.step ? CamelApi.elementFromStep(this.props.step) : undefined,
         integration: this.props.integration,
         selectStatus: new Map<string, boolean>(),
         isShowAdvanced: false
@@ -67,22 +66,21 @@ export class DslProperties extends React.Component<Props, State> {
     }
 
     propertyChanged = (fieldId: string, value: string | number | boolean | any) => {
-        if (this.state.step && this.state.element) {
-            const clone = CamelYaml.cloneStep(this.state.step);
-            (clone as any)[this.state.element?.dslName][fieldId] = value;
+        if (this.state.step) {
+            const clone = CamelUtil.cloneStep(this.state.step);
+            (clone as any)[fieldId] = value;
             this.setStep(clone)
             this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid);
         }
     }
 
     dataFormatChanged = (dataFormat: string, value?: DataFormat) => {
-        if (this.state.step && this.state.element){
-            if (this.state.element?.dslName === 'unmarshal') {
+        if (this.state.step && this.state.step){
+            if (this.state.step?.dslName === 'unmarshal') {
                 const e:any = {unmarshal: {}};
                 e.unmarshal[dataFormat] = value ? value : {};
                 const unmarshal = CamelApi.createUnmarshal(e);
                 unmarshal.uuid = this.state.step.uuid;
-                unmarshal.unmarshal.uuid = this.state.element.uuid;
                 this.setStep(unmarshal);
                 this.props.onPropertyUpdate?.call(this, unmarshal, this.state.step.uuid);
             } else {
@@ -90,7 +88,6 @@ export class DslProperties extends React.Component<Props, State> {
                 e.marshal[dataFormat] = value ? value : {};
                 const marshal = CamelApi.createMarshal(e);
                 marshal.uuid = this.state.step.uuid;
-                marshal.marshal.uuid = this.state.element.uuid;
                 this.setStep(marshal);
                 this.props.onPropertyUpdate?.call(this, marshal, this.state.step.uuid);
             }
@@ -98,32 +95,28 @@ export class DslProperties extends React.Component<Props, State> {
     }
 
     expressionChanged = (language: string, value: string | undefined) => {
-        if (this.state.step && this.state.element) {
-            const clone = (CamelYaml.cloneStep(this.state.step));
+        if (this.state.step) {
+            const clone = (CamelUtil.cloneStep(this.state.step));
             const e: any = {};
             e.language = language;
             e[language] = value;
             const exp: any = new Expression(e);
-            if (this.state.element?.dslName === 'when') {
-                (clone as any).expression = exp;
-            } else {
-                (clone as any)[this.state.element?.dslName].expression = exp;
-            }
+            (clone as any).expression = exp;
             this.setStep(clone);
             this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid);
         }
     }
 
     parametersChanged = (parameter: string, value: string | number | boolean | any, pathParameter?: boolean) => {
-        if (this.state.step && this.state.element) {
+        if (this.state.step && this.state.step) {
             if (pathParameter) {
-                const uri = ComponentApi.buildComponentUri((this.state.element as any).uri, parameter, value);
+                const uri = ComponentApi.buildComponentUri((this.state.step as any).uri, parameter, value);
                 this.propertyChanged("uri", uri);
             } else {
-                const clone = (CamelYaml.cloneStep(this.state.step));
-                const parameters: any = {...(clone as any)[this.state.element?.dslName].parameters};
+                const clone = (CamelUtil.cloneStep(this.state.step));
+                const parameters: any = {...(clone as any).parameters};
                 parameters[parameter] = value;
-                (clone as any)[this.state.element?.dslName].parameters = parameters;
+                (clone as any).parameters = parameters;
                 this.setStep(clone);
                 this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid);
             }
@@ -139,7 +132,6 @@ export class DslProperties extends React.Component<Props, State> {
     setStep = (step?: CamelElement) => {
         this.setState({
             step: step,
-            element: step ? CamelApi.elementFromStep(step) : undefined,
             selectStatus: new Map<string, boolean>()
         });
     }
@@ -163,11 +155,11 @@ export class DslProperties extends React.Component<Props, State> {
     }
 
     getComponentHeader = (): JSX.Element => {
-        const title = this.state.element && CamelUi.getTitle(this.state.element)
-        const kamelet = this.state.element && CamelUi.getKamelet(this.state.element)
-        const description = this.state.element && kamelet
+        const title = this.state.step && CamelUi.getTitle(this.state.step)
+        const kamelet = this.state.step && CamelUi.getKamelet(this.state.step)
+        const description = this.state.step && kamelet
             ? kamelet.spec.definition.description
-            : this.state.element?.dslName ? CamelMetadataApi.getCamelModelMetadata(this.state.element?.dslName)?.description : title;
+            : this.state.step?.dslName ? CamelMetadataApi.getCamelModelMetadata(this.state.step?.dslName)?.description : title;
         return (
             <div className="headers">
                 <Title headingLevel="h1" size="md">{title}</Title>
@@ -180,20 +172,20 @@ export class DslProperties extends React.Component<Props, State> {
         return (
             <div key={this.state.step ? this.state.step.uuid : 'integration'} className='properties'>
                 <Form autoComplete="off">
-                    {this.state.element === undefined && this.getIntegrationHeader()}
-                    {this.state.element && this.getComponentHeader()}
-                    {this.state.element && CamelApiExt.getElementProperties(this.state.element.dslName).map((property: PropertyMeta) =>
+                    {this.state.step === undefined && this.getIntegrationHeader()}
+                    {this.state.step && this.getComponentHeader()}
+                    {this.state.step && CamelApiExt.getElementProperties(this.state.step.dslName).map((property: PropertyMeta) =>
                         <DslPropertyField property={property}
-                                          element={this.state.element}
-                                          value={this.state.element ? (this.state.element as any)[property.name] : undefined}
+                                          element={this.state.step}
+                                          value={this.state.step ? (this.state.step as any)[property.name] : undefined}
                                           onExpressionChange={this.expressionChanged}
                                           onParameterChange={this.parametersChanged}
                                           onDataFormatChange={this.dataFormatChanged}
                                           onChange={this.propertyChanged} />
                     )}
-                    {this.state.element && ['marshal', 'unmarshal'].includes(this.state.element.dslName) &&
+                    {this.state.step && ['marshal', 'unmarshal'].includes(this.state.step.dslName) &&
                         <DataFormatField
-                            element={this.state.element}
+                            element={this.state.step}
                             onDataFormatChange={this.dataFormatChanged} />
                     }
                 </Form>

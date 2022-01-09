@@ -8,7 +8,8 @@
     "lib": [
       "dom",
       "dom.iterable",
-      "esnext"
+      "esnext",
+      "ES2021.String"
     ]
   },
   "include": ["src"],

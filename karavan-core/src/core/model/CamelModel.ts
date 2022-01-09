@@ -14,7 +14,7 @@ export class Metadata {
 }
 
 export class Spec {
-    flows: FromStep[] = [];
+    flows: From[] = [];
 
     public constructor(init?: Partial<Spec>) {
         Object.assign(this, init);
@@ -51,17 +51,14 @@ export class CamelElement {
    }
 }
 
-export class ProcessorStep extends CamelElement {
-}
-
-export class ProcessorStepMeta {
-    step?: ProcessorStep
+export class CamelElementMeta {
+    step?: CamelElement
     parentUuid?: string
     position: number = 0;
     pathUuids: string [] = [];
 
 
-    constructor(step?: ProcessorStep, parentUuid?: string, position?: number, pathUuids?: string []) {
+    constructor(step?: CamelElement, parentUuid?: string, position?: number, pathUuids?: string []) {
         this.step = step;
         this.parentUuid = parentUuid;
         this.position = position || 0;
@@ -71,22 +68,13 @@ export class ProcessorStepMeta {
 
 export class Policy extends CamelElement { 
     ref?: string
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
 
     public constructor(init?: Partial<Policy>) { 
         super('policy')
         Object.assign(this, init)
     }
 }
-export class PolicyStep extends ProcessorStep {
-    policy: Policy = new Policy()
-
-    public constructor(init?: Partial<Policy>) {
-        super('policyStep')
-        Object.assign(this, {policy: new Policy({...init})})
-    }
-}
-
 export class ThrowException extends CamelElement { 
     exceptionType?: string
     message?: string
@@ -97,15 +85,6 @@ export class ThrowException extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class ThrowExceptionStep extends ProcessorStep {
-    throwException: ThrowException = new ThrowException()
-
-    public constructor(init?: Partial<ThrowException>) {
-        super('throwExceptionStep')
-        Object.assign(this, {throwException: new ThrowException({...init})})
-    }
-}
-
 export class Choice extends CamelElement { 
     otherwise?: Otherwise
     when?: When [] = []
@@ -115,15 +94,6 @@ export class Choice extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class ChoiceStep extends ProcessorStep {
-    choice: Choice = new Choice()
-
-    public constructor(init?: Partial<Choice>) {
-        super('choiceStep')
-        Object.assign(this, {choice: new Choice({...init})})
-    }
-}
-
 export class PollEnrich extends CamelElement { 
     aggregateOnException?: boolean
     cacheSize?: number
@@ -139,15 +109,6 @@ export class PollEnrich extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class PollEnrichStep extends ProcessorStep {
-    pollEnrich: PollEnrich = new PollEnrich()
-
-    public constructor(init?: Partial<PollEnrich>) {
-        super('pollEnrichStep')
-        Object.assign(this, {pollEnrich: new PollEnrich({...init})})
-    }
-}
-
 export class SetBody extends CamelElement { 
     expression?: Expression
 
@@ -156,15 +117,6 @@ export class SetBody extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class SetBodyStep extends ProcessorStep {
-    setBody: SetBody = new SetBody()
-
-    public constructor(init?: Partial<SetBody>) {
-        super('setBodyStep')
-        Object.assign(this, {setBody: new SetBody({...init})})
-    }
-}
-
 export class Stop extends CamelElement { 
 
     public constructor(init?: Partial<Stop>) { 
@@ -172,15 +124,6 @@ export class Stop extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class StopStep extends ProcessorStep {
-    stop: Stop = new Stop()
-
-    public constructor(init?: Partial<Stop>) {
-        super('stopStep')
-        Object.assign(this, {stop: new Stop({...init})})
-    }
-}
-
 export class ToD extends CamelElement { 
     allowOptimisedComponents?: boolean
     autoStartComponents?: boolean
@@ -195,15 +138,6 @@ export class ToD extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class ToDStep extends ProcessorStep {
-    toD: ToD = new ToD()
-
-    public constructor(init?: Partial<ToD>) {
-        super('toDStep')
-        Object.assign(this, {toD: new ToD({...init})})
-    }
-}
-
 export class Process extends CamelElement { 
     ref?: string
 
@@ -212,15 +146,6 @@ export class Process extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class ProcessStep extends ProcessorStep {
-    process: Process = new Process()
-
-    public constructor(init?: Partial<Process>) {
-        super('processStep')
-        Object.assign(this, {process: new Process({...init})})
-    }
-}
-
 export class RemoveHeaders extends CamelElement { 
     excludePattern?: string
     pattern?: string
@@ -230,15 +155,6 @@ export class RemoveHeaders extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class RemoveHeadersStep extends ProcessorStep {
-    removeHeaders: RemoveHeaders = new RemoveHeaders()
-
-    public constructor(init?: Partial<RemoveHeaders>) {
-        super('removeHeadersStep')
-        Object.assign(this, {removeHeaders: new RemoveHeaders({...init})})
-    }
-}
-
 export class Delay extends CamelElement { 
     asyncDelayed?: boolean
     callerRunsWhenRejected?: boolean
@@ -250,15 +166,6 @@ export class Delay extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class DelayStep extends ProcessorStep {
-    delay: Delay = new Delay()
-
-    public constructor(init?: Partial<Delay>) {
-        super('delayStep')
-        Object.assign(this, {delay: new Delay({...init})})
-    }
-}
-
 export class Throttle extends CamelElement { 
     asyncDelayed?: boolean
     callerRunsWhenRejected?: boolean
@@ -273,17 +180,8 @@ export class Throttle extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class ThrottleStep extends ProcessorStep {
-    throttle: Throttle = new Throttle()
-
-    public constructor(init?: Partial<Throttle>) {
-        super('throttleStep')
-        Object.assign(this, {throttle: new Throttle({...init})})
-    }
-}
-
 export class Otherwise extends CamelElement { 
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
 
     public constructor(init?: Partial<Otherwise>) { 
         super('otherwise')
@@ -298,15 +196,6 @@ export class RemoveProperty extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class RemovePropertyStep extends ProcessorStep {
-    removeProperty: RemoveProperty = new RemoveProperty()
-
-    public constructor(init?: Partial<RemoveProperty>) {
-        super('removePropertyStep')
-        Object.assign(this, {removeProperty: new RemoveProperty({...init})})
-    }
-}
-
 export class Validate extends CamelElement { 
     expression?: Expression
 
@@ -315,15 +204,6 @@ export class Validate extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class ValidateStep extends ProcessorStep {
-    validate: Validate = new Validate()
-
-    public constructor(init?: Partial<Validate>) {
-        super('validateStep')
-        Object.assign(this, {validate: new Validate({...init})})
-    }
-}
-
 export class Sort extends CamelElement { 
     comparatorRef?: string
     expression?: Expression
@@ -333,18 +213,9 @@ export class Sort extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class SortStep extends ProcessorStep {
-    sort: Sort = new Sort()
-
-    public constructor(init?: Partial<Sort>) {
-        super('sortStep')
-        Object.assign(this, {sort: new Sort({...init})})
-    }
-}
-
 export class From extends CamelElement { 
     parameters?: any
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
     uri?: string
 
     public constructor(init?: Partial<From>) { 
@@ -352,15 +223,6 @@ export class From extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class FromStep extends ProcessorStep {
-    from: From = new From()
-
-    public constructor(init?: Partial<From>) {
-        super('fromStep')
-        Object.assign(this, {from: new From({...init})})
-    }
-}
-
 export class To extends CamelElement { 
     parameters?: any
     pattern?: string
@@ -371,15 +233,6 @@ export class To extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class ToStep extends ProcessorStep {
-    to: To = new To()
-
-    public constructor(init?: Partial<To>) {
-        super('toStep')
-        Object.assign(this, {to: new To({...init})})
-    }
-}
-
 export class SetHeader extends CamelElement { 
     expression?: Expression
     name?: string
@@ -389,15 +242,6 @@ export class SetHeader extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class SetHeaderStep extends ProcessorStep {
-    setHeader: SetHeader = new SetHeader()
-
-    public constructor(init?: Partial<SetHeader>) {
-        super('setHeaderStep')
-        Object.assign(this, {setHeader: new SetHeader({...init})})
-    }
-}
-
 export class OnCompletion extends CamelElement { 
     executorServiceRef?: string
     mode?: string
@@ -405,7 +249,7 @@ export class OnCompletion extends CamelElement {
     onFailureOnly?: boolean
     onWhen?: When
     parallelProcessing?: boolean
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
     useOriginalMessage?: boolean
 
     public constructor(init?: Partial<OnCompletion>) { 
@@ -413,15 +257,6 @@ export class OnCompletion extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class OnCompletionStep extends ProcessorStep {
-    onCompletion: OnCompletion = new OnCompletion()
-
-    public constructor(init?: Partial<OnCompletion>) {
-        super('onCompletionStep')
-        Object.assign(this, {onCompletion: new OnCompletion({...init})})
-    }
-}
-
 export class RemoveHeader extends CamelElement { 
     headerName?: string
     name?: string
@@ -431,15 +266,6 @@ export class RemoveHeader extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class RemoveHeaderStep extends ProcessorStep {
-    removeHeader: RemoveHeader = new RemoveHeader()
-
-    public constructor(init?: Partial<RemoveHeader>) {
-        super('removeHeaderStep')
-        Object.assign(this, {removeHeader: new RemoveHeader({...init})})
-    }
-}
-
 export class Script extends CamelElement { 
     expression?: Expression
 
@@ -448,15 +274,6 @@ export class Script extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class ScriptStep extends ProcessorStep {
-    script: Script = new Script()
-
-    public constructor(init?: Partial<Script>) {
-        super('scriptStep')
-        Object.assign(this, {script: new Script({...init})})
-    }
-}
-
 export class Enrich extends CamelElement { 
     aggregateOnException?: boolean
     allowOptimisedComponents?: boolean
@@ -473,15 +290,6 @@ export class Enrich extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class EnrichStep extends ProcessorStep {
-    enrich: Enrich = new Enrich()
-
-    public constructor(init?: Partial<Enrich>) {
-        super('enrichStep')
-        Object.assign(this, {enrich: new Enrich({...init})})
-    }
-}
-
 export class Log extends CamelElement { 
     logName?: string
     loggerRef?: string
@@ -494,15 +302,6 @@ export class Log extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class LogStep extends ProcessorStep {
-    log: Log = new Log()
-
-    public constructor(init?: Partial<Log>) {
-        super('logStep')
-        Object.assign(this, {log: new Log({...init})})
-    }
-}
-
 export class Tod extends CamelElement { 
     allowOptimisedComponents?: boolean
     autoStartComponents?: boolean
@@ -517,15 +316,6 @@ export class Tod extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class TodStep extends ProcessorStep {
-    tod: Tod = new Tod()
-
-    public constructor(init?: Partial<Tod>) {
-        super('todStep')
-        Object.assign(this, {tod: new Tod({...init})})
-    }
-}
-
 export class RemoveProperties extends CamelElement { 
     excludePattern?: string
     pattern?: string
@@ -535,15 +325,6 @@ export class RemoveProperties extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class RemovePropertiesStep extends ProcessorStep {
-    removeProperties: RemoveProperties = new RemoveProperties()
-
-    public constructor(init?: Partial<RemoveProperties>) {
-        super('removePropertiesStep')
-        Object.assign(this, {removeProperties: new RemoveProperties({...init})})
-    }
-}
-
 export class Marshal extends CamelElement { 
     any23?: dataFormat.Any23DataFormat
     asn1?: dataFormat.ASN1DataFormat
@@ -592,15 +373,6 @@ export class Marshal extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class MarshalStep extends ProcessorStep {
-    marshal: Marshal = new Marshal()
-
-    public constructor(init?: Partial<Marshal>) {
-        super('marshalStep')
-        Object.assign(this, {marshal: new Marshal({...init})})
-    }
-}
-
 export class Split extends CamelElement { 
     delimiter?: string
     executorServiceRef?: string
@@ -609,7 +381,7 @@ export class Split extends CamelElement {
     parallelAggregate?: boolean
     parallelProcessing?: boolean
     shareUnitOfWork?: boolean
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
     stopOnAggregateException?: boolean
     stopOnException?: boolean
     strategyMethodAllowNull?: boolean
@@ -623,35 +395,17 @@ export class Split extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class SplitStep extends ProcessorStep {
-    split: Split = new Split()
-
-    public constructor(init?: Partial<Split>) {
-        super('splitStep')
-        Object.assign(this, {split: new Split({...init})})
-    }
-}
-
 export class Transacted extends CamelElement { 
     ref?: string
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
 
     public constructor(init?: Partial<Transacted>) { 
         super('transacted')
         Object.assign(this, init)
     }
 }
-export class TransactedStep extends ProcessorStep {
-    transacted: Transacted = new Transacted()
-
-    public constructor(init?: Partial<Transacted>) {
-        super('transactedStep')
-        Object.assign(this, {transacted: new Transacted({...init})})
-    }
-}
-
 export class InterceptFrom extends CamelElement { 
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
     uri?: string
 
     public constructor(init?: Partial<InterceptFrom>) { 
@@ -659,53 +413,26 @@ export class InterceptFrom extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class InterceptFromStep extends ProcessorStep {
-    interceptFrom: InterceptFrom = new InterceptFrom()
-
-    public constructor(init?: Partial<InterceptFrom>) {
-        super('interceptFromStep')
-        Object.assign(this, {interceptFrom: new InterceptFrom({...init})})
-    }
-}
-
 export class DoCatch extends CamelElement { 
     exception?: string [] = []
     onWhen?: When
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
 
     public constructor(init?: Partial<DoCatch>) { 
         super('doCatch')
         Object.assign(this, init)
     }
 }
-export class DoCatchStep extends ProcessorStep {
-    doCatch: DoCatch = new DoCatch()
-
-    public constructor(init?: Partial<DoCatch>) {
-        super('doCatchStep')
-        Object.assign(this, {doCatch: new DoCatch({...init})})
-    }
-}
-
 export class CircuitBreaker extends CamelElement { 
     configurationRef?: string
     onFallback?: OnFallback
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
 
     public constructor(init?: Partial<CircuitBreaker>) { 
         super('circuitBreaker')
         Object.assign(this, init)
     }
 }
-export class CircuitBreakerStep extends ProcessorStep {
-    circuitBreaker: CircuitBreaker = new CircuitBreaker()
-
-    public constructor(init?: Partial<CircuitBreaker>) {
-        super('circuitBreakerStep')
-        Object.assign(this, {circuitBreaker: new CircuitBreaker({...init})})
-    }
-}
-
 export class ConvertBodyTo extends CamelElement { 
     charset?: string
     mandatory?: boolean
@@ -716,32 +443,14 @@ export class ConvertBodyTo extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class ConvertBodyToStep extends ProcessorStep {
-    convertBodyTo: ConvertBodyTo = new ConvertBodyTo()
-
-    public constructor(init?: Partial<ConvertBodyTo>) {
-        super('convertBodyToStep')
-        Object.assign(this, {convertBodyTo: new ConvertBodyTo({...init})})
-    }
-}
-
 export class Intercept extends CamelElement { 
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
 
     public constructor(init?: Partial<Intercept>) { 
         super('intercept')
         Object.assign(this, init)
     }
 }
-export class InterceptStep extends ProcessorStep {
-    intercept: Intercept = new Intercept()
-
-    public constructor(init?: Partial<Intercept>) {
-        super('interceptStep')
-        Object.assign(this, {intercept: new Intercept({...init})})
-    }
-}
-
 export class Unmarshal extends CamelElement { 
     any23?: dataFormat.Any23DataFormat
     asn1?: dataFormat.ASN1DataFormat
@@ -790,33 +499,15 @@ export class Unmarshal extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class UnmarshalStep extends ProcessorStep {
-    unmarshal: Unmarshal = new Unmarshal()
-
-    public constructor(init?: Partial<Unmarshal>) {
-        super('unmarshalStep')
-        Object.assign(this, {unmarshal: new Unmarshal({...init})})
-    }
-}
-
 export class OnFallback extends CamelElement { 
     fallbackViaNetwork?: boolean
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
 
     public constructor(init?: Partial<OnFallback>) { 
         super('onFallback')
         Object.assign(this, init)
     }
 }
-export class OnFallbackStep extends ProcessorStep {
-    onFallback: OnFallback = new OnFallback()
-
-    public constructor(init?: Partial<OnFallback>) {
-        super('onFallbackStep')
-        Object.assign(this, {onFallback: new OnFallback({...init})})
-    }
-}
-
 export class SetExchangePattern extends CamelElement { 
     pattern?: string
 
@@ -825,15 +516,6 @@ export class SetExchangePattern extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class SetExchangePatternStep extends ProcessorStep {
-    setExchangePattern: SetExchangePattern = new SetExchangePattern()
-
-    public constructor(init?: Partial<SetExchangePattern>) {
-        super('setExchangePatternStep')
-        Object.assign(this, {setExchangePattern: new SetExchangePattern({...init})})
-    }
-}
-
 export class RecipientList extends CamelElement { 
     cacheSize?: number
     delimiter?: string
@@ -857,15 +539,6 @@ export class RecipientList extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class RecipientListStep extends ProcessorStep {
-    recipientList: RecipientList = new RecipientList()
-
-    public constructor(init?: Partial<RecipientList>) {
-        super('recipientListStep')
-        Object.assign(this, {recipientList: new RecipientList({...init})})
-    }
-}
-
 export class Bean extends CamelElement { 
     beanType?: string
     cache?: boolean
@@ -878,22 +551,13 @@ export class Bean extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class BeanStep extends ProcessorStep {
-    bean: Bean = new Bean()
-
-    public constructor(init?: Partial<Bean>) {
-        super('beanStep')
-        Object.assign(this, {bean: new Bean({...init})})
-    }
-}
-
 export class Multicast extends CamelElement { 
     executorServiceRef?: string
     onPrepareRef?: string
     parallelAggregate?: boolean
     parallelProcessing?: boolean
     shareUnitOfWork?: boolean
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
     stopOnAggregateException?: boolean
     stopOnException?: boolean
     strategyMethodAllowNull?: boolean
@@ -907,15 +571,6 @@ export class Multicast extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class MulticastStep extends ProcessorStep {
-    multicast: Multicast = new Multicast()
-
-    public constructor(init?: Partial<Multicast>) {
-        super('multicastStep')
-        Object.assign(this, {multicast: new Multicast({...init})})
-    }
-}
-
 export class InOnly extends CamelElement { 
     parameters?: any
     uri?: string
@@ -925,34 +580,16 @@ export class InOnly extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class InOnlyStep extends ProcessorStep {
-    inOnly: InOnly = new InOnly()
-
-    public constructor(init?: Partial<InOnly>) {
-        super('inOnlyStep')
-        Object.assign(this, {inOnly: new InOnly({...init})})
-    }
-}
-
 export class LoadBalance extends CamelElement { 
     customLoadBalancer?: string
     inheritErrorHandler?: boolean
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
 
     public constructor(init?: Partial<LoadBalance>) { 
         super('loadBalance')
         Object.assign(this, init)
     }
 }
-export class LoadBalanceStep extends ProcessorStep {
-    loadBalance: LoadBalance = new LoadBalance()
-
-    public constructor(init?: Partial<LoadBalance>) {
-        super('loadBalanceStep')
-        Object.assign(this, {loadBalance: new LoadBalance({...init})})
-    }
-}
-
 export class RoutingSlip extends CamelElement { 
     cacheSize?: number
     expression?: Expression
@@ -964,15 +601,6 @@ export class RoutingSlip extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class RoutingSlipStep extends ProcessorStep {
-    routingSlip: RoutingSlip = new RoutingSlip()
-
-    public constructor(init?: Partial<RoutingSlip>) {
-        super('routingSlipStep')
-        Object.assign(this, {routingSlip: new RoutingSlip({...init})})
-    }
-}
-
 export class Rollback extends CamelElement { 
     markRollbackOnly?: boolean
     markRollbackOnlyLast?: boolean
@@ -983,33 +611,15 @@ export class Rollback extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class RollbackStep extends ProcessorStep {
-    rollback: Rollback = new Rollback()
-
-    public constructor(init?: Partial<Rollback>) {
-        super('rollbackStep')
-        Object.assign(this, {rollback: new Rollback({...init})})
-    }
-}
-
 export class WhenSkipSendToEndpoint extends CamelElement { 
     expression?: Expression
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
 
     public constructor(init?: Partial<WhenSkipSendToEndpoint>) { 
         super('whenSkipSendToEndpoint')
         Object.assign(this, init)
     }
 }
-export class WhenSkipSendToEndpointStep extends ProcessorStep {
-    whenSkipSendToEndpoint: WhenSkipSendToEndpoint = new WhenSkipSendToEndpoint()
-
-    public constructor(init?: Partial<WhenSkipSendToEndpoint>) {
-        super('whenSkipSendToEndpointStep')
-        Object.assign(this, {whenSkipSendToEndpoint: new WhenSkipSendToEndpoint({...init})})
-    }
-}
-
 export class WireTap extends CamelElement { 
     allowOptimisedComponents?: boolean
     autoStartComponents?: boolean
@@ -1023,7 +633,7 @@ export class WireTap extends CamelElement {
     parameters?: any
     pattern?: string
     processorRef?: string
-    setHeader?: SetHeaderStep [] = []
+    setHeader?: SetHeader [] = []
     uri?: string
 
     public constructor(init?: Partial<WireTap>) { 
@@ -1031,40 +641,22 @@ export class WireTap extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class WireTapStep extends ProcessorStep {
-    wireTap: WireTap = new WireTap()
-
-    public constructor(init?: Partial<WireTap>) {
-        super('wireTapStep')
-        Object.assign(this, {wireTap: new WireTap({...init})})
-    }
-}
-
 export class Loop extends CamelElement { 
     breakOnShutdown?: boolean
     copy?: boolean
     doWhile?: boolean
     expression?: Expression
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
 
     public constructor(init?: Partial<Loop>) { 
         super('loop')
         Object.assign(this, init)
     }
 }
-export class LoopStep extends ProcessorStep {
-    loop: Loop = new Loop()
-
-    public constructor(init?: Partial<Loop>) {
-        super('loopStep')
-        Object.assign(this, {loop: new Loop({...init})})
-    }
-}
-
 export class InterceptSendToEndpoint extends CamelElement { 
     afterUri?: string
     skipSendToOriginalEndpoint?: string
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
     uri?: string
 
     public constructor(init?: Partial<InterceptSendToEndpoint>) { 
@@ -1072,52 +664,25 @@ export class InterceptSendToEndpoint extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class InterceptSendToEndpointStep extends ProcessorStep {
-    interceptSendToEndpoint: InterceptSendToEndpoint = new InterceptSendToEndpoint()
-
-    public constructor(init?: Partial<InterceptSendToEndpoint>) {
-        super('interceptSendToEndpointStep')
-        Object.assign(this, {interceptSendToEndpoint: new InterceptSendToEndpoint({...init})})
-    }
-}
-
 export class DoTry extends CamelElement { 
-    doCatch?: DoCatchStep [] = []
+    doCatch?: DoCatch [] = []
     doFinally?: DoFinally
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
 
     public constructor(init?: Partial<DoTry>) { 
         super('doTry')
         Object.assign(this, init)
     }
 }
-export class DoTryStep extends ProcessorStep {
-    doTry: DoTry = new DoTry()
-
-    public constructor(init?: Partial<DoTry>) {
-        super('doTryStep')
-        Object.assign(this, {doTry: new DoTry({...init})})
-    }
-}
-
 export class Resequence extends CamelElement { 
     expression?: Expression
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
 
     public constructor(init?: Partial<Resequence>) { 
         super('resequence')
         Object.assign(this, init)
     }
 }
-export class ResequenceStep extends ProcessorStep {
-    resequence: Resequence = new Resequence()
-
-    public constructor(init?: Partial<Resequence>) {
-        super('resequenceStep')
-        Object.assign(this, {resequence: new Resequence({...init})})
-    }
-}
-
 export class Expression extends CamelElement { 
     constant?: string
     csimple?: string
@@ -1146,15 +711,6 @@ export class Expression extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class ExpressionStep extends ProcessorStep {
-    expression: Expression = new Expression()
-
-    public constructor(init?: Partial<Expression>) {
-        super('expressionStep')
-        Object.assign(this, {expression: new Expression({...init})})
-    }
-}
-
 export class ServiceCall extends CamelElement { 
     component?: string
     configurationRef?: string
@@ -1172,15 +728,6 @@ export class ServiceCall extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class ServiceCallStep extends ProcessorStep {
-    serviceCall: ServiceCall = new ServiceCall()
-
-    public constructor(init?: Partial<ServiceCall>) {
-        super('serviceCallStep')
-        Object.assign(this, {serviceCall: new ServiceCall({...init})})
-    }
-}
-
 export class Kamelet extends CamelElement { 
     name?: string
     parameters?: any
@@ -1190,15 +737,6 @@ export class Kamelet extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class KameletStep extends ProcessorStep {
-    kamelet: Kamelet = new Kamelet()
-
-    public constructor(init?: Partial<Kamelet>) {
-        super('kameletStep')
-        Object.assign(this, {kamelet: new Kamelet({...init})})
-    }
-}
-
 export class Sample extends CamelElement { 
     messageFrequency?: number
     samplePeriod?: string
@@ -1209,15 +747,6 @@ export class Sample extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class SampleStep extends ProcessorStep {
-    sample: Sample = new Sample()
-
-    public constructor(init?: Partial<Sample>) {
-        super('sampleStep')
-        Object.assign(this, {sample: new Sample({...init})})
-    }
-}
-
 export class DynamicRouter extends CamelElement { 
     cacheSize?: number
     expression?: Expression
@@ -1229,39 +758,21 @@ export class DynamicRouter extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class DynamicRouterStep extends ProcessorStep {
-    dynamicRouter: DynamicRouter = new DynamicRouter()
-
-    public constructor(init?: Partial<DynamicRouter>) {
-        super('dynamicRouterStep')
-        Object.assign(this, {dynamicRouter: new DynamicRouter({...init})})
-    }
-}
-
 export class Pipeline extends CamelElement { 
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
 
     public constructor(init?: Partial<Pipeline>) { 
         super('pipeline')
         Object.assign(this, init)
     }
 }
-export class PipelineStep extends ProcessorStep {
-    pipeline: Pipeline = new Pipeline()
-
-    public constructor(init?: Partial<Pipeline>) {
-        super('pipelineStep')
-        Object.assign(this, {pipeline: new Pipeline({...init})})
-    }
-}
-
 export class Saga extends CamelElement { 
     compensation?: string
     completion?: string
     completionMode?: string
     propagation?: string
     sagaServiceRef?: string
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
     timeout?: string
     timeoutInMilliseconds?: number
 
@@ -1270,15 +781,6 @@ export class Saga extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class SagaStep extends ProcessorStep {
-    saga: Saga = new Saga()
-
-    public constructor(init?: Partial<Saga>) {
-        super('sagaStep')
-        Object.assign(this, {saga: new Saga({...init})})
-    }
-}
-
 export class Threads extends CamelElement { 
     allowCoreThreadTimeOut?: boolean
     callerRunsWhenRejected?: string
@@ -1296,18 +798,9 @@ export class Threads extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class ThreadsStep extends ProcessorStep {
-    threads: Threads = new Threads()
-
-    public constructor(init?: Partial<Threads>) {
-        super('threadsStep')
-        Object.assign(this, {threads: new Threads({...init})})
-    }
-}
-
 export class When extends CamelElement { 
     expression?: Expression
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
 
     public constructor(init?: Partial<When>) { 
         super('when')
@@ -1326,50 +819,23 @@ export class ClaimCheck extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class ClaimCheckStep extends ProcessorStep {
-    claimCheck: ClaimCheck = new ClaimCheck()
-
-    public constructor(init?: Partial<ClaimCheck>) {
-        super('claimCheckStep')
-        Object.assign(this, {claimCheck: new ClaimCheck({...init})})
-    }
-}
-
 export class DoFinally extends CamelElement { 
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
 
     public constructor(init?: Partial<DoFinally>) { 
         super('doFinally')
         Object.assign(this, init)
     }
 }
-export class DoFinallyStep extends ProcessorStep {
-    doFinally: DoFinally = new DoFinally()
-
-    public constructor(init?: Partial<DoFinally>) {
-        super('doFinallyStep')
-        Object.assign(this, {doFinally: new DoFinally({...init})})
-    }
-}
-
 export class Filter extends CamelElement { 
     expression?: Expression
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
 
     public constructor(init?: Partial<Filter>) { 
         super('filter')
         Object.assign(this, init)
     }
 }
-export class FilterStep extends ProcessorStep {
-    filter: Filter = new Filter()
-
-    public constructor(init?: Partial<Filter>) {
-        super('filterStep')
-        Object.assign(this, {filter: new Filter({...init})})
-    }
-}
-
 export class Aggregate extends CamelElement { 
     aggregateControllerRef?: string
     aggregationRepositoryRef?: string
@@ -1393,7 +859,7 @@ export class Aggregate extends CamelElement {
     ignoreInvalidCorrelationKeys?: boolean
     optimisticLocking?: boolean
     parallelProcessing?: boolean
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
     strategyMethodAllowNull?: boolean
     strategyMethodName?: string
     strategyRef?: string
@@ -1404,15 +870,6 @@ export class Aggregate extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class AggregateStep extends ProcessorStep {
-    aggregate: Aggregate = new Aggregate()
-
-    public constructor(init?: Partial<Aggregate>) {
-        super('aggregateStep')
-        Object.assign(this, {aggregate: new Aggregate({...init})})
-    }
-}
-
 export class Transform extends CamelElement { 
     expression?: Expression
 
@@ -1421,15 +878,6 @@ export class Transform extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class TransformStep extends ProcessorStep {
-    transform: Transform = new Transform()
-
-    public constructor(init?: Partial<Transform>) {
-        super('transformStep')
-        Object.assign(this, {transform: new Transform({...init})})
-    }
-}
-
 export class IdempotentConsumer extends CamelElement { 
     completionEager?: string
     eager?: boolean
@@ -1437,22 +885,13 @@ export class IdempotentConsumer extends CamelElement {
     messageIdRepositoryRef?: string
     removeOnFailure?: boolean
     skipDuplicate?: boolean
-    steps?: ProcessorStep [] = []
+    steps?: CamelElement [] = []
 
     public constructor(init?: Partial<IdempotentConsumer>) { 
         super('idempotentConsumer')
         Object.assign(this, init)
     }
 }
-export class IdempotentConsumerStep extends ProcessorStep {
-    idempotentConsumer: IdempotentConsumer = new IdempotentConsumer()
-
-    public constructor(init?: Partial<IdempotentConsumer>) {
-        super('idempotentConsumerStep')
-        Object.assign(this, {idempotentConsumer: new IdempotentConsumer({...init})})
-    }
-}
-
 export class SetProperty extends CamelElement { 
     expression?: Expression
     name?: string
@@ -1462,15 +901,6 @@ export class SetProperty extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class SetPropertyStep extends ProcessorStep {
-    setProperty: SetProperty = new SetProperty()
-
-    public constructor(init?: Partial<SetProperty>) {
-        super('setPropertyStep')
-        Object.assign(this, {setProperty: new SetProperty({...init})})
-    }
-}
-
 export class InOut extends CamelElement { 
     parameters?: any
     uri?: string
@@ -1480,12 +910,3 @@ export class InOut extends CamelElement {
         Object.assign(this, init)
     }
 }
-export class InOutStep extends ProcessorStep {
-    inOut: InOut = new InOut()
-
-    public constructor(init?: Partial<InOut>) {
-        super('inOutStep')
-        Object.assign(this, {inOut: new InOut({...init})})
-    }
-}
-

@@ -14,7 +14,7 @@ export class Metadata {
 }
 
 export class Spec {
-    flows: FromStep[] = [];
+    flows: From[] = [];
 
     public constructor(init?: Partial<Spec>) {
         Object.assign(this, init);
@@ -51,17 +51,14 @@ export class CamelElement {
    }
 }
 
-export class ProcessorStep extends CamelElement {
-}
-
-export class ProcessorStepMeta {
-    step?: ProcessorStep
+export class CamelElementMeta {
+    step?: CamelElement
     parentUuid?: string
     position: number = 0;
     pathUuids: string [] = [];
 
 
-    constructor(step?: ProcessorStep, parentUuid?: string, position?: number, pathUuids?: string []) {
+    constructor(step?: CamelElement, parentUuid?: string, position?: number, pathUuids?: string []) {
         this.step = step;
         this.parentUuid = parentUuid;
         this.position = position || 0;

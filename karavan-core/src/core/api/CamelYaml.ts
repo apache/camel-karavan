@@ -19,7 +19,8 @@ import {
     Integration,
     CamelElement,
 } from "../model/CamelModel";
-import {CamelApi} from "./CamelApi";
+import {CamelUtil} from "./CamelUtil";
+import {CamelYamlStep} from "./CamelYamlSteps";
 
 const saveKebabCase = true; //TODO: Remove when https://issues.apache.org/jira/browse/CAMEL-17097 fixed
 
@@ -30,13 +31,13 @@ export class CamelYaml {
         const flows = integration.spec.flows
         clone.spec.flows = flows.map((f: any) => CamelYaml.cleanupElement(f));
         if (integration.crd) {
-            delete clone.crd 
+            delete clone.crd
             const i = JSON.parse(JSON.stringify(clone, null, 3)); // fix undefined in string attributes
-            const text = yaml.dump(i);
+            const text = CamelYaml.yamlDump(i);
             return text;
         } else {
             const f = JSON.parse(JSON.stringify(clone.spec.flows, null, 3));
-            const text = yaml.dump(f);
+            const text = CamelYaml.yamlDump(f);
             return text;
         }
     }
@@ -48,7 +49,6 @@ export class CamelYaml {
             delete object.language
         }
         delete object.uuid
-        delete object.dslName
         Object.keys(object)
             .sort((a, b) => {
                 if (a === 'uri') return -1
@@ -63,7 +63,7 @@ export class CamelYaml {
                     if (object[key].length > 0) result[rkey] = CamelYaml.cleanupElements(object[key])
                 } else if (key === 'parameters' && typeof (object[key]) === 'object') {
                     const obj = object[key];
-                    const parameters = Object.keys(obj || {}).reduce((x:any, k) => {
+                    const parameters = Object.keys(obj || {}).reduce((x: any, k) => {
                         // Check for null or undefined or empty
                         if (obj[k] !== null && obj[k] !== undefined && obj[k].toString().trim().length > 0) {
                             x[k] = obj[k];
@@ -87,6 +87,23 @@ export class CamelYaml {
         return result
     }
 
+    static yamlDump = (integration: Integration): string => {
+        return yaml.dump(integration,
+            {
+                noRefs: false,
+                noArrayIndent: false,
+                sortKeys: function (a:any, b:any) {
+                    if (a === 'uri') return -1
+                    else if (b === 'uri') return 0
+                    else if (a === 'steps' && b !== 'uri') return -1
+                    else if (b === 'steps' && a !== 'uri') return -1
+                    else if (a > b) return 1
+                    else return 0;
+                },
+                replacer: CamelUtil.replacer
+            });
+    }
+
     static yamlToIntegration = (filename: string, text: string): Integration => {
         const i: Integration = Integration.createNew(filename);
         const fromYaml: any = yaml.load(text);
@@ -95,27 +112,13 @@ export class CamelYaml {
             const flows: any[] = fromYaml;
             const froms = flows.filter((e: any) => e.hasOwnProperty('from'));
             if (froms.length > 0) {
-                froms.forEach((f: any) => i.spec.flows.push(CamelApi.createFrom(f)));
+                froms.forEach((f: any) => i.spec.flows.push(CamelYamlStep.readFrom(f)));
             }
         } else {
             i.crd = true;
             const int: Integration = new Integration({...fromYaml});
-            int.spec.flows.forEach((f: any) => i.spec.flows.push(CamelApi.createFrom(f)));
+            int.spec.flows.forEach((f: any) => i.spec.flows.push(CamelYamlStep.readFrom(f)));
         }
         return i;
-    }
-
-    static cloneIntegration = (integration: Integration): Integration => {
-        const clone = JSON.parse(JSON.stringify(integration));
-        const int: Integration = new Integration({...clone});
-        const flows = int.spec.flows.map(f => CamelApi.createFrom(f))
-        int.spec.flows = flows;
-        return int;
-    }
-
-    static cloneStep = (step: CamelElement): CamelElement => {
-        const dslName = step.dslName.replace("Step", "");
-        const clone = JSON.parse(JSON.stringify(step));
-        return CamelApi.createStep(dslName, clone, true);
     }
 }
