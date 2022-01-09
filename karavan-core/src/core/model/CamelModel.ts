@@ -189,6 +189,7 @@ export class Otherwise extends CamelElement {
     }
 }
 export class RemoveProperty extends CamelElement { 
+    name?: string
     propertyName?: string
 
     public constructor(init?: Partial<RemoveProperty>) { 
@@ -258,7 +259,6 @@ export class OnCompletion extends CamelElement {
     }
 }
 export class RemoveHeader extends CamelElement { 
-    headerName?: string
     name?: string
 
     public constructor(init?: Partial<RemoveHeader>) { 

@@ -1,10 +1,27 @@
+# ---------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ---------------------------------------------------------------------------
+
 apiVersion: camel.apache.org/v1alpha1
 kind: Kamelet
 metadata:
   name: aws-cloudwatch-sink
   annotations:
     camel.apache.org/kamelet.support.level: "Preview"
-    camel.apache.org/catalog.version: "0.5.0"
+    camel.apache.org/catalog.version: "0.6.0"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjIwNyIgaGVpZ2h0PSIyNTAwIiB2aWV3Qm94PSIwIDAgMjU2IDI5MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCI+PHBhdGggZD0iTTI1NiAxOTkuMzA1bC0xMjcuOTU3LTE4Ljc5N0wwIDE5OS4zMjlsMTI4LjAxIDQ3LjQzOUwyNTYgMTk5LjMwNSIgZmlsbD0iI0I3Q0E5RCIvPjxwYXRoIGQ9Ik0yNS42MjEgMTk3LjExM2wyMS42MyA2Ljc2MSAxLjk3MS0yLjIzOFY1MC4yODRsLTEuOTcxLTIuNTg1LTIxLjYzIDguMjc0djE0MS4xNCIgZmlsbD0iIzRCNjEyQyIvPjxwYXRoIGQ9Ik0xMjMuODMyIDE5MC40MjNsLTc2LjU4MSAxMy40NTFWNDcuNzAzbDc2LjU4MSAxNy4yMjJ2MTI1LjQ5OCIgZmlsbD0iIzc1OUMzRSIvPjxwYXRoIGQ9Ik04OS42ODYgMjE2Ljg4OWwtMjkuODQ4LTkuMjAxVjE0LjkyOEw4OS42ODYuMDA0bDIuNjEyIDIuODQ1djIxMC44NThsLTIuNjEyIDMuMTgyIiBmaWxsPSIjNEI2MTJDIi8+PHBhdGggZD0iTTE5MS45NjcgMTkyLjg5NEw4OS42ODYgMjE2Ljg4OVYwbDEwMi4yODEgMzkuODY2djE1My4wMjgiIGZpbGw9IiM3NTlDM0UiLz48cGF0aCBkPSJNMTI3Ljk2NSAyNDQuNzE0TDAgMTk5LjMyOXYyNi4zMjRsMTI3Ljk2NSA2My45ODN2LTQ0LjkyMiIgZmlsbD0iIzRCNjEyQyIvPjxwYXRoIGQ9Ik0yNTYgMjI1LjYyMmwtMTI4LjAzNSA2NC4wMTR2LTQ0LjkyMkwyNTYgMTk5LjMwNXYyNi4zMTciIGZpbGw9IiM3NTlDM0UiLz48cGF0aCBkPSJNMjIwLjAzOSAxNTUuNjkyaC0zMS4wMjZsLTg4LjQ0NSA2LjAyNkwxMjggMTY2Ljc3NWw5Mi4wMzktMTEuMDgzIiBmaWxsPSIjQjdDQTlEIi8+PHBhdGggZD0iTTEwMC41NjggMjE5LjkwNmwyNy40MiA4LjIyNi43ODktLjg0OS0uMDIzLTYxLjg0OS0uNzg5LS43NTgtMjcuMzk3LTIuOTU4djU4LjE4OCIgZmlsbD0iIzRCNjEyQyIvPjxwYXRoIGQ9Ik0yMjAuMDM5IDE1NS42OTJsLTkyLjA3NCA4Ljk4LjAyMyA2My40NiA5Mi4wNTEtMjcuNzExdi00NC43MjkiIGZpbGw9IiM3NTlDM0UiLz48L3N2Zz4K"
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "AWS Cloudwatch"
@@ -25,13 +42,13 @@ spec:
       `metric-dimension-name` / `ce-metricdimensionname` for the dimension name.
       `metric-dimension-value` / `ce-metricdimensionvalue` for the dimension value.
     required:
-      - cw_namespace
+      - cwNamespace
       - accessKey
       - secretKey
       - region
     type: object
     properties:
-      cw_namespace:
+      cwNamespace:
         title: Cloud Watch Namespace
         description: The cloud watch metric namespace.
         type: string
@@ -136,7 +153,7 @@ spec:
                 name: CamelAwsCwMetricDimensionValue
                 simple: "${header[ce-metricdimensionvalue]}"
       - to:
-          uri: "aws2-cw:{{cw_namespace}}"
+          uri: "aws2-cw:{{cwNamespace}}"
           parameters:
             secretKey: "{{secretKey}}"
             accessKey: "{{accessKey}}"

@@ -1,0 +1,87 @@
+# ---------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ---------------------------------------------------------------------------
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: wttrin-source
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.6.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgZGF0YS1wcmVmaXg9ImZhcyIgZGF0YS1pY29uPSJjbG91ZC1zdW4iIGNsYXNzPSJzdmctaW5saW5lLS1mYSBmYS1jbG91ZC1zdW4iIHJvbGU9ImltZyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNjQwIDUxMiI+PHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNOTYgMjA4YzAtNjEuODYgNTAuMTQtMTExLjEgMTExLjEtMTExLjFjNTIuNjUgMCA5Ni41IDM2LjQ1IDEwOC41IDg1LjQyQzMzNC43IDE3My4xIDM1NC43IDE2OCAzNzUuMSAxNjhjNC42MDcgMCA5LjE1MiAuMzgwOSAxMy42OCAuODIwM2wyNC4xMy0zNC43NmM1LjE0NS03LjQxNCAuODk2NS0xNy42Ny03Ljk4NC0xOS4yN0wzMTcuMiA5OC43OEwzMDEuMiAxMC4yMUMyOTkuNiAxLjMyNSAyODkuNC0yLjkxOSAyODEuOSAyLjIyNkwyMDggNTMuNTRMMTM0LjEgMi4yMjVDMTI2LjYtMi45MiAxMTYuNCAxLjMyNiAxMTQuOCAxMC4yMUw5OC43OCA5OC43OEwxMC4yMSAxMTQuOEMxLjMyNiAxMTYuNC0yLjkyMiAxMjYuNyAyLjIyMyAxMzQuMWw1MS4zIDczLjk0TDIuMjI0IDI4MS45Yy01LjE0NSA3LjQxNC0uODk3NSAxNy42NyA3Ljk4MyAxOS4yN0w5OC43OCAzMTcuMmwxNi4wMSA4OC41OGMxLjYwNCA4Ljg4MSAxMS44NiAxMy4xMyAxOS4yNyA3Ljk4MmwxMC43MS03LjQzMmMyLjcyNS0zNS4xNSAxOS44NS02Ni41MSA0NS44My04OC4xQzEzNy4xIDMwOS44IDk2IDI2My45IDk2IDIwOHpNMTI4IDIwOGMwIDQ0LjE4IDM1LjgyIDgwIDgwIDgwYzkuNzI5IDAgMTguOTMtMS45OTYgMjcuNTYtNS4xNzZjNy4wMDItMzMuNjUgMjUuNTMtNjIuODUgNTEuNTctODMuNDRDMjgyLjggMTU5LjMgMjQ5LjIgMTI4IDIwOCAxMjhDMTYzLjggMTI4IDEyOCAxNjMuOCAxMjggMjA4ek01NzUuMiAzMjUuNmMuMTI1LTIgLjc0NTMtMy43NDQgLjc0NTMtNS42MTljMC0zNS4zOC0yOC43NS02NC02My4xLTY0Yy0xMi42MiAwLTI0LjI1IDMuNzQ5LTM0LjEzIDkuOTk5Yy0xNy42Mi0zOC44OC01Ni41LTY1LjEtMTAxLjktNjUuMWMtNjEuNzUgMC0xMTIgNTAuMTItMTEyIDExMS4xYzAgMyAuNzUyMiA1Ljc0MyAuODc3MiA4LjYxOGMtNDkuNjMgMy43NS04OC44OCA0NC43NC04OC44OCA5NS4zN0MxNzUuMSA0NjkgMjE4LjEgNTEyIDI3MS4xIDUxMmgyNzJjNTMgMCA5Ni00Mi45OSA5Ni05NS45OUM2MzkuMSAzNzMuOSA2MTIuNyAzMzguNiA1NzUuMiAzMjUuNnoiPjwvcGF0aD48L3N2Zz4="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "Weather"
+  labels:
+    camel.apache.org/kamelet.type: "source"
+spec:
+  definition:
+    title: wttr.in Source
+    description: |-
+      Get weather forecasts from the wttr.in weather forecast service
+    type: object
+    properties:
+      period:
+        title: Period
+        description: The interval between fetches to the wttr.in service in milliseconds
+        type: integer
+        default: 60000
+      wttrLocation:
+        title: Location
+        description: The location to get weather forecasts
+        type: string
+        example: '"paris", "~Eiffel+tower", "Москва", "muc", "@stackoverflow.com", "94107", "-78.46,106.79"'
+      wttrLanguage:
+        title: Language
+        description: The language to use for displaying weather forecasts
+        type: string
+        example: 'am ar af be bn ca da de el et fr fa hi hu ia id it lt mg nb nl oc pl pt-br ro ru ta tr th uk vi zh-cn zh-tw'
+      output:
+        title: Output Type
+        description: The type of output
+        type: string
+        example: 'current, weather, full'
+        default: current
+  types:
+    out:
+      mediaType: application/json
+  dependencies:
+    - "camel:http"
+    - "camel:jackson"
+    - "camel:jsonpath"
+    - "camel:kamelet"
+    - "camel:timer"
+  flow:
+    from:
+      uri: timer:wttr.in
+      parameters:
+        period: "{{period}}"
+      steps:
+        - to: "https://wttr.in/{{?wttrLocation}}?format=j1&lang={{?wttrLanguage}}"
+        - choice:
+            when:
+              - simple: "'{{output}}' == 'current'"
+                steps:
+                  - transform:
+                      jsonpath: "$.current_condition[0]"
+                  - marshal:
+                      json: {}
+              - simple: "'{{output}}' == 'weather'"
+                steps:
+                  - transform:
+                      jsonpath: "$.weather"
+                  - marshal:
+                      json: {}
+        - to: "kamelet:sink"

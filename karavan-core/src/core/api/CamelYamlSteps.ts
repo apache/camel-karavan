@@ -709,13 +709,13 @@ export class CamelYamlStep {
     }
 
     static readRemoveProperty = (element: any): RemoveProperty => {
-        if (element && element.removeProperty && typeof element.removeProperty === 'string') element.removeProperty = {propertyName: element.removeProperty};
         const removeProperty = element ? new RemoveProperty({...element.removeProperty}) : new RemoveProperty();
         removeProperty.uuid = element?.uuid ? element.uuid : removeProperty.uuid;
         return removeProperty;
     }
 
     static readRemoveHeader = (element: any): RemoveHeader => {
+        if (element && element.removeHeader && typeof element.removeHeader === 'string') element.removeHeader = {name: element.removeHeader};
         const removeHeader = element ? new RemoveHeader({...element.removeHeader}) : new RemoveHeader();
         removeHeader.uuid = element?.uuid ? element.uuid : removeHeader.uuid;
         return removeHeader;

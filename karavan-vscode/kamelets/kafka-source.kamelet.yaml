@@ -1,10 +1,26 @@
+# ---------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ---------------------------------------------------------------------------
 apiVersion: camel.apache.org/v1alpha1
 kind: Kamelet
 metadata:
   name: kafka-source
   annotations:
     camel.apache.org/kamelet.support.level: "Preview"
-    camel.apache.org/catalog.version: "0.5.0"
+    camel.apache.org/catalog.version: "0.6.0"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOS4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMCA1MDAgNTAwIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA1MDAgNTAwOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8ZyBpZD0iWE1MSURfMV8iPg0KCTxwYXRoIGlkPSJYTUxJRF85XyIgZD0iTTMxNC44LDI2OS43Yy0xNC4yLDAtMjcsNi4zLTM1LjcsMTYuMkwyNTYuOCwyNzBjMi40LTYuNSwzLjctMTMuNiwzLjctMjAuOWMwLTcuMi0xLjMtMTQuMS0zLjYtMjAuNg0KCQlsMjIuMy0xNS43YzguNyw5LjksMjEuNCwxNi4xLDM1LjYsMTYuMWMyNi4yLDAsNDcuNi0yMS4zLDQ3LjYtNDcuNnMtMjEuMy00Ny42LTQ3LjYtNDcuNnMtNDcuNiwyMS4zLTQ3LjYsNDcuNg0KCQljMCw0LjcsMC43LDkuMiwyLDEzLjVsLTIyLjMsMTUuN2MtOS4zLTExLjYtMjIuOC0xOS42LTM4LjEtMjIuMXYtMjYuOWMyMS42LTQuNSwzNy44LTIzLjcsMzcuOC00Ni42YzAtMjYuMi0yMS4zLTQ3LjYtNDcuNi00Ny42DQoJCWMtMjYuMiwwLTQ3LjYsMjEuMy00Ny42LDQ3LjZjMCwyMi42LDE1LjgsNDEuNSwzNi45LDQ2LjN2MjcuM2MtMjguOCw1LjEtNTAuOCwzMC4yLTUwLjgsNjAuNWMwLDMwLjQsMjIuMiw1NS43LDUxLjIsNjAuNXYyOC44DQoJCWMtMjEuMyw0LjctMzcuNCwyMy43LTM3LjQsNDYuNGMwLDI2LjIsMjEuMyw0Ny42LDQ3LjYsNDcuNmMyNi4yLDAsNDcuNi0yMS4zLDQ3LjYtNDcuNmMwLTIyLjctMTYtNDEuOC0zNy40LTQ2LjR2LTI4LjgNCgkJYzE1LTIuNSwyOC4yLTEwLjQsMzcuNC0yMS44bDIyLjUsMTUuOWMtMS4yLDQuMy0xLjksOC43LTEuOSwxMy40YzAsMjYuMiwyMS4zLDQ3LjYsNDcuNiw0Ny42czQ3LjYtMjEuMyw0Ny42LTQ3LjYNCgkJQzM2Mi40LDI5MSwzNDEuMSwyNjkuNywzMTQuOCwyNjkuN3ogTTMxNC44LDE1OC40YzEyLjcsMCwyMy4xLDEwLjQsMjMuMSwyMy4xYzAsMTIuNy0xMC4zLDIzLjEtMjMuMSwyMy4xcy0yMy4xLTEwLjQtMjMuMS0yMy4xDQoJCUMyOTEuOCwxNjguOCwzMDIuMSwxNTguNCwzMTQuOCwxNTguNHogTTE3NiwxMTUuMWMwLTEyLjcsMTAuMy0yMy4xLDIzLjEtMjMuMWMxMi43LDAsMjMuMSwxMC40LDIzLjEsMjMuMQ0KCQljMCwxMi43LTEwLjMsMjMuMS0yMy4xLDIzLjFDMTg2LjMsMTM4LjIsMTc2LDEyNy44LDE3NiwxMTUuMXogTTIyMi4xLDM4NC45YzAsMTIuNy0xMC4zLDIzLjEtMjMuMSwyMy4xDQoJCWMtMTIuNywwLTIzLjEtMTAuNC0yMy4xLTIzLjFjMC0xMi43LDEwLjMtMjMuMSwyMy4xLTIzLjFDMjExLjgsMzYxLjgsMjIyLjEsMzcyLjIsMjIyLjEsMzg0Ljl6IE0xOTkuMSwyODEuMw0KCQljLTE3LjcsMC0zMi4yLTE0LjQtMzIuMi0zMi4yYzAtMTcuNywxNC40LTMyLjIsMzIuMi0zMi4yYzE3LjcsMCwzMi4yLDE0LjQsMzIuMiwzMi4yQzIzMS4yLDI2Ni45LDIxNi44LDI4MS4zLDE5OS4xLDI4MS4zeg0KCQkgTTMxNC44LDM0MC4zYy0xMi43LDAtMjMuMS0xMC40LTIzLjEtMjMuMWMwLTEyLjcsMTAuMy0yMy4xLDIzLjEtMjMuMXMyMy4xLDEwLjQsMjMuMSwyMy4xQzMzNy45LDMzMCwzMjcuNSwzNDAuMywzMTQuOCwzNDAuM3oiLz4NCjwvZz4NCjwvc3ZnPg0K"
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "Kafka"
@@ -27,7 +43,7 @@ spec:
         description: Comma separated list of Kafka topic names
         type: string
       bootstrapServers:
-        title: Brokers
+        title: Bootstrap Servers
         description: Comma separated list of Kafka Broker URLs
         type: string
       securityProtocol:

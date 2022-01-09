@@ -145,7 +145,8 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('steps', 'steps', "steps", 'array', '', '', false, false, true, true),
     ]),
     new ElementMeta('removeProperty', 'Remove Property', 'Removes a named property from the message exchange', 'eip,transformation', [
-        new PropertyMeta('propertyName', 'Property Name', "Name of property to remove", 'string', '', '', true, false, false, false),
+        new PropertyMeta('name', 'Name', "Name of property to remove.", 'string', '', '', false, false, false, false),
+        new PropertyMeta('propertyName', 'Property Name', "Name of property to remove.", 'string', '', '', false, false, false, false),
     ]),
     new ElementMeta('validate', 'Validate', 'Validates a message based on an expression', 'eip,transformation', [
         new PropertyMeta('expression', 'Expression', "Expression to use for validation as a predicate. The expression should return either true or false. If returning false the message is invalid and an exception is thrown.", 'Expression', '', '', true, false, false, true),
@@ -179,8 +180,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('useOriginalMessage', 'Use Original Message', "Will use the original input message body when an org.apache.camel.Exchange for this on completion. By default this feature is off.", 'boolean', '', 'false', false, false, false, false),
     ]),
     new ElementMeta('removeHeader', 'Remove Header', 'Removes a named header from the message', 'eip,transformation', [
-        new PropertyMeta('headerName', 'Header Name', "Name of header to remove (deprecated use name instead)", 'string', '', '', false, false, false, false),
-        new PropertyMeta('name', 'Name', "Name of header to remove", 'string', '', '', false, false, false, false),
+        new PropertyMeta('name', 'Name', "Name of header to remove", 'string', '', '', true, false, false, false),
     ]),
     new ElementMeta('script', 'Script', 'Executes a script from a language which does not change the message body.', 'eip,transformation', [
         new PropertyMeta('expression', 'Expression', "Expression to return the transformed message body (the new message body to use)", 'Expression', '', '', true, false, false, true),
@@ -868,6 +868,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('contentTypeHeader', 'Content Type Header', "Whether the data format should set the Content-Type header with the type from the data format. For example application/xml for data formats marshalling to XML, or application/json for data formats marshalling to JSON", 'boolean', '', 'true', false, false, false, false),
         new PropertyMeta('schemaResolver', 'Schema Resolver', "Optional schema resolver used to lookup schemas for the data in transit.", 'string', '', '', false, false, false, false),
         new PropertyMeta('autoDiscoverSchemaResolver', 'Auto Discover Schema Resolver', "When not disabled, the SchemaResolver will be looked up into the registry", 'boolean', '', 'true', false, false, false, false),
+        new PropertyMeta('namingStrategy', 'Naming Strategy', "If set then Jackson will use the the defined Property Naming Strategy.Possible values are: LOWER_CAMEL_CASE, LOWER_DOT_CASE, LOWER_CASE, KEBAB_CASE, SNAKE_CASE and UPPER_CAMEL_CASE", 'string', '', '', false, false, false, false),
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false),
     ]),
     new ElementMeta('jsonApi', 'JSonApi', "Marshal and unmarshal JSON:API resources using JSONAPI-Converter library.", 'dataformat,transformation', [

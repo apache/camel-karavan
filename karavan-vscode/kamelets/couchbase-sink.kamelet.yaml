@@ -1,0 +1,97 @@
+# ---------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ---------------------------------------------------------------------------
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: couchbase-sink
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.6.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgNjguMzQzIDY4LjM0MyIgZmlsbD0iI2ZmZiIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHVzZSB4bGluazpocmVmPSIjQSIgeD0iMi4xNzEiIHk9IjIuMTcxIi8+PHN5bWJvbCBpZD0iQSIgb3ZlcmZsb3c9InZpc2libGUiPjxwYXRoIGQ9Ik0zMi4wMDIgMEMxNC4zMzEuMDAyLjAwNSAxNC4zMjYgMCAzMS45OThjLjAwNSAxNy42NyAxNC4zMjggMzEuOTkzIDMxLjk5OCAzMS45OTggMTcuNjctLjAwNSAzMS45OTMtMTQuMzI4IDMxLjk5OC0zMS45OThDNjMuOTkxIDE0LjMzIDQ5LjY3LjAwNyAzMi4wMDIgMHptMjEuNjA2IDM3LjYwOWMwIDEuOTMzLTEuMTEyIDMuNjI2LTMuMjg4IDQuMDEzLTMuNzcuNjc4LTExLjcgMS4wNjQtMTguMzE4IDEuMDY0cy0xNC41NDgtLjQzNC0xOC4zMTgtMS4wNjRjLTEuOTY0LS4yOTQtMy4zODUtMi4wMjktMy4yODgtNC4wMTNWMjUuMTM2YzAtMS45MzMgMS40OTgtMy43MjIgMy4yODgtNC4wMTMgMS4xMTItLjE5NSAzLjcyMi0uNDM0IDUuNzU0LS40MzQuNzczIDAgMS40MDMuNTgyIDEuNDAzIDEuNDk4djguNzUxbDExLjIxMy0uMjQzIDExLjIxMy4yNDN2LTguNzAzYzAtLjg2OS42My0xLjQ5OCAxLjQwMy0xLjQ5OCAyLjAyOCAwIDQuNjQ3LjE5NiA1Ljc1NC40MzQgMS44MzcuMjkxIDMuMjg4IDIuMDg1IDMuMjg4IDQuMDEzbC0uMDk2IDEyLjQ3M3oiIHN0cm9rZT0ibm9uZSIgZmlsbD0iI2VkMjIyNiIgZmlsbC1ydWxlPSJub256ZXJvIi8+PC9zeW1ib2w+PC9zdmc+"
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "Couchbase"
+  labels:
+    camel.apache.org/kamelet.type: "sink"
+spec:
+  definition:
+    title: "Couchbase Sink"
+    description: |-
+      Send documents to Couchbase.
+    required:
+      - protocol
+      - couchbaseHostname
+      - bucket
+    type: object
+    properties:
+      protocol:
+        title: Protocol
+        description: The protocol to use
+        type: string
+      couchbaseHostname:
+        title: Hostname
+        description: The hostname to use
+        type: string
+      couchbasePort:
+        title: Port
+        description: The port to use
+        type: integer
+        default: 8091
+      bucket:
+        title: Bucket
+        description: The bucket to use
+        type: string
+      username:
+        title: Username
+        description: Username to connect to Couchbase.
+        type: string
+        x-descriptors:
+        - urn:camel:group:credentials
+      password:
+        title: Password
+        description: Password to connect to Couchbase.
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+        - urn:camel:group:credentials
+      startingId:
+        title: Starting Id
+        description: The starting id
+        type: long
+        default: 1
+      autoStartId:
+        title: Auto Start Id
+        description: Auto Start Id or not
+        type: boolean
+        default: true
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:checkbox
+  dependencies:
+    - "camel:couchbase"
+    - "camel:kamelet"
+  flow:
+    from:
+      uri: "kamelet:source"
+      steps:
+      - to:
+          uri: "couchbase:{{protocol}}://{{couchbaseHostname}}:{{couchbasePort}}"
+          parameters:
+            bucket: "{{bucket}}"
+            autoStartIdForInserts: "{{autoStartId}}"
+            startingIdForInsertsFrom: "{{startingId}}"
+            username: "{{username}}"
+            password: "{{password}}"

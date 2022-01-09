@@ -710,13 +710,13 @@ export class CamelApi {
     }
 
     static createRemoveProperty = (element: any): RemoveProperty => {
-        if (element && typeof element === 'string') element = {propertyName: element};
         const removeProperty = element ? new RemoveProperty({...element}) : new RemoveProperty();
         removeProperty.uuid = element?.uuid ? element.uuid : removeProperty.uuid;
         return removeProperty;
     }
 
     static createRemoveHeader = (element: any): RemoveHeader => {
+        if (element && typeof element === 'string') element = {name: element};
         const removeHeader = element ? new RemoveHeader({...element}) : new RemoveHeader();
         removeHeader.uuid = element?.uuid ? element.uuid : removeHeader.uuid;
         return removeHeader;
