@@ -1,0 +1,58 @@
+{
+  "name": "karavan-core",
+  "publisher": "camel-karavan",
+  "version": "0.0.10",
+  "description": "Apache Camel Karavan Designer Core",
+  "scripts": {
+    "build": "tsc",
+    "test": "TS_NODE_PROJECT=\"test/tsconfig.testing.json\" mocha -r ts-node/register test/**/*.spec.ts",
+    "prepare" : "npm run build && npm run test",
+    "prepublishOnly" : "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apache/camel-karavan.git"
+  },
+  "keywords": [
+    "Camel",
+    "Camel K",
+    "Camel-K",
+    "camelk",
+    "kamel",
+    "Tool",
+    "Integration",
+    "Camel Yaml"
+  ],
+  "author": {
+    "name": "Marat Gubaidullin",
+    "email": "marat.gubaidullin@gmail.com"
+  },
+  "maintainers": [
+    {
+      "name": "Marat Gubaidullin",
+      "email": "marat.gubaidullin@gmail.com"
+    }
+  ],
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/apache/camel-karavan/issues"
+  },
+  "homepage": "https://github.com/apache/camel-karavan#readme",
+  "dependencies": {
+    "@types/js-yaml": "^4.0.2",
+    "@types/uuid": "^8.3.1",
+    "typescript": "^4.3.5",
+    "uuid": "^8.3.2",
+    "rxjs": "^7.3.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.0",
+    "@types/dagre": "^0.7.46",
+    "@types/localforage": "0.0.34",
+    "@types/mocha": "^9.0.0",
+    "chai": "^4.3.4",
+    "fs": "^0.0.1-security",
+    "mocha": "^9.1.3",
+    "ts-node": "^10.4.0"
+  }
+}

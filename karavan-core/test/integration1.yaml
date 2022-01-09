@@ -1,0 +1,14 @@
+apiVersion: camel.apache.org/v1
+kind: Integration
+metadata:
+  name: test1.yaml
+spec:
+  flows:
+    - from:
+        uri: kamelet:timer-source
+        parameters:
+          period: 1000
+          message: qqq
+        steps:
+          - log:
+              message: wwwww

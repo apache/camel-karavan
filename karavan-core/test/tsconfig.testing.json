@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "jsx": "react",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext",
+      "ES2021.String"
+    ]
+  },
+  "include": ["**/*.spec.ts"]
+}

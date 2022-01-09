@@ -17,14 +17,14 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
-import { CamelYaml } from "../designer/api/CamelYaml";
-import { CamelUi } from "../designer/api/CamelUi";
+import { CamelYaml } from "karavan-core/lib/api/CamelYaml";
+import { CamelUi } from "karavan-core/lib/api/CamelUi";
 import * as jsyaml from 'js-yaml';
-import { Integration } from "../designer/model/CamelModel";
+import { Integration } from "karavan-core/lib/model/CamelModel";
 import { homedir } from "os";
 
 const KARAVAN_LOADED = "karavan:loaded";
-const KARAVAN_PANELS: Map<any, string> = new Map<string, string>();
+const KARAVAN_PANELS: Map<string, vscode.WebviewPanel> = new Map<string, vscode.WebviewPanel>();
 const TERMINALS: Map<string, vscode.Terminal> = new Map<string, vscode.Terminal>();
 
 export function activate(context: vscode.ExtensionContext) {
@@ -61,9 +61,10 @@ export function activate(context: vscode.ExtensionContext) {
             if (args && args.length > 0) {
                 const yaml = fs.readFileSync(path.resolve(args[0].path)).toString('utf8');
                 const filename = path.basename(args[0].path);
+                const relativePath = getRalativePath(args[0].path);
                 const integration = parceYaml(filename, yaml);
                 if (integration[0]) {
-                    openKaravanWebView(context, webviewContent, filename || '', integration[1]);
+                    openKaravanWebView(context, webviewContent, filename, relativePath, integration[1]);
                 } else {
                     vscode.window.showErrorMessage("File is not Camel Integration!")
                 }
@@ -78,16 +79,17 @@ export function activate(context: vscode.ExtensionContext) {
         (...args: any[]) => {
             if (args && args.length > 0) {
                 if (args[0].path.startsWith('webview-panel/webview')) {
-                    const filename = KARAVAN_PANELS.get(args[0].path);
+                    const filename = Array.from(KARAVAN_PANELS.entries()).filter(({ 1: v }) => v.active).map(([k]) => k)[0];
                     if (filename) {
                         runCamelJbang(filename);
                     }
                 } else {
                     const yaml = fs.readFileSync(path.resolve(args[0].path)).toString('utf8');
+                    const relativePath = getRalativePath(args[0].path);
                     const filename = path.basename(args[0].path);
                     const integration = parceYaml(filename, yaml);
                     if (integration[0]) {
-                        runCamelJbang(filename);
+                        runCamelJbang(relativePath);
                     } else {
                         vscode.window.showErrorMessage("File is not Camel-K Integration!")
                     }
@@ -98,7 +100,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(run);
 }
 
-function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: string, filename: string, yaml?: string) {
+function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: string, filename: string, relativePath: string, yaml?: string) {
     // Karavan webview
     const panel = vscode.window.createWebviewPanel(
         "karavan",
@@ -112,7 +114,6 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
             ],
         }
     );
-
     panel.webview.html = webviewContent;
     panel.iconPath = vscode.Uri.joinPath(
         context.extensionUri,
@@ -142,13 +143,12 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
                         });
                     }
                     return;
-                case 'url-mapping':
-                    KARAVAN_PANELS.set('webview-panel/webview-' + message.pathId, message.filename);
             }
         },
         undefined,
         context.subscriptions
     );
+    KARAVAN_PANELS.set(relativePath, panel);
     vscode.commands.executeCommand("setContext", KARAVAN_LOADED, true);
 }
 
@@ -171,9 +171,16 @@ function createIntegration(context: vscode.ExtensionContext, webviewContent: str
                 const i = Integration.createNew(name);
                 i.crd = crd;
                 const yaml = CamelYaml.integrationToYaml(i);
-                openKaravanWebView(context, webviewContent, name + '.yaml', yaml);
+                const filename = name.toLocaleLowerCase().endsWith('.yaml') ? name : name + '.yaml';
+                openKaravanWebView(context, webviewContent, filename, filename, yaml);
             }
         });
+}
+
+function getRalativePath(fullPath:string): string {
+    const root = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.path : "";
+    const relativePath =  path.resolve(fullPath).replace(root + path.sep, '');
+    return relativePath;
 }
 
 function readKamelets(context: vscode.ExtensionContext): string[] {

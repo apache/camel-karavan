@@ -1,0 +1,36 @@
+apiVersion: camel.apache.org/v1
+kind: Integration
+metadata:
+  name: ''
+spec:
+  flows:
+    - from:
+        uri: kamelet:http-secured-source
+        steps:
+          - unmarshal:
+              json:
+                library: gson
+          - setBody:
+              expression:
+                constant: Hello Yaml !!!
+          - pollEnrich:
+              expression: {}
+          - log:
+              message: ${body}
+          - to:
+              uri: log:info:xxx
+              parameters:
+                level: 'OFF'
+                logMask: true
+          - choice:
+              when:
+                - expression: {}
+                  steps:
+                    - toD: {}
+              otherwise:
+                steps:
+                  - kamelet:
+                      name: kafka-not-secured-sink
+                      parameters:
+                        topic: topic1
+                        brokers: localhost:9092

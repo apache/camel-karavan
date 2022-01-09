@@ -35,7 +35,7 @@ public final class CamelDataFormatGenerator extends AbstractGenerator {
         g.createModels(
                 "karavan-generator/src/main/resources/CamelDataFormat.tx",
                 "karavan-generator/src/main/resources/CamelDataFormat.template.tx",
-                "karavan-designer/src/designer/model/CamelDataFormat.tsx"
+                "karavan-core/src/core/model/CamelDataFormat.ts"
         );
     }
 

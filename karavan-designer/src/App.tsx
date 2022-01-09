@@ -18,9 +18,9 @@ import * as React from "react";
 import {
     Page,
 } from "@patternfly/react-core";
-import {KaravanDesigner} from "./designer/ui/KaravanDesigner";
-import {KameletApi} from "./designer/api/KameletApi";
-import {ComponentApi} from "./designer/api/ComponentApi";
+import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
+import {KaravanDesigner} from "./designer/KaravanDesigner";
 
 interface Props {
 }
@@ -52,7 +52,7 @@ class App extends React.Component<Props, State> {
             '                constant: "Hello Yaml !!!"\n' +
             '          - pollEnrich:\n' +
             '              expression: {}\n' +
-            '          - log: \'${body}\'\n' +
+            '          - log: "${body}"\n' +
             '          - to: \n' +
             '               uri: "log:info:xxx"\n' +
             '               parameters:\n' +

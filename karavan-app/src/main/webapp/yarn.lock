@@ -6994,6 +6994,16 @@
     "array-includes" "^3.1.2"
     "object.assign" "^4.1.2"
 
+"karavan-core@file:../../../../karavan-core":
+  "resolved" "file:../../../../karavan-core"
+  "version" "0.0.10"
+  dependencies:
+    "@types/js-yaml" "^4.0.2"
+    "@types/uuid" "^8.3.1"
+    "rxjs" "^7.3.0"
+    "typescript" "^4.3.5"
+    "uuid" "^8.3.2"
+
 "killable@^1.0.1":
   "integrity" "sha512-LzqtLKlUwirEUyl/nicirVmNiPvYs7l5n8wOPP7fyJVpUPkvCnW/vuiXGpylGUlnPDnB7311rARzAt3Mhswpjg=="
   "resolved" "https://registry.npmjs.org/killable/-/killable-1.0.1.tgz"

@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "./lib",
+    "strict": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext",
+      "ES2021.String"
+    ]
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "**/test/*"]
+}

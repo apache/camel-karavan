@@ -18,10 +18,10 @@ import * as React from "react";
 import {
   Page,
 } from "@patternfly/react-core";
-import {KaravanDesigner} from "../designer/ui/KaravanDesigner";
+import {KaravanDesigner} from "../designer/KaravanDesigner";
 import vscode from "./vscode";
-import {KameletApi} from "../designer/api/KameletApi";
-import { ComponentApi } from "../designer/api/ComponentApi";
+import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import { ComponentApi } from "karavan-core/lib/api/ComponentApi";
 
 interface Props {
   dark: boolean
@@ -55,16 +55,10 @@ class App extends React.Component<Props, State> {
         case 'open':
           if (this.state.filename === '' && this.state.key === ''){
             this.setState({filename: message.filename, yaml: message.yaml, key: Math.random().toString()});
-            this.sendUrlMapping(message.filename)
           }
           break;
       }
     });
-  }
-
-  sendUrlMapping(filename: string){
-    const url = new URL(window.location.href)
-    vscode.postMessage({ command: 'url-mapping', pathId: url.host, filename: filename })
   }
 
   save(filename: string, yaml: string) {

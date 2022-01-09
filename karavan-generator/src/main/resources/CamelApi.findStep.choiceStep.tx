@@ -1,7 +1,7 @@
-                        case 'choiceStep':
-                            const o = (step as ChoiceStep).choice.otherwise;
-                            const w = (step as ChoiceStep).choice.when;
-                            const s: ProcessorStep[] = [];
+                        case 'choice':
+                            const o = (step as Choice).otherwise;
+                            const w = (step as Choice).when;
+                            const s: CamelElement[] = [];
                             if (o) s.push(o);
                             if (w) s.push(...w);
                             result = CamelApi.findStep(s, uuid, step.uuid, result);

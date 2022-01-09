@@ -52,3 +52,4 @@ yarn-error.log*
 
 /karavan-app/src/main/webapp/src/designer/*
 /karavan-app/src/main/resources/kamelets/*
+/karavan-core/lib/
