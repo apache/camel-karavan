@@ -1,10 +1,27 @@
+# ---------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ---------------------------------------------------------------------------
+
 apiVersion: camel.apache.org/v1alpha1
 kind: Kamelet
 metadata:
   name: aws-ec2-sink
   annotations:
     camel.apache.org/kamelet.support.level: "Preview"
-    camel.apache.org/catalog.version: "0.5.0"
+    camel.apache.org/catalog.version: "0.6.0"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjA2NSIgaGVpZ2h0PSIyNTAwIiB2aWV3Qm94PSIwIDAgMjU2IDMxMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCI+PHBhdGggZD0iTTQyLjc1NCAyNDQuNDk1bC0yOS45MTggNi44MjZWNTcuNTY1bDI5LjkxOCA2LjgzOXYxODAuMDkxIiBmaWxsPSIjRjY4NTM2Ii8+PHBhdGggZD0iTTgwLjA4MiAyNTUuOTMxbC0zNy4zMjggMTAuNjA4VjQyLjYxMmwzNy4zMjggMTAuNTk1djIwMi43MjRNMTI3Ljk2NiAyNjcuNjgxbC00Ny44ODQgMTcuNTI0VjIzLjk0Nmw0Ny44ODQgMTcuNTE2djIyNi4yMTlNMjU2IDI0NS4wNzlsLTEyOC4wMzQgNjQuMDE3VjBMMjU2IDY0LjAxN3YxODEuMDYyIiBmaWxsPSIjRjY4NTM2Ii8+PHBhdGggZD0iTTEwMi40NDQgMTIuNzYzTDEyNy45NjYgMHYzMDkuMDk2bC0yNS41MjItMTIuNzU5VjEyLjc2M002MC4zMjUgMzMuODJsMTkuNzU3LTkuODc4djI2MS4yMTJsLTE5Ljc1Ny05Ljg3OFYzMy44Mk0yNy4wMTYgNTAuNDc3bDE1LjczOC03Ljg2OXYyMjMuODhsLTE1LjczOC03Ljg3NFY1MC40NzdNMTIuODM2IDU3LjU2NUwwIDYzLjk4M3YxODEuMTM0bDEyLjgzNiA2LjQxNFY1Ny41NjUiIGZpbGw9IiM5RDUwMjUiLz48L3N2Zz4="
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "AWS EC2"

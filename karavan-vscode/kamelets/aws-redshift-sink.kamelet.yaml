@@ -1,0 +1,114 @@
+# ---------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ---------------------------------------------------------------------------
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: aws-redshift-sink
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.6.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxNjE1IDE3ODMuNyIgdmlld0JveD0iMCAwIDE2MTUgMTc4My43IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Im04MDcuNSAxMzYzLjggNjc4LjMgMTYxLjV2LTEyNzAuNWwtNjc4LjMgMTYxLjV6IiBmaWxsPSIjMjA1Yjk3Ii8+PHBhdGggZD0ibTE0ODUuOCAyNTQuOCAxMjkuMiA2NC42djExNDEuM2wtMTI5LjIgNjQuNnptLTY3OC4zIDExMDktNjc4LjMgMTYxLjV2LTEyNzAuNWw2NzguMyAxNjEuNXoiIGZpbGw9IiM1MTkzY2UiLz48cGF0aCBkPSJtMTI5LjIgMjU0LjgtMTI5LjIgNjQuNnYxMTQxLjNsMTI5LjIgNjQuNnoiIGZpbGw9IiMyMDViOTciLz48cGF0aCBkPSJtOTc5LjggMTc4My43IDI1OC40LTEyOS4ydi0xNTI1LjNsLTI1OC40LTEyOS4yLTc5IDg0N3oiIGZpbGw9IiM1MTkzY2UiLz48cGF0aCBkPSJtNjM1LjIgMTc4My43LTI1OC40LTEyOS4ydi0xNTI1LjNsMjU4LjQtMTI5LjIgNzkgODQ3eiIgZmlsbD0iIzIwNWI5NyIvPjxwYXRoIGQ9Im02MzUuMiAwaDM0OC4xdjE3ODAuMWgtMzQ4LjF6IiBmaWxsPSIjMmU3M2I3Ii8+PC9zdmc+"
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "AWS Redshift"
+  labels:
+    camel.apache.org/kamelet.type: "sink"
+spec:
+  definition:
+    title: "AWS Redshift Sink"
+    description: |-
+      Send data to an AWS Redshift Database.
+
+      This Kamelet expects a JSON as body. The mapping between the JSON fields and parameters is done by key, so if you have the following query:
+
+      'INSERT INTO accounts (username,city) VALUES (:#username,:#city)'
+
+      The Kamelet needs to receive as input something like:
+
+      '{ "username":"oscerd", "city":"Rome"}'
+    required:
+      - serverName
+      - username
+      - password
+      - query
+      - databaseName
+    type: object
+    properties:
+      serverName:
+        title: Server Name
+        description: Server Name for the data source
+        type: string
+        example: localhost
+      serverPort:
+        title: Server Port
+        description: Server Port for the data source
+        type: string
+        default: 5439
+      username:
+        title: Username
+        description: The username to use for accessing a secured AWS Redshift Database
+        type: string
+        x-descriptors:
+        - urn:camel:group:credentials
+      password:
+        title: Password
+        description: The password to use for accessing a secured AWS Redshift Database
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+        - urn:camel:group:credentials
+      query:
+        title: Query
+        description: The Query to execute against the AWS Redshift Database
+        type: string
+        example: 'INSERT INTO accounts (username,city) VALUES (:#username,:#city)'
+      databaseName:
+        title: Database Name
+        description: The Database Name we are pointing
+        type: string
+  types:
+    in:
+      mediaType: application/json
+  dependencies:
+  - "camel:jackson"
+  - "camel:kamelet"
+  - "camel:sql"
+  - "mvn:com.amazon.redshift:redshift-jdbc42:2.1.0.3"
+  - "mvn:org.apache.commons:commons-dbcp2:2.8.0"
+  flow:
+    beans:
+      - name: dsBean
+        type: "#class:org.apache.commons.dbcp2.BasicDataSource"
+        property:
+          - key: username
+            value: '{{username}}'
+          - key: password
+            value: '{{password}}'
+          - key: url
+            value: 'jdbc:redshift://{{serverName}}:{{serverPort}}/{{databaseName}}'
+          - key: driverClassName
+            value: 'com.amazon.redshift.jdbc.Driver'
+    from:
+      uri: "kamelet:source"
+      steps:
+      - unmarshal:
+          json: 
+            library: Jackson
+      - to: 
+          uri: "sql:{{query}}"
+          parameters:
+            dataSource: "#bean:{{dsBean}}"

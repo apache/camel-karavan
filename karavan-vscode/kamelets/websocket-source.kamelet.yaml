@@ -1,0 +1,116 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: websocket-source
+  labels:
+    camel.apache.org/kamelet.type: "source"
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.6.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iMTI4MC4wMDAwMDBwdCIgaGVpZ2h0PSIxMDEyLjAwMDAwMHB0IiB2aWV3Qm94PSIwIDAgMTI4MC4wMDAwMDAgMTAxMi4wMDAwMDAiCiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCBtZWV0Ij4KPG1ldGFkYXRhPgpDcmVhdGVkIGJ5IHBvdHJhY2UgMS4xNSwgd3JpdHRlbiBieSBQZXRlciBTZWxpbmdlciAyMDAxLTIwMTcKPC9tZXRhZGF0YT4KPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsMTAxMi4wMDAwMDApIHNjYWxlKDAuMTAwMDAwLC0wLjEwMDAwMCkiCmZpbGw9IiMwMDAwMDAiIHN0cm9rZT0ibm9uZSI+CjxwYXRoIGQ9Ik04NTg1IDEwMTE0IGMtMTYgLTMgLTIyMSAtMzQgLTQ1NSAtNzAgLTg5MCAtMTM2IC0xNDg3IC0yMjcgLTIxMjUKLTMyNCAtMzYzIC01NSAtODk0IC0xMzYgLTExODAgLTE4MCAtMjg2IC00NCAtODE3IC0xMjUgLTExODAgLTE4MCAtMzYzIC01NQotODk2IC0xMzcgLTExODUgLTE4MSAtNTQ4IC04MyAtNjE5IC05NiAtNzExIC0xMzUgLTIwOCAtODYgLTM2NSAtMjM3IC00NjkKLTQ0OSAtOTEgLTE4NyAtMTA3IC0zMjUgLTcxIC02MTYgMTIgLTk2IDU3IC00NzggMTAxIC04NDkgNDQgLTM3MSAxMjMgLTEwMzMKMTc1IC0xNDcwIDUyIC00MzcgMTgwIC0xNTE1IDI4NSAtMjM5NSAxMDQgLTg4MCAxOTQgLTE2MjggMjAwIC0xNjYzIDI4IC0xNjQKMTI5IC0zNTEgMjU2IC00NzMgMzggLTM2IDc4IC03MiA4OSAtODAgMjcgLTE4IDc3IC0xMDQgNjcgLTExNCAtNCAtNSAtMSAtNSA3CjAgOSA1IDEyIDMgOCAtNiAtMiAtOCA5IC0zOSAyNSAtNjkgODAgLTE0NCAyMTEgLTI2NiAzNzEgLTM0NSAxMDYgLTUyIDE3NQotNzEgMzA1IC04NiAxMzMgLTE1IDIyMyAtNiA3NjAgNzYgMTYwIDI1IDQyNiA2NSA1OTAgOTAgMzc4IDU4IDgwNyAxMjQgMTE4MAoxODAgMTYwIDI1IDQyNCA2NSA1ODUgOTAgMTYwIDI0IDQyNiA2NSA1OTAgOTAgMTYzIDI1IDQzMCA2NSA1OTIgOTAgMTYyIDI1CjQyOCA2NSA1OTAgOTAgMTYyIDI1IDQyNyA2NSA1ODggOTAgMTYwIDI0IDQyNyA2NSA1OTIgOTAgMTE0NyAxNzUgMTE1NiAxNzYKMTMyMCAyNTQgMjY0IDEyNSA0NDIgMzY1IDQ4NSA2NDkgNiAzNyA4IDE2NiA2IDI4NyBsLTMgMjIwIC05MSA0MzAgYy04NyA0MTIKLTE5MyA5MTkgLTM0MiAxNjMwIC0zOCAxODIgLTE0MSA2NzQgLTIyOSAxMDk1IC04OCA0MjEgLTI2NCAxMjYyIC0zOTEgMTg2OQotMTI3IDYwNyAtMjU1IDEyMjIgLTI4NSAxMzY1IC0zMSAxNDQgLTY3IDMwMSAtODEgMzUwIC04OSAzMTAgLTMzMCA1NDYgLTY0Mgo2MjcgLTc2IDIwIC0yNjQgMzMgLTMyNyAyM3ogbTIzODIgLTc3MTYgYy0zIC03IC01IC0yIC01IDEyIDAgMTQgMiAxOSA1IDEzIDIKLTcgMiAtMTkgMCAtMjV6IG0tODU0MiAtMTQ5OCBjMTAgLTExIDE2IC0yMCAxMyAtMjAgLTMgMCAtMTMgOSAtMjMgMjAgLTEwIDExCi0xNiAyMCAtMTMgMjAgMyAwIDEzIC05IDIzIC0yMHoiLz4KPC9nPgo8L3N2Zz4K"
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "Websocket"
+spec:
+  definition:
+    title: "Websocket Source"
+    description: "Websocket endpoints for communicating with clients"
+    type: object
+    required:
+    - resourceUri
+    properties:
+      websocketHost:
+        title: Host
+        description: The hostname
+        type: string
+        default: "0.0.0.0"
+      websocketPort:
+        title: Port
+        description: The port number
+        type: integer
+        default: 9292
+      resourceUri:
+        title: Resource Uri
+        description: Name of the websocket channel to use.
+        type: string
+      maxBinaryMessageSize:
+        title: Max Binary Message Size
+        description: Can be used to set the size in bytes that the websocket created by the websocketServlet may be accept before closing. (Default is -1 - or unlimited).
+        type: integer
+        default: -1
+      bridgeErrorHandler: 
+        title: Bridge Rrror Handler
+        description: Allows for bridging the consumer to the Camel routing Error Handler
+        type: bool
+        default: false
+      sessionSupport: 
+        title: Session Support
+        description: Whether to enable session support which enables HttpSession for each http request.
+        type: bool
+        default: false
+      subprotocol:
+        title: Subprotocol
+        description: Comma-separated list of subprotocols that are supported by the application.
+        type: string
+        default: any
+      lazyStartProducer:
+        title: Lazy Start Producer
+        description: Whether the producer should be started lazy (on the first message).
+        type: bool
+        default: false
+      sendTimeout:
+        title: Send Timeout
+        description: Timeout in millis when sending to a websocket channel. The default timeout is 30000 (30 seconds).
+        type: integer
+        default: 30000
+      bufferSize:
+        title: Buffer Size
+        description: Set the buffer size of the websocketServlet
+        type: integer
+        default: 8192
+      maxIdleTime:
+        title: Max Idle Time
+        description: SetSet the time in ms that the websocket created by the websocketServlet may be idle before closing.
+        type: integer
+        default: 300000
+      allowedOrigins:
+        title: Allowed Origins
+        description: The CORS allowed origins. Use to allow all.
+        type: string
+        default: ""
+      crossOriginFilterOn:
+        title: Cross Origin Filter
+        description: Whether to enable CORS.
+        type: bool
+        default: false
+      filterPath:
+        title: Filter Path
+        description: Context path for filtering CORS.
+        type: string
+        default: ""
+      enableJmx:
+        title: Filter Path
+        description: Enable JMX support.
+        type: bool
+        default: false
+  dependencies:
+    - "camel:kamelet"
+    - "camel:core"
+    - "camel:websocket"
+  flow:
+    from:
+      uri: "websocket://{{websocketHost}}:{{websocketPort}}/{{resourceUri}}"
+      parameters:
+        maxBinaryMessageSize: "{{maxBinaryMessageSize}}"
+        bridgeErrorHandler: "{{bridgeErrorHandler}}"
+        sessionSupport: "{{sessionSupport}}"
+        subprotocol: "{{subprotocol}}"
+        lazyStartProducer: "{{lazyStartProducer}}"
+        sendTimeout: "{{sendTimeout}}"
+        bufferSize: "{{bufferSize}}"
+        maxIdleTime: "{{maxIdleTime}}"
+        allowedOrigins: "{{allowedOrigins}}"
+        crossOriginFilterOn: "{{crossOriginFilterOn}}"
+        filterPath: "{{filterPath}}"
+        enableJmx: "{{enableJmx}}"
+      steps:
+      - to: kamelet:sink
