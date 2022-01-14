@@ -1,0 +1,27 @@
+apiVersion: camel.apache.org/v1
+kind: Integration
+metadata:
+  name: ''
+spec:
+  flows:
+    - from:
+        uri: kamelet:http-secured-source
+        steps:
+          - do-try:
+              steps:
+                - to: "log:when-a"
+                - to: "log:when-b"
+              do-catch:
+                - exception:
+                    - "java.io.FileNotFoundException"
+                    - "java.io.IOException"
+                  on-when:
+                    simple: "${body.size()} == 1"
+                  steps:
+                    - to: "log:io-error"
+          - choice:
+              when:
+                - expression: {}
+                  steps:
+                    - tod: {}
+              otherwise: {}

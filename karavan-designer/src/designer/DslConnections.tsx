@@ -17,9 +17,9 @@
 import React from 'react';
 import './karavan.css';
 import {InOut, Path} from "karavan-core/lib/model/ConnectionModels";
-import {CamelElement, Integration} from "karavan-core/lib/model/CamelModel";
+import {CamelElement, Integration} from "karavan-core/lib/model/CamelDefinition";
 import {CamelUi} from "karavan-core/lib/api/CamelUi";
-import {CamelApiExt} from "karavan-core/lib/api/CamelApiExt";
+import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {DslInOut} from "./DslInOut";
 import {DslPath} from "./DslPath";
@@ -65,7 +65,8 @@ export class DslConnections extends React.Component<Props, State> {
 
     getIncomings(): InOut[] {
         const result: InOut[] = [];
-        this.state.integration.spec.flows.forEach((from, index) => {
+        this.state.integration.spec.flows?.forEach((route: any, index: number) => {
+            const from = route.from;
             const uri = from.uri;
             if (uri && uri.startsWith("kamelet")) {
                 const kamelet = KameletApi.findKameletByUri(uri);
@@ -83,16 +84,16 @@ export class DslConnections extends React.Component<Props, State> {
 
     getOutgoings(): InOut[] {
         const result: InOut[] = [];
-        const toSteps: [CamelElement, number][] = CamelApiExt.getToStepsFromIntegration(this.state.integration);
+        const toSteps: [CamelElement, number][] = CamelDefinitionApiExt.getToStepsFromIntegration(this.state.integration);
         const set = new Set(toSteps.map(value => value[1]));
         set.forEach((level) => {
             toSteps.filter(data => data[1] === level).forEach((data, index, all) => {
                 const element: CamelElement = data[0];
-                if (element.dslName === 'to') {
+                if (element.dslName === 'ToDefinition') {
                     const uri: string = (element as any).uri;
                     const i = new InOut('out', element.uuid, index * 60, 500, index, undefined, ComponentApi.getComponentNameFromUri(uri));
                     result.push(i);
-                } else if (element.dslName === 'kamelet') {
+                } else if (element.dslName === 'KameletDefinition') {
                     const name: string = (element as any).name;
                     const kamelet = KameletApi.findKameletByName(name);
                     if (kamelet && kamelet.metadata.labels["camel.apache.org/kamelet.type"] === 'sink') {

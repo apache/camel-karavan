@@ -17,6 +17,10 @@ body,
   background-color: #252526;
 }
 
+.vscode-dark .karavan .dsl-page .flows .step-element .header-route {
+  color: #CCCCCC;
+}
+
 .vscode-dark .karavan .dsl-page .flows .step-element-with-steps {
   border-color: #964;
 }
@@ -120,6 +124,10 @@ body,
 
 .vscode-dark .pf-c-tooltip {
   --pf-c-tooltip__content--BackgroundColor: #585858;
+}
+
+.vscode-dark .step-element .add-element-button {
+  color: #252526;
 }
 
 .vscode-dark .step-element .add-button,

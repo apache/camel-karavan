@@ -1,5 +1,0 @@
-                case 'otherwise':
-                    const otherwiseChildren = (el as Otherwise).steps || [];
-                    if (el.uuid === parentId) position !== undefined ? otherwiseChildren.splice(position, 0, step) : otherwiseChildren.push(step);
-                    else (el as Otherwise).steps = CamelApi.addStep(otherwiseChildren, step, parentId, position);
-                    break;

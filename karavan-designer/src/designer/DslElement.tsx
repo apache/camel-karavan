@@ -14,22 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {CSSProperties} from 'react';
 import {
     Text, Tooltip,
 } from '@patternfly/react-core';
 import './karavan.css';
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
-import {CamelElement, Otherwise, When} from "karavan-core/lib/model/CamelModel";
+import {CamelElement} from "karavan-core/lib/model/CamelDefinition";
 import {CamelUi} from "karavan-core/lib/api/CamelUi";
 import {EventBus} from "karavan-core/lib/api/EventBus";
+import {ChildElement, CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 
 interface Props {
     step: CamelElement,
     deleteElement: any
     selectElement: any
-    openSelector: any
+    openSelector: (parentId: string | undefined, parentDsl: string | undefined, showSteps: boolean) => void
     moveElement: (source: string, target: string) => void
     selectedUuid: string
     borderColor: string
@@ -62,9 +63,9 @@ export class DslElement extends React.Component<Props, State> {
         }
     }
 
-    openSelector = (evt: React.MouseEvent) => {
+    openSelector = (evt: React.MouseEvent, showSteps: boolean = true) => {
         evt.stopPropagation();
-        this.props.openSelector.call(this, this.state.step.uuid, this.state.step.dslName);
+        this.props.openSelector.call(this, this.state.step.uuid, this.state.step.dslName, showSteps);
     }
 
     closeDslSelector = () => {
@@ -85,29 +86,30 @@ export class DslElement extends React.Component<Props, State> {
         return this.state.selectedUuid === this.state.step.uuid
     }
 
-    getSteps = (): CamelElement[] => {
-        return (this.state.step as any).steps
+    hasBorder = ():boolean => {
+        return (this.state?.step?.hasSteps() &&  !['FromDefinition'].includes(this.state.step.dslName))
+            ||  ['RouteDefinition', 'TryDefinition', 'ChoiceDefinition'].includes(this.state.step.dslName);
     }
 
-    hasSteps = (): boolean => {
-        const steps = this.getSteps();
-        return steps !== undefined && steps.length > 0;
+    isDraggable = (): boolean => {
+        return ['FromDefinition', 'RouteDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(this.state.step.dslName);
     }
 
-    getWhens = (): When[] => {
-        return (this.state.step as any).when
+    isWide = (): boolean => {
+        return ['RouteDefinition', 'ChoiceDefinition', 'MulticastDefinition', 'TryDefinition', 'CircuitBreakerDefinition']
+            .includes(this.state.step.dslName);
     }
 
-    getOtherwise = (): Otherwise => {
-        return (this.state.step as any).otherwise
+    isHorizontal = (): boolean => {
+        return ['MulticastDefinition'].includes(this.state.step.dslName);
     }
 
-    horizontal = (): boolean => {
-        return ['choice', 'multicast'].includes(this.state.step.dslName);
+    needMarginLeft = (): boolean => {
+        return ['CatchDefinition', "WhenDefinition"].includes(this.state.step.dslName);
     }
 
     isRoot = (): boolean => {
-        return this.state.step.dslName.startsWith("from");
+        return this.state.step?.dslName?.startsWith("RouteDefinition");
     }
 
     getArrow = () => {
@@ -120,26 +122,35 @@ export class DslElement extends React.Component<Props, State> {
         )
     }
 
+    getHeaderStyle = () => {
+        const style: CSSProperties = {
+            width: this.isWide() ? "100%" : "",
+            fontWeight: this.isSelected() ? "bold" : "normal",
+        };
+        return style;
+    }
+
     getHeader = () => {
+        const step: CamelElement = this.state.step;
+        const availableModels = CamelUi.getSelectorModelsForParent(step.dslName, false);
+        const showAddButton = !['CatchDefinition', 'RouteDefinition'].includes(step.dslName) && availableModels.length > 0;
         return (
-            <div className="header"
-                 style={
-                     ["choice", "multicast"].includes(this.state.step.dslName)
-                         ? {width: "100%", fontWeight: this.isSelected() ? "bold" : "normal"}
-                         : {fontWeight: this.isSelected() ? "bold" : "normal"}
-                 }
+            <div className={step.dslName === 'RouteDefinition' ? "header-route" : "header" }
+                 style={this.getHeaderStyle()}
                  ref={el => {
-                     if (el && (this.state.step.dslName === 'from' || this.state.step.dslName === 'to' || this.state.step.dslName === 'kamelet')) EventBus.sendPosition(this.state.step, el.getBoundingClientRect());
+                     if (el && (this.state.step.dslName === 'FromDefinition'
+                         || this.state.step.dslName === 'ToDefinition'
+                         || this.state.step.dslName === 'KameletDefinition'))
+                         EventBus.sendPosition(this.state.step, el.getBoundingClientRect());
                  }}>
-                <img draggable={false}
-                     src={CamelUi.getIcon(this.state.step)}
-                     className="icon" alt="icon">
-                </img>
+                {this.state.step.dslName !== 'RouteDefinition' &&
+                    <div className={"header-icon"} style={this.isWide() ? {border: "none"}: {}}>
+                        <img draggable={false} src={CamelUi.getIcon(this.state.step)} className="icon" alt="icon"/>
+                    </div>
+                }
                 <Text>{CamelUi.getTitle(this.state.step)}</Text>
-                <button type="button" aria-label="Delete" onClick={e => this.delete(e)}
-                        className="delete-button">
-                    <DeleteIcon noVerticalAlign/>
-                </button>
+                {this.state.step.dslName !== 'FromDefinition' && <button type="button" aria-label="Delete" onClick={e => this.delete(e)} className="delete-button"><DeleteIcon noVerticalAlign/></button>}
+                {showAddButton && this.getAddElementButton()}
             </div>
         );
     }
@@ -166,14 +177,130 @@ export class DslElement extends React.Component<Props, State> {
         }
         return this.getHeader();
     }
+    getChildrenStyle = () => {
+        const style: CSSProperties = {
+            display: "flex",
+            flexDirection: "row",
+        };
+        return style;
+    }
 
-    hasBorder = ():boolean => {
-        return this.state.step.hasSteps() || ['choice', 'from'].includes(this.state.step.dslName);
+    getChildrenElementsStyle = (child:ChildElement, onlySteps: boolean) => {
+        const step = this.state.step;
+        const children: CamelElement[] = CamelDefinitionApiExt.getElementChildren(step, child);
+        const isBorder = child.name === 'steps' && children.length > 0 && !onlySteps;
+        const isMarginLeft = (child.name === 'steps' && !onlySteps);
+        const style: CSSProperties = {
+            borderStyle: isBorder ? "dotted" : "none",
+            borderColor:  this.props.borderColor,
+            borderWidth: "1px",
+            borderRadius: "3px",
+            padding: isBorder ? "6px" : "none",
+            marginLeft: isMarginLeft ? "3px" : "none",
+            display: this.isHorizontal() || child.name !== 'steps' ? "flex" : "block",
+            flexDirection: "row",
+        };
+        return style;
+    }
+
+    getChildStyle = (index: number, count: number) => {
+        const style: CSSProperties = this.isHorizontal()
+            ? {marginRight: (index < count - 1) ? "6px" : "0"}
+            : {}
+        return style;
+    }
+
+    showUpArrow = (child:ChildElement, count: number, index: number) => {
+        const step = this.state.step;
+        const children = CamelDefinitionApiExt.getElementChildrenDefinition(step.dslName);
+        if (this.state.step.dslName === "RouteDefinition"){
+            return false;
+        } else {
+            return (child.name === 'steps' && count > 0 && index !== 0)
+                || (child.name === 'steps' && count > 0 && index === 0 && children.length === 1)
+                || (child.name !== 'steps' && count > 0 );
+        }
+    }
+
+    showStepsArrow = (child: ChildElement) => {
+        const step: CamelElement = this.state.step;
+        const children = CamelDefinitionApiExt.getElementChildrenDefinition(step.dslName);
+        return child.name === 'steps' && children.length > 1;
+    }
+
+    getChildElements = () => {
+        const step: CamelElement = this.state.step;
+        let children = CamelDefinitionApiExt.getElementChildrenDefinition(step.dslName);
+        const onlySteps = children.length === 1 && children[0].name === "steps";
+
+        if (step.dslName !== 'RouteDefinition') {
+            children = children.filter(child => {
+                const cc = CamelDefinitionApiExt.getElementChildrenDefinition(child.className);
+                return child.name === 'steps' || cc.filter(c => c.multiple).length > 0;
+            })
+        }
+        if (step.dslName === 'CatchDefinition'){ // exception
+            children = children.filter(value => value.name !== 'onWhen')
+        }
+        return (
+            <div key={step.uuid + "-children"} className="children" style={this.getChildrenStyle()}>
+                {children.map((child:ChildElement, index:number) => this.getChildDslElements(child, index, onlySteps))}
+            </div>
+        )
+    }
+
+    getChildDslElements = (child:ChildElement, index: number,  onlySteps: boolean) => {
+        const step = this.state.step;
+        const children: CamelElement[] = CamelDefinitionApiExt.getElementChildren(step, child);
+        return (
+            <div className={child.name} key={step.uuid+"-child-"+index}>
+                {this.showStepsArrow(child) && this.getArrow()}
+                <div style={this.getChildrenElementsStyle(child, onlySteps)}>
+                    {children.map((element, index) => (
+                        <div key={step.uuid + child.className +  index} style={this.getChildStyle(index, children.length)}>
+                            {this.showUpArrow(child, children.length, index) && this.getArrow() }
+                            <DslElement
+                                openSelector={this.props.openSelector}
+                                deleteElement={this.props.deleteElement}
+                                selectElement={this.props.selectElement}
+                                moveElement={this.props.moveElement}
+                                selectedUuid={this.state.selectedUuid}
+                                borderColor={this.props.borderColor}
+                                borderColorSelected={this.props.borderColorSelected}
+                                step={element}/>
+                        </div>
+                    ))}
+                </div>
+                {child.name === 'steps' && this.getAddStepButton()}
+            </div>
+        )
+    }
+
+    getAddStepButton() {
+        return (
+            <Tooltip position={"bottom"}
+                     content={<div>{"Add step to " + CamelUi.getTitle(this.state.step)}</div>}>
+                <button type="button" aria-label="Add" onClick={e => this.openSelector(e)}
+                        className={"add-button"}>
+                    <AddIcon noVerticalAlign/>
+                </button>
+            </Tooltip>
+        )
+    }
+
+    getAddElementButton() {
+        return (
+            <Tooltip position={"bottom"} content={<div>{"Add DSL element to " + CamelUi.getTitle(this.state.step)}</div>}>
+                <button type="button" aria-label="Add" onClick={e => this.openSelector(e, false)} className={"add-element-button"}><AddIcon noVerticalAlign/>
+                </button>
+            </Tooltip>
+        )
     }
 
     render() {
+        const element: CamelElement = this.state.step;
         return (
-            <div className={
+            <div key={"root"+element.uuid} className={
                 this.hasBorder()
                     ? "step-element step-element-with-steps"
                     : "step-element step-element-without-steps"}
@@ -181,13 +308,14 @@ export class DslElement extends React.Component<Props, State> {
                      borderStyle: this.isSelected() ? "dashed" : (this.hasBorder() ? "dotted" : "none"),
                      borderColor: this.isSelected() ? this.props.borderColorSelected : this.props.borderColor,
                      marginTop: this.isRoot() ? "16px" : "",
-                     zIndex: this.state.step.dslName === 'to' ? 20 : 10,
+                     marginLeft: this.needMarginLeft() ? "3px" : "",
+                     zIndex: element.dslName === 'ToDefinition' ? 20 : 10,
                      boxShadow: this.state.isDraggedOver ? "0px 0px 1px 2px " + this.props.borderColorSelected : "none",
                  }}
                  onClick={event => this.selectElement(event)}
                  onDragStart={event => {
                      event.stopPropagation();
-                     event.dataTransfer.setData("text/plain", this.state.step.uuid);
+                     event.dataTransfer.setData("text/plain", element.uuid);
                      (event.target as any).style.opacity = .5;
                      this.setState({isDragging: true});
                  }}
@@ -198,14 +326,14 @@ export class DslElement extends React.Component<Props, State> {
                  onDragOver={event => {
                      event.preventDefault();
                      event.stopPropagation();
-                     if (this.state.step.dslName !== 'from' && !this.state.isDragging) {
+                     if (element.dslName !== 'FromDefinition' && !this.state.isDragging) {
                          this.setState({isDraggedOver: true});
                      }
                  }}
                  onDragEnter={event => {
                      event.preventDefault();
                      event.stopPropagation();
-                     if (this.state.step.dslName !== 'from') {
+                     if (element.dslName !== 'FromDefinition') {
                          this.setState({isDraggedOver: true});
                      }
                  }}
@@ -220,88 +348,15 @@ export class DslElement extends React.Component<Props, State> {
                      event.stopPropagation();
                      this.setState({isDraggedOver: false});
                      const sourceUuid = event.dataTransfer.getData("text/plain");
-                     const targetUuid = this.state.step.uuid;
+                     const targetUuid = element.uuid;
                      if (sourceUuid !== targetUuid) {
                          this.props.moveElement?.call(this, sourceUuid, targetUuid);
                      }
                  }}
-                 draggable={!['from', 'when', 'otherwise'].includes(this.state.step.dslName)}
+                 draggable={!this.isDraggable()}
             >
                 {this.getElementHeader()}
-                {this.state.step.hasSteps() && !this.horizontal() && this.getArrow()}
-                <div className={this.state.step.dslName}>
-                    {this.state.step.hasSteps() &&
-                    <div className="steps" style={this.horizontal() ? {display: "flex", flexDirection: "row"} : {}}>
-                        {this.getSteps().map((step, index) => (
-                            <div key={step.uuid}
-                                 style={this.horizontal() ? {marginRight: (index < this.getSteps().length - 1) ? "6px" : "0"} : {}}>
-                                {this.state.step.hasSteps() && this.horizontal() && this.getArrow()}
-                                <DslElement
-                                    openSelector={this.props.openSelector}
-                                    deleteElement={this.props.deleteElement}
-                                    selectElement={this.props.selectElement}
-                                    moveElement={this.props.moveElement}
-                                    selectedUuid={this.state.selectedUuid}
-                                    borderColor={this.props.borderColor}
-                                    borderColorSelected={this.props.borderColorSelected}
-                                    step={step}/>
-                                {index < this.getSteps().length - 1 && !this.horizontal() && this.getArrow()}
-                            </div>
-                        ))}
-                    </div>
-                    }
-                    {this.state.step.hasSteps() &&
-                    <Tooltip position={"bottom"}
-                             content={<div>{"Add element to " + CamelUi.getTitle(this.state.step)}</div>}>
-                        <button type="button" aria-label="Add" onClick={e => this.openSelector(e)}
-                                className={this.state.step.dslName === 'from' ? "add-button-from" : "add-button"}>
-                            <AddIcon noVerticalAlign/>
-                        </button>
-                    </Tooltip>
-                    }
-                    {this.state.step.dslName === 'choice' &&
-                    <Tooltip position={"bottom"} content={<div>{"Add element to Choice"}</div>}>
-                        <button type="button" aria-label="Add" onClick={e => this.openSelector(e)}
-                                className="add-button">
-                            <AddIcon noVerticalAlign/>
-                        </button>
-                    </Tooltip>
-                    }
-                    {this.state.step.dslName === 'choice' &&
-                    <div className={this.getWhens().length > 0 ? "whens" : ""}
-                         style={this.horizontal() ? {display: "flex", flexDirection: "row"} : {}}>
-                        {this.getWhens().map((when, index) => (
-                            <div key={when.uuid} style={{marginLeft: (index !== 0) ? "6px" : "0"}}>
-                                {this.getArrow()}
-                                <DslElement
-                                    openSelector={this.props.openSelector}
-                                    deleteElement={this.props.deleteElement}
-                                    selectElement={this.props.selectElement}
-                                    moveElement={this.props.moveElement}
-                                    selectedUuid={this.state.selectedUuid}
-                                    borderColor={this.props.borderColor}
-                                    borderColorSelected={this.props.borderColorSelected}
-                                    step={when}/>
-                            </div>
-                        ))}
-                        {this.getOtherwise() &&
-                        <div key={this.getOtherwise().uuid}
-                             style={{marginLeft: (this.getWhens().length > 0) ? "6px" : "0"}}>
-                            {this.getArrow()}
-                            <DslElement
-                                openSelector={this.props.openSelector}
-                                deleteElement={this.props.deleteElement}
-                                selectElement={this.props.selectElement}
-                                moveElement={this.props.moveElement}
-                                selectedUuid={this.state.selectedUuid}
-                                borderColor={this.props.borderColor}
-                                borderColorSelected={this.props.borderColorSelected}
-                                step={this.getOtherwise()}/>
-                        </div>
-                        }
-                    </div>
-                    }
-                </div>
+                {this.getChildElements()}
             </div>
         );
     }

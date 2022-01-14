@@ -1,7 +1,0 @@
-    static readWhen = (element: any): When => {
-        const when = element ? new When({...element}) : new When()
-        when.expression = CamelYamlStep.readExpression(element?.expression)
-        when.steps = CamelYamlStep.readSteps(element?.steps)
-        when.uuid = element?.uuid ? element.uuid : when.uuid
-        return when
-    }

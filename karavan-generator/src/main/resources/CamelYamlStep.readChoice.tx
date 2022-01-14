@@ -1,9 +1,0 @@
-    static readChoice = (element: any): Choice => {
-        const choiceStep = element ? new Choice({...element.choice}) : new Choice();
-        if (element?.choice?.otherwise !== undefined){
-            choiceStep.otherwise =  CamelYamlStep.readOtherwise(element?.choice?.otherwise);
-        }
-        choiceStep.when = element && element?.choice && element?.choice?.when ? element?.choice?.when.map((x:any) => CamelYamlStep.readWhen(x)) :[]
-        choiceStep.uuid = element?.uuid ? element.uuid : choiceStep.uuid
-        return choiceStep
-    }

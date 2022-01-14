@@ -30,7 +30,8 @@ interface Props {
     onDslSelect: any
     onClose: any
     parentId: string
-    parentType: string
+    parentDsl?: string,
+    showSteps: boolean,
     dark: boolean
 }
 
@@ -44,7 +45,7 @@ export class DslSelector extends React.Component<Props, State> {
 
     public state: State = {
         show: this.props.show,
-        tabIndex: CamelUi.getSelectorLabels(this.props.parentType)[0][0],
+        tabIndex: CamelUi.getSelectorModelLabels(this.props.parentDsl, this.props.showSteps)[0],
     };
 
 
@@ -54,10 +55,10 @@ export class DslSelector extends React.Component<Props, State> {
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.show !== this.props.show) {
-            this.setState({show: this.props.show, filter:''});
+            this.setState({show: this.props.show, filter:'', tabIndex: CamelUi.getSelectorModelLabels(this.props.parentDsl, this.props.showSteps)[0]});
         }
-        if (prevProps.parentType !== this.props.parentType) {
-            this.setState({tabIndex: CamelUi.getSelectorLabels(this.props.parentType)[0][0]});
+        if (prevProps.parentDsl !== this.props.parentDsl) {
+            this.setState({tabIndex: CamelUi.getSelectorModelLabels(this.props.parentDsl, this.props.showSteps)[0]});
         }
     }
 
@@ -89,19 +90,42 @@ export class DslSelector extends React.Component<Props, State> {
     }
 
     getIcon = (dsl: DslMetaModel): string => {
-        if (dsl.dsl && dsl.dsl === "kamelet") {
+        if (dsl.dsl && dsl.dsl === "KameletDefinition") {
             return CamelUi.getKameletIconByName(dsl.name);
-        } else if (dsl.dsl && dsl.dsl === "from" && dsl.uri?.startsWith("kamelet")){
+        } else if ((dsl.dsl && dsl.dsl === "FromDefinition")
+            && dsl.uri?.startsWith("KameletDefinition")){
             return CamelUi.getKameletIconByUri(dsl.uri);
         } else {
             return CamelUi.getIconForName(dsl.dsl);
         }
     }
 
-    render() {
+    getCard (dsl:DslMetaModel, index: number) {
+        return (
+            <Card key={dsl.dsl + index} isHoverable isCompact className="dsl-card"
+                  onClick={event => this.selectDsl(event, dsl)}>
+                <CardHeader>
+                    <img draggable={false}
+                         src={this.getIcon(dsl)}
+                         style={dsl.dsl === 'choice' ? {height: "18px"} : {}}  // find better icon
+                         className="icon" alt="icon"></img>
+                    <Text>{dsl.title}</Text>
+                </CardHeader>
+                <CardBody>
+                    <Text>{dsl.description}</Text>
+                </CardBody>
+                <CardFooter>
+                    <Text className="version">{dsl.version}</Text>
+                </CardFooter>
+            </Card>
+        )
+    }
+
+    render () {
+        const parentDsl = this.props.parentDsl;
         return (
             <Modal
-                title={this.props.parentType === undefined ? "Select source/from" : "Select step"}
+                title={parentDsl === undefined ? "Select source/from" : "Select step"}
                 width={'90%'}
                 className='dsl-modal'
                 isOpen={this.state.show}
@@ -110,31 +134,12 @@ export class DslSelector extends React.Component<Props, State> {
                 <PageSection variant={this.props.dark ? "darker" : "light"}>
                     {this.searchInput()}
                     <Tabs style={{overflow: 'hidden'}} activeKey={this.state.tabIndex} onSelect={this.selectTab}>
-                        {CamelUi.getSelectorLabels(this.props.parentType).map((label, index) => (
-                            <Tab eventKey={label[0]} key={"tab-" + label[0]}
-                                 title={<TabTitleText>{CamelUtil.capitalizeName(label[0])}</TabTitleText>}
-                                 translate={undefined} onAuxClick={undefined} onAuxClickCapture={undefined}>
-                                <Gallery key={"gallery-" + label[0]} hasGutter className="dsl-gallery">
-                                    {CamelUi.sortSelectorModels(CamelUi.getSelectorModels(label[0], label[1], this.props.parentType))
-                                        .filter(dsl =>this.checkFilter(dsl))
-                                        .map((dsl, index) => (
-                                            <Card key={dsl.dsl + index} isHoverable isCompact className="dsl-card"
-                                                  onClick={event => this.selectDsl(event, dsl)}>
-                                                <CardHeader>
-                                                    <img draggable={false}
-                                                         src={this.getIcon(dsl)}
-                                                         style={dsl.dsl === 'choice' ? {height: "18px"} : {}}  // find better icon
-                                                         className="icon" alt="icon"></img>
-                                                    <Text>{dsl.title}</Text>
-                                                </CardHeader>
-                                                <CardBody>
-                                                    <Text>{dsl.description}</Text>
-                                                </CardBody>
-                                                <CardFooter>
-                                                    <Text className="version">{dsl.version}</Text>
-                                                </CardFooter>
-                                            </Card>
-                                        ))}
+                        {CamelUi.getSelectorModelLabels(parentDsl, this.props.showSteps).map((label:any, index: number) => (
+                            <Tab eventKey={label} key={"tab-" + label} title={<TabTitleText>{CamelUtil.capitalizeName(label)}</TabTitleText>}>
+                                <Gallery key={"gallery-" + label} hasGutter className="dsl-gallery">
+                                    {CamelUi.getSelectorModelsForParentFiltered(parentDsl, label, this.props.showSteps)
+                                        .filter((dsl:DslMetaModel) => this.checkFilter(dsl))
+                                        .map((dsl:DslMetaModel, index: number) => this.getCard(dsl, index))}
                                 </Gallery>
                             </Tab>
                         ))}

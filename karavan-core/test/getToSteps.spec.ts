@@ -17,17 +17,17 @@
 import {expect} from 'chai';
 import 'mocha';
 import * as fs from 'fs';
-import {CamelApiExt} from "../lib/api/CamelApiExt";
-import {CamelYaml} from "../lib/api/CamelYaml";
+import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
+import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
 
 describe('getToSteps', () => {
 
     it('getToSteps', () => {
         const yaml = fs.readFileSync('test/getToSteps.yaml',{encoding:'utf8', flag:'r'});
-        const i = CamelYaml.yamlToIntegration("test", yaml);
-        const c = CamelApiExt.getToStepsFromIntegration(i);
-        expect(2).to.equal(c.length);
-        expect('to').to.equal(c[0][0].dslName);
-        expect('kamelet').to.equal(c[1][0].dslName);
+        const i = CamelDefinitionYaml.yamlToIntegration("test", yaml);
+        const c = CamelDefinitionApiExt.getToStepsFromIntegration(i);
+        expect(c.length).to.equal(3);
+        expect(c[0][0].dslName).to.equal("ToDefinition");
+        expect(c[2][0].dslName).to.equal("KameletDefinition");
     });
 });

@@ -1,4 +1,0 @@
-                        case 'when':
-                            result = CamelApi.findStep((step as When).steps, uuid, step.uuid, result);
-                            if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
-                            break;

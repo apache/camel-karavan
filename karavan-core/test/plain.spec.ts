@@ -16,23 +16,36 @@
  */
 import {expect} from 'chai';
 import * as fs from 'fs';
-import * as path from 'path';
 import 'mocha';
-import {CamelYaml} from "../src/core/api/CamelYaml";
+import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
+
 
 describe('Plain YAML to integration', () => {
 
-    const yaml = fs.readFileSync('test/plain1.yaml',{encoding:'utf8', flag:'r'});
-
     it('YAML <-> Object', () => {
-        const i = CamelYaml.yamlToIntegration("test1.yaml", yaml);
+        const yaml = fs.readFileSync('test/plain1.yaml',{encoding:'utf8', flag:'r'});
+        const i = CamelDefinitionYaml.yamlToIntegration("test1.yaml", yaml);
         expect(i.metadata.name).to.equal('test1.yaml');
         expect(i.kind).to.equal('Integration');
-        expect(i.spec.flows.length).to.equal(1);
+        expect(i.spec.flows?.length).to.equal(1);
         expect(i.crd).to.equal(false);
-        expect(i.spec.flows[0].uri).to.equal('kamelet:timer-source');
-        const y = CamelYaml.integrationToYaml(i);
-        expect(y).to.equal(yaml);
+        if (i.spec.flows) {
+            expect(i.spec.flows[0].from.uri).to.equal('timer:info');
+            expect(i.spec.flows[0].from.steps[0].when.length).to.equal(2);
+        }
+    });
+
+    it('YAML <-> Object 2', () => {
+        const yaml = fs.readFileSync('test/plain2.yaml',{encoding:'utf8', flag:'r'});
+        const i = CamelDefinitionYaml.yamlToIntegration("test1.yaml", yaml);
+        expect(i.metadata.name).to.equal('test1.yaml');
+        expect(i.kind).to.equal('Integration');
+        expect(i.spec.flows?.length).to.equal(1);
+        expect(i.crd).to.equal(false);
+        if (i.spec.flows) {
+            expect(i.spec.flows[0].from.uri).to.equal('timer:info');
+            expect(i.spec.flows[0].from.steps[0].expression.constant.expression).to.equal("Hello Yaml !!!");
+        }
     });
 
 });
