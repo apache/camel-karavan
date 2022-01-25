@@ -6,9 +6,19 @@ spec:
   flows:
     - from:
         uri: kamelet:timer-source
-        parameters:
-          period: 1000
-          message: qqq
         steps:
           - log:
               message: wwwww
+          - filter:
+              expression:
+                constant:
+                  expression: Hello Yaml !!!
+              steps:
+                - to:
+                    uri: log:info:xxx
+                    parameters:
+                      level: 'OFF'
+                      logMask: true
+        parameters:
+          period: 1000
+          message: qqq

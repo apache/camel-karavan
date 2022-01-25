@@ -1,0 +1,20 @@
+- route:
+    from:
+      uri: timer:info
+      steps:
+        - choice:
+            when:
+              - expression:
+                  simple:
+                    expression: ${headers} != null
+                steps:
+                  - log:
+                      message: hello11
+                      logName: log11
+              - expression:
+                  simple:
+                    expression: ${headers} == null
+                steps:
+                  - log:
+                      message: hello22s
+                      logName: log22

@@ -1,6 +1,0 @@
-    static readOtherwise = (element: any): Otherwise => {
-        const otherwise = element ? new Otherwise({...element}) : new Otherwise();
-        otherwise.steps = CamelYamlStep.readSteps(element?.steps);
-        if (element?.uuid) otherwise.uuid = element?.uuid;
-        return otherwise
-    }

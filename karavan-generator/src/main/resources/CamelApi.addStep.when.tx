@@ -1,5 +1,0 @@
-                case 'when':
-                    const whenChildren = (el as When).steps || [];
-                    if (el.uuid === parentId) position !== undefined ? whenChildren.splice(position, 0, step) : whenChildren.push(step);
-                    else (el as When).steps = CamelApi.addStep(whenChildren, step, parentId, position);
-                    break;

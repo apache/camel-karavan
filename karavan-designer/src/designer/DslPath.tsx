@@ -64,7 +64,7 @@ export class DslPath extends React.Component<Props, State> {
     }
 
     setPosition(evt: DslPosition) {
-        if (evt.step.dslName === 'from'){
+        if (evt.step.dslName === 'FromDefinition' || evt.step.dslName === 'FromDefinition'){
             this.setState({inout:"in", left: 46, top: (evt.rect.top + 20), width: (evt.rect.x) - 46});
         } else {
             this.setState({inout:"out", left: evt.rect.x + evt.rect.width, top: (evt.rect.top + 20), width: (evt.rect.x + evt.rect.width + 200)});

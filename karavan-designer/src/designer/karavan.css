@@ -228,6 +228,38 @@
     height: auto;
 }
 
+.karavan .dsl-page .properties .input-group .pf-c-text-input-group__text {
+    width: 100%;
+}
+
+.karavan .dsl-page .properties .input-group .pf-c-chip-group,
+.karavan .dsl-page .properties .input-group .pf-c-text-input-group__main,
+.karavan .dsl-page .properties .input-group .pf-c-chip-group .pf-c-chip-group__list,
+.karavan .dsl-page .properties .input-group .pf-c-chip-group .pf-c-chip-group__list .pf-c-chip-group__list-item,
+.karavan .dsl-page .properties .input-group .pf-c-chip-group .pf-c-chip-group__main {
+    display:block;
+}
+
+.karavan .dsl-page .properties .input-group .pf-c-chip-group {
+    margin-left: 0;
+}
+
+.karavan .dsl-page .properties .input-group .pf-c-chip-group .pf-c-chip .pf-c-chip__text{
+    max-width: inherit;
+}
+.karavan .dsl-page .properties .input-group .pf-c-chip-group .pf-c-chip {
+    width: 100%;
+}
+
+.karavan .dsl-page .properties .input-group .pf-c-text-input-group__utilities {
+    align-items: end;
+}
+
+.karavan .dsl-page .properties .chip .pf-c-button{
+    position:absolute;
+    right: 0;
+}
+
 .karavan .dsl-page .properties .expression-title {
     font-size: 17px;
     font-weught: bold;
@@ -290,6 +322,7 @@
 }
 
 .karavan .dsl-page .properties .expression,
+.karavan .dsl-page .properties .object,
 .karavan .dsl-page .properties .dataformat,
 .karavan .dsl-page .properties .parameters {
     padding-top: 6px;
@@ -300,17 +333,39 @@
 }
 
 .karavan .dsl-page .properties .expression .pf-c-form__group-label,
+.karavan .dsl-page .properties .object .pf-c-form__group-label,
+.karavan .dsl-page .properties .dataformat .pf-c-form__group-label,
 .karavan .dsl-page .properties .parameters .pf-c-form__group-label {
     font-weight: 100;
 }
 
-.karavan .dsl-page .properties .expression .pf-c-form__group {
+.karavan .dsl-page .properties .expression .pf-c-form__group,
+.karavan .dsl-page .properties .object .pf-c-form__group,
+.karavan .dsl-page .properties .dataformat .pf-c-form__group,
+.karavan .dsl-page .properties .parameters .pf-c-form__group {
     margin-bottom: 10px;
 }
 
-.karavan .dsl-page .properties .expression .pf-c-select__menu-wrapper {
+.karavan .dsl-page .properties .expression .pf-c-select__menu-wrapper,
+.karavan .dsl-page .properties .object .pf-c-select__menu-wrapper,
+.karavan .dsl-page .properties .dataformat .pf-c-select__menu-wrapper,
+.karavan .dsl-page .properties .parameters .pf-c-select__menu-wrapper{
     width: 350px;
 }
+
+.karavan .dsl-page .properties .add-button {
+    font-size: 15px;
+    height: 15px;
+    line-height: 1;
+    border: 0;
+    padding: 0;
+    margin: auto auto auto 6px;
+    background: transparent;
+    color: #fb8824;
+}
+
+
+/*Page*/
 
 .karavan .dsl-page .flows {
     display: block;
@@ -403,23 +458,19 @@
     border-radius: 3px;
     border-width: 1px;
     min-width: 160px;
-    padding: 4px 6px;
+    padding: 1px 6px;
     position: relative;
 }
 
-.karavan .dsl-page .flows .step-element .choice .whens {
+.karavan .dsl-page .flows .step-element .ChoiceDefinition .whens {
     margin-top: -23px;
 }
-.karavan .dsl-page .flows .step-element .header {
+
+.karavan .dsl-page .flows .step-element .header-route {
     display: block;
-    justify-content: center;
-    position: relative;
-    border-color: #fb8824;
-    border-style: solid;
-    border-radius: 3px;
-    border-width: 1px;
-    background: #fff;
-    padding: 3px 0px 3px 0px;
+    border: none;
+    background: transparent;
+    padding: 0px 0px 0px 0px;
     margin-bottom: 10px;
     min-width: 160px;
     z-index: 101;
@@ -436,9 +487,10 @@
     border-style: solid;
     border-radius: 3px;
     border-width: 1px;
-    background: #fff;
+    background: #ffffff;
     margin-bottom: 0;
     min-width: 160px;
+    position: relative;
 }
 
 .karavan .dsl-page .flows .step-element-without-steps {
@@ -452,10 +504,11 @@
 }
 
 .step-element .header .delete-button,
+.step-element .header-route .delete-button,
 .element-builder .header .delete-button {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 0px;
+    right: 0px;
     font-size: 13px;
     line-height: 1;
     border: 0;
@@ -463,12 +516,17 @@
     margin: 0;
     background: transparent;
     color: #b1b1b7;
-    visibility: hidden;
+    /*visibility: hidden;*/
 }
 
 .step-element:hover .header .delete-button,
+.step-element .header-route .delete-button,
 .element-builder:hover .header .delete-button {
     visibility: visible;;
+}
+
+.step-element .header-icon {
+
 }
 
 .step-element .header .icon,
@@ -500,19 +558,19 @@
     color: #fb8824;
 }
 
-.step-element .add-button-from {
-    top: 0;
+.step-element .add-element-button {
+    bottom: 3px;
+    left: 3px;
     font-size: 15px;
     height: 15px;
     line-height: 1;
     border: 0;
     padding: 0;
-    margin: 3px 0 0 0;
-    background: white;
+    background: transparent;
     color: #fb8824;
-    visibility: visible;
+    visibility: hidden;
     z-index: 100;
-    position: relative;
+    position: absolute;
 }
 
 .step-element .add-button {
@@ -544,7 +602,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: end;
+    justify-content: flex-end;
     width: 16px;
 }
 
@@ -554,6 +612,7 @@
 
 
 .element-builder:hover .add-button,
+.step-element:hover .add-element-button,
 .step-element:hover .add-button {
     visibility: visible;
 }

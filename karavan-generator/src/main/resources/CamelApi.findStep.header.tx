@@ -1,7 +1,0 @@
-    static findStep = (steps: CamelElement[] | undefined, uuid: string, parentUuid?: string, result?: CamelElementMeta): CamelElementMeta => {
-        if (result?.step !== undefined) return result;
-        if (result === undefined) result = new CamelElementMeta(undefined, parentUuid, undefined, []);
-        if (steps !== undefined){
-            for (let index = 0, step; step = steps[index]; index++) {
-                if (step.uuid !== uuid) {
-                    switch (step.dslName) {

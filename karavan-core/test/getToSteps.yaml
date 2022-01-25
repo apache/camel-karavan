@@ -10,9 +10,15 @@ spec:
           - unmarshal:
               json:
                 library: gson
-          - setBody:
+          - filter:
               expression:
                 constant: Hello Yaml !!!
+              steps:
+                - to:
+                    uri: log:info:xxx
+                    parameters:
+                      level: 'OFF'
+                      logMask: true
           - pollEnrich:
               expression: {}
           - log:

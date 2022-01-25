@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 import {Subject} from 'rxjs';
-import {CamelElement} from "../model/CamelModel";
 import {InOut} from "../model/ConnectionModels";
+import {CamelElement} from "../model/CamelDefinition";
 
 const positions = new Subject<DslPosition>();
 const flowsPosition = new Subject<DOMRect>();

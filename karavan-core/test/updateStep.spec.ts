@@ -16,48 +16,55 @@
  */
 import {expect} from 'chai';
 import 'mocha';
-import {From, Integration, Log, When, Choice, Expression} from "../src/core/model/CamelModel";
-import {CamelApiExt} from "../src/core/api/CamelApiExt";
+import {FromDefinition, Integration, LogDefinition, WhenDefinition, ChoiceDefinition, ExpressionDefinition} from "../src/core/model/CamelDefinition";
 import {CamelUtil} from "../lib/api/CamelUtil";
-import {Filter} from "../lib/model/CamelModel";
+import {CamelDefinitionApiExt} from "../lib/api/CamelDefinitionApiExt";
+import {FilterDefinition, SimpleExpression} from "../lib/model/CamelDefinition";
 
 describe('Update Step', () => {
 
     it('Update Expression in When clause', () => {
         const i = Integration.createNew("test")
-        const when1 = new When({expression:new Expression({simple:'$[body} != null'}), steps:[new Log({logName: 'log11', message: "hello11"})]})
-        const choice = new Choice({when:[when1]})
-        const flow1 = new From({uri: "direct1"});
+        const when1 = new WhenDefinition({
+            expression:new ExpressionDefinition({simple: new SimpleExpression({expression: '$[body} != null'})}),
+            steps:[new LogDefinition({logName: 'log11', message: "hello11"})]
+        })
+        const choice = new ChoiceDefinition({when:[when1]})
+        const flow1 = new FromDefinition({uri: "direct1"});
         flow1.steps?.push(choice);
-        i.spec.flows.push(flow1);
-        const when2:When = CamelUtil.cloneStep(when1);
+        i.spec.flows?.push(flow1);
+        const when2:WhenDefinition = CamelUtil.cloneStep(when1);
         if (when2 && when2.expression){
-            when2.expression.simple = '$[body} == "hello world"';
+            when2.expression.simple = new SimpleExpression({expression: '$[body} == "hello world"'});
         }
-        const i2 = CamelApiExt.updateIntegration(i, when2, choice.uuid);
+        const i2 = CamelDefinitionApiExt.updateIntegration(i, when2, choice.uuid);
         if (i2.spec.flows && i2.spec.flows.length > 0){
-            const f:From = i2.spec.flows[0];
-            const c:Choice = f.steps ? f.steps[0] : new Choice();
+            const f:FromDefinition = i2.spec.flows[0];
+            const c:ChoiceDefinition = f.steps ? f.steps[0] : new ChoiceDefinition();
             const w = c.when ? c.when[0] : undefined;
-            expect(w?.expression?.simple).to.equal('$[body} == "hello world"');
+            expect((w?.expression?.simple as SimpleExpression).expression).to.equal('$[body} == "hello world"');
         }
     });
 
     it('Update Expression in Filter clause', () => {
         const i = Integration.createNew("test")
-        const filter = new Filter({expression:new Expression({simple:'$[body} != null'}), steps:[new Log({logName: 'log11', message: "hello11"})]})
-        const flow1 = new From({uri: "direct1"});
+        const filter = new FilterDefinition({
+            expression:new ExpressionDefinition({simple: new SimpleExpression({expression: '$[body} != null'})}),
+            steps:[new LogDefinition({logName: 'log11', message: "hello11"})]
+        })
+        const flow1 = new FromDefinition({uri: "direct1"});
         flow1.steps?.push(filter);
-        i.spec.flows.push(flow1);
-        const filter1:Filter = CamelUtil.cloneStep(filter);
+        i.spec.flows?.push(flow1);
+
+        const filter1:FilterDefinition = CamelUtil.cloneStep(filter);
         if (filter1 && filter1.expression){
-            filter1.expression.simple = '$[body} == "hello world"';
+            filter1.expression.simple = new SimpleExpression({expression: '$[body} == "hello world"'});
         }
-        const i2 = CamelApiExt.updateIntegration(i, filter1, filter.uuid);
+        const i2 = CamelDefinitionApiExt.updateIntegration(i, filter1, filter.uuid);
         if (i2.spec.flows && i2.spec.flows.length > 0){
-            const from:From = i2.spec.flows[0];
-            const f:Filter = from.steps ? from.steps[0] : new Filter();
-            expect(f?.expression?.simple).to.equal('$[body} == "hello world"');
+            const from:FromDefinition = i2.spec.flows[0];
+            const f:FilterDefinition = from.steps ? from.steps[0] : new FilterDefinition();
+            expect((f?.expression?.simple as SimpleExpression).expression).to.equal('$[body} == "hello world"');
         }
     });
 });

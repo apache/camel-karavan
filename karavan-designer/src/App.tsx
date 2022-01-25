@@ -41,29 +41,37 @@ class App extends React.Component<Props, State> {
             '  name: \'\'\n' +
             'spec:\n' +
             '  flows:\n' +
-            '    - from:\n' +
-            '        uri: \'kamelet:http-secured-source\'\n' +
-            '        steps:\n' +
-            '          - unmarshal:\n' +
-            '              json:\n' +
-            '                  library: gson\n' +
-            '          - set-body:\n' +
-            '              expression: \n' +
-            '                constant: "Hello Yaml !!!"\n' +
-            '          - pollEnrich:\n' +
-            '              expression: {}\n' +
-            '          - log: "${body}"\n' +
-            '          - to: \n' +
-            '               uri: "log:info:xxx"\n' +
-            '               parameters:\n' +
-            '                   level: \'OFF\'\n' +
-            '                   logMask: true \n' +
-            '          - choice:\n' +
-            '              otherwise: {}\n' +
-            '              when:\n' +
-            '                - expression: {}\n' +
-            '                  steps:\n' +
-            '                    - to-d: {}\n'
+            '    - route:\n' +
+            '        from:\n' +
+            '          uri: kamelet:http-secured-source\n' +
+            '          steps:\n' +
+            '            - do-try:\n' +
+            '                steps:\n' +
+            '                  - to: "log:when-a"\n' +
+            '                do-catch:\n' +
+            '                  - exception:\n' +
+            '                      - "java.io.FileNotFoundException"\n' +
+            '                      - "java.io.IOException"\n' +
+            '                    steps:\n' +
+            '                      - to: "log:io-111"\n' +
+            '                  - exception:\n' +
+            '                      - "java.io.FileNotFoundException"\n' +
+            '                      - "java.io.IOException"\n' +
+            '                    steps:\n' +
+            '                      - to: "log:io-111"\n' +
+            '            - choice:\n' +
+            '                when:\n' +
+            '                  - expression: {}\n' +
+            '                    steps:\n' +
+            '                      - log:\n' +
+            '                           message: hello22s\n' +
+            '                           logName: log22\n' +
+            '                otherwise: {}\n'+
+            '            - circuitBreaker: {}\n' +
+            '            - multicast:\n' +
+            '                steps:\n' +
+            '                  - to: "kafka:topic1"\n' +
+            '                  - to: "kafka:topic2"\n'
             ,
         key: ''
     };
@@ -87,6 +95,7 @@ class App extends React.Component<Props, State> {
 
         ["bonita.json",
             "activemq.json",
+            "direct.json",
             "docker.json",
             "netty-http.json",
             "jms.json",

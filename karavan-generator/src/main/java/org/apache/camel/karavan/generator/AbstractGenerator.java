@@ -20,12 +20,14 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.dsl.yaml.YamlRoutesBuilderLoader;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class AbstractGenerator {
@@ -39,7 +41,7 @@ public class AbstractGenerator {
 
     protected String getCamelYamlDSL() {
         try {
-            InputStream inputStream = YamlRoutesBuilderLoader.class.getResourceAsStream("/camel-yaml-dsl.json");
+            InputStream inputStream = YamlRoutesBuilderLoader.class.getResourceAsStream("/camelYamlDsl.json");
             String data = new BufferedReader(new InputStreamReader(inputStream))
                     .lines().collect(Collectors.joining(System.getProperty("line.separator")));
             return data;
@@ -78,9 +80,9 @@ public class AbstractGenerator {
         return null;
     }
 
-    protected String camelize(String name, String separator) {
-        return Arrays.stream(name.split(separator)).map(s -> capitalize(s)).collect(Collectors.joining());
-    }
+//    protected String camelize(String name, String separator) {
+//        return Arrays.stream(name.split(separator)).map(s -> capitalize(s)).collect(Collectors.joining());
+//    }
 
     protected String capitalize(String str) {
         return str.length() == 0 ? str
@@ -94,4 +96,80 @@ public class AbstractGenerator {
                 : str.substring(0, 1).toLowerCase() + str.substring(1);
     }
 
+    protected String getMetaModel(String name) {
+        try {
+            InputStream inputStream = CamelCatalog.class.getResourceAsStream("/org/apache/camel/catalog/models/" + name + ".json");
+            String data = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines().collect(Collectors.joining(System.getProperty("line.separator")));
+            return data;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    protected String getMetaDataFormat(String name) {
+        try {
+            InputStream inputStream = RouteBuilder.class.getResourceAsStream("/org/apache/camel/model/dataformat/" + name + ".json");
+            String data = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines().collect(Collectors.joining(System.getProperty("line.separator")));
+            return data;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    protected String getMetaLanguage(String name) {
+        try {
+            InputStream inputStream = RouteBuilder.class.getResourceAsStream("/org/apache/camel/model/language/" + name + ".json");
+            String data = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines().collect(Collectors.joining(System.getProperty("line.separator")));
+            return data;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    protected boolean isAttributeRef(JsonObject attribute) {
+        return attribute.containsKey("$ref");
+    }
+
+    protected String getAttributeClass(JsonObject attribute) {
+        return classSimple(attribute.getString("$ref"));
+    }
+
+    protected String getAttributeArrayClass(JsonObject attribute) {
+        return classSimple(attribute.getJsonObject("items").getString("$ref"));
+    }
+
+    protected String classSimple(String classFullName) {
+        String[] def = classFullName.split("\\.");
+        return def[def.length - 1];
+    }
+
+    protected List<String> getClasses(JsonObject definitions, String filter) {
+        List<String> result = new ArrayList<>();
+        definitions.getMap().forEach((s, o) -> {
+            if (s.startsWith(filter) && !s.equals("org.apache.camel.dsl.yaml.deserializers.RouteFromDefinitionDeserializer")) {
+                result.add(s);
+            }
+        });
+        return result;
+    }
+
+    protected Map<String, String> getProcessorStepName(JsonObject properties) {
+        Map<String, String> result = new HashMap<>();
+        properties.getMap().forEach((name, o) -> {
+            String ref = properties.getJsonObject(name).getString("$ref");
+            ref = ref.equals("#/items/definitions/org.apache.camel.dsl.yaml.deserializers.RouteFromDefinitionDeserializer")
+                    ? "#/items/definitions/org.apache.camel.model.FromDefinition"
+                    : ref;
+            String className = classSimple(ref);
+            result.put(className, className.equals("ToDynamicDefinition") ? "toD" : name);
+        });
+        return result;
+    }
+
+    protected JsonObject getDefinition(JsonObject definitions, String className) {
+        return definitions.getJsonObject(className.replace("#/items/definitions/", ""));
+    }
 }
