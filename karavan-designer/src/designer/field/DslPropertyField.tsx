@@ -109,7 +109,7 @@ export class DslPropertyField extends React.Component<Props, State> {
     getLabel = (property: PropertyMeta, value: any) => {
         if (property.isObject && property.type !== "ExpressionDefinition"){
             const tooltip = value ? "Delete " + property.name : "Add " + property.name;
-            const x = value ? undefined : CamelDefinitionApi.createStep(property.type, {});
+            const x = CamelDefinitionApi.createStep(property.type, {});
             const icon = value ? (<DeleteIcon noVerticalAlign/>) : (<AddIcon noVerticalAlign/>);
             return (
                 <div style={{display:"flex"}}>

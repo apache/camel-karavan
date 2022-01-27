@@ -17,12 +17,16 @@ spec:
                       - "java.io.FileNotFoundException"
                       - "java.io.IOException"
                     on-when:
-                      simple: "${body.size()} == 1"
+                      expression:
+                        simple: "${body.size()} == 1"
                     steps:
                       - to: "log:io-error"
             - choice:
                 when:
-                  - expression: {}
+                  - expression:
+                      simple: "${body.size()} == 1"
                     steps:
-                      - tod: {}
-                otherwise: {}
+                      - toD: "log:xxx"
+                otherwise:
+                    steps:
+                      - toD: "log:yyy"

@@ -655,8 +655,7 @@ export class KameletDefinition extends CamelElement {
     inheritErrorHandler?: boolean;
     stepName?: string = 'kamelet';
     name: string = '';
-    parameters?: any = {};
-    steps?: CamelElement[] = []
+    parameters?: any = {}
     public constructor(init?: Partial<KameletDefinition>) {
         super('KameletDefinition')
         Object.assign(this, init)

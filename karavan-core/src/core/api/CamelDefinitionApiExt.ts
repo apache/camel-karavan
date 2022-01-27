@@ -329,43 +329,6 @@ export class CamelDefinitionApiExt {
         }
     }
 
-    static getToStepsFromIntegration = (integration: Integration): [CamelElement, number][] => {
-        const result: [CamelElement, number][] = [];
-        integration.spec.flows?.filter(f => f.dslName === 'RouteDefinition').forEach((route, index) => {
-            const steps: [CamelElement, number][] = CamelDefinitionApiExt.getOutgoingStepsFromStep(route.from, 0);
-            result.push(...steps);
-        })
-        return result;
-    }
-
-    static getOutgoingStepsFromStep = (step: CamelElement, level: number): [CamelElement, number][] => {
-        const result: [CamelElement, number][] = [];
-        if (['ToDefinition', 'KameletDefinition'].includes(step.dslName)) result.push([step, level]);
-        if (step.hasSteps() && step.dslName !== 'ChoiceDefinition'){
-            const parallel = step.dslName === 'MulticastDefinition';
-            const steps = CamelDefinitionApiExt.getStepsFromSteps((step as any).steps, level + 1, parallel);
-            result.push(...steps);
-        } else if (step.dslName === 'ChoiceDefinition'){
-            const when = CamelDefinitionApiExt.getStepsFromSteps((step as any).when, level + 1, true);
-            result.push(...when);
-            if ((step as ChoiceDefinition).otherwise){
-                const osteps: CamelElement[] = (step as ChoiceDefinition).otherwise?.steps || [];
-                const otherwise = CamelDefinitionApiExt.getStepsFromSteps(osteps, level + 1, false);
-                result.push(...otherwise);
-            }
-        }
-        return result;
-    }
-
-    static getStepsFromSteps = (steps: CamelElement[], level: number, parallel: boolean): [CamelElement, number][] => {
-        const result: [CamelElement, number][] = [];
-        steps.forEach((step, index) => {
-            const steps = CamelDefinitionApiExt.getOutgoingStepsFromStep(step, level + (parallel ? 1 : index));
-            result.push(...steps);
-        })
-        return result;
-    }
-
     static getElementChildrenDefinition = (dslName: string): ChildElement[] => {
         const result: ChildElement[] = [];
         const meta = CamelMetadataApi.getCamelModelMetadataByClassName(dslName);

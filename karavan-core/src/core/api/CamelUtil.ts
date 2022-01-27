@@ -19,8 +19,6 @@ import {
     CamelElement,
 } from "../model/CamelDefinition";
 import {CamelDefinitionApi} from "./CamelDefinitionApi";
-import {CamelDefinitionYamlStep} from "./CamelDefinitionYamlStep";
-
 
 export class CamelUtil {
 
@@ -43,7 +41,7 @@ export class CamelUtil {
             const stepName = value[stepNameField];
             const x = JSON.parse(JSON.stringify(value));
             delete x[stepNameField];
-            if (['when', 'otherwise', 'expression'].includes(value[stepNameField])){
+            if (['when', 'otherwise', 'expression', 'doCatch', 'doFinally'].includes(value[stepNameField])){
                 return x;
             } else if (key === 'from'){
                 return x;

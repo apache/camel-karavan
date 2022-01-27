@@ -48,6 +48,8 @@ class App extends React.Component<Props, State> {
             '            - do-try:\n' +
             '                steps:\n' +
             '                  - to: "log:when-a"\n' +
+            '                  - to: "log:when-a"\n' +
+            '                  - to: "log:when-a"\n' +
             '                do-catch:\n' +
             '                  - exception:\n' +
             '                      - "java.io.FileNotFoundException"\n' +
@@ -59,6 +61,9 @@ class App extends React.Component<Props, State> {
             '                      - "java.io.IOException"\n' +
             '                    steps:\n' +
             '                      - to: "log:io-111"\n' +
+            '                      - to: "log:io-111"\n' +
+            '                      - to: "log:io-111"\n' +
+            '            - threads:\n' +
             '            - choice:\n' +
             '                when:\n' +
             '                  - expression: {}\n' +
@@ -70,9 +75,9 @@ class App extends React.Component<Props, State> {
             '            - circuitBreaker: {}\n' +
             '            - multicast:\n' +
             '                steps:\n' +
-            '                  - to: "kafka:topic1"\n' +
-            '                  - to: "kafka:topic2"\n'
-            ,
+            '                  - to: "http:localhost"\n' +
+            '                  - to: "kafka:topic2"\n' +
+            '',
         key: ''
     };
 

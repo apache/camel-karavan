@@ -46,6 +46,4 @@ describe('CamelUi', () => {
         const labelsF = CamelUi.getSelectorModelLabels("FromDefinition");
     });
 
-
-
 });

@@ -20,14 +20,16 @@ import {
 } from '@patternfly/react-core';
 import './karavan.css';
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
+import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 import {CamelElement} from "karavan-core/lib/model/CamelDefinition";
 import {CamelUi} from "karavan-core/lib/api/CamelUi";
-import {EventBus} from "karavan-core/lib/api/EventBus";
+import {EventBus} from "./EventBus";
 import {ChildElement, CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
+import ReactDOM from "react-dom";
 
 interface Props {
     step: CamelElement,
+    parent: CamelElement | undefined,
     deleteElement: any
     selectElement: any
     openSelector: (parentId: string | undefined, parentDsl: string | undefined, showSteps: boolean) => void
@@ -35,6 +37,8 @@ interface Props {
     selectedUuid: string
     borderColor: string
     borderColorSelected: string
+    inSteps: boolean
+    position: number
 }
 
 interface State {
@@ -91,7 +95,7 @@ export class DslElement extends React.Component<Props, State> {
             ||  ['RouteDefinition', 'TryDefinition', 'ChoiceDefinition'].includes(this.state.step.dslName);
     }
 
-    isDraggable = (): boolean => {
+    isNotDraggable = (): boolean => {
         return ['FromDefinition', 'RouteDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(this.state.step.dslName);
     }
 
@@ -100,26 +104,58 @@ export class DslElement extends React.Component<Props, State> {
             .includes(this.state.step.dslName);
     }
 
-    isHorizontal = (): boolean => {
-        return ['MulticastDefinition'].includes(this.state.step.dslName);
+    isAddStepButtonLeft = (): boolean => {
+        return ['MulticastDefinition']
+            .includes(this.state.step.dslName);
     }
 
-    needMarginLeft = (): boolean => {
-        return ['CatchDefinition', "WhenDefinition"].includes(this.state.step.dslName);
+    isHorizontal = (): boolean => {
+        return ['MulticastDefinition'].includes(this.state.step.dslName);
     }
 
     isRoot = (): boolean => {
         return this.state.step?.dslName?.startsWith("RouteDefinition");
     }
 
-    getArrow = () => {
-        return (
-            <svg className={"arrow-down"} viewBox="0 0 483.284 483.284" width="16" height="16"
-                 preserveAspectRatio="none">
-                <polygon fill={"currentColor"}
-                         points="347.5,320.858 261.888,406.469 261.888,0 221.888,0 221.888,406.962 135.784,320.858   107.5,349.142 241.642,483.284 375.784,349.142 "/>
-            </svg>
-        )
+    isInStepWithChildren =() => {
+        const step: CamelElement = this.state.step;
+        const children = CamelDefinitionApiExt.getElementChildrenDefinition(step.dslName);
+        return children.filter(c => c.name === 'steps' || c.multiple).length > 0 && this.props.inSteps;
+    }
+
+    getChildrenInfo =(step: CamelElement):[boolean, number, boolean, number, number] => {
+        const children = CamelDefinitionApiExt.getElementChildrenDefinition(step.dslName);
+        const hasStepsField = children.filter(c => c.name === 'steps').length === 1;
+        const stepsChildrenCount = children
+            .filter(c => c.name === 'steps')
+            .map((child: ChildElement, index: number) => {
+                const children: CamelElement[] = CamelDefinitionApiExt.getElementChildren(step, child);
+                return children.length;
+            }).reduce((a, b) => a + b, 0);
+
+        const hasNonStepsFields = children.filter(c => c.name !== 'steps' && c.name !== 'expression' && c.name !== 'onWhen').length > 0;
+        const childrenCount = children
+            .map((child: ChildElement, index: number) => {
+                const children: CamelElement[] = CamelDefinitionApiExt.getElementChildren(step, child);
+                return children.length;
+            }).reduce((a, b) => a + b, 0);
+        const nonStepChildrenCount = childrenCount - stepsChildrenCount;
+        return [hasStepsField, stepsChildrenCount, hasNonStepsFields, nonStepChildrenCount, childrenCount]
+    }
+
+    hasWideChildrenElement =() => {
+        const [hasStepsField, stepsChildrenCount, hasNonStepsFields, nonStepChildrenCount, childrenCount] = this.getChildrenInfo(this.state.step);
+        if (this.isHorizontal() && stepsChildrenCount > 1) return true;
+        else if (hasStepsField && stepsChildrenCount > 0 && hasNonStepsFields && nonStepChildrenCount > 0) return true;
+        else if (!hasStepsField && hasNonStepsFields && childrenCount > 1) return true;
+        else if (hasStepsField && stepsChildrenCount > 0 && hasNonStepsFields && childrenCount > 1) return true;
+        else return false;
+    }
+
+    hasBorderOverSteps =(step: CamelElement) => {
+        const [hasStepsField, stepsChildrenCount, hasNonStepsFields, nonStepChildrenCount, childrenCount] = this.getChildrenInfo(step);
+        if (hasStepsField && stepsChildrenCount > 0 && hasNonStepsFields && nonStepChildrenCount > 0) return true;
+        else return false;
     }
 
     getHeaderStyle = () => {
@@ -130,25 +166,35 @@ export class DslElement extends React.Component<Props, State> {
         return style;
     }
 
+    sendPosition = (el: HTMLDivElement | null) => {
+        const node = ReactDOM.findDOMNode(this);
+        if (node && el){
+            const header = Array.from(node.childNodes.values()).filter((n: any) => n.classList.contains("header"))[0];
+            if (header){
+                const headerIcon:any = Array.from(header.childNodes.values()).filter((n: any) => n.classList.contains("header-icon"))[0];
+                const headerRect = headerIcon.getBoundingClientRect();
+                const rect = el.getBoundingClientRect();
+                EventBus.sendPosition("add", this.state.step, this.props.parent, rect, headerRect, this.props.position, this.props.inSteps);
+            }
+        }
+    }
     getHeader = () => {
         const step: CamelElement = this.state.step;
         const availableModels = CamelUi.getSelectorModelsForParent(step.dslName, false);
         const showAddButton = !['CatchDefinition', 'RouteDefinition'].includes(step.dslName) && availableModels.length > 0;
+        const headerClass = step.dslName === 'RouteDefinition' ? "header-route" : "header"
+        const headerClasses = this.isSelected() ? headerClass + " selected" : headerClass;
         return (
-            <div className={step.dslName === 'RouteDefinition' ? "header-route" : "header" }
-                 style={this.getHeaderStyle()}
-                 ref={el => {
-                     if (el && (this.state.step.dslName === 'FromDefinition'
-                         || this.state.step.dslName === 'ToDefinition'
-                         || this.state.step.dslName === 'KameletDefinition'))
-                         EventBus.sendPosition(this.state.step, el.getBoundingClientRect());
-                 }}>
+            <div className={headerClasses} style={this.getHeaderStyle()}>
                 {this.state.step.dslName !== 'RouteDefinition' &&
-                    <div className={"header-icon"} style={this.isWide() ? {border: "none"}: {}}>
-                        <img draggable={false} src={CamelUi.getIcon(this.state.step)} className="icon" alt="icon"/>
+                    <div ref={el => this.sendPosition(el)} className={"header-icon"} style={this.isWide() ? {width: ""}: {}}>
+                        <img draggable={false} src={CamelUi.getIconForName(step.dslName)} className="icon" alt="icon"/>
                     </div>
                 }
-                <Text>{CamelUi.getTitle(this.state.step)}</Text>
+                <div className={this.hasWideChildrenElement() ? "header-text" : ""}>
+                    {this.hasWideChildrenElement() && <div className="spacer"/>}
+                    <Text className={this.hasWideChildrenElement() ? "text text-right" :"text text-bottom"}>{CamelUi.getTitle(this.state.step)}</Text>
+                </div>
                 {this.state.step.dslName !== 'FromDefinition' && <button type="button" aria-label="Delete" onClick={e => this.delete(e)} className="delete-button"><DeleteIcon noVerticalAlign/></button>}
                 {showAddButton && this.getAddElementButton()}
             </div>
@@ -157,7 +203,7 @@ export class DslElement extends React.Component<Props, State> {
 
     getHeaderWithTooltip = (tooltip: string | undefined) => {
         return (
-            <Tooltip position={"auto"}
+            <Tooltip position={"left"}
                      content={<div>{tooltip}</div>}>
                 {this.getHeader()}
             </Tooltip>
@@ -185,53 +231,26 @@ export class DslElement extends React.Component<Props, State> {
         return style;
     }
 
-    getChildrenElementsStyle = (child:ChildElement, onlySteps: boolean) => {
+    getChildrenElementsStyle = (child:ChildElement, notOnlySteps: boolean) => {
         const step = this.state.step;
         const children: CamelElement[] = CamelDefinitionApiExt.getElementChildren(step, child);
-        const isBorder = child.name === 'steps' && children.length > 0 && !onlySteps;
-        const isMarginLeft = (child.name === 'steps' && !onlySteps);
+        const isBorder = child.name === 'steps' && this.hasBorderOverSteps(step);
         const style: CSSProperties = {
             borderStyle: isBorder ? "dotted" : "none",
-            borderColor:  this.props.borderColor,
+            borderColor: this.props.borderColor,
             borderWidth: "1px",
-            borderRadius: "3px",
-            padding: isBorder ? "6px" : "none",
-            marginLeft: isMarginLeft ? "3px" : "none",
+            borderRadius: "20px",
             display: this.isHorizontal() || child.name !== 'steps' ? "flex" : "block",
             flexDirection: "row",
         };
         return style;
     }
 
-    getChildStyle = (index: number, count: number) => {
-        const style: CSSProperties = this.isHorizontal()
-            ? {marginRight: (index < count - 1) ? "6px" : "0"}
-            : {}
-        return style;
-    }
-
-    showUpArrow = (child:ChildElement, count: number, index: number) => {
-        const step = this.state.step;
-        const children = CamelDefinitionApiExt.getElementChildrenDefinition(step.dslName);
-        if (this.state.step.dslName === "RouteDefinition"){
-            return false;
-        } else {
-            return (child.name === 'steps' && count > 0 && index !== 0)
-                || (child.name === 'steps' && count > 0 && index === 0 && children.length === 1)
-                || (child.name !== 'steps' && count > 0 );
-        }
-    }
-
-    showStepsArrow = (child: ChildElement) => {
-        const step: CamelElement = this.state.step;
-        const children = CamelDefinitionApiExt.getElementChildrenDefinition(step.dslName);
-        return child.name === 'steps' && children.length > 1;
-    }
-
     getChildElements = () => {
         const step: CamelElement = this.state.step;
         let children = CamelDefinitionApiExt.getElementChildrenDefinition(step.dslName);
-        const onlySteps = children.length === 1 && children[0].name === "steps";
+        const notOnlySteps = children.filter(c => c.name === 'steps').length === 1
+            && children.filter(c => c.multiple && c.name !== 'steps').length > 0;
 
         if (step.dslName !== 'RouteDefinition') {
             children = children.filter(child => {
@@ -244,36 +263,43 @@ export class DslElement extends React.Component<Props, State> {
         }
         return (
             <div key={step.uuid + "-children"} className="children" style={this.getChildrenStyle()}>
-                {children.map((child:ChildElement, index:number) => this.getChildDslElements(child, index, onlySteps))}
+                {children.map((child:ChildElement, index:number) => this.getChildDslElements(child, index, notOnlySteps))}
             </div>
         )
     }
 
-    getChildDslElements = (child:ChildElement, index: number,  onlySteps: boolean) => {
+    getChildDslElements = (child:ChildElement, index: number,  notOnlySteps: boolean) => {
         const step = this.state.step;
         const children: CamelElement[] = CamelDefinitionApiExt.getElementChildren(step, child);
-        return (
-            <div className={child.name} key={step.uuid+"-child-"+index}>
-                {this.showStepsArrow(child) && this.getArrow()}
-                <div style={this.getChildrenElementsStyle(child, onlySteps)}>
-                    {children.map((element, index) => (
-                        <div key={step.uuid + child.className +  index} style={this.getChildStyle(index, children.length)}>
-                            {this.showUpArrow(child, children.length, index) && this.getArrow() }
-                            <DslElement
-                                openSelector={this.props.openSelector}
-                                deleteElement={this.props.deleteElement}
-                                selectElement={this.props.selectElement}
-                                moveElement={this.props.moveElement}
-                                selectedUuid={this.state.selectedUuid}
-                                borderColor={this.props.borderColor}
-                                borderColorSelected={this.props.borderColorSelected}
-                                step={element}/>
-                        </div>
-                    ))}
+        if (children.length > 0){
+            return (
+                <div className={child.name + " has-child"} style={this.getChildrenElementsStyle(child, notOnlySteps)} key={step.uuid+"-child-"+index}>
+                        {children.map((element, index) => (
+                            <div key={step.uuid + child.className +  index}>
+                                <DslElement
+                                    openSelector={this.props.openSelector}
+                                    deleteElement={this.props.deleteElement}
+                                    selectElement={this.props.selectElement}
+                                    moveElement={this.props.moveElement}
+                                    selectedUuid={this.state.selectedUuid}
+                                    borderColor={this.props.borderColor}
+                                    borderColorSelected={this.props.borderColorSelected}
+                                    inSteps={child.name === 'steps'}
+                                    position={index}
+                                    step={element}
+                                    parent={step}/>
+                            </div>
+                        ))}
+                    {child.name === 'steps' && this.getAddStepButton()}
                 </div>
-                {child.name === 'steps' && this.getAddStepButton()}
-            </div>
-        )
+            )
+        } else if (child.name === 'steps') {
+            return (
+                <div className={child.name + " has-child"} style={this.getChildrenElementsStyle(child, notOnlySteps)} key={step.uuid+"-child-"+index}>
+                    {this.getAddStepButton()}
+                </div>
+            )
+        }
     }
 
     getAddStepButton() {
@@ -281,7 +307,7 @@ export class DslElement extends React.Component<Props, State> {
             <Tooltip position={"bottom"}
                      content={<div>{"Add step to " + CamelUi.getTitle(this.state.step)}</div>}>
                 <button type="button" aria-label="Add" onClick={e => this.openSelector(e)}
-                        className={"add-button"}>
+                        className={this.isAddStepButtonLeft() ? "add-button add-button-left" : "add-button add-button-bottom"}>
                     <AddIcon noVerticalAlign/>
                 </button>
             </Tooltip>
@@ -300,18 +326,16 @@ export class DslElement extends React.Component<Props, State> {
     render() {
         const element: CamelElement = this.state.step;
         return (
-            <div key={"root"+element.uuid} className={
-                this.hasBorder()
-                    ? "step-element step-element-with-steps"
-                    : "step-element step-element-without-steps"}
+            <div key={"root"+element.uuid} className={"step-element"}
+                 ref={el => this.sendPosition(el)}
                  style={{
-                     borderStyle: this.isSelected() ? "dashed" : (this.hasBorder() ? "dotted" : "none"),
+                     borderStyle: this.hasBorder() ? "dotted" : "none",
                      borderColor: this.isSelected() ? this.props.borderColorSelected : this.props.borderColor,
-                     marginTop: this.isRoot() ? "16px" : "",
-                     marginLeft: this.needMarginLeft() ? "3px" : "",
+                     marginTop: this.isInStepWithChildren() ? "16px" : "8px",
                      zIndex: element.dslName === 'ToDefinition' ? 20 : 10,
                      boxShadow: this.state.isDraggedOver ? "0px 0px 1px 2px " + this.props.borderColorSelected : "none",
                  }}
+                 onMouseOver={event => event.stopPropagation()}
                  onClick={event => this.selectElement(event)}
                  onDragStart={event => {
                      event.stopPropagation();
@@ -353,7 +377,7 @@ export class DslElement extends React.Component<Props, State> {
                          this.props.moveElement?.call(this, sourceUuid, targetUuid);
                      }
                  }}
-                 draggable={!this.isDraggable()}
+                 draggable={!this.isNotDraggable()}
             >
                 {this.getElementHeader()}
                 {this.getChildElements()}
