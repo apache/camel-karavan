@@ -30,7 +30,7 @@ import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import { PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
+import {PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {ExpressionField} from "./ExpressionField";
 import {CamelUi} from "../CamelUi";
@@ -47,7 +47,7 @@ interface Props {
     property: PropertyMeta,
     value: any,
     onChange?: (fieldId: string, value: string | number | boolean | any) => void,
-    onExpressionChange?: (value:ExpressionDefinition) => void,
+    onExpressionChange?: (value: ExpressionDefinition) => void,
     onDataFormatChange?: (value: DataFormatDefinition) => void,
     onParameterChange?: (parameter: string, value: string | number | boolean | any, pathParameter?: boolean) => void,
     element?: CamelElement
@@ -90,7 +90,7 @@ export class DslPropertyField extends React.Component<Props, State> {
         const property: PropertyMeta = this.props.property;
         let value = this.props.value;
         if (property.isArray && property.type === 'string') {
-            this.propertyChanged(fieldId, (value as any).filter((x:string) => x !== element))
+            this.propertyChanged(fieldId, (value as any).filter((x: string) => x !== element))
         }
     }
 
@@ -107,12 +107,12 @@ export class DslPropertyField extends React.Component<Props, State> {
     }
 
     getLabel = (property: PropertyMeta, value: any) => {
-        if (property.isObject && property.type !== "ExpressionDefinition"){
+        if (property.isObject && !["ExpressionDefinition"].includes(property.type)) {
             const tooltip = value ? "Delete " + property.name : "Add " + property.name;
-            const x = CamelDefinitionApi.createStep(property.type, {});
+            const x = value ? undefined : CamelDefinitionApi.createStep(property.type, {});
             const icon = value ? (<DeleteIcon noVerticalAlign/>) : (<AddIcon noVerticalAlign/>);
             return (
-                <div style={{display:"flex"}}>
+                <div style={{display: "flex"}}>
                     <Text>{property.displayName} </Text>
                     <Tooltip position={"bottom"} content={<div>{tooltip}</div>}>
                         <button className="add-button" onClick={e => this.props.onChange?.call(this, property.name, x)} aria-label="Add element">
@@ -121,7 +121,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                     </Tooltip>
                 </div>
             )
-        } else if (property.type !== "ExpressionDefinition"){
+        } else if (!["ExpressionDefinition"].includes(property.type)) {
             return CamelUtil.capitalizeName(property.displayName);
         }
     }
@@ -206,14 +206,17 @@ export class DslPropertyField extends React.Component<Props, State> {
         return (
             <div>
                 <TextInputGroup className="input-group">
-                    <TextInputGroupMain value={this.state.arrayValues.get(property.name)} onChange={e =>this.arrayChanged(property.name, e)} onKeyUp={e=> {if (e.key === 'Enter') this.arraySave(property.name)}}>
+                    <TextInputGroupMain value={this.state.arrayValues.get(property.name)} onChange={e => this.arrayChanged(property.name, e)} onKeyUp={e => {
+                        if (e.key === 'Enter') this.arraySave(property.name)
+                    }}>
                         <ChipGroup>
-                            {value && Array.from(value).map((v: any, index:number) => (<Chip key={"chip-" + index} className="chip" onClick={() => this.arrayDeleteValue(property.name, v)}>{v.toString()}</Chip>))}
+                            {value && Array.from(value).map((v: any, index: number) => (
+                                <Chip key={"chip-" + index} className="chip" onClick={() => this.arrayDeleteValue(property.name, v)}>{v.toString()}</Chip>))}
                         </ChipGroup>
                     </TextInputGroupMain>
                     <TextInputGroupUtilities>
                         <Button variant="plain" onClick={e => this.arraySave(property.name)} aria-label="Add element">
-                            <PlusIcon />
+                            <PlusIcon/>
                         </Button>
                     </TextInputGroupUtilities>
                 </TextInputGroup>
@@ -271,7 +274,10 @@ export class DslPropertyField extends React.Component<Props, State> {
                     headerContent={property.displayName}
                     bodyContent={property.description}
                     footerContent={property.defaultValue !== undefined ? "Default: " + property.defaultValue : undefined}>
-                    <button type="button" aria-label="More info" onClick={e => {e.preventDefault(); e.stopPropagation();}} className="pf-c-form__group-label-help">
+                    <button type="button" aria-label="More info" onClick={e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }} className="pf-c-form__group-label-help">
                         <HelpIcon noVerticalAlign/>
                     </button>
                 </Popover>
@@ -288,9 +294,9 @@ export class DslPropertyField extends React.Component<Props, State> {
                 label={this.getLabel(property, value)}
                 fieldId={property.name}
                 labelIcon={this.getLabelIcon(property)}>
-                {property.name === 'expression' && property.type === "ExpressionDefinition"
+                {value && ["ExpressionDefinition", "ExpressionSubElementDefinition"].includes(property.type)
                     && this.getExpressionField(property, value)}
-                {property.isObject && !property.isArray && property.name !== 'expression'
+                {property.isObject && !property.isArray && !["ExpressionDefinition", "ExpressionSubElementDefinition"].includes(property.type)
                     && this.getObjectField(property, value)}
                 {property.name === 'expression' && property.type === "string" && !property.isArray
                     && this.getTextArea(property, value)}

@@ -328,8 +328,14 @@
     padding-top: 6px;
     padding-left: 16px;
     grid-row-gap: 10px;
-    row-gap: 10px;
+    row-gap: 6px;
     display: grid;
+    border-width: var(--pf-global--BorderWidth--sm);
+    border-top-color: transparent;
+    border-right-color: transparent;
+    border-bottom-color: var(--pf-global--BorderColor--200);
+    border-left-color: var(--pf-global--BorderColor--300);
+    border-style: solid;
 }
 
 .karavan .dsl-page .properties .expression .pf-c-form__group-label,

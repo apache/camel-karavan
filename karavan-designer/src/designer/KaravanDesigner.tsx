@@ -16,8 +16,8 @@
  */
 import React from 'react';
 import {
-    Button,
-    PageSection,
+    Button, Gallery, Modal,
+    PageSection, Tab, Tabs, TabTitleText,
 } from '@patternfly/react-core';
 import './karavan.css';
 import {DslSelector} from "./DslSelector";
@@ -32,6 +32,7 @@ import {DslConnections} from "./DslConnections";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {DslElement} from "./DslElement";
 import {EventBus} from "./EventBus";
+import {CamelUi} from "./CamelUi";
 
 interface Props {
     onSave?: (filename: string, yaml: string) => void
@@ -53,6 +54,7 @@ interface State {
     key: string
     width: number
     height: number
+    top: number
     scrollTop: number
 }
 
@@ -69,6 +71,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
         key: "",
         width: 1000,
         height: 1000,
+        top: 0,
         scrollTop: 0,
     };
 
@@ -196,8 +199,8 @@ export class KaravanDesigner extends React.Component<Props, State> {
 
     onResizePage(el: HTMLDivElement | null){
         const rect = el?.getBoundingClientRect();
-        if (el && rect && (rect?.width !== this.state.width || rect.height !== this.state.height)){
-            this.setState({width: rect.width, height: rect.height});
+        if (el && rect && (rect?.width !== this.state.width || rect.height !== this.state.height || rect.top !== this.state.top)){
+            this.setState({width: rect.width, height: rect.height, top: rect.top});
         }
     }
 
@@ -206,7 +209,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
             <PageSection className="dsl-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="dsl-page-columns">
                     <div key={this.state.key} className="graph" onScroll={event => this.onScroll(event)}>
-                        <DslConnections height={this.state.height} width={this.state.width} scrollTop={this.state.scrollTop} integration={this.state.integration}/>
+                        <DslConnections height={this.state.height} width={this.state.width} scrollTop={this.state.scrollTop} top={this.state.top} integration={this.state.integration}/>
                         <div className="flows"  data-click="FLOWS" onClick={event => this.unselectElement(event)}
                              ref={el => this.onResizePage(el)}>
                             {this.state.integration.spec.flows?.map((from:any, index: number) => (
@@ -240,14 +243,20 @@ export class KaravanDesigner extends React.Component<Props, State> {
                         onPropertyUpdate={this.onPropertyUpdate}
                     />
                 </div>
-                <DslSelector
-                    dark={this.props.dark}
-                    parentId={this.state.parentId}
-                    parentDsl={this.state.parentDsl}
-                    showSteps={this.state.showSteps}
-                    show={this.state.showSelector}
-                    onDslSelect={this.onDslSelect}
-                    onClose={this.closeDslSelector}/>
+                <Modal
+                    title={this.state.parentDsl === undefined ? "Select source/from" : "Select step"}
+                    width={'90%'}
+                    className='dsl-modal'
+                    isOpen={this.state.showSelector}
+                    onClose={() => this.closeDslSelector()}
+                    actions={{}}>
+                    <DslSelector
+                        dark={this.props.dark}
+                        parentId={this.state.parentId}
+                        parentDsl={this.state.parentDsl}
+                        showSteps={this.state.showSteps}
+                        onDslSelect={this.onDslSelect}/>
+                </Modal>
             </PageSection>
         );
     }

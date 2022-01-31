@@ -18,8 +18,7 @@ package org.apache.camel.karavan.generator;
 
 import io.vertx.core.json.JsonObject;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public final class CamelMetadataGenerator extends AbstractGenerator {
 
@@ -148,11 +147,13 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
             if (json != null) {
                 JsonObject model = new JsonObject(json).getJsonObject("model");
                 JsonObject props = new JsonObject(json).getJsonObject("properties");
+                Comparator<String> comparator = Comparator.comparing(e -> new ArrayList<>(props.getMap().keySet()).indexOf(e));
                 String title = model.getString("title");
                 String description = model.getString("description");
                 String label = model.getString("label");
                 code.append(String.format("    new ElementMeta('%s', '%s', '%s', \"%s\", '%s', [\n", stepName, name, title, description, label));
-                properties.getMap().forEach((pname, v) -> {
+                properties.getMap().keySet().stream().sorted(comparator).forEach((pname) -> {
+                    Object v = properties.getMap().get(pname);
                     JsonObject p = props.getJsonObject(pname);
                     if ("inheritErrorHandler".equals(pname) && p == null) {
                     } else {
