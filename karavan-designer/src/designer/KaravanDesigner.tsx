@@ -16,8 +16,8 @@
  */
 import React from 'react';
 import {
-    Button,
-    PageSection,
+    Button, Gallery, Modal,
+    PageSection, Tab, Tabs, TabTitleText,
 } from '@patternfly/react-core';
 import './karavan.css';
 import {DslSelector} from "./DslSelector";
@@ -32,6 +32,7 @@ import {DslConnections} from "./DslConnections";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {DslElement} from "./DslElement";
 import {EventBus} from "./EventBus";
+import {CamelUi} from "./CamelUi";
 
 interface Props {
     onSave?: (filename: string, yaml: string) => void
@@ -242,14 +243,20 @@ export class KaravanDesigner extends React.Component<Props, State> {
                         onPropertyUpdate={this.onPropertyUpdate}
                     />
                 </div>
-                <DslSelector
-                    dark={this.props.dark}
-                    parentId={this.state.parentId}
-                    parentDsl={this.state.parentDsl}
-                    showSteps={this.state.showSteps}
-                    show={this.state.showSelector}
-                    onDslSelect={this.onDslSelect}
-                    onClose={this.closeDslSelector}/>
+                <Modal
+                    title={this.state.parentDsl === undefined ? "Select source/from" : "Select step"}
+                    width={'90%'}
+                    className='dsl-modal'
+                    isOpen={this.state.showSelector}
+                    onClose={() => this.closeDslSelector()}
+                    actions={{}}>
+                    <DslSelector
+                        dark={this.props.dark}
+                        parentId={this.state.parentId}
+                        parentDsl={this.state.parentDsl}
+                        showSteps={this.state.showSteps}
+                        onDslSelect={this.onDslSelect}/>
+                </Modal>
             </PageSection>
         );
     }
