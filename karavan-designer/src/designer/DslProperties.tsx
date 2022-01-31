@@ -36,7 +36,7 @@ import {
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {CamelUi} from "karavan-core/lib/api/CamelUi";
+import {CamelUi} from "./CamelUi";
 import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 
 interface Props {

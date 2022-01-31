@@ -17,9 +17,6 @@
 import React from 'react';
 import {
     Form,
-    Text,
-    Title,
-    TextVariants,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -27,12 +24,9 @@ import {DslPropertyField} from "./DslPropertyField";
 import {
     CamelElement,
     ExpressionDefinition,
-    DataFormatDefinition
 } from "karavan-core/lib/model/CamelDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {CamelUi} from "karavan-core/lib/api/CamelUi";
 import { PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 
 interface Props {

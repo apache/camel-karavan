@@ -19,19 +19,19 @@ import {
     Button,
     PageSection,
 } from '@patternfly/react-core';
-import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import './karavan.css';
-import {DslElement} from "./DslElement";
 import {DslSelector} from "./DslSelector";
 import {DslMetaModel} from "karavan-core/lib/model/DslMetaModel";
 import {DslProperties} from "./DslProperties";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {DslConnections} from "./DslConnections";
-import {EventBus} from "karavan-core/lib/api/EventBus";
 import {CamelElement, FromDefinition, Integration} from "karavan-core/lib/model/CamelDefinition";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
+import {DslConnections} from "./DslConnections";
+import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
+import {DslElement} from "./DslElement";
+import {EventBus} from "./EventBus";
 
 interface Props {
     onSave?: (filename: string, yaml: string) => void
@@ -51,6 +51,9 @@ interface State {
     showSteps: boolean
     selectedUuid: string
     key: string
+    width: number
+    height: number
+    scrollTop: number
 }
 
 export class KaravanDesigner extends React.Component<Props, State> {
@@ -64,6 +67,9 @@ export class KaravanDesigner extends React.Component<Props, State> {
         showSteps: true,
         selectedUuid: '',
         key: "",
+        width: 1000,
+        height: 1000,
+        scrollTop: 0,
     };
 
     componentDidMount() {
@@ -111,6 +117,9 @@ export class KaravanDesigner extends React.Component<Props, State> {
             selectedStep: undefined,
             selectedUuid: ''
         });
+        const el = new CamelElement("");
+        el.uuid = id;
+        EventBus.sendPosition("delete", el,undefined, new DOMRect(), new DOMRect(), 0);
     }
 
     selectElement = (element: CamelElement) => {
@@ -179,37 +188,49 @@ export class KaravanDesigner extends React.Component<Props, State> {
         });
     }
 
+    onScroll(event: React.UIEvent<HTMLDivElement>) {
+        if (event.nativeEvent.target && (event.nativeEvent.target as any).scrollTop){
+            this.setState({scrollTop: (event.nativeEvent.target as any).scrollTop});
+        }
+    }
+
+    onResizePage(el: HTMLDivElement | null){
+        const rect = el?.getBoundingClientRect();
+        if (el && rect && (rect?.width !== this.state.width || rect.height !== this.state.height)){
+            this.setState({width: rect.width, height: rect.height});
+        }
+    }
+
     render() {
         return (
             <PageSection className="dsl-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="dsl-page-columns">
-                    <div className="flows"
-                         data-click="FLOWS"
-                         onClick={event => this.unselectElement(event)}
-                         ref={el => {
-                             if (el) EventBus.sendFlowPosition(el.getBoundingClientRect());
-                         }}>
-                        <DslConnections key={this.state.key + "-connections"}
-                                        integration={this.state.integration}
-                        />
-                        {this.state.integration.spec.flows?.map((from:any, index: number) => (
-                            <DslElement key={from.uuid + this.state.key}
-                                        openSelector={this.openSelector}
-                                        deleteElement={this.deleteElement}
-                                        selectElement={this.selectElement}
-                                        moveElement={this.moveElement}
-                                        selectedUuid={this.state.selectedUuid}
-                                        borderColor={this.props.borderColor}
-                                        borderColorSelected={this.props.borderColorSelected}
-                                        step={from}/>
-                        ))}
-                        <div className="add-flow">
-                            <Button
-                                variant={this.state.integration.spec.flows?.length === 0 ? "primary" : "secondary"}
-                                data-click="ADD_ROUTE"
-                                icon={<PlusIcon/>}
-                                onClick={e => this.openSelector(undefined, undefined)}>Add new route
-                            </Button>
+                    <div key={this.state.key} className="graph" onScroll={event => this.onScroll(event)}>
+                        <DslConnections height={this.state.height} width={this.state.width} scrollTop={this.state.scrollTop} integration={this.state.integration}/>
+                        <div className="flows"  data-click="FLOWS" onClick={event => this.unselectElement(event)}
+                             ref={el => this.onResizePage(el)}>
+                            {this.state.integration.spec.flows?.map((from:any, index: number) => (
+                                <DslElement key={from.uuid + this.state.key}
+                                            openSelector={this.openSelector}
+                                            deleteElement={this.deleteElement}
+                                            selectElement={this.selectElement}
+                                            moveElement={this.moveElement}
+                                            selectedUuid={this.state.selectedUuid}
+                                            borderColor={this.props.borderColor}
+                                            borderColorSelected={this.props.borderColorSelected}
+                                            inSteps={false}
+                                            position={index}
+                                            step={from}
+                                            parent={undefined}/>
+                            ))}
+                            <div className="add-flow">
+                                <Button
+                                    variant={this.state.integration.spec.flows?.length === 0 ? "primary" : "secondary"}
+                                    data-click="ADD_ROUTE"
+                                    icon={<PlusIcon/>}
+                                    onClick={e => this.openSelector(undefined, undefined)}>Add new route
+                                </Button>
+                            </div>
                         </div>
                     </div>
                     <DslProperties

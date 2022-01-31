@@ -81,7 +81,8 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
                 String attributeType = getAttributeType(attributeValue, req, definitions);
                 String r = req ? "" : "?";
                 name = name.equals("constructor") ? "_constructor" : name; // exception for YAMLDataFormat
-                if (className.equals("ChoiceDefinition") && name.equals("steps")){ // exception for ChoiceDefinition
+                if (className.equals("ChoiceDefinition") && name.equals("steps")) { // exception for ChoiceDefinition
+                } else if (className.equals("KameletDefinition") && name.equals("steps")){ // exception for KameletDefinition
                 } else {
                     attrs.put(name, "    " + name + r + ": " + attributeType);
                 }

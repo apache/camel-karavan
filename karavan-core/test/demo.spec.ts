@@ -19,7 +19,7 @@ import 'mocha';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
 import {CamelUtil} from "../src/core/api/CamelUtil";
 import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
-import {CatchDefinition, ChoiceDefinition, FromDefinition} from "../src/core/model/CamelDefinition";
+import {CatchDefinition, FromDefinition} from "../src/core/model/CamelDefinition";
 import {expect} from "chai";
 import {TryDefinition} from "../lib/model/CamelDefinition";
 
@@ -40,7 +40,6 @@ describe('Demo', () => {
                 const i3 = CamelDefinitionApiExt.deleteStepFromIntegration(i, uuid);
                 if (i3.spec.flows && i3.spec.flows.length > 0) {
                     const w = i3.spec.flows[0].from.steps[0].doCatch[0].onWhen;
-                    console.log(w);
                     expect(w).to.equal(undefined);
                 }
             }

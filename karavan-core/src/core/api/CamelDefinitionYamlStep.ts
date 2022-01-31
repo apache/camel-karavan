@@ -818,7 +818,6 @@ export class CamelDefinitionYamlStep {
     static readKameletDefinition = (element: any): KameletDefinition => {
         if (element && typeof element === 'string') element = {name: element};
         const def = element ? new KameletDefinition({...element}) : new KameletDefinition();
-        def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
 
         return def;
     }

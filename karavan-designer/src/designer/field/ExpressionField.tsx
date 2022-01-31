@@ -31,7 +31,7 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {CamelElement, ExpressionDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {DslPropertyField} from "./DslPropertyField";
-import {CamelUi} from "karavan-core/lib/api/CamelUi";
+import {CamelUi} from "../CamelUi";
 
 interface Props {
     property: PropertyMeta,
@@ -41,25 +41,12 @@ interface Props {
 
 interface State {
     selectIsOpen: boolean;
-    className: string;
-    language: string;
 }
 
 export class ExpressionField extends React.Component<Props, State> {
 
     public state: State = {
         selectIsOpen: false,
-        className: CamelDefinitionApiExt.getExpressionLanguageClassName(this.props.value) || 'SimpleExpression',
-        language: CamelDefinitionApiExt.getExpressionLanguageName(this.props.value) || 'simple'
-    }
-
-    componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        if (prevProps.value && prevProps.value.uuid !== this.props.value.uuid) {
-            this.setState({
-                className: CamelDefinitionApiExt.getExpressionLanguageClassName(this.props.value) || 'SimpleExpression',
-                language: CamelDefinitionApiExt.getExpressionLanguageName(this.props.value) || 'simple'
-            });
-        }
     }
 
     openSelect = () => {
@@ -73,6 +60,7 @@ export class ExpressionField extends React.Component<Props, State> {
         }
         const exp = new ExpressionDefinition();
         (exp as any)[language] = value;
+        if (this.props.value) (exp as any).uuid = this.props.value.uuid;
         this.props.onExpressionChange?.call(this, exp);
         this.setState({selectIsOpen: false});
     }
@@ -81,18 +69,27 @@ export class ExpressionField extends React.Component<Props, State> {
         const expression = this.getExpressionValue();
         if (expression) {
             (expression as any)[fieldId] = value;
-            this.expressionChanged(this.state.language, expression);
+            this.expressionChanged(this.getValueLanguage(), expression);
         }
     }
 
+    getValueClassName = (): string => {
+        return CamelDefinitionApiExt.getExpressionLanguageClassName(this.props.value) || 'SimpleExpression';
+    }
+
+    getValueLanguage = (): string => {
+        return CamelDefinitionApiExt.getExpressionLanguageName(this.props.value) || 'simple';
+    }
+
     getExpressionValue = (): CamelElement => {
-        return this.props.value && (this.props.value as any)[this.state.language]
-            ? (this.props.value as any)[this.state.language]
-            : CamelDefinitionApi.createExpression(this.state.className, this.props.value);
+        const language = this.getValueLanguage();
+        return this.props.value && (this.props.value as any)[language]
+            ? (this.props.value as any)[language]
+            : CamelDefinitionApi.createExpression(this.getValueClassName(), this.props.value);
     }
 
     getProps = (): PropertyMeta[] => {
-        const dslName = this.state.className;
+        const dslName = this.getValueClassName();
         return CamelDefinitionApiExt.getElementProperties(dslName)
             .filter(p => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)) || (dslName === 'CatchDefinition' && p.name === 'onWhen'));
     }
@@ -100,7 +97,7 @@ export class ExpressionField extends React.Component<Props, State> {
     render() {
         const property: PropertyMeta = this.props.property;
         const value = this.getExpressionValue();
-        const dslLanguage = Languages.find((l: [string, string, string]) => l[0] === this.state.language);
+        const dslLanguage = Languages.find((l: [string, string, string]) => l[0] === this.getValueLanguage());
         const selectOptions: JSX.Element[] = []
         Languages.forEach((lang: [string, string, string]) => {
             const s = <SelectOption key={lang[0]} value={lang[0]} description={lang[2]}/>;
@@ -108,7 +105,7 @@ export class ExpressionField extends React.Component<Props, State> {
         })
         return (
             <div>
-                <FormGroup label={"Language"} key={this.state.language + "-" + property.name} fieldId={property.name}>
+                <FormGroup label={"Language"} key={this.getValueLanguage() + "-" + property.name} fieldId={property.name}>
                     <Select
                         variant={SelectVariant.typeahead}
                         aria-label={property.name}
@@ -142,7 +139,7 @@ export class ExpressionField extends React.Component<Props, State> {
                         </Popover> : <div></div>
                     }>
                     {value && this.getProps().map((property: PropertyMeta) =>
-                        <DslPropertyField property={property}
+                        <DslPropertyField key={property.name + this.props.value?.uuid} property={property}
                                           element={value}
                                           value={value ? (value as any)[property.name] : undefined}
                                           onExpressionChange={exp => {}}

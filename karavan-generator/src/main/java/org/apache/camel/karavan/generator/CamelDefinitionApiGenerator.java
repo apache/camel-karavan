@@ -141,7 +141,7 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
         if (properties != null) {
             properties.getMap().keySet().forEach(name -> {
                 JsonObject aValue = properties.getJsonObject(name);
-                if (isAttributeRefArray(aValue) && name.equals("steps") && ! className.equals("ChoiceDefinition")) {
+                if (isAttributeRefArray(aValue) && name.equals("steps") && ! className.equals("ChoiceDefinition") && ! className.equals("KameletDefinition")) {
                     attrs.put(name, "        def.steps = CamelDefinitionApi.createSteps(element?.steps);\n");
                 } else if (isAttributeRefArray(aValue) && !name.equals("steps")) {
                     String code = String.format(
@@ -149,11 +149,13 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
                             , name, getAttributeArrayClass(aValue));
                     attrs.put(name, code);
                 } else if (isAttributeRef(aValue)) {
-                    String code = String.format(
-                            "        if (element?.%1$s !== undefined) { \n" +
-                                    "            def.%1$s = CamelDefinitionApi.create%2$s(element.%1$s); \n" +
-                                    "        } \n"
-                            , name, getAttributeClass(aValue));
+                    String attributeClass = getAttributeClass(aValue);
+                    String template = attributeClass.equals("ExpressionDefinition")
+                            ? "        def.%1$s = CamelDefinitionApi.create%2$s(element.%1$s); \n"
+                            : "        if (element?.%1$s !== undefined) { \n" +
+                            "            def.%1$s = CamelDefinitionApi.create%2$s(element.%1$s); \n" +
+                            "        } \n";
+                    String code = String.format(template, name, getAttributeClass(aValue));
                     attrs.put(name, code);
                 } else {
 

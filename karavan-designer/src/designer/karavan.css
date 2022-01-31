@@ -365,16 +365,18 @@
 }
 
 
-/*Page*/
-
-.karavan .dsl-page .flows {
+/*Graph*/
+.karavan .dsl-page .graph {
     display: block;
-    flex-direction: column;
-    font-size: 13px;
     height: 100%;
     width: 100%;
+    position: relative;
     overflow-y: auto;
-    /*padding-bottom: 100px;*/
+}
+
+.karavan .dsl-page .flows {
+    font-size: 13px;
+    width: 100%;
     position: relative;
 }
 
@@ -384,67 +386,52 @@
     justify-content: center;
 }
 
-.karavan .dsl-page .flows .connections {
+/*connections*/
+.karavan .dsl-page .graph .connections {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    z-index: 13;
+    background: transparent;
 }
 
-.karavan .dsl-page .flows .connections .incoming {
-    border-color: #fb8824;
-    border-style: solid;
-    border-radius: 40px;
-    border-width: 1px;
-    background: #fff;
-    width: 40px;
-    height: 40px;
-    position: absolute;
-    left: 6px;
-    display: flex;
+.karavan .dsl-page .graph .connections .icon {
+    height: 20px;
 }
 
-.karavan .dsl-page .flows .connections .outgoing {
-    border-color: #fb8824;
-    border-style: solid;
-    border-radius: 40px;
-    border-width: 1px;
-    background: #fff;
-    width: 40px;
-    height: 40px;
-    position: absolute;
-    right: 1px;
-    display: flex;
-}
-
-.karavan .dsl-page .flows .connections .incoming .icon,
-.karavan .dsl-page .flows .connections .outgoing .icon {
-    height: 32px;
-    margin: auto;
-}
-
-.karavan .dsl-page .flows .connections .incoming .inout-name,
-.karavan .dsl-page .flows .connections .outgoing .inout-name {
+.karavan .dsl-page .graph .connections .inout-name {
     margin: auto;
     overflow: hidden;
     font-size: 24px;
     font-weight: bold;
 }
 
-.karavan .dsl-page .flows .connections .path {
-     stroke: #fb8824;
-     stroke-width: 1;
-     fill: none;
+.karavan .dsl-page .graph .connections .arrow {
+    stroke: #fb8824;
+    fill: #fb8824;
 }
 
-.karavan .dsl-page .flows .connections path{
+.karavan .dsl-page .graph .connections .path {
+     stroke: #fb8824;
+     stroke-width: 1;
+     fill: transparent;
+}
+
+.karavan .dsl-page .graph .connections .circle-outgoing,
+.karavan .dsl-page .graph .connections .circle-incoming {
+    stroke: #fb8824;
+    stroke-width: 1;
+    fill: white;
+}
+
+.karavan .dsl-page .graph .connections .path-incoming {
     stroke-dasharray: 5;
     -webkit-animation: dashdraw .5s linear infinite;
     animation: dashdraw .5s linear infinite;
+    stroke: #fb8824;
+    strokeWidth: 1;
+    fill: transparent;
 }
 @keyframes dashdraw{0%{stroke-dashoffset:10}}
-
 
 .karavan .dsl-page .flows .step-element {
     align-items: center;
@@ -452,18 +439,27 @@
     display: flex;
     flex-direction: column;
     width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
     border-color: #fb8824;
-    border-radius: 3px;
+    border-radius: 20px;
     border-width: 1px;
-    min-width: 160px;
-    padding: 1px 6px;
+    min-width: 120px;
+    padding: 3px 4px 4px 4px;
+    margin: 3px auto 0 auto;
     position: relative;
 }
 
-.karavan .dsl-page .flows .step-element .ChoiceDefinition .whens {
-    margin-top: -23px;
+.karavan .dsl-page .flows .children {
+    display: flex;
+    flex-wrap: wrap;
+    flex-wrap:nowrap;
+    gap: 6px;
+}
+
+.karavan .dsl-page .flows .has-child {
+    display: flex;
+    flex-direction: column;
+    flex-wrap:nowrap;
+    gap: 6px;
 }
 
 .karavan .dsl-page .flows .step-element .header-route {
@@ -476,39 +472,10 @@
     z-index: 101;
 }
 
-.karavan .dsl-page .flows .step-element-with-steps {
-    border-style: dotted;
-    background: transparent;
-    min-width: 160px;
-}
-
-.karavan .dsl-page .flows .step-element-with-steps .header {
-    border-color: #fb8824;
-    border-style: solid;
-    border-radius: 3px;
-    border-width: 1px;
-    background: #ffffff;
-    margin-bottom: 0;
-    min-width: 160px;
-    position: relative;
-}
-
-.karavan .dsl-page .flows .step-element-without-steps {
-    border-style: none;
-    background: transparent;
-    padding: 0;
-}
-
-.karavan .dsl-page .flows .step-element-without-steps .header {
-    margin-bottom: 0;
-}
-
-.step-element .header .delete-button,
-.step-element .header-route .delete-button,
-.element-builder .header .delete-button {
+.step-element .header-route .delete-button {
     position: absolute;
-    top: 0px;
-    right: 0px;
+    top: 4px;
+    right: 4px;
     font-size: 13px;
     line-height: 1;
     border: 0;
@@ -516,22 +483,74 @@
     margin: 0;
     background: transparent;
     color: #b1b1b7;
-    /*visibility: hidden;*/
+    visibility: hidden;
 }
 
-.step-element:hover .header .delete-button,
-.step-element .header-route .delete-button,
-.element-builder:hover .header .delete-button {
-    visibility: visible;;
+.step-element .header .delete-button,
+.element-builder .header .delete-button {
+    position: absolute;
+    top: 0px;
+    font-size: 13px;
+    line-height: 1;
+    border: 0;
+    padding: 0;
+    margin: 0 0 0 10px;
+    background: transparent;
+    color: #b1b1b7;
+    visibility: hidden;
+}
+
+.step-element .header:hover .delete-button,
+.step-element .header-route:hover .delete-button,
+.element-builder .header:hover .delete-button {
+    visibility: visible;
+}
+
+.step-element .header {
+    height: 50px;
+}
+
+.step-element .selected .header-icon {
+    border-color: black;
+    border-width: 2px;
+}
+.step-element .header .header-text {
+    position: absolute;
+    top: 8px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+.step-element .header .spacer {
+    width: 50%
+}
+.step-element .header .text-bottom {
+    background-color: rgba(250, 250, 250, 0.5);
+}
+.step-element .header .text-right {
+    padding-left: 17px;
+    width: 50%;
+    text-align:start;
 }
 
 .step-element .header-icon {
-
+    border-color: #fb8824;
+    border-style: solid;
+    border-radius: 30px;
+    border-width: 1px;
+    background: white;
+    width: 30px;
+    height: 30px;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .step-element .header .icon,
 .element-builder .header .icon {
-    height: 16px;
+    height: 20px;
     width: auto;
     border: none;
     -webkit-user-select: none;
@@ -559,8 +578,8 @@
 }
 
 .step-element .add-element-button {
-    bottom: 3px;
-    left: 3px;
+    top: 4px;
+    left: 4px;
     font-size: 15px;
     height: 15px;
     line-height: 1;
@@ -573,19 +592,27 @@
     position: absolute;
 }
 
+.step-element .add-button-bottom {
+    position: relative;
+}
+
+.step-element .add-button-left {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+}
+
 .step-element .add-button {
-    top: 0;
     font-size: 15px;
     height: 15px;
     line-height: 1;
     border: 0;
     padding: 0;
-    margin: 3px 0 0 0;
-    background: white;
+    margin: 0;
+    background: transparent;
     color: #fb8824;
     visibility: hidden;
     z-index: 100;
-    position: relative;
 }
 
 .element-builder .add-button {
@@ -672,8 +699,18 @@
     padding-bottom: 1em;
 }
 
+.dsl-modal .footer {
+    display: flex;
+    flex-direction: row;
+    margin-top: 6px;
+}
 .dsl-modal .version {
     text-align: right;
+    opacity: 0.5;
+    white-space: nowrap;
+}
+
+.dsl-modal .labels {
     opacity: 0.5;
 }
 

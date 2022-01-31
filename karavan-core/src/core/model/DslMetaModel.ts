@@ -17,11 +17,12 @@
 export class DslMetaModel {
     dsl: string = ''
     name: string = ''
+    type: string = ''
     uri?: string
     title: string = ''
     description: string = ''
-    label: string = ''
-    javaType: string = ''
+    labels: string = ''
+    navigation: string = ''
     version: string = ''
     properties: any;
 

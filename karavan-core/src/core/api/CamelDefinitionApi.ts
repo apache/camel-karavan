@@ -620,9 +620,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new DelayDefinition({...element}) : new DelayDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         return def;
     }
@@ -639,9 +637,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new DynamicRouterDefinition({...element}) : new DynamicRouterDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         return def;
     }
@@ -650,9 +646,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new EnrichDefinition({...element}) : new EnrichDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         return def;
     }
@@ -737,9 +731,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new FilterDefinition({...element}) : new FilterDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
 
         return def;
@@ -792,9 +784,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new IdempotentConsumerDefinition({...element}) : new IdempotentConsumerDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
 
         return def;
@@ -855,7 +845,6 @@ export class CamelDefinitionApi {
         if (element && typeof element === 'string') element = {name: element};
         const def = element ? new KameletDefinition({...element}) : new KameletDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        def.steps = CamelDefinitionApi.createSteps(element?.steps);
 
         return def;
     }
@@ -910,9 +899,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new LoopDefinition({...element}) : new LoopDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
 
         return def;
@@ -1164,9 +1151,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new PollEnrichDefinition({...element}) : new PollEnrichDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         return def;
     }
@@ -1191,9 +1176,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new RecipientListDefinition({...element}) : new RecipientListDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         return def;
     }
@@ -1245,9 +1228,7 @@ export class CamelDefinitionApi {
         if (element?.streamConfig !== undefined) { 
             def.streamConfig = CamelDefinitionApi.createStreamResequencerConfig(element.streamConfig); 
         } 
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
         if (element?.batchConfig !== undefined) { 
             def.batchConfig = CamelDefinitionApi.createBatchResequencerConfig(element.batchConfig); 
@@ -1373,9 +1354,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new RoutingSlipDefinition({...element}) : new RoutingSlipDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         return def;
     }
@@ -1408,9 +1387,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new SagaOptionDefinition({...element}) : new SagaOptionDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         return def;
     }
@@ -1427,9 +1404,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new ScriptDefinition({...element}) : new ScriptDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         return def;
     }
@@ -1438,9 +1413,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new SetBodyDefinition({...element}) : new SetBodyDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         return def;
     }
@@ -1457,9 +1430,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new SetHeaderDefinition({...element}) : new SetHeaderDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         return def;
     }
@@ -1468,9 +1439,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new SetPropertyDefinition({...element}) : new SetPropertyDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         return def;
     }
@@ -1479,9 +1448,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new SortDefinition({...element}) : new SortDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         return def;
     }
@@ -1490,9 +1457,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new SplitDefinition({...element}) : new SplitDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
 
         return def;
@@ -1535,9 +1500,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new ThrottleDefinition({...element}) : new ThrottleDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
         if (element?.correlationExpression !== undefined) { 
             def.correlationExpression = CamelDefinitionApi.createExpressionSubElementDefinition(element.correlationExpression); 
         } 
@@ -1582,9 +1545,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new TransformDefinition({...element}) : new TransformDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         return def;
     }
@@ -1734,9 +1695,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new ValidateDefinition({...element}) : new ValidateDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         return def;
     }
@@ -1745,9 +1704,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new WhenDefinition({...element}) : new WhenDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
 
         return def;
@@ -1757,9 +1714,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new WhenSkipSendToEndpointDefinition({...element}) : new WhenSkipSendToEndpointDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
 
         return def;
@@ -2058,9 +2013,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new ServiceCallExpressionConfiguration({...element}) : new ServiceCallExpressionConfiguration();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expressionType !== undefined) { 
-            def.expressionType = CamelDefinitionApi.createExpressionDefinition(element.expressionType); 
-        } 
+        def.expressionType = CamelDefinitionApi.createExpressionDefinition(element.expressionType); 
         def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
 
         return def;
@@ -3405,9 +3358,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new PredicateValidatorDefinition({...element}) : new PredicateValidatorDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-        } 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         return def;
     }
