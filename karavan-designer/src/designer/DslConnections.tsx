@@ -162,11 +162,14 @@ export class DslConnections extends React.Component<Props, State> {
                 }
             }
 
+            const lineXi = lineX1 + 40;
+            const lineYi = lineY2;
+
             return (
                 <g key={pos.step.uuid + "-outgoing"}>
                     <circle cx={outgoingX} cy={outgoingY} r={r} className="circle-outgoing"/>
                     <image x={imageX} y={imageY} href={image} className="icon"/>
-                    <path d={`M ${lineX1},${lineY1} C ${lineX1 + 100},${lineY1} ${lineX1},${lineY2}   ${lineX2},${lineY2}`}
+                    <path d={`M ${lineX1},${lineY1} C ${lineXi - 20}, ${lineY1} ${lineX1 - 15},${lineYi} ${lineXi},${lineYi} L ${lineX2},${lineY2}`}
                           className="path-incoming" markerEnd="url(#arrowhead)"/>
                 </g>
             )
