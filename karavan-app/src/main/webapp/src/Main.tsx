@@ -29,10 +29,10 @@ import logo from './logo.svg';
 import './designer/karavan.css';
 import {ConfigurationPage} from "./config/ConfigurationPage";
 import {KameletsPage} from "./kamelets/KameletsPage";
-import {Integration} from "karavan-core/lib/model/CamelModel";
+import {Integration} from "karavan-core/lib/model/CamelDefinition";
 import {v4 as uuidv4} from "uuid";
 import {DesignerPage} from "./integrations/DesignerPage";
-import {CamelYaml} from "karavan-core/lib/api/CamelYaml";
+import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import avatarImg from './avatarImg.svg';
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 
@@ -214,7 +214,7 @@ export class Main extends React.Component<Props, State> {
         KaravanApi.getIntegration(filename, res => {
             if (res.status === 200) {
                 const code: string = res.data;
-                const i = CamelYaml.yamlToIntegration(filename, code);
+                const i = CamelDefinitionYaml.yamlToIntegration(filename, code);
                 this.setState({isNavOpen: false, pageId: 'designer', integration: i});
             } else {
                 this.toast("Error", res.status + ", " + res.statusText, "danger");
