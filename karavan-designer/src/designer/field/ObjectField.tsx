@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    Form,
+    Form, FormGroup,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -74,7 +74,7 @@ export class ObjectField extends React.Component<Props, State> {
     render() {
         const value = this.props.value;
         return (
-                <Form autoComplete="off" onSubmit={event => event.preventDefault()}>
+                <div>
                     {value && CamelDefinitionApiExt.getElementProperties(value.dslName).map((property: PropertyMeta)  =>
                         <DslPropertyField key={property.name}
                                           property={property}
@@ -85,7 +85,7 @@ export class ObjectField extends React.Component<Props, State> {
                                           onDataFormatChange={value1 => {}}
                                           onChange={(fieldId, value) => this.propertyChanged(property.name, value)} />
                     )}
-                </Form>
+                </div>
         )
     }
 }
