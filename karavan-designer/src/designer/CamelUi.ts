@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {KameletApi} from "./KameletApi";
-import {KameletModel, Property} from "../model/KameletModels";
-import {DslMetaModel} from "../model/DslMetaModel";
-import {ComponentApi} from "./ComponentApi";
-import {ComponentProperty} from "../model/ComponentModels";
-import {CamelMetadataApi} from "../model/CamelMetadata";
-import {CamelUtil} from "./CamelUtil";
-import {CamelDefinitionApiExt} from "./CamelDefinitionApiExt";
-import {CamelElement, KameletDefinition, RouteDefinition} from "../model/CamelDefinition";
+import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import {KameletModel, Property} from "karavan-core/lib/model/KameletModels";
+import {DslMetaModel} from "karavan-core/lib/model/DslMetaModel";
+import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
+import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
+import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
+import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
+import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
+import {CamelElement, KameletDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
 
 const StepElements: string[] = [
     "AggregateDefinition",
@@ -59,16 +59,15 @@ const StepElements: string[] = [
 const defaultIcon =
     "data:image/svg+xml,%3Csvg viewBox='0 0 130.21 130.01' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='a' x1='333.48' x2='477' y1='702.6' y2='563.73' gradientTransform='translate(94.038 276.06) scale(.99206)' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23F69923' offset='0'/%3E%3Cstop stop-color='%23F79A23' offset='.11'/%3E%3Cstop stop-color='%23E97826' offset='.945'/%3E%3C/linearGradient%3E%3ClinearGradient id='b' x1='333.48' x2='477' y1='702.6' y2='563.73' gradientTransform='translate(94.038 276.06) scale(.99206)' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23F69923' offset='0'/%3E%3Cstop stop-color='%23F79A23' offset='.08'/%3E%3Cstop stop-color='%23E97826' offset='.419'/%3E%3C/linearGradient%3E%3ClinearGradient id='c' x1='633.55' x2='566.47' y1='814.6' y2='909.12' gradientTransform='translate(-85.421 56.236)' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23f6e423' offset='0'/%3E%3Cstop stop-color='%23F79A23' offset='.412'/%3E%3Cstop stop-color='%23E97826' offset='.733'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg transform='translate(-437.89 -835.29)'%3E%3Ccircle cx='503.1' cy='900.29' r='62.52' fill='url(%23a)' stroke='url(%23b)' stroke-linejoin='round' stroke-width='4.96'/%3E%3Cpath d='M487.89 873.64a89.53 89.53 0 0 0-2.688.031c-1.043.031-2.445.362-4.062.906 27.309 20.737 37.127 58.146 20.25 90.656.573.015 1.142.063 1.719.063 30.844 0 56.62-21.493 63.28-50.312-19.572-22.943-46.117-41.294-78.5-41.344z' fill='url(%23c)' opacity='.75'/%3E%3Cpath d='M481.14 874.58c-9.068 3.052-26.368 13.802-43 28.156 1.263 34.195 28.961 61.607 63.25 62.5 16.877-32.51 7.06-69.919-20.25-90.656z' fill='%2328170b' opacity='.75'/%3E%3Cpath d='M504.889 862.546c-.472-.032-.932.028-1.375.25-5.6 2.801 0 14 0 14-16.807 14.009-13.236 37.938-32.844 37.938-10.689 0-21.322-12.293-32.531-19.812-.144 1.773-.25 3.564-.25 5.375 0 24.515 13.51 45.863 33.469 57.063 5.583-.703 11.158-2.114 15.344-4.906 21.992-14.662 27.452-42.557 36.438-56.031 5.596-8.407 31.824-7.677 33.594-11.22 2.804-5.601-5.602-14-8.406-14h-22.406c-1.566 0-4.025-2.78-5.594-2.78h-8.406s-3.725-5.65-7.031-5.875z' fill='%23fff'/%3E%3C/g%3E%3C/svg%3E";
 
-export class CamelUi { // TODO: Move class to karavan-designer ?
+export class CamelUi {
 
-    static getSelectorModelLabels = (parentDsl: string | undefined, showSteps: boolean = true): string[] => {
-        const labels =  CamelUi.getSelectorModelsForParent(parentDsl, showSteps).map(dsl => dsl.label.split(","))
+    static getSelectorModelTypes = (parentDsl: string | undefined, showSteps: boolean = true): string[] => {
+        const navs =  CamelUi.getSelectorModelsForParent(parentDsl, showSteps).map(dsl => dsl.navigation.split(","))
             .reduce((accumulator, value) => accumulator.concat(value), [])
-            .filter((label, i, arr) => arr.findIndex(l => l === label) === i)
-            .filter((label, i, arr) => !['eip', 'dataformat'].includes(label));
-        const connectorLabels = ['consumer', "source", "action", "producer", "sink"];
-        const eipLabels =  labels.filter(label => !connectorLabels.includes(label));
-        eipLabels.push(...connectorLabels.filter(label => labels.includes(label)));
+            .filter((nav, i, arr) => arr.findIndex(l => l === nav) === i)
+            .filter((nav, i, arr) => !['eip', 'dataformat'].includes(nav));
+        const connectorNavs = ['routing', "transformation", "error", "configuration", "component", "kamelet"];
+        const eipLabels = connectorNavs.filter(n => navs.includes(n));
         return eipLabels;
     }
 
@@ -76,9 +75,9 @@ export class CamelUi { // TODO: Move class to karavan-designer ?
         return CamelDefinitionApiExt.getElementChildrenDefinition(className).filter(c => c.name === 'steps').length === 1;
     }
 
-    static getSelectorModelsForParentFiltered = (parentDsl: string | undefined, label: string,  showSteps: boolean = true): DslMetaModel[] => {
+    static getSelectorModelsForParentFiltered = (parentDsl: string | undefined, navigation: string,  showSteps: boolean = true): DslMetaModel[] => {
         return CamelUi.getSelectorModelsForParent(parentDsl, showSteps)
-            .filter(dsl => dsl.label.includes(label));
+            .filter(dsl => dsl.navigation.includes(navigation));
     }
 
     static getSelectorModelsForParent = (parentDsl: string | undefined, showSteps: boolean = true): DslMetaModel[] => {
@@ -110,7 +109,7 @@ export class CamelUi { // TODO: Move class to karavan-designer ?
 
     static getDslMetaModel = (className: string): DslMetaModel => {
         const el = CamelMetadataApi.getCamelModelMetadataByClassName(className);
-        return  new DslMetaModel({dsl: className, title: el?.title, description: el?.description, label: el?.labels})
+        return  new DslMetaModel({dsl: className, title: el?.title, description: el?.description, labels: el?.labels, navigation: el?.labels, type: "DSL"})
     }
 
     static getComponentsDslMetaModel = (type: 'consumer' | "producer"): DslMetaModel[] => {
@@ -119,7 +118,9 @@ export class CamelUi { // TODO: Move class to karavan-designer ?
                 new DslMetaModel({
                     dsl: type === 'consumer' ? "FromDefinition" : "ToDefinition",
                     uri: c.component.name,
-                    label: type === 'consumer' ? 'consumer' : 'producer',
+                    navigation: "component",
+                    labels: c.component.label,
+                    type: type === 'consumer' ? 'consumer' : 'producer',
                     title: c.component.title,
                     description: c.component.description,
                     version: c.component.version,
@@ -132,7 +133,9 @@ export class CamelUi { // TODO: Move class to karavan-designer ?
                     new DslMetaModel({
                         dsl: type === 'source' ? "FromDefinition" : "KameletDefinition",
                         uri: "kamelet:" + k.metadata.name,
-                        label: type,
+                        labels: k.type(),
+                        navigation: "kamelet",
+                        type: k.type(),
                         name: k.metadata.name,
                         title: k.title(),
                         description: k.title(),
@@ -339,6 +342,15 @@ export class CamelUi { // TODO: Move class to karavan-designer ?
             return k ? k.icon() : defaultIcon;
         } else {
             return CamelUi.getIconForName(element.dslName);
+        }
+    }
+
+    static getIconForComponentLabel = (dslName: string): string => {
+        switch (dslName) {
+            case "messaging":
+                return "data:image/svg+xml,%3Csvg aria-hidden='true' focusable='false' data-prefix='fas' data-icon='filter' class='svg-inline--fa fa-filter fa-w-16' role='img' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='currentColor' d='M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z'%3E%3C/path%3E%3C/svg%3E";
+            default:
+                return defaultIcon;
         }
     }
 

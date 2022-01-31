@@ -47,23 +47,24 @@ class App extends React.Component<Props, State> {
             '          steps:\n' +
             '            - do-try:\n' +
             '                steps:\n' +
-            '                  - to: "log:when-a"\n' +
-            '                  - to: "log:when-a"\n' +
-            '                  - to: "log:when-a"\n' +
+            '                  - to: "direct:direct1"\n' +
+            '                  - to: "direct:direct2"\n' +
+            '                  - log: "log1"\n' +
             '                do-catch:\n' +
             '                  - exception:\n' +
             '                      - "java.io.FileNotFoundException"\n' +
             '                      - "java.io.IOException"\n' +
             '                    steps:\n' +
-            '                      - to: "log:io-111"\n' +
+            '                      - log: "log1"\n' +
+            '                      - kamelet: \n' +
+            '                           name: kafka-sink \n' +
             '                  - exception:\n' +
             '                      - "java.io.FileNotFoundException"\n' +
             '                      - "java.io.IOException"\n' +
             '                    steps:\n' +
-            '                      - to: "log:io-111"\n' +
-            '                      - to: "log:io-111"\n' +
-            '                      - to: "log:io-111"\n' +
-            '            - threads:\n' +
+            '                      - log: "log1"\n' +
+            '                      - kamelet: \n' +
+            '                           name: http-sink \n' +
             '            - choice:\n' +
             '                when:\n' +
             '                  - expression: {}\n' +
@@ -120,7 +121,7 @@ class App extends React.Component<Props, State> {
     }
 
     save(filename: string, yaml: string) {
-        console.log(filename);
+        // console.log(filename);
         console.log(yaml);
     }
 

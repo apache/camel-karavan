@@ -53,6 +53,7 @@ interface State {
     key: string
     width: number
     height: number
+    scrollTop: number
 }
 
 export class KaravanDesigner extends React.Component<Props, State> {
@@ -68,6 +69,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
         key: "",
         width: 1000,
         height: 1000,
+        scrollTop: 0,
     };
 
     componentDidMount() {
@@ -186,6 +188,12 @@ export class KaravanDesigner extends React.Component<Props, State> {
         });
     }
 
+    onScroll(event: React.UIEvent<HTMLDivElement>) {
+        if (event.nativeEvent.target && (event.nativeEvent.target as any).scrollTop){
+            this.setState({scrollTop: (event.nativeEvent.target as any).scrollTop});
+        }
+    }
+
     onResizePage(el: HTMLDivElement | null){
         const rect = el?.getBoundingClientRect();
         if (el && rect && (rect?.width !== this.state.width || rect.height !== this.state.height)){
@@ -197,8 +205,8 @@ export class KaravanDesigner extends React.Component<Props, State> {
         return (
             <PageSection className="dsl-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="dsl-page-columns">
-                    <div key={this.state.key} className="graph" onScroll={event => console.log(event)}>
-                        <DslConnections height={this.state.height} width={this.state.width} integration={this.state.integration}/>
+                    <div key={this.state.key} className="graph" onScroll={event => this.onScroll(event)}>
+                        <DslConnections height={this.state.height} width={this.state.width} scrollTop={this.state.scrollTop} integration={this.state.integration}/>
                         <div className="flows"  data-click="FLOWS" onClick={event => this.unselectElement(event)}
                              ref={el => this.onResizePage(el)}>
                             {this.state.integration.spec.flows?.map((from:any, index: number) => (

@@ -22,7 +22,7 @@ import './karavan.css';
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 import {CamelElement} from "karavan-core/lib/model/CamelDefinition";
-import {CamelUi} from "karavan-core/lib/api/CamelUi";
+import {CamelUi} from "./CamelUi";
 import {EventBus} from "./EventBus";
 import {ChildElement, CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import ReactDOM from "react-dom";

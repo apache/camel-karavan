@@ -18,7 +18,6 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
-import { CamelUi } from "karavan-core/lib/api/CamelUi";
 import * as jsyaml from 'js-yaml';
 import { Integration } from "karavan-core/lib/model/CamelDefinition";
 import { homedir } from "os";
@@ -168,7 +167,7 @@ function createIntegration(context: vscode.ExtensionContext, webviewContent: str
             }
         }).then(value => {
             if (value) {
-                const name = CamelUi.nameFromTitle(value);
+                const name = nameFromTitle(value);
                 const i = Integration.createNew(name);
                 i.crd = crd;
                 const yaml = CamelDefinitionYaml.integrationToYaml(i);
@@ -228,6 +227,10 @@ function runCamelJbang(filename: string) {
     TERMINALS.set(filename, terminal);
     terminal.show();
     terminal.sendText(command);
+}
+
+function nameFromTitle (title: string): string {
+    return title.replace(/[^a-z0-9+]+/gi, "-").toLowerCase();
 }
 
 export function deactivate() {

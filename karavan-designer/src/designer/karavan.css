@@ -372,7 +372,6 @@
     width: 100%;
     position: relative;
     overflow-y: auto;
-    position: relative;
 }
 
 .karavan .dsl-page .flows {
@@ -700,8 +699,18 @@
     padding-bottom: 1em;
 }
 
+.dsl-modal .footer {
+    display: flex;
+    flex-direction: row;
+    margin-top: 6px;
+}
 .dsl-modal .version {
     text-align: right;
+    opacity: 0.5;
+    white-space: nowrap;
+}
+
+.dsl-modal .labels {
     opacity: 0.5;
 }
 
