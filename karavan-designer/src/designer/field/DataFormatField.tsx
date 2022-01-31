@@ -17,7 +17,6 @@
 import React from 'react';
 import {
     FormGroup,
-    Popover,
     Select,
     SelectVariant,
     SelectDirection,
@@ -25,109 +24,114 @@ import {
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
-import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
-import {CamelElement} from "karavan-core/lib/model/CamelModel";
-import {CamelApiExt} from "karavan-core/lib/api/CamelApiExt";
-import {CamelMetadataApi, DataFormats, PropertyMeta} from "karavan-core/lib/api/CamelMetadata";
-import {DataFormat} from "karavan-core/lib/model/CamelDataFormat";
+import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
+import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
+import {CamelElement, DataFormatDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {DslPropertyField} from "./DslPropertyField";
+import {DataFormats} from "karavan-core/lib/model/CamelMetadata";
 
 interface Props {
-    element: CamelElement,
-    onDataFormatChange?: (dataFormat: string, value?: DataFormat) => void
+    dslName: string,
+    value: CamelElement,
+    onDataFormatChange?: ( value:DataFormatDefinition) => void
 }
 
 interface State {
-    selectStatus: Map<string, boolean>
+    selectIsOpen: boolean;
+    dataFormat: string;
 }
 
 export class DataFormatField extends React.Component<Props, State> {
 
     public state: State = {
-        selectStatus: new Map<string, boolean>(),
+        selectIsOpen: false,
+        dataFormat: CamelDefinitionApiExt.getDataFormat(this.props.value)?.name || "json"
     }
 
-    setDataFormat = (dataFormat: string, props: any) => {
-        const oldDataFormat  = CamelApiExt.getDataFormat(this.props.element);
-        if (oldDataFormat && oldDataFormat[0] === dataFormat){
-            this.props.onDataFormatChange?.call(this, dataFormat, props);
-        } else {
-            this.props.onDataFormatChange?.call(this, dataFormat, undefined);
+    componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
+        const newDataFormat = CamelDefinitionApiExt.getDataFormat(this.props.value)?.name || "json"
+        if (prevProps.value
+            && (prevProps.value.uuid !== this.props.value.uuid
+            || prevState.dataFormat !== newDataFormat)
+        ) {
+            this.setState({
+                dataFormat: newDataFormat
+            });
         }
-        this.setState({selectStatus: new Map<string, boolean>([[dataFormat, false]])});
     }
 
-    openSelect = (dataFormat: string) => {
-        this.setState({selectStatus: new Map<string, boolean>([[dataFormat, true]])});
+    openSelect = () => {
+        this.setState({selectIsOpen: true});
     }
 
-    isSelectOpen = (dataFormat: string): boolean => {
-        return this.state.selectStatus.has(dataFormat) && this.state.selectStatus.get(dataFormat) === true;
+    dataFormatChanged = (dataFormat: string, value?:CamelElement) => {
+        if (dataFormat !== (value as any).dataFormatName){
+            const className = CamelMetadataApi.getCamelDataFormatMetadataByName(dataFormat)?.className;
+            value = CamelDefinitionApi.createDataFormat(className || '', {}); // perhaps copy other similar fields later
+        }
+        const df = CamelDefinitionApi.createStep(this.props.dslName, {});
+        (df as any)[dataFormat] = value;
+        this.props.onDataFormatChange?.call(this, df);
+        this.setState({selectIsOpen: false});
     }
 
-    propertyChanged = (fieldId: string, fieldValue: string | number | boolean | any) => {
-        const dataFormat  = CamelApiExt.getDataFormat(this.props.element);
-        const dataFormatName = dataFormat ? dataFormat[0] : '';
-        const value = dataFormat ? dataFormat[1] : undefined;
-        (value as any)[fieldId] = fieldValue;
-        this.setDataFormat(dataFormatName, value);
+    propertyChanged = (fieldId: string, value: string | number | boolean | any) => {
+        const df = this.getDataFormatValue();
+        if (df) {
+            (df as any)[fieldId] = value;
+            this.dataFormatChanged(this.state.dataFormat, df);
+        }
+    }
+
+    getDataFormatValue = (): CamelElement => {
+        return (this.props.value as any)[this.state.dataFormat]
+            ? (this.props.value as any)[this.state.dataFormat]
+            : CamelDefinitionApi.createDataFormat(this.state.dataFormat, (this.props.value as any)[this.state.dataFormat]);
     }
 
     render() {
-        const fieldId = "dataFormat";
-        const dataFormat  = CamelApiExt.getDataFormat(this.props.element);
-        const dataFormatName = dataFormat ? dataFormat[0] : '';
-        const value = dataFormat ? dataFormat[1] : undefined;
-        const properties = CamelMetadataApi.getCamelDataFormatMetadata(dataFormatName)?.properties
-            .sort((a, b) => a.name === 'library' ? -1: 1);
+        const value = this.getDataFormatValue();
+        const dataFormat = DataFormats.find((l: [string, string, string]) => l[0] === this.state.dataFormat);
+        const properties = CamelDefinitionApiExt.getElementPropertiesByName(this.state.dataFormat).sort((a, b) => a.name === 'library' ? -1: 1);
         const selectOptions: JSX.Element[] = []
-        DataFormats.forEach((df: [string, string, string]) => {
-            const s = <SelectOption key={df[0]} value={df[0]} description={df[2]}/>;
+        DataFormats.forEach((lang: [string, string, string]) => {
+            const s = <SelectOption key={lang[0]} value={lang[0]} description={lang[2]}/>;
             selectOptions.push(s);
         })
         return (
             <div>
-                <FormGroup
-                    key={fieldId}
-                    label="Data Format"
-                    fieldId="dataFormat"
-                    labelIcon={
-                        <Popover
-                            position={"left"}
-                            headerContent="Data Format"
-                            bodyContent="Specified format for transmission over a transport or component">
-                            <button type="button" aria-label="More info" onClick={e => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                            }}
-                                    className="pf-c-form__group-label-help">
-                                <HelpIcon noVerticalAlign/>
-                            </button>
-                        </Popover>}
-                >
-                    <div className="dataformat">
-                        <Select
-                            variant={SelectVariant.typeahead}
-                            aria-label="dataFormat"
-                            onToggle={isExpanded => {
-                                this.openSelect(fieldId)
-                            }}
-                            onSelect={(e, df, isPlaceholder) => this.setDataFormat(df.toString(), value)}
-                            selections={dataFormatName}
-                            isOpen={this.isSelectOpen(fieldId)}
-                            aria-labelledby={fieldId}
-                            direction={SelectDirection.down}
-                        >
-                            {selectOptions}
-                        </Select>
-                        {properties && properties.map((property: PropertyMeta) =>
-                            <DslPropertyField property={property}
-                                              value={value ? (value as any)[property.name] : undefined}
-                                              onChange={this.propertyChanged}
-                            />
-                        )}
-                    </div>
+                <FormGroup label={"Data Format"} key={"dataFormat"} fieldId={"dataFormat"}>
+                    <Select
+                        variant={SelectVariant.typeahead}
+                        aria-label={"dataFormat"}
+                        onToggle={() => {
+                            this.openSelect()
+                        }}
+                        onSelect={(e, dataFormat, isPlaceholder) => this.dataFormatChanged(dataFormat.toString(), value)}
+                        selections={dataFormat}
+                        isOpen={this.state.selectIsOpen}
+                        aria-labelledby={"dataFormat"}
+                        direction={SelectDirection.down}
+                    >
+                        {selectOptions}
+                    </Select>
                 </FormGroup>
+                <div className="expression">
+                    <FormGroup
+                        key={"properties"}
+                        fieldId={"properties"}>
+                            {value && properties?.map((property: PropertyMeta) =>
+                            <DslPropertyField property={property}
+                                              element={value}
+                                              value={value ? (value as any)[property.name] : undefined}
+                                              onExpressionChange={exp => {}}
+                                              onParameterChange={parameter => {console.log(parameter)}}
+                                              onDataFormatChange={dataFormat => {console.log(dataFormat)}}
+                                              onChange={this.propertyChanged} />
+                            )}
+                    </FormGroup>
+                </div>
             </div>
         )
     }

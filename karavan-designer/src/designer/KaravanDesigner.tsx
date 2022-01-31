@@ -19,19 +19,19 @@ import {
     Button,
     PageSection,
 } from '@patternfly/react-core';
-import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import './karavan.css';
-import {DslElement} from "./DslElement";
 import {DslSelector} from "./DslSelector";
 import {DslMetaModel} from "karavan-core/lib/model/DslMetaModel";
 import {DslProperties} from "./DslProperties";
-import {CamelElement, Integration} from "karavan-core/lib/model/CamelModel";
-import {CamelYaml} from "karavan-core/lib/api/CamelYaml";
-import {CamelApiExt} from "karavan-core/lib/api/CamelApiExt";
-import {CamelApi} from "karavan-core/lib/api/CamelApi";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
+import {CamelElement, FromDefinition, Integration} from "karavan-core/lib/model/CamelDefinition";
+import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
+import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
+import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {DslConnections} from "./DslConnections";
-import {EventBus} from "karavan-core/lib/api/EventBus";
+import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
+import {DslElement} from "./DslElement";
+import {EventBus} from "./EventBus";
 
 interface Props {
     onSave?: (filename: string, yaml: string) => void
@@ -47,22 +47,29 @@ interface State {
     selectedStep?: CamelElement
     showSelector: boolean
     parentId: string
-    parentType: string
+    parentDsl?: string
+    showSteps: boolean
     selectedUuid: string
     key: string
+    width: number
+    height: number
+    scrollTop: number
 }
 
 export class KaravanDesigner extends React.Component<Props, State> {
 
     public state: State = {
         integration: this.props.yaml
-            ? CamelYaml.yamlToIntegration(this.props.filename, this.props.yaml)
+            ? CamelDefinitionYaml.yamlToIntegration(this.props.filename, this.props.yaml)
             : Integration.createNew(this.props.filename),
         showSelector: false,
         parentId: '',
-        parentType: '',
+        showSteps: true,
         selectedUuid: '',
         key: "",
+        width: 1000,
+        height: 1000,
+        scrollTop: 0,
     };
 
     componentDidMount() {
@@ -92,17 +99,17 @@ export class KaravanDesigner extends React.Component<Props, State> {
 
     getCode = (integration: Integration): string => {
         const clone = CamelUtil.cloneIntegration(integration);
-        return CamelYaml.integrationToYaml(clone);
+        return CamelDefinitionYaml.integrationToYaml(clone);
     }
 
     onPropertyUpdate = (element: CamelElement, updatedUuid: string) => {
         const clone = CamelUtil.cloneIntegration(this.state.integration);
-        const i = CamelApiExt.updateIntegration(clone, element, updatedUuid);
+        const i = CamelDefinitionApiExt.updateIntegration(clone, element, updatedUuid);
         this.setState({integration: i, key: Math.random().toString()});
     }
 
     deleteElement = (id: string) => {
-        const i = CamelApiExt.deleteStepFromIntegration(this.state.integration, id);
+        const i = CamelDefinitionApiExt.deleteStepFromIntegration(this.state.integration, id);
         this.setState({
             integration: i,
             showSelector: false,
@@ -110,14 +117,17 @@ export class KaravanDesigner extends React.Component<Props, State> {
             selectedStep: undefined,
             selectedUuid: ''
         });
+        const el = new CamelElement("");
+        el.uuid = id;
+        EventBus.sendPosition("delete", el,undefined, new DOMRect(), new DOMRect(), 0);
     }
 
     selectElement = (element: CamelElement) => {
         this.setState({selectedStep: element, selectedUuid: element.uuid, showSelector: false})
     }
 
-    openSelector = (parentId: string | undefined, parentType: string | undefined) => {
-        this.setState({showSelector: true, parentId: parentId || '', parentType: parentType || ''})
+    openSelector = (parentId: string | undefined, parentDsl: string | undefined, showSteps: boolean = true) => {
+        this.setState({showSelector: true, parentId: parentId || '', parentDsl: parentDsl, showSteps: showSteps})
     }
 
     closeDslSelector = () => {
@@ -126,31 +136,31 @@ export class KaravanDesigner extends React.Component<Props, State> {
 
     onDslSelect = (dsl: DslMetaModel, parentId: string) => {
         switch (dsl.dsl) {
-            case 'from' :
-                const from = CamelApi.createStep(dsl.dsl, {uri: dsl.uri});
+            case 'FromDefinition' :
+                const from = CamelDefinitionApi.createRouteDefinition({from: new FromDefinition({uri: dsl.uri})});
                 this.addStep(from, parentId)
                 break;
-            case 'to' :
-                const to = CamelApi.createStep(dsl.dsl,  {uri: dsl.uri});
+            case 'ToDefinition' :
+                const to = CamelDefinitionApi.createStep(dsl.dsl,  {uri: dsl.uri});
                 this.addStep(to, parentId)
                 break;
-            case 'toD' :
-                const toD = CamelApi.createStep(dsl.dsl, {uri: dsl.uri});
+            case 'ToDynamicDefinition' :
+                const toD = CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
                 this.addStep(toD, parentId)
                 break;
-            case 'kamelet' :
-                const kamelet = CamelApi.createStep(dsl.dsl,{name: dsl.name});
+            case 'KameletDefinition' :
+                const kamelet = CamelDefinitionApi.createStep(dsl.dsl,{name: dsl.name});
                 this.addStep(kamelet, parentId)
                 break;
             default:
-                const step = CamelApi.createStep(dsl.dsl, undefined);
+                const step = CamelDefinitionApi.createStep(dsl.dsl, undefined);
                 this.addStep(step, parentId)
                 break;
         }
     }
 
     addStep = (step: CamelElement, parentId: string) => {
-        const i = CamelApiExt.addStepToIntegration(this.state.integration, step, parentId);
+        const i = CamelDefinitionApiExt.addStepToIntegration(this.state.integration, step, parentId);
         const clone = CamelUtil.cloneIntegration(i);
         this.setState({
             integration: clone,
@@ -166,9 +176,9 @@ export class KaravanDesigner extends React.Component<Props, State> {
     }
 
     moveElement = (source: string, target: string) => {
-        const i = CamelApiExt.moveElement(this.state.integration, source, target);
+        const i = CamelDefinitionApiExt.moveElement(this.state.integration, source, target);
         const clone = CamelUtil.cloneIntegration(i);
-        const selectedStep = CamelApiExt.findElement(clone, source);
+        const selectedStep = CamelDefinitionApiExt.findElement(clone, source);
         this.setState({
             integration: clone,
             key: Math.random().toString(),
@@ -178,37 +188,49 @@ export class KaravanDesigner extends React.Component<Props, State> {
         });
     }
 
+    onScroll(event: React.UIEvent<HTMLDivElement>) {
+        if (event.nativeEvent.target && (event.nativeEvent.target as any).scrollTop){
+            this.setState({scrollTop: (event.nativeEvent.target as any).scrollTop});
+        }
+    }
+
+    onResizePage(el: HTMLDivElement | null){
+        const rect = el?.getBoundingClientRect();
+        if (el && rect && (rect?.width !== this.state.width || rect.height !== this.state.height)){
+            this.setState({width: rect.width, height: rect.height});
+        }
+    }
+
     render() {
         return (
             <PageSection className="dsl-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="dsl-page-columns">
-                    <div className="flows"
-                         data-click="FLOWS"
-                         onClick={event => this.unselectElement(event)}
-                         ref={el => {
-                             if (el) EventBus.sendFlowPosition(el.getBoundingClientRect());
-                         }}>
-                        <DslConnections key={this.state.key + "-connections"}
-                                        integration={this.state.integration}
-                        />
-                        {this.state.integration.spec.flows.map((from, index) => (
-                            <DslElement key={from.uuid + this.state.key}
-                                        openSelector={this.openSelector}
-                                        deleteElement={this.deleteElement}
-                                        selectElement={this.selectElement}
-                                        moveElement={this.moveElement}
-                                        selectedUuid={this.state.selectedUuid}
-                                        borderColor={this.props.borderColor}
-                                        borderColorSelected={this.props.borderColorSelected}
-                                        step={from}/>
-                        ))}
-                        <div className="add-flow">
-                            <Button
-                                variant={this.state.integration.spec.flows.length === 0 ? "primary" : "secondary"}
-                                data-click="ADD_FLOW"
-                                icon={<PlusIcon/>}
-                                onClick={e => this.openSelector(undefined, undefined)}>Add new flow
-                            </Button>
+                    <div key={this.state.key} className="graph" onScroll={event => this.onScroll(event)}>
+                        <DslConnections height={this.state.height} width={this.state.width} scrollTop={this.state.scrollTop} integration={this.state.integration}/>
+                        <div className="flows"  data-click="FLOWS" onClick={event => this.unselectElement(event)}
+                             ref={el => this.onResizePage(el)}>
+                            {this.state.integration.spec.flows?.map((from:any, index: number) => (
+                                <DslElement key={from.uuid + this.state.key}
+                                            openSelector={this.openSelector}
+                                            deleteElement={this.deleteElement}
+                                            selectElement={this.selectElement}
+                                            moveElement={this.moveElement}
+                                            selectedUuid={this.state.selectedUuid}
+                                            borderColor={this.props.borderColor}
+                                            borderColorSelected={this.props.borderColorSelected}
+                                            inSteps={false}
+                                            position={index}
+                                            step={from}
+                                            parent={undefined}/>
+                            ))}
+                            <div className="add-flow">
+                                <Button
+                                    variant={this.state.integration.spec.flows?.length === 0 ? "primary" : "secondary"}
+                                    data-click="ADD_ROUTE"
+                                    icon={<PlusIcon/>}
+                                    onClick={e => this.openSelector(undefined, undefined)}>Add new route
+                                </Button>
+                            </div>
                         </div>
                     </div>
                     <DslProperties
@@ -216,13 +238,13 @@ export class KaravanDesigner extends React.Component<Props, State> {
                         step={this.state.selectedStep}
                         onIntegrationUpdate={this.onIntegrationUpdate}
                         onPropertyUpdate={this.onPropertyUpdate}
-                        onChangeView={{}}
                     />
                 </div>
                 <DslSelector
                     dark={this.props.dark}
                     parentId={this.state.parentId}
-                    parentType={this.state.parentType}
+                    parentDsl={this.state.parentDsl}
+                    showSteps={this.state.showSteps}
                     show={this.state.showSelector}
                     onDslSelect={this.onDslSelect}
                     onClose={this.closeDslSelector}/>

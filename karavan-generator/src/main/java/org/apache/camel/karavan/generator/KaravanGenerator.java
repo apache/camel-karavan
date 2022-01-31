@@ -16,13 +16,17 @@
  */
 package org.apache.camel.karavan.generator;
 
+import org.apache.camel.model.RouteDefinition;
+
 public final class KaravanGenerator {
 
     public static void main(String[] args) throws Exception {
-        CamelModelGenerator.generate();
+        CamelDefinitionGenerator.generate();
+        CamelDefinitionApiGenerator.generate();
+        CamelDefinitionYamlStepGenerator.generate();
+        CamelMetadataGenerator.generate();
         KameletGenerator.generate();
         CamelComponentsGenerator.generate();
-        CamelDataFormatGenerator.generate();
         System.exit(0);
     }
 

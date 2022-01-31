@@ -1,0 +1,10 @@
+- from:
+    uri: timer:info
+    steps:
+      - set-body:
+          expression:
+            constant:
+              expression: Hello Yaml !!!
+      - log:
+          message: ${body}
+          logName: log11

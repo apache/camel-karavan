@@ -17,6 +17,10 @@ body,
   background-color: #252526;
 }
 
+.vscode-dark .karavan .dsl-page .flows .step-element .header-route {
+  color: #CCCCCC;
+}
+
 .vscode-dark .karavan .dsl-page .flows .step-element-with-steps {
   border-color: #964;
 }
@@ -25,6 +29,19 @@ body,
   border-color: #fca338;
   background: #fca338;
   color: black;
+}
+
+.vscode-dark .step-element .selected .header-icon {
+  border-color: white;
+  border-width: 2px;
+}
+
+.vscode-dark .step-element .header-icon {
+  background: #fb8824;
+}
+
+.vscode-dark .step-element .header .text-bottom {
+    background-color: rgb(37,37,38, 0.5);
 }
 
 .vscode-dark .karavan .dsl-page .properties {
@@ -70,11 +87,6 @@ body,
   --pf-c-switch__toggle--before--BackgroundColor: black;
 }
 
-.vscode-dark .step-element .header .delete-button, 
-.vscode-dark .element-builder .header .delete-button {
-  color: #585858;
-}
-
 .vscode-dark .karavan .dsl-page .flows .connections .path {
   stroke: #fee3c3;
 }
@@ -83,6 +95,13 @@ body,
 .vscode-dark .karavan .dsl-page .flows .connections .incoming {
   border-color: #fee3c3;
   background: #fee3c3;
+}
+
+.vscode-dark .karavan .dsl-page .graph .connections .circle-outgoing,
+.vscode-dark .karavan .dsl-page .graph .connections .circle-incoming {
+    stroke: #fb8824;
+    stroke-width: 1;
+    fill: #fb8824;
 }
 
 
@@ -122,6 +141,10 @@ body,
   --pf-c-tooltip__content--BackgroundColor: #585858;
 }
 
+.vscode-dark .step-element .add-element-button {
+  color: #252526;
+}
+
 .vscode-dark .step-element .add-button,
 .vscode-dark .step-element .add-button-from {
   background: #252526;
@@ -131,6 +154,20 @@ body,
   background-color: #3B3B3B;
   border-color: #3B3B3B;
   color: #CCCCCC;
+}
+
+.vscode-dark .karavan .dsl-page .properties .pf-c-text-input-group {
+  background-color: #3B3B3B;
+  border-color: #3B3B3B;
+  color: #CCCCCC;
+  --pf-c-text-input-group__text--before--BorderColor: transparent;
+  --pf-c-text-input-group__text--after--BorderBottomColor: transparent;
+}
+
+.vscode-dark .karavan .dsl-page .properties .input-group .pf-c-chip-group .pf-c-chip {
+  --pf-c-chip--BackgroundColor: transparent;
+  --pf-c-chip__text--Color: white;
+  --pf-c-chip--before--BorderColor: grey;
 }
 
 .vscode-dark .karavan .pf-c-button {

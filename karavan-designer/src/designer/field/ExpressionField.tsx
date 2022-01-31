@@ -21,18 +21,22 @@ import {
     Select,
     SelectVariant,
     SelectDirection,
-    SelectOption, TextArea,
+    SelectOption,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
-import {Languages, PropertyMeta} from "karavan-core/lib/api/CamelMetadata";
-import {CamelApiExt} from "karavan-core/lib/api/CamelApiExt";
+import {CamelMetadataApi, Languages, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
+import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
+import {CamelElement, ExpressionDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
+import {DslPropertyField} from "./DslPropertyField";
+import {CamelUi} from "../CamelUi";
 
 interface Props {
     property: PropertyMeta,
-    value: any,
-    onExpressionChange?: (language: string, value: string | undefined) => void
+    value: CamelElement,
+    onExpressionChange?: ( value:ExpressionDefinition) => void
 }
 
 interface State {
@@ -49,17 +53,51 @@ export class ExpressionField extends React.Component<Props, State> {
         this.setState({selectIsOpen: true});
     }
 
-    expressionChanged = (language: string, value: string | undefined) => {
-        this.props.onExpressionChange?.call(this, language, value);
+    expressionChanged = (language: string, value:CamelElement) => {
+        if (language !== (value as any).expressionName){
+            const className = CamelMetadataApi.getCamelLanguageMetadataByName(language)?.className;
+            value = CamelDefinitionApi.createExpression(className || '', {expression: (value as any).expression}); // perhaps copy other similar fields later
+        }
+        const exp = new ExpressionDefinition();
+        (exp as any)[language] = value;
+        if (this.props.value) (exp as any).uuid = this.props.value.uuid;
+        this.props.onExpressionChange?.call(this, exp);
         this.setState({selectIsOpen: false});
+    }
+
+    propertyChanged = (fieldId: string, value: string | number | boolean | any) => {
+        const expression = this.getExpressionValue();
+        if (expression) {
+            (expression as any)[fieldId] = value;
+            this.expressionChanged(this.getValueLanguage(), expression);
+        }
+    }
+
+    getValueClassName = (): string => {
+        return CamelDefinitionApiExt.getExpressionLanguageClassName(this.props.value) || 'SimpleExpression';
+    }
+
+    getValueLanguage = (): string => {
+        return CamelDefinitionApiExt.getExpressionLanguageName(this.props.value) || 'simple';
+    }
+
+    getExpressionValue = (): CamelElement => {
+        const language = this.getValueLanguage();
+        return this.props.value && (this.props.value as any)[language]
+            ? (this.props.value as any)[language]
+            : CamelDefinitionApi.createExpression(this.getValueClassName(), this.props.value);
+    }
+
+    getProps = (): PropertyMeta[] => {
+        const dslName = this.getValueClassName();
+        return CamelDefinitionApiExt.getElementProperties(dslName)
+            .filter(p => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)) || (dslName === 'CatchDefinition' && p.name === 'onWhen'));
     }
 
     render() {
         const property: PropertyMeta = this.props.property;
-        const prefix = "language";
-        const language = CamelApiExt.getExpressionLanguage(this.props.value) || 'Simple'
-        const dslLanguage = Languages.find((l: [string, string, string]) => l[0] === language);
-        const value = language ? CamelApiExt.getExpressionValue(this.props.value) : undefined;
+        const value = this.getExpressionValue();
+        const dslLanguage = Languages.find((l: [string, string, string]) => l[0] === this.getValueLanguage());
         const selectOptions: JSX.Element[] = []
         Languages.forEach((lang: [string, string, string]) => {
             const s = <SelectOption key={lang[0]} value={lang[0]} description={lang[2]}/>;
@@ -67,11 +105,11 @@ export class ExpressionField extends React.Component<Props, State> {
         })
         return (
             <div>
-                <FormGroup key={prefix + "-" + property.name} fieldId={property.name}>
+                <FormGroup label={"Language"} key={this.getValueLanguage() + "-" + property.name} fieldId={property.name}>
                     <Select
                         variant={SelectVariant.typeahead}
                         aria-label={property.name}
-                        onToggle={isExpanded => {
+                        onToggle={() => {
                             this.openSelect()
                         }}
                         onSelect={(e, lang, isPlaceholder) => this.expressionChanged(lang.toString(), value)}
@@ -100,14 +138,15 @@ export class ExpressionField extends React.Component<Props, State> {
                             </button>
                         </Popover> : <div></div>
                     }>
-                    <TextArea
-                        autoResize
-                        className="text-field" isRequired
-                        type={"text"}
-                        id={property.name} name={property.name}
-                        height={"100px"}
-                        value={value?.toString()}
-                        onChange={e => this.expressionChanged(language, e)}/>
+                    {value && this.getProps().map((property: PropertyMeta) =>
+                        <DslPropertyField key={property.name + this.props.value?.uuid} property={property}
+                                          element={value}
+                                          value={value ? (value as any)[property.name] : undefined}
+                                          onExpressionChange={exp => {}}
+                                          onParameterChange={parameter => {console.log(parameter)}}
+                                          onDataFormatChange={dataFormat => {console.log(dataFormat)}}
+                                          onChange={this.propertyChanged} />
+                    )}
                 </FormGroup>
             </div>
         )

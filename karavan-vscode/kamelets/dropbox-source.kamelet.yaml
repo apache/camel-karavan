@@ -1,10 +1,26 @@
+# ---------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ---------------------------------------------------------------------------
 apiVersion: camel.apache.org/v1alpha1
 kind: Kamelet
 metadata:
   name: dropbox-source
   annotations:
     camel.apache.org/kamelet.support.level: "Preview"
-    camel.apache.org/catalog.version: "0.5.0"
+    camel.apache.org/catalog.version: "0.6.0"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+Cjxzdmcgd2lkdGg9IjQzcHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDQzIDQwIiB2ZXJzaW9uPSIxLjEiIGhlaWdodD0iNDBweCI+CiA8cGF0aCBkPSJtMTIuNSAwbC0xMi41IDguMSA4LjcgNyAxMi41LTcuOC04LjctNy4zem0tMTIuNSAyMS45bDEyLjUgOC4yIDguNy03LjMtMTIuNS03LjctOC43IDYuOHptMjEuMiAwLjlsOC44IDcuMyAxMi40LTguMS04LjYtNi45LTEyLjYgNy43em0yMS4yLTE0LjdsLTEyLjQtOC4xLTguOCA3LjMgMTIuNiA3LjggOC42LTd6bS0yMS4xIDE2LjNsLTguOCA3LjMtMy43LTIuNXYyLjhsMTIuNSA3LjUgMTIuNS03LjV2LTIuOGwtMy44IDIuNS04LjctNy4zeiIgZmlsbD0iIzAwN0VFNSIvPgo8L3N2Zz4K"
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "Dropbox"

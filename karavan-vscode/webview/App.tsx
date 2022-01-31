@@ -53,6 +53,7 @@ class App extends React.Component<Props, State> {
           ComponentApi.saveComponents(message.components);
           break;  
         case 'open':
+          console.log(event);
           if (this.state.filename === '' && this.state.key === ''){
             this.setState({filename: message.filename, yaml: message.yaml, key: Math.random().toString()});
           }

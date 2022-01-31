@@ -16,22 +16,44 @@
  */
 import {expect} from 'chai';
 import * as fs from 'fs';
-import * as path from 'path';
 import 'mocha';
-import {CamelYaml} from "../src/core/api/CamelYaml";
+import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
+import {FilterDefinition, ToDefinition} from "../src/core/model/CamelDefinition";
+import {FromDefinition, RouteDefinition} from "../src/core/model/CamelDefinition";
 
 describe('CRD YAML to Integration', () => {
 
-    const yaml = fs.readFileSync('test/integration1.yaml',{encoding:'utf8', flag:'r'});
 
-    it('YAML <-> Object', () => {
-        const i = CamelYaml.yamlToIntegration("test1.yaml", yaml);
+
+    it('YAML <-> Object 1', () => {
+        const yaml = fs.readFileSync('test/integration1.yaml',{encoding:'utf8', flag:'r'});
+        const i = CamelDefinitionYaml.yamlToIntegration("test1.yaml", yaml);
         expect(i.metadata.name).to.equal('test1.yaml');
         expect(i.kind).to.equal('Integration');
-        expect(i.spec.flows.length).to.equal(1);
+        expect(i.spec.flows?.length).to.equal(1);
         expect(i.crd).to.equal(true);
-        const y = CamelYaml.integrationToYaml(i);
-        expect(y).to.equal(yaml);
+        if (i.spec.flows){
+            const f:FilterDefinition = (i.spec.flows[0] as RouteDefinition).from.steps[1];
+            const t:ToDefinition = <ToDefinition> (f.steps ? f.steps[0] : undefined);
+            expect(t.uri).to.equal("log:info:xxx");
+            expect(t.parameters.level).to.equal("OFF");
+        }
+    });
+
+    it('YAML <-> Object 2', () => {
+        const yaml = fs.readFileSync('test/integration2.yaml',{encoding:'utf8', flag:'r'});
+        const i = CamelDefinitionYaml.yamlToIntegration("test1.yaml", yaml);
+        expect(i.metadata.name).to.equal('test1.yaml');
+        expect(i.kind).to.equal('Integration');
+        expect(i.spec.flows?.length).to.equal(1);
+        expect(i.crd).to.equal(true);
+
+        if (i.spec.flows){
+            const f:FilterDefinition = (i.spec.flows[0] as RouteDefinition).from.steps[1];
+            const t:ToDefinition = <ToDefinition> (f.steps ? f.steps[0] : undefined);
+            expect(t.uri).to.equal("log:info:xxx");
+            expect(t.parameters.level).to.equal("OFF");
+        }
     });
 
 });

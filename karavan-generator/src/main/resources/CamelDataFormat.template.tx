@@ -1,7 +1,0 @@
-export class %1$s extends DataFormat{
-%2$s
-    public constructor(init?: Partial<%1$s>) {
-        super(init?.id);
-        Object.assign(this, init);
-    }
-}

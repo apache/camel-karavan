@@ -1,0 +1,24 @@
+- from:
+    uri: netty-http:http://localhost:8080/demo
+    steps:
+      - convertBodyTo:
+          type: String
+      - unmarshal:
+          json: {}
+      - choice:
+          when:
+            - expression:
+                simple: ${body[amount]} < 1000
+              steps:
+                - log:
+                    message: 'WHEN: ${body}'
+                    logging-level: INFO
+                    log-name: when
+          otherwise:
+            steps:
+              - log:
+                  log-name: otherwise
+                  logging-level: INFO
+                  message: 'OTHERWISE: ${body}'
+- from:
+    uri: kamelet:aws-kinesis-source

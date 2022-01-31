@@ -1,6 +1,0 @@
-    static createOtherwise = (element: any): Otherwise => {
-        const otherwise = element ? new Otherwise({...element}) : new Otherwise();
-        otherwise.steps = CamelApi.createSteps(element?.steps);
-        if (element?.uuid) otherwise.uuid = element?.uuid;
-        return otherwise
-    }

@@ -1,8 +1,19 @@
 - from:
-    uri: kamelet:timer-source
-    parameters:
-      period: 1000
-      message: qqq
+    uri: timer:info
     steps:
-      - log:
-          message: wwwww
+      - choice:
+          when:
+            - expression:
+                simple:
+                  expression: ${headers} != null
+              steps:
+                - log:
+                    message: hello11
+                    logName: log11
+            - expression:
+                simple:
+                  expression: ${headers} == null
+              steps:
+                - log:
+                    message: hello22
+                    logName: log22

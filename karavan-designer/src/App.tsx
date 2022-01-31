@@ -41,30 +41,44 @@ class App extends React.Component<Props, State> {
             '  name: \'\'\n' +
             'spec:\n' +
             '  flows:\n' +
-            '    - from:\n' +
-            '        uri: \'kamelet:http-secured-source\'\n' +
-            '        steps:\n' +
-            '          - unmarshal:\n' +
-            '              json:\n' +
-            '                  library: gson\n' +
-            '          - set-body:\n' +
-            '              expression: \n' +
-            '                constant: "Hello Yaml !!!"\n' +
-            '          - pollEnrich:\n' +
-            '              expression: {}\n' +
-            '          - log: "${body}"\n' +
-            '          - to: \n' +
-            '               uri: "log:info:xxx"\n' +
-            '               parameters:\n' +
-            '                   level: \'OFF\'\n' +
-            '                   logMask: true \n' +
-            '          - choice:\n' +
-            '              otherwise: {}\n' +
-            '              when:\n' +
-            '                - expression: {}\n' +
-            '                  steps:\n' +
-            '                    - to-d: {}\n'
-            ,
+            '    - route:\n' +
+            '        from:\n' +
+            '          uri: kamelet:http-secured-source\n' +
+            '          steps:\n' +
+            '            - do-try:\n' +
+            '                steps:\n' +
+            '                  - to: "direct:direct1"\n' +
+            '                  - to: "direct:direct2"\n' +
+            '                  - log: "log1"\n' +
+            '                do-catch:\n' +
+            '                  - exception:\n' +
+            '                      - "java.io.FileNotFoundException"\n' +
+            '                      - "java.io.IOException"\n' +
+            '                    steps:\n' +
+            '                      - log: "log1"\n' +
+            '                      - kamelet: \n' +
+            '                           name: kafka-sink \n' +
+            '                  - exception:\n' +
+            '                      - "java.io.FileNotFoundException"\n' +
+            '                      - "java.io.IOException"\n' +
+            '                    steps:\n' +
+            '                      - log: "log1"\n' +
+            '                      - kamelet: \n' +
+            '                           name: http-sink \n' +
+            '            - choice:\n' +
+            '                when:\n' +
+            '                  - expression: {}\n' +
+            '                    steps:\n' +
+            '                      - log:\n' +
+            '                           message: hello22s\n' +
+            '                           logName: log22\n' +
+            '                otherwise: {}\n'+
+            '            - circuitBreaker: {}\n' +
+            '            - multicast:\n' +
+            '                steps:\n' +
+            '                  - to: "http:localhost"\n' +
+            '                  - to: "kafka:topic2"\n' +
+            '',
         key: ''
     };
 
@@ -87,6 +101,7 @@ class App extends React.Component<Props, State> {
 
         ["bonita.json",
             "activemq.json",
+            "direct.json",
             "docker.json",
             "netty-http.json",
             "jms.json",
@@ -106,7 +121,7 @@ class App extends React.Component<Props, State> {
     }
 
     save(filename: string, yaml: string) {
-        console.log(filename);
+        // console.log(filename);
         console.log(yaml);
     }
 
