@@ -53,6 +53,7 @@ interface State {
     key: string
     width: number
     height: number
+    top: number
     scrollTop: number
 }
 
@@ -69,6 +70,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
         key: "",
         width: 1000,
         height: 1000,
+        top: 0,
         scrollTop: 0,
     };
 
@@ -196,8 +198,8 @@ export class KaravanDesigner extends React.Component<Props, State> {
 
     onResizePage(el: HTMLDivElement | null){
         const rect = el?.getBoundingClientRect();
-        if (el && rect && (rect?.width !== this.state.width || rect.height !== this.state.height)){
-            this.setState({width: rect.width, height: rect.height});
+        if (el && rect && (rect?.width !== this.state.width || rect.height !== this.state.height || rect.top !== this.state.top)){
+            this.setState({width: rect.width, height: rect.height, top: rect.top});
         }
     }
 
@@ -206,7 +208,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
             <PageSection className="dsl-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="dsl-page-columns">
                     <div key={this.state.key} className="graph" onScroll={event => this.onScroll(event)}>
-                        <DslConnections height={this.state.height} width={this.state.width} scrollTop={this.state.scrollTop} integration={this.state.integration}/>
+                        <DslConnections height={this.state.height} width={this.state.width} scrollTop={this.state.scrollTop} top={this.state.top} integration={this.state.integration}/>
                         <div className="flows"  data-click="FLOWS" onClick={event => this.unselectElement(event)}
                              ref={el => this.onResizePage(el)}>
                             {this.state.integration.spec.flows?.map((from:any, index: number) => (

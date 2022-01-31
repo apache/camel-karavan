@@ -9,9 +9,9 @@ import SaveIcon from '@patternfly/react-icons/dist/esm/icons/upload-icon';
 import CopyIcon from '@patternfly/react-icons/dist/esm/icons/copy-icon';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
-import {Integration} from "karavan-core/lib/model/CamelModel";
+import {Integration} from "karavan-core/lib/model/CamelDefinition";
 import {KaravanApi} from "../api/KaravanApi";
-import {CamelYaml} from "karavan-core/lib/api/CamelYaml";
+import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {KaravanDesigner} from "../designer/KaravanDesigner";
 import FileSaver from "file-saver";
 
@@ -31,11 +31,11 @@ interface State {
 export class DesignerPage extends React.Component<Props, State> {
 
     public state: State = {
-        integration: this.props.integration, // CamelYaml.demo(),
+        integration: this.props.integration, // CamelDefinitionYaml.demo(),
         view: "design",
         key: "",
         name: this.props.integration.metadata.name,
-        yaml: CamelYaml.integrationToYaml(this.props.integration)
+        yaml: CamelDefinitionYaml.integrationToYaml(this.props.integration)
     };
 
     componentDidMount() {
