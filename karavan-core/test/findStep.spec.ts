@@ -24,7 +24,7 @@ import {
     ChoiceDefinition,
     ExpressionDefinition,
     SimpleExpression,
-    FilterDefinition
+    FilterDefinition, CatchDefinition, TryDefinition, FinallyDefinition, RouteDefinition
 } from "../src/core/model/CamelDefinition";
 import {CamelUtil} from "../src/core/api/CamelUtil";
 import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
@@ -48,7 +48,7 @@ describe('Find Step', () => {
         if (when2 && when2.expression) {
             when2.expression.simple = new SimpleExpression({expression: '$[body} == "hello world"'});
         }
-        const log: LogDefinition = <LogDefinition> CamelDefinitionApiExt.findElement(i, log2.uuid);
+        const log: LogDefinition = <LogDefinition> CamelDefinitionApiExt.findElementInIntegration(i, log2.uuid);
         expect(log.logName).to.equal(log2.logName);
         expect(log.message).to.equal(log2.message);
     });
@@ -67,7 +67,29 @@ describe('Find Step', () => {
         i.spec.flows?.push(flow1);
 
 
-        const log: LogDefinition = <LogDefinition> CamelDefinitionApiExt.findElement(i, log2.uuid);
+        const log: LogDefinition = <LogDefinition> CamelDefinitionApiExt.findElementInIntegration(i, log2.uuid);
+        expect(log.logName).to.equal(log2.logName);
+        expect(log.message).to.equal(log2.message);
+    });
+
+    it('Find Step from Try-Catch-Finally clause', () => {
+        const log1 = new LogDefinition({message: "hello1"});
+        const log2 = new LogDefinition({message: "hello2"});
+        const log3 = new LogDefinition({message: "hello3"});
+        const catch1 = new CatchDefinition({exception:['IOException'], steps: [log1, log2, log3]})
+        const log4 = new LogDefinition({message: "hello4"});
+        const log5 = new LogDefinition({message: "hello5"});
+        const log6 = new LogDefinition({message: "hello6"});
+        const catch2 = new CatchDefinition({exception:['NullPointerException'], steps: [log4, log5, log6]})
+        const log7 = new LogDefinition({message: "hello7"});
+        const log8 = new LogDefinition({message: "hello8"});
+        const log9 = new LogDefinition({message: "hello9"});
+        const try1 = new TryDefinition({ doCatch:[catch1, catch2], steps: [log7, log8, log9]})
+        const from = new FromDefinition({uri: "direct1", steps:[try1]});
+        const i = Integration.createNew("test")
+        i.spec.flows?.push(new RouteDefinition({from: from}));
+
+        const log: LogDefinition = <LogDefinition> CamelDefinitionApiExt.findElementInIntegration(i, log2.uuid);
         expect(log.logName).to.equal(log2.logName);
         expect(log.message).to.equal(log2.message);
     });
