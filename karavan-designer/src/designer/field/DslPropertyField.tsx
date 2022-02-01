@@ -30,7 +30,7 @@ import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
+import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {ExpressionField} from "./ExpressionField";
 import {CamelUi} from "../CamelUi";
@@ -107,7 +107,7 @@ export class DslPropertyField extends React.Component<Props, State> {
     }
 
     getLabel = (property: PropertyMeta, value: any) => {
-        if (property.isObject && !["ExpressionDefinition"].includes(property.type)) {
+        if (property.isObject && !property.isArray && !["ExpressionDefinition"].includes(property.type)) {
             const tooltip = value ? "Delete " + property.name : "Add " + property.name;
             const x = value ? undefined : CamelDefinitionApi.createStep(property.type, {});
             const icon = value ? (<DeleteIcon noVerticalAlign/>) : (<AddIcon noVerticalAlign/>);
@@ -199,6 +199,16 @@ export class DslPropertyField extends React.Component<Props, State> {
             >
                 {selectOptions}
             </Select>
+        )
+    }
+
+    getMultiValueObjectField = (property: PropertyMeta, value: any) => {
+        return (
+            <div>
+                {value && Array.from(value).map((v: any, index: number) => (
+                    <div key={property + "-" + index}>{this.getObjectField(property, v)}</div>
+                ))}
+            </div>
         )
     }
 
@@ -298,6 +308,8 @@ export class DslPropertyField extends React.Component<Props, State> {
                     && this.getExpressionField(property, value)}
                 {property.isObject && !property.isArray && !["ExpressionDefinition", "ExpressionSubElementDefinition"].includes(property.type)
                     && this.getObjectField(property, value)}
+                {property.isObject && property.isArray
+                    && this.getMultiValueObjectField(property, value)}
                 {property.name === 'expression' && property.type === "string" && !property.isArray
                     && this.getTextArea(property, value)}
                 {['string', 'duration', 'integer', 'number'].includes(property.type) && property.name !== 'expression' && !property.isArray && !property.enumVals

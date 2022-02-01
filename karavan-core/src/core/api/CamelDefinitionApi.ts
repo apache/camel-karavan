@@ -1371,12 +1371,6 @@ export class CamelDefinitionApi {
         
         const def = element ? new SagaDefinition({...element}) : new SagaDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.completion !== undefined) { 
-            def.completion = CamelDefinitionApi.createSagaActionUriDefinition(element.completion); 
-        } 
-        if (element?.compensation !== undefined) { 
-            def.compensation = CamelDefinitionApi.createSagaActionUriDefinition(element.compensation); 
-        } 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
         def.option = element && element?.option ? element?.option.map((x:any) => CamelDefinitionApi.createSagaOptionDefinition(x)) :[]; 
 

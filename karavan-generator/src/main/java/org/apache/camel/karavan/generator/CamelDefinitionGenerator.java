@@ -97,6 +97,7 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
             JsonObject clazz = getDefinition(definitions, classFullName);
             String oneOfString = (clazz.containsKey("oneOf") && clazz.getJsonArray("oneOf").getJsonObject(0).getString("type").equals("string")) ? " | string" : "";
             String className =  classSimple(classFullName);
+            if (className.equals("SagaActionUriDefinition")) return "string" + (required ? " = ''" : ""); // exception for SagaActionUriDefinition
             return className + (required ? " = new " + className + "()": oneOfString);
         } else if (attribute.containsKey("type") && attribute.getString("type").equals("array")) {
             JsonObject items = attribute.getJsonObject("items");

@@ -1313,12 +1313,6 @@ export class CamelDefinitionYamlStep {
     static readSagaDefinition = (element: any): SagaDefinition => {
         
         const def = element ? new SagaDefinition({...element}) : new SagaDefinition();
-        if (element?.completion !== undefined) { 
-            def.completion = CamelDefinitionYamlStep.readSagaActionUriDefinition(element.completion); 
-        } 
-        if (element?.compensation !== undefined) { 
-            def.compensation = CamelDefinitionYamlStep.readSagaActionUriDefinition(element.compensation); 
-        } 
         def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
         def.option = element && element?.option ? element?.option.map((x:any) => CamelDefinitionYamlStep.readSagaOptionDefinition(x)) :[]; 
 
