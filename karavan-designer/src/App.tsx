@@ -45,47 +45,47 @@ class App extends React.Component<Props, State> {
             '        from:\n' +
             '          uri: kamelet:http-secured-source\n' +
             '          steps:\n' +
-            '           - saga: \n' +
-            '               option:\n' +
-            '                 - option-name: o1\n' +
-            '                   expression:\n' +
-            '                     simple: "${body}" \n' +
-            '                 - option-name: o2\n' +
-            '                   expression:\n' +
-            '                     simple: "${body}" \n' +
-            // '            - do-try:\n' +
-            // '                steps:\n' +
-            // '                  - to: "direct:direct1"\n' +
-            // '                  - to: "direct:direct2"\n' +
-            // '                  - log: "log1"\n' +
-            // '                do-catch:\n' +
-            // '                  - exception:\n' +
-            // '                      - "java.io.FileNotFoundException"\n' +
-            // '                      - "java.io.IOException"\n' +
-            // '                    steps:\n' +
-            // '                      - log: "log1"\n' +
-            // '                      - kamelet: \n' +
-            // '                           name: kafka-sink \n' +
-            // '                  - exception:\n' +
-            // '                      - "java.io.FileNotFoundException"\n' +
-            // '                      - "java.io.IOException"\n' +
-            // '                    steps:\n' +
-            // '                      - log: "log1"\n' +
-            // '                      - kamelet: \n' +
-            // '                           name: http-sink \n' +
-            // '            - choice:\n' +
-            // '                when:\n' +
-            // '                  - expression: {}\n' +
-            // '                    steps:\n' +
-            // '                      - log:\n' +
-            // '                           message: hello22s\n' +
-            // '                           logName: log22\n' +
-            // '                otherwise: {}\n'+
-            // '            - circuitBreaker: {}\n' +
-            // '            - multicast:\n' +
-            // '                steps:\n' +
-            // '                  - to: "http:localhost"\n' +
-            // '                  - to: "kafka:topic2"\n' +
+            // '           - saga: \n' +
+            // '               option:\n' +
+            // '                 - option-name: o1\n' +
+            // '                   expression:\n' +
+            // '                     simple: "${body}" \n' +
+            // '                 - option-name: o2\n' +
+            // '                   expression:\n' +
+            // '                     simple: "${body}" \n' +
+            '            - do-try:\n' +
+            '                steps:\n' +
+            '                  - to: "direct:direct1"\n' +
+            '                  - to: "direct:direct2"\n' +
+            '                  - log: "log1"\n' +
+            '                do-catch:\n' +
+            '                  - exception:\n' +
+            '                      - "java.io.FileNotFoundException"\n' +
+            '                      - "java.io.IOException"\n' +
+            '                    steps:\n' +
+            '                      - log: "log1"\n' +
+            '                      - kamelet: \n' +
+            '                           name: kafka-sink \n' +
+            '                  - exception:\n' +
+            '                      - "java.io.FileNotFoundException"\n' +
+            '                      - "java.io.IOException"\n' +
+            '                    steps:\n' +
+            '                      - log: "log1"\n' +
+            '                      - kamelet: \n' +
+            '                           name: http-sink \n' +
+            '            - choice:\n' +
+            '                when:\n' +
+            '                  - expression: {}\n' +
+            '                    steps:\n' +
+            '                      - log:\n' +
+            '                           message: hello22s\n' +
+            '                           logName: log22\n' +
+            '                otherwise: {}\n'+
+            '            - circuitBreaker: {}\n' +
+            '            - multicast:\n' +
+            '                steps:\n' +
+            '                  - to: "http:localhost"\n' +
+            '                  - to: "kafka:topic2"\n' +
             '',
         key: ''
     };

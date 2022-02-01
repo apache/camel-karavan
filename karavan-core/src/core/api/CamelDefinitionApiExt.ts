@@ -86,34 +86,35 @@ export class CamelDefinitionApiExt {
         return result;
     }
 
-    static findElement = (integration: Integration, uuid: string): CamelElement | undefined => {
-        const step = CamelDefinitionApiExt.findStep(integration.spec.flows, uuid, undefined);
-        return step.step;
+    static findElementInIntegration = (integration: Integration, uuid: string): CamelElement | undefined => {
+        const meta = CamelDefinitionApiExt.findElement(integration.spec.flows, uuid);
+        return meta.step;
     }
 
-    static findStep = (steps: CamelElement[] | undefined, uuid: string, parentUuid?: string, result?: CamelElementMeta): CamelElementMeta => {
+    static findElement = (steps: CamelElement[] | undefined, uuid: string, result: CamelElementMeta = new CamelElementMeta(undefined, undefined, undefined, []), parentUuid?: string): CamelElementMeta => {
         if (result?.step !== undefined) return result;
-        if (result === undefined) result = new CamelElementMeta(undefined, parentUuid, undefined, []);
         if (steps !== undefined){
-            for (let index = 0, step; step = steps[index]; index++) {
-                if (step.uuid !== uuid) {
-                    if (step.dslName === 'ChoiceDefinition') {
-                        const o = (step as ChoiceDefinition).otherwise;
-                        const w = (step as ChoiceDefinition).when;
-                        const s: CamelElement[] = [];
-                        if (o) s.push(o);
-                        if (w) s.push(...w);
-                        result = CamelDefinitionApiExt.findStep(s, uuid, step.uuid, result);
-                        if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
-                    } else {
-                        result = CamelDefinitionApiExt.findStep((step as any).steps, uuid, step.uuid, result);
-                        if (result?.pathUuids !== undefined && result?.pathUuids.length > 0) result.pathUuids.push(step.uuid);
-                    }
-                } else {
-                    const paths: string[] = result?.pathUuids ? result?.pathUuids : [];
-                    paths.push(step.uuid);
-                    result = new CamelElementMeta(step, parentUuid, index, paths);
+            for (let index = 0, step: CamelElement; step = steps[index]; index++) {
+                if (step.uuid === uuid) {
+                    const p = [...result.pathUuids];
+                    p.push(step.uuid);
+                    result = new CamelElementMeta(step, parentUuid, index, p);
                     break;
+                } else {
+                    const ce = CamelDefinitionApiExt.getElementChildrenDefinition(step.dslName);
+                    ce.forEach(e => {
+                        const cel = CamelDefinitionApiExt.getElementChildren(step, e);
+                        if (e.multiple) {
+                            result = CamelDefinitionApiExt.findElement(cel, uuid, result, step.uuid);
+                            result.pathUuids.push(step.uuid);
+                        } else {
+                            const prop = (step as any)[e.name];
+                            if (prop && prop.hasOwnProperty("uuid")) {
+                                result = CamelDefinitionApiExt.findElement([prop], uuid, result, prop.uuid);
+                                result.pathUuids.push(prop.uuid);
+                            }
+                        }
+                    })
                 }
             }
         }
@@ -121,10 +122,10 @@ export class CamelDefinitionApiExt {
     }
 
     static moveElement = (integration: Integration, source: string, target: string): Integration => {
-        const sourceFindStep = CamelDefinitionApiExt.findStep(integration.spec.flows, source, undefined);
+        const sourceFindStep = CamelDefinitionApiExt.findElement(integration.spec.flows, source);
         const sourceStep = sourceFindStep.step;
         const sourceUuid = sourceStep?.uuid;
-        const targetFindStep = CamelDefinitionApiExt.findStep(integration.spec.flows, target, undefined);
+        const targetFindStep = CamelDefinitionApiExt.findElement(integration.spec.flows, target);
         const parentUuid = targetFindStep.parentUuid;
         if (sourceUuid && parentUuid && sourceStep && !targetFindStep.pathUuids.includes(source)) {
             CamelDefinitionApiExt.deleteStepFromIntegration(integration, sourceUuid);

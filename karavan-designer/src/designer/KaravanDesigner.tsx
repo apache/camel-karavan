@@ -181,7 +181,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
     moveElement = (source: string, target: string) => {
         const i = CamelDefinitionApiExt.moveElement(this.state.integration, source, target);
         const clone = CamelUtil.cloneIntegration(i);
-        const selectedStep = CamelDefinitionApiExt.findElement(clone, source);
+        const selectedStep = CamelDefinitionApiExt.findElementInIntegration(clone, source);
         this.setState({
             integration: clone,
             key: Math.random().toString(),
