@@ -108,7 +108,7 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
                             "        def.%1$s = element && element?.%1$s ? element?.%1$s.map((x:any) => CamelDefinitionYamlStep.read%2$s(x)) :[]; \n"
                             , aName, getAttributeArrayClass(aValue));
                     attrs.put(aName, code);
-                } else if (isAttributeRef(aValue)) {
+                } else if (isAttributeRef(aValue) && !getAttributeClass(aValue).equals("SagaActionUriDefinition")) { // SagaActionUriDefinition is exception
                     String code = String.format(
                             "        if (element?.%1$s !== undefined) { \n" +
                                     "            def.%1$s = CamelDefinitionYamlStep.read%2$s(element.%1$s); \n" +

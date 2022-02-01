@@ -63,6 +63,7 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
             String model = generateModelApi(classFullName, definitions.getJsonObject(classFullName));
             camelModel.append(model).append(System.lineSeparator());
         });
+
         // generate createStep function
         Map<String, String> stepNames  = getProcessorStepName(new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("properties"));
         stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.ProcessorDefinition").getJsonObject("properties")));
@@ -148,7 +149,7 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
                             "        def.%1$s = element && element?.%1$s ? element?.%1$s.map((x:any) => CamelDefinitionApi.create%2$s(x)) :[]; \n"
                             , name, getAttributeArrayClass(aValue));
                     attrs.put(name, code);
-                } else if (isAttributeRef(aValue)) {
+                } else if (isAttributeRef(aValue) && !getAttributeClass(aValue).equals("SagaActionUriDefinition")) { // SagaActionUriDefinition is exception
                     String attributeClass = getAttributeClass(aValue);
                     String template = attributeClass.equals("ExpressionDefinition")
                             ? "        def.%1$s = CamelDefinitionApi.create%2$s(element.%1$s); \n"

@@ -1260,7 +1260,7 @@ export class SagaActionUriDefinition extends CamelElement {
 }
 
 export class SagaDefinition extends CamelElement {
-    completion?: SagaActionUriDefinition | string;
+    completion?: string;
     description?: string;
     completionMode?: string;
     sagaServiceRef?: string;
@@ -1270,7 +1270,7 @@ export class SagaDefinition extends CamelElement {
     inheritErrorHandler?: boolean;
     propagation?: string;
     stepName?: string = 'saga';
-    compensation?: SagaActionUriDefinition | string;
+    compensation?: string;
     id?: string;
     option?: SagaOptionDefinition[] = []
     public constructor(init?: Partial<SagaDefinition>) {

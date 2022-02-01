@@ -61,8 +61,8 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.language.ExpressionDefinition").getJsonObject("properties")));
         stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.dataformat.DataFormatsDefinition").getJsonObject("properties")));
 
-        // Generate DataFormatMetadata
         Map<String, JsonObject> classProps = new HashMap<>();
+        // Generate DataFormatMetadata
         definitions.getMap().forEach((s, o) -> {
             if (s.startsWith("org.apache.camel.model.dataformat")){
                 String name = classSimple(s);
@@ -120,7 +120,6 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
             if (!stepNames.containsKey(className)){
                 String stepName = deCapitalize(className.replace("Definition", ""));
                 stepNames.put(className, stepName);
-//                System.out.println(className);
             }
         });
 
@@ -181,6 +180,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         if (attribute.containsKey("$ref")) {
             String classFullName = attribute.getString("$ref");
             String className = classSimple(classFullName);
+            if (className.equals("SagaActionUriDefinition")) return new PropertyMeta("string", false, false);  // exception for SagaActionUriDefinition
             return new PropertyMeta(className, false, true);
         } else if (attribute.containsKey("type") && attribute.getString("type").equals("array")) {
             JsonObject items = attribute.getJsonObject("items");
