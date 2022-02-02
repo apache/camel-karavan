@@ -326,7 +326,7 @@ export class DslElement extends React.Component<Props, State> {
     render() {
         const element: CamelElement = this.state.step;
         return (
-            <div key={"root"+element.uuid} className={"step-element"}
+            <div key={"root"+element.uuid} className={ this.isSelected() ? "step-element step-element-selected" : "step-element"}
                  ref={el => this.sendPosition(el)}
                  style={{
                      borderStyle: this.hasBorder() ? "dotted" : "none",
