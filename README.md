@@ -9,13 +9,21 @@
 # Apache Camel Karavan
 Karavan, an Integration Designer for Apache Camel makes integration easy and fun through visualization of integration pipeline.
 
-### VS Code extension
+## Features
+
+* Read/Write Integration CRD (*.yaml with kind:Integration) and plain yaml routes
+* Kamelets source/sink/action
+* Enterprise Integration Patterns DSL
+* Components consumer/producer
+* Integration with [JBang](https://www.jbang.dev)
+
+## VS Code extension
 Install Karavan VS Code extension from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan)
 
 
 ![karavan-vscode](screenshots/karavan-vscode.png)
 
-### Standalone application
+## Standalone application
 
  Install Karavan Standalone command line: `docker pull ghcr.io/apache/camel-karavan:latest`
 
@@ -64,7 +72,7 @@ You can run your application in dev mode that enables live coding using:
 - Backend
 ```shell script
 cd karavan-app
-mvn compile quarkus:dev
+mvn quarkus:dev
 ```
 - Frontend
 ```shell script

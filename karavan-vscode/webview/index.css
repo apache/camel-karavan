@@ -32,7 +32,7 @@ body,
 }
 
 .vscode-dark .step-element-selected {
-  background-color: rgb(37, 37, 38, 0.5);
+  background-color: rgb(37, 37, 38, 0.7);
 }
 
 .vscode-dark .step-element .selected .text {
@@ -40,7 +40,7 @@ body,
 }
 
 .vscode-dark .step-element .selected .header-icon {
-  border-color: rgb(88, 90, 194);
+  border-color: rgb(171, 172, 224);
   background: rgb(171, 172, 224);
   border-width: 2px;
 }
@@ -151,11 +151,8 @@ body,
   --pf-c-tooltip__content--BackgroundColor: #505050;
 }
 
-.vscode-dark .step-element .add-element-button {
-  color: #252526;
-}
-
 .vscode-dark .step-element .add-button,
+.vscode-dark .step-element .add-element-button,
 .vscode-dark .step-element .add-button-from {
   background: #252526;
   color: rgb(239, 166, 79);
