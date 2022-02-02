@@ -374,6 +374,8 @@
 /*Graph*/
 .karavan .dsl-page .graph {
     display: block;
+    flex-direction: column;
+    font-size: 13px;
     height: 100%;
     width: 100%;
     position: relative;

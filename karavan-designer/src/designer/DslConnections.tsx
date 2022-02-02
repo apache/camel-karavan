@@ -27,7 +27,6 @@ interface Props {
     width: number
     height: number
     top: number
-    scrollTop: number
 }
 
 interface State {
@@ -82,7 +81,7 @@ export class DslConnections extends React.Component<Props, State> {
         const pos = this.state.steps.get(data[0]);
         if (pos) {
             const fromX = pos.headerRect.x + pos.headerRect.width / 2;
-            const fromY = pos.headerRect.y + pos.headerRect.height / 2 + this.props.scrollTop - this.props.top;
+            const fromY = pos.headerRect.y + pos.headerRect.height / 2 - this.props.top;
             const r = pos.headerRect.height / 2;
 
             const incomingX = 20;
@@ -129,7 +128,7 @@ export class DslConnections extends React.Component<Props, State> {
                 const y2 = pos2.headerRect.y + pos2.headerRect.height / 2;
                 return y1 > y2 ? 1 : -1
             })
-            .map(pos => [pos.step.uuid, pos.headerRect.y + this.props.scrollTop - this.props.top]);
+            .map(pos => [pos.step.uuid, pos.headerRect.y - this.props.top]);
         while (this.hasOverlap(outs)){
             outs = this.addGap(outs);
         }
@@ -140,7 +139,7 @@ export class DslConnections extends React.Component<Props, State> {
         const pos = this.state.steps.get(data[0]);
         if (pos){
             const fromX = pos.headerRect.x + pos.headerRect.width / 2;
-            const fromY = pos.headerRect.y + pos.headerRect.height / 2 + this.props.scrollTop - this.props.top;
+            const fromY = pos.headerRect.y + pos.headerRect.height / 2 - this.props.top;
             const r = pos.headerRect.height / 2;
 
             const outgoingX = this.props.width - 20;
@@ -178,7 +177,7 @@ export class DslConnections extends React.Component<Props, State> {
 
     getCircle(pos: DslPosition) {
         const cx = pos.headerRect.x + pos.headerRect.width / 2;
-        const cy = pos.headerRect.y + pos.headerRect.height / 2 + this.props.scrollTop - this.props.top;
+        const cy = pos.headerRect.y + pos.headerRect.height / 2 - this.props.top;
         const r = pos.headerRect.height / 2;
         return (
             <circle cx={cx} cy={cy} r={r} stroke="transparent" strokeWidth="3" fill="transparent" key={pos.step.uuid + "-circle"}/>
@@ -199,12 +198,12 @@ export class DslConnections extends React.Component<Props, State> {
 
     getArrow(pos: DslPosition) {
         const endX = pos.headerRect.x + pos.headerRect.width / 2;
-        const endY = pos.headerRect.y - 9 + this.props.scrollTop - this.props.top;
+        const endY = pos.headerRect.y - 9 - this.props.top;
         if (pos.parent){
             const parent = this.state.steps.get(pos.parent.uuid);
             if (parent){
                 const startX = parent.headerRect.x + parent.headerRect.width / 2;
-                const startY = parent.headerRect.y + parent.headerRect.height + this.props.scrollTop - this.props.top;
+                const startY = parent.headerRect.y + parent.headerRect.height - this.props.top;
                 if (!pos.inSteps || (pos.inSteps && pos.position === 0) && parent.step.dslName !== 'MulticastDefinition'){
                     return (
                         <path d={`M ${startX},${startY} C ${startX},${endY} ${endX},${startY}   ${endX},${endY}`}
@@ -220,7 +219,7 @@ export class DslConnections extends React.Component<Props, State> {
                     if (prev){
                         const r = this.hasSteps(prev.step) ? prev.rect : prev.headerRect;
                         const prevX = r.x + r.width / 2;
-                        const prevY = r.y + r.height + this.props.scrollTop - this.props.top;
+                        const prevY = r.y + r.height - this.props.top;
                         return (
                             <line x1={prevX} y1={prevY} x2={endX} y2={endY} className="path" key={pos.step.uuid} markerEnd="url(#arrowhead)"/>
                         )
@@ -230,7 +229,7 @@ export class DslConnections extends React.Component<Props, State> {
                     if (prev){
                         const r = this.hasSteps(prev.step) ? prev.rect : prev.headerRect;
                         const prevX = r.x + r.width / 2;
-                        const prevY = r.y + r.height + this.props.scrollTop - this.props.top;
+                        const prevY = r.y + r.height - this.props.top;
                         return (
                             <line x1={prevX} y1={prevY} x2={endX} y2={endY} className="path" key={pos.step.uuid} markerEnd="url(#arrowhead)"/>
                         )
