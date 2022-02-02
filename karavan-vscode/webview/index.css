@@ -14,7 +14,7 @@ body,
 }
 
 .vscode-dark .karavan .dsl-page .dsl-page-columns {
-  background-color: #252526;
+  background-color: #1C1C1D;
 }
 
 .vscode-dark .karavan .dsl-page .flows .step-element .header-route {
@@ -37,11 +37,12 @@ body,
 }
 
 .vscode-dark .step-element .header-icon {
-  background: #fb8824;
+  background: #3B3B3B;
+  border-color: #fca338;
 }
 
 .vscode-dark .step-element .header .text-bottom {
-    background-color: rgb(37,37,38, 0.5);
+    background-color: rgb(27,27,28, 0.5);
 }
 
 .vscode-dark .karavan .dsl-page .properties {
@@ -87,23 +88,23 @@ body,
   --pf-c-switch__toggle--before--BackgroundColor: black;
 }
 
-.vscode-dark .karavan .dsl-page .flows .connections .path {
-  stroke: #fee3c3;
+.vscode-dark .karavan .dsl-page .graph .connections .arrow {
+  stroke: #fca338;
+  fill: #fca338;
 }
 
-.vscode-dark .karavan .dsl-page .flows .connections .outgoing,
-.vscode-dark .karavan .dsl-page .flows .connections .incoming {
-  border-color: #fee3c3;
-  background: #fee3c3;
+.vscode-dark .karavan .dsl-page .graph .connections .path {
+   stroke: #fca338;
 }
 
+.vscode-dark .karavan .dsl-page .graph .connections .path-incoming {
+  stroke: #fca338;
+}
 .vscode-dark .karavan .dsl-page .graph .connections .circle-outgoing,
 .vscode-dark .karavan .dsl-page .graph .connections .circle-incoming {
-    stroke: #fb8824;
-    stroke-width: 1;
-    fill: #fb8824;
+    stroke: #fca338;
+    fill: #3B3B3B;
 }
-
 
 .vscode-dark .pf-c-modal-box__title-text {
   color: #cecece;
