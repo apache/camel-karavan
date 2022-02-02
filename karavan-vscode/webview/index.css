@@ -7,6 +7,16 @@ body,
 
 :root {
   --pf-global--primary-color--100: rgb(239, 166, 79) !important;
+  --pf-global--primary-color--200: rgb(235, 146, 40) !important;
+  --pf-global--primary-color--light-100: rgb(239, 166, 79)!important;
+  --pf-global--primary-color--dark-100: rgb(239, 166, 79) !important;
+
+  --pf-global--link--Color: rgb(239, 166, 79) !important;
+  --pf-global--link--Color--hover: rgb(235, 146, 40) !important;
+  --pf-global--link--Color--light: rgb(239, 166, 79) !important;
+  --pf-global--link--Color--light--hover: rgb(239, 166, 79) !important;
+  --pf-global--link--Color--dark: rgb(239, 166, 79) !important;
+  --pf-global--link--Color--dark--hover: rgb(235, 146, 40) !important;
 }
 
 .vscode-dark .karavan {
@@ -194,4 +204,8 @@ body,
 .vscode-dark .karavan .dsl-page .properties .dataformat,
 .vscode-dark .karavan .dsl-page .properties .parameters {
     border-style: none;
+}
+
+.vscode-dark .modal-delete {
+  width: 350px;
 }

@@ -507,6 +507,10 @@
     visibility: visible;
 }
 
+.modal-delete {
+    width: 350px;
+}
+
 .step-element .header {
     height: 50px;
 }

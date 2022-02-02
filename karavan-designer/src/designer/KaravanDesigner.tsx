@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    Button, Gallery, Modal,
+    Button, Gallery, Modal, ModalVariant,
     PageSection, Tab, Tabs, TabTitleText,
 } from '@patternfly/react-core';
 import './karavan.css';
@@ -47,6 +47,7 @@ interface State {
     integration: Integration
     selectedStep?: CamelElement
     showSelector: boolean
+    showDeleteConfirmation: boolean
     parentId: string
     parentDsl?: string
     showSteps: boolean
@@ -64,6 +65,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
             ? CamelDefinitionYaml.yamlToIntegration(this.props.filename, this.props.yaml)
             : Integration.createNew(this.props.filename),
         showSelector: false,
+        showDeleteConfirmation: false,
         parentId: '',
         showSteps: true,
         selectedUuid: '',
@@ -81,7 +83,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
         window.removeEventListener('resize', this.handleResize);
     }
 
-    handleResize = ()=>{
+    handleResize = () => {
         this.setState({key: Math.random().toString()});
     }
 
@@ -109,18 +111,24 @@ export class KaravanDesigner extends React.Component<Props, State> {
         this.setState({integration: i, key: Math.random().toString()});
     }
 
-    deleteElement = (id: string) => {
+    showDeleteConfirmation = (id: string) => {
+        this.setState({selectedUuid:id, showSelector: false, showDeleteConfirmation: true});
+    }
+
+    deleteElement = () => {
+        const id = this.state.selectedUuid;
         const i = CamelDefinitionApiExt.deleteStepFromIntegration(this.state.integration, id);
         this.setState({
             integration: i,
             showSelector: false,
+            showDeleteConfirmation: false,
             key: Math.random().toString(),
             selectedStep: undefined,
             selectedUuid: ''
         });
         const el = new CamelElement("");
         el.uuid = id;
-        EventBus.sendPosition("delete", el,undefined, new DOMRect(), new DOMRect(), 0);
+        EventBus.sendPosition("delete", el, undefined, new DOMRect(), new DOMRect(), 0);
     }
 
     selectElement = (element: CamelElement) => {
@@ -142,7 +150,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
                 this.addStep(from, parentId)
                 break;
             case 'ToDefinition' :
-                const to = CamelDefinitionApi.createStep(dsl.dsl,  {uri: dsl.uri});
+                const to = CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
                 this.addStep(to, parentId)
                 break;
             case 'ToDynamicDefinition' :
@@ -150,7 +158,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
                 this.addStep(toD, parentId)
                 break;
             case 'KameletDefinition' :
-                const kamelet = CamelDefinitionApi.createStep(dsl.dsl,{name: dsl.name});
+                const kamelet = CamelDefinitionApi.createStep(dsl.dsl, {name: dsl.name});
                 this.addStep(kamelet, parentId)
                 break;
             default:
@@ -189,25 +197,61 @@ export class KaravanDesigner extends React.Component<Props, State> {
         });
     }
 
-    onResizePage(el: HTMLDivElement | null){
+    onResizePage(el: HTMLDivElement | null) {
         const rect = el?.getBoundingClientRect();
-        if (el && rect && (rect?.width !== this.state.width || rect.height !== this.state.height || rect.top !== this.state.top)){
+        if (el && rect && (rect?.width !== this.state.width || rect.height !== this.state.height || rect.top !== this.state.top)) {
             this.setState({width: rect.width, height: rect.height, top: rect.top});
         }
+    }
+
+    getSelectorModal() {
+        return (
+            <Modal
+                title={this.state.parentDsl === undefined ? "Select source/from" : "Select step"}
+                width={'90%'}
+                className='dsl-modal'
+                isOpen={this.state.showSelector}
+                onClose={() => this.closeDslSelector()}
+                actions={{}}>
+                <DslSelector
+                    dark={this.props.dark}
+                    parentId={this.state.parentId}
+                    parentDsl={this.state.parentDsl}
+                    showSteps={this.state.showSteps}
+                    onDslSelect={this.onDslSelect}/>
+            </Modal>)
+    }
+
+    getDeleteConfirmation() {
+        return (<Modal
+            className="modal-delete"
+            title="Confirmation"
+            isOpen={this.state.showDeleteConfirmation}
+            onClose={() => this.setState({showDeleteConfirmation: false})}
+            actions={[
+                <Button key="confirm" variant="primary" onClick={e => this.deleteElement()}>Delete</Button>,
+                <Button key="cancel" variant="link"
+                        onClick={e => this.setState({showDeleteConfirmation: false})}>Cancel</Button>
+            ]}
+            onEscapePress={e => this.setState({showDeleteConfirmation: false})}>
+            <div>
+                Delete element from integration?
+            </div>
+        </Modal>)
     }
 
     render() {
         return (
             <PageSection className="dsl-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="dsl-page-columns">
-                    <div className="graph" onScroll={event => {}}>
+                    <div className="graph">
                         <DslConnections height={this.state.height} width={this.state.width} top={this.state.top} integration={this.state.integration}/>
-                        <div className="flows"  data-click="FLOWS" onClick={event => this.unselectElement(event)}
+                        <div className="flows" data-click="FLOWS" onClick={event => this.unselectElement(event)}
                              ref={el => this.onResizePage(el)}>
-                            {this.state.integration.spec.flows?.map((from:any, index: number) => (
+                            {this.state.integration.spec.flows?.map((from: any, index: number) => (
                                 <DslElement key={from.uuid + this.state.key}
                                             openSelector={this.openSelector}
-                                            deleteElement={this.deleteElement}
+                                            deleteElement={this.showDeleteConfirmation}
                                             selectElement={this.selectElement}
                                             moveElement={this.moveElement}
                                             selectedUuid={this.state.selectedUuid}
@@ -235,20 +279,8 @@ export class KaravanDesigner extends React.Component<Props, State> {
                         onPropertyUpdate={this.onPropertyUpdate}
                     />
                 </div>
-                <Modal
-                    title={this.state.parentDsl === undefined ? "Select source/from" : "Select step"}
-                    width={'90%'}
-                    className='dsl-modal'
-                    isOpen={this.state.showSelector}
-                    onClose={() => this.closeDslSelector()}
-                    actions={{}}>
-                    <DslSelector
-                        dark={this.props.dark}
-                        parentId={this.state.parentId}
-                        parentDsl={this.state.parentDsl}
-                        showSteps={this.state.showSteps}
-                        onDslSelect={this.onDslSelect}/>
-                </Modal>
+                {this.getSelectorModal()}
+                {this.getDeleteConfirmation()}
             </PageSection>
         );
     }
