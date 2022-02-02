@@ -157,7 +157,7 @@ export class DslProperties extends React.Component<Props, State> {
                 <Form autoComplete="off" onSubmit={event => event.preventDefault()}>
                     {this.state.step === undefined && this.getIntegrationHeader()}
                     {this.state.step && this.getComponentHeader()}
-                    {this.state.step && this.getProps().map((property: PropertyMeta) =>
+                    {this.state.step && !['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName) && this.getProps().map((property: PropertyMeta) =>
                         <DslPropertyField key={property.name}
                                           property={property}
                                           element={this.state.step}

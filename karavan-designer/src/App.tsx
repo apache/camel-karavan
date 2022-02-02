@@ -139,7 +139,7 @@ class App extends React.Component<Props, State> {
                 <KaravanDesigner key={this.state.key} filename={this.state.name} yaml={this.state.yaml}
                                  onSave={(filename, yaml) => this.save(filename, yaml)}
                                  borderColor="#fb8824"
-                                 borderColorSelected="black"
+                                 borderColorSelected="#303284"
                                  dark={document.body.className.includes('vscode-dark')}
                 />
             </Page>

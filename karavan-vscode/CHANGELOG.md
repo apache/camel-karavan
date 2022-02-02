@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.10
+1. New look and Feel
+2. Expression languages
+3. DSL implementation for Try, Catch, Finally, CircuitBreaker, etc
+
+
 ## 0.0.9
 1. Support Marshal and Unmarshal elements with configurable DataFormats (`any23`, `asn1`, `avro`, `barcode`, `base64`, `beanio`, `bindy`, `cbor`, `crypto`, `csv`, `custom`, `fhirJson`, `fhirXml`, `flatpack`, `grok`, `gzip`, `hl7`, `ical`, `jacksonxml`, `jaxb`, `json`, `jsonApi`, `lzf`, `mimeMultipart`, `pgp`, `protobuf`, `rss`, `secureXML`, `soapjaxb`, `syslog`, `tarfile`, `thrift`, `tidyMarkup`, `univocity-csv`, `univocity-fixed`, `univocity-tsv`, `xmlrpc`, `xstream`, `yaml`, `zip`, `zipfile`).
 2. Support of implicit dsl parameters configured as String, ex. `log: '${body}'` [#141](https://github.com/apache/camel-karavan/issues/141)
