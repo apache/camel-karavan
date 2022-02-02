@@ -87,11 +87,11 @@ export class CamelDefinitionApiExt {
     }
 
     static findElementInIntegration = (integration: Integration, uuid: string): CamelElement | undefined => {
-        const meta = CamelDefinitionApiExt.findElement(integration.spec.flows, uuid);
+        const meta = CamelDefinitionApiExt.findStep(integration.spec.flows, uuid);
         return meta.step;
     }
 
-    static findElement = (steps: CamelElement[] | undefined, uuid: string, result: CamelElementMeta = new CamelElementMeta(undefined, undefined, undefined, []), parentUuid?: string): CamelElementMeta => {
+    static findStep = (steps: CamelElement[] | undefined, uuid: string, result: CamelElementMeta = new CamelElementMeta(undefined, undefined, undefined, []), parentUuid?: string): CamelElementMeta => {
         if (result?.step !== undefined) return result;
         if (steps !== undefined){
             for (let index = 0, step: CamelElement; step = steps[index]; index++) {
@@ -105,12 +105,12 @@ export class CamelDefinitionApiExt {
                     ce.forEach(e => {
                         const cel = CamelDefinitionApiExt.getElementChildren(step, e);
                         if (e.multiple) {
-                            result = CamelDefinitionApiExt.findElement(cel, uuid, result, step.uuid);
+                            result = CamelDefinitionApiExt.findStep(cel, uuid, result, step.uuid);
                             result.pathUuids.push(step.uuid);
                         } else {
                             const prop = (step as any)[e.name];
                             if (prop && prop.hasOwnProperty("uuid")) {
-                                result = CamelDefinitionApiExt.findElement([prop], uuid, result, prop.uuid);
+                                result = CamelDefinitionApiExt.findStep([prop], uuid, result, prop.uuid);
                                 result.pathUuids.push(prop.uuid);
                             }
                         }
@@ -122,10 +122,10 @@ export class CamelDefinitionApiExt {
     }
 
     static moveElement = (integration: Integration, source: string, target: string): Integration => {
-        const sourceFindStep = CamelDefinitionApiExt.findElement(integration.spec.flows, source);
+        const sourceFindStep = CamelDefinitionApiExt.findStep(integration.spec.flows, source);
         const sourceStep = sourceFindStep.step;
         const sourceUuid = sourceStep?.uuid;
-        const targetFindStep = CamelDefinitionApiExt.findElement(integration.spec.flows, target);
+        const targetFindStep = CamelDefinitionApiExt.findStep(integration.spec.flows, target);
         const parentUuid = targetFindStep.parentUuid;
         if (sourceUuid && parentUuid && sourceStep && !targetFindStep.pathUuids.includes(source)) {
             CamelDefinitionApiExt.deleteStepFromIntegration(integration, sourceUuid);

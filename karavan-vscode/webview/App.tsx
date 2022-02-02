@@ -78,8 +78,8 @@ class App extends React.Component<Props, State> {
           filename={this.state.filename} 
           yaml={this.state.yaml} 
           onSave={(filename, yaml) => this.save(filename, yaml)}
-          borderColor="#fca338"
-          borderColorSelected="#fee3c3"
+          borderColor="rgb(239, 166, 79)"
+          borderColorSelected="rgb(171, 172, 224)"
           dark={this.props.dark}
          />
       </Page>
