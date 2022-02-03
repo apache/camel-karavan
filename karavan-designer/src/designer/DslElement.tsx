@@ -188,7 +188,7 @@ export class DslElement extends React.Component<Props, State> {
             <div className={headerClasses} style={this.getHeaderStyle()}>
                 {this.state.step.dslName !== 'RouteDefinition' &&
                     <div ref={el => this.sendPosition(el)} className={"header-icon"} style={this.isWide() ? {width: ""}: {}}>
-                        <img draggable={false} src={CamelUi.getIconForName(step.dslName)} className="icon" alt="icon"/>
+                        <img draggable={false} src={CamelUi.getIcon(step)} className="icon" alt="icon"/>
                     </div>
                 }
                 <div className={this.hasWideChildrenElement() ? "header-text" : ""}>
