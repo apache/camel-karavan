@@ -29,9 +29,9 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <quarkus.platform.version>2.6.3.Final</quarkus.platform.version>
+        <quarkus.platform.version>2.7.0.Final</quarkus.platform.version>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-        <version.camel-quarkus>2.6.0</version.camel-quarkus>
+        <version.camel-quarkus>2.7.0</version.camel-quarkus>
         <version.camel-kamelet>0.7.0</version.camel-kamelet>
         <version.camel-k-client>5.12.0</version.camel-k-client>
     </properties>
