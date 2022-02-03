@@ -23,6 +23,18 @@ body,
   color: rgb(255, 255, 255);
 }
 
+.vscode-dark .karavan .top-icon {
+  fill: rgb(255, 255, 255);
+}
+
+.vscode-dark .karavan .main-tabs .pf-c-tabs__list {
+    background-color: rgb(37, 37, 38);
+}
+
+.vscode-dark .karavan .main-tabs .pf-c-tabs__item.pf-m-current {
+  background-color: rgb(30, 30, 30);
+}
+
 .vscode-dark .karavan .dsl-page .dsl-page-columns {
   background-color: rgb(50, 50, 50);
 }

@@ -184,6 +184,19 @@
     background: #fafafa;
 }
 
+.karavan .top-icon {
+    height: 18px;
+}
+
+.karavan .main-tabs .pf-c-tabs__item-text {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.karavan .main-tabs .pf-c-tabs__item.pf-m-current {
+    --pf-c-tabs__link--after--BorderColor: var(--pf-global--primary-color--200);
+}
+
 /*Properties*/
 .karavan .dsl-page .properties {
     border: 1px solid #eee;
