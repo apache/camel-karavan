@@ -17,7 +17,7 @@
 import React from 'react';
 import {
     Button, Modal,
-    PageSection, Tab, Tabs, TabTitleIcon, TabTitleText,
+    PageSection, Tab, Tabs, TabTitleIcon, TabTitleText, Tooltip,
 } from '@patternfly/react-core';
 import './karavan.css';
 import {DslSelector} from "./DslSelector";
@@ -272,12 +272,16 @@ export class KaravanDesigner extends React.Component<Props, State> {
             </div>)
     }
 
-    getTab(title: string, icon: string) {
+    getTab(title: string, tooltip: string, icon: string) {
         return (
-            <>
-                <TabTitleIcon>{this.getIcon(icon)}</TabTitleIcon>
-                <TabTitleText>{title}</TabTitleText>
-            </>
+            <Tooltip position={"bottom"}
+                     content={<div>{tooltip}</div>}>
+                <div className="top-menu-item">
+                    <TabTitleIcon>{this.getIcon(icon)}</TabTitleIcon>
+                    <TabTitleText>{title}</TabTitleText>
+                </div>
+            </Tooltip>
+
         )
     }
 
@@ -287,7 +291,6 @@ export class KaravanDesigner extends React.Component<Props, State> {
                 <defs>
                     <style>{".cls-1{fill:none;}"}</style>
                 </defs>
-                <title>category--new-each</title>
                 <path d="M29,10H24v2h5v6H22v2h3v2.142a4,4,0,1,0,2,0V20h2a2.0027,2.0027,0,0,0,2-2V12A2.0023,2.0023,0,0,0,29,10ZM28,26a2,2,0,1,1-2-2A2.0027,2.0027,0,0,1,28,26Z"/>
                 <path d="M19,6H14V8h5v6H12v2h3v6.142a4,4,0,1,0,2,0V16h2a2.0023,2.0023,0,0,0,2-2V8A2.0023,2.0023,0,0,0,19,6ZM18,26a2,2,0,1,1-2-2A2.0027,2.0027,0,0,1,18,26Z"/>
                 <path
@@ -295,31 +298,56 @@ export class KaravanDesigner extends React.Component<Props, State> {
                 <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32" height="32"/>
             </svg>)
         if (icon === 'rest') return (
-            <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
-                <defs>
-                    <style>{".cls-1{fill:none;"}</style>
-                </defs>
-                <title>api</title>
-                <path
-                    d="M26,22a3.86,3.86,0,0,0-2,.57l-3.09-3.1a6,6,0,0,0,0-6.94L24,9.43A3.86,3.86,0,0,0,26,10a4,4,0,1,0-4-4,3.86,3.86,0,0,0,.57,2l-3.1,3.09a6,6,0,0,0-6.94,0L9.43,8A3.86,3.86,0,0,0,10,6a4,4,0,1,0-4,4,3.86,3.86,0,0,0,2-.57l3.09,3.1a6,6,0,0,0,0,6.94L8,22.57A3.86,3.86,0,0,0,6,22a4,4,0,1,0,4,4,3.86,3.86,0,0,0-.57-2l3.1-3.09a6,6,0,0,0,6.94,0L22.57,24A3.86,3.86,0,0,0,22,26a4,4,0,1,0,4-4ZM26,4a2,2,0,1,1-2,2A2,2,0,0,1,26,4ZM4,6A2,2,0,1,1,6,8,2,2,0,0,1,4,6ZM6,28a2,2,0,1,1,2-2A2,2,0,0,1,6,28Zm10-8a4,4,0,1,1,4-4A4,4,0,0,1,16,20Zm10,8a2,2,0,1,1,2-2A2,2,0,0,1,26,28Z"
-                    transform="translate(0 0)"/>
-                <rect className="cls-1" width="32" height="32"/>
-            </svg>)
-        if (icon === 'beans') return (
-            <svg className="top-icon" x="0px" y="0px" viewBox="0 0 512 512">
-                <g>
+            <svg className="top-icon" viewBox="0 0 32 32">
+                <g className="layer">
+                    <title>Layer 1</title>
                     <path
-                        d="M230.278,44.299C208.041,15.732,178.095,0,145.956,0c-32.139,0-62.083,15.734-84.32,44.302    c-21.274,27.332-32.99,63.435-32.988,101.659c0,38.223,11.717,74.326,32.992,101.658c22.238,28.567,52.184,44.3,84.322,44.299    s62.083-15.734,84.32-44.303c21.274-27.332,32.988-63.435,32.988-101.658C263.269,107.734,251.552,71.63,230.278,44.299z     M130.909,224.909c-3.725,7.761-7.778,16.214-10.086,28.415c-12.135-5.156-23.355-14.04-32.834-26.217    c-16.734-21.497-25.95-50.316-25.95-81.148s9.214-59.65,25.947-81.148c13.814-17.747,31.323-28.511,49.98-30.908    c-1.568,7.182-4.125,12.535-7.06,18.651c-5.618,11.704-11.985,24.968-11.985,50.31c0,25.344,6.369,38.609,11.986,50.314    c4.86,10.123,8.697,18.119,8.697,35.865S135.768,214.785,130.909,224.909z M203.932,227.106    c-13.814,17.747-31.323,28.511-49.981,30.908c1.569-7.186,4.125-12.54,7.061-18.658c5.617-11.705,11.985-24.971,11.984-50.315    c-0.001-25.344-6.369-38.609-11.986-50.314c-4.86-10.123-8.697-18.119-8.697-35.865c0-17.742,3.838-25.737,8.696-35.859    c3.724-7.76,7.777-16.211,10.086-28.41c12.134,5.154,23.355,14.038,32.834,26.216c16.733,21.498,25.949,50.317,25.951,81.149    C229.879,176.789,220.665,205.608,203.932,227.106z"/>
+                        d="m23.50007,22l-0.5,0l0,-2l0.5,0a4.4975,4.4975 0 0 0 0.3564,-8.981l-0.8154,-0.0639l-0.0986,-0.812a6.9938,6.9938 0 0 0 -13.8838,0l-0.0991,0.812l-0.8155,0.0639a4.4975,4.4975 0 0 0 0.356,8.981l0.5,0l0,2l-0.5,0a6.4973,6.4973 0 0 1 -1.3,-12.8638a8.9943,8.9943 0 0 1 17.6006,0a6.4974,6.4974 0 0 1 -1.3006,12.8638z"
+                        id="svg_1"/>
                     <path
-                        d="M450.36,264.381c-22.237-28.567-52.184-44.3-84.322-44.299c-32.139,0-62.083,15.734-84.321,44.302    c-21.272,27.332-32.988,63.435-32.988,101.659c0.001,38.224,11.718,74.326,32.993,101.658    c22.237,28.567,52.184,44.3,84.322,44.299c32.139,0,62.083-15.734,84.321-44.302c21.272-27.332,32.99-63.435,32.988-101.659    C483.351,327.815,471.634,291.712,450.36,264.381z M350.991,444.993c-3.729,7.77-7.786,16.232-10.093,28.454    c-34.028-14.367-58.775-57.08-58.777-107.403c-0.001-58.455,33.389-106.64,75.927-112.056c-1.568,7.183-4.124,12.534-7.06,18.65    c-5.619,11.704-11.986,24.968-11.985,50.31c0.001,25.344,6.369,38.609,11.986,50.314c4.86,10.123,8.697,18.119,8.697,35.866    C359.687,426.873,355.85,434.868,350.991,444.993z M374.033,478.096c1.569-7.185,4.125-12.538,7.061-18.656    c5.617-11.705,11.985-24.971,11.984-50.315c-0.001-25.344-6.369-38.609-11.986-50.314c-4.86-10.123-8.697-18.119-8.697-35.866    c0-17.742,3.837-25.737,8.696-35.858c3.725-7.76,7.778-16.211,10.087-28.409c12.136,5.154,23.355,14.038,32.834,26.214    c16.733,21.497,25.949,50.316,25.949,81.148C449.962,424.495,416.572,472.68,374.033,478.096z"/>
+                        d="m22.9724,22.26637l0,-2l-2.1011,0a4.9678,4.9678 0 0 0 -0.7319,-1.7529l1.49,-1.49l-1.414,-1.414l-1.49,1.49a4.9678,4.9678 0 0 0 -1.753,-0.732l0,-2.1011l-2,0l0,2.1011a4.9678,4.9678 0 0 0 -1.7529,0.7319l-1.49,-1.49l-1.414,1.414l1.49,1.49a4.9678,4.9678 0 0 0 -0.732,1.753l-2.1011,0l0,2l2.1011,0a4.9678,4.9678 0 0 0 0.7319,1.7529l-1.49,1.49l1.414,1.414l1.49,-1.49a4.9678,4.9678 0 0 0 1.753,0.732l0,2.1011l2,0l0,-2.1011a4.9678,4.9678 0 0 0 1.7529,-0.7319l1.49,1.49l1.414,-1.414l-1.49,-1.49a4.9678,4.9678 0 0 0 0.732,-1.753l2.1011,0zm-7,2a3,3 0 1 1 3,-3a3.0033,3.0033 0 0 1 -3,3z"
+                        id="svg_2" transform="rotate(25 15.9724 21.2664)" xmlns="http://www.w3.org/2000/svg"/>
                 </g>
-            </svg>)
+            </svg>
+        )
+        if (icon === 'beans') return (
+            <svg className="top-icon" viewBox="0 0 536.243 536.242" >
+                <g>
+                    <path d="M471.053,197.07c-94.2-101.601-284-183.601-423.5-154.2c-9.2,1.8-12.9,9.2-12.2,16.5c-86.9,47.7,9.2,213,45.9,261.3
+                        c72.2,96.1,200.701,203.2,329.901,173.8c60-13.5,103.399-69.8,120-126.1C550.053,304.77,513.253,242.37,471.053,197.07z
+                         M393.353,465.17c-102.199,23.3-210.5-75.9-271.7-145c-61.2-70.4-108.3-155.4-71-243c83.8,151.8,253.4,269.3,414.9,321.899
+                        c19.601,6.101,28.2-24.5,8.601-31.199C318.753,315.27,166.353,209.97,73.953,72.27c111.4-13.5,238.701,45.9,326.201,107.101
+                        c50.199,35.5,98.5,87.5,102.8,151.8C505.954,394.17,451.454,451.67,393.353,465.17z"/>
+                </g>
+            </svg>
+        )
         if (icon === 'error') return (
             <svg className="top-icon" width="36px" height="36px" viewBox="0 0 36 36" version="1.1" preserveAspectRatio="xMidYMid meet">
                 <circle className="clr-i-outline clr-i-outline-path-1" cx="18" cy="26.06" r="1.33"/>
                 <path className="clr-i-outline clr-i-outline-path-2" d="M18,22.61a1,1,0,0,1-1-1v-12a1,1,0,1,1,2,0v12A1,1,0,0,1,18,22.61Z"/>
                 <path className="clr-i-outline clr-i-outline-path-3" d="M18,34A16,16,0,1,1,34,18,16,16,0,0,1,18,34ZM18,4A14,14,0,1,0,32,18,14,14,0,0,0,18,4Z"/>
                 <rect x="0" y="0" width="36" height="36" fill-opacity="0"/>
+            </svg>)
+        if (icon === 'exception') return (
+            <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
+                <defs>
+                    <style>{".cls-1{fill:none;}"}</style>
+                </defs>
+                <title>misuse--alt</title>
+                <polygon points="21.41 23 16 17.591 10.59 23 9 21.41 14.409 16 9 10.591 10.591 9 16 14.409 21.409 9 23 10.591 17.591 16 23 21.41 21.41 23"/>
+                <path d="M16,4A12,12,0,1,1,4,16,12.0136,12.0136,0,0,1,16,4m0-2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Z" transform="translate(0)"/>
+                <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32" height="32"/>
+            </svg>)
+        if (icon === 'template') return (
+            <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <style>{".cls-1{fill:none;}"}</style>
+                </defs>
+                <title>code</title>
+                <polygon points="31 16 24 23 22.59 21.59 28.17 16 22.59 10.41 24 9 31 16"/>
+                <polygon points="1 16 8 9 9.41 10.41 3.83 16 9.41 21.59 8 23 1 16"/>
+                <rect x="5.91" y="15" width="20.17" height="2" transform="translate(-3.6 27.31) rotate(-75)"/>
+                <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32" height="32" transform="translate(0 32) rotate(-90)"/>
             </svg>)
     }
 
@@ -330,10 +358,12 @@ export class KaravanDesigner extends React.Component<Props, State> {
                     <div style={{width: "100%"}}>
                         <Tabs isFilled className="main-tabs" activeKey={0} onSelect={event => {
                         }} style={{width: "100%"}}>
-                            <Tab eventKey={0} title={this.getTab("Routes", "routes")}></Tab>
-                            <Tab eventKey={1} title={this.getTab("REST", "rest")}></Tab>
-                            <Tab eventKey={2} title={this.getTab("Beans", "beans")}></Tab>
-                            <Tab eventKey={3} title={this.getTab("Error Handler", "error")}></Tab>
+                            <Tab eventKey={0} title={this.getTab("Routes", "Integration flows", "routes")}></Tab>
+                            <Tab eventKey={1} title={this.getTab("REST", "REST services","rest")}></Tab>
+                            <Tab eventKey={2} title={this.getTab("Beans", "Beans Configuration","beans")}></Tab>
+                            <Tab eventKey={3} title={this.getTab("Error Handler","Error Handler configuration", "error")}></Tab>
+                            <Tab eventKey={4} title={this.getTab("Exception Clauses","Exception Clauses per type", "exception")}></Tab>
+                            <Tab eventKey={5} title={this.getTab("Templates", "Route Templates","template")}></Tab>
                         </Tabs>
                         {this.getGraph()}
                     </div>

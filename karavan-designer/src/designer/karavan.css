@@ -185,7 +185,17 @@
 }
 
 .karavan .top-icon {
-    height: 18px;
+    height: 24px;
+}
+
+.karavan .main-tabs .top-menu-item {
+    display: flex;
+    flex-direction: row;
+}
+
+.karavan .main-tabs .pf-c-tabs__link .pf-c-tabs__item-icon {
+    height: 24px;
+    margin-right: 10px
 }
 
 .karavan .main-tabs .pf-c-tabs__item-text {
