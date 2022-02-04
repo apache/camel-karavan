@@ -17,7 +17,7 @@
 import React from 'react';
 import {
     Badge,
-    Card, CardBody, CardFooter, CardHeader, Form, FormGroup, Gallery, Modal, PageSection,
+    Card, CardBody, CardFooter, CardHeader, Form, FormGroup, Gallery, PageSection,
     Tab, Tabs, TabTitleText,
     Text, TextInput,
 } from '@patternfly/react-core';
@@ -108,12 +108,12 @@ export class DslSelector extends React.Component<Props, State> {
                     <Text>{dsl.description}</Text>
                 </CardBody>
                 <CardFooter>
-                    {dsl.navigation.toLowerCase() == "kamelet"
+                    {dsl.navigation.toLowerCase() === "kamelet"
                         && <div className="footer" style={{justifyContent: "space-between"}}>
                             <Badge isRead className="labels">{dsl.labels}</Badge>
                             <Badge isRead className="version">{dsl.version}</Badge>
                         </div>}
-                    {dsl.navigation.toLowerCase() == "component"
+                    {dsl.navigation.toLowerCase() === "component"
                         && <div className="footer" style={{justifyContent: "flex-start"}}>
                             {dsl.labels.split(',').map((s: string) => <Badge isRead className="labels">{s}</Badge>)}
                         </div>}

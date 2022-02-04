@@ -153,7 +153,7 @@ export class DslElement extends React.Component<Props, State> {
     }
 
     hasBorderOverSteps =(step: CamelElement) => {
-        const [hasStepsField, stepsChildrenCount, hasNonStepsFields, nonStepChildrenCount, childrenCount] = this.getChildrenInfo(step);
+        const [hasStepsField, stepsChildrenCount, hasNonStepsFields, nonStepChildrenCount] = this.getChildrenInfo(step);
         if (hasStepsField && stepsChildrenCount > 0 && hasNonStepsFields && nonStepChildrenCount > 0) return true;
         else return false;
     }
@@ -233,7 +233,6 @@ export class DslElement extends React.Component<Props, State> {
 
     getChildrenElementsStyle = (child:ChildElement, notOnlySteps: boolean) => {
         const step = this.state.step;
-        const children: CamelElement[] = CamelDefinitionApiExt.getElementChildren(step, child);
         const isBorder = child.name === 'steps' && this.hasBorderOverSteps(step);
         const style: CSSProperties = {
             borderStyle: isBorder ? "dotted" : "none",

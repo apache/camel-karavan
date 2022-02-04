@@ -2,25 +2,6 @@
   "name": "karavan-designer",
   "version": "0.0.10",
   "license": "Apache-2.0",
-  "dependencies": {
-    "@patternfly/patternfly": "^4.171.1",
-    "@patternfly/react-code-editor": "^4.33.15",
-    "@patternfly/react-core": "^4.192.15",
-    "@patternfly/react-table": "^4.61.15",
-    "@types/js-yaml": "^4.0.5",
-    "@types/uuid": "^8.3.4",
-    "axios": "^0.25.0",
-    "dagre": "^0.8.5",
-    "karavan-core": "file:../karavan-core",
-    "localforage": "^1.10.0",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
-    "react-router-dom": "^6.2.1",
-    "react-scripts": "5.0.0",
-    "rxjs": "^7.5.2",
-    "typescript": "^4.5.5",
-    "uuid": "^8.3.2"
-  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -43,6 +24,22 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "dependencies": {
+    "@patternfly/patternfly": "4.171.1",
+    "@patternfly/react-core": "4.192.7",
+    "@types/js-yaml": "^4.0.5",
+    "@types/uuid": "8.3.4",
+    "axios": "^0.25.0",
+    "dagre": "^0.8.5",
+    "karavan-core": "file:../karavan-core",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-router-dom": "^6.2.1",
+    "react-scripts": "5.0.0",
+    "rxjs": "^7.5.2",
+    "typescript": "^4.5.5",
+    "uuid": "8.3.2"
   },
   "devDependencies": {
     "@types/dagre": "^0.7.47",
