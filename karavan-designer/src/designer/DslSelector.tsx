@@ -100,7 +100,6 @@ export class DslSelector extends React.Component<Props, State> {
                 <CardHeader>
                     <img draggable={false}
                          src={this.getIcon(dsl)}
-                         style={dsl.dsl === 'choice' ? {height: "18px"} : {}}  // find better icon
                          className="icon" alt="icon"></img>
                     <Text>{dsl.title}</Text>
                 </CardHeader>

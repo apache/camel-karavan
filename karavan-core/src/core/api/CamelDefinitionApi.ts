@@ -92,6 +92,7 @@ import {
     SplitDefinition,
     StepDefinition,
     StopDefinition,
+    SwitchDefinition,
     ThreadPoolProfileDefinition,
     ThreadsDefinition,
     ThrottleDefinition,
@@ -329,6 +330,9 @@ export class CamelDefinitionApi {
         if (element?.intercept !== undefined) { 
             def.intercept = CamelDefinitionApi.createInterceptDefinition(element.intercept); 
         } 
+        if (element?.doSwitch !== undefined) { 
+            def.doSwitch = CamelDefinitionApi.createSwitchDefinition(element.doSwitch); 
+        } 
         if (element?.whenSkipSendToEndpoint !== undefined) { 
             def.whenSkipSendToEndpoint = CamelDefinitionApi.createWhenSkipSendToEndpointDefinition(element.whenSkipSendToEndpoint); 
         } 
@@ -355,9 +359,6 @@ export class CamelDefinitionApi {
         } 
         if (element?.doCatch !== undefined) { 
             def.doCatch = CamelDefinitionApi.createCatchDefinition(element.doCatch); 
-        } 
-        if (element?.tod !== undefined) { 
-            def.tod = CamelDefinitionApi.createToDynamicDefinition(element.tod); 
         } 
         if (element?.transacted !== undefined) { 
             def.transacted = CamelDefinitionApi.createTransactedDefinition(element.transacted); 
@@ -1246,7 +1247,7 @@ export class CamelDefinitionApi {
     }
 
     static createRestContextRefDefinition = (element: any): RestContextRefDefinition => {
-        
+        if (element && typeof element === 'string') element = {ref: element};
         const def = element ? new RestContextRefDefinition({...element}) : new RestContextRefDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
 
@@ -1270,7 +1271,7 @@ export class CamelDefinitionApi {
     }
 
     static createRouteConfigurationContextRefDefinition = (element: any): RouteConfigurationContextRefDefinition => {
-        
+        if (element && typeof element === 'string') element = {ref: element};
         const def = element ? new RouteConfigurationContextRefDefinition({...element}) : new RouteConfigurationContextRefDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
 
@@ -1291,7 +1292,7 @@ export class CamelDefinitionApi {
     }
 
     static createRouteContextRefDefinition = (element: any): RouteContextRefDefinition => {
-        
+        if (element && typeof element === 'string') element = {ref: element};
         const def = element ? new RouteContextRefDefinition({...element}) : new RouteContextRefDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
 
@@ -1310,7 +1311,7 @@ export class CamelDefinitionApi {
     }
 
     static createRouteTemplateBeanDefinition = (element: any): RouteTemplateBeanDefinition => {
-        if (element && typeof element === 'string') element = {name: element};
+        
         const def = element ? new RouteTemplateBeanDefinition({...element}) : new RouteTemplateBeanDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
         def.property = element && element?.property ? element?.property.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
@@ -1470,6 +1471,18 @@ export class CamelDefinitionApi {
         
         const def = element ? new StopDefinition({...element}) : new StopDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
+
+        return def;
+    }
+
+    static createSwitchDefinition = (element: any): SwitchDefinition => {
+        
+        const def = element ? new SwitchDefinition({...element}) : new SwitchDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid;
+        if (element?.otherwise !== undefined) { 
+            def.otherwise = CamelDefinitionApi.createOtherwiseDefinition(element.otherwise); 
+        } 
+        def.when = element && element?.when ? element?.when.map((x:any) => CamelDefinitionApi.createWhenDefinition(x)) :[]; 
 
         return def;
     }
@@ -3466,6 +3479,7 @@ export class CamelDefinitionApi {
             case 'SplitDefinition': return CamelDefinitionApi.createSplitDefinition(newBody);
             case 'StepDefinition': return CamelDefinitionApi.createStepDefinition(newBody);
             case 'StopDefinition': return CamelDefinitionApi.createStopDefinition(newBody);
+            case 'SwitchDefinition': return CamelDefinitionApi.createSwitchDefinition(newBody);
             case 'ThreadPoolProfileDefinition': return CamelDefinitionApi.createThreadPoolProfileDefinition(newBody);
             case 'ThreadsDefinition': return CamelDefinitionApi.createThreadsDefinition(newBody);
             case 'ThrottleDefinition': return CamelDefinitionApi.createThrottleDefinition(newBody);

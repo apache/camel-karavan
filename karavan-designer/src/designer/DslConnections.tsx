@@ -186,7 +186,7 @@ export class DslConnections extends React.Component<Props, State> {
 
     hasSteps = (step: CamelElement):boolean => {
         return (step.hasSteps() &&  !['FromDefinition'].includes(step.dslName))
-            ||  ['RouteDefinition', 'TryDefinition', 'ChoiceDefinition'].includes(step.dslName);
+            ||  ['RouteDefinition', 'TryDefinition', 'ChoiceDefinition', 'SwitchDefinition'].includes(step.dslName);
     }
 
     getPreviousStep(pos: DslPosition){

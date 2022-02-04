@@ -952,6 +952,13 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true),
         new PropertyMeta('name', 'Name', "Name of the Kamelet (templateId/routeId) to call. Options for the kamelet can be specified using uri syntax, eg mynamecount=4&type=gold.", 'string', '', '', true, false, false, false),
     ]),
+    new ElementMeta('doSwitch', 'SwitchDefinition', 'Do Switch', "Route messages based on a series of predicates (optimized during startup to select one predicate that will always be used)", 'eip,routing', [
+        new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true),
+        new PropertyMeta('when', 'When', "when", 'WhenDefinition', '', '', false, false, true, true),
+        new PropertyMeta('otherwise', 'Otherwise', "Sets the otherwise node", 'OtherwiseDefinition', '', '', false, false, false, true),
+        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false),
+        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false),
+    ]),
     new ElementMeta('globalOption', 'GlobalOptionDefinition', 'Global Option', "Models a string key/value pair for configuring some global options on a Camel context such as max debug log length.", 'configuration', [
         new PropertyMeta('key', 'Key', "Global option key", 'string', '', '', true, false, false, false),
         new PropertyMeta('value', 'Value', "Global option value", 'string', '', '', true, false, false, false),
@@ -1119,6 +1126,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('validate', 'ValidateDefinition', 'Validate', "Validates a message based on an expression", 'eip,transformation', [
         new PropertyMeta('expression', 'Expression', "Expression to use for validation as a predicate. The expression should return either true or false. If returning false the message is invalid and an exception is thrown.", 'ExpressionDefinition', '', '', true, false, false, true),
+        new PropertyMeta('predicateExceptionFactory', 'Predicate Exception Factory', "The bean id of custom PredicateExceptionFactory to use for creating the exception when the validation fails. By default, Camel will throw PredicateValidationException. By using a custom factory you can control which exception to throw instead.", 'string', '', '', false, false, false, false),
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false),
     ]),

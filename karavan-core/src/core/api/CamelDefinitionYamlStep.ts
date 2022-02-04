@@ -92,6 +92,7 @@ import {
     SplitDefinition,
     StepDefinition,
     StopDefinition,
+    SwitchDefinition,
     ThreadPoolProfileDefinition,
     ThreadsDefinition,
     ThrottleDefinition,
@@ -328,6 +329,9 @@ export class CamelDefinitionYamlStep {
         if (element?.intercept !== undefined) { 
             def.intercept = CamelDefinitionYamlStep.readInterceptDefinition(element.intercept); 
         } 
+        if (element?.doSwitch !== undefined) { 
+            def.doSwitch = CamelDefinitionYamlStep.readSwitchDefinition(element.doSwitch); 
+        } 
         if (element?.whenSkipSendToEndpoint !== undefined) { 
             def.whenSkipSendToEndpoint = CamelDefinitionYamlStep.readWhenSkipSendToEndpointDefinition(element.whenSkipSendToEndpoint); 
         } 
@@ -354,9 +358,6 @@ export class CamelDefinitionYamlStep {
         } 
         if (element?.doCatch !== undefined) { 
             def.doCatch = CamelDefinitionYamlStep.readCatchDefinition(element.doCatch); 
-        } 
-        if (element?.tod !== undefined) { 
-            def.tod = CamelDefinitionYamlStep.readToDynamicDefinition(element.tod); 
         } 
         if (element?.transacted !== undefined) { 
             def.transacted = CamelDefinitionYamlStep.readTransactedDefinition(element.transacted); 
@@ -1200,7 +1201,7 @@ export class CamelDefinitionYamlStep {
     }
 
     static readRestContextRefDefinition = (element: any): RestContextRefDefinition => {
-        
+        if (element && typeof element === 'string') element = {ref: element};
         const def = element ? new RestContextRefDefinition({...element}) : new RestContextRefDefinition();
 
         return def;
@@ -1221,7 +1222,7 @@ export class CamelDefinitionYamlStep {
     }
 
     static readRouteConfigurationContextRefDefinition = (element: any): RouteConfigurationContextRefDefinition => {
-        
+        if (element && typeof element === 'string') element = {ref: element};
         const def = element ? new RouteConfigurationContextRefDefinition({...element}) : new RouteConfigurationContextRefDefinition();
 
         return def;
@@ -1240,7 +1241,7 @@ export class CamelDefinitionYamlStep {
     }
 
     static readRouteContextRefDefinition = (element: any): RouteContextRefDefinition => {
-        
+        if (element && typeof element === 'string') element = {ref: element};
         const def = element ? new RouteContextRefDefinition({...element}) : new RouteContextRefDefinition();
 
         return def;
@@ -1257,7 +1258,7 @@ export class CamelDefinitionYamlStep {
     }
 
     static readRouteTemplateBeanDefinition = (element: any): RouteTemplateBeanDefinition => {
-        if (element && typeof element === 'string') element = {name: element};
+        
         const def = element ? new RouteTemplateBeanDefinition({...element}) : new RouteTemplateBeanDefinition();
         def.property = element && element?.property ? element?.property.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
         if (element?.script !== undefined) { 
@@ -1415,6 +1416,17 @@ export class CamelDefinitionYamlStep {
     static readStopDefinition = (element: any): StopDefinition => {
         
         const def = element ? new StopDefinition({...element}) : new StopDefinition();
+
+        return def;
+    }
+
+    static readSwitchDefinition = (element: any): SwitchDefinition => {
+        
+        const def = element ? new SwitchDefinition({...element}) : new SwitchDefinition();
+        if (element?.otherwise !== undefined) { 
+            def.otherwise = CamelDefinitionYamlStep.readOtherwiseDefinition(element.otherwise); 
+        } 
+        def.when = element && element?.when ? element?.when.map((x:any) => CamelDefinitionYamlStep.readWhenDefinition(x)) :[]; 
 
         return def;
     }
@@ -3234,6 +3246,7 @@ export class CamelDefinitionYamlStep {
             case 'wireTap': return CamelDefinitionYamlStep.readWireTapDefinition(newBody);
             case 'kamelet': return CamelDefinitionYamlStep.readKameletDefinition(newBody);
             case 'interceptFrom': return CamelDefinitionYamlStep.readInterceptFromDefinition(newBody);
+            case 'doSwitch': return CamelDefinitionYamlStep.readSwitchDefinition(newBody);
             case 'doFinally': return CamelDefinitionYamlStep.readFinallyDefinition(newBody);
             case 'idempotentConsumer': return CamelDefinitionYamlStep.readIdempotentConsumerDefinition(newBody);
             case 'removeHeader': return CamelDefinitionYamlStep.readRemoveHeaderDefinition(newBody);
