@@ -92,7 +92,7 @@ export class DslElement extends React.Component<Props, State> {
 
     hasBorder = ():boolean => {
         return (this.state?.step?.hasSteps() &&  !['FromDefinition'].includes(this.state.step.dslName))
-            ||  ['RouteDefinition', 'TryDefinition', 'ChoiceDefinition'].includes(this.state.step.dslName);
+            ||  ['RouteDefinition', 'TryDefinition', 'ChoiceDefinition', 'SwitchDefinition'].includes(this.state.step.dslName);
     }
 
     isNotDraggable = (): boolean => {
@@ -100,7 +100,7 @@ export class DslElement extends React.Component<Props, State> {
     }
 
     isWide = (): boolean => {
-        return ['RouteDefinition', 'ChoiceDefinition', 'MulticastDefinition', 'TryDefinition', 'CircuitBreakerDefinition']
+        return ['RouteDefinition', 'ChoiceDefinition', 'SwitchDefinition', 'MulticastDefinition', 'TryDefinition', 'CircuitBreakerDefinition']
             .includes(this.state.step.dslName);
     }
 
@@ -120,12 +120,12 @@ export class DslElement extends React.Component<Props, State> {
     isInStepWithChildren =() => {
         const step: CamelElement = this.state.step;
         const children = CamelDefinitionApiExt.getElementChildrenDefinition(step.dslName);
-        return children.filter(c => c.name === 'steps' || c.multiple).length > 0 && this.props.inSteps;
+        return children.filter((c:ChildElement) => c.name === 'steps' || c.multiple).length > 0 && this.props.inSteps;
     }
 
     getChildrenInfo =(step: CamelElement):[boolean, number, boolean, number, number] => {
         const children = CamelDefinitionApiExt.getElementChildrenDefinition(step.dslName);
-        const hasStepsField = children.filter(c => c.name === 'steps').length === 1;
+        const hasStepsField = children.filter((c:ChildElement) => c.name === 'steps').length === 1;
         const stepsChildrenCount = children
             .filter(c => c.name === 'steps')
             .map((child: ChildElement, index: number) => {

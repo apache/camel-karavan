@@ -19,9 +19,8 @@ import {ComponentApi} from "./ComponentApi";
 import {CamelUtil} from "./CamelUtil";
 import {
     CamelElement, CamelElementMeta,
-    ChoiceDefinition,
     ExpressionDefinition,
-    Integration, OtherwiseDefinition, RouteDefinition
+    Integration, RouteDefinition
 } from "../model/CamelDefinition";
 import {CamelDefinitionApi} from "./CamelDefinitionApi";
 

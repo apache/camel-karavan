@@ -142,7 +142,7 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
         if (properties != null) {
             properties.getMap().keySet().forEach(name -> {
                 JsonObject aValue = properties.getJsonObject(name);
-                if (isAttributeRefArray(aValue) && name.equals("steps") && ! className.equals("ChoiceDefinition") && ! className.equals("KameletDefinition")) {
+                if (isAttributeRefArray(aValue) && name.equals("steps") && ! className.equals("ChoiceDefinition") && ! className.equals("SwitchDefinition") && ! className.equals("KameletDefinition")) {
                     attrs.put(name, "        def.steps = CamelDefinitionApi.createSteps(element?.steps);\n");
                 } else if (isAttributeRefArray(aValue) && !name.equals("steps")) {
                     String code = String.format(

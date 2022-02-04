@@ -98,6 +98,7 @@ export class ProcessorDefinition extends CamelElement {
     stop?: StopDefinition;
     serviceCall?: ServiceCallDefinition | string;
     intercept?: InterceptDefinition;
+    doSwitch?: SwitchDefinition;
     whenSkipSendToEndpoint?: WhenSkipSendToEndpointDefinition;
     setProperty?: SetPropertyDefinition;
     removeProperty?: RemovePropertyDefinition | string;
@@ -107,7 +108,6 @@ export class ProcessorDefinition extends CamelElement {
     doFinally?: FinallyDefinition;
     log?: LogDefinition | string;
     doCatch?: CatchDefinition;
-    tod?: ToDynamicDefinition | string;
     transacted?: TransactedDefinition;
     claimCheck?: ClaimCheckDefinition;
     pollEnrich?: PollEnrichDefinition;
@@ -141,10 +141,16 @@ export class ProcessorDefinition extends CamelElement {
 }
 
 export class DeadLetterChannelBuilder extends CamelElement {
+    executorServiceRef?: string;
+    onRedeliveryRef?: string;
+    retryWhileRef?: string;
     asyncDelayedRedelivery?: boolean;
     useOriginalBody?: boolean;
+    onPrepareFailureRef?: string;
     useOriginalMessage?: boolean;
-    deadLetterHandleNewException?: boolean
+    onExceptionOccurredRef?: string;
+    deadLetterHandleNewException?: boolean;
+    deadLetterUri?: string
     public constructor(init?: Partial<DeadLetterChannelBuilder>) {
         super('DeadLetterChannelBuilder')
         Object.assign(this, init)
@@ -152,10 +158,14 @@ export class DeadLetterChannelBuilder extends CamelElement {
 }
 
 export class DefaultErrorHandlerBuilder extends CamelElement {
+    executorServiceRef?: string;
+    onRedeliveryRef?: string;
+    retryWhileRef?: string;
     asyncDelayedRedelivery?: boolean;
     useOriginalBody?: boolean;
+    onPrepareFailureRef?: string;
     useOriginalMessage?: boolean;
-    deadLetterHandleNewException?: boolean
+    onExceptionOccurredRef?: string
     public constructor(init?: Partial<DefaultErrorHandlerBuilder>) {
         super('DefaultErrorHandlerBuilder')
         Object.assign(this, init)
@@ -1426,6 +1436,19 @@ export class StopDefinition extends CamelElement {
     }
 }
 
+export class SwitchDefinition extends CamelElement {
+    otherwise?: OtherwiseDefinition;
+    inheritErrorHandler?: boolean;
+    stepName?: string = 'doSwitch';
+    description?: string;
+    id?: string;
+    when?: WhenDefinition[] = []
+    public constructor(init?: Partial<SwitchDefinition>) {
+        super('SwitchDefinition')
+        Object.assign(this, init)
+    }
+}
+
 export class ThreadPoolProfileDefinition extends CamelElement {
     keepAliveTime?: number;
     maxQueueSize?: number;
@@ -1623,7 +1646,8 @@ export class ValidateDefinition extends CamelElement {
     expression?: ExpressionDefinition;
     stepName?: string = 'validate';
     description?: string;
-    id?: string
+    id?: string;
+    predicateExceptionFactory?: string
     public constructor(init?: Partial<ValidateDefinition>) {
         super('ValidateDefinition')
         Object.assign(this, init)

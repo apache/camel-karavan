@@ -101,7 +101,7 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
         if (properties != null) {
             properties.getMap().keySet().forEach(aName -> {
                 JsonObject aValue = properties.getJsonObject(aName);
-                if (isAttributeRefArray(aValue) && aName.equals("steps") && ! className.equals("ChoiceDefinition") && ! className.equals("KameletDefinition")) {
+                if (isAttributeRefArray(aValue) && aName.equals("steps") && ! className.equals("ChoiceDefinition") && ! className.equals("SwitchDefinition") && ! className.equals("KameletDefinition")) {
                     attrs.put(aName, "        def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);\n");
                 } else if (isAttributeRefArray(aValue) && !aName.equals("steps")) {
                     String code = String.format(
