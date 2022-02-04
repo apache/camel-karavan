@@ -18,9 +18,9 @@ import React from 'react';
 import './karavan.css';
 import {CamelElement, Integration} from "karavan-core/lib/model/CamelDefinition";
 import {DslPosition, EventBus} from "./EventBus";
-import Rx from 'karavan-core/node_modules/rxjs';
 import {CamelUi} from "./CamelUi";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
+import {Subscription} from "rxjs";
 
 interface Props {
     integration: Integration
@@ -31,7 +31,7 @@ interface Props {
 
 interface State {
     integration: Integration
-    sub?: Rx.Subscription
+    sub?: Subscription
     steps: Map<string, DslPosition>
 }
 
