@@ -18,7 +18,6 @@ import {Subject} from 'rxjs';
 import {CamelElement} from "karavan-core/lib/model/CamelDefinition";
 
 const positions = new Subject<DslPosition>();
-const flowsPosition = new Subject<DOMRect>();
 
 export class DslPosition {
     step: CamelElement = new CamelElement("");

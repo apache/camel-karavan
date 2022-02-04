@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 import React from 'react';
-import {
-    Form, FormGroup,
-} from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import {DslPropertyField} from "./DslPropertyField";

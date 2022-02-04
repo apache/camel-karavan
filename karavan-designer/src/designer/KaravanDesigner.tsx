@@ -32,7 +32,6 @@ import {DslConnections} from "./DslConnections";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {DslElement} from "./DslElement";
 import {EventBus} from "./EventBus";
-import {CamelUi} from "./CamelUi";
 
 interface Props {
     onSave?: (filename: string, yaml: string) => void

@@ -30,7 +30,7 @@ import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
+import { PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {ExpressionField} from "./ExpressionField";
 import {CamelUi} from "../CamelUi";
