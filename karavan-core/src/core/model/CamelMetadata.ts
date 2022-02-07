@@ -76,6 +76,10 @@ export class CamelMetadataApi {
     static getLanguage = (name: string): [string, string, string] | undefined => {
         return Languages.find(value => value[0] === name);
     }
+
+    static hasLanguage = (name: string): boolean | undefined => {
+        return Languages.filter(value => value[0] === name).length > 0;
+    }
 }
 
 export const DataFormats: [string, string, string][] = [

@@ -236,6 +236,7 @@ import {
     ValidatorsDefinition,
 } from '../model/CamelDefinition';
 import {CamelUtil} from './CamelUtil';
+import {CamelMetadataApi} from '../model/CamelMetadata';
 
 export class CamelDefinitionYamlStep { 
 
@@ -605,7 +606,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new DelayDefinition({...element}) : new DelayDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
 
         return def;
     }
@@ -622,7 +631,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new DynamicRouterDefinition({...element}) : new DynamicRouterDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
 
         return def;
     }
@@ -632,7 +649,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new EnrichDefinition({...element}) : new EnrichDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
 
         return def;
     }
@@ -716,7 +741,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new FilterDefinition({...element}) : new FilterDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
         def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
 
         return def;
@@ -765,7 +798,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new IdempotentConsumerDefinition({...element}) : new IdempotentConsumerDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
         def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
 
         return def;
@@ -871,7 +912,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new LoopDefinition({...element}) : new LoopDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
         def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
 
         return def;
@@ -1112,7 +1161,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new PollEnrichDefinition({...element}) : new PollEnrichDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
 
         return def;
     }
@@ -1136,7 +1193,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new RecipientListDefinition({...element}) : new RecipientListDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
 
         return def;
     }
@@ -1184,7 +1249,15 @@ export class CamelDefinitionYamlStep {
         } 
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
         def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
         if (element?.batchConfig !== undefined) { 
             def.batchConfig = CamelDefinitionYamlStep.readBatchResequencerConfig(element.batchConfig); 
@@ -1299,7 +1372,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new RoutingSlipDefinition({...element}) : new RoutingSlipDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
 
         return def;
     }
@@ -1325,7 +1406,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new SagaOptionDefinition({...element}) : new SagaOptionDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
 
         return def;
     }
@@ -1342,7 +1431,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new ScriptDefinition({...element}) : new ScriptDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
 
         return def;
     }
@@ -1352,7 +1449,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new SetBodyDefinition({...element}) : new SetBodyDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
 
         return def;
     }
@@ -1369,7 +1474,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new SetHeaderDefinition({...element}) : new SetHeaderDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
 
         return def;
     }
@@ -1379,7 +1492,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new SetPropertyDefinition({...element}) : new SetPropertyDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
 
         return def;
     }
@@ -1389,7 +1510,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new SortDefinition({...element}) : new SortDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
 
         return def;
     }
@@ -1399,7 +1528,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new SplitDefinition({...element}) : new SplitDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
         def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
 
         return def;
@@ -1450,7 +1587,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new ThrottleDefinition({...element}) : new ThrottleDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
         if (element?.correlationExpression !== undefined) { 
             def.correlationExpression = CamelDefinitionYamlStep.readExpressionSubElementDefinition(element.correlationExpression); 
         } 
@@ -1492,7 +1637,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new TransformDefinition({...element}) : new TransformDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
 
         return def;
     }
@@ -1641,7 +1794,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new ValidateDefinition({...element}) : new ValidateDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
 
         return def;
     }
@@ -1651,7 +1812,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new WhenDefinition({...element}) : new WhenDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
         def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
 
         return def;
@@ -1662,7 +1831,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new WhenSkipSendToEndpointDefinition({...element}) : new WhenSkipSendToEndpointDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
         def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
 
         return def;
@@ -1946,7 +2123,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new ServiceCallExpressionConfiguration({...element}) : new ServiceCallExpressionConfiguration();
         if (element?.expressionType !== undefined) { 
             def.expressionType = CamelDefinitionYamlStep.readExpressionDefinition(element.expressionType); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expressionType = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
         def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
 
         return def;
@@ -3183,7 +3368,15 @@ export class CamelDefinitionYamlStep {
         const def = element ? new PredicateValidatorDefinition({...element}) : new PredicateValidatorDefinition();
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
 
         return def;
     }

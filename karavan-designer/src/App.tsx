@@ -75,17 +75,12 @@ class App extends React.Component<Props, State> {
             '                           name: http-sink \n' +
             '            - choice:\n' +
             '                when:\n' +
-            '                  - expression: {}\n' +
+            '                  - simple: "hello world"\n' +
             '                    steps:\n' +
             '                      - log:\n' +
             '                           message: hello22s\n' +
             '                           logName: log22\n' +
             '                otherwise: {}\n'+
-            '            - circuitBreaker: {}\n' +
-            '            - multicast:\n' +
-            '                steps:\n' +
-            '                  - to: "http:localhost"\n' +
-            '                  - to: "kafka:topic2"\n' +
             '',
         key: ''
     };
