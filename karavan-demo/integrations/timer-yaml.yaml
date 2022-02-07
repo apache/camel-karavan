@@ -1,0 +1,11 @@
+- route:
+    from:
+      uri: kamelet:timer-source
+      steps:
+        - log:
+            message: ${body}
+            loggingLevel: INFO
+            logName: demo
+      parameters:
+        period: 3000
+        message: Hello world

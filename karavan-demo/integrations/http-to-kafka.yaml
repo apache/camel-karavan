@@ -1,0 +1,43 @@
+- route:
+    from:
+      uri: platform-http:/demo
+      steps:
+        - unmarshal:
+            json:
+              library: jackson
+        - choice:
+            when:
+              - expression:
+                  simple:
+                    expression: ${body[amount]} > 1000
+                steps:
+                  - marshal:
+                      json:
+                        library: jackson
+                  - kamelet:
+                      name: kafka-not-secured-sink
+                      parameters:
+                        topic: topic-demo
+                        bootstrapServers: localhost:9092
+            otherwise:
+              steps:
+                - log:
+                    message: Amount is too small
+                    loggingLevel: INFO
+                    logName: demo
+        - setBody:
+            expression:
+              constant:
+                expression: '{"result":"OK"}'
+      parameters:
+        httpMethodRestrict: POST
+        produces: application/json
+- route:
+    from:
+      uri: kamelet:kafka-not-secured-source
+      steps:
+        - log:
+            message: 'Received from kafka: ${body}'
+      parameters:
+        topic: topic-demo
+        bootstrapServers: localhost:9092
