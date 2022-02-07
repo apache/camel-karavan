@@ -325,7 +325,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
                 <circle className="clr-i-outline clr-i-outline-path-1" cx="18" cy="26.06" r="1.33"/>
                 <path className="clr-i-outline clr-i-outline-path-2" d="M18,22.61a1,1,0,0,1-1-1v-12a1,1,0,1,1,2,0v12A1,1,0,0,1,18,22.61Z"/>
                 <path className="clr-i-outline clr-i-outline-path-3" d="M18,34A16,16,0,1,1,34,18,16,16,0,0,1,18,34ZM18,4A14,14,0,1,0,32,18,14,14,0,0,0,18,4Z"/>
-                <rect x="0" y="0" width="36" height="36" fill-opacity="0"/>
+                <rect x="0" y="0" width="36" height="36" fillOpacity="0"/>
             </svg>)
         if (icon === 'exception') return (
             <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
@@ -360,8 +360,8 @@ export class KaravanDesigner extends React.Component<Props, State> {
                             <Tab eventKey={0} title={this.getTab("Routes", "Integration flows", "routes")}></Tab>
                             <Tab eventKey={1} title={this.getTab("REST", "REST services","rest")}></Tab>
                             <Tab eventKey={2} title={this.getTab("Beans", "Beans Configuration","beans")}></Tab>
-                            <Tab eventKey={3} title={this.getTab("Error Handler","Error Handler configuration", "error")}></Tab>
-                            <Tab eventKey={4} title={this.getTab("Exception Clauses","Exception Clauses per type", "exception")}></Tab>
+                            <Tab eventKey={3} title={this.getTab("Error","Error Handler configuration", "error")}></Tab>
+                            <Tab eventKey={4} title={this.getTab("Exceptions","Exception Clauses per type", "exception")}></Tab>
                             <Tab eventKey={5} title={this.getTab("Templates", "Route Templates","template")}></Tab>
                         </Tabs>
                         {this.getGraph()}

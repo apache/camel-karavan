@@ -4,7 +4,7 @@
   "displayName": "Camel Karavan Designer",
   "icon": "icons/icon.png",
   "description": "Integration Designer for Apache Camel",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "license": "Apache-2.0",
   "preview": true,
   "bugs": {
@@ -52,17 +52,17 @@
     "configuration": {
       "title": "Karavan",
       "properties": {
-        "CamelJBang.version": {
+        "camel.version": {
           "type": "string",
-          "default": "3.14.0-SNAPSHOT",
+          "default": "3.15.0",
           "description": "Camel version"
         },
-        "CamelJBang.maxMessages": {
+        "camel.maxMessages": {
           "type": "integer",
           "default": 10,
           "description": "Max number of messages to process before stopping"
         },
-        "CamelJBang.loggingLevel": {
+        "camel.loggingLevel": {
           "type": "string",
           "default": "info",
           "enum": [
@@ -73,7 +73,7 @@
           ],
           "description": "Logging level"
         },
-        "CamelJBang.reload": {
+        "camel.reload": {
           "type": "boolean",
           "default": "true",
           "description": "Reload routes on change"

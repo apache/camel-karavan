@@ -53,7 +53,8 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
             camelModel.append("    ").append(className).append(",\n");
         });
         camelModel.append("} from '../model/CamelDefinition';\n");
-        camelModel.append("import {CamelUtil} from './CamelUtil';\n\n");
+        camelModel.append("import {CamelUtil} from './CamelUtil';\n");
+        camelModel.append("import {CamelMetadataApi} from '../model/CamelMetadata';\n\n");
 
 
         camelModel.append("export class CamelDefinitionYamlStep { \n\n");
@@ -108,9 +109,24 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
                             "        def.%1$s = element && element?.%1$s ? element?.%1$s.map((x:any) => CamelDefinitionYamlStep.read%2$s(x)) :[]; \n"
                             , aName, getAttributeArrayClass(aValue));
                     attrs.put(aName, code);
+                } else if (isAttributeRef(aValue) && getAttributeClass(aValue).equals("ExpressionDefinition")) { // Expressions implicits
+                    String code = String.format(
+                                    "        if (element?.%1$s !== undefined) { \n" +
+                                    "            def.%1$s = CamelDefinitionYamlStep.read%2$s(element.%1$s); \n" +
+                                    "        } else {\n" +
+                                    "            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;\n" +
+                                    "            if (languageName){\n" +
+                                    "                const exp:any = {};\n" +
+                                    "                exp[languageName] = element[languageName]\n" +
+                                    "                def.%1$s = CamelDefinitionYamlStep.readExpressionDefinition(exp);\n" +
+                                    "                delete (def as any)[languageName];\n" +
+                                    "            }\n" +
+                                    "        }\n"
+                            , aName, getAttributeClass(aValue));
+                    attrs.put(aName, code);
                 } else if (isAttributeRef(aValue) && !getAttributeClass(aValue).equals("SagaActionUriDefinition")) { // SagaActionUriDefinition is exception
                     String code = String.format(
-                            "        if (element?.%1$s !== undefined) { \n" +
+                                    "        if (element?.%1$s !== undefined) { \n" +
                                     "            def.%1$s = CamelDefinitionYamlStep.read%2$s(element.%1$s); \n" +
                                     "        } \n"
                             , aName, getAttributeClass(aValue));
