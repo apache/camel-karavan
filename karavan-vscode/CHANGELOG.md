@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.11
+1. Hot fix: Set Camel Jbang alias as `camel@apache/camel`
+2. Hot fix: Read Implicit Expressions from YAML
+
 ## 0.0.10
 1. New look and Feel
 2. Expression languages
