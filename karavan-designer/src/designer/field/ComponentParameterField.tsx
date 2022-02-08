@@ -91,7 +91,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
                     value={value !== undefined ? value : property.defaultValue}
                     onChange={e => this.parametersChanged(property.name, ['integer', 'int', 'number'].includes(property.type) ? Number(e) : e, property.kind === 'path')}/>
                 }
-                {property.type === 'string' && property.enum &&
+                {['string', 'object'].includes(property.type) && property.enum &&
                 <Select
                     variant={SelectVariant.single}
                     aria-label={property.name}
