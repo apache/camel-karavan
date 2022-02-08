@@ -109,6 +109,7 @@ class App extends React.Component<Props, State> {
             "netty-http.json",
             "jms.json",
             "sql.json",
+            "cxf.json",
             "file.json",
             "log.json",
             "coap+tcp.json",
