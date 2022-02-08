@@ -92,7 +92,6 @@ describe('Add Step', () => {
             const i2 = CamelDefinitionApiExt.addStepToIntegration(i1, w, parentUuid);
 
             if (i2.spec.flows) {
-                console.log(CamelDefinitionYaml.integrationToYaml(i2));
                 expect(i2.spec.flows[0].from.steps[0].doCatch[0].onWhen.expression.simple.expression).to.equal("${body} != null");
             }
         }

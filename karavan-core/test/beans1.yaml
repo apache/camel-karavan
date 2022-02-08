@@ -1,0 +1,36 @@
+- beans:
+    - name: myNested
+      type: ${MyBean.class.name}
+      properties:
+        field1: 'value1'
+        field2: 'value2'
+        nested:
+          foo: 'valueFoo'
+          bar: 'valueBar'
+    - name: myProps
+      type: ${MyBean.class.name}
+      properties:
+        field1: 'f1_p'
+        field2: 'f2_p'
+        nested.foo: 'nf1_p'
+        nested.bar: 'nf2_p'
+- from:
+    uri: "direct:route"
+    steps:
+      - aggregate:
+          strategy-ref: "myAggregatorStrategy"
+          completion-size: 2
+          correlation-expression:
+            simple: "${header.StockSymbol}"
+          steps:
+            - to: "mock:route"
+- from:
+    uri: "direct:route"
+    steps:
+      - aggregate:
+          strategy-ref: "myAggregatorStrategy"
+          completion-size: 2
+          correlation-expression:
+            simple: "${header.StockSymbol}"
+          steps:
+            - to: "mock:route"

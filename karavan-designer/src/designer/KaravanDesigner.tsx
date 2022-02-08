@@ -21,7 +21,7 @@ import {
 } from '@patternfly/react-core';
 import './karavan.css';
 import {DslSelector} from "./DslSelector";
-import {DslMetaModel} from "karavan-core/lib/model/DslMetaModel";
+import {DslMetaModel} from "./utils/DslMetaModel";
 import {DslProperties} from "./DslProperties";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelElement, FromDefinition, Integration} from "karavan-core/lib/model/CamelDefinition";
@@ -31,7 +31,7 @@ import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {DslConnections} from "./DslConnections";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {DslElement} from "./DslElement";
-import {EventBus} from "./EventBus";
+import {EventBus} from "./utils/EventBus";
 
 interface Props {
     onSave?: (filename: string, yaml: string) => void

@@ -31,7 +31,7 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {CamelElement, ExpressionDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {DslPropertyField} from "./DslPropertyField";
-import {CamelUi} from "../CamelUi";
+import {CamelUi} from "../utils/CamelUi";
 
 interface Props {
     property: PropertyMeta,

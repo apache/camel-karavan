@@ -16,7 +16,7 @@
  */
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {KameletModel, Property} from "karavan-core/lib/model/KameletModels";
-import {DslMetaModel} from "karavan-core/lib/model/DslMetaModel";
+import {DslMetaModel} from "./DslMetaModel";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";

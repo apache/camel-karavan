@@ -35,6 +35,26 @@ export class Integration {
     }
 }
 
+export class Beans {
+    beans: Bean[] = []
+    dslName: string = 'Beans'
+
+    public constructor(init?: Partial<Beans>) {
+        Object.assign(this, init);
+    }
+}
+
+export class Bean {
+    name: string = ''
+    type: string = ''
+    dslName: string = 'Bean'
+    properties: any
+
+    public constructor(init?: Partial<Bean>) {
+        Object.assign(this, init);
+    }
+}
+
 export class CamelElement {
     uuid: string = ''
     dslName: string = ''
