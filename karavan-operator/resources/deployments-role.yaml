@@ -1,0 +1,33 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: karavancontroller-deployment-role
+rules:
+  - apiGroups:
+      - apps
+      - extensions
+    resources:
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - delete
+      - patch
+      - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/name: karavan-operator
+    app.kubernetes.io/version: 0.0.11
+  name: karavan-operator-deployment-controller
+roleRef:
+  kind: Role
+  apiGroup: rbac.authorization.k8s.io
+  name: karavancontroller-deployment-role
+subjects:
+  - kind: ServiceAccount
+    name: karavan-operator
