@@ -19,7 +19,7 @@ import {
     Button, EmptyState, EmptyStateBody, EmptyStateIcon, Modal,
     PageSection, Title
 } from '@patternfly/react-core';
-import './karavan.css';
+import '../karavan.css';
 import {CamelElement, Integration} from "karavan-core/lib/model/CamelDefinition";
 import CubesIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 

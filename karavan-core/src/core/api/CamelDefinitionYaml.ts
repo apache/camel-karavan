@@ -27,7 +27,7 @@ export class CamelDefinitionYaml {
     static integrationToYaml = (integration: Integration): string => {
         const clone: any = Object.assign({}, integration);
         const flows = integration.spec.flows
-        clone.spec.flows = flows?.map((f: any) => CamelDefinitionYaml.cleanupElement(f));
+        clone.spec.flows = flows?.map((f: any) => CamelDefinitionYaml.cleanupElement(f)).filter(x => Object.keys(x).length !== 0);
         if (integration.crd) {
             delete clone.crd
             const i = JSON.parse(JSON.stringify(clone, null, 3)); // fix undefined in string attributes
@@ -48,6 +48,8 @@ export class CamelDefinitionYaml {
             delete object.expressionName;
         } else if (object.dslName.endsWith('DataFormat')) {
             delete object.dataFormatName;
+        } else if (object.dslName = 'Bean') {
+            if (object.properties && Object.keys(object.properties).length === 0) delete object.properties;
         }
         delete object.uuid;
         delete object.dslName;

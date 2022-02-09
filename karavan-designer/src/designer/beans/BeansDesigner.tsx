@@ -14,17 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {MouseEventHandler} from 'react';
 import {
-    Button, Card, CardActions, CardBody, CardFooter, CardHeader, CardTitle, Gallery, Modal,
+    Button, Card, CardActions, CardBody, CardFooter, CardHeader, CardTitle, Gallery, Modal, ModalVariant,
     PageSection, Text
 } from '@patternfly/react-core';
-import './karavan.css';
-import {Bean, CamelElement, Integration} from "karavan-core/lib/model/CamelDefinition";
-import {CamelUi} from "./utils/CamelUi";
+import '../karavan.css';
+import {Bean, Integration} from "karavan-core/lib/model/CamelDefinition";
+import {CamelUi} from "../utils/CamelUi";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
+import {BeanIcon} from "../utils/KaravanIcons";
+import {BeanEditor} from "./BeanEditor";
 
 interface Props {
     onSave?: (integration: Integration) => void
@@ -37,8 +39,9 @@ interface Props {
 interface State {
     integration: Integration
     showDeleteConfirmation: boolean
-    selectedBean?: Bean
+    selectedBean: Bean
     key: string
+    showBeanEditor: boolean
 }
 
 export class BeansDesigner extends React.Component<Props, State> {
@@ -47,6 +50,8 @@ export class BeansDesigner extends React.Component<Props, State> {
         integration: this.props.integration,
         showDeleteConfirmation: false,
         key: "",
+        showBeanEditor: false,
+        selectedBean: new Bean()
     };
 
     componentDidMount() {
@@ -67,7 +72,8 @@ export class BeansDesigner extends React.Component<Props, State> {
         }
     }
 
-    showDeleteConfirmation = (bean: Bean) => {
+    showDeleteConfirmation = (e: React.MouseEvent, bean: Bean) => {
+        e.stopPropagation();
         this.setState({selectedBean: bean, showDeleteConfirmation: true});
     }
 
@@ -81,7 +87,16 @@ export class BeansDesigner extends React.Component<Props, State> {
             integration: i,
             showDeleteConfirmation: false,
             key: Math.random().toString(),
-            selectedBean: undefined
+            selectedBean: new Bean()
+        });
+    }
+
+    changeBean = (bean: Bean) => {
+        const i = CamelDefinitionApiExt.addBeanToIntegration(this.state.integration, bean);
+        this.setState({
+            integration: i,
+            key: Math.random().toString(),
+            selectedBean: new Bean()
         });
     }
 
@@ -103,22 +118,21 @@ export class BeansDesigner extends React.Component<Props, State> {
         </Modal>)
     }
 
+    closeBeanEditor = () => {
+        this.setState({showBeanEditor: false})
+    }
+
+    openBeanEditor = (bean: Bean) => {
+        this.setState({showBeanEditor: true, selectedBean: bean})
+    }
+
     getCard(bean: Bean, index: number) {
         return (
-            <Card key={bean.dslName + index} isHoverable isCompact className="bean-card" onClick={event => {
-            }}>
+            <Card key={bean.dslName + index} isHoverable isCompact className="bean-card" onClick={e => this.openBeanEditor(bean)}>
                 <CardHeader>
-                    <svg className="icon" viewBox="0 0 536.243 536.242">
-                        <g>
-                            <path d="M471.053,197.07c-94.2-101.601-284-183.601-423.5-154.2c-9.2,1.8-12.9,9.2-12.2,16.5c-86.9,47.7,9.2,213,45.9,261.3
-                         c72.2,96.1,200.701,203.2,329.901,173.8c60-13.5,103.399-69.8,120-126.1C550.053,304.77,513.253,242.37,471.053,197.07z
-                          M393.353,465.17c-102.199,23.3-210.5-75.9-271.7-145c-61.2-70.4-108.3-155.4-71-243c83.8,151.8,253.4,269.3,414.9,321.899
-                         c19.601,6.101,28.2-24.5,8.601-31.199C318.753,315.27,166.353,209.97,73.953,72.27c111.4-13.5,238.701,45.9,326.201,107.101
-                         c50.199,35.5,98.5,87.5,102.8,151.8C505.954,394.17,451.454,451.67,393.353,465.17z"/>
-                        </g>
-                    </svg>
+                    <BeanIcon/>
                     <CardActions>
-                        <Button variant="link" className="delete-button" onClick={e => this.showDeleteConfirmation(bean)}><DeleteIcon/></Button>
+                        <Button variant="link" className="delete-button" onClick={e => this.showDeleteConfirmation(e, bean)}><DeleteIcon/></Button>
                     </CardActions>
                 </CardHeader>
                 <CardTitle>{bean.name}</CardTitle>
@@ -135,11 +149,19 @@ export class BeansDesigner extends React.Component<Props, State> {
             <PageSection className="beans-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="beans-page-columns">
                     <Gallery hasGutter className="beans-gallery">
-                        <Button icon={<PlusIcon/>} variant="secondary" onClick={e => {
-                        }} className="add-button">Add new bean</Button>
                         {beans.map((bean: Bean, index: number) => this.getCard(bean, index))}
                     </Gallery>
+                    <div className="add-button-div">
+                        <Button icon={<PlusIcon/>} variant={beans.length === 0 ? "primary" : "secondary"} onClick={e => this.openBeanEditor(new Bean())} className="add-button">
+                            Add new bean
+                        </Button>
+                    </div>
                 </div>
+                <BeanEditor key={this.state.key + this.state.selectedBean.name}
+                    bean={this.state.selectedBean}
+                    dark={this.props.dark}
+                    show={this.state.showBeanEditor}
+                    onChange={this.changeBean} />
                 {this.getDeleteConfirmation()}
             </PageSection>
         );

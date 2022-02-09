@@ -16,19 +16,20 @@
  */
 import React from 'react';
 import {
+    Badge,
     PageSection, Tab, Tabs, TabTitleIcon, TabTitleText, Tooltip,
 } from '@patternfly/react-core';
 import './karavan.css';
-import {RouteDesigner} from "./RouteDesigner";
+import {RouteDesigner} from "./route/RouteDesigner";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {Integration} from "karavan-core/lib/model/CamelDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelUi} from "./utils/CamelUi";
-import {BeansDesigner} from "./BeansDesigner";
-import {RestDesigner} from "./RestDesigner";
-import {ErrorDesigner} from "./ErrorDesigner";
-import {TemplatesDesigner} from "./TemplatesDesigner";
-import {ExceptionDesigner} from "./ExceptionDesigner";
+import {BeansDesigner} from "./beans/BeansDesigner";
+import {RestDesigner} from "./rest/RestDesigner";
+import {ErrorDesigner} from "./error/ErrorDesigner";
+import {TemplatesDesigner} from "./templates/TemplatesDesigner";
+import {ExceptionDesigner} from "./exception/ExceptionDesigner";
 
 interface Props {
     onSave?: (filename: string, yaml: string) => void
@@ -77,7 +78,8 @@ export class KaravanDesigner extends React.Component<Props, State> {
                      content={<div>{tooltip}</div>}>
                 <div className="top-menu-item">
                     <TabTitleIcon>{this.getIcon(icon)}</TabTitleIcon>
-                    <TabTitleText>{counts.has(icon) ? title + " (" + counts.get(icon) + ")" : title}</TabTitleText>
+                    <TabTitleText>{title}</TabTitleText>
+                    {counts.has(icon) && <Badge isRead className="count">{counts.get(icon)}</Badge>}
                 </div>
             </Tooltip>
 
@@ -110,14 +112,13 @@ export class KaravanDesigner extends React.Component<Props, State> {
             </svg>
         )
         if (icon === 'beans') return (
-            <svg className="top-icon" viewBox="0 0 536.243 536.242">
-                <g>
-                    <path d="M471.053,197.07c-94.2-101.601-284-183.601-423.5-154.2c-9.2,1.8-12.9,9.2-12.2,16.5c-86.9,47.7,9.2,213,45.9,261.3
-                        c72.2,96.1,200.701,203.2,329.901,173.8c60-13.5,103.399-69.8,120-126.1C550.053,304.77,513.253,242.37,471.053,197.07z
-                         M393.353,465.17c-102.199,23.3-210.5-75.9-271.7-145c-61.2-70.4-108.3-155.4-71-243c83.8,151.8,253.4,269.3,414.9,321.899
-                        c19.601,6.101,28.2-24.5,8.601-31.199C318.753,315.27,166.353,209.97,73.953,72.27c111.4-13.5,238.701,45.9,326.201,107.101
-                        c50.199,35.5,98.5,87.5,102.8,151.8C505.954,394.17,451.454,451.67,393.353,465.17z"/>
-                </g>
+            <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32">
+                <defs>
+                    <style>{".cls-1 {fill: none;}"}</style>
+                </defs>
+                <path
+                    d="M28.5039,8.1362l-12-7a1,1,0,0,0-1.0078,0l-12,7A1,1,0,0,0,3,9V23a1,1,0,0,0,.4961.8638l12,7a1,1,0,0,0,1.0078,0l12-7A1,1,0,0,0,29,23V9A1,1,0,0,0,28.5039,8.1362ZM16,3.1577,26.0156,9,16,14.8423,5.9844,9ZM5,10.7412l10,5.833V28.2588L5,22.4258ZM17,28.2588V16.5742l10-5.833V22.4258Z"/>
+                <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32" height="32"/>
             </svg>
         )
         if (icon === 'error') return (

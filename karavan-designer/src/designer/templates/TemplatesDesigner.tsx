@@ -19,7 +19,7 @@ import {
     Button, EmptyState, EmptyStateBody, EmptyStateIcon, Modal,
     PageSection, Title
 } from '@patternfly/react-core';
-import './karavan.css';
+import '../karavan.css';
 import {CamelElement, Integration} from "karavan-core/lib/model/CamelDefinition";
 import CubesIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 
@@ -37,7 +37,7 @@ interface State {
     key: string
 }
 
-export class ErrorDesigner extends React.Component<Props, State> {
+export class TemplatesDesigner extends React.Component<Props, State> {
 
     public state: State = {
         integration: this.props.integration,
@@ -56,15 +56,15 @@ export class ErrorDesigner extends React.Component<Props, State> {
 
     render() {
         return (
-            <PageSection className="error-page" isFilled padding={{default: 'noPadding'}}>
-                <div className="error-page-columns">
+            <PageSection className="templates-page" isFilled padding={{default: 'noPadding'}}>
+                <div className="templates-page-columns">
                     <EmptyState>
                         <EmptyStateIcon icon={CubesIcon} />
                         <Title headingLevel="h4" size="lg">
-                            Error handler
+                            Templates
                         </Title>
                         <EmptyStateBody>
-                            Error handler not implemented yet
+                            Templates not implemented yet
                         </EmptyStateBody>
                     </EmptyState>
                 </div>

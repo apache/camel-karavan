@@ -201,6 +201,14 @@
     flex-direction: row;
 }
 
+.karavan .main-tabs .top-menu-item .count {
+    background: var(--pf-global--active-color--100);
+    /*color: white;*/
+    height: fit-content;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
 .karavan .main-tabs .pf-c-tabs__link .pf-c-tabs__item-icon {
     height: 24px;
     margin-right: 10px
@@ -209,6 +217,9 @@
 .karavan .main-tabs .pf-c-tabs__item-text {
     font-size: 14px;
     font-weight: bold;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-right: 6px;
 }
 
 .karavan .main-tabs .pf-c-tabs__item.pf-m-current {
@@ -795,11 +806,14 @@
     padding: 16px;
 }
 
-.karavan .beans-page .beans-gallery .add-button {
-    height: 100%;
-    min-height: 160px;
+.karavan .beans-page .add-button-div {
     width: 100%;
-    background: white;
+    margin-top: 16px;
+    display: flex;
+}
+
+.karavan .beans-page .add-button {
+    margin: auto;
 }
 
 .karavan .beans-page .bean-card .pf-c-card__header {
@@ -828,6 +842,31 @@
 
 .karavan .beans-page .bean-card:hover .delete-button {
     visibility: visible;
+}
+
+.bean-modal {
+    color: var(--pf-global--Color--100);
+}
+
+.bean-modal .bean-property {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.bean-modal .bean-properties .add-button {
+    margin: 0;
+    padding: 0;
+}
+
+.bean-modal .bean-properties svg {
+    margin-right: 6px;
+}
+
+.bean-modal .bean-property .delete-button {
+    padding: 0;
+    color: #b1b1b7;
 }
 
 

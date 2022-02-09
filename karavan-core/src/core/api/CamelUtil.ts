@@ -48,7 +48,7 @@ export class CamelUtil {
         return new Bean(clone);
     }
 
-    static replacer =  (key:string, value:any): any=> {
+    static replacer = (key:string, value:any): any => {
         if (typeof value == 'object' && (value.hasOwnProperty('stepName') || value.hasOwnProperty('step-name'))) {
             const stepNameField = value.hasOwnProperty('stepName') ? 'stepName' : 'step-name';
             const stepName = value[stepNameField];

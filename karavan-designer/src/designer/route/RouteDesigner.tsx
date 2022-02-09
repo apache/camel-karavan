@@ -19,19 +19,19 @@ import {
     Button, Modal,
     PageSection
 } from '@patternfly/react-core';
-import './karavan.css';
-import {DslSelector} from "./route/DslSelector";
-import {DslMetaModel} from "./utils/DslMetaModel";
-import {DslProperties} from "./route/DslProperties";
+import '../karavan.css';
+import {DslSelector} from "./DslSelector";
+import {DslMetaModel} from "../utils/DslMetaModel";
+import {DslProperties} from "./DslProperties";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelElement, FromDefinition, Integration} from "karavan-core/lib/model/CamelDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
-import {DslConnections} from "./route/DslConnections";
+import {DslConnections} from "./DslConnections";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
-import {DslElement} from "./route/DslElement";
-import {EventBus} from "./utils/EventBus";
-import {CamelUi} from "./utils/CamelUi";
+import {DslElement} from "./DslElement";
+import {EventBus} from "../utils/EventBus";
+import {CamelUi} from "../utils/CamelUi";
 
 interface Props {
     onSave?: (integration: Integration) => void
