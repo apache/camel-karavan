@@ -53,26 +53,26 @@ class App extends React.Component<Props, State> {
             // '                 - option-name: o2\n' +
             // '                   expression:\n' +
             // '                     simple: "${body}" \n' +
-            '            - do-try:\n' +
-            '                steps:\n' +
-            '                  - to: "direct:direct1"\n' +
-            '                  - to: "direct:direct2"\n' +
-            '                  - log: "log1"\n' +
-            '                do-catch:\n' +
-            '                  - exception:\n' +
-            '                      - "java.io.FileNotFoundException"\n' +
-            '                      - "java.io.IOException"\n' +
-            '                    steps:\n' +
-            '                      - log: "log1"\n' +
-            '                      - kamelet: \n' +
-            '                           name: kafka-sink \n' +
-            '                  - exception:\n' +
-            '                      - "java.io.FileNotFoundException"\n' +
-            '                      - "java.io.IOException"\n' +
-            '                    steps:\n' +
-            '                      - log: "log1"\n' +
-            '                      - kamelet: \n' +
-            '                           name: http-sink \n' +
+            // '            - do-try:\n' +
+            // '                steps:\n' +
+            // '                  - to: "direct:direct1"\n' +
+            // '                  - to: "direct:direct2"\n' +
+            // '                  - log: "log1"\n' +
+            // '                do-catch:\n' +
+            // '                  - exception:\n' +
+            // '                      - "java.io.FileNotFoundException"\n' +
+            // '                      - "java.io.IOException"\n' +
+            // '                    steps:\n' +
+            // '                      - log: "log1"\n' +
+            // '                      - kamelet: \n' +
+            // '                           name: kafka-sink \n' +
+            // '                  - exception:\n' +
+            // '                      - "java.io.FileNotFoundException"\n' +
+            // '                      - "java.io.IOException"\n' +
+            // '                    steps:\n' +
+            // '                      - log: "log1"\n' +
+            // '                      - kamelet: \n' +
+            // '                           name: http-sink \n' +
             '            - choice:\n' +
             '                when:\n' +
             '                  - simple: "hello world"\n' +
@@ -81,6 +81,24 @@ class App extends React.Component<Props, State> {
             '                           message: hello22s\n' +
             '                           logName: log22\n' +
             '                otherwise: {}\n'+
+            '    - beans:\n' +
+            '      - name: myNested\n' +
+            '        type: ${MyBean.class.name}\n' +
+            '        properties:\n' +
+            '          field1: \'value1\'\n' +
+            '          field2: \'value2\'\n' +
+            '          nested:\n' +
+            '            foo: \'valueFoo\'\n' +
+            '            bar: \'valueBar\'\n' +
+            '      - name: myProps\n' +
+            '        type: ${MyBean.class.name}\n' +
+            '        properties:\n' +
+            '          field1: \'f1_p\'\n' +
+            '          field2: \'f2_p\'\n' +
+            '          nested.foo: \'nf1_p\'\n' +
+            '          nested.bar: \'nf2_p\'\n'+
+            '      - name: myAggregatorStrategy \n' +
+            '        type: org.apache.camel.processor.aggregate.UseLatestAggregationStrategy\n' +
             '',
         key: ''
     };

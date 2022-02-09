@@ -23,10 +23,10 @@ import {
     Title,
     TextVariants,
 } from '@patternfly/react-core';
-import './karavan.css';
+import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
-import {DataFormatField} from "./field/DataFormatField";
-import {DslPropertyField} from "./field/DslPropertyField";
+import {DataFormatField} from "../field/DataFormatField";
+import {DslPropertyField} from "../field/DslPropertyField";
 import {
     CamelElement,
     Integration,
@@ -36,7 +36,7 @@ import {
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {CamelUi} from "./utils/CamelUi";
+import {CamelUi} from "../utils/CamelUi";
 import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 
 interface Props {

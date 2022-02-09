@@ -18,6 +18,7 @@ import {CamelMetadataApi, ElementMeta, Languages, PropertyMeta} from "../model/C
 import {ComponentApi} from "./ComponentApi";
 import {CamelUtil} from "./CamelUtil";
 import {
+    Bean, Beans,
     CamelElement, CamelElementMeta,
     ExpressionDefinition,
     Integration, RouteDefinition
@@ -178,6 +179,21 @@ export class CamelDefinitionApiExt {
             })
         }
         return result
+    }
+
+    static deleteBeanFromIntegration = (integration: Integration, bean?: Bean): Integration => {
+        const flows: any[] = [];
+        integration.spec.flows?.forEach(flow => {
+            if (flow.dslName === 'Beans'){
+                const beans = (flow as Beans).beans.filter(b => !(b.name === bean?.name && b.type === bean?.type));
+                const newBeans = new Beans({beans: beans});
+                flows.push(newBeans);
+            } else {
+                flows.push(flow);
+            }
+        })
+        integration.spec.flows = flows;
+        return integration;
     }
 
     static getExpressionLanguageName = (expression: ExpressionDefinition | undefined): string | undefined => {

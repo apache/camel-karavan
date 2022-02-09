@@ -4,7 +4,7 @@ import {
 } from '@patternfly/react-core';
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import '../designer/karavan.css';
-import {CamelUi} from "../designer/CamelUi";
+import {CamelUi} from "../designer/utils/CamelUi";
 
 interface Props {
     name: string,

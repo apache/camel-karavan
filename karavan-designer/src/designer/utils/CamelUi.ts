@@ -23,6 +23,7 @@ import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelElement, KameletDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {Bean, Beans, Integration} from "karavan-core/src/core/model/CamelDefinition";
 
 const StepElements: string[] = [
     "AggregateDefinition",
@@ -352,13 +353,30 @@ export class CamelUi {
         }
     }
 
-    static getIconForComponentLabel = (dslName: string): string => {
-        switch (dslName) {
-            case "messaging":
-                return "data:image/svg+xml,%3Csvg aria-hidden='true' focusable='false' data-prefix='fas' data-icon='filter' class='svg-inline--fa fa-filter fa-w-16' role='img' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='currentColor' d='M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z'%3E%3C/path%3E%3C/svg%3E";
-            default:
-                return defaultIcon;
+    static getFlowCounts = (i: Integration): Map<string, number> => {
+        const result = new Map<string, number>();
+        result.set('routes', i.spec.flows?.filter((e: any) => e.dslName === 'RouteDefinition').length || 0);
+        const beans = i.spec.flows?.filter((e: any) => e.dslName === 'Beans');
+        if (beans && beans.length > 0 && beans[0].beans){
+            result.set('beans', Array.from(beans[0].beans).length);
         }
+        return result;
+    }
+
+    static getRoutes = (integration: Integration): CamelElement[] => {
+        const result: CamelElement[] = [];
+        integration.spec.flows?.filter((e: any) => e.dslName === 'RouteDefinition')
+            .forEach((f: any) => result.push(f));
+        return result;
+    }
+
+    static getBeans = (integration: Integration): Bean[] => {
+        const result: Bean[] = [];
+        const beans = integration.spec.flows?.filter((e: any) => e.dslName === 'Beans');
+        if (beans && beans.length > 0 && beans[0].beans) {
+            result.push(...beans[0].beans);
+        }
+        return result;
     }
 
 }

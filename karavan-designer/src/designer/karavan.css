@@ -171,10 +171,18 @@
     user-select: none;
 }
 
+.karavan .page {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
 /*DSL*/
 .karavan .dsl-page {
-    height: 100%;
-    overflow: hidden;
+    flex: 1;
+    overflow: auto;
 }
 
 .karavan .dsl-page .dsl-page-columns {
@@ -531,7 +539,7 @@
 }
 
 .modal-delete {
-    width: 350px;
+    width: 350px !important;
 }
 
 .step-element .header {
@@ -775,4 +783,74 @@
 
 .karavan .pf-c-select__menu-wrapper:hover, .karavan .pf-c-select__menu-item:hover {
     background-color: #fca338;
+}
+
+/*Beans*/
+.karavan .beans-page {
+    flex: 1;
+    overflow: auto;
+}
+.karavan .beans-page-columns {
+    height: 100%;
+    padding: 16px;
+}
+
+.karavan .beans-page .beans-gallery .add-button {
+    height: 100%;
+    min-height: 160px;
+    width: 100%;
+    background: white;
+}
+
+.karavan .beans-page .bean-card .pf-c-card__header {
+    padding-right: 6px;
+    word-wrap:anywhere;
+}
+
+.karavan .beans-page .bean-card .pf-c-card__body {
+    word-wrap:anywhere;
+}
+
+.karavan .beans-page .bean-card .icon {
+    height: 24px;
+}
+
+.karavan .beans-page .bean-card .delete-button {
+    font-size: 17px;
+    line-height: 1;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    color: #b1b1b7;
+    visibility: hidden;
+}
+
+.karavan .beans-page .bean-card:hover .delete-button {
+    visibility: visible;
+}
+
+
+.karavan .templates-page,
+.karavan .exception-page,
+.karavan .error-page,
+.karavan .rest-page {
+    flex: 1;
+    overflow: auto;
+}
+
+.karavan .templates-page-columns,
+.karavan .exception-page-columns,
+.karavan .error-page-columns,
+.karavan .rest-page-columns {
+    height: 100%;
+    background: #fafafa;
+}
+
+.karavan .templates-page-columns .pf-c-empty-state,
+.karavan .exception-page-columns .pf-c-empty-state,
+.karavan .error-page-columns .pf-c-empty-state,
+.karavan .rest-page-columns .pf-c-empty-state {
+    margin: auto;
+    height: 100%;
 }

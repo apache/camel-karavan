@@ -4,7 +4,7 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KameletModel} from "karavan-core/lib/model/KameletModels";
-import {CamelUi} from "../designer/CamelUi";
+import {CamelUi} from "../designer/utils/CamelUi";
 
 interface Props {
     kamelet: KameletModel,

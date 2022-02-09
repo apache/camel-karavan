@@ -21,9 +21,9 @@ import {
     Tab, Tabs, TabTitleText,
     Text, TextInput,
 } from '@patternfly/react-core';
-import './karavan.css';
-import {CamelUi} from "./utils/CamelUi";
-import {DslMetaModel} from "./utils/DslMetaModel";
+import '../karavan.css';
+import {CamelUi} from "../utils/CamelUi";
+import {DslMetaModel} from "../utils/DslMetaModel";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 
 interface Props {
