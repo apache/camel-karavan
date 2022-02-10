@@ -35,26 +35,6 @@ export class Integration {
     }
 }
 
-export class Beans {
-    beans: Bean[] = []
-    dslName: string = 'Beans'
-
-    public constructor(init?: Partial<Beans>) {
-        Object.assign(this, init);
-    }
-}
-
-export class Bean {
-    name: string = ''
-    type: string = ''
-    dslName: string = 'Bean'
-    properties: any
-
-    public constructor(init?: Partial<Bean>) {
-        Object.assign(this, init);
-    }
-}
-
 export class CamelElement {
     uuid: string = ''
     dslName: string = ''
@@ -70,6 +50,26 @@ export class CamelElement {
 
     hasStepName(): boolean {
         return this.hasOwnProperty('stepName');
+    }
+}
+
+export class Beans extends CamelElement {
+    beans: Bean[] = []
+
+    public constructor(init?: Partial<Beans>) {
+        super("Beans")
+        Object.assign(this, init);
+    }
+}
+
+export class Bean extends CamelElement {
+    name: string = ''
+    type: string = ''
+    properties: any
+
+    public constructor(init?: Partial<Bean>) {
+        super("Bean")
+        Object.assign(this, init);
     }
 }
 

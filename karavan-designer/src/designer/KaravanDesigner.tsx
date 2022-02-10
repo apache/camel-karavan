@@ -163,36 +163,36 @@ export class KaravanDesigner extends React.Component<Props, State> {
                     <Tab eventKey='exception' title={this.getTab("Exceptions", "Exception Clauses per type", "exception")}></Tab>
                     <Tab eventKey='templates' title={this.getTab("Templates", "Route Templates", "template")}></Tab>
                 </Tabs>
-                {tab === 'routes' && <RouteDesigner key={this.state.key} integration={this.state.integration}
+                {tab === 'routes' && <RouteDesigner integration={this.state.integration}
                                                     onSave={(integration) => this.save(integration)}
                                                     borderColor={this.props.borderColor}
                                                     borderColorSelected={this.props.borderColorSelected}
-                                                    dark={document.body.className.includes('vscode-dark')}/>}
-                {tab === 'rest' && <RestDesigner key={this.state.key} integration={this.state.integration}
+                                                    dark={this.props.dark}/>}
+                {tab === 'rest' && <RestDesigner integration={this.state.integration}
                                                  onSave={(integration) => this.save(integration)}
                                                  borderColor={this.props.borderColor}
                                                  borderColorSelected={this.props.borderColorSelected}
-                                                 dark={document.body.className.includes('vscode-dark')}/>}
-                {tab === 'beans' && <BeansDesigner key={this.state.key} integration={this.state.integration}
+                                                 dark={this.props.dark}/>}
+                {tab === 'beans' && <BeansDesigner integration={this.state.integration}
                                                    onSave={(integration) => this.save(integration)}
                                                    borderColor={this.props.borderColor}
                                                    borderColorSelected={this.props.borderColorSelected}
-                                                   dark={document.body.className.includes('vscode-dark')}/>}
-                {tab === 'error' && <ErrorDesigner key={this.state.key} integration={this.state.integration}
+                                                   dark={this.props.dark}/>}
+                {tab === 'error' && <ErrorDesigner integration={this.state.integration}
                                                    onSave={(integration) => this.save(integration)}
                                                    borderColor={this.props.borderColor}
                                                    borderColorSelected={this.props.borderColorSelected}
-                                                   dark={document.body.className.includes('vscode-dark')}/>}
-                {tab === 'exception' && <ExceptionDesigner key={this.state.key} integration={this.state.integration}
-                                                   onSave={(integration) => this.save(integration)}
-                                                   borderColor={this.props.borderColor}
-                                                   borderColorSelected={this.props.borderColorSelected}
-                                                   dark={document.body.className.includes('vscode-dark')}/>}
-                {tab === 'templates' && <TemplatesDesigner key={this.state.key} integration={this.state.integration}
-                                                       onSave={(integration) => this.save(integration)}
-                                                       borderColor={this.props.borderColor}
-                                                       borderColorSelected={this.props.borderColorSelected}
-                                                       dark={document.body.className.includes('vscode-dark')}/>}
+                                                   dark={this.props.dark}/>}
+                {tab === 'exception' && <ExceptionDesigner integration={this.state.integration}
+                                                           onSave={(integration) => this.save(integration)}
+                                                           borderColor={this.props.borderColor}
+                                                           borderColorSelected={this.props.borderColorSelected}
+                                                           dark={this.props.dark}/>}
+                {tab === 'templates' && <TemplatesDesigner integration={this.state.integration}
+                                                           onSave={(integration) => this.save(integration)}
+                                                           borderColor={this.props.borderColor}
+                                                           borderColorSelected={this.props.borderColorSelected}
+                                                           dark={this.props.dark}/>}
             </PageSection>
         );
     }

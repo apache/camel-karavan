@@ -45,7 +45,9 @@ export class CamelUtil {
 
     static cloneBean = (bean: Bean): Bean => {
         const clone = JSON.parse(JSON.stringify(bean));
-        return new Bean(clone);
+        const newBean = new Bean(clone);
+        newBean.uuid = bean.uuid;
+        return newBean;
     }
 
     static replacer = (key:string, value:any): any => {

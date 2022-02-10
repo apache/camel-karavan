@@ -34,11 +34,11 @@ interface State {
 class App extends React.Component<Props, State> {
 
     public state: State = {
-        name: '',
+        name: 'demo.yaml',
         yaml: 'apiVersion: camel.apache.org/v1\n' +
             'kind: Integration\n' +
             'metadata:\n' +
-            '  name: \'\'\n' +
+            '  name: demo.yaml\'\'\n' +
             'spec:\n' +
             '  flows:\n' +
             '    - route:\n' +

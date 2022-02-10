@@ -99,7 +99,6 @@ export class DataFormatField extends React.Component<Props, State> {
             const s = <SelectOption key={lang[0]} value={lang[0]} description={lang[2]}/>;
             selectOptions.push(s);
         })
-        console.log(properties)
         return (
             <div>
                 <FormGroup label={"Data Format"} key={"dataFormat"} fieldId={"dataFormat"}>

@@ -211,7 +211,7 @@
 
 .karavan .main-tabs .pf-c-tabs__link .pf-c-tabs__item-icon {
     height: 24px;
-    margin-right: 10px
+    margin-right: 0;
 }
 
 .karavan .main-tabs .pf-c-tabs__item-text {
@@ -227,7 +227,7 @@
 }
 
 /*Properties*/
-.karavan .dsl-page .properties {
+.karavan .properties {
     border: 1px solid #eee;
     padding: 10px 10px 10px 10px;
     font-size: 13px;
@@ -240,87 +240,87 @@
     justify-content: space-between;
 }
 
-.karavan .dsl-page .properties .headers {
+.karavan .properties .headers {
     grid-row-gap: 10px;
     row-gap: 10px;
     display: contents;
 }
 
-.karavan .dsl-page .properties .footer {
+.karavan .properties .footer {
     height: 100%;
     display: contents;
 }
 
-.karavan .dsl-page .properties .pf-c-form {
+.karavan .properties .pf-c-form {
     row-gap: 10px;
 }
 
-.karavan .dsl-page .properties .pf-c-form__group-label {
+.karavan .properties .pf-c-form__group-label {
     padding-bottom: 3px;
     display: flex;
     justify-content: space-between;
 }
 
-.karavan .dsl-page .properties .pf-c-form__label {
+.karavan .properties .pf-c-form__label {
     font-size: 13px;
 }
 
-.karavan .dsl-page .properties .text-field {
+.karavan .properties .text-field {
     font-size: 13px;
     height: auto;
 }
 
-.karavan .dsl-page .properties .input-group .pf-c-text-input-group__text {
+.karavan .properties .input-group .pf-c-text-input-group__text {
     width: 100%;
 }
 
-.karavan .dsl-page .properties .input-group .pf-c-chip-group,
-.karavan .dsl-page .properties .input-group .pf-c-text-input-group__main,
-.karavan .dsl-page .properties .input-group .pf-c-chip-group .pf-c-chip-group__list,
-.karavan .dsl-page .properties .input-group .pf-c-chip-group .pf-c-chip-group__list .pf-c-chip-group__list-item,
-.karavan .dsl-page .properties .input-group .pf-c-chip-group .pf-c-chip-group__main {
+.karavan .properties .input-group .pf-c-chip-group,
+.karavan .properties .input-group .pf-c-text-input-group__main,
+.karavan .properties .input-group .pf-c-chip-group .pf-c-chip-group__list,
+.karavan .properties .input-group .pf-c-chip-group .pf-c-chip-group__list .pf-c-chip-group__list-item,
+.karavan .properties .input-group .pf-c-chip-group .pf-c-chip-group__main {
     display:block;
 }
 
-.karavan .dsl-page .properties .input-group .pf-c-chip-group {
+.karavan .properties .input-group .pf-c-chip-group {
     margin-left: 0;
 }
 
-.karavan .dsl-page .properties .input-group .pf-c-chip-group .pf-c-chip .pf-c-chip__text{
+.karavan .properties .input-group .pf-c-chip-group .pf-c-chip .pf-c-chip__text{
     max-width: inherit;
 }
-.karavan .dsl-page .properties .input-group .pf-c-chip-group .pf-c-chip {
+.karavan .properties .input-group .pf-c-chip-group .pf-c-chip {
     width: 100%;
 }
 
-.karavan .dsl-page .properties .input-group .pf-c-text-input-group__utilities {
+.karavan .properties .input-group .pf-c-text-input-group__utilities {
     align-items: end;
 }
 
-.karavan .dsl-page .properties .chip .pf-c-button{
+.karavan .properties .chip .pf-c-button{
     position:absolute;
     right: 0;
 }
 
-.karavan .dsl-page .properties .expression-title {
+.karavan .properties .expression-title {
     font-size: 17px;
     font-weught: bold;
 }
 
-.karavan .dsl-page .properties .text-area {
+.karavan .properties .text-area {
     font-size: 13px;
 }
 
-.karavan .dsl-page .properties .pf-c-select__menu-search {
+.karavan .properties .pf-c-select__menu-search {
     padding: 0px 6px 6px 6px;
 }
 
-.karavan .dsl-page .properties .pf-c-select__toggle-typeahead {
+.karavan .properties .pf-c-select__toggle-typeahead {
     font-size: 13px;
     height: auto;
 }
 
-.karavan .dsl-page .properties .pf-c-select__menu-item {
+.karavan .properties .pf-c-select__menu-item {
     width: 280px;
     font-size: 15px;
     /*white-space: nowrap;*/
@@ -329,16 +329,16 @@
     /*line-height: 12px;*/
 }
 
-.karavan .dsl-page .properties .number {
+.karavan .properties .number {
     display: flex;
     justify-content: space-between;
 }
 
-.karavan .dsl-page .properties .number .number-property {
+.karavan .properties .number .number-property {
     width: 100%;
 }
 
-.karavan .dsl-page .properties .number .clear-button {
+.karavan .properties .number .clear-button {
     color: #b1b1b7;
     --pf-c-button--BorderRadius: var(--pf-c-button--m-control--BorderRadius);
     --pf-c-button--disabled--BackgroundColor: var(--pf-c-button--m-control--disabled--BackgroundColor);
@@ -350,11 +350,11 @@
     padding-right: 5px;
 }
 
-.karavan .dsl-page .properties .help-button {
+.karavan .properties .help-button {
     font-size: 12px;
 }
 
-.karavan .dsl-page .properties .component-selector {
+.karavan .properties .component-selector {
     border-width: var(--pf-global--BorderWidth--sm);
     border-top-color: var(--pf-global--BorderColor--300);
     border-right-color: var(--pf-global--BorderColor--300);
@@ -363,38 +363,38 @@
     border-style: solid;
 }
 
-.karavan .dsl-page .properties .expression,
-.karavan .dsl-page .properties .object,
-.karavan .dsl-page .properties .dataformat,
-.karavan .dsl-page .properties .parameters {
+.karavan .properties .expression,
+.karavan .properties .object,
+.karavan .properties .dataformat,
+.karavan .properties .parameters {
     padding-top: 6px;
     padding-left: 16px;
     row-gap: 6px;
     display: grid;
 }
 
-.karavan .dsl-page .properties .expression .pf-c-form__group-label,
-.karavan .dsl-page .properties .object .pf-c-form__group-label,
-.karavan .dsl-page .properties .dataformat .pf-c-form__group-label,
-.karavan .dsl-page .properties .parameters .pf-c-form__group-label {
+.karavan .properties .expression .pf-c-form__group-label,
+.karavan .properties .object .pf-c-form__group-label,
+.karavan .properties .dataformat .pf-c-form__group-label,
+.karavan .properties .parameters .pf-c-form__group-label {
     font-weight: 100;
 }
 
-.karavan .dsl-page .properties .expression .pf-c-form__group,
-.karavan .dsl-page .properties .object .pf-c-form__group,
-.karavan .dsl-page .properties .dataformat .pf-c-form__group,
-.karavan .dsl-page .properties .parameters .pf-c-form__group {
+.karavan .properties .expression .pf-c-form__group,
+.karavan .properties .object .pf-c-form__group,
+.karavan .properties .dataformat .pf-c-form__group,
+.karavan .properties .parameters .pf-c-form__group {
     margin-bottom: 10px;
 }
 
-.karavan .dsl-page .properties .expression .pf-c-select__menu-wrapper,
-.karavan .dsl-page .properties .object .pf-c-select__menu-wrapper,
-.karavan .dsl-page .properties .dataformat .pf-c-select__menu-wrapper,
-.karavan .dsl-page .properties .parameters .pf-c-select__menu-wrapper{
+.karavan .properties .expression .pf-c-select__menu-wrapper,
+.karavan .properties .object .pf-c-select__menu-wrapper,
+.karavan .properties .dataformat .pf-c-select__menu-wrapper,
+.karavan .properties .parameters .pf-c-select__menu-wrapper{
     width: 350px;
 }
 
-.karavan .dsl-page .properties .add-button {
+.karavan .properties .add-button {
     font-size: 15px;
     height: 15px;
     line-height: 1;
@@ -403,6 +403,10 @@
     margin: auto auto auto 6px;
     background: transparent;
     color: #fb8824;
+}
+
+.karavan .properties .add-button svg {
+    margin-right: 6px;
 }
 
 
@@ -519,13 +523,13 @@
     position: absolute;
     top: 4px;
     right: 4px;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1;
     border: 0;
     padding: 0;
     margin: 0;
     background: transparent;
-    color: #b1b1b7;
+    color: #909090;
     visibility: hidden;
 }
 
@@ -533,13 +537,13 @@
 .element-builder .header .delete-button {
     position: absolute;
     top: 0px;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1;
     border: 0;
     padding: 0;
     margin: 0 0 0 10px;
     background: transparent;
-    color: #b1b1b7;
+    color: #909090;
     visibility: hidden;
 }
 
@@ -798,22 +802,51 @@
 
 /*Beans*/
 .karavan .beans-page {
-    flex: 1;
+    flex: 1 1;
     overflow: auto;
 }
 .karavan .beans-page-columns {
     height: 100%;
-    padding: 16px;
+    background: #fafafa;
+    display: flex;
+    flex-direction: row;
 }
 
+.karavan .beans-panel {
+    padding: 16px;
+    display: block;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    overflow-y: auto;
+}
 .karavan .beans-page .add-button-div {
     width: 100%;
     margin-top: 16px;
     display: flex;
 }
 
-.karavan .beans-page .add-button {
+.karavan .beans-page .add-bean-button {
     margin: auto;
+}
+
+.karavan .beans-page .bean-card-selected {
+    border-color: rgb(48, 50, 132);
+    background-color: rgb(171, 172, 224, 0.1);
+}
+
+.karavan .beans-page .bean-card-unselected {
+    border-color: #fb8824;
+    background-color: transparent;
+}
+
+.karavan .beans-page .bean-card,
+.karavan .beans-page .bean-card:hover {
+    border-radius: 20px;
+    border-width: 1px;
+    border-style: dotted;
+    box-shadow: none;
 }
 
 .karavan .beans-page .bean-card .pf-c-card__header {
@@ -830,13 +863,16 @@
 }
 
 .karavan .beans-page .bean-card .delete-button {
-    font-size: 17px;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 14px;
     line-height: 1;
     border: 0;
     padding: 0;
     margin: 0;
     background: transparent;
-    color: #b1b1b7;
+    color: #909090;
     visibility: hidden;
 }
 
@@ -844,31 +880,23 @@
     visibility: visible;
 }
 
-.bean-modal {
-    color: var(--pf-global--Color--100);
+.karavan .beans-page .properties .bean-properties .pf-c-form__group-control {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
-.bean-modal .bean-property {
+.karavan .beans-page .properties .bean-property {
     display: flex;
     flex-direction: row;
-    gap: 12px;
-    margin-bottom: 12px;
+    gap: 3px;
 }
 
-.bean-modal .bean-properties .add-button {
-    margin: 0;
-    padding: 0;
-}
-
-.bean-modal .bean-properties svg {
-    margin-right: 6px;
-}
-
-.bean-modal .bean-property .delete-button {
-    padding: 0;
+.karavan .beans-page .properties .bean-property .delete-button {
+    padding: 3px;
     color: #b1b1b7;
+    font-size: 13px;
 }
-
 
 .karavan .templates-page,
 .karavan .exception-page,

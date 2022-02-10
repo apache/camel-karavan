@@ -142,8 +142,11 @@ export class CamelDefinitionApiExt {
     }
 
     static deleteStepFromIntegration = (integration: Integration, uuidToDelete: string): Integration => {
-        const flows = CamelDefinitionApiExt.deleteStepFromSteps(integration.spec.flows, uuidToDelete);
-        integration.spec.flows = flows as RouteDefinition[];
+        const flows: any[] = [];
+        integration.spec.flows?.filter(flow => flow.dslName === 'Beans').forEach(bean => flows.push(bean));
+        const routes = CamelDefinitionApiExt.deleteStepFromSteps(integration.spec.flows?.filter(flow => flow.dslName === 'RouteDefinition'), uuidToDelete);
+        flows.push(...routes);
+        integration.spec.flows = flows;
         return integration;
     }
 
@@ -181,7 +184,6 @@ export class CamelDefinitionApiExt {
         return result
     }
 
-
     static addBeanToIntegration = (integration: Integration, bean: Bean): Integration => {
         const flows: any[] = [];
         if (integration.spec.flows?.filter(flow => flow.dslName === 'Beans').length === 0) {
@@ -191,12 +193,12 @@ export class CamelDefinitionApiExt {
             flows.push(...integration.spec.flows?.filter(flow => flow.dslName !== 'Beans') || []);
             integration.spec.flows?.filter(flow => flow.dslName === 'Beans').forEach(flow => {
                 const beans: Bean[] = [];
-                if ((flow as Beans).beans.filter(b => b.name === bean.name).length === 0){
-                    beans.push(...(flow as Beans).beans.filter(b => b.name !== bean.name));
+                if ((flow as Beans).beans.filter(b => b.uuid === bean.uuid).length === 0){
+                    beans.push(...(flow as Beans).beans.filter(b => b.uuid !== bean.uuid));
                     beans.push(bean);
                 } else {
                     (flow as Beans).beans.forEach(b => {
-                        if (b.name === bean.name) beans.push(bean)
+                        if (b.uuid === bean.uuid) beans.push(bean)
                         else beans.push(b);
                     })
                 }
@@ -212,7 +214,7 @@ export class CamelDefinitionApiExt {
         const flows: any[] = [];
         integration.spec.flows?.forEach(flow => {
             if (flow.dslName === 'Beans') {
-                const beans = (flow as Beans).beans.filter(b => !(b.name === bean?.name && b.type === bean?.type));
+                const beans = (flow as Beans).beans.filter(b => !(b.uuid === bean?.uuid && b.type === bean?.type));
                 const newBeans = new Beans({beans: beans});
                 flows.push(newBeans);
             } else {

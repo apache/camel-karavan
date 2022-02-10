@@ -14,19 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {MouseEventHandler} from 'react';
+import React from 'react';
 import {
-    Button, Card, CardActions, CardBody, CardFooter, CardHeader, CardTitle, Gallery, Modal, ModalVariant,
-    PageSection, Text
+    Button, Card, CardActions, CardBody, CardFooter, CardHeader, CardTitle, Gallery, Modal, PageSection
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {Bean, Integration} from "karavan-core/lib/model/CamelDefinition";
 import {CamelUi} from "../utils/CamelUi";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
+import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 import {BeanIcon} from "../utils/KaravanIcons";
-import {BeanEditor} from "./BeanEditor";
+import {BeanProperties} from "./BeanProperties";
+import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 
 interface Props {
     onSave?: (integration: Integration) => void
@@ -39,7 +39,7 @@ interface Props {
 interface State {
     integration: Integration
     showDeleteConfirmation: boolean
-    selectedBean: Bean
+    selectedBean?: Bean
     key: string
     showBeanEditor: boolean
 }
@@ -51,7 +51,6 @@ export class BeansDesigner extends React.Component<Props, State> {
         showDeleteConfirmation: false,
         key: "",
         showBeanEditor: false,
-        selectedBean: new Bean()
     };
 
     componentDidMount() {
@@ -92,12 +91,9 @@ export class BeansDesigner extends React.Component<Props, State> {
     }
 
     changeBean = (bean: Bean) => {
-        const i = CamelDefinitionApiExt.addBeanToIntegration(this.state.integration, bean);
-        this.setState({
-            integration: i,
-            key: Math.random().toString(),
-            selectedBean: new Bean()
-        });
+        const clone = CamelUtil.cloneIntegration(this.state.integration);
+        const i = CamelDefinitionApiExt.addBeanToIntegration(clone, bean);
+        this.setState({integration: i, key: Math.random().toString(), selectedBean: bean});
     }
 
     getDeleteConfirmation() {
@@ -122,13 +118,30 @@ export class BeansDesigner extends React.Component<Props, State> {
         this.setState({showBeanEditor: false})
     }
 
-    openBeanEditor = (bean: Bean) => {
-        this.setState({showBeanEditor: true, selectedBean: bean})
+    openBeanEditor = () => {
+        this.setState({showBeanEditor: true})
+    }
+
+    selectBean = (bean?: Bean) => {
+        this.setState({selectedBean: bean})
+    }
+
+    unselectBean = (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if ((evt.target as any).dataset.click === 'BEANS') {
+            evt.stopPropagation()
+            this.setState({selectedBean: undefined})
+        }
+    };
+
+    createBean = () => {
+        this.changeBean(new Bean());
     }
 
     getCard(bean: Bean, index: number) {
         return (
-            <Card key={bean.dslName + index} isHoverable isCompact className="bean-card" onClick={e => this.openBeanEditor(bean)}>
+            <Card key={bean.dslName + index} isHoverable isCompact
+                  className={this.state.selectedBean?.uuid === bean.uuid ? "bean-card bean-card-selected" : "bean-card bean-card-unselected"}
+                  onClick={e => this.selectBean(bean)}>
                 <CardHeader>
                     <BeanIcon/>
                     <CardActions>
@@ -147,21 +160,22 @@ export class BeansDesigner extends React.Component<Props, State> {
         const beans = CamelUi.getBeans(this.state.integration);
         return (
             <PageSection className="beans-page" isFilled padding={{default: 'noPadding'}}>
-                <div className="beans-page-columns">
-                    <Gallery hasGutter className="beans-gallery">
-                        {beans.map((bean: Bean, index: number) => this.getCard(bean, index))}
-                    </Gallery>
-                    <div className="add-button-div">
-                        <Button icon={<PlusIcon/>} variant={beans.length === 0 ? "primary" : "secondary"} onClick={e => this.openBeanEditor(new Bean())} className="add-button">
-                            Add new bean
-                        </Button>
+                <div className="beans-page-columns" data-click="BEANS" onClick={event => this.unselectBean(event)}>
+                    <div className="beans-panel">
+                        <Gallery hasGutter className="beans-gallery" data-click="BEANS" onClick={event => this.unselectBean(event)}>
+                            {beans.map((bean: Bean, index: number) => this.getCard(bean, index))}
+                        </Gallery>
+                        <div className="add-button-div" data-click="BEANS" onClick={event => this.unselectBean(event)}>
+                            <Button icon={<PlusIcon/>} variant={beans.length === 0 ? "primary" : "secondary"} onClick={e => this.createBean()} className="add-bean-button">
+                                Add new bean
+                            </Button>
+                        </div>
                     </div>
+                    <BeanProperties integration={this.props.integration}
+                                    bean={this.state.selectedBean}
+                                    dark={this.props.dark}
+                                    onChange={this.changeBean}/>
                 </div>
-                <BeanEditor key={this.state.key + this.state.selectedBean.name}
-                    bean={this.state.selectedBean}
-                    dark={this.props.dark}
-                    show={this.state.showBeanEditor}
-                    onChange={this.changeBean} />
                 {this.getDeleteConfirmation()}
             </PageSection>
         );

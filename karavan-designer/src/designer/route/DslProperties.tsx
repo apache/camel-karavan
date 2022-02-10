@@ -38,6 +38,7 @@ import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelUi} from "../utils/CamelUi";
 import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
+import {IntegrationHeader} from "../utils/KaravanComponents";
 
 interface Props {
     integration: Integration,
@@ -47,7 +48,6 @@ interface Props {
 }
 
 interface State {
-    integration: Integration,
     step?: CamelElement,
     selectStatus: Map<string, boolean>
 }
@@ -56,7 +56,6 @@ export class DslProperties extends React.Component<Props, State> {
 
     public state: State = {
         step: this.props.step,
-        integration: this.props.integration,
         selectStatus: new Map<string, boolean>(),
     };
 
@@ -113,24 +112,6 @@ export class DslProperties extends React.Component<Props, State> {
         });
     }
 
-    getIntegrationHeader = (): JSX.Element => {
-        return (
-            <div className="headers">
-                <Title headingLevel="h1" size="md">Integration</Title>
-                <FormGroup label="Title" fieldId="title" isRequired>
-                    <TextInput className="text-field" type="text" id="title" name="title" isReadOnly
-                               value={
-                                   CamelUi.titleFromName(this.state.integration.metadata.name)
-                               }/>
-                </FormGroup>
-                <FormGroup label="Name" fieldId="name" isRequired>
-                    <TextInput className="text-field" type="text" id="name" name="name" isReadOnly
-                               value={this.state.integration.metadata.name}/>
-                </FormGroup>
-            </div>
-        )
-    }
-
     getComponentHeader = (): JSX.Element => {
         const title = this.state.step && CamelUi.getTitle(this.state.step)
         const kamelet = this.state.step && CamelUi.getKamelet(this.state.step)
@@ -155,7 +136,7 @@ export class DslProperties extends React.Component<Props, State> {
         return (
             <div key={this.state.step ? this.state.step.uuid : 'integration'} className='properties'>
                 <Form autoComplete="off" onSubmit={event => event.preventDefault()}>
-                    {this.state.step === undefined && this.getIntegrationHeader()}
+                    {this.state.step === undefined && <IntegrationHeader integration={this.props.integration}/>}
                     {this.state.step && this.getComponentHeader()}
                     {this.state.step && !['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName) && this.getProps().map((property: PropertyMeta) =>
                         <DslPropertyField key={property.name}
