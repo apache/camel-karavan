@@ -62,17 +62,6 @@ export class Beans extends CamelElement {
     }
 }
 
-export class Bean extends CamelElement {
-    name: string = ''
-    type: string = ''
-    properties: any
-
-    public constructor(init?: Partial<Bean>) {
-        super("Bean")
-        Object.assign(this, init);
-    }
-}
-
 export class CamelElementMeta {
     step?: CamelElement
     parentUuid?: string

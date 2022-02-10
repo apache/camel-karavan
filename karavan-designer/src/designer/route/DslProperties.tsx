@@ -140,6 +140,7 @@ export class DslProperties extends React.Component<Props, State> {
                     {this.state.step && this.getComponentHeader()}
                     {this.state.step && !['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName) && this.getProps().map((property: PropertyMeta) =>
                         <DslPropertyField key={property.name}
+                                          integration={this.props.integration}
                                           property={property}
                                           element={this.state.step}
                                           value={this.state.step ? (this.state.step as any)[property.name] : undefined}
@@ -150,6 +151,7 @@ export class DslProperties extends React.Component<Props, State> {
                     )}
                     {this.state.step && ['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName) &&
                         <DataFormatField
+                            integration={this.props.integration}
                             dslName={this.state.step.dslName}
                             value={this.state.step}
                             onDataFormatChange={this.dataFormatChanged} />

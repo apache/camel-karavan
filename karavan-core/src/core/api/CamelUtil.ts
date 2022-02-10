@@ -16,7 +16,7 @@
  */
 import {
     Integration,
-    CamelElement, Bean, Beans,
+    CamelElement, NamedBeanDefinition, Beans,
 } from "../model/CamelDefinition";
 import {CamelDefinitionApi} from "./CamelDefinitionApi";
 
@@ -43,9 +43,9 @@ export class CamelUtil {
         return CamelDefinitionApi.createStep(step.dslName, clone, true);
     }
 
-    static cloneBean = (bean: Bean): Bean => {
+    static cloneBean = (bean: NamedBeanDefinition): NamedBeanDefinition => {
         const clone = JSON.parse(JSON.stringify(bean));
-        const newBean = new Bean(clone);
+        const newBean = new NamedBeanDefinition(clone);
         newBean.uuid = bean.uuid;
         return newBean;
     }

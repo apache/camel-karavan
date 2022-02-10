@@ -19,7 +19,7 @@ import {
     Button, Card, CardActions, CardBody, CardFooter, CardHeader, CardTitle, Gallery, Modal, PageSection
 } from '@patternfly/react-core';
 import '../karavan.css';
-import {Bean, Integration} from "karavan-core/lib/model/CamelDefinition";
+import {NamedBeanDefinition, Integration} from "karavan-core/lib/model/CamelDefinition";
 import {CamelUi} from "../utils/CamelUi";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
@@ -39,7 +39,7 @@ interface Props {
 interface State {
     integration: Integration
     showDeleteConfirmation: boolean
-    selectedBean?: Bean
+    selectedBean?: NamedBeanDefinition
     key: string
     showBeanEditor: boolean
 }
@@ -71,7 +71,7 @@ export class BeansDesigner extends React.Component<Props, State> {
         }
     }
 
-    showDeleteConfirmation = (e: React.MouseEvent, bean: Bean) => {
+    showDeleteConfirmation = (e: React.MouseEvent, bean: NamedBeanDefinition) => {
         e.stopPropagation();
         this.setState({selectedBean: bean, showDeleteConfirmation: true});
     }
@@ -86,11 +86,11 @@ export class BeansDesigner extends React.Component<Props, State> {
             integration: i,
             showDeleteConfirmation: false,
             key: Math.random().toString(),
-            selectedBean: new Bean()
+            selectedBean: new NamedBeanDefinition()
         });
     }
 
-    changeBean = (bean: Bean) => {
+    changeBean = (bean: NamedBeanDefinition) => {
         const clone = CamelUtil.cloneIntegration(this.state.integration);
         const i = CamelDefinitionApiExt.addBeanToIntegration(clone, bean);
         this.setState({integration: i, key: Math.random().toString(), selectedBean: bean});
@@ -122,7 +122,7 @@ export class BeansDesigner extends React.Component<Props, State> {
         this.setState({showBeanEditor: true})
     }
 
-    selectBean = (bean?: Bean) => {
+    selectBean = (bean?: NamedBeanDefinition) => {
         this.setState({selectedBean: bean})
     }
 
@@ -134,10 +134,10 @@ export class BeansDesigner extends React.Component<Props, State> {
     };
 
     createBean = () => {
-        this.changeBean(new Bean());
+        this.changeBean(new NamedBeanDefinition());
     }
 
-    getCard(bean: Bean, index: number) {
+    getCard(bean: NamedBeanDefinition, index: number) {
         return (
             <Card key={bean.dslName + index} isHoverable isCompact
                   className={this.state.selectedBean?.uuid === bean.uuid ? "bean-card bean-card-selected" : "bean-card bean-card-unselected"}
@@ -163,7 +163,7 @@ export class BeansDesigner extends React.Component<Props, State> {
                 <div className="beans-page-columns" data-click="BEANS" onClick={event => this.unselectBean(event)}>
                     <div className="beans-panel">
                         <Gallery hasGutter className="beans-gallery" data-click="BEANS" onClick={event => this.unselectBean(event)}>
-                            {beans.map((bean: Bean, index: number) => this.getCard(bean, index))}
+                            {beans.map((bean: NamedBeanDefinition, index: number) => this.getCard(bean, index))}
                         </Gallery>
                         <div className="add-button-div" data-click="BEANS" onClick={event => this.unselectBean(event)}>
                             <Button icon={<PlusIcon/>} variant={beans.length === 0 ? "primary" : "secondary"} onClick={e => this.createBean()} className="add-bean-button">

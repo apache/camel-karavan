@@ -323,10 +323,10 @@
 .karavan .properties .pf-c-select__menu-item {
     width: 280px;
     font-size: 15px;
-    /*white-space: nowrap;*/
-    /*overflow: hidden;*/
-    /*text-overflow: ellipsis;*/
-    /*line-height: 12px;*/
+}
+
+.karavan .properties .pf-c-select__menu-item-description {
+   overflow-wrap: anywhere;
 }
 
 .karavan .properties .number {
