@@ -187,6 +187,12 @@ export class CamelUi {
         }
     }
 
+    static isActionKamelet = (element: CamelElement): boolean => {
+        const kamelet = this.getKamelet(element);
+        if (kamelet) return kamelet.type() === 'action'
+        else return false;
+    }
+
     static getKameletProperties = (element: any): Property[] => {
         const kamelet = CamelUi.getKamelet(element)
         return kamelet

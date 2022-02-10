@@ -122,7 +122,8 @@ export class DslConnections extends React.Component<Props, State> {
 
     getOutgoings():[string, number][] {
         let outs: [string, number][] = Array.from(this.state.steps.values())
-            .filter(pos => ['ToDefinition', 'KameletDefinition', 'ToDynamicDefinition', "PollEnrichDefinition", "EnrichDefinition"].includes(pos.step.dslName))
+            .filter(pos => ['ToDefinition', 'KameletDefinition', 'ToDynamicDefinition', "PollEnrichDefinition", "EnrichDefinition", "WireTapDefinition"].includes(pos.step.dslName))
+            .filter(pos => pos.step.dslName !== 'KameletDefinition' || (pos.step.dslName === 'KameletDefinition' && !CamelUi.isActionKamelet(pos.step)))
             .sort((pos1: DslPosition, pos2: DslPosition ) => {
                 const y1 = pos1.headerRect.y + pos1.headerRect.height / 2;
                 const y2 = pos2.headerRect.y + pos2.headerRect.height / 2;
