@@ -16,7 +16,7 @@
  */
 import {
     Integration,
-    CamelElement,
+    CamelElement, Bean, Beans,
 } from "../model/CamelDefinition";
 import {CamelDefinitionApi} from "./CamelDefinitionApi";
 
@@ -25,7 +25,15 @@ export class CamelUtil {
     static cloneIntegration = (integration: Integration): Integration => {
         const clone = JSON.parse(JSON.stringify(integration));
         const int: Integration = new Integration({...clone});
-        const flows = int.spec.flows?.map(f => CamelDefinitionApi.createStep(f.dslName, f));
+        const flows: any[] = [];
+        int.spec.flows?.filter((e: any) => e.dslName === 'RouteDefinition')
+            .forEach(f => flows.push(CamelDefinitionApi.createStep(f.dslName, f)));
+        int.spec.flows?.filter((e: any) => e.dslName === 'Beans')
+            .forEach(beans => {
+                const newBeans = new Beans();
+                (beans as Beans).beans.forEach(b => newBeans.beans.push(CamelUtil.cloneBean(b)));
+                flows.push(newBeans);
+            });
         int.spec.flows = flows;
         return int;
     }
@@ -35,7 +43,14 @@ export class CamelUtil {
         return CamelDefinitionApi.createStep(step.dslName, clone, true);
     }
 
-    static replacer =  (key:string, value:any): any=> {
+    static cloneBean = (bean: Bean): Bean => {
+        const clone = JSON.parse(JSON.stringify(bean));
+        const newBean = new Bean(clone);
+        newBean.uuid = bean.uuid;
+        return newBean;
+    }
+
+    static replacer = (key:string, value:any): any => {
         if (typeof value == 'object' && (value.hasOwnProperty('stepName') || value.hasOwnProperty('step-name'))) {
             const stepNameField = value.hasOwnProperty('stepName') ? 'stepName' : 'step-name';
             const stepName = value[stepNameField];

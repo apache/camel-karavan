@@ -16,22 +16,20 @@
  */
 import React from 'react';
 import {
-    Button, Modal,
+    Badge,
     PageSection, Tab, Tabs, TabTitleIcon, TabTitleText, Tooltip,
 } from '@patternfly/react-core';
 import './karavan.css';
-import {DslSelector} from "./DslSelector";
-import {DslMetaModel} from "karavan-core/lib/model/DslMetaModel";
-import {DslProperties} from "./DslProperties";
-import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {CamelElement, FromDefinition, Integration} from "karavan-core/lib/model/CamelDefinition";
+import {RouteDesigner} from "./route/RouteDesigner";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
-import {DslConnections} from "./DslConnections";
-import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
-import {DslElement} from "./DslElement";
-import {EventBus} from "./EventBus";
+import {Integration} from "karavan-core/lib/model/CamelDefinition";
+import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
+import {CamelUi} from "./utils/CamelUi";
+import {BeansDesigner} from "./beans/BeansDesigner";
+import {RestDesigner} from "./rest/RestDesigner";
+import {ErrorDesigner} from "./error/ErrorDesigner";
+import {TemplatesDesigner} from "./templates/TemplatesDesigner";
+import {ExceptionDesigner} from "./exception/ExceptionDesigner";
 
 interface Props {
     onSave?: (filename: string, yaml: string) => void
@@ -43,48 +41,20 @@ interface Props {
 }
 
 interface State {
-    integration: Integration
-    selectedStep?: CamelElement
-    showSelector: boolean
-    showDeleteConfirmation: boolean
-    parentId: string
-    parentDsl?: string
-    showSteps: boolean
-    selectedUuid: string
-    key: string
-    width: number
-    height: number
-    top: number
+    tab: string,
+    integration: Integration,
+    key: string,
 }
 
 export class KaravanDesigner extends React.Component<Props, State> {
 
     public state: State = {
+        tab: 'routes',
         integration: this.props.yaml
             ? CamelDefinitionYaml.yamlToIntegration(this.props.filename, this.props.yaml)
             : Integration.createNew(this.props.filename),
-        showSelector: false,
-        showDeleteConfirmation: false,
-        parentId: '',
-        showSteps: true,
-        selectedUuid: '',
         key: "",
-        width: 1000,
-        height: 1000,
-        top: 0,
     };
-
-    componentDidMount() {
-        window.addEventListener('resize', this.handleResize);
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener('resize', this.handleResize);
-    }
-
-    handleResize = () => {
-        this.setState({key: Math.random().toString()});
-    }
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.key !== this.state.key) {
@@ -92,192 +62,24 @@ export class KaravanDesigner extends React.Component<Props, State> {
         }
     }
 
-    unselectElement = (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        if ((evt.target as any).dataset.click === 'FLOWS') {
-            evt.stopPropagation()
-            this.setState({selectedStep: undefined, selectedUuid: '', showSelector: false})
-        }
-    };
+    save = (integration: Integration): void => {
+        this.setState({key: Math.random().toString(), integration: integration});
+    }
 
     getCode = (integration: Integration): string => {
         const clone = CamelUtil.cloneIntegration(integration);
         return CamelDefinitionYaml.integrationToYaml(clone);
     }
 
-    onPropertyUpdate = (element: CamelElement, updatedUuid: string) => {
-        const clone = CamelUtil.cloneIntegration(this.state.integration);
-        const i = CamelDefinitionApiExt.updateIntegration(clone, element, updatedUuid);
-        this.setState({integration: i, key: Math.random().toString()});
-    }
-
-    showDeleteConfirmation = (id: string) => {
-        this.setState({selectedUuid: id, showSelector: false, showDeleteConfirmation: true});
-    }
-
-    deleteElement = () => {
-        const id = this.state.selectedUuid;
-        const i = CamelDefinitionApiExt.deleteStepFromIntegration(this.state.integration, id);
-        this.setState({
-            integration: i,
-            showSelector: false,
-            showDeleteConfirmation: false,
-            key: Math.random().toString(),
-            selectedStep: undefined,
-            selectedUuid: ''
-        });
-        const el = new CamelElement("");
-        el.uuid = id;
-        EventBus.sendPosition("delete", el, undefined, new DOMRect(), new DOMRect(), 0);
-    }
-
-    selectElement = (element: CamelElement) => {
-        this.setState({selectedStep: element, selectedUuid: element.uuid, showSelector: false})
-    }
-
-    openSelector = (parentId: string | undefined, parentDsl: string | undefined, showSteps: boolean = true) => {
-        this.setState({showSelector: true, parentId: parentId || '', parentDsl: parentDsl, showSteps: showSteps})
-    }
-
-    closeDslSelector = () => {
-        this.setState({showSelector: false})
-    }
-
-    onDslSelect = (dsl: DslMetaModel, parentId: string) => {
-        switch (dsl.dsl) {
-            case 'FromDefinition' :
-                const from = CamelDefinitionApi.createRouteDefinition({from: new FromDefinition({uri: dsl.uri})});
-                this.addStep(from, parentId)
-                break;
-            case 'ToDefinition' :
-                const to = CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
-                this.addStep(to, parentId)
-                break;
-            case 'ToDynamicDefinition' :
-                const toD = CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
-                this.addStep(toD, parentId)
-                break;
-            case 'KameletDefinition' :
-                const kamelet = CamelDefinitionApi.createStep(dsl.dsl, {name: dsl.name});
-                this.addStep(kamelet, parentId)
-                break;
-            default:
-                const step = CamelDefinitionApi.createStep(dsl.dsl, undefined);
-                this.addStep(step, parentId)
-                break;
-        }
-    }
-
-    addStep = (step: CamelElement, parentId: string) => {
-        const i = CamelDefinitionApiExt.addStepToIntegration(this.state.integration, step, parentId);
-        const clone = CamelUtil.cloneIntegration(i);
-        this.setState({
-            integration: clone,
-            key: Math.random().toString(),
-            showSelector: false,
-            selectedStep: step,
-            selectedUuid: step.uuid
-        });
-    }
-
-    onIntegrationUpdate = (i: Integration) => {
-        this.setState({integration: i, showSelector: false, key: Math.random().toString()});
-    }
-
-    moveElement = (source: string, target: string) => {
-        const i = CamelDefinitionApiExt.moveElement(this.state.integration, source, target);
-        const clone = CamelUtil.cloneIntegration(i);
-        const selectedStep = CamelDefinitionApiExt.findElementInIntegration(clone, source);
-        this.setState({
-            integration: clone,
-            key: Math.random().toString(),
-            showSelector: false,
-            selectedStep: selectedStep,
-            selectedUuid: source
-        });
-    }
-
-    onResizePage(el: HTMLDivElement | null) {
-        const rect = el?.getBoundingClientRect();
-        if (el && rect && (rect?.width !== this.state.width || rect.height !== this.state.height || rect.top !== this.state.top)) {
-            this.setState({width: rect.width, height: rect.height, top: rect.top});
-        }
-    }
-
-    getSelectorModal() {
-        return (
-            <Modal
-                title={this.state.parentDsl === undefined ? "Select source/from" : "Select step"}
-                width={'90%'}
-                className='dsl-modal'
-                isOpen={this.state.showSelector}
-                onClose={() => this.closeDslSelector()}
-                actions={{}}>
-                <DslSelector
-                    dark={this.props.dark}
-                    parentId={this.state.parentId}
-                    parentDsl={this.state.parentDsl}
-                    showSteps={this.state.showSteps}
-                    onDslSelect={this.onDslSelect}/>
-            </Modal>)
-    }
-
-    getDeleteConfirmation() {
-        return (<Modal
-            className="modal-delete"
-            title="Confirmation"
-            isOpen={this.state.showDeleteConfirmation}
-            onClose={() => this.setState({showDeleteConfirmation: false})}
-            actions={[
-                <Button key="confirm" variant="primary" onClick={e => this.deleteElement()}>Delete</Button>,
-                <Button key="cancel" variant="link"
-                        onClick={e => this.setState({showDeleteConfirmation: false})}>Cancel</Button>
-            ]}
-            onEscapePress={e => this.setState({showDeleteConfirmation: false})}>
-            <div>
-                Delete element from integration?
-            </div>
-        </Modal>)
-    }
-
-    getGraph() {
-        return (
-            <div className="graph">
-                <DslConnections height={this.state.height} width={this.state.width} top={this.state.top} integration={this.state.integration}/>
-                <div className="flows" data-click="FLOWS" onClick={event => this.unselectElement(event)}
-                     ref={el => this.onResizePage(el)}>
-                    {this.state.integration.spec.flows?.map((from: any, index: number) => (
-                        <DslElement key={from.uuid + this.state.key}
-                                    openSelector={this.openSelector}
-                                    deleteElement={this.showDeleteConfirmation}
-                                    selectElement={this.selectElement}
-                                    moveElement={this.moveElement}
-                                    selectedUuid={this.state.selectedUuid}
-                                    borderColor={this.props.borderColor}
-                                    borderColorSelected={this.props.borderColorSelected}
-                                    inSteps={false}
-                                    position={index}
-                                    step={from}
-                                    parent={undefined}/>
-                    ))}
-                    <div className="add-flow">
-                        <Button
-                            variant={this.state.integration.spec.flows?.length === 0 ? "primary" : "secondary"}
-                            data-click="ADD_ROUTE"
-                            icon={<PlusIcon/>}
-                            onClick={e => this.openSelector(undefined, undefined)}>Add new route
-                        </Button>
-                    </div>
-                </div>
-            </div>)
-    }
-
     getTab(title: string, tooltip: string, icon: string) {
+        const counts = CamelUi.getFlowCounts(this.state.integration);
         return (
             <Tooltip position={"bottom"}
                      content={<div>{tooltip}</div>}>
                 <div className="top-menu-item">
                     <TabTitleIcon>{this.getIcon(icon)}</TabTitleIcon>
                     <TabTitleText>{title}</TabTitleText>
+                    {counts.has(icon) && <Badge isRead className="count">{counts.get(icon)}</Badge>}
                 </div>
             </Tooltip>
 
@@ -310,14 +112,13 @@ export class KaravanDesigner extends React.Component<Props, State> {
             </svg>
         )
         if (icon === 'beans') return (
-            <svg className="top-icon" viewBox="0 0 536.243 536.242" >
-                <g>
-                    <path d="M471.053,197.07c-94.2-101.601-284-183.601-423.5-154.2c-9.2,1.8-12.9,9.2-12.2,16.5c-86.9,47.7,9.2,213,45.9,261.3
-                        c72.2,96.1,200.701,203.2,329.901,173.8c60-13.5,103.399-69.8,120-126.1C550.053,304.77,513.253,242.37,471.053,197.07z
-                         M393.353,465.17c-102.199,23.3-210.5-75.9-271.7-145c-61.2-70.4-108.3-155.4-71-243c83.8,151.8,253.4,269.3,414.9,321.899
-                        c19.601,6.101,28.2-24.5,8.601-31.199C318.753,315.27,166.353,209.97,73.953,72.27c111.4-13.5,238.701,45.9,326.201,107.101
-                        c50.199,35.5,98.5,87.5,102.8,151.8C505.954,394.17,451.454,451.67,393.353,465.17z"/>
-                </g>
+            <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32">
+                <defs>
+                    <style>{".cls-1 {fill: none;}"}</style>
+                </defs>
+                <path
+                    d="M28.5039,8.1362l-12-7a1,1,0,0,0-1.0078,0l-12,7A1,1,0,0,0,3,9V23a1,1,0,0,0,.4961.8638l12,7a1,1,0,0,0,1.0078,0l12-7A1,1,0,0,0,29,23V9A1,1,0,0,0,28.5039,8.1362ZM16,3.1577,26.0156,9,16,14.8423,5.9844,9ZM5,10.7412l10,5.833V28.2588L5,22.4258ZM17,28.2588V16.5742l10-5.833V22.4258Z"/>
+                <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32" height="32"/>
             </svg>
         )
         if (icon === 'error') return (
@@ -351,30 +152,47 @@ export class KaravanDesigner extends React.Component<Props, State> {
     }
 
     render() {
+        const tab = this.state.tab;
         return (
-            <PageSection className="dsl-page" isFilled padding={{default: 'noPadding'}}>
-                <div className="dsl-page-columns">
-                    <div style={{width: "100%"}}>
-                        <Tabs isFilled className="main-tabs" activeKey={0} onSelect={event => {
-                        }} style={{width: "100%"}}>
-                            <Tab eventKey={0} title={this.getTab("Routes", "Integration flows", "routes")}></Tab>
-                            <Tab eventKey={1} title={this.getTab("REST", "REST services","rest")}></Tab>
-                            <Tab eventKey={2} title={this.getTab("Beans", "Beans Configuration","beans")}></Tab>
-                            <Tab eventKey={3} title={this.getTab("Error","Error Handler configuration", "error")}></Tab>
-                            <Tab eventKey={4} title={this.getTab("Exceptions","Exception Clauses per type", "exception")}></Tab>
-                            <Tab eventKey={5} title={this.getTab("Templates", "Route Templates","template")}></Tab>
-                        </Tabs>
-                        {this.getGraph()}
-                    </div>
-                    <DslProperties
-                        integration={this.state.integration}
-                        step={this.state.selectedStep}
-                        onIntegrationUpdate={this.onIntegrationUpdate}
-                        onPropertyUpdate={this.onPropertyUpdate}
-                    />
-                </div>
-                {this.getSelectorModal()}
-                {this.getDeleteConfirmation()}
+            <PageSection className="page" isFilled padding={{default: 'noPadding'}}>
+                <Tabs className="main-tabs" activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex.toString()})} style={{width: "100%"}}>
+                    <Tab eventKey='routes' title={this.getTab("Routes", "Integration flows", "routes")}></Tab>
+                    <Tab eventKey='rest' title={this.getTab("REST", "REST services", "rest")}></Tab>
+                    <Tab eventKey='beans' title={this.getTab("Beans", "Beans Configuration", "beans")}></Tab>
+                    <Tab eventKey='error' title={this.getTab("Error", "Error Handler configuration", "error")}></Tab>
+                    <Tab eventKey='exception' title={this.getTab("Exceptions", "Exception Clauses per type", "exception")}></Tab>
+                    <Tab eventKey='templates' title={this.getTab("Templates", "Route Templates", "template")}></Tab>
+                </Tabs>
+                {tab === 'routes' && <RouteDesigner integration={this.state.integration}
+                                                    onSave={(integration) => this.save(integration)}
+                                                    borderColor={this.props.borderColor}
+                                                    borderColorSelected={this.props.borderColorSelected}
+                                                    dark={this.props.dark}/>}
+                {tab === 'rest' && <RestDesigner integration={this.state.integration}
+                                                 onSave={(integration) => this.save(integration)}
+                                                 borderColor={this.props.borderColor}
+                                                 borderColorSelected={this.props.borderColorSelected}
+                                                 dark={this.props.dark}/>}
+                {tab === 'beans' && <BeansDesigner integration={this.state.integration}
+                                                   onSave={(integration) => this.save(integration)}
+                                                   borderColor={this.props.borderColor}
+                                                   borderColorSelected={this.props.borderColorSelected}
+                                                   dark={this.props.dark}/>}
+                {tab === 'error' && <ErrorDesigner integration={this.state.integration}
+                                                   onSave={(integration) => this.save(integration)}
+                                                   borderColor={this.props.borderColor}
+                                                   borderColorSelected={this.props.borderColorSelected}
+                                                   dark={this.props.dark}/>}
+                {tab === 'exception' && <ExceptionDesigner integration={this.state.integration}
+                                                           onSave={(integration) => this.save(integration)}
+                                                           borderColor={this.props.borderColor}
+                                                           borderColorSelected={this.props.borderColorSelected}
+                                                           dark={this.props.dark}/>}
+                {tab === 'templates' && <TemplatesDesigner integration={this.state.integration}
+                                                           onSave={(integration) => this.save(integration)}
+                                                           borderColor={this.props.borderColor}
+                                                           borderColorSelected={this.props.borderColorSelected}
+                                                           dark={this.props.dark}/>}
             </PageSection>
         );
     }

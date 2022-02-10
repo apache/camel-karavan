@@ -33,7 +33,7 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import { PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {ExpressionField} from "./ExpressionField";
-import {CamelUi} from "../CamelUi";
+import {CamelUi} from "../utils/CamelUi";
 import {ComponentParameterField} from "./ComponentParameterField";
 import {CamelElement, DataFormatDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {KameletPropertyField} from "./KameletPropertyField";

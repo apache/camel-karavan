@@ -17,7 +17,7 @@
 import * as yaml from 'js-yaml';
 import {
     Integration,
-    CamelElement, RouteDefinition,
+    CamelElement, RouteDefinition, Bean, Beans,
 } from "../model/CamelDefinition";
 import {CamelUtil} from "./CamelUtil";
 import {CamelDefinitionYamlStep} from "./CamelDefinitionYamlStep";
@@ -27,7 +27,7 @@ export class CamelDefinitionYaml {
     static integrationToYaml = (integration: Integration): string => {
         const clone: any = Object.assign({}, integration);
         const flows = integration.spec.flows
-        clone.spec.flows = flows?.map((f: any) => CamelDefinitionYaml.cleanupElement(f));
+        clone.spec.flows = flows?.map((f: any) => CamelDefinitionYaml.cleanupElement(f)).filter(x => Object.keys(x).length !== 0);
         if (integration.crd) {
             delete clone.crd
             const i = JSON.parse(JSON.stringify(clone, null, 3)); // fix undefined in string attributes
@@ -48,6 +48,8 @@ export class CamelDefinitionYaml {
             delete object.expressionName;
         } else if (object.dslName.endsWith('DataFormat')) {
             delete object.dataFormatName;
+        } else if (object.dslName = 'Bean') {
+            if (object.properties && Object.keys(object.properties).length === 0) delete object.properties;
         }
         delete object.uuid;
         delete object.dslName;
@@ -122,14 +124,50 @@ export class CamelDefinitionYaml {
         return i;
     }
 
-    static flowsToCamelElements = (flows: any[]): CamelElement[] => {
-        const result:CamelElement[] = [];
+    static flowsToCamelElements = (flows: any[]): any[] => {
+        const result: any[] = [];
         flows.filter((e: any) => e.hasOwnProperty('route'))
             .forEach((f: any) =>
                 result.push(CamelDefinitionYamlStep.readRouteDefinition(f.route)));
         flows.filter((e: any) => e.hasOwnProperty('from'))
             .forEach((f: any) =>
                 result.push(CamelDefinitionYamlStep.readRouteDefinition(new RouteDefinition({from: f.from}))));
+        flows.filter((e: any) => e.hasOwnProperty('beans'))
+            .forEach((b: any) => result.push(CamelDefinitionYaml.readBeanDefinition(b)));
         return result;
+    }
+
+    static readBeanDefinition = (beans: any): Beans => {
+        const result: Beans = new Beans();
+        beans.beans.forEach((b: any) => {
+            const props: any = {}
+            if (b && b.properties){
+                // convert map style to properties if requires
+                Object.keys(b.properties).forEach( key => {
+                    const value = b.properties[key];
+                    CamelDefinitionYaml.flatMapProperty(key, value, new Map<string, any>())
+                        .forEach((v, k) => props[k] = v);
+                })
+            }
+            b.properties = props;
+            result.beans.push(new Bean(b))
+        })
+        return result;
+    }
+
+    // convert map style to properties if requires
+    static flatMapProperty = (key: string, value: any, properties: Map<string, any>): Map<string, any> => {
+        if (value === undefined) {
+        } else if (typeof value === 'object') {
+            Object.keys(value).forEach(k => {
+                const key2 = key + "." + k;
+                const value2: any = value[k];
+                CamelDefinitionYaml.flatMapProperty(key2, value2, new Map<string, any>())
+                    .forEach((value1, key1) => properties.set(key1, value1));
+            })
+        } else {
+            properties.set(key, value);
+        }
+        return properties;
     }
 }

@@ -18,6 +18,7 @@ import {CamelMetadataApi, ElementMeta, Languages, PropertyMeta} from "../model/C
 import {ComponentApi} from "./ComponentApi";
 import {CamelUtil} from "./CamelUtil";
 import {
+    Bean, Beans,
     CamelElement, CamelElementMeta,
     ExpressionDefinition,
     Integration, RouteDefinition
@@ -54,8 +55,8 @@ export class CamelDefinitionApiExt {
         let added = false;
         // Check all fields except steps
         children.filter(child => child.name !== 'steps').forEach(child => {
-            if (result.uuid === parentId){
-                if (child.className === stepAdded.dslName){
+            if (result.uuid === parentId) {
+                if (child.className === stepAdded.dslName) {
                     added = true;
                     if (child.multiple) (result as any)[child.name].push(stepAdded)
                     else (result as any)[child.name] = stepAdded;
@@ -68,7 +69,7 @@ export class CamelDefinitionApiExt {
         });
         // Then steps
         const steps = children.filter(child => child.name === 'steps');
-        if (!added && steps && result.uuid === parentId){
+        if (!added && steps && result.uuid === parentId) {
             (result as any).steps.push(stepAdded);
         } else if (!added && steps && (result as any).steps) {
             (result as any).steps = CamelDefinitionApiExt.addStepToSteps((result as any).steps, stepAdded, parentId, position);
@@ -92,7 +93,7 @@ export class CamelDefinitionApiExt {
 
     static findStep = (steps: CamelElement[] | undefined, uuid: string, result: CamelElementMeta = new CamelElementMeta(undefined, undefined, undefined, []), parentUuid?: string): CamelElementMeta => {
         if (result?.step !== undefined) return result;
-        if (steps !== undefined){
+        if (steps !== undefined) {
             for (let index = 0, step: CamelElement; step = steps[index]; index++) {
                 if (step.uuid === uuid) {
                     const p = [...result.pathUuids];
@@ -141,8 +142,11 @@ export class CamelDefinitionApiExt {
     }
 
     static deleteStepFromIntegration = (integration: Integration, uuidToDelete: string): Integration => {
-        const flows = CamelDefinitionApiExt.deleteStepFromSteps(integration.spec.flows, uuidToDelete);
-        integration.spec.flows = flows as RouteDefinition[];
+        const flows: any[] = [];
+        integration.spec.flows?.filter(flow => flow.dslName === 'Beans').forEach(bean => flows.push(bean));
+        const routes = CamelDefinitionApiExt.deleteStepFromSteps(integration.spec.flows?.filter(flow => flow.dslName === 'RouteDefinition'), uuidToDelete);
+        flows.push(...routes);
+        integration.spec.flows = flows;
         return integration;
     }
 
@@ -151,7 +155,7 @@ export class CamelDefinitionApiExt {
         const ce = CamelDefinitionApiExt.getElementChildrenDefinition(step.dslName);
         ce.forEach(e => {
             const cel = CamelDefinitionApiExt.getElementChildren(step, e);
-            if (e.multiple){
+            if (e.multiple) {
                 (result as any)[e.name] = CamelDefinitionApiExt.deleteStepFromSteps((result as any)[e.name], uuidToDelete);
             } else {
                 const prop = (result as any)[e.name];
@@ -169,7 +173,7 @@ export class CamelDefinitionApiExt {
 
     static deleteStepFromSteps = (steps: CamelElement[] | undefined, uuidToDelete: string): CamelElement[] => {
         const result: CamelElement[] = []
-        if (steps !== undefined){
+        if (steps !== undefined) {
             steps.forEach(step => {
                 if (step.uuid !== uuidToDelete) {
                     step = CamelDefinitionApiExt.deleteStepFromStep(step, uuidToDelete);
@@ -178,6 +182,47 @@ export class CamelDefinitionApiExt {
             })
         }
         return result
+    }
+
+    static addBeanToIntegration = (integration: Integration, bean: Bean): Integration => {
+        const flows: any[] = [];
+        if (integration.spec.flows?.filter(flow => flow.dslName === 'Beans').length === 0) {
+            flows.push(...integration.spec.flows);
+            flows.push(new Beans({beans: [bean]}))
+        } else {
+            flows.push(...integration.spec.flows?.filter(flow => flow.dslName !== 'Beans') || []);
+            integration.spec.flows?.filter(flow => flow.dslName === 'Beans').forEach(flow => {
+                const beans: Bean[] = [];
+                if ((flow as Beans).beans.filter(b => b.uuid === bean.uuid).length === 0){
+                    beans.push(...(flow as Beans).beans.filter(b => b.uuid !== bean.uuid));
+                    beans.push(bean);
+                } else {
+                    (flow as Beans).beans.forEach(b => {
+                        if (b.uuid === bean.uuid) beans.push(bean)
+                        else beans.push(b);
+                    })
+                }
+                const newBeans = new Beans({beans: beans});
+                flows.push(newBeans);
+            })
+        }
+        integration.spec.flows = flows;
+        return integration;
+    }
+
+    static deleteBeanFromIntegration = (integration: Integration, bean?: Bean): Integration => {
+        const flows: any[] = [];
+        integration.spec.flows?.forEach(flow => {
+            if (flow.dslName === 'Beans') {
+                const beans = (flow as Beans).beans.filter(b => !(b.uuid === bean?.uuid && b.type === bean?.type));
+                const newBeans = new Beans({beans: beans});
+                flows.push(newBeans);
+            } else {
+                flows.push(flow);
+            }
+        })
+        integration.spec.flows = flows;
+        return integration;
     }
 
     static getExpressionLanguageName = (expression: ExpressionDefinition | undefined): string | undefined => {
@@ -304,15 +349,15 @@ export class CamelDefinitionApiExt {
 
     static getElementPropertiesByName = (name: string): PropertyMeta[] => {
         const model = CamelMetadataApi.getCamelModelMetadataByName(name);
-        if (model){
+        if (model) {
             return this.getElementProperties(model.className);
         }
         const language = CamelMetadataApi.getCamelLanguageMetadataByName(name);
-        if (language){
+        if (language) {
             return this.getElementProperties(language.className);
         }
         const dataFormat = CamelMetadataApi.getCamelDataFormatMetadataByName(name);
-        if (dataFormat){
+        if (dataFormat) {
             return this.getElementProperties(dataFormat.className);
         }
         return [];

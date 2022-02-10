@@ -4,7 +4,7 @@
   "displayName": "Camel Karavan Designer",
   "icon": "icons/icon.png",
   "description": "Integration Designer for Apache Camel",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "license": "Apache-2.0",
   "preview": true,
   "bugs": {
@@ -151,13 +151,13 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "cp -r ../karavan-designer/src/designer . && yarn run package",
-    "compile": "cp -r ../karavan-designer/src/designer . && cross-env NODE_ENV=development webpack --progress",
-    "watch": "cp -r ../karavan-designer/src/designer . && cross-env NODE_ENV=development webpack --progress --watch",
-    "package": "cp -r ../karavan-designer/src/designer . && cross-env NODE_ENV=production webpack --progress",
+    "vscode:prepublish": "cp -r ../karavan-designer/src/designer webview && yarn run package",
+    "compile": "cp -r ../karavan-designer/src/designer webview && cross-env NODE_ENV=development webpack --progress",
+    "watch": "cp -r ../karavan-designer/src/designer webview && cross-env NODE_ENV=development webpack --progress --watch",
+    "package": "cp -r ../karavan-designer/src/designer webview  && cross-env NODE_ENV=production webpack --progress",
     "test-compile": "tsc -p ./",
     "test-watch": "tsc -watch -p ./",
-    "pretest": "cp -r ../karavan-designer/src/designer . && yarn run test-compile && yarn run lint",
+    "pretest": "cp -r ../karavan-designer/src/designer webview && yarn run test-compile && yarn run lint",
     "lint": "eslint src webview --ext .ts,.tsx",
     "lint:fix": "eslint --fix src webview --ext .ts,.tsx",
     "test": "node ./out/test/runTest.js"
