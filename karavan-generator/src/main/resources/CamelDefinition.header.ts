@@ -54,7 +54,7 @@ export class CamelElement {
 }
 
 export class Beans extends CamelElement {
-    beans: Bean[] = []
+    beans: NamedBeanDefinition[] = []
 
     public constructor(init?: Partial<Beans>) {
         super("Beans")

@@ -68,7 +68,6 @@ export class CamelElementMeta {
     position: number = 0;
     pathUuids: string [] = [];
 
-
     constructor(step?: CamelElement, parentUuid?: string, position?: number, pathUuids?: string []) {
         this.step = step;
         this.parentUuid = parentUuid;
