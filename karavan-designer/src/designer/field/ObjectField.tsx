@@ -20,7 +20,7 @@ import "@patternfly/patternfly/patternfly.css";
 import {DslPropertyField} from "./DslPropertyField";
 import {
     CamelElement,
-    ExpressionDefinition,
+    ExpressionDefinition, Integration,
 } from "karavan-core/lib/model/CamelDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
@@ -30,6 +30,7 @@ interface Props {
     property: PropertyMeta,
     value?: CamelElement,
     onPropertyUpdate?: (fieldId: string, value: CamelElement) => void
+    integration: Integration,
 }
 
 interface State {
@@ -74,6 +75,7 @@ export class ObjectField extends React.Component<Props, State> {
                 <div>
                     {value && CamelDefinitionApiExt.getElementProperties(value.dslName).map((property: PropertyMeta)  =>
                         <DslPropertyField key={property.name}
+                                          integration={this.props.integration}
                                           property={property}
                                           element={value}
                                           value={value ? (value as any)[property.name] : undefined}

@@ -22,8 +22,8 @@ import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import {CamelElement, KameletDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
-import {Bean, Beans, Integration} from "karavan-core/src/core/model/CamelDefinition";
+import {CamelElement, KameletDefinition, NamedBeanDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {Integration} from "karavan-core/src/core/model/CamelDefinition";
 
 const StepElements: string[] = [
     "AggregateDefinition",
@@ -376,8 +376,8 @@ export class CamelUi {
         return result;
     }
 
-    static getBeans = (integration: Integration): Bean[] => {
-        const result: Bean[] = [];
+    static getBeans = (integration: Integration): NamedBeanDefinition[] => {
+        const result: NamedBeanDefinition[] = [];
         const beans = integration.spec.flows?.filter((e: any) => e.dslName === 'Beans');
         if (beans && beans.length > 0 && beans[0].beans) {
             result.push(...beans[0].beans);

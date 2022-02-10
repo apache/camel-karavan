@@ -26,7 +26,7 @@ import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import {CamelElement, DataFormatDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {CamelElement, DataFormatDefinition, Integration} from "karavan-core/lib/model/CamelDefinition";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {DslPropertyField} from "./DslPropertyField";
 import {DataFormats} from "karavan-core/lib/model/CamelMetadata";
@@ -35,6 +35,7 @@ interface Props {
     dslName: string,
     value: CamelElement,
     onDataFormatChange?: ( value:DataFormatDefinition) => void
+    integration: Integration,
 }
 
 interface State {
@@ -123,6 +124,7 @@ export class DataFormatField extends React.Component<Props, State> {
                         fieldId={"properties"}>
                             {value && properties?.map((property: PropertyMeta) =>
                             <DslPropertyField property={property}
+                                              integration={this.props.integration}
                                               element={value}
                                               value={value ? (value as any)[property.name] : undefined}
                                               onExpressionChange={exp => {}}

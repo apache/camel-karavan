@@ -17,7 +17,7 @@
 import * as yaml from 'js-yaml';
 import {
     Integration,
-    CamelElement, RouteDefinition, Bean, Beans,
+    CamelElement, RouteDefinition, NamedBeanDefinition, Beans,
 } from "../model/CamelDefinition";
 import {CamelUtil} from "./CamelUtil";
 import {CamelDefinitionYamlStep} from "./CamelDefinitionYamlStep";
@@ -48,7 +48,7 @@ export class CamelDefinitionYaml {
             delete object.expressionName;
         } else if (object.dslName.endsWith('DataFormat')) {
             delete object.dataFormatName;
-        } else if (object.dslName = 'Bean') {
+        } else if (object.dslName = 'NamedBeanDefinition') {
             if (object.properties && Object.keys(object.properties).length === 0) delete object.properties;
         }
         delete object.uuid;
@@ -150,7 +150,7 @@ export class CamelDefinitionYaml {
                 })
             }
             b.properties = props;
-            result.beans.push(new Bean(b))
+            result.beans.push(new NamedBeanDefinition(b))
         })
         return result;
     }

@@ -18,26 +18,15 @@ import React from 'react';
 import {
     Form,
     FormGroup,
-    TextInput,
-    Text,
-    Title,
-    TextVariants, Button,
+    TextInput, Button,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
-import {DataFormatField} from "../field/DataFormatField";
-import {DslPropertyField} from "../field/DslPropertyField";
 import {
-    CamelElement,
     Integration,
-    ExpressionDefinition,
-    DataFormatDefinition, Bean
+    NamedBeanDefinition,
 } from "karavan-core/lib/model/CamelDefinition";
-import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {CamelUi} from "../utils/CamelUi";
-import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {v4 as uuidv4} from "uuid";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
@@ -45,13 +34,13 @@ import {IntegrationHeader} from "../utils/KaravanComponents";
 
 interface Props {
     integration: Integration
-    bean?: Bean
+    bean?: NamedBeanDefinition
     dark: boolean
-    onChange: (bean: Bean) => void
+    onChange: (bean: NamedBeanDefinition) => void
 }
 
 interface State {
-    bean?: Bean
+    bean?: NamedBeanDefinition
     properties: Map<string, [string, string]>
     key: string
 }
@@ -84,7 +73,7 @@ export class BeanProperties extends React.Component<Props, State> {
         }
     }
 
-    setBean = (bean?: Bean) => {
+    setBean = (bean?: NamedBeanDefinition) => {
         this.setState({
             bean: bean,
             properties: bean?.properties ? this.preparePropertiesMap(bean.properties) : new Map<string, [string, string]>()

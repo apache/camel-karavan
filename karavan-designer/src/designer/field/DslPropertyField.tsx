@@ -35,7 +35,7 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {ExpressionField} from "./ExpressionField";
 import {CamelUi} from "../utils/CamelUi";
 import {ComponentParameterField} from "./ComponentParameterField";
-import {CamelElement, DataFormatDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {CamelElement, DataFormatDefinition, Integration} from "karavan-core/lib/model/CamelDefinition";
 import {KameletPropertyField} from "./KameletPropertyField";
 import {ExpressionDefinition} from "karavan-core/lib/model/CamelDefinition";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
@@ -51,6 +51,7 @@ interface Props {
     onDataFormatChange?: (value: DataFormatDefinition) => void,
     onParameterChange?: (parameter: string, value: string | number | boolean | any, pathParameter?: boolean) => void,
     element?: CamelElement
+    integration: Integration,
 }
 
 interface State {
@@ -153,7 +154,7 @@ export class DslPropertyField extends React.Component<Props, State> {
     getExpressionField = (property: PropertyMeta, value: any) => {
         return (
             <div className="expression">
-                <ExpressionField property={property} value={value} onExpressionChange={this.props.onExpressionChange}/>
+                <ExpressionField property={property} value={value} onExpressionChange={this.props.onExpressionChange} integration={this.props.integration}/>
             </div>
         )
     }
@@ -161,7 +162,7 @@ export class DslPropertyField extends React.Component<Props, State> {
     getObjectField = (property: PropertyMeta, value: any) => {
         return (
             <div className="object">
-                {value && <ObjectField property={property} value={value} onPropertyUpdate={this.props.onChange}/>}
+                {value && <ObjectField property={property} value={value} onPropertyUpdate={this.props.onChange} integration={this.props.integration} />}
             </div>
         )
     }
@@ -174,6 +175,31 @@ export class DslPropertyField extends React.Component<Props, State> {
                 aria-label={property.name}
                 isChecked={Boolean(value) === true}
                 onChange={e => this.propertyChanged(property.name, !Boolean(value))}/>
+        )
+    }
+
+    getSelectBean = (property: PropertyMeta, value: any) => {
+        const selectOptions: JSX.Element[] = [];
+        const beans = CamelUi.getBeans(this.props.integration);
+        if (beans) {
+            selectOptions.push(<SelectOption key={0} value={"Select..."} isPlaceholder/>);
+            selectOptions.push(...beans.map((bean) => <SelectOption key={bean.name} value={bean.name} description={bean.type}/>));
+        }
+        return (
+            <Select
+                variant={SelectVariant.single}
+                aria-label={property.name}
+                onToggle={isExpanded => {
+                    this.openSelect(property.name)
+                }}
+                onSelect={(e, value, isPlaceholder) => this.propertyChanged(property.name, (!isPlaceholder ? value : undefined))}
+                selections={value}
+                isOpen={this.isSelectOpen(property.name)}
+                aria-labelledby={property.name}
+                direction={SelectDirection.down}
+            >
+                {selectOptions}
+            </Select>
         )
     }
 
@@ -312,8 +338,10 @@ export class DslPropertyField extends React.Component<Props, State> {
                     && this.getMultiValueObjectField(property, value)}
                 {property.name === 'expression' && property.type === "string" && !property.isArray
                     && this.getTextArea(property, value)}
-                {['string', 'duration', 'integer', 'number'].includes(property.type) && property.name !== 'expression' && !property.isArray && !property.enumVals
+                {['string', 'duration', 'integer', 'number'].includes(property.type) && property.name !== 'expression' && !property.name.endsWith("Ref") && !property.isArray && !property.enumVals
                     && this.getTextField(property, value)}
+                {['string'].includes(property.type) && property.name.endsWith("Ref") && !property.isArray && !property.enumVals
+                    && this.getSelectBean(property, value)}
                 {['string'].includes(property.type) && property.name !== 'expression' && property.isArray && !property.enumVals
                     && this.getMultiValueField(property, value)}
                 {property.type === 'boolean'
