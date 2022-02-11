@@ -28,6 +28,7 @@ export class CamelDefinitionYaml {
         const clone: any = Object.assign({}, integration);
         const flows = integration.spec.flows
         clone.spec.flows = flows?.map((f: any) => CamelDefinitionYaml.cleanupElement(f)).filter(x => Object.keys(x).length !== 0);
+        if (clone.spec.dependencies && Array.from(clone.spec.dependencies).length === 0) delete clone.spec.dependencies;
         if (integration.crd) {
             delete clone.crd
             const i = JSON.parse(JSON.stringify(clone, null, 3)); // fix undefined in string attributes
@@ -36,8 +37,19 @@ export class CamelDefinitionYaml {
         } else {
             const f = JSON.parse(JSON.stringify(clone.spec.flows, null, 3));
             const text = CamelDefinitionYaml.yamlDump(f);
-            return text;
+            const modeline = this.generateModeline(integration);
+            return modeline.concat('\n', text);
         }
+    }
+
+    static generateModeline = (i: Integration): string => {
+        let result = '# camel-k:'
+        if (!i.crd) {
+            i.spec.dependencies?.forEach(d => {
+                result = result.concat(' dependency=', d)
+            })
+        }
+        return result;
     }
 
     static cleanupElement = (element: CamelElement): CamelElement => {

@@ -13,6 +13,7 @@ export class Metadata {
 
 export class Spec {
     flows?: any[] = [];
+    dependencies?: string[] = [];
 
     public constructor(init?: Partial<Spec>) {
         Object.assign(this, init);
