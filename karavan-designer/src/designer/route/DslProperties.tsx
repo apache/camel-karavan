@@ -25,8 +25,8 @@ import {
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
-import {DataFormatField} from "../field/DataFormatField";
-import {DslPropertyField} from "../field/DslPropertyField";
+import {DataFormatField} from "./property/DataFormatField";
+import {DslPropertyField} from "./property/DslPropertyField";
 import {
     CamelElement,
     Integration,

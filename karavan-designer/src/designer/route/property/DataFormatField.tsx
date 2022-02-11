@@ -22,7 +22,7 @@ import {
     SelectDirection,
     SelectOption,
 } from '@patternfly/react-core';
-import '../karavan.css';
+import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";

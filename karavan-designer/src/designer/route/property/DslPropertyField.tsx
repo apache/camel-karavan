@@ -25,7 +25,7 @@ import {
     SelectDirection,
     SelectOption, ExpandableSection, TextArea, Chip, TextInputGroup, TextInputGroupMain, TextInputGroupUtilities, ChipGroup, Button, Text, Tooltip
 } from '@patternfly/react-core';
-import '../karavan.css';
+import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
@@ -33,7 +33,7 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import { PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {ExpressionField} from "./ExpressionField";
-import {CamelUi} from "../utils/CamelUi";
+import {CamelUi} from "../../utils/CamelUi";
 import {ComponentParameterField} from "./ComponentParameterField";
 import {CamelElement, DataFormatDefinition, Integration} from "karavan-core/lib/model/CamelDefinition";
 import {KameletPropertyField} from "./KameletPropertyField";
@@ -268,6 +268,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                     <ComponentParameterField
                         key={kp.name}
                         property={kp}
+                        integration={this.props.integration}
                         value={CamelDefinitionApiExt.getParametersValue(this.props.element, kp.name, kp.kind === 'path')}
                         onParameterChange={this.props.onParameterChange}
                     />)}
@@ -291,6 +292,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                 <div className="parameters">
                     {CamelUi.getComponentProperties(this.props.element, true).map(kp =>
                         <ComponentParameterField
+                            integration={this.props.integration}
                             key={kp.name}
                             property={kp}
                             value={CamelDefinitionApiExt.getParametersValue(this.props.element, kp.name, kp.kind === 'path')}

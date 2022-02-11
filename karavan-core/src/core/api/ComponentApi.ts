@@ -174,8 +174,7 @@ export const ComponentApi = {
                     prop.enum = value.enum;
                     prop.kind = value.kind;
                     if (value.defaultValue) prop.defaultValue = value.defaultValue
-                    if (!value.deprecated && value.type !== 'object') properties.push(prop);
-                    if (!value.deprecated && value.type === 'object' && value.enum) properties.push(prop);
+                    if (!value.deprecated) properties.push(prop);
                 })
             }
         } finally {
