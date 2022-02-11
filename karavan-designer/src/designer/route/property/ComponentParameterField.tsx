@@ -33,6 +33,7 @@ import {CamelUi} from "../../utils/CamelUi";
 import {Integration} from "karavan-core/lib/model/CamelDefinition";
 
 const prefix = "parameters";
+const beanPrefix = "#bean:";
 
 interface Props {
     property: ComponentProperty,
@@ -69,7 +70,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
         const beans = CamelUi.getBeans(this.props.integration);
         if (beans) {
             selectOptions.push(<SelectOption key={0} value={"Select..."} isPlaceholder/>);
-            selectOptions.push(...beans.map((bean) => <SelectOption key={bean.name} value={bean.name} description={bean.type}/>));
+            selectOptions.push(...beans.map((bean) => <SelectOption key={bean.name} value={beanPrefix + bean.name} description={bean.type}/>));
         }
         return (
             <Select

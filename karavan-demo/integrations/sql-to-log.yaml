@@ -1,27 +1,18 @@
-apiVersion: camel.apache.org/v1
-kind: Integration
-metadata:
-  name: sql-to-log.yaml
-spec:
-  dependencies:
-  - "mvn:org.postgresql:postgresql:42.2.14"
-  - "mvn:org.apache.commons:commons-dbcp2:2.9.0"
-  flows:
-    - route:
-        from:
-          uri: "sql:SELECT * FROM table1"
-          parameters:
-            dataSource: "datasource"
-          steps:
-          - marshal:
-              json: 
-                library: Jackson
-          - log: "${body}"
-    - beans:
-        - name: datasource
-          type: "org.apache.commons.dbcp2.BasicDataSource"
-          properties:
-            username: postgres
-            password: postgres
-            url: jdbc:postgresql:localhost:5432:demo
-            driverClassName: org.postgresql.Driver
+# camel-k: dependency=mvn:org.apache.commons:commons-dbcp2:2.9.0 dependency=mvn:org.postgresql:postgresql:42.2.14
+- from:
+    uri: "sql:SELECT * FROM table1"
+    parameters:
+      dataSource: "#bean:datasource"
+    steps:
+      - marshal:
+          json: 
+            library: Jackson
+      - log: "${body}"
+- beans:
+    - name: datasource
+      type: "org.apache.commons.dbcp2.BasicDataSource"
+      properties:
+        username: postgres
+        password: postgres
+        url: jdbc:postgresql:localhost:5432:demo
+        driverClassName: org.postgresql.Driver
