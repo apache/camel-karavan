@@ -1,0 +1,20 @@
+# DEPS log4j:log4j:1.2.17
+- route:
+    from:
+      uri: "sql:SELECT * FROM table1"
+      parameters:
+        dataSource: "datasource"
+      steps:
+      - marshal:
+          json: 
+            library: Jackson
+      - log: "${body}"
+- beans:
+    - name: datasource
+      type: "org.apache.commons.dbcp2.BasicDataSource"
+      properties:
+        username: postgres
+        password: postgres
+        url: jdbc:postgresql:localhost:5432:demo
+        driverClassName: org.postgresql.Driver
+

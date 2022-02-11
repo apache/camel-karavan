@@ -23,7 +23,7 @@ import {
     SelectDirection,
     SelectOption,
 } from '@patternfly/react-core';
-import '../karavan.css';
+import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import {CamelMetadataApi, Languages, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
@@ -31,7 +31,7 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {CamelElement, ExpressionDefinition, Integration} from "karavan-core/lib/model/CamelDefinition";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {DslPropertyField} from "./DslPropertyField";
-import {CamelUi} from "../utils/CamelUi";
+import {CamelUi} from "../../utils/CamelUi";
 
 interface Props {
     property: PropertyMeta,

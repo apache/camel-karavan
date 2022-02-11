@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 import React from 'react';
-import '../karavan.css';
+import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import {DslPropertyField} from "./DslPropertyField";
 import {

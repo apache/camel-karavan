@@ -1,7 +1,7 @@
 apiVersion: camel.apache.org/v1alpha1
 kind: Kamelet
 metadata:
-  name: insert-field-action
+  name: insert-property-action
   labels:
     camel.apache.org/kamelet.type: "action"
   annotations:
@@ -22,16 +22,16 @@ spec:
 
       No headers mapping supported, only constant values.
     required:
-      - field
+      - property
       - value
     properties:
       field:
         title: Field
-        description: The name of the field to be added
+        description: The name of the property to be added
         type: string
       value:
         title: Value
-        description: The value of the field
+        description: The value of the property
         type: string
     type: object
   dependencies:
@@ -55,8 +55,8 @@ spec:
                   library: Jackson
                   unmarshalTypeName: com.fasterxml.jackson.databind.JsonNode
       - set-property:
-          name: "field"
-          constant: "{{field}}"
+          name: "property"
+          constant: "{{property}}"
       - set-property:
           name: "value"
           constant: "{{value}}"
