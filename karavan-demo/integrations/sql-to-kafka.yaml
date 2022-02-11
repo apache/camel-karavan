@@ -1,4 +1,3 @@
-# DEPS log4j:log4j:1.2.17
 - route:
     from:
       uri: "sql:SELECT * FROM table1"
