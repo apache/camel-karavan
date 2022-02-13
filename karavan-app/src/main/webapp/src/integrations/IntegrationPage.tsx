@@ -15,7 +15,7 @@ import {IntegrationCard} from "./IntegrationCard";
 import {MainToolbar} from "../MainToolbar";
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
-import {Integration} from "karavan-core/lib/model/CamelDefinition";
+import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUi} from "../designer/utils/CamelUi";
 
 interface Props {
