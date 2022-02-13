@@ -247,9 +247,6 @@ body,
   --pf-c-page__main-section--BackgroundColor: var(--pf-c-page__main-section--m-dark-100--BackgroundColor);
 }
 
-.vscode-dark .karavan .beans-page .add-bean-button {
-  /* color: rgb(239, 166, 79); */
-}
 
 .vscode-dark .beans-page .beans-page-columns .bean-card-unselected {
   border-color: rgb(239, 166, 79);
@@ -258,21 +255,19 @@ body,
 .vscode-dark .beans-page .beans-page-columns .bean-card-selected {
   color: rgb(171, 172, 224);
   border-color: rgb(171, 172, 224);
-}
-
-.vscode-dark .beans-page .beans-page-columns .bean-card-selected {
   background-color: rgb(37, 37, 38, 0.7);
-  color: rgb(171, 172, 224);
 }
 
-.vscode-dark .beans-page .beans-page-columns .bean-card-selected .icon {
-  fill: rgb(171, 172, 224);
+.vscode-dark .beans-page .beans-page-columns .bean-card-unselected .header-icon {
+  background: rgb(247, 205, 159);
+  border-color: rgb(239, 166, 79);
 }
+
 
 .vscode-dark .beans-page .beans-page-columns .bean-card:hover {
   box-shadow: 0 0.01rem 0.001rem 0rem rgb(247 205 159 / 13%), 0 0.1rem 0.5rem 0.1rem rgb(247 205 159 / 12%);
 }
 
 .vscode-dark .beans-page .beans-page-columns .bean-card-unselected .icon {
-  fill: white;
+  /* fill: white; */
 }
