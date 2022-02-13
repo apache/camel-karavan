@@ -59,7 +59,6 @@ export function activate(context: vscode.ExtensionContext) {
         (...args: any[]) => {
             if (args && args.length > 0) {
                 const yaml = fs.readFileSync(path.resolve(args[0].path)).toString('utf8');
-                console.log(yaml)
                 const filename = path.basename(args[0].path);
                 const relativePath = getRalativePath(args[0].path);
                 const integration = parceYaml(filename, yaml);
@@ -127,8 +126,7 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
     panel.webview.postMessage({ command: 'components', components: readComponents(context) });
 
     // Send integration
-    panel.webview.postMessage({ command: 'open', filename: filename, yaml: yaml });
-
+    panel.webview.postMessage({ command: 'open', filename: filename, relativePath: relativePath, yaml: yaml });
 
     // Handle messages from the webview
     panel.webview.onDidReceiveMessage(
@@ -136,8 +134,9 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
             switch (message.command) {
                 case 'save':
                     if (vscode.workspace.workspaceFolders) {
+                        console.log(message);
                         const uriFolder: vscode.Uri = vscode.workspace.workspaceFolders[0].uri;
-                        const uriFile: vscode.Uri = vscode.Uri.file(path.join(uriFolder.path, message.filename));
+                        const uriFile: vscode.Uri = vscode.Uri.file(path.join(uriFolder.path, message.relativePath));
                         fs.writeFile(uriFile.path, message.yaml, err => {
                             if (err) vscode.window.showErrorMessage("Error: " + err?.message);
                         });
