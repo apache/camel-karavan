@@ -143,11 +143,9 @@ export class BeansDesigner extends React.Component<Props, State> {
             <Card key={bean.dslName + index} isHoverable isCompact
                   className={this.state.selectedBean?.uuid === bean.uuid ? "bean-card bean-card-selected" : "bean-card bean-card-unselected"}
                   onClick={e => this.selectBean(bean)}>
+                <Button variant="link" className="delete-button" onClick={e => this.showDeleteConfirmation(e, bean)}><DeleteIcon/></Button>
                 <CardHeader>
-                    <BeanIcon/>
-                    <CardActions>
-                        <Button variant="link" className="delete-button" onClick={e => this.showDeleteConfirmation(e, bean)}><DeleteIcon/></Button>
-                    </CardActions>
+                    <div className="header-icon"><BeanIcon/></div>
                 </CardHeader>
                 <CardTitle>{bean.name}</CardTitle>
                 <CardBody>{bean.type}</CardBody>
