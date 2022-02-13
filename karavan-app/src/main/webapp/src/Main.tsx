@@ -29,7 +29,7 @@ import logo from './logo.svg';
 import './designer/karavan.css';
 import {ConfigurationPage} from "./config/ConfigurationPage";
 import {KameletsPage} from "./kamelets/KameletsPage";
-import {Integration} from "karavan-core/lib/model/CamelDefinition";
+import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {v4 as uuidv4} from "uuid";
 import {DesignerPage} from "./integrations/DesignerPage";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
