@@ -30,7 +30,7 @@ import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import {CamelUi} from "../../utils/CamelUi";
-import {Integration} from "karavan-core/lib/model/CamelDefinition";
+import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 
 const prefix = "parameters";
 const beanPrefix = "#bean:";

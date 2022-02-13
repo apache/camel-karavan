@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import '../karavan.css';
-import {CamelElement, Integration} from "karavan-core/lib/model/CamelDefinition";
+import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {DslPosition, EventBus} from "../utils/EventBus";
 import {CamelUi} from "../utils/CamelUi";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";

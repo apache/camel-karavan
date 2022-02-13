@@ -16,10 +16,11 @@
  */
 import {expect} from 'chai';
 import 'mocha';
-import {FromDefinition, Integration, LogDefinition, WhenDefinition, ChoiceDefinition, ExpressionDefinition} from "../src/core/model/CamelDefinition";
+import {FromDefinition, LogDefinition, WhenDefinition, ChoiceDefinition, ExpressionDefinition} from "../src/core/model/CamelDefinition";
 import {CamelUtil} from "../lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "../lib/api/CamelDefinitionApiExt";
 import {FilterDefinition, SimpleExpression} from "../lib/model/CamelDefinition";
+import {Integration} from "../src/core/model/IntegrationDefinition";
 
 describe('Update Step', () => {
 

@@ -21,13 +21,40 @@ export class BeanIcon extends React.Component<any> {
 
     render() {
         return (
-            <svg className="icon" width="32px" height="32px" viewBox="0 0 32 32">
+            <svg className="icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
                 <defs>
                     <style>{".cls-1 {fill: none;}"}</style>
                 </defs>
-                <path
-                    d="M28.5039,8.1362l-12-7a1,1,0,0,0-1.0078,0l-12,7A1,1,0,0,0,3,9V23a1,1,0,0,0,.4961.8638l12,7a1,1,0,0,0,1.0078,0l12-7A1,1,0,0,0,29,23V9A1,1,0,0,0,28.5039,8.1362ZM16,3.1577,26.0156,9,16,14.8423,5.9844,9ZM5,10.7412l10,5.833V28.2588L5,22.4258ZM17,28.2588V16.5742l10-5.833V22.4258Z"/>
-                <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32" height="32"/>
+                <title>data--1</title>
+                <rect x="15" y="6" width="13" height="2"/>
+                <rect x="15" y="24" width="13" height="2"/>
+                <rect x="4" y="15" width="13" height="2"/>
+                <path d="M7,11a4,4,0,1,1,4-4A4,4,0,0,1,7,11ZM7,5A2,2,0,1,0,9,7,2,2,0,0,0,7,5Z" transform="translate(0 0)"/>
+                <path d="M7,29a4,4,0,1,1,4-4A4,4,0,0,1,7,29Zm0-6a2,2,0,1,0,2,2A2,2,0,0,0,7,23Z" transform="translate(0 0)"/>
+                <path d="M25,20a4,4,0,1,1,4-4A4,4,0,0,1,25,20Zm0-6a2,2,0,1,0,2,2A2,2,0,0,0,25,14Z" transform="translate(0 0)"/>
+                <g id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;">
+                    <rect className="cls-1" width="32" height="32"/>
+                </g>
+            </svg>
+        )
+    }
+}
+export class DependencyIcon extends React.Component<any> {
+
+    render() {
+        return (
+            <svg className="icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
+                <defs>
+                    <style>{".cls-1 {fill: none;}"}</style>
+                </defs>
+                <title>application</title>
+                <path d="M16,18H6a2,2,0,0,1-2-2V6A2,2,0,0,1,6,4H16a2,2,0,0,1,2,2V16A2,2,0,0,1,16,18ZM6,6V16H16V6Z" transform="translate(0 0)"/>
+                <path d="M26,12v4H22V12h4m0-2H22a2,2,0,0,0-2,2v4a2,2,0,0,0,2,2h4a2,2,0,0,0,2-2V12a2,2,0,0,0-2-2Z" transform="translate(0 0)"/>
+                <path d="M26,22v4H22V22h4m0-2H22a2,2,0,0,0-2,2v4a2,2,0,0,0,2,2h4a2,2,0,0,0,2-2V22a2,2,0,0,0-2-2Z" transform="translate(0 0)"/>
+                <path d="M16,22v4H12V22h4m0-2H12a2,2,0,0,0-2,2v4a2,2,0,0,0,2,2h4a2,2,0,0,0,2-2V22a2,2,0,0,0-2-2Z" transform="translate(0 0)"/>
+                <g id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;">
+                    <rect className="cls-1" width="32" height="32"/>
+                </g>
             </svg>
         )
     }

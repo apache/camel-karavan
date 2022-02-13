@@ -18,8 +18,6 @@ import {expect} from 'chai';
 import * as fs from 'fs';
 import 'mocha';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
-import {CamelDefinitionYamlStep} from "../src/core/api/CamelDefinitionYamlStep";
-import {RouteDefinition} from "../src/core/model/CamelDefinition";
 
 describe('bean configuration', () => {
 

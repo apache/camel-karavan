@@ -248,7 +248,7 @@ body,
 }
 
 .vscode-dark .karavan .beans-page .add-bean-button {
-  color: rgb(239, 166, 79);
+  /* color: rgb(239, 166, 79); */
 }
 
 .vscode-dark .beans-page .beans-page-columns .bean-card-unselected {

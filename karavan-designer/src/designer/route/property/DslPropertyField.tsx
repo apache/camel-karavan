@@ -35,7 +35,8 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {ExpressionField} from "./ExpressionField";
 import {CamelUi} from "../../utils/CamelUi";
 import {ComponentParameterField} from "./ComponentParameterField";
-import {CamelElement, DataFormatDefinition, Integration} from "karavan-core/lib/model/CamelDefinition";
+import {DataFormatDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {KameletPropertyField} from "./KameletPropertyField";
 import {ExpressionDefinition} from "karavan-core/lib/model/CamelDefinition";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";

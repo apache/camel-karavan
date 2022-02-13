@@ -16,9 +16,10 @@
  */
 import {
     Integration,
-    CamelElement, NamedBeanDefinition, Beans,
-} from "../model/CamelDefinition";
+    CamelElement, Beans, Dependency,
+} from "../model/IntegrationDefinition";
 import {CamelDefinitionApi} from "./CamelDefinitionApi";
+import {NamedBeanDefinition} from "../model/CamelDefinition";
 
 export class CamelUtil {
 
@@ -26,6 +27,7 @@ export class CamelUtil {
         const clone = JSON.parse(JSON.stringify(integration));
         const int: Integration = new Integration({...clone});
         const flows: any[] = [];
+        int.spec.dependencies = int.spec.dependencies?.map(d => this.cloneDependency(d));
         int.spec.flows?.filter((e: any) => e.dslName === 'RouteDefinition')
             .forEach(f => flows.push(CamelDefinitionApi.createStep(f.dslName, f)));
         int.spec.flows?.filter((e: any) => e.dslName === 'Beans')
@@ -41,6 +43,13 @@ export class CamelUtil {
     static cloneStep = (step: CamelElement): CamelElement => {
         const clone = JSON.parse(JSON.stringify(step));
         return CamelDefinitionApi.createStep(step.dslName, clone, true);
+    }
+
+    static cloneDependency = (dependency: Dependency): Dependency => {
+        const clone = JSON.parse(JSON.stringify(dependency));
+        const newDependency = new Dependency(clone);
+        newDependency.uuid = dependency.uuid;
+        return newDependency;
     }
 
     static cloneBean = (bean: NamedBeanDefinition): NamedBeanDefinition => {

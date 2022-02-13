@@ -16,10 +16,11 @@
  */
 import React from 'react';
 import {
-    Button, Card, CardActions, CardBody, CardFooter, CardHeader, CardTitle, Gallery, Modal, PageSection
+    Button, Card, CardBody, CardFooter, CardHeader, CardTitle, Gallery, Modal, PageSection
 } from '@patternfly/react-core';
 import '../karavan.css';
-import {NamedBeanDefinition, Integration} from "karavan-core/lib/model/CamelDefinition";
+import {NamedBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUi} from "../utils/CamelUi";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
@@ -114,14 +115,6 @@ export class BeansDesigner extends React.Component<Props, State> {
         </Modal>)
     }
 
-    closeBeanEditor = () => {
-        this.setState({showBeanEditor: false})
-    }
-
-    openBeanEditor = () => {
-        this.setState({showBeanEditor: true})
-    }
-
     selectBean = (bean?: NamedBeanDefinition) => {
         this.setState({selectedBean: bean})
     }
@@ -142,11 +135,9 @@ export class BeansDesigner extends React.Component<Props, State> {
             <Card key={bean.dslName + index} isHoverable isCompact
                   className={this.state.selectedBean?.uuid === bean.uuid ? "bean-card bean-card-selected" : "bean-card bean-card-unselected"}
                   onClick={e => this.selectBean(bean)}>
+                <Button variant="link" className="delete-button" onClick={e => this.showDeleteConfirmation(e, bean)}><DeleteIcon/></Button>
                 <CardHeader>
-                    <BeanIcon/>
-                    <CardActions>
-                        <Button variant="link" className="delete-button" onClick={e => this.showDeleteConfirmation(e, bean)}><DeleteIcon/></Button>
-                    </CardActions>
+                    <div className="header-icon"><BeanIcon/></div>
                 </CardHeader>
                 <CardTitle>{bean.name}</CardTitle>
                 <CardBody>{bean.type}</CardBody>

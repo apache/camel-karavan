@@ -18,11 +18,14 @@ import {CamelMetadataApi, ElementMeta, Languages, PropertyMeta} from "../model/C
 import {ComponentApi} from "./ComponentApi";
 import {CamelUtil} from "./CamelUtil";
 import {
-    NamedBeanDefinition, Beans,
-    CamelElement, CamelElementMeta,
-    ExpressionDefinition,
-    Integration, RouteDefinition
+    NamedBeanDefinition,
+    ExpressionDefinition, RouteDefinition
 } from "../model/CamelDefinition";
+import {
+    Beans,
+    CamelElement, CamelElementMeta, Dependency,
+    Integration
+} from "../model/IntegrationDefinition";
 import {CamelDefinitionApi} from "./CamelDefinitionApi";
 
 export class ChildElement {
@@ -225,6 +228,21 @@ export class CamelDefinitionApiExt {
             }
         })
         integration.spec.flows = flows;
+        return integration;
+    }
+
+    static addDependencyToIntegration = (integration: Integration, dependency: Dependency): Integration => {
+        const deps: Dependency[] = [];
+        if (integration.spec.dependencies) {
+            deps.push(...integration.spec.dependencies?.filter(d => d.uuid !== dependency.uuid));
+        }
+        deps.push(dependency);
+        integration.spec.dependencies = deps;
+        return integration;
+    }
+
+    static deleteDependencyFromIntegration = (integration: Integration, dependency?: Dependency): Integration => {
+        integration.spec.dependencies = integration.spec.dependencies?.filter(d => d.uuid !== dependency?.uuid);
         return integration;
     }
 

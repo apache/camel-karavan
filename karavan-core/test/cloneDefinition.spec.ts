@@ -16,15 +16,14 @@
  */
 import {expect} from 'chai';
 import 'mocha';
-import {CamelElement, Integration, FilterDefinition, LogDefinition, ChoiceDefinition,
+import { FilterDefinition, LogDefinition, ChoiceDefinition,
     FromDefinition, OtherwiseDefinition,
     SimpleExpression,
     ToDefinition,
     WhenDefinition} from "../src/core/model/CamelDefinition";
 import {CamelDefinitionApi} from "../src/core/api/CamelDefinitionApi";
 import {ExpressionDefinition} from "../src/core/model/CamelDefinition";
-import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
-import * as yaml from "js-yaml";
+import {Integration, CamelElement} from "../src/core/model/IntegrationDefinition";
 
 describe('Clone', () => {
 
