@@ -19,7 +19,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
 import * as jsyaml from 'js-yaml';
-import { Integration } from "karavan-core/lib/model/CamelDefinition";
+import { Integration } from "karavan-core/lib/model/IntegrationDefinition";
 import { homedir } from "os";
 
 const KARAVAN_LOADED = "karavan:loaded";
