@@ -27,6 +27,7 @@ export class CamelUtil {
         const clone = JSON.parse(JSON.stringify(integration));
         const int: Integration = new Integration({...clone});
         const flows: any[] = [];
+        int.spec.dependencies = int.spec.dependencies?.map(d => this.cloneDependency(d));
         int.spec.flows?.filter((e: any) => e.dslName === 'RouteDefinition')
             .forEach(f => flows.push(CamelDefinitionApi.createStep(f.dslName, f)));
         int.spec.flows?.filter((e: any) => e.dslName === 'Beans')
@@ -47,7 +48,7 @@ export class CamelUtil {
     static cloneDependency = (dependency: Dependency): Dependency => {
         const clone = JSON.parse(JSON.stringify(dependency));
         const newDependency = new Dependency(clone);
-        newDependency.uuid = newDependency.uuid;
+        newDependency.uuid = dependency.uuid;
         return newDependency;
     }
 

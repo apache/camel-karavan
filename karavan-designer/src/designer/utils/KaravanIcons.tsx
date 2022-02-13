@@ -39,7 +39,7 @@ export class BeanIcon extends React.Component<any> {
         )
     }
 }
-export class DepIcon extends React.Component<any> {
+export class DependencyIcon extends React.Component<any> {
 
     render() {
         return (

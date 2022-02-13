@@ -38,8 +38,11 @@ class App extends React.Component<Props, State> {
         yaml: 'apiVersion: camel.apache.org/v1\n' +
             'kind: Integration\n' +
             'metadata:\n' +
-            '  name: demo.yaml\'\'\n' +
+            '  name: demo.yaml \n' +
             'spec:\n' +
+            '  dependencies:\n' +
+            '    - "mvn:org.apache.commons:commons-dbcp2:2.9.0" \n' +
+            '    - "mvn:org.postgresql:postgresql:42.2.14" \n' +
             '  flows:\n' +
             '    - route:\n' +
             '        from:\n' +
@@ -82,21 +85,13 @@ class App extends React.Component<Props, State> {
             '                           logName: log22\n' +
             '                otherwise: {}\n'+
             '    - beans:\n' +
-            '      - name: myNested\n' +
-            '        type: ${MyBean.class.name}\n' +
+            '      - name: datasource\n' +
+            '        type: org.apache.commons.dbcp2.BasicDataSource\n' +
             '        properties:\n' +
-            '          field1: \'value1\'\n' +
-            '          field2: \'value2\'\n' +
-            '          nested:\n' +
-            '            foo: \'valueFoo\'\n' +
-            '            bar: \'valueBar\'\n' +
-            '      - name: myProps\n' +
-            '        type: ${MyBean.class.name}\n' +
-            '        properties:\n' +
-            '          field1: \'f1_p\'\n' +
-            '          field2: \'f2_p\'\n' +
-            '          nested.foo: \'nf1_p\'\n' +
-            '          nested.bar: \'nf2_p\'\n'+
+            '          driverClassName: org.postgresql.Driver\n' +
+            '          password: postgres\n' +
+            '          url: "jdbc:postgresql:localhost:5432:demo"\n' +
+            '          username: postgres\n'+
             '      - name: myAggregatorStrategy \n' +
             '        type: org.apache.camel.processor.aggregate.UseLatestAggregationStrategy\n' +
             '',

@@ -16,16 +16,17 @@
  */
 import React from 'react';
 import {
-    Button, Card, CardActions, CardBody, CardFooter, CardHeader, CardTitle, Gallery, Modal, PageSection
+    Button, Card, CardFooter, CardHeader, CardTitle, Gallery, Modal, PageSection
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {CamelUi} from "../utils/CamelUi";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
-import {DepIcon} from "../utils/KaravanIcons";
+import {DependencyIcon} from "../utils/KaravanIcons";
 import {DependencyProperties} from "./DependencyProperties";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {Integration, Dependency} from "karavan-core/lib/model/IntegrationDefinition";
+import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 
 interface Props {
     onSave?: (integration: Integration) => void
@@ -80,19 +81,19 @@ export class DependenciesDesigner extends React.Component<Props, State> {
     }
 
     deleteDep = () => {
-        // const i = CamelDefinitionApiExt.deleteDepFromIntegration(this.state.integration, this.state.selectedDep);
-        // this.setState({
-        //     integration: i,
-        //     showDeleteConfirmation: false,
-        //     key: Math.random().toString(),
-        //     selectedDep: ''
-        // });
+        const i = CamelDefinitionApiExt.deleteDependencyFromIntegration(this.state.integration, this.state.selectedDep);
+        this.setState({
+            integration: i,
+            showDeleteConfirmation: false,
+            key: Math.random().toString(),
+            selectedDep: undefined
+        });
     }
 
     changeDep = (dep: Dependency) => {
         const clone = CamelUtil.cloneIntegration(this.state.integration);
-        // const i = CamelDefinitionApiExt.addDepToIntegration(clone, bean);
-        // this.setState({integration: i, key: Math.random().toString(), selectedDep: dep});
+        const i = CamelDefinitionApiExt.addDependencyToIntegration(clone, dep);
+        this.setState({integration: i, key: Math.random().toString(), selectedDep: dep});
     }
 
     getDeleteConfirmation() {
@@ -108,13 +109,9 @@ export class DependenciesDesigner extends React.Component<Props, State> {
             ]}
             onEscapePress={e => this.setState({showDeleteConfirmation: false})}>
             <div>
-                Delete bean from integration?
+                Delete dependency from integration?
             </div>
         </Modal>)
-    }
-
-    closeDepEditor = () => {
-        this.setState({showDepEditor: false})
     }
 
     openDepEditor = () => {
@@ -141,14 +138,12 @@ export class DependenciesDesigner extends React.Component<Props, State> {
             <Card key={dep.uuid + index} isHoverable isCompact
                   className={this.state.selectedDep?.uuid === dep.uuid ? "bean-card bean-card-selected" : "bean-card bean-card-unselected"}
                   onClick={e => this.selectDep(dep)}>
+                <Button variant="link" className="delete-button" onClick={e => this.showDeleteConfirmation(e, dep)}><DeleteIcon/></Button>
                 <CardHeader>
-                    <DepIcon/>
-                    <CardActions>
-                        <Button variant="link" className="delete-button" onClick={e => this.showDeleteConfirmation(e, dep)}><DeleteIcon/></Button>
-                    </CardActions>
+                    <div className="header-icon"><DependencyIcon/></div>
                 </CardHeader>
-                <CardTitle>{dep}</CardTitle>
-                <CardBody>{dep}</CardBody>
+                <CardTitle>{dep.getFullName()}</CardTitle>
+                {/*<CardBody>{dep}</CardBody>*/}
                 <CardFooter className="">
                 </CardFooter>
             </Card>
@@ -156,7 +151,7 @@ export class DependenciesDesigner extends React.Component<Props, State> {
     }
 
     render() {
-        const deps = CamelUi.getDependencies(this.state.integration);
+        const deps = CamelUi.getDependencies(this.state.integration).sort((a, b) => a.getFullName() > b.getFullName() ? 1 : -1 );
         return (
             <PageSection className="beans-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="beans-page-columns" data-click="BEANS" onClick={event => this.unselectDep(event)}>
@@ -166,7 +161,7 @@ export class DependenciesDesigner extends React.Component<Props, State> {
                         </Gallery>
                         <div className="add-button-div" data-click="BEANS" onClick={event => this.unselectDep(event)}>
                             <Button icon={<PlusIcon/>} variant={deps.length === 0 ? "primary" : "secondary"} onClick={e => this.createDep()} className="add-bean-button">
-                                Add new bean
+                                Add dependency
                             </Button>
                         </div>
                     </div>

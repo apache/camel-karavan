@@ -366,6 +366,9 @@ export class CamelUi {
         if (beans && beans.length > 0 && beans[0].beans){
             result.set('beans', Array.from(beans[0].beans).length);
         }
+        if (i.spec.dependencies && i.spec.dependencies.length > 0){
+            result.set('dependencies', i.spec.dependencies.length);
+        }
         return result;
     }
 

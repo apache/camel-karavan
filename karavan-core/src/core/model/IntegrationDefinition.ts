@@ -21,8 +21,8 @@ export class Dependency {
     group: string = '';
     artifact: string = '';
     version: string = '';
-    uuid: string = ''
-    dslName: string = ''
+    uuid: string = '';
+    dslName: string = '';
 
     public constructor(init?: Partial<Dependency>) {
         Object.assign(this, init);
@@ -33,6 +33,10 @@ export class Dependency {
     static createNew(url: string): Dependency {
         const parts = url.split(":");
         return new Dependency({group:parts[1], artifact:parts[2], version:parts[3]})
+    }
+
+    getFullName(): string {
+        return this.group + ":" + this.artifact + ":" + this.version;
     }
 }
 

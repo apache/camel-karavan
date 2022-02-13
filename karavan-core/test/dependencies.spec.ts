@@ -19,9 +19,37 @@ import * as fs from 'fs';
 import 'mocha';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
 import {Integration} from "../src/core/model/IntegrationDefinition";
+import {Dependency} from "../src/core/model/IntegrationDefinition";
+import {CamelUtil} from "../src/core/api/CamelUtil";
+import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
 
 describe('Read/write dependencies', () => {
 
+    it('Dependencies clone', () => {
+        const dep1 = Dependency.createNew("mvn:org.apache.camel:karavan:0.0.1");
+        const dep2 = CamelUtil.cloneDependency(dep1);
+        expect(dep1.uuid).to.equal(dep2.uuid);
+        expect(dep1.group).to.equal(dep2.group);
+        expect(dep1.artifact).to.equal(dep2.artifact);
+        expect(dep1.version).to.equal(dep2.version);
+    });
+
+    it('add dependency', () => {
+        let integration = new Integration();
+        const dep1 = Dependency.createNew("mvn:org.apache.camel:karavan:0.0.1");
+        integration = CamelDefinitionApiExt.addDependencyToIntegration(integration, dep1);
+
+        const dep2 = CamelUtil.cloneDependency(dep1);
+        const clone = CamelUtil.cloneIntegration(integration);
+        dep2.group = "0.0.2";
+        integration = CamelDefinitionApiExt.addDependencyToIntegration(clone, dep2);
+        if (clone.spec.dependencies) {
+            expect(clone.spec.dependencies[0].uuid).to.equal(dep2.uuid);
+            expect(clone.spec.dependencies[0].group).to.equal(dep2.group);
+            expect(clone.spec.dependencies[0].artifact).to.equal(dep2.artifact);
+            expect(clone.spec.dependencies[0].version).to.equal(dep2.version);
+        }
+    });
 
     it('Dependencies in Integration CRD', () => {
         const yaml = fs.readFileSync('test/dependencies-crd.yaml',{encoding:'utf8', flag:'r'});

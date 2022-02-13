@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    Button, Card, CardActions, CardBody, CardFooter, CardHeader, CardTitle, Gallery, Modal, PageSection
+    Button, Card, CardBody, CardFooter, CardHeader, CardTitle, Gallery, Modal, PageSection
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {NamedBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
@@ -113,14 +113,6 @@ export class BeansDesigner extends React.Component<Props, State> {
                 Delete bean from integration?
             </div>
         </Modal>)
-    }
-
-    closeBeanEditor = () => {
-        this.setState({showBeanEditor: false})
-    }
-
-    openBeanEditor = () => {
-        this.setState({showBeanEditor: true})
     }
 
     selectBean = (bean?: NamedBeanDefinition) => {
