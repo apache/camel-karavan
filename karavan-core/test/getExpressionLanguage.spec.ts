@@ -17,17 +17,9 @@
 import {expect} from 'chai';
 import 'mocha';
 import {
-    FromDefinition,
-    Integration,
-    LogDefinition,
-    WhenDefinition,
-    ChoiceDefinition,
-    MulticastDefinition,
     ExpressionDefinition
 } from "../src/core/model/CamelDefinition";
 import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
-import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
-import * as fs from 'fs';
 import {SimpleExpression} from "../lib/model/CamelDefinition";
 
 describe('Get Expression Language', () => {

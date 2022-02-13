@@ -19,7 +19,8 @@ import {
     Button, Card, CardActions, CardBody, CardFooter, CardHeader, CardTitle, Gallery, Modal, PageSection
 } from '@patternfly/react-core';
 import '../karavan.css';
-import {NamedBeanDefinition, Integration} from "karavan-core/lib/model/CamelDefinition";
+import {NamedBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUi} from "../utils/CamelUi";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";

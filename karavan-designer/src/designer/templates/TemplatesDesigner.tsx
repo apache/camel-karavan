@@ -16,11 +16,11 @@
  */
 import React from 'react';
 import {
-    Button, EmptyState, EmptyStateBody, EmptyStateIcon, Modal,
+     EmptyState, EmptyStateBody, EmptyStateIcon,
     PageSection, Title
 } from '@patternfly/react-core';
 import '../karavan.css';
-import {CamelElement, Integration} from "karavan-core/lib/model/CamelDefinition";
+import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import CubesIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 
 interface Props {

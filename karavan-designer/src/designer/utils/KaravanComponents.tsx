@@ -17,7 +17,7 @@
 import React from 'react';
 import {FormGroup, TextInput, Title} from "@patternfly/react-core";
 import {CamelUi} from "./CamelUi";
-import {Integration} from "karavan-core/lib/model/CamelDefinition";
+import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 
 interface Props {
     integration: Integration,

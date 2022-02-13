@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 import {Subject} from 'rxjs';
-import {CamelElement} from "karavan-core/lib/model/CamelDefinition";
+import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 
 const positions = new Subject<DslPosition>();
 

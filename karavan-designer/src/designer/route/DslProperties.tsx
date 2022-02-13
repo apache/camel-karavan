@@ -28,11 +28,10 @@ import "@patternfly/patternfly/patternfly.css";
 import {DataFormatField} from "./property/DataFormatField";
 import {DslPropertyField} from "./property/DslPropertyField";
 import {
-    CamelElement,
-    Integration,
     ExpressionDefinition,
     DataFormatDefinition
 } from "karavan-core/lib/model/CamelDefinition";
+import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";

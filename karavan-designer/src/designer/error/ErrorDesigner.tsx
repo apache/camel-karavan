@@ -20,7 +20,7 @@ import {
     PageSection, Title
 } from '@patternfly/react-core';
 import '../karavan.css';
-import {CamelElement, Integration} from "karavan-core/lib/model/CamelDefinition";
+import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import CubesIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 
 interface Props {

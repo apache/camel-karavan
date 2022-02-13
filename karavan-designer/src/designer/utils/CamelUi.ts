@@ -22,8 +22,8 @@ import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import {CamelElement, KameletDefinition, NamedBeanDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
-import {Integration} from "karavan-core/src/core/model/CamelDefinition";
+import { KameletDefinition, NamedBeanDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {CamelElement, Dependency, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 
 const StepElements: string[] = [
     "AggregateDefinition",
@@ -383,6 +383,10 @@ export class CamelUi {
             result.push(...beans[0].beans);
         }
         return result;
+    }
+
+    static getDependencies = (integration: Integration): Dependency[] => {
+        return integration.spec.dependencies || [];
     }
 
 }

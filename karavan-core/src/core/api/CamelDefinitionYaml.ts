@@ -15,10 +15,8 @@
  * limitations under the License.
  */
 import * as yaml from 'js-yaml';
-import {
-    Integration,
-    CamelElement, RouteDefinition, NamedBeanDefinition, Beans,
-} from "../model/CamelDefinition";
+import {Integration, CamelElement,  Beans, Dependency,} from "../model/IntegrationDefinition";
+import {RouteDefinition, NamedBeanDefinition} from "../model/CamelDefinition";
 import {CamelUtil} from "./CamelUtil";
 import {CamelDefinitionYamlStep} from "./CamelDefinitionYamlStep";
 
@@ -28,7 +26,11 @@ export class CamelDefinitionYaml {
         const clone: any = Object.assign({}, integration);
         const flows = integration.spec.flows
         clone.spec.flows = flows?.map((f: any) => CamelDefinitionYaml.cleanupElement(f)).filter(x => Object.keys(x).length !== 0);
-        if (clone.spec.dependencies && Array.from(clone.spec.dependencies).length === 0) delete clone.spec.dependencies;
+        if (clone.spec.dependencies && Array.from(clone.spec.dependencies).length === 0) {
+            delete clone.spec.dependencies;
+        } else {
+            clone.spec.dependencies = this.generateDependencies(clone.spec.dependencies);
+        }
         if (integration.crd) {
             delete clone.crd
             const i = JSON.parse(JSON.stringify(clone, null, 3)); // fix undefined in string attributes
@@ -37,18 +39,28 @@ export class CamelDefinitionYaml {
         } else {
             const f = JSON.parse(JSON.stringify(clone.spec.flows, null, 3));
             const text = CamelDefinitionYaml.yamlDump(f);
-            const modeline = this.generateModeline(integration);
-            return modeline.concat('\n', text);
+            if (clone.spec.dependencies && clone.spec.dependencies.length >0){
+                const modeline = this.generateModeline(clone.spec.dependencies);
+                return modeline.concat('\n', text);
+            } else {
+                return text;
+            }
         }
     }
 
-    static generateModeline = (i: Integration): string => {
+    static generateDependencies = (deps: Dependency[]): string[] => {
+        let result: string[] = [];
+        deps?.forEach(d => {
+            result.push('mvn:' + d.group + ":" + d.artifact + ":" + d.version);
+        })
+        return result;
+    }
+
+    static generateModeline = (deps: string []): string => {
         let result = '# camel-k:'
-        if (!i.crd) {
-            i.spec.dependencies?.forEach(d => {
-                result = result.concat(' dependency=', d)
-            })
-        }
+        deps?.forEach(d => {
+            result = result.concat(' dependency=', d)
+        })
         return result;
     }
 
@@ -121,19 +133,43 @@ export class CamelDefinitionYaml {
     }
 
     static yamlToIntegration = (filename: string, text: string): Integration => {
-        const i: Integration = Integration.createNew(filename);
+        const integration: Integration = Integration.createNew(filename);
         const fromYaml: any = yaml.load(text);
         const camelized: any = CamelUtil.camelizeObject(fromYaml);
         if (Array.isArray(camelized)) {
-            i.crd = false;
+            integration.crd = false;
             const flows: any[] = camelized;
-            i.spec.flows?.push(...CamelDefinitionYaml.flowsToCamelElements(flows));
+            integration.spec.flows?.push(...CamelDefinitionYaml.flowsToCamelElements(flows));
+            integration.spec.dependencies = this.modelineToDependency(text);
         } else {
-            i.crd = true;
+            integration.crd = true;
             const int: Integration = new Integration({...camelized});
-            i.spec.flows?.push(...CamelDefinitionYaml.flowsToCamelElements(int.spec.flows || []));
+            integration.spec.flows?.push(...CamelDefinitionYaml.flowsToCamelElements(int.spec.flows || []));
+            integration.spec.dependencies = this.dependenciesToDependency(int.spec.dependencies);
         }
-        return i;
+        return integration;
+    }
+
+    static dependenciesToDependency = (deps?: any[]): Dependency[] => {
+        const result: Dependency[] = [];
+        deps?.forEach((d: any) => result.push(Dependency.createNew(d.toString())));
+        return result;
+    }
+
+    static modelineToDependency = (text: string): Dependency[] => {
+        const result: Dependency[] = [];
+        const lines = text.split("\r\n");
+        lines.filter(l => {
+            const line = l.trim();
+            return line.startsWith("#") && line.includes("camel-k");
+        }).forEach(line => {
+            const parts = line.split(" ");
+            parts.filter(part => part.trim() && part.trim().startsWith("dependency")).forEach(part => {
+                const dep = part.replace("dependency=", '');
+                result.push(Dependency.createNew(dep));
+            })
+        });
+        return result;
     }
 
     static flowsToCamelElements = (flows: any[]): any[] => {

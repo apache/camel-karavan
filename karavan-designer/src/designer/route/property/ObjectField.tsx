@@ -19,9 +19,9 @@ import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import {DslPropertyField} from "./DslPropertyField";
 import {
-    CamelElement,
-    ExpressionDefinition, Integration,
+    ExpressionDefinition,
 } from "karavan-core/lib/model/CamelDefinition";
+import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import { PropertyMeta} from "karavan-core/lib/model/CamelMetadata";

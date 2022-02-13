@@ -18,11 +18,14 @@ import {CamelMetadataApi, ElementMeta, Languages, PropertyMeta} from "../model/C
 import {ComponentApi} from "./ComponentApi";
 import {CamelUtil} from "./CamelUtil";
 import {
-    NamedBeanDefinition, Beans,
-    CamelElement, CamelElementMeta,
-    ExpressionDefinition,
-    Integration, RouteDefinition
+    NamedBeanDefinition,
+    ExpressionDefinition, RouteDefinition
 } from "../model/CamelDefinition";
+import {
+     Beans,
+    CamelElement, CamelElementMeta,
+    Integration
+} from "../model/IntegrationDefinition";
 import {CamelDefinitionApi} from "./CamelDefinitionApi";
 
 export class ChildElement {

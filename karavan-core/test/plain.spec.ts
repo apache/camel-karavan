@@ -18,6 +18,7 @@ import {expect} from 'chai';
 import * as fs from 'fs';
 import 'mocha';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
+import {Integration} from "../src/core/model/IntegrationDefinition";
 
 
 describe('Plain YAML to integration', () => {

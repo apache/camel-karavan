@@ -84,7 +84,7 @@ class App extends React.Component<Props, State> {
             '    - beans:\n' +
             '      - name: myNested\n' +
             '        type: ${MyBean.class.name}\n' +
-            '        property:\n' +
+            '        properties:\n' +
             '          field1: \'value1\'\n' +
             '          field2: \'value2\'\n' +
             '          nested:\n' +
@@ -92,7 +92,7 @@ class App extends React.Component<Props, State> {
             '            bar: \'valueBar\'\n' +
             '      - name: myProps\n' +
             '        type: ${MyBean.class.name}\n' +
-            '        property:\n' +
+            '        properties:\n' +
             '          field1: \'f1_p\'\n' +
             '          field2: \'f2_p\'\n' +
             '          nested.foo: \'nf1_p\'\n' +
@@ -110,7 +110,6 @@ class App extends React.Component<Props, State> {
             "http-secured-source.kamelet.yaml",
             "http-sink.kamelet.yaml",
             "http-source.kamelet.yaml",
-            "insert-property-action.kamelet.yaml",
             "insert-header-action.kamelet.yaml",
             "kafka-not-secured-sink.kamelet.yaml",
             "kafka-not-secured-source.kamelet.yaml",

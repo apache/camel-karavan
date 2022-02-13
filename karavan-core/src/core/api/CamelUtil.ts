@@ -16,9 +16,10 @@
  */
 import {
     Integration,
-    CamelElement, NamedBeanDefinition, Beans,
-} from "../model/CamelDefinition";
+    CamelElement, Beans, Dependency,
+} from "../model/IntegrationDefinition";
 import {CamelDefinitionApi} from "./CamelDefinitionApi";
+import {NamedBeanDefinition} from "../model/CamelDefinition";
 
 export class CamelUtil {
 
@@ -41,6 +42,13 @@ export class CamelUtil {
     static cloneStep = (step: CamelElement): CamelElement => {
         const clone = JSON.parse(JSON.stringify(step));
         return CamelDefinitionApi.createStep(step.dslName, clone, true);
+    }
+
+    static cloneDependency = (dependency: Dependency): Dependency => {
+        const clone = JSON.parse(JSON.stringify(dependency));
+        const newDependency = new Dependency(clone);
+        newDependency.uuid = newDependency.uuid;
+        return newDependency;
     }
 
     static cloneBean = (bean: NamedBeanDefinition): NamedBeanDefinition => {

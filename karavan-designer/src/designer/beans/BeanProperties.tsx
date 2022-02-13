@@ -23,9 +23,9 @@ import {
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import {
-    Integration,
     NamedBeanDefinition,
 } from "karavan-core/lib/model/CamelDefinition";
+import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {v4 as uuidv4} from "uuid";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";

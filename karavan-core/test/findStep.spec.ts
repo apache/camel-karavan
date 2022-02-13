@@ -18,16 +18,16 @@ import {expect} from 'chai';
 import 'mocha';
 import {
     FromDefinition,
-    Integration,
     LogDefinition,
     WhenDefinition,
     ChoiceDefinition,
     ExpressionDefinition,
     SimpleExpression,
-    FilterDefinition, CatchDefinition, TryDefinition, FinallyDefinition, RouteDefinition
+    FilterDefinition, CatchDefinition, TryDefinition, RouteDefinition
 } from "../src/core/model/CamelDefinition";
 import {CamelUtil} from "../src/core/api/CamelUtil";
 import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
+import {Integration} from "../src/core/model/IntegrationDefinition";
 
 describe('Find Step', () => {
 
