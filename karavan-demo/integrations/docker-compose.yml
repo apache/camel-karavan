@@ -2,57 +2,57 @@
 version: '3.8'
 services:
 
-  # mongo:
-  #   image: mongo
-  #   restart: always
-  #   ports:
-  #     - 27017:27017
-  #   environment:
-  #     MONGO_INITDB_ROOT_USERNAME: root
-  #     MONGO_INITDB_ROOT_PASSWORD: example
-  #   networks:
-  #     - karavan-demo
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+      - karavan-demo
 
-  # zookeeper:
-  #   container_name: zookeeper
-  #   image: confluentinc/cp-zookeeper:latest
-  #   ports:
-  #     - "2181:2181"
-  #   environment:
-  #     ZOOKEEPER_CLIENT_PORT: 2181
-  #     ZOOKEEPER_TICK_TIME: 2000
-  #   networks:
-  #     - karavan-demo
+  zookeeper:
+    container_name: zookeeper
+    image: confluentinc/cp-zookeeper:latest
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - karavan-demo
 
-  # kafka:
-  #   container_name: kafka
-  #   image: confluentinc/cp-kafka:latest
-  #   depends_on:
-  #     - zookeeper
-  #   ports:
-  #     - "9092:9092"
-  #   environment:
-  #     KAFKA_BROKER_ID: 1
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-  #     KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-  #     KAFKA_CREATE_TOPICS: "events:1:1"
-  #   networks:
-  #     - karavan-demo
+  kafka:
+    container_name: kafka
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CREATE_TOPICS: "events:1:1"
+    networks:
+      - karavan-demo
 
-  # activemq:
-  #   image: registry.redhat.io/amq7/amq-broker:latest
-  #   container_name: activemq
-  #   environment:
-  #     - AMQ_USER=admin
-  #     - AMQ_PASSWORD=admin
-  #   ports:
-  #     - "61616:61616"
-  #     - "8161:8161"  
-  #   networks:
-  #     - karavan-demo
+  activemq:
+    image: registry.redhat.io/amq7/amq-broker:latest
+    container_name: activemq
+    environment:
+      - AMQ_USER=admin
+      - AMQ_PASSWORD=admin
+    ports:
+      - "61616:61616"
+      - "8161:8161"  
+    networks:
+      - karavan-demo
   
   postgres:
     image: postgres
@@ -82,32 +82,32 @@ services:
     networks:
       - karavan-demo
 
-  # mysql:
-  #   image: mysql
-  #   container_name: mysql
-  #   restart: always
-  #   environment:
-  #     MYSQL_DATABASE: 'demo'
-  #     MYSQL_USER: 'demo'
-  #     MYSQL_PASSWORD: 'demo'
-  #     MYSQL_ROOT_PASSWORD: 'demo'
-  #   volumes:
-  #     - ./mysql_db.sql:/docker-entrypoint-initdb.d/mysql_db.sql
-  #   ports:
-  #     - '3306:3306'
-  #   expose:
-  #     - '3306'
-  #   networks:
-  #     - karavan-demo
+  mysql:
+    image: mysql
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'demo'
+      MYSQL_USER: 'demo'
+      MYSQL_PASSWORD: 'demo'
+      MYSQL_ROOT_PASSWORD: 'demo'
+    volumes:
+      - ./mysql_db.sql:/docker-entrypoint-initdb.d/mysql_db.sql
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    networks:
+      - karavan-demo
 
-  # adminer:
-  #   image: adminer
-  #   container_name: adminer
-  #   restart: always
-  #   ports:
-  #     - 6060:8080
-  #   networks:
-  #     - karavan-demo
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    ports:
+      - 6060:8080
+    networks:
+      - karavan-demo
 
 networks:
   karavan-demo:

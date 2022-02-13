@@ -29,6 +29,7 @@ interface Props {
 
 interface State {
   filename: string
+  relativePath: string
   yaml: string
   key: string
 }
@@ -37,6 +38,7 @@ class App extends React.Component<Props, State> {
 
   public state: State = {
     filename: '',
+    relativePath: '',
     yaml: '',
     key: ''
   };
@@ -55,7 +57,7 @@ class App extends React.Component<Props, State> {
         case 'open':
           console.log(event);
           if (this.state.filename === '' && this.state.key === ''){
-            this.setState({filename: message.filename, yaml: message.yaml, key: Math.random().toString()});
+            this.setState({filename: message.filename, yaml: message.yaml, relativePath: message.relativePath, key: Math.random().toString()});
           }
           break;
       }
@@ -66,6 +68,7 @@ class App extends React.Component<Props, State> {
     vscode.postMessage({
       command: 'save',
       filename: filename,
+      relativePath: this.state.relativePath,
       yaml: yaml
     })
   }
