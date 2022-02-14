@@ -22,7 +22,7 @@ import {
     Text, TextInput,
 } from '@patternfly/react-core';
 import '../karavan.css';
-import {CamelUi} from "../utils/CamelUi";
+import {camelIcon, CamelUi} from "../utils/CamelUi";
 import {DslMetaModel} from "../utils/DslMetaModel";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 
@@ -88,6 +88,8 @@ export class DslSelector extends React.Component<Props, State> {
         } else if ((dsl.dsl && dsl.dsl === "FromDefinition")
             && dsl.uri?.startsWith("kamelet")) {
             return CamelUi.getKameletIconByUri(dsl.uri);
+        } else if (dsl.navigation === 'component' ){
+            return camelIcon;
         } else {
             return CamelUi.getIconForName(dsl.dsl);
         }

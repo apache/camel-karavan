@@ -48,6 +48,31 @@ class App extends React.Component<Props, State> {
             '        from:\n' +
             '          uri: kamelet:http-secured-source\n' +
             '          steps:\n' +
+            '            - choice:\n' +
+            '                when:\n' +
+            '                  - expression:\n' +
+            '                      simple:\n' +
+            '                        expression: hello world\n' +
+            '                    steps:\n' +
+            '                      - log:\n' +
+            '                          message: hello22s\n' +
+            '                          logName: log22\n' +
+            '                otherwise:\n' +
+            '                  steps:\n' +
+            '                    - to:\n' +
+            '                        uri: activemq\n' +
+            '                    - to:\n' +
+            '                        uri: direct\n' +
+            '                    - kamelet:\n' +
+            '                        name: insert-header-action\n' +
+            '                    - kamelet:\n' +
+            '                        name: http-sink\n' +
+            '    - route:\n' +
+            '        from:\n' +
+            '          uri: activemq\n' +
+            '    - route:\n' +
+            '        from:\n' +
+            '          uri: direct\n' +
             // '           - saga: \n' +
             // '               option:\n' +
             // '                 - option-name: o1\n' +
@@ -76,14 +101,14 @@ class App extends React.Component<Props, State> {
             // '                      - log: "log1"\n' +
             // '                      - kamelet: \n' +
             // '                           name: http-sink \n' +
-            '            - choice:\n' +
-            '                when:\n' +
-            '                  - simple: "hello world"\n' +
-            '                    steps:\n' +
-            '                      - log:\n' +
-            '                           message: hello22s\n' +
-            '                           logName: log22\n' +
-            '                otherwise: {}\n'+
+            // '            - choice:\n' +
+            // '                when:\n' +
+            // '                  - simple: "hello world"\n' +
+            // '                    steps:\n' +
+            // '                      - log:\n' +
+            // '                           message: hello22s\n' +
+            // '                           logName: log22\n' +
+            // '                otherwise: {}\n'+
             '    - beans:\n' +
             '      - name: datasource\n' +
             '        type: org.apache.commons.dbcp2.BasicDataSource\n' +
