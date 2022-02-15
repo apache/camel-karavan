@@ -47,7 +47,7 @@ import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 interface Props {
     property: PropertyMeta,
     value: any,
-    onChange?: (fieldId: string, value: string | number | boolean | any) => void,
+    onChange?: (fieldId: string, value: string | number | boolean | any, newRoute?: RouteToCreate) => void,
     onExpressionChange?: (value: ExpressionDefinition) => void,
     onDataFormatChange?: (value: DataFormatDefinition) => void,
     onParameterChange?: (parameter: string, value: string | number | boolean | any, pathParameter?: boolean, newRoute?: RouteToCreate) => void,
@@ -77,8 +77,8 @@ export class DslPropertyField extends React.Component<Props, State> {
         return this.state.selectStatus.has(propertyName) && this.state.selectStatus.get(propertyName) === true;
     }
 
-    propertyChanged = (fieldId: string, value: string | number | boolean | any) => {
-        this.props.onChange?.call(this, fieldId, value);
+    propertyChanged = (fieldId: string, value: string | number | boolean | any, newRoute?: RouteToCreate) => {
+        this.props.onChange?.call(this, fieldId, value, newRoute);
         this.setState({selectStatus: new Map<string, boolean>([[fieldId, false]])});
     }
 
@@ -235,48 +235,38 @@ export class DslPropertyField extends React.Component<Props, State> {
     }
 
      canBeInternalUri = (property: PropertyMeta, element?: CamelElement): boolean => {
-        if (element && element.dslName === 'ToDefinition' && property.name === 'name') {
-            const url:string = (element as any).url || '';
-            return url.startsWith("direct") || url.startsWith("seda");
-        } else if (element && ['ToDefinition', 'WireTapDefinition'].includes(element.dslName)) {
-            const url:string = (element as any).url || '';
-            return url.startsWith("direct") || url.startsWith("seda");
+        if  (element?.dslName === 'WireTapDefinition' && property.name === 'uri') {
+            return true;
         } else {
             return false;
         }
     }
 
-    getInternalComponentName = (property: PropertyMeta): string => {
-        const element = this.props.element;
-        if (element && element.dslName === 'ToDefinition' && property.name === 'name') {
-            const uri:string = (element as ToDefinition).uri || '';
-            if (uri.startsWith("direct")) return "direct";
-            if (uri.startsWith("seda")) return "seda";
-            return '';
-        } else {
-            return '';
-        }
-    }
-
     getInternalUriSelect = (property: PropertyMeta, value: any) => {
         const selectOptions: JSX.Element[] = [];
-        const componentName = this.getInternalComponentName(property);
-        const urls = CamelUi.getInternalRouteUris(this.props.integration, componentName);
+        const urls = CamelUi.getInternalRouteUris(this.props.integration, "direct");
+        urls.push(...CamelUi.getInternalRouteUris(this.props.integration, "seda"));
         if (urls && urls.length > 0) {
-            selectOptions.push(<SelectOption key={0} value={"Select " + property.name} isPlaceholder/>);
             selectOptions.push(...urls.map((value: string) =>
                 <SelectOption key={value} value={value.trim()}/>));
         }
         return (
             <Select
-                variant={SelectVariant.single}
+                placeholderText="Select or type an URI"
+                variant={SelectVariant.typeahead}
                 aria-label={property.name}
                 onToggle={isExpanded => {
                     this.openSelect(property.name)
                 }}
-                onSelect={(e, value, isPlaceholder) => this.propertyChanged(property.name, (!isPlaceholder ? value : undefined))}
+                onSelect={(e, value, isPlaceholder) => {
+                    const url = value.toString().split(":");
+                    const newRoute = !urls.includes(value.toString()) ? new RouteToCreate(url[0], url[1]) : undefined;
+                    this.propertyChanged(property.name, (!isPlaceholder ? value : undefined), newRoute)
+                }}
                 selections={value}
                 isOpen={this.isSelectOpen(property.name)}
+                isCreatable={true}
+                isInputFilterPersisted={true}
                 aria-labelledby={property.name}
                 direction={SelectDirection.down}
             >
@@ -398,8 +388,11 @@ export class DslPropertyField extends React.Component<Props, State> {
                     && this.getMultiValueObjectField(property, value)}
                 {property.name === 'expression' && property.type === "string" && !property.isArray
                     && this.getTextArea(property, value)}
-                {this.canBeInternalUri(property, this.props.element) && this.getInternalUriSelect(property, value)}
-                {['string', 'duration', 'integer', 'number'].includes(property.type) && property.name !== 'expression' && !property.name.endsWith("Ref") && !property.isArray && !property.enumVals
+                {this.canBeInternalUri(property, this.props.element)
+                    && this.getInternalUriSelect(property, value)}
+                {['string', 'duration', 'integer', 'number'].includes(property.type) && property.name !== 'expression' && !property.name.endsWith("Ref")
+                    && !property.isArray && !property.enumVals
+                    && !this.canBeInternalUri(property, this.props.element)
                     && this.getTextField(property, value)}
                 {['string'].includes(property.type) && property.name.endsWith("Ref") && !property.isArray && !property.enumVals
                     && this.getSelectBean(property, value)}
