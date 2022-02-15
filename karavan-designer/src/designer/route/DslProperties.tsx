@@ -35,7 +35,7 @@ import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefin
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {CamelUi} from "../utils/CamelUi";
+import {CamelUi, RouteToCreate} from "../utils/CamelUi";
 import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {IntegrationHeader} from "../utils/KaravanComponents";
 
@@ -43,7 +43,7 @@ interface Props {
     integration: Integration,
     step?: CamelElement,
     onIntegrationUpdate?: any,
-    onPropertyUpdate?: any,
+    onPropertyUpdate?: (element: CamelElement, updatedUuid: string, newRoute?: RouteToCreate) => void
 }
 
 interface State {
@@ -58,19 +58,19 @@ export class DslProperties extends React.Component<Props, State> {
         selectStatus: new Map<string, boolean>(),
     };
 
-    propertyChanged = (fieldId: string, value: string | number | boolean | any) => {
+    propertyChanged = (fieldId: string, value: string | number | boolean | any, newRoute?: RouteToCreate) => {
         if (this.state.step) {
             const clone = CamelUtil.cloneStep(this.state.step);
             (clone as any)[fieldId] = value;
             this.setStep(clone)
-            this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid);
+            this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid, newRoute);
         }
     }
 
     dataFormatChanged = (value: DataFormatDefinition) => {
         value.uuid = this.state.step?.uuid ? this.state.step?.uuid : value.uuid;
         this.setStep(value);
-        this.props.onPropertyUpdate?.call(this, value, this.state.step?.uuid);
+        this.props.onPropertyUpdate?.call(this, value, value.uuid);
     }
 
     expressionChanged = (exp:ExpressionDefinition) => {
@@ -82,11 +82,11 @@ export class DslProperties extends React.Component<Props, State> {
         }
     }
 
-    parametersChanged = (parameter: string, value: string | number | boolean | any, pathParameter?: boolean) => {
+    parametersChanged = (parameter: string, value: string | number | boolean | any, pathParameter?: boolean, newRoute?: RouteToCreate) => {
         if (this.state.step && this.state.step) {
             if (pathParameter) {
                 const uri = ComponentApi.buildComponentUri((this.state.step as any).uri, parameter, value);
-                this.propertyChanged("uri", uri);
+                this.propertyChanged("uri", uri, newRoute);
             } else {
                 const clone = (CamelUtil.cloneStep(this.state.step));
                 const parameters: any = {...(clone as any).parameters};

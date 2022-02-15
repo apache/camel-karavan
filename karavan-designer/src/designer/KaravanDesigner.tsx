@@ -59,6 +59,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.key !== this.state.key) {
+
             this.props.onSave?.call(this, this.state.integration.metadata.name, this.getCode(this.state.integration));
         }
     }

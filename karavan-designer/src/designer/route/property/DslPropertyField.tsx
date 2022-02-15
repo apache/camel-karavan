@@ -33,9 +33,9 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import { PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {ExpressionField} from "./ExpressionField";
-import {CamelUi} from "../../utils/CamelUi";
+import {CamelUi, RouteToCreate} from "../../utils/CamelUi";
 import {ComponentParameterField} from "./ComponentParameterField";
-import {DataFormatDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {DataFormatDefinition, ToDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {KameletPropertyField} from "./KameletPropertyField";
 import {ExpressionDefinition} from "karavan-core/lib/model/CamelDefinition";
@@ -47,10 +47,10 @@ import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 interface Props {
     property: PropertyMeta,
     value: any,
-    onChange?: (fieldId: string, value: string | number | boolean | any) => void,
+    onChange?: (fieldId: string, value: string | number | boolean | any, newRoute?: RouteToCreate) => void,
     onExpressionChange?: (value: ExpressionDefinition) => void,
     onDataFormatChange?: (value: DataFormatDefinition) => void,
-    onParameterChange?: (parameter: string, value: string | number | boolean | any, pathParameter?: boolean) => void,
+    onParameterChange?: (parameter: string, value: string | number | boolean | any, pathParameter?: boolean, newRoute?: RouteToCreate) => void,
     element?: CamelElement
     integration: Integration,
 }
@@ -77,8 +77,8 @@ export class DslPropertyField extends React.Component<Props, State> {
         return this.state.selectStatus.has(propertyName) && this.state.selectStatus.get(propertyName) === true;
     }
 
-    propertyChanged = (fieldId: string, value: string | number | boolean | any) => {
-        this.props.onChange?.call(this, fieldId, value);
+    propertyChanged = (fieldId: string, value: string | number | boolean | any, newRoute?: RouteToCreate) => {
+        this.props.onChange?.call(this, fieldId, value, newRoute);
         this.setState({selectStatus: new Map<string, boolean>([[fieldId, false]])});
     }
 
@@ -128,10 +128,15 @@ export class DslPropertyField extends React.Component<Props, State> {
         }
     }
 
+    isUriReadOnly = (property: PropertyMeta): boolean => {
+        const dslName:string = this.props.element?.dslName || '';
+        return property.name === 'uri' && !['ToDynamicDefinition', 'WireTapDefinition'].includes(dslName)
+    }
+
     getTextField = (property: PropertyMeta, value: any) => {
         return (
             <TextInput
-                className="text-field" isRequired
+                className="text-field" isRequired isReadOnly={this.isUriReadOnly(property)}
                 type={['integer', 'number'].includes(property.type) ? 'number' : (property.secret ? "password" : "text")}
                 id={property.name} name={property.name}
                 value={value?.toString()}
@@ -229,6 +234,49 @@ export class DslPropertyField extends React.Component<Props, State> {
         )
     }
 
+     canBeInternalUri = (property: PropertyMeta, element?: CamelElement): boolean => {
+        if  (element?.dslName === 'WireTapDefinition' && property.name === 'uri') {
+            return true;
+        } else if  (element?.dslName === 'SagaDefinition' && ['compensation', 'completion'].includes(property.name)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    getInternalUriSelect = (property: PropertyMeta, value: any) => {
+        const selectOptions: JSX.Element[] = [];
+        const urls = CamelUi.getInternalRouteUris(this.props.integration, "direct");
+        urls.push(...CamelUi.getInternalRouteUris(this.props.integration, "seda"));
+        if (urls && urls.length > 0) {
+            selectOptions.push(...urls.map((value: string) =>
+                <SelectOption key={value} value={value.trim()}/>));
+        }
+        return (
+            <Select
+                placeholderText="Select or type an URI"
+                variant={SelectVariant.typeahead}
+                aria-label={property.name}
+                onToggle={isExpanded => {
+                    this.openSelect(property.name)
+                }}
+                onSelect={(e, value, isPlaceholder) => {
+                    const url = value.toString().split(":");
+                    const newRoute = !urls.includes(value.toString()) ? new RouteToCreate(url[0], url[1]) : undefined;
+                    this.propertyChanged(property.name, (!isPlaceholder ? value : undefined), newRoute)
+                }}
+                selections={value}
+                isOpen={this.isSelectOpen(property.name)}
+                isCreatable={true}
+                isInputFilterPersisted={true}
+                aria-labelledby={property.name}
+                direction={SelectDirection.down}
+            >
+                {selectOptions}
+            </Select>
+        )
+    }
+
     getMultiValueObjectField = (property: PropertyMeta, value: any) => {
         return (
             <div>
@@ -269,6 +317,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                     <ComponentParameterField
                         key={kp.name}
                         property={kp}
+                        element={this.props.element}
                         integration={this.props.integration}
                         value={CamelDefinitionApiExt.getParametersValue(this.props.element, kp.name, kp.kind === 'path')}
                         onParameterChange={this.props.onParameterChange}
@@ -341,7 +390,11 @@ export class DslPropertyField extends React.Component<Props, State> {
                     && this.getMultiValueObjectField(property, value)}
                 {property.name === 'expression' && property.type === "string" && !property.isArray
                     && this.getTextArea(property, value)}
-                {['string', 'duration', 'integer', 'number'].includes(property.type) && property.name !== 'expression' && !property.name.endsWith("Ref") && !property.isArray && !property.enumVals
+                {this.canBeInternalUri(property, this.props.element)
+                    && this.getInternalUriSelect(property, value)}
+                {['string', 'duration', 'integer', 'number'].includes(property.type) && property.name !== 'expression' && !property.name.endsWith("Ref")
+                    && !property.isArray && !property.enumVals
+                    && !this.canBeInternalUri(property, this.props.element)
                     && this.getTextField(property, value)}
                 {['string'].includes(property.type) && property.name.endsWith("Ref") && !property.isArray && !property.enumVals
                     && this.getSelectBean(property, value)}
