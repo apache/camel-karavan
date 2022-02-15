@@ -244,7 +244,7 @@ export class DslConnections extends React.Component<Props, State> {
 
                 const pointX3 = pointLX;
                 const pointY3 = endY;
-                const pointX4 = pointLX - coefX;
+                const pointX4 = pointLX;
                 const pointY4 = endY;
 
                 return this.getInternalPath(pos, startX, startY, pointX1, pointY1, pointX2, pointY2,pointLX,pointLY,pointX3,pointY3,pointX4,pointY4,endX,endY);

@@ -241,11 +241,10 @@ export class CamelUi {
     }
 
     static getElementTitle = (element: CamelElement): string => {
-        const outgoingDefinitions:string[] = ['ToDefinition', "PollEnrichDefinition", "EnrichDefinition", "WireTapDefinition"];
         if (element.dslName === 'RouteDefinition') {
             const routeId = (element as RouteDefinition).id
             return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
-        } else if (['ToDefinition', 'ToDynamicDefinition'].includes(element.dslName) && (element as any).uri) {
+        } else if (['ToDefinition', 'ToDynamicDefinition', 'FromDefinition'].includes(element.dslName) && (element as any).uri) {
             const uri = (element as any).uri
             return ComponentApi.getComponentTitleFromUri(uri) || '';
         } else {
