@@ -20,6 +20,7 @@ import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefin
 import {DslPosition, EventBus} from "../utils/EventBus";
 import {CamelUi} from "../utils/CamelUi";
 import {Subscription} from "rxjs";
+import {SagaDefinition} from "../../../../karavan-core/lib/model/CamelDefinition";
 
 interface Props {
     integration: Integration
@@ -35,7 +36,7 @@ interface State {
 }
 
 const overlapGap: number = 40;
-const outgoingDefinitions:string[] = ['ToDefinition', 'KameletDefinition', 'ToDynamicDefinition', "PollEnrichDefinition", "EnrichDefinition", "WireTapDefinition"];
+const outgoingDefinitions: string[] = ['ToDefinition', 'KameletDefinition', 'ToDynamicDefinition', "PollEnrichDefinition", "EnrichDefinition", "WireTapDefinition", "SagaDefinition"];
 
 
 export class DslConnections extends React.Component<Props, State> {
@@ -46,7 +47,7 @@ export class DslConnections extends React.Component<Props, State> {
     };
 
     componentDidMount() {
-        const sub = EventBus.onPosition()?.subscribe((evt: DslPosition)=> this.setPosition(evt));
+        const sub = EventBus.onPosition()?.subscribe((evt: DslPosition) => this.setPosition(evt));
         this.setState({sub: sub});
     }
 
@@ -66,14 +67,14 @@ export class DslConnections extends React.Component<Props, State> {
     getIncomings() {
         let outs: [string, number][] = Array.from(this.state.steps.values())
             .filter(pos => ["FromDefinition"].includes(pos.step.dslName))
-            .filter(pos => !(pos.step.dslName === 'FromDefinition' && CamelUi.isInternalComponent(pos.step)))
-            .sort((pos1: DslPosition, pos2: DslPosition ) => {
+            .filter(pos => !(pos.step.dslName === 'FromDefinition' && CamelUi.hasInternalUri(pos.step)))
+            .sort((pos1: DslPosition, pos2: DslPosition) => {
                 const y1 = pos1.headerRect.y + pos1.headerRect.height / 2;
                 const y2 = pos2.headerRect.y + pos2.headerRect.height / 2;
                 return y1 > y2 ? 1 : -1
             })
             .map(pos => [pos.step.uuid, pos.headerRect.y]);
-        while (this.hasOverlap(outs)){
+        while (this.hasOverlap(outs)) {
             outs = this.addGap(outs);
         }
         return outs;
@@ -109,7 +110,7 @@ export class DslConnections extends React.Component<Props, State> {
     hasOverlap(data: [string, number][]): boolean {
         let result = false;
         data.forEach((d, i, arr) => {
-            if (i > 0 && d[1] - arr[i-1][1] < overlapGap) result = true;
+            if (i > 0 && d[1] - arr[i - 1][1] < overlapGap) result = true;
         })
         return result;
     }
@@ -117,25 +118,25 @@ export class DslConnections extends React.Component<Props, State> {
     addGap(data: [string, number][]): [string, number][] {
         const result: [string, number][] = [];
         data.forEach((d, i, arr) => {
-            if (i > 0 && d[1] - arr[i-1][1] < overlapGap) result.push([d[0], d[1] + overlapGap])
+            if (i > 0 && d[1] - arr[i - 1][1] < overlapGap) result.push([d[0], d[1] + overlapGap])
             else result.push(d);
         })
         return result;
     }
 
 
-    getOutgoings():[string, number][] {
+    getOutgoings(): [string, number][] {
         let outs: [string, number][] = Array.from(this.state.steps.values())
             .filter(pos => outgoingDefinitions.includes(pos.step.dslName))
             .filter(pos => pos.step.dslName !== 'KameletDefinition' || (pos.step.dslName === 'KameletDefinition' && !CamelUi.isActionKamelet(pos.step)))
-            .filter(pos => !(outgoingDefinitions.includes(pos.step.dslName) && CamelUi.isInternalComponent(pos.step)))
-            .sort((pos1: DslPosition, pos2: DslPosition ) => {
+            .filter(pos => !(outgoingDefinitions.includes(pos.step.dslName) && CamelUi.hasInternalUri(pos.step)))
+            .sort((pos1: DslPosition, pos2: DslPosition) => {
                 const y1 = pos1.headerRect.y + pos1.headerRect.height / 2;
                 const y2 = pos2.headerRect.y + pos2.headerRect.height / 2;
                 return y1 > y2 ? 1 : -1
             })
             .map(pos => [pos.step.uuid, pos.headerRect.y - this.props.top]);
-        while (this.hasOverlap(outs)){
+        while (this.hasOverlap(outs)) {
             outs = this.addGap(outs);
         }
         return outs;
@@ -143,7 +144,7 @@ export class DslConnections extends React.Component<Props, State> {
 
     getOutgoing(data: [string, number]) {
         const pos = this.state.steps.get(data[0]);
-        if (pos){
+        if (pos) {
             const fromX = pos.headerRect.x + pos.headerRect.width / 2;
             const fromY = pos.headerRect.y + pos.headerRect.height / 2 - this.props.top;
             const r = pos.headerRect.height / 2;
@@ -174,10 +175,10 @@ export class DslConnections extends React.Component<Props, State> {
         }
     }
 
-    getIntegrals():[string, number][] {
+    getIntegrals(): [string, number][] {
         let outs: [string, number][] = Array.from(this.state.steps.values())
-            .filter(pos => outgoingDefinitions.includes(pos.step.dslName) && CamelUi.isInternalComponent(pos.step))
-            .sort((pos1: DslPosition, pos2: DslPosition ) => {
+            .filter(pos => outgoingDefinitions.includes(pos.step.dslName) && CamelUi.hasInternalUri(pos.step))
+            .sort((pos1: DslPosition, pos2: DslPosition) => {
                 const y1 = pos1.headerRect.y + pos1.headerRect.height / 2;
                 const y2 = pos2.headerRect.y + pos2.headerRect.height / 2;
                 return y1 > y2 ? 1 : -1
@@ -186,30 +187,54 @@ export class DslConnections extends React.Component<Props, State> {
         return outs;
     }
 
-    getInternalLine(data: [string, number]) {
+    getInternalLines(data: [string, number]) {
         const pos = this.state.steps.get(data[0]);
         const uri = (pos?.step as any).uri;
-            const target = Array.from(this.state.steps.values())
-                .filter(s => s.step.dslName === 'FromDefinition')
-                .filter(s => (s.step as any).uri && (s.step as any).uri === uri)[0];
-        if (uri && uri.length > 6 && target && pos) {
+        if (uri && uri.length && pos) {
+            const key = pos.step.uuid + "-outgoing"
             const fromX = pos.headerRect.x + pos.headerRect.width / 2;
             const fromY = pos.headerRect.y + pos.headerRect.height / 2 - this.props.top;
             const r = pos.headerRect.height / 2;
+            const className = CamelUi.hasDirectUri(pos.step) ? "path-direct" : "path-seda";
+            return this.getInternalLine(uri, key, className, fromX, fromY, r);
+        } else if (pos?.step.dslName === 'SagaDefinition'){
+            const saga = (pos?.step as SagaDefinition);
+            const fromX = pos.headerRect.x + pos.headerRect.width / 2;
+            const fromY = pos.headerRect.y + pos.headerRect.height / 2 - this.props.top;
+            const r = pos.headerRect.height / 2;
+            const result:any[] = [];
+            if (saga.completion && (saga.completion.startsWith("direct") || saga.completion.startsWith("seda"))){
+                const key = pos.step.uuid + "-completion"
+                const className = saga.completion.startsWith("direct") ? "path-direct" : "path-seda";
+                result.push(this.getInternalLine(saga.completion, key, className, fromX, fromY, r));
+            }
+            if (saga.compensation && (saga.compensation.startsWith("direct") || saga.compensation.startsWith("seda"))){
+                const key = pos.step.uuid + "-compensation"
+                const className = saga.compensation.startsWith("direct") ? "path-direct" : "path-seda";
+                result.push(this.getInternalLine(saga.compensation, key, className, fromX, fromY, r));
+            }
+            return result;
+        }
+    }
 
+    getInternalLine(uri: string, key: string, className: string, fromX: number, fromY: number, r: number) {
+        const target = Array.from(this.state.steps.values())
+            .filter(s => s.step.dslName === 'FromDefinition')
+            .filter(s => (s.step as any).uri && (s.step as any).uri === uri)[0];
+        if (target) {
             const targetX = target.headerRect.x + target.headerRect.width / 2;
             const targetY = target.headerRect.y + target.headerRect.height / 2 - this.props.top;
             const gap = 100;
 
             // right
-            if (targetX - fromX >= gap){
+            if (targetX - fromX >= gap) {
                 const startX = fromX + r;
                 const startY = fromY;
                 const endX = targetX - r * 2 + 4;
                 const endY = targetY;
 
-                const coefX = 16;
-                const coefY = (targetY > fromY) ? 16 : -16;
+                const coefX = 24;
+                const coefY = (targetY > fromY) ? 24 : -24;
 
                 const pointX1 = startX + coefX;
                 const pointY1 = startY;
@@ -224,15 +249,15 @@ export class DslConnections extends React.Component<Props, State> {
                 const pointX4 = pointLX + coefX;
                 const pointY4 = endY;
 
-                return this.getInternalPath(pos, startX, startY, pointX1, pointY1, pointX2, pointY2,pointLX,pointLY,pointX3,pointY3,pointX4,pointY4,endX,endY);
-            } else if (targetX > fromX && targetX - fromX < gap){
+                return this.getInternalPath(key, className, startX, startY, pointX1, pointY1, pointX2, pointY2, pointLX, pointLY, pointX3, pointY3, pointX4, pointY4, endX, endY);
+            } else if (targetX > fromX && targetX - fromX < gap) {
                 const startX = fromX - r;
                 const startY = fromY;
                 const endX = targetX - r * 2 + 4;
                 const endY = targetY;
 
-                const coefX = -16;
-                const coefY = (targetY > fromY) ? 16 : -16;
+                const coefX = -24;
+                const coefY = (targetY > fromY) ? 24 : -24;
 
                 const pointX1 = startX + coefX;
                 const pointY1 = startY;
@@ -244,18 +269,18 @@ export class DslConnections extends React.Component<Props, State> {
 
                 const pointX3 = pointLX;
                 const pointY3 = endY;
-                const pointX4 = pointLX - coefX;
+                const pointX4 = pointLX - coefX/2;
                 const pointY4 = endY;
 
-                return this.getInternalPath(pos, startX, startY, pointX1, pointY1, pointX2, pointY2,pointLX,pointLY,pointX3,pointY3,pointX4,pointY4,endX,endY);
-            } else if (targetX <= fromX && fromX - targetX < gap){
+                return this.getInternalPath(key, className, startX, startY, pointX1, pointY1, pointX2, pointY2, pointLX, pointLY, pointX3, pointY3, pointX4, pointY4, endX, endY);
+            } else if (targetX <= fromX && fromX - targetX < gap) {
                 const startX = fromX + r;
                 const startY = fromY;
                 const endX = targetX + r * 2 - 4;
                 const endY = targetY;
 
-                const coefX = 16;
-                const coefY = (targetY > fromY) ? 16 : -16;
+                const coefX = 24;
+                const coefY = (targetY > fromY) ? 24 : -24;
 
                 const pointX1 = startX + coefX;
                 const pointY1 = startY;
@@ -267,18 +292,18 @@ export class DslConnections extends React.Component<Props, State> {
 
                 const pointX3 = pointLX;
                 const pointY3 = endY;
-                const pointX4 = pointLX;
+                const pointX4 = pointLX - coefX/2;
                 const pointY4 = endY;
 
-                return this.getInternalPath(pos, startX, startY, pointX1, pointY1, pointX2, pointY2,pointLX,pointLY,pointX3,pointY3,pointX4,pointY4,endX,endY);
+                return this.getInternalPath(key, className, startX, startY, pointX1, pointY1, pointX2, pointY2, pointLX, pointLY, pointX3, pointY3, pointX4, pointY4, endX, endY);
             } else {
                 const startX = fromX - r;
                 const startY = fromY;
                 const endX = targetX + r * 2 - 4;
                 const endY = targetY;
 
-                const coefX = -16;
-                const coefY = (targetY > fromY) ? 16 : -16;
+                const coefX = -24;
+                const coefY = (targetY > fromY) ? 24 : -24;
 
                 const pointX1 = startX + coefX;
                 const pointY1 = startY;
@@ -293,20 +318,14 @@ export class DslConnections extends React.Component<Props, State> {
                 const pointX4 = pointLX + coefX;
                 const pointY4 = endY;
 
-                return this.getInternalPath(pos, startX, startY, pointX1, pointY1, pointX2, pointY2,pointLX,pointLY,pointX3,pointY3,pointX4,pointY4,endX,endY);
+                return this.getInternalPath(key, className, startX, startY, pointX1, pointY1, pointX2, pointY2, pointLX, pointLY, pointX3, pointY3, pointX4, pointY4, endX, endY);
             }
-
-            return (<></>)
-
-        } else {
-            return (<></>)
         }
     }
 
-    getInternalPath(pos: DslPosition, startX: number, startY: number, pointX1: number, pointY1: number, pointX2: number, pointY2: number, pointLX: number, pointLY: number, pointX3: number, pointY3: number, pointX4: number, pointY4: number, endX: number, endY: number){
-        const className = CamelUi.isDirectComponent(pos.step) ? "path-direct" : "path-seda";
+    getInternalPath(key: string, className: string, startX: number, startY: number, pointX1: number, pointY1: number, pointX2: number, pointY2: number, pointLX: number, pointLY: number, pointX3: number, pointY3: number, pointX4: number, pointY4: number, endX: number, endY: number) {
         return (
-            <g key={pos.step.uuid + "-outgoing"}>
+            <g key={key}>
                 <path d={`M ${startX} ${startY} 
                         Q ${pointX1} ${pointY1} ${pointX2} ${pointY2} L ${pointLX},${pointLY}
                         Q ${pointX3} ${pointY3} ${pointX4} ${pointY4} L ${endX},${endY}`}
@@ -324,12 +343,12 @@ export class DslConnections extends React.Component<Props, State> {
         )
     }
 
-    hasSteps = (step: CamelElement):boolean => {
-        return (step.hasSteps() &&  !['FromDefinition'].includes(step.dslName))
-            ||  ['RouteDefinition', 'TryDefinition', 'ChoiceDefinition', 'SwitchDefinition'].includes(step.dslName);
+    hasSteps = (step: CamelElement): boolean => {
+        return (step.hasSteps() && !['FromDefinition'].includes(step.dslName))
+            || ['RouteDefinition', 'TryDefinition', 'ChoiceDefinition', 'SwitchDefinition'].includes(step.dslName);
     }
 
-    getPreviousStep(pos: DslPosition){
+    getPreviousStep(pos: DslPosition) {
         return Array.from(this.state.steps.values())
             .filter(p => pos.parent?.uuid === p.parent?.uuid)
             .filter(p => p.inSteps)
@@ -339,24 +358,24 @@ export class DslConnections extends React.Component<Props, State> {
     getArrow(pos: DslPosition) {
         const endX = pos.headerRect.x + pos.headerRect.width / 2;
         const endY = pos.headerRect.y - 9 - this.props.top;
-        if (pos.parent){
+        if (pos.parent) {
             const parent = this.state.steps.get(pos.parent.uuid);
-            if (parent){
+            if (parent) {
                 const startX = parent.headerRect.x + parent.headerRect.width / 2;
                 const startY = parent.headerRect.y + parent.headerRect.height - this.props.top;
-                if (!pos.inSteps || (pos.inSteps && pos.position === 0) && parent.step.dslName !== 'MulticastDefinition'){
+                if (!pos.inSteps || (pos.inSteps && pos.position === 0) && parent.step.dslName !== 'MulticastDefinition') {
                     return (
                         <path d={`M ${startX},${startY} C ${startX},${endY} ${endX},${startY}   ${endX},${endY}`}
                               className="path" key={pos.step.uuid} markerEnd="url(#arrowhead)"/>
                     )
-                } else if (parent.step.dslName === 'MulticastDefinition' && pos.inSteps){
+                } else if (parent.step.dslName === 'MulticastDefinition' && pos.inSteps) {
                     return (
                         <path d={`M ${startX},${startY} C ${startX},${endY} ${endX},${startY}   ${endX},${endY}`}
                               className="path" key={pos.step.uuid} markerEnd="url(#arrowhead)"/>
                     )
-                } else if (pos.inSteps && pos.position > 0 && !this.hasSteps(pos.step)){
+                } else if (pos.inSteps && pos.position > 0 && !this.hasSteps(pos.step)) {
                     const prev = this.getPreviousStep(pos);
-                    if (prev){
+                    if (prev) {
                         const r = this.hasSteps(prev.step) ? prev.rect : prev.headerRect;
                         const prevX = r.x + r.width / 2;
                         const prevY = r.y + r.height - this.props.top;
@@ -364,9 +383,9 @@ export class DslConnections extends React.Component<Props, State> {
                             <line x1={prevX} y1={prevY} x2={endX} y2={endY} className="path" key={pos.step.uuid} markerEnd="url(#arrowhead)"/>
                         )
                     }
-                } else if (pos.inSteps && pos.position > 0 && this.hasSteps(pos.step)){
+                } else if (pos.inSteps && pos.position > 0 && this.hasSteps(pos.step)) {
                     const prev = this.getPreviousStep(pos);
-                    if (prev){
+                    if (prev) {
                         const r = this.hasSteps(prev.step) ? prev.rect : prev.headerRect;
                         const prevX = r.x + r.width / 2;
                         const prevY = r.y + r.height - this.props.top;
@@ -383,18 +402,18 @@ export class DslConnections extends React.Component<Props, State> {
         const steps = Array.from(this.state.steps.values());
         return (
             <svg
-                style={{ width: this.props.width, height: this.props.height, position: "absolute", left: 0, top: 0}}
+                style={{width: this.props.width, height: this.props.height, position: "absolute", left: 0, top: 0}}
                 viewBox={"0 0 " + this.props.width + " " + this.props.height}>
                 <defs>
                     <marker id="arrowhead" markerWidth="9" markerHeight="6" refX="0" refY="3" orient="auto" className="arrow">
-                        <polygon points="0 0, 9 3, 0 6" />
+                        <polygon points="0 0, 9 3, 0 6"/>
                     </marker>
                 </defs>
                 {steps.map(pos => this.getCircle(pos))}
                 {steps.map(pos => this.getArrow(pos))}
                 {this.getIncomings().map(p => this.getIncoming(p))}
                 {this.getOutgoings().map(p => this.getOutgoing(p))}
-                {this.getIntegrals().map(p => this.getInternalLine(p))}
+                {this.getIntegrals().map(p => this.getInternalLines(p)).flat()}
             </svg>
         )
     }

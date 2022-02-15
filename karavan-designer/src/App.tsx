@@ -49,8 +49,23 @@ class App extends React.Component<Props, State> {
             '        from:\n' +
             '          uri: kamelet:http-secured-source\n' +
             '          steps:\n' +
-            '            - choice:\n' +
-            '                when:\n' +
+            '            - saga:\n' +
+            '                steps:\n' +
+            '                  - kamelet:\n' +
+            '                      name: http-sink\n' +
+            '                  - kamelet:\n' +
+            '                      name: kafka-sink\n' +
+            '        id: Main Route\n' +
+            '    - route:\n' +
+            '        from:\n' +
+            '          uri: direct:completion\n' +
+            '        id: Completion\n' +
+            '    - route:\n' +
+            '        from:\n' +
+            '          uri: direct:compensation\n' +
+            '        id: Compensation\n' +
+            // '            - choice:\n' +
+            // '                when:\n' +
             // '                  - expression:\n' +
             // '                      simple:\n' +
             // '                        expression: hello world\n' +
@@ -69,11 +84,11 @@ class App extends React.Component<Props, State> {
             // '                    steps:\n' +
             // '                      - to:\n' +
             // '                          uri: direct:demo1\n' +
-            '                  - expression:\n' +
-            '                      simple:\n' +
-            '                        expression: hello world\n' +
-            '                    steps:\n' +
-            '                      - wireTap:\n' +
+            // '                  - expression:\n' +
+            // '                      simple:\n' +
+            // '                        expression: hello world\n' +
+            // '                    steps:\n' +
+            // '                      - wireTap:\n' +
             // '                otherwise:\n' +
             // '                  steps:\n' +
             // '                    - to:\n' +
@@ -87,9 +102,6 @@ class App extends React.Component<Props, State> {
             // '    - route:\n' +
             // '        from:\n' +
             // '          uri: direct:demo2\n' +
-            '    - route:\n' +
-            '        from:\n' +
-            '          uri: direct:demo1\n' +
             // '           - saga: \n' +
             // '               option:\n' +
             // '                 - option-name: o1\n' +
@@ -180,7 +192,7 @@ class App extends React.Component<Props, State> {
 
     save(filename: string, yaml: string) {
         // console.log(filename);
-        console.log(yaml);
+        // console.log(yaml);
     }
 
     public render() {

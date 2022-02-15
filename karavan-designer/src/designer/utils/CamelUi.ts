@@ -22,7 +22,7 @@ import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import { KameletDefinition, NamedBeanDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {KameletDefinition, NamedBeanDefinition, RouteDefinition, SagaDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Dependency, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 
 const StepElements: string[] = [
@@ -196,21 +196,25 @@ export class CamelUi {
         else return false;
     }
 
-    static isInternalComponent = (element: CamelElement): boolean => {
-        return this.isDirectComponent(element) || this.isSedaComponent(element);
+    static hasInternalUri = (element: CamelElement): boolean => {
+        return this.hasDirectUri(element) || this.hasSedaUri(element);
     }
 
-    static isDirectComponent = (element: CamelElement): boolean => {
-        return this.isUriStartWith(element,'direct');
+    static hasDirectUri = (element: CamelElement): boolean => {
+        return this.hasUriStartWith(element,'direct');
     }
 
-    static isSedaComponent = (element: CamelElement): boolean => {
-        return this.isUriStartWith(element,'seda');
+    static hasSedaUri = (element: CamelElement): boolean => {
+        return this.hasUriStartWith(element,'seda');
     }
 
-    static isUriStartWith = (element: CamelElement, text: string): boolean => {
-        if ((element as any).uri && typeof (element as any).uri === 'string'){
+    static hasUriStartWith = (element: CamelElement, text: string): boolean => {
+        if ((element as any).uri && typeof (element as any).uri === 'string') {
             return (element as any).uri.startsWith(text);
+        } else if (element.dslName === 'SagaDefinition'){
+            const completion = (element as SagaDefinition).completion || '';
+            const compensation = (element as SagaDefinition).compensation || '';
+            return completion.startsWith(text) || compensation.startsWith(text);
         } else {
             return false;
         }
