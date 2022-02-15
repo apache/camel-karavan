@@ -19,7 +19,7 @@ import {KameletModel, Property} from "karavan-core/lib/model/KameletModels";
 import {DslMetaModel} from "./DslMetaModel";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
-import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
+import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {KameletDefinition, NamedBeanDefinition, RouteDefinition, SagaDefinition} from "karavan-core/lib/model/CamelDefinition";
@@ -64,6 +64,16 @@ export const camelIcon =
 
 export const externalIcon =
     "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32px' height='32px' viewBox='0 0 32 32' id='icon'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:none;%7D%3C/style%3E%3C/defs%3E%3Ctitle%3Efog%3C/title%3E%3Cpath d='M25.8289,13.1155A10.02,10.02,0,0,0,16,5.0005V7a8.0233,8.0233,0,0,1,7.8649,6.4934l.2591,1.346,1.3488.2441A5.5019,5.5019,0,0,1,24.5076,26H16v2h8.5076a7.5019,7.5019,0,0,0,1.3213-14.8845Z'/%3E%3Crect x='8' y='24' width='6' height='2'/%3E%3Crect x='4' y='24' width='2' height='2'/%3E%3Crect x='6' y='20' width='8' height='2'/%3E%3Crect x='2' y='20' width='2' height='2'/%3E%3Crect x='8' y='16' width='6' height='2'/%3E%3Crect x='4' y='16' width='2' height='2'/%3E%3Crect x='10' y='12' width='4' height='2'/%3E%3Crect x='6' y='12' width='2' height='2'/%3E%3Crect x='12' y='8' width='2' height='2'/%3E%3Crect id='_Transparent_Rectangle_' data-name='&lt;Transparent Rectangle&gt;' class='cls-1' width='32' height='32'/%3E%3C/svg%3E";
+
+export class RouteToCreate {
+    componentName: string = ''
+    name: string = ''
+
+    constructor(componentName: string, name: string) {
+        this.componentName = componentName;
+        this.name = name;
+    }
+}
 
 export class CamelUi {
 
@@ -218,6 +228,17 @@ export class CamelUi {
         } else {
             return false;
         }
+    }
+
+    static getInternalRouteUris = (integration: Integration, componentName: string, showComponentName: boolean = true): string[] => {
+        const result:string[] = [];
+        integration.spec.flows?.filter(f => f.dslName === 'RouteDefinition')
+            .filter((r: RouteDefinition) => r.from.uri.startsWith(componentName))
+            .forEach((r: RouteDefinition) => {
+                if (showComponentName) result.push(r.from.uri)
+                else result.push(r.from.uri.replace(componentName+":", ""));
+            });
+        return result;
     }
 
     static getKameletProperties = (element: any): Property[] => {

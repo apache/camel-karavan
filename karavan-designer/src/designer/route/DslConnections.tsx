@@ -20,7 +20,7 @@ import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefin
 import {DslPosition, EventBus} from "../utils/EventBus";
 import {CamelUi} from "../utils/CamelUi";
 import {Subscription} from "rxjs";
-import {SagaDefinition} from "../../../../karavan-core/lib/model/CamelDefinition";
+import {SagaDefinition} from "karavan-core/lib/model/CamelDefinition";
 
 interface Props {
     integration: Integration
