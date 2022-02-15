@@ -237,6 +237,8 @@ export class DslPropertyField extends React.Component<Props, State> {
      canBeInternalUri = (property: PropertyMeta, element?: CamelElement): boolean => {
         if  (element?.dslName === 'WireTapDefinition' && property.name === 'uri') {
             return true;
+        } else if  (element?.dslName === 'SagaDefinition' && ['compensation', 'completion'].includes(property.name)) {
+            return true;
         } else {
             return false;
         }
