@@ -196,6 +196,26 @@ export class CamelUi {
         else return false;
     }
 
+    static isInternalComponent = (element: CamelElement): boolean => {
+        return this.isDirectComponent(element) || this.isSedaComponent(element);
+    }
+
+    static isDirectComponent = (element: CamelElement): boolean => {
+        return this.isUriStartWith(element,'direct');
+    }
+
+    static isSedaComponent = (element: CamelElement): boolean => {
+        return this.isUriStartWith(element,'seda');
+    }
+
+    static isUriStartWith = (element: CamelElement, text: string): boolean => {
+        if ((element as any).uri && typeof (element as any).uri === 'string'){
+            return (element as any).uri.startsWith(text);
+        } else {
+            return false;
+        }
+    }
+
     static getKameletProperties = (element: any): Property[] => {
         const kamelet = CamelUi.getKamelet(element)
         return kamelet
@@ -221,8 +241,17 @@ export class CamelUi {
     }
 
     static getElementTitle = (element: CamelElement): string => {
-        const title = CamelMetadataApi.getCamelModelMetadataByClassName(element.dslName);
-        return title ? title.title : CamelUtil.capitalizeName((element as any).stepName);
+        const outgoingDefinitions:string[] = ['ToDefinition', "PollEnrichDefinition", "EnrichDefinition", "WireTapDefinition"];
+        if (element.dslName === 'RouteDefinition') {
+            const routeId = (element as RouteDefinition).id
+            return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
+        } else if (['ToDefinition', 'ToDynamicDefinition'].includes(element.dslName) && (element as any).uri) {
+            const uri = (element as any).uri
+            return ComponentApi.getComponentTitleFromUri(uri) || '';
+        } else {
+            const title = CamelMetadataApi.getCamelModelMetadataByClassName(element.dslName);
+            return title ? title.title : CamelUtil.capitalizeName((element as any).stepName);
+        }
     }
 
     static getTitle = (element: CamelElement): string => {
@@ -234,10 +263,25 @@ export class CamelUi {
             return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
         } else if ((element as any).uri) {
             const uri = (element as any).uri
-            return ComponentApi.getComponentNameFromUri(uri) || '';
+            return ComponentApi.getComponentTitleFromUri(uri) || '';
         } else {
             const title = CamelMetadataApi.getCamelModelMetadataByClassName(element.dslName);
             return title ? title.title : CamelUtil.capitalizeName((element as any).stepName);
+        }
+    }
+
+    static getOutgoingTitle = (element: CamelElement): string => {
+        const k: KameletModel | undefined = CamelUi.getKamelet(element);
+        if (k) {
+            return k.title();
+        } else if (element.dslName === 'RouteDefinition') {
+            const routeId = (element as RouteDefinition).id
+            return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
+        } else if ((element as any).uri) {
+            const uri = (element as any).uri
+            return ComponentApi.getComponentTitleFromUri(uri) || uri;
+        } else {
+            return "";
         }
     }
 

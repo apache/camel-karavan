@@ -19,7 +19,6 @@ import '../karavan.css';
 import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {DslPosition, EventBus} from "../utils/EventBus";
 import {CamelUi} from "../utils/CamelUi";
-import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {Subscription} from "rxjs";
 
 interface Props {
@@ -35,7 +34,9 @@ interface State {
     steps: Map<string, DslPosition>
 }
 
-const overlapGap: number = 32;
+const overlapGap: number = 40;
+const outgoingDefinitions:string[] = ['ToDefinition', 'KameletDefinition', 'ToDynamicDefinition', "PollEnrichDefinition", "EnrichDefinition", "WireTapDefinition"];
+
 
 export class DslConnections extends React.Component<Props, State> {
 
@@ -65,6 +66,7 @@ export class DslConnections extends React.Component<Props, State> {
     getIncomings() {
         let outs: [string, number][] = Array.from(this.state.steps.values())
             .filter(pos => ["FromDefinition"].includes(pos.step.dslName))
+            .filter(pos => !(pos.step.dslName === 'FromDefinition' && CamelUi.isInternalComponent(pos.step)))
             .sort((pos1: DslPosition, pos2: DslPosition ) => {
                 const y1 = pos1.headerRect.y + pos1.headerRect.height / 2;
                 const y2 = pos2.headerRect.y + pos2.headerRect.height / 2;
@@ -121,10 +123,12 @@ export class DslConnections extends React.Component<Props, State> {
         return result;
     }
 
+
     getOutgoings():[string, number][] {
         let outs: [string, number][] = Array.from(this.state.steps.values())
-            .filter(pos => ['ToDefinition', 'KameletDefinition', 'ToDynamicDefinition', "PollEnrichDefinition", "EnrichDefinition", "WireTapDefinition"].includes(pos.step.dslName))
+            .filter(pos => outgoingDefinitions.includes(pos.step.dslName))
             .filter(pos => pos.step.dslName !== 'KameletDefinition' || (pos.step.dslName === 'KameletDefinition' && !CamelUi.isActionKamelet(pos.step)))
+            .filter(pos => !(outgoingDefinitions.includes(pos.step.dslName) && CamelUi.isInternalComponent(pos.step)))
             .sort((pos1: DslPosition, pos2: DslPosition ) => {
                 const y1 = pos1.headerRect.y + pos1.headerRect.height / 2;
                 const y2 = pos2.headerRect.y + pos2.headerRect.height / 2;
@@ -152,30 +156,163 @@ export class DslConnections extends React.Component<Props, State> {
             const lineX2 = outgoingX - r * 2 + 4;
             const lineY2 = outgoingY;
 
-            const imageX = outgoingX - r + 5;
-            const imageY = outgoingY - r + 5;
-
-            let image = CamelUi.getConnectionIcon(pos.step);
-            if ((pos.step as any).uri){
-                const labels =  ComponentApi.findByName((pos.step as any).uri)?.component.label;
-                if (labels){
-                    // labels
-                }
-            }
-
             const lineXi = lineX1 + 40;
             const lineYi = lineY2;
 
+            let image = CamelUi.getConnectionIcon(pos.step);
+            const imageX = outgoingX - r + 5;
+            const imageY = outgoingY - r + 5;
             return (
                 <g key={pos.step.uuid + "-outgoing"}>
                     <circle cx={outgoingX} cy={outgoingY} r={r} className="circle-outgoing"/>
                     <image x={imageX} y={imageY} href={image} className="icon"/>
-                    <text x={imageX + 25} y={imageY + 40} textAnchor="end">{CamelUi.getTitle(pos.step)}</text>
+                    <text x={imageX + 25} y={imageY + 40} textAnchor="end">{CamelUi.getOutgoingTitle(pos.step)}</text>
                     <path d={`M ${lineX1},${lineY1} C ${lineXi - 20}, ${lineY1} ${lineX1 - 15},${lineYi} ${lineXi},${lineYi} L ${lineX2},${lineY2}`}
                           className="path-incoming" markerEnd="url(#arrowhead)"/>
                 </g>
             )
         }
+    }
+
+    getIntegrals():[string, number][] {
+        let outs: [string, number][] = Array.from(this.state.steps.values())
+            .filter(pos => outgoingDefinitions.includes(pos.step.dslName) && CamelUi.isInternalComponent(pos.step))
+            .sort((pos1: DslPosition, pos2: DslPosition ) => {
+                const y1 = pos1.headerRect.y + pos1.headerRect.height / 2;
+                const y2 = pos2.headerRect.y + pos2.headerRect.height / 2;
+                return y1 > y2 ? 1 : -1
+            })
+            .map(pos => [pos.step.uuid, pos.headerRect.y - this.props.top]);
+        return outs;
+    }
+
+    getInternalLine(data: [string, number]) {
+        const pos = this.state.steps.get(data[0]);
+        const uri = (pos?.step as any).uri;
+            const target = Array.from(this.state.steps.values())
+                .filter(s => s.step.dslName === 'FromDefinition')
+                .filter(s => (s.step as any).uri && (s.step as any).uri === uri)[0];
+        if (uri && uri.length > 6 && target && pos) {
+            const fromX = pos.headerRect.x + pos.headerRect.width / 2;
+            const fromY = pos.headerRect.y + pos.headerRect.height / 2 - this.props.top;
+            const r = pos.headerRect.height / 2;
+
+            const targetX = target.headerRect.x + target.headerRect.width / 2;
+            const targetY = target.headerRect.y + target.headerRect.height / 2 - this.props.top;
+            const gap = 100;
+
+            // right
+            if (targetX - fromX >= gap){
+                const startX = fromX + r;
+                const startY = fromY;
+                const endX = targetX - r * 2 + 4;
+                const endY = targetY;
+
+                const coefX = 16;
+                const coefY = (targetY > fromY) ? 16 : -16;
+
+                const pointX1 = startX + coefX;
+                const pointY1 = startY;
+                const pointX2 = startX + coefX;
+                const pointY2 = startY + coefY;
+
+                const pointLX = pointX1;
+                const pointLY = targetY - coefY;
+
+                const pointX3 = pointLX;
+                const pointY3 = endY;
+                const pointX4 = pointLX + coefX;
+                const pointY4 = endY;
+
+                return this.getInternalPath(pos, startX, startY, pointX1, pointY1, pointX2, pointY2,pointLX,pointLY,pointX3,pointY3,pointX4,pointY4,endX,endY);
+            } else if (targetX > fromX && targetX - fromX < gap){
+                const startX = fromX - r;
+                const startY = fromY;
+                const endX = targetX - r * 2 + 4;
+                const endY = targetY;
+
+                const coefX = -16;
+                const coefY = (targetY > fromY) ? 16 : -16;
+
+                const pointX1 = startX + coefX;
+                const pointY1 = startY;
+                const pointX2 = startX + coefX;
+                const pointY2 = startY + coefY;
+
+                const pointLX = pointX1;
+                const pointLY = targetY - coefY;
+
+                const pointX3 = pointLX;
+                const pointY3 = endY;
+                const pointX4 = pointLX - coefX;
+                const pointY4 = endY;
+
+                return this.getInternalPath(pos, startX, startY, pointX1, pointY1, pointX2, pointY2,pointLX,pointLY,pointX3,pointY3,pointX4,pointY4,endX,endY);
+            } else if (targetX <= fromX && fromX - targetX < gap){
+                const startX = fromX + r;
+                const startY = fromY;
+                const endX = targetX + r * 2 - 4;
+                const endY = targetY;
+
+                const coefX = 16;
+                const coefY = (targetY > fromY) ? 16 : -16;
+
+                const pointX1 = startX + coefX;
+                const pointY1 = startY;
+                const pointX2 = startX + coefX;
+                const pointY2 = startY + coefY;
+
+                const pointLX = pointX1;
+                const pointLY = targetY - coefY;
+
+                const pointX3 = pointLX;
+                const pointY3 = endY;
+                const pointX4 = pointLX;
+                const pointY4 = endY;
+
+                return this.getInternalPath(pos, startX, startY, pointX1, pointY1, pointX2, pointY2,pointLX,pointLY,pointX3,pointY3,pointX4,pointY4,endX,endY);
+            } else {
+                const startX = fromX - r;
+                const startY = fromY;
+                const endX = targetX + r * 2 - 4;
+                const endY = targetY;
+
+                const coefX = -16;
+                const coefY = (targetY > fromY) ? 16 : -16;
+
+                const pointX1 = startX + coefX;
+                const pointY1 = startY;
+                const pointX2 = startX + coefX;
+                const pointY2 = startY + coefY;
+
+                const pointLX = pointX1;
+                const pointLY = targetY - coefY;
+
+                const pointX3 = pointLX;
+                const pointY3 = endY;
+                const pointX4 = pointLX + coefX;
+                const pointY4 = endY;
+
+                return this.getInternalPath(pos, startX, startY, pointX1, pointY1, pointX2, pointY2,pointLX,pointLY,pointX3,pointY3,pointX4,pointY4,endX,endY);
+            }
+
+            return (<></>)
+
+        } else {
+            return (<></>)
+        }
+    }
+
+    getInternalPath(pos: DslPosition, startX: number, startY: number, pointX1: number, pointY1: number, pointX2: number, pointY2: number, pointLX: number, pointLY: number, pointX3: number, pointY3: number, pointX4: number, pointY4: number, endX: number, endY: number){
+        const className = CamelUi.isDirectComponent(pos.step) ? "path-direct" : "path-seda";
+        return (
+            <g key={pos.step.uuid + "-outgoing"}>
+                <path d={`M ${startX} ${startY} 
+                        Q ${pointX1} ${pointY1} ${pointX2} ${pointY2} L ${pointLX},${pointLY}
+                        Q ${pointX3} ${pointY3} ${pointX4} ${pointY4} L ${endX},${endY}`}
+                      className={className} markerEnd="url(#arrowhead)"/>
+            </g>
+        )
     }
 
     getCircle(pos: DslPosition) {
@@ -257,6 +394,7 @@ export class DslConnections extends React.Component<Props, State> {
                 {steps.map(pos => this.getArrow(pos))}
                 {this.getIncomings().map(p => this.getIncoming(p))}
                 {this.getOutgoings().map(p => this.getOutgoing(p))}
+                {this.getIntegrals().map(p => this.getInternalLine(p))}
             </svg>
         )
     }

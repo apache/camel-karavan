@@ -51,6 +51,10 @@ export const ComponentApi = {
     },
 
     getComponentNameFromUri: (uri: string): string | undefined => {
+        return uri.split(":")[0];
+    },
+
+    getComponentTitleFromUri: (uri: string): string | undefined => {
         const componentName =  uri.split(":")[0];
         const title = ComponentApi.findByName(componentName)?.component.title;
         return title ? title : componentName;

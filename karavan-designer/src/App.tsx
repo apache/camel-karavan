@@ -35,6 +35,7 @@ class App extends React.Component<Props, State> {
 
     public state: State = {
         name: 'demo.yaml',
+        key: '',
         yaml: 'apiVersion: camel.apache.org/v1\n' +
             'kind: Integration\n' +
             'metadata:\n' +
@@ -50,29 +51,45 @@ class App extends React.Component<Props, State> {
             '          steps:\n' +
             '            - choice:\n' +
             '                when:\n' +
+            // '                  - expression:\n' +
+            // '                      simple:\n' +
+            // '                        expression: hello world\n' +
+            // '                    steps:\n' +
+            // '                      - to:\n' +
+            // '                          uri: direct:demo1\n' +
+            // '                  - expression:\n' +
+            // '                      simple:\n' +
+            // '                        expression: hello world\n' +
+            // '                    steps:\n' +
+            // '                      - to:\n' +
+            // '                          uri: direct:demo1\n' +
+            // '                  - expression:\n' +
+            // '                      simple:\n' +
+            // '                        expression: hello world\n' +
+            // '                    steps:\n' +
+            // '                      - to:\n' +
+            // '                          uri: direct:demo1\n' +
             '                  - expression:\n' +
             '                      simple:\n' +
             '                        expression: hello world\n' +
             '                    steps:\n' +
-            '                      - log:\n' +
-            '                          message: hello22s\n' +
-            '                          logName: log22\n' +
-            '                otherwise:\n' +
-            '                  steps:\n' +
-            '                    - to:\n' +
-            '                        uri: activemq\n' +
-            '                    - to:\n' +
-            '                        uri: direct\n' +
-            '                    - kamelet:\n' +
-            '                        name: insert-header-action\n' +
-            '                    - kamelet:\n' +
-            '                        name: http-sink\n' +
+            '                      - wireTap:\n' +
+            // '                otherwise:\n' +
+            // '                  steps:\n' +
+            // '                    - to:\n' +
+            // '                        uri: direct:demo1\n' +
+            // '                    - to:\n' +
+            // '                        uri: direct\n' +
+            // '                    - kamelet:\n' +
+            // '                        name: insert-header-action\n' +
+            // '                    - kamelet:\n' +
+            // '                        name: http-sink\n' +
+            // '    - route:\n' +
+            // '        from:\n' +
+            // '          uri: direct:demo2\n' +
             '    - route:\n' +
             '        from:\n' +
-            '          uri: activemq\n' +
-            '    - route:\n' +
-            '        from:\n' +
-            '          uri: direct\n' +
+            '          uri: direct:demo1\n' +
             // '           - saga: \n' +
             // '               option:\n' +
             // '                 - option-name: o1\n' +
@@ -109,18 +126,17 @@ class App extends React.Component<Props, State> {
             // '                           message: hello22s\n' +
             // '                           logName: log22\n' +
             // '                otherwise: {}\n'+
-            '    - beans:\n' +
-            '      - name: datasource\n' +
-            '        type: org.apache.commons.dbcp2.BasicDataSource\n' +
-            '        properties:\n' +
-            '          driverClassName: org.postgresql.Driver\n' +
-            '          password: postgres\n' +
-            '          url: "jdbc:postgresql:localhost:5432:demo"\n' +
-            '          username: postgres\n'+
-            '      - name: myAggregatorStrategy \n' +
-            '        type: org.apache.camel.processor.aggregate.UseLatestAggregationStrategy\n' +
-            '',
-        key: ''
+            // '    - beans:\n' +
+            // '      - name: datasource\n' +
+            // '        type: org.apache.commons.dbcp2.BasicDataSource\n' +
+            // '        properties:\n' +
+            // '          driverClassName: org.postgresql.Driver\n' +
+            // '          password: postgres\n' +
+            // '          url: "jdbc:postgresql:localhost:5432:demo"\n' +
+            // '          username: postgres\n'+
+            // '      - name: myAggregatorStrategy \n' +
+            // '        type: org.apache.camel.processor.aggregate.UseLatestAggregationStrategy\n' +
+            ''
     };
 
     componentDidMount() {
@@ -142,6 +158,7 @@ class App extends React.Component<Props, State> {
         ["bonita.json",
             "activemq.json",
             "direct.json",
+            "seda.json",
             "docker.json",
             "netty-http.json",
             "jms.json",
