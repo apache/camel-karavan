@@ -193,7 +193,7 @@ export class DslElement extends React.Component<Props, State> {
                 }
                 <div className={this.hasWideChildrenElement() ? "header-text" : ""}>
                     {this.hasWideChildrenElement() && <div className="spacer"/>}
-                    <Text className={this.hasWideChildrenElement() ? "text text-right" :"text text-bottom"}>{CamelUi.getTitle(this.state.step)}</Text>
+                    <Text className={this.hasWideChildrenElement() ? "text text-right" :"text text-bottom"}>{CamelUi.getElementTitle(this.state.step)}</Text>
                 </div>
                 {this.state.step.dslName !== 'FromDefinition' && <button type="button" aria-label="Delete" onClick={e => this.delete(e)} className="delete-button"><DeleteIcon noVerticalAlign/></button>}
                 {showAddButton && this.getAddElementButton()}

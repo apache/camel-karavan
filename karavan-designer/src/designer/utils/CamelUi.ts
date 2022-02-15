@@ -22,7 +22,7 @@ import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import { KameletDefinition, NamedBeanDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {KameletDefinition, NamedBeanDefinition, RouteDefinition, SagaDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Dependency, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 
 const StepElements: string[] = [
@@ -59,8 +59,11 @@ const StepElements: string[] = [
     "WireTapDefinition"
 ];
 
-const defaultIcon =
+export const camelIcon =
     "data:image/svg+xml,%3Csvg viewBox='0 0 130.21 130.01' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='a' x1='333.48' x2='477' y1='702.6' y2='563.73' gradientTransform='translate(94.038 276.06) scale(.99206)' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23F69923' offset='0'/%3E%3Cstop stop-color='%23F79A23' offset='.11'/%3E%3Cstop stop-color='%23E97826' offset='.945'/%3E%3C/linearGradient%3E%3ClinearGradient id='b' x1='333.48' x2='477' y1='702.6' y2='563.73' gradientTransform='translate(94.038 276.06) scale(.99206)' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23F69923' offset='0'/%3E%3Cstop stop-color='%23F79A23' offset='.08'/%3E%3Cstop stop-color='%23E97826' offset='.419'/%3E%3C/linearGradient%3E%3ClinearGradient id='c' x1='633.55' x2='566.47' y1='814.6' y2='909.12' gradientTransform='translate(-85.421 56.236)' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23f6e423' offset='0'/%3E%3Cstop stop-color='%23F79A23' offset='.412'/%3E%3Cstop stop-color='%23E97826' offset='.733'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg transform='translate(-437.89 -835.29)'%3E%3Ccircle cx='503.1' cy='900.29' r='62.52' fill='url(%23a)' stroke='url(%23b)' stroke-linejoin='round' stroke-width='4.96'/%3E%3Cpath d='M487.89 873.64a89.53 89.53 0 0 0-2.688.031c-1.043.031-2.445.362-4.062.906 27.309 20.737 37.127 58.146 20.25 90.656.573.015 1.142.063 1.719.063 30.844 0 56.62-21.493 63.28-50.312-19.572-22.943-46.117-41.294-78.5-41.344z' fill='url(%23c)' opacity='.75'/%3E%3Cpath d='M481.14 874.58c-9.068 3.052-26.368 13.802-43 28.156 1.263 34.195 28.961 61.607 63.25 62.5 16.877-32.51 7.06-69.919-20.25-90.656z' fill='%2328170b' opacity='.75'/%3E%3Cpath d='M504.889 862.546c-.472-.032-.932.028-1.375.25-5.6 2.801 0 14 0 14-16.807 14.009-13.236 37.938-32.844 37.938-10.689 0-21.322-12.293-32.531-19.812-.144 1.773-.25 3.564-.25 5.375 0 24.515 13.51 45.863 33.469 57.063 5.583-.703 11.158-2.114 15.344-4.906 21.992-14.662 27.452-42.557 36.438-56.031 5.596-8.407 31.824-7.677 33.594-11.22 2.804-5.601-5.602-14-8.406-14h-22.406c-1.566 0-4.025-2.78-5.594-2.78h-8.406s-3.725-5.65-7.031-5.875z' fill='%23fff'/%3E%3C/g%3E%3C/svg%3E";
+
+export const externalIcon =
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32px' height='32px' viewBox='0 0 32 32' id='icon'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:none;%7D%3C/style%3E%3C/defs%3E%3Ctitle%3Efog%3C/title%3E%3Cpath d='M25.8289,13.1155A10.02,10.02,0,0,0,16,5.0005V7a8.0233,8.0233,0,0,1,7.8649,6.4934l.2591,1.346,1.3488.2441A5.5019,5.5019,0,0,1,24.5076,26H16v2h8.5076a7.5019,7.5019,0,0,0,1.3213-14.8845Z'/%3E%3Crect x='8' y='24' width='6' height='2'/%3E%3Crect x='4' y='24' width='2' height='2'/%3E%3Crect x='6' y='20' width='8' height='2'/%3E%3Crect x='2' y='20' width='2' height='2'/%3E%3Crect x='8' y='16' width='6' height='2'/%3E%3Crect x='4' y='16' width='2' height='2'/%3E%3Crect x='10' y='12' width='4' height='2'/%3E%3Crect x='6' y='12' width='2' height='2'/%3E%3Crect x='12' y='8' width='2' height='2'/%3E%3Crect id='_Transparent_Rectangle_' data-name='&lt;Transparent Rectangle&gt;' class='cls-1' width='32' height='32'/%3E%3C/svg%3E";
 
 export class CamelUi {
 
@@ -193,6 +196,30 @@ export class CamelUi {
         else return false;
     }
 
+    static hasInternalUri = (element: CamelElement): boolean => {
+        return this.hasDirectUri(element) || this.hasSedaUri(element);
+    }
+
+    static hasDirectUri = (element: CamelElement): boolean => {
+        return this.hasUriStartWith(element,'direct');
+    }
+
+    static hasSedaUri = (element: CamelElement): boolean => {
+        return this.hasUriStartWith(element,'seda');
+    }
+
+    static hasUriStartWith = (element: CamelElement, text: string): boolean => {
+        if ((element as any).uri && typeof (element as any).uri === 'string') {
+            return (element as any).uri.startsWith(text);
+        } else if (element.dslName === 'SagaDefinition'){
+            const completion = (element as SagaDefinition).completion || '';
+            const compensation = (element as SagaDefinition).compensation || '';
+            return completion.startsWith(text) || compensation.startsWith(text);
+        } else {
+            return false;
+        }
+    }
+
     static getKameletProperties = (element: any): Property[] => {
         const kamelet = CamelUi.getKamelet(element)
         return kamelet
@@ -217,6 +244,19 @@ export class CamelUi {
        }
     }
 
+    static getElementTitle = (element: CamelElement): string => {
+        if (element.dslName === 'RouteDefinition') {
+            const routeId = (element as RouteDefinition).id
+            return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
+        } else if (['ToDefinition', 'ToDynamicDefinition', 'FromDefinition', 'KameletDefinition'].includes(element.dslName) && (element as any).uri) {
+            const uri = (element as any).uri
+            return CamelUtil.capitalizeName(ComponentApi.getComponentTitleFromUri(uri) || '');
+        } else {
+            const title = CamelMetadataApi.getCamelModelMetadataByClassName(element.dslName);
+            return title ? title.title : CamelUtil.capitalizeName((element as any).stepName);
+        }
+    }
+
     static getTitle = (element: CamelElement): string => {
         const k: KameletModel | undefined = CamelUi.getKamelet(element);
         if (k) {
@@ -226,10 +266,25 @@ export class CamelUi {
             return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
         } else if ((element as any).uri) {
             const uri = (element as any).uri
-            return ComponentApi.getComponentNameFromUri(uri) || '';
+            return ComponentApi.getComponentTitleFromUri(uri) || '';
         } else {
             const title = CamelMetadataApi.getCamelModelMetadataByClassName(element.dslName);
             return title ? title.title : CamelUtil.capitalizeName((element as any).stepName);
+        }
+    }
+
+    static getOutgoingTitle = (element: CamelElement): string => {
+        const k: KameletModel | undefined = CamelUi.getKamelet(element);
+        if (k) {
+            return k.title();
+        } else if (element.dslName === 'RouteDefinition') {
+            const routeId = (element as RouteDefinition).id
+            return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
+        } else if ((element as any).uri) {
+            const uri = (element as any).uri
+            return ComponentApi.getComponentTitleFromUri(uri) || uri;
+        } else {
+            return "";
         }
     }
 
@@ -308,7 +363,7 @@ export class CamelUi {
             case "WireTapDefinition":
                 return "data:image/svg+xml,%3Csvg width='16' height='16' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3E%3Cg class='layer'%3E%3Ctitle%3ELayer 1%3C/title%3E%3Cpath d='m8,8c1.86658,0 3.4346,1.27853 3.8759,3.0076l0.06156,-0.00568l0,0l3.06254,-0.00192c0.5523,0 1,0.4477 1,1c0,0.5523 -0.4477,1 -1,1l-3,0c-0.042,0 -0.0834,-0.0026 -0.1241,-0.0076c-0.4413,1.7291 -2.00932,3.0076 -3.8759,3.0076c-1.86658,0 -3.43455,-1.2785 -3.87594,-3.0076c-0.04064,0.005 -0.08205,0.0076 -0.12406,0.0076l-3,0c-0.55229,0 -1,-0.4477 -1,-1c0,-0.5523 0.44771,-1 1,-1l3,0c0.04201,0 0.08342,0.0026 0.12406,0.0076c0.44139,-1.72907 2.00936,-3.0076 3.87594,-3.0076zm0,2c-1.10457,0 -2,0.8954 -2,2c0,1.1046 0.89543,2 2,2c1.10457,0 2,-0.8954 2,-2c0,-1.1046 -0.89543,-2 -2,-2zm0,-10c0.55228,0 1,0.44771 1,1l0,2.06274c1.2966,0.16336 2.539,0.64271 3.6148,1.40246c0.1917,0.13536 0.3826,0.3857 0.3826,0.5348l0.0026,2c0,0.55228 -0.4477,1 -1,1c-0.5523,0 -1,-0.44772 -1,-1l0,-1.19616c-0.9097,-0.52524 -1.94454,-0.80409 -3.00141,-0.80384c-1.05592,0.00025 -2.08969,0.27908 -2.99859,0.80384l0,1.19616c0,0.55228 -0.44772,1 -1,1c-0.55228,0 -1,-0.44772 -1,-1l0.00048,-2c-0.00048,-0.15411 0.19076,-0.39769 0.38165,-0.53263c1.07652,-0.76099 2.31996,-1.24111 3.61787,-1.40463l0,-2.06274c0,-0.55229 0.44772,-1 1,-1z' fill='%23000000' id='svg_1' transform='rotate(180 8,8)'/%3E%3C/g%3E%3C/svg%3E";
             case "ToDynamicDefinition":
-                return "data:image/svg+xml,%0A%3Csvg width='32px' height='32px' viewBox='0 0 32 32' id='icon' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E .cls-1 %7B fill: none; %7D %3C/style%3E%3C/defs%3E%3Cpath d='M28.5039,8.1362l-12-7a1,1,0,0,0-1.0078,0l-12,7A1,1,0,0,0,3,9V23a1,1,0,0,0,.4961.8638l12,7a1,1,0,0,0,1.0078,0l12-7A1,1,0,0,0,29,23V9A1,1,0,0,0,28.5039,8.1362ZM16,3.1577,26.0156,9,16,14.8423,5.9844,9ZM5,10.7412l10,5.833V28.2588L5,22.4258ZM17,28.2588V16.5742l10-5.833V22.4258Z'/%3E%3Crect id='_Transparent_Rectangle_' data-name='&lt;Transparent Rectangle&gt;' class='cls-1' width='32' height='32'/%3E%3C/svg%3E%0A";
+                return "data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E.cls-1 %7B fill: none; %7D%3C/style%3E%3C/defs%3E%3Cg class='layer'%3E%3Ctitle%3ELayer 1%3C/title%3E%3Cpath d='m24.08924,9.30736l-1.67194,1.57734l4.23986,3.99986l-5.47865,0a5.92883,5.59337 0 0 0 -4.60981,-4.34899l0,-10.15173l-2.36467,0l0,10.15173a5.91168,5.5772 0 0 0 0,10.92886l0,10.15173l2.36467,0l0,-10.15173a5.92883,5.59337 0 0 0 4.60981,-4.34899l5.47865,0l-4.23986,3.99986l1.67194,1.57734l7.09402,-6.69264l-7.09402,-6.69264zm-8.70288,10.03896a3.54701,3.34632 0 1 1 3.54701,-3.34632a3.55091,3.35 0 0 1 -3.54701,3.34632z' id='svg_1'/%3E%3Crect class='cls-1' data-name='&lt;Transparent Rectangle&gt;' height='32' id='_Transparent_Rectangle_' width='31.91342' x='0' y='0'/%3E%3C/g%3E%3C/svg%3E";
             case "RemoveHeaderDefinition":
                 return "data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E.cls-1 %7B fill: none; %7D%3C/style%3E%3C/defs%3E%3Cg class='layer'%3E%3Ctitle%3ELayer 1%3C/title%3E%3Cpath d='m24,30l-20,0a2.0021,2.0021 0 0 1 -2,-2l0,-6a2.0021,2.0021 0 0 1 2,-2l20,0a2.0021,2.0021 0 0 1 2,2l0,6a2.0021,2.0021 0 0 1 -2,2zm-20,-8l-0.0015,0l0.0015,6l20,0l0,-6l-20,0z' id='svg_1'/%3E%3Cpolygon id='svg_2' points='32.009655237197876,7.0889304876327515 32.009655237197876,5.094889521598816 26.932628870010376,5.094889521598816 26.932628870010376,0.017862439155578613 24.938587427139282,0.017862558364868164 24.938587427139282,5.094889521598816 19.861561059951782,5.094889521598816 19.861561059951782,7.0889304876327515 24.938587427139282,7.0889304876327515 24.938587427139282,12.165956854820251 26.932628870010376,12.165956854820251 26.932628870010376,7.0889304876327515 32.009655237197876,7.0889304876327515 ' transform='rotate(-45 25.9356 6.09191)'/%3E%3Cpath d='m4,14l0,-6l14,0l0,-2l-14,0a2.0023,2.0023 0 0 0 -2,2l0,6a2.0023,2.0023 0 0 0 2,2l22,0l0,-2l-22,0z' id='svg_3' transform='matrix(1 0 0 1 0 0)'/%3E%3C/g%3E%3C/svg%3E";
             case "RemoveHeadersDefinition":
@@ -336,9 +391,9 @@ export class CamelUi {
             case "SagaDefinition":
                 return "data:image/svg+xml,%0A%3Csvg width='32px' height='32px' viewBox='0 0 32 32' id='icon' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:none;%7D%3C/style%3E%3C/defs%3E%3Ctitle%3Eexpand-categories%3C/title%3E%3Crect x='20' y='26' width='6' height='2'/%3E%3Crect x='20' y='18' width='8' height='2'/%3E%3Crect x='20' y='10' width='10' height='2'/%3E%3Crect x='15' y='4' width='2' height='24'/%3E%3Cpolygon points='10.586 3.959 7 7.249 3.412 3.958 2 5.373 7 10 12 5.373 10.586 3.959'/%3E%3Crect id='_Transparent_Rectangle_' data-name='&lt;Transparent Rectangle&gt;' class='cls-1' width='32' height='32'/%3E%3C/svg%3E";
             case "FromDefinition":
-                return "data:image/svg+xml,%0A%3Csvg width='24px' height='24px' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' d='M15.8198039,12 L21.2037682,12 L12,22.5185923 L2.79623177,12 L8.1801961,12 L10.1801961,2 L13.8198039,2 L15.8198039,12 Z M12,19.4814077 L16.7962318,14 L14.1801961,14 L12.1801961,4 L11.8198039,4 L9.8198039,14 L7.20376823,14 L12,19.4814077 Z'/%3E%3C/svg%3E";
+                return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24px' height='24px' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M12.6577283,22.7532553 L12,23.3275712 L11.3422717,22.7532553 C5.81130786,17.9237218 3,13.70676 3,10 C3,4.7506636 7.09705254,1 12,1 C16.9029475,1 21,4.7506636 21,10 C21,13.70676 18.1886921,17.9237218 12.6577283,22.7532553 Z M5,10 C5,12.8492324 7.30661202,16.4335466 12,20.6634039 C16.693388,16.4335466 19,12.8492324 19,10 C19,5.8966022 15.8358849,3 12,3 C8.16411512,3 5,5.8966022 5,10 Z M13.5857864,11 L7,11 L7,9 L13.5857864,9 L11.2928932,6.70710678 L12.7071068,5.29289322 L17.4142136,10 L12.7071068,14.7071068 L11.2928932,13.2928932 L13.5857864,11 Z'/%3E%3C/svg%3E";
             case "ToDefinition":
-                return "data:image/svg+xml,%0A%3Csvg width='32px' height='32px' viewBox='0 0 32 32' id='icon' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E .cls-1 %7B fill: none; %7D %3C/style%3E%3C/defs%3E%3Cpath d='M28.5039,8.1362l-12-7a1,1,0,0,0-1.0078,0l-12,7A1,1,0,0,0,3,9V23a1,1,0,0,0,.4961.8638l12,7a1,1,0,0,0,1.0078,0l12-7A1,1,0,0,0,29,23V9A1,1,0,0,0,28.5039,8.1362ZM16,3.1577,26.0156,9,16,14.8423,5.9844,9ZM5,10.7412l10,5.833V28.2588L5,22.4258ZM17,28.2588V16.5742l10-5.833V22.4258Z'/%3E%3Crect id='_Transparent_Rectangle_' data-name='&lt;Transparent Rectangle&gt;' class='cls-1' width='32' height='32'/%3E%3C/svg%3E%0A";
+                return "data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E.cls-1 %7B fill: none; %7D%3C/style%3E%3C/defs%3E%3Cg class='layer'%3E%3Ctitle%3ELayer 1%3C/title%3E%3Cpath d='m24.08924,9.30736l-1.67194,1.57734l4.23986,3.99986l-5.47865,0a5.92883,5.59337 0 0 0 -4.60981,-4.34899l0,-10.15173l-2.36467,0l0,10.15173a5.91168,5.5772 0 0 0 0,10.92886l0,10.15173l2.36467,0l0,-10.15173a5.92883,5.59337 0 0 0 4.60981,-4.34899l5.47865,0l-4.23986,3.99986l1.67194,1.57734l7.09402,-6.69264l-7.09402,-6.69264zm-8.70288,10.03896a3.54701,3.34632 0 1 1 3.54701,-3.34632a3.55091,3.35 0 0 1 -3.54701,3.34632z' id='svg_1'/%3E%3Crect class='cls-1' data-name='&lt;Transparent Rectangle&gt;' height='32' id='_Transparent_Rectangle_' width='31.91342' x='0' y='0'/%3E%3C/g%3E%3C/svg%3E";
             case "SwitchDefinition":
                 return "data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E.cls-1 %7B fill: none; %7D%3C/style%3E%3C/defs%3E%3Ctitle%3Emilestone%3C/title%3E%3Cg class='layer'%3E%3Ctitle%3ELayer 1%3C/title%3E%3Cpath d='m24.5857,6.5859a1.9865,1.9865 0 0 0 -1.4143,-0.5859l-7.1714,0l0,-4l-2,0l0,4l-8,0a2.0025,2.0025 0 0 0 -2,2l0,6a2.0025,2.0025 0 0 0 2,2l8,0l0,14l2,0l0,-14l7.1714,0a1.9865,1.9865 0 0 0 1.4143,-0.5859l4.4143,-4.4141l-4.4143,-4.4141zm-1.4143,7.4141l-17.1714,0l17.2262,0.02642l-0.02708,-0.02752l2.97248,-2.9989l-3.0002,3z' id='svg_1' transform='matrix(1 0 0 1 0 0)'/%3E%3Crect class='cls-1' data-name='&lt;Transparent Rectangle&gt;' height='32' id='_Transparent_Rectangle_' width='31.94496' x='0' y='0'/%3E%3C/g%3E%3C/svg%3E";
             case "KameletDefinition":
@@ -346,16 +401,25 @@ export class CamelUi {
             case "DynamicRouterDefinition":
                 return "data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:none;%7D%3C/style%3E%3C/defs%3E%3Ctitle%3Einsert%3C/title%3E%3Cg class='layer'%3E%3Ctitle%3ELayer 1%3C/title%3E%3Crect class='cls-1' data-name='&lt;Transparent Rectangle&gt;' height='32' id='_Transparent_Rectangle_' width='31.94228' x='0' y='0'/%3E%3Cg id='svg_5' transform='matrix(1 0 0 1 0 0) rotate(180 16 15.5)'%3E%3Cpath d='m2,9l9,0l0,-7l-9,0l0,7zm2,-5l5,0l0,3l-5,0l0,-3z' id='svg_1'/%3E%3Cpath d='m2,19l9,0l0,-7l-9,0l0,7zm2,-5l5,0l0,3l-5,0l0,-3z' id='svg_2'/%3E%3Cpath d='m2,29l9,0l0,-7l-9,0l0,7zm2,-5l5,0l0,3l-5,0l0,-3z' id='svg_3'/%3E%3Cpath d='m27,9l-9,0l3.41,-3.59l-1.41,-1.41l-6,6l6,6l1.41,-1.41l-3.41,-3.59l9,0a1,1 0 0 1 1,1l0,12a1,1 0 0 1 -1,1l-12,0l0,2l12,0a3,3 0 0 0 3,-3l0,-12a3,3 0 0 0 -3,-3z' id='svg_4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E";
             default:
-                return defaultIcon;
+                return camelIcon;
         }
     }
 
     static getIcon = (element: CamelElement): string => {
         const k: KameletModel | undefined = CamelUi.getKamelet(element);
         if (["FromDefinition", "KameletDefinition"].includes(element.dslName)) {
-            return k ? k.icon() : defaultIcon;
+            return k ? k.icon() : CamelUi.getIconForName(element.dslName);
         } else {
             return CamelUi.getIconForName(element.dslName);
+        }
+    }
+
+    static getConnectionIcon = (element: CamelElement): string => {
+        const k: KameletModel | undefined = CamelUi.getKamelet(element);
+        if (["FromDefinition", "KameletDefinition"].includes(element.dslName)) {
+            return k ? k.icon() : externalIcon;
+        } else {
+            return externalIcon;
         }
     }
 

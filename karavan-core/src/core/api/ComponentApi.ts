@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 import {Component, ComponentProperty} from "../model/ComponentModels";
+import {CamelMetadataApi} from "../model/CamelMetadata";
 
 export const Components: Component[] = [];
 
@@ -51,6 +52,12 @@ export const ComponentApi = {
 
     getComponentNameFromUri: (uri: string): string | undefined => {
         return uri.split(":")[0];
+    },
+
+    getComponentTitleFromUri: (uri: string): string | undefined => {
+        const componentName =  uri.split(":")[0];
+        const title = ComponentApi.findByName(componentName)?.component.title;
+        return title ? title : componentName;
     },
 
     getUriParts: (uri: string): Map<string, string> => {

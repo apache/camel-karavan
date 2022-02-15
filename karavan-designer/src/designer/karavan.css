@@ -478,6 +478,23 @@
     strokeWidth: 1;
     fill: transparent;
 }
+
+.karavan .dsl-page .graph .connections .path-direct {
+    stroke-dasharray: 0;
+    stroke: #fb8824;
+    strokeWidth: 1;
+    fill: transparent;
+}
+
+.karavan .dsl-page .graph .connections .path-seda {
+    stroke-dasharray: 2;
+    stroke: #fb8824;
+    -webkit-animation: dashdraw .5s linear infinite;
+    animation: dashdraw .5s linear infinite;
+    strokeWidth: 1;
+    fill: transparent;
+}
+
 @keyframes dashdraw{0%{stroke-dashoffset:10}}
 
 .karavan .dsl-page .flows .step-element {
