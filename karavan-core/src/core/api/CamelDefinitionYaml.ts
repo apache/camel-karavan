@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 import * as yaml from 'js-yaml';
-import {Integration, CamelElement,  Beans, Dependency,} from "../model/IntegrationDefinition";
+import {Integration, CamelElement, Beans, Dependency,} from "../model/IntegrationDefinition";
 import {RouteDefinition, NamedBeanDefinition} from "../model/CamelDefinition";
 import {CamelUtil} from "./CamelUtil";
 import {CamelDefinitionYamlStep} from "./CamelDefinitionYamlStep";
@@ -39,7 +39,7 @@ export class CamelDefinitionYaml {
         } else {
             const f = JSON.parse(JSON.stringify(clone.spec.flows, null, 3));
             const text = CamelDefinitionYaml.yamlDump(f);
-            if (clone.spec.dependencies && clone.spec.dependencies.length >0){
+            if (clone.spec.dependencies && clone.spec.dependencies.length > 0) {
                 const modeline = this.generateModeline(clone.spec.dependencies);
                 return modeline.concat('\n', text);
             } else {
@@ -64,25 +64,29 @@ export class CamelDefinitionYaml {
         return result;
     }
 
-    static cleanupElement = (element: CamelElement): CamelElement => {
+    static cleanupElement = (element: CamelElement, inArray?: boolean, inSteps?: boolean): CamelElement => {
         const result: any = {};
         const object: any = Object.assign({}, element);
+        if (inArray) {
+            object.inArray = inArray;
+            object.inSteps = (inSteps === true);
+        }
         if (object.dslName.endsWith('Expression')) {
             delete object.language;
             delete object.expressionName;
         } else if (object.dslName.endsWith('DataFormat')) {
             delete object.dataFormatName;
-        } else if (object.dslName = 'NamedBeanDefinition') {
+        } else if (object.dslName === 'NamedBeanDefinition') {
             if (object.properties && Object.keys(object.properties).length === 0) delete object.properties;
         }
         delete object.uuid;
         delete object.dslName;
         Object.keys(object)
             .forEach(key => {
-                if (object[key] instanceof CamelElement || ( typeof object[key] === 'object' &&  object[key].dslName)) {
+                if (object[key] instanceof CamelElement || (typeof object[key] === 'object' && object[key].dslName)) {
                     result[key] = CamelDefinitionYaml.cleanupElement(object[key])
                 } else if (Array.isArray(object[key])) {
-                    if (object[key].length > 0) result[key] = CamelDefinitionYaml.cleanupElements(object[key])
+                    if (object[key].length > 0) result[key] = CamelDefinitionYaml.cleanupElements(object[key], key === 'steps')
                 } else if (key === 'parameters' && typeof (object[key]) === 'object') {
                     const obj = object[key];
                     const parameters = Object.keys(obj || {}).reduce((x: any, k) => {
@@ -100,11 +104,11 @@ export class CamelDefinitionYaml {
         return result as CamelElement
     }
 
-    static cleanupElements = (elements: CamelElement[]): CamelElement[] => {
+    static cleanupElements = (elements: CamelElement[], inSteps?: boolean): CamelElement[] => {
         const result: any[] = []
         elements.forEach(element => {
-            if (typeof (element) === 'object'){
-                const newElement = CamelDefinitionYaml.cleanupElement(element)
+            if (typeof (element) === 'object') {
+                const newElement = CamelDefinitionYaml.cleanupElement(element, true, inSteps)
                 result.push(newElement)
             } else {
                 result.push(element);
@@ -118,7 +122,7 @@ export class CamelDefinitionYaml {
             {
                 noRefs: false,
                 noArrayIndent: false,
-                sortKeys: function (a:any, b:any) {
+                sortKeys: function (a: any, b: any) {
                     if (a === 'uri') return -1
                     else if (b === 'uri') return 1
                     else if (a === 'expression' && b == 'steps') return -1
@@ -128,8 +132,31 @@ export class CamelDefinitionYaml {
                     else if (a > b) return 1
                     else return 0;
                 },
-                replacer: CamelUtil.replacer
+                replacer: this.replacer
             });
+    }
+
+    static replacer = (key: string, value: any): any => {
+        if (typeof value == 'object' && (value.hasOwnProperty('stepName') || value.hasOwnProperty('step-name'))) {
+            const stepNameField = value.hasOwnProperty('stepName') ? 'stepName' : 'step-name';
+            const stepName = value[stepNameField];
+            let newValue: any = JSON.parse(JSON.stringify(value));
+            delete newValue[stepNameField];
+            if ((value.inArray && !value.inSteps)
+                || key === 'from') {
+                delete newValue.inArray;
+                delete newValue.inSteps;
+                return newValue;
+            } else {
+                delete newValue.inArray;
+                delete newValue.inSteps;
+                const xValue: any = {};
+                xValue[stepName] = newValue;
+                return xValue;
+            }
+        } else {
+            return value;
+        }
     }
 
     static yamlToIntegration = (filename: string, text: string): Integration => {
@@ -189,9 +216,9 @@ export class CamelDefinitionYaml {
         const result: Beans = new Beans();
         beans.beans.forEach((b: any) => {
             const props: any = {}
-            if (b && b.properties){
+            if (b && b.properties) {
                 // convert map style to properties if requires
-                Object.keys(b.properties).forEach( key => {
+                Object.keys(b.properties).forEach(key => {
                     const value = b.properties[key];
                     CamelDefinitionYaml.flatMapProperty(key, value, new Map<string, any>())
                         .forEach((v, k) => props[k] = v);

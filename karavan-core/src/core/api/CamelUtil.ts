@@ -59,26 +59,6 @@ export class CamelUtil {
         return newBean;
     }
 
-    static replacer = (key:string, value:any): any => {
-        if (typeof value == 'object' && (value.hasOwnProperty('stepName') || value.hasOwnProperty('step-name'))) {
-            const stepNameField = value.hasOwnProperty('stepName') ? 'stepName' : 'step-name';
-            const stepName = value[stepNameField];
-            const x = JSON.parse(JSON.stringify(value));
-            delete x[stepNameField];
-            if (['when', 'otherwise', 'expression', 'doCatch', 'doFinally'].includes(value[stepNameField])){
-                return x;
-            } else if (key === 'from'){
-                return x;
-            } else {
-                const newValue: any = {};
-                newValue[stepName] = x;
-                return newValue;
-            }
-        } else {
-            return value;
-        }
-    }
-
     static capitalizeName = (name: string) => {
         try {
             return name[0].toUpperCase() + name.substring(1);
