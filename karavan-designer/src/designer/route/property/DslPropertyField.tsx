@@ -35,7 +35,7 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {ExpressionField} from "./ExpressionField";
 import {CamelUi, RouteToCreate} from "../../utils/CamelUi";
 import {ComponentParameterField} from "./ComponentParameterField";
-import {DataFormatDefinition, ToDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {DataFormatDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {KameletPropertyField} from "./KameletPropertyField";
 import {ExpressionDefinition} from "karavan-core/lib/model/CamelDefinition";
@@ -48,7 +48,7 @@ interface Props {
     property: PropertyMeta,
     value: any,
     onChange?: (fieldId: string, value: string | number | boolean | any, newRoute?: RouteToCreate) => void,
-    onExpressionChange?: (value: ExpressionDefinition) => void,
+    onExpressionChange?: (propertyName: string, exp:ExpressionDefinition) => void,
     onDataFormatChange?: (value: DataFormatDefinition) => void,
     onParameterChange?: (parameter: string, value: string | number | boolean | any, pathParameter?: boolean, newRoute?: RouteToCreate) => void,
     element?: CamelElement
@@ -69,9 +69,13 @@ export class DslPropertyField extends React.Component<Props, State> {
         isShowAdvanced: false
     }
 
-    openSelect = (propertyName: string) => {
-        this.setState({selectStatus: new Map<string, boolean>([[propertyName, true]])});
+    openSelect = (propertyName: string, isExpanded: boolean) => {
+        this.setState({selectStatus: new Map<string, boolean>([[propertyName, isExpanded]])});
     }
+
+    clearSelection = (propertyName: string) => {
+        this.setState({selectStatus: new Map<string, boolean>([[propertyName, false]])});
+    };
 
     isSelectOpen = (propertyName: string): boolean => {
         return this.state.selectStatus.has(propertyName) && this.state.selectStatus.get(propertyName) === true;
@@ -196,7 +200,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                 variant={SelectVariant.single}
                 aria-label={property.name}
                 onToggle={isExpanded => {
-                    this.openSelect(property.name)
+                    this.openSelect(property.name, isExpanded)
                 }}
                 onSelect={(e, value, isPlaceholder) => this.propertyChanged(property.name, (!isPlaceholder ? value : undefined))}
                 selections={value}
@@ -221,7 +225,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                 variant={SelectVariant.single}
                 aria-label={property.name}
                 onToggle={isExpanded => {
-                    this.openSelect(property.name)
+                    this.openSelect(property.name, isExpanded)
                 }}
                 onSelect={(e, value, isPlaceholder) => this.propertyChanged(property.name, (!isPlaceholder ? value : undefined))}
                 selections={value}
@@ -257,12 +261,13 @@ export class DslPropertyField extends React.Component<Props, State> {
                 placeholderText="Select or type an URI"
                 variant={SelectVariant.typeahead}
                 aria-label={property.name}
+                onClear={event => this.clearSelection(property.name)}
                 onToggle={isExpanded => {
-                    this.openSelect(property.name)
+                    this.openSelect(property.name, isExpanded)
                 }}
                 onSelect={(e, value, isPlaceholder) => {
                     const url = value.toString().split(":");
-                    const newRoute = !urls.includes(value.toString()) ? new RouteToCreate(url[0], url[1]) : undefined;
+                    const newRoute = !urls.includes(value.toString()) && (['direct', 'seda'].includes(url[0])) ? new RouteToCreate(url[0], url[1]) : undefined;
                     this.propertyChanged(property.name, (!isPlaceholder ? value : undefined), newRoute)
                 }}
                 selections={value}
@@ -277,13 +282,25 @@ export class DslPropertyField extends React.Component<Props, State> {
         )
     }
 
+    onMultiValueObjectUpdate = (index: number, fieldId: string, value: CamelElement) => {
+        const mValue = [...this.props.value];
+        mValue[index] = value;
+        this.props.onChange?.call(this, fieldId, mValue);
+    }
+
     getMultiValueObjectField = (property: PropertyMeta, value: any) => {
         return (
             <div>
                 {value && Array.from(value).map((v: any, index: number) => (
-                    <div key={property + "-" + index}>{this.getObjectField(property, v)}</div>
+                    <div key={property + "-" + index}>
+                        <div className="object">
+                            {value && <ObjectField property={property} value={v} onPropertyUpdate={(f, v) => this.onMultiValueObjectUpdate(index, f, v)} integration={this.props.integration} />}
+                        </div>
+                    </div>
                 ))}
+                <Button variant="link" className="add-button" onClick={e => this.propertyChanged(property.name, [...value, CamelDefinitionApi.createStep(property.type, {})])}><AddIcon/>{"Add " + property.displayName}</Button>
             </div>
+
         )
     }
 

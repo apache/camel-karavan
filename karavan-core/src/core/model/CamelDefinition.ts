@@ -915,6 +915,15 @@ export class PropertyDefinition extends CamelElement {
     }
 }
 
+export class PropertyExpressionDefinition extends CamelElement {
+    expression?: ExpressionDefinition;
+    key: string = ''
+    public constructor(init?: Partial<PropertyExpressionDefinition>) {
+        super('PropertyExpressionDefinition')
+        Object.assign(this, init)
+    }
+}
+
 export class RecipientListDefinition extends CamelElement {
     strategyMethodAllowNull?: boolean;
     executorServiceRef?: string;
@@ -1137,7 +1146,7 @@ export class RouteTemplateBeanDefinition extends CamelElement {
     type: string = '';
     beanType?: string;
     properties?: any = {};
-    script?: RouteTemplateScriptDefinition | string
+    script?: string
     public constructor(init?: Partial<RouteTemplateBeanDefinition>) {
         super('RouteTemplateBeanDefinition')
         Object.assign(this, init)
@@ -1145,7 +1154,7 @@ export class RouteTemplateBeanDefinition extends CamelElement {
 }
 
 export class RouteTemplateDefinition extends CamelElement {
-    stepName?: string = 'template';
+    stepName?: string = 'routeTemplate';
     beans?: NamedBeanDefinition[] = [];
     from: FromDefinition = new FromDefinition();
     id: string = '';
@@ -1163,14 +1172,6 @@ export class RouteTemplateParameterDefinition extends CamelElement {
     required?: boolean
     public constructor(init?: Partial<RouteTemplateParameterDefinition>) {
         super('RouteTemplateParameterDefinition')
-        Object.assign(this, init)
-    }
-}
-
-export class RouteTemplateScriptDefinition extends CamelElement {
-    script?: string
-    public constructor(init?: Partial<RouteTemplateScriptDefinition>) {
-        super('RouteTemplateScriptDefinition')
         Object.assign(this, init)
     }
 }
@@ -1204,29 +1205,19 @@ export class SagaActionUriDefinition extends CamelElement {
 
 export class SagaDefinition extends CamelElement {
     completion?: string;
-    description?: string;
-    completionMode?: string;
-    sagaServiceRef?: string;
-    timeoutInMilliseconds?: number;
-    steps?: CamelElement[] = [];
-    timeout?: string;
     inheritErrorHandler?: boolean;
     propagation?: string;
     stepName?: string = 'saga';
+    description?: string;
     compensation?: string;
+    completionMode?: string;
+    sagaServiceRef?: string;
     id?: string;
-    option?: SagaOptionDefinition[] = []
+    steps?: CamelElement[] = [];
+    timeout?: string;
+    option?: PropertyExpressionDefinition[] = []
     public constructor(init?: Partial<SagaDefinition>) {
         super('SagaDefinition')
-        Object.assign(this, init)
-    }
-}
-
-export class SagaOptionDefinition extends CamelElement {
-    expression?: ExpressionDefinition;
-    optionName: string = ''
-    public constructor(init?: Partial<SagaOptionDefinition>) {
-        super('SagaOptionDefinition')
         Object.assign(this, init)
     }
 }
@@ -1378,6 +1369,40 @@ export class SwitchDefinition extends CamelElement {
     when?: WhenDefinition[] = []
     public constructor(init?: Partial<SwitchDefinition>) {
         super('SwitchDefinition')
+        Object.assign(this, init)
+    }
+}
+
+export class TemplatedRouteBeanDefinition extends CamelElement {
+    name: string = '';
+    property?: PropertyDefinition[] = [];
+    type: string = '';
+    beanType?: string;
+    properties?: any = {};
+    script?: string
+    public constructor(init?: Partial<TemplatedRouteBeanDefinition>) {
+        super('TemplatedRouteBeanDefinition')
+        Object.assign(this, init)
+    }
+}
+
+export class TemplatedRouteDefinition extends CamelElement {
+    routeId?: string;
+    stepName?: string = 'templatedRoute';
+    beans?: NamedBeanDefinition[] = [];
+    parameters?: TemplatedRouteParameterDefinition[] = [];
+    routeTemplateRef: string = ''
+    public constructor(init?: Partial<TemplatedRouteDefinition>) {
+        super('TemplatedRouteDefinition')
+        Object.assign(this, init)
+    }
+}
+
+export class TemplatedRouteParameterDefinition extends CamelElement {
+    name: string = '';
+    value: string = ''
+    public constructor(init?: Partial<TemplatedRouteParameterDefinition>) {
+        super('TemplatedRouteParameterDefinition')
         Object.assign(this, init)
     }
 }

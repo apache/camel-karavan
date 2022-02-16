@@ -59,8 +59,8 @@ export class ComponentParameterField extends React.Component<Props, State> {
         this.setState({selectStatus: new Map<string, boolean>([[parameter, false]])});
     }
 
-    openSelect = (propertyName: string) => {
-        this.setState({selectStatus: new Map<string, boolean>([[propertyName, true]])});
+    openSelect = (propertyName: string, isExpanded: boolean) => {
+        this.setState({selectStatus: new Map<string, boolean>([[propertyName, isExpanded]])});
     }
 
     isSelectOpen = (propertyName: string): boolean => {
@@ -79,7 +79,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
                 variant={SelectVariant.single}
                 aria-label={property.name}
                 onToggle={isExpanded => {
-                    this.openSelect(property.name)
+                    this.openSelect(property.name, isExpanded)
                 }}
                 onSelect={(e, value, isPlaceholder) => this.parametersChanged(property.name, (!isPlaceholder ? value : undefined))}
                 selections={value}
@@ -126,7 +126,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
                 variant={SelectVariant.typeahead}
                 aria-label={property.name}
                 onToggle={isExpanded => {
-                    this.openSelect(property.name)
+                    this.openSelect(property.name, isExpanded)
                 }}
                 onSelect={(e, value, isPlaceholder) => {
                     const newRoute = !urls.includes(value.toString()) ? new RouteToCreate(componentName, value.toString()) : undefined;
@@ -167,7 +167,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
                 variant={SelectVariant.single}
                 aria-label={property.name}
                 onToggle={isExpanded => {
-                    this.openSelect(property.name)
+                    this.openSelect(property.name, isExpanded)
                 }}
                 onSelect={(e, value, isPlaceholder) => this.parametersChanged(property.name, (!isPlaceholder ? value : undefined), property.kind === 'path')}
                 selections={value !== undefined ? value.toString() : property.defaultValue}

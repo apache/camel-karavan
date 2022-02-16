@@ -73,10 +73,10 @@ export class DslProperties extends React.Component<Props, State> {
         this.props.onPropertyUpdate?.call(this, value, value.uuid);
     }
 
-    expressionChanged = (exp:ExpressionDefinition) => {
+    expressionChanged = (propertyName: string, exp:ExpressionDefinition) => {
         if (this.state.step) {
             const clone = (CamelUtil.cloneStep(this.state.step));
-            (clone as any).expression = exp;
+            (clone as any)[propertyName] = exp;
             this.setStep(clone);
             this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid);
         }

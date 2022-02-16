@@ -37,7 +37,7 @@ import {CamelUi} from "../../utils/CamelUi";
 interface Props {
     property: PropertyMeta,
     value: CamelElement,
-    onExpressionChange?: ( value:ExpressionDefinition) => void
+    onExpressionChange?: (propertyName: string, exp:ExpressionDefinition) => void
     integration: Integration,
 }
 
@@ -51,8 +51,8 @@ export class ExpressionField extends React.Component<Props, State> {
         selectIsOpen: false,
     }
 
-    openSelect = () => {
-        this.setState({selectIsOpen: true});
+    openSelect = (isExpanded: boolean) => {
+        this.setState({selectIsOpen: isExpanded});
     }
 
     expressionChanged = (language: string, value:CamelElement) => {
@@ -63,7 +63,7 @@ export class ExpressionField extends React.Component<Props, State> {
         const exp = new ExpressionDefinition();
         (exp as any)[language] = value;
         if (this.props.value) (exp as any).uuid = this.props.value.uuid;
-        this.props.onExpressionChange?.call(this, exp);
+        this.props.onExpressionChange?.call(this, this.props.property.name, exp);
         this.setState({selectIsOpen: false});
     }
 
@@ -111,8 +111,8 @@ export class ExpressionField extends React.Component<Props, State> {
                     <Select
                         variant={SelectVariant.typeahead}
                         aria-label={property.name}
-                        onToggle={() => {
-                            this.openSelect()
+                        onToggle={isExpanded => {
+                            this.openSelect(isExpanded)
                         }}
                         onSelect={(e, lang, isPlaceholder) => this.expressionChanged(lang.toString(), value)}
                         selections={dslLanguage}

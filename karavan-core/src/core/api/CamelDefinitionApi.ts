@@ -59,6 +59,7 @@ import {
     PollEnrichDefinition,
     ProcessDefinition,
     PropertyDefinition,
+    PropertyExpressionDefinition,
     RecipientListDefinition,
     RedeliveryPolicyDefinition,
     RemoveHeaderDefinition,
@@ -77,11 +78,9 @@ import {
     RouteTemplateBeanDefinition,
     RouteTemplateDefinition,
     RouteTemplateParameterDefinition,
-    RouteTemplateScriptDefinition,
     RoutingSlipDefinition,
     SagaActionUriDefinition,
     SagaDefinition,
-    SagaOptionDefinition,
     SamplingDefinition,
     ScriptDefinition,
     SetBodyDefinition,
@@ -93,6 +92,9 @@ import {
     StepDefinition,
     StopDefinition,
     SwitchDefinition,
+    TemplatedRouteBeanDefinition,
+    TemplatedRouteDefinition,
+    TemplatedRouteParameterDefinition,
     ThreadPoolProfileDefinition,
     ThreadsDefinition,
     ThrottleDefinition,
@@ -1173,6 +1175,15 @@ export class CamelDefinitionApi {
         return def;
     }
 
+    static createPropertyExpressionDefinition = (element: any): PropertyExpressionDefinition => {
+        
+        const def = element ? new PropertyExpressionDefinition({...element}) : new PropertyExpressionDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid;
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
+
+        return def;
+    }
+
     static createRecipientListDefinition = (element: any): RecipientListDefinition => {
         
         const def = element ? new RecipientListDefinition({...element}) : new RecipientListDefinition();
@@ -1315,9 +1326,6 @@ export class CamelDefinitionApi {
         const def = element ? new RouteTemplateBeanDefinition({...element}) : new RouteTemplateBeanDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
         def.property = element && element?.property ? element?.property.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-        if (element?.script !== undefined) { 
-            def.script = CamelDefinitionApi.createRouteTemplateScriptDefinition(element.script); 
-        } 
 
         return def;
     }
@@ -1338,14 +1346,6 @@ export class CamelDefinitionApi {
     static createRouteTemplateParameterDefinition = (element: any): RouteTemplateParameterDefinition => {
         
         const def = element ? new RouteTemplateParameterDefinition({...element}) : new RouteTemplateParameterDefinition();
-        def.uuid = element?.uuid ? element.uuid : def.uuid;
-
-        return def;
-    }
-
-    static createRouteTemplateScriptDefinition = (element: any): RouteTemplateScriptDefinition => {
-        
-        const def = element ? new RouteTemplateScriptDefinition({...element}) : new RouteTemplateScriptDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
 
         return def;
@@ -1373,16 +1373,7 @@ export class CamelDefinitionApi {
         const def = element ? new SagaDefinition({...element}) : new SagaDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-        def.option = element && element?.option ? element?.option.map((x:any) => CamelDefinitionApi.createSagaOptionDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static createSagaOptionDefinition = (element: any): SagaOptionDefinition => {
-        
-        const def = element ? new SagaOptionDefinition({...element}) : new SagaOptionDefinition();
-        def.uuid = element?.uuid ? element.uuid : def.uuid;
-        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
+        def.option = element && element?.option ? element?.option.map((x:any) => CamelDefinitionApi.createPropertyExpressionDefinition(x)) :[]; 
 
         return def;
     }
@@ -1483,6 +1474,33 @@ export class CamelDefinitionApi {
             def.otherwise = CamelDefinitionApi.createOtherwiseDefinition(element.otherwise); 
         } 
         def.when = element && element?.when ? element?.when.map((x:any) => CamelDefinitionApi.createWhenDefinition(x)) :[]; 
+
+        return def;
+    }
+
+    static createTemplatedRouteBeanDefinition = (element: any): TemplatedRouteBeanDefinition => {
+        
+        const def = element ? new TemplatedRouteBeanDefinition({...element}) : new TemplatedRouteBeanDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid;
+        def.property = element && element?.property ? element?.property.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
+
+        return def;
+    }
+
+    static createTemplatedRouteDefinition = (element: any): TemplatedRouteDefinition => {
+        
+        const def = element ? new TemplatedRouteDefinition({...element}) : new TemplatedRouteDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid;
+        def.beans = element && element?.beans ? element?.beans.map((x:any) => CamelDefinitionApi.createNamedBeanDefinition(x)) :[]; 
+        def.parameters = element && element?.parameters ? element?.parameters.map((x:any) => CamelDefinitionApi.createTemplatedRouteParameterDefinition(x)) :[]; 
+
+        return def;
+    }
+
+    static createTemplatedRouteParameterDefinition = (element: any): TemplatedRouteParameterDefinition => {
+        
+        const def = element ? new TemplatedRouteParameterDefinition({...element}) : new TemplatedRouteParameterDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid;
 
         return def;
     }
@@ -3446,6 +3464,7 @@ export class CamelDefinitionApi {
             case 'PollEnrichDefinition': return CamelDefinitionApi.createPollEnrichDefinition(newBody);
             case 'ProcessDefinition': return CamelDefinitionApi.createProcessDefinition(newBody);
             case 'PropertyDefinition': return CamelDefinitionApi.createPropertyDefinition(newBody);
+            case 'PropertyExpressionDefinition': return CamelDefinitionApi.createPropertyExpressionDefinition(newBody);
             case 'RecipientListDefinition': return CamelDefinitionApi.createRecipientListDefinition(newBody);
             case 'RedeliveryPolicyDefinition': return CamelDefinitionApi.createRedeliveryPolicyDefinition(newBody);
             case 'RemoveHeaderDefinition': return CamelDefinitionApi.createRemoveHeaderDefinition(newBody);
@@ -3464,11 +3483,9 @@ export class CamelDefinitionApi {
             case 'RouteTemplateBeanDefinition': return CamelDefinitionApi.createRouteTemplateBeanDefinition(newBody);
             case 'RouteTemplateDefinition': return CamelDefinitionApi.createRouteTemplateDefinition(newBody);
             case 'RouteTemplateParameterDefinition': return CamelDefinitionApi.createRouteTemplateParameterDefinition(newBody);
-            case 'RouteTemplateScriptDefinition': return CamelDefinitionApi.createRouteTemplateScriptDefinition(newBody);
             case 'RoutingSlipDefinition': return CamelDefinitionApi.createRoutingSlipDefinition(newBody);
             case 'SagaActionUriDefinition': return CamelDefinitionApi.createSagaActionUriDefinition(newBody);
             case 'SagaDefinition': return CamelDefinitionApi.createSagaDefinition(newBody);
-            case 'SagaOptionDefinition': return CamelDefinitionApi.createSagaOptionDefinition(newBody);
             case 'SamplingDefinition': return CamelDefinitionApi.createSamplingDefinition(newBody);
             case 'ScriptDefinition': return CamelDefinitionApi.createScriptDefinition(newBody);
             case 'SetBodyDefinition': return CamelDefinitionApi.createSetBodyDefinition(newBody);
@@ -3480,6 +3497,9 @@ export class CamelDefinitionApi {
             case 'StepDefinition': return CamelDefinitionApi.createStepDefinition(newBody);
             case 'StopDefinition': return CamelDefinitionApi.createStopDefinition(newBody);
             case 'SwitchDefinition': return CamelDefinitionApi.createSwitchDefinition(newBody);
+            case 'TemplatedRouteBeanDefinition': return CamelDefinitionApi.createTemplatedRouteBeanDefinition(newBody);
+            case 'TemplatedRouteDefinition': return CamelDefinitionApi.createTemplatedRouteDefinition(newBody);
+            case 'TemplatedRouteParameterDefinition': return CamelDefinitionApi.createTemplatedRouteParameterDefinition(newBody);
             case 'ThreadPoolProfileDefinition': return CamelDefinitionApi.createThreadPoolProfileDefinition(newBody);
             case 'ThreadsDefinition': return CamelDefinitionApi.createThreadsDefinition(newBody);
             case 'ThrottleDefinition': return CamelDefinitionApi.createThrottleDefinition(newBody);
