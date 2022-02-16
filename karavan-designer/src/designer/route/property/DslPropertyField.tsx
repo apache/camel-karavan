@@ -69,9 +69,13 @@ export class DslPropertyField extends React.Component<Props, State> {
         isShowAdvanced: false
     }
 
-    openSelect = (propertyName: string) => {
-        this.setState({selectStatus: new Map<string, boolean>([[propertyName, true]])});
+    openSelect = (propertyName: string, isExpanded: boolean) => {
+        this.setState({selectStatus: new Map<string, boolean>([[propertyName, isExpanded]])});
     }
+
+    clearSelection = (propertyName: string) => {
+        this.setState({selectStatus: new Map<string, boolean>([[propertyName, false]])});
+    };
 
     isSelectOpen = (propertyName: string): boolean => {
         return this.state.selectStatus.has(propertyName) && this.state.selectStatus.get(propertyName) === true;
@@ -196,7 +200,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                 variant={SelectVariant.single}
                 aria-label={property.name}
                 onToggle={isExpanded => {
-                    this.openSelect(property.name)
+                    this.openSelect(property.name, isExpanded)
                 }}
                 onSelect={(e, value, isPlaceholder) => this.propertyChanged(property.name, (!isPlaceholder ? value : undefined))}
                 selections={value}
@@ -221,7 +225,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                 variant={SelectVariant.single}
                 aria-label={property.name}
                 onToggle={isExpanded => {
-                    this.openSelect(property.name)
+                    this.openSelect(property.name, isExpanded)
                 }}
                 onSelect={(e, value, isPlaceholder) => this.propertyChanged(property.name, (!isPlaceholder ? value : undefined))}
                 selections={value}
@@ -257,8 +261,9 @@ export class DslPropertyField extends React.Component<Props, State> {
                 placeholderText="Select or type an URI"
                 variant={SelectVariant.typeahead}
                 aria-label={property.name}
+                onClear={event => this.clearSelection(property.name)}
                 onToggle={isExpanded => {
-                    this.openSelect(property.name)
+                    this.openSelect(property.name, isExpanded)
                 }}
                 onSelect={(e, value, isPlaceholder) => {
                     const url = value.toString().split(":");

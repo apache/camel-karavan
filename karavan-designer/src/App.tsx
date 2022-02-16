@@ -55,23 +55,23 @@ class App extends React.Component<Props, State> {
             '                      name: http-sink\n' +
             '                  - kamelet:\n' +
             '                      name: kafka-sink\n' +
-            '            - to:\n' +
-            '                uri: direct\n' +
-            '            - to:\n' +
-            '                uri: seda\n' +
+            // '            - to:\n' +
+            // '                uri: direct\n' +
+            // '            - to:\n' +
+            // '                uri: seda\n' +
             '        id: Main Route\n' +
-            '    - route:\n' +
-            '        from:\n' +
-            '          uri: direct:completion\n' +
-            '        id: Completion\n' +
-            '    - route:\n' +
-            '        from:\n' +
-            '          uri: direct:compensation\n' +
-            '        id: Compensation\n' +
-            '    - route:\n' +
-            '        from:\n' +
-            '          uri: seda:demo\n' +
-            '        id: seda\n' +
+            // '    - route:\n' +
+            // '        from:\n' +
+            // '          uri: direct:completion\n' +
+            // '        id: Completion\n' +
+            // '    - route:\n' +
+            // '        from:\n' +
+            // '          uri: direct:compensation\n' +
+            // '        id: Compensation\n' +
+            // '    - route:\n' +
+            // '        from:\n' +
+            // '          uri: seda:demo\n' +
+            // '        id: seda\n' +
             // '            - choice:\n' +
             // '                when:\n' +
             // '                  - expression:\n' +
