@@ -201,12 +201,14 @@ export class CamelDefinitionYaml {
 
     static flowsToCamelElements = (flows: any[]): any[] => {
         const result: any[] = [];
+        flows.filter((e: any) => e.hasOwnProperty('restConfiguration'))
+            .forEach((f: any) => result.push(CamelDefinitionYamlStep.readRestConfigurationDefinition(f.restConfiguration)));
+        flows.filter((e: any) => e.hasOwnProperty('rest'))
+            .forEach((f: any) => result.push(CamelDefinitionYamlStep.readRestDefinition(f.rest)));
         flows.filter((e: any) => e.hasOwnProperty('route'))
-            .forEach((f: any) =>
-                result.push(CamelDefinitionYamlStep.readRouteDefinition(f.route)));
+            .forEach((f: any) => result.push(CamelDefinitionYamlStep.readRouteDefinition(f.route)));
         flows.filter((e: any) => e.hasOwnProperty('from'))
-            .forEach((f: any) =>
-                result.push(CamelDefinitionYamlStep.readRouteDefinition(new RouteDefinition({from: f.from}))));
+            .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteDefinition(new RouteDefinition({from: f.from}))));
         flows.filter((e: any) => e.hasOwnProperty('beans'))
             .forEach((b: any) => result.push(CamelDefinitionYaml.readBeanDefinition(b)));
         return result;

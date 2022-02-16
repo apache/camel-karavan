@@ -1,0 +1,29 @@
+apiVersion: camel.apache.org/v1
+kind: Integration
+metadata:
+  name: rest-dsl-example.yaml
+spec:
+  flows:
+    - rest-configuration:
+        component: "platform-http"
+        context-path: "/base"
+        port: 8081
+    - rest:
+        path: "/demo"
+        post:
+          - uri: "/foo"
+            to: "direct:foo"
+          - uri: "/bar"
+            to: "direct:bar"
+        get:
+          - uri: "/getFoo"
+            to: "direct:foo"
+          - uri: "/getBar"
+            to: "direct:foo"
+    - from:
+        uri: 'direct:foo'
+        steps:
+          - log: '${body}'
+          - log: '${headers}'
+          - setBody:
+              constant: "Hello world"
