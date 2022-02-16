@@ -51,8 +51,8 @@ export class ExpressionField extends React.Component<Props, State> {
         selectIsOpen: false,
     }
 
-    openSelect = () => {
-        this.setState({selectIsOpen: true});
+    openSelect = (isExpanded: boolean) => {
+        this.setState({selectIsOpen: isExpanded});
     }
 
     expressionChanged = (language: string, value:CamelElement) => {
@@ -111,8 +111,8 @@ export class ExpressionField extends React.Component<Props, State> {
                     <Select
                         variant={SelectVariant.typeahead}
                         aria-label={property.name}
-                        onToggle={() => {
-                            this.openSelect()
+                        onToggle={isExpanded => {
+                            this.openSelect(isExpanded)
                         }}
                         onSelect={(e, lang, isPlaceholder) => this.expressionChanged(lang.toString(), value)}
                         selections={dslLanguage}
