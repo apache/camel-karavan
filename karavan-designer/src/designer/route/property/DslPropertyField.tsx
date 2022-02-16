@@ -48,7 +48,7 @@ interface Props {
     property: PropertyMeta,
     value: any,
     onChange?: (fieldId: string, value: string | number | boolean | any, newRoute?: RouteToCreate) => void,
-    onExpressionChange?: (value: ExpressionDefinition) => void,
+    onExpressionChange?: (propertyName: string, exp:ExpressionDefinition) => void,
     onDataFormatChange?: (value: DataFormatDefinition) => void,
     onParameterChange?: (parameter: string, value: string | number | boolean | any, pathParameter?: boolean, newRoute?: RouteToCreate) => void,
     element?: CamelElement

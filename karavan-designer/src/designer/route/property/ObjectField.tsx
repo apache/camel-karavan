@@ -53,10 +53,10 @@ export class ObjectField extends React.Component<Props, State> {
         }
     }
 
-    expressionChanged = (fieldId: string, value:ExpressionDefinition) => {
+    expressionChanged = (propertyName: string, value:ExpressionDefinition) => {
         if (this.props.value) {
             const clone = CamelUtil.cloneStep(this.props.value);
-            (clone as any)[fieldId] = value;
+            (clone as any)[propertyName] = value;
             this.setStep(clone)
             this.props.onPropertyUpdate?.call(this, this.props.property.name, clone);
         }
@@ -79,7 +79,7 @@ export class ObjectField extends React.Component<Props, State> {
                                           property={property}
                                           element={value}
                                           value={value ? (value as any)[property.name] : undefined}
-                                          onExpressionChange={exp => this.expressionChanged(property.name, exp)}
+                                          onExpressionChange={this.expressionChanged}
                                           onParameterChange={(parameter, value) => this.propertyChanged(property.name, value)}
                                           onDataFormatChange={value1 => {}}
                                           onChange={(fieldId, value) => this.propertyChanged(property.name, value)} />

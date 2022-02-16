@@ -60,6 +60,7 @@ import {
     PollEnrichDefinition,
     ProcessDefinition,
     PropertyDefinition,
+    PropertyExpressionDefinition,
     RecipientListDefinition,
     RedeliveryPolicyDefinition,
     RemoveHeaderDefinition,
@@ -78,11 +79,9 @@ import {
     RouteTemplateBeanDefinition,
     RouteTemplateDefinition,
     RouteTemplateParameterDefinition,
-    RouteTemplateScriptDefinition,
     RoutingSlipDefinition,
     SagaActionUriDefinition,
     SagaDefinition,
-    SagaOptionDefinition,
     SamplingDefinition,
     ScriptDefinition,
     SetBodyDefinition,
@@ -94,6 +93,9 @@ import {
     StepDefinition,
     StopDefinition,
     SwitchDefinition,
+    TemplatedRouteBeanDefinition,
+    TemplatedRouteDefinition,
+    TemplatedRouteParameterDefinition,
     ThreadPoolProfileDefinition,
     ThreadsDefinition,
     ThrottleDefinition,
@@ -1189,6 +1191,24 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
+    static readPropertyExpressionDefinition = (element: any): PropertyExpressionDefinition => {
+        
+        const def = element ? new PropertyExpressionDefinition({...element}) : new PropertyExpressionDefinition();
+        if (element?.expression !== undefined) { 
+            def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
+
+        return def;
+    }
+
     static readRecipientListDefinition = (element: any): RecipientListDefinition => {
         
         const def = element ? new RecipientListDefinition({...element}) : new RecipientListDefinition();
@@ -1335,9 +1355,6 @@ export class CamelDefinitionYamlStep {
         
         const def = element ? new RouteTemplateBeanDefinition({...element}) : new RouteTemplateBeanDefinition();
         def.property = element && element?.property ? element?.property.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-        if (element?.script !== undefined) { 
-            def.script = CamelDefinitionYamlStep.readRouteTemplateScriptDefinition(element.script); 
-        } 
 
         return def;
     }
@@ -1357,13 +1374,6 @@ export class CamelDefinitionYamlStep {
     static readRouteTemplateParameterDefinition = (element: any): RouteTemplateParameterDefinition => {
         
         const def = element ? new RouteTemplateParameterDefinition({...element}) : new RouteTemplateParameterDefinition();
-
-        return def;
-    }
-
-    static readRouteTemplateScriptDefinition = (element: any): RouteTemplateScriptDefinition => {
-        
-        const def = element ? new RouteTemplateScriptDefinition({...element}) : new RouteTemplateScriptDefinition();
 
         return def;
     }
@@ -1397,25 +1407,7 @@ export class CamelDefinitionYamlStep {
         
         const def = element ? new SagaDefinition({...element}) : new SagaDefinition();
         def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
-        def.option = element && element?.option ? element?.option.map((x:any) => CamelDefinitionYamlStep.readSagaOptionDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readSagaOptionDefinition = (element: any): SagaOptionDefinition => {
-        
-        const def = element ? new SagaOptionDefinition({...element}) : new SagaOptionDefinition();
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } else {
-            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
-            if (languageName){
-                const exp:any = {};
-                exp[languageName] = element[languageName]
-                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
-                delete (def as any)[languageName];
-            }
-        }
+        def.option = element && element?.option ? element?.option.map((x:any) => CamelDefinitionYamlStep.readPropertyExpressionDefinition(x)) :[]; 
 
         return def;
     }
@@ -1565,6 +1557,30 @@ export class CamelDefinitionYamlStep {
             def.otherwise = CamelDefinitionYamlStep.readOtherwiseDefinition(element.otherwise); 
         } 
         def.when = element && element?.when ? element?.when.map((x:any) => CamelDefinitionYamlStep.readWhenDefinition(x)) :[]; 
+
+        return def;
+    }
+
+    static readTemplatedRouteBeanDefinition = (element: any): TemplatedRouteBeanDefinition => {
+        
+        const def = element ? new TemplatedRouteBeanDefinition({...element}) : new TemplatedRouteBeanDefinition();
+        def.property = element && element?.property ? element?.property.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
+
+        return def;
+    }
+
+    static readTemplatedRouteDefinition = (element: any): TemplatedRouteDefinition => {
+        
+        const def = element ? new TemplatedRouteDefinition({...element}) : new TemplatedRouteDefinition();
+        def.beans = element && element?.beans ? element?.beans.map((x:any) => CamelDefinitionYamlStep.readNamedBeanDefinition(x)) :[]; 
+        def.parameters = element && element?.parameters ? element?.parameters.map((x:any) => CamelDefinitionYamlStep.readTemplatedRouteParameterDefinition(x)) :[]; 
+
+        return def;
+    }
+
+    static readTemplatedRouteParameterDefinition = (element: any): TemplatedRouteParameterDefinition => {
+        
+        const def = element ? new TemplatedRouteParameterDefinition({...element}) : new TemplatedRouteParameterDefinition();
 
         return def;
     }

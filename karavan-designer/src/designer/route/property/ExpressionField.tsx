@@ -37,7 +37,7 @@ import {CamelUi} from "../../utils/CamelUi";
 interface Props {
     property: PropertyMeta,
     value: CamelElement,
-    onExpressionChange?: ( value:ExpressionDefinition) => void
+    onExpressionChange?: (propertyName: string, exp:ExpressionDefinition) => void
     integration: Integration,
 }
 
@@ -63,7 +63,7 @@ export class ExpressionField extends React.Component<Props, State> {
         const exp = new ExpressionDefinition();
         (exp as any)[language] = value;
         if (this.props.value) (exp as any).uuid = this.props.value.uuid;
-        this.props.onExpressionChange?.call(this, exp);
+        this.props.onExpressionChange?.call(this, this.props.property.name, exp);
         this.setState({selectIsOpen: false});
     }
 

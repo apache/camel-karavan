@@ -55,8 +55,7 @@ class App extends React.Component<Props, State> {
             '                      name: http-sink\n' +
             '                  - kamelet:\n' +
             '                      name: kafka-sink\n' +
-            // '            - to:\n' +
-            // '                uri: direct\n' +
+            '            - wireTap: {}\n' +
             // '            - to:\n' +
             // '                uri: seda\n' +
             '        id: Main Route\n' +

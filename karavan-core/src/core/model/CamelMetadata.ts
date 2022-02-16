@@ -127,10 +127,10 @@ export const DataFormats: [string, string, string][] = [
 
 export const CamelDataFormatMetadata: ElementMeta[] = [
     new ElementMeta('any23', 'Any23DataFormat', 'Any23', "Extract RDF data from HTML documents.", 'dataformat,transformation', [
-        new PropertyMeta('baseUri', 'baseUri', "baseUri", 'string', '', '', false, false, false, false),
         new PropertyMeta('outputFormat', 'Output Format', "What RDF syntax to unmarshal as, can be: NTRIPLES, TURTLE, NQUADS, RDFXML, JSONLD, RDFJSON, RDF4JMODEL. It is by default: RDF4JMODEL.", 'string', 'NTRIPLES, TURTLE, NQUADS, RDFXML, JSONLD, RDFJSON, RDF4JMODEL', 'RDF4JMODEL', false, false, false, false),
         new PropertyMeta('configuration', 'Configuration', "Configurations for Apache Any23 as key-value pairs in order to customize the extraction process. The list of supported parameters can be found here. If not provided, a default configuration is used.", 'PropertyDefinition', '', '', false, false, true, true),
         new PropertyMeta('extractors', 'Extractors', "List of Any23 extractors to be used in the unmarshal operation. A list of the available extractors can be found here here. If not provided, all the available extractors are used.", 'string', '', '', false, false, true, true),
+        new PropertyMeta('baseUri', 'Base Uri', "The URI to use as base for building RDF entities if only relative paths are provided.", 'string', '', '', false, false, false, false),
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false),
     ]),
     new ElementMeta('tarFile', 'TarFileDataFormat', 'Tar File', "Archive files into tarballs or extract files from tarballs.", 'dataformat,transformation,file', [
@@ -852,11 +852,10 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true),
         new PropertyMeta('propagation', 'Propagation', "Set the Saga propagation mode (REQUIRED, REQUIRES_NEW, MANDATORY, SUPPORTS, NOT_SUPPORTED, NEVER).", 'string', 'REQUIRED, REQUIRES_NEW, MANDATORY, SUPPORTS, NOT_SUPPORTED, NEVER', 'REQUIRED', false, false, false, false),
         new PropertyMeta('completionMode', 'Completion Mode', "Determine how the saga should be considered complete. When set to AUTO, the saga is completed when the exchange that initiates the saga is processed successfully, or compensated when it completes exceptionally. When set to MANUAL, the user must complete or compensate the saga using the saga:complete or saga:compensate endpoints.", 'string', 'AUTO, MANUAL', 'AUTO', false, false, false, false),
-        new PropertyMeta('timeoutInMilliseconds', 'Timeout In Milliseconds', "Set the maximum amount of time for the Saga. After the timeout is expired, the saga will be compensated automatically (unless a different decision has been taken in the meantime).", 'number', '', '', false, false, false, false),
         new PropertyMeta('timeout', 'Timeout', "Set the maximum amount of time for the Saga. After the timeout is expired, the saga will be compensated automatically (unless a different decision has been taken in the meantime).", 'string', '', '', false, false, false, false),
         new PropertyMeta('compensation', 'Compensation', "The compensation endpoint URI that must be called to compensate all changes done in the route. The route corresponding to the compensation URI must perform compensation and complete without error. If errors occur during compensation, the saga service may call again the compensation URI to retry.", 'string', '', '', false, false, false, false),
         new PropertyMeta('completion', 'Completion', "The completion endpoint URI that will be called when the Saga is completed successfully. The route corresponding to the completion URI must perform completion tasks and terminate without error. If errors occur during completion, the saga service may call again the completion URI to retry.", 'string', '', '', false, false, false, false),
-        new PropertyMeta('option', 'Option', "Allows to save properties of the current exchange in order to re-use them in a compensation/completion callback route. Options are usually helpful e.g. to store and retrieve identifiers of objects that should be deleted in compensating actions. Option values will be transformed into input headers of the compensation/completion exchange.", 'SagaOptionDefinition', '', '', false, false, true, true),
+        new PropertyMeta('option', 'Option', "Allows to save properties of the current exchange in order to re-use them in a compensation/completion callback route. Options are usually helpful e.g. to store and retrieve identifiers of objects that should be deleted in compensating actions. Option values will be transformed into input headers of the compensation/completion exchange.", 'PropertyExpressionDefinition', '', '', false, false, true, true),
         new PropertyMeta('sagaServiceRef', 'Saga Service Ref', "Refers to the id to lookup in the registry for the specific CamelSagaService to use.", 'string', '', '', false, false, false, false),
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false),
@@ -994,6 +993,12 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('configurationRef', 'Configuration Ref', "Refers to a circuit breaker configuration (such as hystrix, resillience4j, or microprofile-fault-tolerance) to use for configuring the circuit breaker EIP.", 'string', '', '', false, false, false, false),
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false),
+    ]),
+    new ElementMeta('templatedRoute', 'TemplatedRouteDefinition', 'Templated Route', "Defines a templated route (a route built from a route template)", 'configuration', [
+        new PropertyMeta('beans', 'beans', "beans", 'NamedBeanDefinition', '', '', false, false, true, true),
+        new PropertyMeta('parameters', 'parameters', "parameters", 'TemplatedRouteParameterDefinition', '', '', false, false, true, true),
+        new PropertyMeta('routeTemplateRef', 'Route Template Ref', "Sets the id of the route template to use to build the route.", 'string', '', '', true, false, false, false),
+        new PropertyMeta('routeId', 'Route Id', "Sets the id of the route built from the route template.", 'string', '', '', false, false, false, false),
     ]),
     new ElementMeta('customLoadBalancer', 'CustomLoadBalancerDefinition', 'Custom Load Balancer', "To use a custom load balancer implementation.", 'eip,routing', [
         new PropertyMeta('ref', 'Ref', "Refers to the custom load balancer to lookup from the registry", 'string', '', '', true, false, false, false),
@@ -1141,7 +1146,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false),
     ]),
-    new ElementMeta('property', 'PropertyDefinition', 'Property', "A key value pair", 'configuration', [
+    new ElementMeta('property', 'PropertyDefinition', 'Property', "A key value pair where the value is a literal value", 'configuration', [
         new PropertyMeta('key', 'Key', "Property key", 'string', '', '', true, false, false, false),
         new PropertyMeta('value', 'Value', "Property value", 'string', '', '', true, false, false, false),
     ]),
@@ -1368,6 +1373,14 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false),
     ]),
+    new ElementMeta('templatedRouteBean', 'TemplatedRouteBeanDefinition', 'Templated Route Bean', "A bean as input of a route template (local bean)", 'configuration', [
+        new PropertyMeta('properties', 'properties', "properties", 'object', '', '', false, false, false, false),
+        new PropertyMeta('name', 'Name', "Bean name", 'string', '', '', true, false, false, false),
+        new PropertyMeta('type', 'Type', "What type to use for creating the bean. Can be one of: #class,#type,bean,groovy,joor,language,mvel,ognl. #class or #type then the bean is created via the fully qualified classname, such as #class:com.foo.MyBean The others are scripting languages that gives more power to create the bean with an inlined code in the script section, such as using groovy.", 'string', '', '', true, false, false, false),
+        new PropertyMeta('beanType', 'Bean Type', "To set the type (fully qualified class name) of the returned bean created by the script. Knowing the type of the bean can be needed when dependency injection by type is in use, or when looking in registry via class type.", 'string', '', '', false, false, false, false),
+        new PropertyMeta('property', 'Property', "Optional properties to set on the created local bean", 'PropertyDefinition', '', '', false, false, true, true),
+        new PropertyMeta('script', 'Script', "The script to execute that creates the bean when using scripting languages. If the script use the prefix resource: such as resource:classpath:com/foo/myscript.groovy, resource:file:/var/myscript.groovy, then its loaded from the external resource.", 'string', '', '', false, false, false, false),
+    ]),
     new ElementMeta('dataFormats', 'DataFormatsDefinition', 'Data formats', "Configure data formats.", 'dataformat,transformation', [
         new PropertyMeta('any23', 'any23', "any23", 'Any23DataFormat', '', '', false, false, false, true),
         new PropertyMeta('asn1', 'asn1', "asn1", 'ASN1DataFormat', '', '', false, false, false, true),
@@ -1474,13 +1487,13 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('redeliveryPolicy', 'RedeliveryPolicyDefinition', 'Redelivery Policy', "To configure re-delivery for error handling", 'configuration', [
         new PropertyMeta('maximumRedeliveries', 'Maximum Redeliveries', "Sets the maximum redeliveries x = redeliver at most x times 0 = no redeliveries -1 = redeliver forever", 'number', '', '', false, false, false, false),
         new PropertyMeta('redeliveryDelay', 'Redelivery Delay', "Sets the initial redelivery delay", 'string', '', '', false, false, false, false),
-        new PropertyMeta('asyncDelayedRedelivery', 'Async Delayed Redelivery', "Allow synchronous delayed redelivery. The route, in particular the consumer's component, must support the Asynchronous Routing Engine (e.g. seda).", 'boolean', '', 'false', false, false, false, false),
+        new PropertyMeta('asyncDelayedRedelivery', 'Async Delayed Redelivery', "Allow asynchronous delayed redelivery. The route, in particular the consumer's component, must support the Asynchronous Routing Engine (e.g. seda).", 'boolean', '', 'false', false, false, false, false),
         new PropertyMeta('backOffMultiplier', 'Back Off Multiplier', "Sets the back off multiplier", 'number', '', '', false, false, false, false),
         new PropertyMeta('useExponentialBackOff', 'Use Exponential Back Off', "Turn on exponential backk off", 'boolean', '', 'false', false, false, false, false),
         new PropertyMeta('collisionAvoidanceFactor', 'Collision Avoidance Factor', "Sets the collision avoidance factor", 'number', '', '', false, false, false, false),
         new PropertyMeta('useCollisionAvoidance', 'Use Collision Avoidance', "Turn on collision avoidance.", 'boolean', '', 'false', false, false, false, false),
         new PropertyMeta('maximumRedeliveryDelay', 'Maximum Redelivery Delay', "Sets the maximum delay between redelivery", 'string', '', '', false, false, false, false),
-        new PropertyMeta('retriesExhaustedLogLevel', 'Retries Exhausted Log Level', "Sets the logging level to use when retries has exhausted", 'string', '', '', false, false, false, false),
+        new PropertyMeta('retriesExhaustedLogLevel', 'Retries Exhausted Log Level', "Sets the logging level to use when retries have been exhausted", 'string', '', '', false, false, false, false),
         new PropertyMeta('retryAttemptedLogLevel', 'Retry Attempted Log Level', "Sets the logging level to use for logging retry attempts", 'string', '', '', false, false, false, false),
         new PropertyMeta('retryAttemptedLogInterval', 'Retry Attempted Log Interval', "Sets the interval to use for logging retry attempts", 'number', '', '', false, false, false, false),
         new PropertyMeta('logRetryAttempted', 'Log Retry Attempted', "Sets whether retry attempts should be logged or not. Can be used to include or reduce verbose.", 'boolean', '', 'false', false, false, false, false),
@@ -1623,6 +1636,10 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false),
     ]),
+    new ElementMeta('propertyExpression', 'PropertyExpressionDefinition', 'Property Expression', "A key value pair where the value is an expression.", 'configuration', [
+        new PropertyMeta('expression', 'Expression', "expression", 'ExpressionDefinition', '', '', true, false, false, true),
+        new PropertyMeta('key', 'Key', "Property key", 'string', '', '', true, false, false, false),
+    ]),
     new ElementMeta('inputType', 'InputTypeDefinition', 'Input Type', "Set the expected data type of the input message. If the actual message type is different at runtime, camel look for a required Transformer and apply if exists. If validate attribute is true then camel applies Validator as well. Type name consists of two parts, 'scheme' and 'name' connected with ':'. For Java type 'name' is a fully qualified class name. For example {code java:java.lang.String} , {code json:ABCOrder} . It's also possible to specify only scheme part, so that it works like a wildcard. If only 'xml' is specified, all the XML message matches. It's handy to add only one transformer/validator for all the transformation from/to XML.", 'configuration', [
         new PropertyMeta('urn', 'Urn', "Set input type URN.", 'string', '', '', true, false, false, false),
         new PropertyMeta('validate', 'Validate', "Set if validation is required for this input type.", 'boolean', '', 'false', false, false, false, false),
@@ -1736,11 +1753,11 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false),
     ]),
-    new ElementMeta('template', 'RouteTemplateDefinition', 'Template', "Configures a ProducerTemplate", 'spring,configuration', [
+    new ElementMeta('routeTemplate', 'RouteTemplateDefinition', 'Route Template', "Defines a route template (parameterized routes)", 'configuration', [
         new PropertyMeta('beans', 'beans', "beans", 'NamedBeanDefinition', '', '', false, false, true, true),
         new PropertyMeta('from', 'from', "from", 'FromDefinition', '', '', false, false, false, true),
         new PropertyMeta('parameters', 'parameters', "parameters", 'RouteTemplateParameterDefinition', '', '', false, false, true, true),
-        new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false),
+        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false),
     ]),
     new ElementMeta('threads', 'ThreadsDefinition', 'Threads', "Specifies that all steps after this node are processed asynchronously", 'eip,routing', [
         new PropertyMeta('executorServiceRef', 'Executor Service Ref', "To refer to a custom thread pool or use a thread pool profile (as overlay)", 'string', '', '', false, false, false, false),
@@ -1776,6 +1793,10 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('validate', 'Validate', "Set if validation is required for this output type.", 'boolean', '', 'false', false, false, false, false),
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false),
+    ]),
+    new ElementMeta('templatedRouteParameter', 'TemplatedRouteParameterDefinition', 'Templated Route Parameter', "An input parameter of a route template.", 'configuration', [
+        new PropertyMeta('name', 'Name', "The name of the parameter", 'string', '', '', true, false, false, false),
+        new PropertyMeta('value', 'Value', "The value of the parameter.", 'string', '', '', true, false, false, false),
     ]),
     new ElementMeta('setHeader', 'SetHeaderDefinition', 'Set Header', "Sets the value of a message header", 'eip,transformation', [
         new PropertyMeta('expression', 'Expression', "Expression to return the value of the header", 'ExpressionDefinition', '', '', true, false, false, true),
