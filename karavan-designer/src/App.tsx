@@ -41,20 +41,20 @@ class App extends React.Component<Props, State> {
             'metadata:\n' +
             '  name: demo.yaml \n' +
             'spec:\n' +
-            '  dependencies:\n' +
-            '    - "mvn:org.apache.commons:commons-dbcp2:2.9.0" \n' +
-            '    - "mvn:org.postgresql:postgresql:42.2.14" \n' +
+            // '  dependencies:\n' +
+            // '    - "mvn:org.apache.commons:commons-dbcp2:2.9.0" \n' +
+            // '    - "mvn:org.postgresql:postgresql:42.2.14" \n' +
             '  flows:\n' +
             '    - route:\n' +
             '        from:\n' +
             '          uri: kamelet:http-secured-source\n' +
             '          steps:\n' +
-            '            - saga:\n' +
-            '                steps:\n' +
-            '                  - kamelet:\n' +
-            '                      name: http-sink\n' +
-            '                  - kamelet:\n' +
-            '                      name: kafka-sink\n' +
+            // '            - saga:\n' +
+            // '                steps:\n' +
+            // '                  - kamelet:\n' +
+            // '                      name: http-sink\n' +
+            // '                  - kamelet:\n' +
+            // '                      name: kafka-sink\n' +
             '            - wireTap: {}\n' +
             // '            - to:\n' +
             // '                uri: seda\n' +
