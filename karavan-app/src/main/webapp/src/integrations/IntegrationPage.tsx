@@ -77,6 +77,13 @@ export class IntegrationPage extends React.Component<Props, State> {
         this.setState({isModalOpen:false, newName:""});
     }
 
+    onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
+        if (event.key === 'Enter' && this.state.newName !== undefined) {
+          this.saveAndCloseModal();
+        }
+    }    
+
+
     render() {
         return (
             <PageSection padding={{default: 'noPadding'}}>
@@ -97,6 +104,7 @@ export class IntegrationPage extends React.Component<Props, State> {
                     variant={ModalVariant.small}
                     isOpen={this.state.isModalOpen}
                     onClose={this.closeModal}
+                    onKeyDown={this.onKeyDown}
                     actions={[
                         <Button key="confirm" variant="primary" onClick={this.saveAndCloseModal}>Save</Button>,
                         <Button key="cancel" variant="secondary" onClick={this.closeModal}>Cancel</Button>
