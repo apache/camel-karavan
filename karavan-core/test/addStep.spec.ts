@@ -44,7 +44,7 @@ describe('Add Step', () => {
         const flow1 = new FromDefinition({uri: "direct1"});
 
         flow1.steps?.push(choice);
-        i.spec.flows?.push(flow1);
+        i.spec.flows?.push(new RouteDefinition({from:flow1}));
 
         const when2 = new WhenDefinition({
             expression: new ExpressionDefinition({simple: '$[body} != "null"'}),
@@ -53,7 +53,7 @@ describe('Add Step', () => {
         const i2 = CamelDefinitionApiExt.addStepToIntegration(i, when2, choice.uuid);
 
         if (i2.spec.flows && i2.spec.flows.length > 0) {
-            const f: FromDefinition = i2.spec.flows[0];
+            const f: FromDefinition = i2.spec.flows[0].from;
             const c: ChoiceDefinition = f.steps ? f.steps[0] : new ChoiceDefinition();
             const w = c.when ? c.when[1] : undefined;
             expect(c?.when?.length).to.equal(2);

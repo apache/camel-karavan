@@ -28,7 +28,7 @@ export class CamelUtil {
         const int: Integration = new Integration({...clone});
         const flows: any[] = [];
         int.spec.dependencies = int.spec.dependencies?.map(d => this.cloneDependency(d));
-        int.spec.flows?.filter((e: any) => e.dslName === 'RouteDefinition')
+        int.spec.flows?.filter((e: any) => e.dslName !== 'Beans')
             .forEach(f => flows.push(CamelDefinitionApi.createStep(f.dslName, f)));
         int.spec.flows?.filter((e: any) => e.dslName === 'Beans')
             .forEach(beans => {
