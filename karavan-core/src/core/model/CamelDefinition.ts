@@ -3365,7 +3365,6 @@ export class RestDefinition extends CamelElement {
     get?: GetDefinition[] = [];
     clientRequestValidation?: boolean;
     produces?: string;
-    verbs?: VerbDefinition[] = [];
     id?: string;
     tag?: string;
     securityDefinitions?: RestSecuritiesDefinition;

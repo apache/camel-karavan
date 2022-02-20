@@ -16,18 +16,15 @@
  */
 import React from 'react';
 import {
-    Button, EmptyState, EmptyStateBody, EmptyStateIcon, TreeView,
-    PageSection, Title, TreeViewDataItem, Card, CardHeader, CardTitle, CardBody, CardFooter, FormGroup, Form, TextInput, Accordion, AccordionItem, AccordionToggle, AccordionContent
+    Button,
+    PageSection
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {DslProperties} from "../route/DslProperties";
 import {RouteToCreate} from "../utils/CamelUi";
-import {PostVerbDefinition, RestDefinition} from "../../../../karavan-core/lib/model/CamelDefinition";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
-import {BeanIcon, RestIcon} from "../utils/KaravanIcons";
-import {RestMethodCard} from "./RestMethodCard";
 import {RestCard} from "./RestCard";
+import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 
 interface Props {
     onSave?: (integration: Integration) => void
@@ -87,12 +84,37 @@ export class RestDesigner extends React.Component<Props, State> {
         // }
     }
 
+    unselectElement = (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if ((evt.target as any).dataset.click === 'REST') {
+            evt.stopPropagation()
+            this.setState({selectedStep: undefined,})
+        }
+    };
+
     render() {
         const data = this.props.integration.spec.flows?.filter(f => f.dslName === 'RestDefinition');
         return (
             <PageSection className="rest-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="rest-page-columns">
-                        {data?.map(rest => <RestCard rest={rest} integration={this.props.integration}/>)}
+                    <div className="graph" data-click="REST"  onClick={event => this.unselectElement(event)}>
+                        <div className="flows">
+                            {data?.map(rest => <RestCard rest={rest} integration={this.props.integration} selectElement={this.selectElement}/>)}
+                            <div className="add-rest">
+                                <Button
+                                    variant={data?.length === 0 ? "primary" : "secondary"}
+                                    data-click="ADD_REST"
+                                    icon={<PlusIcon/>}
+                                    onClick={e => {}}>Create new REST
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                    <DslProperties
+                        integration={this.props.integration}
+                        step={this.state.selectedStep}
+                        onIntegrationUpdate={{}}
+                        onPropertyUpdate={element => {}}
+                    />
                 </div>
             </PageSection>
         );

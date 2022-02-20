@@ -3028,7 +3028,6 @@ export class CamelDefinitionApi {
         if (element?.securityRequirements !== undefined) { 
             def.securityRequirements = CamelDefinitionApi.createRestSecuritiesRequirement(element.securityRequirements); 
         } 
-        def.verbs = element && element?.verbs ? element?.verbs.map((x:any) => CamelDefinitionApi.createVerbDefinition(x)) :[]; 
         def.delete = element && element?.delete ? element?.delete.map((x:any) => CamelDefinitionApi.createDeleteDefinition(x)) :[]; 
         if (element?.securityDefinitions !== undefined) { 
             def.securityDefinitions = CamelDefinitionApi.createRestSecuritiesDefinition(element.securityDefinitions); 

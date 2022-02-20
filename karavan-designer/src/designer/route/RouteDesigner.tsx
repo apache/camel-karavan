@@ -248,13 +248,13 @@ export class RouteDesigner extends React.Component<Props, State> {
     }
 
     getGraph() {
-        const integrations = CamelUi.getRoutes(this.state.integration);
+        const routes = CamelUi.getRoutes(this.state.integration);
         return (
             <div className="graph">
                 <DslConnections height={this.state.height} width={this.state.width} top={this.state.top} integration={this.state.integration}/>
                 <div className="flows" data-click="FLOWS" onClick={event => this.unselectElement(event)}
                      ref={el => this.onResizePage(el)}>
-                    {integrations?.map((route: any, index: number) => (
+                    {routes?.map((route: any, index: number) => (
                         <DslElement key={route.uuid + this.state.key}
                                     openSelector={this.openSelector}
                                     deleteElement={this.showDeleteConfirmation}
@@ -270,10 +270,10 @@ export class RouteDesigner extends React.Component<Props, State> {
                     ))}
                     <div className="add-flow">
                         <Button
-                            variant={integrations.length === 0 ? "primary" : "secondary"}
+                            variant={routes.length === 0 ? "primary" : "secondary"}
                             data-click="ADD_ROUTE"
                             icon={<PlusIcon/>}
-                            onClick={e => this.openSelector(undefined, undefined)}>Add new route
+                            onClick={e => this.openSelector(undefined, undefined)}>Create new route
                         </Button>
                     </div>
                 </div>

@@ -161,7 +161,7 @@ export class DependenciesDesigner extends React.Component<Props, State> {
                         </Gallery>
                         <div className="add-button-div" data-click="BEANS" onClick={event => this.unselectDep(event)}>
                             <Button icon={<PlusIcon/>} variant={deps.length === 0 ? "primary" : "secondary"} onClick={e => this.createDep()} className="add-bean-button">
-                                Add dependency
+                                Create new dependency
                             </Button>
                         </div>
                     </div>

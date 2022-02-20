@@ -980,7 +980,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('doSwitch', 'SwitchDefinition', 'Do Switch', "Route messages based on a series of predicates (optimized during startup to select one predicate that will always be used)", 'eip,routing', [
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true),
-        new PropertyMeta('when', 'When', "when", 'WhenDefinition', '', '', false, false, true, true),
+        new PropertyMeta('when', 'When', "Sets the when nodes", 'WhenDefinition', '', '', false, false, true, true),
         new PropertyMeta('otherwise', 'Otherwise', "Sets the otherwise node", 'OtherwiseDefinition', '', '', false, false, false, true),
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false),
@@ -1703,7 +1703,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('propertyExpression', 'PropertyExpressionDefinition', 'Property Expression', "A key value pair where the value is an expression.", 'configuration', [
         new PropertyMeta('key', 'Key', "Property key", 'string', '', '', true, false, false, false),
-        new PropertyMeta('expression', 'Expression', "expression", 'ExpressionDefinition', '', '', true, false, false, true),
+        new PropertyMeta('expression', 'Expression', "Property values as an expression", 'ExpressionDefinition', '', '', true, false, false, true),
     ]),
     new ElementMeta('inputType', 'InputTypeDefinition', 'Input Type', "Set the expected data type of the input message. If the actual message type is different at runtime, camel look for a required Transformer and apply if exists. If validate attribute is true then camel applies Validator as well. Type name consists of two parts, 'scheme' and 'name' connected with ':'. For Java type 'name' is a fully qualified class name. For example {code java:java.lang.String} , {code json:ABCOrder} . It's also possible to specify only scheme part, so that it works like a wildcard. If only 'xml' is specified, all the XML message matches. It's handy to add only one transformer/validator for all the transformation from/to XML.", 'configuration', [
         new PropertyMeta('urn', 'Urn', "Set input type URN.", 'string', '', '', true, false, false, false),
@@ -1817,7 +1817,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('patch', 'patch', "patch", 'PatchDefinition', '', '', false, false, true, true),
         new PropertyMeta('post', 'post', "post", 'PostDefinition', '', '', false, false, true, true),
         new PropertyMeta('put', 'put', "put", 'PutDefinition', '', '', false, false, true, true),
-        new PropertyMeta('verbs', 'verbs', "verbs", 'VerbDefinition', '', '', false, false, true, true),
         new PropertyMeta('path', 'Path', "Path of the rest service, such as /foo", 'string', '', '', false, false, false, false),
         new PropertyMeta('tag', 'Tag', "To configure a special tag for the operations within this rest definition.", 'string', '', '', false, false, false, false),
         new PropertyMeta('consumes', 'Consumes', "To define the content type what the REST service consumes (accept as input), such as application/xml or application/json. This option will override what may be configured on a parent level", 'string', '', '', false, false, false, false),

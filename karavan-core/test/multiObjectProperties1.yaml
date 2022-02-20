@@ -10,12 +10,3 @@ spec:
           steps:
             - wireTap:
                 uri: direct:direct2
-                setHeader:
-                  - name: header1
-                    expression:
-                      simple:
-                        expression: ${header.demo}
-                  - name: header2
-                    expression:
-                      simple:
-                        expression: ${body}

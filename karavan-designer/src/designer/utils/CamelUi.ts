@@ -285,7 +285,7 @@ export class CamelUi {
         } else if (element.dslName === 'RouteDefinition') {
             const routeId = (element as RouteDefinition).id
             return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
-        } else if ((element as any).uri) {
+        } else if ((element as any).uri && element.dslName === 'ToDefinition') {
             const uri = (element as any).uri
             return ComponentApi.getComponentTitleFromUri(uri) || '';
         } else {

@@ -938,72 +938,62 @@
 /*REST Page*/
 .karavan .rest-page {
     flex: 1;
-    font-size: 14px;
-    overflow-y: scroll;
+    overflow: auto;
 }
 
 .karavan .rest-page .rest-page-columns {
-    margin: 0 auto;
-    width: 800px;
-}
-
-.karavan .rest-page .pf-c-accordion {
-    background-color: transparent;
-}
-
-.karavan .rest-page .rest-card,
-.karavan .rest-page .rest-card:hover,
-.karavan .rest-page .method-card,
-.karavan .rest-page .method-card:hover {
     display: flex;
     flex-direction: row;
-    gap: 16px;
-    height: 44px;
+    height: 100%;
+    background: #fafafa;
 }
 
-.karavan .rest-page .rest-rest-card {
+.karavan .rest-page .graph {
+    display: block;
+    flex-direction: column;
+    font-size: 14px;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    overflow-y: auto;
+}
+
+.karavan .rest-page .flows {
+    width: 800px;
+    margin: 0 auto;
+}
+
+.karavan .rest-page .flows .add-flow {
     margin-top: 16px;
+    display: flex;
+    justify-content: center;
 }
 
-.karavan .rest-page .rest-rest-card,
-.karavan .rest-page .rest-method-card {
+.karavan .rest-page .rest-card ,
+.karavan .rest-page .method-card {
     border-style: dotted;
     border-radius: 4px;
     border-width: 1px;
     border-color: #fb8824;
     padding: 0 6px 0 6px;
     margin-bottom: 6px;
+    position: relative;
 }
 
-
-.karavan .rest-page .pf-c-accordion__toggle:hover .pf-c-accordion__toggle-text,
-.karavan .rest-page .pf-c-accordion__toggle:focus .pf-c-accordion__toggle-text,
-.karavan .rest-page .pf-c-accordion__toggle.pf-m-expanded .pf-c-accordion__toggle-text {
-    font-weight: normal;
-    color: initial;
+.karavan .rest-page .rest-card {
+    display: flex;
+    flex-direction: column;
+    margin-top: 16px;
 }
 
-.karavan .rest-page .pf-c-accordion__toggle,
-.karavan .rest-page .pf-c-accordion__toggle::after,
-.karavan .rest-page .pf-c-accordion__expanded-content-body::after {
-    background-color: transparent;
-    padding: 0;
-    margin: 0;
-}
-
-.karavan .rest-page .pf-c-accordion__expanded-content.pf-m-expanded,
-.karavan .rest-page .pf-c-accordion__expanded-content-body {
-    padding: 0;
-}
-
-.karavan .rest-page .pf-c-accordion__toggle:focus,
-.karavan .rest-page .pf-c-accordion__toggle:hover,
-.karavan .rest-page .pf-c-accordion__toggle:active {
-    background-color: transparent;
-}
-
-.karavan .rest-page .rest-card .pf-c-accordion__toggle::after {
-    background-color: rgb(48, 50, 132);
+.karavan .rest-page .header {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    height: 44px;
+    margin-left: 6px;
+    cursor: pointer;
+    ustify-content: space-between;
 }
 
 .karavan .rest-page .rest-card-unselected {
@@ -1011,9 +1001,14 @@
     background-color: transparent;
 }
 
-.karavan .rest-page .method-toggle {
-    margin-left: 6px;
+.karavan .rest-page .method-card {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    height: 44px;
+    cursor: pointer;
 }
+
 .karavan .rest-page .method-card .method {
     margin: auto 0 auto 0;
     border-radius: 3px;
@@ -1037,8 +1032,50 @@
 .karavan .rest-page .rest-card .description,
 .karavan .rest-page .method-card .description {
     margin: auto 0 auto 0;
+    width: 100%;
 }
 
+.karavan .rest-page .rest-card .delete-button,
+.karavan .rest-page .method-card .delete-button {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    font-size: 14px;
+    line-height: 1;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    color: #909090;
+    visibility: hidden;
+}
+
+.karavan .rest-page .rest-card:hover .delete-button,
+.karavan .rest-page .method-card:hover .delete-button {
+    visibility: visible;
+}
+
+.karavan .rest-page .rest-card .add-button {
+    font-size: 15px;
+    /*height: 15px;*/
+    /*line-height: 1;*/
+    border: 0;
+    /*padding: 0;*/
+    /*margin: 0 0 3px 0;*/
+    background: transparent;
+    color: #fb8824;
+    z-index: 100;
+}
+
+.karavan .rest-page .add-rest {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+/*Exception*/
+/*Template*/
+/*Error*/
 
 .karavan .templates-page,
 .karavan .exception-page,

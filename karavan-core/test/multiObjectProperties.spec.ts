@@ -24,18 +24,11 @@ import {RouteDefinition} from "../lib/model/CamelDefinition";
 import * as fs from 'fs';
 
 describe('Multi object property', () => {
+    // TODO: Make new test for multiobject property bevause wireTab has no setHeader anymore
 
     it('WireTap setHeader', () => {
         const i = Integration.createNew("test")
-        const setHeader1 = new SetHeaderDefinition({
-            expression: new ExpressionDefinition({simple: new SimpleExpression({expression: '${header.demo}'})}),
-            name: "header1"
-        })
-        const setHeader2 = new SetHeaderDefinition({
-            expression: new ExpressionDefinition({simple: new SimpleExpression({expression: '${body}'})}),
-            name: "header2"
-        })
-        const wireTap = new WireTapDefinition({uri: "direct:direct2", setHeader: [setHeader1, setHeader2]})
+        const wireTap = new WireTapDefinition({uri: "direct:direct2"})
         const flow1 = new FromDefinition({uri: "direct1"});
         flow1.steps?.push(wireTap);
         i.spec.flows?.push(new RouteDefinition({from: flow1}));
@@ -48,9 +41,6 @@ describe('Multi object property', () => {
 
         const w: WireTapDefinition = i2.spec.flows?.[0].from.steps[0] as WireTapDefinition;
         expect(w?.uri).to.equal('direct:direct2');
-        expect(w?.setHeader?.[0].name).to.equal('header1');
-        expect((w?.setHeader?.[0].expression?.simple as SimpleExpression)?.expression).to.equal('${header.demo}');
-        expect(w?.setHeader?.[1].name).to.equal('header2');
     });
 
 });

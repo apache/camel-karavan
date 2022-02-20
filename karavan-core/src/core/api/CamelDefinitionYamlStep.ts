@@ -3050,7 +3050,6 @@ export class CamelDefinitionYamlStep {
         if (element?.securityRequirements !== undefined) { 
             def.securityRequirements = CamelDefinitionYamlStep.readRestSecuritiesRequirement(element.securityRequirements); 
         } 
-        def.verbs = element && element?.verbs ? element?.verbs.map((x:any) => CamelDefinitionYamlStep.readVerbDefinition(x)) :[]; 
         def.delete = element && element?.delete ? element?.delete.map((x:any) => CamelDefinitionYamlStep.readDeleteDefinition(x)) :[]; 
         if (element?.securityDefinitions !== undefined) { 
             def.securityDefinitions = CamelDefinitionYamlStep.readRestSecuritiesDefinition(element.securityDefinitions); 

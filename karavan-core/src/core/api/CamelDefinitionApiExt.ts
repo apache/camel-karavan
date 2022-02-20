@@ -340,7 +340,6 @@ export class CamelDefinitionApiExt {
                         : CamelMetadataApi.getCamelLanguageMetadataByClassName(className)?.properties
                 );
             properties?.filter(p => p.name !== 'steps')
-                .filter(p => p.name !== 'description')
                 .filter(p => p.name !== 'configurationRef')
                 .filter(p => (className === 'RouteDefinition' && p.name === 'id') || p.name !== 'id')
                 .filter(p => (className === 'ToDefinition' && p.name !== 'pattern') || className !== 'ToDefinition')

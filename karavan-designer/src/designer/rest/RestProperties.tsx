@@ -30,7 +30,7 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelUi, RouteToCreate} from "../utils/CamelUi";
-import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
+import {PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 
 interface Props {
     integration: Integration,
@@ -107,11 +107,12 @@ export class RestProperties extends React.Component<Props, State> {
     getProps = (): PropertyMeta[] => {
         const dslName = this.state.step?.dslName;
         return CamelDefinitionApiExt.getElementProperties(dslName)
-            .filter(p => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)))
-            .filter(p => ['consumes', 'produces', 'enableCors'].includes(p.name));
+            .filter(p => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)));
+            // .filter(p => ['securityRequirements','consumes', 'produces', 'enableCors', 'bindingMode', 'apiDocs', 'skipBindingOnErrorCode', 'clientRequestValidation', 'tag', 'securityDefinitions'].includes(p.name));
     }
 
     render() {
+        console.log(this.getProps());
         return (
             <div key={this.state.step ? this.state.step.uuid : 'integration'} className='properties'>
                 <Form autoComplete="off" onSubmit={event => event.preventDefault()}>
