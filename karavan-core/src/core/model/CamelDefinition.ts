@@ -1644,12 +1644,9 @@ export class WireTapDefinition extends CamelElement {
     pattern?: string;
     description?: string;
     allowOptimisedComponents?: boolean;
-    body?: ExpressionSubElementDefinition;
     uri: string = '';
-    setHeader?: SetHeaderDefinition[] = [];
     onPrepareRef?: string;
     dynamicUri?: boolean;
-    processorRef?: string;
     inheritErrorHandler?: boolean;
     stepName?: string = 'wireTap';
     ignoreInvalidEndpoint?: boolean;
@@ -3130,186 +3127,180 @@ export class WeightedLoadBalancerDefinition extends CamelElement {
     }
 }
 
-export class DeleteVerbDefinition extends CamelElement {
-    enableCors?: string;
-    method?: string;
+export class DeleteDefinition extends CamelElement {
+    enableCors?: boolean;
     deprecated?: boolean;
     toD?: ToDynamicDefinition | string;
     description?: string;
     type?: string;
     outType?: string;
     steps?: CamelElement[] = [];
-    uri?: string;
+    path?: string;
     security?: SecurityDefinition[] = [];
     route?: RouteDefinition;
     routeId?: string;
     bindingMode?: string;
     param?: RestOperationParamDefinition[] = [];
-    apiDocs?: string;
-    skipBindingOnErrorCode?: string;
-    clientRequestValidation?: string;
+    apiDocs?: boolean;
+    skipBindingOnErrorCode?: boolean;
+    clientRequestValidation?: boolean;
     produces?: string;
     id?: string;
     to?: ToDefinition | string;
     responseMessage?: RestOperationResponseMsgDefinition[] = [];
     consumes?: string
-    public constructor(init?: Partial<DeleteVerbDefinition>) {
-        super('DeleteVerbDefinition')
+    public constructor(init?: Partial<DeleteDefinition>) {
+        super('DeleteDefinition')
         Object.assign(this, init)
     }
 }
 
-export class GetVerbDefinition extends CamelElement {
-    enableCors?: string;
-    method?: string;
+export class GetDefinition extends CamelElement {
+    enableCors?: boolean;
     deprecated?: boolean;
     toD?: ToDynamicDefinition | string;
     description?: string;
     type?: string;
     outType?: string;
     steps?: CamelElement[] = [];
-    uri?: string;
+    path?: string;
     security?: SecurityDefinition[] = [];
     route?: RouteDefinition;
     routeId?: string;
     bindingMode?: string;
     param?: RestOperationParamDefinition[] = [];
-    apiDocs?: string;
-    skipBindingOnErrorCode?: string;
-    clientRequestValidation?: string;
+    apiDocs?: boolean;
+    skipBindingOnErrorCode?: boolean;
+    clientRequestValidation?: boolean;
     produces?: string;
     id?: string;
     to?: ToDefinition | string;
     responseMessage?: RestOperationResponseMsgDefinition[] = [];
     consumes?: string
-    public constructor(init?: Partial<GetVerbDefinition>) {
-        super('GetVerbDefinition')
+    public constructor(init?: Partial<GetDefinition>) {
+        super('GetDefinition')
         Object.assign(this, init)
     }
 }
 
-export class HeadVerbDefinition extends CamelElement {
-    enableCors?: string;
-    method?: string;
+export class HeadDefinition extends CamelElement {
+    enableCors?: boolean;
     deprecated?: boolean;
     toD?: ToDynamicDefinition | string;
     description?: string;
     type?: string;
     outType?: string;
     steps?: CamelElement[] = [];
-    uri?: string;
+    path?: string;
     security?: SecurityDefinition[] = [];
     route?: RouteDefinition;
     routeId?: string;
     bindingMode?: string;
     param?: RestOperationParamDefinition[] = [];
-    apiDocs?: string;
-    skipBindingOnErrorCode?: string;
-    clientRequestValidation?: string;
+    apiDocs?: boolean;
+    skipBindingOnErrorCode?: boolean;
+    clientRequestValidation?: boolean;
     produces?: string;
     id?: string;
     to?: ToDefinition | string;
     responseMessage?: RestOperationResponseMsgDefinition[] = [];
     consumes?: string
-    public constructor(init?: Partial<HeadVerbDefinition>) {
-        super('HeadVerbDefinition')
+    public constructor(init?: Partial<HeadDefinition>) {
+        super('HeadDefinition')
         Object.assign(this, init)
     }
 }
 
-export class PatchVerbDefinition extends CamelElement {
-    enableCors?: string;
-    method?: string;
+export class PatchDefinition extends CamelElement {
+    enableCors?: boolean;
     deprecated?: boolean;
     toD?: ToDynamicDefinition | string;
     description?: string;
     type?: string;
     outType?: string;
     steps?: CamelElement[] = [];
-    uri?: string;
+    path?: string;
     security?: SecurityDefinition[] = [];
     route?: RouteDefinition;
     routeId?: string;
     bindingMode?: string;
     param?: RestOperationParamDefinition[] = [];
-    apiDocs?: string;
-    skipBindingOnErrorCode?: string;
-    clientRequestValidation?: string;
+    apiDocs?: boolean;
+    skipBindingOnErrorCode?: boolean;
+    clientRequestValidation?: boolean;
     produces?: string;
     id?: string;
     to?: ToDefinition | string;
     responseMessage?: RestOperationResponseMsgDefinition[] = [];
     consumes?: string
-    public constructor(init?: Partial<PatchVerbDefinition>) {
-        super('PatchVerbDefinition')
+    public constructor(init?: Partial<PatchDefinition>) {
+        super('PatchDefinition')
         Object.assign(this, init)
     }
 }
 
-export class PostVerbDefinition extends CamelElement {
-    enableCors?: string;
-    method?: string;
+export class PostDefinition extends CamelElement {
+    enableCors?: boolean;
     deprecated?: boolean;
     toD?: ToDynamicDefinition | string;
     description?: string;
     type?: string;
     outType?: string;
     steps?: CamelElement[] = [];
-    uri?: string;
+    path?: string;
     security?: SecurityDefinition[] = [];
     route?: RouteDefinition;
     routeId?: string;
     bindingMode?: string;
     param?: RestOperationParamDefinition[] = [];
-    apiDocs?: string;
-    skipBindingOnErrorCode?: string;
-    clientRequestValidation?: string;
+    apiDocs?: boolean;
+    skipBindingOnErrorCode?: boolean;
+    clientRequestValidation?: boolean;
     produces?: string;
     id?: string;
     to?: ToDefinition | string;
     responseMessage?: RestOperationResponseMsgDefinition[] = [];
     consumes?: string
-    public constructor(init?: Partial<PostVerbDefinition>) {
-        super('PostVerbDefinition')
+    public constructor(init?: Partial<PostDefinition>) {
+        super('PostDefinition')
         Object.assign(this, init)
     }
 }
 
-export class PutVerbDefinition extends CamelElement {
-    enableCors?: string;
-    method?: string;
+export class PutDefinition extends CamelElement {
+    enableCors?: boolean;
     deprecated?: boolean;
     toD?: ToDynamicDefinition | string;
     description?: string;
     type?: string;
     outType?: string;
     steps?: CamelElement[] = [];
-    uri?: string;
+    path?: string;
     security?: SecurityDefinition[] = [];
     route?: RouteDefinition;
     routeId?: string;
     bindingMode?: string;
     param?: RestOperationParamDefinition[] = [];
-    apiDocs?: string;
-    skipBindingOnErrorCode?: string;
-    clientRequestValidation?: string;
+    apiDocs?: boolean;
+    skipBindingOnErrorCode?: boolean;
+    clientRequestValidation?: boolean;
     produces?: string;
     id?: string;
     to?: ToDefinition | string;
     responseMessage?: RestOperationResponseMsgDefinition[] = [];
     consumes?: string
-    public constructor(init?: Partial<PutVerbDefinition>) {
-        super('PutVerbDefinition')
+    public constructor(init?: Partial<PutDefinition>) {
+        super('PutDefinition')
         Object.assign(this, init)
     }
 }
 
 export class RestBindingDefinition extends CamelElement {
-    enableCors?: string;
+    enableCors?: boolean;
     component?: string;
     bindingMode?: string;
-    skipBindingOnErrorCode?: string;
-    clientRequestValidation?: string;
+    skipBindingOnErrorCode?: boolean;
+    clientRequestValidation?: boolean;
     produces?: string;
     description?: string;
     id?: string;
@@ -3358,23 +3349,23 @@ export class RestConfigurationDefinition extends CamelElement {
 }
 
 export class RestDefinition extends CamelElement {
-    enableCors?: string;
+    enableCors?: boolean;
     securityRequirements?: RestSecuritiesRequirement;
-    verb?: VerbDefinition[] = [];
     description?: string;
-    delete?: DeleteVerbDefinition[] = [];
-    put?: PutVerbDefinition[] = [];
-    head?: HeadVerbDefinition[] = [];
-    patch?: PatchVerbDefinition[] = [];
+    delete?: DeleteDefinition[] = [];
+    put?: PutDefinition[] = [];
+    head?: HeadDefinition[] = [];
+    patch?: PatchDefinition[] = [];
     path?: string;
     bindingMode?: string;
-    post?: PostVerbDefinition[] = [];
+    post?: PostDefinition[] = [];
     stepName?: string = 'rest';
-    apiDocs?: string;
-    skipBindingOnErrorCode?: string;
-    get?: GetVerbDefinition[] = [];
-    clientRequestValidation?: string;
+    apiDocs?: boolean;
+    skipBindingOnErrorCode?: boolean;
+    get?: GetDefinition[] = [];
+    clientRequestValidation?: boolean;
     produces?: string;
+    verbs?: VerbDefinition[] = [];
     id?: string;
     tag?: string;
     securityDefinitions?: RestSecuritiesDefinition;
@@ -3540,35 +3531,6 @@ export class SecurityDefinition extends CamelElement {
     key: string = ''
     public constructor(init?: Partial<SecurityDefinition>) {
         super('SecurityDefinition')
-        Object.assign(this, init)
-    }
-}
-
-export class VerbDefinition extends CamelElement {
-    enableCors?: string;
-    method?: string;
-    deprecated?: boolean;
-    toD?: ToDynamicDefinition | string;
-    description?: string;
-    type?: string;
-    outType?: string;
-    steps?: CamelElement[] = [];
-    uri?: string;
-    security?: SecurityDefinition[] = [];
-    route?: RouteDefinition;
-    routeId?: string;
-    bindingMode?: string;
-    param?: RestOperationParamDefinition[] = [];
-    apiDocs?: string;
-    skipBindingOnErrorCode?: string;
-    clientRequestValidation?: string;
-    produces?: string;
-    id?: string;
-    to?: ToDefinition | string;
-    responseMessage?: RestOperationResponseMsgDefinition[] = [];
-    consumes?: string
-    public constructor(init?: Partial<VerbDefinition>) {
-        super('VerbDefinition')
         Object.assign(this, init)
     }
 }

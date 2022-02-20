@@ -16,12 +16,18 @@
  */
 import React from 'react';
 import {
-    Button, EmptyState, EmptyStateBody, EmptyStateIcon, Modal,
-    PageSection, Title
+    Button, EmptyState, EmptyStateBody, EmptyStateIcon, TreeView,
+    PageSection, Title, TreeViewDataItem, Card, CardHeader, CardTitle, CardBody, CardFooter, FormGroup, Form, TextInput, Accordion, AccordionItem, AccordionToggle, AccordionContent
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
-import CubesIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
+import {DslProperties} from "../route/DslProperties";
+import {RouteToCreate} from "../utils/CamelUi";
+import {PostVerbDefinition, RestDefinition} from "../../../../karavan-core/lib/model/CamelDefinition";
+import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
+import {BeanIcon, RestIcon} from "../utils/KaravanIcons";
+import {RestMethodCard} from "./RestMethodCard";
+import {RestCard} from "./RestCard";
 
 interface Props {
     onSave?: (integration: Integration) => void
@@ -35,6 +41,7 @@ interface State {
     integration: Integration
     selectedStep?: CamelElement
     key: string
+    expanded: Map<string, boolean>
 }
 
 export class RestDesigner extends React.Component<Props, State> {
@@ -42,6 +49,7 @@ export class RestDesigner extends React.Component<Props, State> {
     public state: State = {
         integration: this.props.integration,
         key: "",
+        expanded: new Map<string, boolean>()
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
@@ -54,19 +62,37 @@ export class RestDesigner extends React.Component<Props, State> {
         this.setState({integration: i, key: Math.random().toString()});
     }
 
+    selectElement = (element: CamelElement) => {
+        this.setState({selectedStep: element})
+    }
+
+    onPropertyUpdate = (element: CamelElement, updatedUuid: string, newRoute?: RouteToCreate) => {
+        // if (newRoute) {
+        //     let i = CamelDefinitionApiExt.updateIntegration(this.state.integration, element, updatedUuid);
+        //     const f = CamelDefinitionApi.createFromDefinition({uri: newRoute.componentName + ":" + newRoute.name})
+        //     const r = CamelDefinitionApi.createRouteDefinition({from: f, id: newRoute.name})
+        //     i = CamelDefinitionApiExt.addStepToIntegration(i, r, '');
+        //     const clone = CamelUtil.cloneIntegration(i);
+        //     this.setState({
+        //         integration: clone,
+        //         key: Math.random().toString(),
+        //         showSelector: false,
+        //         selectedStep: element,
+        //         selectedUuid: element.uuid
+        //     });
+        // } else {
+        //     const clone = CamelUtil.cloneIntegration(this.state.integration);
+        //     const i = CamelDefinitionApiExt.updateIntegration(clone, element, updatedUuid);
+        //     this.setState({integration: i, key: Math.random().toString()});
+        // }
+    }
+
     render() {
+        const data = this.props.integration.spec.flows?.filter(f => f.dslName === 'RestDefinition');
         return (
             <PageSection className="rest-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="rest-page-columns">
-                    <EmptyState>
-                        <EmptyStateIcon icon={CubesIcon} />
-                        <Title headingLevel="h4" size="lg">
-                            REST
-                        </Title>
-                        <EmptyStateBody>
-                            Rest DSL not implemented yet
-                        </EmptyStateBody>
-                    </EmptyState>
+                        {data?.map(rest => <RestCard rest={rest} integration={this.props.integration}/>)}
                 </div>
             </PageSection>
         );

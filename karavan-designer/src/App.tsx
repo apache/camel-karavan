@@ -41,9 +41,9 @@ class App extends React.Component<Props, State> {
             'metadata:\n' +
             '  name: demo.yaml \n' +
             'spec:\n' +
-            // '  dependencies:\n' +
-            // '    - "mvn:org.apache.commons:commons-dbcp2:2.9.0" \n' +
-            // '    - "mvn:org.postgresql:postgresql:42.2.14" \n' +
+            '  dependencies:\n' +
+            '    - "mvn:org.apache.commons:commons-dbcp2:2.9.0" \n' +
+            '    - "mvn:org.postgresql:postgresql:42.2.14" \n' +
             '  flows:\n' +
             // '    - route:\n' +
             // '        from:\n' +
@@ -106,37 +106,38 @@ class App extends React.Component<Props, State> {
             // '                        name: insert-header-action\n' +
             // '                    - kamelet:\n' +
             // '                        name: http-sink\n' +
-            // '    - route:\n' +
-            // '        from:\n' +
-            // '          uri: direct:demo2\n' +
-            // '           - saga: \n' +
-            // '               option:\n' +
-            // '                 - option-name: o1\n' +
-            // '                   expression:\n' +
-            // '                     simple: "${body}" \n' +
-            // '                 - option-name: o2\n' +
-            // '                   expression:\n' +
-            // '                     simple: "${body}" \n' +
-            // '            - do-try:\n' +
-            // '                steps:\n' +
-            // '                  - to: "direct:direct1"\n' +
-            // '                  - to: "direct:direct2"\n' +
-            // '                  - log: "log1"\n' +
-            // '                do-catch:\n' +
-            // '                  - exception:\n' +
-            // '                      - "java.io.FileNotFoundException"\n' +
-            // '                      - "java.io.IOException"\n' +
-            // '                    steps:\n' +
-            // '                      - log: "log1"\n' +
-            // '                      - kamelet: \n' +
-            // '                           name: kafka-sink \n' +
-            // '                  - exception:\n' +
-            // '                      - "java.io.FileNotFoundException"\n' +
-            // '                      - "java.io.IOException"\n' +
-            // '                    steps:\n' +
-            // '                      - log: "log1"\n' +
-            // '                      - kamelet: \n' +
-            // '                           name: http-sink \n' +
+            '    - route:\n' +
+            '       from:\n' +
+            '         uri: direct:demo2\n' +
+            '         steps:\n' +
+            '           - saga: \n' +
+            '               option:\n' +
+            '                 - option-name: o1\n' +
+            '                   expression:\n' +
+            '                     simple: "${body}" \n' +
+            '                 - option-name: o2\n' +
+            '                   expression:\n' +
+            '                     simple: "${body}" \n' +
+            '           - do-try:\n' +
+            '                steps:\n' +
+            '                  - to: "direct:direct1"\n' +
+            '                  - to: "direct:direct2"\n' +
+            '                  - log: "log1"\n' +
+            '                do-catch:\n' +
+            '                  - exception:\n' +
+            '                      - "java.io.FileNotFoundException"\n' +
+            '                      - "java.io.IOException"\n' +
+            '                    steps:\n' +
+            '                      - log: "log1"\n' +
+            '                      - kamelet: \n' +
+            '                           name: kafka-sink \n' +
+            '                  - exception:\n' +
+            '                      - "java.io.FileNotFoundException"\n' +
+            '                      - "java.io.IOException"\n' +
+            '                    steps:\n' +
+            '                      - log: "log1"\n' +
+            '                      - kamelet: \n' +
+            '                           name: http-sink \n' +
             // '            - choice:\n' +
             // '                when:\n' +
             // '                  - simple: "hello world"\n' +
@@ -150,6 +151,21 @@ class App extends React.Component<Props, State> {
             '        context-path: "/base"  \n' +
             '        port: 8081\n' +
             '    - rest:\n' +
+            '        path: "/"\n' +
+            '        post:\n' +
+            '          - uri: "/foo"\n' +
+            '            to: "direct:foo"\n' +
+            '            description: "POST demo service"\n' +
+            '          - uri: "/bar"\n' +
+            '            to: "direct:bar"  \n' +
+            '        get:\n' +
+            '          - uri: "/getFoo"\n' +
+            '            to: "direct:foo"        \n' +
+            '          - uri: "/getBar"\n' +
+            '            to: "direct:foo"    \n' +
+            '    - rest:\n' +
+            '        path: "/demo"\n' +
+            '        description: "REST API to demonstrate Karavan feature"\n' +
             '        post:\n' +
             '          - uri: "/foo"\n' +
             '            to: "direct:foo"\n' +
@@ -160,13 +176,13 @@ class App extends React.Component<Props, State> {
             '            to: "direct:foo"        \n' +
             '          - uri: "/getBar"\n' +
             '            to: "direct:foo"    \n' +
-            '    - from:\n' +
-            '        uri: \'direct:foo\'\n' +
-            '        steps:\n' +
-            '          - log: \'${body}\'\n' +
-            '          - log: \'${headers}\'\n' +
-            '          - setBody:\n' +
-            '              constant: "Hello world"  \n' +
+            // '    - from:\n' +
+            // '        uri: \'direct:foo\'\n' +
+            // '        steps:\n' +
+            // '          - log: \'${body}\'\n' +
+            // '          - log: \'${headers}\'\n' +
+            // '          - setBody:\n' +
+            // '              constant: "Hello world"  \n' +
             // '    - beans:\n' +
             // '      - name: datasource\n' +
             // '        type: org.apache.commons.dbcp2.BasicDataSource\n' +

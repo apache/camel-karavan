@@ -142,6 +142,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         code.append(String.format("export const %s: ElementMeta[] = [\n", className));
         classProps.forEach((name, properties) -> {
             String stepName = stepNames.get(name);
+            stepName = stepName != null && stepName.endsWith("Verb") ? stepName.replace("Verb", "") : stepName; // Exception for REST DSL Methods
             String json = folder.equals("model") ? getMetaModel(stepName) : (folder.equals("language") ? getMetaLanguage(stepName) : getMetaDataFormat(stepName));
             if (json != null) {
                 JsonObject model = new JsonObject(json).getJsonObject("model");

@@ -230,7 +230,7 @@
 .karavan .properties {
     border: 1px solid #eee;
     padding: 10px 10px 10px 10px;
-    font-size: 13px;
+    font-size: 14px;
     background: #fcfcfc;
     width: 450px;
     height: 100%;
@@ -262,12 +262,17 @@
 }
 
 .karavan .properties .pf-c-form__label {
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .karavan .properties .text-field {
-    font-size: 13px;
+    font-size: 14px;
     height: auto;
+}
+
+.karavan .properties .pf-c-select {
+    --pf-c-select__toggle--FontSize: 14px;
+    --pf-c-select__menu-item--FontSize: 14px;
 }
 
 .karavan .properties .input-group .pf-c-text-input-group__text {
@@ -316,13 +321,12 @@
 }
 
 .karavan .properties .pf-c-select__toggle-typeahead {
-    font-size: 13px;
+    font-size: 14px;
     height: auto;
 }
 
 .karavan .properties .pf-c-select__menu-item {
     width: 280px;
-    font-size: 15px;
 }
 
 .karavan .properties .pf-c-select__menu-item-description {
@@ -414,7 +418,7 @@
 .karavan .dsl-page .graph {
     display: block;
     flex-direction: column;
-    font-size: 13px;
+    font-size: 14px;
     height: 100%;
     width: 100%;
     position: relative;
@@ -422,7 +426,6 @@
 }
 
 .karavan .dsl-page .flows {
-    font-size: 13px;
     width: 100%;
     position: relative;
 }
@@ -443,13 +446,6 @@
 
 .karavan .dsl-page .graph .connections .icon {
     height: 20px;
-}
-
-.karavan .dsl-page .graph .connections .inout-name {
-    margin: auto;
-    overflow: hidden;
-    font-size: 24px;
-    font-weight: bold;
 }
 
 .karavan .dsl-page .graph .connections .arrow {
@@ -504,7 +500,7 @@
     flex-direction: column;
     width: fit-content;
     border-color: #fb8824;
-    border-radius: 20px;
+    border-radius: 16px;
     border-width: 1px;
     min-width: 120px;
     padding: 3px 4px 4px 4px;
@@ -634,16 +630,6 @@
     user-select: none;
 }
 
-.dsl-page .add-flow-button {
-    margin-top: 26px;
-    font-size: 15px;
-    line-height: 1;
-    border: 0;
-    padding: 0;
-    background: transparent;
-    color: #fb8824;
-}
-
 .step-element .arrow-down {
     margin-top: -1px;
     font-size: 13px;
@@ -757,7 +743,7 @@
 }
 
 .dsl-modal .search .text-field {
-    font-size: 13px;
+    font-size: 14px;
     height: auto;
 }
 
@@ -860,7 +846,7 @@
 
 .karavan .beans-page .bean-card,
 .karavan .beans-page .bean-card:hover {
-    border-radius: 20px;
+    border-radius: 16px;
     border-width: 1px;
     border-style: dotted;
     box-shadow: none;
@@ -874,13 +860,13 @@
 
 .karavan .beans-page .bean-card .pf-c-card__title {
     text-align: center;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .karavan .beans-page .bean-card .pf-c-card__body {
     word-wrap:anywhere;
     text-align: center;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .karavan .beans-page .bean-card .header-icon {
@@ -946,29 +932,131 @@
 .karavan .beans-page .properties .bean-property .delete-button {
     padding: 3px;
     color: #b1b1b7;
-    font-size: 13px;
+    font-size: 14px;
 }
+
+/*REST Page*/
+.karavan .rest-page {
+    flex: 1;
+    font-size: 14px;
+    overflow-y: scroll;
+}
+
+.karavan .rest-page .rest-page-columns {
+    margin: 0 auto;
+    width: 800px;
+}
+
+.karavan .rest-page .pf-c-accordion {
+    background-color: transparent;
+}
+
+.karavan .rest-page .rest-card,
+.karavan .rest-page .rest-card:hover,
+.karavan .rest-page .method-card,
+.karavan .rest-page .method-card:hover {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    height: 44px;
+}
+
+.karavan .rest-page .rest-rest-card {
+    margin-top: 16px;
+}
+
+.karavan .rest-page .rest-rest-card,
+.karavan .rest-page .rest-method-card {
+    border-style: dotted;
+    border-radius: 4px;
+    border-width: 1px;
+    border-color: #fb8824;
+    padding: 0 6px 0 6px;
+    margin-bottom: 6px;
+}
+
+
+.karavan .rest-page .pf-c-accordion__toggle:hover .pf-c-accordion__toggle-text,
+.karavan .rest-page .pf-c-accordion__toggle:focus .pf-c-accordion__toggle-text,
+.karavan .rest-page .pf-c-accordion__toggle.pf-m-expanded .pf-c-accordion__toggle-text {
+    font-weight: normal;
+    color: initial;
+}
+
+.karavan .rest-page .pf-c-accordion__toggle,
+.karavan .rest-page .pf-c-accordion__toggle::after,
+.karavan .rest-page .pf-c-accordion__expanded-content-body::after {
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+.karavan .rest-page .pf-c-accordion__expanded-content.pf-m-expanded,
+.karavan .rest-page .pf-c-accordion__expanded-content-body {
+    padding: 0;
+}
+
+.karavan .rest-page .pf-c-accordion__toggle:focus,
+.karavan .rest-page .pf-c-accordion__toggle:hover,
+.karavan .rest-page .pf-c-accordion__toggle:active {
+    background-color: transparent;
+}
+
+.karavan .rest-page .rest-card .pf-c-accordion__toggle::after {
+    background-color: rgb(48, 50, 132);
+}
+
+.karavan .rest-page .rest-card-unselected {
+    border-color: #fb8824;
+    background-color: transparent;
+}
+
+.karavan .rest-page .method-toggle {
+    margin-left: 6px;
+}
+.karavan .rest-page .method-card .method {
+    margin: auto 0 auto 0;
+    border-radius: 3px;
+    color: #fff;
+    font-family: sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    min-width: 80px;
+    padding: 6px 0;
+    text-align: center;
+    text-shadow: 0 1px 0 rgb(0 0 0 / 10%);
+    background: #fca338;
+}
+
+.karavan .rest-page .rest-card .title,
+.karavan .rest-page .method-card .title {
+    margin: auto 0 auto 0;
+    font-weight: bold;
+}
+
+.karavan .rest-page .rest-card .description,
+.karavan .rest-page .method-card .description {
+    margin: auto 0 auto 0;
+}
+
 
 .karavan .templates-page,
 .karavan .exception-page,
-.karavan .error-page,
-.karavan .rest-page {
+.karavan .error-page{
     flex: 1;
     overflow: auto;
 }
 
 .karavan .templates-page-columns,
 .karavan .exception-page-columns,
-.karavan .error-page-columns,
-.karavan .rest-page-columns {
+.karavan .error-page-columns {
     height: 100%;
     background: #fafafa;
 }
 
 .karavan .templates-page-columns .pf-c-empty-state,
 .karavan .exception-page-columns .pf-c-empty-state,
-.karavan .error-page-columns .pf-c-empty-state,
-.karavan .rest-page-columns .pf-c-empty-state {
+.karavan .error-page-columns .pf-c-empty-state {
     margin: auto;
     height: 100%;
 }

@@ -205,12 +205,12 @@ import {
     StickyLoadBalancerDefinition,
     TopicLoadBalancerDefinition,
     WeightedLoadBalancerDefinition,
-    DeleteVerbDefinition,
-    GetVerbDefinition,
-    HeadVerbDefinition,
-    PatchVerbDefinition,
-    PostVerbDefinition,
-    PutVerbDefinition,
+    DeleteDefinition,
+    GetDefinition,
+    HeadDefinition,
+    PatchDefinition,
+    PostDefinition,
+    PutDefinition,
     RestBindingDefinition,
     RestConfigurationDefinition,
     RestDefinition,
@@ -228,7 +228,6 @@ import {
     RestSecurityOpenIdConnect,
     RestsDefinition,
     SecurityDefinition,
-    VerbDefinition,
     CustomTransformerDefinition,
     DataFormatTransformerDefinition,
     EndpointTransformerDefinition,
@@ -1865,10 +1864,6 @@ export class CamelDefinitionYamlStep {
     static readWireTapDefinition = (element: any): WireTapDefinition => {
         
         const def = element ? new WireTapDefinition({...element}) : new WireTapDefinition();
-        if (element?.body !== undefined) { 
-            def.body = CamelDefinitionYamlStep.readExpressionSubElementDefinition(element.body); 
-        } 
-        def.setHeader = element && element?.setHeader ? element?.setHeader.map((x:any) => CamelDefinitionYamlStep.readSetHeaderDefinition(x)) :[]; 
 
         return def;
     }
@@ -2905,9 +2900,9 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
-    static readDeleteVerbDefinition = (element: any): DeleteVerbDefinition => {
+    static readDeleteDefinition = (element: any): DeleteDefinition => {
         
-        const def = element ? new DeleteVerbDefinition({...element}) : new DeleteVerbDefinition();
+        const def = element ? new DeleteDefinition({...element}) : new DeleteDefinition();
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
         if (element?.route !== undefined) { 
             def.route = CamelDefinitionYamlStep.readRouteDefinition(element.route); 
@@ -2925,9 +2920,9 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
-    static readGetVerbDefinition = (element: any): GetVerbDefinition => {
+    static readGetDefinition = (element: any): GetDefinition => {
         
-        const def = element ? new GetVerbDefinition({...element}) : new GetVerbDefinition();
+        const def = element ? new GetDefinition({...element}) : new GetDefinition();
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
         if (element?.route !== undefined) { 
             def.route = CamelDefinitionYamlStep.readRouteDefinition(element.route); 
@@ -2945,9 +2940,9 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
-    static readHeadVerbDefinition = (element: any): HeadVerbDefinition => {
+    static readHeadDefinition = (element: any): HeadDefinition => {
         
-        const def = element ? new HeadVerbDefinition({...element}) : new HeadVerbDefinition();
+        const def = element ? new HeadDefinition({...element}) : new HeadDefinition();
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
         if (element?.route !== undefined) { 
             def.route = CamelDefinitionYamlStep.readRouteDefinition(element.route); 
@@ -2965,9 +2960,9 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
-    static readPatchVerbDefinition = (element: any): PatchVerbDefinition => {
+    static readPatchDefinition = (element: any): PatchDefinition => {
         
-        const def = element ? new PatchVerbDefinition({...element}) : new PatchVerbDefinition();
+        const def = element ? new PatchDefinition({...element}) : new PatchDefinition();
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
         if (element?.route !== undefined) { 
             def.route = CamelDefinitionYamlStep.readRouteDefinition(element.route); 
@@ -2985,9 +2980,9 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
-    static readPostVerbDefinition = (element: any): PostVerbDefinition => {
+    static readPostDefinition = (element: any): PostDefinition => {
         
-        const def = element ? new PostVerbDefinition({...element}) : new PostVerbDefinition();
+        const def = element ? new PostDefinition({...element}) : new PostDefinition();
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
         if (element?.route !== undefined) { 
             def.route = CamelDefinitionYamlStep.readRouteDefinition(element.route); 
@@ -3005,9 +3000,9 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
-    static readPutVerbDefinition = (element: any): PutVerbDefinition => {
+    static readPutDefinition = (element: any): PutDefinition => {
         
-        const def = element ? new PutVerbDefinition({...element}) : new PutVerbDefinition();
+        const def = element ? new PutDefinition({...element}) : new PutDefinition();
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
         if (element?.route !== undefined) { 
             def.route = CamelDefinitionYamlStep.readRouteDefinition(element.route); 
@@ -3048,19 +3043,19 @@ export class CamelDefinitionYamlStep {
     static readRestDefinition = (element: any): RestDefinition => {
         
         const def = element ? new RestDefinition({...element}) : new RestDefinition();
-        def.head = element && element?.head ? element?.head.map((x:any) => CamelDefinitionYamlStep.readHeadVerbDefinition(x)) :[]; 
-        def.patch = element && element?.patch ? element?.patch.map((x:any) => CamelDefinitionYamlStep.readPatchVerbDefinition(x)) :[]; 
-        def.post = element && element?.post ? element?.post.map((x:any) => CamelDefinitionYamlStep.readPostVerbDefinition(x)) :[]; 
-        def.get = element && element?.get ? element?.get.map((x:any) => CamelDefinitionYamlStep.readGetVerbDefinition(x)) :[]; 
+        def.head = element && element?.head ? element?.head.map((x:any) => CamelDefinitionYamlStep.readHeadDefinition(x)) :[]; 
+        def.patch = element && element?.patch ? element?.patch.map((x:any) => CamelDefinitionYamlStep.readPatchDefinition(x)) :[]; 
+        def.post = element && element?.post ? element?.post.map((x:any) => CamelDefinitionYamlStep.readPostDefinition(x)) :[]; 
+        def.get = element && element?.get ? element?.get.map((x:any) => CamelDefinitionYamlStep.readGetDefinition(x)) :[]; 
         if (element?.securityRequirements !== undefined) { 
             def.securityRequirements = CamelDefinitionYamlStep.readRestSecuritiesRequirement(element.securityRequirements); 
         } 
-        def.verb = element && element?.verb ? element?.verb.map((x:any) => CamelDefinitionYamlStep.readVerbDefinition(x)) :[]; 
-        def.delete = element && element?.delete ? element?.delete.map((x:any) => CamelDefinitionYamlStep.readDeleteVerbDefinition(x)) :[]; 
+        def.verbs = element && element?.verbs ? element?.verbs.map((x:any) => CamelDefinitionYamlStep.readVerbDefinition(x)) :[]; 
+        def.delete = element && element?.delete ? element?.delete.map((x:any) => CamelDefinitionYamlStep.readDeleteDefinition(x)) :[]; 
         if (element?.securityDefinitions !== undefined) { 
             def.securityDefinitions = CamelDefinitionYamlStep.readRestSecuritiesDefinition(element.securityDefinitions); 
         } 
-        def.put = element && element?.put ? element?.put.map((x:any) => CamelDefinitionYamlStep.readPutVerbDefinition(x)) :[]; 
+        def.put = element && element?.put ? element?.put.map((x:any) => CamelDefinitionYamlStep.readPutDefinition(x)) :[]; 
 
         return def;
     }
@@ -3185,26 +3180,6 @@ export class CamelDefinitionYamlStep {
     static readSecurityDefinition = (element: any): SecurityDefinition => {
         
         const def = element ? new SecurityDefinition({...element}) : new SecurityDefinition();
-
-        return def;
-    }
-
-    static readVerbDefinition = (element: any): VerbDefinition => {
-        
-        const def = element ? new VerbDefinition({...element}) : new VerbDefinition();
-        def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
-        if (element?.route !== undefined) { 
-            def.route = CamelDefinitionYamlStep.readRouteDefinition(element.route); 
-        } 
-        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readRestOperationParamDefinition(x)) :[]; 
-        if (element?.toD !== undefined) { 
-            def.toD = CamelDefinitionYamlStep.readToDynamicDefinition(element.toD); 
-        } 
-        if (element?.to !== undefined) { 
-            def.to = CamelDefinitionYamlStep.readToDefinition(element.to); 
-        } 
-        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readRestOperationResponseMsgDefinition(x)) :[]; 
-        def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
 
         return def;
     }
