@@ -106,38 +106,38 @@ class App extends React.Component<Props, State> {
             // '                        name: insert-header-action\n' +
             // '                    - kamelet:\n' +
             // '                        name: http-sink\n' +
-            '    - route:\n' +
-            '       from:\n' +
-            '         uri: direct:demo2\n' +
-            '         steps:\n' +
-            '           - saga: \n' +
-            '               option:\n' +
-            '                 - option-name: o1\n' +
-            '                   expression:\n' +
-            '                     simple: "${body}" \n' +
-            '                 - option-name: o2\n' +
-            '                   expression:\n' +
-            '                     simple: "${body}" \n' +
-            '           - do-try:\n' +
-            '                steps:\n' +
-            '                  - to: "direct:direct1"\n' +
-            '                  - to: "direct:direct2"\n' +
-            '                  - log: "log1"\n' +
-            '                do-catch:\n' +
-            '                  - exception:\n' +
-            '                      - "java.io.FileNotFoundException"\n' +
-            '                      - "java.io.IOException"\n' +
-            '                    steps:\n' +
-            '                      - log: "log1"\n' +
-            '                      - kamelet: \n' +
-            '                           name: kafka-sink \n' +
-            '                  - exception:\n' +
-            '                      - "java.io.FileNotFoundException"\n' +
-            '                      - "java.io.IOException"\n' +
-            '                    steps:\n' +
-            '                      - log: "log1"\n' +
-            '                      - kamelet: \n' +
-            '                           name: http-sink \n' +
+            // '    - route:\n' +
+            // '       from:\n' +
+            // '         uri: direct:demo2\n' +
+            // '         steps:\n' +
+            // '           - saga: \n' +
+            // '               option:\n' +
+            // '                 - option-name: o1\n' +
+            // '                   expression:\n' +
+            // '                     simple: "${body}" \n' +
+            // '                 - option-name: o2\n' +
+            // '                   expression:\n' +
+            // '                     simple: "${body}" \n' +
+            // '           - do-try:\n' +
+            // '                steps:\n' +
+            // '                  - to: "direct:direct1"\n' +
+            // '                  - to: "direct:direct2"\n' +
+            // '                  - log: "log1"\n' +
+            // '                do-catch:\n' +
+            // '                  - exception:\n' +
+            // '                      - "java.io.FileNotFoundException"\n' +
+            // '                      - "java.io.IOException"\n' +
+            // '                    steps:\n' +
+            // '                      - log: "log1"\n' +
+            // '                      - kamelet: \n' +
+            // '                           name: kafka-sink \n' +
+            // '                  - exception:\n' +
+            // '                      - "java.io.FileNotFoundException"\n' +
+            // '                      - "java.io.IOException"\n' +
+            // '                    steps:\n' +
+            // '                      - log: "log1"\n' +
+            // '                      - kamelet: \n' +
+            // '                           name: http-sink \n' +
             // '            - choice:\n' +
             // '                when:\n' +
             // '                  - simple: "hello world"\n' +
@@ -153,28 +153,28 @@ class App extends React.Component<Props, State> {
             '    - rest:\n' +
             '        path: "/"\n' +
             '        post:\n' +
-            '          - uri: "/foo"\n' +
+            '          - path: "/foo"\n' +
             '            to: "direct:foo"\n' +
             '            description: "POST demo service"\n' +
-            '          - uri: "/bar"\n' +
+            '          - path: "/bar"\n' +
             '            to: "direct:bar"  \n' +
             '        get:\n' +
-            '          - uri: "/getFoo"\n' +
+            '          - path: "/getFoo"\n' +
             '            to: "direct:foo"        \n' +
-            '          - uri: "/getBar"\n' +
+            '          - path: "/getBar"\n' +
             '            to: "direct:foo"    \n' +
             '    - rest:\n' +
             '        path: "/demo"\n' +
             '        description: "REST API to demonstrate Karavan feature"\n' +
             '        post:\n' +
-            '          - uri: "/foo"\n' +
+            '          - path: "/foo"\n' +
             '            to: "direct:foo"\n' +
-            '          - uri: "/bar"\n' +
+            '          - path: "/bar"\n' +
             '            to: "direct:bar"  \n' +
             '        get:\n' +
-            '          - uri: "/getFoo"\n' +
+            '          - path: "/getFoo"\n' +
             '            to: "direct:foo"        \n' +
-            '          - uri: "/getBar"\n' +
+            '          - path: "/getBar"\n' +
             '            to: "direct:foo"    \n' +
             // '    - from:\n' +
             // '        uri: \'direct:foo\'\n' +

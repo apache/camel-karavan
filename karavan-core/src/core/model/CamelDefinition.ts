@@ -3138,7 +3138,6 @@ export class DeleteDefinition extends CamelElement {
     path?: string;
     security?: SecurityDefinition[] = [];
     route?: RouteDefinition;
-    routeId?: string;
     bindingMode?: string;
     param?: RestOperationParamDefinition[] = [];
     apiDocs?: boolean;
@@ -3166,7 +3165,6 @@ export class GetDefinition extends CamelElement {
     path?: string;
     security?: SecurityDefinition[] = [];
     route?: RouteDefinition;
-    routeId?: string;
     bindingMode?: string;
     param?: RestOperationParamDefinition[] = [];
     apiDocs?: boolean;
@@ -3194,7 +3192,6 @@ export class HeadDefinition extends CamelElement {
     path?: string;
     security?: SecurityDefinition[] = [];
     route?: RouteDefinition;
-    routeId?: string;
     bindingMode?: string;
     param?: RestOperationParamDefinition[] = [];
     apiDocs?: boolean;
@@ -3222,7 +3219,6 @@ export class PatchDefinition extends CamelElement {
     path?: string;
     security?: SecurityDefinition[] = [];
     route?: RouteDefinition;
-    routeId?: string;
     bindingMode?: string;
     param?: RestOperationParamDefinition[] = [];
     apiDocs?: boolean;
@@ -3250,7 +3246,6 @@ export class PostDefinition extends CamelElement {
     path?: string;
     security?: SecurityDefinition[] = [];
     route?: RouteDefinition;
-    routeId?: string;
     bindingMode?: string;
     param?: RestOperationParamDefinition[] = [];
     apiDocs?: boolean;
@@ -3278,7 +3273,6 @@ export class PutDefinition extends CamelElement {
     path?: string;
     security?: SecurityDefinition[] = [];
     route?: RouteDefinition;
-    routeId?: string;
     bindingMode?: string;
     param?: RestOperationParamDefinition[] = [];
     apiDocs?: boolean;

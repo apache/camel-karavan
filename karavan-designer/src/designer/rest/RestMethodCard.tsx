@@ -27,6 +27,7 @@ interface Props<T> {
     selected?: boolean
     integration: Integration
     selectElement: (element: CamelElement) => void
+    deleteElement: (element: CamelElement) => void
 }
 
 interface State<T> {
@@ -52,6 +53,11 @@ export class RestMethodCard extends React.Component<Props<any>, State<any>> {
         this.props.selectElement.call(this, this.state.method);
     }
 
+    delete = (evt: React.MouseEvent) => {
+        evt.stopPropagation();
+        this.props.deleteElement.call(this, this.props.method);
+    }
+
     render() {
         const method = this.state.method;
         return (
@@ -59,7 +65,7 @@ export class RestMethodCard extends React.Component<Props<any>, State<any>> {
                 <div className="method">{method.dslName.replace('Definition', '').toUpperCase()}</div>
                 <div className="title">{method.uri}</div>
                 <div className="description">{method.description}</div>
-                <Button variant="link" className="delete-button" onClick={e => {}}><DeleteIcon/></Button>
+                <Button variant="link" className="delete-button" onClick={e => this.delete(e)}><DeleteIcon/></Button>
             </div>
         );
     }

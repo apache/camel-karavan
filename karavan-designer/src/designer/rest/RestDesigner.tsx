@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    Button,
+    Button, Modal,
     PageSection
 } from '@patternfly/react-core';
 import '../karavan.css';
@@ -25,6 +25,12 @@ import {DslProperties} from "../route/DslProperties";
 import {RouteToCreate} from "../utils/CamelUi";
 import {RestCard} from "./RestCard";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
+import {RestDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
+import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
+import {RestMethodSelector} from "./RestMethodSelector";
+import {DslMetaModel} from "../utils/DslMetaModel";
+import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 
 interface Props {
     onSave?: (integration: Integration) => void
@@ -38,7 +44,8 @@ interface State {
     integration: Integration
     selectedStep?: CamelElement
     key: string
-    expanded: Map<string, boolean>
+    showSelector: boolean
+    showDeleteConfirmation: boolean
 }
 
 export class RestDesigner extends React.Component<Props, State> {
@@ -46,7 +53,8 @@ export class RestDesigner extends React.Component<Props, State> {
     public state: State = {
         integration: this.props.integration,
         key: "",
-        expanded: new Map<string, boolean>()
+        showSelector: false,
+        showDeleteConfirmation: false
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
@@ -91,6 +99,86 @@ export class RestDesigner extends React.Component<Props, State> {
         }
     };
 
+    changeRest = (rest: RestDefinition) => {
+        const clone = CamelUtil.cloneIntegration(this.state.integration);
+        const i = CamelDefinitionApiExt.addRestToIntegration(clone, rest);
+        this.setState({integration: i, key: Math.random().toString(), selectedStep: rest});
+    }
+
+    createRest = () => {
+        this.changeRest(new RestDefinition());
+    }
+
+    showDeleteConfirmation = (element: CamelElement) => {
+        this.setState({selectedStep: element, showSelector: false, showDeleteConfirmation: true});
+    }
+
+    deleteElement = () => {
+        const step = this.state.selectedStep;
+        if (step) {
+            const i =  step.dslName === 'RestDefinition'
+                ? CamelDefinitionApiExt.deleteRestFromIntegration(this.state.integration, step.uuid)
+                : CamelDefinitionApiExt.deleteRestMethodFromIntegration(this.state.integration, step.uuid);
+            this.setState({
+                integration: i,
+                showSelector: false,
+                showDeleteConfirmation: false,
+                key: Math.random().toString(),
+                selectedStep: undefined,
+            });
+        }
+    }
+
+    getDeleteConfirmation() {
+        return (<Modal
+            className="modal-delete"
+            title="Confirmation"
+            isOpen={this.state.showDeleteConfirmation}
+            onClose={() => this.setState({showDeleteConfirmation: false})}
+            actions={[
+                <Button key="confirm" variant="primary" onClick={e => this.deleteElement()}>Delete</Button>,
+                <Button key="cancel" variant="link"
+                        onClick={e => this.setState({showDeleteConfirmation: false})}>Cancel</Button>
+            ]}
+            onEscapePress={e => this.setState({showDeleteConfirmation: false})}>
+            <div>
+                Delete element from integration?
+            </div>
+        </Modal>)
+    }
+
+    closeMethodSelector = () => {
+        this.setState({showSelector: false})
+    }
+
+    onMethodSelect = (method: DslMetaModel) => {
+        if (this.state.selectedStep){
+            const clone = CamelUtil.cloneIntegration(this.state.integration);
+            const m = CamelDefinitionApi.createStep(method.dsl, {});
+            const i = CamelDefinitionApiExt.addRestMethodToIntegration(clone, m, this.state.selectedStep?.uuid);
+            this.setState({integration: i, key: Math.random().toString(), selectedStep: m, showSelector: false});
+        }
+    }
+
+    selectMethod = (element: CamelElement) => {
+        this.setState({selectedStep: element, showSelector: true})
+    }
+
+    getSelectorModal() {
+        return (
+            <Modal
+                title="Select method"
+                width={'90%'}
+                className='dsl-modal'
+                isOpen={this.state.showSelector}
+                onClose={() => this.closeMethodSelector()}
+                actions={{}}>
+                <RestMethodSelector
+                    dark={this.props.dark}
+                    onMethodSelect={this.onMethodSelect}/>
+            </Modal>)
+    }
+
     render() {
         const data = this.props.integration.spec.flows?.filter(f => f.dslName === 'RestDefinition');
         return (
@@ -98,13 +186,13 @@ export class RestDesigner extends React.Component<Props, State> {
                 <div className="rest-page-columns">
                     <div className="graph" data-click="REST"  onClick={event => this.unselectElement(event)}>
                         <div className="flows">
-                            {data?.map(rest => <RestCard rest={rest} integration={this.props.integration} selectElement={this.selectElement}/>)}
+                            {data?.map(rest => <RestCard key={rest.uuid + this.state.key} rest={rest} integration={this.props.integration} selectMethod={this.selectMethod} selectElement={this.selectElement} deleteElement={this.showDeleteConfirmation}/>)}
                             <div className="add-rest">
                                 <Button
                                     variant={data?.length === 0 ? "primary" : "secondary"}
                                     data-click="ADD_REST"
                                     icon={<PlusIcon/>}
-                                    onClick={e => {}}>Create new REST
+                                    onClick={e => this.createRest()}>Create new REST
                                 </Button>
                             </div>
                         </div>
@@ -116,6 +204,8 @@ export class RestDesigner extends React.Component<Props, State> {
                         onPropertyUpdate={element => {}}
                     />
                 </div>
+                {this.getSelectorModal()}
+                {this.getDeleteConfirmation()}
             </PageSection>
         );
     }

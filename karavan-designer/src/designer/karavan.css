@@ -1048,6 +1048,7 @@
     background: transparent;
     color: #909090;
     visibility: hidden;
+    z-index: 100;
 }
 
 .karavan .rest-page .rest-card:hover .delete-button,
@@ -1057,11 +1058,7 @@
 
 .karavan .rest-page .rest-card .add-button {
     font-size: 15px;
-    /*height: 15px;*/
-    /*line-height: 1;*/
     border: 0;
-    /*padding: 0;*/
-    /*margin: 0 0 3px 0;*/
     background: transparent;
     color: #fb8824;
     z-index: 100;
@@ -1071,6 +1068,7 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
+    margin-top: 16px;
 }
 
 /*Exception*/

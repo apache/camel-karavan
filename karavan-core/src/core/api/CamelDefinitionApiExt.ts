@@ -258,7 +258,7 @@ export class CamelDefinitionApiExt {
                 }
             });
         } else {
-            integration.spec.flows?.filter(flow => flow.dslName !== 'RestDefinition' && flow.uuid !== rest.uuid).forEach(x => flows.push(x));
+            integration.spec.flows?.filter(flow => flow.dslName === 'RestDefinition' && flow.uuid !== rest.uuid).forEach(x => flows.push(x));
             flows.push(rest);
         }
         integration.spec.flows = flows;
@@ -273,11 +273,11 @@ export class CamelDefinitionApiExt {
                 flows.push(rest);
             } else {
                 switch (method.dslName){
-                    case 'GetDefinition': rest.get = this.addRestMethodToRestMethods(rest.get, method);
-                    case 'PostDefinition': rest.post = this.addRestMethodToRestMethods(rest.post, method);
-                    case 'PatchDefinition': rest.patch = this.addRestMethodToRestMethods(rest.patch, method);
-                    case 'DeleteDefinition': rest.delete = this.addRestMethodToRestMethods(rest.delete, method);
-                    case 'HeadDefinition': rest.head = this.addRestMethodToRestMethods(rest.head, method);
+                    case 'GetDefinition': rest.get = this.addRestMethodToRestMethods(rest.get, method); break;
+                    case 'PostDefinition': rest.post = this.addRestMethodToRestMethods(rest.post, method); break;
+                    case 'PatchDefinition': rest.patch = this.addRestMethodToRestMethods(rest.patch, method); break;
+                    case 'DeleteDefinition': rest.delete = this.addRestMethodToRestMethods(rest.delete, method); break;
+                    case 'HeadDefinition': rest.head = this.addRestMethodToRestMethods(rest.head, method); break;
                 }
                 flows.push(rest);
             }
@@ -296,10 +296,25 @@ export class CamelDefinitionApiExt {
         return elements;
     }
 
-    static deleteRestFromIntegration = (integration: Integration, rest: RestDefinition): Integration => {
+    static deleteRestFromIntegration = (integration: Integration, restUuid?: string): Integration => {
         const flows: any[] = [];
         integration.spec.flows?.filter(flow => flow.dslName !== 'RestDefinition').forEach(x => flows.push(x));
-        integration.spec.flows?.filter(flow => flow.dslName === 'RestDefinition' && flow.uuid !== rest.uuid).forEach(x => flows.push(x));
+        integration.spec.flows?.filter(flow => flow.dslName === 'RestDefinition' && flow.uuid !== restUuid).forEach(x => flows.push(x));
+        integration.spec.flows = flows;
+        return integration;
+    }
+
+    static deleteRestMethodFromIntegration = (integration: Integration, methodUuid?: string): Integration => {
+        const flows: any[] = [];
+        integration.spec.flows?.filter(flow => flow.dslName !== 'RestDefinition').forEach(x => flows.push(x));
+        integration.spec.flows?.filter(flow => flow.dslName === 'RestDefinition').forEach((rest: RestDefinition) => {
+            if (rest.get) rest.get = rest.get.filter(get => get.uuid !== methodUuid);
+            if (rest.post) rest.post = rest.post.filter(post => post.uuid !== methodUuid);
+            if (rest.patch) rest.patch = rest.patch.filter(patch => patch.uuid !== methodUuid);
+            if (rest.delete) rest.delete = rest.delete.filter(del => del.uuid !== methodUuid);
+            if (rest.head) rest.head = rest.head.filter(head => head.uuid !== methodUuid);
+            flows.push(rest);
+        });
         integration.spec.flows = flows;
         return integration;
     }

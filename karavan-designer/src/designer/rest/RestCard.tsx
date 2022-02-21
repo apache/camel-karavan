@@ -23,24 +23,23 @@ import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefin
 import {RestDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {RestMethodCard} from "./RestMethodCard";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
-import {CamelUi} from "../utils/CamelUi";
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 
 interface Props {
     rest: RestDefinition
     selected?: boolean
     integration: Integration
+    selectMethod: (element: CamelElement) => void
     selectElement: (element: CamelElement) => void
+    deleteElement: (element: CamelElement) => void
 }
 
 interface State {
-    rest: RestDefinition
 }
 
 export class RestCard extends React.Component<Props, State> {
 
     public state: State = {
-        rest: this.props.rest,
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
@@ -51,28 +50,48 @@ export class RestCard extends React.Component<Props, State> {
 
     selectElement = (evt: React.MouseEvent) => {
         evt.stopPropagation();
-        this.props.selectElement.call(this, this.state.rest);
+        this.props.selectElement.call(this, this.props.rest);
+    }
+
+    selectMethod = (evt: React.MouseEvent) => {
+        evt.stopPropagation();
+        this.props.selectMethod.call(this, this.props.rest);
+    }
+
+    changeRestMethod = (rest: RestDefinition) => {
+        // const clone = CamelUtil.cloneIntegration(this.state.integration);
+        // const i = CamelDefinitionApiExt.addRestToIntegration(clone, rest);
+        // this.setState({integration: i, key: Math.random().toString(), selectedStep: rest});
+    }
+
+    createRestMethod = () => {
+        this.changeRestMethod(new RestDefinition());
+    }
+
+    delete = (evt: React.MouseEvent) => {
+        evt.stopPropagation();
+        this.props.deleteElement.call(this, this.props.rest);
     }
 
     render() {
-        const rest = this.state.rest;
+        const rest = this.props.rest;
         return (
-            <div key={rest.uuid} className={this.props.selected ? "rest-card rest-card-selected" : "rest-card rest-card-unselected"} onClick={e => this.selectElement(e)}>
+            <div className={this.props.selected ? "rest-card rest-card-selected" : "rest-card rest-card-unselected"} onClick={e => this.selectElement(e)}>
                 <div className="header">
                     <div className="title">REST</div>
                     <div className="title">{rest.path}</div>
                     <div className="description">{rest.description}</div>
                     <Tooltip position={"bottom"} content={<div>Add REST method</div>}>
-                        <Button variant={"link"} icon={<AddIcon/>} aria-label="Add" onClick={e => {}} className="add-button">Add method</Button>
+                        <Button variant={"link"} icon={<AddIcon/>} aria-label="Add" onClick={e => this.selectMethod(e)} className="add-button">Add method</Button>
                     </Tooltip>
-                    <Button variant="link" className="delete-button" onClick={e => {}}><DeleteIcon/></Button>
+                    <Button variant="link" className="delete-button" onClick={e => this.delete(e)}><DeleteIcon/></Button>
                 </div>
-                <div id={rest.uuid + "-content"} className="rest-content">
-                    {rest.get?.map(get => <RestMethodCard method={get} integration={this.props.integration} selectElement={this.props.selectElement}/>)}
-                    {rest.post?.map(post => <RestMethodCard method={post} integration={this.props.integration} selectElement={this.props.selectElement}/>)}
-                    {rest.patch?.map(patch => <RestMethodCard method={patch} integration={this.props.integration} selectElement={this.props.selectElement}/>)}
-                    {rest.delete?.map(del => <RestMethodCard method={del} integration={this.props.integration} selectElement={this.props.selectElement}/>)}
-                    {rest.head?.map(head => <RestMethodCard method={head} integration={this.props.integration} selectElement={this.props.selectElement}/>)}
+                <div className="rest-content">
+                    {rest.get?.map(get => <RestMethodCard key={get.uuid} method={get} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
+                    {rest.post?.map(post => <RestMethodCard key={post.uuid} method={post} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
+                    {rest.patch?.map(patch => <RestMethodCard key={patch.uuid} method={patch} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
+                    {rest.delete?.map(del => <RestMethodCard key={del.uuid} method={del} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
+                    {rest.head?.map(head => <RestMethodCard key={head.uuid} method={head} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
                 </div>
             </div>
         );

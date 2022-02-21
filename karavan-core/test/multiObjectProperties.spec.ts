@@ -16,21 +16,22 @@
  */
 import {expect} from 'chai';
 import 'mocha';
-import {FromDefinition, ExpressionDefinition} from "../src/core/model/CamelDefinition";
-import {SetHeaderDefinition, SimpleExpression, WireTapDefinition} from "../src/core/model/CamelDefinition";
+import {FromDefinition, ExpressionDefinition, PropertyExpressionDefinition} from "../src/core/model/CamelDefinition";
 import {Integration} from "../src/core/model/IntegrationDefinition";
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
-import {RouteDefinition} from "../lib/model/CamelDefinition";
+import {RouteDefinition, SagaDefinition, ToDefinition} from "../lib/model/CamelDefinition";
 import * as fs from 'fs';
 
 describe('Multi object property', () => {
     // TODO: Make new test for multiobject property bevause wireTab has no setHeader anymore
 
-    it('WireTap setHeader', () => {
+    it('Saga options', () => {
         const i = Integration.createNew("test")
-        const wireTap = new WireTapDefinition({uri: "direct:direct2"})
+        const option1 = new PropertyExpressionDefinition({key:"key1", expression: new ExpressionDefinition({simple:"${body}"})})
+        const option2 = new PropertyExpressionDefinition({key:"key2", expression: new ExpressionDefinition({simple:"${headers}"})})
+        const saga = new SagaDefinition({steps: [new ToDefinition({uri: "direct:direct2"})], option: [option1, option2]})
         const flow1 = new FromDefinition({uri: "direct1"});
-        flow1.steps?.push(wireTap);
+        flow1.steps?.push(saga);
         i.spec.flows?.push(new RouteDefinition({from: flow1}));
 
         const yaml = CamelDefinitionYaml.integrationToYaml(i);
@@ -39,8 +40,9 @@ describe('Multi object property', () => {
 
         const i2 = CamelDefinitionYaml.yamlToIntegration("test1.yaml", yaml);
 
-        const w: WireTapDefinition = i2.spec.flows?.[0].from.steps[0] as WireTapDefinition;
-        expect(w?.uri).to.equal('direct:direct2');
+        const s: SagaDefinition = i2.spec.flows?.[0].from.steps[0] as SagaDefinition;
+        const t: ToDefinition | undefined = s.steps?.[0] as ToDefinition;
+        expect(t?.uri).to.equal('direct:direct2');
     });
 
 });

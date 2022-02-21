@@ -91,6 +91,11 @@ export class CamelUi {
         return CamelDefinitionApiExt.getElementChildrenDefinition(className).filter(c => c.name === 'steps').length === 1;
     }
 
+
+    static getSelectorRestMethodModels = (): DslMetaModel[] => {
+        return ['GetDefinition', 'PostDefinition', 'PatchDefinition', 'DeleteDefinition', 'HeadDefinition'].map(method => this.getDslMetaModel(method));
+    }
+
     static getSelectorModelsForParentFiltered = (parentDsl: string | undefined, navigation: string,  showSteps: boolean = true): DslMetaModel[] => {
         return CamelUi.getSelectorModelsForParent(parentDsl, showSteps)
             .filter(dsl => dsl.navigation.includes(navigation));
