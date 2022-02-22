@@ -41,24 +41,24 @@ class App extends React.Component<Props, State> {
             'metadata:\n' +
             '  name: demo.yaml \n' +
             'spec:\n' +
-            // '  dependencies:\n' +
-            // '    - "mvn:org.apache.commons:commons-dbcp2:2.9.0" \n' +
-            // '    - "mvn:org.postgresql:postgresql:42.2.14" \n' +
+            '  dependencies:\n' +
+            '    - "mvn:org.apache.commons:commons-dbcp2:2.9.0" \n' +
+            '    - "mvn:org.postgresql:postgresql:42.2.14" \n' +
             '  flows:\n' +
-            '    - route:\n' +
-            '        from:\n' +
-            '          uri: kamelet:http-secured-source\n' +
-            '          steps:\n' +
+            // '    - route:\n' +
+            // '        from:\n' +
+            // '          uri: kamelet:http-secured-source\n' +
+            // '          steps:\n' +
             // '            - saga:\n' +
             // '                steps:\n' +
             // '                  - kamelet:\n' +
             // '                      name: http-sink\n' +
             // '                  - kamelet:\n' +
             // '                      name: kafka-sink\n' +
-            '            - wireTap: {}\n' +
+            // '            - wireTap: {}\n' +
             // '            - to:\n' +
             // '                uri: seda\n' +
-            '        id: Main Route\n' +
+            // '        id: Main Route\n' +
             // '    - route:\n' +
             // '        from:\n' +
             // '          uri: direct:completion\n' +
@@ -107,8 +107,9 @@ class App extends React.Component<Props, State> {
             // '                    - kamelet:\n' +
             // '                        name: http-sink\n' +
             // '    - route:\n' +
-            // '        from:\n' +
-            // '          uri: direct:demo2\n' +
+            // '       from:\n' +
+            // '         uri: direct:demo2\n' +
+            // '         steps:\n' +
             // '           - saga: \n' +
             // '               option:\n' +
             // '                 - option-name: o1\n' +
@@ -117,7 +118,7 @@ class App extends React.Component<Props, State> {
             // '                 - option-name: o2\n' +
             // '                   expression:\n' +
             // '                     simple: "${body}" \n' +
-            // '            - do-try:\n' +
+            // '           - do-try:\n' +
             // '                steps:\n' +
             // '                  - to: "direct:direct1"\n' +
             // '                  - to: "direct:direct2"\n' +
@@ -145,6 +146,43 @@ class App extends React.Component<Props, State> {
             // '                           message: hello22s\n' +
             // '                           logName: log22\n' +
             // '                otherwise: {}\n'+
+            '    - rest-configuration:\n' +
+            '        component: "platform-http"\n' +
+            '        context-path: "/base"  \n' +
+            '        port: 8081\n' +
+            '    - rest:\n' +
+            '        path: "/"\n' +
+            '        post:\n' +
+            '          - path: "/foo"\n' +
+            '            to: "direct:foo"\n' +
+            '            description: "POST demo service"\n' +
+            // '          - path: "/bar"\n' +
+            // '            to: "direct:bar"  \n' +
+            // '        get:\n' +
+            // '          - path: "/getFoo"\n' +
+            // '            to: "direct:foo"        \n' +
+            // '          - path: "/getBar"\n' +
+            // '            to: "direct:foo"    \n' +
+            // '    - rest:\n' +
+            // '        path: "/demo"\n' +
+            // '        description: "REST API to demonstrate Karavan feature"\n' +
+            // '        post:\n' +
+            // '          - path: "/foo"\n' +
+            // '            to: "direct:foo"\n' +
+            // '          - path: "/bar"\n' +
+            // '            to: "direct:bar"  \n' +
+            // '        get:\n' +
+            // '          - path: "/getFoo"\n' +
+            // '            to: "direct:foo"        \n' +
+            // '          - path: "/getBar"\n' +
+            // '            to: "direct:foo"    \n' +
+            // '    - from:\n' +
+            // '        uri: \'direct:foo\'\n' +
+            // '        steps:\n' +
+            // '          - log: \'${body}\'\n' +
+            // '          - log: \'${headers}\'\n' +
+            // '          - setBody:\n' +
+            // '              constant: "Hello world"  \n' +
             // '    - beans:\n' +
             // '      - name: datasource\n' +
             // '        type: org.apache.commons.dbcp2.BasicDataSource\n' +

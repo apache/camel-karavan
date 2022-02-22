@@ -17,10 +17,11 @@
 import {expect} from 'chai';
 import 'mocha';
 import {FromDefinition, LogDefinition, WhenDefinition, ChoiceDefinition, ExpressionDefinition} from "../src/core/model/CamelDefinition";
-import {CamelUtil} from "../lib/api/CamelUtil";
-import {CamelDefinitionApiExt} from "../lib/api/CamelDefinitionApiExt";
-import {FilterDefinition, SimpleExpression} from "../lib/model/CamelDefinition";
+import {CamelUtil} from "../src/core/api/CamelUtil";
+import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
+import {FilterDefinition, SimpleExpression} from "../src/core/model/CamelDefinition";
 import {Integration} from "../src/core/model/IntegrationDefinition";
+import {RouteDefinition} from "../lib/model/CamelDefinition";
 
 describe('Update Step', () => {
 
@@ -33,14 +34,14 @@ describe('Update Step', () => {
         const choice = new ChoiceDefinition({when:[when1]})
         const flow1 = new FromDefinition({uri: "direct1"});
         flow1.steps?.push(choice);
-        i.spec.flows?.push(flow1);
+        i.spec.flows?.push(new RouteDefinition({from: flow1}));
         const when2:WhenDefinition = CamelUtil.cloneStep(when1);
         if (when2 && when2.expression){
             when2.expression.simple = new SimpleExpression({expression: '$[body} == "hello world"'});
         }
-        const i2 = CamelDefinitionApiExt.updateIntegration(i, when2, choice.uuid);
+        const i2 = CamelDefinitionApiExt.updateIntegrationRouteElement(i, when2);
         if (i2.spec.flows && i2.spec.flows.length > 0){
-            const f:FromDefinition = i2.spec.flows[0];
+            const f:FromDefinition = i2.spec.flows[0].from;
             const c:ChoiceDefinition = f.steps ? f.steps[0] : new ChoiceDefinition();
             const w = c.when ? c.when[0] : undefined;
             expect((w?.expression?.simple as SimpleExpression).expression).to.equal('$[body} == "hello world"');
@@ -55,15 +56,15 @@ describe('Update Step', () => {
         })
         const flow1 = new FromDefinition({uri: "direct1"});
         flow1.steps?.push(filter);
-        i.spec.flows?.push(flow1);
+        i.spec.flows?.push(new RouteDefinition({from: flow1}));
 
         const filter1:FilterDefinition = CamelUtil.cloneStep(filter);
         if (filter1 && filter1.expression){
             filter1.expression.simple = new SimpleExpression({expression: '$[body} == "hello world"'});
         }
-        const i2 = CamelDefinitionApiExt.updateIntegration(i, filter1, filter.uuid);
+        const i2 = CamelDefinitionApiExt.updateIntegrationRouteElement(i, filter1);
         if (i2.spec.flows && i2.spec.flows.length > 0){
-            const from:FromDefinition = i2.spec.flows[0];
+            const from:FromDefinition = i2.spec.flows[0].from;
             const f:FilterDefinition = from.steps ? from.steps[0] : new FilterDefinition();
             expect((f?.expression?.simple as SimpleExpression).expression).to.equal('$[body} == "hello world"');
         }

@@ -149,7 +149,11 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
                             "        def.%1$s = element && element?.%1$s ? element?.%1$s.map((x:any) => CamelDefinitionApi.create%2$s(x)) :[]; \n"
                             , name, getAttributeArrayClass(aValue));
                     attrs.put(name, code);
-                } else if (isAttributeRef(aValue) && !getAttributeClass(aValue).equals("SagaActionUriDefinition")) { // SagaActionUriDefinition is exception
+                } else if (isAttributeRef(aValue)
+                        && !getAttributeClass(aValue).equals("SagaActionUriDefinition") // SagaActionUriDefinition is exception
+                        && !getAttributeClass(aValue).equals("ToDefinition") // exception for ToDefinition (in REST Methods)
+                        && !getAttributeClass(aValue).equals("ToDynamicDefinition") // exception for ToDynamicDefinition (in REST Methods)
+                ) {
                     String attributeClass = getAttributeClass(aValue);
                     String template = attributeClass.equals("ExpressionDefinition")
                             ? "        def.%1$s = CamelDefinitionApi.create%2$s(element.%1$s); \n"

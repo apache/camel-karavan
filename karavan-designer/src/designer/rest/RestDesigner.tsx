@@ -16,12 +16,21 @@
  */
 import React from 'react';
 import {
-    Button, EmptyState, EmptyStateBody, EmptyStateIcon, Modal,
-    PageSection, Title
+    Button, Modal,
+    PageSection
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
-import CubesIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
+import {DslProperties} from "../route/DslProperties";
+import {RouteToCreate} from "../utils/CamelUi";
+import {RestCard} from "./RestCard";
+import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
+import {RestDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
+import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
+import {RestMethodSelector} from "./RestMethodSelector";
+import {DslMetaModel} from "../utils/DslMetaModel";
+import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 
 interface Props {
     onSave?: (integration: Integration) => void
@@ -35,6 +44,8 @@ interface State {
     integration: Integration
     selectedStep?: CamelElement
     key: string
+    showSelector: boolean
+    showDeleteConfirmation: boolean
 }
 
 export class RestDesigner extends React.Component<Props, State> {
@@ -42,6 +53,8 @@ export class RestDesigner extends React.Component<Props, State> {
     public state: State = {
         integration: this.props.integration,
         key: "",
+        showSelector: false,
+        showDeleteConfirmation: false
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
@@ -51,23 +64,147 @@ export class RestDesigner extends React.Component<Props, State> {
     }
 
     onIntegrationUpdate = (i: Integration) => {
-        this.setState({integration: i, key: Math.random().toString()});
+        this.setState({integration: i, showSelector: false, key: Math.random().toString()});
+    }
+
+    selectElement = (element: CamelElement) => {
+        this.setState({selectedStep: element})
+    }
+
+    onPropertyUpdate = (element: CamelElement, updatedUuid: string, newRoute?: RouteToCreate) => {
+        if (newRoute) {
+            let i = CamelDefinitionApiExt.updateIntegrationRestElement(this.state.integration, element);
+            const f = CamelDefinitionApi.createFromDefinition({uri: newRoute.componentName + ":" + newRoute.name})
+            const r = CamelDefinitionApi.createRouteDefinition({from: f, id: newRoute.name})
+            i = CamelDefinitionApiExt.addStepToIntegration(i, r, '');
+            const clone = CamelUtil.cloneIntegration(i);
+            this.setState({
+                integration: clone,
+                key: Math.random().toString(),
+                showSelector: false,
+                selectedStep: element,
+            });
+        } else {
+            const clone = CamelUtil.cloneIntegration(this.state.integration);
+            const i = CamelDefinitionApiExt.updateIntegrationRestElement(clone, element);
+            this.setState({integration: i, key: Math.random().toString()});
+        }
+    }
+
+    unselectElement = (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if ((evt.target as any).dataset.click === 'REST') {
+            evt.stopPropagation()
+            this.setState({selectedStep: undefined,})
+        }
+    };
+
+    changeRest = (rest: RestDefinition) => {
+        const clone = CamelUtil.cloneIntegration(this.state.integration);
+        const i = CamelDefinitionApiExt.addRestToIntegration(clone, rest);
+        this.setState({integration: i, key: Math.random().toString(), selectedStep: rest});
+    }
+
+    createRest = () => {
+        this.changeRest(new RestDefinition());
+    }
+
+    showDeleteConfirmation = (element: CamelElement) => {
+        this.setState({selectedStep: element, showSelector: false, showDeleteConfirmation: true});
+    }
+
+    deleteElement = () => {
+        const step = this.state.selectedStep;
+        if (step) {
+            const i =  step.dslName === 'RestDefinition'
+                ? CamelDefinitionApiExt.deleteRestFromIntegration(this.state.integration, step.uuid)
+                : CamelDefinitionApiExt.deleteRestMethodFromIntegration(this.state.integration, step.uuid);
+            this.setState({
+                integration: i,
+                showSelector: false,
+                showDeleteConfirmation: false,
+                key: Math.random().toString(),
+                selectedStep: undefined,
+            });
+        }
+    }
+
+    getDeleteConfirmation() {
+        return (<Modal
+            className="modal-delete"
+            title="Confirmation"
+            isOpen={this.state.showDeleteConfirmation}
+            onClose={() => this.setState({showDeleteConfirmation: false})}
+            actions={[
+                <Button key="confirm" variant="primary" onClick={e => this.deleteElement()}>Delete</Button>,
+                <Button key="cancel" variant="link"
+                        onClick={e => this.setState({showDeleteConfirmation: false})}>Cancel</Button>
+            ]}
+            onEscapePress={e => this.setState({showDeleteConfirmation: false})}>
+            <div>
+                Delete element from integration?
+            </div>
+        </Modal>)
+    }
+
+    closeMethodSelector = () => {
+        this.setState({showSelector: false})
+    }
+
+    onMethodSelect = (method: DslMetaModel) => {
+        if (this.state.selectedStep){
+            const clone = CamelUtil.cloneIntegration(this.state.integration);
+            const m = CamelDefinitionApi.createStep(method.dsl, {});
+            const i = CamelDefinitionApiExt.addRestMethodToIntegration(clone, m, this.state.selectedStep?.uuid);
+            this.setState({integration: i, key: Math.random().toString(), selectedStep: m, showSelector: false});
+        }
+    }
+
+    selectMethod = (element: CamelElement) => {
+        this.setState({selectedStep: element, showSelector: true})
+    }
+
+    getSelectorModal() {
+        return (
+            <Modal
+                title="Select method"
+                width={'90%'}
+                className='dsl-modal'
+                isOpen={this.state.showSelector}
+                onClose={() => this.closeMethodSelector()}
+                actions={{}}>
+                <RestMethodSelector
+                    dark={this.props.dark}
+                    onMethodSelect={this.onMethodSelect}/>
+            </Modal>)
     }
 
     render() {
+        const data = this.props.integration.spec.flows?.filter(f => f.dslName === 'RestDefinition');
         return (
             <PageSection className="rest-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="rest-page-columns">
-                    <EmptyState>
-                        <EmptyStateIcon icon={CubesIcon} />
-                        <Title headingLevel="h4" size="lg">
-                            REST
-                        </Title>
-                        <EmptyStateBody>
-                            Rest DSL not implemented yet
-                        </EmptyStateBody>
-                    </EmptyState>
+                    <div className="graph" data-click="REST"  onClick={event => this.unselectElement(event)}>
+                        <div className="flows">
+                            {data?.map(rest => <RestCard key={rest.uuid + this.state.key} selectedStep={this.state.selectedStep} rest={rest} integration={this.props.integration} selectMethod={this.selectMethod} selectElement={this.selectElement} deleteElement={this.showDeleteConfirmation}/>)}
+                            <div className="add-rest">
+                                <Button
+                                    variant={data?.length === 0 ? "primary" : "secondary"}
+                                    data-click="ADD_REST"
+                                    icon={<PlusIcon/>}
+                                    onClick={e => this.createRest()}>Create new REST
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                    <DslProperties
+                        integration={this.props.integration}
+                        step={this.state.selectedStep}
+                        onIntegrationUpdate={this.onIntegrationUpdate}
+                        onPropertyUpdate={this.onPropertyUpdate}
+                    />
                 </div>
+                {this.getSelectorModal()}
+                {this.getDeleteConfirmation()}
             </PageSection>
         );
     }

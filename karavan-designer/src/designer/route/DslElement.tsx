@@ -238,7 +238,7 @@ export class DslElement extends React.Component<Props, State> {
             borderStyle: isBorder ? "dotted" : "none",
             borderColor: this.props.borderColor,
             borderWidth: "1px",
-            borderRadius: "20px",
+            borderRadius: "16px",
             display: this.isHorizontal() || child.name !== 'steps' ? "flex" : "block",
             flexDirection: "row",
         };

@@ -8,14 +8,14 @@ spec:
         from:
           uri: direct1
           steps:
-            - wireTap:
-                uri: direct:direct2
-                setHeader:
-                  - name: header1
+            - saga:
+                steps:
+                  - to:
+                      uri: direct:direct2
+                option:
+                  - key: key1
                     expression:
-                      simple:
-                        expression: ${header.demo}
-                  - name: header2
+                      simple: ${body}
+                  - key: key2
                     expression:
-                      simple:
-                        expression: ${body}
+                      simple: ${headers}

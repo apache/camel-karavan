@@ -91,6 +91,11 @@ export class CamelUi {
         return CamelDefinitionApiExt.getElementChildrenDefinition(className).filter(c => c.name === 'steps').length === 1;
     }
 
+
+    static getSelectorRestMethodModels = (): DslMetaModel[] => {
+        return ['GetDefinition', 'PostDefinition', 'PutDefinition', 'PatchDefinition', 'DeleteDefinition', 'HeadDefinition'].map(method => this.getDslMetaModel(method));
+    }
+
     static getSelectorModelsForParentFiltered = (parentDsl: string | undefined, navigation: string,  showSteps: boolean = true): DslMetaModel[] => {
         return CamelUi.getSelectorModelsForParent(parentDsl, showSteps)
             .filter(dsl => dsl.navigation.includes(navigation));
@@ -285,7 +290,7 @@ export class CamelUi {
         } else if (element.dslName === 'RouteDefinition') {
             const routeId = (element as RouteDefinition).id
             return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
-        } else if ((element as any).uri) {
+        } else if ((element as any).uri && element.dslName === 'ToDefinition') {
             const uri = (element as any).uri
             return ComponentApi.getComponentTitleFromUri(uri) || '';
         } else {
@@ -447,6 +452,7 @@ export class CamelUi {
     static getFlowCounts = (i: Integration): Map<string, number> => {
         const result = new Map<string, number>();
         result.set('routes', i.spec.flows?.filter((e: any) => e.dslName === 'RouteDefinition').length || 0);
+        result.set('rest', i.spec.flows?.filter((e: any) => e.dslName === 'RestDefinition').length || 0);
         const beans = i.spec.flows?.filter((e: any) => e.dslName === 'Beans');
         if (beans && beans.length > 0 && beans[0].beans && beans[0].beans.length > 0){
             result.set('beans', Array.from(beans[0].beans).length);

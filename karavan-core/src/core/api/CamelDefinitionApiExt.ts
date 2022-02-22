@@ -19,7 +19,7 @@ import {ComponentApi} from "./ComponentApi";
 import {CamelUtil} from "./CamelUtil";
 import {
     NamedBeanDefinition,
-    ExpressionDefinition, RouteDefinition
+    ExpressionDefinition, RouteDefinition, RestDefinition, RestConfigurationDefinition
 } from "../model/CamelDefinition";
 import {
     Beans,
@@ -47,7 +47,7 @@ export class CamelDefinitionApiExt {
             integration.spec.flows?.push(step as RouteDefinition);
         } else {
             const flows: any[] = [];
-            integration.spec.flows?.filter(flow => flow.dslName === 'Beans').forEach(bean => flows.push(bean));
+            integration.spec.flows?.filter(flow => flow.dslName !== 'RouteDefinition').forEach(bean => flows.push(bean));
             const routes = CamelDefinitionApiExt.addStepToSteps(integration.spec.flows?.filter(flow => flow.dslName === 'RouteDefinition') || [], step, parentId, position);
             flows.push(...routes);
             integration.spec.flows = flows;
@@ -149,7 +149,7 @@ export class CamelDefinitionApiExt {
 
     static deleteStepFromIntegration = (integration: Integration, uuidToDelete: string): Integration => {
         const flows: any[] = [];
-        integration.spec.flows?.filter(flow => flow.dslName === 'Beans').forEach(bean => flows.push(bean));
+        integration.spec.flows?.filter(flow => flow.dslName !== 'RouteDefinition').forEach(x => flows.push(x));
         const routes = CamelDefinitionApiExt.deleteStepFromSteps(integration.spec.flows?.filter(flow => flow.dslName === 'RouteDefinition'), uuidToDelete);
         flows.push(...routes);
         integration.spec.flows = flows;
@@ -246,6 +246,81 @@ export class CamelDefinitionApiExt {
         return integration;
     }
 
+    static addRestToIntegration = (integration: Integration, rest: RestDefinition): Integration => {
+        const flows: any[] = [];
+        integration.spec.flows?.filter(flow => flow.dslName !== 'RestDefinition').forEach(x => flows.push(x));
+        if (integration.spec.flows?.filter(flow => flow.dslName === 'RestDefinition' && flow.uuid === rest.uuid).length === 1){
+            integration.spec.flows?.filter(flow => flow.dslName === 'RestDefinition').forEach(flow => {
+                if (flow.uuid !== rest.uuid) {
+                    flows.push(flow);
+                } else {
+                    flows.push(rest);
+                }
+            });
+        } else {
+            integration.spec.flows?.filter(flow => flow.dslName === 'RestDefinition' && flow.uuid !== rest.uuid).forEach(x => flows.push(x));
+            flows.push(rest);
+        }
+        integration.spec.flows = flows;
+        return integration;
+    }
+
+    static addRestMethodToIntegration = (integration: Integration, method: CamelElement, restUuid: string): Integration => {
+        const flows: any[] = [];
+        integration.spec.flows?.filter(flow => flow.dslName !== 'RestDefinition').forEach(x => flows.push(x));
+        integration.spec.flows?.filter(flow => flow.dslName === 'RestDefinition').forEach((rest: RestDefinition) => {
+            if (rest.uuid !== restUuid) {
+                flows.push(rest);
+            } else {
+                switch (method.dslName){
+                    case 'GetDefinition': rest.get = this.addRestMethodToRestMethods(rest.get, method); break;
+                    case 'PostDefinition': rest.post = this.addRestMethodToRestMethods(rest.post, method); break;
+                    case 'PutDefinition': rest.put = this.addRestMethodToRestMethods(rest.put, method); break;
+                    case 'PatchDefinition': rest.patch = this.addRestMethodToRestMethods(rest.patch, method); break;
+                    case 'DeleteDefinition': rest.delete = this.addRestMethodToRestMethods(rest.delete, method); break;
+                    case 'HeadDefinition': rest.head = this.addRestMethodToRestMethods(rest.head, method); break;
+                }
+                flows.push(rest);
+            }
+        });
+        integration.spec.flows = flows;
+        return integration;
+    }
+
+    static addRestMethodToRestMethods = (methods: CamelElement[] = [], method: CamelElement): CamelElement[] => {
+        const elements: CamelElement[] = [];
+        methods.forEach(e => {
+            if (e.uuid === method.uuid) elements.push(method)
+            else elements.push(e);
+        })
+        if (elements.filter(e => e.uuid === method.uuid).length === 0) elements.push(method);
+        return elements;
+    }
+
+    static deleteRestFromIntegration = (integration: Integration, restUuid?: string): Integration => {
+        const flows: any[] = [];
+        integration.spec.flows?.filter(flow => flow.dslName !== 'RestDefinition').forEach(x => flows.push(x));
+        integration.spec.flows?.filter(flow => flow.dslName === 'RestDefinition' && flow.uuid !== restUuid).forEach(x => flows.push(x));
+        integration.spec.flows = flows;
+        return integration;
+    }
+
+    static deleteRestMethodFromIntegration = (integration: Integration, methodUuid?: string): Integration => {
+        const flows: any[] = [];
+        integration.spec.flows?.filter(flow => flow.dslName !== 'RestDefinition').forEach(x => flows.push(x));
+        integration.spec.flows?.filter(flow => flow.dslName === 'RestDefinition').forEach((rest: RestDefinition) => {
+            if (rest.get) rest.get = rest.get.filter(get => get.uuid !== methodUuid);
+            if (rest.post) rest.post = rest.post.filter(post => post.uuid !== methodUuid);
+            if (rest.put) rest.put = rest.put.filter(put => put.uuid !== methodUuid);
+            if (rest.patch) rest.patch = rest.patch.filter(patch => patch.uuid !== methodUuid);
+            if (rest.delete) rest.delete = rest.delete.filter(del => del.uuid !== methodUuid);
+            if (rest.head) rest.head = rest.head.filter(head => head.uuid !== methodUuid);
+            flows.push(rest);
+        });
+        integration.spec.flows = flows;
+        return integration;
+    }
+
     static getExpressionLanguageName = (expression: ExpressionDefinition | undefined): string | undefined => {
         let result: string | undefined = undefined;
         if (expression) {
@@ -290,12 +365,42 @@ export class CamelDefinitionApiExt {
         }
     }
 
-    static updateIntegration = (integration: Integration, e: CamelElement, updatedUuid: string): Integration => {
+    static updateIntegrationRestElement = (integration: Integration, e: CamelElement): Integration => {
         const elementClone = CamelUtil.cloneStep(e);
         const int: Integration = CamelUtil.cloneIntegration(integration);
-        const flows = integration.spec.flows?.map(f => CamelDefinitionApiExt.updateElement(f, elementClone) as RouteDefinition)
-        const flows2 = flows?.map(f => CamelDefinitionApi.createRouteDefinition(f));
-        int.spec.flows = flows2
+        const flows: CamelElement[] = [];
+        integration.spec.flows?.filter(f => f.dslName !== 'RestDefinition').forEach(f => flows.push(f));
+        const isRest = integration.spec.flows?.filter(f => f.dslName === 'RestDefinition' && f.uuid === e.uuid).length === 1;
+        if (isRest){
+            integration.spec.flows?.filter(f => f.dslName === 'RestDefinition').forEach(f => {
+                if (f.uuid === e.uuid) flows.push(CamelUtil.cloneStep(e));
+                else flows.push(f);
+            })
+        } else {
+            integration.spec.flows?.filter(f => f.dslName === 'RestDefinition').forEach((rest: RestDefinition) => {
+                if (rest.get) rest.get = rest.get.map(get => get.uuid === e.uuid ? e : get);
+                if (rest.post) rest.post = rest.post.map(post => post.uuid === e.uuid ? e : post);
+                if (rest.put) rest.put = rest.put.map(put => put.uuid === e.uuid ? e : put);
+                if (rest.patch) rest.patch = rest.patch.map(patch => patch.uuid === e.uuid ? e : patch);
+                if (rest.delete) rest.delete = rest.delete.map(del => del.uuid === e.uuid ? e : del);
+                if (rest.head) rest.head = rest.head.map(head => head.uuid === e.uuid ? e : head);
+                flows.push(rest);
+            })
+        }
+        int.spec.flows = flows
+        return int;
+    }
+
+    static updateIntegrationRouteElement = (integration: Integration, e: CamelElement): Integration => {
+        const elementClone = CamelUtil.cloneStep(e);
+        const int: Integration = CamelUtil.cloneIntegration(integration);
+        const flows: CamelElement[] = [];
+        integration.spec.flows?.filter(f => f.dslName !== 'RouteDefinition').forEach(f => flows.push(f));
+        integration.spec.flows?.filter(f => f.dslName === 'RouteDefinition').forEach(f => {
+            const route = CamelDefinitionApiExt.updateElement(f, elementClone) as RouteDefinition;
+            flows.push(CamelDefinitionApi.createRouteDefinition(route));
+        })
+        int.spec.flows = flows
         return int;
     }
 
@@ -340,7 +445,6 @@ export class CamelDefinitionApiExt {
                         : CamelMetadataApi.getCamelLanguageMetadataByClassName(className)?.properties
                 );
             properties?.filter(p => p.name !== 'steps')
-                .filter(p => p.name !== 'description')
                 .filter(p => p.name !== 'configurationRef')
                 .filter(p => (className === 'RouteDefinition' && p.name === 'id') || p.name !== 'id')
                 .filter(p => (className === 'ToDefinition' && p.name !== 'pattern') || className !== 'ToDefinition')
