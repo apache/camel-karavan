@@ -93,7 +93,7 @@ export class CamelUi {
 
 
     static getSelectorRestMethodModels = (): DslMetaModel[] => {
-        return ['GetDefinition', 'PostDefinition', 'PatchDefinition', 'DeleteDefinition', 'HeadDefinition'].map(method => this.getDslMetaModel(method));
+        return ['GetDefinition', 'PostDefinition', 'PutDefinition', 'PatchDefinition', 'DeleteDefinition', 'HeadDefinition'].map(method => this.getDslMetaModel(method));
     }
 
     static getSelectorModelsForParentFiltered = (parentDsl: string | undefined, navigation: string,  showSteps: boolean = true): DslMetaModel[] => {

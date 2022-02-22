@@ -89,6 +89,7 @@ export class RestCard extends React.Component<Props, State> {
                 <div className="rest-content">
                     {rest.get?.map(get => <RestMethodCard key={get.uuid} method={get} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
                     {rest.post?.map(post => <RestMethodCard key={post.uuid} method={post} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
+                    {rest.put?.map(put => <RestMethodCard key={put.uuid} method={put} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
                     {rest.patch?.map(patch => <RestMethodCard key={patch.uuid} method={patch} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
                     {rest.delete?.map(del => <RestMethodCard key={del.uuid} method={del} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
                     {rest.head?.map(head => <RestMethodCard key={head.uuid} method={head} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
