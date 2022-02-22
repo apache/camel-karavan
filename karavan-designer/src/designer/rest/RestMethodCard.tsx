@@ -42,12 +42,6 @@ export class RestMethodCard extends React.Component<Props<any>, State<any>> {
         expanded: false
     };
 
-    componentDidUpdate = (prevProps: Readonly<Props<any>>, prevState: Readonly<State<any>>, snapshot?: any) => {
-        // if (prevState.key !== this.state.key) {
-        //     this.props.onSave?.call(this, this.state.integration);
-        // }
-    }
-
     selectElement = (evt: React.MouseEvent) => {
         evt.stopPropagation();
         this.props.selectElement.call(this, this.state.method);
@@ -61,7 +55,7 @@ export class RestMethodCard extends React.Component<Props<any>, State<any>> {
     render() {
         const method = this.state.method;
         return (
-            <div key={method.uuid} className={this.props.selected ? "method-card method-card-selected" : "method-card method-card-unselected"} onClick={e => this.selectElement(e)}>
+            <div className={this.props.selected ? "method-card method-card-selected" : "method-card method-card-unselected"} onClick={e => this.selectElement(e)}>
                 <div className="method">{method.dslName.replace('Definition', '').toUpperCase()}</div>
                 <div className="title">{method.path}</div>
                 <div className="description">{method.description}</div>

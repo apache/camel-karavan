@@ -64,7 +64,7 @@ export class RestDesigner extends React.Component<Props, State> {
     }
 
     onIntegrationUpdate = (i: Integration) => {
-        this.setState({integration: i, key: Math.random().toString()});
+        this.setState({integration: i, showSelector: false, key: Math.random().toString()});
     }
 
     selectElement = (element: CamelElement) => {
@@ -72,24 +72,23 @@ export class RestDesigner extends React.Component<Props, State> {
     }
 
     onPropertyUpdate = (element: CamelElement, updatedUuid: string, newRoute?: RouteToCreate) => {
-        // if (newRoute) {
-        //     let i = CamelDefinitionApiExt.updateIntegration(this.state.integration, element, updatedUuid);
-        //     const f = CamelDefinitionApi.createFromDefinition({uri: newRoute.componentName + ":" + newRoute.name})
-        //     const r = CamelDefinitionApi.createRouteDefinition({from: f, id: newRoute.name})
-        //     i = CamelDefinitionApiExt.addStepToIntegration(i, r, '');
-        //     const clone = CamelUtil.cloneIntegration(i);
-        //     this.setState({
-        //         integration: clone,
-        //         key: Math.random().toString(),
-        //         showSelector: false,
-        //         selectedStep: element,
-        //         selectedUuid: element.uuid
-        //     });
-        // } else {
-        //     const clone = CamelUtil.cloneIntegration(this.state.integration);
-        //     const i = CamelDefinitionApiExt.updateIntegration(clone, element, updatedUuid);
-        //     this.setState({integration: i, key: Math.random().toString()});
-        // }
+        if (newRoute) {
+            let i = CamelDefinitionApiExt.updateIntegrationRestElement(this.state.integration, element);
+            const f = CamelDefinitionApi.createFromDefinition({uri: newRoute.componentName + ":" + newRoute.name})
+            const r = CamelDefinitionApi.createRouteDefinition({from: f, id: newRoute.name})
+            i = CamelDefinitionApiExt.addStepToIntegration(i, r, '');
+            const clone = CamelUtil.cloneIntegration(i);
+            this.setState({
+                integration: clone,
+                key: Math.random().toString(),
+                showSelector: false,
+                selectedStep: element,
+            });
+        } else {
+            const clone = CamelUtil.cloneIntegration(this.state.integration);
+            const i = CamelDefinitionApiExt.updateIntegrationRestElement(clone, element);
+            this.setState({integration: i, key: Math.random().toString()});
+        }
     }
 
     unselectElement = (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -200,8 +199,8 @@ export class RestDesigner extends React.Component<Props, State> {
                     <DslProperties
                         integration={this.props.integration}
                         step={this.state.selectedStep}
-                        onIntegrationUpdate={{}}
-                        onPropertyUpdate={element => {}}
+                        onIntegrationUpdate={this.onIntegrationUpdate}
+                        onPropertyUpdate={this.onPropertyUpdate}
                     />
                 </div>
                 {this.getSelectorModal()}

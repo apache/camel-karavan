@@ -156,26 +156,26 @@ class App extends React.Component<Props, State> {
             '          - path: "/foo"\n' +
             '            to: "direct:foo"\n' +
             '            description: "POST demo service"\n' +
-            '          - path: "/bar"\n' +
-            '            to: "direct:bar"  \n' +
-            '        get:\n' +
-            '          - path: "/getFoo"\n' +
-            '            to: "direct:foo"        \n' +
-            '          - path: "/getBar"\n' +
-            '            to: "direct:foo"    \n' +
-            '    - rest:\n' +
-            '        path: "/demo"\n' +
-            '        description: "REST API to demonstrate Karavan feature"\n' +
-            '        post:\n' +
-            '          - path: "/foo"\n' +
-            '            to: "direct:foo"\n' +
-            '          - path: "/bar"\n' +
-            '            to: "direct:bar"  \n' +
-            '        get:\n' +
-            '          - path: "/getFoo"\n' +
-            '            to: "direct:foo"        \n' +
-            '          - path: "/getBar"\n' +
-            '            to: "direct:foo"    \n' +
+            // '          - path: "/bar"\n' +
+            // '            to: "direct:bar"  \n' +
+            // '        get:\n' +
+            // '          - path: "/getFoo"\n' +
+            // '            to: "direct:foo"        \n' +
+            // '          - path: "/getBar"\n' +
+            // '            to: "direct:foo"    \n' +
+            // '    - rest:\n' +
+            // '        path: "/demo"\n' +
+            // '        description: "REST API to demonstrate Karavan feature"\n' +
+            // '        post:\n' +
+            // '          - path: "/foo"\n' +
+            // '            to: "direct:foo"\n' +
+            // '          - path: "/bar"\n' +
+            // '            to: "direct:bar"  \n' +
+            // '        get:\n' +
+            // '          - path: "/getFoo"\n' +
+            // '            to: "direct:foo"        \n' +
+            // '          - path: "/getBar"\n' +
+            // '            to: "direct:foo"    \n' +
             // '    - from:\n' +
             // '        uri: \'direct:foo\'\n' +
             // '        steps:\n' +

@@ -34,19 +34,7 @@ interface Props {
     deleteElement: (element: CamelElement) => void
 }
 
-interface State {
-}
-
-export class RestCard extends React.Component<Props, State> {
-
-    public state: State = {
-    };
-
-    componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        // if (prevState.key !== this.state.key) {
-        //     this.props.onSave?.call(this, this.state.integration);
-        // }
-    }
+export class RestCard extends React.Component<Props, any> {
 
     selectElement = (evt: React.MouseEvent) => {
         evt.stopPropagation();
@@ -56,16 +44,6 @@ export class RestCard extends React.Component<Props, State> {
     selectMethod = (evt: React.MouseEvent) => {
         evt.stopPropagation();
         this.props.selectMethod.call(this, this.props.rest);
-    }
-
-    changeRestMethod = (rest: RestDefinition) => {
-        // const clone = CamelUtil.cloneIntegration(this.state.integration);
-        // const i = CamelDefinitionApiExt.addRestToIntegration(clone, rest);
-        // this.setState({integration: i, key: Math.random().toString(), selectedStep: rest});
-    }
-
-    createRestMethod = () => {
-        this.changeRestMethod(new RestDefinition());
     }
 
     delete = (evt: React.MouseEvent) => {
@@ -86,7 +64,7 @@ export class RestCard extends React.Component<Props, State> {
                     </Tooltip>
                     <Button variant="link" className="delete-button" onClick={e => this.delete(e)}><DeleteIcon/></Button>
                 </div>
-                <div className="rest-content">
+                <div className="rest-content" key={Math.random().toString()}>
                     {rest.get?.map(get => <RestMethodCard key={get.uuid} method={get} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
                     {rest.post?.map(post => <RestMethodCard key={post.uuid} method={post} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
                     {rest.put?.map(put => <RestMethodCard key={put.uuid} method={put} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}

@@ -108,7 +108,6 @@ export class RestProperties extends React.Component<Props, State> {
         const dslName = this.state.step?.dslName;
         return CamelDefinitionApiExt.getElementProperties(dslName)
             .filter(p => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)));
-            // .filter(p => ['securityRequirements','consumes', 'produces', 'enableCors', 'bindingMode', 'apiDocs', 'skipBindingOnErrorCode', 'clientRequestValidation', 'tag', 'securityDefinitions'].includes(p.name));
     }
 
     render() {
