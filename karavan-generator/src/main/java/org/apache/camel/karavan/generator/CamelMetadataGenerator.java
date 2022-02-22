@@ -153,21 +153,12 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                     if (propsLowerCase.contains(e.toLowerCase())) return propsLowerCase.indexOf(e.toLowerCase());
                     else return propsLowerCase.size() + 1;
                 });
-                if (stepName != null && stepName.equals("post")) {
-                    System.out.println(propsLowerCase);
-                    System.out.println(properties.getMap().keySet());
-                    System.out.println(properties.getMap().keySet().stream().sorted(comparator).collect(Collectors.toList()));
-                }
 
                 String title = model.getString("title");
                 String description = model.getString("description");
                 String label = model.getString("label");
                 code.append(String.format("    new ElementMeta('%s', '%s', '%s', \"%s\", '%s', [\n", stepName, name, title, description, label));
                 properties.getMap().keySet().stream().sorted(comparator).forEach((pname) -> {
-
-                    if (stepName != null && stepName.equals("post")) {
-                        System.out.println(pname);
-                    }
                     Object v = properties.getMap().get(pname);
                     JsonObject p = props.getJsonObject(pname);
                     if ("inheritErrorHandler".equals(pname) && p == null) {
