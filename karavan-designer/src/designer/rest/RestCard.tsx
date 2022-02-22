@@ -27,7 +27,7 @@ import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 
 interface Props {
     rest: RestDefinition
-    selected?: boolean
+    selectedStep?: CamelElement
     integration: Integration
     selectMethod: (element: CamelElement) => void
     selectElement: (element: CamelElement) => void
@@ -54,7 +54,7 @@ export class RestCard extends React.Component<Props, any> {
     render() {
         const rest = this.props.rest;
         return (
-            <div className={this.props.selected ? "rest-card rest-card-selected" : "rest-card rest-card-unselected"} onClick={e => this.selectElement(e)}>
+            <div className={this.props.selectedStep?.uuid === rest.uuid ? "rest-card rest-card-selected" : "rest-card rest-card-unselected"} onClick={e => this.selectElement(e)}>
                 <div className="header">
                     <div className="title">REST</div>
                     <div className="title">{rest.path}</div>
@@ -65,12 +65,12 @@ export class RestCard extends React.Component<Props, any> {
                     <Button variant="link" className="delete-button" onClick={e => this.delete(e)}><DeleteIcon/></Button>
                 </div>
                 <div className="rest-content" key={Math.random().toString()}>
-                    {rest.get?.map(get => <RestMethodCard key={get.uuid} method={get} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
-                    {rest.post?.map(post => <RestMethodCard key={post.uuid} method={post} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
-                    {rest.put?.map(put => <RestMethodCard key={put.uuid} method={put} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
-                    {rest.patch?.map(patch => <RestMethodCard key={patch.uuid} method={patch} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
-                    {rest.delete?.map(del => <RestMethodCard key={del.uuid} method={del} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
-                    {rest.head?.map(head => <RestMethodCard key={head.uuid} method={head} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
+                    {rest.get?.map(get => <RestMethodCard key={get.uuid} method={get} selectedStep={this.props.selectedStep} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
+                    {rest.post?.map(post => <RestMethodCard key={post.uuid} method={post} selectedStep={this.props.selectedStep} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
+                    {rest.put?.map(put => <RestMethodCard key={put.uuid} method={put} selectedStep={this.props.selectedStep} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
+                    {rest.patch?.map(patch => <RestMethodCard key={patch.uuid} method={patch} selectedStep={this.props.selectedStep} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
+                    {rest.delete?.map(del => <RestMethodCard key={del.uuid} method={del} selectedStep={this.props.selectedStep} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
+                    {rest.head?.map(head => <RestMethodCard key={head.uuid} method={head} selectedStep={this.props.selectedStep} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
                 </div>
             </div>
         );

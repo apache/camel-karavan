@@ -185,7 +185,7 @@ export class RestDesigner extends React.Component<Props, State> {
                 <div className="rest-page-columns">
                     <div className="graph" data-click="REST"  onClick={event => this.unselectElement(event)}>
                         <div className="flows">
-                            {data?.map(rest => <RestCard key={rest.uuid + this.state.key} rest={rest} integration={this.props.integration} selectMethod={this.selectMethod} selectElement={this.selectElement} deleteElement={this.showDeleteConfirmation}/>)}
+                            {data?.map(rest => <RestCard key={rest.uuid + this.state.key} selectedStep={this.state.selectedStep} rest={rest} integration={this.props.integration} selectMethod={this.selectMethod} selectElement={this.selectElement} deleteElement={this.showDeleteConfirmation}/>)}
                             <div className="add-rest">
                                 <Button
                                     variant={data?.length === 0 ? "primary" : "secondary"}

@@ -974,10 +974,21 @@
     border-style: dotted;
     border-radius: 4px;
     border-width: 1px;
-    border-color: #fb8824;
     padding: 0 6px 0 6px;
     margin-bottom: 6px;
     position: relative;
+}
+
+.karavan .rest-page .rest-card-unselected,
+.karavan .rest-page .method-card-unselected {
+    border-color: #fb8824;
+    background-color: transparent;
+}
+
+.karavan .rest-page .rest-card-selected,
+.karavan .rest-page .method-card-selected {
+    border-color: rgb(48, 50, 132);
+    background-color: rgb(171, 172, 224, 0.1);
 }
 
 .karavan .rest-page .rest-card {
@@ -994,11 +1005,6 @@
     margin-left: 6px;
     cursor: pointer;
     ustify-content: space-between;
-}
-
-.karavan .rest-page .rest-card-unselected {
-    border-color: #fb8824;
-    background-color: transparent;
 }
 
 .karavan .rest-page .method-card {
@@ -1020,7 +1026,14 @@
     padding: 6px 0;
     text-align: center;
     text-shadow: 0 1px 0 rgb(0 0 0 / 10%);
+}
+
+.karavan .rest-page .method-card-unselected .method {
     background: #fca338;
+}
+
+.karavan .rest-page .method-card-selected .method {
+    background: rgb(48, 50, 132);
 }
 
 .karavan .rest-page .rest-card .title,

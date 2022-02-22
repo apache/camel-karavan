@@ -24,7 +24,7 @@ import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon"
 
 interface Props<T> {
     method: T
-    selected?: boolean
+    selectedStep?: CamelElement
     integration: Integration
     selectElement: (element: CamelElement) => void
     deleteElement: (element: CamelElement) => void
@@ -55,7 +55,7 @@ export class RestMethodCard extends React.Component<Props<any>, State<any>> {
     render() {
         const method = this.state.method;
         return (
-            <div className={this.props.selected ? "method-card method-card-selected" : "method-card method-card-unselected"} onClick={e => this.selectElement(e)}>
+            <div className={this.props.selectedStep?.uuid === method.uuid ? "method-card method-card-selected" : "method-card method-card-unselected"} onClick={e => this.selectElement(e)}>
                 <div className="method">{method.dslName.replace('Definition', '').toUpperCase()}</div>
                 <div className="title">{method.path}</div>
                 <div className="description">{method.description}</div>
