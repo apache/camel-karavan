@@ -305,9 +305,6 @@ export class CamelDefinitionYamlStep {
         if (element?.otherwise !== undefined) { 
             def.otherwise = CamelDefinitionYamlStep.readOtherwiseDefinition(element.otherwise); 
         } 
-        if (element?.toD !== undefined) { 
-            def.toD = CamelDefinitionYamlStep.readToDynamicDefinition(element.toD); 
-        } 
         if (element?.sort !== undefined) { 
             def.sort = CamelDefinitionYamlStep.readSortDefinition(element.sort); 
         } 
@@ -433,9 +430,6 @@ export class CamelDefinitionYamlStep {
         } 
         if (element?.step !== undefined) { 
             def.step = CamelDefinitionYamlStep.readStepDefinition(element.step); 
-        } 
-        if (element?.to !== undefined) { 
-            def.to = CamelDefinitionYamlStep.readToDefinition(element.to); 
         } 
         if (element?.choice !== undefined) { 
             def.choice = CamelDefinitionYamlStep.readChoiceDefinition(element.choice); 
@@ -2904,18 +2898,8 @@ export class CamelDefinitionYamlStep {
         
         const def = element ? new DeleteDefinition({...element}) : new DeleteDefinition();
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
-        if (element?.route !== undefined) { 
-            def.route = CamelDefinitionYamlStep.readRouteDefinition(element.route); 
-        } 
         def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readRestOperationParamDefinition(x)) :[]; 
-        if (element?.toD !== undefined) { 
-            def.toD = CamelDefinitionYamlStep.readToDynamicDefinition(element.toD); 
-        } 
-        if (element?.to !== undefined) { 
-            def.to = CamelDefinitionYamlStep.readToDefinition(element.to); 
-        } 
         def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readRestOperationResponseMsgDefinition(x)) :[]; 
-        def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
 
         return def;
     }
@@ -2924,18 +2908,8 @@ export class CamelDefinitionYamlStep {
         
         const def = element ? new GetDefinition({...element}) : new GetDefinition();
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
-        if (element?.route !== undefined) { 
-            def.route = CamelDefinitionYamlStep.readRouteDefinition(element.route); 
-        } 
         def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readRestOperationParamDefinition(x)) :[]; 
-        if (element?.toD !== undefined) { 
-            def.toD = CamelDefinitionYamlStep.readToDynamicDefinition(element.toD); 
-        } 
-        if (element?.to !== undefined) { 
-            def.to = CamelDefinitionYamlStep.readToDefinition(element.to); 
-        } 
         def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readRestOperationResponseMsgDefinition(x)) :[]; 
-        def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
 
         return def;
     }
@@ -2944,18 +2918,8 @@ export class CamelDefinitionYamlStep {
         
         const def = element ? new HeadDefinition({...element}) : new HeadDefinition();
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
-        if (element?.route !== undefined) { 
-            def.route = CamelDefinitionYamlStep.readRouteDefinition(element.route); 
-        } 
         def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readRestOperationParamDefinition(x)) :[]; 
-        if (element?.toD !== undefined) { 
-            def.toD = CamelDefinitionYamlStep.readToDynamicDefinition(element.toD); 
-        } 
-        if (element?.to !== undefined) { 
-            def.to = CamelDefinitionYamlStep.readToDefinition(element.to); 
-        } 
         def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readRestOperationResponseMsgDefinition(x)) :[]; 
-        def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
 
         return def;
     }
@@ -2964,18 +2928,8 @@ export class CamelDefinitionYamlStep {
         
         const def = element ? new PatchDefinition({...element}) : new PatchDefinition();
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
-        if (element?.route !== undefined) { 
-            def.route = CamelDefinitionYamlStep.readRouteDefinition(element.route); 
-        } 
         def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readRestOperationParamDefinition(x)) :[]; 
-        if (element?.toD !== undefined) { 
-            def.toD = CamelDefinitionYamlStep.readToDynamicDefinition(element.toD); 
-        } 
-        if (element?.to !== undefined) { 
-            def.to = CamelDefinitionYamlStep.readToDefinition(element.to); 
-        } 
         def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readRestOperationResponseMsgDefinition(x)) :[]; 
-        def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
 
         return def;
     }
@@ -2984,18 +2938,8 @@ export class CamelDefinitionYamlStep {
         
         const def = element ? new PostDefinition({...element}) : new PostDefinition();
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
-        if (element?.route !== undefined) { 
-            def.route = CamelDefinitionYamlStep.readRouteDefinition(element.route); 
-        } 
         def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readRestOperationParamDefinition(x)) :[]; 
-        if (element?.toD !== undefined) { 
-            def.toD = CamelDefinitionYamlStep.readToDynamicDefinition(element.toD); 
-        } 
-        if (element?.to !== undefined) { 
-            def.to = CamelDefinitionYamlStep.readToDefinition(element.to); 
-        } 
         def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readRestOperationResponseMsgDefinition(x)) :[]; 
-        def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
 
         return def;
     }
@@ -3004,18 +2948,8 @@ export class CamelDefinitionYamlStep {
         
         const def = element ? new PutDefinition({...element}) : new PutDefinition();
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
-        if (element?.route !== undefined) { 
-            def.route = CamelDefinitionYamlStep.readRouteDefinition(element.route); 
-        } 
         def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readRestOperationParamDefinition(x)) :[]; 
-        if (element?.toD !== undefined) { 
-            def.toD = CamelDefinitionYamlStep.readToDynamicDefinition(element.toD); 
-        } 
-        if (element?.to !== undefined) { 
-            def.to = CamelDefinitionYamlStep.readToDefinition(element.to); 
-        } 
         def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readRestOperationResponseMsgDefinition(x)) :[]; 
-        def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
 
         return def;
     }

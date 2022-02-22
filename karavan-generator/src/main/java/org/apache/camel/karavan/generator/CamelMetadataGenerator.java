@@ -19,6 +19,7 @@ package org.apache.camel.karavan.generator;
 import io.vertx.core.json.JsonObject;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class CamelMetadataGenerator extends AbstractGenerator {
 
@@ -64,7 +65,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         Map<String, JsonObject> classProps = new HashMap<>();
         // Generate DataFormatMetadata
         definitions.getMap().forEach((s, o) -> {
-            if (s.startsWith("org.apache.camel.model.dataformat")){
+            if (s.startsWith("org.apache.camel.model.dataformat")) {
                 String name = classSimple(s);
                 JsonObject obj = getDefinition(definitions, s);
                 JsonObject props = obj.containsKey("oneOf") ? obj.getJsonArray("oneOf").getJsonObject(1).getJsonObject("properties") : obj.getJsonObject("properties");
@@ -90,7 +91,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         // Generate LanguageMetadata
         classProps.clear();
         definitions.getMap().forEach((s, o) -> {
-            if (s.startsWith("org.apache.camel.model.language")){
+            if (s.startsWith("org.apache.camel.model.language")) {
                 String name = classSimple(s);
                 JsonObject obj = getDefinition(definitions, s);
                 JsonObject props = obj.containsKey("oneOf") ? obj.getJsonArray("oneOf").getJsonObject(1).getJsonObject("properties") : obj.getJsonObject("properties");
@@ -117,14 +118,14 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         // add additional classes
         getClasses(definitions, "org.apache.camel.model").forEach(s -> {
             String className = classSimple(s);
-            if (!stepNames.containsKey(className)){
+            if (!stepNames.containsKey(className)) {
                 String stepName = deCapitalize(className.replace("Definition", ""));
                 stepNames.put(className, stepName);
             }
         });
 
         definitions.getMap().forEach((s, o) -> {
-            if (s.startsWith("org.apache.camel.model.") && s.endsWith("Definition")){
+            if (s.startsWith("org.apache.camel.model.") && s.endsWith("Definition")) {
                 String name = classSimple(s);
                 JsonObject obj = getDefinition(definitions, s);
                 JsonObject props = obj.containsKey("oneOf") ? obj.getJsonArray("oneOf").getJsonObject(1).getJsonObject("properties") : obj.getJsonObject("properties");
@@ -137,22 +138,36 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         writeFileText(targetModel, camelModel.toString());
     }
 
-    private String getMetadataCode(String className, Map<String, JsonObject> classProps, Map<String, String> stepNames, JsonObject definitions, String folder){
+    private String getMetadataCode(String className, Map<String, JsonObject> classProps, Map<String, String> stepNames, JsonObject definitions, String folder) {
         StringBuilder code = new StringBuilder();
         code.append(String.format("export const %s: ElementMeta[] = [\n", className));
         classProps.forEach((name, properties) -> {
             String stepName = stepNames.get(name);
-//            stepName = stepName != null && stepName.endsWith("Verb") ? stepName.replace("Verb", "") : stepName; // Exception for REST DSL Methods
             String json = folder.equals("model") ? getMetaModel(stepName) : (folder.equals("language") ? getMetaLanguage(stepName) : getMetaDataFormat(stepName));
             if (json != null) {
                 JsonObject model = new JsonObject(json).getJsonObject("model");
                 JsonObject props = new JsonObject(json).getJsonObject("properties");
-                Comparator<String> comparator = Comparator.comparing(e -> new ArrayList<>(props.getMap().keySet()).indexOf(e));
+                List propsLowerCase = props.getMap().keySet().stream().map(s -> s.toLowerCase()).collect(Collectors.toList());
+
+                Comparator<String> comparator = Comparator.comparing(e -> {
+                    if (propsLowerCase.contains(e.toLowerCase())) return propsLowerCase.indexOf(e.toLowerCase());
+                    else return propsLowerCase.size() + 1;
+                });
+                if (stepName != null && stepName.equals("post")) {
+                    System.out.println(propsLowerCase);
+                    System.out.println(properties.getMap().keySet());
+                    System.out.println(properties.getMap().keySet().stream().sorted(comparator).collect(Collectors.toList()));
+                }
+
                 String title = model.getString("title");
                 String description = model.getString("description");
                 String label = model.getString("label");
                 code.append(String.format("    new ElementMeta('%s', '%s', '%s', \"%s\", '%s', [\n", stepName, name, title, description, label));
                 properties.getMap().keySet().stream().sorted(comparator).forEach((pname) -> {
+
+                    if (stepName != null && stepName.equals("post")) {
+                        System.out.println(pname);
+                    }
                     Object v = properties.getMap().get(pname);
                     JsonObject p = props.getJsonObject(pname);
                     if ("inheritErrorHandler".equals(pname) && p == null) {
@@ -181,7 +196,12 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         if (attribute.containsKey("$ref")) {
             String classFullName = attribute.getString("$ref");
             String className = classSimple(classFullName);
-            if (className.equals("SagaActionUriDefinition")) return new PropertyMeta("string", false, false);  // exception for SagaActionUriDefinition
+            if (className.equals("SagaActionUriDefinition"))
+                return new PropertyMeta("string", false, false);  // exception for SagaActionUriDefinition
+            if (className.equals("ToDefinition"))
+                return new PropertyMeta("string", false, false);  // exception for ToDefinition (in REST Methods)
+            if (className.equals("ToDynamicDefinition"))
+                return new PropertyMeta("string", false, false);  // exception for ToDynamicDefinition (in REST Methods)
             return new PropertyMeta(className, false, true);
         } else if (attribute.containsKey("type") && attribute.getString("type").equals("array")) {
             JsonObject items = attribute.getJsonObject("items");

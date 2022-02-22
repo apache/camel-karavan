@@ -11,14 +11,14 @@ spec:
     - rest:
         path: "/demo"
         post:
-          - uri: "/foo"
+          - path: "/foo"
             to: "direct:foo"
-          - uri: "/bar"
+          - path: "/bar"
             to: "direct:bar"
         get:
-          - uri: "/getFoo"
+          - path: "/getFoo"
             to: "direct:foo"
-          - uri: "/getBar"
+          - path: "/getBar"
             to: "direct:foo"
     - from:
         uri: 'direct:foo'

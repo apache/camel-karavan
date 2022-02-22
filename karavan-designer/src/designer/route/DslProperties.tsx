@@ -127,8 +127,8 @@ export class DslProperties extends React.Component<Props, State> {
 
     getProps = (): PropertyMeta[] => {
         const dslName = this.state.step?.dslName;
-        return CamelDefinitionApiExt.getElementProperties(dslName)
-            .filter(p => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)) || (dslName === 'CatchDefinition' && p.name === 'onWhen'));
+        return  CamelDefinitionApiExt.getElementProperties(dslName)
+            .filter((p: PropertyMeta) => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)) || (dslName === 'CatchDefinition' && p.name === 'onWhen'));
     }
 
     render() {

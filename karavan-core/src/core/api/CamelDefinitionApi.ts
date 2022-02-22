@@ -304,9 +304,6 @@ export class CamelDefinitionApi {
         if (element?.otherwise !== undefined) { 
             def.otherwise = CamelDefinitionApi.createOtherwiseDefinition(element.otherwise); 
         } 
-        if (element?.toD !== undefined) { 
-            def.toD = CamelDefinitionApi.createToDynamicDefinition(element.toD); 
-        } 
         if (element?.sort !== undefined) { 
             def.sort = CamelDefinitionApi.createSortDefinition(element.sort); 
         } 
@@ -432,9 +429,6 @@ export class CamelDefinitionApi {
         } 
         if (element?.step !== undefined) { 
             def.step = CamelDefinitionApi.createStepDefinition(element.step); 
-        } 
-        if (element?.to !== undefined) { 
-            def.to = CamelDefinitionApi.createToDefinition(element.to); 
         } 
         if (element?.choice !== undefined) { 
             def.choice = CamelDefinitionApi.createChoiceDefinition(element.choice); 
@@ -2874,18 +2868,8 @@ export class CamelDefinitionApi {
         const def = element ? new DeleteDefinition({...element}) : new DeleteDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[]; 
-        if (element?.route !== undefined) { 
-            def.route = CamelDefinitionApi.createRouteDefinition(element.route); 
-        } 
         def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionApi.createRestOperationParamDefinition(x)) :[]; 
-        if (element?.toD !== undefined) { 
-            def.toD = CamelDefinitionApi.createToDynamicDefinition(element.toD); 
-        } 
-        if (element?.to !== undefined) { 
-            def.to = CamelDefinitionApi.createToDefinition(element.to); 
-        } 
         def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionApi.createRestOperationResponseMsgDefinition(x)) :[]; 
-        def.steps = CamelDefinitionApi.createSteps(element?.steps);
 
         return def;
     }
@@ -2895,18 +2879,8 @@ export class CamelDefinitionApi {
         const def = element ? new GetDefinition({...element}) : new GetDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[]; 
-        if (element?.route !== undefined) { 
-            def.route = CamelDefinitionApi.createRouteDefinition(element.route); 
-        } 
         def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionApi.createRestOperationParamDefinition(x)) :[]; 
-        if (element?.toD !== undefined) { 
-            def.toD = CamelDefinitionApi.createToDynamicDefinition(element.toD); 
-        } 
-        if (element?.to !== undefined) { 
-            def.to = CamelDefinitionApi.createToDefinition(element.to); 
-        } 
         def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionApi.createRestOperationResponseMsgDefinition(x)) :[]; 
-        def.steps = CamelDefinitionApi.createSteps(element?.steps);
 
         return def;
     }
@@ -2916,18 +2890,8 @@ export class CamelDefinitionApi {
         const def = element ? new HeadDefinition({...element}) : new HeadDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[]; 
-        if (element?.route !== undefined) { 
-            def.route = CamelDefinitionApi.createRouteDefinition(element.route); 
-        } 
         def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionApi.createRestOperationParamDefinition(x)) :[]; 
-        if (element?.toD !== undefined) { 
-            def.toD = CamelDefinitionApi.createToDynamicDefinition(element.toD); 
-        } 
-        if (element?.to !== undefined) { 
-            def.to = CamelDefinitionApi.createToDefinition(element.to); 
-        } 
         def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionApi.createRestOperationResponseMsgDefinition(x)) :[]; 
-        def.steps = CamelDefinitionApi.createSteps(element?.steps);
 
         return def;
     }
@@ -2937,18 +2901,8 @@ export class CamelDefinitionApi {
         const def = element ? new PatchDefinition({...element}) : new PatchDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[]; 
-        if (element?.route !== undefined) { 
-            def.route = CamelDefinitionApi.createRouteDefinition(element.route); 
-        } 
         def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionApi.createRestOperationParamDefinition(x)) :[]; 
-        if (element?.toD !== undefined) { 
-            def.toD = CamelDefinitionApi.createToDynamicDefinition(element.toD); 
-        } 
-        if (element?.to !== undefined) { 
-            def.to = CamelDefinitionApi.createToDefinition(element.to); 
-        } 
         def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionApi.createRestOperationResponseMsgDefinition(x)) :[]; 
-        def.steps = CamelDefinitionApi.createSteps(element?.steps);
 
         return def;
     }
@@ -2958,18 +2912,8 @@ export class CamelDefinitionApi {
         const def = element ? new PostDefinition({...element}) : new PostDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[]; 
-        if (element?.route !== undefined) { 
-            def.route = CamelDefinitionApi.createRouteDefinition(element.route); 
-        } 
         def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionApi.createRestOperationParamDefinition(x)) :[]; 
-        if (element?.toD !== undefined) { 
-            def.toD = CamelDefinitionApi.createToDynamicDefinition(element.toD); 
-        } 
-        if (element?.to !== undefined) { 
-            def.to = CamelDefinitionApi.createToDefinition(element.to); 
-        } 
         def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionApi.createRestOperationResponseMsgDefinition(x)) :[]; 
-        def.steps = CamelDefinitionApi.createSteps(element?.steps);
 
         return def;
     }
@@ -2979,18 +2923,8 @@ export class CamelDefinitionApi {
         const def = element ? new PutDefinition({...element}) : new PutDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[]; 
-        if (element?.route !== undefined) { 
-            def.route = CamelDefinitionApi.createRouteDefinition(element.route); 
-        } 
         def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionApi.createRestOperationParamDefinition(x)) :[]; 
-        if (element?.toD !== undefined) { 
-            def.toD = CamelDefinitionApi.createToDynamicDefinition(element.toD); 
-        } 
-        if (element?.to !== undefined) { 
-            def.to = CamelDefinitionApi.createToDefinition(element.to); 
-        } 
         def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionApi.createRestOperationResponseMsgDefinition(x)) :[]; 
-        def.steps = CamelDefinitionApi.createSteps(element?.steps);
 
         return def;
     }
