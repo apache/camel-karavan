@@ -43,6 +43,7 @@ import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {ObjectField} from "./ObjectField";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
+import {MediaTypes} from "../../utils/MediaTypes";
 
 interface Props {
     property: PropertyMeta,
@@ -238,10 +239,51 @@ export class DslPropertyField extends React.Component<Props, State> {
         )
     }
 
+    getMediaTypeSelectOptions(filter?: string){
+        return filter
+        ? MediaTypes.filter(mt => mt.includes(filter)).map((value: string) => <SelectOption key={value} value={value.trim()}/>)
+        : MediaTypes.map((value: string) => <SelectOption key={value} value={value.trim()}/>);
+    }
+
+    getMediaTypeSelect = (property: PropertyMeta, value: any) => {
+        return (
+            <Select
+                placeholderText="Select Media Type"
+                variant={SelectVariant.typeahead}
+                aria-label={property.name}
+                onToggle={isExpanded => {
+                    this.openSelect(property.name, isExpanded)
+                }}
+                onSelect={(e, value, isPlaceholder) => this.propertyChanged(property.name, (!isPlaceholder ? value : undefined))}
+                selections={value}
+                isOpen={this.isSelectOpen(property.name)}
+                isCreatable={false}
+                isInputFilterPersisted={false}
+                onFilter={(e, text) => this.getMediaTypeSelectOptions(text)}
+                aria-labelledby={property.name}
+                direction={SelectDirection.down}
+            >
+                {this.getMediaTypeSelectOptions()}
+            </Select>
+        )
+    }
+
      canBeInternalUri = (property: PropertyMeta, element?: CamelElement): boolean => {
         if  (element?.dslName === 'WireTapDefinition' && property.name === 'uri') {
             return true;
         } else if  (element?.dslName === 'SagaDefinition' && ['compensation', 'completion'].includes(property.name)) {
+            return true;
+        } else if  (element && ['GetDefinition', 'PostDefinition', 'PutDefinition', 'PatchDefinition', 'DeleteDefinition', 'HeadDefinition'].includes(element?.dslName) && property.name === 'to') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    canBeMediaType = (property: PropertyMeta, element?: CamelElement): boolean => {
+        if  (element
+            && ['RestDefinition', 'GetDefinition', 'PostDefinition', 'PutDefinition', 'PatchDefinition', 'DeleteDefinition', 'HeadDefinition'].includes(element?.dslName)
+            && ['consumes', 'produces'].includes(property.name)) {
             return true;
         } else {
             return false;
@@ -409,9 +451,12 @@ export class DslPropertyField extends React.Component<Props, State> {
                     && this.getTextArea(property, value)}
                 {this.canBeInternalUri(property, this.props.element)
                     && this.getInternalUriSelect(property, value)}
+                {this.canBeMediaType(property, this.props.element)
+                    && this.getMediaTypeSelect(property, value)}
                 {['string', 'duration', 'integer', 'number'].includes(property.type) && property.name !== 'expression' && !property.name.endsWith("Ref")
                     && !property.isArray && !property.enumVals
                     && !this.canBeInternalUri(property, this.props.element)
+                    && !this.canBeMediaType(property, this.props.element)
                     && this.getTextField(property, value)}
                 {['string'].includes(property.type) && property.name.endsWith("Ref") && !property.isArray && !property.enumVals
                     && this.getSelectBean(property, value)}
