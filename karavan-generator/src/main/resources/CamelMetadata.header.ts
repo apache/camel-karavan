@@ -31,9 +31,10 @@ export class PropertyMeta {
     secret: boolean = false
     isArray: boolean = false
     isObject: boolean = false
+    label: string = ''
 
 
-    constructor(name: string, displayName: string, description: string, type: string, enumVals: string, defaultValue: string, required: boolean, secret: boolean, isArray: boolean, isObject: boolean) {
+    constructor(name: string, displayName: string, description: string, type: string, enumVals: string, defaultValue: string, required: boolean, secret: boolean, isArray: boolean, isObject: boolean, label: string) {
         this.name = name;
         this.displayName = displayName;
         this.description = description;
@@ -44,6 +45,7 @@ export class PropertyMeta {
         this.secret = secret;
         this.isArray = isArray;
         this.isObject = isObject;
+        this.label = label;
     }
 }
 

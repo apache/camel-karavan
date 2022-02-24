@@ -171,9 +171,10 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                         Boolean secret = p != null && p.containsKey("secret") ? p.getBoolean("secret") : false;
                         String defaultValue = p != null && p.containsKey("defaultValue") ? p.getString("defaultValue") : "";
                         defaultValue = defaultValue.length() == 1 && defaultValue.toCharArray()[0] == '\\' ? "\\\\" : defaultValue;
+                        String labels = p != null && p.containsKey("label") ? p.getString("label") : "";
                         code.append(String.format(
-                                "        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b),\n",
-                                pname, displayName, desc, pm.type, en, defaultValue, required, secret, pm.isArray, (pm.isArray ? pm.type : pm.isObject)));
+                                "        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b, '%s'),\n",
+                                pname, displayName, desc, pm.type, en, defaultValue, required, secret, pm.isArray, (pm.isArray ? pm.type : pm.isObject), labels));
                     }
                 });
                 code.append("    ]),\n");

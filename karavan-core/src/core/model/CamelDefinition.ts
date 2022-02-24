@@ -3306,10 +3306,8 @@ export class RestConfigurationDefinition extends CamelElement {
     producerComponent?: string;
     endpointProperty?: RestPropertyDefinition[] = [];
     useXForwardHeaders?: boolean;
-    apiContextIdPattern?: string;
     apiHost?: string;
     contextPath?: string;
-    apiContextListing?: boolean;
     apiContextRouteId?: string;
     component?: string;
     dataFormatProperty?: RestPropertyDefinition[] = [];
