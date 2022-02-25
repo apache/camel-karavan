@@ -154,38 +154,38 @@ export class OutputAwareFromDefinition extends CamelElement {
 }
 
 export class AggregateDefinition extends CamelElement {
-    strategyMethodAllowNull?: boolean;
+    aggregationRepository?: string;
+    aggregationStrategy: string = '';
+    executorService?: string;
     closeCorrelationKeyOnCompletion?: number;
     description?: string;
     discardOnAggregationFailure?: boolean;
     eagerCheckCompletion?: boolean;
     correlationExpression?: ExpressionSubElementDefinition;
-    strategyMethodName?: string;
-    aggregationRepositoryRef?: string;
+    timeoutCheckerExecutorService?: string;
     completionOnNewCorrelationGroup?: boolean;
     stepName?: string = 'aggregate';
     completionInterval?: string;
     parallelProcessing?: boolean;
     id?: string;
     completionPredicate?: ExpressionSubElementDefinition;
+    aggregationStrategyMethodAllowNull?: boolean;
     forceCompletionOnStop?: boolean;
     completionFromBatchConsumer?: boolean;
-    executorServiceRef?: string;
     completeAllOnStop?: boolean;
     completionSize?: number;
     optimisticLockRetryPolicy?: OptimisticLockRetryPolicyDefinition;
-    aggregateControllerRef?: string;
+    aggregationStrategyMethodName?: string;
     steps?: CamelElement[] = [];
     completionSizeExpression?: ExpressionSubElementDefinition;
+    aggregateController?: string;
     completionTimeout?: string;
     completionTimeoutExpression?: ExpressionSubElementDefinition;
     inheritErrorHandler?: boolean;
-    timeoutCheckerExecutorServiceRef?: string;
     ignoreInvalidCorrelationKeys?: boolean;
     discardOnCompletionTimeout?: boolean;
     completionTimeoutCheckerInterval?: string;
-    optimisticLocking?: boolean;
-    strategyRef?: string
+    optimisticLocking?: boolean
     public constructor(init?: Partial<AggregateDefinition>) {
         super('AggregateDefinition')
         Object.assign(this, init)
@@ -239,8 +239,8 @@ export class CircuitBreakerDefinition extends CamelElement {
     faultToleranceConfiguration?: FaultToleranceConfigurationDefinition;
     hystrixConfiguration?: HystrixConfigurationDefinition;
     inheritErrorHandler?: boolean;
-    configurationRef?: string;
     stepName?: string = 'circuitBreaker';
+    configuration?: string;
     resilience4jConfiguration?: Resilience4jConfigurationDefinition;
     onFallback?: OnFallbackDefinition;
     description?: string;
@@ -255,13 +255,13 @@ export class CircuitBreakerDefinition extends CamelElement {
 export class ClaimCheckDefinition extends CamelElement {
     filter?: string;
     inheritErrorHandler?: boolean;
+    aggregationStrategy?: string;
     stepName?: string = 'claimCheck';
     description?: string;
     id?: string;
-    strategyMethodName?: string;
+    aggregationStrategyMethodName?: string;
     operation: string = '';
-    key?: string;
-    strategyRef?: string
+    key?: string
     public constructor(init?: Partial<ClaimCheckDefinition>) {
         super('ClaimCheckDefinition')
         Object.assign(this, init)
@@ -301,11 +301,11 @@ export class DataFormatDefinition extends CamelElement {
 }
 
 export class DelayDefinition extends CamelElement {
-    executorServiceRef?: string;
     inheritErrorHandler?: boolean;
     expression?: ExpressionDefinition;
     stepName?: string = 'delay';
     callerRunsWhenRejected?: boolean;
+    executorService?: string;
     asyncDelayed?: boolean;
     description?: string;
     id?: string
@@ -340,19 +340,19 @@ export class DynamicRouterDefinition extends CamelElement {
 }
 
 export class EnrichDefinition extends CamelElement {
-    strategyMethodAllowNull?: string;
+    aggregationStrategy?: string;
     cacheSize?: number;
     expression?: ExpressionDefinition;
     description?: string;
     allowOptimisedComponents?: boolean;
-    strategyMethodName?: string;
+    aggregationStrategyMethodName?: string;
     inheritErrorHandler?: boolean;
     stepName?: string = 'enrich';
     ignoreInvalidEndpoint?: boolean;
     id?: string;
     aggregateOnException?: boolean;
-    shareUnitOfWork?: boolean;
-    strategyRef?: string
+    aggregationStrategyMethodAllowNull?: string;
+    shareUnitOfWork?: boolean
     public constructor(init?: Partial<EnrichDefinition>) {
         super('EnrichDefinition')
         Object.assign(this, init)
@@ -387,17 +387,17 @@ export class ExpressionSubElementDefinition extends CamelElement {
 }
 
 export class FaultToleranceConfigurationDefinition extends CamelElement {
-    circuitBreakerRef?: string;
     failureRatio?: number;
     timeoutDuration?: string;
     timeoutEnabled?: boolean;
+    timeoutScheduledExecutorService?: string;
     successThreshold?: number;
     timeoutPoolSize?: number;
     requestVolumeThreshold?: number;
-    timeoutScheduledExecutorServiceRef?: string;
-    bulkheadExecutorServiceRef?: string;
+    bulkheadExecutorService?: string;
     delay?: string;
     bulkheadWaitingTaskQueue?: number;
+    circuitBreaker?: string;
     id?: string;
     bulkheadMaxConcurrentCalls?: number;
     bulkheadEnabled?: boolean
@@ -501,13 +501,13 @@ export class HystrixConfigurationDefinition extends CamelElement {
 }
 
 export class IdempotentConsumerDefinition extends CamelElement {
-    completionEager?: string;
+    completionEager?: boolean;
     skipDuplicate?: boolean;
     inheritErrorHandler?: boolean;
     expression?: ExpressionDefinition;
     eager?: boolean;
     stepName?: string = 'idempotentConsumer';
-    messageIdRepositoryRef: string = '';
+    idempotentRepository: string = '';
     description?: string;
     removeOnFailure?: boolean;
     id?: string;
@@ -638,8 +638,8 @@ export class LogDefinition extends CamelElement {
     logName?: string;
     stepName?: string = 'log';
     marker?: string;
+    logger?: string;
     description?: string;
-    loggerRef?: string;
     id?: string;
     message: string = '';
     loggingLevel?: string
@@ -717,23 +717,22 @@ export class MarshalDefinition extends CamelElement {
 }
 
 export class MulticastDefinition extends CamelElement {
-    strategyMethodAllowNull?: boolean;
-    executorServiceRef?: string;
+    aggregationStrategy?: string;
+    onPrepare?: string;
+    executorService?: string;
     description?: string;
-    strategyMethodName?: string;
+    aggregationStrategyMethodName?: string;
     steps?: CamelElement[] = [];
     timeout?: string;
-    onPrepareRef?: string;
     inheritErrorHandler?: boolean;
     streaming?: boolean;
     stepName?: string = 'multicast';
     stopOnException?: boolean;
-    stopOnAggregateException?: boolean;
     parallelProcessing?: boolean;
     id?: string;
     parallelAggregate?: boolean;
-    shareUnitOfWork?: boolean;
-    strategyRef?: string
+    aggregationStrategyMethodAllowNull?: boolean;
+    shareUnitOfWork?: boolean
     public constructor(init?: Partial<MulticastDefinition>) {
         super('MulticastDefinition')
         Object.assign(this, init)
@@ -742,10 +741,10 @@ export class MulticastDefinition extends CamelElement {
 
 export class OnCompletionDefinition extends CamelElement {
     mode?: string;
-    executorServiceRef?: string;
     inheritErrorHandler?: boolean;
     onCompleteOnly?: boolean;
     stepName?: string = 'onCompletion';
+    executorService?: string;
     parallelProcessing?: boolean;
     onWhen?: WhenDefinition;
     description?: string;
@@ -877,18 +876,18 @@ export class PolicyDefinition extends CamelElement {
 }
 
 export class PollEnrichDefinition extends CamelElement {
-    strategyMethodAllowNull?: boolean;
     inheritErrorHandler?: boolean;
+    aggregationStrategy?: string;
     cacheSize?: number;
     expression?: ExpressionDefinition;
     stepName?: string = 'pollEnrich';
-    ignoreInvalidEndpoint?: number;
+    ignoreInvalidEndpoint?: boolean;
     description?: string;
     id?: string;
-    strategyMethodName?: string;
     aggregateOnException?: boolean;
+    aggregationStrategyMethodName?: string;
     timeout?: string;
-    strategyRef?: string
+    aggregationStrategyMethodAllowNull?: string
     public constructor(init?: Partial<PollEnrichDefinition>) {
         super('PollEnrichDefinition')
         Object.assign(this, init)
@@ -926,26 +925,25 @@ export class PropertyExpressionDefinition extends CamelElement {
 }
 
 export class RecipientListDefinition extends CamelElement {
-    strategyMethodAllowNull?: boolean;
-    executorServiceRef?: string;
+    aggregationStrategy?: string;
     cacheSize?: number;
     expression?: ExpressionDefinition;
+    onPrepare?: string;
+    executorService?: string;
     description?: string;
-    strategyMethodName?: string;
+    aggregationStrategyMethodName?: string;
     timeout?: string;
-    onPrepareRef?: string;
     ignoreInvalidEndpoints?: boolean;
     inheritErrorHandler?: boolean;
     streaming?: boolean;
     stepName?: string = 'recipientList';
     stopOnException?: boolean;
     delimiter?: string;
-    stopOnAggregateException?: boolean;
     parallelProcessing?: boolean;
     id?: string;
     parallelAggregate?: boolean;
-    shareUnitOfWork?: boolean;
-    strategyRef?: string
+    aggregationStrategyMethodAllowNull?: boolean;
+    shareUnitOfWork?: boolean
     public constructor(init?: Partial<RecipientListDefinition>) {
         super('RecipientListDefinition')
         Object.assign(this, init)
@@ -1050,16 +1048,16 @@ export class ResequenceDefinition extends CamelElement {
 
 export class Resilience4jConfigurationDefinition extends CamelElement {
     failureRateThreshold?: number;
-    circuitBreakerRef?: string;
     slowCallDurationThreshold?: number;
     minimumNumberOfCalls?: number;
     permittedNumberOfCallsInHalfOpenState?: number;
     slowCallRateThreshold?: number;
     writableStackTraceEnabled?: boolean;
     automaticTransitionFromOpenToHalfOpenEnabled?: boolean;
+    circuitBreaker?: string;
     slidingWindowSize?: number;
     id?: string;
-    configRef?: string;
+    config?: string;
     slidingWindowType?: string;
     waitDurationInOpenState?: number
     public constructor(init?: Partial<Resilience4jConfigurationDefinition>) {
@@ -1212,7 +1210,7 @@ export class SagaDefinition extends CamelElement {
     description?: string;
     compensation?: string;
     completionMode?: string;
-    sagaServiceRef?: string;
+    sagaService?: string;
     id?: string;
     steps?: CamelElement[] = [];
     timeout?: string;
@@ -1300,11 +1298,11 @@ export class SetPropertyDefinition extends CamelElement {
 }
 
 export class SortDefinition extends CamelElement {
+    comparator?: string;
     inheritErrorHandler?: boolean;
     expression?: ExpressionDefinition;
     stepName?: string = 'sort';
     description?: string;
-    comparatorRef?: string;
     id?: string
     public constructor(init?: Partial<SortDefinition>) {
         super('SortDefinition')
@@ -1313,25 +1311,24 @@ export class SortDefinition extends CamelElement {
 }
 
 export class SplitDefinition extends CamelElement {
-    strategyMethodAllowNull?: boolean;
-    executorServiceRef?: string;
+    aggregationStrategy?: string;
     expression?: ExpressionDefinition;
+    onPrepare?: string;
+    executorService?: string;
     description?: string;
-    strategyMethodName?: string;
+    aggregationStrategyMethodName?: string;
     steps?: CamelElement[] = [];
     timeout?: string;
-    onPrepareRef?: string;
     inheritErrorHandler?: boolean;
     streaming?: boolean;
     stepName?: string = 'split';
     stopOnException?: boolean;
     delimiter?: string;
-    stopOnAggregateException?: boolean;
     parallelProcessing?: boolean;
     id?: string;
     parallelAggregate?: boolean;
-    shareUnitOfWork?: boolean;
-    strategyRef?: string
+    aggregationStrategyMethodAllowNull?: boolean;
+    shareUnitOfWork?: boolean
     public constructor(init?: Partial<SplitDefinition>) {
         super('SplitDefinition')
         Object.assign(this, init)
@@ -1426,9 +1423,9 @@ export class ThreadPoolProfileDefinition extends CamelElement {
 }
 
 export class ThreadsDefinition extends CamelElement {
-    executorServiceRef?: string;
     keepAliveTime?: number;
     callerRunsWhenRejected?: string;
+    executorService?: string;
     poolSize?: number;
     description?: string;
     threadName?: string;
@@ -1447,11 +1444,11 @@ export class ThreadsDefinition extends CamelElement {
 }
 
 export class ThrottleDefinition extends CamelElement {
-    executorServiceRef?: string;
     inheritErrorHandler?: boolean;
     expression?: ExpressionDefinition;
     stepName?: string = 'throttle';
     callerRunsWhenRejected?: boolean;
+    executorService?: string;
     timePeriodMillis?: string;
     asyncDelayed?: boolean;
     description?: string;
@@ -1640,13 +1637,13 @@ export class WhenSkipSendToEndpointDefinition extends CamelElement {
 }
 
 export class WireTapDefinition extends CamelElement {
-    executorServiceRef?: string;
     cacheSize?: number;
+    onPrepare?: string;
+    executorService?: string;
     pattern?: string;
     description?: string;
     allowOptimisedComponents?: boolean;
     uri: string = '';
-    onPrepareRef?: string;
     dynamicUri?: boolean;
     inheritErrorHandler?: boolean;
     stepName?: string = 'wireTap';
@@ -1995,7 +1992,7 @@ export class BatchResequencerConfig extends CamelElement {
 }
 
 export class StreamResequencerConfig extends CamelElement {
-    comparatorRef?: string;
+    comparator?: string;
     timeout?: string;
     capacity?: number;
     deliveryAttemptInterval?: string;

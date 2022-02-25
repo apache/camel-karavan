@@ -17,11 +17,9 @@
 import React from 'react';
 import {
     Form,
-    FormGroup,
-    TextInput,
     Text,
     Title,
-    TextVariants,
+    TextVariants, ExpandableSection,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -49,6 +47,7 @@ interface Props {
 interface State {
     step?: CamelElement,
     selectStatus: Map<string, boolean>
+    isShowAdvanced: boolean
 }
 
 export class DslProperties extends React.Component<Props, State> {
@@ -56,6 +55,7 @@ export class DslProperties extends React.Component<Props, State> {
     public state: State = {
         step: this.props.step,
         selectStatus: new Map<string, boolean>(),
+        isShowAdvanced: false
     };
 
     propertyChanged = (fieldId: string, value: string | number | boolean | any, newRoute?: RouteToCreate) => {
@@ -73,7 +73,7 @@ export class DslProperties extends React.Component<Props, State> {
         this.props.onPropertyUpdate?.call(this, value, value.uuid);
     }
 
-    expressionChanged = (propertyName: string, exp:ExpressionDefinition) => {
+    expressionChanged = (propertyName: string, exp: ExpressionDefinition) => {
         if (this.state.step) {
             const clone = (CamelUtil.cloneStep(this.state.step));
             (clone as any)[propertyName] = exp;
@@ -125,12 +125,29 @@ export class DslProperties extends React.Component<Props, State> {
         )
     }
 
-    getProps = (): PropertyMeta[] => {
+    getProps = (showAdvanced?: boolean): PropertyMeta[] => {
         const dslName = this.state.step?.dslName;
-        return  CamelDefinitionApiExt.getElementProperties(dslName)
+        return CamelDefinitionApiExt.getElementProperties(dslName)
+            .filter((p: PropertyMeta) => (showAdvanced && p.label.includes('advanced')) || (!showAdvanced && !p.label.includes('advanced')))
             .filter((p: PropertyMeta) => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)) || (dslName === 'CatchDefinition' && p.name === 'onWhen'))
-            .filter((p:PropertyMeta) => !(dslName === 'RestDefinition' && ['get', 'post', 'put', 'patch', 'delete', 'head'].includes(p.name)))
-            .filter(p => dslName && !(['RestDefinition', 'GetDefinition', 'PostDefinition', 'PutDefinition', 'PatchDefinition', 'DeleteDefinition', 'HeadDefinition'].includes(dslName) && ['param', 'responseMessage', 'security'].includes(p.name))); // TODO: configure this properties
+            .filter((p: PropertyMeta) => !(dslName === 'RestDefinition' && ['get', 'post', 'put', 'patch', 'delete', 'head'].includes(p.name)))
+            .filter((p: PropertyMeta) => dslName && !(['RestDefinition', 'GetDefinition', 'PostDefinition', 'PutDefinition', 'PatchDefinition', 'DeleteDefinition', 'HeadDefinition'].includes(dslName) && ['param', 'responseMessage', 'security'].includes(p.name))) // TODO: configure this properties
+    }
+
+    getPropertyFields = (showAdvanced: boolean) => {
+        return (<>
+            {this.state.step && !['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName) && this.getProps(showAdvanced).map((property: PropertyMeta) =>
+                <DslPropertyField key={property.name}
+                                  integration={this.props.integration}
+                                  property={property}
+                                  element={this.state.step}
+                                  value={this.state.step ? (this.state.step as any)[property.name] : undefined}
+                                  onExpressionChange={this.expressionChanged}
+                                  onParameterChange={this.parametersChanged}
+                                  onDataFormatChange={this.dataFormatChanged}
+                                  onChange={this.propertyChanged}/>
+            )}
+        </>)
     }
 
     render() {
@@ -139,23 +156,21 @@ export class DslProperties extends React.Component<Props, State> {
                 <Form autoComplete="off" onSubmit={event => event.preventDefault()}>
                     {this.state.step === undefined && <IntegrationHeader integration={this.props.integration}/>}
                     {this.state.step && this.getComponentHeader()}
-                    {this.state.step && !['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName) && this.getProps().map((property: PropertyMeta) =>
-                        <DslPropertyField key={property.name}
-                                          integration={this.props.integration}
-                                          property={property}
-                                          element={this.state.step}
-                                          value={this.state.step ? (this.state.step as any)[property.name] : undefined}
-                                          onExpressionChange={this.expressionChanged}
-                                          onParameterChange={this.parametersChanged}
-                                          onDataFormatChange={this.dataFormatChanged}
-                                          onChange={this.propertyChanged} />
-                    )}
+                    {this.getPropertyFields(false)}
+                    {this.getProps(true).length > 0 && <ExpandableSection
+                        toggleText={'Advanced properties'}
+                        onToggle={isExpanded => this.setState({isShowAdvanced: !this.state.isShowAdvanced})}
+                        isExpanded={this.state.isShowAdvanced}>
+                        <div className="parameters">
+                            {this.getPropertyFields(true)}
+                        </div>
+                    </ExpandableSection>}
                     {this.state.step && ['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName) &&
                         <DataFormatField
                             integration={this.props.integration}
                             dslName={this.state.step.dslName}
                             value={this.state.step}
-                            onDataFormatChange={this.dataFormatChanged} />
+                            onDataFormatChange={this.dataFormatChanged}/>
                     }
                 </Form>
             </div>
