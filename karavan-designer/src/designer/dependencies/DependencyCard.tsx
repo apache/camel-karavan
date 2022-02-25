@@ -16,11 +16,10 @@
  */
 import React from 'react';
 import {
-    Button, Tooltip
+    Button
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {Dependency, Integration} from "karavan-core/lib/model/IntegrationDefinition";
-import {NamedBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 
 interface Props {

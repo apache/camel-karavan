@@ -75,13 +75,15 @@ export class KaravanDesigner extends React.Component<Props, State> {
 
     getTab(title: string, tooltip: string, icon: string) {
         const counts = CamelUi.getFlowCounts(this.state.integration);
+        const count =  counts.has(icon) && counts.get(icon) ? counts.get(icon) : undefined;
+        const showCount = count && count > 0;
         return (
             <Tooltip position={"bottom"}
                      content={<div>{tooltip}</div>}>
                 <div className="top-menu-item">
                     <TabTitleIcon>{this.getIcon(icon)}</TabTitleIcon>
                     <TabTitleText>{title}</TabTitleText>
-                    {counts.has(icon) && <Badge isRead className="count">{counts.get(icon)}</Badge>}
+                    {showCount && <Badge isRead className="count">{counts.get(icon)}</Badge>}
                 </div>
             </Tooltip>
 

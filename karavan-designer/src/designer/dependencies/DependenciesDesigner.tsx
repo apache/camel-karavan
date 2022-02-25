@@ -52,18 +52,6 @@ export class DependenciesDesigner extends React.Component<Props, State> {
         showDepEditor: false,
     };
 
-    componentDidMount() {
-        window.addEventListener('resize', this.handleResize);
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener('resize', this.handleResize);
-    }
-
-    handleResize = () => {
-        this.setState({key: Math.random().toString()});
-    }
-
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.key !== this.state.key) {
             this.props.onSave?.call(this, this.state.integration);
