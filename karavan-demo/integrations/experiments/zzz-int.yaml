@@ -16,7 +16,7 @@ spec:
     - content: |-
         beans {
             myProcessor = processor { 
-                it.in.body = 'Hello Camel K!'
+                it.in.body = 'Hello World!'
             }
         }
       name: xxx.groovy
