@@ -16,41 +16,40 @@
  */
 import React from 'react';
 import {
-    Button
+    Button, Tooltip
 } from '@patternfly/react-core';
 import '../karavan.css';
-import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
+import {Dependency, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {NamedBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 
 interface Props {
-    bean: NamedBeanDefinition
-    selectedStep?: NamedBeanDefinition
+    dep: Dependency
+    selectedDep?: Dependency
     integration: Integration
-    selectElement: (element: NamedBeanDefinition) => void
-    deleteElement: (element: NamedBeanDefinition) => void
+    selectElement: (element: Dependency) => void
+    deleteElement: (element: Dependency) => void
 }
 
-export class BeanCard extends React.Component<Props, any> {
+export class DependencyCard extends React.Component<Props, any> {
 
     selectElement = (evt: React.MouseEvent) => {
         evt.stopPropagation();
-        this.props.selectElement.call(this, this.props.bean);
+        this.props.selectElement.call(this, this.props.dep);
     }
 
     delete = (evt: React.MouseEvent) => {
         evt.stopPropagation();
-        this.props.deleteElement.call(this, this.props.bean);
+        this.props.deleteElement.call(this, this.props.dep);
     }
 
     render() {
-        const bean = this.props.bean;
+        const dep = this.props.dep;
         return (
-            <div className={this.props.selectedStep?.uuid === bean.uuid ? "rest-card rest-card-selected" : "rest-card rest-card-unselected"} onClick={e => this.selectElement(e)}>
+            <div className={this.props.selectedDep?.uuid === dep.uuid ? "rest-card rest-card-selected" : "rest-card rest-card-unselected"} onClick={e => this.selectElement(e)}>
                 <div className="header">
-                    <div className="title">BEAN</div>
-                    <div className="title">{bean.name}</div>
-                    <div className="description">{bean.type}</div>
+                    <div className="title">DEPENDENCY</div>
+                    <div className="title">{dep.getFullName()}</div>
                     {/*<Tooltip position={"bottom"} content={<div>Add REST method</div>}>*/}
                         {/*<Button variant={"link"} icon={<AddIcon/>} aria-label="Add" onClick={e => this.selectMethod(e)} className="add-button">Add method</Button>*/}
                     {/*</Tooltip>*/}

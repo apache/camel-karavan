@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    Button, Card, CardBody, CardFooter, CardHeader, CardTitle, Gallery, Modal, PageSection
+    Button, Modal, PageSection
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {NamedBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
@@ -24,12 +24,8 @@ import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUi} from "../utils/CamelUi";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
-import {BeanIcon} from "../utils/KaravanIcons";
 import {BeanProperties} from "./BeanProperties";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {RestCard} from "../rest/RestCard";
-import {DslProperties} from "../route/DslProperties";
 import {BeanCard} from "./BeanCard";
 
 interface Props {
