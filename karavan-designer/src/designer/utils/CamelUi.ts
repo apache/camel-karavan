@@ -27,6 +27,7 @@ import {CamelElement, Dependency, Integration} from "karavan-core/lib/model/Inte
 
 const StepElements: string[] = [
     "AggregateDefinition",
+    "BeanDefinition",
     "ChoiceDefinition",
     "CircuitBreakerDefinition",
     "ConvertBodyDefinition",
@@ -38,6 +39,7 @@ const StepElements: string[] = [
     "MarshalDefinition",
     "MulticastDefinition",
     "PollEnrichDefinition",
+    "ProcessDefinition",
     "RecipientListDefinition",
     "RemoveHeaderDefinition",
     "RemoveHeadersDefinition",
@@ -81,8 +83,8 @@ export class CamelUi {
         const navs =  CamelUi.getSelectorModelsForParent(parentDsl, showSteps).map(dsl => dsl.navigation.split(","))
             .reduce((accumulator, value) => accumulator.concat(value), [])
             .filter((nav, i, arr) => arr.findIndex(l => l === nav) === i)
-            .filter((nav, i, arr) => !['eip', 'dataformat'].includes(nav));
-        const connectorNavs = ['routing', "transformation", "error", "configuration", "component", "kamelet"];
+            .filter((nav, i, arr) => ![ 'dataformat'].includes(nav));
+        const connectorNavs = ['routing', "transformation", "error", "configuration", "endpoint", "component", "kamelet"];
         const eipLabels = connectorNavs.filter(n => navs.includes(n));
         return eipLabels;
     }
