@@ -367,6 +367,19 @@
     border-style: solid;
 }
 
+.karavan .properties .object-value {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 3px;
+}
+
+.karavan .properties .object-value .delete-button {
+    margin: 0;
+    padding: 5px 3px 0px 6px;
+    height: 16px;
+    color: #909090;
+}
+
 .karavan .properties .expression,
 .karavan .properties .object,
 .karavan .properties .dataformat,
@@ -375,6 +388,7 @@
     padding-left: 16px;
     row-gap: 6px;
     display: grid;
+    width: 100%;
 }
 
 .karavan .properties .expression .pf-c-form__group-label,
@@ -803,138 +817,6 @@
     background-color: #fca338;
 }
 
-/*Beans*/
-.karavan .beans-page {
-    flex: 1 1;
-    overflow: auto;
-}
-.karavan .beans-page-columns {
-    height: 100%;
-    background: #fafafa;
-    display: flex;
-    flex-direction: row;
-}
-
-.karavan .beans-panel {
-    padding: 16px;
-    display: block;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-    position: relative;
-    overflow-y: auto;
-}
-.karavan .beans-page .add-button-div {
-    width: 100%;
-    margin-top: 16px;
-    display: flex;
-}
-
-.karavan .beans-page .add-bean-button {
-    margin: auto;
-}
-
-.karavan .beans-page .bean-card-selected {
-    border-color: rgb(48, 50, 132);
-    background-color: rgb(171, 172, 224, 0.1);
-}
-
-.karavan .beans-page .bean-card-unselected {
-    border-color: #fb8824;
-    background-color: transparent;
-}
-
-.karavan .beans-page .bean-card,
-.karavan .beans-page .bean-card:hover {
-    border-radius: 16px;
-    border-width: 1px;
-    border-style: dotted;
-    box-shadow: none;
-}
-
-.karavan .beans-page .bean-card .pf-c-card__header {
-    padding-right: 6px;
-    word-wrap:anywhere;
-    width: 100%;
-}
-
-.karavan .beans-page .bean-card .pf-c-card__title {
-    text-align: center;
-    font-size: 14px;
-}
-
-.karavan .beans-page .bean-card .pf-c-card__body {
-    word-wrap:anywhere;
-    text-align: center;
-    font-size: 14px;
-}
-
-.karavan .beans-page .bean-card .header-icon {
-    border-style: solid;
-    border-radius: 30px;
-    border-width: 1px;
-    width: 30px;
-    height: 30px;
-    margin: 6px auto auto auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.karavan .beans-page .bean-card-unselected .header-icon {
-    border-color: #fb8824;
-    background: transparent;
-    border-width: 1px;
-}
-
-.karavan .beans-page .bean-card-selected .header-icon {
-    border-color: rgb(48, 50, 132);
-    background-color: rgb(171, 172, 224);
-    border-width: 2px;
-}
-
-.karavan .beans-page .bean-card .icon {
-    height: 20px;
-    width: auto;
-    border: none;
-}
-
-.karavan .beans-page .bean-card .delete-button {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    font-size: 14px;
-    line-height: 1;
-    border: 0;
-    padding: 0;
-    margin: 0;
-    background: transparent;
-    color: #909090;
-    visibility: hidden;
-}
-
-.karavan .beans-page .bean-card:hover .delete-button {
-    visibility: visible;
-}
-
-.karavan .beans-page .properties .bean-properties .pf-c-form__group-control {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.karavan .beans-page .properties .bean-property {
-    display: flex;
-    flex-direction: row;
-    gap: 3px;
-}
-
-.karavan .beans-page .properties .bean-property .delete-button {
-    padding: 3px;
-    color: #b1b1b7;
-    font-size: 14px;
-}
-
 /*REST Page*/
 .karavan .rest-page {
     flex: 1;
@@ -1082,6 +964,25 @@
     flex-direction: row;
     justify-content: center;
     margin-top: 16px;
+}
+
+/*Beans*/
+.karavan .rest-page .properties .bean-properties .pf-c-form__group-control {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.karavan .rest-page .properties .bean-property {
+    display: flex;
+    flex-direction: row;
+    gap: 3px;
+}
+
+.karavan .rest-page .properties .bean-property .delete-button {
+    padding: 3px;
+    color: #b1b1b7;
+    font-size: 14px;
 }
 
 /*Exception*/

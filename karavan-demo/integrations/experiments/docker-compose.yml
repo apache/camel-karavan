@@ -11,8 +11,6 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
-    networks:
-      - karavan-demo
 
   zookeeper:
     container_name: zookeeper
@@ -22,8 +20,6 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    networks:
-      - karavan-demo
 
   kafka:
     container_name: kafka
@@ -40,8 +36,6 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_CREATE_TOPICS: "events:1:1"
-    networks:
-      - karavan-demo
 
   activemq:
     image: registry.redhat.io/amq7/amq-broker:latest
@@ -52,8 +46,6 @@ services:
     ports:
       - "61616:61616"
       - "8161:8161"  
-    networks:
-      - karavan-demo
   
   postgres:
     image: postgres
@@ -68,8 +60,6 @@ services:
     volumes:
       - ./postgres_db.sql:/docker-entrypoint-initdb.d/postgres_db.sql
     command: 'postgres --max_prepared_transactions=100'
-    networks:
-      - karavan-demo
 
   pgadmin:
     container_name: pgadmin
@@ -80,8 +70,6 @@ services:
       PGADMIN_DEFAULT_PASSWORD: root
     ports:
       - "5050:80"
-    networks:
-      - karavan-demo
 
   mysql:
     image: mysql
@@ -98,8 +86,6 @@ services:
       - '3306:3306'
     expose:
       - '3306'
-    networks:
-      - karavan-demo
 
   adminer:
     image: adminer
@@ -107,9 +93,3 @@ services:
     restart: always
     ports:
       - 6060:8080
-    networks:
-      - karavan-demo
-
-networks:
-  karavan-demo:
-    name: karavan-demo
