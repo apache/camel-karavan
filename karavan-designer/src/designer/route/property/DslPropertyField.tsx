@@ -23,7 +23,7 @@ import {
     Select,
     SelectVariant,
     SelectDirection,
-    SelectOption, ExpandableSection, TextArea, Chip, TextInputGroup, TextInputGroupMain, TextInputGroupUtilities, ChipGroup, Button, Text, Tooltip
+    SelectOption, ExpandableSection, TextArea, Chip, TextInputGroup, TextInputGroupMain, TextInputGroupUtilities, ChipGroup, Button, Text, Tooltip, Card
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -334,11 +334,16 @@ export class DslPropertyField extends React.Component<Props, State> {
         return (
             <div>
                 {value && Array.from(value).map((v: any, index: number) => (
-                    <div key={property + "-" + index}>
+                    <Card key={property + "-" + index} className="object-value">
                         <div className="object">
                             {value && <ObjectField property={property} value={v} onPropertyUpdate={(f, v) => this.onMultiValueObjectUpdate(index, f, v)} integration={this.props.integration} />}
                         </div>
-                    </div>
+                        <Button variant="link" className="delete-button" onClick={e => {
+                            const v = Array.from(value);
+                            v.splice(index, 1);
+                            this.propertyChanged(property.name,v);
+                        }}><DeleteIcon/></Button>
+                    </Card>
                 ))}
                 <Button variant="link" className="add-button" onClick={e => this.propertyChanged(property.name, [...value, CamelDefinitionApi.createStep(property.type, {})])}><AddIcon/>{"Add " + property.displayName}</Button>
             </div>

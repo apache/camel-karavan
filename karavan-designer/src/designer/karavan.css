@@ -367,6 +367,19 @@
     border-style: solid;
 }
 
+.karavan .properties .object-value {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 3px;
+}
+
+.karavan .properties .object-value .delete-button {
+    margin: 0;
+    padding: 5px 3px 0px 6px;
+    height: 16px;
+    color: #909090;
+}
+
 .karavan .properties .expression,
 .karavan .properties .object,
 .karavan .properties .dataformat,
@@ -375,6 +388,7 @@
     padding-left: 16px;
     row-gap: 6px;
     display: grid;
+    width: 100%;
 }
 
 .karavan .properties .expression .pf-c-form__group-label,

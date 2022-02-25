@@ -41,9 +41,9 @@ class App extends React.Component<Props, State> {
             'metadata:\n' +
             '  name: demo.yaml \n' +
             'spec:\n' +
-            '  dependencies:\n' +
-            '    - "mvn:org.apache.commons:commons-dbcp2:2.9.0" \n' +
-            '    - "mvn:org.postgresql:postgresql:42.2.14" \n' +
+            // '  dependencies:\n' +
+            // '    - "mvn:org.apache.commons:commons-dbcp2:2.9.0" \n' +
+            // '    - "mvn:org.postgresql:postgresql:42.2.14" \n' +
             '  flows:\n' +
             // '    - route:\n' +
             // '        from:\n' +
