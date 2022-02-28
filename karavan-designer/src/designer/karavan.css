@@ -777,11 +777,14 @@
     display: flex;
     flex-direction: row;
     margin-top: 6px;
+    flex-wrap: wrap;
 }
+
 .dsl-modal .version {
     text-align: right;
     opacity: 0.5;
     white-space: nowrap;
+    margin-left: auto;
 }
 
 .dsl-modal .labels {

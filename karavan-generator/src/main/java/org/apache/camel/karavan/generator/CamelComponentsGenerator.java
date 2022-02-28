@@ -45,6 +45,7 @@ public final class CamelComponentsGenerator {
         CamelComponentsGenerator g = new CamelComponentsGenerator();
         g.createCreateComponents("karavan-app/src/main/resources/components");
         g.createCreateComponents("karavan-vscode/components");
+        g.createCreateComponents("karavan-designer/public/components");
     }
 
     private void createCreateComponents(String path) {
