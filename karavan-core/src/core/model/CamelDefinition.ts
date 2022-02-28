@@ -193,7 +193,6 @@ export class AggregateDefinition extends CamelElement {
 }
 
 export class BeanDefinition extends CamelElement {
-    cache?: boolean;
     inheritErrorHandler?: boolean;
     ref?: string;
     method?: string;
@@ -3125,6 +3124,38 @@ export class WeightedLoadBalancerDefinition extends CamelElement {
     }
 }
 
+export class ApiKeyDefinition extends CamelElement {
+    inHeader?: boolean;
+    inCookie?: boolean;
+    name: string = '';
+    description?: string;
+    inQuery?: boolean;
+    key: string = ''
+    public constructor(init?: Partial<ApiKeyDefinition>) {
+        super('ApiKeyDefinition')
+        Object.assign(this, init)
+    }
+}
+
+export class BasicAuthDefinition extends CamelElement {
+    description?: string;
+    key: string = ''
+    public constructor(init?: Partial<BasicAuthDefinition>) {
+        super('BasicAuthDefinition')
+        Object.assign(this, init)
+    }
+}
+
+export class BearerTokenDefinition extends CamelElement {
+    format?: string;
+    description?: string;
+    key: string = ''
+    public constructor(init?: Partial<BearerTokenDefinition>) {
+        super('BearerTokenDefinition')
+        Object.assign(this, init)
+    }
+}
+
 export class DeleteDefinition extends CamelElement {
     enableCors?: boolean;
     deprecated?: boolean;
@@ -3134,14 +3165,14 @@ export class DeleteDefinition extends CamelElement {
     path?: string;
     security?: SecurityDefinition[] = [];
     bindingMode?: string;
-    param?: RestOperationParamDefinition[] = [];
+    param?: ParamDefinition[] = [];
     apiDocs?: boolean;
     skipBindingOnErrorCode?: boolean;
     clientRequestValidation?: boolean;
     produces?: string;
     id?: string;
     to?: string;
-    responseMessage?: RestOperationResponseMsgDefinition[] = [];
+    responseMessage?: ResponseMessageDefinition[] = [];
     consumes?: string
     public constructor(init?: Partial<DeleteDefinition>) {
         super('DeleteDefinition')
@@ -3158,14 +3189,14 @@ export class GetDefinition extends CamelElement {
     path?: string;
     security?: SecurityDefinition[] = [];
     bindingMode?: string;
-    param?: RestOperationParamDefinition[] = [];
+    param?: ParamDefinition[] = [];
     apiDocs?: boolean;
     skipBindingOnErrorCode?: boolean;
     clientRequestValidation?: boolean;
     produces?: string;
     id?: string;
     to?: string;
-    responseMessage?: RestOperationResponseMsgDefinition[] = [];
+    responseMessage?: ResponseMessageDefinition[] = [];
     consumes?: string
     public constructor(init?: Partial<GetDefinition>) {
         super('GetDefinition')
@@ -3182,17 +3213,68 @@ export class HeadDefinition extends CamelElement {
     path?: string;
     security?: SecurityDefinition[] = [];
     bindingMode?: string;
-    param?: RestOperationParamDefinition[] = [];
+    param?: ParamDefinition[] = [];
     apiDocs?: boolean;
     skipBindingOnErrorCode?: boolean;
     clientRequestValidation?: boolean;
     produces?: string;
     id?: string;
     to?: string;
-    responseMessage?: RestOperationResponseMsgDefinition[] = [];
+    responseMessage?: ResponseMessageDefinition[] = [];
     consumes?: string
     public constructor(init?: Partial<HeadDefinition>) {
         super('HeadDefinition')
+        Object.assign(this, init)
+    }
+}
+
+export class MutualTLSDefinition extends CamelElement {
+    description?: string;
+    key: string = ''
+    public constructor(init?: Partial<MutualTLSDefinition>) {
+        super('MutualTLSDefinition')
+        Object.assign(this, init)
+    }
+}
+
+export class OAuth2Definition extends CamelElement {
+    tokenUrl?: string;
+    authorizationUrl?: string;
+    refreshUrl?: string;
+    description?: string;
+    scopes?: RestPropertyDefinition[] = [];
+    flow?: string;
+    key: string = ''
+    public constructor(init?: Partial<OAuth2Definition>) {
+        super('OAuth2Definition')
+        Object.assign(this, init)
+    }
+}
+
+export class OpenIdConnectDefinition extends CamelElement {
+    description?: string;
+    key: string = '';
+    url: string = ''
+    public constructor(init?: Partial<OpenIdConnectDefinition>) {
+        super('OpenIdConnectDefinition')
+        Object.assign(this, init)
+    }
+}
+
+export class ParamDefinition extends CamelElement {
+    arrayType?: string;
+    examples?: RestPropertyDefinition[] = [];
+    dataFormat?: string;
+    defaultValue?: string;
+    dataType?: string;
+    name: string = '';
+    description?: string;
+    type: string = '';
+    collectionFormat?: string;
+    value?: string[] = [];
+    required?: boolean
+    public constructor(init?: Partial<ParamDefinition>) {
+        super('ParamDefinition')
         Object.assign(this, init)
     }
 }
@@ -3206,14 +3288,14 @@ export class PatchDefinition extends CamelElement {
     path?: string;
     security?: SecurityDefinition[] = [];
     bindingMode?: string;
-    param?: RestOperationParamDefinition[] = [];
+    param?: ParamDefinition[] = [];
     apiDocs?: boolean;
     skipBindingOnErrorCode?: boolean;
     clientRequestValidation?: boolean;
     produces?: string;
     id?: string;
     to?: string;
-    responseMessage?: RestOperationResponseMsgDefinition[] = [];
+    responseMessage?: ResponseMessageDefinition[] = [];
     consumes?: string
     public constructor(init?: Partial<PatchDefinition>) {
         super('PatchDefinition')
@@ -3230,14 +3312,14 @@ export class PostDefinition extends CamelElement {
     path?: string;
     security?: SecurityDefinition[] = [];
     bindingMode?: string;
-    param?: RestOperationParamDefinition[] = [];
+    param?: ParamDefinition[] = [];
     apiDocs?: boolean;
     skipBindingOnErrorCode?: boolean;
     clientRequestValidation?: boolean;
     produces?: string;
     id?: string;
     to?: string;
-    responseMessage?: RestOperationResponseMsgDefinition[] = [];
+    responseMessage?: ResponseMessageDefinition[] = [];
     consumes?: string
     public constructor(init?: Partial<PostDefinition>) {
         super('PostDefinition')
@@ -3254,17 +3336,44 @@ export class PutDefinition extends CamelElement {
     path?: string;
     security?: SecurityDefinition[] = [];
     bindingMode?: string;
-    param?: RestOperationParamDefinition[] = [];
+    param?: ParamDefinition[] = [];
     apiDocs?: boolean;
     skipBindingOnErrorCode?: boolean;
     clientRequestValidation?: boolean;
     produces?: string;
     id?: string;
     to?: string;
-    responseMessage?: RestOperationResponseMsgDefinition[] = [];
+    responseMessage?: ResponseMessageDefinition[] = [];
     consumes?: string
     public constructor(init?: Partial<PutDefinition>) {
         super('PutDefinition')
+        Object.assign(this, init)
+    }
+}
+
+export class ResponseHeaderDefinition extends CamelElement {
+    arrayType?: string;
+    dataFormat?: string;
+    dataType?: string;
+    name: string = '';
+    description?: string;
+    collectionFormat?: string;
+    value?: string[] = [];
+    example?: string
+    public constructor(init?: Partial<ResponseHeaderDefinition>) {
+        super('ResponseHeaderDefinition')
+        Object.assign(this, init)
+    }
+}
+
+export class ResponseMessageDefinition extends CamelElement {
+    code?: string;
+    examples?: RestPropertyDefinition[] = [];
+    header?: ResponseHeaderDefinition[] = [];
+    responseModel?: string;
+    message: string = ''
+    public constructor(init?: Partial<ResponseMessageDefinition>) {
+        super('ResponseMessageDefinition')
         Object.assign(this, init)
     }
 }
@@ -3322,7 +3431,7 @@ export class RestConfigurationDefinition extends CamelElement {
 
 export class RestDefinition extends CamelElement {
     enableCors?: boolean;
-    securityRequirements?: RestSecuritiesRequirement;
+    securityRequirements?: SecurityRequirementsDefinition;
     description?: string;
     delete?: DeleteDefinition[] = [];
     put?: PutDefinition[] = [];
@@ -3347,51 +3456,6 @@ export class RestDefinition extends CamelElement {
     }
 }
 
-export class RestOperationParamDefinition extends CamelElement {
-    arrayType?: string;
-    examples?: RestPropertyDefinition[] = [];
-    dataFormat?: string;
-    defaultValue?: string;
-    dataType?: string;
-    name: string = '';
-    description?: string;
-    type: string = '';
-    collectionFormat?: string;
-    value?: string[] = [];
-    required?: boolean
-    public constructor(init?: Partial<RestOperationParamDefinition>) {
-        super('RestOperationParamDefinition')
-        Object.assign(this, init)
-    }
-}
-
-export class RestOperationResponseHeaderDefinition extends CamelElement {
-    arrayType?: string;
-    dataFormat?: string;
-    dataType?: string;
-    name: string = '';
-    description?: string;
-    collectionFormat?: string;
-    value?: string[] = [];
-    example?: string
-    public constructor(init?: Partial<RestOperationResponseHeaderDefinition>) {
-        super('RestOperationResponseHeaderDefinition')
-        Object.assign(this, init)
-    }
-}
-
-export class RestOperationResponseMsgDefinition extends CamelElement {
-    code?: string;
-    examples?: RestPropertyDefinition[] = [];
-    header?: RestOperationResponseHeaderDefinition[] = [];
-    responseModel?: string;
-    message: string = ''
-    public constructor(init?: Partial<RestOperationResponseMsgDefinition>) {
-        super('RestOperationResponseMsgDefinition')
-        Object.assign(this, init)
-    }
-}
-
 export class RestPropertyDefinition extends CamelElement {
     value: string = '';
     key: string = ''
@@ -3402,87 +3466,14 @@ export class RestPropertyDefinition extends CamelElement {
 }
 
 export class RestSecuritiesDefinition extends CamelElement {
-    openIdConnect?: RestSecurityOpenIdConnect;
-    apiKey?: RestSecurityApiKey;
-    basicAuth?: RestSecurityBasicAuth;
-    mutualTls?: RestSecurityMutualTLS;
-    bearer?: RestSecurityBearerToken;
-    oauth2?: RestSecurityOAuth2
+    openIdConnect?: OpenIdConnectDefinition;
+    apiKey?: ApiKeyDefinition;
+    basicAuth?: BasicAuthDefinition;
+    mutualTls?: MutualTLSDefinition;
+    bearer?: BearerTokenDefinition;
+    oauth2?: OAuth2Definition
     public constructor(init?: Partial<RestSecuritiesDefinition>) {
         super('RestSecuritiesDefinition')
-        Object.assign(this, init)
-    }
-}
-
-export class RestSecuritiesRequirement extends CamelElement {
-    securityRequirement?: SecurityDefinition
-    public constructor(init?: Partial<RestSecuritiesRequirement>) {
-        super('RestSecuritiesRequirement')
-        Object.assign(this, init)
-    }
-}
-
-export class RestSecurityApiKey extends CamelElement {
-    inHeader?: boolean;
-    inCookie?: boolean;
-    name: string = '';
-    description?: string;
-    inQuery?: boolean;
-    key: string = ''
-    public constructor(init?: Partial<RestSecurityApiKey>) {
-        super('RestSecurityApiKey')
-        Object.assign(this, init)
-    }
-}
-
-export class RestSecurityBasicAuth extends CamelElement {
-    description?: string;
-    key: string = ''
-    public constructor(init?: Partial<RestSecurityBasicAuth>) {
-        super('RestSecurityBasicAuth')
-        Object.assign(this, init)
-    }
-}
-
-export class RestSecurityBearerToken extends CamelElement {
-    format?: string;
-    description?: string;
-    key: string = ''
-    public constructor(init?: Partial<RestSecurityBearerToken>) {
-        super('RestSecurityBearerToken')
-        Object.assign(this, init)
-    }
-}
-
-export class RestSecurityMutualTLS extends CamelElement {
-    description?: string;
-    key: string = ''
-    public constructor(init?: Partial<RestSecurityMutualTLS>) {
-        super('RestSecurityMutualTLS')
-        Object.assign(this, init)
-    }
-}
-
-export class RestSecurityOAuth2 extends CamelElement {
-    tokenUrl?: string;
-    authorizationUrl?: string;
-    refreshUrl?: string;
-    description?: string;
-    scopes?: RestPropertyDefinition[] = [];
-    flow?: string;
-    key: string = ''
-    public constructor(init?: Partial<RestSecurityOAuth2>) {
-        super('RestSecurityOAuth2')
-        Object.assign(this, init)
-    }
-}
-
-export class RestSecurityOpenIdConnect extends CamelElement {
-    description?: string;
-    key: string = '';
-    url: string = ''
-    public constructor(init?: Partial<RestSecurityOpenIdConnect>) {
-        super('RestSecurityOpenIdConnect')
         Object.assign(this, init)
     }
 }
@@ -3502,6 +3493,14 @@ export class SecurityDefinition extends CamelElement {
     key: string = ''
     public constructor(init?: Partial<SecurityDefinition>) {
         super('SecurityDefinition')
+        Object.assign(this, init)
+    }
+}
+
+export class SecurityRequirementsDefinition extends CamelElement {
+    securityRequirement?: SecurityDefinition
+    public constructor(init?: Partial<SecurityRequirementsDefinition>) {
+        super('SecurityRequirementsDefinition')
         Object.assign(this, init)
     }
 }
