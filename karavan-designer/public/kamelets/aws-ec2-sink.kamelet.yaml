@@ -21,7 +21,7 @@ metadata:
   name: aws-ec2-sink
   annotations:
     camel.apache.org/kamelet.support.level: "Preview"
-    camel.apache.org/catalog.version: "0.7.0"
+    camel.apache.org/catalog.version: "0.7.1"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjA2NSIgaGVpZ2h0PSIyNTAwIiB2aWV3Qm94PSIwIDAgMjU2IDMxMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCI+PHBhdGggZD0iTTQyLjc1NCAyNDQuNDk1bC0yOS45MTggNi44MjZWNTcuNTY1bDI5LjkxOCA2LjgzOXYxODAuMDkxIiBmaWxsPSIjRjY4NTM2Ii8+PHBhdGggZD0iTTgwLjA4MiAyNTUuOTMxbC0zNy4zMjggMTAuNjA4VjQyLjYxMmwzNy4zMjggMTAuNTk1djIwMi43MjRNMTI3Ljk2NiAyNjcuNjgxbC00Ny44ODQgMTcuNTI0VjIzLjk0Nmw0Ny44ODQgMTcuNTE2djIyNi4yMTlNMjU2IDI0NS4wNzlsLTEyOC4wMzQgNjQuMDE3VjBMMjU2IDY0LjAxN3YxODEuMDYyIiBmaWxsPSIjRjY4NTM2Ii8+PHBhdGggZD0iTTEwMi40NDQgMTIuNzYzTDEyNy45NjYgMHYzMDkuMDk2bC0yNS41MjItMTIuNzU5VjEyLjc2M002MC4zMjUgMzMuODJsMTkuNzU3LTkuODc4djI2MS4yMTJsLTE5Ljc1Ny05Ljg3OFYzMy44Mk0yNy4wMTYgNTAuNDc3bDE1LjczOC03Ljg2OXYyMjMuODhsLTE1LjczOC03Ljg3NFY1MC40NzdNMTIuODM2IDU3LjU2NUwwIDYzLjk4M3YxODEuMTM0bDEyLjgzNiA2LjQxNFY1Ny41NjUiIGZpbGw9IiM5RDUwMjUiLz48L3N2Zz4="
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "AWS EC2"
@@ -33,12 +33,14 @@ spec:
     description: |-
       Check the status of EC2 instances
 
+      Access Key/Secret Key are the basic method for authenticating to the AWS EC2 Service. These parameters are optional, because the Kamelet provide also the 'useDefaultCredentialsProvider'.
+      
+      When using a default Credentials Provider the EC2 client will load the credentials through this provider and won't use the static credential. This is reason for not having the access key and secret key as mandatory parameter for this Kamelet.
+
       The Kamelet expects the following headers to be set:
 
       - `instanceIds` / `ce-instanceids`: as a comma separated list of EC2 instance ids.
     required:
-      - accessKey
-      - secretKey
       - region
     type: object
     properties:
@@ -63,10 +65,18 @@ spec:
         description: The AWS region to connect to
         type: string
         example: eu-west-1
+      useDefaultCredentialsProvider:
+        title: Default Credentials Provider
+        description: Set whether the EC2 client should expect to load credentials through a default credentials provider or to expect static credentials to be passed in.
+        type: boolean
+        x-descriptors:
+        - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: false
   dependencies:
+    - "camel:core"
     - "camel:aws2-ec2"
     - "camel:kamelet"
-  flow:
+  template:
     from:
       uri: kamelet:source
       steps:
@@ -85,7 +95,8 @@ spec:
       - to:
           uri: "aws2-ec2:ec2-route"
           parameters:
-            accessKey: "{{accessKey}}"
-            secretKey: "{{secretKey}}"
+            accessKey: "{{?accessKey}}"
+            secretKey: "{{?secretKey}}"
             region: "{{region}}"
             operation: "describeInstancesStatus"
+            useDefaultCredentialsProvider: "{{useDefaultCredentialsProvider}}"

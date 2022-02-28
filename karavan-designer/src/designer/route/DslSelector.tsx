@@ -117,7 +117,9 @@ export class DslSelector extends React.Component<Props, State> {
                     {dsl.navigation.toLowerCase() === "component"
                         && <div className="footer" style={{justifyContent: "flex-start"}}>
                             {dsl.labels.split(',').map((s: string) => <Badge key={s} isRead className="labels">{s}</Badge>)}
-                        </div>}
+                            <Badge isRead className="version">{dsl.version}</Badge>
+                        </div>
+                    }
                 </CardFooter>
             </Card>
         )

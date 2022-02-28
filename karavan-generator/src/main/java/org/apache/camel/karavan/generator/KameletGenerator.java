@@ -40,6 +40,7 @@ public class KameletGenerator {
         KameletGenerator g = new KameletGenerator();
         g.createKamelets("karavan-app/src/main/resources/kamelets");
         g.createKamelets("karavan-vscode/kamelets");
+        g.createKamelets("karavan-designer/public/kamelets");
     }
 
     public void createKamelets(String folder){

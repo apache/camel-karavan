@@ -205,29 +205,29 @@ import {
     StickyLoadBalancerDefinition,
     TopicLoadBalancerDefinition,
     WeightedLoadBalancerDefinition,
+    ApiKeyDefinition,
+    BasicAuthDefinition,
+    BearerTokenDefinition,
     DeleteDefinition,
     GetDefinition,
     HeadDefinition,
+    MutualTLSDefinition,
+    OAuth2Definition,
+    OpenIdConnectDefinition,
+    ParamDefinition,
     PatchDefinition,
     PostDefinition,
     PutDefinition,
+    ResponseHeaderDefinition,
+    ResponseMessageDefinition,
     RestBindingDefinition,
     RestConfigurationDefinition,
     RestDefinition,
-    RestOperationParamDefinition,
-    RestOperationResponseHeaderDefinition,
-    RestOperationResponseMsgDefinition,
     RestPropertyDefinition,
     RestSecuritiesDefinition,
-    RestSecuritiesRequirement,
-    RestSecurityApiKey,
-    RestSecurityBasicAuth,
-    RestSecurityBearerToken,
-    RestSecurityMutualTLS,
-    RestSecurityOAuth2,
-    RestSecurityOpenIdConnect,
     RestsDefinition,
     SecurityDefinition,
+    SecurityRequirementsDefinition,
     CustomTransformerDefinition,
     DataFormatTransformerDefinition,
     EndpointTransformerDefinition,
@@ -2894,12 +2894,33 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
+    static readApiKeyDefinition = (element: any): ApiKeyDefinition => {
+        
+        const def = element ? new ApiKeyDefinition({...element}) : new ApiKeyDefinition();
+
+        return def;
+    }
+
+    static readBasicAuthDefinition = (element: any): BasicAuthDefinition => {
+        
+        const def = element ? new BasicAuthDefinition({...element}) : new BasicAuthDefinition();
+
+        return def;
+    }
+
+    static readBearerTokenDefinition = (element: any): BearerTokenDefinition => {
+        
+        const def = element ? new BearerTokenDefinition({...element}) : new BearerTokenDefinition();
+
+        return def;
+    }
+
     static readDeleteDefinition = (element: any): DeleteDefinition => {
         
         const def = element ? new DeleteDefinition({...element}) : new DeleteDefinition();
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
-        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readRestOperationParamDefinition(x)) :[]; 
-        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readRestOperationResponseMsgDefinition(x)) :[]; 
+        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readParamDefinition(x)) :[]; 
+        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readResponseMessageDefinition(x)) :[]; 
 
         return def;
     }
@@ -2908,8 +2929,8 @@ export class CamelDefinitionYamlStep {
         
         const def = element ? new GetDefinition({...element}) : new GetDefinition();
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
-        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readRestOperationParamDefinition(x)) :[]; 
-        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readRestOperationResponseMsgDefinition(x)) :[]; 
+        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readParamDefinition(x)) :[]; 
+        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readResponseMessageDefinition(x)) :[]; 
 
         return def;
     }
@@ -2918,8 +2939,38 @@ export class CamelDefinitionYamlStep {
         
         const def = element ? new HeadDefinition({...element}) : new HeadDefinition();
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
-        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readRestOperationParamDefinition(x)) :[]; 
-        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readRestOperationResponseMsgDefinition(x)) :[]; 
+        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readParamDefinition(x)) :[]; 
+        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readResponseMessageDefinition(x)) :[]; 
+
+        return def;
+    }
+
+    static readMutualTLSDefinition = (element: any): MutualTLSDefinition => {
+        
+        const def = element ? new MutualTLSDefinition({...element}) : new MutualTLSDefinition();
+
+        return def;
+    }
+
+    static readOAuth2Definition = (element: any): OAuth2Definition => {
+        
+        const def = element ? new OAuth2Definition({...element}) : new OAuth2Definition();
+        def.scopes = element && element?.scopes ? element?.scopes.map((x:any) => CamelDefinitionYamlStep.readRestPropertyDefinition(x)) :[]; 
+
+        return def;
+    }
+
+    static readOpenIdConnectDefinition = (element: any): OpenIdConnectDefinition => {
+        
+        const def = element ? new OpenIdConnectDefinition({...element}) : new OpenIdConnectDefinition();
+
+        return def;
+    }
+
+    static readParamDefinition = (element: any): ParamDefinition => {
+        
+        const def = element ? new ParamDefinition({...element}) : new ParamDefinition();
+        def.examples = element && element?.examples ? element?.examples.map((x:any) => CamelDefinitionYamlStep.readRestPropertyDefinition(x)) :[]; 
 
         return def;
     }
@@ -2928,8 +2979,8 @@ export class CamelDefinitionYamlStep {
         
         const def = element ? new PatchDefinition({...element}) : new PatchDefinition();
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
-        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readRestOperationParamDefinition(x)) :[]; 
-        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readRestOperationResponseMsgDefinition(x)) :[]; 
+        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readParamDefinition(x)) :[]; 
+        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readResponseMessageDefinition(x)) :[]; 
 
         return def;
     }
@@ -2938,8 +2989,8 @@ export class CamelDefinitionYamlStep {
         
         const def = element ? new PostDefinition({...element}) : new PostDefinition();
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
-        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readRestOperationParamDefinition(x)) :[]; 
-        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readRestOperationResponseMsgDefinition(x)) :[]; 
+        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readParamDefinition(x)) :[]; 
+        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readResponseMessageDefinition(x)) :[]; 
 
         return def;
     }
@@ -2948,8 +2999,24 @@ export class CamelDefinitionYamlStep {
         
         const def = element ? new PutDefinition({...element}) : new PutDefinition();
         def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
-        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readRestOperationParamDefinition(x)) :[]; 
-        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readRestOperationResponseMsgDefinition(x)) :[]; 
+        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionYamlStep.readParamDefinition(x)) :[]; 
+        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionYamlStep.readResponseMessageDefinition(x)) :[]; 
+
+        return def;
+    }
+
+    static readResponseHeaderDefinition = (element: any): ResponseHeaderDefinition => {
+        
+        const def = element ? new ResponseHeaderDefinition({...element}) : new ResponseHeaderDefinition();
+
+        return def;
+    }
+
+    static readResponseMessageDefinition = (element: any): ResponseMessageDefinition => {
+        
+        const def = element ? new ResponseMessageDefinition({...element}) : new ResponseMessageDefinition();
+        def.examples = element && element?.examples ? element?.examples.map((x:any) => CamelDefinitionYamlStep.readRestPropertyDefinition(x)) :[]; 
+        def.header = element && element?.header ? element?.header.map((x:any) => CamelDefinitionYamlStep.readResponseHeaderDefinition(x)) :[]; 
 
         return def;
     }
@@ -2982,37 +3049,13 @@ export class CamelDefinitionYamlStep {
         def.post = element && element?.post ? element?.post.map((x:any) => CamelDefinitionYamlStep.readPostDefinition(x)) :[]; 
         def.get = element && element?.get ? element?.get.map((x:any) => CamelDefinitionYamlStep.readGetDefinition(x)) :[]; 
         if (element?.securityRequirements !== undefined) { 
-            def.securityRequirements = CamelDefinitionYamlStep.readRestSecuritiesRequirement(element.securityRequirements); 
+            def.securityRequirements = CamelDefinitionYamlStep.readSecurityRequirementsDefinition(element.securityRequirements); 
         } 
         def.delete = element && element?.delete ? element?.delete.map((x:any) => CamelDefinitionYamlStep.readDeleteDefinition(x)) :[]; 
         if (element?.securityDefinitions !== undefined) { 
             def.securityDefinitions = CamelDefinitionYamlStep.readRestSecuritiesDefinition(element.securityDefinitions); 
         } 
         def.put = element && element?.put ? element?.put.map((x:any) => CamelDefinitionYamlStep.readPutDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readRestOperationParamDefinition = (element: any): RestOperationParamDefinition => {
-        
-        const def = element ? new RestOperationParamDefinition({...element}) : new RestOperationParamDefinition();
-        def.examples = element && element?.examples ? element?.examples.map((x:any) => CamelDefinitionYamlStep.readRestPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readRestOperationResponseHeaderDefinition = (element: any): RestOperationResponseHeaderDefinition => {
-        
-        const def = element ? new RestOperationResponseHeaderDefinition({...element}) : new RestOperationResponseHeaderDefinition();
-
-        return def;
-    }
-
-    static readRestOperationResponseMsgDefinition = (element: any): RestOperationResponseMsgDefinition => {
-        
-        const def = element ? new RestOperationResponseMsgDefinition({...element}) : new RestOperationResponseMsgDefinition();
-        def.examples = element && element?.examples ? element?.examples.map((x:any) => CamelDefinitionYamlStep.readRestPropertyDefinition(x)) :[]; 
-        def.header = element && element?.header ? element?.header.map((x:any) => CamelDefinitionYamlStep.readRestOperationResponseHeaderDefinition(x)) :[]; 
 
         return def;
     }
@@ -3028,76 +3071,23 @@ export class CamelDefinitionYamlStep {
         
         const def = element ? new RestSecuritiesDefinition({...element}) : new RestSecuritiesDefinition();
         if (element?.openIdConnect !== undefined) { 
-            def.openIdConnect = CamelDefinitionYamlStep.readRestSecurityOpenIdConnect(element.openIdConnect); 
+            def.openIdConnect = CamelDefinitionYamlStep.readOpenIdConnectDefinition(element.openIdConnect); 
         } 
         if (element?.apiKey !== undefined) { 
-            def.apiKey = CamelDefinitionYamlStep.readRestSecurityApiKey(element.apiKey); 
+            def.apiKey = CamelDefinitionYamlStep.readApiKeyDefinition(element.apiKey); 
         } 
         if (element?.basicAuth !== undefined) { 
-            def.basicAuth = CamelDefinitionYamlStep.readRestSecurityBasicAuth(element.basicAuth); 
+            def.basicAuth = CamelDefinitionYamlStep.readBasicAuthDefinition(element.basicAuth); 
         } 
         if (element?.mutualTls !== undefined) { 
-            def.mutualTls = CamelDefinitionYamlStep.readRestSecurityMutualTLS(element.mutualTls); 
+            def.mutualTls = CamelDefinitionYamlStep.readMutualTLSDefinition(element.mutualTls); 
         } 
         if (element?.bearer !== undefined) { 
-            def.bearer = CamelDefinitionYamlStep.readRestSecurityBearerToken(element.bearer); 
+            def.bearer = CamelDefinitionYamlStep.readBearerTokenDefinition(element.bearer); 
         } 
         if (element?.oauth2 !== undefined) { 
-            def.oauth2 = CamelDefinitionYamlStep.readRestSecurityOAuth2(element.oauth2); 
+            def.oauth2 = CamelDefinitionYamlStep.readOAuth2Definition(element.oauth2); 
         } 
-
-        return def;
-    }
-
-    static readRestSecuritiesRequirement = (element: any): RestSecuritiesRequirement => {
-        
-        const def = element ? new RestSecuritiesRequirement({...element}) : new RestSecuritiesRequirement();
-        if (element?.securityRequirement !== undefined) { 
-            def.securityRequirement = CamelDefinitionYamlStep.readSecurityDefinition(element.securityRequirement); 
-        } 
-
-        return def;
-    }
-
-    static readRestSecurityApiKey = (element: any): RestSecurityApiKey => {
-        
-        const def = element ? new RestSecurityApiKey({...element}) : new RestSecurityApiKey();
-
-        return def;
-    }
-
-    static readRestSecurityBasicAuth = (element: any): RestSecurityBasicAuth => {
-        
-        const def = element ? new RestSecurityBasicAuth({...element}) : new RestSecurityBasicAuth();
-
-        return def;
-    }
-
-    static readRestSecurityBearerToken = (element: any): RestSecurityBearerToken => {
-        
-        const def = element ? new RestSecurityBearerToken({...element}) : new RestSecurityBearerToken();
-
-        return def;
-    }
-
-    static readRestSecurityMutualTLS = (element: any): RestSecurityMutualTLS => {
-        
-        const def = element ? new RestSecurityMutualTLS({...element}) : new RestSecurityMutualTLS();
-
-        return def;
-    }
-
-    static readRestSecurityOAuth2 = (element: any): RestSecurityOAuth2 => {
-        
-        const def = element ? new RestSecurityOAuth2({...element}) : new RestSecurityOAuth2();
-        def.scopes = element && element?.scopes ? element?.scopes.map((x:any) => CamelDefinitionYamlStep.readRestPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readRestSecurityOpenIdConnect = (element: any): RestSecurityOpenIdConnect => {
-        
-        const def = element ? new RestSecurityOpenIdConnect({...element}) : new RestSecurityOpenIdConnect();
 
         return def;
     }
@@ -3113,6 +3103,16 @@ export class CamelDefinitionYamlStep {
     static readSecurityDefinition = (element: any): SecurityDefinition => {
         
         const def = element ? new SecurityDefinition({...element}) : new SecurityDefinition();
+
+        return def;
+    }
+
+    static readSecurityRequirementsDefinition = (element: any): SecurityRequirementsDefinition => {
+        
+        const def = element ? new SecurityRequirementsDefinition({...element}) : new SecurityRequirementsDefinition();
+        if (element?.securityRequirement !== undefined) { 
+            def.securityRequirement = CamelDefinitionYamlStep.readSecurityDefinition(element.securityRequirement); 
+        } 
 
         return def;
     }
