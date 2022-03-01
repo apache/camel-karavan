@@ -42,7 +42,6 @@ import {
     InterceptSendToEndpointDefinition,
     KameletDefinition,
     LoadBalanceDefinition,
-    LoadBalancerDefinition,
     LogDefinition,
     LoopDefinition,
     MarshalDefinition,
@@ -889,13 +888,6 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
-    static readLoadBalancerDefinition = (element: any): LoadBalancerDefinition => {
-        
-        const def = element ? new LoadBalancerDefinition({...element}) : new LoadBalancerDefinition();
-
-        return def;
-    }
-
     static readLogDefinition = (element: any): LogDefinition => {
         if (element && typeof element === 'string') element = {message: element};
         const def = element ? new LogDefinition({...element}) : new LogDefinition();
@@ -1249,7 +1241,7 @@ export class CamelDefinitionYamlStep {
     }
 
     static readRemovePropertyDefinition = (element: any): RemovePropertyDefinition => {
-        
+        if (element && typeof element === 'string') element = {name: element};
         const def = element ? new RemovePropertyDefinition({...element}) : new RemovePropertyDefinition();
 
         return def;

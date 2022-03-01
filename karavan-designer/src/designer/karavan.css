@@ -854,7 +854,8 @@
     justify-content: center;
 }
 
-.karavan .rest-page .rest-card ,
+.karavan .rest-page .rest-config-card,
+.karavan .rest-page .rest-card,
 .karavan .rest-page .method-card {
     border-style: dotted;
     border-radius: 4px;
@@ -865,17 +866,20 @@
 }
 
 .karavan .rest-page .rest-card-unselected,
+.karavan .rest-page .rest-config-card-unselected,
 .karavan .rest-page .method-card-unselected {
     border-color: #fb8824;
     background-color: transparent;
 }
 
 .karavan .rest-page .rest-card-selected,
+.karavan .rest-page .rest-config-card-selected,
 .karavan .rest-page .method-card-selected {
     border-color: rgb(48, 50, 132);
     background-color: rgb(171, 172, 224, 0.1);
 }
 
+.karavan .rest-page .rest-config-card,
 .karavan .rest-page .rest-card {
     display: flex;
     flex-direction: column;
@@ -892,6 +896,7 @@
     ustify-content: space-between;
 }
 
+.karavan .rest-page .rest-config-card,
 .karavan .rest-page .method-card {
     display: flex;
     flex-direction: row;
@@ -922,17 +927,21 @@
 }
 
 .karavan .rest-page .rest-card .title,
+.karavan .rest-page .rest-config-card .title,
 .karavan .rest-page .method-card .title {
     margin: auto 0 auto 0;
     font-weight: bold;
+    white-space: nowrap;
 }
 
 .karavan .rest-page .rest-card .description,
+.karavan .rest-page .rest-config-card .description,
 .karavan .rest-page .method-card .description {
     margin: auto 0 auto 0;
     width: 100%;
 }
 
+.karavan .rest-page .rest-config-card .delete-button,
 .karavan .rest-page .rest-card .delete-button,
 .karavan .rest-page .method-card .delete-button {
     position: absolute;
@@ -949,6 +958,7 @@
     z-index: 100;
 }
 
+.karavan .rest-page .rest-config-card:hover .delete-button,
 .karavan .rest-page .rest-card:hover .delete-button,
 .karavan .rest-page .method-card:hover .delete-button {
     visibility: visible;
@@ -967,6 +977,7 @@
     flex-direction: row;
     justify-content: center;
     margin-top: 16px;
+    gap: 6px;
 }
 
 /*Beans*/

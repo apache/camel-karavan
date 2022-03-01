@@ -1,0 +1,17 @@
+apiVersion: camel.apache.org/v1
+kind: Integration
+metadata:
+  name: test
+spec:
+  flows:
+    - rest:
+        post:
+          - to: direct:direct1
+        path: path1
+    - rest:
+        post:
+          - to: direct:direct2
+        path: path2
+    - restConfiguration:
+        port: '8080'
+        host: localhost

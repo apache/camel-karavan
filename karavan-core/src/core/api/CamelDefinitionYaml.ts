@@ -143,6 +143,7 @@ export class CamelDefinitionYaml {
             let newValue: any = JSON.parse(JSON.stringify(value));
             delete newValue[stepNameField];
             if ((value.inArray && !value.inSteps)
+                || key === 'expression'
                 || key === 'from') {
                 delete newValue.inArray;
                 delete newValue.inSteps;

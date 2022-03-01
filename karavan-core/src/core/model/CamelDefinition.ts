@@ -50,6 +50,7 @@ export class ProcessorDefinition extends CamelElement {
     resequence?: ResequenceDefinition;
     routingSlip?: RoutingSlipDefinition | string;
     transform?: TransformDefinition;
+    stepName?: string = 'processor';
     removeProperties?: RemovePropertiesDefinition | string;
     policy?: PolicyDefinition;
     validate?: ValidateDefinition;
@@ -57,7 +58,7 @@ export class ProcessorDefinition extends CamelElement {
     process?: ProcessDefinition;
     threads?: ThreadsDefinition;
     setBody?: SetBodyDefinition;
-    sample?: SamplingDefinition;
+    sample?: SamplingDefinition | string;
     throwException?: ThrowExceptionDefinition;
     dynamicRouter?: DynamicRouterDefinition;
     multicast?: MulticastDefinition;
@@ -269,6 +270,7 @@ export class ClaimCheckDefinition extends CamelElement {
 
 export class ContextScanDefinition extends CamelElement {
     excludes?: string[] = [];
+    stepName?: string = 'contextScan';
     includeNonSingletons?: boolean;
     includes?: string[] = []
     public constructor(init?: Partial<ContextScanDefinition>) {
@@ -292,6 +294,7 @@ export class ConvertBodyDefinition extends CamelElement {
 }
 
 export class DataFormatDefinition extends CamelElement {
+    stepName?: string = 'dataFormat';
     id?: string
     public constructor(init?: Partial<DataFormatDefinition>) {
         super('DataFormatDefinition')
@@ -315,6 +318,7 @@ export class DelayDefinition extends CamelElement {
 }
 
 export class DescriptionDefinition extends CamelElement {
+    stepName?: string = 'description';
     text?: string;
     lang?: string
     public constructor(init?: Partial<DescriptionDefinition>) {
@@ -374,6 +378,7 @@ export class ExpressionSubElementDefinition extends CamelElement {
     xpath?: XPathExpression | string;
     groovy?: GroovyExpression | string;
     csimple?: CSimpleExpression | string;
+    stepName?: string = 'expressionSubElement';
     exchangeProperty?: ExchangePropertyExpression | string;
     jsonpath?: JsonPathExpression | string;
     header?: HeaderExpression | string;
@@ -395,6 +400,7 @@ export class FaultToleranceConfigurationDefinition extends CamelElement {
     requestVolumeThreshold?: number;
     bulkheadExecutorService?: string;
     delay?: string;
+    stepName?: string = 'faultToleranceConfiguration';
     bulkheadWaitingTaskQueue?: number;
     circuitBreaker?: string;
     id?: string;
@@ -444,6 +450,7 @@ export class FromDefinition extends CamelElement {
 }
 
 export class GlobalOptionDefinition extends CamelElement {
+    stepName?: string = 'globalOption';
     value: string = '';
     key: string = ''
     public constructor(init?: Partial<GlobalOptionDefinition>) {
@@ -453,6 +460,7 @@ export class GlobalOptionDefinition extends CamelElement {
 }
 
 export class GlobalOptionsDefinition extends CamelElement {
+    stepName?: string = 'globalOptions';
     globalOption?: GlobalOptionDefinition[] = []
     public constructor(init?: Partial<GlobalOptionsDefinition>) {
         super('GlobalOptionsDefinition')
@@ -473,6 +481,7 @@ export class HystrixConfigurationDefinition extends CamelElement {
     queueSizeRejectionThreshold?: number;
     fallbackEnabled?: boolean;
     threadPoolRollingNumberStatisticalWindowInMilliseconds?: number;
+    stepName?: string = 'hystrixConfiguration';
     maxQueueSize?: number;
     circuitBreakerSleepWindowInMilliseconds?: number;
     id?: string;
@@ -545,6 +554,7 @@ export class InOutDefinition extends CamelElement {
 
 export class InputTypeDefinition extends CamelElement {
     urn: string = '';
+    stepName?: string = 'inputType';
     description?: string;
     id?: string;
     validate?: boolean
@@ -620,14 +630,6 @@ export class LoadBalanceDefinition extends CamelElement {
     roundRobin?: RoundRobinLoadBalancerDefinition
     public constructor(init?: Partial<LoadBalanceDefinition>) {
         super('LoadBalanceDefinition')
-        Object.assign(this, init)
-    }
-}
-
-export class LoadBalancerDefinition extends CamelElement {
-    id?: string
-    public constructor(init?: Partial<LoadBalancerDefinition>) {
-        super('LoadBalancerDefinition')
         Object.assign(this, init)
     }
 }
@@ -795,6 +797,7 @@ export class OnFallbackDefinition extends CamelElement {
 
 export class OptimisticLockRetryPolicyDefinition extends CamelElement {
     retryDelay?: string;
+    stepName?: string = 'optimisticLockRetryPolicy';
     maximumRetries?: number;
     randomBackOff?: boolean;
     exponentialBackOff?: boolean;
@@ -819,6 +822,7 @@ export class OtherwiseDefinition extends CamelElement {
 
 export class OutputDefinition extends CamelElement {
     inheritErrorHandler?: boolean;
+    stepName?: string = 'output';
     description?: string;
     id?: string;
     steps?: CamelElement[] = []
@@ -830,6 +834,7 @@ export class OutputDefinition extends CamelElement {
 
 export class OutputTypeDefinition extends CamelElement {
     urn: string = '';
+    stepName?: string = 'outputType';
     description?: string;
     id?: string;
     validate?: boolean
@@ -842,6 +847,7 @@ export class OutputTypeDefinition extends CamelElement {
 export class PackageScanDefinition extends CamelElement {
     excludes?: string[] = [];
     package?: string[] = [];
+    stepName?: string = 'packageScan';
     includes?: string[] = []
     public constructor(init?: Partial<PackageScanDefinition>) {
         super('PackageScanDefinition')
@@ -906,6 +912,7 @@ export class ProcessDefinition extends CamelElement {
 }
 
 export class PropertyDefinition extends CamelElement {
+    stepName?: string = 'property';
     value: string = '';
     key: string = ''
     public constructor(init?: Partial<PropertyDefinition>) {
@@ -916,6 +923,7 @@ export class PropertyDefinition extends CamelElement {
 
 export class PropertyExpressionDefinition extends CamelElement {
     expression?: ExpressionDefinition;
+    stepName?: string = 'propertyExpression';
     key: string = ''
     public constructor(init?: Partial<PropertyExpressionDefinition>) {
         super('PropertyExpressionDefinition')
@@ -952,28 +960,29 @@ export class RecipientListDefinition extends CamelElement {
 export class RedeliveryPolicyDefinition extends CamelElement {
     logNewException?: boolean;
     backOffMultiplier?: number;
-    exchangeFormatterRef?: string;
-    allowRedeliveryWhileStopping?: boolean;
     delayPattern?: string;
-    retriesExhaustedLogLevel?: string;
-    logStackTrace?: boolean;
     retryAttemptedLogInterval?: number;
     logRetryAttempted?: boolean;
-    maximumRedeliveryDelay?: string;
-    useExponentialBackOff?: boolean;
     logExhaustedMessageHistory?: boolean;
+    stepName?: string = 'redeliveryPolicy';
     collisionAvoidanceFactor?: number;
-    asyncDelayedRedelivery?: boolean;
     logRetryStackTrace?: boolean;
     disableRedelivery?: boolean;
+    logExhaustedMessageBody?: boolean;
+    logHandled?: boolean;
+    useCollisionAvoidance?: boolean;
+    exchangeFormatterRef?: string;
+    allowRedeliveryWhileStopping?: boolean;
+    retriesExhaustedLogLevel?: string;
+    logStackTrace?: boolean;
+    maximumRedeliveryDelay?: string;
+    useExponentialBackOff?: boolean;
+    asyncDelayedRedelivery?: boolean;
     logContinued?: boolean;
     retryAttemptedLogLevel?: string;
     redeliveryDelay?: string;
-    logExhaustedMessageBody?: boolean;
-    logHandled?: boolean;
     maximumRedeliveries?: number;
-    logExhausted?: boolean;
-    useCollisionAvoidance?: boolean
+    logExhausted?: boolean
     public constructor(init?: Partial<RedeliveryPolicyDefinition>) {
         super('RedeliveryPolicyDefinition')
         Object.assign(this, init)
@@ -1021,7 +1030,7 @@ export class RemovePropertiesDefinition extends CamelElement {
 export class RemovePropertyDefinition extends CamelElement {
     inheritErrorHandler?: boolean;
     stepName?: string = 'removeProperty';
-    name?: string;
+    name: string = '';
     description?: string;
     id?: string
     public constructor(init?: Partial<RemovePropertyDefinition>) {
@@ -1051,6 +1060,7 @@ export class Resilience4jConfigurationDefinition extends CamelElement {
     minimumNumberOfCalls?: number;
     permittedNumberOfCallsInHalfOpenState?: number;
     slowCallRateThreshold?: number;
+    stepName?: string = 'resilience4jConfiguration';
     writableStackTraceEnabled?: boolean;
     automaticTransitionFromOpenToHalfOpenEnabled?: boolean;
     circuitBreaker?: string;
@@ -1066,7 +1076,8 @@ export class Resilience4jConfigurationDefinition extends CamelElement {
 }
 
 export class RestContextRefDefinition extends CamelElement {
-    ref: string = ''
+    ref: string = '';
+    stepName?: string = 'restContextRef'
     public constructor(init?: Partial<RestContextRefDefinition>) {
         super('RestContextRefDefinition')
         Object.assign(this, init)
@@ -1089,6 +1100,7 @@ export class RollbackDefinition extends CamelElement {
 
 export class RouteBuilderDefinition extends CamelElement {
     ref: string = '';
+    stepName?: string = 'routeBuilder';
     id?: string
     public constructor(init?: Partial<RouteBuilderDefinition>) {
         super('RouteBuilderDefinition')
@@ -1097,7 +1109,8 @@ export class RouteBuilderDefinition extends CamelElement {
 }
 
 export class RouteConfigurationContextRefDefinition extends CamelElement {
-    ref: string = ''
+    ref: string = '';
+    stepName?: string = 'routeConfigurationContextRef'
     public constructor(init?: Partial<RouteConfigurationContextRefDefinition>) {
         super('RouteConfigurationContextRefDefinition')
         Object.assign(this, init)
@@ -1107,6 +1120,7 @@ export class RouteConfigurationContextRefDefinition extends CamelElement {
 export class RouteConfigurationDefinition extends CamelElement {
     onCompletion?: OnCompletionDefinition[] = [];
     interceptSendToEndpoint?: InterceptSendToEndpointDefinition[] = [];
+    stepName?: string = 'routeConfiguration';
     intercept?: InterceptDefinition[] = [];
     onException?: OnExceptionDefinition[] = [];
     id?: string;
@@ -1118,7 +1132,8 @@ export class RouteConfigurationDefinition extends CamelElement {
 }
 
 export class RouteContextRefDefinition extends CamelElement {
-    ref: string = ''
+    ref: string = '';
+    stepName?: string = 'routeContextRef'
     public constructor(init?: Partial<RouteContextRefDefinition>) {
         super('RouteContextRefDefinition')
         Object.assign(this, init)
@@ -1139,6 +1154,7 @@ export class RouteDefinition extends CamelElement {
 }
 
 export class RouteTemplateBeanDefinition extends CamelElement {
+    stepName?: string = 'routeTemplateBean';
     name: string = '';
     property?: PropertyDefinition[] = [];
     type: string = '';
@@ -1164,6 +1180,7 @@ export class RouteTemplateDefinition extends CamelElement {
 }
 
 export class RouteTemplateParameterDefinition extends CamelElement {
+    stepName?: string = 'routeTemplateParameter';
     defaultValue?: string;
     name: string = '';
     description?: string;
@@ -1191,6 +1208,7 @@ export class RoutingSlipDefinition extends CamelElement {
 
 export class SagaActionUriDefinition extends CamelElement {
     inheritErrorHandler?: boolean;
+    stepName?: string = 'sagaActionUri';
     description?: string;
     id?: string;
     parameters?: any = {};
@@ -1226,7 +1244,6 @@ export class SamplingDefinition extends CamelElement {
     description?: string;
     messageFrequency?: number;
     id?: string;
-    units?: string;
     samplePeriod?: string
     public constructor(init?: Partial<SamplingDefinition>) {
         super('SamplingDefinition')
@@ -1371,6 +1388,7 @@ export class SwitchDefinition extends CamelElement {
 }
 
 export class TemplatedRouteBeanDefinition extends CamelElement {
+    stepName?: string = 'templatedRouteBean';
     name: string = '';
     property?: PropertyDefinition[] = [];
     type: string = '';
@@ -1396,6 +1414,7 @@ export class TemplatedRouteDefinition extends CamelElement {
 }
 
 export class TemplatedRouteParameterDefinition extends CamelElement {
+    stepName?: string = 'templatedRouteParameter';
     name: string = '';
     value: string = ''
     public constructor(init?: Partial<TemplatedRouteParameterDefinition>) {
@@ -1406,6 +1425,7 @@ export class TemplatedRouteParameterDefinition extends CamelElement {
 
 export class ThreadPoolProfileDefinition extends CamelElement {
     keepAliveTime?: number;
+    stepName?: string = 'threadPoolProfile';
     maxQueueSize?: number;
     allowCoreThreadTimeOut?: boolean;
     poolSize?: number;
@@ -1841,6 +1861,7 @@ export class ServiceCallConfigurationDefinition extends CamelElement {
     passThroughServiceFilter?: PassThroughServiceCallServiceFilterConfiguration;
     dnsServiceDiscovery?: DnsServiceCallServiceDiscoveryConfiguration;
     healthyServiceFilter?: HealthyServiceCallServiceFilterConfiguration;
+    stepName?: string = 'serviceCallConfiguration';
     ribbonLoadBalancer?: RibbonServiceCallServiceLoadBalancerConfiguration;
     serviceChooserRef?: string;
     consulServiceDiscovery?: ConsulServiceCallServiceDiscoveryConfiguration;
@@ -2210,6 +2231,7 @@ export class DataFormatsDefinition extends CamelElement {
     zipFile?: ZipFileDataFormat;
     jaxb?: JaxbDataFormat;
     rss?: RssDataFormat;
+    stepName?: string = 'dataFormats';
     mimeMultipart?: MimeMultipartDataFormat;
     asn1?: ASN1DataFormat | string;
     pgp?: PGPDataFormat;
@@ -2735,6 +2757,7 @@ export class YAMLDataFormat extends CamelElement {
 }
 
 export class YAMLTypeFilterDefinition extends CamelElement {
+    stepName?: string = 'yAMLTypeFilter';
     type?: string;
     value?: string
     public constructor(init?: Partial<YAMLTypeFilterDefinition>) {
@@ -2831,6 +2854,7 @@ export class ExpressionDefinition extends CamelElement {
     xpath?: XPathExpression | string;
     groovy?: GroovyExpression | string;
     csimple?: CSimpleExpression | string;
+    stepName?: string = 'expression';
     exchangeProperty?: ExchangePropertyExpression | string;
     jsonpath?: JsonPathExpression | string;
     header?: HeaderExpression | string;
@@ -3061,6 +3085,7 @@ export class XQueryExpression extends CamelElement {
 
 export class CustomLoadBalancerDefinition extends CamelElement {
     ref: string = '';
+    stepName?: string = 'customLoadBalancer';
     id?: string
     public constructor(init?: Partial<CustomLoadBalancerDefinition>) {
         super('CustomLoadBalancerDefinition')
@@ -3070,6 +3095,7 @@ export class CustomLoadBalancerDefinition extends CamelElement {
 
 export class FailoverLoadBalancerDefinition extends CamelElement {
     exception?: string[] = [];
+    stepName?: string = 'failoverLoadBalancer';
     sticky?: string;
     id?: string;
     maximumFailoverAttempts?: string;
@@ -3081,6 +3107,7 @@ export class FailoverLoadBalancerDefinition extends CamelElement {
 }
 
 export class RandomLoadBalancerDefinition extends CamelElement {
+    stepName?: string = 'randomLoadBalancer';
     id?: string
     public constructor(init?: Partial<RandomLoadBalancerDefinition>) {
         super('RandomLoadBalancerDefinition')
@@ -3089,6 +3116,7 @@ export class RandomLoadBalancerDefinition extends CamelElement {
 }
 
 export class RoundRobinLoadBalancerDefinition extends CamelElement {
+    stepName?: string = 'roundRobinLoadBalancer';
     id?: string
     public constructor(init?: Partial<RoundRobinLoadBalancerDefinition>) {
         super('RoundRobinLoadBalancerDefinition')
@@ -3097,6 +3125,7 @@ export class RoundRobinLoadBalancerDefinition extends CamelElement {
 }
 
 export class StickyLoadBalancerDefinition extends CamelElement {
+    stepName?: string = 'stickyLoadBalancer';
     correlationExpression?: ExpressionSubElementDefinition;
     id?: string
     public constructor(init?: Partial<StickyLoadBalancerDefinition>) {
@@ -3106,6 +3135,7 @@ export class StickyLoadBalancerDefinition extends CamelElement {
 }
 
 export class TopicLoadBalancerDefinition extends CamelElement {
+    stepName?: string = 'topicLoadBalancer';
     id?: string
     public constructor(init?: Partial<TopicLoadBalancerDefinition>) {
         super('TopicLoadBalancerDefinition')
@@ -3115,6 +3145,7 @@ export class TopicLoadBalancerDefinition extends CamelElement {
 
 export class WeightedLoadBalancerDefinition extends CamelElement {
     distributionRatioDelimiter?: string;
+    stepName?: string = 'weightedLoadBalancer';
     id?: string;
     distributionRatio: string = '';
     roundRobin?: string
@@ -3127,6 +3158,7 @@ export class WeightedLoadBalancerDefinition extends CamelElement {
 export class ApiKeyDefinition extends CamelElement {
     inHeader?: boolean;
     inCookie?: boolean;
+    stepName?: string = 'apiKey';
     name: string = '';
     description?: string;
     inQuery?: boolean;
@@ -3138,6 +3170,7 @@ export class ApiKeyDefinition extends CamelElement {
 }
 
 export class BasicAuthDefinition extends CamelElement {
+    stepName?: string = 'basicAuth';
     description?: string;
     key: string = ''
     public constructor(init?: Partial<BasicAuthDefinition>) {
@@ -3147,6 +3180,7 @@ export class BasicAuthDefinition extends CamelElement {
 }
 
 export class BearerTokenDefinition extends CamelElement {
+    stepName?: string = 'bearerToken';
     format?: string;
     description?: string;
     key: string = ''
@@ -3165,6 +3199,7 @@ export class DeleteDefinition extends CamelElement {
     path?: string;
     security?: SecurityDefinition[] = [];
     bindingMode?: string;
+    stepName?: string = 'delete';
     param?: ParamDefinition[] = [];
     apiDocs?: boolean;
     skipBindingOnErrorCode?: boolean;
@@ -3189,6 +3224,7 @@ export class GetDefinition extends CamelElement {
     path?: string;
     security?: SecurityDefinition[] = [];
     bindingMode?: string;
+    stepName?: string = 'get';
     param?: ParamDefinition[] = [];
     apiDocs?: boolean;
     skipBindingOnErrorCode?: boolean;
@@ -3213,6 +3249,7 @@ export class HeadDefinition extends CamelElement {
     path?: string;
     security?: SecurityDefinition[] = [];
     bindingMode?: string;
+    stepName?: string = 'head';
     param?: ParamDefinition[] = [];
     apiDocs?: boolean;
     skipBindingOnErrorCode?: boolean;
@@ -3229,6 +3266,7 @@ export class HeadDefinition extends CamelElement {
 }
 
 export class MutualTLSDefinition extends CamelElement {
+    stepName?: string = 'mutualTLS';
     description?: string;
     key: string = ''
     public constructor(init?: Partial<MutualTLSDefinition>) {
@@ -3240,6 +3278,7 @@ export class MutualTLSDefinition extends CamelElement {
 export class OAuth2Definition extends CamelElement {
     tokenUrl?: string;
     authorizationUrl?: string;
+    stepName?: string = 'oAuth2';
     refreshUrl?: string;
     description?: string;
     scopes?: RestPropertyDefinition[] = [];
@@ -3252,6 +3291,7 @@ export class OAuth2Definition extends CamelElement {
 }
 
 export class OpenIdConnectDefinition extends CamelElement {
+    stepName?: string = 'openIdConnect';
     description?: string;
     key: string = '';
     url: string = ''
@@ -3264,6 +3304,7 @@ export class OpenIdConnectDefinition extends CamelElement {
 export class ParamDefinition extends CamelElement {
     arrayType?: string;
     examples?: RestPropertyDefinition[] = [];
+    stepName?: string = 'param';
     dataFormat?: string;
     defaultValue?: string;
     dataType?: string;
@@ -3288,6 +3329,7 @@ export class PatchDefinition extends CamelElement {
     path?: string;
     security?: SecurityDefinition[] = [];
     bindingMode?: string;
+    stepName?: string = 'patch';
     param?: ParamDefinition[] = [];
     apiDocs?: boolean;
     skipBindingOnErrorCode?: boolean;
@@ -3312,6 +3354,7 @@ export class PostDefinition extends CamelElement {
     path?: string;
     security?: SecurityDefinition[] = [];
     bindingMode?: string;
+    stepName?: string = 'post';
     param?: ParamDefinition[] = [];
     apiDocs?: boolean;
     skipBindingOnErrorCode?: boolean;
@@ -3336,6 +3379,7 @@ export class PutDefinition extends CamelElement {
     path?: string;
     security?: SecurityDefinition[] = [];
     bindingMode?: string;
+    stepName?: string = 'put';
     param?: ParamDefinition[] = [];
     apiDocs?: boolean;
     skipBindingOnErrorCode?: boolean;
@@ -3353,6 +3397,7 @@ export class PutDefinition extends CamelElement {
 
 export class ResponseHeaderDefinition extends CamelElement {
     arrayType?: string;
+    stepName?: string = 'responseHeader';
     dataFormat?: string;
     dataType?: string;
     name: string = '';
@@ -3369,6 +3414,7 @@ export class ResponseHeaderDefinition extends CamelElement {
 export class ResponseMessageDefinition extends CamelElement {
     code?: string;
     examples?: RestPropertyDefinition[] = [];
+    stepName?: string = 'responseMessage';
     header?: ResponseHeaderDefinition[] = [];
     responseModel?: string;
     message: string = ''
@@ -3382,6 +3428,7 @@ export class RestBindingDefinition extends CamelElement {
     enableCors?: boolean;
     component?: string;
     bindingMode?: string;
+    stepName?: string = 'restBinding';
     skipBindingOnErrorCode?: boolean;
     clientRequestValidation?: boolean;
     produces?: string;
@@ -3405,6 +3452,7 @@ export class RestConfigurationDefinition extends CamelElement {
     hostNameResolver?: string;
     componentProperty?: RestPropertyDefinition[] = [];
     corsHeaders?: RestPropertyDefinition[] = [];
+    stepName?: string = 'restConfiguration';
     skipBindingOnErrorCode?: boolean;
     clientRequestValidation?: boolean;
     host?: string;
@@ -3457,6 +3505,7 @@ export class RestDefinition extends CamelElement {
 }
 
 export class RestPropertyDefinition extends CamelElement {
+    stepName?: string = 'restProperty';
     value: string = '';
     key: string = ''
     public constructor(init?: Partial<RestPropertyDefinition>) {
@@ -3468,6 +3517,7 @@ export class RestPropertyDefinition extends CamelElement {
 export class RestSecuritiesDefinition extends CamelElement {
     openIdConnect?: OpenIdConnectDefinition;
     apiKey?: ApiKeyDefinition;
+    stepName?: string = 'restSecurities';
     basicAuth?: BasicAuthDefinition;
     mutualTls?: MutualTLSDefinition;
     bearer?: BearerTokenDefinition;
@@ -3480,6 +3530,7 @@ export class RestSecuritiesDefinition extends CamelElement {
 
 export class RestsDefinition extends CamelElement {
     rest?: RestDefinition[] = [];
+    stepName?: string = 'rests';
     description?: string;
     id?: string
     public constructor(init?: Partial<RestsDefinition>) {
@@ -3489,6 +3540,7 @@ export class RestsDefinition extends CamelElement {
 }
 
 export class SecurityDefinition extends CamelElement {
+    stepName?: string = 'security';
     scopes?: string;
     key: string = ''
     public constructor(init?: Partial<SecurityDefinition>) {
@@ -3498,6 +3550,7 @@ export class SecurityDefinition extends CamelElement {
 }
 
 export class SecurityRequirementsDefinition extends CamelElement {
+    stepName?: string = 'securityRequirements';
     securityRequirement?: SecurityDefinition
     public constructor(init?: Partial<SecurityRequirementsDefinition>) {
         super('SecurityRequirementsDefinition')
@@ -3510,6 +3563,7 @@ export class CustomTransformerDefinition extends CamelElement {
     toType?: string;
     fromType?: string;
     scheme?: string;
+    stepName?: string = 'customTransformer';
     className?: string
     public constructor(init?: Partial<CustomTransformerDefinition>) {
         super('CustomTransformerDefinition')
@@ -3533,6 +3587,7 @@ export class DataFormatTransformerDefinition extends CamelElement {
     ref?: string;
     rss?: RssDataFormat;
     fromType?: string;
+    stepName?: string = 'dataFormatTransformer';
     mimeMultipart?: MimeMultipartDataFormat;
     asn1?: ASN1DataFormat | string;
     pgp?: PGPDataFormat;
@@ -3573,6 +3628,7 @@ export class EndpointTransformerDefinition extends CamelElement {
     toType?: string;
     fromType?: string;
     scheme?: string;
+    stepName?: string = 'endpointTransformer';
     uri?: string
     public constructor(init?: Partial<EndpointTransformerDefinition>) {
         super('EndpointTransformerDefinition')
@@ -3583,6 +3639,7 @@ export class EndpointTransformerDefinition extends CamelElement {
 export class TransformersDefinition extends CamelElement {
     endpointTransformer?: EndpointTransformerDefinition;
     customTransformer?: CustomTransformerDefinition;
+    stepName?: string = 'transformers';
     dataFormatTransformer?: DataFormatTransformerDefinition
     public constructor(init?: Partial<TransformersDefinition>) {
         super('TransformersDefinition')
@@ -3592,6 +3649,7 @@ export class TransformersDefinition extends CamelElement {
 
 export class CustomValidatorDefinition extends CamelElement {
     ref?: string;
+    stepName?: string = 'customValidator';
     className?: string;
     type?: string
     public constructor(init?: Partial<CustomValidatorDefinition>) {
@@ -3602,6 +3660,7 @@ export class CustomValidatorDefinition extends CamelElement {
 
 export class EndpointValidatorDefinition extends CamelElement {
     ref?: string;
+    stepName?: string = 'endpointValidator';
     type?: string;
     uri?: string
     public constructor(init?: Partial<EndpointValidatorDefinition>) {
@@ -3612,6 +3671,7 @@ export class EndpointValidatorDefinition extends CamelElement {
 
 export class PredicateValidatorDefinition extends CamelElement {
     expression?: ExpressionDefinition;
+    stepName?: string = 'predicateValidator';
     type?: string
     public constructor(init?: Partial<PredicateValidatorDefinition>) {
         super('PredicateValidatorDefinition')
@@ -3620,6 +3680,7 @@ export class PredicateValidatorDefinition extends CamelElement {
 }
 
 export class ValidatorsDefinition extends CamelElement {
+    stepName?: string = 'validators';
     predicateValidator?: PredicateValidatorDefinition;
     endpointValidator?: EndpointValidatorDefinition;
     customValidator?: CustomValidatorDefinition

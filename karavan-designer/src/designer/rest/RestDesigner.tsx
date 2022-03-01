@@ -25,12 +25,13 @@ import {DslProperties} from "../route/DslProperties";
 import {RouteToCreate} from "../utils/CamelUi";
 import {RestCard} from "./RestCard";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
-import {RestDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {RestConfigurationDefinition, RestContextRefDefinition, RestDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {RestMethodSelector} from "./RestMethodSelector";
 import {DslMetaModel} from "../utils/DslMetaModel";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
+import {RestConfigurationCard} from "./RestConfigurationCard";
 
 interface Props {
     onSave?: (integration: Integration) => void
@@ -98,14 +99,18 @@ export class RestDesigner extends React.Component<Props, State> {
         }
     };
 
-    changeRest = (rest: RestDefinition) => {
+    addRest = (rest: RestDefinition) => {
         const clone = CamelUtil.cloneIntegration(this.state.integration);
         const i = CamelDefinitionApiExt.addRestToIntegration(clone, rest);
         this.setState({integration: i, key: Math.random().toString(), selectedStep: rest});
     }
 
     createRest = () => {
-        this.changeRest(new RestDefinition());
+        this.addRest(new RestDefinition());
+    }
+
+    createRestConfiguration = () => {
+        this.addRest(new RestConfigurationDefinition());
     }
 
     showDeleteConfirmation = (element: CamelElement) => {
@@ -115,9 +120,10 @@ export class RestDesigner extends React.Component<Props, State> {
     deleteElement = () => {
         const step = this.state.selectedStep;
         if (step) {
-            const i =  step.dslName === 'RestDefinition'
-                ? CamelDefinitionApiExt.deleteRestFromIntegration(this.state.integration, step.uuid)
-                : CamelDefinitionApiExt.deleteRestMethodFromIntegration(this.state.integration, step.uuid);
+            let i;
+            if (step.dslName === 'RestDefinition') i = CamelDefinitionApiExt.deleteRestFromIntegration(this.state.integration, step.uuid);
+            else if (step.dslName === 'RestConfigurationDefinition') i = CamelDefinitionApiExt.deleteRestConfigurationFromIntegration(this.state.integration);
+            else i = CamelDefinitionApiExt.deleteRestMethodFromIntegration(this.state.integration, step.uuid);
             this.setState({
                 integration: i,
                 showSelector: false,
@@ -151,7 +157,7 @@ export class RestDesigner extends React.Component<Props, State> {
     }
 
     onMethodSelect = (method: DslMetaModel) => {
-        if (this.state.selectedStep){
+        if (this.state.selectedStep) {
             const clone = CamelUtil.cloneIntegration(this.state.integration);
             const m = CamelDefinitionApi.createStep(method.dsl, {});
             const i = CamelDefinitionApiExt.addRestMethodToIntegration(clone, m, this.state.selectedStep?.uuid);
@@ -178,20 +184,54 @@ export class RestDesigner extends React.Component<Props, State> {
             </Modal>)
     }
 
+    getRestConfigurationCard(config: RestContextRefDefinition) {
+        return (<>
+            <RestConfigurationCard key={Math.random().toString()}
+                                   selectedRestConfig={this.state.selectedStep}
+                                   restConfig={config}
+                                   integration={this.props.integration}
+                                   selectElement={this.selectElement}
+                                   deleteElement={this.showDeleteConfirmation}/>
+        </>)
+    }
+
+    getRestCards(data: RestDefinition[]) {
+        return (<>
+            {data?.map(rest => <RestCard key={rest.uuid + this.state.key}
+                                         selectedStep={this.state.selectedStep}
+                                         rest={rest}
+                                         integration={this.props.integration}
+                                         selectMethod={this.selectMethod}
+                                         selectElement={this.selectElement}
+                                         deleteElement={this.showDeleteConfirmation}/>)}
+        </>)
+    }
+
     render() {
         const data = this.props.integration.spec.flows?.filter(f => f.dslName === 'RestDefinition');
+        const configData = this.props.integration.spec.flows?.filter(f => f.dslName === 'RestConfigurationDefinition');
+        const config = configData && Array.isArray(configData) ? configData[0] : undefined;
         return (
             <PageSection className="rest-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="rest-page-columns">
-                    <div className="graph" data-click="REST"  onClick={event => this.unselectElement(event)}>
+                    <div className="graph" data-click="REST" onClick={event => this.unselectElement(event)}>
                         <div className="flows">
-                            {data?.map(rest => <RestCard key={rest.uuid + this.state.key} selectedStep={this.state.selectedStep} rest={rest} integration={this.props.integration} selectMethod={this.selectMethod} selectElement={this.selectElement} deleteElement={this.showDeleteConfirmation}/>)}
+                            {config && this.getRestConfigurationCard(config)}
+                            {data && this.getRestCards(data)}
                             <div className="add-rest">
+                                {config === undefined &&
+                                    <Button
+                                        variant="primary"
+                                        data-click="ADD_REST_REST_CONFIG"
+                                        icon={<PlusIcon/>}
+                                        onClick={e => this.createRestConfiguration()}>Create REST Configuration
+                                    </Button>
+                                }
                                 <Button
                                     variant={data?.length === 0 ? "primary" : "secondary"}
                                     data-click="ADD_REST"
                                     icon={<PlusIcon/>}
-                                    onClick={e => this.createRest()}>Create new REST
+                                    onClick={e => this.createRest()}>Create REST Service
                                 </Button>
                             </div>
                         </div>

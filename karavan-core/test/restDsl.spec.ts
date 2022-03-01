@@ -19,9 +19,10 @@ import * as fs from 'fs';
 import 'mocha';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
 import {Integration} from "../src/core/model/IntegrationDefinition";
-import {GetDefinition, RestDefinition, RouteDefinition} from "../src/core/model/CamelDefinition";
+import {GetDefinition, PostDefinition, RestDefinition, RouteDefinition} from "../src/core/model/CamelDefinition";
 import {FromDefinition} from "../src/core/model/CamelDefinition";
 import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
+import {RestConfigurationDefinition} from "../src/core/model/CamelDefinition";
 
 describe('REST DSL', () => {
 
@@ -52,13 +53,25 @@ describe('REST DSL', () => {
         i = CamelDefinitionApiExt.addRestMethodToIntegration(i, new GetDefinition(), rest.uuid);
 
         const yaml = CamelDefinitionYaml.integrationToYaml(i);
-        console.log(yaml);
 
         i.spec.flows?.filter(f => f.dslName === 'RestDefinition').forEach(f => {
                 const rest = f as RestDefinition;
                 expect(rest.path).to.equal("/demo");
                 expect(rest.get?.length).to.equal(2);
             })
+    });
+
+    it('Add REST Configuration', () => {
+        let i = Integration.createNew("test")
+        i.spec.flows?.push(new RestDefinition({path:"path1", post:[new PostDefinition({to:"direct:direct1"})]}));
+        i.spec.flows?.push(new RestDefinition({path:"path2", post:[new PostDefinition({to:"direct:direct2"})]}));
+        i.spec.flows?.push(new RestConfigurationDefinition({port: "8080", host:"localhost"}));
+
+        const yaml1 = CamelDefinitionYaml.integrationToYaml(i);
+
+        const yaml2 = fs.readFileSync('test/restConfigDsl.yaml', {encoding: 'utf8', flag: 'r'});
+
+        expect(yaml2).to.equal(yaml1);
     });
 
 });

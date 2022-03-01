@@ -146,9 +146,9 @@ class App extends React.Component<Props, State> {
             // '                           message: hello22s\n' +
             // '                           logName: log22\n' +
             // '                otherwise: {}\n'+
-            '    - rest-configuration:\n' +
+            '    - restConfiguration:\n' +
             '        component: "platform-http"\n' +
-            '        context-path: "/base"  \n' +
+            '        contextPath: "/base"  \n' +
             '        port: 8081\n' +
             '    - rest:\n' +
             '        path: "/"\n' +
