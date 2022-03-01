@@ -58,9 +58,9 @@ export function activate(context: vscode.ExtensionContext) {
         "karavan.open",
         (...args: any[]) => {
             if (args && args.length > 0) {
-                const yaml = fs.readFileSync(path.resolve(args[0].path)).toString('utf8');
-                const filename = path.basename(args[0].path);
-                const relativePath = getRalativePath(args[0].path);
+                const yaml = fs.readFileSync(path.resolve(args[0].fsPath)).toString('utf8');
+                const filename = path.basename(args[0].fsPath);
+                const relativePath = getRalativePath(args[0].fsPath);
                 const integration = parceYaml(filename, yaml);
                 if (integration[0]) {
                     openKaravanWebView(context, webviewContent, filename, relativePath, integration[1]);
@@ -77,15 +77,15 @@ export function activate(context: vscode.ExtensionContext) {
         "karavan.jbang-run",
         (...args: any[]) => {
             if (args && args.length > 0) {
-                if (args[0].path.startsWith('webview-panel/webview')) {
+                if (args[0].fsPath.startsWith('webview-panel/webview')) {
                     const filename = Array.from(KARAVAN_PANELS.entries()).filter(({ 1: v }) => v.active).map(([k]) => k)[0];
                     if (filename) {
                         runCamelJbang(filename);
                     }
                 } else {
-                    const yaml = fs.readFileSync(path.resolve(args[0].path)).toString('utf8');
-                    const relativePath = getRalativePath(args[0].path);
-                    const filename = path.basename(args[0].path);
+                    const yaml = fs.readFileSync(path.resolve(args[0].fsPath)).toString('utf8');
+                    const relativePath = getRalativePath(args[0].fsPath);
+                    const filename = path.basename(args[0].fsPath);
                     const integration = parceYaml(filename, yaml);
                     if (integration[0]) {
                         runCamelJbang(relativePath);
@@ -136,8 +136,8 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
                     if (vscode.workspace.workspaceFolders) {
                         console.log(message);
                         const uriFolder: vscode.Uri = vscode.workspace.workspaceFolders[0].uri;
-                        const uriFile: vscode.Uri = vscode.Uri.file(path.join(uriFolder.path, message.relativePath));
-                        fs.writeFile(uriFile.path, message.yaml, err => {
+                        const uriFile: vscode.Uri = vscode.Uri.file(path.join(uriFolder.fsPath, message.relativePath));
+                        fs.writeFile(uriFile.fsPath, message.yaml, err => {
                             if (err) vscode.window.showErrorMessage("Error: " + err?.message);
                         });
                     }
