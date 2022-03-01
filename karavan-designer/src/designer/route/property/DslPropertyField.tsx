@@ -30,7 +30,7 @@ import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import { PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
+import {PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {ExpressionField} from "./ExpressionField";
 import {CamelUi, RouteToCreate} from "../../utils/CamelUi";
@@ -49,11 +49,12 @@ interface Props {
     property: PropertyMeta,
     value: any,
     onChange?: (fieldId: string, value: string | number | boolean | any, newRoute?: RouteToCreate) => void,
-    onExpressionChange?: (propertyName: string, exp:ExpressionDefinition) => void,
+    onExpressionChange?: (propertyName: string, exp: ExpressionDefinition) => void,
     onDataFormatChange?: (value: DataFormatDefinition) => void,
     onParameterChange?: (parameter: string, value: string | number | boolean | any, pathParameter?: boolean, newRoute?: RouteToCreate) => void,
     element?: CamelElement
     integration: Integration,
+    hideLabel?: boolean
 }
 
 interface State {
@@ -134,7 +135,7 @@ export class DslPropertyField extends React.Component<Props, State> {
     }
 
     isUriReadOnly = (property: PropertyMeta): boolean => {
-        const dslName:string = this.props.element?.dslName || '';
+        const dslName: string = this.props.element?.dslName || '';
         return property.name === 'uri' && !['ToDynamicDefinition', 'WireTapDefinition'].includes(dslName)
     }
 
@@ -173,7 +174,7 @@ export class DslPropertyField extends React.Component<Props, State> {
     getObjectField = (property: PropertyMeta, value: any) => {
         return (
             <div className="object">
-                {value && <ObjectField property={property} value={value} onPropertyUpdate={this.props.onChange} integration={this.props.integration} />}
+                {value && <ObjectField property={property} value={value} onPropertyUpdate={this.props.onChange} integration={this.props.integration}/>}
             </div>
         )
     }
@@ -239,10 +240,10 @@ export class DslPropertyField extends React.Component<Props, State> {
         )
     }
 
-    getMediaTypeSelectOptions(filter?: string){
+    getMediaTypeSelectOptions(filter?: string) {
         return filter
-        ? MediaTypes.filter(mt => mt.includes(filter)).map((value: string) => <SelectOption key={value} value={value.trim()}/>)
-        : MediaTypes.map((value: string) => <SelectOption key={value} value={value.trim()}/>);
+            ? MediaTypes.filter(mt => mt.includes(filter)).map((value: string) => <SelectOption key={value} value={value.trim()}/>)
+            : MediaTypes.map((value: string) => <SelectOption key={value} value={value.trim()}/>);
     }
 
     getMediaTypeSelect = (property: PropertyMeta, value: any) => {
@@ -268,12 +269,12 @@ export class DslPropertyField extends React.Component<Props, State> {
         )
     }
 
-     canBeInternalUri = (property: PropertyMeta, element?: CamelElement): boolean => {
-        if  (element?.dslName === 'WireTapDefinition' && property.name === 'uri') {
+    canBeInternalUri = (property: PropertyMeta, element?: CamelElement): boolean => {
+        if (element?.dslName === 'WireTapDefinition' && property.name === 'uri') {
             return true;
-        } else if  (element?.dslName === 'SagaDefinition' && ['compensation', 'completion'].includes(property.name)) {
+        } else if (element?.dslName === 'SagaDefinition' && ['compensation', 'completion'].includes(property.name)) {
             return true;
-        } else if  (element && ['GetDefinition', 'PostDefinition', 'PutDefinition', 'PatchDefinition', 'DeleteDefinition', 'HeadDefinition'].includes(element?.dslName) && property.name === 'to') {
+        } else if (element && ['GetDefinition', 'PostDefinition', 'PutDefinition', 'PatchDefinition', 'DeleteDefinition', 'HeadDefinition'].includes(element?.dslName) && property.name === 'to') {
             return true;
         } else {
             return false;
@@ -281,7 +282,7 @@ export class DslPropertyField extends React.Component<Props, State> {
     }
 
     canBeMediaType = (property: PropertyMeta, element?: CamelElement): boolean => {
-        if  (element
+        if (element
             && ['RestDefinition', 'GetDefinition', 'PostDefinition', 'PutDefinition', 'PatchDefinition', 'DeleteDefinition', 'HeadDefinition'].includes(element?.dslName)
             && ['consumes', 'produces'].includes(property.name)) {
             return true;
@@ -330,24 +331,46 @@ export class DslPropertyField extends React.Component<Props, State> {
         this.props.onChange?.call(this, fieldId, mValue);
     }
 
+    isKeyValueObject(property: PropertyMeta) {
+        const props = CamelDefinitionApiExt.getElementProperties(property.type);
+        return props.length === 2 && props.filter(p => p.name === 'key').length === 1 && props.filter(p => p.name === 'value').length === 1;
+    }
+
+    getMultiObjectFieldProps(property: PropertyMeta, value: any, v: any, index: number, hideLabel: boolean = false) {
+        return (<>
+            <div className="object">
+                {value && <ObjectField property={property}
+                                       hideLabel={hideLabel}
+                                       value={v}
+                                       onPropertyUpdate={(f, v) => this.onMultiValueObjectUpdate(index, f, v)}
+                                       integration={this.props.integration}/>}
+            </div>
+            <Button variant="link" className="delete-button" onClick={e => {
+                const v = Array.from(value);
+                v.splice(index, 1);
+                this.propertyChanged(property.name, v);
+            }}><DeleteIcon/></Button>
+        </>)
+    }
+
     getMultiValueObjectField = (property: PropertyMeta, value: any) => {
+        const isKeyValue = this.isKeyValueObject(property);
         return (
             <div>
-                {value && Array.from(value).map((v: any, index: number) => (
-                    <Card key={property + "-" + index} className="object-value">
-                        <div className="object">
-                            {value && <ObjectField property={property} value={v} onPropertyUpdate={(f, v) => this.onMultiValueObjectUpdate(index, f, v)} integration={this.props.integration} />}
+                {value && Array.from(value).map((v: any, index: number) => {
+                    if (isKeyValue)
+                        return <div key={property + "-" + index} className="object-key-value">
+                            {this.getMultiObjectFieldProps(property, value, v, index, index > 0)}
                         </div>
-                        <Button variant="link" className="delete-button" onClick={e => {
-                            const v = Array.from(value);
-                            v.splice(index, 1);
-                            this.propertyChanged(property.name,v);
-                        }}><DeleteIcon/></Button>
-                    </Card>
-                ))}
-                <Button variant="link" className="add-button" onClick={e => this.propertyChanged(property.name, [...value, CamelDefinitionApi.createStep(property.type, {})])}><AddIcon/>{"Add " + property.displayName}</Button>
+                    else
+                        return <Card key={property + "-" + index} className="object-value">
+                            {this.getMultiObjectFieldProps(property, value, v, index)}
+                        </Card>
+                })}
+                <Button variant="link" className="add-button"
+                        onClick={e => this.propertyChanged(property.name, [...value, CamelDefinitionApi.createStep(property.type, {})])}><AddIcon/>{"Add " + property.displayName}
+                </Button>
             </div>
-
         )
     }
 
@@ -443,7 +466,7 @@ export class DslPropertyField extends React.Component<Props, State> {
         const value = this.props.value;
         return (
             <FormGroup
-                label={this.getLabel(property, value)}
+                label={this.props.hideLabel ? undefined : this.getLabel(property, value)}
                 fieldId={property.name}
                 labelIcon={this.getLabelIcon(property)}>
                 {value && ["ExpressionDefinition", "ExpressionSubElementDefinition"].includes(property.type)

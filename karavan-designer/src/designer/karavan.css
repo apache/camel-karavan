@@ -373,9 +373,27 @@
     margin-bottom: 3px;
 }
 
+.karavan .properties .object-key-value .object {
+    padding-top: 0;
+}
+
 .karavan .properties .object-value .delete-button {
     margin: 0;
     padding: 5px 3px 0px 6px;
+    height: 16px;
+    color: #909090;
+}
+
+.karavan .properties .object-key-value,
+.karavan .properties .object-key-value .object-field {
+    display: flex;
+    flex-direction: row;
+    gap: 3px;
+}
+
+.karavan .properties .object-key-value .delete-button {
+    margin: auto 0 22px 0;
+    padding: 0px 0px 0px 3px;
     height: 16px;
     color: #909090;
 }

@@ -31,6 +31,7 @@ interface Props {
     value?: CamelElement,
     onPropertyUpdate?: (fieldId: string, value: CamelElement) => void
     integration: Integration,
+    hideLabel?: boolean
 }
 
 interface State {
@@ -72,9 +73,10 @@ export class ObjectField extends React.Component<Props, State> {
     render() {
         const value = this.props.value;
         return (
-                <div>
+                <div className="object-field">
                     {value && CamelDefinitionApiExt.getElementProperties(value.dslName).map((property: PropertyMeta)  =>
                         <DslPropertyField key={property.name}
+                                          hideLabel={this.props.hideLabel}
                                           integration={this.props.integration}
                                           property={property}
                                           element={value}
