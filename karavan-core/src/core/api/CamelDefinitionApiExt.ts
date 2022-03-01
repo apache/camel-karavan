@@ -248,20 +248,7 @@ export class CamelDefinitionApiExt {
 
     static addRestToIntegration = (integration: Integration, rest: RestDefinition): Integration => {
         const flows: any[] = [];
-        integration.spec.flows?.filter(flow => flow.dslName !== 'RestDefinition').forEach(x => flows.push(x));
-        if (integration.spec.flows?.filter(flow => flow.dslName === 'RestDefinition' && flow.uuid === rest.uuid).length === 1){
-            integration.spec.flows?.filter(flow => flow.dslName === 'RestDefinition').forEach(flow => {
-                if (flow.uuid !== rest.uuid) {
-                    flows.push(flow);
-                } else {
-                    flows.push(rest);
-                }
-            });
-        } else {
-            integration.spec.flows?.filter(flow => flow.dslName === 'RestDefinition' && flow.uuid !== rest.uuid).forEach(x => flows.push(x));
-            flows.push(rest);
-        }
-        integration.spec.flows = flows;
+        integration.spec.flows?.push(rest)
         return integration;
     }
 
@@ -295,6 +282,13 @@ export class CamelDefinitionApiExt {
         })
         if (elements.filter(e => e.uuid === method.uuid).length === 0) elements.push(method);
         return elements;
+    }
+
+    static deleteRestConfigurationFromIntegration = (integration: Integration): Integration => {
+        const flows: any[] = [];
+        integration.spec.flows?.filter(flow => flow.dslName !== 'RestConfigurationDefinition').forEach(x => flows.push(x));
+        integration.spec.flows = flows;
+        return integration;
     }
 
     static deleteRestFromIntegration = (integration: Integration, restUuid?: string): Integration => {
@@ -366,17 +360,24 @@ export class CamelDefinitionApiExt {
     }
 
     static updateIntegrationRestElement = (integration: Integration, e: CamelElement): Integration => {
-        const elementClone = CamelUtil.cloneStep(e);
         const int: Integration = CamelUtil.cloneIntegration(integration);
         const flows: CamelElement[] = [];
-        integration.spec.flows?.filter(f => f.dslName !== 'RestDefinition').forEach(f => flows.push(f));
         const isRest = integration.spec.flows?.filter(f => f.dslName === 'RestDefinition' && f.uuid === e.uuid).length === 1;
-        if (isRest){
+        const isRestConfiguration = integration.spec.flows?.filter(f => f.dslName === 'RestConfigurationDefinition' && f.uuid === e.uuid).length === 1;
+        if (isRestConfiguration) {
+            integration.spec.flows?.filter(f => f.dslName !== 'RestConfigurationDefinition').forEach(f => flows.push(f));
+            integration.spec.flows?.filter(f => f.dslName === 'RestConfigurationDefinition').forEach(f => {
+                if (f.uuid === e.uuid) flows.push(CamelUtil.cloneStep(e));
+                else flows.push(f);
+            })
+        } else if (isRest) {
+            integration.spec.flows?.filter(f => f.dslName !== 'RestDefinition').forEach(f => flows.push(f));
             integration.spec.flows?.filter(f => f.dslName === 'RestDefinition').forEach(f => {
                 if (f.uuid === e.uuid) flows.push(CamelUtil.cloneStep(e));
                 else flows.push(f);
             })
         } else {
+            integration.spec.flows?.filter(f => f.dslName !== 'RestDefinition').forEach(f => flows.push(f));
             integration.spec.flows?.filter(f => f.dslName === 'RestDefinition').forEach((rest: RestDefinition) => {
                 if (rest.get) rest.get = rest.get.map(get => get.uuid === e.uuid ? e : get);
                 if (rest.post) rest.post = rest.post.map(post => post.uuid === e.uuid ? e : post);

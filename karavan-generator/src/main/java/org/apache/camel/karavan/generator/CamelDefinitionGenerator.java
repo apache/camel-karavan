@@ -50,6 +50,15 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
         stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.language.ExpressionDefinition").getJsonObject("properties")));
         stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.dataformat.DataFormatsDefinition").getJsonObject("properties")));
 
+        // add additional classes
+        getClasses(definitions, "org.apache.camel.model").forEach(s -> {
+            String className = classSimple(s);
+            if (!stepNames.containsKey(className)) {
+                String stepName = deCapitalize(className.replace("Definition", ""));
+                stepNames.put(className, stepName);
+            }
+        });
+
         List<String> modelList = getClasses(definitions, "org.apache.camel");
         modelList.forEach(className -> {
             String model = generateModel(className, definitions.getJsonObject(className), definitions, stepNames);

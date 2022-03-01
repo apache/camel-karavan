@@ -41,7 +41,6 @@ import {
     InterceptSendToEndpointDefinition,
     KameletDefinition,
     LoadBalanceDefinition,
-    LoadBalancerDefinition,
     LogDefinition,
     LoopDefinition,
     MarshalDefinition,
@@ -875,14 +874,6 @@ export class CamelDefinitionApi {
         return def;
     }
 
-    static createLoadBalancerDefinition = (element: any): LoadBalancerDefinition => {
-        
-        const def = element ? new LoadBalancerDefinition({...element}) : new LoadBalancerDefinition();
-        def.uuid = element?.uuid ? element.uuid : def.uuid;
-
-        return def;
-    }
-
     static createLogDefinition = (element: any): LogDefinition => {
         if (element && typeof element === 'string') element = {message: element};
         const def = element ? new LogDefinition({...element}) : new LogDefinition();
@@ -1219,7 +1210,7 @@ export class CamelDefinitionApi {
     }
 
     static createRemovePropertyDefinition = (element: any): RemovePropertyDefinition => {
-        
+        if (element && typeof element === 'string') element = {name: element};
         const def = element ? new RemovePropertyDefinition({...element}) : new RemovePropertyDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
 
@@ -3353,7 +3344,6 @@ export class CamelDefinitionApi {
             case 'InterceptSendToEndpointDefinition': return CamelDefinitionApi.createInterceptSendToEndpointDefinition(newBody);
             case 'KameletDefinition': return CamelDefinitionApi.createKameletDefinition(newBody);
             case 'LoadBalanceDefinition': return CamelDefinitionApi.createLoadBalanceDefinition(newBody);
-            case 'LoadBalancerDefinition': return CamelDefinitionApi.createLoadBalancerDefinition(newBody);
             case 'LogDefinition': return CamelDefinitionApi.createLogDefinition(newBody);
             case 'LoopDefinition': return CamelDefinitionApi.createLoopDefinition(newBody);
             case 'MarshalDefinition': return CamelDefinitionApi.createMarshalDefinition(newBody);
