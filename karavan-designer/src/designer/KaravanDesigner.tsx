@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    Badge,
+    Badge, Label,
     PageSection, Tab, Tabs, TabTitleIcon, TabTitleText, Tooltip,
 } from '@patternfly/react-core';
 import './karavan.css';
@@ -31,6 +31,7 @@ import {ErrorDesigner} from "./error/ErrorDesigner";
 import {TemplatesDesigner} from "./templates/TemplatesDesigner";
 import {ExceptionDesigner} from "./exception/ExceptionDesigner";
 import {DependenciesDesigner} from "./dependencies/DependenciesDesigner";
+import InfoCircleIcon from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
 
 interface Props {
     onSave?: (filename: string, yaml: string) => void
@@ -39,6 +40,7 @@ interface Props {
     borderColor: string
     borderColorSelected: string
     dark: boolean
+    backward?: boolean
 }
 
 interface State {
@@ -52,7 +54,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
     public state: State = {
         tab: 'routes',
         integration: this.props.yaml
-            ? CamelDefinitionYaml.yamlToIntegration(this.props.filename, this.props.yaml)
+            ? CamelDefinitionYaml.yamlToIntegration(this.props.filename, this.props.yaml, this.props.backward)
             : Integration.createNew(this.props.filename),
         key: "",
     };
@@ -69,7 +71,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
 
     getCode = (integration: Integration): string => {
         const clone = CamelUtil.cloneIntegration(integration);
-        return CamelDefinitionYaml.integrationToYaml(clone);
+        return CamelDefinitionYaml.integrationToYaml(clone, this.props.backward);
     }
 
     getTab(title: string, tooltip: string, icon: string) {
@@ -180,6 +182,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
         const tab = this.state.tab;
         return (
             <PageSection className="page" isFilled padding={{default: 'noPadding'}}>
+                {this.props.backward && <Label className="backward" variant="outline" color="orange" isCompact={true} icon={<InfoCircleIcon />}>Backward</Label>}
                 <Tabs className="main-tabs" activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex.toString()})} style={{width: "100%"}}>
                     <Tab eventKey='routes' title={this.getTab("Routes", "Integration flows", "routes")}></Tab>
                     <Tab eventKey='rest' title={this.getTab("REST", "REST services", "rest")}></Tab>

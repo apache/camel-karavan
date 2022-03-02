@@ -1,0 +1,26 @@
+apiVersion: camel.apache.org/v1
+kind: Integration
+metadata:
+  name: xxx-yaml.yaml
+spec:
+  flows:
+    - route:
+        steps:
+          - log:
+              message: ${body}
+          - aggregate:
+              steps:
+                - log:
+                    message: Aggregated ${body}
+              aggregationStrategy: >-
+                #class:org.apache.camel.processor.aggregate.GroupedBodyAggregationStrategy
+              completionSize: 2
+              correlationExpression:
+                simple:
+                  expressionSubElement:
+                    expression: ${body}
+        from:
+          uri: kamelet:timer-source
+          parameters:
+            message: hello
+            period: 2000

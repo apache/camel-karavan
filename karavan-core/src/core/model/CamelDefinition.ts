@@ -2162,8 +2162,8 @@ export class CryptoDataFormat extends CamelElement {
     initVectorRef?: string;
     keyRef?: string;
     id?: string;
-    buffersize?: number;
-    algorithm?: string
+    algorithm?: string;
+    bufferSize?: number
     public constructor(init?: Partial<CryptoDataFormat>) {
         super('CryptoDataFormat')
         Object.assign(this, init)
@@ -2376,6 +2376,7 @@ export class JacksonXMLDataFormat extends CamelElement {
     prettyPrint?: boolean;
     jsonView?: string;
     dataFormatName?: string = 'jacksonXml';
+    timezone?: string;
     moduleClassNames?: string;
     allowJmsType?: boolean;
     enableFeatures?: string;
@@ -3148,7 +3149,7 @@ export class WeightedLoadBalancerDefinition extends CamelElement {
     stepName?: string = 'weightedLoadBalancer';
     id?: string;
     distributionRatio: string = '';
-    roundRobin?: string
+    roundRobin?: boolean
     public constructor(init?: Partial<WeightedLoadBalancerDefinition>) {
         super('WeightedLoadBalancerDefinition')
         Object.assign(this, init)
@@ -3462,7 +3463,6 @@ export class RestConfigurationDefinition extends CamelElement {
     useXForwardHeaders?: boolean;
     apiHost?: string;
     contextPath?: string;
-    apiContextRouteId?: string;
     component?: string;
     dataFormatProperty?: RestPropertyDefinition[] = [];
     bindingMode?: string;
@@ -3584,7 +3584,6 @@ export class DataFormatTransformerDefinition extends CamelElement {
     syslog?: SyslogDataFormat;
     zipFile?: ZipFileDataFormat;
     jaxb?: JaxbDataFormat;
-    ref?: string;
     rss?: RssDataFormat;
     fromType?: string;
     stepName?: string = 'dataFormatTransformer';

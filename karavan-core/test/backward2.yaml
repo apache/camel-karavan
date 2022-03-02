@@ -1,0 +1,32 @@
+apiVersion: camel.apache.org/v1
+kind: Integration
+metadata:
+  name: kafka2trinobatch.yaml
+spec:
+  flows:
+    - route:
+        from:
+          uri: kafka:dynamic-pnc-logs
+        steps:
+          - log:
+              message: '"Processing ${body}'
+              loggingLevel: INFO
+          - aggregate:
+              steps:
+                - to:
+                    uri: >-
+                      sql:insert into iceberg.kafka.pnc_logs (message,
+                      timestamp) values (:#${body}, current_timestamp)
+                    parameters:
+                      batch: true
+                      useMessageBodyForSql: false
+              correlationExpression: {}
+              strategyRef: >-
+                #class:org.apache.camel.processor.aggregate.GroupedBodyAggregationStrategy
+              expression:
+                constant: {}
+              completionSize: 20
+              completionTimeout: '10000'
+  dependencies:
+    - mvn:io.trino:trino-jdbc:368
+    - mvn:org.apache.commons:commons-dbcp2:2.9.0
