@@ -60,7 +60,7 @@ export function activate(context: vscode.ExtensionContext) {
             if (args && args.length > 0) {
                 const yaml = fs.readFileSync(path.resolve(args[0].fsPath)).toString('utf8');
                 const filename = path.basename(args[0].fsPath);
-                const relativePath = getRalativePath(args[0].fsPath);
+                const relativePath = getRalativePath(args[0].path);
                 const integration = parceYaml(filename, yaml);
                 if (integration[0]) {
                     openKaravanWebView(context, webviewContent, filename, relativePath, integration[1]);
@@ -85,7 +85,7 @@ export function activate(context: vscode.ExtensionContext) {
                 } else {
                     const yaml = fs.readFileSync(path.resolve(args[0].fsPath)).toString('utf8');
                     const relativePath = getRalativePath(args[0].fsPath);
-                    const filename = path.basename(args[0].fsPath);
+                    const filename = path.basename(args[0].path);
                     const integration = parceYaml(filename, yaml);
                     if (integration[0]) {
                         runCamelJbang(relativePath);
@@ -136,7 +136,7 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
                     if (vscode.workspace.workspaceFolders) {
                         console.log(message);
                         const uriFolder: vscode.Uri = vscode.workspace.workspaceFolders[0].uri;
-                        const uriFile: vscode.Uri = vscode.Uri.file(path.join(uriFolder.fsPath, message.relativePath));
+                        const uriFile: vscode.Uri = vscode.Uri.file(path.join(uriFolder.path, message.filename));
                         fs.writeFile(uriFile.fsPath, message.yaml, err => {
                             if (err) vscode.window.showErrorMessage("Error: " + err?.message);
                         });
