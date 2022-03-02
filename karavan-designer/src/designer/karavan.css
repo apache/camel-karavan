@@ -22,6 +22,13 @@
     height: 36px;
 }
 
+.karavan .backward {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 100;
+}
+
 .karavan .header-button {
     margin-left: var(--pf-c-page__header-tools--MarginRight);
 }

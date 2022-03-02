@@ -119,6 +119,10 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
         "icons/icon.svg"
     );
 
+    // Send backward compatibility
+    const backward = vscode.workspace.getConfiguration().get("camel.backward");
+    if (backward) panel.webview.postMessage({ command: 'backward'});
+
     // Read and send Kamelets
     panel.webview.postMessage({ command: 'kamelets', kamelets: readKamelets(context) });
 

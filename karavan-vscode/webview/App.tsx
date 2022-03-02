@@ -32,6 +32,7 @@ interface State {
   relativePath: string
   yaml: string
   key: string
+  backward: boolean
 }
 
 class App extends React.Component<Props, State> {
@@ -40,7 +41,8 @@ class App extends React.Component<Props, State> {
     filename: '',
     relativePath: '',
     yaml: '',
-    key: ''
+    key: '',
+    backward: false
   };
 
 
@@ -48,6 +50,9 @@ class App extends React.Component<Props, State> {
     window.addEventListener('message', event => {
       const message = event.data; // The JSON data our extension sent
       switch (message.command) {
+        case 'backward':
+          this.setState({backward: true});
+          break;
         case 'kamelets':
           KameletApi.saveKamelets(message.kamelets);
           break;
@@ -78,6 +83,7 @@ class App extends React.Component<Props, State> {
       <Page className="karavan">
          <KaravanDesigner 
           key={this.state.key} 
+          backward={this.state.backward}
           filename={this.state.filename} 
           yaml={this.state.yaml} 
           onSave={(filename, yaml) => this.save(filename, yaml)}

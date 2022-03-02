@@ -1,0 +1,47 @@
+apiVersion: camel.apache.org/v1
+kind: Integration
+metadata:
+  name: test
+spec:
+  flows:
+    - route:
+        steps:
+          - choice:
+              when:
+                - expression:
+                    simple:
+                      expression: ${body} != null
+                  steps:
+                    - log:
+                        message: hello11
+                        logName: log11
+                - expression:
+                    simple: ${body} == null
+                  steps:
+                    - log:
+                        message: hello22
+                        logName: log22
+              otherwise:
+                otherwise:
+                  steps:
+                    - log:
+                        message: helloX
+                        logName: logX
+          - to:
+              uri: kamelet:kamelet2
+          - to:
+              uri: kamelet:kamelet2
+        from:
+          uri: direct1
+          parameters:
+            httpMethodRestrict: POST
+    - route:
+        steps:
+          - log:
+              message: hello1
+              logName: log1
+          - log:
+              message: hello2
+              logName: log2
+        from:
+          uri: direct2

@@ -78,6 +78,11 @@
           "default": "true",
           "description": "Reload routes on change"
         },
+        "camel.backward": {
+          "type": "boolean",
+          "default": false,
+          "description": "Compatibility with Camel version < 3.16"
+        },
         "Karavan.kameletsPath": {
           "type": "string",
           "default": "",

@@ -81,7 +81,7 @@ describe('Read/write dependencies', () => {
             expect(i.spec.dependencies[0].version).to.equal("2.9.0");
         }
         i.crd = false
-        console.log(CamelDefinitionYaml.integrationToYaml(i))
+        // console.log(CamelDefinitionYaml.integrationToYaml(i))
     });
 
 });

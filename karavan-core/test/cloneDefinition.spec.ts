@@ -24,6 +24,7 @@ import { FilterDefinition, LogDefinition, ChoiceDefinition,
 import {CamelDefinitionApi} from "../src/core/api/CamelDefinitionApi";
 import {ExpressionDefinition} from "../src/core/model/CamelDefinition";
 import {Integration, CamelElement} from "../src/core/model/IntegrationDefinition";
+import {RouteDefinition} from "../lib/model/CamelDefinition";
 
 describe('Clone', () => {
 
@@ -46,20 +47,20 @@ describe('Clone', () => {
         flow1.steps?.push(new ToDefinition({uri: 'kamelet:kamelet2'}));
         flow1.steps?.push(new ToDefinition({uri: 'kamelet:kamelet2'}));
         flow1.parameters = {httpMethodRestrict: 'POST'}
-        i1.spec.flows?.push(flow1);
+        i1.spec.flows?.push(new RouteDefinition({from: flow1}));
 
         const flow2 = new FromDefinition({uri: "direct2"});
         flow2.steps?.push(new LogDefinition({logName: 'log1', message: "hello1"}));
         flow2.steps?.push(new LogDefinition({logName: 'log2', message: "hello2"}));
 
-        i1.spec.flows?.push(flow2);
+        i1.spec.flows?.push(new RouteDefinition({from: flow2}));
         const i2 = cloneIntegration(i1);
 
         expect(i1.metadata.name).to.equal(i2.metadata.name);
         expect(i1.spec.flows?.length).to.equal(i2.spec.flows?.length);
         if (i1.spec.flows && i2.spec.flows){
-            const f1:FromDefinition = i1.spec.flows[0];
-            const f2:FromDefinition = i2.spec.flows[0];
+            const f1:FromDefinition = i1.spec.flows[0].from;
+            const f2:FromDefinition = i2.spec.flows[0].from;
             expect(f1.parameters?.httpMethodRestrict).to.equal(f2.parameters?.httpMethodRestrict);
             expect(f1.steps.length).to.equal(f2.steps.length);
 
