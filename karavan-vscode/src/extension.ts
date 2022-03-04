@@ -140,7 +140,7 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
                     if (vscode.workspace.workspaceFolders) {
                         console.log(message);
                         const uriFolder: vscode.Uri = vscode.workspace.workspaceFolders[0].uri;
-                        const uriFile: vscode.Uri = vscode.Uri.file(path.join(uriFolder.path, message.filename));
+                        const uriFile: vscode.Uri = vscode.Uri.file(path.join(uriFolder.path, message.relativePath));
                         fs.writeFile(uriFile.fsPath, message.yaml, err => {
                             if (err) vscode.window.showErrorMessage("Error: " + err?.message);
                         });
