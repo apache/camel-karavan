@@ -27,6 +27,7 @@ public final class KaravanGenerator {
         CamelMetadataGenerator.generate();
         KameletGenerator.generate();
         CamelComponentsGenerator.generate();
+        TraitDefinitionGenerator.generate();
         System.exit(0);
     }
 

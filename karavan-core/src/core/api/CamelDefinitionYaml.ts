@@ -19,6 +19,7 @@ import {Integration, CamelElement, Beans, Dependency,} from "../model/Integratio
 import {RouteDefinition, NamedBeanDefinition} from "../model/CamelDefinition";
 import {CamelUtil} from "./CamelUtil";
 import {CamelDefinitionYamlStep} from "./CamelDefinitionYamlStep";
+import {CamelTrait, Trait, TraitApi} from "../model/TraitDefinition";
 
 export class CamelDefinitionYaml {
 
@@ -30,6 +31,9 @@ export class CamelDefinitionYaml {
             delete clone.spec.dependencies;
         } else {
             clone.spec.dependencies = this.generateDependencies(clone.spec.dependencies);
+        }
+        if (clone.spec.traits) {
+            clone.spec.traits = this.cleanupElement(clone.spec.traits);
         }
         if (integration.crd) {
             delete clone.crd
@@ -80,7 +84,6 @@ export class CamelDefinitionYaml {
             if (object.properties && Object.keys(object.properties).length === 0) delete object.properties;
         }
         delete object.uuid;
-        delete object.dslName;
         Object.keys(object)
             .forEach(key => {
                 if (object[key] instanceof CamelElement || (typeof object[key] === 'object' && object[key].dslName)) {
@@ -141,6 +144,7 @@ export class CamelDefinitionYaml {
             const stepNameField = value.hasOwnProperty('stepName') ? 'stepName' : 'step-name';
             const stepName = value[stepNameField];
             let newValue: any = JSON.parse(JSON.stringify(value));
+            delete newValue.dslName;
             if (backward && stepName === 'route'){
                 newValue.steps = newValue.from.steps;
                 delete newValue.from.steps;
@@ -160,6 +164,15 @@ export class CamelDefinitionYaml {
                 return xValue;
             }
         } else {
+            if (value.dslName && value.dslName.endsWith("Trait") && value.dslName !== 'Trait'){
+                delete value.dslName;
+                return {configuration: value};
+            } else if (value.dslName === 'Trait' && value.threeScale){
+                delete value.dslName;
+                value["3scale"] = {configuration: value.threeScale};
+                return value;
+            }
+            delete value.dslName;
             return value;
         }
     }
@@ -171,13 +184,15 @@ export class CamelDefinitionYaml {
         if (Array.isArray(camelized)) {
             integration.crd = false;
             const flows: any[] = camelized;
-            integration.spec.flows?.push(...CamelDefinitionYaml.flowsToCamelElements(flows, backward));
+            integration.spec.flows?.push(...this.flowsToCamelElements(flows, backward));
             integration.spec.dependencies = this.modelineToDependency(text);
+            // integration.spec.traits = this.traitsToCamelElements(flows); // TODO: Plain yaml Trait ???
         } else {
             integration.crd = true;
             const int: Integration = new Integration({...camelized});
-            integration.spec.flows?.push(...CamelDefinitionYaml.flowsToCamelElements(int.spec.flows || [], backward));
+            integration.spec.flows?.push(...this.flowsToCamelElements(int.spec.flows || [], backward));
             integration.spec.dependencies = this.dependenciesToDependency(int.spec.dependencies);
+            if (int.spec.traits) integration.spec.traits = TraitApi.traitsFromYaml(int.spec.traits);
         }
         return integration;
     }

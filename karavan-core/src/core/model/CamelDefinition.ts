@@ -4,6 +4,7 @@
 import {CamelElement} from "./IntegrationDefinition";
 export class ProcessorDefinition extends CamelElement {
     idempotentConsumer?: IdempotentConsumerDefinition;
+    resumable?: ResumableDefinition;
     doTry?: TryDefinition;
     convertBodyTo?: ConvertBodyDefinition | string;
     recipientList?: RecipientListDefinition;
@@ -1084,6 +1085,18 @@ export class RestContextRefDefinition extends CamelElement {
     }
 }
 
+export class ResumableDefinition extends CamelElement {
+    inheritErrorHandler?: boolean;
+    stepName?: string = 'resumable';
+    resumeStrategy: string = '';
+    description?: string;
+    id?: string
+    public constructor(init?: Partial<ResumableDefinition>) {
+        super('ResumableDefinition')
+        Object.assign(this, init)
+    }
+}
+
 export class RollbackDefinition extends CamelElement {
     inheritErrorHandler?: boolean;
     stepName?: string = 'rollback';
@@ -1146,6 +1159,7 @@ export class RouteDefinition extends CamelElement {
     description?: string;
     from: FromDefinition = new FromDefinition();
     id?: string;
+    precondition?: string;
     group?: string
     public constructor(init?: Partial<RouteDefinition>) {
         super('RouteDefinition')
@@ -1589,6 +1603,7 @@ export class UnmarshalDefinition extends CamelElement {
     id?: string;
     fhirXml?: FhirXmlDataFormat;
     barcode?: BarcodeDataFormat;
+    allowNullBody?: boolean;
     avro?: AvroDataFormat | string;
     yaml?: YAMLDataFormat;
     beanio?: BeanioDataFormat;
