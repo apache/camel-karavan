@@ -1,0 +1,5 @@
+- route:
+    from:
+      uri: google-mail
+      steps:
+        - choice: {}
