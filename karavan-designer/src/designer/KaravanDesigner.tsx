@@ -32,6 +32,7 @@ import {TemplatesDesigner} from "./templates/TemplatesDesigner";
 import {ExceptionDesigner} from "./exception/ExceptionDesigner";
 import {DependenciesDesigner} from "./dependencies/DependenciesDesigner";
 import InfoCircleIcon from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
+import {YamlDesigner} from "./yaml/YamlDesigner";
 
 interface Props {
     onSave?: (filename: string, yaml: string) => void
@@ -76,7 +77,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
 
     getTab(title: string, tooltip: string, icon: string) {
         const counts = CamelUi.getFlowCounts(this.state.integration);
-        const count =  counts.has(icon) && counts.get(icon) ? counts.get(icon) : undefined;
+        const count = counts.has(icon) && counts.get(icon) ? counts.get(icon) : undefined;
         const showCount = count && count > 0;
         return (
             <Tooltip position={"bottom"}
@@ -189,13 +190,35 @@ export class KaravanDesigner extends React.Component<Props, State> {
                       transform="translate(0 0)"/>
                 <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32" height="32"/>
             </svg>)
+        if (icon === 'yaml') return (
+            <svg className="top-icon" x="0px" y="0px" width="32px" height="32px"
+                 viewBox="0 0 32 32">
+                <style type="text/css">{".st0{fill:none;}"}</style>
+                <title>document</title>
+                <path
+                    d="M25.7,9.3l-7-7C18.5,2.1,18.3,2,18,2H8C6.9,2,6,2.9,6,4v24c0,1.1,0.9,2,2,2h16c1.1,0,2-0.9,2-2V10C26,9.7,25.9,9.5,25.7,9.3  z M18,4.4l5.6,5.6H18V4.4z M24,28H8V4h8v6c0,1.1,0.9,2,2,2h6V28z"/>
+                <rect x="10" y="22" width="12" height="2"/>
+                <rect x="10" y="16" width="12" height="2"/>
+                <rect className="st0" width="32" height="32"/>
+            </svg>)
+         if (icon === 'code') return (
+             <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
+                 <defs>
+                     <style>{".cls-1{fill:none;}"}</style>
+                 </defs>
+                 <title>code</title>
+                 <polygon points="31 16 24 23 22.59 21.59 28.17 16 22.59 10.41 24 9 31 16"/>
+                 <polygon points="1 16 8 9 9.41 10.41 3.83 16 9.41 21.59 8 23 1 16"/>
+                 <rect x="5.91" y="15" width="20.17" height="2" transform="translate(-3.6 27.31) rotate(-75)"/>
+                 <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32" height="32" transform="translate(0 32) rotate(-90)"/>
+             </svg>)
     }
 
     render() {
         const tab = this.state.tab;
         return (
             <PageSection className="page" isFilled padding={{default: 'noPadding'}}>
-                {this.props.backward && <Label className="backward" variant="outline" color="orange" isCompact={true} icon={<InfoCircleIcon />}>Backward</Label>}
+                {this.props.backward && <Label className="backward" variant="outline" color="orange" isCompact={true} icon={<InfoCircleIcon/>}>Backward</Label>}
                 <Tabs className="main-tabs" activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex.toString()})} style={{width: "100%"}}>
                     <Tab eventKey='routes' title={this.getTab("Routes", "Integration flows", "routes")}></Tab>
                     <Tab eventKey='rest' title={this.getTab("REST", "REST services", "rest")}></Tab>
@@ -204,7 +227,8 @@ export class KaravanDesigner extends React.Component<Props, State> {
                     <Tab eventKey='traits' title={this.getTab("Traits", "traits configuration", "traits")}></Tab>
                     <Tab eventKey='error' title={this.getTab("Error", "Error Handler", "error")}></Tab>
                     <Tab eventKey='exception' title={this.getTab("Exceptions", "Exception Clauses per type", "exception")}></Tab>
-                    <Tab eventKey='yaml' title={this.getTab("YAML", "Integration YAML", "yaml")}></Tab>
+                    <Tab eventKey='code' title={this.getTab("Code", "Code", "code")}></Tab>
+                    {/*<Tab eventKey='yaml' title={this.getTab("YAML", "Integration YAML", "yaml")}></Tab>*/}
                 </Tabs>
                 {tab === 'routes' && <RouteDesigner integration={this.state.integration}
                                                     onSave={(integration) => this.save(integration)}
@@ -222,10 +246,10 @@ export class KaravanDesigner extends React.Component<Props, State> {
                                                    borderColorSelected={this.props.borderColorSelected}
                                                    dark={this.props.dark}/>}
                 {tab === 'dependencies' && <DependenciesDesigner integration={this.state.integration}
-                                                   onSave={(integration) => this.save(integration)}
-                                                   borderColor={this.props.borderColor}
-                                                   borderColorSelected={this.props.borderColorSelected}
-                                                   dark={this.props.dark}/>}
+                                                                 onSave={(integration) => this.save(integration)}
+                                                                 borderColor={this.props.borderColor}
+                                                                 borderColorSelected={this.props.borderColorSelected}
+                                                                 dark={this.props.dark}/>}
                 {tab === 'error' && <ErrorDesigner integration={this.state.integration}
                                                    onSave={(integration) => this.save(integration)}
                                                    borderColor={this.props.borderColor}
@@ -237,6 +261,11 @@ export class KaravanDesigner extends React.Component<Props, State> {
                                                            borderColorSelected={this.props.borderColorSelected}
                                                            dark={this.props.dark}/>}
                 {tab === 'templates' && <TemplatesDesigner integration={this.state.integration}
+                                                           onSave={(integration) => this.save(integration)}
+                                                           borderColor={this.props.borderColor}
+                                                           borderColorSelected={this.props.borderColorSelected}
+                                                           dark={this.props.dark}/>}
+                {tab === 'yaml' && <YamlDesigner integration={this.state.integration}
                                                            onSave={(integration) => this.save(integration)}
                                                            borderColor={this.props.borderColor}
                                                            borderColorSelected={this.props.borderColorSelected}
