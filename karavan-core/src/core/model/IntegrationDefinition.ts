@@ -16,6 +16,7 @@
  */
 import {v4 as uuidv4} from 'uuid';
 import {NamedBeanDefinition} from "./CamelDefinition";
+import {Trait} from "./TraitDefinition";
 
 export class Dependency {
     group: string = '';
@@ -43,6 +44,7 @@ export class Dependency {
 export class Spec {
     flows?: any[] = [];
     dependencies?: Dependency[] = [];
+    traits?: Trait;
 
     public constructor(init?: Partial<Spec>) {
         Object.assign(this, init);

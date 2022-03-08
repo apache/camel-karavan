@@ -807,6 +807,11 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, ''),
     ]),
+    new ElementMeta('resumable', 'ResumableDefinition', 'Resumable', "Resume EIP to support resuming processing from last known offset.", 'eip,routing', [
+        new PropertyMeta('resumeStrategy', 'Resume Strategy', "Sets the resume strategy to use", 'string', '', '', true, false, false, false, ''),
+        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, ''),
+        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, ''),
+    ]),
     new ElementMeta('threadPoolProfile', 'ThreadPoolProfileDefinition', 'Thread Pool Profile', "To configure thread pools", 'configuration', [
         new PropertyMeta('defaultProfile', 'Default Profile', "Whether this profile is the default thread pool profile", 'boolean', '', 'false', false, false, false, false, 'advanced'),
         new PropertyMeta('poolSize', 'Pool Size', "Sets the core pool size", 'number', '', '', false, false, false, false, ''),
@@ -888,6 +893,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('from', 'from', "from", 'FromDefinition', '', '', false, false, false, true, ''),
+        new PropertyMeta('precondition', 'precondition', "precondition", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('routeConfigurationId', 'routeConfigurationId', "routeConfigurationId", 'string', '', '', false, false, false, false, ''),
     ]),
     new ElementMeta('faultToleranceConfiguration', 'FaultToleranceConfigurationDefinition', 'Fault Tolerance Configuration', "MicroProfile Fault Tolerance Circuit Breaker EIP configuration", 'configuration,eip', [
@@ -1142,6 +1148,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, ''),
     ]),
     new ElementMeta('unmarshal', 'UnmarshalDefinition', 'Unmarshal', "Converts the message data received from the wire into a format that Apache Camel processors can consume", 'dataformat,transformation', [
+        new PropertyMeta('allowNullBody', 'Allow Null Body', "Indicates whether null is allowed as value of a body to unmarshall.", 'boolean', '', 'false', false, false, false, false, ''),
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('any23', 'any23', "any23", 'Any23DataFormat', '', '', false, false, false, true, ''),

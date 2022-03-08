@@ -68,6 +68,7 @@ import {
     ResequenceDefinition,
     Resilience4jConfigurationDefinition,
     RestContextRefDefinition,
+    ResumableDefinition,
     RollbackDefinition,
     RouteBuilderDefinition,
     RouteConfigurationContextRefDefinition,
@@ -245,6 +246,9 @@ export class CamelDefinitionApi {
         def.uuid = element?.uuid ? element.uuid : def.uuid;
         if (element?.idempotentConsumer !== undefined) { 
             def.idempotentConsumer = CamelDefinitionApi.createIdempotentConsumerDefinition(element.idempotentConsumer); 
+        } 
+        if (element?.resumable !== undefined) { 
+            def.resumable = CamelDefinitionApi.createResumableDefinition(element.resumable); 
         } 
         if (element?.doTry !== undefined) { 
             def.doTry = CamelDefinitionApi.createTryDefinition(element.doTry); 
@@ -1244,6 +1248,14 @@ export class CamelDefinitionApi {
     static createRestContextRefDefinition = (element: any): RestContextRefDefinition => {
         if (element && typeof element === 'string') element = {ref: element};
         const def = element ? new RestContextRefDefinition({...element}) : new RestContextRefDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid;
+
+        return def;
+    }
+
+    static createResumableDefinition = (element: any): ResumableDefinition => {
+        
+        const def = element ? new ResumableDefinition({...element}) : new ResumableDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
 
         return def;
@@ -3371,6 +3383,7 @@ export class CamelDefinitionApi {
             case 'ResequenceDefinition': return CamelDefinitionApi.createResequenceDefinition(newBody);
             case 'Resilience4jConfigurationDefinition': return CamelDefinitionApi.createResilience4jConfigurationDefinition(newBody);
             case 'RestContextRefDefinition': return CamelDefinitionApi.createRestContextRefDefinition(newBody);
+            case 'ResumableDefinition': return CamelDefinitionApi.createResumableDefinition(newBody);
             case 'RollbackDefinition': return CamelDefinitionApi.createRollbackDefinition(newBody);
             case 'RouteBuilderDefinition': return CamelDefinitionApi.createRouteBuilderDefinition(newBody);
             case 'RouteConfigurationContextRefDefinition': return CamelDefinitionApi.createRouteConfigurationContextRefDefinition(newBody);

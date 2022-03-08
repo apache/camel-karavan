@@ -69,6 +69,7 @@ import {
     ResequenceDefinition,
     Resilience4jConfigurationDefinition,
     RestContextRefDefinition,
+    ResumableDefinition,
     RollbackDefinition,
     RouteBuilderDefinition,
     RouteConfigurationContextRefDefinition,
@@ -246,6 +247,9 @@ export class CamelDefinitionYamlStep {
         const def = element ? new ProcessorDefinition({...element}) : new ProcessorDefinition();
         if (element?.idempotentConsumer !== undefined) { 
             def.idempotentConsumer = CamelDefinitionYamlStep.readIdempotentConsumerDefinition(element.idempotentConsumer); 
+        } 
+        if (element?.resumable !== undefined) { 
+            def.resumable = CamelDefinitionYamlStep.readResumableDefinition(element.resumable); 
         } 
         if (element?.doTry !== undefined) { 
             def.doTry = CamelDefinitionYamlStep.readTryDefinition(element.doTry); 
@@ -1282,6 +1286,13 @@ export class CamelDefinitionYamlStep {
     static readRestContextRefDefinition = (element: any): RestContextRefDefinition => {
         if (element && typeof element === 'string') element = {ref: element};
         const def = element ? new RestContextRefDefinition({...element}) : new RestContextRefDefinition();
+
+        return def;
+    }
+
+    static readResumableDefinition = (element: any): ResumableDefinition => {
+        
+        const def = element ? new ResumableDefinition({...element}) : new ResumableDefinition();
 
         return def;
     }
@@ -3336,6 +3347,7 @@ export class CamelDefinitionYamlStep {
             case 'when': return CamelDefinitionYamlStep.readWhenDefinition(newBody);
             case 'loop': return CamelDefinitionYamlStep.readLoopDefinition(newBody);
             case 'stop': return CamelDefinitionYamlStep.readStopDefinition(newBody);
+            case 'resumable': return CamelDefinitionYamlStep.readResumableDefinition(newBody);
             case 'removeProperty': return CamelDefinitionYamlStep.readRemovePropertyDefinition(newBody);
             case 'split': return CamelDefinitionYamlStep.readSplitDefinition(newBody);
             case 'multicast': return CamelDefinitionYamlStep.readMulticastDefinition(newBody);

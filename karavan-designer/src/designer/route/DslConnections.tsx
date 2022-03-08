@@ -130,6 +130,7 @@ export class DslConnections extends React.Component<Props, State> {
             .filter(pos => outgoingDefinitions.includes(pos.step.dslName))
             .filter(pos => pos.step.dslName !== 'KameletDefinition' || (pos.step.dslName === 'KameletDefinition' && !CamelUi.isActionKamelet(pos.step)))
             .filter(pos => !(outgoingDefinitions.includes(pos.step.dslName) && CamelUi.hasInternalUri(pos.step)))
+            .filter(pos => pos.step.dslName !== 'SagaDefinition')
             .sort((pos1: DslPosition, pos2: DslPosition) => {
                 const y1 = pos1.headerRect.y + pos1.headerRect.height / 2;
                 const y2 = pos2.headerRect.y + pos2.headerRect.height / 2;
@@ -139,6 +140,7 @@ export class DslConnections extends React.Component<Props, State> {
         while (this.hasOverlap(outs)) {
             outs = this.addGap(outs);
         }
+        // console.log(outs);
         return outs;
     }
 

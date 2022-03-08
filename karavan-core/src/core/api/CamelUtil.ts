@@ -20,6 +20,7 @@ import {
 } from "../model/IntegrationDefinition";
 import {CamelDefinitionApi} from "./CamelDefinitionApi";
 import {NamedBeanDefinition} from "../model/CamelDefinition";
+import {TraitApi} from "../model/TraitDefinition";
 
 export class CamelUtil {
 
@@ -37,6 +38,7 @@ export class CamelUtil {
                 flows.push(newBeans);
             });
         int.spec.flows = flows;
+        if (int.spec.traits) int.spec.traits = TraitApi.cloneTrait(int.spec.traits);
         return int;
     }
 

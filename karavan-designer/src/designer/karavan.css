@@ -1024,6 +1024,10 @@
     font-size: 14px;
 }
 
+/*YAML*/
+.karavan .yaml-page {
+    height: 100px;
+}
 /*Exception*/
 /*Template*/
 /*Error*/

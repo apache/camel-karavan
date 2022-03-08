@@ -23,8 +23,10 @@ import { FilterDefinition, LogDefinition, ChoiceDefinition,
     WhenDefinition} from "../src/core/model/CamelDefinition";
 import {CamelDefinitionApi} from "../src/core/api/CamelDefinitionApi";
 import {ExpressionDefinition} from "../src/core/model/CamelDefinition";
-import {Integration, CamelElement} from "../src/core/model/IntegrationDefinition";
-import {RouteDefinition} from "../lib/model/CamelDefinition";
+import {Integration} from "../src/core/model/IntegrationDefinition";
+import {RouteDefinition} from "../src/core/model/CamelDefinition";
+import {CamelUtil} from "../src/core/api/CamelUtil";
+import {CamelTrait} from "../src/core/model/TraitDefinition";
 
 describe('Clone', () => {
 
@@ -84,14 +86,9 @@ describe('Clone', () => {
         return int;
     }
 
-    function cloneStep (step: CamelElement): CamelElement {
-        const clone = JSON.parse(JSON.stringify(step));
-        return CamelDefinitionApi.createStep(step.dslName, clone, true);
-    }
-
     it('Clone Log step', () => {
         const log1: LogDefinition = new LogDefinition({logName: 'log1', message: "hello1"});
-        const log2: LogDefinition = <LogDefinition> cloneStep(log1);
+        const log2: LogDefinition = <LogDefinition> CamelUtil.cloneStep(log1);
         expect(log1.dslName).to.equal(log2.dslName);
         expect(log1.logName).to.equal(log2.logName);
         expect(log1.message).to.equal(log2.message);
@@ -102,7 +99,7 @@ describe('Clone', () => {
             expression: new ExpressionDefinition({simple: new SimpleExpression({expression:"${body} == null"})}),
             steps: [new LogDefinition({logName:"log1", message:"Hello world"})]
         });
-        const filter2: FilterDefinition = <LogDefinition> cloneStep(filter1);
+        const filter2: FilterDefinition = <LogDefinition> CamelUtil.cloneStep(filter1);
         expect(filter1.dslName).to.equal(filter2.dslName);
         expect((filter1?.expression?.simple as SimpleExpression).expression).to.equal((filter2?.expression?.simple as SimpleExpression).expression);
         expect(filter1?.steps?.length).to.equal(filter2?.steps?.length);

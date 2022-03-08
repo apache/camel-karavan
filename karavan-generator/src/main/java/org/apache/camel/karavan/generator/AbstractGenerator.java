@@ -34,7 +34,7 @@ public class AbstractGenerator {
 
     protected Vertx vertx = Vertx.vertx();
 
-    protected JsonObject getDefinitions(String source){
+    protected JsonObject getDefinitions(String source) {
         Buffer buffer = vertx.fileSystem().readFileBlocking(source);
         return new JsonObject(buffer).getJsonObject("items").getJsonObject("definitions");
     }
@@ -50,12 +50,23 @@ public class AbstractGenerator {
         }
     }
 
-    protected String readFileText(String template){
+    protected String getTraitsYaml() {
+        try {
+            InputStream inputStream = TraitDefinitionGenerator.class.getResourceAsStream("/traits.yaml");
+            String data = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines().collect(Collectors.joining(System.getProperty("line.separator")));
+            return data;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    protected String readFileText(String template) {
         Buffer templateBuffer = vertx.fileSystem().readFileBlocking(template);
         return templateBuffer.toString();
     }
 
-    protected void writeFileText(String filePath, String data){
+    protected void writeFileText(String filePath, String data) {
         vertx.fileSystem().writeFileBlocking(filePath, Buffer.buffer(data));
     }
 
@@ -74,15 +85,15 @@ public class AbstractGenerator {
         JsonObject root = definitions.getJsonObject(classname);
         JsonArray oneOf = root.getJsonArray("oneOf");
         JsonArray required = root.getJsonArray("required");
-        if (oneOf !=null && required != null){
+        if (oneOf != null && required != null) {
             return required.getString(0);
         }
         return null;
     }
 
-//    protected String camelize(String name, String separator) {
-//        return Arrays.stream(name.split(separator)).map(s -> capitalize(s)).collect(Collectors.joining());
-//    }
+    protected String camelize(String name, String separator) {
+        return Arrays.stream(name.split(separator)).map(s -> capitalize(s)).collect(Collectors.joining());
+    }
 
     protected String capitalize(String str) {
         return str.length() == 0 ? str
