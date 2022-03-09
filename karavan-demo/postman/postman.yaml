@@ -1,0 +1,74 @@
+apiVersion: camel.apache.org/v1
+kind: Integration
+metadata:
+  name: postman.yaml
+spec:
+  flows:
+    - rest:
+        post:
+          - to: direct:post
+        path: parcel
+        consumes: application/json
+        produces: application/json
+    - route:
+        from:
+          uri: direct:post
+          steps:
+            - kamelet:
+                name: kafka-not-secured-sink
+                parameters:
+                  topic: parcel
+                  bootstrapServers: localhost:9092
+        id: post
+    - route:
+        from:
+          uri: kamelet:jms-apache-artemis-source
+          steps:
+            - to:
+                uri: xj:identity
+                parameters:
+                  transformDirection: XML2JSON
+            - kamelet:
+                name: kafka-not-secured-sink
+                parameters:
+                  topic: payment
+                  bootstrapServers: localhost:9092
+          parameters:
+            destinationType: queue
+            destinationName: payment
+            brokerURL: tcp://localhost:61616
+    - route:
+        from:
+          uri: kamelet:kafka-not-secured-source
+          steps:
+            - unmarshal:
+                json:
+                  library: jackson
+            - aggregate:
+                steps:
+                  - choice:
+                      when:
+                        - expression:
+                            simple:
+                              expression: ${body.get(1).get("confirmed")}
+                          steps:
+                            - log:
+                                message: Confirmed
+                      otherwise:
+                        otherwise:
+                          steps:
+                            - log:
+                                message: Rejected
+                aggregationStrategy: aggregator
+                correlationExpression:
+                  simple:
+                    expression: ${body["id"]}
+                completionSize: 2
+          parameters:
+            topic: parcel,payment
+            bootstrapServers: localhost:9092
+            autoCommitEnable: true
+            consumerGroup: postman
+    - beans:
+        - name: aggregator
+          type: org.apache.camel.processor.aggregate.GroupedBodyAggregationStrategy
