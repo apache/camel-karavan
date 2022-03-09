@@ -18,9 +18,9 @@ import * as React from "react";
 import {
   Page,
 } from "@patternfly/react-core";
-import {KaravanDesigner} from "./designer/KaravanDesigner";
+import { KaravanDesigner } from "./designer/KaravanDesigner";
 import vscode from "./vscode";
-import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import { KameletApi } from "karavan-core/lib/api/KameletApi";
 import { ComponentApi } from "karavan-core/lib/api/ComponentApi";
 
 interface Props {
@@ -47,27 +47,41 @@ class App extends React.Component<Props, State> {
 
 
   componentDidMount() {
-    window.addEventListener('message', event => {
-      const message = event.data; // The JSON data our extension sent
-      switch (message.command) {
-        case 'backward':
-          this.setState({backward: true});
-          break;
-        case 'kamelets':
-          KameletApi.saveKamelets(message.kamelets);
-          break;
-        case 'components':
-          ComponentApi.saveComponents(message.components);
-          break;  
-        case 'open':
-          console.log(event);
-          if (this.state.filename === '' && this.state.key === ''){
-            this.setState({filename: message.filename, yaml: message.yaml, relativePath: message.relativePath, key: Math.random().toString()});
-          }
-          break;
-      }
-    });
+    console.log("componentDidMount");
+    window.addEventListener('message', this.onMessage, false);
+    vscode.postMessage({command: 'getData'})
   }
+
+  componentWillUnmount() {
+    window.removeEventListener('message', this.onMessage, false);
+  }
+
+  onMessage = (event) => {
+    const message = event.data; 
+    console.log("Message received", message);
+    switch (message.command) {
+      case 'backward':
+        console.log("backward", message);
+        this.setState({ backward: true });
+        break;
+      case 'kamelets':
+        console.log("Kamelets saving");
+        KameletApi.saveKamelets(message.kamelets);
+        console.log("Kamelets saved");
+        break;
+      case 'components':
+        console.log("Components saving");
+        ComponentApi.saveComponents(message.components);
+        console.log("Components saved");
+        break;
+      case 'open':
+        console.log(event);
+        if (this.state.filename === '' && this.state.key === '') {
+          this.setState({ filename: message.filename, yaml: message.yaml, relativePath: message.relativePath, key: Math.random().toString() });
+        }
+        break;
+    }
+  };
 
   save(filename: string, yaml: string) {
     vscode.postMessage({
@@ -81,16 +95,16 @@ class App extends React.Component<Props, State> {
   public render() {
     return (
       <Page className="karavan">
-         <KaravanDesigner 
-          key={this.state.key} 
+        <KaravanDesigner
+          key={this.state.key}
           backward={this.state.backward}
-          filename={this.state.filename} 
-          yaml={this.state.yaml} 
+          filename={this.state.filename}
+          yaml={this.state.yaml}
           onSave={(filename, yaml) => this.save(filename, yaml)}
           borderColor="rgb(239, 166, 79)"
           borderColorSelected="rgb(171, 172, 224)"
           dark={this.props.dark}
-         />
+        />
       </Page>
     );
   }

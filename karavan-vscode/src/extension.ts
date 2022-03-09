@@ -119,19 +119,6 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
         "icons/icon.svg"
     );
 
-    // Send backward compatibility
-    const backward = vscode.workspace.getConfiguration().get("camel.backward");
-    if (backward) panel.webview.postMessage({ command: 'backward'});
-
-    // Read and send Kamelets
-    panel.webview.postMessage({ command: 'kamelets', kamelets: readKamelets(context) });
-
-    // Read and send Components
-    panel.webview.postMessage({ command: 'components', components: readComponents(context) });
-
-    // Send integration
-    panel.webview.postMessage({ command: 'open', filename: filename, relativePath: relativePath, yaml: yaml });
-
     // Handle messages from the webview
     panel.webview.onDidReceiveMessage(
         message => {
@@ -145,7 +132,10 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
                             if (err) vscode.window.showErrorMessage("Error: " + err?.message);
                         });
                     }
-                    return;
+                    break;
+                case 'getData':
+                    sendData(context, panel, filename, relativePath, yaml);
+                    break;
             }
         },
         undefined,
@@ -153,6 +143,24 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
     );
     KARAVAN_PANELS.set(relativePath, panel);
     vscode.commands.executeCommand("setContext", KARAVAN_LOADED, true);
+}
+
+function sendData(context: vscode.ExtensionContext, panel: vscode.WebviewPanel, filename: string, relativePath: string, yaml?: string){
+
+    // Send backward compatibility
+    const backward = vscode.workspace.getConfiguration().get("camel.backward");
+    if (backward) panel.webview.postMessage({ command: 'backward' });
+
+    // Read and send Kamelets
+    console.log("Kamelets sent");
+    panel.webview.postMessage({ command: 'kamelets', kamelets: readKamelets(context) });
+
+    // Read and send Components
+    console.log("Components sent");
+    panel.webview.postMessage({ command: 'components', components: readComponents(context) });
+
+    // Send integration
+    panel.webview.postMessage({ command: 'open', filename: filename, relativePath: relativePath, yaml: yaml });
 }
 
 function createIntegration(context: vscode.ExtensionContext, webviewContent: string, crd: boolean) {
@@ -180,9 +188,9 @@ function createIntegration(context: vscode.ExtensionContext, webviewContent: str
         });
 }
 
-function getRalativePath(fullPath:string): string {
+function getRalativePath(fullPath: string): string {
     const root = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.path : "";
-    const relativePath =  path.resolve(fullPath).replace(root + path.sep, '');
+    const relativePath = path.resolve(fullPath).replace(root + path.sep, '');
     return relativePath;
 }
 
@@ -190,11 +198,11 @@ function readKamelets(context: vscode.ExtensionContext): string[] {
     const dir = path.join(context.extensionPath, 'kamelets');
     const yamls: string[] = fs.readdirSync(dir).filter(file => file.endsWith("yaml")).map(file => fs.readFileSync(dir + "/" + file, 'utf-8'));
     try {
-        const kameletsPath:string = vscode.workspace.getConfiguration().get("Karavan.kameletsPath") || '';
+        const kameletsPath: string = vscode.workspace.getConfiguration().get("Karavan.kameletsPath") || '';
         const kameletsDir = path.isAbsolute(kameletsPath) ? kameletsPath : path.resolve(kameletsPath);
         const customKamelets: string[] = fs.readdirSync(kameletsDir).filter(file => file.endsWith("yaml")).map(file => fs.readFileSync(kameletsDir + "/" + file, 'utf-8'));
         if (customKamelets && customKamelets.length > 0) yamls.push(...customKamelets);
-    } catch(e) {
+    } catch (e) {
 
     }
     return yamls;
@@ -220,10 +228,10 @@ function runCamelJbang(filename: string) {
     const maxMessages = vscode.workspace.getConfiguration().get("camel.maxMessages");
     const loggingLevel = vscode.workspace.getConfiguration().get("camel.loggingLevel");
     const reload = vscode.workspace.getConfiguration().get("camel.reload");
-    const command = "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel run " + filename 
-            + " --max-messages=" + maxMessages 
-            + " --logging-level=" + loggingLevel
-            + (reload ? " --reload" : "");
+    const command = "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel run " + filename
+        + " --max-messages=" + maxMessages
+        + " --logging-level=" + loggingLevel
+        + (reload ? " --reload" : "");
     const existTerminal = TERMINALS.get(filename);
     if (existTerminal) existTerminal.dispose();
     const terminal = vscode.window.createTerminal('Camel: ' + filename);
@@ -232,7 +240,7 @@ function runCamelJbang(filename: string) {
     terminal.sendText(command);
 }
 
-function nameFromTitle (title: string): string {
+function nameFromTitle(title: string): string {
     return title.replace(/[^a-z0-9+]+/gi, "-").toLowerCase();
 }
 
