@@ -41,7 +41,7 @@ describe('Backward for Camel version < 3.16.x', () => {
             steps: [new LogDefinition({logName: 'log11', message: "hello11"})]
         })
         const when2 = new WhenDefinition({
-            expression: new ExpressionDefinition({simple: '${body} == null'}),
+            expression: new ExpressionDefinition({simple: new SimpleExpression({expression:'${body} == null'})}),
             steps: [new LogDefinition({logName: 'log22', message: "hello22"})]
         })
         const otherwise = new OtherwiseDefinition({steps: [new LogDefinition({logName: 'logX', message: "helloX"})]})
@@ -61,6 +61,7 @@ describe('Backward for Camel version < 3.16.x', () => {
         i1.spec.flows?.push(new RouteDefinition({from: flow2}));
         const yaml1 = CamelDefinitionYaml.integrationToYaml(i1, true);
         const yaml2 = fs.readFileSync('test/backward.yaml',{encoding:'utf8', flag:'r'});
+        console.log(yaml1)
         expect(yaml1).to.equal(yaml2);
     });
 

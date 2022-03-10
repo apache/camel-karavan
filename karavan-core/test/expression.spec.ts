@@ -30,7 +30,7 @@ import {
 } from "../src/core/model/CamelDefinition";
 import { RouteDefinition} from "../src/core/model/CamelDefinition";
 import {Integration} from "../src/core/model/IntegrationDefinition";
-import {AggregateDefinition} from "../lib/model/CamelDefinition";
+import {AggregateDefinition, ExpressionSubElementDefinition, FilterDefinition} from "../lib/model/CamelDefinition";
 
 describe('Expression to yaml', () => {
 
@@ -38,11 +38,14 @@ describe('Expression to yaml', () => {
         const i1 = Integration.createNew("test")
 
         const agg = new AggregateDefinition({
-            correlationExpression: new ExpressionDefinition({simple: new SimpleExpression({expression:'${body} != null'})}),
+            correlationExpression: new ExpressionSubElementDefinition({simple: new SimpleExpression({expression:'${body} != null'})}),
             steps: [new LogDefinition({logName: 'log11', message: "hello11"})]
         })
 
+        const filter = new FilterDefinition({expression: new ExpressionDefinition({simple: new SimpleExpression({expression:"not null"})})})
+
         const flow1 = new FromDefinition({uri: "direct1"});
+        flow1.steps?.push(filter);
         flow1.steps?.push(agg);
         i1.spec.flows?.push(new RouteDefinition({from: flow1}));
 

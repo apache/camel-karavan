@@ -52,18 +52,20 @@ spec:
                             simple:
                               expression: ${body.get(1).get("confirmed")}
                           steps:
-                            - log:
-                                message: Confirmed
-                      otherwise:
-                        otherwise:
-                          steps:
-                            - log:
-                                message: Rejected
+                            - marshal:
+                                json:
+                                  library: jackson
+                            - kamelet:
+                                name: mqtt-sink
+                                parameters:
+                                  topic: delivery
+                                  brokerUrl: tcp://localhost:1883
+                      otherwise: {}
                 aggregationStrategy: aggregator
+                completionSize: 2
                 correlationExpression:
                   simple:
-                    expression: ${body["id"]}
-                completionSize: 2
+                    expression: ${body.get("id")}
           parameters:
             topic: parcel,payment
             bootstrapServers: localhost:9092

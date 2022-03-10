@@ -992,13 +992,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('parameters', 'parameters', "parameters", 'object', '', '', false, false, false, false, ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, ''),
     ]),
-    new ElementMeta('doSwitch', 'SwitchDefinition', 'Do Switch', "Route messages based on a series of predicates (optimized during startup to select one predicate that will always be used)", 'eip,routing', [
-        new PropertyMeta('when', 'When', "Sets the when nodes", 'WhenDefinition', '', '', false, false, true, true, ''),
-        new PropertyMeta('otherwise', 'Otherwise', "Sets the otherwise node", 'OtherwiseDefinition', '', '', false, false, false, true, ''),
-        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, ''),
-        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, ''),
-        new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, ''),
-    ]),
     new ElementMeta('globalOption', 'GlobalOptionDefinition', 'Global Option', "Models a string key/value pair for configuring some global options on a Camel context such as max debug log length.", 'configuration', [
         new PropertyMeta('key', 'Key', "Global option key", 'string', '', '', true, false, false, false, ''),
         new PropertyMeta('value', 'Value', "Global option value", 'string', '', '', true, false, false, false, ''),
@@ -1272,6 +1265,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('choice', 'ChoiceDefinition', 'Choice', "Route messages based on a series of predicates", 'eip,routing', [
         new PropertyMeta('when', 'When', "Sets the when nodes", 'WhenDefinition', '', '', false, false, true, true, ''),
         new PropertyMeta('otherwise', 'Otherwise', "Sets the otherwise node", 'OtherwiseDefinition', '', '', false, false, false, true, ''),
+        new PropertyMeta('precondition', 'Precondition', "Indicates whether this Choice EIP is in precondition mode or not. If so its branches (when/otherwise) are evaluated during startup to keep at runtime only the branch that matched.", 'boolean', '', 'false', false, false, false, false, 'advanced'),
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, ''),
@@ -1696,6 +1690,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('interceptSendToEndpoint', 'Intercept Send To Endpoint', "Applies a route for an interceptor if an exchange is send to the given endpoint", 'InterceptSendToEndpointDefinition', '', '', false, false, true, true, ''),
         new PropertyMeta('onException', 'On Exception', "Exception clause for catching certain exceptions and handling them.", 'OnExceptionDefinition', '', '', false, false, true, true, ''),
         new PropertyMeta('onCompletion', 'On Completion', "On completion callback for doing custom routing when the org.apache.camel.Exchange is complete.", 'OnCompletionDefinition', '', '', false, false, true, true, ''),
+        new PropertyMeta('precondition', 'Precondition', "The predicate of the precondition in simple language to evaluate in order to determine if this route configuration should be included or not.", 'string', '', '', false, false, false, false, 'advanced'),
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, ''),
     ]),
     new ElementMeta('optimisticLockRetryPolicy', 'OptimisticLockRetryPolicyDefinition', 'Optimistic Lock Retry Policy', "To configure optimistic locking", 'configuration', [
@@ -1850,7 +1845,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('apiDocs', 'Api Docs', "Whether to include or exclude this rest operation in API documentation. This option will override what may be configured on a parent level. The default value is true.", 'boolean', '', 'true', false, false, false, false, 'advanced'),
         new PropertyMeta('tag', 'Tag', "To configure a special tag for the operations within this rest definition.", 'string', '', '', false, false, false, false, 'advanced'),
         new PropertyMeta('securityDefinitions', 'Security Definitions', "Sets the security definitions such as Basic, OAuth2 etc.", 'RestSecuritiesDefinition', '', '', false, false, false, true, 'security'),
-        new PropertyMeta('securityRequirements', 'Security Requirements', "Sets the security requirement(s) for all endpoints.", 'SecurityRequirementsDefinition', '', '', false, false, false, true, 'security'),
+        new PropertyMeta('securityRequirements', 'Security Requirements', "Sets the security requirement(s) for all endpoints.", 'SecurityDefinition', '', '', false, false, true, true, 'security'),
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('delete', 'delete', "delete", 'DeleteDefinition', '', '', false, false, true, true, ''),
@@ -1931,9 +1926,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, ''),
-    ]),
-    new ElementMeta('securityRequirements', 'SecurityRequirementsDefinition', 'Rest Security Requirements', "To configure global rest security requirements.", 'rest,security,configuration', [
-        new PropertyMeta('securityRequirement', 'securityRequirement', "securityRequirement", 'SecurityDefinition', '', '', false, false, false, true, ''),
     ]),
     new ElementMeta('outputType', 'OutputTypeDefinition', 'Output Type', "Set the expected data type of the output message. If the actual message type is different at runtime, camel look for a required Transformer and apply if exists. If validate attribute is true then camel applies Validator as well. Type name consists of two parts, 'scheme' and 'name' connected with ':'. For Java type 'name' is a fully qualified class name. For example {code java:java.lang.String} , {code json:ABCOrder} . It's also possible to specify only scheme part, so that it works like a wildcard. If only 'xml' is specified, all the XML message matches. It's handy to add only one transformer/validator for all the XML-Java transformation.", 'configuration', [
         new PropertyMeta('urn', 'Urn', "Set output type URN.", 'string', '', '', true, false, false, false, ''),

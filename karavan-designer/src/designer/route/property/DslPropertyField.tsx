@@ -464,6 +464,7 @@ export class DslPropertyField extends React.Component<Props, State> {
         const isKamelet = CamelUi.isKameletComponent(this.props.element);
         const property: PropertyMeta = this.props.property;
         const value = this.props.value;
+
         return (
             <FormGroup
                 label={this.props.hideLabel ? undefined : this.getLabel(property, value)}

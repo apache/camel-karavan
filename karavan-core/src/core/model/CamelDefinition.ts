@@ -33,7 +33,6 @@ export class ProcessorDefinition extends CamelElement {
     stop?: StopDefinition;
     serviceCall?: ServiceCallDefinition | string;
     intercept?: InterceptDefinition;
-    doSwitch?: SwitchDefinition;
     whenSkipSendToEndpoint?: WhenSkipSendToEndpointDefinition;
     setProperty?: SetPropertyDefinition;
     removeProperty?: RemovePropertyDefinition | string;
@@ -229,6 +228,7 @@ export class ChoiceDefinition extends CamelElement {
     stepName?: string = 'choice';
     description?: string;
     id?: string;
+    precondition?: boolean;
     when?: WhenDefinition[] = []
     public constructor(init?: Partial<ChoiceDefinition>) {
         super('ChoiceDefinition')
@@ -1137,6 +1137,7 @@ export class RouteConfigurationDefinition extends CamelElement {
     intercept?: InterceptDefinition[] = [];
     onException?: OnExceptionDefinition[] = [];
     id?: string;
+    precondition?: string;
     interceptFrom?: InterceptFromDefinition[] = []
     public constructor(init?: Partial<RouteConfigurationDefinition>) {
         super('RouteConfigurationDefinition')
@@ -1384,19 +1385,6 @@ export class StopDefinition extends CamelElement {
     id?: string
     public constructor(init?: Partial<StopDefinition>) {
         super('StopDefinition')
-        Object.assign(this, init)
-    }
-}
-
-export class SwitchDefinition extends CamelElement {
-    otherwise?: OtherwiseDefinition;
-    inheritErrorHandler?: boolean;
-    stepName?: string = 'doSwitch';
-    description?: string;
-    id?: string;
-    when?: WhenDefinition[] = []
-    public constructor(init?: Partial<SwitchDefinition>) {
-        super('SwitchDefinition')
         Object.assign(this, init)
     }
 }
@@ -3494,7 +3482,7 @@ export class RestConfigurationDefinition extends CamelElement {
 
 export class RestDefinition extends CamelElement {
     enableCors?: boolean;
-    securityRequirements?: SecurityRequirementsDefinition;
+    securityRequirements?: SecurityDefinition[] = [];
     description?: string;
     delete?: DeleteDefinition[] = [];
     put?: PutDefinition[] = [];
@@ -3560,15 +3548,6 @@ export class SecurityDefinition extends CamelElement {
     key: string = ''
     public constructor(init?: Partial<SecurityDefinition>) {
         super('SecurityDefinition')
-        Object.assign(this, init)
-    }
-}
-
-export class SecurityRequirementsDefinition extends CamelElement {
-    stepName?: string = 'securityRequirements';
-    securityRequirement?: SecurityDefinition
-    public constructor(init?: Partial<SecurityRequirementsDefinition>) {
-        super('SecurityRequirementsDefinition')
         Object.assign(this, init)
     }
 }

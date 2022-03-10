@@ -50,7 +50,6 @@ const StepElements: string[] = [
     "SetHeaderDefinition",
     "SortDefinition",
     "SplitDefinition",
-    "SwitchDefinition",
     "ThreadsDefinition",
     "ThrottleDefinition",
     "ToDynamicDefinition",
@@ -128,7 +127,7 @@ export class CamelUi {
                     .forEach(child => result.push(CamelUi.getDslMetaModel(child.className)));
             }
         }
-        return result.sort((a, b) => (a.title.toLowerCase() > b.title.toLowerCase() ? 1 : -1));
+        return result.length > 1 ? result.sort((a, b) => (a.title?.toLowerCase() > b.title?.toLowerCase() ? 1 : -1)) : [];
     }
 
     static getDslMetaModel = (className: string): DslMetaModel => {
