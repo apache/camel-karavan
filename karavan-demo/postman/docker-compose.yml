@@ -61,26 +61,3 @@ services:
       PGADMIN_DEFAULT_PASSWORD: root
     ports:
       - "5050:80"
-
-  mysql:
-    image: mysql
-    container_name: mysql
-    restart: always
-    environment:
-      MYSQL_DATABASE: 'demo'
-      MYSQL_USER: 'demo'
-      MYSQL_PASSWORD: 'demo'
-      MYSQL_ROOT_PASSWORD: 'demo'
-    volumes:
-      - ./mysql_db.sql:/docker-entrypoint-initdb.d/mysql_db.sql
-    ports:
-      - '3306:3306'
-    expose:
-      - '3306'
-
-  adminer:
-    image: adminer
-    container_name: adminer
-    restart: always
-    ports:
-      - 6060:8080

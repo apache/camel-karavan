@@ -14,11 +14,29 @@ spec:
         from:
           uri: direct:post
           steps:
-            - kamelet:
-                name: kafka-not-secured-sink
-                parameters:
-                  topic: parcel
-                  bootstrapServers: localhost:9092
+            - log:
+                message: ${body}
+            - multicast:
+                steps:
+                  - kamelet:
+                      name: postgresql-sink
+                      parameters:
+                        serverName: localhost
+                        serverPort: '5432'
+                        username: postgres
+                        password: postgres
+                        databaseName: demo
+                        query: >-
+                          INSERT INTO parcels (id,address) VALUES
+                          (:#id,:#address) ON CONFLICT (id)  DO NOTHING
+                  - kamelet:
+                      name: kafka-not-secured-sink
+                      parameters:
+                        topic: parcels
+                        bootstrapServers: localhost:9092
+            - marshal:
+                json:
+                  library: jackson
         id: post
     - route:
         from:
@@ -60,7 +78,19 @@ spec:
                                 parameters:
                                   topic: delivery
                                   brokerUrl: tcp://localhost:1883
-                      otherwise: {}
+                      otherwise:
+                        steps:
+                          - kamelet:
+                              name: postgresql-sink
+                              parameters:
+                                serverName: localhost
+                                serverPort: '5432'
+                                username: postgres
+                                password: postgres
+                                databaseName: demo
+                                query: >-
+                                  UPDATE parcels set status = 'CANCELED' WHERE
+                                  id = :#id
                 aggregationStrategy: aggregator
                 completionSize: 2
                 correlationExpression:
