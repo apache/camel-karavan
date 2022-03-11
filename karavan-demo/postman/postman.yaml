@@ -7,7 +7,7 @@ spec:
     - rest:
         post:
           - to: direct:post
-        path: parcel
+        path: /parcels
         consumes: application/json
         produces: application/json
     - route:
@@ -19,6 +19,11 @@ spec:
             - multicast:
                 steps:
                   - kamelet:
+                      name: kafka-not-secured-sink
+                      parameters:
+                        topic: parcels
+                        bootstrapServers: localhost:9092
+                  - kamelet:
                       name: postgresql-sink
                       parameters:
                         serverName: localhost
@@ -29,78 +34,19 @@ spec:
                         query: >-
                           INSERT INTO parcels (id,address) VALUES
                           (:#id,:#address) ON CONFLICT (id)  DO NOTHING
-                  - kamelet:
-                      name: kafka-not-secured-sink
-                      parameters:
-                        topic: parcels
-                        bootstrapServers: localhost:9092
-            - marshal:
-                json:
-                  library: jackson
+                aggregationStrategy: >-
+                  #class:org.apache.camel.processor.aggregate.UseOriginalAggregationStrategy
+                parallelProcessing: false
+                streaming: false
+            - log:
+                message: ${body}
         id: post
-    - route:
-        from:
-          uri: kamelet:jms-apache-artemis-source
-          steps:
-            - to:
-                uri: xj:identity
-                parameters:
-                  transformDirection: XML2JSON
-            - kamelet:
-                name: kafka-not-secured-sink
-                parameters:
-                  topic: payment
-                  bootstrapServers: localhost:9092
-          parameters:
-            destinationType: queue
-            destinationName: payment
-            brokerURL: tcp://localhost:61616
     - route:
         from:
           uri: kamelet:kafka-not-secured-source
           steps:
-            - unmarshal:
-                json:
-                  library: jackson
-            - aggregate:
-                steps:
-                  - choice:
-                      when:
-                        - expression:
-                            simple:
-                              expression: ${body.get(1).get("confirmed")}
-                          steps:
-                            - marshal:
-                                json:
-                                  library: jackson
-                            - kamelet:
-                                name: mqtt-sink
-                                parameters:
-                                  topic: delivery
-                                  brokerUrl: tcp://localhost:1883
-                      otherwise:
-                        steps:
-                          - kamelet:
-                              name: postgresql-sink
-                              parameters:
-                                serverName: localhost
-                                serverPort: '5432'
-                                username: postgres
-                                password: postgres
-                                databaseName: demo
-                                query: >-
-                                  UPDATE parcels set status = 'CANCELED' WHERE
-                                  id = :#id
-                aggregationStrategy: aggregator
-                completionSize: 2
-                correlationExpression:
-                  simple:
-                    expression: ${body.get("id")}
+            - log:
+                message: ${body}
           parameters:
-            topic: parcel,payment
+            topic: parcels
             bootstrapServers: localhost:9092
-            autoCommitEnable: true
-            consumerGroup: postman
-    - beans:
-        - name: aggregator
-          type: org.apache.camel.processor.aggregate.GroupedBodyAggregationStrategy

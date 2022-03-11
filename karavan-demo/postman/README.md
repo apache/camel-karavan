@@ -1,6 +1,6 @@
 
 ```
-curl -X POST -H "Content-Type: application/json" --data '{"id":1,"address":"666 Sin Street, Holy City"}' http://0.0.0.0:8080/parcel
+curl -X POST -H "Content-Type: application/json" --data '{"id":1,"address":"666 Sin Street, Holy City"}' http://0.0.0.0:8080/parcels
 ```
 
 ```
