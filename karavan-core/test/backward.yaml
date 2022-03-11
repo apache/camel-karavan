@@ -16,17 +16,17 @@ spec:
                         message: hello11
                         logName: log11
                 - expression:
-                    simple: ${body} == null
+                    simple:
+                      expression: ${body} == null
                   steps:
                     - log:
                         message: hello22
                         logName: log22
               otherwise:
-                otherwise:
-                  steps:
-                    - log:
-                        message: helloX
-                        logName: logX
+                steps:
+                  - log:
+                      message: helloX
+                      logName: logX
           - to:
               uri: kamelet:kamelet2
           - to:

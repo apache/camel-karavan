@@ -91,7 +91,6 @@ import {
     SplitDefinition,
     StepDefinition,
     StopDefinition,
-    SwitchDefinition,
     TemplatedRouteBeanDefinition,
     TemplatedRouteDefinition,
     TemplatedRouteParameterDefinition,
@@ -226,7 +225,6 @@ import {
     RestSecuritiesDefinition,
     RestsDefinition,
     SecurityDefinition,
-    SecurityRequirementsDefinition,
     CustomTransformerDefinition,
     DataFormatTransformerDefinition,
     EndpointTransformerDefinition,
@@ -330,9 +328,6 @@ export class CamelDefinitionApi {
         } 
         if (element?.intercept !== undefined) { 
             def.intercept = CamelDefinitionApi.createInterceptDefinition(element.intercept); 
-        } 
-        if (element?.doSwitch !== undefined) { 
-            def.doSwitch = CamelDefinitionApi.createSwitchDefinition(element.doSwitch); 
         } 
         if (element?.whenSkipSendToEndpoint !== undefined) { 
             def.whenSkipSendToEndpoint = CamelDefinitionApi.createWhenSkipSendToEndpointDefinition(element.whenSkipSendToEndpoint); 
@@ -1458,18 +1453,6 @@ export class CamelDefinitionApi {
         
         const def = element ? new StopDefinition({...element}) : new StopDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-
-        return def;
-    }
-
-    static createSwitchDefinition = (element: any): SwitchDefinition => {
-        
-        const def = element ? new SwitchDefinition({...element}) : new SwitchDefinition();
-        def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.otherwise !== undefined) { 
-            def.otherwise = CamelDefinitionApi.createOtherwiseDefinition(element.otherwise); 
-        } 
-        def.when = element && element?.when ? element?.when.map((x:any) => CamelDefinitionApi.createWhenDefinition(x)) :[]; 
 
         return def;
     }
@@ -3038,9 +3021,7 @@ export class CamelDefinitionApi {
         def.patch = element && element?.patch ? element?.patch.map((x:any) => CamelDefinitionApi.createPatchDefinition(x)) :[]; 
         def.post = element && element?.post ? element?.post.map((x:any) => CamelDefinitionApi.createPostDefinition(x)) :[]; 
         def.get = element && element?.get ? element?.get.map((x:any) => CamelDefinitionApi.createGetDefinition(x)) :[]; 
-        if (element?.securityRequirements !== undefined) { 
-            def.securityRequirements = CamelDefinitionApi.createSecurityRequirementsDefinition(element.securityRequirements); 
-        } 
+        def.securityRequirements = element && element?.securityRequirements ? element?.securityRequirements.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[]; 
         def.delete = element && element?.delete ? element?.delete.map((x:any) => CamelDefinitionApi.createDeleteDefinition(x)) :[]; 
         if (element?.securityDefinitions !== undefined) { 
             def.securityDefinitions = CamelDefinitionApi.createRestSecuritiesDefinition(element.securityDefinitions); 
@@ -3097,17 +3078,6 @@ export class CamelDefinitionApi {
         
         const def = element ? new SecurityDefinition({...element}) : new SecurityDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
-
-        return def;
-    }
-
-    static createSecurityRequirementsDefinition = (element: any): SecurityRequirementsDefinition => {
-        
-        const def = element ? new SecurityRequirementsDefinition({...element}) : new SecurityRequirementsDefinition();
-        def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.securityRequirement !== undefined) { 
-            def.securityRequirement = CamelDefinitionApi.createSecurityDefinition(element.securityRequirement); 
-        } 
 
         return def;
     }
@@ -3406,7 +3376,6 @@ export class CamelDefinitionApi {
             case 'SplitDefinition': return CamelDefinitionApi.createSplitDefinition(newBody);
             case 'StepDefinition': return CamelDefinitionApi.createStepDefinition(newBody);
             case 'StopDefinition': return CamelDefinitionApi.createStopDefinition(newBody);
-            case 'SwitchDefinition': return CamelDefinitionApi.createSwitchDefinition(newBody);
             case 'TemplatedRouteBeanDefinition': return CamelDefinitionApi.createTemplatedRouteBeanDefinition(newBody);
             case 'TemplatedRouteDefinition': return CamelDefinitionApi.createTemplatedRouteDefinition(newBody);
             case 'TemplatedRouteParameterDefinition': return CamelDefinitionApi.createTemplatedRouteParameterDefinition(newBody);
@@ -3541,7 +3510,6 @@ export class CamelDefinitionApi {
             case 'RestSecuritiesDefinition': return CamelDefinitionApi.createRestSecuritiesDefinition(newBody);
             case 'RestsDefinition': return CamelDefinitionApi.createRestsDefinition(newBody);
             case 'SecurityDefinition': return CamelDefinitionApi.createSecurityDefinition(newBody);
-            case 'SecurityRequirementsDefinition': return CamelDefinitionApi.createSecurityRequirementsDefinition(newBody);
             case 'CustomTransformerDefinition': return CamelDefinitionApi.createCustomTransformerDefinition(newBody);
             case 'DataFormatTransformerDefinition': return CamelDefinitionApi.createDataFormatTransformerDefinition(newBody);
             case 'EndpointTransformerDefinition': return CamelDefinitionApi.createEndpointTransformerDefinition(newBody);

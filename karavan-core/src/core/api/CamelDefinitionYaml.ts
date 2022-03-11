@@ -19,7 +19,7 @@ import {Integration, CamelElement, Beans, Dependency,} from "../model/Integratio
 import {RouteDefinition, NamedBeanDefinition} from "../model/CamelDefinition";
 import {CamelUtil} from "./CamelUtil";
 import {CamelDefinitionYamlStep} from "./CamelDefinitionYamlStep";
-import {CamelTrait, Trait, TraitApi} from "../model/TraitDefinition";
+import {Trait, TraitApi} from "../model/TraitDefinition";
 
 export class CamelDefinitionYaml {
 
@@ -143,6 +143,7 @@ export class CamelDefinitionYaml {
         if (typeof value === 'object' && (value.hasOwnProperty('stepName') || value.hasOwnProperty('inArray')  || value.hasOwnProperty('inSteps'))) {
             const stepNameField = value.hasOwnProperty('stepName') ? 'stepName' : 'step-name';
             const stepName = value[stepNameField];
+            const dslName = value.dslName;
             let newValue: any = JSON.parse(JSON.stringify(value));
             delete newValue.dslName;
             if (backward && stepName === 'route'){
@@ -151,7 +152,10 @@ export class CamelDefinitionYaml {
             }
             delete newValue[stepNameField];
             if ((value.inArray && !value.inSteps)
-                || stepName === 'expression'
+                || dslName === 'ExpressionSubElementDefinition'
+                || dslName === 'ExpressionDefinition'
+                || dslName?.endsWith('Expression')
+                || stepName === 'otherwise'
                 || key === 'from') {
                 delete newValue.inArray;
                 delete newValue.inSteps;
@@ -164,15 +168,15 @@ export class CamelDefinitionYaml {
                 return xValue;
             }
         } else {
-            if (value.dslName && value.dslName.endsWith("Trait") && value.dslName !== 'Trait'){
+            if (value?.dslName && value.dslName.endsWith("Trait") && value.dslName !== 'Trait'){
                 delete value.dslName;
                 return {configuration: value};
-            } else if (value.dslName === 'Trait' && value.threeScale){
+            } else if (value?.dslName === 'Trait' && value?.threeScale){
                 delete value.dslName;
                 value["3scale"] = {configuration: value.threeScale};
                 return value;
             }
-            delete value.dslName;
+            delete value?.dslName;
             return value;
         }
     }
