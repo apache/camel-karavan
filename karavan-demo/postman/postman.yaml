@@ -15,7 +15,7 @@ spec:
           uri: direct:post
           steps:
             - log:
-                message: ${body}
+                message: 'Received: ${body}'
             - multicast:
                 steps:
                   - kamelet:
@@ -38,15 +38,96 @@ spec:
                   #class:org.apache.camel.processor.aggregate.UseOriginalAggregationStrategy
                 parallelProcessing: false
                 streaming: false
-            - log:
-                message: ${body}
         id: post
+    - route:
+        from:
+          uri: kamelet:jms-apache-artemis-source
+          steps:
+            - to:
+                uri: xj:identity
+                parameters:
+                  transformDirection: XML2JSON
+            - kamelet:
+                name: kafka-not-secured-sink
+                parameters:
+                  topic: payments
+                  bootstrapServers: localhost:9092
+          parameters:
+            destinationType: queue
+            destinationName: payments
+            brokerURL: tcp://localhost:61616
+        id: payment
     - route:
         from:
           uri: kamelet:kafka-not-secured-source
           steps:
             - log:
-                message: ${body}
+                message: 'Aggegating: ${body}'
+            - unmarshal:
+                json:
+                  library: jackson
+            - aggregate:
+                steps:
+                  - choice:
+                      when:
+                        - expression:
+                            groovy:
+                              expression: >-
+                                body.find { it.containsKey('status') }.status ==
+                                'confirmed'
+                          steps:
+                            - marshal:
+                                json:
+                                  library: jackson
+                            - log:
+                                message: 'Send to MQTT : ${body}'
+                            - kamelet:
+                                name: mqtt-sink
+                                parameters:
+                                  topic: deliveries
+                                  brokerUrl: tcp://localhost:1883
+                      otherwise:
+                        steps:
+                          - setBody:
+                              expression:
+                                groovy:
+                                  expression: 'body.find { it.containsKey(''status'') } '
+                          - marshal:
+                              json:
+                                library: jackson
+                          - log:
+                              message: 'Send to database: ${body}'
+                          - kamelet:
+                              name: postgresql-sink
+                              parameters:
+                                serverName: localhost
+                                serverPort: '5432'
+                                username: postgres
+                                password: postgres
+                                databaseName: demo
+                                query: >-
+                                  UPDATE parcels set status = 'CANCELED' WHERE
+                                  id = :#id
+                aggregationStrategy: aggregator
+                completionSize: 2
+                correlationExpression:
+                  groovy:
+                    expression: body.get('id')
           parameters:
-            topic: parcels
+            topic: parcels,payments
             bootstrapServers: localhost:9092
+            autoCommitEnable: true
+            consumerGroup: postman
+        id: aggregator
+    - route:
+        from:
+          uri: kamelet:mqtt-source
+          steps:
+            - log:
+                message: 'Delivery: ${body}'
+          parameters:
+            topic: deliveries
+            brokerUrl: tcp://localhost:1883
+    - beans:
+        - name: aggregator
+          type: org.apache.camel.processor.aggregate.GroupedBodyAggregationStrategy

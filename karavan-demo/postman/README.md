@@ -8,6 +8,6 @@ curl -X POST -H "Content-Type: application/json" --data '{"id":1,"address":"666 
 <root>
   <id>1</id>
   <amount>777</amount>
-  <confirmed>true</confirmed>  
+  <status>confirmed</status>  
 </root>
 ```
