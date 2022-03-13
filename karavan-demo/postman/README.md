@@ -1,8 +1,35 @@
+# Demo: Parcels Delivery Service 
 
+![Demo](parcels.png)
+
+## Prerequisites
+
+1. [VSCode](https://code.visualstudio.com/download)  installed
+2. Apache Camel [Karavan](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan) extension installed
+3. [Jbang](https://www.jbang.dev/download/) installed
+4. Docker and Docker compose installed
+
+## How-to
+
+### Start environment
 ```
-curl -X POST -H "Content-Type: application/json" --data '{"id":1,"address":"666 Sin Street, Holy City"}' http://0.0.0.0:8080/parcels
+docker-compose up
 ```
 
+### Start integration 
+```
+jbang -Dcamel.jbang.version=3.16.0-SNAPSHOT camel@apache/camel run postman.yaml
+```
+
+### Publish parcel
+```
+curl -X POST -H "Content-Type: application/json" --data '{"id":"1","address":"666 Sin Street, Holy City"}' http://0.0.0.0:8080/parcels
+```
+
+### Publish payment
+Open AMQ7 Broker Management [Console](http://localhost:8161)
+
+Send message to `payments` queue
 ```
 <?xml version="1.0" encoding="UTF-8" ?>
 <root>
