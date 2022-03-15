@@ -27,12 +27,13 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_CREATE_TOPICS: "events:1:1"
 
-  activemq:
-    image: registry.redhat.io/amq7/amq-broker:latest
-    container_name: activemq
+  artemis:
+    image: artemis-adoptopenjdk-11:latest
+    container_name: artemis
     environment:
-      - AMQ_USER=admin
-      - AMQ_PASSWORD=admin
+      - ARTEMIS_USER=admin
+      - ARTEMIS_PASSWORD=admin
+      - ANONYMOUS_LOGIN=true
     ports:
       - "61616:61616"
       - "1883:1883"
