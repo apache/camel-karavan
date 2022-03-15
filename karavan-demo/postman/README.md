@@ -8,6 +8,15 @@
 2. Apache Camel [Karavan](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan) extension installed
 3. [Jbang](https://www.jbang.dev/download/) installed
 4. Docker and Docker compose installed
+5. Build Apache Artemis Docker Image
+```
+cd artemis
+./prepare-docker.sh --from-release --artemis-version 2.20.0
+cd _TMP_/artemis/2.20.0
+docker build -f ./docker/Dockerfile-adoptopenjdk-11 -t artemis-adoptopenjdk-11 .
+cd ../../../../
+```
+For MacOS users, in case of `tree command not found` error, install tree `brew install tree`
 
 ## How-to
 
