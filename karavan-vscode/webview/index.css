@@ -156,6 +156,10 @@ body,
   fill: rgb(247, 205, 159);
 }
 
+.vscode-dark .karavan .connections .caption {
+  fill: #cecece;
+}
+
 .vscode-dark .pf-c-modal-box__title-text {
   color: #cecece;
 }
@@ -166,6 +170,15 @@ body,
 
 .vscode-dark .pf-c-tabs__link::after {
   border-color: rgb(239, 166, 79);
+}
+
+.vscode-dark .pf-c-tabs__scroll-button {
+  color: #cecece;
+  background-color: rgb(50, 50, 50);
+}
+
+.vscode-dark .pf-c-tabs__scroll-button::before {
+  border-color: rgb(37, 37, 38);
 }
 
 .vscode-dark .pf-c-tab-content .pf-c-card__header p {
