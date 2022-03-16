@@ -41,6 +41,10 @@
   color: #e97826;
 }
 
+.karavan .pf-c-page__main {
+  overflow: hidden;
+}
+
 .karavan .integration-card .pf-c-card__footer {
   text-align: end;
 }

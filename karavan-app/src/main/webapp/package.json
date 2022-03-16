@@ -2,6 +2,29 @@
   "name": "karavan",
   "version": "0.0.13",
   "private": true,
+  "scripts": {
+    "start": "cp -r ../../../../karavan-designer/src/designer src && react-scripts start",
+    "build": "cp -r ../../../../karavan-designer/src/designer src && react-scripts build",
+    "prod": "cp -r ../../../../karavan-designer/src/designer src && react-scripts build --dest && rsync -a build/* ../resources/META-INF/resources"
+  },
+  "proxy": "http://127.0.0.1:8080/",
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
   "dependencies": {
     "@monaco-editor/react": "4.3.1",
     "@patternfly/patternfly": "^4.171.1",
@@ -21,29 +44,6 @@
     "rxjs": "^7.5.2",
     "typescript": "^4.5.5",
     "uuid": "^8.3.2"
-  },
-  "scripts": {
-    "start": "cp -r ../../../../karavan-designer/src/designer src && react-scripts start",
-    "build": "cp -r ../../../../karavan-designer/src/designer src && react-scripts build",
-    "prod": "cp -r ../../../../karavan-designer/src/designer src && react-scripts build --dest && rsync -a build/* ../resources/META-INF/resources"
-  },
-  "proxy": "http://localhost:8080/",
-  "eslintConfig": {
-    "extends": [
-      "react-app"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   },
   "devDependencies": {
     "monaco-editor": "0.29.1",

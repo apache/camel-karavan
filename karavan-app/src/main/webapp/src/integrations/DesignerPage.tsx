@@ -14,6 +14,7 @@ import {KaravanApi} from "../api/KaravanApi";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {KaravanDesigner} from "../designer/KaravanDesigner";
 import FileSaver from "file-saver";
+import Editor from '@monaco-editor/react';
 
 interface Props {
     integration: Integration,
@@ -92,19 +93,19 @@ export class DesignerPage extends React.Component<Props, State> {
                     <Button variant="secondary" icon={<DownloadIcon/>} onClick={e => this.download()}>Download</Button>
                 </ToolbarItem>
                 {this.props.mode === 'gitops' &&
-                <ToolbarItem>
-                    <Button variant="secondary" icon={<PublishIcon/>} onClick={e => this.publish()}>Publish</Button>
-                </ToolbarItem>
+                    <ToolbarItem>
+                        <Button variant="secondary" icon={<PublishIcon/>} onClick={e => this.publish()}>Publish</Button>
+                    </ToolbarItem>
                 }
                 {this.props.mode === 'serverless' &&
-                <ToolbarItem>
-                    <Button variant="primary" icon={<PublishIcon/>} onClick={e => this.post()}>Apply</Button>
-                </ToolbarItem>
+                    <ToolbarItem>
+                        <Button variant="primary" icon={<PublishIcon/>} onClick={e => this.post()}>Apply</Button>
+                    </ToolbarItem>
                 }
                 {this.props.mode !== 'serverless' &&
-                <ToolbarItem>
-                    <Button variant="secondary" icon={<SaveIcon/>} onClick={e => this.post()}>Save</Button>
-                </ToolbarItem>
+                    <ToolbarItem>
+                        <Button variant="secondary" icon={<SaveIcon/>} onClick={e => this.post()}>Save</Button>
+                    </ToolbarItem>
                 }
             </ToolbarContent>
         </Toolbar>);
@@ -124,21 +125,22 @@ export class DesignerPage extends React.Component<Props, State> {
     );
 
     render() {
-        const { view, yaml, name, key } = this.state;
+        const {view, yaml, name, key} = this.state;
 
-        return (
-            <PageSection className="dsl-page" isFilled padding={{default: 'noPadding'}}>
+        return (<>
                 <MainToolbar title={this.title(view)}
                              tools={this.tools(view)}/>
-                <div className="dsl-page-columns">
-                    {view === 'code' &&
-                    <div className="yaml-code">
-                        <CodeBlock className="route-code">
-                            <CodeBlockCode id="code-content">{yaml}</CodeBlockCode>
-                        </CodeBlock>
-                    </div>
-                    }
-                    {view === 'design' &&
+                {view === 'code' &&
+                    <Editor
+                        height="100vh"
+                        defaultLanguage={'yaml'}
+                        theme={'light'}
+                        value={yaml}
+                        className={'code-editor'}
+                        onChange={(value, ev) => {if (value) this.setState({yaml: value})}}
+                    />
+                }
+                {view === 'design' &&
                     <KaravanDesigner
                         dark={false}
                         key={key}
@@ -148,9 +150,8 @@ export class DesignerPage extends React.Component<Props, State> {
                         borderColor="#fb8824"
                         borderColorSelected="black"
                     />
-                    }
-                </div>
-            </PageSection>
+                }
+            </>
         );
     }
-};
+}
