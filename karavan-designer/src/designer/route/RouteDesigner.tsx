@@ -55,6 +55,7 @@ interface State {
     width: number
     height: number
     top: number
+    left: number
 }
 
 export class RouteDesigner extends React.Component<Props, State> {
@@ -70,6 +71,7 @@ export class RouteDesigner extends React.Component<Props, State> {
         width: 1000,
         height: 1000,
         top: 0,
+        left: 0,
     };
 
     componentDidMount() {
@@ -206,8 +208,8 @@ export class RouteDesigner extends React.Component<Props, State> {
 
     onResizePage(el: HTMLDivElement | null) {
         const rect = el?.getBoundingClientRect();
-        if (el && rect && (rect?.width !== this.state.width || rect.height !== this.state.height || rect.top !== this.state.top)) {
-            this.setState({width: rect.width, height: rect.height, top: rect.top});
+        if (el && rect && (rect?.width !== this.state.width || rect.height !== this.state.height || rect.top !== this.state.top || rect.left !== this.state.left)) {
+            this.setState({width: rect.width, height: rect.height, top: rect.top, left: rect.left});
         }
     }
 
@@ -251,7 +253,7 @@ export class RouteDesigner extends React.Component<Props, State> {
         const routes = CamelUi.getRoutes(this.state.integration);
         return (
             <div className="graph">
-                <DslConnections height={this.state.height} width={this.state.width} top={this.state.top} integration={this.state.integration}/>
+                <DslConnections height={this.state.height} width={this.state.width} top={this.state.top} left={this.state.left} integration={this.state.integration}/>
                 <div className="flows" data-click="FLOWS" onClick={event => this.unselectElement(event)}
                      ref={el => this.onResizePage(el)}>
                     {routes?.map((route: any, index: number) => (

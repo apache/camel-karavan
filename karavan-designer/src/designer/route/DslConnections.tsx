@@ -27,6 +27,7 @@ interface Props {
     width: number
     height: number
     top: number
+    left: number
 }
 
 interface State {
@@ -83,7 +84,7 @@ export class DslConnections extends React.Component<Props, State> {
     getIncoming(data: [string, number]) {
         const pos = this.state.steps.get(data[0]);
         if (pos) {
-            const fromX = pos.headerRect.x + pos.headerRect.width / 2;
+            const fromX = pos.headerRect.x + pos.headerRect.width / 2 - this.props.left;
             const fromY = pos.headerRect.y + pos.headerRect.height / 2 - this.props.top;
             const r = pos.headerRect.height / 2;
 
@@ -147,7 +148,7 @@ export class DslConnections extends React.Component<Props, State> {
     getOutgoing(data: [string, number]) {
         const pos = this.state.steps.get(data[0]);
         if (pos) {
-            const fromX = pos.headerRect.x + pos.headerRect.width / 2;
+            const fromX = pos.headerRect.x + pos.headerRect.width / 2 - this.props.left;
             const fromY = pos.headerRect.y + pos.headerRect.height / 2 - this.props.top;
             const r = pos.headerRect.height / 2;
 
@@ -194,14 +195,14 @@ export class DslConnections extends React.Component<Props, State> {
         const uri = (pos?.step as any).uri;
         if (uri && uri.length && pos) {
             const key = pos.step.uuid + "-outgoing"
-            const fromX = pos.headerRect.x + pos.headerRect.width / 2;
+            const fromX = pos.headerRect.x + pos.headerRect.width / 2 - this.props.left;
             const fromY = pos.headerRect.y + pos.headerRect.height / 2 - this.props.top;
             const r = pos.headerRect.height / 2;
             const className = CamelUi.hasDirectUri(pos.step) ? "path-direct" : "path-seda";
             return this.getInternalLine(uri, key, className, fromX, fromY, r);
         } else if (pos?.step.dslName === 'SagaDefinition'){
             const saga = (pos?.step as SagaDefinition);
-            const fromX = pos.headerRect.x + pos.headerRect.width / 2;
+            const fromX = pos.headerRect.x + pos.headerRect.width / 2 - this.props.left;
             const fromY = pos.headerRect.y + pos.headerRect.height / 2 - this.props.top;
             const r = pos.headerRect.height / 2;
             const result:any[] = [];
@@ -224,7 +225,7 @@ export class DslConnections extends React.Component<Props, State> {
             .filter(s => s.step.dslName === 'FromDefinition')
             .filter(s => (s.step as any).uri && (s.step as any).uri === uri)[0];
         if (target) {
-            const targetX = target.headerRect.x + target.headerRect.width / 2;
+            const targetX = target.headerRect.x + target.headerRect.width / 2 - this.props.left;
             const targetY = target.headerRect.y + target.headerRect.height / 2 - this.props.top;
             const gap = 100;
 
@@ -337,7 +338,7 @@ export class DslConnections extends React.Component<Props, State> {
     }
 
     getCircle(pos: DslPosition) {
-        const cx = pos.headerRect.x + pos.headerRect.width / 2;
+        const cx = pos.headerRect.x + pos.headerRect.width / 2 - this.props.left;
         const cy = pos.headerRect.y + pos.headerRect.height / 2 - this.props.top;
         const r = pos.headerRect.height / 2;
         return (
@@ -358,12 +359,12 @@ export class DslConnections extends React.Component<Props, State> {
     }
 
     getArrow(pos: DslPosition) {
-        const endX = pos.headerRect.x + pos.headerRect.width / 2;
+        const endX = pos.headerRect.x + pos.headerRect.width / 2 - this.props.left;
         const endY = pos.headerRect.y - 9 - this.props.top;
         if (pos.parent) {
             const parent = this.state.steps.get(pos.parent.uuid);
             if (parent) {
-                const startX = parent.headerRect.x + parent.headerRect.width / 2;
+                const startX = parent.headerRect.x + parent.headerRect.width / 2 - this.props.left;
                 const startY = parent.headerRect.y + parent.headerRect.height - this.props.top;
                 if (!pos.inSteps || (pos.inSteps && pos.position === 0) && parent.step.dslName !== 'MulticastDefinition') {
                     return (
@@ -379,7 +380,7 @@ export class DslConnections extends React.Component<Props, State> {
                     const prev = this.getPreviousStep(pos);
                     if (prev) {
                         const r = this.hasSteps(prev.step) ? prev.rect : prev.headerRect;
-                        const prevX = r.x + r.width / 2;
+                        const prevX = r.x + r.width / 2 - this.props.left;
                         const prevY = r.y + r.height - this.props.top;
                         return (
                             <line x1={prevX} y1={prevY} x2={endX} y2={endY} className="path" key={pos.step.uuid} markerEnd="url(#arrowhead)"/>
@@ -389,7 +390,7 @@ export class DslConnections extends React.Component<Props, State> {
                     const prev = this.getPreviousStep(pos);
                     if (prev) {
                         const r = this.hasSteps(prev.step) ? prev.rect : prev.headerRect;
-                        const prevX = r.x + r.width / 2;
+                        const prevX = r.x + r.width / 2 - this.props.left;
                         const prevY = r.y + r.height - this.props.top;
                         return (
                             <line x1={prevX} y1={prevY} x2={endX} y2={endY} className="path" key={pos.step.uuid} markerEnd="url(#arrowhead)"/>

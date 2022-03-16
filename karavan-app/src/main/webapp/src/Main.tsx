@@ -268,6 +268,6 @@ export class Main extends React.Component<Props, State> {
                     </Alert>
                 ))}
             </Page>
-        );
+        )
     }
-};
+}
