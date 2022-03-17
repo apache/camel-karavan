@@ -45,6 +45,18 @@
   overflow: hidden;
 }
 
+.karavan .kamelet-section {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.karavan .kamelets-page {
+  overflow: auto;
+  flex-shrink: unset;
+  flex-grow: 1;
+}
+
 .karavan .integration-card .pf-c-card__footer {
   text-align: end;
 }

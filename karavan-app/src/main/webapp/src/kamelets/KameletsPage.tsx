@@ -53,7 +53,7 @@ export class KameletsPage extends React.Component<Props, State> {
 
     render() {
         return (
-            <PageSection padding={{ default: 'noPadding' }}>
+            <PageSection padding={{ default: 'noPadding' }} className="kamelet-section">
                 <KameletModal key={this.state.kamelet?.metadata.name + this.state.isModalOpen.toString()}
                               isOpen={this.state.isModalOpen} kamelet={this.state.kamelet}/>
                 <PageSection className="tools-section" variant={PageSectionVariants.light}>
