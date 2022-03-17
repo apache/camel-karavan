@@ -54,7 +54,7 @@
       "properties": {
         "camel.version": {
           "type": "string",
-          "default": "3.15.0",
+          "default": "3.16.0-SNAPSHOT",
           "description": "Camel version"
         },
         "camel.maxMessages": {
@@ -78,10 +78,10 @@
           "default": "true",
           "description": "Reload routes on change"
         },
-        "camel.backward": {
+        "camel.health": {
           "type": "boolean",
           "default": false,
-          "description": "Compatibility with Camel version < 3.16"
+          "description": "Enable health-check when run in Jbang"
         },
         "Karavan.kameletsPath": {
           "type": "string",

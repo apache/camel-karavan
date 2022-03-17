@@ -225,13 +225,15 @@ function parceYaml(filename: string, yaml: string): [boolean, string?] {
 
 function runCamelJbang(filename: string) {
     const version = vscode.workspace.getConfiguration().get("camel.version");
-    const maxMessages = vscode.workspace.getConfiguration().get("camel.maxMessages");
+    const maxMessages:number = vscode.workspace.getConfiguration().get("camel.maxMessages") || -1;
     const loggingLevel = vscode.workspace.getConfiguration().get("camel.loggingLevel");
     const reload = vscode.workspace.getConfiguration().get("camel.reload");
+    const health = vscode.workspace.getConfiguration().get("camel.health");
     const command = "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel run " + filename
-        + " --max-messages=" + maxMessages
+        + (maxMessages > -1 ? " --max-messages=" + maxMessages : "")
         + " --logging-level=" + loggingLevel
-        + (reload ? " --reload" : "");
+        + (reload ? " --reload" : "")
+        + (health ? " --health" : "");
     const existTerminal = TERMINALS.get(filename);
     if (existTerminal) existTerminal.dispose();
     const terminal = vscode.window.createTerminal('Camel: ' + filename);
