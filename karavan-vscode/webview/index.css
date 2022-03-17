@@ -45,6 +45,17 @@ body,
   background-color: rgb(30, 30, 30);
 }
 
+.vscode-dark .karavan .loading-page {
+  background-color: rgb(50, 50, 50);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.vscode-dark .karavan .progress-stepper{
+  margin: auto;
+}
+
 .vscode-dark .karavan .dsl-page .dsl-page-columns,
 .vscode-dark .karavan .rest-page .rest-page-columns,
 .vscode-dark .karavan .beans-page .beans-page-columns,

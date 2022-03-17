@@ -84,7 +84,7 @@ export class CamelUi {
             .reduce((accumulator, value) => accumulator.concat(value), [])
             .filter((nav, i, arr) => arr.findIndex(l => l === nav) === i)
             .filter((nav, i, arr) => ![ 'dataformat'].includes(nav));
-        const connectorNavs = ['routing', "transformation", "error", "configuration", "endpoint", "component", "kamelet"];
+        const connectorNavs = ['routing', "transformation", "error", "configuration", "endpoint", "kamelet", "component"];
         const eipLabels = connectorNavs.filter(n => navs.includes(n));
         return eipLabels;
     }

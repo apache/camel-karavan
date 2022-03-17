@@ -100,7 +100,7 @@ export class DslConnections extends React.Component<Props, State> {
                 <g key={pos.step.uuid + "-incoming"}>
                     <circle cx={incomingX} cy={fromY} r={r} className="circle-incoming"/>
                     <image x={imageX} y={imageY} href={CamelUi.getConnectionIcon(pos.step)} className="icon"/>
-                    <text x={imageX - 5} y={imageY + 40} textAnchor="start">{CamelUi.getTitle(pos.step)}</text>
+                    <text x={imageX - 5} y={imageY + 40} className="caption" textAnchor="start">{CamelUi.getTitle(pos.step)}</text>
                     <path d={`M ${lineX1},${lineY1} C ${lineX1},${lineY2} ${lineX2},${lineY1}  ${lineX2},${lineY2}`}
                           className="path-incoming" markerEnd="url(#arrowhead)"/>
                 </g>
@@ -170,7 +170,7 @@ export class DslConnections extends React.Component<Props, State> {
                 <g key={pos.step.uuid + "-outgoing"}>
                     <circle cx={outgoingX} cy={outgoingY} r={r} className="circle-outgoing"/>
                     <image x={imageX} y={imageY} href={image} className="icon"/>
-                    <text x={imageX + 25} y={imageY + 40} textAnchor="end">{CamelUi.getOutgoingTitle(pos.step)}</text>
+                    <text x={imageX + 25} y={imageY + 40}  className="caption" textAnchor="end">{CamelUi.getOutgoingTitle(pos.step)}</text>
                     <path d={`M ${lineX1},${lineY1} C ${lineXi - 20}, ${lineY1} ${lineX1 - 15},${lineYi} ${lineXi},${lineYi} L ${lineX2},${lineY2}`}
                           className="path-incoming" markerEnd="url(#arrowhead)"/>
                 </g>

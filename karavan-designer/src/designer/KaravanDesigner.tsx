@@ -32,7 +32,6 @@ import {TemplatesDesigner} from "./templates/TemplatesDesigner";
 import {ExceptionDesigner} from "./exception/ExceptionDesigner";
 import {DependenciesDesigner} from "./dependencies/DependenciesDesigner";
 import InfoCircleIcon from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
-import {YamlDesigner} from "./yaml/YamlDesigner";
 
 interface Props {
     onSave?: (filename: string, yaml: string) => void
@@ -228,7 +227,6 @@ export class KaravanDesigner extends React.Component<Props, State> {
                     <Tab eventKey='error' title={this.getTab("Error", "Error Handler", "error")}></Tab>
                     <Tab eventKey='exception' title={this.getTab("Exceptions", "Exception Clauses per type", "exception")}></Tab>
                     <Tab eventKey='code' title={this.getTab("Code", "Code", "code")}></Tab>
-                    {/*<Tab eventKey='yaml' title={this.getTab("YAML", "Integration YAML", "yaml")}></Tab>*/}
                 </Tabs>
                 {tab === 'routes' && <RouteDesigner integration={this.state.integration}
                                                     onSave={(integration) => this.save(integration)}
@@ -261,11 +259,6 @@ export class KaravanDesigner extends React.Component<Props, State> {
                                                            borderColorSelected={this.props.borderColorSelected}
                                                            dark={this.props.dark}/>}
                 {tab === 'templates' && <TemplatesDesigner integration={this.state.integration}
-                                                           onSave={(integration) => this.save(integration)}
-                                                           borderColor={this.props.borderColor}
-                                                           borderColorSelected={this.props.borderColorSelected}
-                                                           dark={this.props.dark}/>}
-                {tab === 'yaml' && <YamlDesigner integration={this.state.integration}
                                                            onSave={(integration) => this.save(integration)}
                                                            borderColor={this.props.borderColor}
                                                            borderColorSelected={this.props.borderColorSelected}

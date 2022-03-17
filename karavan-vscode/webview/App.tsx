@@ -16,7 +16,7 @@
  */
 import * as React from "react";
 import {
-  Page,
+  Page, PageSection, Spinner,
 } from "@patternfly/react-core";
 import { KaravanDesigner } from "./designer/KaravanDesigner";
 import vscode from "./vscode";
@@ -33,6 +33,7 @@ interface State {
   yaml: string
   key: string
   backward: boolean
+  loaded: boolean
 }
 
 class App extends React.Component<Props, State> {
@@ -42,14 +43,15 @@ class App extends React.Component<Props, State> {
     relativePath: '',
     yaml: '',
     key: '',
-    backward: false
+    backward: false,
+    loaded: false,
   };
 
 
   componentDidMount() {
     console.log("componentDidMount");
     window.addEventListener('message', this.onMessage, false);
-    vscode.postMessage({command: 'getData'})
+    vscode.postMessage({ command: 'getData' })
   }
 
   componentWillUnmount() {
@@ -57,7 +59,7 @@ class App extends React.Component<Props, State> {
   }
 
   onMessage = (event) => {
-    const message = event.data; 
+    const message = event.data;
     console.log("Message received", message);
     switch (message.command) {
       case 'backward':
@@ -77,7 +79,7 @@ class App extends React.Component<Props, State> {
       case 'open':
         console.log(event);
         if (this.state.filename === '' && this.state.key === '') {
-          this.setState({ filename: message.filename, yaml: message.yaml, relativePath: message.relativePath, key: Math.random().toString() });
+          this.setState({ filename: message.filename, yaml: message.yaml, relativePath: message.relativePath, key: Math.random().toString(), loaded: true });
         }
         break;
     }
@@ -95,18 +97,24 @@ class App extends React.Component<Props, State> {
   public render() {
     return (
       <Page className="karavan">
-        <KaravanDesigner
-          key={this.state.key}
-          backward={this.state.backward}
-          filename={this.state.filename}
-          yaml={this.state.yaml}
-          onSave={(filename, yaml) => this.save(filename, yaml)}
-          borderColor="rgb(239, 166, 79)"
-          borderColorSelected="rgb(171, 172, 224)"
-          dark={this.props.dark}
-        />
+        {!this.state.loaded &&
+          <PageSection variant={this.props.dark ? "dark" : "light"} className="loading-page">
+            <Spinner  className="progress-stepper" isSVG diameter="80px" aria-label="Loading..."/>
+          </PageSection>
+        }
+        {this.state.loaded &&
+          <KaravanDesigner
+            key={this.state.key}
+            backward={this.state.backward}
+            filename={this.state.filename}
+            yaml={this.state.yaml}
+            onSave={(filename, yaml) => this.save(filename, yaml)}
+            borderColor="rgb(239, 166, 79)"
+            borderColorSelected="rgb(171, 172, 224)"
+            dark={this.props.dark} />
+        }
       </Page>
-    );
+    )
   }
 }
 
