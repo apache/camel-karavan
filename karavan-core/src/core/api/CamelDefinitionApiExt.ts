@@ -55,7 +55,7 @@ export class CamelDefinitionApiExt {
         return integration;
     }
 
-    static addStepToStep = (step: CamelElement, stepAdded: CamelElement, parentId: string, position?: number): CamelElement => {
+    static addStepToStep = (step: CamelElement, stepAdded: CamelElement, parentId: string, position: number = -1): CamelElement => {
         const result = CamelUtil.cloneStep(step);
         const children = CamelDefinitionApiExt.getElementChildrenDefinition(result.dslName);
         let added = false;
@@ -76,7 +76,8 @@ export class CamelDefinitionApiExt {
         // Then steps
         const steps = children.filter(child => child.name === 'steps');
         if (!added && steps && result.uuid === parentId) {
-            (result as any).steps.push(stepAdded);
+            if (position > -1) (result as any).steps.splice(position, 0, stepAdded);
+            else (result as any).steps.push(stepAdded);
         } else if (!added && steps && (result as any).steps) {
             (result as any).steps = CamelDefinitionApiExt.addStepToSteps((result as any).steps, stepAdded, parentId, position);
         }

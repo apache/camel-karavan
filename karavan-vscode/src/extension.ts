@@ -147,10 +147,6 @@ function openKaravanWebView(context: vscode.ExtensionContext, webviewContent: st
 
 function sendData(context: vscode.ExtensionContext, panel: vscode.WebviewPanel, filename: string, relativePath: string, yaml?: string){
 
-    // Send backward compatibility
-    const backward = vscode.workspace.getConfiguration().get("camel.backward");
-    if (backward) panel.webview.postMessage({ command: 'backward' });
-
     // Read and send Kamelets
     console.log("Kamelets sent");
     panel.webview.postMessage({ command: 'kamelets', kamelets: readKamelets(context) });

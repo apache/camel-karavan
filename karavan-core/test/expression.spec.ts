@@ -49,8 +49,8 @@ describe('Expression to yaml', () => {
         flow1.steps?.push(agg);
         i1.spec.flows?.push(new RouteDefinition({from: flow1}));
 
-        const yaml1 = CamelDefinitionYaml.integrationToYaml(i1, false);
-        console.log(yaml1)
+        const yaml1 = CamelDefinitionYaml.integrationToYaml(i1);
+        // console.log(yaml1)
     });
 
 });

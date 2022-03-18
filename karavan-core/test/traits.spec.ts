@@ -33,7 +33,7 @@ describe('Traits', () => {
         const yaml1 = CamelDefinitionYaml.integrationToYaml(i1);
         const yaml2 = fs.readFileSync('test/trait.yaml',{encoding:'utf8', flag:'r'});
         expect(yaml1).to.equal(yaml2);
-        console.log(yaml1)
+        // console.log(yaml1)
     });
 
     it('YAML to Trait', () => {
