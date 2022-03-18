@@ -60,7 +60,7 @@
         "camel.maxMessages": {
           "type": "integer",
           "default": 10,
-          "description": "Max number of messages to process before stopping"
+          "description": "Maximum number of messages to process before stopping"
         },
         "camel.loggingLevel": {
           "type": "string",
@@ -82,6 +82,11 @@
           "type": "boolean",
           "default": false,
           "description": "Enable health-check when run in Jbang"
+        },
+        "camel.messageTracing": {
+          "type": "boolean",
+          "default": false,
+          "description": "Logging message details during routing"
         },
         "Karavan.kameletsPath": {
           "type": "string",
