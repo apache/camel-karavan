@@ -190,7 +190,7 @@ function createIntegration(context: vscode.ExtensionContext, webviewContent: str
 
 function getRalativePath(fullPath: string): string {
     const root = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.path : "";
-    const relativePath = path.resolve(fullPath).replace(root + path.sep, '');
+    const relativePath = path.resolve(fullPath).replace( path.resolve(root) + path.sep, '');
     return relativePath;
 }
 
