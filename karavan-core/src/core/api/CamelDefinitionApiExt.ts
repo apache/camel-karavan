@@ -128,11 +128,12 @@ export class CamelDefinitionApiExt {
         return new CamelElementMeta(result?.step, result?.parentUuid, result?.position, result?.pathUuids);
     }
 
-    static moveElement = (integration: Integration, source: string, target: string): Integration => {
-        const sourceFindStep = CamelDefinitionApiExt.findStep(integration.spec.flows, source);
+    static moveRouteElement = (integration: Integration, source: string, target: string): Integration => {
+        const routes = integration.spec.flows?.filter(f => f.dslName === 'RouteDefinition');
+        const sourceFindStep = CamelDefinitionApiExt.findStep(routes, source);
         const sourceStep = sourceFindStep.step;
         const sourceUuid = sourceStep?.uuid;
-        const targetFindStep = CamelDefinitionApiExt.findStep(integration.spec.flows, target);
+        const targetFindStep = CamelDefinitionApiExt.findStep(routes, target);
         const parentUuid = targetFindStep.parentUuid;
         if (sourceUuid && parentUuid && sourceStep && !targetFindStep.pathUuids.includes(source)) {
             CamelDefinitionApiExt.deleteStepFromIntegration(integration, sourceUuid);
