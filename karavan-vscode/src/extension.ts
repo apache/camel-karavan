@@ -229,9 +229,11 @@ function runCamelJbang(filename: string) {
     const loggingLevel = vscode.workspace.getConfiguration().get("camel.loggingLevel");
     const reload = vscode.workspace.getConfiguration().get("camel.reload");
     const health = vscode.workspace.getConfiguration().get("camel.health");
+    const messageTracing = vscode.workspace.getConfiguration().get("camel.messageTracing");
     const command = "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel run " + filename
         + (maxMessages > -1 ? " --max-messages=" + maxMessages : "")
         + " --logging-level=" + loggingLevel
+        + (messageTracing ? " --trace" : "")
         + (reload ? " --reload" : "")
         + (health ? " --health" : "");
     const existTerminal = TERMINALS.get(filename);
