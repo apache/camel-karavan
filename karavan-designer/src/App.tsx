@@ -39,160 +39,136 @@ class App extends React.Component<Props, State> {
         yaml: 'apiVersion: camel.apache.org/v1\n' +
             'kind: Integration\n' +
             'metadata:\n' +
-            '  name: demo.yaml \n' +
+            '  name: postman.yaml\n' +
             'spec:\n' +
-            // '  dependencies:\n' +
-            // '    - "mvn:org.apache.commons:commons-dbcp2:2.9.0" \n' +
-            // '    - "mvn:org.postgresql:postgresql:42.2.14" \n' +
             '  flows:\n' +
+            '    - rest:\n' +
+            '        post:\n' +
+            '          - to: direct:post\n' +
+            '        path: /parcels\n' +
+            '        consumes: application/json\n' +
+            '        produces: application/json\n' +
             '    - route:\n' +
             '        from:\n' +
-            '          uri: kamelet:http-secured-source\n' +
+            '          uri: direct:post\n' +
             '          steps:\n' +
-            '            - saga:\n' +
+            '            - log:\n' +
+            '                message: \'Received: ${body}\'\n' +
+            '            - multicast:\n' +
             '                steps:\n' +
             '                  - kamelet:\n' +
-            '                      name: http-sink\n' +
+            '                      name: kafka-not-secured-sink\n' +
+            '                      parameters:\n' +
+            '                        topic: parcels\n' +
+            '                        bootstrapServers: localhost:9092\n' +
             '                  - kamelet:\n' +
-            '                      name: kafka-sink\n' +
-            '            - wireTap: {}\n' +
+            '                      name: postgresql-sink\n' +
+            '                      parameters:\n' +
+            '                        serverName: localhost\n' +
+            '                        serverPort: \'5432\'\n' +
+            '                        username: postgres\n' +
+            '                        password: postgres\n' +
+            '                        databaseName: demo\n' +
+            '                        query: >-\n' +
+            '                          INSERT INTO parcels (id,address) VALUES\n' +
+            '                          (:#id,:#address) ON CONFLICT (id)  DO NOTHING\n' +
+            '                aggregationStrategy: >-\n' +
+            '                  #class:org.apache.camel.processor.aggregate.UseOriginalAggregationStrategy\n' +
+            '                parallelProcessing: false\n' +
+            '                streaming: false\n' +
+            '        id: post\n' +
+            '    - route:\n' +
+            '        from:\n' +
+            '          uri: kamelet:jms-apache-artemis-source\n' +
+            '          steps:\n' +
             '            - to:\n' +
-            '                uri: seda\n' +
-            '        id: Main Route\n' +
-            // '    - route:\n' +
-            // '        from:\n' +
-            // '          uri: direct:completion\n' +
-            // '        id: Completion\n' +
-            // '    - route:\n' +
-            // '        from:\n' +
-            // '          uri: direct:compensation\n' +
-            // '        id: Compensation\n' +
-            // '    - route:\n' +
-            // '        from:\n' +
-            // '          uri: seda:demo\n' +
-            // '        id: seda\n' +
-            // '            - choice:\n' +
-            // '                when:\n' +
-            // '                  - expression:\n' +
-            // '                      simple:\n' +
-            // '                        expression: hello world\n' +
-            // '                    steps:\n' +
-            // '                      - to:\n' +
-            // '                          uri: direct:demo1\n' +
-            // '                  - expression:\n' +
-            // '                      simple:\n' +
-            // '                        expression: hello world\n' +
-            // '                    steps:\n' +
-            // '                      - to:\n' +
-            // '                          uri: direct:demo1\n' +
-            // '                  - expression:\n' +
-            // '                      simple:\n' +
-            // '                        expression: hello world\n' +
-            // '                    steps:\n' +
-            // '                      - to:\n' +
-            // '                          uri: direct:demo1\n' +
-            // '                  - expression:\n' +
-            // '                      simple:\n' +
-            // '                        expression: hello world\n' +
-            // '                    steps:\n' +
-            // '                      - wireTap:\n' +
-            // '                otherwise:\n' +
-            // '                  steps:\n' +
-            // '                    - to:\n' +
-            // '                        uri: direct:demo1\n' +
-            // '                    - to:\n' +
-            // '                        uri: direct\n' +
-            // '                    - kamelet:\n' +
-            // '                        name: insert-header-action\n' +
-            // '                    - kamelet:\n' +
-            // '                        name: http-sink\n' +
-            // '    - route:\n' +
-            // '       from:\n' +
-            // '         uri: direct:demo2\n' +
-            // '         steps:\n' +
-            // '           - saga: \n' +
-            // '               option:\n' +
-            // '                 - option-name: o1\n' +
-            // '                   expression:\n' +
-            // '                     simple: "${body}" \n' +
-            // '                 - option-name: o2\n' +
-            // '                   expression:\n' +
-            // '                     simple: "${body}" \n' +
-            // '           - do-try:\n' +
-            // '                steps:\n' +
-            // '                  - to: "direct:direct1"\n' +
-            // '                  - to: "direct:direct2"\n' +
-            // '                  - log: "log1"\n' +
-            // '                do-catch:\n' +
-            // '                  - exception:\n' +
-            // '                      - "java.io.FileNotFoundException"\n' +
-            // '                      - "java.io.IOException"\n' +
-            // '                    steps:\n' +
-            // '                      - log: "log1"\n' +
-            // '                      - kamelet: \n' +
-            // '                           name: kafka-sink \n' +
-            // '                  - exception:\n' +
-            // '                      - "java.io.FileNotFoundException"\n' +
-            // '                      - "java.io.IOException"\n' +
-            // '                    steps:\n' +
-            // '                      - log: "log1"\n' +
-            // '                      - kamelet: \n' +
-            // '                           name: http-sink \n' +
-            // '            - choice:\n' +
-            // '                when:\n' +
-            // '                  - simple: "hello world"\n' +
-            // '                    steps:\n' +
-            // '                      - log:\n' +
-            // '                           message: hello22s\n' +
-            // '                           logName: log22\n' +
-            // '                otherwise: {}\n'+
-            '    - restConfiguration:\n' +
-            '        component: "platform-http"\n' +
-            '        contextPath: "/base"  \n' +
-            '        port: 8081\n' +
-            '    - rest:\n' +
-            '        path: "/"\n' +
-            '        post:\n' +
-            '          - path: "/foo"\n' +
-            '            to: "direct:foo"\n' +
-            '            description: "POST demo service"\n' +
-            // '          - path: "/bar"\n' +
-            // '            to: "direct:bar"  \n' +
-            // '        get:\n' +
-            // '          - path: "/getFoo"\n' +
-            // '            to: "direct:foo"        \n' +
-            // '          - path: "/getBar"\n' +
-            // '            to: "direct:foo"    \n' +
-            // '    - rest:\n' +
-            // '        path: "/demo"\n' +
-            // '        description: "REST API to demonstrate Karavan feature"\n' +
-            // '        post:\n' +
-            // '          - path: "/foo"\n' +
-            // '            to: "direct:foo"\n' +
-            // '          - path: "/bar"\n' +
-            // '            to: "direct:bar"  \n' +
-            // '        get:\n' +
-            // '          - path: "/getFoo"\n' +
-            // '            to: "direct:foo"        \n' +
-            // '          - path: "/getBar"\n' +
-            // '            to: "direct:foo"    \n' +
-            // '    - from:\n' +
-            // '        uri: \'direct:foo\'\n' +
-            // '        steps:\n' +
-            // '          - log: \'${body}\'\n' +
-            // '          - log: \'${headers}\'\n' +
-            // '          - setBody:\n' +
-            // '              constant: "Hello world"  \n' +
-            // '    - beans:\n' +
-            // '      - name: datasource\n' +
-            // '        type: org.apache.commons.dbcp2.BasicDataSource\n' +
-            // '        properties:\n' +
-            // '          driverClassName: org.postgresql.Driver\n' +
-            // '          password: postgres\n' +
-            // '          url: "jdbc:postgresql:localhost:5432:demo"\n' +
-            // '          username: postgres\n'+
-            // '      - name: myAggregatorStrategy \n' +
-            // '        type: org.apache.camel.processor.aggregate.UseLatestAggregationStrategy\n' +
+            '                uri: xj:identity\n' +
+            '                parameters:\n' +
+            '                  transformDirection: XML2JSON\n' +
+            '            - kamelet:\n' +
+            '                name: kafka-not-secured-sink\n' +
+            '                parameters:\n' +
+            '                  topic: payments\n' +
+            '                  bootstrapServers: localhost:9092\n' +
+            '          parameters:\n' +
+            '            destinationType: queue\n' +
+            '            destinationName: payments\n' +
+            '            brokerURL: tcp://localhost:61616\n' +
+            '        id: payment\n' +
+            '    - route:\n' +
+            '        from:\n' +
+            '          uri: kamelet:kafka-not-secured-source\n' +
+            '          steps:\n' +
+            '            - log:\n' +
+            '                message: \'Aggegating: ${body}\'\n' +
+            '            - unmarshal:\n' +
+            '                json:\n' +
+            '                  library: jackson\n' +
+            '            - aggregate:\n' +
+            '                steps:\n' +
+            '                  - choice:\n' +
+            '                      when:\n' +
+            '                        - expression:\n' +
+            '                            groovy:\n' +
+            '                              expression: >-\n' +
+            '                                body.find { it.containsKey(\'status\') }.status ==\n' +
+            '                                \'confirmed\'\n' +
+            '                          steps:\n' +
+            '                            - marshal:\n' +
+            '                                json:\n' +
+            '                                  library: jackson\n' +
+            '                            - log:\n' +
+            '                                message: \'Send to MQTT : ${body}\'\n' +
+            '                            - kamelet:\n' +
+            '                                name: mqtt-sink\n' +
+            '                                parameters:\n' +
+            '                                  topic: deliveries\n' +
+            '                                  brokerUrl: tcp://localhost:1883\n' +
+            '                      otherwise:\n' +
+            '                        steps:\n' +
+            '                          - setBody:\n' +
+            '                              expression:\n' +
+            '                                groovy:\n' +
+            '                                  expression: \'body.find { it.containsKey(\'\'status\'\') } \'\n' +
+            '                          - marshal:\n' +
+            '                              json:\n' +
+            '                                library: jackson\n' +
+            '                          - log:\n' +
+            '                              message: \'Send to database: ${body}\'\n' +
+            '                          - kamelet:\n' +
+            '                              name: postgresql-sink\n' +
+            '                              parameters:\n' +
+            '                                serverName: localhost\n' +
+            '                                serverPort: \'5432\'\n' +
+            '                                username: postgres\n' +
+            '                                password: postgres\n' +
+            '                                databaseName: demo\n' +
+            '                                query: >-\n' +
+            '                                  UPDATE parcels set status = \'CANCELED\' WHERE\n' +
+            '                                  id = :#id\n' +
+            '                aggregationStrategy: aggregator\n' +
+            '                completionSize: 2\n' +
+            '                correlationExpression:\n' +
+            '                  groovy:\n' +
+            '                    expression: body.get(\'id\')\n' +
+            '          parameters:\n' +
+            '            topic: parcels,payments\n' +
+            '            bootstrapServers: localhost:9092\n' +
+            '            autoCommitEnable: true\n' +
+            '            consumerGroup: postman\n' +
+            '        id: aggregator\n' +
+            '    - route:\n' +
+            '        from:\n' +
+            '          uri: kamelet:mqtt-source\n' +
+            '          steps:\n' +
+            '            - log:\n' +
+            '                message: \'Delivery: ${body}\'\n' +
+            '          parameters:\n' +
+            '            topic: deliveries\n' +
+            '            brokerUrl: tcp://localhost:1883\n' +
+            '    - beans:\n' +
+            '        - name: aggregator\n' +
+            '          type: org.apache.camel.processor.aggregate.GroupedBodyAggregationStrategy\n' +
             ''
     };
 
@@ -237,7 +213,7 @@ class App extends React.Component<Props, State> {
 
     save(filename: string, yaml: string) {
         // console.log(filename);
-        console.log(yaml);
+        // console.log(yaml);
     }
 
     public render() {
