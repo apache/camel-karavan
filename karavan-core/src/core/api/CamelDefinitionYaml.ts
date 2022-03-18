@@ -23,7 +23,7 @@ import {Trait, TraitApi} from "../model/TraitDefinition";
 
 export class CamelDefinitionYaml {
 
-    static integrationToYaml = (integration: Integration, backward: boolean = false): string => {
+    static integrationToYaml = (integration: Integration): string => {
         const clone: any = CamelUtil.cloneIntegration(integration);
         const flows = integration.spec.flows
         clone.spec.flows = flows?.map((f: any) => CamelDefinitionYaml.cleanupElement(f)).filter(x => Object.keys(x).length !== 0);
@@ -38,11 +38,11 @@ export class CamelDefinitionYaml {
         if (integration.crd) {
             delete clone.crd
             const i = JSON.parse(JSON.stringify(clone, null, 3)); // fix undefined in string attributes
-            const text = CamelDefinitionYaml.yamlDump(i, backward);
+            const text = CamelDefinitionYaml.yamlDump(i);
             return text;
         } else {
             const f = JSON.parse(JSON.stringify(clone.spec.flows, null, 3));
-            const text = CamelDefinitionYaml.yamlDump(f, backward);
+            const text = CamelDefinitionYaml.yamlDump(f);
             if (clone.spec.dependencies && clone.spec.dependencies.length > 0) {
                 const modeline = this.generateModeline(clone.spec.dependencies);
                 return modeline.concat('\n', text);
@@ -120,7 +120,7 @@ export class CamelDefinitionYaml {
         return result
     }
 
-    static yamlDump = (integration: Integration, backward: boolean = false): string => {
+    static yamlDump = (integration: Integration): string => {
         return yaml.dump(integration,
             {
                 noRefs: false,
@@ -135,21 +135,17 @@ export class CamelDefinitionYaml {
                     else if (a > b) return 1
                     else return 0;
                 },
-                replacer: (key, value) => this.replacer(key, value, backward)
+                replacer: (key, value) => this.replacer(key, value)
             });
     }
 
-    static replacer = (key: string, value: any, backward: boolean = false): any => {
+    static replacer = (key: string, value: any): any => {
         if (typeof value === 'object' && (value.hasOwnProperty('stepName') || value.hasOwnProperty('inArray')  || value.hasOwnProperty('inSteps'))) {
             const stepNameField = value.hasOwnProperty('stepName') ? 'stepName' : 'step-name';
             const stepName = value[stepNameField];
             const dslName = value.dslName;
             let newValue: any = JSON.parse(JSON.stringify(value));
             delete newValue.dslName;
-            if (backward && stepName === 'route'){
-                newValue.steps = newValue.from.steps;
-                delete newValue.from.steps;
-            }
             delete newValue[stepNameField];
             if ((value.inArray && !value.inSteps)
                 || dslName === 'ExpressionSubElementDefinition'
@@ -181,20 +177,20 @@ export class CamelDefinitionYaml {
         }
     }
 
-    static yamlToIntegration = (filename: string, text: string, backward: boolean = false): Integration => {
+    static yamlToIntegration = (filename: string, text: string): Integration => {
         const integration: Integration = Integration.createNew(filename);
         const fromYaml: any = yaml.load(text);
         const camelized: any = CamelUtil.camelizeObject(fromYaml);
         if (Array.isArray(camelized)) {
             integration.crd = false;
             const flows: any[] = camelized;
-            integration.spec.flows?.push(...this.flowsToCamelElements(flows, backward));
+            integration.spec.flows?.push(...this.flowsToCamelElements(flows));
             integration.spec.dependencies = this.modelineToDependency(text);
             // integration.spec.traits = this.traitsToCamelElements(flows); // TODO: Plain yaml Trait ???
         } else {
             integration.crd = true;
             const int: Integration = new Integration({...camelized});
-            integration.spec.flows?.push(...this.flowsToCamelElements(int.spec.flows || [], backward));
+            integration.spec.flows?.push(...this.flowsToCamelElements(int.spec.flows || []));
             integration.spec.dependencies = this.dependenciesToDependency(int.spec.dependencies);
             if (int.spec.traits) integration.spec.traits = TraitApi.traitsFromYaml(int.spec.traits);
         }
@@ -223,27 +219,14 @@ export class CamelDefinitionYaml {
         return result;
     }
 
-    static flowsToCamelElements = (flows: any[], backward: boolean = false): any[] => {
+    static flowsToCamelElements = (flows: any[]): any[] => {
         const result: any[] = [];
         flows.filter((e: any) => e.hasOwnProperty('restConfiguration'))
             .forEach((f: any) => result.push(CamelDefinitionYamlStep.readRestConfigurationDefinition(f.restConfiguration)));
         flows.filter((e: any) => e.hasOwnProperty('rest'))
             .forEach((f: any) => result.push(CamelDefinitionYamlStep.readRestDefinition(f.rest)));
         flows.filter((e: any) => e.hasOwnProperty('route'))
-            .forEach((f: any) => {
-                if (backward){
-                    const route = f.route;
-                    if (route.from.steps && Array.isArray(route.from.steps)){
-                        route.from.steps.push(...route.steps);
-                    } else {
-                        route.from.steps = [...route.steps];
-                    }
-                    delete route.steps;
-                    result.push(CamelDefinitionYamlStep.readRouteDefinition(route));
-                } else {
-                    result.push(CamelDefinitionYamlStep.readRouteDefinition(f.route));
-                }
-            });
+            .forEach((f: any) => result.push(CamelDefinitionYamlStep.readRouteDefinition(f.route)));
         flows.filter((e: any) => e.hasOwnProperty('from'))
             .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteDefinition(new RouteDefinition({from: f.from}))));
         flows.filter((e: any) => e.hasOwnProperty('beans'))

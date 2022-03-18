@@ -247,7 +247,6 @@ class App extends React.Component<Props, State> {
                                  onSave={(filename, yaml) => this.save(filename, yaml)}
                                  borderColor="#fb8824"
                                  borderColorSelected="#303284"
-                                 backward={true}
                                  dark={document.body.className.includes('vscode-dark')}
                 />
             </Page>
