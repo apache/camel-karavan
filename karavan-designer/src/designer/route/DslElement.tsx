@@ -198,7 +198,7 @@ export class DslElement extends React.Component<Props, State> {
                 {this.state.step.dslName !== 'FromDefinition' && <button type="button" aria-label="Delete" onClick={e => this.delete(e)} className="delete-button"><DeleteIcon noVerticalAlign/></button>}
                 {showAddButton && this.getAddElementButton()}
             </div>
-        );
+        )
     }
 
     getHeaderWithTooltip = (tooltip: string | undefined) => {
@@ -207,7 +207,7 @@ export class DslElement extends React.Component<Props, State> {
                      content={<div>{tooltip}</div>}>
                 {this.getHeader()}
             </Tooltip>
-        );
+        )
     }
 
     getHeaderTooltip = (): string | undefined => {
@@ -227,7 +227,7 @@ export class DslElement extends React.Component<Props, State> {
         const style: CSSProperties = {
             display: "flex",
             flexDirection: "row",
-        };
+        }
         return style;
     }
 
@@ -241,7 +241,7 @@ export class DslElement extends React.Component<Props, State> {
             borderRadius: "16px",
             display: this.isHorizontal() || child.name !== 'steps' ? "flex" : "block",
             flexDirection: "row",
-        };
+        }
         return style;
     }
 
@@ -381,6 +381,6 @@ export class DslElement extends React.Component<Props, State> {
                 {this.getElementHeader()}
                 {this.getChildElements()}
             </div>
-        );
+        )
     }
 }

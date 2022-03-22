@@ -88,6 +88,7 @@ export class RouteDesigner extends React.Component<Props, State> {
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.key !== this.state.key) {
+            console.log(this.state.integration.spec.flows)
             this.props.onSave?.call(this, this.state.integration);
         }
     }

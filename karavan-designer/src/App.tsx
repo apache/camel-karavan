@@ -42,133 +42,17 @@ class App extends React.Component<Props, State> {
             '  name: postman.yaml\n' +
             'spec:\n' +
             '  flows:\n' +
-            '    - rest:\n' +
-            '        post:\n' +
-            '          - to: direct:post\n' +
-            '        path: /parcels\n' +
-            '        consumes: application/json\n' +
-            '        produces: application/json\n' +
             '    - route:\n' +
             '        from:\n' +
             '          uri: direct:post\n' +
             '          steps:\n' +
             '            - log:\n' +
             '                message: \'Received: ${body}\'\n' +
-            '            - multicast:\n' +
-            '                steps:\n' +
-            '                  - kamelet:\n' +
-            '                      name: kafka-not-secured-sink\n' +
-            '                      parameters:\n' +
-            '                        topic: parcels\n' +
-            '                        bootstrapServers: localhost:9092\n' +
-            '                  - kamelet:\n' +
-            '                      name: postgresql-sink\n' +
-            '                      parameters:\n' +
-            '                        serverName: localhost\n' +
-            '                        serverPort: \'5432\'\n' +
-            '                        username: postgres\n' +
-            '                        password: postgres\n' +
-            '                        databaseName: demo\n' +
-            '                        query: >-\n' +
-            '                          INSERT INTO parcels (id,address) VALUES\n' +
-            '                          (:#id,:#address) ON CONFLICT (id)  DO NOTHING\n' +
-            '                aggregationStrategy: >-\n' +
-            '                  #class:org.apache.camel.processor.aggregate.UseOriginalAggregationStrategy\n' +
-            '                parallelProcessing: false\n' +
-            '                streaming: false\n' +
-            '        id: post\n' +
-            '    - route:\n' +
-            '        from:\n' +
-            '          uri: kamelet:jms-apache-artemis-source\n' +
-            '          steps:\n' +
             '            - to:\n' +
-            '                uri: xj:identity\n' +
+            '                uri: kamelet:kafka-sink\n' +
             '                parameters:\n' +
-            '                  transformDirection: XML2JSON\n' +
-            '            - kamelet:\n' +
-            '                name: kafka-not-secured-sink\n' +
-            '                parameters:\n' +
-            '                  topic: payments\n' +
-            '                  bootstrapServers: localhost:9092\n' +
-            '          parameters:\n' +
-            '            destinationType: queue\n' +
-            '            destinationName: payments\n' +
-            '            brokerURL: tcp://localhost:61616\n' +
-            '        id: payment\n' +
-            '    - route:\n' +
-            '        from:\n' +
-            '          uri: kamelet:kafka-not-secured-source\n' +
-            '          steps:\n' +
-            '            - log:\n' +
-            '                message: \'Aggegating: ${body}\'\n' +
-            '            - unmarshal:\n' +
-            '                json:\n' +
-            '                  library: jackson\n' +
-            '            - aggregate:\n' +
-            '                steps:\n' +
-            '                  - choice:\n' +
-            '                      when:\n' +
-            '                        - expression:\n' +
-            '                            groovy:\n' +
-            '                              expression: >-\n' +
-            '                                body.find { it.containsKey(\'status\') }.status ==\n' +
-            '                                \'confirmed\'\n' +
-            '                          steps:\n' +
-            '                            - marshal:\n' +
-            '                                json:\n' +
-            '                                  library: jackson\n' +
-            '                            - log:\n' +
-            '                                message: \'Send to MQTT : ${body}\'\n' +
-            '                            - kamelet:\n' +
-            '                                name: mqtt-sink\n' +
-            '                                parameters:\n' +
-            '                                  topic: deliveries\n' +
-            '                                  brokerUrl: tcp://localhost:1883\n' +
-            '                      otherwise:\n' +
-            '                        steps:\n' +
-            '                          - setBody:\n' +
-            '                              expression:\n' +
-            '                                groovy:\n' +
-            '                                  expression: \'body.find { it.containsKey(\'\'status\'\') } \'\n' +
-            '                          - marshal:\n' +
-            '                              json:\n' +
-            '                                library: jackson\n' +
-            '                          - log:\n' +
-            '                              message: \'Send to database: ${body}\'\n' +
-            '                          - kamelet:\n' +
-            '                              name: postgresql-sink\n' +
-            '                              parameters:\n' +
-            '                                serverName: localhost\n' +
-            '                                serverPort: \'5432\'\n' +
-            '                                username: postgres\n' +
-            '                                password: postgres\n' +
-            '                                databaseName: demo\n' +
-            '                                query: >-\n' +
-            '                                  UPDATE parcels set status = \'CANCELED\' WHERE\n' +
-            '                                  id = :#id\n' +
-            '                aggregationStrategy: aggregator\n' +
-            '                completionSize: 2\n' +
-            '                correlationExpression:\n' +
-            '                  groovy:\n' +
-            '                    expression: body.get(\'id\')\n' +
-            '          parameters:\n' +
-            '            topic: parcels,payments\n' +
-            '            bootstrapServers: localhost:9092\n' +
-            '            autoCommitEnable: true\n' +
-            '            consumerGroup: postman\n' +
-            '        id: aggregator\n' +
-            '    - route:\n' +
-            '        from:\n' +
-            '          uri: kamelet:mqtt-source\n' +
-            '          steps:\n' +
-            '            - log:\n' +
-            '                message: \'Delivery: ${body}\'\n' +
-            '          parameters:\n' +
-            '            topic: deliveries\n' +
-            '            brokerUrl: tcp://localhost:1883\n' +
-            '    - beans:\n' +
-            '        - name: aggregator\n' +
-            '          type: org.apache.camel.processor.aggregate.GroupedBodyAggregationStrategy\n' +
+            '                  topic: topic1\n' +
+            '        id: post\n' +
             ''
     };
 
@@ -213,7 +97,7 @@ class App extends React.Component<Props, State> {
 
     save(filename: string, yaml: string) {
         // console.log(filename);
-        // console.log(yaml);
+        console.log(yaml);
     }
 
     public render() {
