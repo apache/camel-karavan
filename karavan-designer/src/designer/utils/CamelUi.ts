@@ -22,7 +22,7 @@ import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import {KameletDefinition, NamedBeanDefinition, RouteDefinition, SagaDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {KameletDefinition, NamedBeanDefinition, RouteDefinition, SagaDefinition, ToDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Dependency, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 
 const StepElements: string[] = [
@@ -154,7 +154,7 @@ export class CamelUi {
         return KameletApi.getKamelets().filter((k) => k.metadata.labels["camel.apache.org/kamelet.type"] === type)
             .map((k) =>
                     new DslMetaModel({
-                        dsl: type === 'source' ? "FromDefinition" : "KameletDefinition",
+                        dsl: type === 'source' ? "FromDefinition" : "ToDefinition",
                         uri: "kamelet:" + k.metadata.name,
                         labels: k.type(),
                         navigation: "kamelet",
@@ -197,6 +197,9 @@ export class CamelUi {
     static getKamelet = (element: CamelElement): KameletModel | undefined => {
         if (element.dslName === 'KameletDefinition') {
             return KameletApi.findKameletByName((element as KameletDefinition).name || '');
+        } else if (element.dslName === 'ToDefinition' && (element as ToDefinition).uri?.startsWith("kamelet:")) {
+            const kameletName = (element as ToDefinition).uri?.replace("kamelet:", "");
+            return KameletApi.findKameletByName(kameletName);
         } else if (["FromDefinition", "FromDefinition", "ToDefinition"].includes(element.dslName)) {
             const uri: string = (element as any).uri;
             const k =
@@ -277,8 +280,9 @@ export class CamelUi {
             const routeId = (element as RouteDefinition).id
             return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
         } else if (['ToDefinition', 'ToDynamicDefinition', 'FromDefinition', 'KameletDefinition'].includes(element.dslName) && (element as any).uri) {
-            const uri = (element as any).uri
-            return CamelUtil.capitalizeName(ComponentApi.getComponentTitleFromUri(uri) || '');
+            const uri = (element as any).uri;
+            const kameletTitle = uri && uri.startsWith("kamelet:") ? KameletApi.findKameletByUri(uri)?.title() : undefined;
+            return kameletTitle ? kameletTitle : CamelUtil.capitalizeName(ComponentApi.getComponentTitleFromUri(uri) || '');
         } else {
             const title = CamelMetadataApi.getCamelModelMetadataByClassName(element.dslName);
             return title ? title.title : CamelUtil.capitalizeName((element as any).stepName);
@@ -439,6 +443,8 @@ export class CamelUi {
         const k: KameletModel | undefined = CamelUi.getKamelet(element);
         if (["FromDefinition", "KameletDefinition"].includes(element.dslName)) {
             return k ? k.icon() : CamelUi.getIconForName(element.dslName);
+        } else if (element.dslName === "ToDefinition" && (element as ToDefinition).uri?.startsWith("kamelet:")) {
+            return k ? k.icon() : CamelUi.getIconForName(element.dslName);
         } else {
             return CamelUi.getIconForName(element.dslName);
         }
@@ -448,6 +454,8 @@ export class CamelUi {
         const k: KameletModel | undefined = CamelUi.getKamelet(element);
         if (["FromDefinition", "KameletDefinition"].includes(element.dslName)) {
             return k ? k.icon() : externalIcon;
+        } else if (element.dslName === "ToDefinition" && (element as ToDefinition).uri?.startsWith("kamelet:")) {
+            return k ? k.icon() : CamelUi.getIconForName(element.dslName);
         } else {
             return externalIcon;
         }

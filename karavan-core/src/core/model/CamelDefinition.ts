@@ -1159,8 +1159,10 @@ export class RouteDefinition extends CamelElement {
     routeConfigurationId?: string;
     description?: string;
     from: FromDefinition = new FromDefinition();
+    streamCaching?: boolean;
     id?: string;
     precondition?: string;
+    autoStartup?: boolean;
     group?: string
     public constructor(init?: Partial<RouteDefinition>) {
         super('RouteDefinition')

@@ -335,7 +335,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, ''),
     ]),
     new ElementMeta('fhirJson', 'FhirJsonDataFormat', 'FHIR JSon', "Marshall and unmarshall FHIR objects to/from JSON.", 'dataformat,transformation,hl7,json', [
-        new PropertyMeta('fhirVersion', 'Fhir Version', "The version of FHIR to use. Possible values are: DSTU2,DSTU2_HL7ORG,DSTU2_1,DSTU3,R4", 'string', 'DSTU2, DSTU2_HL7ORG, DSTU2_1, DSTU3, R4', 'DSTU3', false, false, false, false, ''),
+        new PropertyMeta('fhirVersion', 'Fhir Version', "The version of FHIR to use. Possible values are: DSTU2,DSTU2_HL7ORG,DSTU2_1,DSTU3,R4,R5", 'string', 'DSTU2, DSTU2_HL7ORG, DSTU2_1, DSTU3, R4, R5', 'R4', false, false, false, false, ''),
         new PropertyMeta('prettyPrint', 'Pretty Print', "Sets the pretty print flag, meaning that the parser will encode resources with human-readable spacing and newlines between elements instead of condensing output as much as possible.", 'boolean', '', 'false', false, false, false, false, ''),
         new PropertyMeta('serverBaseUrl', 'Server Base Url', "Sets the server's base URL used by this parser. If a value is set, resource references will be turned into relative references if they are provided as absolute URLs but have a base matching the given base.", 'string', '', '', false, false, false, false, 'advanced'),
         new PropertyMeta('omitResourceId', 'Omit Resource Id', "If set to true (default is false) the ID of any resources being encoded will not be included in the output. Note that this does not apply to contained resources, only to root resources. In other words, if this is set to true, contained resources will still have local IDs but the outer/containing ID will not have an ID.", 'boolean', '', 'false', false, false, false, false, 'advanced'),
@@ -522,7 +522,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, ''),
     ]),
     new ElementMeta('fhirXml', 'FhirXmlDataFormat', 'FHIR XML', "Marshall and unmarshall FHIR objects to/from XML.", 'dataformat,transformation,hl7,xml', [
-        new PropertyMeta('fhirVersion', 'Fhir Version', "The version of FHIR to use. Possible values are: DSTU2,DSTU2_HL7ORG,DSTU2_1,DSTU3,R4", 'string', 'DSTU2, DSTU2_HL7ORG, DSTU2_1, DSTU3, R4', 'DSTU3', false, false, false, false, ''),
+        new PropertyMeta('fhirVersion', 'Fhir Version', "The version of FHIR to use. Possible values are: DSTU2,DSTU2_HL7ORG,DSTU2_1,DSTU3,R4,R5", 'string', 'DSTU2, DSTU2_HL7ORG, DSTU2_1, DSTU3, R4, R5', 'R4', false, false, false, false, ''),
         new PropertyMeta('prettyPrint', 'Pretty Print', "Sets the pretty print flag, meaning that the parser will encode resources with human-readable spacing and newlines between elements instead of condensing output as much as possible.", 'boolean', '', 'false', false, false, false, false, ''),
         new PropertyMeta('serverBaseUrl', 'Server Base Url', "Sets the server's base URL used by this parser. If a value is set, resource references will be turned into relative references if they are provided as absolute URLs but have a base matching the given base.", 'string', '', '', false, false, false, false, 'advanced'),
         new PropertyMeta('omitResourceId', 'Omit Resource Id', "If set to true (default is false) the ID of any resources being encoded will not be included in the output. Note that this does not apply to contained resources, only to root resources. In other words, if this is set to true, contained resources will still have local IDs but the outer/containing ID will not have an ID.", 'boolean', '', 'false', false, false, false, false, 'advanced'),
@@ -890,11 +890,13 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('route', 'RouteDefinition', 'Route', "A Camel route", 'configuration', [
         new PropertyMeta('group', 'Group', "The group that this route belongs to; could be the name of the RouteBuilder class or be explicitly configured in the XML. May be null.", 'string', '', '', false, false, false, false, ''),
+        new PropertyMeta('autoStartup', 'Auto Startup', "Whether to auto start this route", 'boolean', '', 'true', false, false, false, false, ''),
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('from', 'from', "from", 'FromDefinition', '', '', false, false, false, true, ''),
         new PropertyMeta('precondition', 'precondition', "precondition", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('routeConfigurationId', 'routeConfigurationId', "routeConfigurationId", 'string', '', '', false, false, false, false, ''),
+        new PropertyMeta('streamCaching', 'streamCaching', "streamCaching", 'boolean', '', '', false, false, false, false, ''),
     ]),
     new ElementMeta('faultToleranceConfiguration', 'FaultToleranceConfigurationDefinition', 'Fault Tolerance Configuration', "MicroProfile Fault Tolerance Circuit Breaker EIP configuration", 'configuration,eip', [
         new PropertyMeta('circuitBreaker', 'Circuit Breaker', "Refers to an existing io.smallrye.faulttolerance.core.circuit.breaker.CircuitBreaker instance to lookup and use from the registry. When using this, then any other circuit breaker options are not in use.", 'string', '', '', false, false, false, false, 'advanced'),
@@ -987,7 +989,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, ''),
     ]),
-    new ElementMeta('kamelet', 'KameletDefinition', 'Kamelet', "To call Kamelets", 'eip,routing', [
+    new ElementMeta('kamelet', 'KameletDefinition', 'Kamelet', "To call Kamelets in special situations", 'eip,routing', [
         new PropertyMeta('name', 'Name', "Name of the Kamelet (templateId/routeId) to call. Options for the kamelet can be specified using uri syntax, eg mynamecount=4&type=gold.", 'string', '', '', true, false, false, false, ''),
         new PropertyMeta('parameters', 'parameters', "parameters", 'object', '', '', false, false, false, false, ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, ''),

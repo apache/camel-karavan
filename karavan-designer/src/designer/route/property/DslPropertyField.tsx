@@ -180,13 +180,14 @@ export class DslPropertyField extends React.Component<Props, State> {
     }
 
     getSwitch = (property: PropertyMeta, value: any) => {
+        const isChecked = value != undefined ? Boolean(value) : Boolean(property.defaultValue);
         return (
             <Switch
                 id={property.name} name={property.name}
                 value={value?.toString()}
                 aria-label={property.name}
-                isChecked={Boolean(value) === true}
-                onChange={e => this.propertyChanged(property.name, !Boolean(value))}/>
+                isChecked={isChecked}
+                onChange={e => this.propertyChanged(property.name, e)}/>
         )
     }
 
