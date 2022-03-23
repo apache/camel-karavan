@@ -208,8 +208,8 @@ export class RouteDesigner extends React.Component<Props, State> {
 
     onResizePage(el: HTMLDivElement | null) {
         const rect = el?.getBoundingClientRect();
-        if (el && rect && (rect?.width !== this.state.width || rect.height !== this.state.height || rect.top !== this.state.top || rect.left !== this.state.left)) {
-            this.setState({width: rect.width, height: rect.height, top: rect.top, left: rect.left});
+        if (el && rect && (el.scrollWidth !== this.state.width || el.scrollHeight !== this.state.height || rect.top !== this.state.top || rect.left !== this.state.left)) {
+            this.setState({width: el.scrollWidth, height: el.scrollHeight, top: rect.top, left: rect.left})
         }
     }
 
