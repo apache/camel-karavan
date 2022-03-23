@@ -1,5 +1,8 @@
 name: Manual Build Version 0.0.9
 
+on:
+  workflow_dispatch:
+
 jobs:
   build:
 
