@@ -226,7 +226,8 @@ function runCamelJbang(filename: string) {
     const reload = vscode.workspace.getConfiguration().get("camel.reload");
     const health = vscode.workspace.getConfiguration().get("camel.health");
     const messageTracing = vscode.workspace.getConfiguration().get("camel.messageTracing");
-    const command = "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel run " + filename
+    const command = "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel run " 
+        + toCliFilename(filename)
         + (maxMessages > -1 ? " --max-messages=" + maxMessages : "")
         + " --logging-level=" + loggingLevel
         + (messageTracing ? " --trace" : "")
@@ -238,6 +239,12 @@ function runCamelJbang(filename: string) {
     TERMINALS.set(filename, terminal);
     terminal.show();
     terminal.sendText(command);
+}
+
+function toCliFilename(filename: string): string {
+    return (/\s/).test(filename)
+        ? '"' + filename + '"'
+        : filename.replace(/\s/g, "\\ ");
 }
 
 function nameFromTitle(title: string): string {

@@ -47,7 +47,6 @@ class App extends React.Component<Props, State> {
 
 
   componentDidMount() {
-    console.log("componentDidMount");
     window.addEventListener('message', this.onMessage, false);
     vscode.postMessage({ command: 'getData' })
   }
