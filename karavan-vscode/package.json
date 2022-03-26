@@ -117,7 +117,15 @@
         "command": "karavan.jbang-run",
         "title": "Karavan: JBang Run",
         "icon": "./icons/run.png"
-      }
+      },
+      {
+				"command": "integrations.refresh",
+				"title": "Refresh",
+				"icon": {
+					"light": "icons/light/refresh.svg",
+					"dark": "icons/dark/refresh.svg"
+				}
+			}
     ],
     "menus": {
       "explorer/context": [
@@ -149,7 +157,14 @@
           "when": "resourceExtname == .yaml || karavan:loaded",
           "group": "navigation"
         }
-      ]
+      ],
+      "view/title": [
+				{
+					"command": "integrations.refresh",
+					"when": "view == integrations",
+					"group": "navigation"
+				}
+			]
     },
     "viewsContainers": {
       "activitybar": [

@@ -16,7 +16,8 @@
  */
 import * as vscode from "vscode";
 import * as fs from "fs";
-import { Designer } from "./designer";
+import { DesignerView } from "./designerView";
+import {IntegrationView} from "./integrationView";
 
 const KARAVAN_LOADED = "karavan:loaded";
 
@@ -39,7 +40,14 @@ export function activate(context: vscode.ExtensionContext) {
                 .toString()
         );
 
-    const designer = new Designer(context, webviewContent);
+    // Register views
+    const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+		? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+    const integrationView = new IntegrationView(context, rootPath);
+	vscode.window.registerTreeDataProvider('integrations', integrationView);    
+    vscode.commands.registerCommand('integrations.refresh', () => integrationView.refresh());
+
+    const designer = new DesignerView(context, webviewContent);
 
     // Create new Integration CRD command
     const createCrd = vscode.commands.registerCommand("karavan.create-crd", () => designer.createIntegration(true));

@@ -1,7 +1,7 @@
 apiVersion: camel.apache.org/v1
 kind: Integration
 metadata:
-  name: rest-dsl-example.yaml
+  name: RestDsl
 spec:
   flows:
     - rest-configuration:

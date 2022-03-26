@@ -25,7 +25,7 @@ const KARAVAN_LOADED = "karavan:loaded";
 const KARAVAN_PANELS: Map<string, vscode.WebviewPanel> = new Map<string, vscode.WebviewPanel>();
 const TERMINALS: Map<string, vscode.Terminal> = new Map<string, vscode.Terminal>();
 
-export class Designer {
+export class DesignerView {
 
     constructor(private context: vscode.ExtensionContext, private webviewContent: string) {
 
@@ -33,7 +33,6 @@ export class Designer {
 
     karavanOpen(file: any) {
         const yaml = fs.readFileSync(path.resolve(file.fsPath)).toString('utf8');
-        console.log("11");
         const filename = path.basename(file.fsPath);
         const relativePath = utils.getRalativePath(file.path);
         const integration = utils.parceYaml(filename, yaml);

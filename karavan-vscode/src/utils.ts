@@ -88,3 +88,28 @@ export function toCliFilename(filename: string): string {
 export function nameFromTitle(title: string): string {
     return title.replace(/[^a-z0-9+]+/gi, "-").toLowerCase();
 }
+
+function getAllFiles (dirPath, arrayOfFiles: string[]): string[]  {
+    const files = fs.readdirSync(dirPath)
+  
+    arrayOfFiles = arrayOfFiles || []
+  
+    files.forEach(function(file) {
+      if (fs.statSync(dirPath + "/" + file).isDirectory()) {
+        arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles)
+      } else {
+        arrayOfFiles.push(path.join(dirPath, "/", file))
+      }
+    })
+    return arrayOfFiles
+  }
+
+export function getYamlFiles(baseDir: string): string[] {
+    const result:string[] = [];
+    getAllFiles(baseDir, []).filter(f => f.endsWith(".yaml")).forEach(f => {
+        result.push(f);
+    })
+    return result;
+}
+
+

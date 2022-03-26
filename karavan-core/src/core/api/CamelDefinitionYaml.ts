@@ -189,6 +189,7 @@ export class CamelDefinitionYaml {
             // integration.spec.traits = this.traitsToCamelElements(flows); // TODO: Plain yaml Trait ???
         } else {
             integration.crd = true;
+            if (camelized?.metadata?.name) integration.metadata.name = camelized?.metadata?.name;
             const int: Integration = new Integration({...camelized});
             integration.spec.flows?.push(...this.flowsToCamelElements(int.spec.flows || []));
             integration.spec.dependencies = this.dependenciesToDependency(int.spec.dependencies);
