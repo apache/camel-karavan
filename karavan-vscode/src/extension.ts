@@ -18,6 +18,7 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import { DesignerView } from "./designerView";
 import {IntegrationView} from "./integrationView";
+import { KameletView } from "./kameletView";
 
 const KARAVAN_LOADED = "karavan:loaded";
 
@@ -43,9 +44,14 @@ export function activate(context: vscode.ExtensionContext) {
     // Register views
     const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 		? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+
     const integrationView = new IntegrationView(context, rootPath);
 	vscode.window.registerTreeDataProvider('integrations', integrationView);    
     vscode.commands.registerCommand('integrations.refresh', () => integrationView.refresh());
+
+    const kameletView = new KameletView(context, rootPath);
+	vscode.window.registerTreeDataProvider('kamelets', kameletView);    
+    vscode.commands.registerCommand('kamelets.refresh', () => kameletView.refresh());
 
     const designer = new DesignerView(context, webviewContent);
 

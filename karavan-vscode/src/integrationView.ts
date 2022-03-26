@@ -33,10 +33,8 @@ export class IntegrationView implements vscode.TreeDataProvider<IntegrationItem>
 	}
 	getChildren(element?: IntegrationItem): vscode.ProviderResult<IntegrationItem[]> {
 		const integrations: IntegrationItem[] = [];
-		console.log(this.rootPath)
 		if (this.rootPath){
 			utils.getYamlFiles(this.rootPath).forEach(f => {
-				console.log(f);
 				const yaml = fs.readFileSync(path.resolve(f)).toString('utf8');
 				const filename = path.basename(f);
         		const i = CamelDefinitionYaml.yamlToIntegration(filename, yaml);

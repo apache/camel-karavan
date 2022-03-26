@@ -125,6 +125,14 @@
 					"light": "icons/light/refresh.svg",
 					"dark": "icons/dark/refresh.svg"
 				}
+			},
+      {
+				"command": "kamelets.refresh",
+				"title": "Refresh",
+				"icon": {
+					"light": "icons/light/refresh.svg",
+					"dark": "icons/dark/refresh.svg"
+				}
 			}
     ],
     "menus": {
@@ -162,6 +170,11 @@
 				{
 					"command": "integrations.refresh",
 					"when": "view == integrations",
+					"group": "navigation"
+				},
+        {
+					"command": "kamelets.refresh",
+					"when": "view == kamelets",
 					"group": "navigation"
 				}
 			]
