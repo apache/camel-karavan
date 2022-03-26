@@ -52,7 +52,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
 
     public state: State = {
         tab: 'routes',
-        integration: this.props.yaml
+        integration: this.props.yaml && CamelDefinitionYaml.yamlIsIntegration(this.props.yaml)
             ? CamelDefinitionYaml.yamlToIntegration(this.props.filename, this.props.yaml)
             : Integration.createNew(this.props.filename),
         key: "",
