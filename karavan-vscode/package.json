@@ -133,8 +133,17 @@
 					"light": "icons/light/refresh.svg",
 					"dark": "icons/dark/refresh.svg"
 				}
-			},{
+			},
+      {
 				"command": "components.refresh",
+				"title": "Refresh",
+				"icon": {
+					"light": "icons/light/refresh.svg",
+					"dark": "icons/dark/refresh.svg"
+				}
+			},
+      {
+				"command": "dsl.refresh",
 				"title": "Refresh",
 				"icon": {
 					"light": "icons/light/refresh.svg",
@@ -187,6 +196,11 @@
         {
 					"command": "components.refresh",
 					"when": "view == components",
+					"group": "navigation"
+				},
+        {
+					"command": "dsl.refresh",
+					"when": "view == dsl",
 					"group": "navigation"
 				}
 			]
