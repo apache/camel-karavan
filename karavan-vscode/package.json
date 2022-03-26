@@ -133,6 +133,13 @@
 					"light": "icons/light/refresh.svg",
 					"dark": "icons/dark/refresh.svg"
 				}
+			},{
+				"command": "components.refresh",
+				"title": "Refresh",
+				"icon": {
+					"light": "icons/light/refresh.svg",
+					"dark": "icons/dark/refresh.svg"
+				}
 			}
     ],
     "menus": {
@@ -175,6 +182,11 @@
         {
 					"command": "kamelets.refresh",
 					"when": "view == kamelets",
+					"group": "navigation"
+				},
+        {
+					"command": "components.refresh",
+					"when": "view == components",
 					"group": "navigation"
 				}
 			]

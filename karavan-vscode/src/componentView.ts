@@ -18,27 +18,28 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as utils from "./utils";
 import * as fs from "fs";
-import { KameletApi } from "karavan-core/lib/api/KameletApi";
-import { KameletModel } from "karavan-core/lib/model/KameletModels";
+import { ComponentApi } from "karavan-core/lib/api/ComponentApi";
+import { Component } from "karavan-core/lib/model/ComponentModels";
 import { ThemeIcon } from "vscode";
 
-export class KameletView implements vscode.TreeDataProvider<KameletItem> {
+export class ComponentView implements vscode.TreeDataProvider<ComponentItem> {
 
     constructor(private context: vscode.ExtensionContext, private rootPath: string | undefined) {
 
     }
-	private _onDidChangeTreeData: vscode.EventEmitter<KameletItem | undefined | void> = new vscode.EventEmitter<KameletItem | undefined | void>();
-	readonly onDidChangeTreeData: vscode.Event<KameletItem | undefined | void> = this._onDidChangeTreeData.event;
+	private _onDidChangeTreeData: vscode.EventEmitter<ComponentItem | undefined | void> = new vscode.EventEmitter<ComponentItem | undefined | void>();
+	readonly onDidChangeTreeData: vscode.Event<ComponentItem | undefined | void> = this._onDidChangeTreeData.event;
 
-	getTreeItem(element: KameletItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
+	getTreeItem(element: ComponentItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
 		return element;
 	}
-	getChildren(element?: KameletItem): vscode.ProviderResult<KameletItem[]> {
-		const kamelets: KameletItem[] = [];
+	getChildren(element?: ComponentItem): vscode.ProviderResult<ComponentItem[]> {
+		const kamelets: ComponentItem[] = [];
 		if (this.rootPath){
-			utils.readKamelets(this.context).forEach(s => {
-				const k:KameletModel = KameletApi.yamlToKamelet(s);
-				kamelets.push(new KameletItem(k.spec.definition.title, k.spec.definition.description, k.type()));
+			utils.readComponents(this.context).forEach(s => {
+				const c:Component = ComponentApi.jsonToComponent(s);
+				if (!c.component.deprecated) 
+				kamelets.push(new ComponentItem(c.component.title, c.component.description, c.component.label));
 			})
 		}
 		return Promise.resolve(kamelets);
@@ -49,7 +50,7 @@ export class KameletView implements vscode.TreeDataProvider<KameletItem> {
 	}
 }
 
-export class KameletItem extends vscode.TreeItem {
+export class ComponentItem extends vscode.TreeItem {
 
 	constructor(
 		public readonly title: string,
@@ -65,5 +66,5 @@ export class KameletItem extends vscode.TreeItem {
 
 	iconPath = ThemeIcon.File;
 
-	contextValue = 'kamelet';
+	contextValue = 'component';
 }
