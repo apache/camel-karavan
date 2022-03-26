@@ -45,7 +45,8 @@
     "onCommand:karavan.create-crd",
     "onCommand:karavan.create-yaml",
     "onCommand:karavan.jbang-run",
-    "onCommand:karavan.open"
+    "onCommand:karavan.open",
+    "onView:integrations"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -153,9 +154,32 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "karavan",
+          "id": "karavanView",
           "title": "Karavan",
-          "icon": "webview/icons/camel.svg"
+          "icon": "icons/karavan-mono-24x24.svg"
+        }
+      ]
+    },
+    "views": {
+      "karavanView": [
+        {
+          "id": "integrations",
+          "name": "Integrations"
+        },
+        {
+          "id": "dsl",
+          "name": "Domain Specific Language",
+          "visibility": "collapsed"
+        },
+        {
+          "id": "kamelets",
+          "name": "Kamelets",
+          "visibility": "collapsed"
+        },        
+        {
+          "id": "components",
+          "name": "Components",
+          "visibility": "collapsed"
         }
       ]
     }
