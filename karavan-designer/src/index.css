@@ -5,25 +5,6 @@ body,
   height: 100%;
 }
 
-:root {
-  --pf-global--primary-color--100: #fca338 !important;
-  --pf-global--primary-color--200: #fb8824 !important;
-  --pf-global--primary-color--light-100: #fca338 !important;
-  --pf-global--primary-color--dark-100: #fca338 !important;
-
-  --pf-global--link--Color: #fca338 !important;
-  --pf-global--link--Color--hover: #fb8824 !important;
-  --pf-global--link--Color--light: #fee3c3 !important;
-  --pf-global--link--Color--light--hover: #fee3c3 !important;
-  --pf-global--link--Color--dark: #fb8824 !important;
-  --pf-global--link--Color--dark--hover: #fb8824 !important;
-
-  --pf-global--active-color--100: #fee3c3 !important;
-  --pf-global--active-color--200: #fee3c3 !important;
-  --pf-global--active-color--300: #fca338 !important;
-  --pf-global--active-color--400: #fca338 !important;
-}
-
 #root {
   margin: 0;
   height: 100%;
@@ -42,8 +23,3 @@ body,
   height: 30px;
   margin-right: 10px;
 }
-
-.logo .pf-c-title {
-  color: #e97826;
-}
-

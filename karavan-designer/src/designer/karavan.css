@@ -1,7 +1,3 @@
-.karavan {
-    color: var(--pf-global--Color--100);
-}
-
 .karavan .tools-section {
     padding-top: 0px;
     padding-bottom: 0px;
@@ -223,7 +219,7 @@
 }
 
 .karavan .main-tabs .pf-c-tabs__item.pf-m-current {
-    --pf-c-tabs__link--after--BorderColor: var(--pf-global--primary-color--200);
+    --pf-c-tabs__link--after--BorderColor: var(--pf-global--primary-color--100);
 }
 
 /*Properties*/
@@ -438,7 +434,7 @@
     padding: 0;
     margin: auto auto auto 6px;
     background: transparent;
-    color: #fb8824;
+    color: var(--pf-global--primary-color--100);
 }
 
 .karavan .properties .add-button svg {
@@ -481,19 +477,19 @@
 }
 
 .karavan .dsl-page .graph .connections .arrow {
-    stroke: #fb8824;
-    fill: #fb8824;
+    stroke: var(--pf-global--Color--200);
+    fill: var(--pf-global--Color--200);
 }
 
 .karavan .dsl-page .graph .connections .path {
-     stroke: #fb8824;
+     stroke: var(--pf-global--Color--200);
      stroke-width: 1;
      fill: transparent;
 }
 
 .karavan .dsl-page .graph .connections .circle-outgoing,
 .karavan .dsl-page .graph .connections .circle-incoming {
-    stroke: #fb8824;
+    stroke: var(--pf-global--Color--200);
     stroke-width: 1;
     fill: white;
 }
@@ -502,21 +498,21 @@
     stroke-dasharray: 5;
     -webkit-animation: dashdraw .5s linear infinite;
     animation: dashdraw .5s linear infinite;
-    stroke: #fb8824;
+    stroke: var(--pf-global--Color--200);
     strokeWidth: 1;
     fill: transparent;
 }
 
 .karavan .dsl-page .graph .connections .path-direct {
     stroke-dasharray: 0;
-    stroke: #fb8824;
+    stroke: var(--pf-global--Color--200);
     strokeWidth: 1;
     fill: transparent;
 }
 
 .karavan .dsl-page .graph .connections .path-seda {
     stroke-dasharray: 2;
-    stroke: #fb8824;
+    stroke: var(--pf-global--Color--200);
     -webkit-animation: dashdraw .5s linear infinite;
     animation: dashdraw .5s linear infinite;
     strokeWidth: 1;
@@ -531,7 +527,7 @@
     display: flex;
     flex-direction: column;
     width: fit-content;
-    border-color: #fb8824;
+    border-color: var(--pf-global--Color--200);
     border-radius: 16px;
     border-width: 1px;
     min-width: 120px;
@@ -607,12 +603,12 @@
 }
 
 .step-element-selected {
-    background-color: rgb(171, 172, 224, 0.1);
+    background-color: rgba(var(--pf-global--palette--blue-50), 1);
 }
 
 .step-element .selected .header-icon {
-    border-color: rgb(48, 50, 132);
-    background-color: rgb(171, 172, 224);
+    border-color: var(--pf-global--primary-color--100);
+    background-color: var(--pf-global--palette--blue-50);
     border-width: 2px;
 }
 
@@ -628,7 +624,7 @@
     width: 50%
 }
 .step-element .header .text-bottom {
-    background-color: rgba(250, 250, 250, 0.5);
+    background-color: rgba(255, 255, 255, 0.5);
 }
 .step-element .header .text-right {
     padding-left: 17px;
@@ -637,7 +633,7 @@
 }
 
 .step-element .header-icon {
-    border-color: #fb8824;
+    border-color: var(--pf-global--Color--200);
     border-style: solid;
     border-radius: 30px;
     border-width: 1px;
@@ -662,13 +658,6 @@
     user-select: none;
 }
 
-.step-element .arrow-down {
-    margin-top: -1px;
-    font-size: 13px;
-    height: 16px;
-    color: #fb8824;
-}
-
 .step-element .add-element-button {
     top: 5px;
     left: 5px;
@@ -678,7 +667,7 @@
     border: 0;
     padding: 0;
     background: transparent;
-    color: #fb8824;
+    color: var(--pf-global--primary-color--100);
     visibility: hidden;
     z-index: 100;
     position: absolute;
@@ -702,7 +691,7 @@
     padding: 0;
     margin: 0;
     background: transparent;
-    color: #fb8824;
+    color: var(--pf-global--primary-color--100);
     visibility: hidden;
     z-index: 100;
 }
@@ -716,7 +705,7 @@
     padding: 0;
     margin: 3px auto 0 auto;
     background: transparent;
-    color: #fca338;
+    color: var(--pf-global--primary-color--100);
     visibility: hidden;
     height: 100%;
     display: flex;
@@ -820,24 +809,6 @@
     overflow-wrap: anywhere;
 }
 
-.pf-c-backdrop .pf-c-tabs__item.pf-m-current {
-    --pf-c-tabs__link--after--BorderColor: #fca338;
-}
-
-.karavan .pf-c-button {
-    --pf-c-button--m-primary--hover--BackgroundColor: #fb8824;
-    --pf-c-button--m-primary--focus--BackgroundColor: #fb8824;
-    --pf-c-button--m-primary--active--BackgroundColor: #fb8824;
-}
-
-.karavan .pf-c-select__menu-item-icon {
-    color: #fb8824;
-}
-
-.karavan .pf-c-select__menu-wrapper:hover, .karavan .pf-c-select__menu-item:hover {
-    background-color: #fca338;
-}
-
 /*REST Page*/
 .karavan .rest-page {
     flex: 1;
@@ -886,15 +857,18 @@
 .karavan .rest-page .rest-card-unselected,
 .karavan .rest-page .rest-config-card-unselected,
 .karavan .rest-page .method-card-unselected {
-    border-color: #fb8824;
+    border-color: var(--pf-global--Color--200);
     background-color: transparent;
 }
 
 .karavan .rest-page .rest-card-selected,
 .karavan .rest-page .rest-config-card-selected,
 .karavan .rest-page .method-card-selected {
-    border-color: rgb(48, 50, 132);
-    background-color: rgb(171, 172, 224, 0.1);
+    border-color: var(--pf-global--primary-color--100);
+}
+
+.karavan .rest-page .rest-card-selected .title {
+    color: var(--pf-global--primary-color--100);
 }
 
 .karavan .rest-page .rest-config-card,
@@ -937,11 +911,11 @@
 }
 
 .karavan .rest-page .method-card-unselected .method {
-    background: #fca338;
+    background: var(--pf-global--Color--400);
 }
 
 .karavan .rest-page .method-card-selected .method {
-    background: rgb(48, 50, 132);
+    background: var(--pf-global--primary-color--100);
 }
 
 .karavan .rest-page .rest-card .title,
@@ -986,7 +960,7 @@
     font-size: 15px;
     border: 0;
     background: transparent;
-    color: #fb8824;
+    color: var(--pf-global--primary-color--100);
     z-index: 100;
 }
 
