@@ -37,7 +37,7 @@ export class IntegrationView implements vscode.TreeDataProvider<IntegrationItem>
 		if (this.rootPath){
 			utils.getYamlFiles(this.rootPath).forEach(f => {
 				const yaml = fs.readFileSync(path.resolve(f)).toString('utf8');
-        		if (CamelDefinitionYaml.yamlIsIntegration(yaml)) {
+        		if (!f.startsWith(this.rootPath + path.sep + "target") && CamelDefinitionYaml.yamlIsIntegration(yaml)) {
 					const filename = path.basename(f);
 					const i = CamelDefinitionYaml.yamlToIntegration(filename, yaml);
 					integrations.push(new IntegrationItem(i.metadata.name, f, i.crd, {command: 'karavan.open', title:'', arguments: [{fsPath: f}]}));
