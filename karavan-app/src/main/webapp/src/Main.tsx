@@ -35,6 +35,7 @@ import {DesignerPage} from "./integrations/DesignerPage";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import avatarImg from './avatarImg.svg';
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
+import Icon from "./Logo";
 
 class ToastMessage {
     id: string = ''
@@ -119,18 +120,11 @@ export class Main extends React.Component<Props, State> {
             <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentSpaceBetween"}}
                   style={{width: "100%"}}>
                 <FlexItem style={{marginTop: "auto", marginBottom: "auto"}}>
-                    <Flex direction={{default: "row"}}>
-                        <FlexItem>
-                            <TextContent>
-                                <Text component={TextVariants.h1}>Karavan</Text>
-                            </TextContent>
-                        </FlexItem>
-                        <FlexItem>
-                            <TextContent>
-                                <Text component={TextVariants.h5}>{"v. " + version}</Text>
-                            </TextContent>
-                        </FlexItem>
-                    </Flex>
+                        {/*<FlexItem>*/}
+                        {/*    <TextContent>*/}
+                        {/*        <Text component={TextVariants.h5}>{"v. " + version}</Text>*/}
+                        {/*    </TextContent>*/}
+                        {/*</FlexItem>*/}
                 </FlexItem>
                 <FlexItem style={{marginTop: "auto", marginBottom: "auto"}}>
                     <PageHeaderTools>
@@ -155,13 +149,13 @@ export class Main extends React.Component<Props, State> {
                 </FlexItem>
             </Flex>
         </div>
-    );
+    )
 
     header = (version: string) => (
         <PageHeader className="page-header"
                     onNavToggle={this.onNavToggle}
                     showNavToggle
-                    logo={<Brand className="brand" src={logo} alt="Karavan"/>}
+                    logo={Icon()}
                     headerTools={this.toolBar(version)}
         />
     );

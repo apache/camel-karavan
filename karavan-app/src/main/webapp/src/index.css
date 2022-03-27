@@ -28,21 +28,13 @@
   flex-direction: column;
 }
 
-.logo {
-  display: flex;
-}
-
-.logo  .pf-c-brand {
-  height: 30px;
-  margin-right: 10px;
-}
-
-.logo .pf-c-title {
-  color: #e97826;
-}
-
 .karavan .pf-c-page__main {
   overflow: hidden;
+}
+.logo,
+.logo svg {
+  height: 48px;
+  width: unset;
 }
 
 .karavan .kamelet-section {
