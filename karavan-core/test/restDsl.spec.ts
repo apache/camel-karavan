@@ -29,7 +29,7 @@ describe('REST DSL', () => {
     it('YAML <-> Object 1', () => {
         const yaml = fs.readFileSync('test/restDsl.yaml', {encoding: 'utf8', flag: 'r'});
         const i = CamelDefinitionYaml.yamlToIntegration("test1.yaml", yaml);
-        expect(i.metadata.name).to.equal('test1.yaml');
+        expect(i.metadata.name).to.equal('RestDsl');
         expect(i.kind).to.equal('Integration');
         expect(i.spec.flows?.length).to.equal(3);
         expect(i.crd).to.equal(true);

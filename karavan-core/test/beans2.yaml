@@ -1,7 +1,7 @@
 apiVersion: camel.apache.org/v1
 kind: Integration
 metadata:
-  name: test1.yaml
+  name: Beans
 spec:
   flows:
   - beans:

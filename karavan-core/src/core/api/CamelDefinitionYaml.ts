@@ -181,20 +181,33 @@ export class CamelDefinitionYaml {
         const integration: Integration = Integration.createNew(filename);
         const fromYaml: any = yaml.load(text);
         const camelized: any = CamelUtil.camelizeObject(fromYaml);
-        if (Array.isArray(camelized)) {
+        if (camelized?.apiVersion && camelized.apiVersion.startsWith('camel.apache.org') && camelized.kind && camelized.kind === 'Integration') {
+            integration.crd = true;
+            if (camelized?.metadata?.name) integration.metadata.name = camelized?.metadata?.name;
+            const int: Integration = new Integration({...camelized});
+            integration.spec.flows?.push(...this.flowsToCamelElements(int.spec.flows || []));
+            integration.spec.dependencies = this.dependenciesToDependency(int.spec.dependencies);
+            if (int.spec.traits) integration.spec.traits = TraitApi.traitsFromYaml(int.spec.traits);
+        } else if (Array.isArray(camelized)) {
             integration.crd = false;
             const flows: any[] = camelized;
             integration.spec.flows?.push(...this.flowsToCamelElements(flows));
             integration.spec.dependencies = this.modelineToDependency(text);
             // integration.spec.traits = this.traitsToCamelElements(flows); // TODO: Plain yaml Trait ???
-        } else {
-            integration.crd = true;
-            const int: Integration = new Integration({...camelized});
-            integration.spec.flows?.push(...this.flowsToCamelElements(int.spec.flows || []));
-            integration.spec.dependencies = this.dependenciesToDependency(int.spec.dependencies);
-            if (int.spec.traits) integration.spec.traits = TraitApi.traitsFromYaml(int.spec.traits);
         }
         return integration;
+    }
+
+    static yamlIsIntegration = (text: string): boolean => {
+        const fromYaml: any = yaml.load(text);
+        const camelized: any = CamelUtil.camelizeObject(fromYaml);
+        if (camelized?.apiVersion && camelized.apiVersion.startsWith('camel.apache.org') && camelized.kind && camelized.kind === 'Integration') {
+            return true;
+        } else if (Array.isArray(camelized)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     static dependenciesToDependency = (deps?: any[]): Dependency[] => {

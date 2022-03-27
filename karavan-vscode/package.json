@@ -45,7 +45,8 @@
     "onCommand:karavan.create-crd",
     "onCommand:karavan.create-yaml",
     "onCommand:karavan.jbang-run",
-    "onCommand:karavan.open"
+    "onCommand:karavan.open",
+    "onView:integrations"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -116,7 +117,39 @@
         "command": "karavan.jbang-run",
         "title": "Karavan: JBang Run",
         "icon": "./icons/run.png"
-      }
+      },
+      {
+				"command": "integrations.refresh",
+				"title": "Refresh",
+				"icon": {
+					"light": "icons/light/refresh.svg",
+					"dark": "icons/dark/refresh.svg"
+				}
+			},
+      {
+				"command": "kamelets.refresh",
+				"title": "Refresh",
+				"icon": {
+					"light": "icons/light/refresh.svg",
+					"dark": "icons/dark/refresh.svg"
+				}
+			},
+      {
+				"command": "components.refresh",
+				"title": "Refresh",
+				"icon": {
+					"light": "icons/light/refresh.svg",
+					"dark": "icons/dark/refresh.svg"
+				}
+			},
+      {
+				"command": "dsl.refresh",
+				"title": "Refresh",
+				"icon": {
+					"light": "icons/light/refresh.svg",
+					"dark": "icons/dark/refresh.svg"
+				}
+			}
     ],
     "menus": {
       "explorer/context": [
@@ -148,14 +181,59 @@
           "when": "resourceExtname == .yaml || karavan:loaded",
           "group": "navigation"
         }
-      ]
+      ],
+      "view/title": [
+				{
+					"command": "integrations.refresh",
+					"when": "view == integrations",
+					"group": "navigation"
+				},
+        {
+					"command": "kamelets.refresh",
+					"when": "view == kamelets",
+					"group": "navigation"
+				},
+        {
+					"command": "components.refresh",
+					"when": "view == components",
+					"group": "navigation"
+				},
+        {
+					"command": "dsl.refresh",
+					"when": "view == dsl",
+					"group": "navigation"
+				}
+			]
     },
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "karavan",
+          "id": "karavanView",
           "title": "Karavan",
-          "icon": "webview/icons/camel.svg"
+          "icon": "icons/karavan-mono-24x24.svg"
+        }
+      ]
+    },
+    "views": {
+      "karavanView": [
+        {
+          "id": "integrations",
+          "name": "Integrations"
+        },
+        {
+          "id": "dsl",
+          "name": "Domain Specific Language",
+          "visibility": "collapsed"
+        },
+        {
+          "id": "kamelets",
+          "name": "Kamelets",
+          "visibility": "collapsed"
+        },        
+        {
+          "id": "components",
+          "name": "Components",
+          "visibility": "collapsed"
         }
       ]
     }

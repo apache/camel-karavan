@@ -39,7 +39,7 @@ describe('bean configuration', () => {
     it('Read beans from Integration', () => {
         const yaml = fs.readFileSync('test/beans2.yaml',{encoding:'utf8', flag:'r'});
         const i = CamelDefinitionYaml.yamlToIntegration("beans.yaml", yaml);
-        expect(i.metadata.name).to.equal('beans.yaml');
+        expect(i.metadata.name).to.equal('Beans');
         expect(i.kind).to.equal('Integration');
         expect(i.spec.flows?.length).to.equal(3);
         expect(i.crd).to.equal(true);
