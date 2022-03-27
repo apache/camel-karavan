@@ -105,7 +105,7 @@ export class DesignerView {
         panel.webview.html = this.webviewContent;
         panel.iconPath = vscode.Uri.joinPath(
             this.context.extensionUri,
-            "icons/icon.svg"
+            "icons/karavan.svg"
         );
 
         // Handle messages from the webview
