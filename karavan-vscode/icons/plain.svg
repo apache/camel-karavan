@@ -12,7 +12,7 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <sodipodi:namedview
-     id="namedview836"
+     id="namedview1002"
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
@@ -20,44 +20,44 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      showgrid="false"
-     inkscape:zoom="19.5625"
-     inkscape:cx="16"
-     inkscape:cy="16.025559"
-     inkscape:window-width="2560"
-     inkscape:window-height="1387"
+     inkscape:zoom="9.7781858"
+     inkscape:cx="25.004639"
+     inkscape:cy="23.675149"
+     inkscape:window-width="1296"
+     inkscape:window-height="969"
      inkscape:window-x="0"
      inkscape:window-y="25"
-     inkscape:window-maximized="1"
+     inkscape:window-maximized="0"
      inkscape:current-layer="icon" />
   <defs
-     id="defs826">
+     id="defs988">
     <style
-       id="style824">
+       id="style986">
       .cls-1 {
         fill: none;
       }
     </style>
   </defs>
   <path
-     d="M 26,30.000001 H 5.9999999 a 2.0023,2.0023 0 0 1 -2,-2 V 4 a 2.0023,2.0023 0 0 1 2,-2 H 26 a 2.0023,2.0023 0 0 1 2,2 v 24.000001 a 2.0023,2.0023 0 0 1 -2,2 z M 5.9999999,4 V 28.000001 H 26 V 4 Z"
-     id="path828-7"
-     style="fill:#326ce5;fill-opacity:1" />
-  <rect
-     x="10"
-     y="13"
-     width="12"
-     height="2"
-     transform="translate(32 28) rotate(-180)"
-     id="rect830"
-     style="fill:#326ce5;fill-opacity:1" />
-  <rect
-     x="12"
-     y="18"
-     width="8"
-     height="2"
-     transform="translate(32 38) rotate(-180)"
-     id="rect832"
-     style="fill:#326ce5;fill-opacity:1" />
+     d="M10,10H2V2h8ZM4,8H8V4H4Z"
+     id="path990"
+     style="stroke:#ffffff;stroke-opacity:1;fill:#ffffff;fill-opacity:1" />
+  <path
+     d="M30,30H22V22h8Zm-6-2h4V24H24Z"
+     id="path992"
+     style="stroke:#ffffff;stroke-opacity:1;fill:#ffffff;fill-opacity:1" />
+  <path
+     d="M20,27H8A6,6,0,0,1,8,15v2a4,4,0,0,0,0,8H20Z"
+     id="path994"
+     style="stroke:#ffffff;stroke-opacity:1;fill:#ffffff;fill-opacity:1" />
+  <path
+     d="M24,17V15a4,4,0,0,0,0-8H12V5H24a6,6,0,0,1,0,12Z"
+     id="path996"
+     style="stroke:#ffffff;stroke-opacity:1;fill:#ffffff;fill-opacity:1" />
+  <path
+     d="M19,11H13l-3,4,6,6,6-6Z"
+     id="path998"
+     style="stroke:#ffffff;stroke-opacity:1;fill:#ffffff;fill-opacity:1" />
   <rect
      id="_Transparent_Rectangle_"
      data-name="&lt;Transparent Rectangle&gt;"

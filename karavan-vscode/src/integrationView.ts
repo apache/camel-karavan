@@ -66,8 +66,8 @@ export class IntegrationItem extends vscode.TreeItem {
 	}
 
 	iconPath = {
-		light: path.join(__filename, '..', '..', 'icons', this.crd ? 'crd.svg' : 'plain.svg'),
-		dark: path.join(__filename, '..', '..', 'icons', this.crd ? 'crd.svg' : 'plain.svg')
+		light: path.join(__filename, '..', '..', 'icons', 'light', this.crd ? 'crd.svg' : 'karavan.svg'),
+		dark: path.join(__filename, '..', '..', 'icons', 'dark', this.crd ? 'crd.svg' : 'karavan.svg')
 	};
 
 	contextValue = 'integration';
