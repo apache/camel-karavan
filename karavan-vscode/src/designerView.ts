@@ -31,10 +31,10 @@ export class DesignerView {
 
     }
 
-    karavanOpen(file: any) {
-        const yaml = fs.readFileSync(path.resolve(file.fsPath)).toString('utf8');
-        const filename = path.basename(file.fsPath);
-        const relativePath = utils.getRalativePath(file.path);
+    karavanOpen(fullPath: string) {
+        const yaml = fs.readFileSync(path.resolve(fullPath)).toString('utf8');
+        const filename = path.basename(fullPath);
+        const relativePath = utils.getRalativePath(fullPath);
         const integration = utils.parceYaml(filename, yaml);
 
         if (integration[0]) {
@@ -44,16 +44,16 @@ export class DesignerView {
         }
     }
 
-    jbangRun(file: any) {
-        if (file.fsPath.startsWith('webview-panel/webview')) {
+    jbangRun(fullPath: string) {
+        if (fullPath.startsWith('webview-panel/webview')) {
             const filename = Array.from(KARAVAN_PANELS.entries()).filter(({ 1: v }) => v.active).map(([k]) => k)[0];
             if (filename) {
                 utils.runCamelJbang(filename);
             }
         } else {
-            const yaml = fs.readFileSync(path.resolve(file.fsPath)).toString('utf8');
-            const relativePath = utils.getRalativePath(file.fsPath);
-            const filename = path.basename(file.path);
+            const yaml = fs.readFileSync(path.resolve(fullPath)).toString('utf8');
+            const relativePath = utils.getRalativePath(fullPath);
+            const filename = path.basename(fullPath);
             const integration = utils.parceYaml(filename, yaml);
             if (integration[0]) {
                 utils.runCamelJbang(relativePath);

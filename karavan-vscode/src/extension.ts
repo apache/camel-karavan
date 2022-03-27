@@ -43,11 +43,29 @@ export function activate(context: vscode.ExtensionContext) {
                 .toString()
         );
 
+    const designer = new DesignerView(context, webviewContent);
+
+    // Create new Integration CRD command
+    const createCrd = vscode.commands.registerCommand("karavan.create-crd", () => designer.createIntegration(true));
+    context.subscriptions.push(createCrd);
+
+    // Create new Integration YAML command
+    const createYaml = vscode.commands.registerCommand("karavan.create-yaml", () => designer.createIntegration(false));
+    context.subscriptions.push(createYaml);
+
+    // Open Camel-K integration in designer
+    const open = vscode.commands.registerCommand("karavan.open", (...args: any[]) => designer.karavanOpen(args[0].fsPath));
+    context.subscriptions.push(open);
+
+    // Run Integration in designer
+    const run = vscode.commands.registerCommand("karavan.jbang-run", (...args: any[]) => designer.jbangRun(args[0].fsPath));
+    context.subscriptions.push(run);
+
     // Register views
     const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 		? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 
-    const integrationView = new IntegrationView(context, rootPath);
+    const integrationView = new IntegrationView(designer, rootPath);
 	vscode.window.registerTreeDataProvider('integrations', integrationView);    
     vscode.commands.registerCommand('integrations.refresh', () => integrationView.refresh());
 
@@ -62,24 +80,6 @@ export function activate(context: vscode.ExtensionContext) {
     const dslView = new DslView(context, rootPath);
 	vscode.window.registerTreeDataProvider('dsl', dslView);    
     vscode.commands.registerCommand('dsl.refresh', () => dslView.refresh());
-
-    const designer = new DesignerView(context, webviewContent);
-
-    // Create new Integration CRD command
-    const createCrd = vscode.commands.registerCommand("karavan.create-crd", () => designer.createIntegration(true));
-    context.subscriptions.push(createCrd);
-
-    // Create new Integration YAML command
-    const createYaml = vscode.commands.registerCommand("karavan.create-yaml", () => designer.createIntegration(false));
-    context.subscriptions.push(createYaml);
-
-    // Open Camel-K integration in designer
-    const open = vscode.commands.registerCommand("karavan.open", (...args: any[]) => designer.karavanOpen(args[0]));
-    context.subscriptions.push(open);
-
-    // Run Integration in designer
-    const run = vscode.commands.registerCommand("karavan.jbang-run", (...args: any[]) => designer.jbangRun(args[0]));
-    context.subscriptions.push(run);
 }
 
 export function deactivate() {

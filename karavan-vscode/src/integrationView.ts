@@ -19,10 +19,11 @@ import * as path from "path";
 import * as utils from "./utils";
 import * as fs from "fs";
 import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
+import { DesignerView } from "./designerView";
 
 export class IntegrationView implements vscode.TreeDataProvider<IntegrationItem> {
 
-    constructor(private context: vscode.ExtensionContext, private rootPath: string | undefined) {
+    constructor(private designer: DesignerView, private rootPath: string | undefined) {
 
     }
 	private _onDidChangeTreeData: vscode.EventEmitter<IntegrationItem | undefined | void> = new vscode.EventEmitter<IntegrationItem | undefined | void>();
@@ -39,7 +40,7 @@ export class IntegrationView implements vscode.TreeDataProvider<IntegrationItem>
         		if (CamelDefinitionYaml.yamlIsIntegration(yaml)) {
 					const filename = path.basename(f);
 					const i = CamelDefinitionYaml.yamlToIntegration(filename, yaml);
-					integrations.push(new IntegrationItem(i.metadata.name, f, i.crd));
+					integrations.push(new IntegrationItem(i.metadata.name, f, i.crd, {command: 'karavan.open', title:'', arguments: [{fsPath: f}]}));
 				}
 			})
 		}
