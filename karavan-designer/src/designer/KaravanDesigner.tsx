@@ -223,7 +223,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
                     <Tab eventKey='traits' title={this.getTab("Traits", "traits configuration", "traits")}></Tab>
                     <Tab eventKey='error' title={this.getTab("Error", "Error Handler", "error")}></Tab>
                     <Tab eventKey='exception' title={this.getTab("Exceptions", "Exception Clauses per type", "exception")}></Tab>
-                    <Tab eventKey='code' title={this.getTab("Code", "Code", "code")}></Tab>
+                    {/*<Tab eventKey='code' title={this.getTab("Code", "Code", "code")}></Tab>*/}
                 </Tabs>
                 {tab === 'routes' && <RouteDesigner integration={this.state.integration}
                                                     onSave={(integration) => this.save(integration)}

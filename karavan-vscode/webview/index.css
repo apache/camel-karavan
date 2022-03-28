@@ -9,8 +9,12 @@ body,
   --pf-global--primary-color--200: var(--pf-global--active-color--400) !important;
 }
 
+.vscode-dark .karavan {
+  color: var(--pf-global--Color--200);
+}
+
 .vscode-dark .karavan .top-icon {
-  fill: rgb(255, 255, 255);
+  fill: var(--pf-global--Color--200);
 }
 
 .vscode-dark .karavan .main-tabs {
@@ -27,6 +31,10 @@ body,
 
 .vscode-dark .karavan .main-tabs .pf-c-tabs__item.pf-m-current {
   background-color: rgb(30, 30, 30);
+}
+
+.karavan .main-tabs .pf-c-tabs__item-text {
+  color: var(--pf-global--palette--black-400);
 }
 
 .vscode-dark .karavan .loading-page {
@@ -74,6 +82,7 @@ body,
 
 .vscode-dark .step-element .header .text-bottom {
     background-color: rgb(50, 50, 50, 0.5);
+    color: var(--pf-global--palette--black-400);
 }
 
 .vscode-dark .karavan .properties {
@@ -84,7 +93,7 @@ body,
 .vscode-dark .karavan .properties .text-field {
     background-color: rgb(50, 50, 50);
     border-color: rgb(50, 50, 50);
-    color: rgb(255, 255, 255);
+    color: var(--pf-global--Color--200);
 }
 
 .vscode-dark .pf-c-select {
@@ -93,7 +102,7 @@ body,
   --pf-c-select__toggle--before--BorderRightColor: #3B3B3B;
   --pf-c-select__toggle--before--BorderBottomColor: #3B3B3B;
   --pf-c-select__toggle--before--BorderLeftColor: #3B3B3B;
-  --pf-c-select__toggle--Color: rgb(255, 255, 255);
+  --pf-c-select__toggle--Color: var(--pf-global--Color--200);
 }
 
 .vscode-dark .pf-c-select__menu {
@@ -102,7 +111,7 @@ body,
 }
 
 .vscode-dark .karavan .properties .pf-c-select__menu-item {
-  color: rgb(255, 255, 255);
+  color: var(--pf-global--Color--200);
 }
 
 .vscode-dark .karavan .properties .pf-c-select__menu-item:hover {
@@ -110,7 +119,11 @@ body,
 }
 
 .vscode-dark .karavan .properties .pf-c-select__toggle-typeahead {
-  color: rgb(255, 255, 255);
+  color: var(--pf-global--Color--200);
+}
+
+.vscode-dark .karavan .properties .pf-c-switch {
+  --pf-c-switch__input--checked__toggle--BackgroundColor: var(--pf-global--active-color--100);
 }
 
 .vscode-dark .karavan .dsl-page .graph .connections .arrow {
@@ -132,7 +145,7 @@ body,
 }
 
 .vscode-dark .pf-c-tabs__link::after {
-  border-color: var(--pf-global--Color--200);
+  border-color: var(--pf-global--active-color--100);
 }
 
 .vscode-dark .pf-c-tabs__scroll-button {
@@ -170,20 +183,20 @@ body,
 .vscode-dark .dsl-modal .search .text-field {
   background-color: rgb(50, 50, 50);
   border-color: rgb(50, 50, 50);
-  color: rgb(255, 255, 255);
+  color: var(--pf-global--Color--200);
 }
 
 .vscode-dark .karavan .properties .pf-c-text-input-group {
   background-color: rgb(50, 50, 50);
   border-color: #3B3B3B;
-  color: rgb(255, 255, 255);
+  color: var(--pf-global--Color--200);
   --pf-c-text-input-group__text--before--BorderColor: transparent;
   --pf-c-text-input-group__text--after--BorderBottomColor: transparent;
 }
 
 .vscode-dark .karavan .properties .input-group .pf-c-chip-group .pf-c-chip {
   --pf-c-chip--BackgroundColor: transparent;
-  --pf-c-chip__text--Color: white;
+  --pf-c-chip__text--Color: var(--pf-global--Color--200);
   --pf-c-chip--before--BorderColor: grey;
 }
 
