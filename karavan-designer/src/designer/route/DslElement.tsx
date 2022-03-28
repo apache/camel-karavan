@@ -35,8 +35,6 @@ interface Props {
     openSelector: (parentId: string | undefined, parentDsl: string | undefined, showSteps: boolean) => void
     moveElement: (source: string, target: string) => void
     selectedUuid: string
-    borderColor: string
-    borderColorSelected: string
     inSteps: boolean
     position: number
 }
@@ -236,7 +234,7 @@ export class DslElement extends React.Component<Props, State> {
         const isBorder = child.name === 'steps' && this.hasBorderOverSteps(step);
         const style: CSSProperties = {
             borderStyle: isBorder ? "dotted" : "none",
-            borderColor: this.props.borderColor,
+            borderColor: "var(--step-border-color)",
             borderWidth: "1px",
             borderRadius: "16px",
             display: this.isHorizontal() || child.name !== 'steps' ? "flex" : "block",
@@ -281,8 +279,6 @@ export class DslElement extends React.Component<Props, State> {
                                     selectElement={this.props.selectElement}
                                     moveElement={this.props.moveElement}
                                     selectedUuid={this.state.selectedUuid}
-                                    borderColor={this.props.borderColor}
-                                    borderColorSelected={this.props.borderColorSelected}
                                     inSteps={child.name === 'steps'}
                                     position={index}
                                     step={element}
@@ -329,10 +325,10 @@ export class DslElement extends React.Component<Props, State> {
                  ref={el => this.sendPosition(el)}
                  style={{
                      borderStyle: this.hasBorder() ? "dotted" : "none",
-                     borderColor: this.isSelected() ? this.props.borderColorSelected : this.props.borderColor,
+                     borderColor: this.isSelected() ? "var(--step-border-color-selected)" : "var(--step-border-color)",
                      marginTop: this.isInStepWithChildren() ? "16px" : "8px",
                      zIndex: element.dslName === 'ToDefinition' ? 20 : 10,
-                     boxShadow: this.state.isDraggedOver ? "0px 0px 1px 2px " + this.props.borderColorSelected : "none",
+                     boxShadow: this.state.isDraggedOver ? "0px 0px 1px 2px " + "var(--step-border-color-selected)" : "none",
                  }}
                  onMouseOver={event => event.stopPropagation()}
                  onClick={event => this.selectElement(event)}

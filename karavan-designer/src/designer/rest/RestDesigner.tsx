@@ -36,8 +36,6 @@ import {RestConfigurationCard} from "./RestConfigurationCard";
 interface Props {
     onSave?: (integration: Integration) => void
     integration: Integration
-    borderColor: string
-    borderColorSelected: string
     dark: boolean
 }
 

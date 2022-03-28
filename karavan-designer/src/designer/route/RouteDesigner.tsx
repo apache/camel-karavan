@@ -37,8 +37,6 @@ import {CamelUi, RouteToCreate} from "../utils/CamelUi";
 interface Props {
     onSave?: (integration: Integration) => void
     integration: Integration
-    borderColor: string
-    borderColorSelected: string
     dark: boolean
 }
 
@@ -268,8 +266,6 @@ export class RouteDesigner extends React.Component<Props, State> {
                                     selectElement={this.selectElement}
                                     moveElement={this.moveElement}
                                     selectedUuid={this.state.selectedUuid}
-                                    borderColor={this.props.borderColor}
-                                    borderColorSelected={this.props.borderColorSelected}
                                     inSteps={false}
                                     position={index}
                                     step={route}
