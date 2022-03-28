@@ -84,7 +84,6 @@ export class DesignerView {
                     const yaml = CamelDefinitionYaml.integrationToYaml(i);
                     const filename = name.toLocaleLowerCase().endsWith('.yaml') ? name : name + '.yaml';
                     const relativePath = (this.rootPath ? fullPath?.replace(this.rootPath, "") : fullPath) + path.sep + filename;
-                    console.log(relativePath);
                     utils.save(relativePath, yaml);
                     this.openKaravanWebView(filename, filename, yaml);
                     vscode.commands.executeCommand('integrations.refresh');
@@ -93,43 +92,54 @@ export class DesignerView {
     }
 
     openKaravanWebView(filename: string, relativePath: string, yaml?: string) {
-        // Karavan webview
-        const panel = vscode.window.createWebviewPanel(
-            "karavan",
-            filename,
-            vscode.ViewColumn.One,
-            {
-                enableScripts: true,
-                retainContextWhenHidden: true,
-                localResourceRoots: [
-                    vscode.Uri.joinPath(this.context.extensionUri, "dist"),
-                ],
-            }
-        );
-        panel.webview.html = this.webviewContent;
-        panel.iconPath = vscode.Uri.joinPath(
-            this.context.extensionUri,
-            "icons/karavan.svg"
-        );
-
-        // Handle messages from the webview
-        panel.webview.onDidReceiveMessage(
-            message => {
-                switch (message.command) {
-                    case 'save':
-                        utils.save(message.relativePath, message.yaml);
-                        break;
-                    case 'getData':
-                        this.sendData(panel, filename, relativePath, yaml);
-                        break;
+        if (!KARAVAN_PANELS.has(relativePath)) {
+            // Karavan webview
+            const panel = vscode.window.createWebviewPanel(
+                "karavan",
+                filename,
+                vscode.ViewColumn.One,
+                {
+                    enableScripts: true,
+                    retainContextWhenHidden: true,
+                    localResourceRoots: [
+                        vscode.Uri.joinPath(this.context.extensionUri, "dist"),
+                    ],
                 }
-            },
-            undefined,
-            this.context.subscriptions
-        );
-        KARAVAN_PANELS.set(relativePath, panel);
-        vscode.commands.executeCommand("setContext", KARAVAN_LOADED, true);
+            );
+            panel.webview.html = this.webviewContent;
+            panel.iconPath = vscode.Uri.joinPath(
+                this.context.extensionUri,
+                "icons/karavan.svg"
+            );
+
+            // Handle messages from the webview
+            panel.webview.onDidReceiveMessage(
+                message => {
+                    switch (message.command) {
+                        case 'save':
+                            utils.save(message.relativePath, message.yaml);
+                            break;
+                        case 'getData':
+                            this.sendData(panel, filename, relativePath, yaml);
+                            break;
+                    }
+                },
+                undefined,
+                this.context.subscriptions
+            );
+            // Handle close event
+            panel.onDidDispose(() => {
+                console.log("close panel", relativePath)
+                KARAVAN_PANELS.delete(relativePath);
+            }, null, this.context.subscriptions);
+
+            KARAVAN_PANELS.set(relativePath, panel);
+            vscode.commands.executeCommand("setContext", KARAVAN_LOADED, true);
+        } else {
+            KARAVAN_PANELS.get(relativePath)?.reveal(undefined, true);
+        }
     }
+
     sendData(panel: vscode.WebviewPanel, filename: string, relativePath: string, yaml?: string) {
 
         // Read and send Kamelets
