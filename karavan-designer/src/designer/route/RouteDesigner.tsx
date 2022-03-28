@@ -309,7 +309,6 @@ export class RouteDesigner extends React.Component<Props, State> {
             <DrawerPanelContent
                 isResizable
                 hasNoBorder
-                id="right-resize-panel"
                 defaultSize={'400px'}
                 maxSize={'800px'}
                 minSize={'300px'}>
@@ -329,8 +328,7 @@ export class RouteDesigner extends React.Component<Props, State> {
         return (
             <PageSection className="dsl-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="dsl-page-columns">
-                    <Drawer isExpanded isInline onExpand={() => {
-                    }}>
+                    <Drawer isExpanded isInline>
                         <DrawerContent panelContent={this.getPropertiesPanel()}>
                             <DrawerContentBody>{this.getGraph()}</DrawerContentBody>
                         </DrawerContent>

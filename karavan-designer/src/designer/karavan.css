@@ -183,7 +183,6 @@
 
 .karavan .dsl-page .dsl-page-columns {
     display: block;
-    /*flex-direction: row;*/
     height: 100%;
     background: #fafafa;
 }
@@ -839,8 +838,7 @@
 }
 
 .karavan .rest-page .rest-page-columns {
-    display: flex;
-    flex-direction: row;
+    display: block;
     height: 100%;
     background: #fafafa;
 }
