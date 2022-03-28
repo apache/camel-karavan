@@ -199,10 +199,11 @@
 
 .karavan .main-tabs .top-menu-item .count {
     background: var(--pf-global--active-color--100);
-    /*color: white;*/
+    color: white;
     height: fit-content;
     margin-top: auto;
     margin-bottom: auto;
+    min-width: 0px;
 }
 
 .karavan .main-tabs .pf-c-tabs__link .pf-c-tabs__item-icon {
@@ -216,10 +217,6 @@
     margin-top: auto;
     margin-bottom: auto;
     margin-right: 6px;
-}
-
-.karavan .main-tabs .pf-c-tabs__item.pf-m-current {
-    --pf-c-tabs__link--after--BorderColor: var(--pf-global--primary-color--100);
 }
 
 /*Properties*/
@@ -308,6 +305,7 @@
 
 .karavan .properties .input-group .pf-c-text-input-group__utilities {
     align-items: end;
+    margin-top: auto;
 }
 
 .karavan .properties .chip .pf-c-button{
@@ -446,7 +444,6 @@
     padding: 0;
     margin: auto auto auto 6px;
     background: transparent;
-    color: var(--pf-global--primary-color--100);
 }
 
 .karavan .properties .add-button svg {
@@ -572,7 +569,7 @@
     z-index: 101;
 }
 
-.step-element .header-route .delete-button {
+.karavan .step-element .header-route .delete-button {
     position: absolute;
     top: 4px;
     right: 4px;
@@ -586,7 +583,7 @@
     visibility: hidden;
 }
 
-.step-element .header .delete-button,
+.karavan .step-element .header .delete-button,
 .element-builder .header .delete-button {
     position: absolute;
     top: 0px;
@@ -600,8 +597,8 @@
     visibility: hidden;
 }
 
-.step-element .header:hover .delete-button,
-.step-element .header-route:hover .delete-button,
+.karavan .step-element .header:hover .delete-button,
+.karavan .step-element .header-route:hover .delete-button,
 .element-builder .header:hover .delete-button {
     visibility: visible;
 }
@@ -610,21 +607,21 @@
     width: 350px !important;
 }
 
-.step-element .header {
+.karavan .step-element .header {
     height: 50px;
 }
 
-.step-element-selected {
+.karavan .step-element-selected {
     background-color: rgba(var(--pf-global--palette--blue-50), 1);
 }
 
-.step-element .selected .header-icon {
+.karavan .step-element .selected .header-icon {
     border-color: var(--pf-global--primary-color--100);
     background-color: var(--pf-global--palette--blue-50);
     border-width: 2px;
 }
 
-.step-element .header .header-text {
+.karavan .step-element .header .header-text {
     position: absolute;
     top: 8px;
     left: 0;
@@ -632,19 +629,19 @@
     display: flex;
     flex-direction: row;
 }
-.step-element .header .spacer {
+.karavan .step-element .header .spacer {
     width: 50%
 }
-.step-element .header .text-bottom {
+.karavan .step-element .header .text-bottom {
     background-color: rgba(255, 255, 255, 0.5);
 }
-.step-element .header .text-right {
+.karavan .step-element .header .text-right {
     padding-left: 17px;
     width: 50%;
     text-align:start;
 }
 
-.step-element .header-icon {
+.karavan .step-element .header-icon {
     border-color: var(--pf-global--Color--200);
     border-style: solid;
     border-radius: 30px;
@@ -658,7 +655,7 @@
     align-items: center;
 }
 
-.step-element .header .icon,
+.karavan .step-element .header .icon,
 .element-builder .header .icon {
     height: 20px;
     width: auto;
@@ -670,7 +667,7 @@
     user-select: none;
 }
 
-.step-element .add-element-button {
+.karavan .step-element .add-element-button {
     top: 5px;
     left: 5px;
     font-size: 15px;
@@ -685,17 +682,17 @@
     position: absolute;
 }
 
-.step-element .add-button-bottom {
+.karavan .step-element .add-button-bottom {
     position: relative;
 }
 
-.step-element .add-button-left {
+.karavan .step-element .add-button-left {
     position: absolute;
     top: 4px;
     left: 4px;
 }
 
-.step-element .add-button {
+.karavan .step-element .add-button {
     font-size: 15px;
     height: 15px;
     line-height: 1;
@@ -732,8 +729,8 @@
 
 
 .element-builder:hover .add-button,
-.step-element:hover .add-element-button,
-.step-element:hover .add-button {
+.karavan .step-element:hover .add-element-button,
+.karavan .step-element:hover .add-button {
     visibility: visible;
 }
 

@@ -5,8 +5,36 @@ body,
   height: 100%;
 }
 
-.vscode-dark {
-  --pf-global--primary-color--200: var(--pf-global--active-color--400) !important;
+body, :root, #root, .karavan {
+  --pf-global--primary-color--100: var(--vscode-focusBorder) !important;
+  --pf-global--primary-color--200: var(--vscode-focusBorder) !important;
+  --pf-global--active-color--100: var(--vscode-focusBorder) !important;
+  --pf-global--link--Color: var(--vscode-focusBorder) !important;
+  --pf-c-tabs__link--after--BorderColor: var(--vscode-focusBorder) !important;
+  --pf-c-switch__input--checked__toggle--BackgroundColor: var(--vscode-focusBorder) !important;
+  --pf-c-button--m-plain--Color: var(--vscode-focusBorder) !important;
+  --pf-c-button--m-secondary--Color: var(--vscode-focusBorder) !important;
+
+  --pf-global--Color--100: var(--vscode-foreground) !important;
+}
+
+.vscode-dark input {
+  color: var(--vscode-foreground) !important;
+}
+
+.vscode-dark .pf-c-button.pf-m-primary {
+  color: var(--vscode-foreground) !important;
+  background-color: var(--vscode-focusBorder) !important;
+}
+
+.vscode-dark .pf-c-button.pf-m-primary:hover {
+  color: var(--pf-c-button--m-primary--hover--Color);
+  background-color: var(--vscode-button-hoverBackground)  !important;
+}
+
+.vscode-dark .pf-c-button.pf-m-secondary {
+  color: var(--vscode-focusBorder) !important;
+  background-color: var(--vscode-button-secondaryBackground) !important;
 }
 
 .vscode-dark .karavan {
@@ -18,19 +46,19 @@ body,
 }
 
 .vscode-dark .karavan .main-tabs {
-  background-color: rgb(37, 37, 38);
+  background-color: var(--vscode-tab-inactiveBackground);
 }
 
 .vscode-dark .karavan .main-tabs .pf-c-tabs__list {
-    background-color: rgb(37, 37, 38);
+    background-color: var(--vscode-tab-inactiveBackground);
 }
 
 .vscode-dark .karavan .main-tabs::before {
-  border-color: rgb(37, 37, 38);
+  border-color: var(--vscode-tab-inactiveBackground);
 }
 
 .vscode-dark .karavan .main-tabs .pf-c-tabs__item.pf-m-current {
-  background-color: rgb(30, 30, 30);
+  background-color: var(--vscode-tab-activeBackground);
 }
 
 .karavan .main-tabs .pf-c-tabs__item-text {
@@ -44,10 +72,25 @@ body,
   flex-direction: column;
 }
 
-.vscode-dark .karavan .progress-stepper{
+.vscode-dark .karavan .progress-stepper {
   margin: auto;
 }
 
+/* Tabs */
+.vscode-dark .pf-c-tabs__link::after {
+  border-color: var(--pf-global--active-color--100);
+}
+
+.vscode-dark .pf-c-tabs__scroll-button {
+  color: #cecece;
+  background-color: rgb(50, 50, 50);
+}
+
+.vscode-dark .pf-c-tabs__scroll-button::before {
+  border-color: var(--vscode-tab-inactiveBackground);
+}
+
+/* Designer */
 .vscode-dark .karavan .dsl-page .dsl-page-columns,
 .vscode-dark .karavan .rest-page .rest-page-columns,
 .vscode-dark .karavan .beans-page .beans-page-columns,
@@ -82,50 +125,14 @@ body,
 
 .vscode-dark .step-element .header .text-bottom {
     background-color: rgb(50, 50, 50, 0.5);
-    color: var(--pf-global--palette--black-400);
+    /* color: var(--pf-global--palette--black-400); */
 }
 
-.vscode-dark .karavan .properties {
-  border: none;
-  background: rgb(37, 37, 38);
+.vscode-dark .karavan .step-element .add-button {
+  color: var(--vscode-focusBorder); 
 }
 
-.vscode-dark .karavan .properties .text-field {
-    background-color: rgb(50, 50, 50);
-    border-color: rgb(50, 50, 50);
-    color: var(--pf-global--Color--200);
-}
-
-.vscode-dark .pf-c-select {
-  --pf-c-select__toggle--BackgroundColor: #3B3B3B;
-  --pf-c-select__toggle--before--BorderTopColor: #3B3B3B;
-  --pf-c-select__toggle--before--BorderRightColor: #3B3B3B;
-  --pf-c-select__toggle--before--BorderBottomColor: #3B3B3B;
-  --pf-c-select__toggle--before--BorderLeftColor: #3B3B3B;
-  --pf-c-select__toggle--Color: var(--pf-global--Color--200);
-}
-
-.vscode-dark .pf-c-select__menu {
-  background-color: #3B3B3B;
-  box-shadow: var(--pf-c-select__menu--BoxShadow);
-}
-
-.vscode-dark .karavan .properties .pf-c-select__menu-item {
-  color: var(--pf-global--Color--200);
-}
-
-.vscode-dark .karavan .properties .pf-c-select__menu-item:hover {
-  color: black;
-}
-
-.vscode-dark .karavan .properties .pf-c-select__toggle-typeahead {
-  color: var(--pf-global--Color--200);
-}
-
-.vscode-dark .karavan .properties .pf-c-switch {
-  --pf-c-switch__input--checked__toggle--BackgroundColor: var(--pf-global--active-color--100);
-}
-
+/* Connections */
 .vscode-dark .karavan .dsl-page .graph .connections .arrow {
   stroke: var(--pf-global--BorderColor--light-100);
   fill: var(--pf-global--BorderColor--light-100);
@@ -144,18 +151,107 @@ body,
   fill: var(--pf-global--BorderColor--200);
 }
 
-.vscode-dark .pf-c-tabs__link::after {
-  border-color: var(--pf-global--active-color--100);
+/* Properties */
+.vscode-dark .karavan .properties {
+  border: none;
+  background: var(--vscode-tab-inactiveBackground);
+  color: var(--vscode-input-foreground);
 }
 
-.vscode-dark .pf-c-tabs__scroll-button {
-  color: #cecece;
-  background-color: rgb(50, 50, 50);
+.vscode-dark .karavan .pf-c-switch {
+  --pf-c-switch__input--checked__toggle--BackgroundColor: var(--vscode-focusBorder);
 }
 
-.vscode-dark .pf-c-tabs__scroll-button::before {
-  border-color: rgb(37, 37, 38);
+.vscode-dark .karavan .properties .text-field {
+  background-color: var(--vscode-input-background);
+  border-color: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
 }
+
+.vscode-dark .pf-c-select {
+  --pf-c-select__toggle--BackgroundColor: var(--vscode-input-background);
+  --pf-c-select__toggle--before--BorderTopColor: var(--vscode-input-background);
+  --pf-c-select__toggle--before--BorderRightColor: var(--vscode-input-background);
+  --pf-c-select__toggle--before--BorderBottomColor: var(--vscode-input-background);
+  --pf-c-select__toggle--before--BorderLeftColor: var(--vscode-input-background);
+  --pf-c-select__toggle--Color: var(--pf-global--Color--200);
+}
+
+.vscode-dark .pf-c-select__menu {
+  background-color: var(--vscode-input-background);
+  box-shadow: var(--pf-c-select__menu--BoxShadow);
+}
+
+.vscode-dark .karavan .properties .pf-c-select__menu-item {
+  color: var(--vscode-input-foreground);
+}
+
+.vscode-dark .karavan .properties .pf-c-select__menu-item:hover {
+  color: var(--vscode-input-foreground);
+  background-color: var(--vscode-focusBorder);
+}
+
+.vscode-dark .karavan .properties .pf-c-select__menu-item:hover .pf-c-select__menu-item-description {
+  color: var(--vscode-input-foreground);
+}
+
+.vscode-dark .karavan .properties .pf-c-select__toggle-typeahead {
+  color: var(--vscode-input-foreground);
+}
+
+.vscode-dark .karavan .properties .pf-c-text-input-group {
+  background-color: var(--vscode-input-background);
+  border-color: var(--vscode-input-foreground);;
+  color: var(--vscode-input-foreground);
+  --pf-c-text-input-group__text--before--BorderColor: transparent;
+  --pf-c-text-input-group__text--after--BorderBottomColor: transparent;
+}
+
+.vscode-dark .karavan .properties .input-group .pf-c-chip-group .pf-c-chip {
+  --pf-c-chip--BackgroundColor: transparent;
+  --pf-c-chip__text--Color: var(--vscode-input-foreground);
+  --pf-c-chip--before--BorderColor: var(--vscode-input-foreground);
+}
+
+.vscode-dark .karavan .properties .input-group .pf-c-chip-group li:last-child .pf-c-chip {
+  --pf-c-chip--before--BorderColor: transparent;
+}
+
+.vscode-dark .karavan .properties .pf-c-select__toggle-text {
+  color: var(--vscode-input-foreground);
+}
+
+.vscode-dark .karavan .properties .pf-c-expandable-section__toggle-icon {
+  color: var(--vscode-focusBorder);
+}
+
+/* Popover */
+.vscode-dark .pf-c-popover {
+  --pf-c-popover__content--BackgroundColor: var(--vscode-tab-activeBackground);
+  --pf-c-popover__arrow--BackgroundColor: var(--vscode-tab-activeBackground);
+}
+
+.vscode-dark .pf-c-tooltip {
+  --pf-c-tooltip__content--BackgroundColor: var(--vscode-tab-activeBackground);
+}
+/* 
+
+
+
+
+
+
+
+
+
+
+.vscode-dark .karavan .properties .pf-c-switch {
+  --pf-c-switch__input--checked__toggle--BackgroundColor: var(--pf-global--active-color--100);
+}
+
+
+
+
 
 .vscode-dark .pf-c-tab-content .pf-c-card__header p {
   color: #cecece;
@@ -165,14 +261,7 @@ body,
   --pf-c-modal-box--BackgroundColor: #505050;
 }
 
-.vscode-dark .pf-c-popover {
-  --pf-c-popover__content--BackgroundColor: #505050;
-  --pf-c-popover__arrow--BackgroundColor: #505050;
-}
 
-.vscode-dark .pf-c-tooltip {
-  --pf-c-tooltip__content--BackgroundColor: #505050;
-}
 
 .vscode-dark .step-element .add-button,
 .vscode-dark .step-element .add-element-button,
@@ -186,19 +275,9 @@ body,
   color: var(--pf-global--Color--200);
 }
 
-.vscode-dark .karavan .properties .pf-c-text-input-group {
-  background-color: rgb(50, 50, 50);
-  border-color: #3B3B3B;
-  color: var(--pf-global--Color--200);
-  --pf-c-text-input-group__text--before--BorderColor: transparent;
-  --pf-c-text-input-group__text--after--BorderBottomColor: transparent;
-}
 
-.vscode-dark .karavan .properties .input-group .pf-c-chip-group .pf-c-chip {
-  --pf-c-chip--BackgroundColor: transparent;
-  --pf-c-chip__text--Color: var(--pf-global--Color--200);
-  --pf-c-chip--before--BorderColor: grey;
-}
+
+
 
 .vscode-dark .karavan .pf-c-expandable-section__toggle,
 .vscode-dark .karavan .pf-c-expandable-section__toggle-icon {
@@ -231,5 +310,5 @@ body,
 .vscode-dark .karavan .add-dependency .pf-c-button.pf-m-secondary {
   background-color: var(--pf-global--primary-color--200);
   color: var(--pf-global--BackgroundColor--dark-200);
-}
+} */
 
