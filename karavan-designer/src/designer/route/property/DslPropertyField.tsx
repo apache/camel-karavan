@@ -115,7 +115,7 @@ export class DslPropertyField extends React.Component<Props, State> {
     }
 
     getLabel = (property: PropertyMeta, value: any) => {
-        if (property.isObject && !property.isArray && !["ExpressionDefinition"].includes(property.type)) {
+        if (!this.isMultiValueField(property) && property.isObject && !property.isArray && !["ExpressionDefinition"].includes(property.type)) {
             const tooltip = value ? "Delete " + property.name : "Add " + property.name;
             const x = value ? undefined : CamelDefinitionApi.createStep(property.type, {});
             const icon = value ? (<DeleteIcon noVerticalAlign/>) : (<AddIcon noVerticalAlign/>);
@@ -461,6 +461,11 @@ export class DslPropertyField extends React.Component<Props, State> {
         )
     }
 
+
+    isMultiValueField = (property: PropertyMeta): boolean => {
+        return ['string'].includes(property.type) && property.name !== 'expression' && property.isArray && !property.enumVals;
+    }
+
     render() {
         const isKamelet = CamelUi.isKameletComponent(this.props.element);
         const property: PropertyMeta = this.props.property;
@@ -475,7 +480,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                     && this.getExpressionField(property, value)}
                 {property.isObject && !property.isArray && !["ExpressionDefinition", "ExpressionSubElementDefinition"].includes(property.type)
                     && this.getObjectField(property, value)}
-                {property.isObject && property.isArray
+                {property.isObject && property.isArray && !this.isMultiValueField(property)
                     && this.getMultiValueObjectField(property, value)}
                 {property.name === 'expression' && property.type === "string" && !property.isArray
                     && this.getTextArea(property, value)}
@@ -490,7 +495,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                     && this.getTextField(property, value)}
                 {['string'].includes(property.type) && property.name.endsWith("Ref") && !property.isArray && !property.enumVals
                     && this.getSelectBean(property, value)}
-                {['string'].includes(property.type) && property.name !== 'expression' && property.isArray && !property.enumVals
+                {this.isMultiValueField(property)
                     && this.getMultiValueField(property, value)}
                 {property.type === 'boolean'
                     && this.getSwitch(property, value)}
