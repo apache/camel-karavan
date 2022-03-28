@@ -241,6 +241,8 @@ export class RestDesigner extends React.Component<Props, State> {
                         step={this.state.selectedStep}
                         onIntegrationUpdate={this.onIntegrationUpdate}
                         onPropertyUpdate={this.onPropertyUpdate}
+                        clipboardStep={undefined}
+                        onSaveClipboardStep={element => {}}
                     />
                 </div>
                 {this.getSelectorModal()}

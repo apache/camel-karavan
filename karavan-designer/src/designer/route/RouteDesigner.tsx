@@ -56,6 +56,7 @@ interface State {
     height: number
     top: number
     left: number
+    clipboardStep?: CamelElement
 }
 
 export class RouteDesigner extends React.Component<Props, State> {
@@ -90,6 +91,10 @@ export class RouteDesigner extends React.Component<Props, State> {
         if (prevState.key !== this.state.key) {
             this.props.onSave?.call(this, this.state.integration);
         }
+    }
+
+    saveToClipboard = (step?: CamelElement): void => {
+        this.setState({clipboardStep: step, key: Math.random().toString()});
     }
 
     unselectElement = (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -292,6 +297,8 @@ export class RouteDesigner extends React.Component<Props, State> {
                         step={this.state.selectedStep}
                         onIntegrationUpdate={this.onIntegrationUpdate}
                         onPropertyUpdate={this.onPropertyUpdate}
+                        clipboardStep={this.state.clipboardStep}
+                        onSaveClipboardStep={this.saveToClipboard}
                     />
                 </div>
                 {this.getSelectorModal()}

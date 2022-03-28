@@ -22,7 +22,7 @@ import {
 import './karavan.css';
 import {RouteDesigner} from "./route/RouteDesigner";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
+import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelUi} from "./utils/CamelUi";
 import {BeansDesigner} from "./beans/BeansDesigner";
@@ -31,7 +31,6 @@ import {ErrorDesigner} from "./error/ErrorDesigner";
 import {TemplatesDesigner} from "./templates/TemplatesDesigner";
 import {ExceptionDesigner} from "./exception/ExceptionDesigner";
 import {DependenciesDesigner} from "./dependencies/DependenciesDesigner";
-import InfoCircleIcon from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
 
 interface Props {
     onSave?: (filename: string, yaml: string) => void
@@ -45,7 +44,7 @@ interface Props {
 interface State {
     tab: string,
     integration: Integration,
-    key: string,
+    key: string
 }
 
 export class KaravanDesigner extends React.Component<Props, State> {

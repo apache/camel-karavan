@@ -242,6 +242,18 @@
     display: contents;
 }
 
+.karavan .properties .headers .top {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.karavan .properties .headers .top h1{
+    width: 100%;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
 .karavan .properties .footer {
     height: 100%;
     display: contents;
