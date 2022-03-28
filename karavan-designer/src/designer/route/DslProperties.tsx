@@ -19,7 +19,7 @@ import {
     Form,
     Text,
     Title,
-    TextVariants, ExpandableSection,
+    TextVariants, ExpandableSection, Button, Tooltip,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -36,12 +36,16 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelUi, RouteToCreate} from "../utils/CamelUi";
 import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {IntegrationHeader} from "../utils/KaravanComponents";
+import CopyIcon from '@patternfly/react-icons/dist/esm/icons/copy-icon'
+import PasteIcon from '@patternfly/react-icons/dist/esm/icons/paste-icon'
 
 interface Props {
     integration: Integration,
     step?: CamelElement,
     onIntegrationUpdate?: any,
     onPropertyUpdate?: (element: CamelElement, updatedUuid: string, newRoute?: RouteToCreate) => void
+    clipboardStep?: CamelElement
+    onSaveClipboardStep: (element?: CamelElement) => void
 }
 
 interface State {
@@ -64,6 +68,15 @@ export class DslProperties extends React.Component<Props, State> {
             (clone as any)[fieldId] = value;
             this.setStep(clone)
             this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid, newRoute);
+        }
+    }
+
+    pasteClipboardStep = () => {
+        if (this.props.clipboardStep && this.state.step) {
+            const clone = CamelUtil.cloneStep(this.props.clipboardStep);
+            clone.uuid = this.state.step.uuid;
+            this.setStep(clone)
+            this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid);
         }
     }
 
@@ -119,8 +132,17 @@ export class DslProperties extends React.Component<Props, State> {
             : this.state.step?.dslName ? CamelMetadataApi.getCamelModelMetadataByClassName(this.state.step?.dslName)?.description : title;
         return (
             <div className="headers">
-                <Title headingLevel="h1" size="md">{title}</Title>
+                <div className="top">
+                    <Title headingLevel="h1" size="md">{title}</Title>
+                    <Tooltip content="Copy step" position="bottom">
+                        <Button variant="link" onClick={() => this.props.onSaveClipboardStep?.call(this, this.state.step)} icon={<CopyIcon />}/>
+                    </Tooltip>
+                    <Tooltip content="Paste step" position="bottom">
+                        <Button variant="link" onClick={() => this.pasteClipboardStep()} icon={<PasteIcon />}/>
+                    </Tooltip>
+                </div>
                 <Text component={TextVariants.p}>{description}</Text>
+
             </div>
         )
     }
