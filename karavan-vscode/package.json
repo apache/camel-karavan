@@ -99,7 +99,11 @@
     "commands": [
       {
         "command": "karavan.create-crd",
-        "title": "Karavan: Create CRD"
+        "title": "Karavan: Create CRD",
+        "icon": {
+          "light": "./icons/light/add.svg",
+          "dark": "./icons/dark/add.svg"
+        }
       },
       {
         "command": "karavan.create-yaml",
@@ -158,11 +162,11 @@
       "explorer/context": [
         {
           "command": "karavan.create-crd",
-          "when": "explorerResourceIsFolder && explorerResourceIsRoot"
+          "when": "explorerResourceIsFolder || explorerResourceIsRoot"
         },
         {
           "command": "karavan.create-yaml",
-          "when": "explorerResourceIsFolder && explorerResourceIsRoot"
+          "when": "explorerResourceIsFolder || explorerResourceIsRoot"
         },
         {
           "command": "karavan.open",
@@ -188,6 +192,11 @@
       "view/title": [
 				{
 					"command": "integrations.refresh",
+					"when": "view == integrations",
+					"group": "navigation"
+				},
+        {
+					"command": "karavan.create-crd",
 					"when": "view == integrations",
 					"group": "navigation"
 				},
@@ -239,7 +248,13 @@
           "visibility": "collapsed"
         }
       ]
-    }
+    },
+    "viewsWelcome": [
+      {
+        "view": "integrations",
+        "contents": "No integrations found.\n [Create Integration CRD](command:karavan.create-crd)"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "cp -r ../karavan-designer/src/designer webview && npm run package",

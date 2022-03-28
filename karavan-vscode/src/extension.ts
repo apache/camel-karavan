@@ -43,14 +43,20 @@ export function activate(context: vscode.ExtensionContext) {
                 .toString()
         );
 
-    const designer = new DesignerView(context, webviewContent);
+    const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+		? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+
+    const designer = new DesignerView(context, webviewContent, rootPath);
 
     // Create new Integration CRD command
-    const createCrd = vscode.commands.registerCommand("karavan.create-crd", () => designer.createIntegration(true));
+    const createCrd = vscode.commands.registerCommand("karavan.create-crd", (...args: any[]) => {
+        if (args.length > 0) designer.createIntegration(true, args[0].fsPath)
+        else designer.createIntegration(true, rootPath)
+    });
     context.subscriptions.push(createCrd);
 
     // Create new Integration YAML command
-    const createYaml = vscode.commands.registerCommand("karavan.create-yaml", () => designer.createIntegration(false));
+    const createYaml = vscode.commands.registerCommand("karavan.create-yaml", (...args: any[]) => designer.createIntegration(false, args[0].fsPath));
     context.subscriptions.push(createYaml);
 
     // Open Camel-K integration in designer
@@ -62,8 +68,6 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(run);
 
     // Register views
-    const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
-		? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 
     const integrationView = new IntegrationView(designer, rootPath);
 	vscode.window.registerTreeDataProvider('integrations', integrationView);    

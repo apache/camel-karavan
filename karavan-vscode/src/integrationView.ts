@@ -46,7 +46,6 @@ export class IntegrationView implements vscode.TreeDataProvider<IntegrationItem>
 			})
 		} else if (element && element.integration) {
 			element.integration.spec.flows?.forEach(f => {
-				console.log(f);
 				integrations.push(new IntegrationItem(f.dslName.replace("Definition", ""), "", f.id, undefined, undefined));
 			})
 		}

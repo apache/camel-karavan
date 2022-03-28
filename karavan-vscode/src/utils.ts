@@ -21,6 +21,16 @@ import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
 
 const TERMINALS: Map<string, vscode.Terminal> = new Map<string, vscode.Terminal>();
 
+export function save(relativePath: string, yaml: string){
+    if (vscode.workspace.workspaceFolders) {
+        const uriFolder: vscode.Uri = vscode.workspace.workspaceFolders[0].uri;
+        const uriFile: vscode.Uri = vscode.Uri.file(path.join(uriFolder.path, relativePath));
+        fs.writeFile(uriFile.fsPath, yaml, err => {
+            if (err) vscode.window.showErrorMessage("Error: " + err?.message);
+        });
+    }
+}
+
 
 export function getRalativePath(fullPath: string): string {
     const root = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.path : "";

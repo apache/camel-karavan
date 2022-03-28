@@ -23,11 +23,10 @@ import { Integration } from "karavan-core/lib/model/IntegrationDefinition";
 
 const KARAVAN_LOADED = "karavan:loaded";
 const KARAVAN_PANELS: Map<string, vscode.WebviewPanel> = new Map<string, vscode.WebviewPanel>();
-const TERMINALS: Map<string, vscode.Terminal> = new Map<string, vscode.Terminal>();
 
 export class DesignerView {
 
-    constructor(private context: vscode.ExtensionContext, private webviewContent: string) {
+    constructor(private context: vscode.ExtensionContext, private webviewContent: string, private rootPath?: string) {
 
     }
 
@@ -63,7 +62,8 @@ export class DesignerView {
         }
     }
 
-    createIntegration(crd: boolean) {
+    createIntegration(crd: boolean, fullPath?: string) {
+        console.log(fullPath);
         vscode.window
             .showInputBox({
                 title: crd ? "Create Camel-K Integration CRD" : "Create Camel Integration YAML",
@@ -83,7 +83,11 @@ export class DesignerView {
                     i.crd = crd;
                     const yaml = CamelDefinitionYaml.integrationToYaml(i);
                     const filename = name.toLocaleLowerCase().endsWith('.yaml') ? name : name + '.yaml';
+                    const relativePath = (this.rootPath ? fullPath?.replace(this.rootPath, "") : fullPath) + path.sep + filename;
+                    console.log(relativePath);
+                    utils.save(relativePath, yaml);
                     this.openKaravanWebView(filename, filename, yaml);
+                    vscode.commands.executeCommand('integrations.refresh');
                 }
             });
     }
@@ -113,14 +117,7 @@ export class DesignerView {
             message => {
                 switch (message.command) {
                     case 'save':
-                        if (vscode.workspace.workspaceFolders) {
-                            console.log(message);
-                            const uriFolder: vscode.Uri = vscode.workspace.workspaceFolders[0].uri;
-                            const uriFile: vscode.Uri = vscode.Uri.file(path.join(uriFolder.path, message.relativePath));
-                            fs.writeFile(uriFile.fsPath, message.yaml, err => {
-                                if (err) vscode.window.showErrorMessage("Error: " + err?.message);
-                            });
-                        }
+                        utils.save(message.relativePath, message.yaml);
                         break;
                     case 'getData':
                         this.sendData(panel, filename, relativePath, yaml);
