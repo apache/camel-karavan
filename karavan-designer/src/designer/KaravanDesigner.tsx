@@ -17,7 +17,7 @@
 import React from 'react';
 import {
     Badge, Label,
-    PageSection, Tab, Tabs, TabTitleIcon, TabTitleText, Tooltip,
+    PageSection, PageSectionVariants, Tab, Tabs, TabTitleIcon, TabTitleText, Tooltip,
 } from '@patternfly/react-core';
 import './karavan.css';
 import {RouteDesigner} from "./route/RouteDesigner";
@@ -215,7 +215,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
     render() {
         const tab = this.state.tab;
         return (
-            <PageSection className="page" isFilled padding={{default: 'noPadding'}}>
+            <PageSection variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light} className="page" isFilled padding={{default: 'noPadding'}}>
                 <Tabs className="main-tabs" activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex.toString()})} style={{width: "100%"}}>
                     <Tab eventKey='routes' title={this.getTab("Routes", "Integration flows", "routes")}></Tab>
                     <Tab eventKey='rest' title={this.getTab("REST", "REST services", "rest")}></Tab>

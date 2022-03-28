@@ -20,12 +20,13 @@ import * as utils from "./utils";
 import * as fs from "fs";
 import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
 import { DesignerView } from "./designerView";
+import { Integration } from "karavan-core/lib/model/IntegrationDefinition";
 
 export class IntegrationView implements vscode.TreeDataProvider<IntegrationItem> {
 
-    constructor(private designer: DesignerView, private rootPath: string | undefined) {
+	constructor(private designer: DesignerView, private rootPath: string | undefined) {
 
-    }
+	}
 	private _onDidChangeTreeData: vscode.EventEmitter<IntegrationItem | undefined | void> = new vscode.EventEmitter<IntegrationItem | undefined | void>();
 	readonly onDidChangeTreeData: vscode.Event<IntegrationItem | undefined | void> = this._onDidChangeTreeData.event;
 
@@ -34,14 +35,18 @@ export class IntegrationView implements vscode.TreeDataProvider<IntegrationItem>
 	}
 	getChildren(element?: IntegrationItem): vscode.ProviderResult<IntegrationItem[]> {
 		const integrations: IntegrationItem[] = [];
-		if (this.rootPath){
+		if (element === undefined && this.rootPath) {
 			utils.getYamlFiles(this.rootPath).forEach(f => {
 				const yaml = fs.readFileSync(path.resolve(f)).toString('utf8');
-        		if (!f.startsWith(this.rootPath + path.sep + "target") && CamelDefinitionYaml.yamlIsIntegration(yaml)) {
+				if (!f.startsWith(this.rootPath + path.sep + "target") && CamelDefinitionYaml.yamlIsIntegration(yaml)) {
 					const filename = path.basename(f);
 					const i = CamelDefinitionYaml.yamlToIntegration(filename, yaml);
-					integrations.push(new IntegrationItem(i.metadata.name, f, i.crd, {command: 'karavan.open', title:'', arguments: [{fsPath: f}]}));
+					integrations.push(new IntegrationItem(i.metadata.name, f, i.crd ? "CRD" : "", i, { command: 'karavan.open', title: '', arguments: [{ fsPath: f }] }));
 				}
+			})
+		} else if (element && element.integration) {
+			element.integration.spec.flows?.forEach(f => {
+				integrations.push(new IntegrationItem(f.dslName.replace("Definition", ""), "", f.id, undefined, undefined));
 			})
 		}
 		return Promise.resolve(integrations);
@@ -56,20 +61,19 @@ export class IntegrationItem extends vscode.TreeItem {
 
 	constructor(
 		public readonly title: string,
-		private readonly fullPath: string,
-		private readonly crd: boolean,
+		public readonly fullPath: string,
+		public readonly description: string,
+		public readonly integration?: Integration,
 		public readonly command?: vscode.Command
 	) {
-		super(title, vscode.TreeItemCollapsibleState.None);
-
+		super(title, integration ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None);
 		this.tooltip = this.fullPath;
-		this.description = this.crd ? "CRD" : "";
 	}
 
-	iconPath = {
-		light: path.join(__filename, '..', '..', 'icons', 'light', this.crd ? 'crd.svg' : 'karavan.svg'),
-		dark: path.join(__filename, '..', '..', 'icons', 'dark', this.crd ? 'crd.svg' : 'karavan.svg')
-	};
+	iconPath = this.integration ? {
+		light: path.join(__filename, '..', '..', 'icons', 'light', this.integration?.crd ? 'crd.svg' : 'karavan.svg'),
+		dark: path.join(__filename, '..', '..', 'icons', 'dark', this.integration?.crd ? 'crd.svg' : 'karavan.svg')
+	} : vscode.ThemeIcon.File;
 
 	contextValue = 'integration';
 }

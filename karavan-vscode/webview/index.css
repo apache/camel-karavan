@@ -5,24 +5,8 @@ body,
   height: 100%;
 }
 
-:root {
-  --pf-global--primary-color--100: rgb(239, 166, 79) !important;
-  --pf-global--primary-color--200: rgb(235, 146, 40) !important;
-  --pf-global--primary-color--light-100: rgb(239, 166, 79)!important;
-  --pf-global--primary-color--dark-100: rgb(239, 166, 79) !important;
-
-  --pf-global--link--Color: rgb(239, 166, 79) !important;
-  --pf-global--link--Color--hover: rgb(235, 146, 40) !important;
-  --pf-global--link--Color--light: rgb(239, 166, 79) !important;
-  --pf-global--link--Color--light--hover: rgb(239, 166, 79) !important;
-  --pf-global--link--Color--dark: rgb(239, 166, 79) !important;
-  --pf-global--link--Color--dark--hover: rgb(235, 146, 40) !important;
-
-  --pf-global--active-color--100: rgb(247, 205, 159) !important;
-}
-
-.vscode-dark .karavan {
-  color: rgb(255, 255, 255);
+.vscode-dark {
+  --pf-global--primary-color--200: var(--pf-global--active-color--400) !important;
 }
 
 .vscode-dark .karavan .top-icon {
@@ -66,36 +50,26 @@ body,
 }
 
 .vscode-dark .karavan .dsl-page .flows .step-element .header-route {
-  color: rgb(247, 205, 159);
+  color: var(--pf-global--Color--200);
 }
 
 .vscode-dark .karavan .dsl-page .flows .step-element-with-steps {
-  border-color: rgb(239, 166, 79);
-}
-
-.vscode-dark .karavan .dsl-page .flows .step-element-with-steps .header {
-  border-color: rgb(239, 166, 79);
-  background: rgb(247, 205, 159);
-  color: black;
-}
-
-.vscode-dark .step-element-selected {
-  background-color: rgb(37, 37, 38, 0.7);
+  border-color: var(--pf-global--Color--200);
 }
 
 .vscode-dark .step-element .selected .text {
-  color: rgb(171, 172, 224);
+  color: var(--pf-global--info-color--100);
 }
 
 .vscode-dark .step-element .selected .header-icon {
-  border-color: rgb(171, 172, 224);
-  background: rgb(171, 172, 224);
+  border-color: var(--pf-global--info-color--100);
+  background: var(--pf-global--info-color--100);
   border-width: 2px;
 }
 
 .vscode-dark .step-element .header-icon {
-  background: rgb(247, 205, 159);
-  border-color: rgb(239, 166, 79);
+  background: var(--pf-global--BorderColor--200);
+  border-color: var(--pf-global--Color--200);
 }
 
 .vscode-dark .step-element .header .text-bottom {
@@ -111,10 +85,6 @@ body,
     background-color: rgb(50, 50, 50);
     border-color: rgb(50, 50, 50);
     color: rgb(255, 255, 255);
-}
-
-.vscode-dark .karavan .properties .add-button {
-  color: var(--pf-global--active-color--100);
 }
 
 .vscode-dark .pf-c-select {
@@ -143,44 +113,26 @@ body,
   color: rgb(255, 255, 255);
 }
 
-.vscode-dark .pf-c-switch {
-  --pf-c-switch__toggle--BackgroundColor: #565656;
-  --pf-c-switch__toggle-icon--Color: black;
-  --pf-c-switch__toggle--before--BackgroundColor: black;
-}
-
 .vscode-dark .karavan .dsl-page .graph .connections .arrow {
-  stroke: rgb(239, 166, 79);
-  fill: rgb(239, 166, 79);
+  stroke: var(--pf-global--BorderColor--light-100);
+  fill: var(--pf-global--BorderColor--light-100);
 }
 
 .vscode-dark .karavan .dsl-page .graph .connections .path {
-   stroke: rgb(239, 166, 79);
+   stroke: var(--pf-global--BorderColor--light-100);
 }
 
 .vscode-dark .karavan .dsl-page .graph .connections .path-incoming {
-  stroke: rgb(239, 166, 79);
+  stroke: var(--pf-global--BorderColor--light-100);
 }
 .vscode-dark .karavan .dsl-page .graph .connections .circle-outgoing,
 .vscode-dark .karavan .dsl-page .graph .connections .circle-incoming {
-  stroke: rgb(239, 166, 79);
-  fill: rgb(247, 205, 159);
-}
-
-.vscode-dark .karavan .connections .caption {
-  fill: #cecece;
-}
-
-.vscode-dark .pf-c-modal-box__title-text {
-  color: #cecece;
-}
-
-.vscode-dark .pf-c-tabs__link {
-  color: #cecece;
+  stroke: var(--pf-global--Color--200);
+  fill: var(--pf-global--BorderColor--200);
 }
 
 .vscode-dark .pf-c-tabs__link::after {
-  border-color: rgb(239, 166, 79);
+  border-color: var(--pf-global--Color--200);
 }
 
 .vscode-dark .pf-c-tabs__scroll-button {
@@ -205,13 +157,6 @@ body,
   --pf-c-popover__arrow--BackgroundColor: #505050;
 }
 
-
-.vscode-dark .pf-c-popover .pf-c-title.pf-m-md,
-.vscode-dark .pf-c-popover .pf-c-popover__body,
-.vscode-dark .pf-c-popover .pf-c-button.pf-m-plain {
-  color: #cecece;
-}
-
 .vscode-dark .pf-c-tooltip {
   --pf-c-tooltip__content--BackgroundColor: #505050;
 }
@@ -219,8 +164,7 @@ body,
 .vscode-dark .step-element .add-button,
 .vscode-dark .step-element .add-element-button,
 .vscode-dark .step-element .add-button-from {
-  background: #252526;
-  color: rgb(239, 166, 79);
+  background: transparent;
 }
 
 .vscode-dark .dsl-modal .search .text-field {
@@ -243,15 +187,9 @@ body,
   --pf-c-chip--before--BorderColor: grey;
 }
 
-.vscode-dark .karavan .pf-c-button {
-  --pf-c-button--m-primary--hover--BackgroundColor: #fee3c3;
-  --pf-c-button--m-primary--focus--BackgroundColor: #fee3c3;
-  --pf-c-button--m-primary--active--BackgroundColor: #fee3c3;
-}
-
 .vscode-dark .karavan .pf-c-expandable-section__toggle,
 .vscode-dark .karavan .pf-c-expandable-section__toggle-icon {
-  color: rgb(239, 166, 79);
+  color: var(--pf-global--Color--200);
 }
 
 .vscode-dark .karavan .properties .expression,
@@ -266,32 +204,19 @@ body,
   --pf-c-modal-box--BackgroundColor: #505050;
 }
 
-/* Bean */
-.vscode-dark .karavan .beans-page {
-  --pf-c-page__main-section--BackgroundColor: var(--pf-c-page__main-section--m-dark-100--BackgroundColor);
+.vscode-dark .karavan .add-flow .pf-c-button.pf-m-primary,
+.vscode-dark .karavan .add-rest .pf-c-button.pf-m-primary,
+.vscode-dark .karavan .add-bean .pf-c-button.pf-m-primary,
+.vscode-dark .karavan .add-dependency .pf-c-button.pf-m-primary {
+  background-color: var(--pf-c-button--m-primary--Color);
+  color: var(--pf-c-button--m-primary--BackgroundColor);
 }
 
-
-.vscode-dark .beans-page .beans-page-columns .bean-card-unselected {
-  border-color: rgb(239, 166, 79);
+.vscode-dark .karavan .add-flow .pf-c-button.pf-m-secondary,
+.vscode-dark .karavan .add-rest .pf-c-button.pf-m-secondary,
+.vscode-dark .karavan .add-bean .pf-c-button.pf-m-secondary,
+.vscode-dark .karavan .add-dependency .pf-c-button.pf-m-secondary {
+  background-color: var(--pf-global--primary-color--200);
+  color: var(--pf-global--BackgroundColor--dark-200);
 }
 
-.vscode-dark .beans-page .beans-page-columns .bean-card-selected {
-  color: rgb(171, 172, 224);
-  border-color: rgb(171, 172, 224);
-  background-color: rgb(37, 37, 38, 0.7);
-}
-
-.vscode-dark .beans-page .beans-page-columns .bean-card-unselected .header-icon {
-  background: rgb(247, 205, 159);
-  border-color: rgb(239, 166, 79);
-}
-
-
-.vscode-dark .beans-page .beans-page-columns .bean-card:hover {
-  box-shadow: 0 0.01rem 0.001rem 0rem rgb(247 205 159 / 13%), 0 0.1rem 0.5rem 0.1rem rgb(247 205 159 / 12%);
-}
-
-.vscode-dark .beans-page .beans-page-columns .bean-card-unselected .icon {
-  /* fill: white; */
-}
