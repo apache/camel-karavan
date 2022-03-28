@@ -16,6 +16,9 @@ body, :root, #root, .karavan {
   --pf-c-button--m-secondary--Color: var(--vscode-focusBorder) !important;
 
   --pf-global--Color--100: var(--vscode-foreground) !important;
+
+  --step-border-color: var(--pf-global--active-color--200);
+  --step-border-color-selected:var(--vscode-focusBorder);
 }
 
 .vscode-dark input {
@@ -66,7 +69,7 @@ body, :root, #root, .karavan {
 }
 
 .vscode-dark .karavan .loading-page {
-  background-color: rgb(50, 50, 50);
+  background-color: var(--vscode-editor-background);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -83,7 +86,7 @@ body, :root, #root, .karavan {
 
 .vscode-dark .pf-c-tabs__scroll-button {
   color: #cecece;
-  background-color: rgb(50, 50, 50);
+  background-color: var(--vscode-editor-background);
 }
 
 .vscode-dark .pf-c-tabs__scroll-button::before {
@@ -97,7 +100,7 @@ body, :root, #root, .karavan {
 .vscode-dark .karavan .error-page .error-page-columns,
 .vscode-dark .karavan .exception-page .exception-page-columns,
 .vscode-dark .karavan .templates-page .templates-page-columns {  
-  background-color: rgb(50, 50, 50);
+  background-color: var(--vscode-editor-background);
 }
 
 .vscode-dark .karavan .dsl-page .flows .step-element .header-route {
@@ -124,8 +127,8 @@ body, :root, #root, .karavan {
 }
 
 .vscode-dark .step-element .header .text-bottom {
-    background-color: rgb(50, 50, 50, 0.5);
-    /* color: var(--pf-global--palette--black-400); */
+    background-color: rgb(var(--vscode-editor-background), 0.5);
+    color: var(--vscode-editor-foreground);
 }
 
 .vscode-dark .karavan .step-element .add-button {
@@ -234,6 +237,19 @@ body, :root, #root, .karavan {
 .vscode-dark .pf-c-tooltip {
   --pf-c-tooltip__content--BackgroundColor: var(--vscode-tab-activeBackground);
 }
+
+/* Modal */
+.vscode-dark .pf-c-modal-box {
+  --pf-c-modal-box--BackgroundColor: var(--vscode-input-background);
+}
+
+.vscode-dark .dsl-modal .search .text-field {
+  background-color:  var(--vscode-editor-background);
+  border-color:  var(--vscode-input-foreground);
+  color:  var(--vscode-input-foreground);
+}
+
+
 /* 
 
 
@@ -257,9 +273,6 @@ body, :root, #root, .karavan {
   color: #cecece;
 }
 
-.vscode-dark .pf-c-modal-box {
-  --pf-c-modal-box--BackgroundColor: #505050;
-}
 
 
 
@@ -269,11 +282,6 @@ body, :root, #root, .karavan {
   background: transparent;
 }
 
-.vscode-dark .dsl-modal .search .text-field {
-  background-color: rgb(50, 50, 50);
-  border-color: rgb(50, 50, 50);
-  color: var(--pf-global--Color--200);
-}
 
 
 
@@ -295,20 +303,5 @@ body, :root, #root, .karavan {
   width: 350px;
   --pf-c-modal-box--BackgroundColor: #505050;
 }
-
-.vscode-dark .karavan .add-flow .pf-c-button.pf-m-primary,
-.vscode-dark .karavan .add-rest .pf-c-button.pf-m-primary,
-.vscode-dark .karavan .add-bean .pf-c-button.pf-m-primary,
-.vscode-dark .karavan .add-dependency .pf-c-button.pf-m-primary {
-  background-color: var(--pf-c-button--m-primary--Color);
-  color: var(--pf-c-button--m-primary--BackgroundColor);
-}
-
-.vscode-dark .karavan .add-flow .pf-c-button.pf-m-secondary,
-.vscode-dark .karavan .add-rest .pf-c-button.pf-m-secondary,
-.vscode-dark .karavan .add-bean .pf-c-button.pf-m-secondary,
-.vscode-dark .karavan .add-dependency .pf-c-button.pf-m-secondary {
-  background-color: var(--pf-global--primary-color--200);
-  color: var(--pf-global--BackgroundColor--dark-200);
-} */
+*/
 

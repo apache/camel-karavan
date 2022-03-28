@@ -545,6 +545,11 @@
     position: relative;
 }
 
+.karavan {
+    --step-border-color: var(--pf-global--Color--200);
+    --step-border-color-selected: var(--pf-global--active-color--100);
+}
+
 .karavan .dsl-page .flows .children {
     display: flex;
     flex-wrap: wrap;

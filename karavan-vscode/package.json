@@ -55,7 +55,7 @@
       "properties": {
         "camel.version": {
           "type": "string",
-          "default": "3.16.0-SNAPSHOT",
+          "default": "3.16.0",
           "description": "Camel version"
         },
         "camel.maxMessages": {

@@ -147,8 +147,6 @@ export class DesignerPage extends React.Component<Props, State> {
                         filename={name}
                         yaml={yaml}
                         onSave={(name, yaml) => this.save(name, yaml)}
-                        borderColor="var(--pf-global--Color--200)"
-                        borderColorSelected="var(--pf-global--primary-color--200)"
                     />
                 }
             </>

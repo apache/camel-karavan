@@ -26,8 +26,6 @@ import CubesIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 interface Props {
     onSave?: (integration: Integration) => void
     integration: Integration
-    borderColor: string
-    borderColorSelected: string
     dark: boolean
 }
 

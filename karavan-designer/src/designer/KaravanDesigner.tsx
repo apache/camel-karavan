@@ -36,8 +36,6 @@ interface Props {
     onSave?: (filename: string, yaml: string) => void
     filename: string
     yaml: string
-    borderColor: string
-    borderColorSelected: string
     dark: boolean
 }
 
@@ -227,38 +225,24 @@ export class KaravanDesigner extends React.Component<Props, State> {
                 </Tabs>
                 {tab === 'routes' && <RouteDesigner integration={this.state.integration}
                                                     onSave={(integration) => this.save(integration)}
-                                                    borderColor={this.props.borderColor}
-                                                    borderColorSelected={this.props.borderColorSelected}
                                                     dark={this.props.dark}/>}
                 {tab === 'rest' && <RestDesigner integration={this.state.integration}
                                                  onSave={(integration) => this.save(integration)}
-                                                 borderColor={this.props.borderColor}
-                                                 borderColorSelected={this.props.borderColorSelected}
                                                  dark={this.props.dark}/>}
                 {tab === 'beans' && <BeansDesigner integration={this.state.integration}
                                                    onSave={(integration) => this.save(integration)}
-                                                   borderColor={this.props.borderColor}
-                                                   borderColorSelected={this.props.borderColorSelected}
                                                    dark={this.props.dark}/>}
                 {tab === 'dependencies' && <DependenciesDesigner integration={this.state.integration}
                                                                  onSave={(integration) => this.save(integration)}
-                                                                 borderColor={this.props.borderColor}
-                                                                 borderColorSelected={this.props.borderColorSelected}
                                                                  dark={this.props.dark}/>}
                 {tab === 'error' && <ErrorDesigner integration={this.state.integration}
                                                    onSave={(integration) => this.save(integration)}
-                                                   borderColor={this.props.borderColor}
-                                                   borderColorSelected={this.props.borderColorSelected}
                                                    dark={this.props.dark}/>}
                 {tab === 'exception' && <ExceptionDesigner integration={this.state.integration}
                                                            onSave={(integration) => this.save(integration)}
-                                                           borderColor={this.props.borderColor}
-                                                           borderColorSelected={this.props.borderColorSelected}
                                                            dark={this.props.dark}/>}
                 {tab === 'templates' && <TemplatesDesigner integration={this.state.integration}
                                                            onSave={(integration) => this.save(integration)}
-                                                           borderColor={this.props.borderColor}
-                                                           borderColorSelected={this.props.borderColorSelected}
                                                            dark={this.props.dark}/>}
             </PageSection>
         );
