@@ -1,9 +1,9 @@
 {
   "name": "karavan",
   "publisher": "camel-karavan",
-  "displayName": "Camel Karavan Designer",
+  "displayName": "Karavan",
   "icon": "icons/karavan.png",
-  "description": "Apache Camel mastering tool",
+  "description": "Apache Camel Mastering Tool",
   "version": "0.0.13",
   "license": "Apache-2.0",
   "preview": true,
