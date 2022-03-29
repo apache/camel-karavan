@@ -248,7 +248,7 @@ body, :root, #root, .karavan {
 }
 
 .vscode-dark .pf-c-tooltip {
-  --pf-c-tooltip__content--BackgroundColor: var(--vscode-tab-activeBackground);
+  --pf-c-tooltip__content--BackgroundColor: var(--vscode-input-background);
 }
 
 /* Modal */
