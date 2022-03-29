@@ -12,6 +12,10 @@ Requires Camel 3.16.0 and later
 Requires Camel 3.16.0 and later
 1. Beans
 3. Dependencies
+4. Support Camel 3.16.0 DSL
+5. New theme
+6. Resizable properties panel
+7. New Karavan views in VS Code
 
 ## 0.0.11
 1. Hot fix: Set Camel Jbang alias as `camel@apache/camel`
