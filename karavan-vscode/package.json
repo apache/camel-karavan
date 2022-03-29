@@ -44,8 +44,9 @@
   "activationEvents": [
     "onCommand:karavan.create-crd",
     "onCommand:karavan.create-yaml",
-    "onCommand:karavan.jbang-run",
     "onCommand:karavan.open",
+    "onCommand:karavan.open-yaml",
+    "onCommand:karavan.jbang-run",
     "onView:integrations"
   ],
   "main": "./dist/extension.js",
@@ -116,6 +117,10 @@
           "light": "./icons/karavan.svg",
           "dark": "./icons/karavan.svg"
         }
+      },
+      {
+        "command": "karavan.open-yaml",
+        "title": "Karavan: Open YAML"
       },
       {
         "command": "karavan.jbang-run",
@@ -215,6 +220,23 @@
 					"when": "view == dsl",
 					"group": "navigation"
 				}
+			],
+      "view/item/context": [
+        {
+          "command": "karavan.open",
+          "when": "view == integrations && viewItem == 'integration'",
+          "group": "navigation_1_open@1"
+        },
+        {
+          "command": "karavan.open-yaml",
+          "when": "view == integrations && viewItem == 'integration'",
+          "group": "navigation_1_open@2"
+        },
+        {
+          "command": "karavan.jbang-run",
+          "when": "view == integrations && viewItem == 'integration'",
+          "group": "navigation_2_run@1"
+        }
 			]
     },
     "viewsContainers": {

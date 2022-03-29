@@ -61,13 +61,13 @@ export class IntegrationItem extends vscode.TreeItem {
 
 	constructor(
 		public readonly title: string,
-		public readonly fullPath: string,
+		public readonly fsPath: string,
 		public readonly description: string,
 		public readonly integration?: Integration,
 		public readonly command?: vscode.Command
 	) {
 		super(title, integration ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None);
-		this.tooltip = this.fullPath;
+		this.tooltip = this.fsPath;
 	}
 
 	iconPath = this.integration ? {
@@ -75,5 +75,5 @@ export class IntegrationItem extends vscode.TreeItem {
 		dark: path.join(__filename, '..', '..', 'icons', 'dark', this.integration?.crd ? 'crd.svg' : 'karavan.svg')
 	} : vscode.ThemeIcon.File;
 
-	contextValue = 'integration';
+	contextValue = this.integration ? 'integration' : "route";
 }
