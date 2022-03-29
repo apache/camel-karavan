@@ -208,12 +208,7 @@ export class RestDesigner extends React.Component<Props, State> {
 
     getPropertiesPanel() {
         return (
-            <DrawerPanelContent
-                isResizable
-                hasNoBorder
-                defaultSize={'400px'}
-                maxSize={'800px'}
-                minSize={'300px'}>
+            <DrawerPanelContent isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'300px'}>
                 <DslProperties
                     integration={this.props.integration}
                     step={this.state.selectedStep}
@@ -265,6 +260,6 @@ export class RestDesigner extends React.Component<Props, State> {
                 {this.getSelectorModal()}
                 {this.getDeleteConfirmation()}
             </PageSection>
-        );
+        )
     }
 }

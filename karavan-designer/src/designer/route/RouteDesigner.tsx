@@ -306,12 +306,7 @@ export class RouteDesigner extends React.Component<Props, State> {
 
     getPropertiesPanel() {
         return (
-            <DrawerPanelContent
-                isResizable
-                hasNoBorder
-                defaultSize={'400px'}
-                maxSize={'800px'}
-                minSize={'300px'}>
+            <DrawerPanelContent isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'300px'}>
                     <DslProperties ref={this.state.ref}
                         integration={this.state.integration}
                         step={this.state.selectedStep}

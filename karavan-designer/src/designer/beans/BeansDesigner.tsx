@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    Button, Modal, PageSection
+    Button, Drawer, DrawerContent, DrawerContentBody, DrawerPanelContent, Modal, PageSection
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {NamedBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
@@ -27,6 +27,7 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {BeanProperties} from "./BeanProperties";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {BeanCard} from "./BeanCard";
+import {DslProperties} from "../route/DslProperties";
 
 interface Props {
     onSave?: (integration: Integration) => void
@@ -114,36 +115,49 @@ export class BeansDesigner extends React.Component<Props, State> {
         this.changeBean(new NamedBeanDefinition());
     }
 
+    getPropertiesPanel() {
+        return (
+            <DrawerPanelContent isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'300px'}>
+                <BeanProperties integration={this.props.integration}
+                                bean={this.state.selectedBean}
+                                dark={this.props.dark}
+                                onChange={this.changeBean}/>
+            </DrawerPanelContent>
+        )
+    }
+
     render() {
         const beans = CamelUi.getBeans(this.state.integration);
         return (
             <PageSection className="rest-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="rest-page-columns">
-                    <div className="graph" data-click="REST"  onClick={event => this.unselectBean(event)}>
-                        <div className="flows">
-                            {beans?.map(bean => <BeanCard key={bean.uuid + this.state.key}
-                                                          selectedStep={this.state.selectedBean}
-                                                          bean={bean}
-                                                          integration={this.props.integration}
-                                                          selectElement={this.selectBean}
-                                                          deleteElement={this.showDeleteConfirmation}/>)}
-                            <div className="add-rest">
-                                <Button
-                                    variant={beans?.length === 0 ? "primary" : "secondary"}
-                                    data-click="ADD_REST"
-                                    icon={<PlusIcon/>}
-                                    onClick={e => this.createBean()}>Create new bean
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                    <BeanProperties integration={this.props.integration}
-                                    bean={this.state.selectedBean}
-                                    dark={this.props.dark}
-                                    onChange={this.changeBean}/>
+                    <Drawer isExpanded isInline>
+                        <DrawerContent panelContent={this.getPropertiesPanel()}>
+                            <DrawerContentBody>
+                                <div className="graph" data-click="REST"  onClick={event => this.unselectBean(event)}>
+                                    <div className="flows">
+                                        {beans?.map(bean => <BeanCard key={bean.uuid + this.state.key}
+                                                                      selectedStep={this.state.selectedBean}
+                                                                      bean={bean}
+                                                                      integration={this.props.integration}
+                                                                      selectElement={this.selectBean}
+                                                                      deleteElement={this.showDeleteConfirmation}/>)}
+                                        <div className="add-rest">
+                                            <Button
+                                                variant={beans?.length === 0 ? "primary" : "secondary"}
+                                                data-click="ADD_REST"
+                                                icon={<PlusIcon/>}
+                                                onClick={e => this.createBean()}>Create new bean
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </DrawerContentBody>
+                        </DrawerContent>
+                    </Drawer>
                 </div>
                 {this.getDeleteConfirmation()}
             </PageSection>
-        );
+        )
     }
 }
