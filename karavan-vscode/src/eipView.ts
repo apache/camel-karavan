@@ -19,19 +19,19 @@ import * as utils from "./utils";
 import { CamelModelMetadata, ElementMeta } from "karavan-core/lib/model/CamelMetadata";
 import { ThemeIcon } from "vscode";
 
-export class DslView implements vscode.TreeDataProvider<DslItem> {
+export class EipView implements vscode.TreeDataProvider<EipItem> {
 
     constructor(private context: vscode.ExtensionContext, private rootPath: string | undefined) {
 
     }
-	private _onDidChangeTreeData: vscode.EventEmitter<DslItem | undefined | void> = new vscode.EventEmitter<DslItem | undefined | void>();
-	readonly onDidChangeTreeData: vscode.Event<DslItem | undefined | void> = this._onDidChangeTreeData.event;
+	private _onDidChangeTreeData: vscode.EventEmitter<EipItem | undefined | void> = new vscode.EventEmitter<EipItem | undefined | void>();
+	readonly onDidChangeTreeData: vscode.Event<EipItem | undefined | void> = this._onDidChangeTreeData.event;
 
-	getTreeItem(element: DslItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
+	getTreeItem(element: EipItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
 		return element;
 	}
-	getChildren(element?: DslItem): vscode.ProviderResult<DslItem[]> {
-		const kamelets: DslItem[] = [];
+	getChildren(element?: EipItem): vscode.ProviderResult<EipItem[]> {
+		const kamelets: EipItem[] = [];
 		if (this.rootPath){
 			CamelModelMetadata.sort((a, b) => {
 				if (a.title.toLowerCase() < b.title.toLowerCase()) {
@@ -39,7 +39,7 @@ export class DslView implements vscode.TreeDataProvider<DslItem> {
 				}
 				return a.title.toLowerCase() > b.title.toLowerCase() ? 1 : 0;
 			}).forEach((e:ElementMeta) => {
-				kamelets.push(new DslItem(e.title, e.description, e.labels));
+				kamelets.push(new EipItem(e.title, e.description, e.labels));
 			})
 		}
 		return Promise.resolve(kamelets);
@@ -50,7 +50,7 @@ export class DslView implements vscode.TreeDataProvider<DslItem> {
 	}
 }
 
-export class DslItem extends vscode.TreeItem {
+export class EipItem extends vscode.TreeItem {
 
 	constructor(
 		public readonly title: string,
@@ -66,5 +66,5 @@ export class DslItem extends vscode.TreeItem {
 
 	iconPath = ThemeIcon.File;
 
-	contextValue = 'component';
+	contextValue = 'eip';
 }
