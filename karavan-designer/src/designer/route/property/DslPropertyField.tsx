@@ -449,7 +449,12 @@ export class DslPropertyField extends React.Component<Props, State> {
                     position={"left"}
                     headerContent={property.displayName}
                     bodyContent={property.description}
-                    footerContent={property.defaultValue !== undefined ? "Default: " + property.defaultValue : undefined}>
+                    footerContent={
+                    <div>
+                        {property.defaultValue !== undefined && property.defaultValue.toString().trim().length >0 && <div>{"Default: " + property.defaultValue}</div>}
+                        {property.required && <b>Required</b>}
+                    </div>
+                    }>
                     <button type="button" aria-label="More info" onClick={e => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -474,6 +479,7 @@ export class DslPropertyField extends React.Component<Props, State> {
         return (
             <FormGroup
                 label={this.props.hideLabel ? undefined : this.getLabel(property, value)}
+                isRequired={property.required}
                 fieldId={property.name}
                 labelIcon={this.getLabelIcon(property)}>
                 {value && ["ExpressionDefinition", "ExpressionSubElementDefinition"].includes(property.type)
