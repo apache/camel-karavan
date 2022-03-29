@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    Button, Modal,
+    Button, Drawer, DrawerContent, DrawerContentBody, DrawerPanelContent, Modal,
     PageSection
 } from '@patternfly/react-core';
 import '../karavan.css';
@@ -205,6 +205,22 @@ export class RestDesigner extends React.Component<Props, State> {
         </>)
     }
 
+
+    getPropertiesPanel() {
+        return (
+            <DrawerPanelContent isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'300px'}>
+                <DslProperties
+                    integration={this.props.integration}
+                    step={this.state.selectedStep}
+                    onIntegrationUpdate={this.onIntegrationUpdate}
+                    onPropertyUpdate={this.onPropertyUpdate}
+                    clipboardStep={undefined}
+                    onSaveClipboardStep={element => {}}
+                />
+            </DrawerPanelContent>
+        )
+    }
+
     render() {
         const data = this.props.integration.spec.flows?.filter(f => f.dslName === 'RestDefinition');
         const configData = this.props.integration.spec.flows?.filter(f => f.dslName === 'RestConfigurationDefinition');
@@ -212,40 +228,38 @@ export class RestDesigner extends React.Component<Props, State> {
         return (
             <PageSection className="rest-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="rest-page-columns">
-                    <div className="graph" data-click="REST" onClick={event => this.unselectElement(event)}>
-                        <div className="flows">
-                            {config && this.getRestConfigurationCard(config)}
-                            {data && this.getRestCards(data)}
-                            <div className="add-rest">
-                                {config === undefined &&
-                                    <Button
-                                        variant="primary"
-                                        data-click="ADD_REST_REST_CONFIG"
-                                        icon={<PlusIcon/>}
-                                        onClick={e => this.createRestConfiguration()}>Create REST Configuration
-                                    </Button>
-                                }
-                                <Button
-                                    variant={data?.length === 0 ? "primary" : "secondary"}
-                                    data-click="ADD_REST"
-                                    icon={<PlusIcon/>}
-                                    onClick={e => this.createRest()}>Create REST Service
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                    <DslProperties
-                        integration={this.props.integration}
-                        step={this.state.selectedStep}
-                        onIntegrationUpdate={this.onIntegrationUpdate}
-                        onPropertyUpdate={this.onPropertyUpdate}
-                        clipboardStep={undefined}
-                        onSaveClipboardStep={element => {}}
-                    />
+                    <Drawer isExpanded isInline>
+                        <DrawerContent panelContent={this.getPropertiesPanel()}>
+                            <DrawerContentBody>
+                                <div className="graph" data-click="REST" onClick={event => this.unselectElement(event)}>
+                                    <div className="flows">
+                                        {config && this.getRestConfigurationCard(config)}
+                                        {data && this.getRestCards(data)}
+                                        <div className="add-rest">
+                                            {config === undefined &&
+                                                <Button
+                                                    variant="primary"
+                                                    data-click="ADD_REST_REST_CONFIG"
+                                                    icon={<PlusIcon/>}
+                                                    onClick={e => this.createRestConfiguration()}>Create REST Configuration
+                                                </Button>
+                                            }
+                                            <Button
+                                                variant={data?.length === 0 ? "primary" : "secondary"}
+                                                data-click="ADD_REST"
+                                                icon={<PlusIcon/>}
+                                                onClick={e => this.createRest()}>Create REST Service
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </DrawerContentBody>
+                        </DrawerContent>
+                    </Drawer>
                 </div>
                 {this.getSelectorModal()}
                 {this.getDeleteConfirmation()}
             </PageSection>
-        );
+        )
     }
 }

@@ -161,6 +161,15 @@ body, :root, #root, .karavan {
   color: var(--vscode-input-foreground);
 }
 
+.vscode-dark .karavan .pf-c-drawer__splitter {
+  background: var(--vscode-tab-inactiveBackground);
+}
+
+.vscode-dark .karavan .pf-c-drawer__splitter::after {
+  border: var(--vscode-tab-inactiveBackground) solid;
+  border-width: 2px;
+}
+
 .vscode-dark .karavan .pf-c-switch {
   --pf-c-switch__input--checked__toggle--BackgroundColor: var(--vscode-focusBorder);
 }

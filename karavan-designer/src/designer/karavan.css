@@ -182,8 +182,7 @@
 }
 
 .karavan .dsl-page .dsl-page-columns {
-    display: flex;
-    flex-direction: row;
+    display: block;
     height: 100%;
     background: #fafafa;
 }
@@ -225,12 +224,21 @@
     padding: 10px 10px 10px 10px;
     font-size: 14px;
     background: #fcfcfc;
-    width: 450px;
+    width: 100%;
     height: 100%;
     overflow: auto;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+}
+
+.karavan .pf-c-drawer__splitter {
+    width: 2px;
+    background-color: #fcfcfc;
+}
+
+.karavan .pf-c-drawer__splitter-handle {
+    display: none;
 }
 
 .karavan .properties .headers {
@@ -332,7 +340,7 @@
 }
 
 .karavan .properties .pf-c-select__menu-item {
-    width: 280px;
+    /*width: 280px;*/
 }
 
 .karavan .properties .pf-c-select__menu-item-description {
@@ -830,8 +838,7 @@
 }
 
 .karavan .rest-page .rest-page-columns {
-    display: flex;
-    flex-direction: row;
+    display: block;
     height: 100%;
     background: #fafafa;
 }

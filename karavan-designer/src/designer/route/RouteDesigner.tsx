@@ -16,6 +16,13 @@
  */
 import React from 'react';
 import {
+    Drawer,
+    DrawerPanelContent,
+    DrawerContent,
+    DrawerContentBody,
+    DrawerHead,
+    DrawerActions,
+    DrawerCloseButton,
     Button, Modal,
     PageSection
 } from '@patternfly/react-core';
@@ -33,6 +40,7 @@ import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {DslElement} from "./DslElement";
 import {EventBus} from "../utils/EventBus";
 import {CamelUi, RouteToCreate} from "../utils/CamelUi";
+import {findDOMNode} from "react-dom";
 
 interface Props {
     onSave?: (integration: Integration) => void
@@ -55,6 +63,7 @@ interface State {
     top: number
     left: number
     clipboardStep?: CamelElement
+    ref?: any
 }
 
 export class RouteDesigner extends React.Component<Props, State> {
@@ -71,17 +80,29 @@ export class RouteDesigner extends React.Component<Props, State> {
         height: 1000,
         top: 0,
         left: 0,
+        ref: React.createRef()
     };
 
     componentDidMount() {
         window.addEventListener('resize', this.handleResize);
+        const element = findDOMNode(this.state.ref.current)?.parentElement?.parentElement;
+        const checkResize = (mutations: any) => {
+            const el = mutations[0].target;
+            const w = el.clientWidth;
+            const isChange = mutations.map((m: any) => `${m.oldValue}`).some((prev: any) => prev.indexOf(`width: ${w}px`) === -1);
+            if (isChange) this.setState({key: Math.random().toString()});
+        }
+        if (element) {
+            const observer = new MutationObserver(checkResize);
+            observer.observe(element, {attributes: true, attributeOldValue: true, attributeFilter: ['style']});
+        }
     }
 
     componentWillUnmount() {
         window.removeEventListener('resize', this.handleResize);
     }
 
-    handleResize = () => {
+    handleResize = (event: any) => {
         this.setState({key: Math.random().toString()});
     }
 
@@ -283,12 +304,10 @@ export class RouteDesigner extends React.Component<Props, State> {
             </div>)
     }
 
-    render() {
+    getPropertiesPanel() {
         return (
-            <PageSection className="dsl-page" isFilled padding={{default: 'noPadding'}}>
-                <div className="dsl-page-columns">
-                    {this.getGraph()}
-                    <DslProperties
+            <DrawerPanelContent isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'300px'}>
+                    <DslProperties ref={this.state.ref}
                         integration={this.state.integration}
                         step={this.state.selectedStep}
                         onIntegrationUpdate={this.onIntegrationUpdate}
@@ -296,6 +315,19 @@ export class RouteDesigner extends React.Component<Props, State> {
                         clipboardStep={this.state.clipboardStep}
                         onSaveClipboardStep={this.saveToClipboard}
                     />
+            </DrawerPanelContent>
+        )
+    }
+
+    render() {
+        return (
+            <PageSection className="dsl-page" isFilled padding={{default: 'noPadding'}}>
+                <div className="dsl-page-columns">
+                    <Drawer isExpanded isInline>
+                        <DrawerContent panelContent={this.getPropertiesPanel()}>
+                            <DrawerContentBody>{this.getGraph()}</DrawerContentBody>
+                        </DrawerContent>
+                    </Drawer>
                 </div>
                 {this.getSelectorModal()}
                 {this.getDeleteConfirmation()}
