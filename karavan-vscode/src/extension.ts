@@ -21,6 +21,7 @@ import {IntegrationView} from "./integrationView";
 import { KameletView } from "./kameletView";
 import { ComponentView } from "./componentView";
 import { DslView } from "./dslView";
+import { ViewColumn } from "vscode";
 
 const KARAVAN_LOADED = "karavan:loaded";
 
@@ -59,9 +60,16 @@ export function activate(context: vscode.ExtensionContext) {
     const createYaml = vscode.commands.registerCommand("karavan.create-yaml", (...args: any[]) => designer.createIntegration(false, args[0].fsPath));
     context.subscriptions.push(createYaml);
 
-    // Open Camel-K integration in designer
+    // Openintegration in designer
     const open = vscode.commands.registerCommand("karavan.open", (...args: any[]) => designer.karavanOpen(args[0].fsPath));
     context.subscriptions.push(open);
+
+    // Open integration in YAML editor
+    const openYaml = vscode.commands.registerCommand("karavan.open-yaml", (...args: any[]) => {
+        let uri = vscode.Uri.file(args[0].fsPath);
+        vscode.window.showTextDocument( uri, { preserveFocus: false, preview: false});
+    });
+    context.subscriptions.push(openYaml);
 
     // Run Integration in designer
     const run = vscode.commands.registerCommand("karavan.jbang-run", (...args: any[]) => designer.jbangRun(args[0].fsPath));
