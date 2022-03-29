@@ -155,7 +155,7 @@
 				}
 			},
       {
-				"command": "dsl.refresh",
+				"command": "eip.refresh",
 				"title": "Refresh",
 				"icon": {
 					"light": "icons/light/refresh.svg",
@@ -216,8 +216,8 @@
 					"group": "navigation"
 				},
         {
-					"command": "dsl.refresh",
-					"when": "view == dsl",
+					"command": "eip.refresh",
+					"when": "view == eip",
 					"group": "navigation"
 				}
 			],
@@ -255,8 +255,8 @@
           "name": "Integrations"
         },
         {
-          "id": "dsl",
-          "name": "Domain Specific Language",
+          "id": "eip",
+          "name": "Enterprise Integration Patterns",
           "visibility": "collapsed"
         },
         {
