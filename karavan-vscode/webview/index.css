@@ -21,6 +21,10 @@ body, :root, #root, .karavan {
   --step-border-color-selected:var(--vscode-focusBorder);
 }
 
+.karavan .pf-c-drawer__content {
+  background-color: transparent;
+}
+
 .vscode-dark input {
   color: var(--vscode-foreground) !important;
 }
