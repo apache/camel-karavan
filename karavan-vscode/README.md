@@ -5,7 +5,7 @@
 
 **Integration Designer for Apache Camel** makes integration easy and fun through visualization of integration pipeline.
 
-![karavan-vscode](screenshots/karavan-vscode.png)
+![karavan-vscode](images/karavan-vscode.png)
 
 # Features
 
