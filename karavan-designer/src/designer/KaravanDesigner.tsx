@@ -31,6 +31,7 @@ import {ErrorDesigner} from "./error/ErrorDesigner";
 import {TemplatesDesigner} from "./templates/TemplatesDesigner";
 import {ExceptionDesigner} from "./exception/ExceptionDesigner";
 import {DependenciesDesigner} from "./dependencies/DependenciesDesigner";
+import {TraitsDesigner} from "./traits/TraitsDesigner";
 
 interface Props {
     onSave?: (filename: string, yaml: string, propertyOnly: boolean) => void
@@ -243,7 +244,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
                 {tab === 'exception' && <ExceptionDesigner integration={this.state.integration}
                                                            onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                            dark={this.props.dark}/>}
-                {tab === 'templates' && <TemplatesDesigner integration={this.state.integration}
+                {tab === 'traits' && <TraitsDesigner integration={this.state.integration}
                                                            onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                            dark={this.props.dark}/>}
             </PageSection>

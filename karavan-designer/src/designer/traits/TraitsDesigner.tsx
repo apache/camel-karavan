@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    Button, Modal, PageSection
+    Button, EmptyState, EmptyStateBody, EmptyStateIcon, Modal, PageSection, Title
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {NamedBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
@@ -27,12 +27,11 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {TraitProperties} from "./TraitProperties";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {TraitCard} from "./TraitCard";
+import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 
 interface Props {
-    onSave?: (integration: Integration) => void
+    onSave?: (integration: Integration, propertyOnly: boolean) => void
     integration: Integration
-    borderColor: string
-    borderColorSelected: string
     dark: boolean
 }
 
@@ -42,6 +41,7 @@ interface State {
     selectedBean?: NamedBeanDefinition
     key: string
     showBeanEditor: boolean
+    propertyOnly: boolean
 }
 
 export class TraitsDesigner extends React.Component<Props, State> {
@@ -51,11 +51,12 @@ export class TraitsDesigner extends React.Component<Props, State> {
         showDeleteConfirmation: false,
         key: "",
         showBeanEditor: false,
+        propertyOnly: false
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.key !== this.state.key) {
-            this.props.onSave?.call(this, this.state.integration);
+            this.props.onSave?.call(this, this.state.integration, this.state.propertyOnly);
         }
     }
 
@@ -119,30 +120,39 @@ export class TraitsDesigner extends React.Component<Props, State> {
     render() {
         const beans = CamelUi.getBeans(this.state.integration);
         return (
-            <PageSection className="rest-page" isFilled padding={{default: 'noPadding'}}>
-                <div className="rest-page-columns">
-                    <div className="graph" data-click="REST"  onClick={event => this.unselectBean(event)}>
-                        <div className="flows">
-                            {beans?.map(bean => <TraitCard key={bean.uuid + this.state.key}
-                                                           selectedStep={this.state.selectedBean}
-                                                           bean={bean}
-                                                           integration={this.props.integration}
-                                                           selectElement={this.selectBean}
-                                                           deleteElement={this.showDeleteConfirmation}/>)}
-                            <div className="add-rest">
-                                <Button
-                                    variant={beans?.length === 0 ? "primary" : "secondary"}
-                                    data-click="ADD_REST"
-                                    icon={<PlusIcon/>}
-                                    onClick={e => this.createBean()}>Create new bean
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                    <TraitProperties integration={this.props.integration}
-                                     bean={this.state.selectedBean}
-                                     dark={this.props.dark}
-                                     onChange={this.changeBean}/>
+            <PageSection className="exception-page" isFilled padding={{default: 'noPadding'}}>
+                <div className="exception-page-columns">
+                    <EmptyState>
+                        <EmptyStateIcon icon={CubesIcon} />
+                        <Title headingLevel="h4" size="lg">
+                            Traits
+                        </Title>
+                        <EmptyStateBody>
+                            Traits not implemented yet
+                        </EmptyStateBody>
+                    </EmptyState>
+                    {/*<div className="graph" data-click="REST"  onClick={event => this.unselectBean(event)}>*/}
+                    {/*    <div className="flows">*/}
+                    {/*        {beans?.map(bean => <TraitCard key={bean.uuid + this.state.key}*/}
+                    {/*                                       selectedStep={this.state.selectedBean}*/}
+                    {/*                                       bean={bean}*/}
+                    {/*                                       integration={this.props.integration}*/}
+                    {/*                                       selectElement={this.selectBean}*/}
+                    {/*                                       deleteElement={this.showDeleteConfirmation}/>)}*/}
+                    {/*        <div className="add-rest">*/}
+                    {/*            <Button*/}
+                    {/*                variant={beans?.length === 0 ? "primary" : "secondary"}*/}
+                    {/*                data-click="ADD_TRAIT"*/}
+                    {/*                icon={<PlusIcon/>}*/}
+                    {/*                onClick={e => this.createBean()}>Create new bean*/}
+                    {/*            </Button>*/}
+                    {/*        </div>*/}
+                    {/*    </div>*/}
+                    {/*</div>*/}
+                    {/*<TraitProperties integration={this.props.integration}*/}
+                    {/*                 bean={this.state.selectedBean}*/}
+                    {/*                 dark={this.props.dark}*/}
+                    {/*                 onChange={this.changeBean}/>*/}
                 </div>
                 {this.getDeleteConfirmation()}
             </PageSection>
