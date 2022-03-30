@@ -135,10 +135,10 @@ export class DslProperties extends React.Component<Props, State> {
                 <div className="top">
                     <Title headingLevel="h1" size="md">{title}</Title>
                     <Tooltip content="Copy step" position="bottom">
-                        <Button variant="link" onClick={() => this.props.onSaveClipboardStep?.call(this, this.state.step)} icon={<CopyIcon />}/>
+                        <Button variant="link" onClick={() => this.props.onSaveClipboardStep?.call(this, this.state.step)} icon={<CopyIcon/>}/>
                     </Tooltip>
                     <Tooltip content="Paste step" position="bottom">
-                        <Button variant="link" onClick={() => this.pasteClipboardStep()} icon={<PasteIcon />}/>
+                        <Button variant="link" onClick={() => this.pasteClipboardStep()} icon={<PasteIcon/>}/>
                     </Tooltip>
                 </div>
                 <Text component={TextVariants.p}>{description}</Text>
@@ -147,18 +147,18 @@ export class DslProperties extends React.Component<Props, State> {
         )
     }
 
-    getProps = (showAdvanced?: boolean): PropertyMeta[] => {
+    getProperties = (): PropertyMeta[] => {
         const dslName = this.state.step?.dslName;
         return CamelDefinitionApiExt.getElementProperties(dslName)
-            .filter((p: PropertyMeta) => (showAdvanced && p.label.includes('advanced')) || (!showAdvanced && !p.label.includes('advanced')))
+            // .filter((p: PropertyMeta) => (showAdvanced && p.label.includes('advanced')) || (!showAdvanced && !p.label.includes('advanced')))
             .filter((p: PropertyMeta) => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)) || (dslName === 'CatchDefinition' && p.name === 'onWhen'))
             .filter((p: PropertyMeta) => !(dslName === 'RestDefinition' && ['get', 'post', 'put', 'patch', 'delete', 'head'].includes(p.name)));
-            // .filter((p: PropertyMeta) => dslName && !(['RestDefinition', 'GetDefinition', 'PostDefinition', 'PutDefinition', 'PatchDefinition', 'DeleteDefinition', 'HeadDefinition'].includes(dslName) && ['param', 'responseMessage'].includes(p.name))) // TODO: configure this properties
+        // .filter((p: PropertyMeta) => dslName && !(['RestDefinition', 'GetDefinition', 'PostDefinition', 'PutDefinition', 'PatchDefinition', 'DeleteDefinition', 'HeadDefinition'].includes(dslName) && ['param', 'responseMessage'].includes(p.name))) // TODO: configure this properties
     }
 
-    getPropertyFields = (showAdvanced: boolean) => {
+    getPropertyFields = (properties: PropertyMeta[]) => {
         return (<>
-            {this.state.step && !['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName) && this.getProps(showAdvanced).map((property: PropertyMeta) =>
+            {this.state.step && !['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName) && properties.map((property: PropertyMeta) =>
                 <DslPropertyField key={property.name}
                                   integration={this.props.integration}
                                   property={property}
@@ -173,20 +173,24 @@ export class DslProperties extends React.Component<Props, State> {
     }
 
     render() {
+        const properties = this.getProperties();
+        const propertiesMain = properties.filter(p => !p.label.includes("advanced"));
+        const propertiesAdvanced = properties.filter(p => p.label.includes("advanced"));
         return (
             <div key={this.state.step ? this.state.step.uuid : 'integration'} className='properties'>
                 <Form autoComplete="off" onSubmit={event => event.preventDefault()}>
                     {this.state.step === undefined && <IntegrationHeader integration={this.props.integration}/>}
                     {this.state.step && this.getComponentHeader()}
-                    {this.getPropertyFields(false)}
-                    {this.getProps(true).length > 0 && <ExpandableSection
-                        toggleText={'Advanced properties'}
-                        onToggle={isExpanded => this.setState({isShowAdvanced: !this.state.isShowAdvanced})}
-                        isExpanded={this.state.isShowAdvanced}>
-                        <div className="parameters">
-                            {this.getPropertyFields(true)}
-                        </div>
-                    </ExpandableSection>}
+                    {this.getPropertyFields(propertiesMain)}
+                    {propertiesAdvanced.length > 0 &&
+                        <ExpandableSection
+                            toggleText={'Advanced properties'}
+                            onToggle={isExpanded => this.setState({isShowAdvanced: !this.state.isShowAdvanced})}
+                            isExpanded={this.state.isShowAdvanced}>
+                            <div className="parameters">
+                                {this.getPropertyFields(propertiesAdvanced)}
+                            </div>
+                        </ExpandableSection>}
                     {this.state.step && ['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName) &&
                         <DataFormatField
                             integration={this.props.integration}

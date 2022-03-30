@@ -44,6 +44,7 @@ import {ObjectField} from "./ObjectField";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import {MediaTypes} from "../../utils/MediaTypes";
+import {ComponentProperty} from "../../../../../karavan-core/lib/model/ComponentModels";
 
 interface Props {
     property: PropertyMeta,
@@ -59,7 +60,7 @@ interface Props {
 
 interface State {
     selectStatus: Map<string, boolean>,
-    isShowAdvanced: boolean
+    isShowAdvanced: Map<string, boolean>
     arrayValues: Map<string, string>
 }
 
@@ -68,7 +69,7 @@ export class DslPropertyField extends React.Component<Props, State> {
     public state: State = {
         selectStatus: new Map<string, boolean>(),
         arrayValues: new Map<string, string>(),
-        isShowAdvanced: false
+        isShowAdvanced: new Map<string, boolean>(),
     }
 
     openSelect = (propertyName: string, isExpanded: boolean) => {
@@ -397,20 +398,10 @@ export class DslPropertyField extends React.Component<Props, State> {
         )
     }
 
-    getParameters = () => {
-        const isKamelet = CamelUi.isKameletComponent(this.props.element);
+    getKameletParameters = () => {
         return (
             <div className="parameters">
-                {!isKamelet && CamelUi.getComponentProperties(this.props.element, false).map(kp =>
-                    <ComponentParameterField
-                        key={kp.name}
-                        property={kp}
-                        element={this.props.element}
-                        integration={this.props.integration}
-                        value={CamelDefinitionApiExt.getParametersValue(this.props.element, kp.name, kp.kind === 'path')}
-                        onParameterChange={this.props.onParameterChange}
-                    />)}
-                {isKamelet && CamelUi.getKameletProperties(this.props.element).map(property =>
+                {CamelUi.getKameletProperties(this.props.element).map(property =>
                     <KameletPropertyField
                         key={property.id}
                         property={property}
@@ -421,18 +412,39 @@ export class DslPropertyField extends React.Component<Props, State> {
         )
     }
 
-    getAdvancedParameters = () => {
+    getMainComponentParameters = (properties: ComponentProperty[]) => {
+        return (
+            <div className="parameters">
+                {properties.map(kp =>
+                    <ComponentParameterField
+                        key={kp.name}
+                        property={kp}
+                        element={this.props.element}
+                        integration={this.props.integration}
+                        value={CamelDefinitionApiExt.getParametersValue(this.props.element, kp.name, kp.kind === 'path')}
+                        onParameterChange={this.props.onParameterChange}
+                    />)}
+            </div>
+        )
+    }
+
+    getExpandableComponentParameters = (properties: ComponentProperty[], label: string) => {
         return (
             <ExpandableSection
-                toggleText={'Advanced parameters'}
-                onToggle={isExpanded => this.setState({isShowAdvanced: !this.state.isShowAdvanced})}
-                isExpanded={this.state.isShowAdvanced}>
+                toggleText={label}
+                onToggle={isExpanded => {
+                    this.setState(state => {
+                        state.isShowAdvanced.set(label, !state.isShowAdvanced.get(label));
+                        return {isShowAdvanced: state.isShowAdvanced};
+                    })
+                }}
+                isExpanded={this.state.isShowAdvanced.has(label) && this.state.isShowAdvanced.get(label)}>
                 <div className="parameters">
-                    {CamelUi.getComponentProperties(this.props.element, true).map(kp =>
+                    {properties.map(kp =>
                         <ComponentParameterField
-                            integration={this.props.integration}
                             key={kp.name}
                             property={kp}
+                            integration={this.props.integration}
                             value={CamelDefinitionApiExt.getParametersValue(this.props.element, kp.name, kp.kind === 'path')}
                             onParameterChange={this.props.onParameterChange}
                         />
@@ -471,11 +483,32 @@ export class DslPropertyField extends React.Component<Props, State> {
         return ['string'].includes(property.type) && property.name !== 'expression' && property.isArray && !property.enumVals;
     }
 
+    getComponentParameters (property: PropertyMeta) {
+        console.log(this.props.element)
+        console.log(property)
+        const properties = CamelUi.getComponentProperties(this.props.element);
+        console.log(properties)
+        const propertiesMain = properties.filter(p => !p.label.includes("advanced") && !p.label.includes("security") && !p.label.includes("scheduler"));
+        const propertiesAdvanced = properties.filter(p => p.label.includes("advanced"));
+        const propertiesScheduler = properties.filter(p => p.label.includes("scheduler"));
+        const propertiesSecurity = properties.filter(p => p.label.includes("security"));
+        return (
+            <>
+                {property.name === 'parameters' && this.getMainComponentParameters(propertiesMain)}
+                {property.name === 'parameters' && this.props.element && propertiesScheduler.length >0
+                    && this.getExpandableComponentParameters(propertiesScheduler, "Scheduler parameters")}
+                {property.name === 'parameters' && this.props.element && propertiesSecurity.length >0
+                    && this.getExpandableComponentParameters(propertiesSecurity, "Security parameters")}
+                {property.name === 'parameters' && this.props.element && propertiesAdvanced.length >0
+                    && this.getExpandableComponentParameters(propertiesAdvanced, "Advanced parameters")}
+            </>
+        )
+    }
+
     render() {
         const isKamelet = CamelUi.isKameletComponent(this.props.element);
         const property: PropertyMeta = this.props.property;
         const value = this.props.value;
-
         return (
             <FormGroup
                 label={this.props.hideLabel ? undefined : this.getLabel(property, value)}
@@ -507,10 +540,9 @@ export class DslPropertyField extends React.Component<Props, State> {
                     && this.getSwitch(property, value)}
                 {property.enumVals
                     && this.getSelect(property, value)}
-                {property.name === 'parameters'
-                    && this.getParameters()}
-                {property.name === 'parameters' && this.props.element && !isKamelet && CamelUi.getComponentProperties(this.props.element, true).length > 0
-                    && this.getAdvancedParameters()}
+                {isKamelet && property.name === 'parameters' && this.getKameletParameters()}
+                {!isKamelet && property.name === 'parameters' && this.getComponentParameters(property)}
+
             </FormGroup>
         )
     }
