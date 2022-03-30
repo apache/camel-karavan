@@ -63,7 +63,6 @@ export class DesignerView {
     }
 
     createIntegration(crd: boolean, fullPath?: string) {
-        console.log(fullPath);
         vscode.window
             .showInputBox({
                 title: crd ? "Create Camel-K Integration CRD" : "Create Camel Integration YAML",
@@ -129,7 +128,6 @@ export class DesignerView {
             );
             // Handle close event
             panel.onDidDispose(() => {
-                console.log("close panel", relativePath)
                 KARAVAN_PANELS.delete(relativePath);
             }, null, this.context.subscriptions);
 
@@ -143,11 +141,9 @@ export class DesignerView {
     sendData(panel: vscode.WebviewPanel, filename: string, relativePath: string, yaml?: string) {
 
         // Read and send Kamelets
-        console.log("Kamelets sent");
         panel.webview.postMessage({ command: 'kamelets', kamelets: utils.readKamelets(this.context) });
 
         // Read and send Components
-        console.log("Components sent");
         panel.webview.postMessage({ command: 'components', components: utils.readComponents(this.context) });
 
         // Send integration

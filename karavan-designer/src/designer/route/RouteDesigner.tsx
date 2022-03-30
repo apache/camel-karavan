@@ -43,7 +43,7 @@ import {CamelUi, RouteToCreate} from "../utils/CamelUi";
 import {findDOMNode} from "react-dom";
 
 interface Props {
-    onSave?: (integration: Integration) => void
+    onSave?: (integration: Integration, propertyOnly: boolean) => void
     integration: Integration
     dark: boolean
 }
@@ -64,6 +64,7 @@ interface State {
     left: number
     clipboardStep?: CamelElement
     ref?: any
+    propertyOnly: boolean
 }
 
 export class RouteDesigner extends React.Component<Props, State> {
@@ -80,7 +81,8 @@ export class RouteDesigner extends React.Component<Props, State> {
         height: 1000,
         top: 0,
         left: 0,
-        ref: React.createRef()
+        ref: React.createRef(),
+        propertyOnly: false
     };
 
     componentDidMount() {
@@ -108,7 +110,7 @@ export class RouteDesigner extends React.Component<Props, State> {
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.key !== this.state.key) {
-            this.props.onSave?.call(this, this.state.integration);
+            this.props.onSave?.call(this, this.state.integration, this.state.propertyOnly);
         }
     }
 
@@ -135,12 +137,13 @@ export class RouteDesigner extends React.Component<Props, State> {
                 key: Math.random().toString(),
                 showSelector: false,
                 selectedStep: element,
-                selectedUuid: element.uuid
+                selectedUuid: element.uuid,
+                propertyOnly: false
             });
         } else {
             const clone = CamelUtil.cloneIntegration(this.state.integration);
             const i = CamelDefinitionApiExt.updateIntegrationRouteElement(clone, element);
-            this.setState({integration: i, key: Math.random().toString()});
+            this.setState({integration: i, propertyOnly: true, key: Math.random().toString()});
         }
     }
 
@@ -157,7 +160,8 @@ export class RouteDesigner extends React.Component<Props, State> {
             showDeleteConfirmation: false,
             key: Math.random().toString(),
             selectedStep: undefined,
-            selectedUuid: ''
+            selectedUuid: '',
+            propertyOnly: false
         });
         const el = new CamelElement("");
         el.uuid = id;
@@ -209,12 +213,13 @@ export class RouteDesigner extends React.Component<Props, State> {
             key: Math.random().toString(),
             showSelector: false,
             selectedStep: step,
-            selectedUuid: step.uuid
+            selectedUuid: step.uuid,
+            propertyOnly: false
         });
     }
 
     onIntegrationUpdate = (i: Integration) => {
-        this.setState({integration: i, showSelector: false, key: Math.random().toString()});
+        this.setState({integration: i, propertyOnly: false, showSelector: false, key: Math.random().toString()});
     }
 
     moveElement = (source: string, target: string) => {
@@ -226,7 +231,8 @@ export class RouteDesigner extends React.Component<Props, State> {
             key: Math.random().toString(),
             showSelector: false,
             selectedStep: selectedStep,
-            selectedUuid: source
+            selectedUuid: source,
+            propertyOnly: false
         });
     }
 

@@ -16,13 +16,13 @@
  */
 import React from 'react';
 import {
-    Badge, Label,
+    Badge,
     PageSection, PageSectionVariants, Tab, Tabs, TabTitleIcon, TabTitleText, Tooltip,
 } from '@patternfly/react-core';
 import './karavan.css';
 import {RouteDesigner} from "./route/RouteDesigner";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
+import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelUi} from "./utils/CamelUi";
 import {BeansDesigner} from "./beans/BeansDesigner";
@@ -33,7 +33,7 @@ import {ExceptionDesigner} from "./exception/ExceptionDesigner";
 import {DependenciesDesigner} from "./dependencies/DependenciesDesigner";
 
 interface Props {
-    onSave?: (filename: string, yaml: string) => void
+    onSave?: (filename: string, yaml: string, propertyOnly: boolean) => void
     filename: string
     yaml: string
     dark: boolean
@@ -43,6 +43,7 @@ interface State {
     tab: string,
     integration: Integration,
     key: string
+    propertyOnly: boolean
 }
 
 export class KaravanDesigner extends React.Component<Props, State> {
@@ -53,16 +54,17 @@ export class KaravanDesigner extends React.Component<Props, State> {
             ? CamelDefinitionYaml.yamlToIntegration(this.props.filename, this.props.yaml)
             : Integration.createNew(this.props.filename),
         key: "",
+        propertyOnly: false
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.key !== this.state.key) {
-            this.props.onSave?.call(this, this.state.integration.metadata.name, this.getCode(this.state.integration));
+            this.props.onSave?.call(this, this.props.filename, this.getCode(this.state.integration), this.state.propertyOnly);
         }
     }
 
-    save = (integration: Integration): void => {
-        this.setState({key: Math.random().toString(), integration: integration});
+    save = (integration: Integration, propertyOnly: boolean): void => {
+        this.setState({key: Math.random().toString(), integration: integration, propertyOnly: propertyOnly});
     }
 
     getCode = (integration: Integration): string => {
@@ -196,17 +198,17 @@ export class KaravanDesigner extends React.Component<Props, State> {
                 <rect x="10" y="16" width="12" height="2"/>
                 <rect className="st0" width="32" height="32"/>
             </svg>)
-         if (icon === 'code') return (
-             <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
-                 <defs>
-                     <style>{".cls-1{fill:none;}"}</style>
-                 </defs>
-                 <title>code</title>
-                 <polygon points="31 16 24 23 22.59 21.59 28.17 16 22.59 10.41 24 9 31 16"/>
-                 <polygon points="1 16 8 9 9.41 10.41 3.83 16 9.41 21.59 8 23 1 16"/>
-                 <rect x="5.91" y="15" width="20.17" height="2" transform="translate(-3.6 27.31) rotate(-75)"/>
-                 <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32" height="32" transform="translate(0 32) rotate(-90)"/>
-             </svg>)
+        if (icon === 'code') return (
+            <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
+                <defs>
+                    <style>{".cls-1{fill:none;}"}</style>
+                </defs>
+                <title>code</title>
+                <polygon points="31 16 24 23 22.59 21.59 28.17 16 22.59 10.41 24 9 31 16"/>
+                <polygon points="1 16 8 9 9.41 10.41 3.83 16 9.41 21.59 8 23 1 16"/>
+                <rect x="5.91" y="15" width="20.17" height="2" transform="translate(-3.6 27.31) rotate(-75)"/>
+                <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32" height="32" transform="translate(0 32) rotate(-90)"/>
+            </svg>)
     }
 
     render() {
@@ -224,25 +226,25 @@ export class KaravanDesigner extends React.Component<Props, State> {
                     {/*<Tab eventKey='code' title={this.getTab("Code", "Code", "code")}></Tab>*/}
                 </Tabs>
                 {tab === 'routes' && <RouteDesigner integration={this.state.integration}
-                                                    onSave={(integration) => this.save(integration)}
+                                                    onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                     dark={this.props.dark}/>}
                 {tab === 'rest' && <RestDesigner integration={this.state.integration}
-                                                 onSave={(integration) => this.save(integration)}
+                                                 onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                  dark={this.props.dark}/>}
                 {tab === 'beans' && <BeansDesigner integration={this.state.integration}
-                                                   onSave={(integration) => this.save(integration)}
+                                                   onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                    dark={this.props.dark}/>}
                 {tab === 'dependencies' && <DependenciesDesigner integration={this.state.integration}
-                                                                 onSave={(integration) => this.save(integration)}
+                                                                 onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                                  dark={this.props.dark}/>}
                 {tab === 'error' && <ErrorDesigner integration={this.state.integration}
-                                                   onSave={(integration) => this.save(integration)}
+                                                   onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                    dark={this.props.dark}/>}
                 {tab === 'exception' && <ExceptionDesigner integration={this.state.integration}
-                                                           onSave={(integration) => this.save(integration)}
+                                                           onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                            dark={this.props.dark}/>}
                 {tab === 'templates' && <TemplatesDesigner integration={this.state.integration}
-                                                           onSave={(integration) => this.save(integration)}
+                                                           onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                            dark={this.props.dark}/>}
             </PageSection>
         );

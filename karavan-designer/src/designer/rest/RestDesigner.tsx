@@ -34,7 +34,7 @@ import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {RestConfigurationCard} from "./RestConfigurationCard";
 
 interface Props {
-    onSave?: (integration: Integration) => void
+    onSave?: (integration: Integration, propertyOnly: boolean) => void
     integration: Integration
     dark: boolean
 }
@@ -45,6 +45,7 @@ interface State {
     key: string
     showSelector: boolean
     showDeleteConfirmation: boolean
+    propertyOnly: boolean
 }
 
 export class RestDesigner extends React.Component<Props, State> {
@@ -53,17 +54,18 @@ export class RestDesigner extends React.Component<Props, State> {
         integration: this.props.integration,
         key: "",
         showSelector: false,
-        showDeleteConfirmation: false
+        showDeleteConfirmation: false,
+        propertyOnly: false
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.key !== this.state.key) {
-            this.props.onSave?.call(this, this.state.integration);
+            this.props.onSave?.call(this, this.state.integration, this.state.propertyOnly);
         }
     }
 
     onIntegrationUpdate = (i: Integration) => {
-        this.setState({integration: i, showSelector: false, key: Math.random().toString()});
+        this.setState({integration: i, showSelector: false, key: Math.random().toString(), propertyOnly: false});
     }
 
     selectElement = (element: CamelElement) => {
@@ -82,11 +84,12 @@ export class RestDesigner extends React.Component<Props, State> {
                 key: Math.random().toString(),
                 showSelector: false,
                 selectedStep: element,
+                propertyOnly: false
             });
         } else {
             const clone = CamelUtil.cloneIntegration(this.state.integration);
             const i = CamelDefinitionApiExt.updateIntegrationRestElement(clone, element);
-            this.setState({integration: i, key: Math.random().toString()});
+            this.setState({integration: i, propertyOnly: true, key: Math.random().toString()});
         }
     }
 
@@ -100,7 +103,7 @@ export class RestDesigner extends React.Component<Props, State> {
     addRest = (rest: RestDefinition) => {
         const clone = CamelUtil.cloneIntegration(this.state.integration);
         const i = CamelDefinitionApiExt.addRestToIntegration(clone, rest);
-        this.setState({integration: i, key: Math.random().toString(), selectedStep: rest});
+        this.setState({integration: i, propertyOnly: false, key: Math.random().toString(), selectedStep: rest});
     }
 
     createRest = () => {
@@ -128,6 +131,7 @@ export class RestDesigner extends React.Component<Props, State> {
                 showDeleteConfirmation: false,
                 key: Math.random().toString(),
                 selectedStep: undefined,
+                propertyOnly: false
             });
         }
     }

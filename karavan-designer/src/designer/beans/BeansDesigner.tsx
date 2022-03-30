@@ -27,10 +27,9 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {BeanProperties} from "./BeanProperties";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {BeanCard} from "./BeanCard";
-import {DslProperties} from "../route/DslProperties";
 
 interface Props {
-    onSave?: (integration: Integration) => void
+    onSave?: (integration: Integration, propertyOnly: boolean) => void
     integration: Integration
     dark: boolean
 }
@@ -41,6 +40,7 @@ interface State {
     selectedBean?: NamedBeanDefinition
     key: string
     showBeanEditor: boolean
+    propertyOnly: boolean
 }
 
 export class BeansDesigner extends React.Component<Props, State> {
@@ -50,11 +50,12 @@ export class BeansDesigner extends React.Component<Props, State> {
         showDeleteConfirmation: false,
         key: "",
         showBeanEditor: false,
+        propertyOnly: false
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.key !== this.state.key) {
-            this.props.onSave?.call(this, this.state.integration);
+            this.props.onSave?.call(this, this.state.integration, this.state.propertyOnly);
         }
     }
 
@@ -63,7 +64,7 @@ export class BeansDesigner extends React.Component<Props, State> {
     }
 
     onIntegrationUpdate = (i: Integration) => {
-        this.setState({integration: i, showDeleteConfirmation: false, key: Math.random().toString()});
+        this.setState({integration: i, propertyOnly: false, showDeleteConfirmation: false, key: Math.random().toString()});
     }
 
     deleteBean = () => {
@@ -72,14 +73,15 @@ export class BeansDesigner extends React.Component<Props, State> {
             integration: i,
             showDeleteConfirmation: false,
             key: Math.random().toString(),
-            selectedBean: new NamedBeanDefinition()
+            selectedBean: new NamedBeanDefinition(),
+            propertyOnly: false
         });
     }
 
     changeBean = (bean: NamedBeanDefinition) => {
         const clone = CamelUtil.cloneIntegration(this.state.integration);
         const i = CamelDefinitionApiExt.addBeanToIntegration(clone, bean);
-        this.setState({integration: i, key: Math.random().toString(), selectedBean: bean});
+        this.setState({integration: i, propertyOnly: false, key: Math.random().toString(), selectedBean: bean});
     }
 
     getDeleteConfirmation() {
