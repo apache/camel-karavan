@@ -123,7 +123,8 @@ export class BeansDesigner extends React.Component<Props, State> {
                 <BeanProperties integration={this.props.integration}
                                 bean={this.state.selectedBean}
                                 dark={this.props.dark}
-                                onChange={this.changeBean}/>
+                                onChange={this.changeBean}
+                                onClone={this.changeBean}/>
             </DrawerPanelContent>
         )
     }

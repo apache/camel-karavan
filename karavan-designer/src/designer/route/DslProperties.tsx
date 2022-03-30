@@ -142,7 +142,6 @@ export class DslProperties extends React.Component<Props, State> {
                     </Tooltip>
                 </div>
                 <Text component={TextVariants.p}>{description}</Text>
-
             </div>
         )
     }

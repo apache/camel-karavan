@@ -26,6 +26,7 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {Integration, Dependency} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {DependencyCard} from "./DependencyCard";
+import {NamedBeanDefinition} from "../../../../karavan-core/lib/model/CamelDefinition";
 
 interface Props {
     onSave?: (integration: Integration, propertyOnly: boolean) => void
@@ -126,7 +127,8 @@ export class DependenciesDesigner extends React.Component<Props, State> {
                 <DependencyProperties integration={this.props.integration}
                                       dependency={this.state.selectedDep}
                                       dark={this.props.dark}
-                                      onChange={this.changeDep}/>
+                                      onChange={this.changeDep}
+                                      onClone={this.changeDep}/>
             </DrawerPanelContent>
         )
     }
