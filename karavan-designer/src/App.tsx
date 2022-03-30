@@ -83,6 +83,7 @@ class App extends React.Component<Props, State> {
             "cxf.json",
             "file.json",
             "log.json",
+            "kafka.json",
             "coap+tcp.json",
             "pg-replication-slot.json",
             "rest-api.json",
@@ -97,7 +98,7 @@ class App extends React.Component<Props, State> {
 
     save(filename: string, yaml: string, propertyOnly: boolean) {
         // console.log(filename);
-        console.log(yaml);
+        // console.log(yaml);
         // console.log(propertyOnly);
     }
 

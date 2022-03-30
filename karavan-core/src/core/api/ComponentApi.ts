@@ -161,7 +161,7 @@ export const ComponentApi = {
         return uri;
     },
 
-    getComponentProperties: (componentName: string, type: 'consumer' | 'producer', advanced: boolean): ComponentProperty[] => {
+    getComponentProperties: (componentName: string, type: 'consumer' | 'producer'): ComponentProperty[] => {
         const component: Component | undefined = ComponentApi.findByName(componentName);
         const properties: ComponentProperty[] = [];
         try {
@@ -186,17 +186,18 @@ export const ComponentApi = {
             }
         } finally {
             const result: ComponentProperty[] = [];
-            if (!advanced) {
-                result.push(...properties.filter(p => p.kind === 'path'));
-                result.push(...properties.filter(p => p.kind !== 'path' && p.required));
-                result.push(...properties.filter(p => p.label.length === 0 && p.kind !== 'path' && !p.required));
-                result.push(...properties.filter(p => p.label.startsWith(type) && !p.label.includes("advanced") && !p.required));
-                result.push(...properties.filter(p => p.label === "formatting" && !p.required));
-            } else {
-                result.push(...properties.filter(p => p.label.startsWith(type) && p.label.includes("advanced")));
-                result.push(...properties.filter(p => p.label === "advanced"));
-            }
+            result.push(...properties.filter(p => p.kind === 'path'));
+            result.push(...properties.filter(p => p.kind !== 'path' && p.required));
+            result.push(...properties.filter(p => p.label.length === 0 && p.kind !== 'path' && !p.required));
+            result.push(...properties.filter(p => p.label.startsWith(type) && !p.label.includes("advanced") && !p.required));
+            result.push(...properties.filter(p => p.label === "formatting" && !p.required));
+            result.push(...properties.filter(p => p.label.startsWith(type) &&
+                (p.label.includes("scheduler") || p.label.includes("security") || p.label.includes("advanced"))
+            ));
+            result.push(...properties.filter(p => !p.label.includes(type) &&
+                (p.label.includes("scheduler") || p.label.includes("security") || p.label.includes("advanced"))
+            ));
             return result;
         }
-    },
+    }
 }
