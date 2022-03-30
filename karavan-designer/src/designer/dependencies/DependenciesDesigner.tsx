@@ -26,11 +26,9 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {Integration, Dependency} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {DependencyCard} from "./DependencyCard";
-import {BeanProperties} from "../beans/BeanProperties";
-import {BeanCard} from "../beans/BeanCard";
 
 interface Props {
-    onSave?: (integration: Integration) => void
+    onSave?: (integration: Integration, propertyOnly: boolean) => void
     integration: Integration
     dark: boolean
 }
@@ -41,6 +39,7 @@ interface State {
     selectedDep?: Dependency
     key: string
     showDepEditor: boolean
+    propertyOnly: boolean
 }
 
 export class DependenciesDesigner extends React.Component<Props, State> {
@@ -50,11 +49,12 @@ export class DependenciesDesigner extends React.Component<Props, State> {
         showDeleteConfirmation: false,
         key: "",
         showDepEditor: false,
+        propertyOnly: false
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.key !== this.state.key) {
-            this.props.onSave?.call(this, this.state.integration);
+            this.props.onSave?.call(this, this.state.integration, this.state.propertyOnly);
         }
     }
 
@@ -63,7 +63,7 @@ export class DependenciesDesigner extends React.Component<Props, State> {
     }
 
     onIntegrationUpdate = (i: Integration) => {
-        this.setState({integration: i, showDeleteConfirmation: false, key: Math.random().toString()});
+        this.setState({integration: i, propertyOnly: false, showDeleteConfirmation: false, key: Math.random().toString()});
     }
 
     deleteDep = () => {
@@ -72,14 +72,15 @@ export class DependenciesDesigner extends React.Component<Props, State> {
             integration: i,
             showDeleteConfirmation: false,
             key: Math.random().toString(),
-            selectedDep: undefined
+            selectedDep: undefined,
+            propertyOnly: false
         });
     }
 
     changeDep = (dep: Dependency) => {
         const clone = CamelUtil.cloneIntegration(this.state.integration);
         const i = CamelDefinitionApiExt.addDependencyToIntegration(clone, dep);
-        this.setState({integration: i, key: Math.random().toString(), selectedDep: dep});
+        this.setState({integration: i, propertyOnly: false, key: Math.random().toString(), selectedDep: dep});
     }
 
     getDeleteConfirmation() {

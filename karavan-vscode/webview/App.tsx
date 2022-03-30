@@ -33,6 +33,9 @@ interface State {
   yaml: string
   key: string
   loaded: boolean
+  interval?: NodeJS.Timer
+  scheduledYaml: string
+  hasChanges: boolean
 }
 
 class App extends React.Component<Props, State> {
@@ -43,48 +46,51 @@ class App extends React.Component<Props, State> {
     yaml: '',
     key: '',
     loaded: false,
+    scheduledYaml: '',
+    hasChanges: false
   };
 
+  saveScheduledChanges = () => {
+    if (this.state.hasChanges){
+      this.save(this.state.relativePath, this.state.scheduledYaml, false);
+    }
+  };
 
   componentDidMount() {
     window.addEventListener('message', this.onMessage, false);
-    vscode.postMessage({ command: 'getData' })
+    vscode.postMessage({ command: 'getData' });
+    this.setState({interval: setInterval(this.saveScheduledChanges, 3000)});
   }
 
   componentWillUnmount() {
+    if (this.state.interval) clearInterval(this.state.interval);
     window.removeEventListener('message', this.onMessage, false);
   }
 
   onMessage = (event) => {
     const message = event.data;
-    console.log("Message received", message);
     switch (message.command) {
       case 'kamelets':
-        console.log("Kamelets saving");
         KameletApi.saveKamelets(message.kamelets);
-        console.log("Kamelets saved");
         break;
       case 'components':
-        console.log("Components saving");
         ComponentApi.saveComponents(message.components);
-        console.log("Components saved");
         break;
       case 'open':
-        console.log(event);
         if (this.state.filename === '' && this.state.key === '') {
-          this.setState({ filename: message.filename, yaml: message.yaml, relativePath: message.relativePath, key: Math.random().toString(), loaded: true });
+          this.setState({ filename: message.filename, yaml: message.yaml, scheduledYaml: message.yaml, relativePath: message.relativePath, key: Math.random().toString(), loaded: true });
         }
         break;
     }
   };
 
-  save(filename: string, yaml: string) {
-    vscode.postMessage({
-      command: 'save',
-      filename: filename,
-      relativePath: this.state.relativePath,
-      yaml: yaml
-    })
+  save(filename: string, yaml: string, propertyOnly: boolean) {
+    if (!propertyOnly) {
+      vscode.postMessage({ command: 'save', filename: filename, relativePath: this.state.relativePath, yaml: yaml });
+      this.setState({scheduledYaml: yaml, hasChanges: false});
+    } else {
+      this.setState({scheduledYaml: yaml, hasChanges: true});
+    }
   }
 
   public render() {
@@ -100,7 +106,7 @@ class App extends React.Component<Props, State> {
             key={this.state.key}
             filename={this.state.filename}
             yaml={this.state.yaml}
-            onSave={(filename, yaml) => this.save(filename, yaml)}
+            onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}
             dark={this.props.dark} />
         }
       </Page>
