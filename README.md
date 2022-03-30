@@ -1,33 +1,38 @@
-![Build](https://img.shields.io/badge/Build_with-Fun-orange.svg?style=for-the-badge)
-![Camel](https://img.shields.io/badge/-Camel-orange.svg?style=for-the-badge&)
-![Java](https://img.shields.io/badge/-Java-orange.svg?style=for-the-badge&logo=java)
-![Quarkus](https://img.shields.io/badge/-Quarkus-orange.svg?style=for-the-badge&logo=quarkus)
-![React](https://img.shields.io/badge/-React-orange.svg?style=for-the-badge&logo=react)
-![Typescript](https://img.shields.io/badge/-Typescript-orange.svg?style=for-the-badge&logo=typescript)
-![License](https://img.shields.io/badge/License-Apache-green.svg?style=for-the-badge&logo=apache)
+![Build](https://img.shields.io/badge/Build_with-Fun-blue.svg?style=for-the-badge)
+![Camel](https://img.shields.io/badge/-Camel-blue.svg?style=for-the-badge&)
+![Java](https://img.shields.io/badge/-Java-blue.svg?style=for-the-badge&logo=java)
+![Quarkus](https://img.shields.io/badge/-Quarkus-blue.svg?style=for-the-badge&logo=quarkus)
+![React](https://img.shields.io/badge/-React-blue.svg?style=for-the-badge&logo=react)
+![Typescript](https://img.shields.io/badge/-Typescript-blue.svg?style=for-the-badge&logo=typescript)
+![License](https://img.shields.io/badge/License-Apache-blue.svg?style=for-the-badge&logo=apache)
 
-# Apache Camel Karavan
-Karavan, an Integration Designer for Apache Camel makes integration easy and fun through visualization of integration pipeline.
+![karavan-logo](images/karavan-logo-dark.png#gh-dark-mode-only)
+![karavan-logo](images/karavan-logo-light.png#gh-light-mode-only)
+
+## Apache Camel Karavan
+Mastering Tool for Apache Camel makes integration easy and fun through the visualization of pipelines and integration with runtimes.
 
 ## Features
 
-* Read/Write Integration CRD (*.yaml with kind:Integration) and plain yaml routes
-* Kamelets source/sink/action
 * Enterprise Integration Patterns DSL
-* Components consumer/producer
-* Integration with [JBang](https://www.jbang.dev)
+* REST DSL
+* Beans and dependencies
+* 100+ Kamelets source/sink/action
+* 300+ Components consumer/producer
+* Read/Write Integration CRD (*.yaml with kind:Integration) and plain yaml routes
+* Integration with [Camel-K](https://camel.apache.org/camel-k/next/index.html) and [JBang](https://www.jbang.dev)
 
 ## VS Code extension
 Install Karavan VS Code extension from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan)
 
 
-![karavan-vscode](screenshots/karavan-vscode.png)
+![karavan-vscode](images/karavan-vscode.png)
 
 ## Standalone application
 
  Install Karavan Standalone command line: `docker pull ghcr.io/apache/camel-karavan:latest`
 
-![karavan](screenshots/karavan.png)
+![karavan-web](images/karavan-web.png)
 
 ## Project structure
 1. Karavan-generator  

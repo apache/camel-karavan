@@ -44,7 +44,7 @@ import {ObjectField} from "./ObjectField";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import {MediaTypes} from "../../utils/MediaTypes";
-import {ComponentProperty} from "../../../../../karavan-core/lib/model/ComponentModels";
+import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 
 interface Props {
     property: PropertyMeta,
