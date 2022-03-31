@@ -28,7 +28,7 @@ import {TraitProperties} from "./TraitProperties";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {TraitCard} from "./TraitCard";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
-import {CamelElement} from "../../../../karavan-core/src/core/model/IntegrationDefinition";
+import {CamelElement} from "karavan-core/src/core/model/IntegrationDefinition";
 import {DslProperties} from "../route/DslProperties";
 
 interface Props {
