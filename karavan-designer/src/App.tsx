@@ -98,7 +98,7 @@ class App extends React.Component<Props, State> {
 
     save(filename: string, yaml: string, propertyOnly: boolean) {
         // console.log(filename);
-        // console.log(yaml);
+        console.log(yaml);
         // console.log(propertyOnly);
     }
 

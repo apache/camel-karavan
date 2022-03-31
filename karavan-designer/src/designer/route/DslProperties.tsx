@@ -38,6 +38,7 @@ import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetada
 import {IntegrationHeader} from "../utils/KaravanComponents";
 import CopyIcon from '@patternfly/react-icons/dist/esm/icons/copy-icon'
 import PasteIcon from '@patternfly/react-icons/dist/esm/icons/paste-icon'
+import CloneIcon from "@patternfly/react-icons/dist/esm/icons/clone-icon";
 
 interface Props {
     integration: Integration,
@@ -45,7 +46,9 @@ interface Props {
     onIntegrationUpdate?: any,
     onPropertyUpdate?: (element: CamelElement, updatedUuid: string, newRoute?: RouteToCreate) => void
     clipboardStep?: CamelElement
-    onSaveClipboardStep: (element?: CamelElement) => void
+    onSaveClipboardStep?: (element?: CamelElement) => void
+    onClone?: (element: CamelElement) => void
+    isRouteDesigner: boolean
 }
 
 interface State {
@@ -111,6 +114,12 @@ export class DslProperties extends React.Component<Props, State> {
         }
     }
 
+    cloneElement = () => {
+        if (this.state.step) {
+            this.props.onClone?.call(this, this.state.step);
+        }
+    }
+
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevProps.step !== this.props.step) {
             this.setStep(this.props.step);
@@ -124,7 +133,7 @@ export class DslProperties extends React.Component<Props, State> {
         });
     }
 
-    getComponentHeader = (): JSX.Element => {
+    getRouteHeader= (): JSX.Element => {
         const title = this.state.step && CamelUi.getTitle(this.state.step)
         const kamelet = this.state.step && CamelUi.getKamelet(this.state.step)
         const description = this.state.step && kamelet
@@ -142,9 +151,29 @@ export class DslProperties extends React.Component<Props, State> {
                     </Tooltip>
                 </div>
                 <Text component={TextVariants.p}>{description}</Text>
-
             </div>
         )
+    }
+
+    getClonableElementHeader = (): JSX.Element => {
+        const title = this.state.step && CamelUi.getTitle(this.state.step)
+        const description = this.state.step?.dslName ? CamelMetadataApi.getCamelModelMetadataByClassName(this.state.step?.dslName)?.description : title;
+        return (
+            <div className="headers">
+                <div className="top">
+                    <Title headingLevel="h1" size="md">{title}</Title>
+                    <Tooltip content="Clone element" position="bottom">
+                        <Button variant="link" onClick={() => this.cloneElement()} icon={<CloneIcon/>}/>
+                    </Tooltip>
+                </div>
+                <Text component={TextVariants.p}>{description}</Text>
+            </div>
+        )
+    }
+
+    getComponentHeader = (): JSX.Element => {
+        if (this.props.isRouteDesigner) return this.getRouteHeader()
+        else return this.getClonableElementHeader();
     }
 
     getProperties = (): PropertyMeta[] => {

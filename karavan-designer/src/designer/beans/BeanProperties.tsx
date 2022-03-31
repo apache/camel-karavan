@@ -18,7 +18,7 @@ import React from 'react';
 import {
     Form,
     FormGroup,
-    TextInput, Button,
+    TextInput, Button, Title, Tooltip, Text, TextVariants,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -31,12 +31,14 @@ import {v4 as uuidv4} from "uuid";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import {IntegrationHeader} from "../utils/KaravanComponents";
+import CloneIcon from '@patternfly/react-icons/dist/esm/icons/clone-icon'
 
 interface Props {
     integration: Integration
     bean?: NamedBeanDefinition
     dark: boolean
     onChange: (bean: NamedBeanDefinition) => void
+    onClone: (bean: NamedBeanDefinition) => void
 }
 
 interface State {
@@ -103,10 +105,26 @@ export class BeanProperties extends React.Component<Props, State> {
         })
     }
 
+    cloneBean = () => {
+        if (this.state.bean) {
+            const bean = CamelUtil.cloneBean(this.state.bean);
+            bean.uuid = uuidv4();
+            this.props.onClone?.call(this, bean);
+        }
+    }
+
     getBeanForm() {
         const bean = this.state.bean;
         return (
             <>
+                <div className="headers">
+                    <div className="top">
+                        <Title headingLevel="h1" size="md">Bean</Title>
+                        <Tooltip content="Clone bean" position="bottom">
+                            <Button variant="link" onClick={() => this.cloneBean()} icon={<CloneIcon/>}/>
+                        </Tooltip>
+                    </div>
+                </div>
                 <FormGroup label="Name" fieldId="name" isRequired>
                     <TextInput className="text-field" isRequired type="text" id="name" name="name" value={bean?.name}
                                onChange={e => this.beanChanged("name", e)}/>
