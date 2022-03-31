@@ -26,7 +26,6 @@ import "@patternfly/patternfly/patternfly.css";
 import {Integration, Dependency} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {IntegrationHeader} from "../utils/KaravanComponents";
-import {NamedBeanDefinition} from "../../../../karavan-core/lib/model/CamelDefinition";
 import {v4 as uuidv4} from "uuid";
 import CloneIcon from "@patternfly/react-icons/dist/esm/icons/clone-icon";
 

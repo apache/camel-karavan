@@ -26,7 +26,6 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {Integration, Dependency} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {DependencyCard} from "./DependencyCard";
-import {NamedBeanDefinition} from "../../../../karavan-core/lib/model/CamelDefinition";
 
 interface Props {
     onSave?: (integration: Integration, propertyOnly: boolean) => void
