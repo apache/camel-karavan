@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    Button, EmptyState, EmptyStateBody, EmptyStateIcon, Modal, PageSection, Title
+    Button, Drawer, DrawerContent, DrawerContentBody, DrawerPanelContent, EmptyState, EmptyStateBody, EmptyStateIcon, Modal, PageSection, Title
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {NamedBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
@@ -28,6 +28,8 @@ import {TraitProperties} from "./TraitProperties";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {TraitCard} from "./TraitCard";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
+import {CamelElement} from "../../../../karavan-core/src/core/model/IntegrationDefinition";
+import {DslProperties} from "../route/DslProperties";
 
 interface Props {
     onSave?: (integration: Integration, propertyOnly: boolean) => void
@@ -38,7 +40,7 @@ interface Props {
 interface State {
     integration: Integration
     showDeleteConfirmation: boolean
-    selectedBean?: NamedBeanDefinition
+    selectedTrait?: CamelElement
     key: string
     showBeanEditor: boolean
     propertyOnly: boolean
@@ -60,8 +62,8 @@ export class TraitsDesigner extends React.Component<Props, State> {
         }
     }
 
-    showDeleteConfirmation = (bean: NamedBeanDefinition) => {
-        this.setState({selectedBean: bean, showDeleteConfirmation: true});
+    showDeleteConfirmation = (trait: CamelElement) => {
+        this.setState({selectedTrait: trait, showDeleteConfirmation: true});
     }
 
     onIntegrationUpdate = (i: Integration) => {
@@ -69,19 +71,19 @@ export class TraitsDesigner extends React.Component<Props, State> {
     }
 
     deleteBean = () => {
-        const i = CamelDefinitionApiExt.deleteBeanFromIntegration(this.state.integration, this.state.selectedBean);
-        this.setState({
-            integration: i,
-            showDeleteConfirmation: false,
-            key: Math.random().toString(),
-            selectedBean: new NamedBeanDefinition()
-        });
+        // const i = CamelDefinitionApiExt.deleteTraitFromIntegration(this.state.integration, this.state.selectedTrait);
+        // this.setState({
+        //     integration: i,
+        //     showDeleteConfirmation: false,
+        //     key: Math.random().toString(),
+        //     selectedBean: new NamedBeanDefinition()
+        // });
     }
 
-    changeBean = (bean: NamedBeanDefinition) => {
-        const clone = CamelUtil.cloneIntegration(this.state.integration);
-        const i = CamelDefinitionApiExt.addBeanToIntegration(clone, bean);
-        this.setState({integration: i, key: Math.random().toString(), selectedBean: bean});
+    changeTrait = (trait: CamelElement) => {
+        // const clone = CamelUtil.cloneIntegration(this.state.integration);
+        // const i = CamelDefinitionApiExt.addBeanToIntegration(clone, bean);
+        // this.setState({integration: i, key: Math.random().toString(), selectedBean: bean});
     }
 
     getDeleteConfirmation() {
@@ -103,25 +105,38 @@ export class TraitsDesigner extends React.Component<Props, State> {
     }
 
     selectBean = (bean?: NamedBeanDefinition) => {
-        this.setState({selectedBean: bean})
+        // this.setState({selectedBean: bean})
     }
 
     unselectBean = (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         if ((evt.target as any).dataset.click === 'BEANS') {
             evt.stopPropagation()
-            this.setState({selectedBean: undefined})
+            // this.setState({selectedBean: undefined})
         }
     };
 
     createBean = () => {
-        this.changeBean(new NamedBeanDefinition());
+        this.changeTrait(new NamedBeanDefinition());
+    }
+
+    getPropertiesPanel() {
+        return (
+            <DrawerPanelContent isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'300px'}>
+                <TraitProperties integration={this.props.integration}
+                                 trait={this.state.selectedTrait}
+                                 dark={this.props.dark}
+                                 onChange={this.changeTrait}/>
+            </DrawerPanelContent>
+        )
     }
 
     render() {
-        const beans = CamelUi.getBeans(this.state.integration);
+        const traits = CamelUi.getBeans(this.state.integration);
         return (
             <PageSection className="exception-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="exception-page-columns">
+            {/*<PageSection className="rest-page" isFilled padding={{default: 'noPadding'}}>*/}
+            {/*    <div className="rest-page-columns">*/}
                     <EmptyState>
                         <EmptyStateIcon icon={CubesIcon} />
                         <Title headingLevel="h4" size="lg">
@@ -131,28 +146,31 @@ export class TraitsDesigner extends React.Component<Props, State> {
                             Traits not implemented yet
                         </EmptyStateBody>
                     </EmptyState>
-                    {/*<div className="graph" data-click="REST"  onClick={event => this.unselectBean(event)}>*/}
-                    {/*    <div className="flows">*/}
-                    {/*        {beans?.map(bean => <TraitCard key={bean.uuid + this.state.key}*/}
-                    {/*                                       selectedStep={this.state.selectedBean}*/}
-                    {/*                                       bean={bean}*/}
-                    {/*                                       integration={this.props.integration}*/}
-                    {/*                                       selectElement={this.selectBean}*/}
-                    {/*                                       deleteElement={this.showDeleteConfirmation}/>)}*/}
-                    {/*        <div className="add-rest">*/}
-                    {/*            <Button*/}
-                    {/*                variant={beans?.length === 0 ? "primary" : "secondary"}*/}
-                    {/*                data-click="ADD_TRAIT"*/}
-                    {/*                icon={<PlusIcon/>}*/}
-                    {/*                onClick={e => this.createBean()}>Create new bean*/}
-                    {/*            </Button>*/}
-                    {/*        </div>*/}
-                    {/*    </div>*/}
-                    {/*</div>*/}
-                    {/*<TraitProperties integration={this.props.integration}*/}
-                    {/*                 bean={this.state.selectedBean}*/}
-                    {/*                 dark={this.props.dark}*/}
-                    {/*                 onChange={this.changeBean}/>*/}
+                    {/*<Drawer isExpanded isInline>*/}
+                    {/*    <DrawerContent panelContent={this.getPropertiesPanel()}>*/}
+                    {/*        <DrawerContentBody>*/}
+                    {/*            <div className="graph" data-click="REST"  onClick={event => this.unselectBean(event)}>*/}
+                    {/*                <div className="flows">*/}
+                    {/*                    {traits?.map(trait => <TraitCard key={trait.uuid + this.state.key}*/}
+                    {/*                                                     selectedTrait={this.state.selectedTrait}*/}
+                    {/*                                                     integration={this.props.integration}*/}
+                    {/*                                                     trait={trait}*/}
+                    {/*                        // selectElement={this.selectBean}*/}
+                    {/*                        // deleteElement={this.showDeleteConfirmation}*/}
+                    {/*                    />)}*/}
+                    {/*                    <div className="add-rest">*/}
+                    {/*                        <Button*/}
+                    {/*                            variant={traits?.length === 0 ? "primary" : "secondary"}*/}
+                    {/*                            data-click="ADD_TRAIT"*/}
+                    {/*                            icon={<PlusIcon/>}*/}
+                    {/*                            onClick={e => this.createBean()}>Create new trait*/}
+                    {/*                        </Button>*/}
+                    {/*                    </div>*/}
+                    {/*                </div>*/}
+                    {/*            </div>*/}
+                    {/*        </DrawerContentBody>*/}
+                    {/*    </DrawerContent>*/}
+                    {/*</Drawer>*/}
                 </div>
                 {this.getDeleteConfirmation()}
             </PageSection>

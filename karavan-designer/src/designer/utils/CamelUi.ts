@@ -24,6 +24,7 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {KameletDefinition, NamedBeanDefinition, RouteDefinition, SagaDefinition, ToDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Dependency, Integration} from "karavan-core/lib/model/IntegrationDefinition";
+import {Trait} from "../../../../karavan-core/src/core/model/TraitDefinition";
 
 const StepElements: string[] = [
     "AggregateDefinition",
@@ -465,6 +466,7 @@ export class CamelUi {
         const result = new Map<string, number>();
         result.set('routes', i.spec.flows?.filter((e: any) => e.dslName === 'RouteDefinition').length || 0);
         result.set('rest', i.spec.flows?.filter((e: any) => e.dslName === 'RestDefinition').length || 0);
+        result.set('traits', this.getTraitCounts(i.spec.traits));
         const beans = i.spec.flows?.filter((e: any) => e.dslName === 'Beans');
         if (beans && beans.length > 0 && beans[0].beans && beans[0].beans.length > 0){
             result.set('beans', Array.from(beans[0].beans).length);
@@ -473,6 +475,11 @@ export class CamelUi {
             result.set('dependencies', i.spec.dependencies.length);
         }
         return result;
+    }
+
+    static getTraitCounts = (t?: Trait): number => {
+        if (t) return Object.getOwnPropertyNames(t).filter(name => name !== 'dslName' && name !== "uuid" && (t as any)[name]).length;
+        return 0;
     }
 
     static getRoutes = (integration: Integration): CamelElement[] => {

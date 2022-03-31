@@ -39,7 +39,6 @@ interface State {
     showDeleteConfirmation: boolean
     selectedBean?: NamedBeanDefinition
     key: string
-    showBeanEditor: boolean
     propertyOnly: boolean
 }
 
@@ -49,7 +48,6 @@ export class BeansDesigner extends React.Component<Props, State> {
         integration: this.props.integration,
         showDeleteConfirmation: false,
         key: "",
-        showBeanEditor: false,
         propertyOnly: false
     };
 
