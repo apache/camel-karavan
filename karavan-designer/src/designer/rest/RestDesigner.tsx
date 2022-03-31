@@ -32,6 +32,7 @@ import {RestMethodSelector} from "./RestMethodSelector";
 import {DslMetaModel} from "../utils/DslMetaModel";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {RestConfigurationCard} from "./RestConfigurationCard";
+import {v4 as uuidv4} from "uuid";
 
 interface Props {
     onSave?: (integration: Integration, propertyOnly: boolean) => void
@@ -167,6 +168,27 @@ export class RestDesigner extends React.Component<Props, State> {
         }
     }
 
+    cloneRest = (rest: CamelElement) => {
+        if (rest.dslName === 'RestDefinition'){
+            const cloneRest = CamelUtil.cloneStep(rest);
+            cloneRest.uuid = uuidv4();
+            const cloneIntegration = CamelUtil.cloneIntegration(this.state.integration);
+            const i = CamelDefinitionApiExt.addRestToIntegration(cloneIntegration, cloneRest);
+            this.setState({integration: i, propertyOnly: false, key: Math.random().toString(), selectedStep: cloneRest});
+        } else if (rest.dslName === 'RestConfigurationDefinition') {
+            // could be only one RestConfigurationDefinition
+        } else if (this.state.selectedStep) {
+            const parentId = CamelDefinitionApiExt.findRestMethodParent(this.state.integration, rest);
+            if (parentId){
+                const cloneRest = CamelUtil.cloneStep(rest);
+                cloneRest.uuid = uuidv4();
+                const cloneIntegration = CamelUtil.cloneIntegration(this.state.integration);
+                const i = CamelDefinitionApiExt.addRestMethodToIntegration(cloneIntegration, cloneRest, parentId);
+                this.setState({integration: i, key: Math.random().toString(), selectedStep: cloneRest, showSelector: false});
+            }
+        }
+    }
+
     selectMethod = (element: CamelElement) => {
         this.setState({selectedStep: element, showSelector: true})
     }
@@ -219,7 +241,8 @@ export class RestDesigner extends React.Component<Props, State> {
                     onIntegrationUpdate={this.onIntegrationUpdate}
                     onPropertyUpdate={this.onPropertyUpdate}
                     clipboardStep={undefined}
-                    onSaveClipboardStep={element => {}}
+                    isRouteDesigner={false}
+                    onClone={this.cloneRest}
                 />
             </DrawerPanelContent>
         )
