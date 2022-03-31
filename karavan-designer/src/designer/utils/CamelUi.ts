@@ -24,7 +24,7 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {KameletDefinition, NamedBeanDefinition, RouteDefinition, SagaDefinition, ToDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Dependency, Integration} from "karavan-core/lib/model/IntegrationDefinition";
-import {Trait} from "../../../../karavan-core/src/core/model/TraitDefinition";
+import {Trait} from "karavan-core/src/core/model/TraitDefinition";
 
 const StepElements: string[] = [
     "AggregateDefinition",
