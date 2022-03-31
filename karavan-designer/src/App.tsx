@@ -53,7 +53,30 @@ class App extends React.Component<Props, State> {
             '                parameters:\n' +
             '                  topic: topic1\n' +
             '        id: post\n' +
-            ''
+            '  traits:\n' +
+            '    camel:\n' +
+            '      configuration:\n' +
+            '        runtimeVersion: 3.16.0\n' +
+            '        properties:\n' +
+            '          - camel.component.seda.queueSize = 10\n' +
+            '          - camel.component.seda.enabled = false\n' +
+            '    jvm:\n' +
+            '      configuration:\n' +
+            '        debug: true\n' +
+            '        options:\n' +
+            '          - option1\n' +
+            '          - option2\n' +
+            '        classpath: /path/to/my-dependency.jar:/path/to/another-dependency.jar\n' +
+            '    threeScale:\n' +
+            '      configuration:\n' +
+            '        enabled: true\n' +
+            '        auto: true\n' +
+            '        path: /\n' +
+            '    3scale:\n' +
+            '      configuration:\n' +
+            '        enabled: true\n' +
+            '        auto: true\n' +
+            '        path: / \n'
     };
 
     componentDidMount() {

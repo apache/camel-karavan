@@ -3,6 +3,35 @@
  */
 import {CamelElement} from "./IntegrationDefinition";
 
+export class TraitPropertyMeta {
+    name: string
+    type: string
+    description: string
+
+    constructor(name: string, type: string, description: string) {
+        this.name = name;
+        this.type = type;
+        this.description = description;
+    }
+}
+
+export class TraitMeta {
+    name: string
+    platform: boolean
+    profiles: string
+    description: string
+    properties: TraitPropertyMeta[]
+
+
+    constructor(name: string, platform:boolean, profiles: string, description: string, properties: TraitPropertyMeta[]) {
+        this.name = name;
+        this.platform = platform;
+        this.profiles = profiles;
+        this.description = description;
+        this.properties = properties;
+    }
+}
+
 export class Trait extends CamelElement {
     affinity?: AffinityTrait;
     builder?: BuilderTrait;
@@ -595,4 +624,80 @@ export class TraitApi {
         return traits;
     }
 }
+
+export const CamelTraitMetadata: TraitMeta[] = [    new TraitMeta("affinity", false, "Kubernetes, Knative, OpenShift", "Allows constraining which nodes the integration pod(s) are eligible to be scheduled on, based on labels on the node, or with inter-pod affinity and anti-affinity, based on labels on pods that are already running on the nodes. It's disabled by default.", [
+    ]),
+    new TraitMeta("builder", false, "Kubernetes, Knative, OpenShift", "The builder trait is internally used to determine the best strategy to build and configure IntegrationKits.", [
+    ]),
+    new TraitMeta("camel", false, "Kubernetes, Knative, OpenShift", "The Camel trait can be used to configure versions of Apache Camel K runtime and related libraries, it cannot be disabled.", [
+    ]),
+    new TraitMeta("container", false, "Kubernetes, Knative, OpenShift", "The Container trait can be used to configure properties of the container where the integration will run. It also provides configuration for Services associated to the container.", [
+    ]),
+    new TraitMeta("cron", false, "Kubernetes, Knative, OpenShift", "The Cron trait can be used to customize the behaviour of periodic timer/cron based integrations. While normally an integration requires a pod to be always up and running, some periodic tasks, such as batch jobs, require to be activated at specific hours of the day or with a periodic delay of minutes. For such tasks, the cron trait can materialize the integration as a Kubernetes CronJob instead of a standard deployment, in order to save resources when the integration does not need to be executed. Integrations that start from the following components are evaluated by the cron trait: `timer`, `cron`, `quartz`. The rules for using a Kubernetes CronJob are the following: - `timer`: when periods can be written as cron expressions. E.g. `timer:tick?period=60000`. - `cron`, `quartz`: when the cron expression does not contain seconds (or the \"seconds\" part is set to 0). E.g. `cron:tab?schedule=0/2${plus}*{plus}*{plus}*{plus}?` or `quartz:trigger?cron=0{plus}0/2{plus}*{plus}*{plus}*{plus}?`.", [
+    ]),
+    new TraitMeta("dependencies", false, "Kubernetes, Knative, OpenShift", "The Dependencies trait is internally used to automatically add runtime dependencies based on the integration that the user wants to run.", [
+    ]),
+    new TraitMeta("deployer", false, "Kubernetes, Knative, OpenShift", "The deployer trait is responsible for deploying the resources owned by the integration, and can be used to explicitly select the underlying controller that will manage the integration pods.", [
+    ]),
+    new TraitMeta("deployment", false, "Kubernetes, Knative, OpenShift", "The Deployment trait is responsible for generating the Kubernetes deployment that will make sure the integration will run in the cluster.", [
+    ]),
+    new TraitMeta("environment", false, "Kubernetes, Knative, OpenShift", "The environment trait is used internally to inject standard environment variables in the integration container, such as `NAMESPACE`, `POD_NAME` and others.", [
+    ]),
+    new TraitMeta("error-handler", false, "Kubernetes, Knative, OpenShift", "The error-handler is a platform trait used to inject Error Handler source into the integration runtime.", [
+    ]),
+    new TraitMeta("gc", false, "Kubernetes, Knative, OpenShift", "The GC Trait garbage-collects all resources that are no longer necessary upon integration updates.", [
+    ]),
+    new TraitMeta("health", false, "Kubernetes, Knative, OpenShift", "The health trait is responsible for configuring the health probes on the integration container. It's disabled by default.", [
+    ]),
+    new TraitMeta("ingress", false, "Kubernetes", "The Ingress trait can be used to expose the service associated with the integration to the outside world with a Kubernetes Ingress. It's enabled by default whenever a Service is added to the integration (through the `service` trait).", [
+    ]),
+    new TraitMeta("istio", false, "Kubernetes, Knative, OpenShift", "The Istio trait allows configuring properties related to the Istio service mesh, such as sidecar injection and outbound IP ranges.", [
+    ]),
+    new TraitMeta("jolokia", false, "Kubernetes, Knative, OpenShift", "The Jolokia trait activates and configures the Jolokia Java agent. See https://jolokia.org/reference/html/agents.html", [
+    ]),
+    new TraitMeta("jvm", false, "Kubernetes, Knative, OpenShift", "The JVM trait is used to configure the JVM that runs the integration.", [
+    ]),
+    new TraitMeta("kamelets", false, "Kubernetes, Knative, OpenShift", "The kamelets trait is a platform trait used to inject Kamelets into the integration runtime.", [
+    ]),
+    new TraitMeta("keda", false, "Kubernetes, Knative, OpenShift", "The KEDA trait can be used for automatic integration with KEDA autoscalers. The trait can be either manually configured using the `triggers` option or automatically configured via markers in the Kamelets. For information on how to use KEDA enabled Kamelets with the KEDA trait, refer to xref:ROOT:kamelets/kamelets-user.adoc#kamelet-keda-user[the KEDA section in the Kamelets user guide]. If you want to create Kamelets that contain KEDA metadata, refer to xref:ROOT:kamelets/kamelets-dev.adoc#kamelet-keda-dev[the KEDA section in the Kamelets development guide]. The KEDA trait is disabled by default.", [
+    ]),
+    new TraitMeta("knative-service", false, "Knative", "The Knative Service trait allows configuring options when running the Integration as a Knative service, instead of a standard Kubernetes Deployment. Running an Integration as a Knative Service enables auto-scaling (and scaling-to-zero), but those features are only relevant when the Camel route(s) use(s) an HTTP endpoint consumer.", [
+    ]),
+    new TraitMeta("knative", false, "Knative", "The Knative trait automatically discovers addresses of Knative resources and inject them into the running integration. The full Knative configuration is injected in the CAMEL_KNATIVE_CONFIGURATION in JSON format. The Camel Knative component will then use the full configuration to configure the routes. The trait is enabled by default when the Knative profile is active.", [
+    ]),
+    new TraitMeta("logging", false, "Kubernetes, Knative, OpenShift", "The Logging trait is used to configure Integration runtime logging options (such as color and format). The logging backend is provided by Quarkus, whose configuration is documented at https://quarkus.io/guides/logging.", [
+    ]),
+    new TraitMeta("master", false, "Kubernetes, Knative, OpenShift", "The Master trait allows to configure the integration to automatically leverage Kubernetes resources for doing leader election and starting *master* routes only on certain instances. It's activated automatically when using the master endpoint in a route, e.g. `from(\"master:lockname:telegram:bots\")...`. NOTE: this trait adds special permissions to the integration service account in order to read/write configmaps and read pods. It's recommended to use a different service account than \"default\" when running the integration.", [
+    ]),
+    new TraitMeta("mount", false, "Kubernetes, Knative, OpenShift", "The Mount trait can be used to configure volumes mounted on the Integration Pods.", [
+    ]),
+    new TraitMeta("openapi", false, "Kubernetes, Knative, OpenShift", "The OpenAPI DSL trait is internally used to allow creating integrations from a OpenAPI specs.", [
+    ]),
+    new TraitMeta("owner", false, "Kubernetes, Knative, OpenShift", "The Owner trait ensures that all created resources belong to the integration being created and transfers annotations and labels on the integration onto these owned resources.", [
+    ]),
+    new TraitMeta("pdb", false, "Kubernetes, Knative, OpenShift", "The PDB trait allows to configure the PodDisruptionBudget resource for the Integration pods.", [
+    ]),
+    new TraitMeta("platform", false, "Kubernetes, Knative, OpenShift", "The platform trait is a base trait that is used to assign an integration platform to an integration. In case the platform is missing, the trait is allowed to create a default platform. This feature is especially useful in contexts where there's no need to provide a custom configuration for the platform (e.g. on OpenShift the default settings work, since there's an embedded container image registry).", [
+    ]),
+    new TraitMeta("pod", false, "Kubernetes, Knative, OpenShift", "The pod trait allows the customization of the Integration pods. It applies the `PodSpecTemplate` struct contained in the Integration `.spec.podTemplate` field, into the Integration deployment Pods template, using strategic merge patch. This can be used to customize the container where Camel routes execute, by using the `integration` container name.", [
+    ]),
+    new TraitMeta("prometheus", false, "Kubernetes, Knative, OpenShift", "The Prometheus trait configures a Prometheus-compatible endpoint. It also creates a `PodMonitor` resource, so that the endpoint can be scraped automatically, when using the Prometheus operator. The metrics are exposed using MicroProfile Metrics. WARNING: The creation of the `PodMonitor` resource requires the https://github.com/coreos/prometheus-operator[Prometheus Operator] custom resource definition to be installed. You can set `pod-monitor` to `false` for the Prometheus trait to work without the Prometheus Operator. The Prometheus trait is disabled by default.", [
+    ]),
+    new TraitMeta("pull-secret", false, "Kubernetes, Knative, OpenShift", "The Pull Secret trait sets a pull secret on the pod, to allow Kubernetes to retrieve the container image from an external registry. The pull secret can be specified manually or, in case you've configured authentication for an external container registry on the `IntegrationPlatform`, the same secret is used to pull images. It's enabled by default whenever you configure authentication for an external container registry, so it assumes that external registries are private. If your registry does not need authentication for pulling images, you can disable this trait.", [
+    ]),
+    new TraitMeta("quarkus", false, "Kubernetes, Knative, OpenShift", "The Quarkus trait configures the Quarkus runtime. It's enabled by default. NOTE: Compiling to a native executable, i.e. when using `package-type=native`, is only supported for kamelets, as well as YAML and XML integrations. It also requires at least 4GiB of memory, so the Pod running the native build, that is either the operator Pod, or the build Pod (depending on the build strategy configured for the platform), must have enough memory available.", [
+    ]),
+    new TraitMeta("route", false, "OpenShift", "The Route trait can be used to configure the creation of OpenShift routes for the integration. The certificate and key contents may be sourced either from the local filesystem or in a Openshift `secret` object. The user may use the parameters ending in `-secret` (example: `tls-certificate-secret`) to reference a certificate stored in a `secret`. Parameters ending in `-secret` have higher priorities and in case the same route parameter is set, for example: `tls-key-secret` and `tls-key`, then `tls-key-secret` is used. The recommended approach to set the key and certificates is to use `secrets` to store their contents and use the following parameters to reference them: `tls-certificate-secret`, `tls-key-secret`, `tls-ca-certificate-secret`, `tls-destination-ca-certificate-secret` See the examples section at the end of this page to see the setup options.", [
+    ]),
+    new TraitMeta("service-binding", false, "Kubernetes, Knative, OpenShift", "The Service Binding trait allows users to connect to Services in Kubernetes: https://github.com/k8s-service-bindings/spec#service-binding As the specification is still evolving this is subject to change", [
+    ]),
+    new TraitMeta("service", false, "Kubernetes, OpenShift", "The Service trait exposes the integration with a Service resource so that it can be accessed by other applications (or integrations) in the same namespace. It's enabled by default if the integration depends on a Camel component that can expose a HTTP endpoint.", [
+    ]),
+    new TraitMeta("3scale", false, "Kubernetes, Knative, OpenShift", "The 3scale trait can be used to automatically create annotations that allow 3scale to discover the generated service and make it available for API management. The 3scale trait is disabled by default.", [
+    ]),
+    new TraitMeta("toleration", false, "Kubernetes, Knative, OpenShift", "This trait sets Tolerations over Integration pods. Tolerations allow (but do not require) the pods to schedule onto nodes with matching taints. See https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/ for more details. The toleration should be expressed in a similar manner that of taints, i.e., `Key[=Value]:Effect[:Seconds]`, where values in square brackets are optional. For examples: - `node-role.kubernetes.io/master:NoSchedule` - `node.kubernetes.io/network-unavailable:NoExecute:3000` - `disktype=ssd:PreferNoSchedule` It's disabled by default.", [
+    ]),
+    new TraitMeta("tracing", false, "Kubernetes, Knative, OpenShift", "The Tracing trait can be used to automatically publish tracing information to an OpenTracing compatible collector. The trait is able to automatically discover the tracing endpoint available in the namespace (supports **Jaeger**). The Tracing trait is disabled by default.", [
+    ]),
+] 
 
