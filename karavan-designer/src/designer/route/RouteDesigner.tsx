@@ -55,6 +55,7 @@ interface State {
     showDeleteConfirmation: boolean
     parentId: string
     parentDsl?: string
+    selectedPosition?: number
     showSteps: boolean
     selectedUuid: string
     key: string
@@ -121,7 +122,7 @@ export class RouteDesigner extends React.Component<Props, State> {
     unselectElement = (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         if ((evt.target as any).dataset.click === 'FLOWS') {
             evt.stopPropagation()
-            this.setState({selectedStep: undefined, selectedUuid: '', showSelector: false})
+            this.setState({selectedStep: undefined, selectedUuid: '', showSelector: false, selectedPosition: undefined})
         }
     };
 
@@ -172,41 +173,41 @@ export class RouteDesigner extends React.Component<Props, State> {
         this.setState({selectedStep: element, selectedUuid: element.uuid, showSelector: false})
     }
 
-    openSelector = (parentId: string | undefined, parentDsl: string | undefined, showSteps: boolean = true) => {
-        this.setState({showSelector: true, parentId: parentId || '', parentDsl: parentDsl, showSteps: showSteps})
+    openSelector = (parentId: string | undefined, parentDsl: string | undefined, showSteps: boolean = true, position?: number | undefined) => {
+        this.setState({showSelector: true, parentId: parentId || '', parentDsl: parentDsl, showSteps: showSteps, selectedPosition: position})
     }
 
     closeDslSelector = () => {
         this.setState({showSelector: false})
     }
 
-    onDslSelect = (dsl: DslMetaModel, parentId: string) => {
+    onDslSelect = (dsl: DslMetaModel, parentId: string, position?: number | undefined) => {
         switch (dsl.dsl) {
             case 'FromDefinition' :
                 const from = CamelDefinitionApi.createRouteDefinition({from: new FromDefinition({uri: dsl.uri})});
-                this.addStep(from, parentId)
+                this.addStep(from, parentId, position)
                 break;
             case 'ToDefinition' :
                 const to = CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
-                this.addStep(to, parentId)
+                this.addStep(to, parentId, position)
                 break;
             case 'ToDynamicDefinition' :
                 const toD = CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
-                this.addStep(toD, parentId)
+                this.addStep(toD, parentId, position)
                 break;
             case 'KameletDefinition' :
                 const kamelet = CamelDefinitionApi.createStep(dsl.dsl, {name: dsl.name});
-                this.addStep(kamelet, parentId)
+                this.addStep(kamelet, parentId, position)
                 break;
             default:
                 const step = CamelDefinitionApi.createStep(dsl.dsl, undefined);
-                this.addStep(step, parentId)
+                this.addStep(step, parentId, position)
                 break;
         }
     }
 
-    addStep = (step: CamelElement, parentId: string) => {
-        const i = CamelDefinitionApiExt.addStepToIntegration(this.state.integration, step, parentId);
+    addStep = (step: CamelElement, parentId: string, position?: number | undefined) => {
+        const i = CamelDefinitionApiExt.addStepToIntegration(this.state.integration, step, parentId, position);
         const clone = CamelUtil.cloneIntegration(i);
         this.setState({
             integration: clone,
@@ -257,6 +258,7 @@ export class RouteDesigner extends React.Component<Props, State> {
                     parentId={this.state.parentId}
                     parentDsl={this.state.parentDsl}
                     showSteps={this.state.showSteps}
+                    position={this.state.selectedPosition}
                     onDslSelect={this.onDslSelect}/>
             </Modal>)
     }

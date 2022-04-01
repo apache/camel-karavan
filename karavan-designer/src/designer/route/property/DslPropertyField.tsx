@@ -484,10 +484,7 @@ export class DslPropertyField extends React.Component<Props, State> {
     }
 
     getComponentParameters (property: PropertyMeta) {
-        console.log(this.props.element)
-        console.log(property)
         const properties = CamelUi.getComponentProperties(this.props.element);
-        console.log(properties)
         const propertiesMain = properties.filter(p => !p.label.includes("advanced") && !p.label.includes("security") && !p.label.includes("scheduler"));
         const propertiesAdvanced = properties.filter(p => p.label.includes("advanced"));
         const propertiesScheduler = properties.filter(p => p.label.includes("scheduler"));
