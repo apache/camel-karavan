@@ -27,11 +27,12 @@ import {DslMetaModel} from "../utils/DslMetaModel";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 
 interface Props {
-    onDslSelect: any
-    parentId: string
+    onDslSelect: (dsl: DslMetaModel, parentId: string, position?: number | undefined) => void,
+    parentId: string,
     parentDsl?: string,
     showSteps: boolean,
-    dark: boolean
+    dark: boolean,
+    position?: number
 }
 
 interface State {
@@ -58,7 +59,7 @@ export class DslSelector extends React.Component<Props, State> {
 
     selectDsl = (evt: React.MouseEvent, dsl: any) => {
         evt.stopPropagation()
-        this.props.onDslSelect.call(this, dsl, this.props.parentId);
+        this.props.onDslSelect.call(this, dsl, this.props.parentId, this.props.position);
     }
 
     checkFilter = (dsl: DslMetaModel): boolean => {
