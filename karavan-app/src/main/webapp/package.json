@@ -1,6 +1,6 @@
 {
   "name": "karavan",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "private": true,
   "scripts": {
     "start": "cp -r ../../../../karavan-designer/src/designer src && react-scripts start",
@@ -46,12 +46,12 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "monaco-editor": "0.29.1",
     "@types/dagre": "^0.7.46",
     "@types/file-saver": "^2.0.5",
     "@types/localforage": "0.0.34",
     "@types/react": "^17.0.19",
     "@types/react-dom": "^17.0.9",
-    "@types/react-router-dom": "^5.3.0"
+    "@types/react-router-dom": "^5.3.0",
+    "monaco-editor": "0.29.1"
   }
 }
