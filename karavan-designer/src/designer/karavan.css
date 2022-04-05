@@ -656,6 +656,11 @@
     text-align:start;
 }
 
+.karavan .step-element .header .header-text-required {
+    color: var(--pf-global--danger-color--100);
+    font-weight: bold;
+}
+
 .karavan .step-element .header-icon {
     border-color: var(--pf-global--Color--200);
     border-style: solid;

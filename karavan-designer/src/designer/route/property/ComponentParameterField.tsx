@@ -207,7 +207,12 @@ export class ComponentParameterField extends React.Component<Props, State> {
                         position={"left"}
                         headerContent={property.displayName}
                         bodyContent={property.description}
-                        footerContent={property.defaultValue !== undefined ? "Default: " + property.defaultValue : undefined}>
+                        footerContent={
+                        <div>
+                            {property.defaultValue !== undefined && <div>{"Default: " + property.defaultValue}</div>}
+                            {property.required === true && <div>{property.displayName + " is required"}</div>}
+                        </div>
+                        }>
                         <button type="button" aria-label="More info" onClick={e => e.preventDefault()}
                                 className="pf-c-form__group-label-help">
                             <HelpIcon noVerticalAlign/>

@@ -27,6 +27,7 @@ import {CamelUi} from "../utils/CamelUi";
 import {EventBus} from "../utils/EventBus";
 import {ChildElement, CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import ReactDOM from "react-dom";
+import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 
 interface Props {
     step: CamelElement,
@@ -197,12 +198,26 @@ export class DslElement extends React.Component<Props, State> {
                 }
                 <div className={this.hasWideChildrenElement() ? "header-text" : ""}>
                     {this.hasWideChildrenElement() && <div className="spacer"/>}
-                    <Text className={this.hasWideChildrenElement() ? "text text-right" : "text text-bottom"}>{CamelUi.getElementTitle(this.state.step)}</Text>
+                    {this.getHeaderTextWithTooltip(step)}
                 </div>
                 {showInsertButton && this.getInsertElementButton()}
                 {this.state.step.dslName !== 'FromDefinition' && this.getDeleteButton()}
                 {showAddButton && this.getAddElementButton()}
             </div>
+        )
+    }
+
+    getHeaderTextWithTooltip = (step: CamelElement) => {
+        const checkRequired = CamelUtil.checkRequired(step);
+        const title = CamelUi.getElementTitle(this.state.step);
+        let className = this.hasWideChildrenElement() ? "text text-right" : "text text-bottom";
+        if (!checkRequired[0]) className = className + " header-text-required";
+        if (checkRequired[0]) return <Text className={className}>{title}</Text>
+        else return (
+            <Tooltip position={"right"}
+                     content={checkRequired[1]}>
+                <Text className={className}>{title}</Text>
+            </Tooltip>
         )
     }
 

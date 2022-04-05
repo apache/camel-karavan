@@ -196,6 +196,7 @@ export const ComponentApi = {
                     prop.secret = value.secret;
                     prop.enum = value.enum;
                     prop.kind = value.kind;
+                    prop.required = value.required;
                     if (value.defaultValue) prop.defaultValue = value.defaultValue
                     if (!value.deprecated) properties.push(prop);
                 })
