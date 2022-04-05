@@ -200,7 +200,7 @@ export class DslElement extends React.Component<Props, State> {
                     <Text className={this.hasWideChildrenElement() ? "text text-right" : "text text-bottom"}>{CamelUi.getElementTitle(this.state.step)}</Text>
                 </div>
                 {showInsertButton && this.getInsertElementButton()}
-                {this.state.step.dslName !== 'FromDefinition' && this.getDeleteButton()}
+                {this.getDeleteButton()}
                 {showAddButton && this.getAddElementButton()}
             </div>
         )

@@ -31,7 +31,7 @@ import {DslSelector} from "./DslSelector";
 import {DslMetaModel} from "../utils/DslMetaModel";
 import {DslProperties} from "./DslProperties";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {FromDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {FromDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
@@ -53,6 +53,7 @@ interface State {
     selectedStep?: CamelElement
     showSelector: boolean
     showDeleteConfirmation: boolean
+    deleteMessage: string
     parentId: string
     parentDsl?: string
     selectedPosition?: number
@@ -74,6 +75,7 @@ export class RouteDesigner extends React.Component<Props, State> {
         integration: this.props.integration,
         showSelector: false,
         showDeleteConfirmation: false,
+        deleteMessage: '',
         parentId: '',
         showSteps: true,
         selectedUuid: '',
@@ -149,7 +151,26 @@ export class RouteDesigner extends React.Component<Props, State> {
     }
 
     showDeleteConfirmation = (id: string) => {
-        this.setState({selectedUuid: id, showSelector: false, showDeleteConfirmation: true});
+        var message: string ;
+        
+        var ce: CamelElement ;
+        ce = CamelDefinitionApiExt.findElementInIntegration( this.state.integration, id )!;
+         if( ce.dslName === 'FromDefinition' ) { // Get the RouteDefinition for this.  Use its uuid.
+            var flows = this.state.integration.spec.flows!;
+            for( var i = 0 ; i < flows.length; i++ ) {
+                var routeDefinition : RouteDefinition = flows[i] ;
+                if( routeDefinition.from.uuid === id ) {
+                    id = routeDefinition.uuid ;
+                    break;
+                }
+            }
+            message = 'Deleting this Element will delete the entire integration. Ok?' ;
+         } else if( ce.dslName === 'RouteDefinition' ) {
+            message = 'Delete integration?' ;
+         } else {
+            message = 'Delete element from integration?';
+         }
+        this.setState({selectedUuid: id, showSelector: false, showDeleteConfirmation: true, deleteMessage: message});
     }
 
     deleteElement = () => {
@@ -159,6 +180,7 @@ export class RouteDesigner extends React.Component<Props, State> {
             integration: i,
             showSelector: false,
             showDeleteConfirmation: false,
+            deleteMessage: '',
             key: Math.random().toString(),
             selectedStep: undefined,
             selectedUuid: '',
@@ -264,6 +286,8 @@ export class RouteDesigner extends React.Component<Props, State> {
     }
 
     getDeleteConfirmation() {
+        var htmlContent: string = this.state.deleteMessage ;
+        
         return (<Modal
             className="modal-delete"
             title="Confirmation"
@@ -272,11 +296,11 @@ export class RouteDesigner extends React.Component<Props, State> {
             actions={[
                 <Button key="confirm" variant="primary" onClick={e => this.deleteElement()}>Delete</Button>,
                 <Button key="cancel" variant="link"
-                        onClick={e => this.setState({showDeleteConfirmation: false})}>Cancel</Button>
+                        onClick={e => this.setState({showDeleteConfirmation: false, deleteMessage: ''})}>Cancel</Button>
             ]}
-            onEscapePress={e => this.setState({showDeleteConfirmation: false})}>
+            onEscapePress={e => this.setState({showDeleteConfirmation: false, deleteMessage: ''})}>
             <div>
-                Delete element from integration?
+                {htmlContent}
             </div>
         </Modal>)
     }
