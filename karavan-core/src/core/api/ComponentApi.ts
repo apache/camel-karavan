@@ -96,17 +96,17 @@ export const ComponentApi = {
 
     getSyntaxSeparators: (syntax: string): string[] => {
         const result: string[] = [];
-            const parts: string[] = ComponentApi.parseSyntax(syntax);
-            let str = '';
-            parts.forEach((part, index) => {
-                if (index < parts.length -1){
-                    const start = syntax.indexOf(part, str.length) + part.length;
-                    const end = syntax.indexOf(parts[index + 1], start);
-                    const separator = syntax.substr(start, end - start);
-                    result.push(separator);
-                    str = str + part + separator;
-                }
-            })
+        const parts: string[] = ComponentApi.parseSyntax(syntax);
+        let str = '';
+        parts.forEach((part, index) => {
+            if (index < parts.length -1){
+                const start = syntax.indexOf(part, str.length) + part.length;
+                const end = syntax.indexOf(parts[index + 1], start);
+                const separator = syntax.substr(start, end - start);
+                result.push(separator);
+                str = str + part + separator;
+            }
+        })
         return result;
     },
 
@@ -162,6 +162,7 @@ export const ComponentApi = {
     },
 
     getComponentProperties: (componentName: string, type: 'consumer' | 'producer'): ComponentProperty[] => {
+        const invertedType = type === 'consumer' ? 'producer' : 'consumer';
         const component: Component | undefined = ComponentApi.findByName(componentName);
         const properties: ComponentProperty[] = [];
         try {
@@ -189,15 +190,15 @@ export const ComponentApi = {
             result.push(...properties.filter(p => p.kind === 'path'));
             result.push(...properties.filter(p => p.kind !== 'path' && p.required));
             result.push(...properties.filter(p => p.label.length === 0 && p.kind !== 'path' && !p.required));
-            result.push(...properties.filter(p => p.label.startsWith(type) && !p.label.includes("advanced") && !p.required));
+            result.push(...properties.filter(p => !p.label.includes(invertedType) && !p.label.includes("advanced") && !p.required));
             result.push(...properties.filter(p => p.label === "formatting" && !p.required));
-            result.push(...properties.filter(p => p.label.startsWith(type) &&
+            result.push(...properties.filter(p => !p.label.includes(invertedType) &&
                 (p.label.includes("scheduler") || p.label.includes("security") || p.label.includes("advanced"))
             ));
-            result.push(...properties.filter(p => !p.label.includes(type) &&
+            result.push(...properties.filter(p => !p.label.includes(invertedType) &&
                 (p.label.includes("scheduler") || p.label.includes("security") || p.label.includes("advanced"))
             ));
-            return result;
+            return Array.from(new Map(result.map(item => [item.name, item])).values());
         }
     }
 }
