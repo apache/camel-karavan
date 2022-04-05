@@ -201,7 +201,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
                 key={id}
                 label={property.displayName}
                 fieldId={id}
-                isRequired={property.kind === 'path' || property.required}
+                isRequired={property.required}
                 labelIcon={
                     <Popover
                         position={"left"}
