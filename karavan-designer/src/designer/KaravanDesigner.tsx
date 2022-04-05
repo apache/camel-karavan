@@ -16,8 +16,8 @@
  */
 import React from 'react';
 import {
-    Badge, Label,
-    PageSection, Tab, Tabs, TabTitleIcon, TabTitleText, Tooltip,
+    Badge,
+    PageSection, PageSectionVariants, Tab, Tabs, TabTitleIcon, TabTitleText, Tooltip,
 } from '@patternfly/react-core';
 import './karavan.css';
 import {RouteDesigner} from "./route/RouteDesigner";
@@ -31,41 +31,41 @@ import {ErrorDesigner} from "./error/ErrorDesigner";
 import {TemplatesDesigner} from "./templates/TemplatesDesigner";
 import {ExceptionDesigner} from "./exception/ExceptionDesigner";
 import {DependenciesDesigner} from "./dependencies/DependenciesDesigner";
-import InfoCircleIcon from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
+import {TraitsDesigner} from "./traits/TraitsDesigner";
 
 interface Props {
-    onSave?: (filename: string, yaml: string) => void
+    onSave?: (filename: string, yaml: string, propertyOnly: boolean) => void
     filename: string
     yaml: string
-    borderColor: string
-    borderColorSelected: string
     dark: boolean
 }
 
 interface State {
     tab: string,
     integration: Integration,
-    key: string,
+    key: string
+    propertyOnly: boolean
 }
 
 export class KaravanDesigner extends React.Component<Props, State> {
 
     public state: State = {
         tab: 'routes',
-        integration: this.props.yaml
+        integration: this.props.yaml && CamelDefinitionYaml.yamlIsIntegration(this.props.yaml)
             ? CamelDefinitionYaml.yamlToIntegration(this.props.filename, this.props.yaml)
             : Integration.createNew(this.props.filename),
         key: "",
+        propertyOnly: false
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.key !== this.state.key) {
-            this.props.onSave?.call(this, this.state.integration.metadata.name, this.getCode(this.state.integration));
+            this.props.onSave?.call(this, this.props.filename, this.getCode(this.state.integration), this.state.propertyOnly);
         }
     }
 
-    save = (integration: Integration): void => {
-        this.setState({key: Math.random().toString(), integration: integration});
+    save = (integration: Integration, propertyOnly: boolean): void => {
+        this.setState({key: Math.random().toString(), integration: integration, propertyOnly: propertyOnly});
     }
 
     getCode = (integration: Integration): string => {
@@ -199,23 +199,23 @@ export class KaravanDesigner extends React.Component<Props, State> {
                 <rect x="10" y="16" width="12" height="2"/>
                 <rect className="st0" width="32" height="32"/>
             </svg>)
-         if (icon === 'code') return (
-             <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
-                 <defs>
-                     <style>{".cls-1{fill:none;}"}</style>
-                 </defs>
-                 <title>code</title>
-                 <polygon points="31 16 24 23 22.59 21.59 28.17 16 22.59 10.41 24 9 31 16"/>
-                 <polygon points="1 16 8 9 9.41 10.41 3.83 16 9.41 21.59 8 23 1 16"/>
-                 <rect x="5.91" y="15" width="20.17" height="2" transform="translate(-3.6 27.31) rotate(-75)"/>
-                 <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32" height="32" transform="translate(0 32) rotate(-90)"/>
-             </svg>)
+        if (icon === 'code') return (
+            <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
+                <defs>
+                    <style>{".cls-1{fill:none;}"}</style>
+                </defs>
+                <title>code</title>
+                <polygon points="31 16 24 23 22.59 21.59 28.17 16 22.59 10.41 24 9 31 16"/>
+                <polygon points="1 16 8 9 9.41 10.41 3.83 16 9.41 21.59 8 23 1 16"/>
+                <rect x="5.91" y="15" width="20.17" height="2" transform="translate(-3.6 27.31) rotate(-75)"/>
+                <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32" height="32" transform="translate(0 32) rotate(-90)"/>
+            </svg>)
     }
 
     render() {
         const tab = this.state.tab;
         return (
-            <PageSection className="page" isFilled padding={{default: 'noPadding'}}>
+            <PageSection variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light} className="page" isFilled padding={{default: 'noPadding'}}>
                 <Tabs className="main-tabs" activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex.toString()})} style={{width: "100%"}}>
                     <Tab eventKey='routes' title={this.getTab("Routes", "Integration flows", "routes")}></Tab>
                     <Tab eventKey='rest' title={this.getTab("REST", "REST services", "rest")}></Tab>
@@ -224,42 +224,28 @@ export class KaravanDesigner extends React.Component<Props, State> {
                     <Tab eventKey='traits' title={this.getTab("Traits", "traits configuration", "traits")}></Tab>
                     <Tab eventKey='error' title={this.getTab("Error", "Error Handler", "error")}></Tab>
                     <Tab eventKey='exception' title={this.getTab("Exceptions", "Exception Clauses per type", "exception")}></Tab>
-                    <Tab eventKey='code' title={this.getTab("Code", "Code", "code")}></Tab>
+                    {/*<Tab eventKey='code' title={this.getTab("Code", "Code", "code")}></Tab>*/}
                 </Tabs>
                 {tab === 'routes' && <RouteDesigner integration={this.state.integration}
-                                                    onSave={(integration) => this.save(integration)}
-                                                    borderColor={this.props.borderColor}
-                                                    borderColorSelected={this.props.borderColorSelected}
+                                                    onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                     dark={this.props.dark}/>}
                 {tab === 'rest' && <RestDesigner integration={this.state.integration}
-                                                 onSave={(integration) => this.save(integration)}
-                                                 borderColor={this.props.borderColor}
-                                                 borderColorSelected={this.props.borderColorSelected}
+                                                 onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                  dark={this.props.dark}/>}
                 {tab === 'beans' && <BeansDesigner integration={this.state.integration}
-                                                   onSave={(integration) => this.save(integration)}
-                                                   borderColor={this.props.borderColor}
-                                                   borderColorSelected={this.props.borderColorSelected}
+                                                   onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                    dark={this.props.dark}/>}
                 {tab === 'dependencies' && <DependenciesDesigner integration={this.state.integration}
-                                                                 onSave={(integration) => this.save(integration)}
-                                                                 borderColor={this.props.borderColor}
-                                                                 borderColorSelected={this.props.borderColorSelected}
+                                                                 onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                                  dark={this.props.dark}/>}
                 {tab === 'error' && <ErrorDesigner integration={this.state.integration}
-                                                   onSave={(integration) => this.save(integration)}
-                                                   borderColor={this.props.borderColor}
-                                                   borderColorSelected={this.props.borderColorSelected}
+                                                   onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                    dark={this.props.dark}/>}
                 {tab === 'exception' && <ExceptionDesigner integration={this.state.integration}
-                                                           onSave={(integration) => this.save(integration)}
-                                                           borderColor={this.props.borderColor}
-                                                           borderColorSelected={this.props.borderColorSelected}
+                                                           onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                            dark={this.props.dark}/>}
-                {tab === 'templates' && <TemplatesDesigner integration={this.state.integration}
-                                                           onSave={(integration) => this.save(integration)}
-                                                           borderColor={this.props.borderColor}
-                                                           borderColorSelected={this.props.borderColorSelected}
+                {tab === 'traits' && <TraitsDesigner integration={this.state.integration}
+                                                           onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                            dark={this.props.dark}/>}
             </PageSection>
         );

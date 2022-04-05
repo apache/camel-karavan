@@ -201,7 +201,7 @@ export class CamelDefinitionApiExt {
             flows.push(...integration.spec.flows?.filter(flow => flow.dslName !== 'Beans') || []);
             integration.spec.flows?.filter(flow => flow.dslName === 'Beans').forEach(flow => {
                 const beans: NamedBeanDefinition[] = [];
-                if ((flow as Beans).beans.filter(b => b.uuid === bean.uuid).length === 0){
+                if ((flow as Beans).beans.filter(b => b.uuid === bean.uuid).length === 0) {
                     beans.push(...(flow as Beans).beans.filter(b => b.uuid !== bean.uuid));
                     beans.push(bean);
                 } else {
@@ -261,13 +261,25 @@ export class CamelDefinitionApiExt {
             if (rest.uuid !== restUuid) {
                 flows.push(rest);
             } else {
-                switch (method.dslName){
-                    case 'GetDefinition': rest.get = this.addRestMethodToRestMethods(rest.get, method); break;
-                    case 'PostDefinition': rest.post = this.addRestMethodToRestMethods(rest.post, method); break;
-                    case 'PutDefinition': rest.put = this.addRestMethodToRestMethods(rest.put, method); break;
-                    case 'PatchDefinition': rest.patch = this.addRestMethodToRestMethods(rest.patch, method); break;
-                    case 'DeleteDefinition': rest.delete = this.addRestMethodToRestMethods(rest.delete, method); break;
-                    case 'HeadDefinition': rest.head = this.addRestMethodToRestMethods(rest.head, method); break;
+                switch (method.dslName) {
+                    case 'GetDefinition':
+                        rest.get = this.addRestMethodToRestMethods(rest.get, method);
+                        break;
+                    case 'PostDefinition':
+                        rest.post = this.addRestMethodToRestMethods(rest.post, method);
+                        break;
+                    case 'PutDefinition':
+                        rest.put = this.addRestMethodToRestMethods(rest.put, method);
+                        break;
+                    case 'PatchDefinition':
+                        rest.patch = this.addRestMethodToRestMethods(rest.patch, method);
+                        break;
+                    case 'DeleteDefinition':
+                        rest.delete = this.addRestMethodToRestMethods(rest.delete, method);
+                        break;
+                    case 'HeadDefinition':
+                        rest.head = this.addRestMethodToRestMethods(rest.head, method);
+                        break;
                 }
                 flows.push(rest);
             }
@@ -284,6 +296,32 @@ export class CamelDefinitionApiExt {
         })
         if (elements.filter(e => e.uuid === method.uuid).length === 0) elements.push(method);
         return elements;
+    }
+
+    static findRestMethodParent = (integration: Integration, method: CamelElement): string | undefined => {
+        const rests: RestDefinition[] = integration.spec.flows?.filter(flow => flow.dslName === 'RestDefinition') || [];
+        for (let rest of rests) {
+            switch (method.dslName) {
+                case 'GetDefinition':
+                    if (rest.get?.find(m => m.uuid === method.uuid)) return rest.uuid;
+                    else break;
+                case 'PostDefinition':
+                    if (rest.post?.find(m => m.uuid === method.uuid)) return rest.uuid;
+                    else break;
+                case 'PutDefinition':
+                    if (rest.put?.find(m => m.uuid === method.uuid)) return rest.uuid;
+                    else break;
+                case 'PatchDefinition':
+                    if (rest.patch?.find(m => m.uuid === method.uuid)) return rest.uuid;
+                    else break;
+                case 'DeleteDefinition':
+                    if (rest.delete?.find(m => m.uuid === method.uuid)) return rest.uuid;
+                    else break;
+                case 'HeadDefinition':
+                    if (rest.head?.find(m => m.uuid === method.uuid)) return rest.uuid;
+                    else break;
+            }
+        }
     }
 
     static deleteRestConfigurationFromIntegration = (integration: Integration): Integration => {

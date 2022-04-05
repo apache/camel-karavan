@@ -1,13 +1,13 @@
 {
   "name": "karavan-core",
   "publisher": "camel-karavan",
-  "version": "0.0.10",
-  "description": "Apache Camel Karavan Designer Core",
+  "version": "0.0.14",
+  "description": "Apache Camel Karavan Core",
   "scripts": {
     "build": "tsc",
     "test": "TS_NODE_PROJECT=\"test/tsconfig.testing.json\" mocha -r ts-node/register test/**/*.spec.ts",
-    "prepare" : "npm run build && npm run test",
-    "prepublishOnly" : "npm run test"
+    "prepare": "npm run build && npm run test",
+    "prepublishOnly": "npm run test"
   },
   "repository": {
     "type": "git",
@@ -49,6 +49,7 @@
     "@types/dagre": "^0.7.47",
     "@types/localforage": "0.0.34",
     "@types/mocha": "^9.1.0",
+    "@types/node": "^17.0.23",
     "chai": "^4.3.4",
     "fs": "^0.0.1-security",
     "mocha": "^9.2.0",

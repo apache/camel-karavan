@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    Button, Modal,
+    Button, Drawer, DrawerContent, DrawerContentBody, DrawerPanelContent, Modal,
     PageSection
 } from '@patternfly/react-core';
 import '../karavan.css';
@@ -32,12 +32,11 @@ import {RestMethodSelector} from "./RestMethodSelector";
 import {DslMetaModel} from "../utils/DslMetaModel";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {RestConfigurationCard} from "./RestConfigurationCard";
+import {v4 as uuidv4} from "uuid";
 
 interface Props {
-    onSave?: (integration: Integration) => void
+    onSave?: (integration: Integration, propertyOnly: boolean) => void
     integration: Integration
-    borderColor: string
-    borderColorSelected: string
     dark: boolean
 }
 
@@ -47,6 +46,7 @@ interface State {
     key: string
     showSelector: boolean
     showDeleteConfirmation: boolean
+    propertyOnly: boolean
 }
 
 export class RestDesigner extends React.Component<Props, State> {
@@ -55,17 +55,18 @@ export class RestDesigner extends React.Component<Props, State> {
         integration: this.props.integration,
         key: "",
         showSelector: false,
-        showDeleteConfirmation: false
+        showDeleteConfirmation: false,
+        propertyOnly: false
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.key !== this.state.key) {
-            this.props.onSave?.call(this, this.state.integration);
+            this.props.onSave?.call(this, this.state.integration, this.state.propertyOnly);
         }
     }
 
     onIntegrationUpdate = (i: Integration) => {
-        this.setState({integration: i, showSelector: false, key: Math.random().toString()});
+        this.setState({integration: i, showSelector: false, key: Math.random().toString(), propertyOnly: false});
     }
 
     selectElement = (element: CamelElement) => {
@@ -84,11 +85,12 @@ export class RestDesigner extends React.Component<Props, State> {
                 key: Math.random().toString(),
                 showSelector: false,
                 selectedStep: element,
+                propertyOnly: false
             });
         } else {
             const clone = CamelUtil.cloneIntegration(this.state.integration);
             const i = CamelDefinitionApiExt.updateIntegrationRestElement(clone, element);
-            this.setState({integration: i, key: Math.random().toString()});
+            this.setState({integration: i, propertyOnly: true, key: Math.random().toString()});
         }
     }
 
@@ -102,7 +104,7 @@ export class RestDesigner extends React.Component<Props, State> {
     addRest = (rest: RestDefinition) => {
         const clone = CamelUtil.cloneIntegration(this.state.integration);
         const i = CamelDefinitionApiExt.addRestToIntegration(clone, rest);
-        this.setState({integration: i, key: Math.random().toString(), selectedStep: rest});
+        this.setState({integration: i, propertyOnly: false, key: Math.random().toString(), selectedStep: rest});
     }
 
     createRest = () => {
@@ -130,6 +132,7 @@ export class RestDesigner extends React.Component<Props, State> {
                 showDeleteConfirmation: false,
                 key: Math.random().toString(),
                 selectedStep: undefined,
+                propertyOnly: false
             });
         }
     }
@@ -162,6 +165,27 @@ export class RestDesigner extends React.Component<Props, State> {
             const m = CamelDefinitionApi.createStep(method.dsl, {});
             const i = CamelDefinitionApiExt.addRestMethodToIntegration(clone, m, this.state.selectedStep?.uuid);
             this.setState({integration: i, key: Math.random().toString(), selectedStep: m, showSelector: false});
+        }
+    }
+
+    cloneRest = (rest: CamelElement) => {
+        if (rest.dslName === 'RestDefinition'){
+            const cloneRest = CamelUtil.cloneStep(rest);
+            cloneRest.uuid = uuidv4();
+            const cloneIntegration = CamelUtil.cloneIntegration(this.state.integration);
+            const i = CamelDefinitionApiExt.addRestToIntegration(cloneIntegration, cloneRest);
+            this.setState({integration: i, propertyOnly: false, key: Math.random().toString(), selectedStep: cloneRest});
+        } else if (rest.dslName === 'RestConfigurationDefinition') {
+            // could be only one RestConfigurationDefinition
+        } else if (this.state.selectedStep) {
+            const parentId = CamelDefinitionApiExt.findRestMethodParent(this.state.integration, rest);
+            if (parentId){
+                const cloneRest = CamelUtil.cloneStep(rest);
+                cloneRest.uuid = uuidv4();
+                const cloneIntegration = CamelUtil.cloneIntegration(this.state.integration);
+                const i = CamelDefinitionApiExt.addRestMethodToIntegration(cloneIntegration, cloneRest, parentId);
+                this.setState({integration: i, key: Math.random().toString(), selectedStep: cloneRest, showSelector: false});
+            }
         }
     }
 
@@ -207,6 +231,23 @@ export class RestDesigner extends React.Component<Props, State> {
         </>)
     }
 
+
+    getPropertiesPanel() {
+        return (
+            <DrawerPanelContent isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'300px'}>
+                <DslProperties
+                    integration={this.props.integration}
+                    step={this.state.selectedStep}
+                    onIntegrationUpdate={this.onIntegrationUpdate}
+                    onPropertyUpdate={this.onPropertyUpdate}
+                    clipboardStep={undefined}
+                    isRouteDesigner={false}
+                    onClone={this.cloneRest}
+                />
+            </DrawerPanelContent>
+        )
+    }
+
     render() {
         const data = this.props.integration.spec.flows?.filter(f => f.dslName === 'RestDefinition');
         const configData = this.props.integration.spec.flows?.filter(f => f.dslName === 'RestConfigurationDefinition');
@@ -214,38 +255,38 @@ export class RestDesigner extends React.Component<Props, State> {
         return (
             <PageSection className="rest-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="rest-page-columns">
-                    <div className="graph" data-click="REST" onClick={event => this.unselectElement(event)}>
-                        <div className="flows">
-                            {config && this.getRestConfigurationCard(config)}
-                            {data && this.getRestCards(data)}
-                            <div className="add-rest">
-                                {config === undefined &&
-                                    <Button
-                                        variant="primary"
-                                        data-click="ADD_REST_REST_CONFIG"
-                                        icon={<PlusIcon/>}
-                                        onClick={e => this.createRestConfiguration()}>Create REST Configuration
-                                    </Button>
-                                }
-                                <Button
-                                    variant={data?.length === 0 ? "primary" : "secondary"}
-                                    data-click="ADD_REST"
-                                    icon={<PlusIcon/>}
-                                    onClick={e => this.createRest()}>Create REST Service
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                    <DslProperties
-                        integration={this.props.integration}
-                        step={this.state.selectedStep}
-                        onIntegrationUpdate={this.onIntegrationUpdate}
-                        onPropertyUpdate={this.onPropertyUpdate}
-                    />
+                    <Drawer isExpanded isInline>
+                        <DrawerContent panelContent={this.getPropertiesPanel()}>
+                            <DrawerContentBody>
+                                <div className="graph" data-click="REST" onClick={event => this.unselectElement(event)}>
+                                    <div className="flows">
+                                        {config && this.getRestConfigurationCard(config)}
+                                        {data && this.getRestCards(data)}
+                                        <div className="add-rest">
+                                            {config === undefined &&
+                                                <Button
+                                                    variant="primary"
+                                                    data-click="ADD_REST_REST_CONFIG"
+                                                    icon={<PlusIcon/>}
+                                                    onClick={e => this.createRestConfiguration()}>Create REST Configuration
+                                                </Button>
+                                            }
+                                            <Button
+                                                variant={data?.length === 0 ? "primary" : "secondary"}
+                                                data-click="ADD_REST"
+                                                icon={<PlusIcon/>}
+                                                onClick={e => this.createRest()}>Create REST Service
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </DrawerContentBody>
+                        </DrawerContent>
+                    </Drawer>
                 </div>
                 {this.getSelectorModal()}
                 {this.getDeleteConfirmation()}
             </PageSection>
-        );
+        )
     }
 }

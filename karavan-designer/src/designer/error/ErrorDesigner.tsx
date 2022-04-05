@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    Button, EmptyState, EmptyStateBody, EmptyStateIcon, Modal,
+    EmptyState, EmptyStateBody, EmptyStateIcon, Modal,
     PageSection, Title
 } from '@patternfly/react-core';
 import '../karavan.css';
@@ -24,10 +24,8 @@ import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefin
 import CubesIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 
 interface Props {
-    onSave?: (integration: Integration) => void
+    onSave?: (integration: Integration, propertyOnly: boolean) => void
     integration: Integration
-    borderColor: string
-    borderColorSelected: string
     dark: boolean
 }
 
@@ -35,6 +33,7 @@ interface State {
     integration: Integration
     selectedStep?: CamelElement
     key: string
+    propertyOnly: boolean
 }
 
 export class ErrorDesigner extends React.Component<Props, State> {
@@ -42,11 +41,12 @@ export class ErrorDesigner extends React.Component<Props, State> {
     public state: State = {
         integration: this.props.integration,
         key: "",
+        propertyOnly: false
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.key !== this.state.key) {
-            this.props.onSave?.call(this, this.state.integration);
+            this.props.onSave?.call(this, this.state.integration, this.state.propertyOnly);
         }
     }
 

@@ -24,6 +24,7 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {KameletDefinition, NamedBeanDefinition, RouteDefinition, SagaDefinition, ToDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Dependency, Integration} from "karavan-core/lib/model/IntegrationDefinition";
+import {Trait} from "karavan-core/src/core/model/TraitDefinition";
 
 const StepElements: string[] = [
     "AggregateDefinition",
@@ -79,14 +80,14 @@ export class RouteToCreate {
 
 export class CamelUi {
 
-    static getSelectorModelTypes = (parentDsl: string | undefined, showSteps: boolean = true): string[] => {
+    static getSelectorModelTypes = (parentDsl: string | undefined, showSteps: boolean = true): [string, number][] => {
         const navs =  CamelUi.getSelectorModelsForParent(parentDsl, showSteps).map(dsl => dsl.navigation.split(","))
             .reduce((accumulator, value) => accumulator.concat(value), [])
             .filter((nav, i, arr) => arr.findIndex(l => l === nav) === i)
             .filter((nav, i, arr) => ![ 'dataformat'].includes(nav));
         const connectorNavs = ['routing', "transformation", "error", "configuration", "endpoint", "kamelet", "component"];
         const eipLabels = connectorNavs.filter(n => navs.includes(n));
-        return eipLabels;
+        return eipLabels.map(label => [label, this.getSelectorModelsForParentFiltered(parentDsl, label, true).length]);
     }
 
     static dslHasSteps = (className: string): boolean => {
@@ -258,17 +259,17 @@ export class CamelUi {
             : [];
     }
 
-    static getComponentProperties = (element: any, advanced: boolean): ComponentProperty[] => {
+    static getComponentProperties = (element: any): ComponentProperty[] => {
         const dslName: string = (element as any).dslName;
        if (dslName === 'ToDynamicDefinition'){
            const component = ComponentApi.findByName(dslName);
-           return component ? ComponentApi.getComponentProperties(component?.component.name,'producer', advanced) : [];
+           return component ? ComponentApi.getComponentProperties(component?.component.name,'producer') : [];
        } else {
            const uri: string = (element as any).uri;
            const name = ComponentApi.getComponentNameFromUri(uri);
            if (name){
                const component = ComponentApi.findByName(name);
-               return component ? ComponentApi.getComponentProperties(component?.component.name, element.dslName === 'FromDefinition' ? 'consumer' : 'producer', advanced) : [];
+               return component ? ComponentApi.getComponentProperties(component?.component.name, element.dslName === 'FromDefinition' ? 'consumer' : 'producer') : [];
            } else {
                return [];
            }
@@ -465,6 +466,7 @@ export class CamelUi {
         const result = new Map<string, number>();
         result.set('routes', i.spec.flows?.filter((e: any) => e.dslName === 'RouteDefinition').length || 0);
         result.set('rest', i.spec.flows?.filter((e: any) => e.dslName === 'RestDefinition').length || 0);
+        result.set('traits', this.getTraitCounts(i.spec.traits));
         const beans = i.spec.flows?.filter((e: any) => e.dslName === 'Beans');
         if (beans && beans.length > 0 && beans[0].beans && beans[0].beans.length > 0){
             result.set('beans', Array.from(beans[0].beans).length);
@@ -473,6 +475,11 @@ export class CamelUi {
             result.set('dependencies', i.spec.dependencies.length);
         }
         return result;
+    }
+
+    static getTraitCounts = (t?: Trait): number => {
+        if (t) return Object.getOwnPropertyNames(t).filter(name => name !== 'dslName' && name !== "uuid" && (t as any)[name]).length;
+        return 0;
     }
 
     static getRoutes = (integration: Integration): CamelElement[] => {

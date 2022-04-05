@@ -55,7 +55,7 @@ export const ComponentApi = {
     },
 
     getComponentTitleFromUri: (uri: string): string | undefined => {
-        const componentName =  uri.split(":")[0];
+        const componentName = uri.split(":")[0];
         const title = ComponentApi.findByName(componentName)?.component.title;
         return title ? title : componentName;
     },
@@ -66,28 +66,37 @@ export const ComponentApi = {
         if (name) {
             const component = ComponentApi.findByName(name);
             const syntax = component?.component.syntax;
-            const syntaxParts = ComponentApi.parseSyntax(syntax+'');
-            const syntaxSeparators = ComponentApi.getSyntaxSeparators(syntax+'');
-            let newUri = uri === name ? name+syntaxSeparators.join('') : uri;
+            const syntaxParts = ComponentApi.parseSyntax(syntax + '');
+            const syntaxSeparators = ComponentApi.getSyntaxSeparators(syntax + '');
+            let newUri = uri === name ? name + syntaxSeparators.join('') : uri;
             result.set(name, name);
-            syntaxParts.filter((x,i) => i > 0).forEach((part, index) => {
-                if (index < syntaxParts.length -1) {
-                    const startSeparator = syntaxSeparators[index];
-                    const endSeparator = syntaxSeparators[index + 1];
-                    const start = newUri.indexOf(startSeparator) + startSeparator.length;
-                    const end = endSeparator ? newUri.indexOf(endSeparator, start) : newUri.length;
-                    const val = newUri.substr(start, end-start);
-                    result.set(part, val);
-                    newUri = newUri.substr(end);
-                }
-            })
+            // workaround for CXF component start
+            if (name === 'cxf') {
+                const cxfParts = newUri.split(":");
+                const firstPart = cxfParts.at(1);
+                const secondPart = cxfParts.at(2);
+                if (cxfParts.length === 3 && firstPart === 'bean' && secondPart) result.set("beanId", firstPart + ":" + secondPart);
+                if (cxfParts.length === 2 && firstPart?.startsWith("//")) result.set("address", firstPart);
+            } else { // workaround for CXF component end
+                syntaxParts.filter((x, i) => i > 0).forEach((part, index) => {
+                    if (index < syntaxParts.length - 1) {
+                        const startSeparator = syntaxSeparators[index];
+                        const endSeparator = syntaxSeparators[index + 1];
+                        const start = newUri.indexOf(startSeparator) + startSeparator.length;
+                        const end = endSeparator ? newUri.indexOf(endSeparator, start) : newUri.length;
+                        const val = newUri.substr(start, end - start);
+                        result.set(part, val);
+                        newUri = newUri.substr(end);
+                    }
+                })
+            }
         }
         return result;
     },
 
     parseSyntax: (syntax: string): string[] => {
         const separators: string[] = ['://', '//', ':', '/', '#']
-        let simplifiedSyntax = ''+ syntax;
+        let simplifiedSyntax = '' + syntax;
         separators.forEach(s => {
             simplifiedSyntax = simplifiedSyntax?.replaceAll(s, ":");
         });
@@ -96,23 +105,23 @@ export const ComponentApi = {
 
     getSyntaxSeparators: (syntax: string): string[] => {
         const result: string[] = [];
-            const parts: string[] = ComponentApi.parseSyntax(syntax);
-            let str = '';
-            parts.forEach((part, index) => {
-                if (index < parts.length -1){
-                    const start = syntax.indexOf(part, str.length) + part.length;
-                    const end = syntax.indexOf(parts[index + 1], start);
-                    const separator = syntax.substr(start, end - start);
-                    result.push(separator);
-                    str = str + part + separator;
-                }
-            })
+        const parts: string[] = ComponentApi.parseSyntax(syntax);
+        let str = '';
+        parts.forEach((part, index) => {
+            if (index < parts.length - 1) {
+                const start = syntax.indexOf(part, str.length) + part.length;
+                const end = syntax.indexOf(parts[index + 1], start);
+                const separator = syntax.substr(start, end - start);
+                result.push(separator);
+                str = str + part + separator;
+            }
+        })
         return result;
     },
 
     parseUri: (uri?: string): string[] => {
         const separators: string[] = ['://', '//', ':', '/', '#']
-        let simplifiedUri = ''+ uri;
+        let simplifiedUri = '' + uri;
         separators.forEach(s => {
             simplifiedUri = simplifiedUri?.replaceAll(s, ":");
         });
@@ -128,7 +137,7 @@ export const ComponentApi = {
             const parts: string[] = Array.from(ComponentApi.getUriParts(uri).keys());
             let str = '';
             parts.forEach((part, index) => {
-                if (index < parts.length -1){
+                if (index < parts.length - 1) {
                     const start = syntax.indexOf(part, str.length) + part.length;
                     const end = syntax.indexOf(parts[index + 1], start);
                     const separator = syntax.substr(start, end - start);
@@ -147,21 +156,28 @@ export const ComponentApi = {
     buildComponentUri: (uri: string, pathParameter: string, pathParameterValue: string): string | undefined => {
         const name = ComponentApi.getComponentNameFromUri(uri);
         if (name) {
-            const map = ComponentApi.getUriParts(uri);
-            map.set(pathParameter, pathParameterValue);
-            const separators = ComponentApi.getUriSeparators(uri);
-            const result: string[] = [];
-            Array.from(map.keys()).forEach((key, index) => {
-                const val = map.get(key);
-                result.push(val ? val : '');
-                result.push(separators[index]);
-            });
-            return result.join('');
+            // workaround for CXF component start
+            if (name === 'cxf') {
+                if (pathParameter === 'beanId' && pathParameterValue && pathParameterValue.trim().length > 0) return "cxf:" + pathParameterValue;
+                if (pathParameter === 'address' && pathParameterValue && pathParameterValue.trim().length > 0) return "cxf:" + pathParameterValue;
+            } else { // workaround for CXF component end
+                const map = ComponentApi.getUriParts(uri);
+                map.set(pathParameter, pathParameterValue);
+                const separators = ComponentApi.getUriSeparators(uri);
+                const result: string[] = [];
+                Array.from(map.keys()).forEach((key, index) => {
+                    const val = map.get(key);
+                    result.push(val ? val : '');
+                    result.push(separators[index]);
+                });
+                return result.join('');
+            }
         }
         return uri;
     },
 
-    getComponentProperties: (componentName: string, type: 'consumer' | 'producer', advanced: boolean): ComponentProperty[] => {
+    getComponentProperties: (componentName: string, type: 'consumer' | 'producer'): ComponentProperty[] => {
+        const invertedType = type === 'consumer' ? 'producer' : 'consumer';
         const component: Component | undefined = ComponentApi.findByName(componentName);
         const properties: ComponentProperty[] = [];
         try {
@@ -186,17 +202,18 @@ export const ComponentApi = {
             }
         } finally {
             const result: ComponentProperty[] = [];
-            if (!advanced) {
-                result.push(...properties.filter(p => p.kind === 'path'));
-                result.push(...properties.filter(p => p.kind !== 'path' && p.required));
-                result.push(...properties.filter(p => p.label.length === 0 && p.kind !== 'path' && !p.required));
-                result.push(...properties.filter(p => p.label.startsWith(type) && !p.label.includes("advanced") && !p.required));
-                result.push(...properties.filter(p => p.label === "formatting" && !p.required));
-            } else {
-                result.push(...properties.filter(p => p.label.startsWith(type) && p.label.includes("advanced")));
-                result.push(...properties.filter(p => p.label === "advanced"));
-            }
-            return result;
+            result.push(...properties.filter(p => p.kind === 'path'));
+            result.push(...properties.filter(p => p.kind !== 'path' && p.required));
+            result.push(...properties.filter(p => p.label.length === 0 && p.kind !== 'path' && !p.required));
+            result.push(...properties.filter(p => !p.label.includes(invertedType) && !p.label.includes("advanced") && !p.required));
+            result.push(...properties.filter(p => p.label === "formatting" && !p.required));
+            result.push(...properties.filter(p => !p.label.includes(invertedType) &&
+                (p.label.includes("scheduler") || p.label.includes("security") || p.label.includes("advanced"))
+            ));
+            result.push(...properties.filter(p => !p.label.includes(invertedType) &&
+                (p.label.includes("scheduler") || p.label.includes("security") || p.label.includes("advanced"))
+            ));
+            return Array.from(new Map(result.map(item => [item.name, item])).values());
         }
-    },
+    }
 }

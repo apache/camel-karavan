@@ -27,9 +27,9 @@ import {
 } from "../src/core/model/CamelDefinition";
 import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
-import * as fs from 'fs';
-import {SimpleExpression} from "../lib/model/CamelDefinition";
+import {SimpleExpression} from "../src/core/model/CamelDefinition";
 import {Integration} from "../src/core/model/IntegrationDefinition";
+import * as fs from 'fs';
 
 describe('Add Step', () => {
 
@@ -94,6 +94,30 @@ describe('Add Step', () => {
             if (i2.spec.flows) {
                 expect(i2.spec.flows[0].from.steps[0].doCatch[0].onWhen.expression.simple.expression).to.equal("${body} != null");
             }
+        }
+    });
+
+    it('Add Step to position', () => {
+        const i = Integration.createNew("test")
+
+        const log1 =new LogDefinition({logName: 'log11', message: "hello11"});
+        const log2 =new LogDefinition({logName: 'log11', message: "hello22"});
+        const log3 =new LogDefinition({logName: 'log11', message: "hello33"});
+
+        const from = new FromDefinition({uri: "direct1"});
+        from.steps?.push(log1);
+        from.steps?.push(log2);
+        from.steps?.push(log3);
+        i.spec.flows?.push(new RouteDefinition({from:from}));
+
+        const choice = new ChoiceDefinition({})
+        const i2 = CamelDefinitionApiExt.addStepToIntegration(i, choice, from.uuid, 2);
+
+        if (i2.spec.flows && i2.spec.flows.length > 0) {
+            const f: FromDefinition = i2.spec.flows[0].from;
+            const c: ChoiceDefinition = f.steps[2];
+            expect(c?.dslName).to.equal('ChoiceDefinition');
+
         }
     });
 

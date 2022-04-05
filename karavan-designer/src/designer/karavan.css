@@ -1,7 +1,3 @@
-.karavan {
-    color: var(--pf-global--Color--100);
-}
-
 .karavan .tools-section {
     padding-top: 0px;
     padding-bottom: 0px;
@@ -186,8 +182,7 @@
 }
 
 .karavan .dsl-page .dsl-page-columns {
-    display: flex;
-    flex-direction: row;
+    display: block;
     height: 100%;
     background: #fafafa;
 }
@@ -203,10 +198,11 @@
 
 .karavan .main-tabs .top-menu-item .count {
     background: var(--pf-global--active-color--100);
-    /*color: white;*/
+    color: white;
     height: fit-content;
     margin-top: auto;
     margin-bottom: auto;
+    min-width: 0px;
 }
 
 .karavan .main-tabs .pf-c-tabs__link .pf-c-tabs__item-icon {
@@ -222,17 +218,13 @@
     margin-right: 6px;
 }
 
-.karavan .main-tabs .pf-c-tabs__item.pf-m-current {
-    --pf-c-tabs__link--after--BorderColor: var(--pf-global--primary-color--200);
-}
-
 /*Properties*/
 .karavan .properties {
     border: 1px solid #eee;
     padding: 10px 10px 10px 10px;
     font-size: 14px;
     background: #fcfcfc;
-    width: 450px;
+    width: 100%;
     height: 100%;
     overflow: auto;
     display: flex;
@@ -240,10 +232,31 @@
     justify-content: space-between;
 }
 
+.karavan .pf-c-drawer__splitter {
+    width: 2px;
+    background-color: #fcfcfc;
+}
+
+.karavan .pf-c-drawer__splitter-handle {
+    display: none;
+}
+
 .karavan .properties .headers {
     grid-row-gap: 10px;
     row-gap: 10px;
     display: contents;
+}
+
+.karavan .properties .headers .top {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.karavan .properties .headers .top h1{
+    width: 100%;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .karavan .properties .footer {
@@ -300,6 +313,7 @@
 
 .karavan .properties .input-group .pf-c-text-input-group__utilities {
     align-items: end;
+    margin-top: auto;
 }
 
 .karavan .properties .chip .pf-c-button{
@@ -326,7 +340,7 @@
 }
 
 .karavan .properties .pf-c-select__menu-item {
-    width: 280px;
+    /*width: 280px;*/
 }
 
 .karavan .properties .pf-c-select__menu-item-description {
@@ -438,7 +452,6 @@
     padding: 0;
     margin: auto auto auto 6px;
     background: transparent;
-    color: #fb8824;
 }
 
 .karavan .properties .add-button svg {
@@ -481,19 +494,19 @@
 }
 
 .karavan .dsl-page .graph .connections .arrow {
-    stroke: #fb8824;
-    fill: #fb8824;
+    stroke: var(--pf-global--Color--200);
+    fill: var(--pf-global--Color--200);
 }
 
 .karavan .dsl-page .graph .connections .path {
-     stroke: #fb8824;
+     stroke: var(--pf-global--Color--200);
      stroke-width: 1;
      fill: transparent;
 }
 
 .karavan .dsl-page .graph .connections .circle-outgoing,
 .karavan .dsl-page .graph .connections .circle-incoming {
-    stroke: #fb8824;
+    stroke: var(--pf-global--Color--200);
     stroke-width: 1;
     fill: white;
 }
@@ -502,21 +515,21 @@
     stroke-dasharray: 5;
     -webkit-animation: dashdraw .5s linear infinite;
     animation: dashdraw .5s linear infinite;
-    stroke: #fb8824;
+    stroke: var(--pf-global--Color--200);
     strokeWidth: 1;
     fill: transparent;
 }
 
 .karavan .dsl-page .graph .connections .path-direct {
     stroke-dasharray: 0;
-    stroke: #fb8824;
+    stroke: var(--pf-global--Color--200);
     strokeWidth: 1;
     fill: transparent;
 }
 
 .karavan .dsl-page .graph .connections .path-seda {
     stroke-dasharray: 2;
-    stroke: #fb8824;
+    stroke: var(--pf-global--Color--200);
     -webkit-animation: dashdraw .5s linear infinite;
     animation: dashdraw .5s linear infinite;
     strokeWidth: 1;
@@ -531,13 +544,18 @@
     display: flex;
     flex-direction: column;
     width: fit-content;
-    border-color: #fb8824;
+    border-color: var(--pf-global--Color--200);
     border-radius: 16px;
     border-width: 1px;
     min-width: 120px;
     padding: 3px 4px 4px 4px;
     margin: 3px auto 0 auto;
     position: relative;
+}
+
+.karavan {
+    --step-border-color: var(--pf-global--Color--200);
+    --step-border-color-selected: var(--pf-global--active-color--100);
 }
 
 .karavan .dsl-page .flows .children {
@@ -564,7 +582,7 @@
     z-index: 101;
 }
 
-.step-element .header-route .delete-button {
+.karavan .step-element .header-route .delete-button {
     position: absolute;
     top: 4px;
     right: 4px;
@@ -578,10 +596,10 @@
     visibility: hidden;
 }
 
-.step-element .header .delete-button,
+.karavan .step-element .header .delete-button,
 .element-builder .header .delete-button {
     position: absolute;
-    top: 0px;
+    top: -5px;
     font-size: 14px;
     line-height: 1;
     border: 0;
@@ -592,8 +610,10 @@
     visibility: hidden;
 }
 
-.step-element .header:hover .delete-button,
-.step-element .header-route:hover .delete-button,
+/*.karavan .step-element:hover .delete-button,*/
+/*.karavan .step-element:hover .delete-button,*/
+.karavan .step-element .header:hover .delete-button,
+.karavan .step-element .header-route:hover .delete-button,
 .element-builder .header:hover .delete-button {
     visibility: visible;
 }
@@ -602,21 +622,21 @@
     width: 350px !important;
 }
 
-.step-element .header {
+.karavan .step-element .header {
     height: 50px;
 }
 
-.step-element-selected {
-    background-color: rgb(171, 172, 224, 0.1);
+.karavan .step-element-selected {
+    background-color: rgba(var(--pf-global--palette--blue-50), 1);
 }
 
-.step-element .selected .header-icon {
-    border-color: rgb(48, 50, 132);
-    background-color: rgb(171, 172, 224);
+.karavan .step-element .selected .header-icon {
+    border-color: var(--pf-global--primary-color--100);
+    background-color: var(--pf-global--palette--blue-50);
     border-width: 2px;
 }
 
-.step-element .header .header-text {
+.karavan .step-element .header .header-text {
     position: absolute;
     top: 8px;
     left: 0;
@@ -624,20 +644,20 @@
     display: flex;
     flex-direction: row;
 }
-.step-element .header .spacer {
+.karavan .step-element .header .spacer {
     width: 50%
 }
-.step-element .header .text-bottom {
-    background-color: rgba(250, 250, 250, 0.5);
+.karavan .step-element .header .text-bottom {
+    background-color: rgba(255, 255, 255, 0.5);
 }
-.step-element .header .text-right {
+.karavan .step-element .header .text-right {
     padding-left: 17px;
     width: 50%;
     text-align:start;
 }
 
-.step-element .header-icon {
-    border-color: #fb8824;
+.karavan .step-element .header-icon {
+    border-color: var(--pf-global--Color--200);
     border-style: solid;
     border-radius: 30px;
     border-width: 1px;
@@ -650,7 +670,7 @@
     align-items: center;
 }
 
-.step-element .header .icon,
+.karavan .step-element .header .icon,
 .element-builder .header .icon {
     height: 20px;
     width: auto;
@@ -662,14 +682,7 @@
     user-select: none;
 }
 
-.step-element .arrow-down {
-    margin-top: -1px;
-    font-size: 13px;
-    height: 16px;
-    color: #fb8824;
-}
-
-.step-element .add-element-button {
+.karavan .step-element .add-element-button {
     top: 5px;
     left: 5px;
     font-size: 15px;
@@ -678,23 +691,43 @@
     border: 0;
     padding: 0;
     background: transparent;
-    color: #fb8824;
+    color: var(--pf-global--primary-color--100);
     visibility: hidden;
     z-index: 100;
     position: absolute;
 }
 
-.step-element .add-button-bottom {
+.karavan .step-element .insert-element-button {
+    position: absolute;
+    top: -5px;
+    /*right: 10px;*/
+    font-size: 14px;
+    line-height: 1;
+    border: 0;
+    padding: 0;
+    margin: 0 0 0 -25px;
+    background: transparent;
+    background: transparent;
+    color: var(--pf-global--primary-color--100);
+    visibility: hidden;
+    z-index: 100;
+}
+
+.karavan .step-element .header:hover .insert-element-button {
+    visibility: visible;
+}
+
+.karavan .step-element .add-button-bottom {
     position: relative;
 }
 
-.step-element .add-button-left {
+.karavan .step-element .add-button-left {
     position: absolute;
     top: 4px;
     left: 4px;
 }
 
-.step-element .add-button {
+.karavan .step-element .add-button {
     font-size: 15px;
     height: 15px;
     line-height: 1;
@@ -702,7 +735,7 @@
     padding: 0;
     margin: 0;
     background: transparent;
-    color: #fb8824;
+    color: var(--pf-global--primary-color--100);
     visibility: hidden;
     z-index: 100;
 }
@@ -716,7 +749,7 @@
     padding: 0;
     margin: 3px auto 0 auto;
     background: transparent;
-    color: #fca338;
+    color: var(--pf-global--primary-color--100);
     visibility: hidden;
     height: 100%;
     display: flex;
@@ -731,8 +764,8 @@
 
 
 .element-builder:hover .add-button,
-.step-element:hover .add-element-button,
-.step-element:hover .add-button {
+.karavan .step-element:hover .add-element-button,
+.karavan .step-element:hover .add-button {
     visibility: visible;
 }
 
@@ -820,24 +853,6 @@
     overflow-wrap: anywhere;
 }
 
-.pf-c-backdrop .pf-c-tabs__item.pf-m-current {
-    --pf-c-tabs__link--after--BorderColor: #fca338;
-}
-
-.karavan .pf-c-button {
-    --pf-c-button--m-primary--hover--BackgroundColor: #fb8824;
-    --pf-c-button--m-primary--focus--BackgroundColor: #fb8824;
-    --pf-c-button--m-primary--active--BackgroundColor: #fb8824;
-}
-
-.karavan .pf-c-select__menu-item-icon {
-    color: #fb8824;
-}
-
-.karavan .pf-c-select__menu-wrapper:hover, .karavan .pf-c-select__menu-item:hover {
-    background-color: #fca338;
-}
-
 /*REST Page*/
 .karavan .rest-page {
     flex: 1;
@@ -845,8 +860,7 @@
 }
 
 .karavan .rest-page .rest-page-columns {
-    display: flex;
-    flex-direction: row;
+    display: block;
     height: 100%;
     background: #fafafa;
 }
@@ -886,15 +900,18 @@
 .karavan .rest-page .rest-card-unselected,
 .karavan .rest-page .rest-config-card-unselected,
 .karavan .rest-page .method-card-unselected {
-    border-color: #fb8824;
+    border-color: var(--pf-global--Color--200);
     background-color: transparent;
 }
 
 .karavan .rest-page .rest-card-selected,
 .karavan .rest-page .rest-config-card-selected,
 .karavan .rest-page .method-card-selected {
-    border-color: rgb(48, 50, 132);
-    background-color: rgb(171, 172, 224, 0.1);
+    border-color: var(--pf-global--primary-color--100);
+}
+
+.karavan .rest-page .rest-card-selected .title {
+    color: var(--pf-global--primary-color--100);
 }
 
 .karavan .rest-page .rest-config-card,
@@ -937,11 +954,11 @@
 }
 
 .karavan .rest-page .method-card-unselected .method {
-    background: #fca338;
+    background: var(--pf-global--Color--400);
 }
 
 .karavan .rest-page .method-card-selected .method {
-    background: rgb(48, 50, 132);
+    background: var(--pf-global--primary-color--100);
 }
 
 .karavan .rest-page .rest-card .title,
@@ -986,7 +1003,7 @@
     font-size: 15px;
     border: 0;
     background: transparent;
-    color: #fb8824;
+    color: var(--pf-global--primary-color--100);
     z-index: 100;
 }
 

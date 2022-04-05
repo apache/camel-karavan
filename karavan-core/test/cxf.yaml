@@ -1,0 +1,13 @@
+- route:
+    id: exampleRoute
+    from:
+      uri: cxf://{{output.url}}
+      parameters:
+        wsdlURL: '{{input.wsdl}}'
+        dataFormat: PAYLOAD
+      steps:
+        - to:
+            uri: cxf:bean:beanName
+            parameters:
+              wsdlURL: '{{output.wsdl}}'
+              dataFormat: PAYLOAD

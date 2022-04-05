@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.0.14
+Usability improvements
+1. Insert new step between existing steps
+2. Clone REST and REST Method
+3. Clone Bean
+4. Clone Dependency
+5. Copy/paste EIP DSL element 
+6. Security and Scheduler parameters are hidden by default for Components (Expandable Section)
+7. Advanced parameters are hidden by default for EIP (Expandable Section)
+8. Open Integration, open yaml, run with Jbang context menu in Karavan view in VS Code
+
+## 0.0.13
+Requires Camel 3.16.0 and later
+1. REST DSL
+2. Support Camel 3.16.0 DSL
+3. New theme
+4. Resizable properties panel
+5. New Karavan views in VS Code
+
+## 0.0.12
+Requires Camel 3.16.0 and later
+1. Beans
+3. Dependencies
+4. Support Camel 3.16.0 DSL
+5. New theme
+6. Resizable properties panel
+7. New Karavan views in VS Code
+
 ## 0.0.11
 1. Hot fix: Set Camel Jbang alias as `camel@apache/camel`
 2. Hot fix: Read Implicit Expressions from YAML

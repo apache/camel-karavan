@@ -48,12 +48,15 @@ class App extends React.Component<Props, State> {
             '          steps:\n' +
             '            - log:\n' +
             '                message: \'Received: ${body}\'\n' +
+            '            - log:\n' +
+            '                message: \'Received: ${body}\'\n' +
+            '            - log:\n' +
+            '                message: \'Received: ${body}\'\n' +
             '            - to:\n' +
             '                uri: kamelet:kafka-sink\n' +
             '                parameters:\n' +
             '                  topic: topic1\n' +
-            '        id: post\n' +
-            ''
+            '        id: post\n'
     };
 
     componentDidMount() {
@@ -83,6 +86,7 @@ class App extends React.Component<Props, State> {
             "cxf.json",
             "file.json",
             "log.json",
+            "kafka.json",
             "coap+tcp.json",
             "pg-replication-slot.json",
             "rest-api.json",
@@ -95,18 +99,17 @@ class App extends React.Component<Props, State> {
 
     }
 
-    save(filename: string, yaml: string) {
+    save(filename: string, yaml: string, propertyOnly: boolean) {
         // console.log(filename);
         console.log(yaml);
+        // console.log(propertyOnly);
     }
 
     public render() {
         return (
             <Page className="karavan">
                 <KaravanDesigner key={this.state.key} filename={this.state.name} yaml={this.state.yaml}
-                                 onSave={(filename, yaml) => this.save(filename, yaml)}
-                                 borderColor="#fb8824"
-                                 borderColorSelected="#303284"
+                                 onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}
                                  dark={document.body.className.includes('vscode-dark')}
                 />
             </Page>

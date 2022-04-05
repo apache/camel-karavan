@@ -19,7 +19,7 @@ import {
     Form,
     Text,
     Title,
-    TextVariants, ExpandableSection,
+    TextVariants, ExpandableSection, Button, Tooltip,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -36,12 +36,19 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelUi, RouteToCreate} from "../utils/CamelUi";
 import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {IntegrationHeader} from "../utils/KaravanComponents";
+import CopyIcon from '@patternfly/react-icons/dist/esm/icons/copy-icon'
+import PasteIcon from '@patternfly/react-icons/dist/esm/icons/paste-icon'
+import CloneIcon from "@patternfly/react-icons/dist/esm/icons/clone-icon";
 
 interface Props {
     integration: Integration,
     step?: CamelElement,
     onIntegrationUpdate?: any,
     onPropertyUpdate?: (element: CamelElement, updatedUuid: string, newRoute?: RouteToCreate) => void
+    clipboardStep?: CamelElement
+    onSaveClipboardStep?: (element?: CamelElement) => void
+    onClone?: (element: CamelElement) => void
+    isRouteDesigner: boolean
 }
 
 interface State {
@@ -64,6 +71,15 @@ export class DslProperties extends React.Component<Props, State> {
             (clone as any)[fieldId] = value;
             this.setStep(clone)
             this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid, newRoute);
+        }
+    }
+
+    pasteClipboardStep = () => {
+        if (this.props.clipboardStep && this.state.step) {
+            const clone = CamelUtil.cloneStep(this.props.clipboardStep);
+            clone.uuid = this.state.step.uuid;
+            this.setStep(clone)
+            this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid);
         }
     }
 
@@ -98,6 +114,12 @@ export class DslProperties extends React.Component<Props, State> {
         }
     }
 
+    cloneElement = () => {
+        if (this.state.step) {
+            this.props.onClone?.call(this, this.state.step);
+        }
+    }
+
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevProps.step !== this.props.step) {
             this.setStep(this.props.step);
@@ -111,7 +133,7 @@ export class DslProperties extends React.Component<Props, State> {
         });
     }
 
-    getComponentHeader = (): JSX.Element => {
+    getRouteHeader= (): JSX.Element => {
         const title = this.state.step && CamelUi.getTitle(this.state.step)
         const kamelet = this.state.step && CamelUi.getKamelet(this.state.step)
         const description = this.state.step && kamelet
@@ -119,24 +141,53 @@ export class DslProperties extends React.Component<Props, State> {
             : this.state.step?.dslName ? CamelMetadataApi.getCamelModelMetadataByClassName(this.state.step?.dslName)?.description : title;
         return (
             <div className="headers">
-                <Title headingLevel="h1" size="md">{title}</Title>
+                <div className="top">
+                    <Title headingLevel="h1" size="md">{title}</Title>
+                    <Tooltip content="Copy step" position="bottom">
+                        <Button variant="link" onClick={() => this.props.onSaveClipboardStep?.call(this, this.state.step)} icon={<CopyIcon/>}/>
+                    </Tooltip>
+                    <Tooltip content="Paste step" position="bottom">
+                        <Button variant="link" onClick={() => this.pasteClipboardStep()} icon={<PasteIcon/>}/>
+                    </Tooltip>
+                </div>
                 <Text component={TextVariants.p}>{description}</Text>
             </div>
         )
     }
 
-    getProps = (showAdvanced?: boolean): PropertyMeta[] => {
-        const dslName = this.state.step?.dslName;
-        return CamelDefinitionApiExt.getElementProperties(dslName)
-            .filter((p: PropertyMeta) => (showAdvanced && p.label.includes('advanced')) || (!showAdvanced && !p.label.includes('advanced')))
-            .filter((p: PropertyMeta) => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)) || (dslName === 'CatchDefinition' && p.name === 'onWhen'))
-            .filter((p: PropertyMeta) => !(dslName === 'RestDefinition' && ['get', 'post', 'put', 'patch', 'delete', 'head'].includes(p.name)));
-            // .filter((p: PropertyMeta) => dslName && !(['RestDefinition', 'GetDefinition', 'PostDefinition', 'PutDefinition', 'PatchDefinition', 'DeleteDefinition', 'HeadDefinition'].includes(dslName) && ['param', 'responseMessage'].includes(p.name))) // TODO: configure this properties
+    getClonableElementHeader = (): JSX.Element => {
+        const title = this.state.step && CamelUi.getTitle(this.state.step)
+        const description = this.state.step?.dslName ? CamelMetadataApi.getCamelModelMetadataByClassName(this.state.step?.dslName)?.description : title;
+        return (
+            <div className="headers">
+                <div className="top">
+                    <Title headingLevel="h1" size="md">{title}</Title>
+                    <Tooltip content="Clone element" position="bottom">
+                        <Button variant="link" onClick={() => this.cloneElement()} icon={<CloneIcon/>}/>
+                    </Tooltip>
+                </div>
+                <Text component={TextVariants.p}>{description}</Text>
+            </div>
+        )
     }
 
-    getPropertyFields = (showAdvanced: boolean) => {
+    getComponentHeader = (): JSX.Element => {
+        if (this.props.isRouteDesigner) return this.getRouteHeader()
+        else return this.getClonableElementHeader();
+    }
+
+    getProperties = (): PropertyMeta[] => {
+        const dslName = this.state.step?.dslName;
+        return CamelDefinitionApiExt.getElementProperties(dslName)
+            // .filter((p: PropertyMeta) => (showAdvanced && p.label.includes('advanced')) || (!showAdvanced && !p.label.includes('advanced')))
+            .filter((p: PropertyMeta) => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)) || (dslName === 'CatchDefinition' && p.name === 'onWhen'))
+            .filter((p: PropertyMeta) => !(dslName === 'RestDefinition' && ['get', 'post', 'put', 'patch', 'delete', 'head'].includes(p.name)));
+        // .filter((p: PropertyMeta) => dslName && !(['RestDefinition', 'GetDefinition', 'PostDefinition', 'PutDefinition', 'PatchDefinition', 'DeleteDefinition', 'HeadDefinition'].includes(dslName) && ['param', 'responseMessage'].includes(p.name))) // TODO: configure this properties
+    }
+
+    getPropertyFields = (properties: PropertyMeta[]) => {
         return (<>
-            {this.state.step && !['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName) && this.getProps(showAdvanced).map((property: PropertyMeta) =>
+            {this.state.step && !['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName) && properties.map((property: PropertyMeta) =>
                 <DslPropertyField key={property.name}
                                   integration={this.props.integration}
                                   property={property}
@@ -151,20 +202,24 @@ export class DslProperties extends React.Component<Props, State> {
     }
 
     render() {
+        const properties = this.getProperties();
+        const propertiesMain = properties.filter(p => !p.label.includes("advanced"));
+        const propertiesAdvanced = properties.filter(p => p.label.includes("advanced"));
         return (
             <div key={this.state.step ? this.state.step.uuid : 'integration'} className='properties'>
                 <Form autoComplete="off" onSubmit={event => event.preventDefault()}>
                     {this.state.step === undefined && <IntegrationHeader integration={this.props.integration}/>}
                     {this.state.step && this.getComponentHeader()}
-                    {this.getPropertyFields(false)}
-                    {this.getProps(true).length > 0 && <ExpandableSection
-                        toggleText={'Advanced properties'}
-                        onToggle={isExpanded => this.setState({isShowAdvanced: !this.state.isShowAdvanced})}
-                        isExpanded={this.state.isShowAdvanced}>
-                        <div className="parameters">
-                            {this.getPropertyFields(true)}
-                        </div>
-                    </ExpandableSection>}
+                    {this.getPropertyFields(propertiesMain)}
+                    {propertiesAdvanced.length > 0 &&
+                        <ExpandableSection
+                            toggleText={'Advanced properties'}
+                            onToggle={isExpanded => this.setState({isShowAdvanced: !this.state.isShowAdvanced})}
+                            isExpanded={this.state.isShowAdvanced}>
+                            <div className="parameters">
+                                {this.getPropertyFields(propertiesAdvanced)}
+                            </div>
+                        </ExpandableSection>}
                     {this.state.step && ['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName) &&
                         <DataFormatField
                             integration={this.props.integration}

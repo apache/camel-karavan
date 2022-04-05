@@ -1,7 +1,7 @@
 apiVersion: camel.apache.org/v1
 kind: Integration
 metadata:
-  name: postman.yaml
+  name: Postman Demo
 spec:
   flows:
     - rest:
@@ -18,13 +18,13 @@ spec:
                 message: 'Received: ${body}'
             - multicast:
                 steps:
-                  - kamelet:
-                      name: kafka-not-secured-sink
+                  - to:
+                      uri: kamelet:kafka-not-secured-sink
                       parameters:
                         topic: parcels
                         bootstrapServers: localhost:9092
-                  - kamelet:
-                      name: postgresql-sink
+                  - to:
+                      uri: kamelet:postgresql-sink
                       parameters:
                         serverName: localhost
                         serverPort: '5432'
@@ -36,8 +36,8 @@ spec:
                           (:#id,:#address) ON CONFLICT (id)  DO NOTHING
                 aggregationStrategy: >-
                   #class:org.apache.camel.processor.aggregate.UseOriginalAggregationStrategy
-                parallelProcessing: false
-                streaming: false
+                parallelProcessing: true
+                streaming: true
         id: post
     - route:
         from:
@@ -47,8 +47,8 @@ spec:
                 uri: xj:identity
                 parameters:
                   transformDirection: XML2JSON
-            - kamelet:
-                name: kafka-not-secured-sink
+            - to:
+                uri: kamelet:kafka-not-secured-sink
                 parameters:
                   topic: payments
                   bootstrapServers: localhost:9092
@@ -81,8 +81,8 @@ spec:
                                   library: jackson
                             - log:
                                 message: 'Send to MQTT : ${body}'
-                            - kamelet:
-                                name: mqtt-sink
+                            - to:
+                                uri: kamelet:mqtt-sink
                                 parameters:
                                   topic: deliveries
                                   brokerUrl: tcp://localhost:1883
@@ -97,8 +97,8 @@ spec:
                                 library: jackson
                           - log:
                               message: 'Send to database: ${body}'
-                          - kamelet:
-                              name: postgresql-sink
+                          - to:
+                              uri: kamelet:postgresql-sink
                               parameters:
                                 serverName: localhost
                                 serverPort: '5432'

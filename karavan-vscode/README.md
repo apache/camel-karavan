@@ -1,19 +1,20 @@
 ![License](https://img.shields.io/badge/License-Apache-blue.svg?style=for-the-badge&logo=apache)
 
-# Integration Designer for Apache Camel
+## Apache Camel Karavan
+**Mastering Tool for Apache Camel** makes integration easy and fun through the visualization of pipelines and integration with runtimes.
 
-
-**Integration Designer for Apache Camel** makes integration easy and fun through visualization of integration pipeline.
-
-![karavan-vscode](screenshots/karavan-vscode.png)
+![karavan-vscode](images/karavan-vscode.png)
 
 # Features
 
-* Read/Write Integration resources (*.yaml with kind:Integration) and plain yaml routes
-* Kamelets source/sink/action
-* Enterprise Integration Patterns DSL 
-* Components consumer/producer 
-* Integration with [JBang](https://www.jbang.dev)
+* Enterprise Integration Patterns DSL
+* REST DSL
+* Beans and dependencies
+* 100+ Kamelets source/sink/action
+* 300+ Components consumer/producer
+* Read/Write Integration CRD (*.yaml with kind:Integration) and plain yaml routes
+* Integration with [Camel-K](https://camel.apache.org/camel-k/next/index.html) and [JBang](https://www.jbang.dev)
+
 
 # Installation
 
@@ -26,24 +27,24 @@
 3. In the search bar, type **Karavan**
 4. In the **Apache Camel Karavan** box, click **Install**.
 
-![install](screenshots/install.png)
+![install](images/install.png)
 
 # Create and edit integration 
 
 ## Create new Integration
 
-![create](screenshots/create.png)
+![create](images/create.png)
 
 ## Edit an existing Integration
 
-![open](screenshots/open.png)
+![open](images/open.png)
 
 
 # Run integration
 
 ## Run integration locally
 * [JBang](https://www.jbang.dev) installed
-* Click ![run](screenshots/run.png) button in VSCode or
+* Click ![run](images/run.png) button in VSCode or
 ```shell
 jbang -Dcamel.jbang.version=3.15.0 CamelJBang@apache/camel run $INTEGRATION.yaml --max-messages=10 --logging-level=info
 ```

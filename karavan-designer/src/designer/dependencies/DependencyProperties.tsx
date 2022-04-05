@@ -16,21 +16,25 @@
  */
 import React from 'react';
 import {
+    Button,
     Form,
     FormGroup,
-    TextInput,
+    TextInput, Title, Tooltip,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import {Integration, Dependency} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {IntegrationHeader} from "../utils/KaravanComponents";
+import {v4 as uuidv4} from "uuid";
+import CloneIcon from "@patternfly/react-icons/dist/esm/icons/clone-icon";
 
 interface Props {
     integration: Integration
     dependency?: Dependency
     dark: boolean
     onChange: (dependency: Dependency) => void
+    onClone: (dependency: Dependency) => void
 }
 
 interface State {
@@ -58,10 +62,27 @@ export class DependencyProperties extends React.Component<Props, State> {
         }
     }
 
+
+    cloneDependency = () => {
+        if (this.state.dependency) {
+            const dependency = CamelUtil.cloneDependency(this.state.dependency);
+            dependency.uuid = uuidv4();
+            this.props.onClone?.call(this, dependency);
+        }
+    }
+
     getDependencyForm() {
         const dependency = this.state.dependency;
         return (
             <>
+                <div className="headers">
+                    <div className="top">
+                        <Title headingLevel="h1" size="md">Dependency</Title>
+                        <Tooltip content="Clone dependency" position="bottom">
+                            <Button variant="link" onClick={() => this.cloneDependency()} icon={<CloneIcon/>}/>
+                        </Tooltip>
+                    </div>
+                </div>
                 <FormGroup label="Group" fieldId="group" isRequired>
                     <TextInput className="text-field" isRequired type="text" id="group" name="group" value={dependency?.group}
                                onChange={e => this.dependencyChanged("group", e)}/>

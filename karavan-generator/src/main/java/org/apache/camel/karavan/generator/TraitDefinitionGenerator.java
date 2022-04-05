@@ -96,6 +96,16 @@ public final class TraitDefinitionGenerator extends AbstractGenerator {
                 "        return traits;\n" +
                 "    }\n" +
                 "}\n\n");
+
+        // Generate Metadata
+        camelModel.append("export const CamelTraitMetadata: TraitMeta[] = [");
+        getTraits().forEach(trait -> {
+
+            camelModel.append(String.format("    new TraitMeta(\"%s\", %s, \"%s\", \"%s\", [\n", trait.name, trait.platform, trait.profiles, trait.description.replace("\"", "\\\"")));
+            camelModel.append(String.format("    ]),\n"));
+        });
+        camelModel.append("] \n\n");
+
         writeFileText(targetModel, camelModel.toString());
     }
 

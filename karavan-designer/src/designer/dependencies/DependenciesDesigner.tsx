@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    Button, Modal, PageSection
+    Button, Drawer, DrawerContent, DrawerContentBody, DrawerPanelContent, Modal, PageSection
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {CamelUi} from "../utils/CamelUi";
@@ -28,10 +28,8 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {DependencyCard} from "./DependencyCard";
 
 interface Props {
-    onSave?: (integration: Integration) => void
+    onSave?: (integration: Integration, propertyOnly: boolean) => void
     integration: Integration
-    borderColor: string
-    borderColorSelected: string
     dark: boolean
 }
 
@@ -41,6 +39,7 @@ interface State {
     selectedDep?: Dependency
     key: string
     showDepEditor: boolean
+    propertyOnly: boolean
 }
 
 export class DependenciesDesigner extends React.Component<Props, State> {
@@ -50,11 +49,12 @@ export class DependenciesDesigner extends React.Component<Props, State> {
         showDeleteConfirmation: false,
         key: "",
         showDepEditor: false,
+        propertyOnly: false
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.key !== this.state.key) {
-            this.props.onSave?.call(this, this.state.integration);
+            this.props.onSave?.call(this, this.state.integration, this.state.propertyOnly);
         }
     }
 
@@ -63,7 +63,7 @@ export class DependenciesDesigner extends React.Component<Props, State> {
     }
 
     onIntegrationUpdate = (i: Integration) => {
-        this.setState({integration: i, showDeleteConfirmation: false, key: Math.random().toString()});
+        this.setState({integration: i, propertyOnly: false, showDeleteConfirmation: false, key: Math.random().toString()});
     }
 
     deleteDep = () => {
@@ -72,14 +72,15 @@ export class DependenciesDesigner extends React.Component<Props, State> {
             integration: i,
             showDeleteConfirmation: false,
             key: Math.random().toString(),
-            selectedDep: undefined
+            selectedDep: undefined,
+            propertyOnly: false
         });
     }
 
     changeDep = (dep: Dependency) => {
         const clone = CamelUtil.cloneIntegration(this.state.integration);
         const i = CamelDefinitionApiExt.addDependencyToIntegration(clone, dep);
-        this.setState({integration: i, key: Math.random().toString(), selectedDep: dep});
+        this.setState({integration: i, propertyOnly: false, key: Math.random().toString(), selectedDep: dep});
     }
 
     getDeleteConfirmation() {
@@ -119,38 +120,51 @@ export class DependenciesDesigner extends React.Component<Props, State> {
         this.changeDep(new Dependency());
     }
 
+    getPropertiesPanel() {
+        return (
+            <DrawerPanelContent isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'300px'}>
+                <DependencyProperties integration={this.props.integration}
+                                      dependency={this.state.selectedDep}
+                                      dark={this.props.dark}
+                                      onChange={this.changeDep}
+                                      onClone={this.changeDep}/>
+            </DrawerPanelContent>
+        )
+    }
+
     render() {
         const deps = CamelUi.getDependencies(this.state.integration).sort((a, b) => a.getFullName() > b.getFullName() ? 1 : -1 );
         return (
             <PageSection className="rest-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="rest-page-columns">
-                    <div className="graph" data-click="REST"  onClick={event => this.unselectDep(event)}>
-                        <div className="flows">
-                            {deps?.map(dep => <DependencyCard key={dep.uuid + this.state.key}
-                                                              selectedDep={this.state.selectedDep}
-                                                              dep={dep}
-                                                              integration={this.props.integration}
-                                                              selectElement={this.selectDep}
-                                                              deleteElement={this.showDeleteConfirmation}/>)
-                            }
-                            <div className="add-rest">
-                                <Button
-                                    variant={deps?.length === 0 ? "primary" : "secondary"}
-                                    data-click="ADD_DEPENDENCY"
-                                    icon={<PlusIcon/>}
-                                    onClick={e => this.createDep()}>Create new dependency
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                    <DependencyProperties integration={this.props.integration}
-                                          dependency={this.state.selectedDep}
-                                          dark={this.props.dark}
-                                          onChange={this.changeDep}/>
+                    <Drawer isExpanded isInline>
+                        <DrawerContent panelContent={this.getPropertiesPanel()}>
+                            <DrawerContentBody>
+                                <div className="graph" data-click="REST"  onClick={event => this.unselectDep(event)}>
+                                    <div className="flows">
+                                        {deps?.map(dep => <DependencyCard key={dep.uuid + this.state.key}
+                                                                          selectedDep={this.state.selectedDep}
+                                                                          dep={dep}
+                                                                          integration={this.props.integration}
+                                                                          selectElement={this.selectDep}
+                                                                          deleteElement={this.showDeleteConfirmation}/>)
+                                        }
+                                        <div className="add-rest">
+                                            <Button
+                                                variant={deps?.length === 0 ? "primary" : "secondary"}
+                                                data-click="ADD_DEPENDENCY"
+                                                icon={<PlusIcon/>}
+                                                onClick={e => this.createDep()}>Create new dependency
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </DrawerContentBody>
+                        </DrawerContent>
+                    </Drawer>
                 </div>
                 {this.getDeleteConfirmation()}
             </PageSection>
-
-        );
+        )
     }
 }
