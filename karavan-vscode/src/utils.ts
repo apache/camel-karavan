@@ -34,7 +34,9 @@ export function save(relativePath: string, yaml: string){
 
 export function getRalativePath(fullPath: string): string {
     const root = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.path : "";
-    const relativePath = path.resolve(fullPath).replace(path.resolve(root) + path.sep, '');
+    const normalizedRoot = vscode.Uri.file(root).fsPath ;
+    const relativePath = path.resolve(fullPath).replace(normalizedRoot + path.sep, '');
+    
     return relativePath;
 }
 
