@@ -135,7 +135,7 @@ export class DslProperties extends React.Component<Props, State> {
 
     getRouteHeader= (): JSX.Element => {
         const title = this.state.step && CamelUi.getTitle(this.state.step)
-        const kamelet = this.state.step && CamelUi.getKamelet(this.state.step)
+        const kamelet = this.state.step && CamelUtil.getKamelet(this.state.step)
         const description = this.state.step && kamelet
             ? kamelet.spec.definition.description
             : this.state.step?.dslName ? CamelMetadataApi.getCamelModelMetadataByClassName(this.state.step?.dslName)?.description : title;

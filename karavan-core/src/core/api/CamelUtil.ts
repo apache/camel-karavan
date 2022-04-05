@@ -19,8 +19,14 @@ import {
     CamelElement, Beans, Dependency,
 } from "../model/IntegrationDefinition";
 import {CamelDefinitionApi} from "./CamelDefinitionApi";
-import {NamedBeanDefinition} from "../model/CamelDefinition";
+import {KameletDefinition, NamedBeanDefinition, ToDefinition} from "../model/CamelDefinition";
 import {TraitApi} from "../model/TraitDefinition";
+import {KameletApi} from "./KameletApi";
+import {KameletModel, Property} from "../model/KameletModels";
+import {ComponentProperty} from "../model/ComponentModels";
+import {ComponentApi} from "./ComponentApi";
+import {CamelMetadataApi} from "../model/CamelMetadata";
+import {CamelDefinitionApiExt} from "./CamelDefinitionApiExt";
 
 export class CamelUtil {
 
@@ -116,5 +122,95 @@ export class CamelUtil {
             }
             return result;
         }
+    }
+
+    static isKameletComponent = (element: CamelElement | undefined): boolean => {
+        if (element?.dslName === 'KameletDefinition') {
+            return true;
+        } else if (element && ["FromDefinition", "ToDefinition"].includes(element.dslName)) {
+            const uri: string = (element as any).uri;
+            return uri !== undefined && uri.startsWith("kamelet:");
+        } else {
+            return false;
+        }
+    }
+
+    static getKamelet = (element: CamelElement): KameletModel | undefined => {
+        if (element.dslName === 'KameletDefinition') {
+            return KameletApi.findKameletByName((element as KameletDefinition).name || '');
+        } else if (element.dslName === 'ToDefinition' && (element as ToDefinition).uri?.startsWith("kamelet:")) {
+            const kameletName = (element as ToDefinition).uri?.replace("kamelet:", "");
+            return KameletApi.findKameletByName(kameletName);
+        } else if (["FromDefinition", "FromDefinition", "ToDefinition"].includes(element.dslName)) {
+            const uri: string = (element as any).uri;
+            const k =
+                uri !== undefined ? KameletApi.findKameletByUri(uri) : undefined;
+            return k;
+        } else {
+            return undefined;
+        }
+    }
+
+    static getKameletProperties = (element: any): Property[] => {
+        const kamelet = this.getKamelet(element)
+        return kamelet
+            ? KameletApi.getKameletProperties(kamelet?.metadata.name)
+            : [];
+    }
+
+    static getComponentProperties = (element: any): ComponentProperty[] => {
+        const dslName: string = (element as any).dslName;
+        if (dslName === 'ToDynamicDefinition'){
+            const component = ComponentApi.findByName(dslName);
+            return component ? ComponentApi.getComponentProperties(component?.component.name,'producer') : [];
+        } else {
+            const uri: string = (element as any).uri;
+            const name = ComponentApi.getComponentNameFromUri(uri);
+            if (name){
+                const component = ComponentApi.findByName(name);
+                return component ? ComponentApi.getComponentProperties(component?.component.name, element.dslName === 'FromDefinition' ? 'consumer' : 'producer') : [];
+            } else {
+                return [];
+            }
+        }
+    }
+
+    static checkRequired = (element: CamelElement): [boolean, string []] => {
+        const result: [boolean, string []] = [true, []];
+        const className = element.dslName;
+        let elementMeta =  CamelMetadataApi.getCamelModelMetadataByClassName(className);
+        if (elementMeta === undefined && className.endsWith("Expression")) elementMeta = CamelMetadataApi.getCamelLanguageMetadataByClassName(className);
+        elementMeta?.properties.filter(p => p.required).forEach(p => {
+            const value = (element as any)[p.name];
+            if (p.type === 'string' && (value === undefined || value.trim().length === 0)){
+                result[0] = false;
+                result[1].push("Property " + p.displayName + " is required");
+            } else if (p.type === 'ExpressionDefinition'){
+                const expressionMeta =  CamelMetadataApi.getCamelModelMetadataByClassName('ExpressionDefinition');
+                let expressionCheck = false;
+                expressionMeta?.properties.forEach(ep => {
+                    const expValue = value[ep.name];
+                    if (expValue){
+                        const checkedExpression = this.checkRequired(expValue);
+                        if (checkedExpression[0]) expressionCheck = true;
+                    }
+                })
+                result[0] = expressionCheck;
+                if (!expressionCheck) result[1].push("Expression is not defined");
+            }
+        })
+        if (['FromDefinition', 'ToDefinition'].includes(className)){
+            const isKamelet = this.isKameletComponent(element);
+            if (!isKamelet){
+                this.getComponentProperties(element).filter(p => p.required).forEach(p => {
+                    const value = CamelDefinitionApiExt.getParametersValue(element, p.name, p.kind === 'path');
+                   if (value === undefined || value.trim().length === 0){
+                       result[0] = false;
+                       result[1].push("Property " + p.displayName + " is required");
+                   }
+                })
+            }
+        }
+        return result;
     }
 }

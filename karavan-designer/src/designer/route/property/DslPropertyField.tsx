@@ -401,7 +401,7 @@ export class DslPropertyField extends React.Component<Props, State> {
     getKameletParameters = () => {
         return (
             <div className="parameters">
-                {CamelUi.getKameletProperties(this.props.element).map(property =>
+                {CamelUtil.getKameletProperties(this.props.element).map(property =>
                     <KameletPropertyField
                         key={property.id}
                         property={property}
@@ -484,7 +484,7 @@ export class DslPropertyField extends React.Component<Props, State> {
     }
 
     getComponentParameters (property: PropertyMeta) {
-        const properties = CamelUi.getComponentProperties(this.props.element);
+        const properties = CamelUtil.getComponentProperties(this.props.element);
         const propertiesMain = properties.filter(p => !p.label.includes("advanced") && !p.label.includes("security") && !p.label.includes("scheduler"));
         const propertiesAdvanced = properties.filter(p => p.label.includes("advanced"));
         const propertiesScheduler = properties.filter(p => p.label.includes("scheduler"));
@@ -503,7 +503,7 @@ export class DslPropertyField extends React.Component<Props, State> {
     }
 
     render() {
-        const isKamelet = CamelUi.isKameletComponent(this.props.element);
+        const isKamelet = CamelUtil.isKameletComponent(this.props.element);
         const property: PropertyMeta = this.props.property;
         const value = this.props.value;
         return (
