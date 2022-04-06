@@ -201,7 +201,7 @@ export class DslElement extends React.Component<Props, State> {
                     {this.getHeaderTextWithTooltip(step)}
                 </div>
                 {showInsertButton && this.getInsertElementButton()}
-                {this.state.step.dslName !== 'FromDefinition' && this.getDeleteButton()}
+                {this.getDeleteButton()}
                 {showAddButton && this.getAddElementButton()}
             </div>
         )
