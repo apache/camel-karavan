@@ -166,9 +166,9 @@ export class RouteDesigner extends React.Component<Props, State> {
             }
             message = 'Deleting the first element will delete the entire route!' ;
          } else if( ce.dslName === 'RouteDefinition' ) {
-            message = 'Delete integration?' ;
+            message = 'Delete route?' ;
          } else {
-            message = 'Delete element from integration?';
+            message = 'Delete element from route?';
          }
         this.setState({selectedUuid: id, showSelector: false, showDeleteConfirmation: true, deleteMessage: message});
     }
