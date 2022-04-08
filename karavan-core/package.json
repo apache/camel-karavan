@@ -5,7 +5,7 @@
   "description": "Apache Camel Karavan Core",
   "scripts": {
     "build": "tsc",
-    "test": "TS_NODE_PROJECT=\"test/tsconfig.testing.json\" mocha -r ts-node/register test/**/*.spec.ts",
+    "test": "cross-env TS_NODE_PROJECT=\"test/tsconfig.testing.json\" mocha -r ts-node/register test/**/*.spec.ts",
     "prepare": "npm run build && npm run test",
     "prepublishOnly": "npm run test"
   },
@@ -51,6 +51,7 @@
     "@types/mocha": "^9.1.0",
     "@types/node": "^17.0.23",
     "chai": "^4.3.4",
+    "cross-env": "^7.0.3",
     "fs": "^0.0.1-security",
     "mocha": "^9.2.0",
     "ts-node": "^10.4.0"
