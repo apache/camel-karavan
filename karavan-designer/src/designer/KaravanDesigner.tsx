@@ -37,6 +37,7 @@ import {getDesignerIcon} from "./utils/KaravanIcons";
 
 interface Props {
     onSave?: (filename: string, yaml: string, propertyOnly: boolean) => void
+    onDisableHelp?: () => void
     filename: string
     yaml: string
     dark: boolean
@@ -100,7 +101,8 @@ export class KaravanDesigner extends React.Component<Props, State> {
     }
 
     closeHelpWindow(showTour: boolean){
-        this.setState({showStartHelp: false, showTour: showTour})
+        this.setState({showStartHelp: false, showTour: showTour});
+        if (this.state.cancelTour) this.props.onDisableHelp?.call(this);
     }
 
     getHelpWindow() {

@@ -36,6 +36,7 @@ interface State {
   interval?: NodeJS.Timer
   scheduledYaml: string
   hasChanges: boolean
+  showStartHelp: boolean
 }
 
 class App extends React.Component<Props, State> {
@@ -47,7 +48,8 @@ class App extends React.Component<Props, State> {
     key: '',
     loaded: false,
     scheduledYaml: '',
-    hasChanges: false
+    hasChanges: false,
+    showStartHelp: false
   };
 
   saveScheduledChanges = () => {
@@ -76,6 +78,9 @@ class App extends React.Component<Props, State> {
       case 'components':
         ComponentApi.saveComponents(message.components);
         break;
+      case 'showStartHelp':
+          this.setState({showStartHelp: message.showStartHelp});
+          break;  
       case 'open':
         if (this.state.filename === '' && this.state.key === '') {
           this.setState({ filename: message.filename, yaml: message.yaml, scheduledYaml: message.yaml, relativePath: message.relativePath, key: Math.random().toString(), loaded: true });
@@ -93,6 +98,11 @@ class App extends React.Component<Props, State> {
     }
   }
 
+  disableStartHelp() {
+    console.log("!!!!    ");
+    vscode.postMessage({ command: 'disableStartHelp'});
+  }
+
   public render() {
     return (
       <Page className="karavan">
@@ -103,10 +113,12 @@ class App extends React.Component<Props, State> {
         }
         {this.state.loaded &&
           <KaravanDesigner
+            showStartHelp={this.state.showStartHelp}
             key={this.state.key}
             filename={this.state.filename}
             yaml={this.state.yaml}
             onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}
+            onDisableHelp={this.disableStartHelp}
             dark={this.props.dark} />
         }
       </Page>

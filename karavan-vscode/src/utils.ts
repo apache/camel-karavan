@@ -31,7 +31,6 @@ export function save(relativePath: string, yaml: string){
     }
 }
 
-
 export function getRalativePath(fullPath: string): string {
     const root = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.path : "";
     const normalizedRoot = vscode.Uri.file(root).fsPath ;
@@ -66,6 +65,14 @@ export function parceYaml(filename: string, yaml: string): [boolean, string?] {
     } else {
         return [false, undefined];
     }
+}
+
+export function disableStartHelp(){
+    console.log("!!!!    3");
+    const config = vscode.workspace.getConfiguration();
+    console.log(config);
+    config.update("Karavan.showStartHelp", false);
+    console.log("!!!!    4", vscode.workspace.getConfiguration().get("Karavan.showStartHelp"));
 }
 
 export function runCamelJbang(filename: string) {

@@ -145,7 +145,8 @@ export class KaravanTour extends React.Component<Props, State> {
                 EventBus.sendTourEvent("routes", "closeSelector", undefined, filter);
                 break;
             case 12:
-                EventBus.sendTourEvent("routes", "selectElement");
+                const filter0 = this.props.integration.spec.flows?.[0].from.steps[0];
+                EventBus.sendTourEvent("routes", "selectElement", undefined, filter0);
                 break;
             case 13:
                 const filter1 = this.props.integration.spec.flows?.[0].from.steps[0];
@@ -164,6 +165,7 @@ export class KaravanTour extends React.Component<Props, State> {
                 const i5 = CamelDefinitionApiExt.addStepToIntegration(clone5, kafka, filter2.uuid);
                 this.props.onSave?.call(this, i5, false);
                 EventBus.sendTourEvent("routes", "closeSelector", undefined, kafka);
+                EventBus.sendTourEvent("routes", "selectElement", undefined, kafka);
                 break;
             case 19:
                 const kafka1 = this.props.integration.spec.flows?.[0].from.steps[0].steps[0];
