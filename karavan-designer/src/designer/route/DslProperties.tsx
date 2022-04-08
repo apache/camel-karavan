@@ -44,7 +44,7 @@ interface Props {
     integration: Integration,
     step?: CamelElement,
     onIntegrationUpdate?: any,
-    onPropertyUpdate?: (element: CamelElement, updatedUuid: string, newRoute?: RouteToCreate) => void
+    onPropertyUpdate?: (element: CamelElement, newRoute?: RouteToCreate) => void
     clipboardStep?: CamelElement
     onSaveClipboardStep?: (element?: CamelElement) => void
     onClone?: (element: CamelElement) => void
@@ -70,7 +70,7 @@ export class DslProperties extends React.Component<Props, State> {
             const clone = CamelUtil.cloneStep(this.state.step);
             (clone as any)[fieldId] = value;
             this.setStep(clone)
-            this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid, newRoute);
+            this.props.onPropertyUpdate?.call(this, clone, newRoute);
         }
     }
 
@@ -79,14 +79,14 @@ export class DslProperties extends React.Component<Props, State> {
             const clone = CamelUtil.cloneStep(this.props.clipboardStep);
             clone.uuid = this.state.step.uuid;
             this.setStep(clone)
-            this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid);
+            this.props.onPropertyUpdate?.call(this, clone);
         }
     }
 
     dataFormatChanged = (value: DataFormatDefinition) => {
         value.uuid = this.state.step?.uuid ? this.state.step?.uuid : value.uuid;
         this.setStep(value);
-        this.props.onPropertyUpdate?.call(this, value, value.uuid);
+        this.props.onPropertyUpdate?.call(this, value);
     }
 
     expressionChanged = (propertyName: string, exp: ExpressionDefinition) => {
@@ -94,7 +94,7 @@ export class DslProperties extends React.Component<Props, State> {
             const clone = (CamelUtil.cloneStep(this.state.step));
             (clone as any)[propertyName] = exp;
             this.setStep(clone);
-            this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid);
+            this.props.onPropertyUpdate?.call(this, clone);
         }
     }
 
@@ -109,7 +109,7 @@ export class DslProperties extends React.Component<Props, State> {
                 parameters[parameter] = value;
                 (clone as any).parameters = parameters;
                 this.setStep(clone);
-                this.props.onPropertyUpdate?.call(this, clone, this.state.step.uuid);
+                this.props.onPropertyUpdate?.call(this, clone);
             }
         }
     }
@@ -206,7 +206,9 @@ export class DslProperties extends React.Component<Props, State> {
         const propertiesMain = properties.filter(p => !p.label.includes("advanced"));
         const propertiesAdvanced = properties.filter(p => p.label.includes("advanced"));
         return (
-            <div key={this.state.step ? this.state.step.uuid : 'integration'} className='properties'>
+            <div key={this.state.step ? this.state.step.uuid : 'integration'}
+                 data-tour="properties"
+                 className='properties'>
                 <Form autoComplete="off" onSubmit={event => event.preventDefault()}>
                     {this.state.step === undefined && <IntegrationHeader integration={this.props.integration}/>}
                     {this.state.step && this.getComponentHeader()}

@@ -133,7 +133,7 @@ export class CamelUi {
 
     static getDslMetaModel = (className: string): DslMetaModel => {
         const el = CamelMetadataApi.getCamelModelMetadataByClassName(className);
-        return  new DslMetaModel({dsl: className, title: el?.title, description: el?.description, labels: el?.labels, navigation: el?.labels, type: "DSL"})
+        return  new DslMetaModel({dsl: className, name: el?.name, title: el?.title, description: el?.description, labels: el?.labels, navigation: el?.labels, type: "DSL"})
     }
 
     static getComponentsDslMetaModel = (type: 'consumer' | "producer"): DslMetaModel[] => {

@@ -28,6 +28,7 @@
   "dependencies": {
     "@patternfly/patternfly": "4.171.1",
     "@patternfly/react-core": "4.192.7",
+    "@reactour/tour": "^2.10.2",
     "@types/js-yaml": "^4.0.5",
     "@types/uuid": "8.3.4",
     "axios": "^0.25.0",

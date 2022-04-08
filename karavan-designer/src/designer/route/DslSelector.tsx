@@ -33,6 +33,7 @@ interface Props {
     showSteps: boolean,
     dark: boolean,
     position?: number
+    tabIndex?: string | number
 }
 
 interface State {
@@ -43,7 +44,7 @@ interface State {
 export class DslSelector extends React.Component<Props, State> {
 
     public state: State = {
-        tabIndex: CamelUi.getSelectorModelTypes(this.props.parentDsl, this.props.showSteps)[0][0],
+        tabIndex: this.props.tabIndex ? this.props.tabIndex : CamelUi.getSelectorModelTypes(this.props.parentDsl, this.props.showSteps)[0][0],
     };
 
 
@@ -98,7 +99,7 @@ export class DslSelector extends React.Component<Props, State> {
 
     getCard(dsl: DslMetaModel, index: number) {
         return (
-            <Card key={dsl.dsl + index} isHoverable isCompact className="dsl-card"
+            <Card data-tour={dsl.name} key={dsl.dsl + index} isHoverable isCompact className="dsl-card"
                   onClick={event => this.selectDsl(event, dsl)}>
                 <CardHeader>
                     <img draggable={false}

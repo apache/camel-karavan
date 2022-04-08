@@ -39,6 +39,7 @@ interface Props {
     selectedUuid: string
     inSteps: boolean
     position: number
+    showTour: boolean
 }
 
 interface State {
@@ -190,9 +191,12 @@ export class DslElement extends React.Component<Props, State> {
         const headerClass = step.dslName === 'RouteDefinition' ? "header-route" : "header"
         const headerClasses = this.isSelected() ? headerClass + " selected" : headerClass;
         return (
-            <div className={headerClasses} style={this.getHeaderStyle()}>
+            <div className={headerClasses} style={this.getHeaderStyle()} data-tour={step.dslName}>
                 {this.state.step.dslName !== 'RouteDefinition' &&
-                    <div ref={el => this.sendPosition(el)} className={"header-icon"} style={this.isWide() ? {width: ""} : {}}>
+                    <div ref={el => this.sendPosition(el)}
+                         data-tour={step.dslName + "-icon"}
+                         className={"header-icon"}
+                         style={this.isWide() ? {width: ""} : {}}>
                         <img draggable={false} src={CamelUi.getIcon(step)} className="icon" alt="icon"/>
                     </div>
                 }
@@ -304,6 +308,7 @@ export class DslElement extends React.Component<Props, State> {
                                 inSteps={child.name === 'steps'}
                                 position={index}
                                 step={element}
+                                showTour={this.props.showTour}
                                 parent={step}/>
                         </div>
                     ))}
@@ -320,10 +325,13 @@ export class DslElement extends React.Component<Props, State> {
     }
 
     getAddStepButton() {
+        const tourClass = this.props.showTour ? "add-button-tour" : "";
         return (
             <Tooltip position={"bottom"}
                      content={<div>{"Add step to " + CamelUi.getTitle(this.state.step)}</div>}>
-                <button type="button" aria-label="Add" onClick={e => this.openSelector(e)}
+                <button data-tour="add-step"
+                        type="button" aria-label="Add" onClick={e => this.openSelector(e)}
+                        style={{visibility: this.props.showTour ? "visible" : "initial"}}
                         className={this.isAddStepButtonLeft() ? "add-button add-button-left" : "add-button add-button-bottom"}>
                     <AddIcon noVerticalAlign/>
                 </button>
@@ -334,7 +342,13 @@ export class DslElement extends React.Component<Props, State> {
     getAddElementButton() {
         return (
             <Tooltip position={"bottom"} content={<div>{"Add DSL element to " + CamelUi.getTitle(this.state.step)}</div>}>
-                <button type="button" aria-label="Add" onClick={e => this.openSelector(e, false)} className={"add-element-button"}><AddIcon noVerticalAlign/>
+                <button
+                    data-tour="add-element"
+                    type="button"
+                    aria-label="Add"
+                    onClick={e => this.openSelector(e, false)}
+                    className={"add-element-button"}>
+                    <AddIcon noVerticalAlign/>
                 </button>
             </Tooltip>
         )
@@ -360,7 +374,9 @@ export class DslElement extends React.Component<Props, State> {
     render() {
         const element: CamelElement = this.state.step;
         return (
-            <div key={"root" + element.uuid} className={this.isSelected() ? "step-element step-element-selected" : "step-element"}
+            <div key={"root" + element.uuid}
+                 data-tour={this.props.parent ? "" : "route-created"}
+                 className={this.isSelected() ? "step-element step-element-selected" : "step-element"}
                  ref={el => this.sendPosition(el)}
                  style={{
                      borderStyle: this.hasBorder() ? "dotted" : "none",

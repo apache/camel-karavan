@@ -20,9 +20,6 @@ import {
     DrawerPanelContent,
     DrawerContent,
     DrawerContentBody,
-    DrawerHead,
-    DrawerActions,
-    DrawerCloseButton,
     Button, Modal,
     PageSection
 } from '@patternfly/react-core';
@@ -38,14 +35,16 @@ import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {DslConnections} from "./DslConnections";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {DslElement} from "./DslElement";
-import {EventBus} from "../utils/EventBus";
+import {EventBus, TourEvent} from "../utils/EventBus";
 import {CamelUi, RouteToCreate} from "../utils/CamelUi";
 import {findDOMNode} from "react-dom";
+import {Subscription} from "rxjs";
 
 interface Props {
     onSave?: (integration: Integration, propertyOnly: boolean) => void
     integration: Integration
     dark: boolean
+    showTour: boolean
 }
 
 interface State {
@@ -67,6 +66,9 @@ interface State {
     clipboardStep?: CamelElement
     ref?: any
     propertyOnly: boolean
+    sub?: Subscription
+    selectorTabIndex?: string | number
+    showTour: boolean
 }
 
 export class RouteDesigner extends React.Component<Props, State> {
@@ -85,10 +87,13 @@ export class RouteDesigner extends React.Component<Props, State> {
         top: 0,
         left: 0,
         ref: React.createRef(),
-        propertyOnly: false
+        propertyOnly: false,
+        showTour: this.props.showTour,
     };
 
     componentDidMount() {
+        const sub = EventBus.onTourEvent()?.subscribe((evt: TourEvent) => this.handleTourEvent(evt));
+        this.setState({sub: sub});
         window.addEventListener('resize', this.handleResize);
         const element = findDOMNode(this.state.ref.current)?.parentElement?.parentElement;
         const checkResize = (mutations: any) => {
@@ -104,6 +109,7 @@ export class RouteDesigner extends React.Component<Props, State> {
     }
 
     componentWillUnmount() {
+        this.state.sub?.unsubscribe();
         window.removeEventListener('resize', this.handleResize);
     }
 
@@ -111,8 +117,28 @@ export class RouteDesigner extends React.Component<Props, State> {
         this.setState({key: Math.random().toString()});
     }
 
+    handleTourEvent = (event: TourEvent) => {
+        const step = this.state.selectedStep;
+        switch (event.command) {
+            case "openSelector":
+                this.openSelector(step?.uuid, !step?.dslName ? undefined : "FromDefinition", true, undefined, event.selectorTabIndex)
+                break;
+            case "closeSelector":
+                if (event.step){
+                    const clone = CamelUtil.cloneIntegration(this.props.integration);
+                    this.setState({integration: clone, key: Math.random().toString(), showSelector: false, selectedStep: event.step, selectedUuid: event.step.uuid, propertyOnly: false });
+                } else {
+                    this.setState({showSelector: false, key: Math.random().toString()});
+                }
+                break;
+            case "selectElement":
+                if (event.step) this.selectElement( event.step);
+                break;
+        }
+    }
+
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        if (prevState.key !== this.state.key) {
+        if (prevState.key !== this.state.key && !this.props.showTour) {
             this.props.onSave?.call(this, this.state.integration, this.state.propertyOnly);
         }
     }
@@ -128,7 +154,7 @@ export class RouteDesigner extends React.Component<Props, State> {
         }
     };
 
-    onPropertyUpdate = (element: CamelElement, updatedUuid: string, newRoute?: RouteToCreate) => {
+    onPropertyUpdate = (element: CamelElement, newRoute?: RouteToCreate) => {
         if (newRoute) {
             let i = CamelDefinitionApiExt.updateIntegrationRouteElement(this.state.integration, element);
             const f = CamelDefinitionApi.createFromDefinition({uri: newRoute.componentName + ":" + newRoute.name})
@@ -195,8 +221,8 @@ export class RouteDesigner extends React.Component<Props, State> {
         this.setState({selectedStep: element, selectedUuid: element.uuid, showSelector: false})
     }
 
-    openSelector = (parentId: string | undefined, parentDsl: string | undefined, showSteps: boolean = true, position?: number | undefined) => {
-        this.setState({showSelector: true, parentId: parentId || '', parentDsl: parentDsl, showSteps: showSteps, selectedPosition: position})
+    openSelector = (parentId: string | undefined, parentDsl: string | undefined, showSteps: boolean = true, position?: number | undefined, selectorTabIndex?: string | number) => {
+        this.setState({showSelector: true, parentId: parentId || '', parentDsl: parentDsl, showSteps: showSteps, selectedPosition: position, selectorTabIndex: selectorTabIndex})
     }
 
     closeDslSelector = () => {
@@ -269,6 +295,7 @@ export class RouteDesigner extends React.Component<Props, State> {
     getSelectorModal() {
         return (
             <Modal
+                data-tour="selector"
                 title={this.state.parentDsl === undefined ? "Select source/from" : "Select step"}
                 width={'90%'}
                 className='dsl-modal'
@@ -281,6 +308,7 @@ export class RouteDesigner extends React.Component<Props, State> {
                     parentDsl={this.state.parentDsl}
                     showSteps={this.state.showSteps}
                     position={this.state.selectedPosition}
+                    tabIndex={this.state.selectorTabIndex}
                     onDslSelect={this.onDslSelect}/>
             </Modal>)
     }
@@ -304,6 +332,22 @@ export class RouteDesigner extends React.Component<Props, State> {
         </Modal>)
     }
 
+    getPropertiesPanel() {
+        return (
+            <DrawerPanelContent isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'300px'}>
+                <DslProperties ref={this.state.ref}
+                               integration={this.state.integration}
+                               step={this.state.selectedStep}
+                               onIntegrationUpdate={this.onIntegrationUpdate}
+                               onPropertyUpdate={this.onPropertyUpdate}
+                               clipboardStep={this.state.clipboardStep}
+                               isRouteDesigner={true}
+                               onSaveClipboardStep={this.saveToClipboard}
+                />
+            </DrawerPanelContent>
+        )
+    }
+
     getGraph() {
         const routes = CamelUi.getRoutes(this.state.integration);
         return (
@@ -321,12 +365,14 @@ export class RouteDesigner extends React.Component<Props, State> {
                                     inSteps={false}
                                     position={index}
                                     step={route}
+                                    showTour={this.state.showTour}
                                     parent={undefined}/>
                     ))}
                     <div className="add-flow">
                         <Button
                             variant={routes.length === 0 ? "primary" : "secondary"}
                             data-click="ADD_ROUTE"
+                            data-tour="add-route"
                             icon={<PlusIcon/>}
                             onClick={e => this.openSelector(undefined, undefined)}>Create new route
                         </Button>
@@ -335,26 +381,10 @@ export class RouteDesigner extends React.Component<Props, State> {
             </div>)
     }
 
-    getPropertiesPanel() {
-        return (
-            <DrawerPanelContent isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'300px'}>
-                <DslProperties ref={this.state.ref}
-                               integration={this.state.integration}
-                               step={this.state.selectedStep}
-                               onIntegrationUpdate={this.onIntegrationUpdate}
-                               onPropertyUpdate={this.onPropertyUpdate}
-                               clipboardStep={this.state.clipboardStep}
-                               isRouteDesigner={true}
-                               onSaveClipboardStep={this.saveToClipboard}
-                />
-            </DrawerPanelContent>
-        )
-    }
-
     render() {
         return (
             <PageSection className="dsl-page" isFilled padding={{default: 'noPadding'}}>
-                <div className="dsl-page-columns">
+                <div className="dsl-page-columns" data-tour="designer">
                     <Drawer isExpanded isInline>
                         <DrawerContent panelContent={this.getPropertiesPanel()}>
                             <DrawerContentBody>{this.getGraph()}</DrawerContentBody>
