@@ -52,7 +52,6 @@ interface State {
     showTour: boolean
     showStartHelp: boolean
     cancelTour: boolean
-    write: boolean
 }
 
 export class KaravanDesigner extends React.Component<Props, State> {
@@ -67,17 +66,16 @@ export class KaravanDesigner extends React.Component<Props, State> {
         showTour: false,
         showStartHelp: this.props.showStartHelp,
         cancelTour: false,
-        write: true
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        if (prevState.key !== this.state.key && this.state.write === true) {
+        if (prevState.key !== this.state.key) {
             this.props.onSave?.call(this, this.props.filename, this.getCode(this.state.integration), this.state.propertyOnly);
         }
     }
 
-    save = (integration: Integration, propertyOnly: boolean, write: boolean = true): void => {
-        this.setState({key: Math.random().toString(), integration: integration, propertyOnly: propertyOnly, write: write});
+    save = (integration: Integration, propertyOnly: boolean): void => {
+        this.setState({key: Math.random().toString(), integration: integration, propertyOnly: propertyOnly});
     }
 
     getCode = (integration: Integration): string => {
@@ -110,16 +108,17 @@ export class KaravanDesigner extends React.Component<Props, State> {
     getHelpWindow() {
         const show = this.state.showStartHelp && this.state.integration.spec.flows?.filter(f => f.dslName === 'RouteDefinition').length === 0;
         return (<Modal
+            aria-label="Welcome"
             className="modal-help"
             title="Welcome to Karavan!"
-            header={<div style={{display:"flex"}}><WandIcon style={{marginTop:"auto", marginBottom:"auto", marginRight:"10px"}}/><Title headingLevel={"h2"}>Welcome to Karavan!</Title></div>}
+            header={<div  style={{display:"flex"}}><WandIcon style={{marginTop:"auto", marginBottom:"auto", marginRight:"10px"}}/><Title headingLevel={"h2"}>Welcome to Karavan!</Title></div>}
             variant={ModalVariant.small}
             isOpen={show}
             onClose={() => this.closeHelpWindow(false)}
             actions={[
-                <Checkbox className="dont-show" label="Don't show again" isChecked={this.state.cancelTour} onChange={checked => this.setState({cancelTour: checked})} aria-label="Don't show again" id="dont-show"/>,
-                <Button variant={"secondary"} isSmall onClick={e => this.closeHelpWindow(false)}>Skip tour</Button>,
-                <Button autoFocus={true} variant={"primary"} isSmall onClick={e => this.closeHelpWindow(true)}>Get started</Button>
+                <Checkbox key="check" className="dont-show" label="Don't show again" isChecked={this.state.cancelTour} onChange={checked => this.setState({cancelTour: checked})} aria-label="Don't show again" id="dont-show"/>,
+                <Button key="skip" variant={"secondary"} isSmall onClick={e => this.closeHelpWindow(false)}>Skip tour</Button>,
+                <Button key="tour" autoFocus={true} variant={"primary"} isSmall onClick={e => this.closeHelpWindow(true)}>Get started</Button>
             ]}
             onEscapePress={e =>  this.closeHelpWindow(false)}>
                 Get started with a tour of the key areas that can help you complete integration and be more productive.
@@ -132,7 +131,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
             <PageSection variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light} className="page" isFilled padding={{default: 'noPadding'}}>
                 {this.state.showTour && <KaravanTour tab="routes"
                                                      integration={this.state.integration}
-                                                     onSave={(integration, propertyOnly, write) => this.save(integration, propertyOnly, write)}
+                                                     onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                      showTour={this.state.showTour}
                                                      onClose={() => this.setState({showTour: false})} />}
                 <Tabs className="main-tabs" activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex.toString()})} style={{width: "100%"}}>
