@@ -1,7 +1,7 @@
-import React from "react";
-import Tour from "@reactour/tour";
+import React, {Component} from "react";
+import Tour, {StepType, TourProvider, useTour, withTour} from "@reactour/tour";
 import {EventBus} from "./utils/EventBus";
-import {TextContent, TextVariants, Title, Text} from "@patternfly/react-core";
+import {TextContent, TextVariants, Title, Text, Button} from "@patternfly/react-core";
 import ArrowIcon from "@patternfly/react-icons/dist/js/icons/arrow-right-icon";
 import CloseIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
@@ -78,7 +78,7 @@ const STEPS: Map<string, any[]> = new Map([
 
 
 interface Props {
-    onSave?: (integration: Integration, propertyOnly: boolean, write: boolean) => void
+    onSave?: (integration: Integration, propertyOnly: boolean) => void
     integration: Integration
     showTour: boolean
     tab: string
@@ -105,7 +105,7 @@ export class KaravanTour extends React.Component<Props, State> {
                 case "routes":
                     this.routeSteps(step);
             }
-            this.setState({currentStep: step})
+            setTimeout(() => { this.setState({ currentStep: step }); }, 0);
         }
     }
 
@@ -118,7 +118,7 @@ export class KaravanTour extends React.Component<Props, State> {
                 const route = CamelDefinitionApi.createRouteDefinition({from: new FromDefinition({uri: "kamelet:mqtt-source"})});
                 const i = CamelDefinitionApiExt.addStepToIntegration(this.props.integration, route, '');
                 const clone = CamelUtil.cloneIntegration(i);
-                this.props.onSave?.call(this, clone, true, false);
+                this.props.onSave?.call(this, clone, true);
                 EventBus.sendTourEvent("routes", "closeSelector");
                 break;
             case 6:
@@ -131,7 +131,7 @@ export class KaravanTour extends React.Component<Props, State> {
                 mqtt.parameters.topic = "topic1";
                 const i2 = CamelDefinitionApiExt.updateIntegrationRouteElement(this.props.integration, mqtt);
                 const clone2 = CamelUtil.cloneIntegration(i2);
-                this.props.onSave?.call(this, clone2, true, false);
+                this.props.onSave?.call(this, clone2, true);
                 break;
             case 9:
                 EventBus.sendTourEvent("routes", "openSelector", "routing");
@@ -139,9 +139,9 @@ export class KaravanTour extends React.Component<Props, State> {
             case 11:
                 const filter = CamelDefinitionApi.createFilterDefinition({});
                 const from3 = this.props.integration.spec.flows?.[0].from;
-                const clone3 = CamelUtil.cloneIntegration(this.props.integration);
-                const i3 = CamelDefinitionApiExt.addStepToIntegration(clone3, filter, from3.uuid);
-                this.props.onSave?.call(this, i3, true, false);
+                const i3 = CamelDefinitionApiExt.addStepToIntegration(this.props.integration, filter, from3.uuid);
+                const clone3 = CamelUtil.cloneIntegration(i3);
+                this.props.onSave?.call(this, clone3, true);
                 EventBus.sendTourEvent("routes", "closeSelector", undefined, filter);
                 break;
             case 12:
@@ -151,9 +151,9 @@ export class KaravanTour extends React.Component<Props, State> {
             case 13:
                 const filter1 = this.props.integration.spec.flows?.[0].from.steps[0];
                 filter1.expression = CamelDefinitionApi.createExpressionDefinition({simple: CamelDefinitionApi.createSimpleExpression({expression: "${header.approved} != 'true'"})});
-                const clone4 = CamelUtil.cloneIntegration(this.props.integration);
-                const i4 = CamelDefinitionApiExt.updateIntegrationRouteElement(clone4, filter1);
-                this.props.onSave?.call(this, i4, true, false);
+                const i4 = CamelDefinitionApiExt.updateIntegrationRouteElement(this.props.integration, filter1);
+                const clone4 = CamelUtil.cloneIntegration(i4);
+                this.props.onSave?.call(this, clone4, true);
                 break;
             case 15:
                 EventBus.sendTourEvent("routes", "openSelector", "kamelet");
@@ -161,9 +161,9 @@ export class KaravanTour extends React.Component<Props, State> {
             case 17:
                 const kafka = CamelDefinitionApi.createToDefinition({uri: "kamelet:kafka-not-secured-sink"});
                 const filter2 = this.props.integration.spec.flows?.[0].from.steps[0];
-                const clone5 = CamelUtil.cloneIntegration(this.props.integration);
-                const i5 = CamelDefinitionApiExt.addStepToIntegration(clone5, kafka, filter2.uuid);
-                this.props.onSave?.call(this, i5, true, false);
+                const i5 = CamelDefinitionApiExt.addStepToIntegration(this.props.integration, kafka, filter2.uuid);
+                const clone5 = CamelUtil.cloneIntegration(i5);
+                this.props.onSave?.call(this, clone5, true);
                 EventBus.sendTourEvent("routes", "closeSelector", undefined, kafka);
                 EventBus.sendTourEvent("routes", "selectElement", undefined, kafka);
                 break;
@@ -171,12 +171,13 @@ export class KaravanTour extends React.Component<Props, State> {
                 const kafka1 = this.props.integration.spec.flows?.[0].from.steps[0].steps[0];
                 kafka1.parameters.bootstrapServers = "localhost:9092"
                 kafka1.parameters.topic = "topic1"
-                const clone6 = CamelUtil.cloneIntegration(this.props.integration);
-                const i6 = CamelDefinitionApiExt.updateIntegrationRouteElement(clone6, kafka1);
-                this.props.onSave?.call(this, i6, true, false);
+                const i6 = CamelDefinitionApiExt.updateIntegrationRouteElement(this.props.integration, kafka1);
+                const clone6 = CamelUtil.cloneIntegration(i6);
+                this.props.onSave?.call(this, clone6, true);
+                EventBus.sendTourEvent("routes", "selectElement", undefined, kafka1);
                 break;
             case 21:
-                this.props.onSave?.call(this, this.props.integration, true, true    );
+                this.props.onSave?.call(this, this.props.integration, true);
                 this.close();
                 break;
         }
@@ -201,7 +202,9 @@ export class KaravanTour extends React.Component<Props, State> {
                 badgeContent={b => `${b.currentStep + 1}/${b.totalSteps}`}
                 onClickHighlighted={e => e.stopPropagation()}
                 disableInteraction
-                disableDotsNavigation
+                // disableKeyboardNavigation
+                // disableDotsNavigation
+                // disableFocusLock
                 onClickClose={clickProps => this.close()}
                 prevButton={props => props.setIsOpen(false)}
             >
