@@ -18,7 +18,7 @@ import React from 'react';
 import {
     Button,
     Form,
-    FormGroup,
+    FormGroup, Popover,
     TextInput, Title, Tooltip,
 } from '@patternfly/react-core';
 import '../karavan.css';
@@ -28,6 +28,7 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {IntegrationHeader} from "../utils/KaravanComponents";
 import {v4 as uuidv4} from "uuid";
 import CloneIcon from "@patternfly/react-icons/dist/esm/icons/clone-icon";
+import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 
 interface Props {
     integration: Integration
@@ -71,6 +72,27 @@ export class DependencyProperties extends React.Component<Props, State> {
         }
     }
 
+    getLabelIcon = (displayName: string, description: string) => {
+        return (
+            <Popover
+                position={"left"}
+                headerContent={displayName}
+                bodyContent={description}
+                footerContent={
+                    <div>
+                        <b>Required</b>
+                    </div>
+                }>
+                <button type="button" aria-label="More info" onClick={e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }} className="pf-c-form__group-label-help">
+                    <HelpIcon noVerticalAlign/>
+                </button>
+            </Popover>
+        )
+    }
+
     getDependencyForm() {
         const dependency = this.state.dependency;
         return (
@@ -83,15 +105,15 @@ export class DependencyProperties extends React.Component<Props, State> {
                         </Tooltip>
                     </div>
                 </div>
-                <FormGroup label="Group" fieldId="group" isRequired>
+                <FormGroup label="Group" fieldId="group" isRequired  labelIcon={this.getLabelIcon("Group ID", "Maven artifact groupId uniquely identifies project ex: org.demo.project ")}>
                     <TextInput className="text-field" isRequired type="text" id="group" name="group" value={dependency?.group}
                                onChange={e => this.dependencyChanged("group", e)}/>
                 </FormGroup>
-                <FormGroup label="Artifact" fieldId="artifact" isRequired>
+                <FormGroup label="Artifact" fieldId="artifact" isRequired  labelIcon={this.getLabelIcon("Artifact ID", "Maven artifact artifactId is the name of the jar without version ex: core")}>
                     <TextInput className="text-field" isRequired type="text" id="artifact" name="artifact" value={dependency?.artifact}
                                onChange={e => this.dependencyChanged("artifact", e)}/>
                 </FormGroup>
-                <FormGroup label="Version" fieldId="version" isRequired>
+                <FormGroup label="Version" fieldId="version" isRequired  labelIcon={this.getLabelIcon("Version", "Maven artifact version ex: 1.0.0")}>
                     <TextInput className="text-field" isRequired type="text" id="version" name="version" value={dependency?.version}
                                onChange={e => this.dependencyChanged("version", e)}/>
                 </FormGroup>

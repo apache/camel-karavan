@@ -18,7 +18,7 @@ import React from 'react';
 import {
     Form,
     FormGroup,
-    TextInput, Button, Title, Tooltip, Text, TextVariants,
+    TextInput, Button, Title, Tooltip, Text, TextVariants, Popover,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -32,6 +32,8 @@ import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import {IntegrationHeader} from "../utils/KaravanComponents";
 import CloneIcon from '@patternfly/react-icons/dist/esm/icons/clone-icon'
+import {PropertyMeta} from "../../../../karavan-core/lib/model/CamelMetadata";
+import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 
 interface Props {
     integration: Integration
@@ -113,6 +115,27 @@ export class BeanProperties extends React.Component<Props, State> {
         }
     }
 
+    getLabelIcon = (displayName: string, description: string) => {
+        return (
+            <Popover
+                    position={"left"}
+                    headerContent={displayName}
+                    bodyContent={description}
+                    footerContent={
+                        <div>
+                            <b>Required</b>
+                        </div>
+                    }>
+                    <button type="button" aria-label="More info" onClick={e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }} className="pf-c-form__group-label-help">
+                        <HelpIcon noVerticalAlign/>
+                    </button>
+                </Popover>
+        )
+    }
+
     getBeanForm() {
         const bean = this.state.bean;
         return (
@@ -125,11 +148,11 @@ export class BeanProperties extends React.Component<Props, State> {
                         </Tooltip>
                     </div>
                 </div>
-                <FormGroup label="Name" fieldId="name" isRequired>
+                <FormGroup label="Name" fieldId="name" isRequired labelIcon={this.getLabelIcon("Name", "Bean name used as a reference ex: myBean")}>
                     <TextInput className="text-field" isRequired type="text" id="name" name="name" value={bean?.name}
                                onChange={e => this.beanChanged("name", e)}/>
                 </FormGroup>
-                <FormGroup label="Type" fieldId="type" isRequired>
+                <FormGroup label="Type" fieldId="type" isRequired labelIcon={this.getLabelIcon("Type", "Bean class Canonical Name ex: org.demo.MyBean")}>
                     <TextInput className="text-field" isRequired type="text" id="type" name="type" value={bean?.type} onChange={e => this.beanChanged("type", e)}/>
                 </FormGroup>
                 <FormGroup label="Properties" fieldId="properties" className="bean-properties">
