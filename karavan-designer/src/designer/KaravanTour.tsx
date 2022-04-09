@@ -35,20 +35,20 @@ const STEPS: Map<string, any[]> = new Map([
     ['routes', [
         {selector: '[data-tour="routes"]', content: getContent("Create a route from MQTT to Kafka for messages with header 'approved' equals to 'true'", "Tour use case")},
         {selector: '[data-tour="add-route"]', content: getContent("Click button to add new route")},
-        {selector: '[data-tour="selector"]', content: getContent("Select Source Kamelet")},
+        {selector: '[data-tour="selector-tabs"]', content: getContent("Select Source Kamelet")},
         {selector: '[data-tour="mqtt-source"]', content: getContent("Click on MQTT Source")},
         {selector: '[data-tour="route-created"]', content: getContent("Route created")},
         {selector: '[data-tour="FromDefinition-icon"]', content: getContent("Click on MQTT Source icon to select")},
         {selector: '[data-tour="properties"]', content: getContent("Set MQTT Source broker and topic")},
         {highlightedSelectors: ['[data-tour="topic"]', '[data-tour="brokerUrl"]'], content: getContent("MQTT Source broker and topic are set")},
         {selector: '[data-tour="add-step"]', content: getContent("Click button to add step")},
-        {selector: '[data-tour="selector"]', content: getContent("Select Integration Pattern")},
+        {selector: '[data-tour="selector-tabs"]', content: getContent("Select Integration Pattern")},
         {selector: '[data-tour="filter"]', content: getContent("Click on Filter")},
         {selector: '[data-tour="FilterDefinition"]', content: getContent("Filter added")},
         {selector: '[data-tour="properties"]', content: getContent("Set Filter expression")},
         {selector: '[data-tour="expression"]', content: getContent("Filter expression is set")},
         {selector: '[data-tour="add-step"]', content: getContent("Click button to add step")},
-        {selector: '[data-tour="selector"]', content: getContent("Select source Kamelet")},
+        {selector: '[data-tour="selector-tabs"]', content: getContent("Select source Kamelet")},
         {selector: '[data-tour="kafka-not-secured-sink"]', content: getContent("Click on Kafka Sink")},
         {selector: '[data-tour="ToDefinition"]', content: getContent("Kafka Sink added")},
         {selector: '[data-tour="properties"]', content: getContent("Set Kafka Sink bootstrap servers and topic")},
@@ -78,7 +78,7 @@ const STEPS: Map<string, any[]> = new Map([
 
 
 interface Props {
-    onSave?: (integration: Integration, propertyOnly: boolean) => void
+    onSave?: (integration: Integration, propertyOnly: boolean, write: boolean) => void
     integration: Integration
     showTour: boolean
     tab: string
@@ -118,7 +118,7 @@ export class KaravanTour extends React.Component<Props, State> {
                 const route = CamelDefinitionApi.createRouteDefinition({from: new FromDefinition({uri: "kamelet:mqtt-source"})});
                 const i = CamelDefinitionApiExt.addStepToIntegration(this.props.integration, route, '');
                 const clone = CamelUtil.cloneIntegration(i);
-                this.props.onSave?.call(this, clone, false);
+                this.props.onSave?.call(this, clone, true, false);
                 EventBus.sendTourEvent("routes", "closeSelector");
                 break;
             case 6:
@@ -131,7 +131,7 @@ export class KaravanTour extends React.Component<Props, State> {
                 mqtt.parameters.topic = "topic1";
                 const i2 = CamelDefinitionApiExt.updateIntegrationRouteElement(this.props.integration, mqtt);
                 const clone2 = CamelUtil.cloneIntegration(i2);
-                this.props.onSave?.call(this, clone2, false);
+                this.props.onSave?.call(this, clone2, true, false);
                 break;
             case 9:
                 EventBus.sendTourEvent("routes", "openSelector", "routing");
@@ -141,7 +141,7 @@ export class KaravanTour extends React.Component<Props, State> {
                 const from3 = this.props.integration.spec.flows?.[0].from;
                 const clone3 = CamelUtil.cloneIntegration(this.props.integration);
                 const i3 = CamelDefinitionApiExt.addStepToIntegration(clone3, filter, from3.uuid);
-                this.props.onSave?.call(this, i3, false);
+                this.props.onSave?.call(this, i3, true, false);
                 EventBus.sendTourEvent("routes", "closeSelector", undefined, filter);
                 break;
             case 12:
@@ -153,7 +153,7 @@ export class KaravanTour extends React.Component<Props, State> {
                 filter1.expression = CamelDefinitionApi.createExpressionDefinition({simple: CamelDefinitionApi.createSimpleExpression({expression: "${header.approved} != 'true'"})});
                 const clone4 = CamelUtil.cloneIntegration(this.props.integration);
                 const i4 = CamelDefinitionApiExt.updateIntegrationRouteElement(clone4, filter1);
-                this.props.onSave?.call(this, i4, false);
+                this.props.onSave?.call(this, i4, true, false);
                 break;
             case 15:
                 EventBus.sendTourEvent("routes", "openSelector", "kamelet");
@@ -163,7 +163,7 @@ export class KaravanTour extends React.Component<Props, State> {
                 const filter2 = this.props.integration.spec.flows?.[0].from.steps[0];
                 const clone5 = CamelUtil.cloneIntegration(this.props.integration);
                 const i5 = CamelDefinitionApiExt.addStepToIntegration(clone5, kafka, filter2.uuid);
-                this.props.onSave?.call(this, i5, false);
+                this.props.onSave?.call(this, i5, true, false);
                 EventBus.sendTourEvent("routes", "closeSelector", undefined, kafka);
                 EventBus.sendTourEvent("routes", "selectElement", undefined, kafka);
                 break;
@@ -173,9 +173,10 @@ export class KaravanTour extends React.Component<Props, State> {
                 kafka1.parameters.topic = "topic1"
                 const clone6 = CamelUtil.cloneIntegration(this.props.integration);
                 const i6 = CamelDefinitionApiExt.updateIntegrationRouteElement(clone6, kafka1);
-                this.props.onSave?.call(this, i6, false);
+                this.props.onSave?.call(this, i6, true, false);
                 break;
             case 21:
+                this.props.onSave?.call(this, this.props.integration, true, true    );
                 this.close();
                 break;
         }

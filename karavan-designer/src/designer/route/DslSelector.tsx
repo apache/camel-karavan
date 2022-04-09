@@ -132,7 +132,7 @@ export class DslSelector extends React.Component<Props, State> {
         return (
             <PageSection variant={this.props.dark ? "darker" : "light"}>
                 {this.searchInput()}
-                <Tabs style={{overflow: 'hidden'}} activeKey={this.state.tabIndex} onSelect={this.selectTab}>
+                <Tabs data-tour="selector-tabs" style={{overflow: 'hidden'}} activeKey={this.state.tabIndex} onSelect={this.selectTab}>
                     {CamelUi.getSelectorModelTypes(parentDsl, this.props.showSteps).map((label: [string, number], index: number) => {
                         const labelText = label[0];
                         const count = label[1];

@@ -52,6 +52,7 @@ interface State {
     showTour: boolean
     showStartHelp: boolean
     cancelTour: boolean
+    write: boolean
 }
 
 export class KaravanDesigner extends React.Component<Props, State> {
@@ -65,17 +66,18 @@ export class KaravanDesigner extends React.Component<Props, State> {
         propertyOnly: false,
         showTour: false,
         showStartHelp: this.props.showStartHelp,
-        cancelTour: false
+        cancelTour: false,
+        write: true
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        if (prevState.key !== this.state.key) {
+        if (prevState.key !== this.state.key && this.state.write === true) {
             this.props.onSave?.call(this, this.props.filename, this.getCode(this.state.integration), this.state.propertyOnly);
         }
     }
 
-    save = (integration: Integration, propertyOnly: boolean): void => {
-        this.setState({key: Math.random().toString(), integration: integration, propertyOnly: propertyOnly});
+    save = (integration: Integration, propertyOnly: boolean, write: boolean = true): void => {
+        this.setState({key: Math.random().toString(), integration: integration, propertyOnly: propertyOnly, write: write});
     }
 
     getCode = (integration: Integration): string => {
@@ -117,7 +119,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
             actions={[
                 <Checkbox className="dont-show" label="Don't show again" isChecked={this.state.cancelTour} onChange={checked => this.setState({cancelTour: checked})} aria-label="Don't show again" id="dont-show"/>,
                 <Button variant={"secondary"} isSmall onClick={e => this.closeHelpWindow(false)}>Skip tour</Button>,
-                <Button variant={"primary"} isSmall onClick={e => this.closeHelpWindow(true)}>Get started</Button>
+                <Button autoFocus={true} variant={"primary"} isSmall onClick={e => this.closeHelpWindow(true)}>Get started</Button>
             ]}
             onEscapePress={e =>  this.closeHelpWindow(false)}>
                 Get started with a tour of the key areas that can help you complete integration and be more productive.
@@ -130,7 +132,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
             <PageSection variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light} className="page" isFilled padding={{default: 'noPadding'}}>
                 {this.state.showTour && <KaravanTour tab="routes"
                                                      integration={this.state.integration}
-                                                     onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
+                                                     onSave={(integration, propertyOnly, write) => this.save(integration, propertyOnly, write)}
                                                      showTour={this.state.showTour}
                                                      onClose={() => this.setState({showTour: false})} />}
                 <Tabs className="main-tabs" activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex.toString()})} style={{width: "100%"}}>

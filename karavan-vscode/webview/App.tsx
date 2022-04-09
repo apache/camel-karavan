@@ -56,12 +56,12 @@ class App extends React.Component<Props, State> {
     if (this.state.hasChanges){
       this.save(this.state.relativePath, this.state.scheduledYaml, false);
     }
-  };
+  }
 
   componentDidMount() {
     window.addEventListener('message', this.onMessage, false);
     vscode.postMessage({ command: 'getData' });
-    this.setState({interval: setInterval(this.saveScheduledChanges, 3000)});
+    this.setState({interval: setInterval(this.saveScheduledChanges, 2000)});
   }
 
   componentWillUnmount() {
@@ -99,7 +99,6 @@ class App extends React.Component<Props, State> {
   }
 
   disableStartHelp() {
-    console.log("!!!!    ");
     vscode.postMessage({ command: 'disableStartHelp'});
   }
 
