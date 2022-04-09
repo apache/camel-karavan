@@ -142,6 +142,7 @@ export class DesignerPage extends React.Component<Props, State> {
                 }
                 {view === 'design' &&
                     <KaravanDesigner
+                        showStartHelp={false}
                         dark={false}
                         key={key}
                         filename={name}
