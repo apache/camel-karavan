@@ -21,7 +21,6 @@ import {IntegrationView} from "./integrationView";
 import { KameletView } from "./kameletView";
 import { ComponentView } from "./componentView";
 import { EipView } from "./eipView";
-import { ViewColumn } from "vscode";
 
 const KARAVAN_LOADED = "karavan:loaded";
 

@@ -58,6 +58,7 @@ export class KameletPropertyField extends React.Component<Props, State> {
         const id = prefix + "-" + property.id;
         return (
             <FormGroup
+                data-tour={property.id}
                 key={id}
                 label={property.title}
                 fieldId={id}

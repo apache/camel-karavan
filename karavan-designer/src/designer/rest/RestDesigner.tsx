@@ -73,7 +73,7 @@ export class RestDesigner extends React.Component<Props, State> {
         this.setState({selectedStep: element})
     }
 
-    onPropertyUpdate = (element: CamelElement, updatedUuid: string, newRoute?: RouteToCreate) => {
+    onPropertyUpdate = (element: CamelElement, newRoute?: RouteToCreate) => {
         if (newRoute) {
             let i = CamelDefinitionApiExt.updateIntegrationRestElement(this.state.integration, element);
             const f = CamelDefinitionApi.createFromDefinition({uri: newRoute.componentName + ":" + newRoute.name})

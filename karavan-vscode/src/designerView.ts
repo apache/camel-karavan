@@ -121,6 +121,10 @@ export class DesignerView {
                         case 'getData':
                             this.sendData(panel, filename, relativePath, yaml);
                             break;
+                        case 'disableStartHelp':
+                            console.log("!!!!    2");
+                            utils.disableStartHelp();
+                            break;    
                     }
                 },
                 undefined,
@@ -146,8 +150,13 @@ export class DesignerView {
         // Read and send Components
         panel.webview.postMessage({ command: 'components', components: utils.readComponents(this.context) });
 
+        // Send showStartHelp
+        const showStartHelp = vscode.workspace.getConfiguration().get("Karavan.showStartHelp");
+        panel.webview.postMessage({ command: 'showStartHelp', showStartHelp: showStartHelp});
+
         // Send integration
         panel.webview.postMessage({ command: 'open', filename: filename, relativePath: relativePath, yaml: yaml });
+
     }
 
 }

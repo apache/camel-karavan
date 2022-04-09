@@ -21,6 +21,10 @@ body, :root, #root, .karavan {
   --step-border-color-selected:var(--vscode-focusBorder);
 }
 
+.vscode-dark .pf-c-page {
+  background-color:  var(--vscode-editor-background);
+}
+
 .karavan .pf-c-drawer__content {
   background-color: transparent;
 }
@@ -72,16 +76,21 @@ body, :root, #root, .karavan {
   color: var(--pf-global--palette--black-400);
 }
 
-.vscode-dark .karavan .loading-page {
-  background-color: var(--vscode-editor-background);
+.karavan .loading-page {
+  background-color:  transparent;
   height: 100%;
   display: flex;
+  margin: auto;
+  justify-content: center;
   flex-direction: column;
 }
 
-.vscode-dark .karavan .progress-stepper {
-  margin: auto;
+/* .vscode-light .karavan .loading-page {
+  background-color:  transparent;
 }
+.vscode-dark .karavan .loading-page {
+  background-color: var(--vscode-editor-background);
+} */
 
 /* Tabs */
 .vscode-dark .pf-c-tabs__link::after {
@@ -262,59 +271,23 @@ body, :root, #root, .karavan {
   color:  var(--vscode-input-foreground);
 }
 
-
-/* 
-
-
-
-
-
-
-
-
-
-
-.vscode-dark .karavan .properties .pf-c-switch {
-  --pf-c-switch__input--checked__toggle--BackgroundColor: var(--pf-global--active-color--100);
+/* Tour */
+.vscode-dark .reactour__popover {
+  color: var(--vscode-editor-foreground);
+  background-color: var(--vscode-tab-inactiveBackground);
 }
 
-
-
-
-
-.vscode-dark .pf-c-tab-content .pf-c-card__header p {
-  color: #cecece;
+.vscode-dark .reactour__popover [class$="-DefaultArrow"] {
+  color: var(--vscode-editor-foreground);
 }
 
-
-
-
-.vscode-dark .step-element .add-button,
-.vscode-dark .step-element .add-element-button,
-.vscode-dark .step-element .add-button-from {
-  background: transparent;
+/* Help */
+.vscode-light .dont-show, 
+.vscode-dark .dont-show {
+  margin-right: auto;
 }
 
-
-
-
-
-
-.vscode-dark .karavan .pf-c-expandable-section__toggle,
-.vscode-dark .karavan .pf-c-expandable-section__toggle-icon {
-  color: var(--pf-global--Color--200);
+/* Tour */
+.vscode-dark .reactour__mask {
+  color: var(--vscode-input-placeholderForeground);
 }
-
-.vscode-dark .karavan .properties .expression,
-.vscode-dark .karavan .properties .object,
-.vscode-dark .karavan .properties .dataformat,
-.vscode-dark .karavan .properties .parameters {
-    border-style: none;
-}
-
-.vscode-dark .modal-delete {
-  width: 350px;
-  --pf-c-modal-box--BackgroundColor: #505050;
-}
-*/
-

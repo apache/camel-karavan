@@ -16,8 +16,10 @@
  */
 import {Subject} from 'rxjs';
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
+import {DslMetaModel} from "./DslMetaModel";
 
 const positions = new Subject<DslPosition>();
+const tourEvents = new Subject<TourEvent>();
 
 export class DslPosition {
     step: CamelElement = new CamelElement("");
@@ -45,6 +47,21 @@ export class DslPosition {
     }
 }
 
+export class TourEvent {
+    tab: "routes" | "rest" | "beans" | "dependencies"
+    command: string
+    selectorTabIndex?: string | number
+    step?: CamelElement
+
+    constructor(tab: "routes" | "rest" | "beans" | "dependencies", command: string, selectorTabIndex?: string | number, step?: CamelElement) {
+        this.command = command;
+        this.tab = tab;
+        this.selectorTabIndex = selectorTabIndex;
+        this.step = step;
+    }
+
+}
+
 export const EventBus = {
     sendPosition: (command: "add" | "delete",
                    step: CamelElement,
@@ -54,4 +71,9 @@ export const EventBus = {
                    position: number,
                    inSteps: boolean = false) => positions.next(new DslPosition(command, step, parent, rect, headerRect, position, inSteps)),
     onPosition: () => positions.asObservable(),
+
+
+    sendTourEvent: (tab: "routes" | "rest" | "beans" | "dependencies", command: string, selectorTabIndex?: string | number, step?: CamelElement) =>
+        tourEvents.next(new TourEvent(tab, command, selectorTabIndex, step)),
+    onTourEvent: () => tourEvents.asObservable(),
 };
