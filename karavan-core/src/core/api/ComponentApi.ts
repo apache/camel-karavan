@@ -16,6 +16,7 @@
  */
 import {Component, ComponentProperty} from "../model/ComponentModels";
 import {CamelMetadataApi} from "../model/CamelMetadata";
+import {Kamelets} from "./KameletApi";
 
 export const Components: Component[] = [];
 
@@ -27,7 +28,8 @@ export const ComponentApi = {
         return k;
     },
 
-    saveComponents: (jsons: string[]) => {
+    saveComponents: (jsons: string[], clean: boolean = false) => {
+        if (clean) Components.length = 0;
         const components: Component[] = jsons.map(json => ComponentApi.jsonToComponent(json));
         Components.push(...components);
     },

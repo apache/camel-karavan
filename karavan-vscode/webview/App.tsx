@@ -23,6 +23,7 @@ import vscode from "./vscode";
 import { KameletApi } from "karavan-core/lib/api/KameletApi";
 import { ComponentApi } from "karavan-core/lib/api/ComponentApi";
 import { KameletsPage } from "./kamelets/KameletsPage";
+import { ComponentsPage } from "./components/ComponentsPage";
 
 interface Props {
   dark: boolean
@@ -76,10 +77,10 @@ class App extends React.Component<Props, State> {
     const message = event.data;
     switch (message.command) {
       case 'kamelets':
-        KameletApi.saveKamelets(message.kamelets);
+        KameletApi.saveKamelets(message.kamelets, true);
         break;
       case 'components':
-        ComponentApi.saveComponents(message.components);
+        ComponentApi.saveComponents(message.components, true);
         break;
       case 'showStartHelp':
           this.setState({showStartHelp: message.showStartHelp});
@@ -136,6 +137,7 @@ class App extends React.Component<Props, State> {
             dark={this.props.dark} />
         }
         {this.state.loaded && this.state.page === "kamelets" && <KameletsPage dark={this.props.dark}/>}
+        {this.state.loaded && this.state.page === "components" && <ComponentsPage dark={this.props.dark}/>}
       </Page>
     )
   }

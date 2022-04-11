@@ -35,17 +35,13 @@ export class HelpView implements vscode.TreeDataProvider<HelpItem> {
 		const helpItems: HelpItem[] = [];
 		helpItems.push(new HelpItem("Enterprise Integration Patterns", "Enterprise Integration Patterns", "eip", 'combine'));
 		helpItems.push(new HelpItem("Kamelet catalog", "Kamelet Catalog", "kamelets", 'extensions', { command: 'karavan.openKamelets', title: '' }));
-		helpItems.push(new HelpItem("Component catalog", "Component Catalog", "component", 'extensions'));
+		helpItems.push(new HelpItem("Component catalog", "Component Catalog", "component", 'extensions', { command: 'karavan.openComponents', title: '' }));
 		helpItems.push(new HelpItem("Report issue", "Report Issue", "issue", 'comment'));
 		return Promise.resolve(helpItems);
 	}
 
 	refresh(): void {
 		this._onDidChangeTreeData.fire();
-	}
-
-	openKamelets() {
-		this.openKaravanWebView("kamelets");
 	}
 
 	openKaravanWebView(page: string) {

@@ -22,6 +22,7 @@ import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {KaravanDesigner} from "./designer/KaravanDesigner";
 import {KameletsPage} from "./kamelets/KameletsPage";
+import {ComponentsPage} from "./components/ComponentsPage";
 
 interface Props {
     page: "designer" | "kamelets" | "components";
@@ -118,6 +119,7 @@ class App extends React.Component<Props, State> {
                                                                     dark={document.body.className.includes('vscode-dark')}
                                                                     showStartHelp={true}/>}
                 {this.props.page === "kamelets" && <KameletsPage dark={document.body.className.includes('vscode-dark')} />}
+                {this.props.page === "components" && <ComponentsPage dark={document.body.className.includes('vscode-dark')} />}
             </Page>
         );
     }

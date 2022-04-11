@@ -6,7 +6,7 @@ import {
     Text,
     CardHeader,
     CardActions,
-    Badge, Flex, CardTitle, CardBody,
+    Badge, Flex, CardTitle,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KameletModel, Property} from "karavan-core/lib/model/KameletModels";
@@ -76,7 +76,6 @@ export class KameletModal extends Component<Props, State> {
                     {this.state.kamelet?.spec.definition.properties && this.state.kamelet?.spec.definition.properties.length !== 0 &&
                     <div>
                         <CardTitle>Properties</CardTitle>
-                        <CardBody>
                         <TableComposable aria-label="Simple table" variant='compact'>
                             <Thead>
                                 <Tr>
@@ -99,7 +98,6 @@ export class KameletModal extends Component<Props, State> {
                                 ))}
                             </Tbody>
                         </TableComposable>
-                        </CardBody>
                     </div>
                     }
                 </Flex>

@@ -80,7 +80,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     const helpView = new HelpView(context, webviewContent);
 	vscode.window.registerTreeDataProvider('help', helpView);    
-    vscode.commands.registerCommand('karavan.openKamelets', () => helpView.openKamelets());
+    vscode.commands.registerCommand('karavan.openKamelets', () => helpView.openKaravanWebView("kamelets"));
+    vscode.commands.registerCommand('karavan.openComponents', () => helpView.openKaravanWebView("components"));
 }
 
 export function deactivate() {

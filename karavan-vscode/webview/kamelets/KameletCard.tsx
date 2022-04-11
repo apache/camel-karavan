@@ -27,20 +27,21 @@ export class KameletCard extends React.Component<Props, State> {
     }
 
     render() {
+        const kamelet = this.state.kamelet;
         return (
-            <Card isHoverable isCompact key={this.state.kamelet.metadata.name} className="kamelet-card"
+            <Card isHoverable isCompact key={kamelet.metadata.name} className="kamelet-card"
                 onClick={event => this.click(event)}
             >
                 <CardHeader>
-                    <img draggable="false" src={this.state.kamelet.icon()} className="kamelet-icon" alt=""></img>
-                    <CardActions>
-                        <Badge className="badge" isRead> {this.state.kamelet.metadata.labels["camel.apache.org/kamelet.type"].toLowerCase()}</Badge>
-                    </CardActions>
+                    <img draggable="false" src={kamelet.icon()} className="kamelet-icon" alt=""></img>
                 </CardHeader>
-                <CardTitle>{CamelUi.titleFromName(this.state.kamelet.metadata.name)}</CardTitle>
-                <CardBody>{this.state.kamelet.spec.definition.description}</CardBody>
+                <CardTitle>{CamelUi.titleFromName(kamelet.metadata.name)}</CardTitle>
+                <CardBody>{kamelet.spec.definition.description}</CardBody>
                 <CardFooter>
-
+                    {/*<div style={{justifyContent: "space-between"}}>*/}
+                        <Badge isRead className="labels">{kamelet.metadata.labels["camel.apache.org/kamelet.type"].toLowerCase()}</Badge>
+                        <Badge isRead className="version">{kamelet.metadata.annotations["camel.apache.org/catalog.version"].toLowerCase()}</Badge>
+                    {/*</div>*/}
                 </CardFooter>
             </Card>
         );

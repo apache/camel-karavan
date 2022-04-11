@@ -75,8 +75,9 @@ export const KameletApi = {
         return KameletApi.jsonToKamelet(JSON.stringify(fromYaml));
     },
 
-    saveKamelets: (kameletYamls: string[]) => {
+    saveKamelets: (kameletYamls: string[], clean: boolean = false) => {
         const kamelets:KameletModel[] = kameletYamls.map(text => KameletApi.yamlToKamelet(text));
+        if (clean) Kamelets.length = 0;
         Kamelets.push(...kamelets.sort((a, b) => {
                 if (a.spec.definition.title.toLowerCase() < b.spec.definition.title.toLowerCase()) {
                     return -1;
