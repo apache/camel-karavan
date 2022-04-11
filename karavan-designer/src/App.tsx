@@ -21,9 +21,10 @@ import {
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {KaravanDesigner} from "./designer/KaravanDesigner";
-import {TourProvider, useTour} from "@reactour/tour";
+import {KameletsPage} from "./kamelets/KameletsPage";
 
 interface Props {
+    page: "designer" | "kamelets" | "components";
 }
 
 interface State {
@@ -38,27 +39,27 @@ class App extends React.Component<Props, State> {
         name: 'demo.yaml',
         key: '',
         yaml:
-            // 'apiVersion: camel.apache.org/v1\n' +
-            // 'kind: Integration\n' +
-            // 'metadata:\n' +
-            // '  name: postman.yaml\n' +
-            // 'spec:\n' +
-            // '  flows:\n' +
-            // '    - route:\n' +
-            // '        from:\n' +
-            // '          uri: direct:post\n' +
-            // '          steps:\n' +
-            // '            - log:\n' +
-            // '                message: \'Received: ${body}\'\n' +
-            // '            - log:\n' +
-            // '                message: \'Received: ${body}\'\n' +
-            // '            - log:\n' +
-            // '                message: \'Received: ${body}\'\n' +
-            // '            - to:\n' +
-            // '                uri: kamelet:kafka-sink\n' +
-            // '                parameters:\n' +
-            // '                  topic: topic1\n' +
-            // '        id: post\n' +
+        // 'apiVersion: camel.apache.org/v1\n' +
+        // 'kind: Integration\n' +
+        // 'metadata:\n' +
+        // '  name: postman.yaml\n' +
+        // 'spec:\n' +
+        // '  flows:\n' +
+        // '    - route:\n' +
+        // '        from:\n' +
+        // '          uri: direct:post\n' +
+        // '          steps:\n' +
+        // '            - log:\n' +
+        // '                message: \'Received: ${body}\'\n' +
+        // '            - log:\n' +
+        // '                message: \'Received: ${body}\'\n' +
+        // '            - log:\n' +
+        // '                message: \'Received: ${body}\'\n' +
+        // '            - to:\n' +
+        // '                uri: kamelet:kafka-sink\n' +
+        // '                parameters:\n' +
+        // '                  topic: topic1\n' +
+        // '        id: post\n' +
             ''
     };
 
@@ -112,10 +113,11 @@ class App extends React.Component<Props, State> {
     public render() {
         return (
             <Page className="karavan">
-                <KaravanDesigner key={this.state.key} filename={this.state.name} yaml={this.state.yaml}
-                                 onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}
-                                 dark={document.body.className.includes('vscode-dark')}
-                 showStartHelp={true}/>
+                {this.props.page === "designer" && <KaravanDesigner key={this.state.key} filename={this.state.name} yaml={this.state.yaml}
+                                                                    onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}
+                                                                    dark={document.body.className.includes('vscode-dark')}
+                                                                    showStartHelp={true}/>}
+                {this.props.page === "kamelets" && <KameletsPage dark={document.body.className.includes('vscode-dark')} />}
             </Page>
         );
     }
