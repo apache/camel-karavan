@@ -10,6 +10,7 @@ Usability improvements
 6. Security and Scheduler parameters are hidden by default for Components (Expandable Section)
 7. Advanced parameters are hidden by default for EIP (Expandable Section)
 8. Open Integration, open yaml, run with Jbang context menu in Karavan view in VS Code
+9. Build-in route creation Tour
 
 ## 0.0.13
 Requires Camel 3.16.0 and later
