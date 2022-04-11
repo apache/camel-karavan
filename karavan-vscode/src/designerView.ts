@@ -135,6 +135,12 @@ export class DesignerView {
                 KARAVAN_PANELS.delete(relativePath);
             }, null, this.context.subscriptions);
 
+            // Handle reopen
+            panel.onDidChangeViewState((e: vscode.WebviewPanelOnDidChangeViewStateEvent) => {
+                console.log(e.webviewPanel);
+                e.webviewPanel.webview.postMessage({ command: 'open', filename: filename, relativePath: relativePath, yaml: yaml })
+            });
+
             KARAVAN_PANELS.set(relativePath, panel);
             vscode.commands.executeCommand("setContext", KARAVAN_LOADED, true);
         } else {

@@ -91,6 +91,8 @@ export function activate(context: vscode.ExtensionContext) {
     const eipView = new EipView(context, rootPath);
 	vscode.window.registerTreeDataProvider('eip', eipView);    
     vscode.commands.registerCommand('eip.refresh', () => eipView.refresh());
+
+    // vscode.commands.onDidChangeActiveView
 }
 
 export function deactivate() {
