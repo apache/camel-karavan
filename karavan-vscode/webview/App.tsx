@@ -86,6 +86,10 @@ class App extends React.Component<Props, State> {
           this.setState({ filename: message.filename, yaml: message.yaml, scheduledYaml: message.yaml, relativePath: message.relativePath, key: Math.random().toString(), loaded: true });
         }
         break;
+      case 'reread':
+        this.setState({ loaded: false, filename: '', key: '' });
+        vscode.postMessage({ command: 'getData', reread: true});
+        break;
     }
   };
 

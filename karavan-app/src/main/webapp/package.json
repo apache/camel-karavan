@@ -1,6 +1,6 @@
 {
   "name": "karavan",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "private": true,
   "scripts": {
     "start": "cp -r ../../../../karavan-designer/src/designer src && react-scripts start",
