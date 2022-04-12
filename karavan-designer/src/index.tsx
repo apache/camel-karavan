@@ -15,9 +15,25 @@
  * limitations under the License.
  */
 import * as React from "react";
-import * as ReactDOM from "react-dom";
 import "./index.css";
 import "@patternfly/patternfly/patternfly.css";
 import App from "./App";
+import {render} from "react-dom";
+import {
+    BrowserRouter,
+    Routes,
+    Route,
+} from "react-router-dom";
 
-ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
+const rootElement = document.getElementById("root");
+render(
+    <BrowserRouter>
+        <Routes>
+            <Route path="/" element={<App page="designer"/>} />
+            <Route path="kamelets-page" element={<App page="kamelets"/>} />
+            <Route path="components-page" element={<App page="components"/>} />
+            <Route path="eip-page" element={<App page="eip"/>} />
+        </Routes>
+    </BrowserRouter>,
+    rootElement
+);

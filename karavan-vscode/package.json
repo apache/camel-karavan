@@ -47,7 +47,11 @@
     "onCommand:karavan.open",
     "onCommand:karavan.open-yaml",
     "onCommand:karavan.jbang-run",
-    "onView:integrations"
+    "onView:integrations",
+    "onCommand:karavan.openKamelets",
+    "onCommand:karavan.openComponents",
+    "onCommand:karavan.openEip",
+    "onCommand:karavan.reportIssue"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -144,28 +148,20 @@
         }
       },
       {
-        "command": "kamelets.refresh",
-        "title": "Refresh",
-        "icon": {
-          "light": "icons/light/refresh.svg",
-          "dark": "icons/dark/refresh.svg"
-        }
+        "command": "karavan.openKamelets",
+        "title": "Open Kamelet Catalog"
       },
       {
-        "command": "components.refresh",
-        "title": "Refresh",
-        "icon": {
-          "light": "icons/light/refresh.svg",
-          "dark": "icons/dark/refresh.svg"
-        }
+        "command": "karavan.openComponents",
+        "title": "Open Component Catalog"
       },
       {
-        "command": "eip.refresh",
-        "title": "Refresh",
-        "icon": {
-          "light": "icons/light/refresh.svg",
-          "dark": "icons/dark/refresh.svg"
-        }
+        "command": "karavan.openEip",
+        "title": "Open EIP"
+      },
+      {
+        "command": "karavan.reportIssue",
+        "title": "Report Issue"
       }
     ],
     "menus": {
@@ -209,21 +205,6 @@
           "command": "karavan.create-crd",
           "when": "view == integrations",
           "group": "navigation"
-        },
-        {
-          "command": "kamelets.refresh",
-          "when": "view == kamelets",
-          "group": "navigation"
-        },
-        {
-          "command": "components.refresh",
-          "when": "view == components",
-          "group": "navigation"
-        },
-        {
-          "command": "eip.refresh",
-          "when": "view == eip",
-          "group": "navigation"
         }
       ],
       "view/item/context": [
@@ -257,22 +238,13 @@
       "karavanView": [
         {
           "id": "integrations",
-          "name": "Integrations"
+          "name": "Integrations",
+          "visibility": "visible"
         },
         {
-          "id": "eip",
-          "name": "Enterprise Integration Patterns",
-          "visibility": "collapsed"
-        },
-        {
-          "id": "kamelets",
-          "name": "Kamelets",
-          "visibility": "collapsed"
-        },
-        {
-          "id": "components",
-          "name": "Components",
-          "visibility": "collapsed"
+          "id": "help",
+          "name": "Help & Feedback",
+          "visibility": "visible"
         }
       ]
     },
@@ -284,13 +256,14 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "cp -r ../karavan-designer/src/designer webview && npm run package",
-    "compile": "cp -r ../karavan-designer/src/designer webview && cross-env NODE_ENV=development webpack --progress",
-    "watch": "cp -r ../karavan-designer/src/designer webview && cross-env NODE_ENV=development webpack --progress --watch",
-    "package": "cp -r ../karavan-designer/src/designer webview  && cross-env NODE_ENV=production webpack --progress",
+    "copy-designer": "cp -r ../karavan-designer/src/designer webview && cp -r ../karavan-designer/src/kamelets webview && cp -r ../karavan-designer/src/components webview && cp -r ../karavan-designer/src/eip webview",
+    "vscode:prepublish": "npm run copy-designer && npm run package",
+    "compile": "npm run copy-designer && cross-env NODE_ENV=development webpack --progress",
+    "watch": "npm run copy-designer && cross-env NODE_ENV=development webpack --progress --watch",
+    "package": "npm run copy-designer  && cross-env NODE_ENV=production webpack --progress",
     "test-compile": "tsc -p ./",
     "test-watch": "tsc -watch -p ./",
-    "pretest": "cp -r ../karavan-designer/src/designer webview && npm run test-compile && npm run lint",
+    "pretest": "npm run copy-designer && npm run test-compile && npm run lint",
     "lint": "eslint src webview --ext .ts,.tsx",
     "lint:fix": "eslint --fix src webview --ext .ts,.tsx",
     "test": "node ./out/test/runTest.js"
@@ -328,6 +301,7 @@
   "dependencies": {
     "@patternfly/patternfly": "4.171.1",
     "@patternfly/react-core": "4.192.7",
+    "@patternfly/react-table": "^4.71.16",
     "@reactour/tour": "^2.10.2",
     "@types/js-yaml": "4.0.5",
     "@types/uuid": "8.3.4",

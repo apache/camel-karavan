@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {
     Button,
     Modal,
@@ -9,24 +9,25 @@ import {
     Badge, Flex, CardTitle,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {KameletModel, Property} from "karavan-core/lib/model/KameletModels";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import {CamelUi} from "../designer/utils/CamelUi";
+import {ElementMeta, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 
 interface Props {
-    kamelet?: KameletModel,
+    element?: ElementMeta,
     isOpen: boolean;
 }
 
 interface State {
     isOpen: boolean;
-    kamelet?: KameletModel,
+    element?: ElementMeta,
 }
 
-export class KameletModal extends Component<Props, State> {
+export class EipModal extends  React.Component<Props, State> {
 
     public state: State = {
         isOpen: this.props.isOpen,
-        kamelet: this.props.kamelet,
+        element: this.props.element,
     };
 
     setModalOpen = (open: boolean) => {
@@ -39,19 +40,14 @@ export class KameletModal extends Component<Props, State> {
         }
     }
 
-    getKameletProperties = (properties: any): any[] => {
-        return properties
-            ? Array.from(new Map(Object.entries(properties)), ([name, value]) => (value))
-            : [];
-    }
-
     render() {
+        const component = this.state.element;
         return (
             <Modal
                 aria-label={"Kamelet"}
                 width={'fit-content'}
                 maxLength={200}
-                title={this.state.kamelet?.spec.definition.title}
+                title={component?.title}
                 isOpen={this.state.isOpen}
                 onClose={() => this.setModalOpen(false)}
                 actions={[
@@ -63,37 +59,43 @@ export class KameletModal extends Component<Props, State> {
                     </div>
                 ]}
             >
-                <Flex direction={{default: 'column'}} key={this.state.kamelet?.metadata.name}
+                <Flex direction={{default: 'column'}} key={component?.name}
                       className="kamelet-modal-card">
                     <CardHeader>
-                        <img draggable="false" src={this.state.kamelet?.icon()} className="kamelet-icon" alt=""></img>
+                        <img draggable="false" src={CamelUi.getIconForName(component?.name || '')} className="kamelet-icon" alt=""></img>
                         <CardActions>
                             <Badge className="badge"
-                                   isRead> {this.state.kamelet?.metadata.labels["camel.apache.org/kamelet.type"].toLowerCase()}</Badge>
+                                   isRead> {component?.labels}</Badge>
                         </CardActions>
                     </CardHeader>
-                    <Text className="description">{this.state.kamelet?.spec.definition.description}</Text>
-                    {this.state.kamelet?.spec.definition.properties && this.state.kamelet?.spec.definition.properties.length !== 0 &&
+                    <Text className="description">{component?.description}</Text>
+                    {component?.properties.length !== 0 &&
                     <div>
                         <CardTitle>Properties</CardTitle>
                         <TableComposable aria-label="Simple table" variant='compact'>
                             <Thead>
                                 <Tr>
-                                    <Th key='title'>Title</Th>
-                                    <Th key='type'>Type</Th>
+                                    <Th key='name'>Display Name / Name</Th>
                                     <Th key='desc'>Description</Th>
-                                    <Th key='format'>Format</Th>
-                                    <Th key='example'>Example</Th>
+                                    <Th key='type'>Type</Th>
+                                    <Th key='label'>Label</Th>
                                 </Tr>
                             </Thead>
                             <Tbody>
-                                {this.getKameletProperties(this.state.kamelet?.spec.definition.properties).map((p: Property, idx: number) => (
+                                {component?.properties.map((p: PropertyMeta, idx: number) => (
                                     <Tr key={idx}>
-                                        <Td key={`${idx}_title`}>{p.title}</Td>
+                                        <Td key={`${idx}_name`}>
+                                            <div>
+                                                <b>{p.displayName}</b>
+                                                <div>{p.name}</div>
+                                            </div>
+                                        </Td>
+                                        <Td key={`${idx}_desc`}><div>
+                                            <div>{p.description}</div>
+                                            {p.defaultValue && p.defaultValue.toString().length > 0 && <div>{"Default value: " + p.defaultValue}</div>}
+                                        </div></Td>
                                         <Td key={`${idx}_type`}>{p.type}</Td>
-                                        <Td key={`${idx}_desc`}>{p.description}</Td>
-                                        <Td key={`${idx}_format`}>{p.format}</Td>
-                                        <Td key={`${idx}_example`}>{p.example}</Td>
+                                        <Td key={`${idx}_label`}>{p.label}</Td>
                                     </Tr>
                                 ))}
                             </Tbody>
@@ -102,6 +104,6 @@ export class KameletModal extends Component<Props, State> {
                     }
                 </Flex>
             </Modal>
-        );
+        )
     }
 }

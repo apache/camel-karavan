@@ -18,9 +18,7 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import { DesignerView } from "./designerView";
 import {IntegrationView} from "./integrationView";
-import { KameletView } from "./kameletView";
-import { ComponentView } from "./componentView";
-import { EipView } from "./eipView";
+import { HelpView } from "./helpView";
 
 const KARAVAN_LOADED = "karavan:loaded";
 
@@ -80,19 +78,15 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.window.registerTreeDataProvider('integrations', integrationView);    
     vscode.commands.registerCommand('integrations.refresh', () => integrationView.refresh());
 
-    const kameletView = new KameletView(context, rootPath);
-	vscode.window.registerTreeDataProvider('kamelets', kameletView);    
-    vscode.commands.registerCommand('kamelets.refresh', () => kameletView.refresh());
+    const helpView = new HelpView(context, webviewContent);
+	vscode.window.registerTreeDataProvider('help', helpView);    
+    vscode.commands.registerCommand('karavan.openKamelets', () => helpView.openKaravanWebView("kamelets"));
+    vscode.commands.registerCommand('karavan.openComponents', () => helpView.openKaravanWebView("components"));
+    vscode.commands.registerCommand('karavan.openEip', () => helpView.openKaravanWebView("eip"));
 
-    const componentView = new ComponentView(context, rootPath);
-	vscode.window.registerTreeDataProvider('components', componentView);    
-    vscode.commands.registerCommand('components.refresh', () => componentView.refresh());
-
-    const eipView = new EipView(context, rootPath);
-	vscode.window.registerTreeDataProvider('eip', eipView);    
-    vscode.commands.registerCommand('eip.refresh', () => eipView.refresh());
-
-    // vscode.commands.onDidChangeActiveView
+    vscode.commands.registerCommand('karavan.reportIssue', () => {
+        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/apache/camel-karavan/issues/new?title=[VS+Code]New+report&template=issue_template.md'));
+    });
 }
 
 export function deactivate() {

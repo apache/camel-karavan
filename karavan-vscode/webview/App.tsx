@@ -22,6 +22,9 @@ import { KaravanDesigner } from "./designer/KaravanDesigner";
 import vscode from "./vscode";
 import { KameletApi } from "karavan-core/lib/api/KameletApi";
 import { ComponentApi } from "karavan-core/lib/api/ComponentApi";
+import { KameletsPage } from "./kamelets/KameletsPage";
+import { ComponentsPage } from "./components/ComponentsPage";
+import { EipPage } from "./eip/EipPage";
 
 interface Props {
   dark: boolean
@@ -37,6 +40,7 @@ interface State {
   scheduledYaml: string
   hasChanges: boolean
   showStartHelp: boolean
+  page: "designer" | "kamelets" | "components" | "eip";
 }
 
 class App extends React.Component<Props, State> {
@@ -49,7 +53,8 @@ class App extends React.Component<Props, State> {
     loaded: false,
     scheduledYaml: '',
     hasChanges: false,
-    showStartHelp: false
+    showStartHelp: false,
+    page: "designer"
   };
 
   saveScheduledChanges = () => {
@@ -73,19 +78,27 @@ class App extends React.Component<Props, State> {
     const message = event.data;
     switch (message.command) {
       case 'kamelets':
-        KameletApi.saveKamelets(message.kamelets);
+        KameletApi.saveKamelets(message.kamelets, true);
         break;
       case 'components':
-        ComponentApi.saveComponents(message.components);
+        ComponentApi.saveComponents(message.components, true);
         break;
       case 'showStartHelp':
           this.setState({showStartHelp: message.showStartHelp});
           break;  
       case 'open':
         if (this.state.filename === '' && this.state.key === '') {
-          this.setState({ filename: message.filename, yaml: message.yaml, scheduledYaml: message.yaml, relativePath: message.relativePath, key: Math.random().toString(), loaded: true });
+          this.setState({ 
+            page: message.page, 
+            filename: message.filename, 
+            yaml: message.yaml, 
+            scheduledYaml: message.yaml, 
+            relativePath: message.relativePath, 
+            key: Math.random().toString(), 
+            loaded: true 
+          });
         }
-        break;
+        break;  
       case 'reread':
         this.setState({ loaded: false, filename: '', key: '' });
         vscode.postMessage({ command: 'getData', reread: true});
@@ -114,7 +127,7 @@ class App extends React.Component<Props, State> {
             <Spinner  className="progress-stepper" isSVG diameter="80px" aria-label="Loading..."/>
           </PageSection>
         }
-        {this.state.loaded &&
+        {this.state.loaded && this.state.page === "designer" &&
           <KaravanDesigner
             showStartHelp={this.state.showStartHelp}
             key={this.state.key}
@@ -124,6 +137,9 @@ class App extends React.Component<Props, State> {
             onDisableHelp={this.disableStartHelp}
             dark={this.props.dark} />
         }
+        {this.state.loaded && this.state.page === "kamelets" && <KameletsPage dark={this.props.dark}/>}
+        {this.state.loaded && this.state.page === "components" && <ComponentsPage dark={this.props.dark}/>}
+        {this.state.loaded && this.state.page === "eip" && <EipPage dark={this.props.dark}/>}
       </Page>
     )
   }

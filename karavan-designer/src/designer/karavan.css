@@ -1082,3 +1082,10 @@ reactour-portal .reactour__popover button {
 reactour-portal .reactour__popover button:focus-visible {
     outline: none;
 }
+
+/*Kamelets*/
+.karavan .kamelets-page .kamelet-card .pf-c-card__footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}

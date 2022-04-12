@@ -68,11 +68,8 @@ export function parceYaml(filename: string, yaml: string): [boolean, string?] {
 }
 
 export function disableStartHelp(){
-    console.log("!!!!    3");
     const config = vscode.workspace.getConfiguration();
-    console.log(config);
     config.update("Karavan.showStartHelp", false);
-    console.log("!!!!    4", vscode.workspace.getConfiguration().get("Karavan.showStartHelp"));
 }
 
 export function runCamelJbang(filename: string) {

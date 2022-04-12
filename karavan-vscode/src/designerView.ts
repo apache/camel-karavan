@@ -165,7 +165,7 @@ export class DesignerView {
         }
 
         // Send integration
-        panel.webview.postMessage({ command: 'open', filename: filename, relativePath: relativePath, yaml: yaml });
+        panel.webview.postMessage({ command: 'open', page: "designer", filename: filename, relativePath: relativePath, yaml: yaml });
 
     }
 

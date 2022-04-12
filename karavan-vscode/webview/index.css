@@ -291,3 +291,41 @@ body, :root, #root, .karavan {
 .vscode-dark .reactour__mask {
   color: var(--vscode-input-placeholderForeground);
 }
+
+
+/* Kamelets page */
+
+.vscode-dark .karavan .kamelet-section,
+.vscode-dark .karavan .tools-section,
+.vscode-dark .karavan .tools-section .pf-c-toolbar,
+.vscode-dark .karavan .kamelets-page {
+  background-color: transparent;
+  border: none;
+}
+
+.vscode-dark .karavan .tools-section h1 {
+color: var(--vscode-editor-foreground);
+}
+
+.vscode-dark .karavan .kamelets-page .kamelet-card {
+  background-color: var(--vscode-badge-background);
+}
+
+.vscode-dark .karavan .tools-section .text-field {
+  background-color:  var(--vscode-editor-background);
+  border-color:  var(--vscode-input-foreground);
+  color:  var(--vscode-input-foreground);
+}
+
+.vscode-dark .kamelet-modal-card .pf-c-table {
+  background-color: transparent;
+  color:  var(--vscode-input-foreground);
+}
+
+.vscode-dark .pf-c-table {
+  --pf-c-table--cell--Color:  var(--vscode-input-foreground);
+  color:  var(--vscode-input-foreground);
+}
+
+
+
