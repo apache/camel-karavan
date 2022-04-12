@@ -8,60 +8,62 @@ import {
     PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {KameletCard} from "./KameletCard";
-import {KameletModel} from "karavan-core/lib/model/KameletModels";
-import {KameletApi} from "karavan-core/lib/api/KameletApi";
-import {KameletModal} from "./KameletModal";
+import {ComponentCard} from "./ComponentCard";
+import {ComponentModal} from "./ComponentModal";
+import {Component} from "karavan-core/lib/model/ComponentModels";
+import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 
 interface Props {
     dark: boolean
 }
 
 interface State {
-    kamelet?: KameletModel;
+    component?: Component;
     isModalOpen: boolean;
     repository: string,
     path: string,
-    kamelets: KameletModel[],
+    components: Component[],
     filter: string
 }
 
-export class KameletsPage extends React.Component<Props, State> {
+export class ComponentsPage extends React.Component<Props, State> {
 
     public state: State = {
         isModalOpen: false,
         repository: '',
         path: '',
-        kamelets: [],
+        components: [],
         filter: ''
     };
 
     componentDidMount() {
-        this.setState({kamelets: KameletApi.getKamelets()})
+        this.setState({components: ComponentApi.getComponents()})
     }
 
-    select = (k: KameletModel)=> {
-        this.setState({kamelet: k, isModalOpen: true})
+    select = (c: Component)=> {
+        this.setState({component: c, isModalOpen: true})
     }
 
     search(filter: string){
         this.setState({
             filter: filter,
             isModalOpen: false,
-            kamelets: KameletApi.getKamelets().filter(kamelet => kamelet.spec.definition.title.toLowerCase().includes(filter.toLowerCase()))
+            components:  ComponentApi.getComponents().filter(c => c.component.name.toLowerCase().includes(filter.toLowerCase()))
         })
     }
 
     render() {
+        const component = this.state.component;
+        const components = this.state.components;
         return (
             <PageSection variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light} padding={{ default: 'noPadding' }} className="kamelet-section">
-                <KameletModal key={this.state.kamelet?.metadata.name + this.state.isModalOpen.toString()}
-                              isOpen={this.state.isModalOpen} kamelet={this.state.kamelet}/>
+                <ComponentModal key={component?.component.name + this.state.isModalOpen.toString()}
+                                isOpen={this.state.isModalOpen} component={component}/>
                 <PageSection  className="tools-section" variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
                     <Flex className="tools" justifyContent={{default: 'justifyContentSpaceBetween'}}>
                         <FlexItem>
                             <TextContent>
-                                <Text component="h1">Kamelet Catalog</Text>
+                                <Text component="h1">Component Catalog</Text>
                             </TextContent>
                         </FlexItem>
                         <FlexItem>
@@ -81,8 +83,8 @@ export class KameletsPage extends React.Component<Props, State> {
                 </PageSection>
                 <PageSection isFilled className="kamelets-page" variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
                     <Gallery hasGutter>
-                        {this.state.kamelets.map(k => (
-                            <KameletCard key={k.metadata.name} kamelet={k} onClickCard={this.select}/>
+                        {components.map(c => (
+                            <ComponentCard key={c.component.name} component={c} onClickCard={this.select}/>
                         ))}
                     </Gallery>
                 </PageSection>

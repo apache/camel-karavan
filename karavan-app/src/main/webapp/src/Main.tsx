@@ -36,6 +36,8 @@ import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import avatarImg from './avatarImg.svg';
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import Icon from "./Logo";
+import {ComponentsPage} from "./components/ComponentsPage";
+import {EipPage} from "./eip/EipPage";
 
 class ToastMessage {
     id: string = ''
@@ -58,7 +60,7 @@ interface State {
     version: string,
     mode: 'local' | 'gitops' | 'serverless',
     isNavOpen: boolean,
-    pageId: 'integrations' | 'configuration' | 'kamelets' | 'designer'
+    pageId: 'integrations' | 'configuration' | 'kamelets' | 'designer' | "components" | "eip"
     integrations: Map<string,string>,
     integration: Integration,
     isModalOpen: boolean,
@@ -166,14 +168,22 @@ export class Main extends React.Component<Props, State> {
                      isActive={this.state.pageId === 'integrations'}>
                 Integrations
             </NavItem>
+            <NavItem id="eip" to="#" itemId={"eip"}
+                     isActive={this.state.pageId === 'eip'}>
+                Enterprise Integration Patterns
+            </NavItem>
             <NavItem id="kamelets" to="#" itemId={"kamelets"}
                      isActive={this.state.pageId === 'kamelets'}>
                 Kamelets
             </NavItem>
-            <NavItem id="configuration" to="#" itemId={"configuration"}
-                     isActive={this.state.pageId === 'configuration'}>
-                Configuration
+            <NavItem id="components" to="#" itemId={"components"}
+                     isActive={this.state.pageId === 'components'}>
+                Components
             </NavItem>
+            {/*<NavItem id="configuration" to="#" itemId={"configuration"}*/}
+            {/*         isActive={this.state.pageId === 'configuration'}>*/}
+            {/*    Configuration*/}
+            {/*</NavItem>*/}
         </NavList>
     </Nav>);
 
@@ -237,7 +247,9 @@ export class Main extends React.Component<Props, State> {
                                  onDelete={this.onIntegrationDelete} onSelect={this.onIntegrationSelect}
                                  onCreate={this.onIntegrationCreate}/>}
                 {this.state.pageId === 'configuration' && <ConfigurationPage/>}
-                {this.state.pageId === 'kamelets' && <KameletsPage/>}
+                {this.state.pageId === 'kamelets' && <KameletsPage dark={false}/>}
+                {this.state.pageId === 'components' && <ComponentsPage dark={false}/>}
+                {this.state.pageId === 'eip' && <EipPage dark={false}/>}
                 {this.state.pageId === 'designer' &&
                 <DesignerPage mode={this.state.mode} integration={this.state.integration}/>}
                 <Modal
