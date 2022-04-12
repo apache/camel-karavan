@@ -184,10 +184,12 @@ export class RouteDesigner extends React.Component<Props, State> {
          if( ce.dslName === 'FromDefinition' ) { // Get the RouteDefinition for this.  Use its uuid.
             var flows = this.state.integration.spec.flows!;
             for( var i = 0 ; i < flows.length; i++ ) {
-                var routeDefinition : RouteDefinition = flows[i] ;
-                if( routeDefinition.from.uuid === id ) {
-                    id = routeDefinition.uuid ;
-                    break;
+                if( flows[i].dslName === 'RouteDefinition' ) {
+                    var routeDefinition : RouteDefinition = flows[i] ;
+                    if( routeDefinition.from.uuid === id ) {
+                        id = routeDefinition.uuid ;
+                        break;
+                    }
                 }
             }
             message = 'Deleting the first element will delete the entire route!' ;
