@@ -44,11 +44,13 @@ public final class CamelComponentsGenerator {
     public static void generate() throws Exception {
         CamelComponentsGenerator g = new CamelComponentsGenerator();
         g.createCreateComponents("karavan-app/src/main/resources/components");
-        g.createCreateComponents("karavan-vscode/components");
         g.createCreateComponents("karavan-designer/public/components");
+        g.createCreateComponents("karavan-vscode/components");
     }
 
-    private void createCreateComponents(String path) {
+    private void createCreateComponents(String path) throws IOException {
+        deleteDirectory(Paths.get(path).toFile());
+        Files.createDirectory(Paths.get(path));
         List<String> components = getComponents();
         StringBuilder list = new StringBuilder();
         components.forEach(name -> {
@@ -95,6 +97,16 @@ public final class CamelComponentsGenerator {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    boolean deleteDirectory(File directoryToBeDeleted) {
+        File[] allContents = directoryToBeDeleted.listFiles();
+        if (allContents != null) {
+            for (File file : allContents) {
+                deleteDirectory(file);
+            }
+        }
+        return directoryToBeDeleted.delete();
     }
 
 }
