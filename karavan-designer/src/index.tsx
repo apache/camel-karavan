@@ -32,6 +32,7 @@ render(
             <Route path="/" element={<App page="designer"/>} />
             <Route path="kamelets-page" element={<App page="kamelets"/>} />
             <Route path="components-page" element={<App page="components"/>} />
+            <Route path="eip-page" element={<App page="eip"/>} />
         </Routes>
     </BrowserRouter>,
     rootElement

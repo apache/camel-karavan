@@ -42,12 +42,6 @@ export class ComponentModal extends  React.Component<Props, State> {
         }
     }
 
-    getKameletProperties = (properties: any): any[] => {
-        return properties
-            ? Array.from(new Map(Object.entries(properties)), ([name, value]) => (value))
-            : [];
-    }
-
     render() {
         const component = this.state.component;
         const props = new Map<string, ComponentProperty>();

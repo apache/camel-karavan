@@ -82,6 +82,11 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.window.registerTreeDataProvider('help', helpView);    
     vscode.commands.registerCommand('karavan.openKamelets', () => helpView.openKaravanWebView("kamelets"));
     vscode.commands.registerCommand('karavan.openComponents', () => helpView.openKaravanWebView("components"));
+    vscode.commands.registerCommand('karavan.openEip', () => helpView.openKaravanWebView("eip"));
+
+    vscode.commands.registerCommand('karavan.reportIssue', () => {
+        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/apache/camel-karavan/issues/new?title=[VS+Code]New+report&template=issue_template.md'));
+    });
 }
 
 export function deactivate() {

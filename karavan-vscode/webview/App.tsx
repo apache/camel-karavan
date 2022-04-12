@@ -24,6 +24,7 @@ import { KameletApi } from "karavan-core/lib/api/KameletApi";
 import { ComponentApi } from "karavan-core/lib/api/ComponentApi";
 import { KameletsPage } from "./kamelets/KameletsPage";
 import { ComponentsPage } from "./components/ComponentsPage";
+import { EipPage } from "./eip/EipPage";
 
 interface Props {
   dark: boolean
@@ -39,7 +40,7 @@ interface State {
   scheduledYaml: string
   hasChanges: boolean
   showStartHelp: boolean
-  page: "designer" | "kamelets" | "components";
+  page: "designer" | "kamelets" | "components" | "eip";
 }
 
 class App extends React.Component<Props, State> {
@@ -138,6 +139,7 @@ class App extends React.Component<Props, State> {
         }
         {this.state.loaded && this.state.page === "kamelets" && <KameletsPage dark={this.props.dark}/>}
         {this.state.loaded && this.state.page === "components" && <ComponentsPage dark={this.props.dark}/>}
+        {this.state.loaded && this.state.page === "eip" && <EipPage dark={this.props.dark}/>}
       </Page>
     )
   }

@@ -39,10 +39,8 @@ export class ComponentCard extends React.Component<Props, State> {
                 <CardTitle>{CamelUi.titleFromName(component.component.name)}</CardTitle>
                 <CardBody>{component.component.description}</CardBody>
                 <CardFooter>
-                    {/*<div style={{justifyContent: "space-between"}}>*/}
-                        <Badge isRead className="labels">{component.component.label}</Badge>
-                        <Badge isRead className="version">{component.component.version}</Badge>
-                    {/*</div>*/}
+                    <Badge isRead className="labels">{component.component.label}</Badge>
+                    <Badge isRead className="version">{component.component.version}</Badge>
                 </CardFooter>
             </Card>
         );
