@@ -43,10 +43,9 @@ public class KameletGenerator {
         g.createKamelets("karavan-designer/public/kamelets");
     }
 
-    public void createKamelets(String folder) throws IOException {
+    public void createKamelets(String folder) {
         LOGGER.info("Creating default Kamelets");
-        deleteDirectory(Paths.get(folder).toFile());
-        Files.createDirectory(Paths.get(folder));
+        clearDirectory(Paths.get(folder).toFile());
         KameletsCatalog catalog = new KameletsCatalog();
         catalog.getKamelets().entrySet().stream()
                 .map(k -> k.getValue().getMetadata().getName())
@@ -73,13 +72,12 @@ public class KameletGenerator {
             }
         }
     }
-    boolean deleteDirectory(File directoryToBeDeleted) {
+    void clearDirectory(File directoryToBeDeleted) {
         File[] allContents = directoryToBeDeleted.listFiles();
         if (allContents != null) {
             for (File file : allContents) {
-                deleteDirectory(file);
+                if (!file.getName().endsWith("gitignore")) file.delete();
             }
         }
-        return directoryToBeDeleted.delete();
     }
 }
