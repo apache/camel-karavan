@@ -5,7 +5,7 @@ import {
     Gallery,
     ToolbarItem,
     TextInput,
-    PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem
+    PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem, Badge
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {ComponentCard} from "./ComponentCard";
@@ -62,8 +62,9 @@ export class ComponentsPage extends React.Component<Props, State> {
                 <PageSection  className="tools-section" variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
                     <Flex className="tools" justifyContent={{default: 'justifyContentSpaceBetween'}}>
                         <FlexItem>
-                            <TextContent>
-                                <Text component="h1">Component Catalog</Text>
+                            <TextContent className="header">
+                                <Text component="h2">Component Catalog</Text>
+                                <Badge isRead className="labels">{components.length}</Badge>
                             </TextContent>
                         </FlexItem>
                         <FlexItem>

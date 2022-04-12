@@ -1083,9 +1083,18 @@ reactour-portal .reactour__popover button:focus-visible {
     outline: none;
 }
 
-/*Kamelets*/
+/*Catalogues*/
 .karavan .kamelets-page .kamelet-card .pf-c-card__footer {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+.karavan .tools-section .tools .header {
+    display: flex;
+    flex-direction: row;
+}
+.karavan .tools-section .tools .header .labels {
+    height: fit-content;
+    margin-left: 3px;
 }
