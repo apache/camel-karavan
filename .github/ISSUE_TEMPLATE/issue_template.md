@@ -16,4 +16,4 @@ PLEASE HELP US PROCESS GITHUB ISSUES FASTER BY PROVIDING THE FOLLOWING INFORMATI
 <!-- Describe how to reproduce the problem -->
 
 * Others:
-<!-- Anything else relevant?  Operating system version, IDE, package manager, HTTP server, ... -->
+<!-- Anything else relevant?  -->
