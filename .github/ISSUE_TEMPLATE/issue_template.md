@@ -3,7 +3,7 @@
 PLEASE HELP US PROCESS GITHUB ISSUES FASTER BY PROVIDING THE FOLLOWING INFORMATION.
 -->
 **Environment**
-- Karavan version: X.Y.Z  <!-- run `node --version` -->
+- Karavan version: X.Y.Z 
 - Platform:  <!-- Mac, Linux, Windows -->
 
 **Current behavior**
