@@ -40,7 +40,8 @@ interface State {
   scheduledYaml: string
   hasChanges: boolean
   showStartHelp: boolean
-  page: "designer" | "kamelets" | "components" | "eip";
+  page: "designer" | "kamelets" | "components" | "eip"
+  active: boolean
 }
 
 class App extends React.Component<Props, State> {
@@ -54,11 +55,13 @@ class App extends React.Component<Props, State> {
     scheduledYaml: '',
     hasChanges: false,
     showStartHelp: false,
-    page: "designer"
+    page: "designer",
+    active: false
   };
 
   saveScheduledChanges = () => {
-    if (this.state.hasChanges){
+    console.log("saveScheduledChanges", this.state.active);
+    if (this.state.active && this.state.hasChanges) {
       this.save(this.state.relativePath, this.state.scheduledYaml, false);
     }
   }
@@ -66,7 +69,7 @@ class App extends React.Component<Props, State> {
   componentDidMount() {
     window.addEventListener('message', this.onMessage, false);
     vscode.postMessage({ command: 'getData' });
-    this.setState({interval: setInterval(this.saveScheduledChanges, 2000)});
+    this.setState({ interval: setInterval(this.saveScheduledChanges, 2000) });
   }
 
   componentWillUnmount() {
@@ -76,6 +79,7 @@ class App extends React.Component<Props, State> {
 
   onMessage = (event) => {
     const message = event.data;
+    console.log("message.command", message.command);
     switch (message.command) {
       case 'kamelets':
         KameletApi.saveKamelets(message.kamelets, true);
@@ -84,39 +88,46 @@ class App extends React.Component<Props, State> {
         ComponentApi.saveComponents(message.components, true);
         break;
       case 'showStartHelp':
-          this.setState({showStartHelp: message.showStartHelp});
-          break;  
+        this.setState({ showStartHelp: message.showStartHelp });
+        break;
       case 'open':
         if (this.state.filename === '' && this.state.key === '') {
-          this.setState({ 
-            page: message.page, 
-            filename: message.filename, 
-            yaml: message.yaml, 
-            scheduledYaml: message.yaml, 
-            relativePath: message.relativePath, 
-            key: Math.random().toString(), 
-            loaded: true 
+          if (message.page !== "designer" && this.state.interval) clearInterval(this.state.interval);
+          this.setState({
+            page: message.page,
+            filename: message.filename,
+            yaml: message.yaml,
+            scheduledYaml: message.yaml,
+            relativePath: message.relativePath,
+            key: Math.random().toString(),
+            loaded: true,
+            active: true
           });
         }
-        break;  
-      case 'reread':
-        this.setState({ loaded: false, filename: '', key: '' });
-        vscode.postMessage({ command: 'getData', reread: true});
+        break;
+      case 'activate':
+        this.setState({ loaded: false, filename: '', key: '', active: true });
+        vscode.postMessage({ command: 'getData', reread: true });
+        break;
+      case 'deactivate':
+        this.setState({ active: false, hasChanges: false });
         break;
     }
   };
 
   save(filename: string, yaml: string, propertyOnly: boolean) {
-    if (!propertyOnly) {
-      vscode.postMessage({ command: 'save', filename: filename, relativePath: this.state.relativePath, yaml: yaml });
-      this.setState({scheduledYaml: yaml, hasChanges: false});
-    } else {
-      this.setState({scheduledYaml: yaml, hasChanges: true});
+    if (this.state.active) {
+      if (!propertyOnly) {
+        vscode.postMessage({ command: 'save', filename: filename, relativePath: this.state.relativePath, yaml: yaml });
+        this.setState({ scheduledYaml: yaml, hasChanges: false });
+      } else {
+        this.setState({ scheduledYaml: yaml, hasChanges: true });
+      }
     }
   }
 
   disableStartHelp() {
-    vscode.postMessage({ command: 'disableStartHelp'});
+    vscode.postMessage({ command: 'disableStartHelp' });
   }
 
   public render() {
@@ -124,7 +135,7 @@ class App extends React.Component<Props, State> {
       <Page className="karavan">
         {!this.state.loaded &&
           <PageSection variant={this.props.dark ? "dark" : "light"} className="loading-page">
-            <Spinner  className="progress-stepper" isSVG diameter="80px" aria-label="Loading..."/>
+            <Spinner className="progress-stepper" isSVG diameter="80px" aria-label="Loading..." />
           </PageSection>
         }
         {this.state.loaded && this.state.page === "designer" &&
@@ -137,9 +148,9 @@ class App extends React.Component<Props, State> {
             onDisableHelp={this.disableStartHelp}
             dark={this.props.dark} />
         }
-        {this.state.loaded && this.state.page === "kamelets" && <KameletsPage dark={this.props.dark}/>}
-        {this.state.loaded && this.state.page === "components" && <ComponentsPage dark={this.props.dark}/>}
-        {this.state.loaded && this.state.page === "eip" && <EipPage dark={this.props.dark}/>}
+        {this.state.loaded && this.state.page === "kamelets" && <KameletsPage dark={this.props.dark} />}
+        {this.state.loaded && this.state.page === "components" && <ComponentsPage dark={this.props.dark} />}
+        {this.state.loaded && this.state.page === "eip" && <EipPage dark={this.props.dark} />}
       </Page>
     )
   }

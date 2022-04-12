@@ -62,7 +62,7 @@ export class DesignerView {
         }
     }
 
-    createIntegration(crd: boolean, fullPath?: string) {
+    createIntegration(crd: boolean, rootPath?: string) {
         vscode.window
             .showInputBox({
                 title: crd ? "Create Camel-K Integration CRD" : "Create Camel Integration YAML",
@@ -82,9 +82,10 @@ export class DesignerView {
                     i.crd = crd;
                     const yaml = CamelDefinitionYaml.integrationToYaml(i);
                     const filename = name.toLocaleLowerCase().endsWith('.yaml') ? name : name + '.yaml';
-                    const relativePath = (this.rootPath ? fullPath?.replace(this.rootPath, "") : fullPath) + path.sep + filename;
+                    const relativePath = (this.rootPath ? rootPath?.replace(this.rootPath, "") : rootPath) + path.sep + filename;
+                    const fullPath =  (rootPath ? rootPath : this.rootPath) + path.sep + filename;
                     utils.save(relativePath, yaml);
-                    this.openKaravanWebView(filename, filename, yaml);
+                    this.openKaravanWebView(filename, filename, fullPath, yaml);
                     vscode.commands.executeCommand('integrations.refresh');
                 }
             });
@@ -116,10 +117,11 @@ export class DesignerView {
                 message => {
                     switch (message.command) {
                         case 'save':
+                            console.log("save", message);
                             utils.save(message.relativePath, message.yaml);
                             break;
                         case 'getData':
-                            this.sendData(panel, filename, relativePath, fullPath, message.reread === true ? undefined : yaml);
+                            this.sendData(panel, filename, relativePath, fullPath, message.reread === true, yaml);
                             break;
                         case 'disableStartHelp':
                             utils.disableStartHelp();
@@ -137,7 +139,9 @@ export class DesignerView {
             // Handle reopen
             panel.onDidChangeViewState((e: vscode.WebviewPanelOnDidChangeViewStateEvent) => {
                 if (e.webviewPanel.active) {
-                    e.webviewPanel.webview.postMessage({ command: 'reread' })
+                    e.webviewPanel.webview.postMessage({ command: 'activate' });
+                } else {
+                    e.webviewPanel.webview.postMessage({ command: 'deactivate' });
                 }
             });
 
@@ -148,7 +152,12 @@ export class DesignerView {
         }
     }
 
-    sendData(panel: vscode.WebviewPanel, filename: string, relativePath: string, fullPath: string, yaml?: string) {
+    sendData(panel: vscode.WebviewPanel, filename: string, relativePath: string, fullPath: string, reread: boolean, yaml?: string) {
+        console.log(filename);
+        console.log(relativePath);
+        console.log(fullPath);
+        console.log(reread);
+        console.log(yaml);
         // Read and send Kamelets
         panel.webview.postMessage({ command: 'kamelets', kamelets: utils.readKamelets(this.context) });
 
@@ -160,13 +169,12 @@ export class DesignerView {
         panel.webview.postMessage({ command: 'showStartHelp', showStartHelp: showStartHelp});
 
         // Read file if required
-        if (!yaml || yaml.length === 0){
+        if (reread){
             yaml = fs.readFileSync(path.resolve(fullPath)).toString('utf8');
         }
-
+        console.log(yaml);
         // Send integration
         panel.webview.postMessage({ command: 'open', page: "designer", filename: filename, relativePath: relativePath, yaml: yaml });
-
     }
 
 }
