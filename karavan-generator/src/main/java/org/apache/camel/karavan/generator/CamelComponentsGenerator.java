@@ -48,9 +48,8 @@ public final class CamelComponentsGenerator {
         g.createCreateComponents("karavan-vscode/components");
     }
 
-    private void createCreateComponents(String path) throws IOException {
-        deleteDirectory(Paths.get(path).toFile());
-        Files.createDirectory(Paths.get(path));
+    private void createCreateComponents(String path) {
+        clearDirectory(Paths.get(path).toFile());
         List<String> components = getComponents();
         StringBuilder list = new StringBuilder();
         components.forEach(name -> {
@@ -99,14 +98,12 @@ public final class CamelComponentsGenerator {
         }
     }
 
-    boolean deleteDirectory(File directoryToBeDeleted) {
+    void clearDirectory(File directoryToBeDeleted) {
         File[] allContents = directoryToBeDeleted.listFiles();
         if (allContents != null) {
             for (File file : allContents) {
-                deleteDirectory(file);
+                if (!file.getName().endsWith("gitignore")) file.delete();
             }
         }
-        return directoryToBeDeleted.delete();
     }
-
 }
