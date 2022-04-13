@@ -177,27 +177,26 @@ export class RouteDesigner extends React.Component<Props, State> {
     }
 
     showDeleteConfirmation = (id: string) => {
-        var message: string ;
-        
-        var ce: CamelElement ;
-        ce = CamelDefinitionApiExt.findElementInIntegration( this.state.integration, id )!;
-         if( ce.dslName === 'FromDefinition' ) { // Get the RouteDefinition for this.  Use its uuid.
-            var flows = this.state.integration.spec.flows!;
-            for( var i = 0 ; i < flows.length; i++ ) {
-                if( flows[i].dslName === 'RouteDefinition' ) {
-                    var routeDefinition : RouteDefinition = flows[i] ;
-                    if( routeDefinition.from.uuid === id ) {
-                        id = routeDefinition.uuid ;
+        let message: string;
+        let ce: CamelElement;
+        ce = CamelDefinitionApiExt.findElementInIntegration(this.state.integration, id)!;
+        if (ce.dslName === 'FromDefinition') { // Get the RouteDefinition for this.  Use its uuid.
+            let flows = this.state.integration.spec.flows!;
+            for (let i = 0; i < flows.length; i++) {
+                if (flows[i].dslName === 'RouteDefinition') {
+                    let routeDefinition: RouteDefinition = flows[i];
+                    if (routeDefinition.from.uuid === id) {
+                        id = routeDefinition.uuid;
                         break;
                     }
                 }
             }
-            message = 'Deleting the first element will delete the entire route!' ;
-         } else if( ce.dslName === 'RouteDefinition' ) {
-            message = 'Delete route?' ;
-         } else {
+            message = 'Deleting the first element will delete the entire route!';
+        } else if (ce.dslName === 'RouteDefinition') {
+            message = 'Delete route?';
+        } else {
             message = 'Delete element from route?';
-         }
+        }
         this.setState({selectedUuid: id, showSelector: false, showDeleteConfirmation: true, deleteMessage: message});
     }
 
@@ -316,7 +315,7 @@ export class RouteDesigner extends React.Component<Props, State> {
     }
 
     getDeleteConfirmation() {
-        var htmlContent: string = this.state.deleteMessage ;
+        let htmlContent: string = this.state.deleteMessage;
         return (<Modal
             className="modal-delete"
             title="Confirmation"
@@ -336,7 +335,7 @@ export class RouteDesigner extends React.Component<Props, State> {
 
     getPropertiesPanel() {
         return (
-            <DrawerPanelContent isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'300px'}>
+            <DrawerPanelContent onResize={width => this.setState({key: Math.random().toString(1)})} style={{transform: "initial"}} isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'300px'}>
                 <DslProperties ref={this.state.ref}
                                integration={this.state.integration}
                                step={this.state.selectedStep}
