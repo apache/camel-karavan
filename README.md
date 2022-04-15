@@ -48,7 +48,7 @@ Demo of Karavan use cases
 
 
 ## How to build
-1. Generate Camel Models ad API for Typescript
+1. Generate Camel Models and API for Typescript
 ```
 mvn clean compile exec:java -Dexec.mainClass="org.apache.camel.karavan.generator.KaravanGenerator" -f karavan-generator
 ```
