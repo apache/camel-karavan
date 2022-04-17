@@ -44,17 +44,17 @@
 
 ## Run integration locally
 * [JBang](https://www.jbang.dev) installed
-* Click ![run](images/run.png) button in VSCode or
+* Click ![run](images/run.png) button in VS Code or
 ```shell
 jbang -Dcamel.jbang.version=3.15.0 CamelJBang@apache/camel run $INTEGRATION.yaml --max-messages=10 --logging-level=info
 ```
 
-## Run integration in Kubernetes or Openshift
+## Run integration in Kubernetes or OpenShift
 
 ## Prerequisites 
 
 * Apache Camel K installed. See the Apache Camel K installation page for details: (https://camel.apache.org/camel-k/next/installation/installation.html).
-* Openshift or Kubernetes CLI
+* OpenShift or Kubernetes CLI
 
 ## Deploy with Camel K on Kubernetes
 
