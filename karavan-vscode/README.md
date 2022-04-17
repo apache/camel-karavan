@@ -46,7 +46,7 @@
 * [JBang](https://www.jbang.dev) installed
 * Click ![run](images/run.png) button in VS Code or
 ```shell
-jbang -Dcamel.jbang.version=3.15.0 CamelJBang@apache/camel run $INTEGRATION.yaml --max-messages=10 --logging-level=info
+jbang -Dcamel.jbang.version=3.16.0 camel@apache/camel run $INTEGRATION.yaml --max-messages=10 --logging-level=info
 ```
 
 ## Run integration in Kubernetes or OpenShift
