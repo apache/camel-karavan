@@ -4,6 +4,8 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
@@ -66,6 +68,7 @@ jobs:
         with:
           name: camel-karavan-vscode.vsix
           path: ./karavan-vscode/*.vsix
+        if: ${{ github.ref == 'refs/heads/main' }}
 
       #  Build Karavan standalone
       - name: Build Karavan standalone
@@ -76,3 +79,4 @@ jobs:
           -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}:latest \
           -Dquarkus.container-image.username=${{ github.actor }} \
           -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }}
+        if: ${{ github.ref == 'refs/heads/main' }}
