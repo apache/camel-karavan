@@ -14,11 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as vscode from "vscode";
+import vscode, { window, commands, ExtensionContext } from 'vscode';
 import * as fs from "fs";
 import { DesignerView } from "./designerView";
 import {IntegrationView} from "./integrationView";
 import { HelpView } from "./helpView";
+import { selectFileName, inputFileName, OpenApiView, OpenApiItem } from "./openapiView";
 
 const KARAVAN_LOADED = "karavan:loaded";
 
@@ -44,7 +45,22 @@ export function activate(context: vscode.ExtensionContext) {
     const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 		? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 
+     // Register views    
     const designer = new DesignerView(context, webviewContent, rootPath);
+
+    const integrationView = new IntegrationView(designer, rootPath);
+	vscode.window.registerTreeDataProvider('integrations', integrationView);    
+    vscode.commands.registerCommand('integrations.refresh', () => integrationView.refresh());
+
+    const openapiView = new OpenApiView(designer, rootPath);
+	vscode.window.registerTreeDataProvider('openapi', openapiView);    
+    vscode.commands.registerCommand('openapi.refresh', () => openapiView.refresh());
+
+    const helpView = new HelpView(context, webviewContent);
+	vscode.window.registerTreeDataProvider('help', helpView);    
+    vscode.commands.registerCommand('karavan.openKamelets', () => helpView.openKaravanWebView("kamelets"));
+    vscode.commands.registerCommand('karavan.openComponents', () => helpView.openKaravanWebView("components"));
+    vscode.commands.registerCommand('karavan.openEip', () => helpView.openKaravanWebView("eip"));
 
     // Create new Integration CRD command
     const createCrd = vscode.commands.registerCommand("karavan.create-crd", (...args: any[]) => {
@@ -57,33 +73,36 @@ export function activate(context: vscode.ExtensionContext) {
     const createYaml = vscode.commands.registerCommand("karavan.create-yaml", (...args: any[]) => designer.createIntegration(false, args[0].fsPath));
     context.subscriptions.push(createYaml);
 
-    // Openintegration in designer
-    const open = vscode.commands.registerCommand("karavan.open", (...args: any[]) => designer.karavanOpen(args[0].fsPath));
+    // Open integration in designer command
+    const open = vscode.commands.registerCommand("karavan.open", (...args: any[]) => designer.karavanOpen(args[0].fsPath, args[0].tab));
     context.subscriptions.push(open);
 
-    // Open integration in YAML editor
-    const openYaml = vscode.commands.registerCommand("karavan.open-yaml", (...args: any[]) => {
+    // Open integration in editor command
+    const openFile = vscode.commands.registerCommand("karavan.open-file", (...args: any[]) => {
         let uri = vscode.Uri.file(args[0].fsPath);
         vscode.window.showTextDocument( uri, { preserveFocus: false, preview: false});
     });
-    context.subscriptions.push(openYaml);
+    context.subscriptions.push(openFile);
 
-    // Run Integration in designer
+    // Run Integration in designer command
     const run = vscode.commands.registerCommand("karavan.jbang-run", (...args: any[]) => designer.jbangRun(args[0].fsPath));
     context.subscriptions.push(run);
 
-    // Register views
+    // Generate RST API from OpenAPI specification command
+    const generateOptions = ["Create new CRD", "Create new YAML", "Add to existing file"];
+    const generateRest = commands.registerCommand('karavan.generate-rest', async (...args: any[]) => {
+        const openApi: OpenApiItem = args[0];
+        window.showQuickPick(generateOptions, {title:"Select REST Generator options", canPickMany: false}).then((value) => {
+            switch (value){
+                case generateOptions[0]: inputFileName(true, rootPath, openApi); break;
+                case generateOptions[1]: inputFileName(false, rootPath, openApi); break;
+                case generateOptions[2]: selectFileName(rootPath, openApi); break;
+            }
+        })
+	});
+    context.subscriptions.push(generateRest);
 
-    const integrationView = new IntegrationView(designer, rootPath);
-	vscode.window.registerTreeDataProvider('integrations', integrationView);    
-    vscode.commands.registerCommand('integrations.refresh', () => integrationView.refresh());
-
-    const helpView = new HelpView(context, webviewContent);
-	vscode.window.registerTreeDataProvider('help', helpView);    
-    vscode.commands.registerCommand('karavan.openKamelets', () => helpView.openKaravanWebView("kamelets"));
-    vscode.commands.registerCommand('karavan.openComponents', () => helpView.openKaravanWebView("components"));
-    vscode.commands.registerCommand('karavan.openEip', () => helpView.openKaravanWebView("eip"));
-
+    // Create issue command
     vscode.commands.registerCommand('karavan.reportIssue', () => {
         vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/apache/camel-karavan/issues/new?title=[VS+Code]New+report&template=issue_template.md'));
     });
