@@ -30,14 +30,14 @@ export class DesignerView {
 
     }
 
-    karavanOpen(fullPath: string) {
+    karavanOpen(fullPath: string, tab?: string) {
         const yaml = fs.readFileSync(path.resolve(fullPath)).toString('utf8');
         const filename = path.basename(fullPath);
         const relativePath = utils.getRalativePath(fullPath);
         const integration = utils.parceYaml(filename, yaml);
 
         if (integration[0]) {
-            this.openKaravanWebView(filename, relativePath, fullPath, integration[1]);
+            this.openKaravanWebView(filename, relativePath, fullPath, integration[1], tab);
         } else {
             vscode.window.showErrorMessage("File is not Camel Integration!")
         }
@@ -47,7 +47,7 @@ export class DesignerView {
         if (fullPath.startsWith('webview-panel/webview')) {
             const filename = Array.from(KARAVAN_PANELS.entries()).filter(({ 1: v }) => v.active).map(([k]) => k)[0];
             if (filename) {
-                utils.runCamelJbang(filename);
+                utils.camelJbangRun(filename);
             }
         } else {
             const yaml = fs.readFileSync(path.resolve(fullPath)).toString('utf8');
@@ -55,9 +55,9 @@ export class DesignerView {
             const filename = path.basename(fullPath);
             const integration = utils.parceYaml(filename, yaml);
             if (integration[0]) {
-                utils.runCamelJbang(relativePath);
+                utils.camelJbangRun(relativePath);
             } else {
-                vscode.window.showErrorMessage("File is not Camel-K Integration!")
+                vscode.window.showErrorMessage("File is not Camel Integration!")
             }
         }
     }
@@ -65,7 +65,7 @@ export class DesignerView {
     createIntegration(crd: boolean, rootPath?: string) {
         vscode.window
             .showInputBox({
-                title: crd ? "Create Camel-K Integration CRD" : "Create Camel Integration YAML",
+                title: crd ? "Create Camel Integration CRD" : "Create Camel Integration YAML",
                 ignoreFocusOut: true,
                 prompt: "Integration name",
                 validateInput: (text: string): string | undefined => {
@@ -91,7 +91,8 @@ export class DesignerView {
             });
     }
 
-    openKaravanWebView(filename: string, relativePath: string, fullPath: string,  yaml?: string) {
+    openKaravanWebView(filename: string, relativePath: string, fullPath: string,  yaml?: string, tab?: string) {
+        console.log("openKaravanWebView");
         if (!KARAVAN_PANELS.has(relativePath)) {
             // Karavan webview
             const panel = vscode.window.createWebviewPanel(
@@ -121,7 +122,7 @@ export class DesignerView {
                             utils.save(message.relativePath, message.yaml);
                             break;
                         case 'getData':
-                            this.sendData(panel, filename, relativePath, fullPath, message.reread === true, yaml);
+                            this.sendData(panel, filename, relativePath, fullPath, message.reread === true, yaml, tab);
                             break;
                         case 'disableStartHelp':
                             utils.disableStartHelp();
@@ -138,8 +139,9 @@ export class DesignerView {
 
             // Handle reopen
             panel.onDidChangeViewState((e: vscode.WebviewPanelOnDidChangeViewStateEvent) => {
-                if (e.webviewPanel.active) {
-                    e.webviewPanel.webview.postMessage({ command: 'activate' });
+                console.log(e);
+                if (e.webviewPanel.active || e.webviewPanel.reveal) {
+                    e.webviewPanel.webview.postMessage({ command: 'activate', tab: tab });
                 } else {
                     e.webviewPanel.webview.postMessage({ command: 'deactivate' });
                 }
@@ -148,16 +150,14 @@ export class DesignerView {
             KARAVAN_PANELS.set(relativePath, panel);
             vscode.commands.executeCommand("setContext", KARAVAN_LOADED, true);
         } else {
-            KARAVAN_PANELS.get(relativePath)?.reveal(undefined, true);
+            const panel = KARAVAN_PANELS.get(relativePath);
+            panel?.reveal(undefined, true);
+            panel?.webview.postMessage({ command: 'activate', tab: tab });
         }
     }
 
-    sendData(panel: vscode.WebviewPanel, filename: string, relativePath: string, fullPath: string, reread: boolean, yaml?: string) {
-        console.log(filename);
-        console.log(relativePath);
-        console.log(fullPath);
-        console.log(reread);
-        console.log(yaml);
+    sendData(panel: vscode.WebviewPanel, filename: string, relativePath: string, fullPath: string, reread: boolean, yaml?: string, tab?: string) {
+
         // Read and send Kamelets
         panel.webview.postMessage({ command: 'kamelets', kamelets: utils.readKamelets(this.context) });
 
@@ -172,9 +172,8 @@ export class DesignerView {
         if (reread){
             yaml = fs.readFileSync(path.resolve(fullPath)).toString('utf8');
         }
-        console.log(yaml);
         // Send integration
-        panel.webview.postMessage({ command: 'open', page: "designer", filename: filename, relativePath: relativePath, yaml: yaml });
+        panel.webview.postMessage({ command: 'open', page: "designer", filename: filename, relativePath: relativePath, yaml: yaml, tab: tab });
     }
 
 }

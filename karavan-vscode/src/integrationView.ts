@@ -36,13 +36,11 @@ export class IntegrationView implements vscode.TreeDataProvider<IntegrationItem>
 	getChildren(element?: IntegrationItem): vscode.ProviderResult<IntegrationItem[]> {
 		const integrations: IntegrationItem[] = [];
 		if (element === undefined && this.rootPath) {
-			utils.getYamlFiles(this.rootPath).forEach(f => {
+			utils.getIntegrationFiles(this.rootPath).forEach(f => {
 				const yaml = fs.readFileSync(path.resolve(f)).toString('utf8');
-				if (!f.startsWith(this.rootPath + path.sep + "target") && CamelDefinitionYaml.yamlIsIntegration(yaml)) {
-					const filename = path.basename(f);
-					const i = CamelDefinitionYaml.yamlToIntegration(filename, yaml);
-					integrations.push(new IntegrationItem(i.metadata.name, f, i.crd ? "CRD" : "", i, { command: 'karavan.open', title: '', arguments: [{ fsPath: f }] }));
-				}
+				const filename = path.basename(f);
+				const i = CamelDefinitionYaml.yamlToIntegration(filename, yaml);
+				integrations.push(new IntegrationItem(i.metadata.name, f, i.crd ? "CRD" : "", i, { command: 'karavan.open', title: '', arguments: [{ fsPath: f }] }));
 			})
 		} else if (element && element.integration) {
 			element.integration.spec.flows?.forEach(f => {

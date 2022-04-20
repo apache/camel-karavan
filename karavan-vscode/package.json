@@ -39,14 +39,16 @@
     "kamel",
     "Tool",
     "Integration",
-    "Camel Yaml"
+    "Camel Yaml",
+    "Jbang"
   ],
   "activationEvents": [
     "onCommand:karavan.create-crd",
     "onCommand:karavan.create-yaml",
     "onCommand:karavan.open",
-    "onCommand:karavan.open-yaml",
+    "onCommand:karavan.open-file",
     "onCommand:karavan.jbang-run",
+    "onCommand:karavan.generate-rest",
     "onView:integrations",
     "onCommand:karavan.openKamelets",
     "onCommand:karavan.openComponents",
@@ -128,8 +130,8 @@
         }
       },
       {
-        "command": "karavan.open-yaml",
-        "title": "Karavan: Open YAML"
+        "command": "karavan.open-file",
+        "title": "Karavan: Open editor"
       },
       {
         "command": "karavan.jbang-run",
@@ -140,7 +142,19 @@
         }
       },
       {
+        "command": "karavan.generate-rest",
+        "title": "Karavan: Generate REST API"
+      },
+      {
         "command": "integrations.refresh",
+        "title": "Refresh",
+        "icon": {
+          "light": "icons/light/refresh.svg",
+          "dark": "icons/dark/refresh.svg"
+        }
+      },
+      {
+        "command": "openapi.refresh",
         "title": "Refresh",
         "icon": {
           "light": "icons/light/refresh.svg",
@@ -181,6 +195,10 @@
         {
           "command": "karavan.jbang-run",
           "when": "resourceExtname == .yaml"
+        },
+        {
+          "command": "karavan.generate-rest",
+          "when": "resourceExtname == .json"
         }
       ],
       "editor/title": [
@@ -205,6 +223,11 @@
           "command": "karavan.create-crd",
           "when": "view == integrations",
           "group": "navigation"
+        },
+        {
+          "command": "openapi.refresh",
+          "when": "view == openapi",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
@@ -214,7 +237,7 @@
           "group": "navigation_1_open@1"
         },
         {
-          "command": "karavan.open-yaml",
+          "command": "karavan.open-file",
           "when": "view == integrations && viewItem == 'integration'",
           "group": "navigation_1_open@2"
         },
@@ -222,6 +245,11 @@
           "command": "karavan.jbang-run",
           "when": "view == integrations && viewItem == 'integration'",
           "group": "navigation_2_run@1"
+        },
+        {
+          "command": "karavan.generate-rest",
+          "when": "view == openapi && viewItem == 'openapi'",
+          "group": "navigation_1_generate@1"
         }
       ]
     },
@@ -239,6 +267,11 @@
         {
           "id": "integrations",
           "name": "Integrations",
+          "visibility": "visible"
+        },
+        {
+          "id": "openapi",
+          "name": "Open API",
           "visibility": "visible"
         },
         {
@@ -310,6 +343,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "rxjs": "7.5.2",
+    "shelljs": "^0.8.5",
     "uuid": "8.3.2"
   }
 }

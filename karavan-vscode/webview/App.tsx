@@ -42,6 +42,7 @@ interface State {
   showStartHelp: boolean
   page: "designer" | "kamelets" | "components" | "eip"
   active: boolean
+  tab?: string
 }
 
 class App extends React.Component<Props, State> {
@@ -101,12 +102,13 @@ class App extends React.Component<Props, State> {
             relativePath: message.relativePath,
             key: Math.random().toString(),
             loaded: true,
-            active: true
+            active: true, 
+            tab: message.tab
           });
         }
         break;
       case 'activate':
-        this.setState({ loaded: false, filename: '', key: '', active: true });
+        this.setState({ loaded: false, filename: '', key: '', active: true, tab: message.tab });
         vscode.postMessage({ command: 'getData', reread: true });
         break;
       case 'deactivate':
@@ -146,6 +148,7 @@ class App extends React.Component<Props, State> {
             yaml={this.state.yaml}
             onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}
             onDisableHelp={this.disableStartHelp}
+            tab={this.state.tab}
             dark={this.props.dark} />
         }
         {this.state.loaded && this.state.page === "kamelets" && <KameletsPage dark={this.props.dark} />}
