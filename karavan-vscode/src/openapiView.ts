@@ -72,6 +72,20 @@ export class OpenApiItem extends vscode.TreeItem {
 }
 
 /**
+ * Select routes generation
+ */
+export async function selectRouteGeneration(openApiFullPath: string, fullPath: string, add: boolean, crd?: boolean) {
+	const options = ["Generate REST and Routes", 'Generate REST only'];
+	await window.showQuickPick(options, {
+		title: "Generate route stubs for REST API",
+		placeHolder: 'Select option',
+	}).then(option => {
+		const generateRoutes: boolean = option !== undefined && option === options[0];
+		utils.camelJbangGenerate(openApiFullPath, fullPath, add, crd, generateRoutes);
+	});
+}
+
+/**
  * Select file and add REST API
  */
 export async function selectFileName(rootPath?: string, openApi?: OpenApiItem) {
@@ -80,9 +94,9 @@ export async function selectFileName(rootPath?: string, openApi?: OpenApiItem) {
 		await window.showQuickPick(files, {
 			title: "Select Integration file to add REST API",
 			placeHolder: 'Select file',
-		}).then(filename => {
-			if (filename && openApi?.fsPath) {
-				utils.camelJbangGenerate(openApi.fsPath, filename, true, undefined);
+		}).then(fullPath => {
+			if (fullPath && openApi?.fsPath) {
+				selectRouteGeneration(openApi.fsPath, fullPath, true, undefined);
 			}
 		});
 	}
@@ -106,7 +120,7 @@ export async function inputFileName(crd: boolean, rootPath?: string, openApi?: O
 	}).then(filename => {
 		if (filename && openApi?.fsPath) {
 			const fullPath = rootPath + path.sep + filename;
-			utils.camelJbangGenerate(openApi.fsPath, fullPath, false,  crd);
+			selectRouteGeneration(openApi.fsPath, fullPath, false, crd);
 		}
 	});
 }
