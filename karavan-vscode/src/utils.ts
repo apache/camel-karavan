@@ -143,9 +143,10 @@ export function getIntegrationFiles(baseDir: string): string[]{
     });
 }
 
-export function camelJbangGenerate(openApiFullPath: string, fullPath: string,  add: boolean, crd?: boolean) {
+export function camelJbangGenerate(openApiFullPath: string, fullPath: string,  add: boolean, crd?: boolean, generateRoutes?: boolean) {
     const version = vscode.workspace.getConfiguration().get("camel.version");
-    const command = "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel generate rest -i " + openApiFullPath;
+    let command = "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel generate rest -i " + openApiFullPath;
+    if (generateRoutes === true) command = command + " --routes";
     const jbang = shell.which('jbang');
     if (jbang){
         shell.config.execPath = String(jbang);
