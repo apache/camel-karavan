@@ -38,6 +38,7 @@ import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import Icon from "./Logo";
 import {ComponentsPage} from "./components/ComponentsPage";
 import {EipPage} from "./eip/EipPage";
+import {OpenApiPage} from "./integrations/OpenApiPage";
 
 class ToastMessage {
     id: string = ''
@@ -60,13 +61,16 @@ interface State {
     version: string,
     mode: 'local' | 'gitops' | 'serverless',
     isNavOpen: boolean,
-    pageId: 'integrations' | 'configuration' | 'kamelets' | 'designer' | "components" | "eip"
+    pageId: 'integrations' | 'configuration' | 'kamelets' | 'designer' | "components" | "eip" | "openapi"
     integrations: Map<string,string>,
+    openapis: Map<string,string>,
     integration: Integration,
     isModalOpen: boolean,
     nameToDelete: string,
+    openapi: string,
     alerts: ToastMessage[],
     request: string
+    filename: string
 }
 
 export class Main extends React.Component<Props, State> {
@@ -77,11 +81,14 @@ export class Main extends React.Component<Props, State> {
         isNavOpen: true,
         pageId: "integrations",
         integrations: new Map<string,string>(),
+        openapis: new Map<string,string>(),
         integration: Integration.createNew(),
         isModalOpen: false,
         nameToDelete: '',
         alerts: [],
-        request: uuidv4()
+        request: uuidv4(),
+        openapi: '',
+        filename: ''
     };
 
     designer = React.createRef();
@@ -100,6 +107,7 @@ export class Main extends React.Component<Props, State> {
             KaravanApi.getComponent(name, json => ComponentApi.saveComponent(json))
         }));
         this.onGetIntegrations();
+        this.onGetOpenApis();
     }
 
     onNavToggle = () => {
@@ -189,7 +197,7 @@ export class Main extends React.Component<Props, State> {
 
     sidebar = () => (<PageSidebar nav={this.pageNav()} isNavOpen={this.state.isNavOpen}/>);
 
-    onIntegrationDelete = (name: string) => {
+    onIntegrationDelete = (name: string, type: 'integration' | 'openapi') => {
         this.setState({isModalOpen: true, nameToDelete: name})
     };
 
@@ -201,6 +209,7 @@ export class Main extends React.Component<Props, State> {
             if (res.status === 204) {
                 this.toast("Success", "Integration deleted", "success");
                 this.onGetIntegrations();
+                this.onGetOpenApis();
             } else {
                 this.toast("Error", res.statusText, "danger");
             }
@@ -214,16 +223,28 @@ export class Main extends React.Component<Props, State> {
         this.setState({alerts: mess})
     }
 
-    onIntegrationSelect = (filename: string) => {
-        KaravanApi.getIntegration(filename, res => {
-            if (res.status === 200) {
-                const code: string = res.data;
-                const i = CamelDefinitionYaml.yamlToIntegration(filename, code);
-                this.setState({isNavOpen: false, pageId: 'designer', integration: i});
-            } else {
-                this.toast("Error", res.status + ", " + res.statusText, "danger");
-            }
-        });
+    onIntegrationSelect = (filename: string, type: 'integration' | 'openapi') => {
+        if (type === 'integration') {
+            KaravanApi.getIntegration(filename, res => {
+                if (res.status === 200) {
+                    const code: string = res.data;
+                    const i = CamelDefinitionYaml.yamlToIntegration(filename, code);
+                    this.setState({isNavOpen: false, pageId: 'designer', integration: i, filename: filename});
+                } else {
+                    this.toast("Error", res.status + ", " + res.statusText, "danger");
+                }
+            });
+        } else {
+            KaravanApi.getOpenApi(filename, res => {
+                if (res.status === 200) {
+                    const code: string = JSON.stringify(res.data, null, 2);
+                    console.log(code)
+                    this.setState({isNavOpen: true, pageId: 'openapi', openapi: code, filename: filename});
+                } else {
+                    this.toast("Error", res.status + ", " + res.statusText, "danger");
+                }
+            });
+        }
     };
 
     onIntegrationCreate = (i: Integration) => {
@@ -236,20 +257,35 @@ export class Main extends React.Component<Props, State> {
             this.setState({
                 integrations: map, request: uuidv4()
             })});
+    }
+
+    onGetOpenApis() {
+        KaravanApi.getOpenApis((openapis: {}) => {
+            const map:Map<string, string> = new Map(Object.entries(openapis));
+            this.setState({
+                openapis: map, request: uuidv4()
+            })});
     };
 
     render() {
         return (
             <Page className="karavan" header={this.header(this.state.version)} sidebar={this.sidebar()}>
                 {this.state.pageId === 'integrations' &&
-                <IntegrationPage key={this.state.request} integrations={this.state.integrations}
-                                 onRefresh={this.onGetIntegrations}
-                                 onDelete={this.onIntegrationDelete} onSelect={this.onIntegrationSelect}
+                <IntegrationPage key={this.state.request}
+                                 integrations={this.state.integrations}
+                                 openapis={this.state.openapis}
+                                 onRefresh={() => {
+                                     this.onGetIntegrations();
+                                     this.onGetOpenApis();
+                                 }}
+                                 onDelete={this.onIntegrationDelete}
+                                 onSelect={this.onIntegrationSelect}
                                  onCreate={this.onIntegrationCreate}/>}
                 {this.state.pageId === 'configuration' && <ConfigurationPage/>}
                 {this.state.pageId === 'kamelets' && <KameletsPage dark={false}/>}
                 {this.state.pageId === 'components' && <ComponentsPage dark={false}/>}
                 {this.state.pageId === 'eip' && <EipPage dark={false}/>}
+                {this.state.pageId === 'openapi' && <OpenApiPage dark={false} openapi={this.state.openapi} filename={this.state.filename}/>}
                 {this.state.pageId === 'designer' &&
                 <DesignerPage mode={this.state.mode} integration={this.state.integration}/>}
                 <Modal
