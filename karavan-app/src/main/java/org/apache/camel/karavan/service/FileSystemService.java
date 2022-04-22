@@ -74,6 +74,20 @@ public class FileSystemService {
                 }).collect(Collectors.toList());
     }
 
+    public List<String> getOpenApiList() {
+        return getOpenApiList(integrations);
+    }
+
+    public List<String> getOpenApiList(String folder) {
+        return vertx.fileSystem().readDirBlocking(Paths.get(folder).toString())
+                .stream()
+                .filter(s -> s.endsWith(".json"))
+                .map(s -> {
+                    String[] parts = s.split(Pattern.quote(File.separator));
+                    return parts[parts.length - 1];
+                }).collect(Collectors.toList());
+    }
+
     public String getIntegrationsFile(String name) throws GitAPIException {
         return vertx.fileSystem().readFileBlocking(Paths.get(integrations, name).toString()).toString();
     }

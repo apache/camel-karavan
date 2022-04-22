@@ -5,7 +5,7 @@ import {
     Gallery,
     ToolbarItem,
     TextInput,
-    PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem
+    PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem, Badge
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KameletCard} from "./KameletCard";
@@ -60,8 +60,9 @@ export class KameletsPage extends React.Component<Props, State> {
                 <PageSection  className="tools-section" variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
                     <Flex className="tools" justifyContent={{default: 'justifyContentSpaceBetween'}}>
                         <FlexItem>
-                            <TextContent>
-                                <Text component="h1">Kamelet Catalog</Text>
+                            <TextContent className="header">
+                                <Text component="h2">Kamelet Catalog</Text>
+                                <Badge isRead className="labels">{this.state.kamelets.length}</Badge>
                             </TextContent>
                         </FlexItem>
                         <FlexItem>

@@ -62,6 +62,7 @@ interface State {
     isNavOpen: boolean,
     pageId: 'integrations' | 'configuration' | 'kamelets' | 'designer' | "components" | "eip"
     integrations: Map<string,string>,
+    openapis: Map<string,string>,
     integration: Integration,
     isModalOpen: boolean,
     nameToDelete: string,
@@ -77,6 +78,7 @@ export class Main extends React.Component<Props, State> {
         isNavOpen: true,
         pageId: "integrations",
         integrations: new Map<string,string>(),
+        openapis: new Map<string,string>(),
         integration: Integration.createNew(),
         isModalOpen: false,
         nameToDelete: '',
@@ -100,6 +102,7 @@ export class Main extends React.Component<Props, State> {
             KaravanApi.getComponent(name, json => ComponentApi.saveComponent(json))
         }));
         this.onGetIntegrations();
+        this.onGetOpenApis();
     }
 
     onNavToggle = () => {
@@ -189,7 +192,7 @@ export class Main extends React.Component<Props, State> {
 
     sidebar = () => (<PageSidebar nav={this.pageNav()} isNavOpen={this.state.isNavOpen}/>);
 
-    onIntegrationDelete = (name: string) => {
+    onIntegrationDelete = (name: string, type: 'integration' | 'openapi') => {
         this.setState({isModalOpen: true, nameToDelete: name})
     };
 
@@ -201,6 +204,7 @@ export class Main extends React.Component<Props, State> {
             if (res.status === 204) {
                 this.toast("Success", "Integration deleted", "success");
                 this.onGetIntegrations();
+                this.onGetOpenApis();
             } else {
                 this.toast("Error", res.statusText, "danger");
             }
@@ -236,15 +240,30 @@ export class Main extends React.Component<Props, State> {
             this.setState({
                 integrations: map, request: uuidv4()
             })});
+    }
+
+    onGetOpenApis() {
+        KaravanApi.getOpenApis((openapis: {}) => {
+            console.log(openapis);
+            const map:Map<string, string> = new Map(Object.entries(openapis));
+            this.setState({
+                openapis: map, request: uuidv4()
+            })});
     };
 
     render() {
         return (
             <Page className="karavan" header={this.header(this.state.version)} sidebar={this.sidebar()}>
                 {this.state.pageId === 'integrations' &&
-                <IntegrationPage key={this.state.request} integrations={this.state.integrations}
-                                 onRefresh={this.onGetIntegrations}
-                                 onDelete={this.onIntegrationDelete} onSelect={this.onIntegrationSelect}
+                <IntegrationPage key={this.state.request}
+                                 integrations={this.state.integrations}
+                                 openapis={this.state.openapis}
+                                 onRefresh={() => {
+                                     this.onGetIntegrations();
+                                     this.onGetOpenApis();
+                                 }}
+                                 onDelete={this.onIntegrationDelete}
+                                 onSelect={this.onIntegrationSelect}
                                  onCreate={this.onIntegrationCreate}/>}
                 {this.state.pageId === 'configuration' && <ConfigurationPage/>}
                 {this.state.pageId === 'kamelets' && <KameletsPage dark={false}/>}

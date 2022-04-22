@@ -5,7 +5,7 @@ import {
     Gallery,
     ToolbarItem,
     TextInput,
-    PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem
+    PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem, Badge
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {EipCard} from "./EipCard";
@@ -57,8 +57,9 @@ export class EipPage extends React.Component<Props, State> {
                 <PageSection  className="tools-section" variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
                     <Flex className="tools" justifyContent={{default: 'justifyContentSpaceBetween'}}>
                         <FlexItem>
-                            <TextContent>
-                                <Text component="h1">Enterprise Integration Patterns</Text>
+                            <TextContent className="header">
+                                <Text component="h2">Enterprise Integration Patterns</Text>
+                                <Badge isRead className="labels">{elements.length}</Badge>
                             </TextContent>
                         </FlexItem>
                         <FlexItem>
