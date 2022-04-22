@@ -23,7 +23,7 @@ import {UploadModal} from "./UploadModal";
 interface Props {
     integrations: Map<string, string>
     openapis: Map<string, string>
-    onSelect: any
+    onSelect: (filename: string, type: 'integration' | 'openapi') => void
     onCreate: any
     onDelete: (name: string, type: 'integration' | 'openapi') => void
     onRefresh: any

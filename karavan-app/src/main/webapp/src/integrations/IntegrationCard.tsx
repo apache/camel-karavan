@@ -11,7 +11,7 @@ interface Props {
     name: string,
     type: 'integration' | 'openapi',
     status?: string,
-    onClick: any
+    onClick: (filename: string, type: 'integration' | 'openapi') => void
     onDelete: (name: string, type: 'integration' | 'openapi') => void
 }
 
@@ -25,7 +25,7 @@ export class IntegrationCard extends React.Component<Props, State> {
 
     private click(evt: React.MouseEvent) {
         evt.stopPropagation();
-        this.props.onClick.call(this, this.props.name)
+        this.props.onClick.call(this, this.props.name, this.props.type)
     }
 
     private delete(evt: React.MouseEvent) {

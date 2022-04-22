@@ -127,6 +127,16 @@ export const KaravanApi = {
         });
     },
 
+    getOpenApi: async (name: string, after: (res: AxiosResponse<any>) => void) => {
+        axios.get('/openapi/' + name,
+            {headers: {'Accept': 'text/plain', 'username': 'cameleer'}})
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    },
+
     postOpenApi: async (name: string, json: string, generateRest: boolean, generateRoutes: boolean, integrationName: string,  after: (res: AxiosResponse<any>) => void) => {
         const uri = `/openapi/${name}/${generateRest}/${generateRoutes}/${integrationName}`;
         axios.post(encodeURI(uri), json,

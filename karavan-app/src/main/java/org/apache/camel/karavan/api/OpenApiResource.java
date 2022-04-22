@@ -58,6 +58,19 @@ public class OpenApiResource {
         }
     }
 
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("/{name}")
+    public String getJson(@HeaderParam("username") String username, @PathParam("name") String name) throws GitAPIException {
+        switch (mode){
+            case GITOPS_MODE:
+                String dir = gitService.pullIntegrations(username);
+                return fileSystemService.getFile(dir, name);
+            default:
+                return fileSystemService.getIntegrationsFile(name);
+        }
+    }
+
     @POST
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.TEXT_PLAIN)

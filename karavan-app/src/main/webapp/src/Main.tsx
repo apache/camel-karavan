@@ -38,6 +38,7 @@ import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import Icon from "./Logo";
 import {ComponentsPage} from "./components/ComponentsPage";
 import {EipPage} from "./eip/EipPage";
+import {OpenApiPage} from "./integrations/OpenApiPage";
 
 class ToastMessage {
     id: string = ''
@@ -60,14 +61,16 @@ interface State {
     version: string,
     mode: 'local' | 'gitops' | 'serverless',
     isNavOpen: boolean,
-    pageId: 'integrations' | 'configuration' | 'kamelets' | 'designer' | "components" | "eip"
+    pageId: 'integrations' | 'configuration' | 'kamelets' | 'designer' | "components" | "eip" | "openapi"
     integrations: Map<string,string>,
     openapis: Map<string,string>,
     integration: Integration,
     isModalOpen: boolean,
     nameToDelete: string,
+    openapi: string,
     alerts: ToastMessage[],
     request: string
+    filename: string
 }
 
 export class Main extends React.Component<Props, State> {
@@ -83,7 +86,9 @@ export class Main extends React.Component<Props, State> {
         isModalOpen: false,
         nameToDelete: '',
         alerts: [],
-        request: uuidv4()
+        request: uuidv4(),
+        openapi: '',
+        filename: ''
     };
 
     designer = React.createRef();
@@ -218,16 +223,28 @@ export class Main extends React.Component<Props, State> {
         this.setState({alerts: mess})
     }
 
-    onIntegrationSelect = (filename: string) => {
-        KaravanApi.getIntegration(filename, res => {
-            if (res.status === 200) {
-                const code: string = res.data;
-                const i = CamelDefinitionYaml.yamlToIntegration(filename, code);
-                this.setState({isNavOpen: false, pageId: 'designer', integration: i});
-            } else {
-                this.toast("Error", res.status + ", " + res.statusText, "danger");
-            }
-        });
+    onIntegrationSelect = (filename: string, type: 'integration' | 'openapi') => {
+        if (type === 'integration') {
+            KaravanApi.getIntegration(filename, res => {
+                if (res.status === 200) {
+                    const code: string = res.data;
+                    const i = CamelDefinitionYaml.yamlToIntegration(filename, code);
+                    this.setState({isNavOpen: false, pageId: 'designer', integration: i, filename: filename});
+                } else {
+                    this.toast("Error", res.status + ", " + res.statusText, "danger");
+                }
+            });
+        } else {
+            KaravanApi.getOpenApi(filename, res => {
+                if (res.status === 200) {
+                    const code: string = JSON.stringify(res.data, null, 2);
+                    console.log(code)
+                    this.setState({isNavOpen: true, pageId: 'openapi', openapi: code, filename: filename});
+                } else {
+                    this.toast("Error", res.status + ", " + res.statusText, "danger");
+                }
+            });
+        }
     };
 
     onIntegrationCreate = (i: Integration) => {
@@ -244,7 +261,6 @@ export class Main extends React.Component<Props, State> {
 
     onGetOpenApis() {
         KaravanApi.getOpenApis((openapis: {}) => {
-            console.log(openapis);
             const map:Map<string, string> = new Map(Object.entries(openapis));
             this.setState({
                 openapis: map, request: uuidv4()
@@ -269,6 +285,7 @@ export class Main extends React.Component<Props, State> {
                 {this.state.pageId === 'kamelets' && <KameletsPage dark={false}/>}
                 {this.state.pageId === 'components' && <ComponentsPage dark={false}/>}
                 {this.state.pageId === 'eip' && <EipPage dark={false}/>}
+                {this.state.pageId === 'openapi' && <OpenApiPage dark={false} openapi={this.state.openapi} filename={this.state.filename}/>}
                 {this.state.pageId === 'designer' &&
                 <DesignerPage mode={this.state.mode} integration={this.state.integration}/>}
                 <Modal
