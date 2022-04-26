@@ -72,13 +72,24 @@ export const ComponentApi = {
             const syntaxSeparators = ComponentApi.getSyntaxSeparators(syntax + '');
             let newUri = uri === name ? name + syntaxSeparators.join('') : uri;
             result.set(name, name);
-            // workaround for CXF component start
-            if (name === 'cxf') {
+            if (name === 'cxf') { // workaround for CXF component
                 const cxfParts = newUri.split(":");
                 const firstPart = cxfParts.at(1);
                 const secondPart = cxfParts.at(2);
                 if (cxfParts.length === 3 && firstPart === 'bean' && secondPart) result.set("beanId", firstPart + ":" + secondPart);
                 if (cxfParts.length === 2 && firstPart?.startsWith("//")) result.set("address", firstPart);
+            } else if (name === 'jt400') { // workaround for JT400 component
+                const jt400Parts = newUri.split(".").join(':').split('/').join(':').split('@').join(':').split(':')
+                const userID = jt400Parts.at(1) || '';
+                const password = jt400Parts.at(2) || '';
+                const systemName = jt400Parts.at(3) || '';
+                const objectPath = jt400Parts.at(4) || '';
+                const type = jt400Parts.at(5) || '';
+                result.set("userID", userID);
+                result.set("password", password);
+                result.set("systemName", systemName);
+                result.set("objectPath", objectPath);
+                result.set("type", type);
             } else { // workaround for CXF component end
                 syntaxParts.filter((x, i) => i > 0).forEach((part, index) => {
                     if (index < syntaxParts.length - 1) {
