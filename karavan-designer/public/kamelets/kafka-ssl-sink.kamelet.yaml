@@ -1,0 +1,175 @@
+# ---------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ---------------------------------------------------------------------------
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: kafka-ssl-sink
+  annotations:
+    camel.apache.org/kamelet.support.level: "Preview"
+    camel.apache.org/catalog.version: "0.8.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOS4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMCA1MDAgNTAwIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA1MDAgNTAwOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8ZyBpZD0iWE1MSURfMV8iPg0KCTxwYXRoIGlkPSJYTUxJRF85XyIgZD0iTTMxNC44LDI2OS43Yy0xNC4yLDAtMjcsNi4zLTM1LjcsMTYuMkwyNTYuOCwyNzBjMi40LTYuNSwzLjctMTMuNiwzLjctMjAuOWMwLTcuMi0xLjMtMTQuMS0zLjYtMjAuNg0KCQlsMjIuMy0xNS43YzguNyw5LjksMjEuNCwxNi4xLDM1LjYsMTYuMWMyNi4yLDAsNDcuNi0yMS4zLDQ3LjYtNDcuNnMtMjEuMy00Ny42LTQ3LjYtNDcuNnMtNDcuNiwyMS4zLTQ3LjYsNDcuNg0KCQljMCw0LjcsMC43LDkuMiwyLDEzLjVsLTIyLjMsMTUuN2MtOS4zLTExLjYtMjIuOC0xOS42LTM4LjEtMjIuMXYtMjYuOWMyMS42LTQuNSwzNy44LTIzLjcsMzcuOC00Ni42YzAtMjYuMi0yMS4zLTQ3LjYtNDcuNi00Ny42DQoJCWMtMjYuMiwwLTQ3LjYsMjEuMy00Ny42LDQ3LjZjMCwyMi42LDE1LjgsNDEuNSwzNi45LDQ2LjN2MjcuM2MtMjguOCw1LjEtNTAuOCwzMC4yLTUwLjgsNjAuNWMwLDMwLjQsMjIuMiw1NS43LDUxLjIsNjAuNXYyOC44DQoJCWMtMjEuMyw0LjctMzcuNCwyMy43LTM3LjQsNDYuNGMwLDI2LjIsMjEuMyw0Ny42LDQ3LjYsNDcuNmMyNi4yLDAsNDcuNi0yMS4zLDQ3LjYtNDcuNmMwLTIyLjctMTYtNDEuOC0zNy40LTQ2LjR2LTI4LjgNCgkJYzE1LTIuNSwyOC4yLTEwLjQsMzcuNC0yMS44bDIyLjUsMTUuOWMtMS4yLDQuMy0xLjksOC43LTEuOSwxMy40YzAsMjYuMiwyMS4zLDQ3LjYsNDcuNiw0Ny42czQ3LjYtMjEuMyw0Ny42LTQ3LjYNCgkJQzM2Mi40LDI5MSwzNDEuMSwyNjkuNywzMTQuOCwyNjkuN3ogTTMxNC44LDE1OC40YzEyLjcsMCwyMy4xLDEwLjQsMjMuMSwyMy4xYzAsMTIuNy0xMC4zLDIzLjEtMjMuMSwyMy4xcy0yMy4xLTEwLjQtMjMuMS0yMy4xDQoJCUMyOTEuOCwxNjguOCwzMDIuMSwxNTguNCwzMTQuOCwxNTguNHogTTE3NiwxMTUuMWMwLTEyLjcsMTAuMy0yMy4xLDIzLjEtMjMuMWMxMi43LDAsMjMuMSwxMC40LDIzLjEsMjMuMQ0KCQljMCwxMi43LTEwLjMsMjMuMS0yMy4xLDIzLjFDMTg2LjMsMTM4LjIsMTc2LDEyNy44LDE3NiwxMTUuMXogTTIyMi4xLDM4NC45YzAsMTIuNy0xMC4zLDIzLjEtMjMuMSwyMy4xDQoJCWMtMTIuNywwLTIzLjEtMTAuNC0yMy4xLTIzLjFjMC0xMi43LDEwLjMtMjMuMSwyMy4xLTIzLjFDMjExLjgsMzYxLjgsMjIyLjEsMzcyLjIsMjIyLjEsMzg0Ljl6IE0xOTkuMSwyODEuMw0KCQljLTE3LjcsMC0zMi4yLTE0LjQtMzIuMi0zMi4yYzAtMTcuNywxNC40LTMyLjIsMzIuMi0zMi4yYzE3LjcsMCwzMi4yLDE0LjQsMzIuMiwzMi4yQzIzMS4yLDI2Ni45LDIxNi44LDI4MS4zLDE5OS4xLDI4MS4zeg0KCQkgTTMxNC44LDM0MC4zYy0xMi43LDAtMjMuMS0xMC40LTIzLjEtMjMuMWMwLTEyLjcsMTAuMy0yMy4xLDIzLjEtMjMuMXMyMy4xLDEwLjQsMjMuMSwyMy4xQzMzNy45LDMzMCwzMjcuNSwzNDAuMywzMTQuOCwzNDAuM3oiLz4NCjwvZz4NCjwvc3ZnPg0K"
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "Kafka"
+  labels:
+    camel.apache.org/kamelet.type: "sink"
+spec:
+  definition:
+    description: |-
+      Send data to Kafka topics wit TLS/SSL support.
+
+      The Kamelet is able to understand the following headers to be set:
+
+      - `key` / `ce-key`: as message key
+
+      - `partition-key` / `ce-partitionkey`: as message partition key
+
+      Both the headers are optional.
+    required:
+      - topic
+      - bootstrapServers
+      - sslKeystoreLocation
+      - sslKeystorePassword
+      - sslTruststoreLocation
+      - sslKeyPassword
+    properties:
+      bootstrapServers:
+        description: Comma separated list of Kafka Broker URLs
+        title: Brokers
+        type: string
+      sslKeystoreLocation:
+        description: >-
+          The location of the key store file. This is optional for client and
+          can be used for two-way authentication for client.
+        title: SSL Keystore Location
+        type: string
+      sslProtocol:
+        default: TLSv1.2
+        description: >-
+          The SSL protocol used to generate the SSLContext. Default setting is
+          TLS, which is fine for most cases. Allowed values in recent JVMs are
+          TLS, TLSv1.1 and TLSv1.2. SSL, SSLv2 and SSLv3 may be supported in
+          older JVMs, but their usage is discouraged due to known security
+          vulnerabilities.
+        title: SSL Protocol
+        type: string
+      saslMechanism:
+        title: SASL Mechanism
+        description: The Simple Authentication and Security Layer (SASL) Mechanism used.
+        type: string
+        default: GSSAPI
+      sslEnabledProtocols:
+        default: TLSv1.2,TLSv1.1,TLSv1
+        description: >-
+          The list of protocols enabled for SSL connections. TLSv1.2, TLSv1.1
+          and TLSv1 are enabled by default.
+        title: SSL Enabled Protocols
+        type: string
+      sslKeystorePassword:
+        description: >-
+          The store password for the key store file.This is optional for client
+          and only needed if ssl.keystore.location is configured.
+        title: SSL Keystore Password
+        type: string
+        format: password
+        x-descriptors:
+          - urn:alm:descriptor:com.tectonic.ui:password
+          - urn:camel:group:credentials
+      sslTruststoreLocation:
+        description: The location of the trust store file.
+        title: SSL Truststore Location
+        type: string
+      sslKeyPassword:
+        description: The password of the private key in the key store file.
+        title: SSL Key Password
+        type: string
+        format: password
+        x-descriptors:
+          - urn:alm:descriptor:com.tectonic.ui:password
+          - urn:camel:group:credentials
+      topic:
+        description: Comma separated list of Kafka topic names
+        title: Topic Names
+        type: string
+      securityProtocol:
+        default: SSL
+        description: >-
+          Protocol used to communicate with brokers. SASL_PLAINTEXT, PLAINTEXT,
+          SASL_SSL and SSL are supported
+        title: Security Protocol
+        type: string
+    title: Kafka SSL Sink
+    type: object
+  dependencies:
+    - "camel:core"
+    - "camel:kafka"
+    - "camel:kamelet"
+  template:
+    beans:
+      - name: kafka-ssl-sink-local
+        type: '#class:org.apache.camel.component.kafka.KafkaComponent'
+      - name: kafka-ssl-sink-configuration-local
+        property:
+          - key: brokers
+            value: '{{bootstrapServers}}'
+          - key: securityProtocol
+            value: '{{securityProtocol}}'
+          - key: sslKeystoreLocation
+            value: '{{sslKeystoreLocation}}'
+          - key: sslKeyPassword
+            value: '{{sslKeyPassword}}'
+          - key: sslKeystorePassword
+            value: '{{sslKeystorePassword}}'
+          - key: sslTruststoreLocation
+            value: '{{sslTruststoreLocation}}'
+          - key: sslProtocol
+            value: '{{sslProtocol}}'
+          - key: sslEnabledProtocols
+            value: '{{sslEnabledProtocols}}'
+          - key: saslMechanism
+            value: '{{saslMechanism}}'
+        type: '#class:org.apache.camel.component.kafka.KafkaConfiguration'
+    from:
+      uri: "kamelet:source"
+      steps:
+        - choice:
+            when:
+              - simple: ${header[key]}
+                steps:
+                  - set-header:
+                      name: kafka.KEY
+                      simple: ${header[key]}
+              - simple: ${header[ce-key]}
+                steps:
+                  - set-header:
+                      name: kafka.KEY
+                      simple: ${header[ce-key]}
+        - choice:
+            when:
+              - simple: ${header[partition-key]}
+                steps:
+                  - set-header:
+                      name: kafka.PARTITION_KEY
+                      simple: ${header[partition-key]}
+              - simple: ${header[ce-partitionkey]}
+                steps:
+                  - set-header:
+                      name: kafka.PARTITION_KEY
+                      simple: ${header[ce-partitionkey]}
+        - to:
+            uri: '{{kafka-ssl-sink-local}}:{{topic}}'
+            parameters:
+              configuration: '#bean:{{kafka-ssl-sink-configuration-local}}'

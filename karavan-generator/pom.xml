@@ -32,7 +32,7 @@
         <quarkus.platform.version>2.7.5.Final</quarkus.platform.version>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
         <version.camel-core>3.16.0</version.camel-core>
-        <version.camel-kamelet>0.7.1</version.camel-kamelet>
+        <version.camel-kamelet>0.8.0</version.camel-kamelet>
     </properties>
     <dependencyManagement>
         <dependencies>
