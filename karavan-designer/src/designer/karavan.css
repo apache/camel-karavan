@@ -1098,3 +1098,16 @@ reactour-portal .reactour__popover button:focus-visible {
     height: fit-content;
     margin-left: 3px;
 }
+
+/* Project Tools */
+.karavan .project-tools {
+    height: 100%;
+}
+
+.karavan .project-tools .card-header svg {
+    margin-right: 6px;
+}
+
+.karavan .project-tools .card-disabled {
+    opacity: 0.4;
+}

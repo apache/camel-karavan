@@ -24,9 +24,11 @@ import {KaravanDesigner} from "./designer/KaravanDesigner";
 import {KameletsPage} from "./kamelets/KameletsPage";
 import {ComponentsPage} from "./components/ComponentsPage";
 import {EipPage} from "./eip/EipPage";
+import {BuilderPage} from "./builder/BuilderPage";
+import {ProjectModel} from "karavan-core/lib/model/ProjectModel";
 
 interface Props {
-    page: "designer" | "kamelets" | "components" | "eip";
+    page: "designer" | "kamelets" | "components" | "eip" | "builder";
 }
 
 interface State {
@@ -122,6 +124,7 @@ class App extends React.Component<Props, State> {
                 {this.props.page === "kamelets" && <KameletsPage dark={document.body.className.includes('vscode-dark')} />}
                 {this.props.page === "components" && <ComponentsPage dark={document.body.className.includes('vscode-dark')} />}
                 {this.props.page === "eip" && <EipPage dark={document.body.className.includes('vscode-dark')} />}
+                {this.props.page === "builder" && <BuilderPage dark={document.body.className.includes('vscode-dark')} project={ProjectModel.createNew("demo")} files={'demo.yaml,CustomProcessor.java,script.groovy,docker-compose.yaml,README.MD'}/>}
             </Page>
         );
     }

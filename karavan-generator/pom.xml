@@ -74,6 +74,11 @@
             <artifactId>camel-kamelets-catalog</artifactId>
             <version>${version.camel-kamelet}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-jbang-core</artifactId>
+            <version>3.17.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
