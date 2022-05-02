@@ -1,4 +1,3 @@
-
 export class ProjectStatus {
     uberJar: 'pending' | 'progress' | 'done' | 'error' = 'pending';
     build: 'pending' | 'progress' | 'done' | 'error' = 'pending';
