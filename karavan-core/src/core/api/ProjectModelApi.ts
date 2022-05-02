@@ -36,24 +36,26 @@ export class ProjectModelApi {
         project.nodePort = this.getValue(map, "deploy.node-port");
         project.server = this.getValue(map, "deploy.server", "build.image.server");
         project.token = this.getValue(map, "deploy.token", "build.image.token");
-        const openshift = this.getValue(map, "deploy.openshift", "build.image.openshift");
-        const minikube = this.getValue(map, "deploy.minikube", "build.image.minikube");
-        project.target = this.getValue(map, openshift ? "openshift" : (minikube ? "minikube" : "kubernetes"));
-        project.deploy = this.getValue(map, "deploy");
-        project.build = this.getValue(map, "build.image");
-        project.uberJar = this.getValue(map, "package");
+        const openshift = this.getValue(map, "deploy.openshift", "build.image.openshift") === "true";
+        const minikube = this.getValue(map, "deploy.minikube", "build.image.minikube") === "true";
+        project.target = openshift ? "openshift" : (minikube ? "minikube" : "kubernetes");
+        project.deploy = this.getValue(map, "deploy") === "true";
+        project.build = this.getValue(map, "build.image") === "true";
+        project.uberJar = this.getValue(map, "package") === "true";
         project.status = new ProjectStatus();
 
         Object.keys(project).forEach(key => {
             if ((project as any)[key] === undefined) delete (project as any)[key];
         })
-        return new ProjectModel(project);
+        return new ProjectModel(JSON.parse(JSON.stringify(project)) as ProjectModel);
     }
 
     static getValue = (map: Map<string, any>, ...keys: string[]): any => {
         for (const key of keys) {
-            return map.has(PREFIX + "." + key) ? map.get(PREFIX + "." + key) : undefined;
+            const k = PREFIX + "." + key;
+            if  (map.has(k)) return map.get(k);
         }
+        return undefined;
     }
 
     static propertiesToMap = (properties: string[]): Map<string, any> => {
@@ -87,25 +89,25 @@ export class ProjectModelApi {
         this.setValue(map, "project.name", project.name);
         this.setValue(map, "project.version", project.version);
         this.setValue(map, "project.namespace", project.namespace);
-        this.setValue(map, "build.image.tag", project.tag);
-        this.setValue(map, "deploy.image", project.tag);
-        this.setValue(map, "classpathFiles", project.filesSelected);
-        this.setValue(map, "build.image.source-image", project.sourceImage);
-        this.setValue(map, "build.image.jar", project.filename);
+        this.setValue(map, "package", project.uberJar);
         this.setValue(map, "package.jar", project.filename);
+        this.setValue(map, "classpathFiles", project.filesSelected);
+        this.setValue(map, "build.image", project.build);
+        this.setValue(map, "build.image.openshift", project.target === 'openshift');
+        this.setValue(map, "build.image.minikube", project.target === 'minikube');
+        this.setValue(map, "build.image.jar", project.filename);
+        this.setValue(map, "build.image.tag", project.tag);
+        this.setValue(map, "build.image.source-image", project.sourceImage);
+        this.setValue(map, "build.image.server", project.server);
+        this.setValue(map, "build.image.token", project.token);
+        this.setValue(map, "deploy", project.deploy);
+        this.setValue(map, "deploy.openshift", project.target === 'openshift');
+        this.setValue(map, "deploy.minikube", project.target === 'minikube');
+        this.setValue(map, "deploy.image", project.tag);
         this.setValue(map, "deploy.replicas", project.replicas);
         this.setValue(map, "deploy.node-port", project.nodePort);
         this.setValue(map, "deploy.server", project.server);
-        this.setValue(map, "build.image.server", project.server);
         this.setValue(map, "deploy.token", project.token);
-        this.setValue(map, "build.image.token", project.token);
-        this.setValue(map, "build.image.openshift", project.target === 'openshift');
-        this.setValue(map, "deploy.openshift", project.target === 'openshift');
-        this.setValue(map, "build.image.minikube", project.target === 'minikube');
-        this.setValue(map, "deploy.minikube", project.target === 'minikube');
-        this.setValue(map, "deploy", project.deploy);
-        this.setValue(map, "build.image", project.build);
-        this.setValue(map, "package", project.uberJar);
         return map;
     }
 

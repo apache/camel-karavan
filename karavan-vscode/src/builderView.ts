@@ -20,8 +20,11 @@ import * as path from "path";
 import * as utils from "./utils";
 import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
 import { Integration } from "karavan-core/lib/model/IntegrationDefinition";
+import { ProjectModel } from "karavan-core/lib/model/ProjectModel";
+import { ProjectModelApi } from "karavan-core/lib/api/ProjectModelApi";
+import { saveProject } from "./builderUtil";
 
-let builderPanel: vscode.WebviewPanel;
+let builderPanel: vscode.WebviewPanel | undefined;
 const filename = "application.properties";
 
 export class BuilderView {
@@ -31,20 +34,6 @@ export class BuilderView {
     }
 
     openProject() {
-        // const yaml = fs.readFileSync(path.resolve(fullPath)).toString('utf8');
-        // const filename = path.basename(fullPath);
-        // const relativePath = utils.getRalativePath(fullPath);
-        // const integration = utils.parceYaml(filename, yaml);
-
-        // if (integration[0]) {
-            this.openKaravanWebView();
-        // } else {
-        //     vscode.window.showErrorMessage("File is not Camel Integration!")
-        // }
-    }
-
-    openKaravanWebView() {
-        console.log("openKaravanWebView");
         if (builderPanel === undefined) {
             // Karavan webview
             builderPanel = vscode.window.createWebviewPanel(
@@ -66,37 +55,55 @@ export class BuilderView {
             );
 
             // Handle messages from the webview
-			builderPanel.webview.onDidReceiveMessage(
-				message => {
-					switch (message.command) {
-						case 'getData':
-							this.sendData("builder");
-							break;
-					}
-				},
-				undefined,
-				this.context.subscriptions
-			);
+            builderPanel.webview.onDidReceiveMessage(
+                message => {
+                    switch (message.command) {
+                        case 'getData':
+                            this.sendData("builder");
+                            break;
+                        case 'saveProject':
+                            saveProject(this.rootPath || "", message.project);
+                            break;
+                    }
+                },
+                undefined,
+                this.context.subscriptions
+            );
             // Handle close event
             builderPanel.onDidDispose(() => {
-                // builderPanel.delete(relativePath);
+                builderPanel = undefined;
+                console.log("dispose");
             }, null, this.context.subscriptions);
 
             // Handle reopen
             builderPanel.onDidChangeViewState((e: vscode.WebviewPanelOnDidChangeViewStateEvent) => {
-				if (e.webviewPanel.active) {
-					e.webviewPanel.webview.postMessage({ command: 'reread' })
-				}
-			});
+                if (e.webviewPanel.active) {
+                    e.webviewPanel.webview.postMessage({ command: 'reread' })
+                }
+            });
         } else {
             builderPanel?.reveal(undefined, true);
-            builderPanel?.webview.postMessage({ command: 'activate'});
+            builderPanel?.webview.postMessage({ command: 'activate' });
         }
     }
 
     sendData(page: string) {
-		// Send data
-		builderPanel.webview.postMessage({ command: 'open', page: page });
-	}
-
+        builderPanel?.webview.postMessage({ command: 'open', page: page });
+        console.log(this.rootPath);
+        if (this.rootPath) {
+            const files = utils.getAllFiles(this.rootPath, []).map(f => utils.getRalativePath(f)).join(",");
+            console.log(files);
+            let project = ProjectModel.createNew("demo");
+            try {
+                const properties = fs.readFileSync(path.resolve(this.rootPath, filename)).toString('utf8');
+                console.log(properties);
+                project = ProjectModelApi.propertiesToProject(properties);
+                console.log(project);
+            } catch (err: any) {
+                if (err.code !== 'ENOENT') throw err;
+            }
+            // Send data
+            builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
+        }
+    }
 }

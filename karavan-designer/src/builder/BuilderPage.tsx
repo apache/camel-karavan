@@ -34,12 +34,12 @@ import DeployIcon from '@patternfly/react-icons/dist/esm/icons/cloud-upload-alt-
 import ProjectIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 import {FileSelector} from "./FileSelector";
 import {ProjectModel, ProjectStatus} from "karavan-core/lib/model/ProjectModel";
-import {Simulate} from "react-dom/test-utils";
 
 interface Props {
     dark: boolean
     project: ProjectModel
     files: string
+    onChange?: (project: ProjectModel) => void
 }
 
 interface State {
@@ -67,6 +67,7 @@ export class BuilderPage extends React.Component<Props, State> {
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         console.log(this.state);
+        this.props.onChange?.call(this, this.state);
     }
 
     getHelp(text: string) {

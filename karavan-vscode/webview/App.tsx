@@ -98,7 +98,8 @@ class App extends React.Component<Props, State> {
         this.setState({ showStartHelp: message.showStartHelp });
         break;
       case 'project':
-        this.setState({ project: message.project, files: message.files });
+        this.setState({ project: message.project, files: message.files, key: Math.random().toString() });
+        console.log(message.project)
         break;  
       case 'open':
         if (this.state.filename === '' && this.state.key === '') {
@@ -137,6 +138,10 @@ class App extends React.Component<Props, State> {
     }
   }
 
+  saveProjet(project: ProjectModel) {
+    vscode.postMessage({ command: 'saveProject', project: project });
+  }
+
   disableStartHelp() {
     vscode.postMessage({ command: 'disableStartHelp' });
   }
@@ -163,7 +168,8 @@ class App extends React.Component<Props, State> {
         {this.state.loaded && this.state.page === "kamelets" && <KameletsPage dark={this.props.dark} />}
         {this.state.loaded && this.state.page === "components" && <ComponentsPage dark={this.props.dark} />}
         {this.state.loaded && this.state.page === "eip" && <EipPage dark={this.props.dark} />}
-        {this.state.loaded && this.state.page === "builder" && <BuilderPage dark={this.props.dark} files={this.state.files} project={this.state.project} />}
+        {this.state.loaded && this.state.page === "builder" && 
+            <BuilderPage key={this.state.key} dark={this.props.dark} onChange={project => this.saveProjet(project)} files={this.state.files} project={this.state.project} />}
       </Page>
     )
   }

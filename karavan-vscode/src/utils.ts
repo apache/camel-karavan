@@ -22,11 +22,11 @@ import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
 
 const TERMINALS: Map<string, vscode.Terminal> = new Map<string, vscode.Terminal>();
 
-export function save(relativePath: string, yaml: string){
+export function save(relativePath: string, text: string){
     if (vscode.workspace.workspaceFolders) {
         const uriFolder: vscode.Uri = vscode.workspace.workspaceFolders[0].uri;
         const uriFile: vscode.Uri = vscode.Uri.file(path.join(uriFolder.path, relativePath));
-        fs.writeFile(uriFile.fsPath, yaml, err => {
+        fs.writeFile(uriFile.fsPath, text, err => {
             if (err) vscode.window.showErrorMessage("Error: " + err?.message);
         });
     }
@@ -105,7 +105,7 @@ export function nameFromTitle(title: string): string {
     return title.replace(/[^a-z0-9+]+/gi, "-").toLowerCase();
 }
 
-function getAllFiles (dirPath, arrayOfFiles: string[]): string[]  {
+export function getAllFiles (dirPath, arrayOfFiles: string[]): string[]  {
     const files = fs.readdirSync(dirPath)
   
     arrayOfFiles = arrayOfFiles || []

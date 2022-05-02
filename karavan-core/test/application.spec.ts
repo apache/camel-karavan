@@ -16,7 +16,6 @@
  */
 import * as fs from 'fs';
 import 'mocha';
-import * as readline from 'node:readline';
 import {expect} from "chai";
 import {ProjectModelApi} from "../src/core/api/ProjectModelApi";
 
