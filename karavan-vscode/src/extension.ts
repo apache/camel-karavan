@@ -20,6 +20,7 @@ import { DesignerView } from "./designerView";
 import {IntegrationView} from "./integrationView";
 import { HelpView } from "./helpView";
 import { selectFileName, inputFileName, OpenApiView, OpenApiItem } from "./openapiView";
+import { BuilderView } from './builderView';
 
 const KARAVAN_LOADED = "karavan:loaded";
 
@@ -61,6 +62,9 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('karavan.openKamelets', () => helpView.openKaravanWebView("kamelets"));
     vscode.commands.registerCommand('karavan.openComponents', () => helpView.openKaravanWebView("components"));
     vscode.commands.registerCommand('karavan.openEip', () => helpView.openKaravanWebView("eip"));
+
+    const builderView = new BuilderView(context, webviewContent, rootPath);
+    vscode.commands.registerCommand("karavan.projectBuilder", (...args: any[]) => builderView.openProject());
 
     // Create new Integration CRD command
     const createCrd = vscode.commands.registerCommand("karavan.create-crd", (...args: any[]) => {

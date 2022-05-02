@@ -1100,14 +1100,73 @@ reactour-portal .reactour__popover button:focus-visible {
 }
 
 /* Project Tools */
-.karavan .project-tools {
+.karavan .project-builder {
     height: 100%;
+    font-size: 14px;
 }
 
-.karavan .project-tools .card-header svg {
+.karavan .project-builder .card-header svg {
     margin-right: 6px;
 }
 
-.karavan .project-tools .card-disabled {
+.karavan .project-builder .card-disabled {
     opacity: 0.4;
+}
+
+.karavan .project-builder .pf-c-form__label {
+    font-size: 14px;
+}
+
+.karavan .project-builder .pf-c-check__label {
+    font-size: 14px;
+}
+
+.karavan .project-builder .text-field {
+    font-size: 14px;
+    height: auto;
+}
+
+.karavan .project-builder .pf-c-input-group button {
+    font-size: 14px;
+    height: auto;
+}
+
+.karavan .project-builder .pf-c-form {
+    --pf-c-form--GridGap: 1em;
+}
+
+.karavan .project-builder .pf-c-card__body {
+    --pf-c-card--child--PaddingRight: 0.5em;
+    --pf-c-card--child--PaddingBottom: 1em;
+    --pf-c-card--child--PaddingLeft: 1em;
+}
+
+.karavan .project-builder .pf-c-card__header {
+    --pf-c-card--first-child--PaddingTop: 0.5em;
+}
+
+.karavan .project-builder .center {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    padding: 10px;
+}
+.karavan .project-builder .center-column {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.karavan .project-builder .footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.karavan .project-builder .footer .progress {
+    flex-grow: 4;
 }

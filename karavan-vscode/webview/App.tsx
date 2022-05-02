@@ -25,6 +25,8 @@ import { ComponentApi } from "karavan-core/lib/api/ComponentApi";
 import { KameletsPage } from "./kamelets/KameletsPage";
 import { ComponentsPage } from "./components/ComponentsPage";
 import { EipPage } from "./eip/EipPage";
+import { BuilderPage } from "./builder/BuilderPage";
+import { ProjectModel } from "karavan-core/lib/model/ProjectModel";
 
 interface Props {
   dark: boolean
@@ -40,9 +42,11 @@ interface State {
   scheduledYaml: string
   hasChanges: boolean
   showStartHelp: boolean
-  page: "designer" | "kamelets" | "components" | "eip"
+  page: "designer" | "kamelets" | "components" | "eip" | "builder"
   active: boolean
   tab?: string
+  files: string
+  project: ProjectModel
 }
 
 class App extends React.Component<Props, State> {
@@ -57,7 +61,9 @@ class App extends React.Component<Props, State> {
     hasChanges: false,
     showStartHelp: false,
     page: "designer",
-    active: false
+    active: false,
+    files:'',
+    project: ProjectModel.createNew("demo")
   };
 
   saveScheduledChanges = () => {
@@ -91,6 +97,9 @@ class App extends React.Component<Props, State> {
       case 'showStartHelp':
         this.setState({ showStartHelp: message.showStartHelp });
         break;
+      case 'project':
+        this.setState({ project: message.project, files: message.files });
+        break;  
       case 'open':
         if (this.state.filename === '' && this.state.key === '') {
           if (message.page !== "designer" && this.state.interval) clearInterval(this.state.interval);
@@ -154,6 +163,7 @@ class App extends React.Component<Props, State> {
         {this.state.loaded && this.state.page === "kamelets" && <KameletsPage dark={this.props.dark} />}
         {this.state.loaded && this.state.page === "components" && <ComponentsPage dark={this.props.dark} />}
         {this.state.loaded && this.state.page === "eip" && <EipPage dark={this.props.dark} />}
+        {this.state.loaded && this.state.page === "builder" && <BuilderPage dark={this.props.dark} files={this.state.files} project={this.state.project} />}
       </Page>
     )
   }
