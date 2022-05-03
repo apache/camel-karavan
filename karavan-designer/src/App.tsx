@@ -114,6 +114,9 @@ class App extends React.Component<Props, State> {
     }
 
     public render() {
+        const project = ProjectModel.createNew("demo");
+        project.status.active = true;
+        project.status.uberJar = "progress";
         return (
             <Page className="karavan">
                 {this.props.page === "designer" && <KaravanDesigner key={this.state.key} filename={this.state.name} yaml={this.state.yaml}
@@ -123,7 +126,7 @@ class App extends React.Component<Props, State> {
                 {this.props.page === "kamelets" && <KameletsPage dark={document.body.className.includes('vscode-dark')} />}
                 {this.props.page === "components" && <ComponentsPage dark={document.body.className.includes('vscode-dark')} />}
                 {this.props.page === "eip" && <EipPage dark={document.body.className.includes('vscode-dark')} />}
-                {this.props.page === "builder" && <BuilderPage dark={document.body.className.includes('vscode-dark')} project={ProjectModel.createNew("demo")}
+                {this.props.page === "builder" && <BuilderPage dark={document.body.className.includes('vscode-dark')} project={project}
                                                                onChange={project => {}}
                                                                files={'demo.yaml,CustomProcessor.java,script.groovy,docker-compose.yaml,README.MD'}/>}
             </Page>

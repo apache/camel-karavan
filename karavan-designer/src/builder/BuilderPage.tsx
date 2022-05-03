@@ -40,6 +40,7 @@ interface Props {
     project: ProjectModel
     files: string
     onChange?: (project: ProjectModel) => void
+    onAction?: (action: "start" | "stop") => void
 }
 
 interface State {
@@ -175,7 +176,7 @@ export class BuilderPage extends React.Component<Props, State> {
     getProgressIcon(status: 'pending' | 'progress' | 'done' | 'error') {
         switch (status) {
             case "pending":
-                return undefined;
+                return <PendingIcon/>;
             case "progress":
                 return <InProgressIcon/>;
             case "done":
@@ -224,9 +225,7 @@ export class BuilderPage extends React.Component<Props, State> {
     }
 
     onButtonClick() {
-        const status = this.state.status;
-        status.active = !status.active;
-        this.setState({status: status});
+        this.props.onAction?.call(this, this.state.status.active ? "stop" : "start");
     }
 
     getFooter() {

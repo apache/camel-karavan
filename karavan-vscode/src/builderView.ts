@@ -18,11 +18,9 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import * as utils from "./utils";
-import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
-import { Integration } from "karavan-core/lib/model/IntegrationDefinition";
+import * as jbang from "./jbang";
 import { ProjectModel } from "karavan-core/lib/model/ProjectModel";
 import { ProjectModelApi } from "karavan-core/lib/api/ProjectModelApi";
-import { saveProject } from "./builderUtil";
 
 let builderPanel: vscode.WebviewPanel | undefined;
 const filename = "application.properties";
@@ -62,7 +60,10 @@ export class BuilderView {
                             this.sendData("builder");
                             break;
                         case 'saveProject':
-                            saveProject(this.rootPath || "", message.project);
+                            this.saveProject(message.project);
+                            break;
+                        case 'action':
+                            this.actionProject(message.action);
                             break;
                     }
                 },
@@ -91,19 +92,54 @@ export class BuilderView {
         builderPanel?.webview.postMessage({ command: 'open', page: page });
         console.log(this.rootPath);
         if (this.rootPath) {
-            const files = utils.getAllFiles(this.rootPath, []).map(f => utils.getRalativePath(f)).join(",");
-            console.log(files);
-            let project = ProjectModel.createNew("demo");
-            try {
-                const properties = fs.readFileSync(path.resolve(this.rootPath, filename)).toString('utf8');
-                console.log(properties);
-                project = ProjectModelApi.propertiesToProject(properties);
-                console.log(project);
-            } catch (err: any) {
-                if (err.code !== 'ENOENT') throw err;
-            }
+            const [project, files] = this.readProjectInfo(this.rootPath);
             // Send data
             builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
         }
+    }
+
+    actionProject(action: "start" | "stop") {
+        const [project, files] = this.readProjectInfo(this.rootPath || '');
+        project.status.active = true;
+        if (project.uberJar) {
+            project.status.uberJar = "progress";
+            builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
+
+            jbang.camelJbangPackageAsync(this.rootPath || "", code => {
+                project.status.uberJar = code === 0 ? "done" : "error";
+                builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
+                this.finish(project, files);
+            });
+        }
+    }
+
+    finish(project: ProjectModel, files: string) {
+        setTimeout(() => {
+            project.status.active = false;
+            builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
+        }, 1000);
+    }
+
+    saveProject(project: ProjectModel) {
+        let properties = ''
+        try {
+            properties = fs.readFileSync(path.resolve(this.rootPath || '', filename)).toString('utf8');
+        } catch (err: any) {
+            if (err.code !== 'ENOENT') throw err;
+        }
+        const newProperties = ProjectModelApi.updateProperties(properties, project);
+        utils.save(filename, newProperties);
+    }
+
+    readProjectInfo(rootPath: string): [ProjectModel, string] {
+        const files = utils.getAllFiles(rootPath, []).map(f => utils.getRalativePath(f)).join(",");
+        let project = ProjectModel.createNew("demo");
+        try {
+            const properties = fs.readFileSync(path.resolve(rootPath, filename)).toString('utf8');
+            project = ProjectModelApi.propertiesToProject(properties);
+        } catch (err: any) {
+            if (err.code !== 'ENOENT') throw err;
+        }
+        return [project, files];
     }
 }

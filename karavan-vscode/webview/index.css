@@ -382,3 +382,7 @@ color: var(--vscode-editor-foreground);
   --pf-c-toggle-group__button--BackgroundColor: var(--vscode-input-background);
 }
 
+.vscode-dark .karavan .project-builder .pf-c-progress-stepper__step-icon {
+  background-color: transparent;
+}
+

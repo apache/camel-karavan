@@ -62,7 +62,7 @@ class App extends React.Component<Props, State> {
     showStartHelp: false,
     page: "designer",
     active: false,
-    files:'',
+    files: '',
     project: ProjectModel.createNew("demo")
   };
 
@@ -100,7 +100,7 @@ class App extends React.Component<Props, State> {
       case 'project':
         this.setState({ project: message.project, files: message.files, key: Math.random().toString() });
         console.log(message.project)
-        break;  
+        break;
       case 'open':
         if (this.state.filename === '' && this.state.key === '') {
           if (message.page !== "designer" && this.state.interval) clearInterval(this.state.interval);
@@ -112,7 +112,7 @@ class App extends React.Component<Props, State> {
             relativePath: message.relativePath,
             key: Math.random().toString(),
             loaded: true,
-            active: true, 
+            active: true,
             tab: message.tab
           });
         }
@@ -138,8 +138,12 @@ class App extends React.Component<Props, State> {
     }
   }
 
-  saveProjet(project: ProjectModel) {
+  saveProject(project: ProjectModel) {
     vscode.postMessage({ command: 'saveProject', project: project });
+  }
+
+  actionProject(action: "start" | "stop") {
+    vscode.postMessage({ command: 'action', action: action });
   }
 
   disableStartHelp() {
@@ -168,8 +172,11 @@ class App extends React.Component<Props, State> {
         {this.state.loaded && this.state.page === "kamelets" && <KameletsPage dark={this.props.dark} />}
         {this.state.loaded && this.state.page === "components" && <ComponentsPage dark={this.props.dark} />}
         {this.state.loaded && this.state.page === "eip" && <EipPage dark={this.props.dark} />}
-        {this.state.loaded && this.state.page === "builder" && 
-            <BuilderPage key={this.state.key} dark={this.props.dark} onChange={project => this.saveProjet(project)} files={this.state.files} project={this.state.project} />}
+        {this.state.loaded && this.state.page === "builder" &&
+          <BuilderPage key={this.state.key} dark={this.props.dark} files={this.state.files} project={this.state.project}
+            onChange={project => this.saveProject(project)}
+            onAction={action => this.actionProject(action)}
+          />}
       </Page>
     )
   }
