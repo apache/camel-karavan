@@ -43,27 +43,26 @@ class App extends React.Component<Props, State> {
         name: 'demo.yaml',
         key: '',
         yaml:
-        // 'apiVersion: camel.apache.org/v1\n' +
-        // 'kind: Integration\n' +
-        // 'metadata:\n' +
-        // '  name: postman.yaml\n' +
-        // 'spec:\n' +
-        // '  flows:\n' +
-        // '    - route:\n' +
-        // '        from:\n' +
-        // '          uri: direct:post\n' +
-        // '          steps:\n' +
-        // '            - log:\n' +
-        // '                message: \'Received: ${body}\'\n' +
-        // '            - log:\n' +
-        // '                message: \'Received: ${body}\'\n' +
-        // '            - log:\n' +
-        // '                message: \'Received: ${body}\'\n' +
-        // '            - to:\n' +
-        // '                uri: kamelet:kafka-sink\n' +
-        // '                parameters:\n' +
-        // '                  topic: topic1\n' +
-        // '        id: post\n' +
+        'apiVersion: camel.apache.org/v1\n' +
+        'kind: Integration\n' +
+        'metadata:\n' +
+        '  name: postman.yaml\n' +
+        'spec:\n' +
+        '  flows:\n' +
+        '    - route:\n' +
+        '        from:\n' +
+        '          uri: kamelet:timer-source\n' +
+        '          steps:\n' +
+        '            - log:\n' +
+        '                message: ${body}\n' +
+        '            - aggregate: {}\n' +
+        '            - choice: {}\n' +
+        '            - split:\n' +
+        '                expression: {}\n' +
+        '            - saga: {}\n' +
+        '          parameters:\n' +
+        '            period: 2000\n' +
+        '            message: Hello World\n' +
             ''
     };
 

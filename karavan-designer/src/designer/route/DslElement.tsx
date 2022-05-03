@@ -28,6 +28,7 @@ import {EventBus} from "../utils/EventBus";
 import {ChildElement, CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import ReactDOM from "react-dom";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
+import {AggregateIcon, ChoiceIcon, FilterIcon, SagaIcon, SortIcon, SplitIcon, TransformIcon} from "../utils/KaravanIcons";
 
 interface Props {
     step: CamelElement,
@@ -197,6 +198,13 @@ export class DslElement extends React.Component<Props, State> {
                          data-tour={step.dslName + "-icon"}
                          className={"header-icon"}
                          style={this.isWide() ? {width: ""} : {}}>
+                        {/*{step.dslName === 'AggregateDefinition' && <AggregateIcon/>}*/}
+                        {/*{step.dslName === 'ChoiceDefinition' && <ChoiceIcon/>}*/}
+                        {/*{step.dslName === 'SplitDefinition' && <SplitIcon/>}*/}
+                        {/*{step.dslName === 'SagaDefinition' && <SagaIcon/>}*/}
+                        {/*{step.dslName === 'TransformDefinition' && <TransformIcon/>}*/}
+                        {/*{step.dslName === 'FilterDefinition' && <FilterIcon/>}*/}
+                        {/*{step.dslName === 'SortDefinition' && <SortIcon/>}*/}
                         <img draggable={false} src={CamelUi.getIcon(step)} className="icon" alt="icon"/>
                     </div>
                 }

@@ -136,7 +136,11 @@
       },
       {
         "command": "karavan.projectBuilder",
-        "title": "Karavan: Project Builder"
+        "title": "Karavan: Project Builder",
+        "icon": {
+          "light": "icons/light/builder.svg",
+          "dark": "icons/dark/builder.svg"
+        }
       },
       {
         "command": "karavan.jbang-run",
@@ -229,6 +233,11 @@
         },
         {
           "command": "karavan.create-crd",
+          "when": "view == integrations",
+          "group": "navigation"
+        },
+        {
+          "command": "karavan.projectBuilder",
           "when": "view == integrations",
           "group": "navigation"
         },

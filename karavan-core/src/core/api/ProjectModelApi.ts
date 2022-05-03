@@ -45,7 +45,8 @@ export class ProjectModelApi {
         project.status = new ProjectStatus();
 
         Object.keys(project).forEach(key => {
-            if ((project as any)[key] === undefined) delete (project as any)[key];
+            const value = (project as any)[key];
+            if ( value === undefined || value === 'undefined') delete (project as any)[key];
         })
         return new ProjectModel(JSON.parse(JSON.stringify(project)) as ProjectModel);
     }
@@ -112,7 +113,7 @@ export class ProjectModelApi {
     }
 
     static setValue = (map: Map<string, any>, key: string, value: any): Map<string, any> => {
-        map.set(PREFIX + "." + key, value);
+        if (value !== undefined) map.set(PREFIX + "." + key, value);
         return map;
     }
 }
