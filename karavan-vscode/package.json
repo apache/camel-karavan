@@ -53,7 +53,8 @@
     "onCommand:karavan.openKamelets",
     "onCommand:karavan.openComponents",
     "onCommand:karavan.openEip",
-    "onCommand:karavan.reportIssue"
+    "onCommand:karavan.reportIssue",
+    "onCommand:karavan.projectBuilder"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -119,7 +120,7 @@
       },
       {
         "command": "karavan.create-yaml",
-        "title": "Karavan: Create YAML"
+        "title": "Karavan: Create Integration"
       },
       {
         "command": "karavan.open",
@@ -132,6 +133,14 @@
       {
         "command": "karavan.open-file",
         "title": "Karavan: Open editor"
+      },
+      {
+        "command": "karavan.projectBuilder",
+        "title": "Karavan: Project Builder",
+        "icon": {
+          "light": "icons/light/builder.svg",
+          "dark": "icons/dark/builder.svg"
+        }
       },
       {
         "command": "karavan.jbang-run",
@@ -199,6 +208,9 @@
         {
           "command": "karavan.generate-rest",
           "when": "resourceExtname == .json"
+        },
+        {
+          "command": "karavan.projectBuilder"
         }
       ],
       "editor/title": [
@@ -221,6 +233,11 @@
         },
         {
           "command": "karavan.create-crd",
+          "when": "view == integrations",
+          "group": "navigation"
+        },
+        {
+          "command": "karavan.projectBuilder",
           "when": "view == integrations",
           "group": "navigation"
         },
@@ -289,7 +306,7 @@
     ]
   },
   "scripts": {
-    "copy-designer": "cp -r ../karavan-designer/src/designer webview && cp -r ../karavan-designer/src/kamelets webview && cp -r ../karavan-designer/src/components webview && cp -r ../karavan-designer/src/eip webview",
+    "copy-designer": "cp -r ../karavan-designer/src/designer webview && cp -r ../karavan-designer/src/kamelets webview && cp -r ../karavan-designer/src/components webview && cp -r ../karavan-designer/src/eip webview && cp -r ../karavan-designer/src/builder webview",
     "vscode:prepublish": "npm run copy-designer && npm run package",
     "compile": "npm run copy-designer && cross-env NODE_ENV=development webpack --progress",
     "watch": "npm run copy-designer && cross-env NODE_ENV=development webpack --progress --watch",

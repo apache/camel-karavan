@@ -24,9 +24,11 @@ import {KaravanDesigner} from "./designer/KaravanDesigner";
 import {KameletsPage} from "./kamelets/KameletsPage";
 import {ComponentsPage} from "./components/ComponentsPage";
 import {EipPage} from "./eip/EipPage";
+import {BuilderPage} from "./builder/BuilderPage";
+import {ProjectModel} from "karavan-core/lib/model/ProjectModel";
 
 interface Props {
-    page: "designer" | "kamelets" | "components" | "eip";
+    page: "designer" | "kamelets" | "components" | "eip" | "builder";
 }
 
 interface State {
@@ -41,27 +43,26 @@ class App extends React.Component<Props, State> {
         name: 'demo.yaml',
         key: '',
         yaml:
-        // 'apiVersion: camel.apache.org/v1\n' +
-        // 'kind: Integration\n' +
-        // 'metadata:\n' +
-        // '  name: postman.yaml\n' +
-        // 'spec:\n' +
-        // '  flows:\n' +
-        // '    - route:\n' +
-        // '        from:\n' +
-        // '          uri: direct:post\n' +
-        // '          steps:\n' +
-        // '            - log:\n' +
-        // '                message: \'Received: ${body}\'\n' +
-        // '            - log:\n' +
-        // '                message: \'Received: ${body}\'\n' +
-        // '            - log:\n' +
-        // '                message: \'Received: ${body}\'\n' +
-        // '            - to:\n' +
-        // '                uri: kamelet:kafka-sink\n' +
-        // '                parameters:\n' +
-        // '                  topic: topic1\n' +
-        // '        id: post\n' +
+        'apiVersion: camel.apache.org/v1\n' +
+        'kind: Integration\n' +
+        'metadata:\n' +
+        '  name: postman.yaml\n' +
+        'spec:\n' +
+        '  flows:\n' +
+        '    - route:\n' +
+        '        from:\n' +
+        '          uri: kamelet:timer-source\n' +
+        '          steps:\n' +
+        '            - log:\n' +
+        '                message: ${body}\n' +
+        '            - aggregate: {}\n' +
+        '            - choice: {}\n' +
+        '            - split:\n' +
+        '                expression: {}\n' +
+        '            - saga: {}\n' +
+        '          parameters:\n' +
+        '            period: 2000\n' +
+        '            message: Hello World\n' +
             ''
     };
 
@@ -113,6 +114,9 @@ class App extends React.Component<Props, State> {
     }
 
     public render() {
+        const project = ProjectModel.createNew();
+        project.status.active = true;
+        project.status.uberJar = "progress";
         return (
             <Page className="karavan">
                 {this.props.page === "designer" && <KaravanDesigner key={this.state.key} filename={this.state.name} yaml={this.state.yaml}
@@ -122,6 +126,12 @@ class App extends React.Component<Props, State> {
                 {this.props.page === "kamelets" && <KameletsPage dark={document.body.className.includes('vscode-dark')} />}
                 {this.props.page === "components" && <ComponentsPage dark={document.body.className.includes('vscode-dark')} />}
                 {this.props.page === "eip" && <EipPage dark={document.body.className.includes('vscode-dark')} />}
+                {this.props.page === "builder" && <BuilderPage dark={document.body.className.includes('vscode-dark')} project={project}
+                                                               onChange={project => {
+                                                                   console.log("routesIncludePattern", project.routesIncludePattern);
+                                                                   console.log("classpathFiles", project.classpathFiles);
+                                                               }}
+                                                               files={'demo.yaml,CustomProcessor.java,script.groovy,docker-compose.yaml,README.MD'}/>}
             </Page>
         );
     }

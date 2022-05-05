@@ -22,11 +22,11 @@ import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
 
 const TERMINALS: Map<string, vscode.Terminal> = new Map<string, vscode.Terminal>();
 
-export function save(relativePath: string, yaml: string){
+export function save(relativePath: string, text: string){
     if (vscode.workspace.workspaceFolders) {
         const uriFolder: vscode.Uri = vscode.workspace.workspaceFolders[0].uri;
         const uriFile: vscode.Uri = vscode.Uri.file(path.join(uriFolder.path, relativePath));
-        fs.writeFile(uriFile.fsPath, yaml, err => {
+        fs.writeFile(uriFile.fsPath, text, err => {
             if (err) vscode.window.showErrorMessage("Error: " + err?.message);
         });
     }
@@ -105,7 +105,7 @@ export function nameFromTitle(title: string): string {
     return title.replace(/[^a-z0-9+]+/gi, "-").toLowerCase();
 }
 
-function getAllFiles (dirPath, arrayOfFiles: string[]): string[]  {
+export function getAllFiles (dirPath, arrayOfFiles: string[]): string[]  {
     const files = fs.readdirSync(dirPath)
   
     arrayOfFiles = arrayOfFiles || []
@@ -142,55 +142,3 @@ export function getIntegrationFiles(baseDir: string): string[]{
         return !f.startsWith(baseDir + path.sep + "target") && CamelDefinitionYaml.yamlIsIntegration(yaml);
     });
 }
-
-export function camelJbangGenerate(openApiFullPath: string, fullPath: string,  add: boolean, crd?: boolean, generateRoutes?: boolean) {
-    const version = vscode.workspace.getConfiguration().get("camel.version");
-    let command = "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel generate rest -i " + openApiFullPath;
-    if (generateRoutes === true) command = command + " --routes";
-    const jbang = shell.which('jbang');
-    if (jbang){
-        shell.config.execPath = String(jbang);
-        shell.exec(command, { async: true }, (code, stdout, stderr) => {
-            console.log('Exit code:', code);
-            if (code === 0){
-                // console.log('Program output:', stdout);
-                const filename = path.basename(fullPath);
-                let yaml;
-                if (add) {
-                    const camelYaml = fs.readFileSync(path.resolve(fullPath)).toString('utf8');
-                    yaml = createYaml(filename, stdout, camelYaml, undefined);
-                } else {
-                    yaml = createYaml(filename, stdout, undefined, crd);
-                }
-                const uriFile: vscode.Uri = vscode.Uri.file(fullPath);
-                fs.writeFile(uriFile.fsPath, yaml, err => {
-                    if (err) vscode.window.showErrorMessage("Error: " + err?.message);
-                    else {
-                        vscode.commands.executeCommand('integrations.refresh')
-                        .then(x => vscode.commands.executeCommand('karavan.open', {fsPath: fullPath, tab: 'rest'}));
-                    }
-                });
-            } else {
-                vscode.window.showErrorMessage(stderr);
-            }
-        });
-    }
-}
-
-export function createYaml(filename: string, restYaml: string, camelYaml?: string, crd?: boolean): string {
-    if (camelYaml) {
-        const i = CamelDefinitionYaml.yamlToIntegration(filename, camelYaml);
-        const rest = CamelDefinitionYaml.yamlToIntegration(filename, restYaml);
-        i.spec.flows = i.spec.flows?.filter(f => f.dslName !== 'RestDefinition');
-        i.spec.flows?.push(...rest.spec.flows || []);
-        return CamelDefinitionYaml.integrationToYaml(i);
-    } else if (crd === true){
-        const i = CamelDefinitionYaml.yamlToIntegration(filename, restYaml);
-        i.crd = true;
-        return CamelDefinitionYaml.integrationToYaml(i);
-    } else {
-        return restYaml;
-    }
-}
-
-
