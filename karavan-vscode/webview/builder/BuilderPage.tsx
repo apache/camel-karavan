@@ -55,7 +55,7 @@ interface Props {
     project: ProjectModel
     files: string
     onChange?: (project: ProjectModel) => void
-    onAction?: (action: "start" | "stop" | "undeploy") => void
+    onAction?: (action: "start" | "stop" | "undeploy", project: ProjectModel) => void
 }
 
 interface State {
@@ -177,7 +177,7 @@ export class BuilderPage extends React.Component<Props, State> {
                     {target !== 'openshift' && this.getField("from", "Base Image", "text", from, "Base Image", val => this.setState({from: val}), true, build)}
                     {target === 'openshift' && this.getField("sourceImage", "Source tag", "text", sourceImage, "Source image name (for OpenShift BuildConfig)", val => this.setState({sourceImage: val}), true, build)}
                     {target === 'openshift' && this.getField("server", "Server", "text", server, "Master URL", val => this.setState({server: val}), true, build)}
-                    {target === 'openshift' && this.getField("token", "Token", "text", token, "Authentication Token", val => this.setState({token: val}), true, build)}
+                    {target === 'openshift' && this.getField("token", "Token", "password", token, "Authentication Token", val => this.setState({token: val}), true, build)}
                 </Form>
             </CardBody>
         </Card>
@@ -225,12 +225,13 @@ export class BuilderPage extends React.Component<Props, State> {
 
     getProgress() {
         const {status, uberJar, build, deploy} = this.state;
+        const undeploying = status.active && status.undeploy === "progress";
         return (
             <ProgressStepper isCenterAligned style={{visibility: "visible"}}>
-                {uberJar && <ProgressStep variant="pending" id="package" titleId="package" aria-label="package" icon={this.getProgressIcon(status.uberJar)}>Package</ProgressStep>}
-                {build && <ProgressStep variant="pending" isCurrent id="build" titleId="build" aria-label="build" icon={this.getProgressIcon(status.build)}>Build</ProgressStep>}
-                {deploy && <ProgressStep variant="pending" id="deploy" titleId="deploy" aria-label="deploy" icon={this.getProgressIcon(status.deploy)}>Deploy</ProgressStep>}
-                {status.active && status.undeploy === "progress" &&
+                {!undeploying && uberJar && <ProgressStep variant="pending" id="package" titleId="package" aria-label="package" icon={this.getProgressIcon(status.uberJar)}>Package</ProgressStep>}
+                {!undeploying && build && <ProgressStep variant="pending" isCurrent id="build" titleId="build" aria-label="build" icon={this.getProgressIcon(status.build)}>Build</ProgressStep>}
+                {!undeploying && deploy && <ProgressStep variant="pending" id="deploy" titleId="deploy" aria-label="deploy" icon={this.getProgressIcon(status.deploy)}>Deploy</ProgressStep>}
+                {undeploying &&
                     <ProgressStep variant="pending" id="undeploy" titleId="undeploy" aria-label="undeploy" icon={this.getProgressIcon(status.undeploy)}>Undeploy</ProgressStep>}
             </ProgressStepper>
         )
@@ -262,7 +263,7 @@ export class BuilderPage extends React.Component<Props, State> {
     }
 
     onButtonClick(action: "start" | "stop" | "undeploy") {
-        this.props.onAction?.call(this, action);
+        this.props.onAction?.call(this, action, this.state);
     }
 
     getFooter() {

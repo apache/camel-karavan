@@ -19,11 +19,12 @@ import * as fs from "fs";
 import * as path from "path";
 import * as shell from 'shelljs';
 import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
+import { ProjectModel } from "karavan-core/lib/model/ProjectModel";
 
 export function camelJbangGenerate(rootPath: string, openApiFullPath: string, fullPath: string, add: boolean, crd?: boolean, generateRoutes?: boolean) {
     let command = prepareCommand("generate rest -i " + openApiFullPath);
     if (generateRoutes === true) command = command + " --routes";
-    executeCommand(rootPath, command, (code, stdout, stderr) => {
+    executeJbangCommand(rootPath, command, (code, stdout, stderr) => {
         console.log('Exit code:', code);
         if (code === 0) {
             // console.log('Program output:', stdout);
@@ -66,46 +67,51 @@ export function createYaml(filename: string, restYaml: string, camelYaml?: strin
 }
 
 export function camelJbangPackage(rootPath: string, callback: (code: number) => any) {
-    executeCommand(rootPath, prepareCommand("package uber-jar"), (code, stdout, stderr) => callback(code));
+    executeJbangCommand(rootPath, prepareCommand("package uber-jar"), (code, stdout, stderr) => callback(code));
 }
 
-export function camelJbangBuildImage(rootPath: string, minikube: boolean, callback: (code: number) => any) {
+export function camelJbangBuildImage(rootPath: string, project: ProjectModel, callback: (code: number) => any) {
     const munikubeCommand = "minikube -p minikube docker-env";
-    let command = prepareCommand("build image");
-    if (minikube) {
+    let command = prepareCommand("build image", project);
+    if (project.target === 'minikube') {
         console.log("Build in minikube")
-        executeCommand(rootPath, munikubeCommand, (code, stdout, stderr) => {
+        executeJbangCommand(rootPath, munikubeCommand, (code, stdout, stderr) => {
             if (code === 0) {
                 setMinikubeEnvVariables(stdout).forEach((value: string, key: string) => shell.env[key] = value);
-                executeCommand(rootPath, command, (code, stdout, stderr) => callback(code));
+                executeJbangCommand(rootPath, command, (code, stdout, stderr) => callback(code));
             }
         })
     } else {
         removeMinikubeEnvVariables();
         console.log(shell.env)
-        executeCommand(rootPath, command, (code, stdout, stderr) => callback(code));
+        executeJbangCommand(rootPath, command, (code, stdout, stderr) => callback(code));
     }
 }
 
-export function camelJbangDeploy(rootPath: string, callback: (code: number) => any) {
-    executeCommand(rootPath, prepareCommand("deploy"), (code, stdout, stderr) => callback(code));
+export function camelJbangDeploy(rootPath: string, project: ProjectModel, callback: (code: number) => any) {
+    executeJbangCommand(rootPath, prepareCommand("deploy", project), (code, stdout, stderr) => callback(code));
 }
 
-export function camelJbangManifests(rootPath: string, callback: (code: number) => any) {
-    executeCommand(rootPath, prepareCommand("build manifests"), (code, stdout, stderr) => callback(code));
+export function camelJbangManifests(rootPath: string, project: ProjectModel, callback: (code: number) => any) {
+    executeJbangCommand(rootPath, prepareCommand("build manifests", project), (code, stdout, stderr) => callback(code));
 }
 
 
-export function camelJbangUndeploy(rootPath: string, callback: (code: number) => any) {
-    executeCommand(rootPath, prepareCommand("undeploy"), (code, stdout, stderr) => callback(code));
+export function camelJbangUndeploy(rootPath: string, project: ProjectModel, callback: (code: number) => any) {
+    executeJbangCommand(rootPath, prepareCommand("undeploy", project), (code, stdout, stderr) => callback(code));
 }
 
-function prepareCommand(command: string): string {
+export function cacheClear(rootPath: string, callback: (code: number) => any) {
+    executeJbangCommand(rootPath, "jbang cache clear", (code, stdout, stderr) => callback(code));
+}
+
+function prepareCommand(command: string, project?: ProjectModel): string {
     const version = vscode.workspace.getConfiguration().get("camel.version");
-    return "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel " + command;
+    const token = project && project.target === 'openshift' ? " --token " + project.token : "";
+    return "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel " + command + token;
 }
 
-function executeCommand(rootPath: string, command: string, callback: (code: number, stdout: any, stderr: any) => any) {
+function executeJbangCommand(rootPath: string, command: string, callback: (code: number, stdout: any, stderr: any) => any) {
     const jbang = shell.which('jbang');
     if (jbang) {
         shell.config.execPath = String(jbang);
@@ -141,5 +147,11 @@ function removeMinikubeEnvVariables() {
     delete shell.env['DOCKER_HOST'];
     delete shell.env['DOCKER_CERT_PATH'];
     delete shell.env['MINIKUBE_ACTIVE_DOCKERD'];
+}
+
+export function cleanup(rootPath: string, project: ProjectModel, callback: (code: number, stdout: any, stderr: any) => any) {
+    shell.cd(rootPath);
+    shell.rm('-r', path.resolve(rootPath, ".camel-jbang"));
+    shell.rm(path.resolve(rootPath, project.filename));  
 }
 

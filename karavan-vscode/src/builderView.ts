@@ -18,7 +18,7 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import * as utils from "./utils";
-import * as jbang from "./jbang";
+import * as commands from "./commands";
 import { ProjectModel } from "karavan-core/lib/model/ProjectModel";
 import { ProjectModelApi } from "karavan-core/lib/api/ProjectModelApi";
 
@@ -63,7 +63,7 @@ export class BuilderView {
                             this.saveProject(message.project);
                             break;
                         case 'action':
-                            this.actionProject(message.action);
+                            this.actionProject(message.action, message.project);
                             break;
                     }
                 },
@@ -98,13 +98,21 @@ export class BuilderView {
         }
     }
 
-    actionProject(action: "start" | "stop") {
-        if (action === "start") this.start();
+    actionProject(action: "start" | "stop" | "undeploy", project: ProjectModel) {
+        switch (action){
+            case "start" : this.start(project); break;
+            case "stop" : {}; break;
+            case "undeploy" : this.undelpoy(project); break;
+        }
     }
 
-    start() {
-        const [project, files] = this.readProjectInfo(this.rootPath || '');
+    start(project: ProjectModel) {
+        const [x, files] = this.readProjectInfo(this.rootPath || '');
         project.status.active = true;
+        project.status.uberJar = "pending";
+        project.status.build = "pending";
+        project.status.deploy = "pending";
+        project.status.undeploy = "pending";
         if (project.uberJar) {
             project.status.uberJar = "progress";
             builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
@@ -117,7 +125,7 @@ export class BuilderView {
         project.status.uberJar = "progress";
         builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
 
-        jbang.camelJbangPackage(this.rootPath || "", code => {
+        commands.camelJbangPackage(this.rootPath || "", code => {
             project.status.uberJar = code === 0 ? "done" : "error";
             builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
             if (code === 0 && project.build) {
@@ -133,7 +141,7 @@ export class BuilderView {
         project.status.build = "progress";
         builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
 
-        jbang.camelJbangBuildImage(this.rootPath || "", project.target === 'minikube',  code => {
+        commands.camelJbangBuildImage(this.rootPath || "", project,  code => {
             project.status.build = code === 0 ? "done" : "error";
             builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
             if (code === 0 && project.deploy) {
@@ -149,7 +157,7 @@ export class BuilderView {
         project.status.deploy = "progress";
         builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
 
-        jbang.camelJbangDeploy(this.rootPath || "", code => {
+        commands.camelJbangDeploy(this.rootPath || "", project, code => {
             project.status.deploy = code === 0 ? "done" : "error";
             builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
             this.finish(project, files, code);
@@ -159,6 +167,7 @@ export class BuilderView {
 
     finish(project: ProjectModel, files: string,  code: number) {
         console.log("finish", project);
+        if (project.cleanup) commands.cleanup(this.rootPath || "", project, () => {})
         setTimeout(() => {
             project.status.active = false;
             builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
@@ -186,5 +195,14 @@ export class BuilderView {
             if (err.code !== 'ENOENT') throw err;
         }
         return [project, files];
+    }
+
+    undelpoy(project: ProjectModel) {
+        const [x, files] = this.readProjectInfo(this.rootPath || '');
+        console.log("undelpoy", project);
+        project.status.active = true;
+        project.status.undeploy = "progress";
+        builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
+        commands.camelJbangUndeploy(this.rootPath || '', project, (code) => this.finish(project, files, code));
     }
 }

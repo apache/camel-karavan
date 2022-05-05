@@ -17,7 +17,7 @@
 import vscode, { window } from "vscode";
 import * as path from "path";
 import * as utils from "./utils";
-import * as jbang from "./jbang";
+import * as commands from "./commands";
 import * as fs from "fs";
 import { ThemeIcon } from "vscode";
 import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
@@ -82,7 +82,7 @@ export async function selectRouteGeneration(rootPath: string, openApiFullPath: s
 		placeHolder: 'Select option',
 	}).then(option => {
 		const generateRoutes: boolean = option !== undefined && option === options[0];
-		jbang.camelJbangGenerate(rootPath, openApiFullPath, fullPath, add, crd, generateRoutes);
+		commands.camelJbangGenerate(rootPath, openApiFullPath, fullPath, add, crd, generateRoutes);
 	});
 }
 

@@ -142,8 +142,8 @@ class App extends React.Component<Props, State> {
     vscode.postMessage({ command: 'saveProject', project: project });
   }
 
-  actionProject(action: "start" | "stop" | "undeploy") {
-    vscode.postMessage({ command: 'action', action: action });
+  actionProject(action: "start" | "stop" | "undeploy", project: ProjectModel) {
+    vscode.postMessage({ command: 'action', action: action, project: project });
   }
 
   disableStartHelp() {
@@ -175,7 +175,7 @@ class App extends React.Component<Props, State> {
         {this.state.loaded && this.state.page === "builder" &&
           <BuilderPage key={this.state.key} dark={this.props.dark} files={this.state.files} project={this.state.project}
             onChange={project => this.saveProject(project)}
-            onAction={action => this.actionProject(action)}
+            onAction={(action, project) => this.actionProject(action, project)}
           />}
       </Page>
     )

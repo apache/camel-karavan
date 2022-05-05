@@ -41,7 +41,6 @@ export class ProjectModelApi {
         project.replicas = this.getValue(map, "deploy.replicas");
         project.nodePort = this.getValue(map, "deploy.node-port");
         project.server = this.getValue(map, "deploy.server", "build.image.server");
-        project.token = this.getValue(map, "deploy.token", "build.image.token");
         const openshift = this.getValue(map, "deploy.openshift", "build.image.openshift") === "true";
         const minikube = this.getValue(map, "deploy.minikube", "build.image.minikube") === "true";
         project.target = openshift ? "openshift" : (minikube ? "minikube" : "kubernetes");
@@ -114,7 +113,6 @@ export class ProjectModelApi {
         this.setValue(map, "build.image.source-image", project.sourceImage);
         this.setValue(map, "build.image.from", project.from);
         this.setValue(map, "build.image.server", project.server);
-        this.setValue(map, "build.image.token", project.token);
         this.setValue(map, "deploy", project.deploy);
         this.setValue(map, "deploy.openshift", project.target === 'openshift');
         this.setValue(map, "deploy.minikube", project.target === 'minikube');
@@ -122,7 +120,9 @@ export class ProjectModelApi {
         this.setValue(map, "deploy.replicas", project.replicas);
         this.setValue(map, "deploy.node-port", project.nodePort);
         this.setValue(map, "deploy.server", project.server);
-        this.setValue(map, "deploy.token", project.token);
+        this.setValue(map, "undeploy.openshift", project.target === 'openshift');
+        this.setValue(map, "undeploy.minikube", project.target === 'minikube');
+        this.setValue(map, "undeploy.server", project.server);
         this.setValue(map, "manifests", project.manifests);
         this.setValue(map, "manifests.path", project.manifests);
         this.setValue(map, "manifests.openshift", project.target === 'openshift');
@@ -131,8 +131,8 @@ export class ProjectModelApi {
         this.setValue(map, "manifests.replicas", project.replicas);
         this.setValue(map, "manifests.node-port", project.nodePort);
         this.setValue(map, "manifests.server", project.server);
-        this.setValue(map, "manifests.token", project.token);
         this.setValue(map, "manifests.jar", project.filename);
+
         return map;
     }
 
