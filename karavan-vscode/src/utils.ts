@@ -77,7 +77,7 @@ export function camelJbangRun(filename: string) {
     const version = vscode.workspace.getConfiguration().get("camel.version");
     const maxMessages: number = vscode.workspace.getConfiguration().get("camel.maxMessages") || -1;
     const loggingLevel = vscode.workspace.getConfiguration().get("camel.loggingLevel");
-    const reload = vscode.workspace.getConfiguration().get("camel.reload");
+    const dev = vscode.workspace.getConfiguration().get("camel.dev");
     const health = vscode.workspace.getConfiguration().get("camel.health");
     const messageTracing = vscode.workspace.getConfiguration().get("camel.messageTracing");
     const command = "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel run "
@@ -85,7 +85,7 @@ export function camelJbangRun(filename: string) {
         + (maxMessages > -1 ? " --max-messages=" + maxMessages : "")
         + " --logging-level=" + loggingLevel
         + (messageTracing ? " --trace" : "")
-        + (reload ? " --reload" : "")
+        + (dev ? " --dev" : "")
         + (health ? " --health" : "");
     const existTerminal = TERMINALS.get(filename);
     if (existTerminal) existTerminal.dispose();
