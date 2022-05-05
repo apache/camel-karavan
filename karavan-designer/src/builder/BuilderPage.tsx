@@ -18,11 +18,25 @@ import {
     CardTitle,
     CardBody,
     CardFooter,
-    CardHeader, CardHeaderMain, CardActions, Checkbox, Switch, ToggleGroup, ToggleGroupItem, PopoverPosition, Popover, InputGroup, ProgressStep, ProgressStepper
+    CardHeader,
+    CardHeaderMain,
+    CardActions,
+    Checkbox,
+    Switch,
+    ToggleGroup,
+    ToggleGroupItem,
+    PopoverPosition,
+    Popover,
+    InputGroup,
+    ProgressStep,
+    ProgressStepper,
+    Spinner,
+    HelperTextItem, HelperText
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import InProgressIcon from '@patternfly/react-icons/dist/esm/icons/in-progress-icon';
+import AutomationIcon from '@patternfly/react-icons/dist/esm/icons/bundle-icon';
 import PendingIcon from '@patternfly/react-icons/dist/esm/icons/pending-icon';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import CheckCircleIcon from '@patternfly/react-icons/dist/esm/icons/check-circle-icon';
@@ -31,6 +45,7 @@ import StopIcon from '@patternfly/react-icons/dist/esm/icons/stop-icon';
 import JarIcon from '@patternfly/react-icons/dist/esm/icons/hotjar-icon';
 import ImageIcon from '@patternfly/react-icons/dist/esm/icons/docker-icon';
 import DeployIcon from '@patternfly/react-icons/dist/esm/icons/cloud-upload-alt-icon';
+import CleanupIcon from '@patternfly/react-icons/dist/esm/icons/remove2-icon';
 import ProjectIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 import {FileSelector} from "./FileSelector";
 import {ProjectModel, ProjectStatus} from "karavan-core/lib/model/ProjectModel";
@@ -40,7 +55,7 @@ interface Props {
     project: ProjectModel
     files: string
     onChange?: (project: ProjectModel) => void
-    onAction?: (action: "start" | "stop") => void
+    onAction?: (action: "start" | "stop" | "undeploy") => void
 }
 
 interface State {
@@ -50,6 +65,7 @@ interface State {
     namespace: string,
     tag?: string,
     sourceImage: string,
+    from: string,
     replicas: number,
     nodePort: number,
     server?: string,
@@ -58,8 +74,12 @@ interface State {
     deploy: boolean,
     build: boolean,
     uberJar: boolean,
-    filesSelected: string,
+    routesIncludePattern: string,
+    classpathFiles: string,
     status: ProjectStatus,
+    cleanup: boolean,
+    manifests: boolean,
+    path: string,
 }
 
 export class BuilderPage extends React.Component<Props, State> {
@@ -67,7 +87,6 @@ export class BuilderPage extends React.Component<Props, State> {
     public state: State = this.props.project;
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        console.log(this.state);
         this.props.onChange?.call(this, this.state);
     }
 
@@ -102,7 +121,7 @@ export class BuilderPage extends React.Component<Props, State> {
                 </CardTitle>
             </CardHeaderMain>
             <CardActions hasNoOffset={true}>
-                {optional && <Checkbox isChecked={checked} onChange={checked => onCheck?.call(this, checked)} aria-label="card checkbox example" id="check-1" name="check1"/>}
+                {optional && <Switch isChecked={checked} onChange={checked => onCheck?.call(this, checked)} id={title} name={title} aria-label={"xxx"}/>}
             </CardActions>
         </CardHeader>
     }
@@ -122,20 +141,23 @@ export class BuilderPage extends React.Component<Props, State> {
     }
 
     getPackageForm() {
-        const {uberJar, filesSelected} = this.state;
+        const {uberJar, classpathFiles, routesIncludePattern} = this.state;
         return <Card className="builder-card" isCompact style={{width: "100%"}}>
             {this.getCardHeader("Package", <JarIcon/>, true, this.state.uberJar, check => this.setState({uberJar: check}))}
             <CardBody className={uberJar ? "" : "card-disabled"}>
                 <Form isHorizontal>
                     {this.getField("filename", "Jar", "text", this.state.filename, "Jar file name", val => this.setState({filename: val}), true, uberJar)}
-                    {this.props.files.length >0 && <FileSelector files={this.props.files} filesSelected={filesSelected} onChange={filesSelected => this.setState({filesSelected: filesSelected})}/>}
+                    {this.props.files.length >0 &&
+                        <FileSelector source={true} label="Route/source files" help="Routes and source to build and package" files={this.props.files} filesSelected={routesIncludePattern} onChange={filesSelected => this.setState({routesIncludePattern: filesSelected})}/>}
+                    {this.props.files.length >0 &&
+                        <FileSelector source={false} label="Resources" help="Files to package as resources" files={this.props.files} filesSelected={classpathFiles} onChange={filesSelected => this.setState({classpathFiles: filesSelected})}/>}
                 </Form>
             </CardBody>
         </Card>
     }
 
     getBuildForm() {
-        const {target, deploy, build} = this.state;
+        const {target, namespace, build, tag, sourceImage, server, token, from} = this.state;
         return <Card className="builder-card" isCompact style={{width: "100%"}}>
             {this.getCardHeader("Build", <ImageIcon/>, true, this.state.build, check => this.setState({build: check}))}
             <CardBody className={build ? "" : "card-disabled"}>
@@ -150,11 +172,12 @@ export class BuilderPage extends React.Component<Props, State> {
                                              onChange={selected => selected ? this.setState({target: 'openshift'}) : {}}/>
                         </ToggleGroup>
                     </FormGroup>
-                    {this.getField("namespace", "Namespace", "text", this.state.namespace, "Namespace to build and/or deploy", val => this.setState({namespace: val}), true, build)}
-                    {this.getField("tag", "Image tag", "text", this.state.tag, "Image tag", val => this.setState({tag: val}), true, build)}
-                    {target === 'openshift' && this.getField("sourceImage", "Source tag", "text", this.state.sourceImage, "Source image name (for OpenShift BuildConfig)", val => this.setState({sourceImage: val}), true, build)}
-                    {target === 'openshift' && this.getField("server", "Server", "text", this.state.server, "Master URL", val => this.setState({server: val}), true, build)}
-                    {target === 'openshift' && this.getField("token", "Token", "text", this.state.token, "Authentication Token", val => this.setState({token: val}), true, build)}
+                    {this.getField("namespace", "Namespace", "text", namespace, "Namespace to build and/or deploy", val => this.setState({namespace: val}), true, build)}
+                    {this.getField("tag", "Image tag", "text", tag, "Image tag", val => this.setState({tag: val}), true, build)}
+                    {target !== 'openshift' && this.getField("from", "Base Image", "text", from, "Base Image", val => this.setState({from: val}), true, build)}
+                    {target === 'openshift' && this.getField("sourceImage", "Source tag", "text", sourceImage, "Source image name (for OpenShift BuildConfig)", val => this.setState({sourceImage: val}), true, build)}
+                    {target === 'openshift' && this.getField("server", "Server", "text", server, "Master URL", val => this.setState({server: val}), true, build)}
+                    {target === 'openshift' && this.getField("token", "Token", "text", token, "Authentication Token", val => this.setState({token: val}), true, build)}
                 </Form>
             </CardBody>
         </Card>
@@ -163,12 +186,24 @@ export class BuilderPage extends React.Component<Props, State> {
     getDeployForm() {
         const {target, deploy, build} = this.state;
         return <Card className="builder-card" isCompact style={{width: "100%"}}>
-            {this.getCardHeader("Deploy", <DeployIcon/>, true, this.state.deploy, check => this.setState({deploy: check}))}
+            {this.getCardHeader("Deploy", <DeployIcon/>, true, deploy, check => this.setState({deploy: check}))}
             <CardBody className={build ? "" : "card-disabled"}>
                 <Form isHorizontal>
-                    {deploy && target === 'openshift' && this.getField("replicas", "Replicas", "number", this.state.replicas, "Number of replicas of the application", val => this.setState({replicas: val}), true, build)}
+                    {deploy && this.getField("replicas", "Replicas", "number", this.state.replicas, "Number of replicas of the application", val => this.setState({replicas: val}), true, build)}
                     {deploy && target === 'minikube' && this.getField("nodePort", "Node port", "number", this.state.nodePort, "Node port (minikube)", val => this.setState({nodePort: val}), true, build)}
                 </Form>
+            </CardBody>
+        </Card>
+    }
+
+    getCleanupForm() {
+        const {cleanup} = this.state;
+        return <Card className="builder-card" isCompact style={{width: "100%"}}>
+            {this.getCardHeader("Cleanup", <CleanupIcon/>, true, cleanup, check => this.setState({cleanup: check}))}
+            <CardBody className={cleanup ? "" : "card-disabled"}>
+                <HelperText>
+                    <HelperTextItem variant="indeterminate">Remove created jar and .camel-jbang after build and/or deploy.</HelperTextItem>
+                </HelperText>
             </CardBody>
         </Card>
     }
@@ -178,7 +213,7 @@ export class BuilderPage extends React.Component<Props, State> {
             case "pending":
                 return <PendingIcon/>;
             case "progress":
-                return <InProgressIcon/>;
+                return <Spinner isSVG size="md"/>
             case "done":
                 return <CheckCircleIcon/>;
             case "error":
@@ -195,6 +230,8 @@ export class BuilderPage extends React.Component<Props, State> {
                 {uberJar && <ProgressStep variant="pending" id="package" titleId="package" aria-label="package" icon={this.getProgressIcon(status.uberJar)}>Package</ProgressStep>}
                 {build && <ProgressStep variant="pending" isCurrent id="build" titleId="build" aria-label="build" icon={this.getProgressIcon(status.build)}>Build</ProgressStep>}
                 {deploy && <ProgressStep variant="pending" id="deploy" titleId="deploy" aria-label="deploy" icon={this.getProgressIcon(status.deploy)}>Deploy</ProgressStep>}
+                {status.active && status.undeploy === "progress" &&
+                    <ProgressStep variant="pending" id="undeploy" titleId="undeploy" aria-label="undeploy" icon={this.getProgressIcon(status.undeploy)}>Undeploy</ProgressStep>}
             </ProgressStepper>
         )
     }
@@ -224,21 +261,29 @@ export class BuilderPage extends React.Component<Props, State> {
         )
     }
 
-    onButtonClick() {
-        this.props.onAction?.call(this, this.state.status.active ? "stop" : "start");
+    onButtonClick(action: "start" | "stop" | "undeploy") {
+        this.props.onAction?.call(this, action);
     }
 
     getFooter() {
         const active = this.state.status.active;
         const label = active ? "Stop" : "Start";
+        const icon = active ? <InProgressIcon/> : <AutomationIcon/>;
         return <div className="footer">
                     <div className="progress">
                         {active && this.getProgress()}
                     </div>
-                    <div style={{margin: "auto", height: "60px"}}>
-                        <Button variant="primary" isLarge onClick={event => this.onButtonClick()}>
-                            {label}
-                        </Button>
+                    <div className="buttons">
+                        <Toolbar id="toolbar-items">
+                            <ToolbarContent>
+                                {!active && <ToolbarItem>
+                                    <Button variant="secondary" isSmall onClick={event => this.onButtonClick("undeploy")}>Undeploy</Button>
+                                </ToolbarItem>}
+                                <ToolbarItem>
+                                    <Button variant="primary" isSmall icon={icon} onClick={event => this.onButtonClick(active ? "stop" : "start")}>{label}</Button>
+                                </ToolbarItem>
+                            </ToolbarContent>
+                        </Toolbar>
                     </div>
                 </div>
     }
@@ -253,6 +298,7 @@ export class BuilderPage extends React.Component<Props, State> {
                 <div className="center-column">
                     {this.getBuildForm()}
                     {this.getDeployForm()}
+                    {this.getCleanupForm()}
                 </div>
             </div>
         )

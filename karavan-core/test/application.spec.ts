@@ -28,9 +28,18 @@ describe('Project configuration', () => {
         expect(project.namespace).to.equal('development');
 
         project.tag = 'newtag/proj:latest';
-        const newProperties = ProjectModelApi.updateProperties(props, project);
+        let newProperties = ProjectModelApi.updateProperties(props, project);
         const tag = newProperties.split(/\r?\n/).filter(l => l.startsWith("camel.jbang.build.image.tag"))[0].split("=")[1];
         expect(tag).to.equal(project.tag);
+
+
+        project.routesIncludePattern = "file:x";
+        newProperties = ProjectModelApi.updateProperties(newProperties, project);
+        project.routesIncludePattern = "file:y";
+        newProperties = ProjectModelApi.updateProperties(newProperties, project);
+        project.routesIncludePattern = "";
+        newProperties = ProjectModelApi.updateProperties(newProperties, project);
+        // console.log(newProperties);
     });
 
 });

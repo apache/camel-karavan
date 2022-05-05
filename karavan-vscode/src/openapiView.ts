@@ -75,14 +75,14 @@ export class OpenApiItem extends vscode.TreeItem {
 /**
  * Select routes generation
  */
-export async function selectRouteGeneration(openApiFullPath: string, fullPath: string, add: boolean, crd?: boolean) {
+export async function selectRouteGeneration(rootPath: string, openApiFullPath: string, fullPath: string, add: boolean, crd?: boolean) {
 	const options = ["Generate REST and Routes", 'Generate REST only'];
 	await window.showQuickPick(options, {
 		title: "Generate route stubs for REST API",
 		placeHolder: 'Select option',
 	}).then(option => {
 		const generateRoutes: boolean = option !== undefined && option === options[0];
-		jbang.camelJbangGenerate(openApiFullPath, fullPath, add, crd, generateRoutes);
+		jbang.camelJbangGenerate(rootPath, openApiFullPath, fullPath, add, crd, generateRoutes);
 	});
 }
 
@@ -97,7 +97,7 @@ export async function selectFileName(rootPath?: string, openApi?: OpenApiItem) {
 			placeHolder: 'Select file',
 		}).then(fullPath => {
 			if (fullPath && openApi?.fsPath) {
-				selectRouteGeneration(openApi.fsPath, fullPath, true, undefined);
+				selectRouteGeneration(rootPath, openApi.fsPath, fullPath, true, undefined);
 			}
 		});
 	}
@@ -119,9 +119,9 @@ export async function inputFileName(crd: boolean, rootPath?: string, openApi?: O
 			}
 		}
 	}).then(filename => {
-		if (filename && openApi?.fsPath) {
+		if (filename && openApi?.fsPath && rootPath) {
 			const fullPath = rootPath + path.sep + filename;
-			selectRouteGeneration(openApi.fsPath, fullPath, false, crd);
+			selectRouteGeneration(rootPath, openApi.fsPath, fullPath, false, crd);
 		}
 	});
 }

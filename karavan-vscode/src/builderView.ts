@@ -99,21 +99,66 @@ export class BuilderView {
     }
 
     actionProject(action: "start" | "stop") {
+        if (action === "start") this.start();
+    }
+
+    start() {
         const [project, files] = this.readProjectInfo(this.rootPath || '');
         project.status.active = true;
         if (project.uberJar) {
             project.status.uberJar = "progress";
             builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
-
-            jbang.camelJbangPackageAsync(this.rootPath || "", code => {
-                project.status.uberJar = code === 0 ? "done" : "error";
-                builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
-                this.finish(project, files);
-            });
+            this.package(project, files);
         }
     }
 
-    finish(project: ProjectModel, files: string) {
+    package(project: ProjectModel, files: string) {
+        console.log("package", project);
+        project.status.uberJar = "progress";
+        builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
+
+        jbang.camelJbangPackage(this.rootPath || "", code => {
+            project.status.uberJar = code === 0 ? "done" : "error";
+            builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
+            if (code === 0 && project.build) {
+                this.buildImage(project, files);
+            } else {
+                this.finish(project, files, code);
+            }
+        });
+    }
+
+    buildImage(project: ProjectModel, files: string) {
+        console.log("buildImage", project);
+        project.status.build = "progress";
+        builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
+
+        jbang.camelJbangBuildImage(this.rootPath || "", project.target === 'minikube',  code => {
+            project.status.build = code === 0 ? "done" : "error";
+            builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
+            if (code === 0 && project.deploy) {
+                this.deploy(project, files);
+            } else {
+                this.finish(project, files, code);
+            }
+        });
+    }
+
+    deploy(project: ProjectModel, files: string) {
+        console.log("deploy", project);
+        project.status.deploy = "progress";
+        builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
+
+        jbang.camelJbangDeploy(this.rootPath || "", code => {
+            project.status.deploy = code === 0 ? "done" : "error";
+            builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
+            this.finish(project, files, code);
+        });
+    }
+
+
+    finish(project: ProjectModel, files: string,  code: number) {
+        console.log("finish", project);
         setTimeout(() => {
             project.status.active = false;
             builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
@@ -133,7 +178,7 @@ export class BuilderView {
 
     readProjectInfo(rootPath: string): [ProjectModel, string] {
         const files = utils.getAllFiles(rootPath, []).map(f => utils.getRalativePath(f)).join(",");
-        let project = ProjectModel.createNew("demo");
+        let project = ProjectModel.createNew();
         try {
             const properties = fs.readFileSync(path.resolve(rootPath, filename)).toString('utf8');
             project = ProjectModelApi.propertiesToProject(properties);

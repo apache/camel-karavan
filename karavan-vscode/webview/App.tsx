@@ -63,7 +63,7 @@ class App extends React.Component<Props, State> {
     page: "designer",
     active: false,
     files: '',
-    project: ProjectModel.createNew("demo")
+    project: ProjectModel.createNew()
   };
 
   saveScheduledChanges = () => {
@@ -142,7 +142,7 @@ class App extends React.Component<Props, State> {
     vscode.postMessage({ command: 'saveProject', project: project });
   }
 
-  actionProject(action: "start" | "stop") {
+  actionProject(action: "start" | "stop" | "undeploy") {
     vscode.postMessage({ command: 'action', action: action });
   }
 

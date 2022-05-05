@@ -383,6 +383,9 @@ color: var(--vscode-editor-foreground);
 }
 
 .vscode-dark .karavan .project-builder .pf-c-progress-stepper__step-icon {
-  background-color: transparent;
+  background-color: var(--vscode-input-background);
 }
 
+.vscode-dark .karavan .project-builder .footer .buttons .pf-c-toolbar {
+  background: transparent;
+}

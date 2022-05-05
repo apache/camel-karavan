@@ -19,6 +19,7 @@ export class ProjectStatus {
     uberJar: 'pending' | 'progress' | 'done' | 'error' = 'pending';
     build: 'pending' | 'progress' | 'done' | 'error' = 'pending';
     deploy: 'pending' | 'progress' | 'done'| 'error' = 'pending';
+    undeploy: 'pending' | 'progress' | 'done'| 'error' = 'pending';
     active: boolean = false;
 
     public constructor(init?: Partial<ProjectStatus>) {
@@ -27,12 +28,14 @@ export class ProjectStatus {
 }
 
 export class ProjectModel {
-    name: string = ''
+    name: string = 'demo'
     version: string = '1.0.0'
     filename: string = 'camel-runner.jar'
     namespace: string = 'default'
-    tag?: string = ''
+    cleanup: boolean = false
+    tag?: string = this.namespace + "/" + this.name + ":" + this.version
     sourceImage: string = 'java:openjdk-11-ubi8'
+    from: string = 'gcr.io/distroless/java:11'
     replicas: number = 1
     nodePort: number = 30777
     server?: string
@@ -41,14 +44,17 @@ export class ProjectModel {
     deploy: boolean = false
     build: boolean = false
     uberJar: boolean = true
-    filesSelected: string = ''
+    manifests: boolean = true
+    path: string = ''
+    classpathFiles: string = ''
+    routesIncludePattern: string = ''
     status: ProjectStatus = new ProjectStatus()
 
     public constructor(init?: Partial<ProjectModel>) {
         Object.assign(this, init);
     }
 
-    static createNew(name: string): ProjectModel {
-        return new ProjectModel({name: name})
+    static createNew(): ProjectModel {
+        return new ProjectModel({})
     }
 }

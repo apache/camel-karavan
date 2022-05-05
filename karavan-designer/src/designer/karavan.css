@@ -1170,3 +1170,10 @@ reactour-portal .reactour__popover button:focus-visible {
 .karavan .project-builder .footer .progress {
     flex-grow: 4;
 }
+
+.karavan .project-builder .footer .buttons {
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}

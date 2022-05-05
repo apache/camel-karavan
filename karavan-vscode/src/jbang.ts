@@ -20,40 +20,33 @@ import * as path from "path";
 import * as shell from 'shelljs';
 import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
 
-export function camelJbangGenerate(openApiFullPath: string, fullPath: string, add: boolean, crd?: boolean, generateRoutes?: boolean) {
-    const version = vscode.workspace.getConfiguration().get("camel.version");
-    let command = "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel generate rest -i " + openApiFullPath;
+export function camelJbangGenerate(rootPath: string, openApiFullPath: string, fullPath: string, add: boolean, crd?: boolean, generateRoutes?: boolean) {
+    let command = prepareCommand("generate rest -i " + openApiFullPath);
     if (generateRoutes === true) command = command + " --routes";
-    const jbang = shell.which('jbang');
-    if (jbang) {
-        shell.config.execPath = String(jbang);
-        shell.exec(command, { async: true }, (code, stdout, stderr) => {
-            console.log('Exit code:', code);
-            if (code === 0) {
-                // console.log('Program output:', stdout);
-                const filename = path.basename(fullPath);
-                let yaml;
-                if (add) {
-                    const camelYaml = fs.readFileSync(path.resolve(fullPath)).toString('utf8');
-                    yaml = createYaml(filename, stdout, camelYaml, undefined);
-                } else {
-                    yaml = createYaml(filename, stdout, undefined, crd);
-                }
-                const uriFile: vscode.Uri = vscode.Uri.file(fullPath);
-                fs.writeFile(uriFile.fsPath, yaml, err => {
-                    if (err) vscode.window.showErrorMessage("Error: " + err?.message);
-                    else {
-                        vscode.commands.executeCommand('integrations.refresh')
-                            .then(x => vscode.commands.executeCommand('karavan.open', { fsPath: fullPath, tab: 'rest' }));
-                    }
-                });
+    executeCommand(rootPath, command, (code, stdout, stderr) => {
+        console.log('Exit code:', code);
+        if (code === 0) {
+            // console.log('Program output:', stdout);
+            const filename = path.basename(fullPath);
+            let yaml;
+            if (add) {
+                const camelYaml = fs.readFileSync(path.resolve(fullPath)).toString('utf8');
+                yaml = createYaml(filename, stdout, camelYaml, undefined);
             } else {
-                vscode.window.showErrorMessage(stderr);
+                yaml = createYaml(filename, stdout, undefined, crd);
             }
-        });
-    } else {
-        vscode.window.showErrorMessage("JBang not found!");
-    }
+            const uriFile: vscode.Uri = vscode.Uri.file(fullPath);
+            fs.writeFile(uriFile.fsPath, yaml, err => {
+                if (err) vscode.window.showErrorMessage("Error: " + err?.message);
+                else {
+                    vscode.commands.executeCommand('integrations.refresh')
+                        .then(x => vscode.commands.executeCommand('karavan.open', { fsPath: fullPath, tab: 'rest' }));
+                }
+            });
+        } else {
+            vscode.window.showErrorMessage(stderr);
+        }
+    });
 }
 
 export function createYaml(filename: string, restYaml: string, camelYaml?: string, crd?: boolean): string {
@@ -72,40 +65,81 @@ export function createYaml(filename: string, restYaml: string, camelYaml?: strin
     }
 }
 
-export function camelJbangPackageAsync(rootPath: string, callback: (code: number) => any) {
+export function camelJbangPackage(rootPath: string, callback: (code: number) => any) {
+    executeCommand(rootPath, prepareCommand("package uber-jar"), (code, stdout, stderr) => callback(code));
+}
+
+export function camelJbangBuildImage(rootPath: string, minikube: boolean, callback: (code: number) => any) {
+    const munikubeCommand = "minikube -p minikube docker-env";
+    let command = prepareCommand("build image");
+    if (minikube) {
+        console.log("Build in minikube")
+        executeCommand(rootPath, munikubeCommand, (code, stdout, stderr) => {
+            if (code === 0) {
+                setMinikubeEnvVariables(stdout).forEach((value: string, key: string) => shell.env[key] = value);
+                executeCommand(rootPath, command, (code, stdout, stderr) => callback(code));
+            }
+        })
+    } else {
+        removeMinikubeEnvVariables();
+        console.log(shell.env)
+        executeCommand(rootPath, command, (code, stdout, stderr) => callback(code));
+    }
+}
+
+export function camelJbangDeploy(rootPath: string, callback: (code: number) => any) {
+    executeCommand(rootPath, prepareCommand("deploy"), (code, stdout, stderr) => callback(code));
+}
+
+export function camelJbangManifests(rootPath: string, callback: (code: number) => any) {
+    executeCommand(rootPath, prepareCommand("build manifests"), (code, stdout, stderr) => callback(code));
+}
+
+
+export function camelJbangUndeploy(rootPath: string, callback: (code: number) => any) {
+    executeCommand(rootPath, prepareCommand("undeploy"), (code, stdout, stderr) => callback(code));
+}
+
+function prepareCommand(command: string): string {
     const version = vscode.workspace.getConfiguration().get("camel.version");
-    let command = "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel package uber-jar";
+    return "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel " + command;
+}
+
+function executeCommand(rootPath: string, command: string, callback: (code: number, stdout: any, stderr: any) => any) {
     const jbang = shell.which('jbang');
     if (jbang) {
         shell.config.execPath = String(jbang);
         shell.cd(rootPath);
         shell.exec(command, { async: false }, (code, stdout, stderr) => {
-            console.log('Exit code:', code);
             if (code === 0) {
-                vscode.window.showInformationMessage(stdout);
+                // vscode.window.showInformationMessage(stdout);
             } else {
                 vscode.window.showErrorMessage(stderr);
             }
-            callback(code);
+            callback(code, stdout, stderr);
         });
+    } else {
+        vscode.window.showErrorMessage("JBang not found!");
     }
 }
 
+function setMinikubeEnvVariables(env: string): Map<string, string> {
+    const map = new Map<string, string>();
+    const linesAll = env.split(/\r?\n/);
+    const vars = linesAll.filter(l => l !== undefined && l.startsWith("export")).map(line => line.replace("export", ""));
+    vars.forEach(line => {
+        const parts = line.split("=");
+        const key = parts[0].trim();
+        const value = parts[1].replaceAll('"', '').trim();
+        map.set(key, value);
+    })
+    return map;
+}
 
-export function camelJbangPackage(rootPath: string) {
-    const version = vscode.workspace.getConfiguration().get("camel.version");
-    let command = "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel package uber-jar";
-    const jbang = shell.which('jbang');
-    if (jbang) {
-        shell.config.execPath = String(jbang);
-        shell.cd(rootPath);
-        const exec = shell.exec(command, { async: true });
-        if (exec.code === 0) {
-            vscode.window.showInformationMessage(exec.stdout);
-        } else {
-            vscode.window.showErrorMessage(exec.stderr);
-        }
-        return exec.code;
-    }
+function removeMinikubeEnvVariables() {
+    delete shell.env['DOCKER_TLS_VERIFY'];
+    delete shell.env['DOCKER_HOST'];
+    delete shell.env['DOCKER_CERT_PATH'];
+    delete shell.env['MINIKUBE_ACTIVE_DOCKERD'];
 }
 
