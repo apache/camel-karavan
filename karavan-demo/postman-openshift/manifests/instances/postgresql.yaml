@@ -153,7 +153,7 @@ metadata:
     app.kubernetes.io/component: postgres-svc
     app.kubernetes.io/instance: postgres
     app.kubernetes.io/part-of: postgres
-  name: postgres-svc
+  name: postgres
   namespace: postman
 spec:
   ports:

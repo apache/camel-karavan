@@ -3,5 +3,5 @@ kind: Kustomization
 namespace: postman
 resources:
 - postgresql.yaml
-# - amq-broker.yaml
-# - amq-streams.yaml
+- amq-broker.yaml
+- amq-streams.yaml
