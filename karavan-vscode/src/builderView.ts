@@ -117,6 +117,9 @@ export class BuilderView {
             project.status.uberJar = "progress";
             builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
             this.package(project, files);
+        } else if (project.build) {
+            project.status.uberJar = "done";
+            this.buildImage(project, files);
         }
     }
 

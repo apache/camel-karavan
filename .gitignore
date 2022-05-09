@@ -50,6 +50,7 @@ yarn-error.log*
 .env
 /.java-version
 /keys/*
+*.jar
 
 /karavan-app/src/main/webapp/src/designer/*
 /karavan-app/src/main/resources/kamelets/*
