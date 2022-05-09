@@ -24,24 +24,27 @@ Check that operators are succesfully installed
 oc apply -k manifests/instances
 ```
 
-### Publish postman
+### Package, build and deploy project
+1. Open Project builder
+![builder](builder.png)
+
+2. Configure Project and click Start
+![deploy](deploy.png)
 ```
 
 ```
-
-
-
-
-
-
-
 
 ### Publish parcel
 ```
-curl -X POST -H "Content-Type: application/json" --data '{"id":"1","address":"666 Sin Street, Holy City"}' http://0.0.0.0:8080/parcels
+appsurl=$(oc get ingresses.config.openshift.io cluster  -o template --template '{{.spec.domain}}')
+
+curl -X POST -H "Content-Type: application/json" --data '{"id":"1","address":"666 Sin Street, Holy City"}' http://postman-postman.$appsurl/parcels
 ```
 ### Publish payment
-Open AMQ7 Broker Management [Console](http://localhost:8161)
+Open AMQ7 Broker Management 
+```
+open http://console-postman.$appsurl
+```
 
 Send message to `payments` queue
 ```
@@ -52,3 +55,5 @@ Send message to `payments` queue
   <status>confirmed</status>  
 </root>
 ```
+
+### Check postman logs and Database
