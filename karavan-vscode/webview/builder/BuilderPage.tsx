@@ -177,7 +177,7 @@ export class BuilderPage extends React.Component<Props, State> {
                     {target !== 'openshift' && this.getField("from", "Base Image", "text", from, "Base Image", val => this.setState({from: val}), true, build)}
                     {target === 'openshift' && this.getField("sourceImage", "Source tag", "text", sourceImage, "Source image name (for OpenShift BuildConfig)", val => this.setState({sourceImage: val}), true, build)}
                     {target === 'openshift' && this.getField("server", "Server", "text", server, "Master URL", val => this.setState({server: val}), true, build)}
-                    {target === 'openshift' && this.getField("token", "Token", "password", token, "Authentication Token", val => this.setState({token: val}), true, build)}
+                    {target === 'openshift' && this.getField("token", "Token", "password", token, "Authentication Token (Token will not be saved)", val => this.setState({token: val}), true, build)}
                 </Form>
             </CardBody>
         </Card>

@@ -23,7 +23,7 @@ import {
     Select,
     SelectVariant,
     SelectDirection,
-    SelectOption,
+    SelectOption, InputGroup, TextArea, Tooltip, Button,
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -32,6 +32,8 @@ import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import {CamelUi, RouteToCreate} from "../../utils/CamelUi";
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {ToDefinition} from "karavan-core/lib/model/CamelDefinition";
+import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
+import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
 
 const prefix = "parameters";
 const beanPrefix = "#bean:";
@@ -46,12 +48,14 @@ interface Props {
 
 interface State {
     selectStatus: Map<string, boolean>
+    showEditor: boolean
 }
 
 export class ComponentParameterField extends React.Component<Props, State> {
 
     public state: State = {
         selectStatus: new Map<string, boolean>(),
+        showEditor: false
     }
 
     parametersChanged = (parameter: string, value: string | number | boolean | any, pathParameter?: boolean, newRoute?: RouteToCreate) => {
@@ -94,7 +98,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
 
     canBeInternalUri = (property: ComponentProperty): boolean => {
         if (this.props.element && this.props.element.dslName === 'ToDefinition' && property.name === 'name') {
-            const uri:string = (this.props.element as ToDefinition).uri || '';
+            const uri: string = (this.props.element as ToDefinition).uri || '';
             return uri.startsWith("direct") || uri.startsWith("seda");
         } else {
             return false;
@@ -103,7 +107,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
 
     getInternalComponentName = (property: ComponentProperty): string => {
         if (this.props.element && this.props.element.dslName === 'ToDefinition' && property.name === 'name') {
-            const uri:string = (this.props.element as ToDefinition).uri || '';
+            const uri: string = (this.props.element as ToDefinition).uri || '';
             if (uri.startsWith("direct")) return "direct";
             if (uri.startsWith("seda")) return "seda";
             return '';
@@ -142,6 +146,33 @@ export class ComponentParameterField extends React.Component<Props, State> {
                 {selectOptions}
             </Select>
         )
+    }
+
+    getStringInput(property: ComponentProperty, value: any) {
+        const showEditor = this.state.showEditor;
+        const id = prefix + "-" + property.name;
+        return <InputGroup>
+            {(!showEditor || property.secret) &&
+                <TextInput className="text-field" isRequired
+                           type={property.secret ? "password" : "text"}
+                           id={id} name={id}
+                           value={value !== undefined ? value : property.defaultValue}
+                           onChange={e => this.parametersChanged(property.name, e, property.kind === 'path')}/>}
+            {showEditor && !property.secret &&
+                <TextArea autoResize={true}
+                          className="text-field" isRequired
+                          type="text"
+                          id={id} name={id}
+                          value={value !== undefined ? value : property.defaultValue}
+                          onChange={e => this.parametersChanged(property.name, e, property.kind === 'path')}/>}
+            {!property.secret &&
+                <Tooltip position="bottom-end" content={showEditor ? "Change to TextField" : "Change to Text Area"}>
+                    <Button variant="control" onClick={e => this.setState({showEditor: !showEditor})}>
+                        {showEditor ? <CompressIcon/> : <ExpandIcon/>}
+                    </Button>
+                </Tooltip>
+            }
+        </InputGroup>
     }
 
     getTextInput = (property: ComponentProperty, value: any) => {
@@ -208,10 +239,10 @@ export class ComponentParameterField extends React.Component<Props, State> {
                         headerContent={property.displayName}
                         bodyContent={property.description}
                         footerContent={
-                        <div>
-                            {property.defaultValue !== undefined && <div>{"Default: " + property.defaultValue}</div>}
-                            {property.required === true && <div>{property.displayName + " is required"}</div>}
-                        </div>
+                            <div>
+                                {property.defaultValue !== undefined && <div>{"Default: " + property.defaultValue}</div>}
+                                {property.required === true && <div>{property.displayName + " is required"}</div>}
+                            </div>
                         }>
                         <button type="button" aria-label="More info" onClick={e => e.preventDefault()}
                                 className="pf-c-form__group-label-help">
@@ -220,7 +251,9 @@ export class ComponentParameterField extends React.Component<Props, State> {
                     </Popover>
                 }>
                 {this.canBeInternalUri(property) && this.getInternalUriSelect(property, value)}
-                {['string', 'duration', 'integer', 'int', 'number'].includes(property.type) && property.enum === undefined && !this.canBeInternalUri(property)
+                {property.type === 'string' && property.enum === undefined && !this.canBeInternalUri(property)
+                    && this.getStringInput(property, value)}
+                {['duration', 'integer', 'int', 'number'].includes(property.type) && property.enum === undefined && !this.canBeInternalUri(property)
                     && this.getTextInput(property, value)}
                 {['object'].includes(property.type) && !property.enum
                     && this.getSelectBean(property, value)}
