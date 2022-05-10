@@ -19,11 +19,13 @@ import {
     FormGroup,
     TextInput,
     Popover,
-    Switch,
+    Switch, InputGroup, Button, TextArea, Text, Tooltip,
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
+import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
+import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
 import {Property} from "karavan-core/lib/model/KameletModels";
 
 interface Props {
@@ -34,12 +36,14 @@ interface Props {
 
 interface State {
     selectIsOpen: boolean
+    showEditor: boolean
 }
 
 export class KameletPropertyField extends React.Component<Props, State> {
 
     public state: State = {
         selectIsOpen: false,
+        showEditor: false,
     }
 
     openSelect = () => {
@@ -49,6 +53,37 @@ export class KameletPropertyField extends React.Component<Props, State> {
     parametersChanged = (parameter: string, value: string | number | boolean | any, pathParameter?: boolean) => {
         this.props.onParameterChange?.call(this, parameter, value, pathParameter);
         this.setState({selectIsOpen: false});
+    }
+
+    getStringInput() {
+        const showEditor = this.state.showEditor;
+        const property = this.props.property;
+        const value = this.props.value;
+        const prefix = "parameters";
+        const id = prefix + "-" + property.id;
+        return <InputGroup>
+            {(!showEditor || property.format === "password") &&
+                <TextInput
+                    className="text-field" isRequired
+                    type={property.format ? "password" : "text"}
+                    id={id} name={id}
+                    value={value}
+                    onChange={e => this.parametersChanged(property.id, e)}/>}
+            {showEditor && property.format !== "password" &&
+                <TextArea autoResize={true}
+                          className="text-field" isRequired
+                          type="text"
+                          id={id} name={id}
+                          value={value}
+                          onChange={e => this.parametersChanged(property.id, e)}/>}
+            {property.format !== "password" &&
+                <Tooltip position="bottom-end" content={showEditor ? "Change to TextField" : "Change to Text Area"}>
+                    <Button variant="control" onClick={e => this.setState({showEditor: !showEditor})}>
+                        {showEditor ? <CompressIcon/> : <ExpandIcon/>}
+                    </Button>
+                </Tooltip>
+            }
+        </InputGroup>
     }
 
     render() {
@@ -70,7 +105,7 @@ export class KameletPropertyField extends React.Component<Props, State> {
                         footerContent={
                             <div>
                                 {property.default !== undefined &&
-                                <div>Default: {property.default.toString()}</div>}
+                                    <div>Default: {property.default.toString()}</div>}
                                 {property.example !== undefined && <div>Example: {property.example}</div>}
                             </div>
                         }>
@@ -80,12 +115,12 @@ export class KameletPropertyField extends React.Component<Props, State> {
                         </button>
                     </Popover>
                 }>
-                {['string', 'integer', 'int', 'number'].includes(property.type) && <TextInput
-                    className="text-field" isRequired
-                    type={['integer', 'int', 'number'].includes(property.type) ? 'number' : (property.format ? "password" : "text")}
-                    id={id} name={id}
-                    value={value}
-                    onChange={e => this.parametersChanged(property.id, ['integer', 'int', 'number'].includes(property.type) ? Number(e) : e)}/>
+                {property.type === 'string' && this.getStringInput()
+                }
+                {['integer', 'int', 'number'].includes(property.type) &&
+                    <TextInput className="text-field" isRequired type='number' id={id} name={id} value={value}
+                               onChange={e => this.parametersChanged(property.id, Number(e))}
+                    />
                 }
                 {property.type === 'boolean' && <Switch
                     id={id} name={id}

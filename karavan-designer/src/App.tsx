@@ -78,7 +78,10 @@ class App extends React.Component<Props, State> {
             "kafka-not-secured-sink.kamelet.yaml",
             "kafka-not-secured-source.kamelet.yaml",
             "kafka-sink.kamelet.yaml",
-            "kafka-source.kamelet.yaml"].forEach(name =>
+            "kafka-source.kamelet.yaml",
+            "postgresql-sink.kamelet.yaml",
+            "postgresql-source.kamelet.yaml"
+        ].forEach(name =>
             fetch("kamelets/" + name)
                 .then((r) => r.text())
                 .then(value => KameletApi.saveKamelet(value)));

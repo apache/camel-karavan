@@ -224,12 +224,30 @@ body, :root, #root, .karavan {
   color: var(--vscode-input-foreground);
 }
 
+.vscode-dark .karavan .properties .pf-c-input-group, 
 .vscode-dark .karavan .properties .pf-c-text-input-group {
   background-color: var(--vscode-input-background);
   border-color: var(--vscode-input-foreground);;
   color: var(--vscode-input-foreground);
   --pf-c-text-input-group__text--before--BorderColor: transparent;
   --pf-c-text-input-group__text--after--BorderBottomColor: transparent;
+}
+
+.vscode-dark .karavan .properties .pf-c-input-group .pf-m-control {
+  background-color: transparent;
+  color: var(--vscode-input-foreground);
+}
+
+.vscode-dark .karavan .properties .pf-c-input-group .pf-c-button.pf-m-control::after {
+  border-radius: initial;
+  border-right: none;
+  border-top: none;
+  border-left-color: var(--vscode-tab-inactiveBackground);
+  border-bottom-color: transparent;
+}
+
+.vscode-dark .karavan .properties .pf-c-input-group .pf-c-button.pf-m-control:hover::after {
+  border-bottom-color: var(--vscode-focusBorder);
 }
 
 .vscode-dark .karavan .properties .input-group .pf-c-chip-group .pf-c-chip {

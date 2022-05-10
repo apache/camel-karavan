@@ -11,8 +11,8 @@
 5. Build Apache Artemis Docker Image
 ```
 cd artemis
-./prepare-docker.sh --from-release --artemis-version 2.20.0
-cd _TMP_/artemis/2.20.0
+./prepare-docker.sh --from-release --artemis-version 2.22.0
+cd _TMP_/artemis/2.22.0
 docker build -f ./docker/Dockerfile-adoptopenjdk-11 -t artemis-adoptopenjdk-11 .
 cd ../../../../
 ```
