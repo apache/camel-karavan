@@ -24,6 +24,8 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {NamedBeanDefinition, RouteDefinition, SagaDefinition, ToDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Dependency, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {Trait} from "karavan-core/src/core/model/TraitDefinition";
+import {AggregateIcon, ChoiceIcon, FilterIcon, SagaIcon, SortIcon, SplitIcon, TransformIcon} from "./KaravanIcons";
+import React from "react";
 
 const StepElements: string[] = [
     "AggregateDefinition",
@@ -33,7 +35,8 @@ const StepElements: string[] = [
     "ConvertBodyDefinition",
     "DynamicRouterDefinition",
     "EnrichDefinition",
-    "ErrorHandlerBuilderRef",
+    // "ErrorHandlerBuilderDeserializer",
+    "ErrorHandlerDefinition",
     "FilterDefinition",
     "LogDefinition",
     "LoopDefinition",
@@ -304,7 +307,7 @@ export class CamelUi {
         return name ? KameletApi.findKameletByName(name)?.icon() || "" : "";
     }
 
-    static getIconForName = (dslName: string): string => {
+    static getIconSrcForName = (dslName: string): string => {
         switch (dslName) {
             case "FilterDefinition":
                 return "data:image/svg+xml,%3Csvg aria-hidden='true' focusable='false' data-prefix='fas' data-icon='filter' class='svg-inline--fa fa-filter fa-w-16' role='img' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='currentColor' d='M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z'%3E%3C/path%3E%3C/svg%3E";
@@ -391,15 +394,45 @@ export class CamelUi {
         }
     }
 
-    static getIcon = (element: CamelElement): string => {
+    static getIconForDsl = (dsl: DslMetaModel):JSX.Element => {
+        if (dsl.dsl && dsl.dsl === "KameletDefinition" || dsl.navigation === 'kamelet') {
+            return this.getIconFromSource(CamelUi.getKameletIconByName(dsl.name));
+        } else if ((dsl.dsl && dsl.dsl === "FromDefinition")
+            && dsl.uri?.startsWith("kamelet")) {
+            return this.getIconFromSource(CamelUi.getKameletIconByUri(dsl.uri));
+        } else if (dsl.navigation === 'component' ){
+            return this.getIconFromSource(camelIcon);
+        } else {
+            return CamelUi.getIconForDslName(dsl.dsl);
+        }
+    }
+
+    static getIconForElement = (element: CamelElement):JSX.Element => {
         const k: KameletModel | undefined = CamelUtil.getKamelet(element);
         if (["FromDefinition", "KameletDefinition"].includes(element.dslName)) {
-            return k ? k.icon() : CamelUi.getIconForName(element.dslName);
+            return k ? this.getIconFromSource(k.icon()) : CamelUi.getIconForDslName(element.dslName);
         } else if (element.dslName === "ToDefinition" && (element as ToDefinition).uri?.startsWith("kamelet:")) {
-            return k ? k.icon() : CamelUi.getIconForName(element.dslName);
+            return k ? this.getIconFromSource(k.icon()) : CamelUi.getIconForDslName(element.dslName);
         } else {
-            return CamelUi.getIconForName(element.dslName);
+            return this.getIconForDslName(element.dslName);
         }
+    }
+    static getIconForDslName = (dslName: string):JSX.Element => {
+        switch (dslName) {
+            case 'AggregateDefinition': return <AggregateIcon/>;
+            case 'AggregateDefinition' :return <AggregateIcon/>;
+            case 'ChoiceDefinition' :return <ChoiceIcon/>;
+            case 'SplitDefinition' :return <SplitIcon/>;
+            case 'SagaDefinition' :return <SagaIcon/>;
+            case 'TransformDefinition' :return <TransformIcon/>;
+            case 'FilterDefinition' :return <FilterIcon/>;
+            case 'SortDefinition' :return <SortIcon/>;
+            default: return this.getIconFromSource(CamelUi.getIconSrcForName(dslName))
+        }
+    }
+
+    static getIconFromSource = (src: string):JSX.Element => {
+        return <img draggable={false} src={src} className="icon" alt="icon"/>
     }
 
     static getConnectionIcon = (element: CamelElement): string => {
@@ -407,7 +440,7 @@ export class CamelUi {
         if (["FromDefinition", "KameletDefinition"].includes(element.dslName)) {
             return k ? k.icon() : externalIcon;
         } else if (element.dslName === "ToDefinition" && (element as ToDefinition).uri?.startsWith("kamelet:")) {
-            return k ? k.icon() : CamelUi.getIconForName(element.dslName);
+            return k ? k.icon() : CamelUi.getIconSrcForName(element.dslName);
         } else {
             return externalIcon;
         }

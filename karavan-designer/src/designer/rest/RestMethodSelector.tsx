@@ -49,27 +49,12 @@ export class RestMethodSelector extends React.Component<Props, State> {
         this.props.onMethodSelect.call(this, method);
     }
 
-    getIcon = (dsl: DslMetaModel): string => {
-        if (dsl.dsl && dsl.dsl === "KameletDefinition") {
-            return CamelUi.getKameletIconByName(dsl.name);
-        } else if ((dsl.dsl && dsl.dsl === "FromDefinition")
-            && dsl.uri?.startsWith("kamelet")) {
-            return CamelUi.getKameletIconByUri(dsl.uri);
-        } else if (dsl.navigation === 'component' ){
-            return camelIcon;
-        } else {
-            return CamelUi.getIconForName(dsl.dsl);
-        }
-    }
-
     getCard(dsl: DslMetaModel, index: number) {
         return (
             <Card key={dsl.dsl + index} isHoverable isCompact className="dsl-card"
                   onClick={event => this.selectMethod(event, dsl)}>
                 <CardHeader>
-                    <img draggable={false}
-                         src={this.getIcon(dsl)}
-                         className="icon" alt="icon"></img>
+                    {CamelUi.getIconForDsl(dsl)}
                     <Text>{dsl.title}</Text>
                 </CardHeader>
                 <CardBody>

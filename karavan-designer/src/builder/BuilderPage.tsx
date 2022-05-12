@@ -79,6 +79,7 @@ interface State {
     status: ProjectStatus,
     cleanup: boolean,
     manifests: boolean,
+    buildConfig: boolean,
     path: string,
 }
 

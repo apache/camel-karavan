@@ -4,11 +4,8 @@
 import {CamelElement} from "../model/IntegrationDefinition";
 import {
     ProcessorDefinition,
-    DeadLetterChannelBuilder,
-    DefaultErrorHandlerBuilder,
-    ErrorHandlerBuilderRef,
-    NoErrorHandlerBuilder,
     BeansDeserializer,
+    ErrorHandlerBuilderDeserializer,
     NamedBeanDefinition,
     OutputAwareFromDefinition,
     AggregateDefinition,
@@ -24,6 +21,7 @@ import {
     DescriptionDefinition,
     DynamicRouterDefinition,
     EnrichDefinition,
+    ErrorHandlerDefinition,
     ExpressionSubElementDefinition,
     FaultToleranceConfigurationDefinition,
     FilterDefinition,
@@ -31,7 +29,6 @@ import {
     FromDefinition,
     GlobalOptionDefinition,
     GlobalOptionsDefinition,
-    HystrixConfigurationDefinition,
     IdempotentConsumerDefinition,
     InOnlyDefinition,
     InOutDefinition,
@@ -53,6 +50,7 @@ import {
     OutputDefinition,
     OutputTypeDefinition,
     PackageScanDefinition,
+    PausableDefinition,
     PipelineDefinition,
     PolicyDefinition,
     PollEnrichDefinition,
@@ -116,11 +114,9 @@ import {
     CustomServiceCallServiceFilterConfiguration,
     DefaultServiceCallServiceLoadBalancerConfiguration,
     DnsServiceCallServiceDiscoveryConfiguration,
-    EtcdServiceCallServiceDiscoveryConfiguration,
     HealthyServiceCallServiceFilterConfiguration,
     KubernetesServiceCallServiceDiscoveryConfiguration,
     PassThroughServiceCallServiceFilterConfiguration,
-    RibbonServiceCallServiceLoadBalancerConfiguration,
     ServiceCallConfigurationDefinition,
     ServiceCallDefinition,
     ServiceCallExpressionConfiguration,
@@ -137,7 +133,6 @@ import {
     AvroDataFormat,
     BarcodeDataFormat,
     Base64DataFormat,
-    BeanioDataFormat,
     BindyDataFormat,
     CBORDataFormat,
     CryptoDataFormat,
@@ -175,6 +170,12 @@ import {
     YAMLTypeFilterDefinition,
     ZipDeflaterDataFormat,
     ZipFileDataFormat,
+    DeadLetterChannelDefinition,
+    DefaultErrorHandlerDefinition,
+    ErrorHandlerRefDefinition,
+    JtaTransactionErrorHandlerDefinition,
+    NoErrorHandlerDefinition,
+    SpringTransactionErrorHandlerDefinition,
     CSimpleExpression,
     ConstantExpression,
     DatasonnetExpression,
@@ -344,6 +345,9 @@ export class CamelDefinitionApi {
         if (element?.onCompletion !== undefined) { 
             def.onCompletion = CamelDefinitionApi.createOnCompletionDefinition(element.onCompletion); 
         } 
+        if (element?.pausable !== undefined) { 
+            def.pausable = CamelDefinitionApi.createPausableDefinition(element.pausable); 
+        } 
         if (element?.throttle !== undefined) { 
             def.throttle = CamelDefinitionApi.createThrottleDefinition(element.throttle); 
         } 
@@ -435,51 +439,27 @@ export class CamelDefinitionApi {
         return def;
     }
 
-    static createDeadLetterChannelBuilder = (element: any): DeadLetterChannelBuilder => {
-        
-        const def = element ? new DeadLetterChannelBuilder({...element}) : new DeadLetterChannelBuilder();
-        def.uuid = element?.uuid ? element.uuid : def.uuid;
-
-        return def;
-    }
-
-    static createDefaultErrorHandlerBuilder = (element: any): DefaultErrorHandlerBuilder => {
-        
-        const def = element ? new DefaultErrorHandlerBuilder({...element}) : new DefaultErrorHandlerBuilder();
-        def.uuid = element?.uuid ? element.uuid : def.uuid;
-
-        return def;
-    }
-
-    static createErrorHandlerBuilderRef = (element: any): ErrorHandlerBuilderRef => {
-        
-        const def = element ? new ErrorHandlerBuilderRef({...element}) : new ErrorHandlerBuilderRef();
-        def.uuid = element?.uuid ? element.uuid : def.uuid;
-        if (element?.deadLetterChannel !== undefined) { 
-            def.deadLetterChannel = CamelDefinitionApi.createDeadLetterChannelBuilder(element.deadLetterChannel); 
-        } 
-        if (element?.log !== undefined) { 
-            def.log = CamelDefinitionApi.createDefaultErrorHandlerBuilder(element.log); 
-        } 
-        if (element?.none !== undefined) { 
-            def.none = CamelDefinitionApi.createNoErrorHandlerBuilder(element.none); 
-        } 
-
-        return def;
-    }
-
-    static createNoErrorHandlerBuilder = (element: any): NoErrorHandlerBuilder => {
-        
-        const def = element ? new NoErrorHandlerBuilder({...element}) : new NoErrorHandlerBuilder();
-        def.uuid = element?.uuid ? element.uuid : def.uuid;
-
-        return def;
-    }
-
     static createBeansDeserializer = (element: any): BeansDeserializer => {
         
         const def = element ? new BeansDeserializer({...element}) : new BeansDeserializer();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
+
+        return def;
+    }
+
+    static createErrorHandlerBuilderDeserializer = (element: any): ErrorHandlerBuilderDeserializer => {
+        
+        const def = element ? new ErrorHandlerBuilderDeserializer({...element}) : new ErrorHandlerBuilderDeserializer();
+        def.uuid = element?.uuid ? element.uuid : def.uuid;
+        if (element?.deadLetterChannel !== undefined) { 
+            def.deadLetterChannel = CamelDefinitionApi.createDeadLetterChannelDefinition(element.deadLetterChannel); 
+        } 
+        if (element?.log !== undefined) { 
+            def.log = CamelDefinitionApi.createDefaultErrorHandlerDefinition(element.log); 
+        } 
+        if (element?.none !== undefined) { 
+            def.none = CamelDefinitionApi.createNoErrorHandlerDefinition(element.none); 
+        } 
 
         return def;
     }
@@ -564,9 +544,6 @@ export class CamelDefinitionApi {
         if (element?.faultToleranceConfiguration !== undefined) { 
             def.faultToleranceConfiguration = CamelDefinitionApi.createFaultToleranceConfigurationDefinition(element.faultToleranceConfiguration); 
         } 
-        if (element?.hystrixConfiguration !== undefined) { 
-            def.hystrixConfiguration = CamelDefinitionApi.createHystrixConfigurationDefinition(element.hystrixConfiguration); 
-        } 
         if (element?.resilience4jConfiguration !== undefined) { 
             def.resilience4jConfiguration = CamelDefinitionApi.createResilience4jConfigurationDefinition(element.resilience4jConfiguration); 
         } 
@@ -641,6 +618,29 @@ export class CamelDefinitionApi {
         const def = element ? new EnrichDefinition({...element}) : new EnrichDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
         def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
+
+        return def;
+    }
+
+    static createErrorHandlerDefinition = (element: any): ErrorHandlerDefinition => {
+        
+        const def = element ? new ErrorHandlerDefinition({...element}) : new ErrorHandlerDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid;
+        if (element?.deadLetterChannel !== undefined) { 
+            def.deadLetterChannel = CamelDefinitionApi.createDeadLetterChannelDefinition(element.deadLetterChannel); 
+        } 
+        if (element?.noErrorHandler !== undefined) { 
+            def.noErrorHandler = CamelDefinitionApi.createNoErrorHandlerDefinition(element.noErrorHandler); 
+        } 
+        if (element?.jtaTransactionErrorHandler !== undefined) { 
+            def.jtaTransactionErrorHandler = CamelDefinitionApi.createJtaTransactionErrorHandlerDefinition(element.jtaTransactionErrorHandler); 
+        } 
+        if (element?.defaultErrorHandler !== undefined) { 
+            def.defaultErrorHandler = CamelDefinitionApi.createDefaultErrorHandlerDefinition(element.defaultErrorHandler); 
+        } 
+        if (element?.springTransactionErrorHandler !== undefined) { 
+            def.springTransactionErrorHandler = CamelDefinitionApi.createSpringTransactionErrorHandlerDefinition(element.springTransactionErrorHandler); 
+        } 
 
         return def;
     }
@@ -762,14 +762,6 @@ export class CamelDefinitionApi {
         const def = element ? new GlobalOptionsDefinition({...element}) : new GlobalOptionsDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
         def.globalOption = element && element?.globalOption ? element?.globalOption.map((x:any) => CamelDefinitionApi.createGlobalOptionDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static createHystrixConfigurationDefinition = (element: any): HystrixConfigurationDefinition => {
-        
-        const def = element ? new HystrixConfigurationDefinition({...element}) : new HystrixConfigurationDefinition();
-        def.uuid = element?.uuid ? element.uuid : def.uuid;
 
         return def;
     }
@@ -961,9 +953,6 @@ export class CamelDefinitionApi {
         if (element?.yaml !== undefined) { 
             def.yaml = CamelDefinitionApi.createYAMLDataFormat(element.yaml); 
         } 
-        if (element?.beanio !== undefined) { 
-            def.beanio = CamelDefinitionApi.createBeanioDataFormat(element.beanio); 
-        } 
         if (element?.fhirJson !== undefined) { 
             def.fhirJson = CamelDefinitionApi.createFhirJsonDataFormat(element.fhirJson); 
         } 
@@ -1110,6 +1099,14 @@ export class CamelDefinitionApi {
     static createPackageScanDefinition = (element: any): PackageScanDefinition => {
         
         const def = element ? new PackageScanDefinition({...element}) : new PackageScanDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid;
+
+        return def;
+    }
+
+    static createPausableDefinition = (element: any): PausableDefinition => {
+        
+        const def = element ? new PausableDefinition({...element}) : new PausableDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
 
         return def;
@@ -1287,6 +1284,9 @@ export class CamelDefinitionApi {
         def.onCompletion = element && element?.onCompletion ? element?.onCompletion.map((x:any) => CamelDefinitionApi.createOnCompletionDefinition(x)) :[]; 
         def.interceptSendToEndpoint = element && element?.interceptSendToEndpoint ? element?.interceptSendToEndpoint.map((x:any) => CamelDefinitionApi.createInterceptSendToEndpointDefinition(x)) :[]; 
         def.intercept = element && element?.intercept ? element?.intercept.map((x:any) => CamelDefinitionApi.createInterceptDefinition(x)) :[]; 
+        if (element?.errorHandler !== undefined) { 
+            def.errorHandler = CamelDefinitionApi.createErrorHandlerDefinition(element.errorHandler); 
+        } 
         def.onException = element && element?.onException ? element?.onException.map((x:any) => CamelDefinitionApi.createOnExceptionDefinition(x)) :[]; 
         def.interceptFrom = element && element?.interceptFrom ? element?.interceptFrom.map((x:any) => CamelDefinitionApi.createInterceptFromDefinition(x)) :[]; 
 
@@ -1637,9 +1637,6 @@ export class CamelDefinitionApi {
         if (element?.yaml !== undefined) { 
             def.yaml = CamelDefinitionApi.createYAMLDataFormat(element.yaml); 
         } 
-        if (element?.beanio !== undefined) { 
-            def.beanio = CamelDefinitionApi.createBeanioDataFormat(element.beanio); 
-        } 
         if (element?.fhirJson !== undefined) { 
             def.fhirJson = CamelDefinitionApi.createFhirJsonDataFormat(element.fhirJson); 
         } 
@@ -1754,9 +1751,6 @@ export class CamelDefinitionApi {
         if (element?.consulServiceDiscovery !== undefined) { 
             def.consulServiceDiscovery = CamelDefinitionApi.createConsulServiceCallServiceDiscoveryConfiguration(element.consulServiceDiscovery); 
         } 
-        if (element?.etcdServiceDiscovery !== undefined) { 
-            def.etcdServiceDiscovery = CamelDefinitionApi.createEtcdServiceCallServiceDiscoveryConfiguration(element.etcdServiceDiscovery); 
-        } 
         if (element?.staticServiceDiscovery !== undefined) { 
             def.staticServiceDiscovery = CamelDefinitionApi.createStaticServiceCallServiceDiscoveryConfiguration(element.staticServiceDiscovery); 
         } 
@@ -1783,9 +1777,6 @@ export class CamelDefinitionApi {
         } 
         if (element?.consulServiceDiscovery !== undefined) { 
             def.consulServiceDiscovery = CamelDefinitionApi.createConsulServiceCallServiceDiscoveryConfiguration(element.consulServiceDiscovery); 
-        } 
-        if (element?.etcdServiceDiscovery !== undefined) { 
-            def.etcdServiceDiscovery = CamelDefinitionApi.createEtcdServiceCallServiceDiscoveryConfiguration(element.etcdServiceDiscovery); 
         } 
         if (element?.staticServiceDiscovery !== undefined) { 
             def.staticServiceDiscovery = CamelDefinitionApi.createStaticServiceCallServiceDiscoveryConfiguration(element.staticServiceDiscovery); 
@@ -1852,15 +1843,6 @@ export class CamelDefinitionApi {
         return def;
     }
 
-    static createEtcdServiceCallServiceDiscoveryConfiguration = (element: any): EtcdServiceCallServiceDiscoveryConfiguration => {
-        
-        const def = element ? new EtcdServiceCallServiceDiscoveryConfiguration({...element}) : new EtcdServiceCallServiceDiscoveryConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid;
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
     static createHealthyServiceCallServiceFilterConfiguration = (element: any): HealthyServiceCallServiceFilterConfiguration => {
         
         const def = element ? new HealthyServiceCallServiceFilterConfiguration({...element}) : new HealthyServiceCallServiceFilterConfiguration();
@@ -1882,15 +1864,6 @@ export class CamelDefinitionApi {
     static createPassThroughServiceCallServiceFilterConfiguration = (element: any): PassThroughServiceCallServiceFilterConfiguration => {
         
         const def = element ? new PassThroughServiceCallServiceFilterConfiguration({...element}) : new PassThroughServiceCallServiceFilterConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid;
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static createRibbonServiceCallServiceLoadBalancerConfiguration = (element: any): RibbonServiceCallServiceLoadBalancerConfiguration => {
-        
-        const def = element ? new RibbonServiceCallServiceLoadBalancerConfiguration({...element}) : new RibbonServiceCallServiceLoadBalancerConfiguration();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
         def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
 
@@ -1931,17 +1904,11 @@ export class CamelDefinitionApi {
         if (element?.healthyServiceFilter !== undefined) { 
             def.healthyServiceFilter = CamelDefinitionApi.createHealthyServiceCallServiceFilterConfiguration(element.healthyServiceFilter); 
         } 
-        if (element?.ribbonLoadBalancer !== undefined) { 
-            def.ribbonLoadBalancer = CamelDefinitionApi.createRibbonServiceCallServiceLoadBalancerConfiguration(element.ribbonLoadBalancer); 
-        } 
         if (element?.combinedServiceFilter !== undefined) { 
             def.combinedServiceFilter = CamelDefinitionApi.createCombinedServiceCallServiceFilterConfiguration(element.combinedServiceFilter); 
         } 
         if (element?.consulServiceDiscovery !== undefined) { 
             def.consulServiceDiscovery = CamelDefinitionApi.createConsulServiceCallServiceDiscoveryConfiguration(element.consulServiceDiscovery); 
-        } 
-        if (element?.etcdServiceDiscovery !== undefined) { 
-            def.etcdServiceDiscovery = CamelDefinitionApi.createEtcdServiceCallServiceDiscoveryConfiguration(element.etcdServiceDiscovery); 
         } 
         if (element?.staticServiceDiscovery !== undefined) { 
             def.staticServiceDiscovery = CamelDefinitionApi.createStaticServiceCallServiceDiscoveryConfiguration(element.staticServiceDiscovery); 
@@ -1987,17 +1954,11 @@ export class CamelDefinitionApi {
         if (element?.healthyServiceFilter !== undefined) { 
             def.healthyServiceFilter = CamelDefinitionApi.createHealthyServiceCallServiceFilterConfiguration(element.healthyServiceFilter); 
         } 
-        if (element?.ribbonLoadBalancer !== undefined) { 
-            def.ribbonLoadBalancer = CamelDefinitionApi.createRibbonServiceCallServiceLoadBalancerConfiguration(element.ribbonLoadBalancer); 
-        } 
         if (element?.combinedServiceFilter !== undefined) { 
             def.combinedServiceFilter = CamelDefinitionApi.createCombinedServiceCallServiceFilterConfiguration(element.combinedServiceFilter); 
         } 
         if (element?.consulServiceDiscovery !== undefined) { 
             def.consulServiceDiscovery = CamelDefinitionApi.createConsulServiceCallServiceDiscoveryConfiguration(element.consulServiceDiscovery); 
-        } 
-        if (element?.etcdServiceDiscovery !== undefined) { 
-            def.etcdServiceDiscovery = CamelDefinitionApi.createEtcdServiceCallServiceDiscoveryConfiguration(element.etcdServiceDiscovery); 
         } 
         if (element?.staticServiceDiscovery !== undefined) { 
             def.staticServiceDiscovery = CamelDefinitionApi.createStaticServiceCallServiceDiscoveryConfiguration(element.staticServiceDiscovery); 
@@ -2130,14 +2091,6 @@ export class CamelDefinitionApi {
         return def;
     }
 
-    static createBeanioDataFormat = (element: any): BeanioDataFormat => {
-        
-        const def = element ? new BeanioDataFormat({...element}) : new BeanioDataFormat();
-        def.uuid = element?.uuid ? element.uuid : def.uuid;
-
-        return def;
-    }
-
     static createBindyDataFormat = (element: any): BindyDataFormat => {
         
         const def = element ? new BindyDataFormat({...element}) : new BindyDataFormat();
@@ -2247,9 +2200,6 @@ export class CamelDefinitionApi {
         } 
         if (element?.yaml !== undefined) { 
             def.yaml = CamelDefinitionApi.createYAMLDataFormat(element.yaml); 
-        } 
-        if (element?.beanio !== undefined) { 
-            def.beanio = CamelDefinitionApi.createBeanioDataFormat(element.beanio); 
         } 
         if (element?.fhirJson !== undefined) { 
             def.fhirJson = CamelDefinitionApi.createFhirJsonDataFormat(element.fhirJson); 
@@ -2562,6 +2512,66 @@ export class CamelDefinitionApi {
         return def;
     }
 
+    static createDeadLetterChannelDefinition = (element: any): DeadLetterChannelDefinition => {
+        
+        const def = element ? new DeadLetterChannelDefinition({...element}) : new DeadLetterChannelDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid;
+        if (element?.redeliveryPolicy !== undefined) { 
+            def.redeliveryPolicy = CamelDefinitionApi.createRedeliveryPolicyDefinition(element.redeliveryPolicy); 
+        } 
+
+        return def;
+    }
+
+    static createDefaultErrorHandlerDefinition = (element: any): DefaultErrorHandlerDefinition => {
+        
+        const def = element ? new DefaultErrorHandlerDefinition({...element}) : new DefaultErrorHandlerDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid;
+        if (element?.redeliveryPolicy !== undefined) { 
+            def.redeliveryPolicy = CamelDefinitionApi.createRedeliveryPolicyDefinition(element.redeliveryPolicy); 
+        } 
+
+        return def;
+    }
+
+    static createErrorHandlerRefDefinition = (element: any): ErrorHandlerRefDefinition => {
+        
+        const def = element ? new ErrorHandlerRefDefinition({...element}) : new ErrorHandlerRefDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid;
+
+        return def;
+    }
+
+    static createJtaTransactionErrorHandlerDefinition = (element: any): JtaTransactionErrorHandlerDefinition => {
+        
+        const def = element ? new JtaTransactionErrorHandlerDefinition({...element}) : new JtaTransactionErrorHandlerDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid;
+        if (element?.redeliveryPolicy !== undefined) { 
+            def.redeliveryPolicy = CamelDefinitionApi.createRedeliveryPolicyDefinition(element.redeliveryPolicy); 
+        } 
+
+        return def;
+    }
+
+    static createNoErrorHandlerDefinition = (element: any): NoErrorHandlerDefinition => {
+        
+        const def = element ? new NoErrorHandlerDefinition({...element}) : new NoErrorHandlerDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid;
+
+        return def;
+    }
+
+    static createSpringTransactionErrorHandlerDefinition = (element: any): SpringTransactionErrorHandlerDefinition => {
+        
+        const def = element ? new SpringTransactionErrorHandlerDefinition({...element}) : new SpringTransactionErrorHandlerDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid;
+        if (element?.redeliveryPolicy !== undefined) { 
+            def.redeliveryPolicy = CamelDefinitionApi.createRedeliveryPolicyDefinition(element.redeliveryPolicy); 
+        } 
+
+        return def;
+    }
+
     static createCSimpleExpression = (element: any): CSimpleExpression => {
         if (element && typeof element === 'string') element = {expression: element};
         const def = element ? new CSimpleExpression({...element}) : new CSimpleExpression();
@@ -2711,7 +2721,7 @@ export class CamelDefinitionApi {
     }
 
     static createMethodCallExpression = (element: any): MethodCallExpression => {
-        if (element && typeof element === 'string') element = {expression: element};
+        
         const def = element ? new MethodCallExpression({...element}) : new MethodCallExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
 
@@ -2759,7 +2769,7 @@ export class CamelDefinitionApi {
     }
 
     static createTokenizerExpression = (element: any): TokenizerExpression => {
-        if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') element = {token: element};
         const def = element ? new TokenizerExpression({...element}) : new TokenizerExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
 
@@ -2767,7 +2777,7 @@ export class CamelDefinitionApi {
     }
 
     static createXMLTokenizerExpression = (element: any): XMLTokenizerExpression => {
-        if (element && typeof element === 'string') element = {expression: element};
+        
         const def = element ? new XMLTokenizerExpression({...element}) : new XMLTokenizerExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
 
@@ -3160,9 +3170,6 @@ export class CamelDefinitionApi {
         if (element?.yaml !== undefined) { 
             def.yaml = CamelDefinitionApi.createYAMLDataFormat(element.yaml); 
         } 
-        if (element?.beanio !== undefined) { 
-            def.beanio = CamelDefinitionApi.createBeanioDataFormat(element.beanio); 
-        } 
         if (element?.fhirJson !== undefined) { 
             def.fhirJson = CamelDefinitionApi.createFhirJsonDataFormat(element.fhirJson); 
         } 
@@ -3289,11 +3296,8 @@ export class CamelDefinitionApi {
        const newBody = CamelUtil.camelizeBody(name, body, clone);
        switch (name) { 
             case 'ProcessorDefinition': return CamelDefinitionApi.createProcessorDefinition(newBody);
-            case 'DeadLetterChannelBuilder': return CamelDefinitionApi.createDeadLetterChannelBuilder(newBody);
-            case 'DefaultErrorHandlerBuilder': return CamelDefinitionApi.createDefaultErrorHandlerBuilder(newBody);
-            case 'ErrorHandlerBuilderRef': return CamelDefinitionApi.createErrorHandlerBuilderRef(newBody);
-            case 'NoErrorHandlerBuilder': return CamelDefinitionApi.createNoErrorHandlerBuilder(newBody);
             case 'BeansDeserializer': return CamelDefinitionApi.createBeansDeserializer(newBody);
+            case 'ErrorHandlerBuilderDeserializer': return CamelDefinitionApi.createErrorHandlerBuilderDeserializer(newBody);
             case 'NamedBeanDefinition': return CamelDefinitionApi.createNamedBeanDefinition(newBody);
             case 'OutputAwareFromDefinition': return CamelDefinitionApi.createOutputAwareFromDefinition(newBody);
             case 'AggregateDefinition': return CamelDefinitionApi.createAggregateDefinition(newBody);
@@ -3309,6 +3313,7 @@ export class CamelDefinitionApi {
             case 'DescriptionDefinition': return CamelDefinitionApi.createDescriptionDefinition(newBody);
             case 'DynamicRouterDefinition': return CamelDefinitionApi.createDynamicRouterDefinition(newBody);
             case 'EnrichDefinition': return CamelDefinitionApi.createEnrichDefinition(newBody);
+            case 'ErrorHandlerDefinition': return CamelDefinitionApi.createErrorHandlerDefinition(newBody);
             case 'ExpressionSubElementDefinition': return CamelDefinitionApi.createExpressionSubElementDefinition(newBody);
             case 'FaultToleranceConfigurationDefinition': return CamelDefinitionApi.createFaultToleranceConfigurationDefinition(newBody);
             case 'FilterDefinition': return CamelDefinitionApi.createFilterDefinition(newBody);
@@ -3316,7 +3321,6 @@ export class CamelDefinitionApi {
             case 'FromDefinition': return CamelDefinitionApi.createFromDefinition(newBody);
             case 'GlobalOptionDefinition': return CamelDefinitionApi.createGlobalOptionDefinition(newBody);
             case 'GlobalOptionsDefinition': return CamelDefinitionApi.createGlobalOptionsDefinition(newBody);
-            case 'HystrixConfigurationDefinition': return CamelDefinitionApi.createHystrixConfigurationDefinition(newBody);
             case 'IdempotentConsumerDefinition': return CamelDefinitionApi.createIdempotentConsumerDefinition(newBody);
             case 'InOnlyDefinition': return CamelDefinitionApi.createInOnlyDefinition(newBody);
             case 'InOutDefinition': return CamelDefinitionApi.createInOutDefinition(newBody);
@@ -3338,6 +3342,7 @@ export class CamelDefinitionApi {
             case 'OutputDefinition': return CamelDefinitionApi.createOutputDefinition(newBody);
             case 'OutputTypeDefinition': return CamelDefinitionApi.createOutputTypeDefinition(newBody);
             case 'PackageScanDefinition': return CamelDefinitionApi.createPackageScanDefinition(newBody);
+            case 'PausableDefinition': return CamelDefinitionApi.createPausableDefinition(newBody);
             case 'PipelineDefinition': return CamelDefinitionApi.createPipelineDefinition(newBody);
             case 'PolicyDefinition': return CamelDefinitionApi.createPolicyDefinition(newBody);
             case 'PollEnrichDefinition': return CamelDefinitionApi.createPollEnrichDefinition(newBody);
@@ -3401,11 +3406,9 @@ export class CamelDefinitionApi {
             case 'CustomServiceCallServiceFilterConfiguration': return CamelDefinitionApi.createCustomServiceCallServiceFilterConfiguration(newBody);
             case 'DefaultServiceCallServiceLoadBalancerConfiguration': return CamelDefinitionApi.createDefaultServiceCallServiceLoadBalancerConfiguration(newBody);
             case 'DnsServiceCallServiceDiscoveryConfiguration': return CamelDefinitionApi.createDnsServiceCallServiceDiscoveryConfiguration(newBody);
-            case 'EtcdServiceCallServiceDiscoveryConfiguration': return CamelDefinitionApi.createEtcdServiceCallServiceDiscoveryConfiguration(newBody);
             case 'HealthyServiceCallServiceFilterConfiguration': return CamelDefinitionApi.createHealthyServiceCallServiceFilterConfiguration(newBody);
             case 'KubernetesServiceCallServiceDiscoveryConfiguration': return CamelDefinitionApi.createKubernetesServiceCallServiceDiscoveryConfiguration(newBody);
             case 'PassThroughServiceCallServiceFilterConfiguration': return CamelDefinitionApi.createPassThroughServiceCallServiceFilterConfiguration(newBody);
-            case 'RibbonServiceCallServiceLoadBalancerConfiguration': return CamelDefinitionApi.createRibbonServiceCallServiceLoadBalancerConfiguration(newBody);
             case 'ServiceCallConfigurationDefinition': return CamelDefinitionApi.createServiceCallConfigurationDefinition(newBody);
             case 'ServiceCallDefinition': return CamelDefinitionApi.createServiceCallDefinition(newBody);
             case 'ServiceCallExpressionConfiguration': return CamelDefinitionApi.createServiceCallExpressionConfiguration(newBody);
@@ -3422,7 +3425,6 @@ export class CamelDefinitionApi {
             case 'AvroDataFormat': return CamelDefinitionApi.createAvroDataFormat(newBody);
             case 'BarcodeDataFormat': return CamelDefinitionApi.createBarcodeDataFormat(newBody);
             case 'Base64DataFormat': return CamelDefinitionApi.createBase64DataFormat(newBody);
-            case 'BeanioDataFormat': return CamelDefinitionApi.createBeanioDataFormat(newBody);
             case 'BindyDataFormat': return CamelDefinitionApi.createBindyDataFormat(newBody);
             case 'CBORDataFormat': return CamelDefinitionApi.createCBORDataFormat(newBody);
             case 'CryptoDataFormat': return CamelDefinitionApi.createCryptoDataFormat(newBody);
@@ -3460,6 +3462,12 @@ export class CamelDefinitionApi {
             case 'YAMLTypeFilterDefinition': return CamelDefinitionApi.createYAMLTypeFilterDefinition(newBody);
             case 'ZipDeflaterDataFormat': return CamelDefinitionApi.createZipDeflaterDataFormat(newBody);
             case 'ZipFileDataFormat': return CamelDefinitionApi.createZipFileDataFormat(newBody);
+            case 'DeadLetterChannelDefinition': return CamelDefinitionApi.createDeadLetterChannelDefinition(newBody);
+            case 'DefaultErrorHandlerDefinition': return CamelDefinitionApi.createDefaultErrorHandlerDefinition(newBody);
+            case 'ErrorHandlerRefDefinition': return CamelDefinitionApi.createErrorHandlerRefDefinition(newBody);
+            case 'JtaTransactionErrorHandlerDefinition': return CamelDefinitionApi.createJtaTransactionErrorHandlerDefinition(newBody);
+            case 'NoErrorHandlerDefinition': return CamelDefinitionApi.createNoErrorHandlerDefinition(newBody);
+            case 'SpringTransactionErrorHandlerDefinition': return CamelDefinitionApi.createSpringTransactionErrorHandlerDefinition(newBody);
             case 'CSimpleExpression': return CamelDefinitionApi.createCSimpleExpression(newBody);
             case 'ConstantExpression': return CamelDefinitionApi.createConstantExpression(newBody);
             case 'DatasonnetExpression': return CamelDefinitionApi.createDatasonnetExpression(newBody);
@@ -3582,7 +3590,6 @@ export class CamelDefinitionApi {
             case 'ProtobufDataFormat': return CamelDefinitionApi.createProtobufDataFormat(newBody);
             case 'BindyDataFormat': return CamelDefinitionApi.createBindyDataFormat(newBody);
             case 'JsonDataFormat': return CamelDefinitionApi.createJsonDataFormat(newBody);
-            case 'BeanioDataFormat': return CamelDefinitionApi.createBeanioDataFormat(newBody);
             case 'MimeMultipartDataFormat': return CamelDefinitionApi.createMimeMultipartDataFormat(newBody);
             case 'ZipDeflaterDataFormat': return CamelDefinitionApi.createZipDeflaterDataFormat(newBody);
             case 'ASN1DataFormat': return CamelDefinitionApi.createASN1DataFormat(newBody);

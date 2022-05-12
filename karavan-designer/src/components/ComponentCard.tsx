@@ -34,7 +34,7 @@ export class ComponentCard extends React.Component<Props, State> {
                 onClick={event => this.click(event)}
             >
                 <CardHeader>
-                    <img draggable="false" src={camelIcon} className="kamelet-icon" alt=""></img>
+                    {CamelUi.getIconFromSource(camelIcon)}
                 </CardHeader>
                 <CardTitle>{CamelUi.titleFromName(component.component.name)}</CardTitle>
                 <CardBody>{component.component.description}</CardBody>

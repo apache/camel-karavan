@@ -1,0 +1,15 @@
+<ivysettings>
+  <settings defaultResolver="downloadGrapes" />
+  <resolvers>
+    <chain name="downloadGrapes" returnFirst="true">
+      <filesystem name="cachedGrapes">
+        <ivy pattern="/home/groovy/.groovy/grapes/[organisation]/[module]/ivy-[revision].xml" />
+        <artifact pattern="/home/groovy/.groovy/grapes/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]" />
+      </filesystem>
+      <ibiblio name="local" root="file://home/groovy/.m2/repository/" m2compatible="true" />
+      <ibiblio name="central" root="https://repo1.maven.org/maven2/" m2compatible="true" />
+      <ibiblio name="apache-snapshots" root="http://repository.apache.org/snapshots/" m2compatible="true" />
+      <ibiblio name="ibiblio" m2compatible="true" />
+    </chain>
+  </resolvers>
+</ivysettings>
