@@ -48,7 +48,7 @@ import DeployIcon from '@patternfly/react-icons/dist/esm/icons/cloud-upload-alt-
 import CleanupIcon from '@patternfly/react-icons/dist/esm/icons/remove2-icon';
 import ProjectIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 import {FileSelector} from "./FileSelector";
-import {ProjectModel, ProjectStatus} from "karavan-core/lib/model/ProjectModel";
+import {ProjectModel, ProjectStatus, StepStatus} from "karavan-core/lib/model/ProjectModel";
 
 interface Props {
     dark: boolean
@@ -63,13 +63,15 @@ interface State {
     version: string,
     filename: string,
     namespace: string,
-    tag?: string,
+    image?: string,
     sourceImage: string,
     from: string,
     replicas: number,
     nodePort: number,
     server?: string,
     token?: string,
+    username?: string,
+    password?: string,
     target: 'openshift' | 'minikube' | 'kubernetes',
     deploy: boolean,
     build: boolean,
@@ -81,14 +83,24 @@ interface State {
     manifests: boolean,
     buildConfig: boolean,
     path: string,
+    key?: string;
 }
 
 export class BuilderPage extends React.Component<Props, State> {
 
     public state: State = this.props.project;
+    interval:any;
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         this.props.onChange?.call(this, this.state);
+    }
+
+    componentDidMount() {
+        this.interval = setInterval(() => this.setState(state => ({ key: Math.random().toString()})), 1000);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.interval);
     }
 
     getHelp(text: string) {
@@ -110,6 +122,16 @@ export class BuilderPage extends React.Component<Props, State> {
                 <TextInput isRequired={isRequired} isDisabled={!enabled} className="text-field" type={type} id={name} name={name} value={value}
                            onChange={val => onChange?.call(this, val)}/>
                 {this.getHelp(help)}
+            </InputGroup>
+        </FormGroup>
+    }
+
+    getBuildConfigField() {
+        const {buildConfig} = this.state;
+        return <FormGroup label="Use BuildConfig" fieldId="buildConfig" isRequired={true}>
+            <InputGroup style={{display:"flex", flexDirection:"row", justifyContent:"end", alignItems:"center"}}>
+                <Switch isChecked={buildConfig} onChange={checked => this.setState({buildConfig: checked})} id="buildConfig"/>
+                {this.getHelp("Use BuildConfig for build in OpenShift ")}
             </InputGroup>
         </FormGroup>
     }
@@ -158,12 +180,12 @@ export class BuilderPage extends React.Component<Props, State> {
     }
 
     getBuildForm() {
-        const {target, namespace, build, tag, sourceImage, server, token, from} = this.state;
+        const {target, namespace, build, image, sourceImage, server, token, from, buildConfig, username, password} = this.state;
         return <Card className="builder-card" isCompact style={{width: "100%"}}>
             {this.getCardHeader("Build", <ImageIcon/>, true, this.state.build, check => this.setState({build: check}))}
             <CardBody className={build ? "" : "card-disabled"}>
                 <Form isHorizontal>
-                    <FormGroup label="Target" fieldId="tag" isRequired disabled={true}>
+                    <FormGroup label="Target" fieldId="target" isRequired disabled={true}>
                         <ToggleGroup aria-label="Select target">
                             <ToggleGroupItem isDisabled={!build} text="Minikube" buttonId="minikube" isSelected={target === 'minikube'}
                                              onChange={selected => selected ? this.setState({target: 'minikube'}) : {}}/>
@@ -174,11 +196,14 @@ export class BuilderPage extends React.Component<Props, State> {
                         </ToggleGroup>
                     </FormGroup>
                     {this.getField("namespace", "Namespace", "text", namespace, "Namespace to build and/or deploy", val => this.setState({namespace: val}), true, build)}
-                    {this.getField("tag", "Image tag", "text", tag, "Image tag", val => this.setState({tag: val}), true, build)}
-                    {target !== 'openshift' && this.getField("from", "Base Image", "text", from, "Base Image", val => this.setState({from: val}), true, build)}
-                    {target === 'openshift' && this.getField("sourceImage", "Source tag", "text", sourceImage, "Source image name (for OpenShift BuildConfig)", val => this.setState({sourceImage: val}), true, build)}
-                    {target === 'openshift' && this.getField("server", "Server", "text", server, "Master URL", val => this.setState({server: val}), true, build)}
-                    {target === 'openshift' && this.getField("token", "Token", "password", token, "Authentication Token (Token will not be saved)", val => this.setState({token: val}), true, build)}
+                    {this.getField("image", "Image name", "text", image, "Image name", val => this.setState({image: val}), true, build)}
+                    {target === 'openshift' && this.getBuildConfigField()}
+                    {!buildConfig && this.getField("from", "Base Image", "text", from, "Base Image", val => this.setState({from: val}), true, build)}
+                    {target === 'openshift' && buildConfig && this.getField("sourceImage", "Source Image", "text", sourceImage, "Source image name (for OpenShift BuildConfig)", val => this.setState({sourceImage: val}), true, build)}
+                    {target !== 'minikube' && this.getField("server", "Server", "text", server, "Master URL", val => this.setState({server: val}), true, build)}
+                    {target !== 'minikube' && this.getField("username", "Username", "text", username, "Username", val => this.setState({username: val}), false, build)}
+                    {target !== 'minikube' && this.getField("password", "Password", "password", password, "Password (will not be saved)", val => this.setState({password: val}), false, build)}
+                    {target !== 'minikube' && this.getField("token", "Token", "password", token, "Authentication Token (will not be saved)", val => this.setState({token: val}), false, build)}
                 </Form>
             </CardBody>
         </Card>
@@ -209,7 +234,7 @@ export class BuilderPage extends React.Component<Props, State> {
         </Card>
     }
 
-    getProgressIcon(status: 'pending' | 'progress' | 'done' | 'error') {
+    getProgressIcon(status?: 'pending' | 'progress' | 'done' | 'error') {
         switch (status) {
             case "pending":
                 return <PendingIcon/>;
@@ -224,16 +249,42 @@ export class BuilderPage extends React.Component<Props, State> {
         }
     }
 
+    getDescription(stepStatus?: StepStatus){
+        const now = Date.now();
+        let time = 0 ;
+        if (stepStatus?.status === 'progress') {
+            time = stepStatus?.startTime ? (now - stepStatus.startTime) / 1000 : 0;
+        } else if (stepStatus?.status === 'done' && stepStatus?.endTime){
+            time = (stepStatus?.endTime - stepStatus.startTime) / 1000
+        }
+        return time === 0 ? "" : Math.round(time) + "s";
+    }
+
     getProgress() {
         const {status, uberJar, build, deploy} = this.state;
-        const undeploying = status.active && status.undeploy === "progress";
+        const undeploying = status.active && status.undeploy?.status === "progress";
         return (
             <ProgressStepper isCenterAligned style={{visibility: "visible"}}>
-                {!undeploying && uberJar && <ProgressStep variant="pending" id="package" titleId="package" aria-label="package" icon={this.getProgressIcon(status.uberJar)}>Package</ProgressStep>}
-                {!undeploying && build && <ProgressStep variant="pending" isCurrent id="build" titleId="build" aria-label="build" icon={this.getProgressIcon(status.build)}>Build</ProgressStep>}
-                {!undeploying && deploy && <ProgressStep variant="pending" id="deploy" titleId="deploy" aria-label="deploy" icon={this.getProgressIcon(status.deploy)}>Deploy</ProgressStep>}
+                {!undeploying && uberJar &&
+                    <ProgressStep variant="pending" id="package" titleId="package" aria-label="package"
+                                  description={this.getDescription(status.uberJar)}
+                                  icon={this.getProgressIcon(status.uberJar?.status)}>Package
+                    </ProgressStep>}
+                {!undeploying && build &&
+                    <ProgressStep variant="pending" isCurrent id="build" titleId="build" aria-label="build"
+                                  description={this.getDescription(status.build)}
+                                  icon={this.getProgressIcon(status.build?.status)}>Build
+                    </ProgressStep>}
+                {!undeploying && deploy &&
+                    <ProgressStep variant="pending" id="deploy" titleId="deploy" aria-label="deploy"
+                                  description={this.getDescription(status.deploy)}
+                                  icon={this.getProgressIcon(status.deploy?.status)}>Deploy
+                    </ProgressStep>}
                 {undeploying &&
-                    <ProgressStep variant="pending" id="undeploy" titleId="undeploy" aria-label="undeploy" icon={this.getProgressIcon(status.undeploy)}>Undeploy</ProgressStep>}
+                    <ProgressStep variant="pending" id="undeploy" titleId="undeploy" aria-label="undeploy"
+                                  description={this.getDescription(status.undeploy)}
+                                  icon={this.getProgressIcon(status.undeploy?.status)}>Undeploy
+                    </ProgressStep>}
             </ProgressStepper>
         )
     }
@@ -271,7 +322,7 @@ export class BuilderPage extends React.Component<Props, State> {
         const active = this.state.status.active;
         const label = active ? "Stop" : "Start";
         const icon = active ? <InProgressIcon/> : <AutomationIcon/>;
-        return <div className="footer">
+        return <div key={this.state.key} className="footer">
                     <div className="progress">
                         {active && this.getProgress()}
                     </div>

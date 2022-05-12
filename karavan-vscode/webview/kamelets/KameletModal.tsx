@@ -11,6 +11,7 @@ import {
 import '../designer/karavan.css';
 import {KameletModel, Property} from "karavan-core/lib/model/KameletModels";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import {CamelUi} from "../designer/utils/CamelUi";
 
 interface Props {
     kamelet?: KameletModel,
@@ -66,7 +67,7 @@ export class KameletModal extends Component<Props, State> {
                 <Flex direction={{default: 'column'}} key={this.state.kamelet?.metadata.name}
                       className="kamelet-modal-card">
                     <CardHeader>
-                        <img draggable="false" src={this.state.kamelet?.icon()} className="kamelet-icon" alt=""></img>
+                        {this.state.kamelet && CamelUi.getIconFromSource(this.state.kamelet?.icon())}
                         <CardActions>
                             <Badge className="badge"
                                    isRead> {this.state.kamelet?.metadata.labels["camel.apache.org/kamelet.type"].toLowerCase()}</Badge>
