@@ -84,27 +84,12 @@ export class DslSelector extends React.Component<Props, State> {
         )
     }
 
-    getIcon = (dsl: DslMetaModel): string => {
-        if (dsl.dsl && dsl.dsl === "KameletDefinition" || dsl.navigation === 'kamelet') {
-            return CamelUi.getKameletIconByName(dsl.name);
-        } else if ((dsl.dsl && dsl.dsl === "FromDefinition")
-            && dsl.uri?.startsWith("kamelet")) {
-            return CamelUi.getKameletIconByUri(dsl.uri);
-        } else if (dsl.navigation === 'component' ){
-            return camelIcon;
-        } else {
-            return CamelUi.getIconForName(dsl.dsl);
-        }
-    }
-
     getCard(dsl: DslMetaModel, index: number) {
         return (
             <Card data-tour={dsl.name} key={dsl.dsl + index} isHoverable isCompact className="dsl-card"
                   onClick={event => this.selectDsl(event, dsl)}>
                 <CardHeader>
-                    <img draggable={false}
-                         src={this.getIcon(dsl)}
-                         className="icon" alt="icon"></img>
+                    {CamelUi.getIconForDsl(dsl)}
                     <Text>{dsl.title}</Text>
                 </CardHeader>
                 <CardBody>

@@ -71,7 +71,7 @@ export class DslElement extends React.Component<Props, State> {
 
     openSelector = (evt: React.MouseEvent, showSteps: boolean = true, isInsert: boolean = false) => {
         evt.stopPropagation();
-        if (isInsert && this.props.parent){
+        if (isInsert && this.props.parent) {
             this.props.openSelector.call(this, this.props.parent.uuid, this.props.parent.dslName, showSteps, this.props.position);
         } else {
             this.props.openSelector.call(this, this.state.step.uuid, this.state.step.dslName, showSteps);
@@ -184,6 +184,7 @@ export class DslElement extends React.Component<Props, State> {
             }
         }
     }
+
     getHeader = () => {
         const step: CamelElement = this.state.step;
         const availableModels = CamelUi.getSelectorModelsForParent(step.dslName, false);
@@ -198,14 +199,7 @@ export class DslElement extends React.Component<Props, State> {
                          data-tour={step.dslName + "-icon"}
                          className={"header-icon"}
                          style={this.isWide() ? {width: ""} : {}}>
-                        {/*{step.dslName === 'AggregateDefinition' && <AggregateIcon/>}*/}
-                        {/*{step.dslName === 'ChoiceDefinition' && <ChoiceIcon/>}*/}
-                        {/*{step.dslName === 'SplitDefinition' && <SplitIcon/>}*/}
-                        {/*{step.dslName === 'SagaDefinition' && <SagaIcon/>}*/}
-                        {/*{step.dslName === 'TransformDefinition' && <TransformIcon/>}*/}
-                        {/*{step.dslName === 'FilterDefinition' && <FilterIcon/>}*/}
-                        {/*{step.dslName === 'SortDefinition' && <SortIcon/>}*/}
-                        <img draggable={false} src={CamelUi.getIcon(step)} className="icon" alt="icon"/>
+                        {CamelUi.getIconForElement(step)}
                     </div>
                 }
                 <div className={this.hasWideChildrenElement() ? "header-text" : ""}>

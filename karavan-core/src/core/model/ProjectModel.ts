@@ -43,6 +43,7 @@ export class ProjectModel {
     target: 'openshift' | 'minikube' | 'kubernetes' = 'minikube'
     deploy: boolean = false
     build: boolean = false
+    buildConfig: boolean = false
     uberJar: boolean = true
     manifests: boolean = true
     path: string = ''

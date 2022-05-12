@@ -62,7 +62,7 @@ export class EipModal extends  React.Component<Props, State> {
                 <Flex direction={{default: 'column'}} key={component?.name}
                       className="kamelet-modal-card">
                     <CardHeader>
-                        <img draggable="false" src={CamelUi.getIconForName(component?.name || '')} className="kamelet-icon" alt=""></img>
+                        {component && CamelUi.getIconForDslName(component?.className)}
                         <CardActions>
                             <Badge className="badge"
                                    isRead> {component?.labels}</Badge>

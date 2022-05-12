@@ -38,6 +38,7 @@ export class ProcessorDefinition extends CamelElement {
     removeProperty?: RemovePropertyDefinition | string;
     interceptFrom?: InterceptFromDefinition | string;
     onCompletion?: OnCompletionDefinition;
+    pausable?: PausableDefinition;
     throttle?: ThrottleDefinition;
     doFinally?: FinallyDefinition;
     log?: LogDefinition | string;
@@ -75,61 +76,21 @@ export class ProcessorDefinition extends CamelElement {
     }
 }
 
-export class DeadLetterChannelBuilder extends CamelElement {
-    executorServiceRef?: string;
-    onRedeliveryRef?: string;
-    retryWhileRef?: string;
-    asyncDelayedRedelivery?: boolean;
-    useOriginalBody?: boolean;
-    onPrepareFailureRef?: string;
-    useOriginalMessage?: boolean;
-    onExceptionOccurredRef?: string;
-    deadLetterHandleNewException?: boolean;
-    deadLetterUri?: string
-    public constructor(init?: Partial<DeadLetterChannelBuilder>) {
-        super('DeadLetterChannelBuilder')
-        Object.assign(this, init)
-    }
-}
-
-export class DefaultErrorHandlerBuilder extends CamelElement {
-    executorServiceRef?: string;
-    onRedeliveryRef?: string;
-    retryWhileRef?: string;
-    asyncDelayedRedelivery?: boolean;
-    useOriginalBody?: boolean;
-    onPrepareFailureRef?: string;
-    useOriginalMessage?: boolean;
-    onExceptionOccurredRef?: string
-    public constructor(init?: Partial<DefaultErrorHandlerBuilder>) {
-        super('DefaultErrorHandlerBuilder')
-        Object.assign(this, init)
-    }
-}
-
-export class ErrorHandlerBuilderRef extends CamelElement {
-    deadLetterChannel?: DeadLetterChannelBuilder | string;
-    ref?: string;
-    log?: DefaultErrorHandlerBuilder;
-    none?: NoErrorHandlerBuilder
-    public constructor(init?: Partial<ErrorHandlerBuilderRef>) {
-        super('ErrorHandlerBuilderRef')
-        Object.assign(this, init)
-    }
-}
-
-export class NoErrorHandlerBuilder extends CamelElement {
-
-    public constructor(init?: Partial<NoErrorHandlerBuilder>) {
-        super('NoErrorHandlerBuilder')
-        Object.assign(this, init)
-    }
-}
-
 export class BeansDeserializer extends CamelElement {
 
     public constructor(init?: Partial<BeansDeserializer>) {
         super('BeansDeserializer')
+        Object.assign(this, init)
+    }
+}
+
+export class ErrorHandlerBuilderDeserializer extends CamelElement {
+    deadLetterChannel?: DeadLetterChannelDefinition;
+    ref?: string;
+    log?: DefaultErrorHandlerDefinition;
+    none?: NoErrorHandlerDefinition
+    public constructor(init?: Partial<ErrorHandlerBuilderDeserializer>) {
+        super('ErrorHandlerBuilderDeserializer')
         Object.assign(this, init)
     }
 }
@@ -238,7 +199,6 @@ export class ChoiceDefinition extends CamelElement {
 
 export class CircuitBreakerDefinition extends CamelElement {
     faultToleranceConfiguration?: FaultToleranceConfigurationDefinition;
-    hystrixConfiguration?: HystrixConfigurationDefinition;
     inheritErrorHandler?: boolean;
     stepName?: string = 'circuitBreaker';
     configuration?: string;
@@ -363,6 +323,20 @@ export class EnrichDefinition extends CamelElement {
     }
 }
 
+export class ErrorHandlerDefinition extends CamelElement {
+    deadLetterChannel?: DeadLetterChannelDefinition;
+    noErrorHandler?: NoErrorHandlerDefinition;
+    stepName?: string = 'errorHandler';
+    jtaTransactionErrorHandler?: JtaTransactionErrorHandlerDefinition;
+    defaultErrorHandler?: DefaultErrorHandlerDefinition;
+    springTransactionErrorHandler?: SpringTransactionErrorHandlerDefinition;
+    id?: string
+    public constructor(init?: Partial<ErrorHandlerDefinition>) {
+        super('ErrorHandlerDefinition')
+        Object.assign(this, init)
+    }
+}
+
 export class ExpressionSubElementDefinition extends CamelElement {
     ognl?: OgnlExpression | string;
     constant?: ConstantExpression | string;
@@ -465,46 +439,6 @@ export class GlobalOptionsDefinition extends CamelElement {
     globalOption?: GlobalOptionDefinition[] = []
     public constructor(init?: Partial<GlobalOptionsDefinition>) {
         super('GlobalOptionsDefinition')
-        Object.assign(this, init)
-    }
-}
-
-export class HystrixConfigurationDefinition extends CamelElement {
-    metricsRollingPercentileEnabled?: boolean;
-    circuitBreakerForceOpen?: boolean;
-    circuitBreakerEnabled?: boolean;
-    fallbackIsolationSemaphoreMaxConcurrentRequests?: number;
-    circuitBreakerRequestVolumeThreshold?: number;
-    groupKey?: string;
-    metricsRollingStatisticalWindowBuckets?: number;
-    metricsRollingStatisticalWindowInMilliseconds?: number;
-    threadPoolKey?: string;
-    queueSizeRejectionThreshold?: number;
-    fallbackEnabled?: boolean;
-    threadPoolRollingNumberStatisticalWindowInMilliseconds?: number;
-    stepName?: string = 'hystrixConfiguration';
-    maxQueueSize?: number;
-    circuitBreakerSleepWindowInMilliseconds?: number;
-    id?: string;
-    keepAliveTime?: number;
-    executionIsolationThreadInterruptOnTimeout?: boolean;
-    executionTimeoutInMilliseconds?: number;
-    executionIsolationSemaphoreMaxConcurrentRequests?: number;
-    requestLogEnabled?: boolean;
-    circuitBreakerErrorThresholdPercentage?: number;
-    executionTimeoutEnabled?: boolean;
-    threadPoolRollingNumberStatisticalWindowBuckets?: number;
-    circuitBreakerForceClosed?: boolean;
-    corePoolSize?: number;
-    maximumSize?: number;
-    metricsRollingPercentileWindowInMilliseconds?: number;
-    executionIsolationStrategy?: string;
-    metricsHealthSnapshotIntervalInMilliseconds?: number;
-    metricsRollingPercentileWindowBuckets?: number;
-    allowMaximumSizeToDivergeFromCoreSize?: boolean;
-    metricsRollingPercentileBucketSize?: number
-    public constructor(init?: Partial<HystrixConfigurationDefinition>) {
-        super('HystrixConfigurationDefinition')
         Object.assign(this, init)
     }
 }
@@ -693,7 +627,6 @@ export class MarshalDefinition extends CamelElement {
     barcode?: BarcodeDataFormat;
     avro?: AvroDataFormat | string;
     yaml?: YAMLDataFormat;
-    beanio?: BeanioDataFormat;
     fhirJson?: FhirJsonDataFormat;
     any23?: Any23DataFormat | string;
     custom?: CustomDataFormat | string;
@@ -856,6 +789,19 @@ export class PackageScanDefinition extends CamelElement {
     }
 }
 
+export class PausableDefinition extends CamelElement {
+    untilCheck: string = '';
+    inheritErrorHandler?: boolean;
+    stepName?: string = 'pausable';
+    consumerListener: string = '';
+    description?: string;
+    id?: string
+    public constructor(init?: Partial<PausableDefinition>) {
+        super('PausableDefinition')
+        Object.assign(this, init)
+    }
+}
+
 export class PipelineDefinition extends CamelElement {
     inheritErrorHandler?: boolean;
     stepName?: string = 'pipeline';
@@ -969,6 +915,7 @@ export class RedeliveryPolicyDefinition extends CamelElement {
     collisionAvoidanceFactor?: number;
     logRetryStackTrace?: boolean;
     disableRedelivery?: boolean;
+    id?: string;
     logExhaustedMessageBody?: boolean;
     logHandled?: boolean;
     useCollisionAvoidance?: boolean;
@@ -1135,6 +1082,7 @@ export class RouteConfigurationDefinition extends CamelElement {
     interceptSendToEndpoint?: InterceptSendToEndpointDefinition[] = [];
     stepName?: string = 'routeConfiguration';
     intercept?: InterceptDefinition[] = [];
+    errorHandler?: ErrorHandlerDefinition;
     onException?: OnExceptionDefinition[] = [];
     id?: string;
     precondition?: string;
@@ -1596,7 +1544,6 @@ export class UnmarshalDefinition extends CamelElement {
     allowNullBody?: boolean;
     avro?: AvroDataFormat | string;
     yaml?: YAMLDataFormat;
-    beanio?: BeanioDataFormat;
     fhirJson?: FhirJsonDataFormat;
     any23?: Any23DataFormat | string;
     custom?: CustomDataFormat | string;
@@ -1698,7 +1645,6 @@ export class CachingServiceCallServiceDiscoveryConfiguration extends CamelElemen
     consulServiceDiscovery?: ConsulServiceCallServiceDiscoveryConfiguration;
     id?: string;
     units?: string;
-    etcdServiceDiscovery?: EtcdServiceCallServiceDiscoveryConfiguration;
     staticServiceDiscovery?: StaticServiceCallServiceDiscoveryConfiguration;
     combinedServiceDiscovery?: CombinedServiceCallServiceDiscoveryConfiguration;
     properties?: PropertyDefinition[] = [];
@@ -1715,7 +1661,6 @@ export class CombinedServiceCallServiceDiscoveryConfiguration extends CamelEleme
     kubernetesServiceDiscovery?: KubernetesServiceCallServiceDiscoveryConfiguration;
     consulServiceDiscovery?: ConsulServiceCallServiceDiscoveryConfiguration;
     id?: string;
-    etcdServiceDiscovery?: EtcdServiceCallServiceDiscoveryConfiguration;
     staticServiceDiscovery?: StaticServiceCallServiceDiscoveryConfiguration;
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<CombinedServiceCallServiceDiscoveryConfiguration>) {
@@ -1785,21 +1730,6 @@ export class DnsServiceCallServiceDiscoveryConfiguration extends CamelElement {
     }
 }
 
-export class EtcdServiceCallServiceDiscoveryConfiguration extends CamelElement {
-    uris?: string;
-    password?: string;
-    servicePath?: string;
-    id?: string;
-    type?: string;
-    userName?: string;
-    properties?: PropertyDefinition[] = [];
-    timeout?: number
-    public constructor(init?: Partial<EtcdServiceCallServiceDiscoveryConfiguration>) {
-        super('EtcdServiceCallServiceDiscoveryConfiguration')
-        Object.assign(this, init)
-    }
-}
-
 export class HealthyServiceCallServiceFilterConfiguration extends CamelElement {
     id?: string;
     properties?: PropertyDefinition[] = []
@@ -1846,44 +1776,29 @@ export class PassThroughServiceCallServiceFilterConfiguration extends CamelEleme
     }
 }
 
-export class RibbonServiceCallServiceLoadBalancerConfiguration extends CamelElement {
-    password?: string;
-    clientName?: string;
-    namespace?: string;
-    id?: string;
-    properties?: PropertyDefinition[] = [];
-    username?: string
-    public constructor(init?: Partial<RibbonServiceCallServiceLoadBalancerConfiguration>) {
-        super('RibbonServiceCallServiceLoadBalancerConfiguration')
-        Object.assign(this, init)
-    }
-}
-
 export class ServiceCallConfigurationDefinition extends CamelElement {
-    pattern?: string;
-    blacklistServiceFilter?: BlacklistServiceCallServiceFilterConfiguration;
-    expressionRef?: string;
-    passThroughServiceFilter?: PassThroughServiceCallServiceFilterConfiguration;
-    dnsServiceDiscovery?: DnsServiceCallServiceDiscoveryConfiguration;
-    healthyServiceFilter?: HealthyServiceCallServiceFilterConfiguration;
-    stepName?: string = 'serviceCallConfiguration';
-    ribbonLoadBalancer?: RibbonServiceCallServiceLoadBalancerConfiguration;
-    serviceChooserRef?: string;
-    consulServiceDiscovery?: ConsulServiceCallServiceDiscoveryConfiguration;
-    id?: string;
     defaultLoadBalancer?: DefaultServiceCallServiceLoadBalancerConfiguration;
     serviceDiscoveryRef?: string;
     expression?: ServiceCallExpressionConfiguration;
     kubernetesServiceDiscovery?: KubernetesServiceCallServiceDiscoveryConfiguration;
+    pattern?: string;
     customServiceFilter?: CustomServiceCallServiceFilterConfiguration;
     zookeeperServiceDiscovery?: ZooKeeperServiceCallServiceDiscoveryConfiguration;
     uri?: string;
+    blacklistServiceFilter?: BlacklistServiceCallServiceFilterConfiguration;
     component?: string;
+    expressionRef?: string;
+    passThroughServiceFilter?: PassThroughServiceCallServiceFilterConfiguration;
     cachingServiceDiscovery?: CachingServiceCallServiceDiscoveryConfiguration;
+    dnsServiceDiscovery?: DnsServiceCallServiceDiscoveryConfiguration;
+    healthyServiceFilter?: HealthyServiceCallServiceFilterConfiguration;
+    stepName?: string = 'serviceCallConfiguration';
     loadBalancerRef?: string;
     serviceFilterRef?: string;
     combinedServiceFilter?: CombinedServiceCallServiceFilterConfiguration;
-    etcdServiceDiscovery?: EtcdServiceCallServiceDiscoveryConfiguration;
+    serviceChooserRef?: string;
+    consulServiceDiscovery?: ConsulServiceCallServiceDiscoveryConfiguration;
+    id?: string;
     staticServiceDiscovery?: StaticServiceCallServiceDiscoveryConfiguration;
     combinedServiceDiscovery?: CombinedServiceCallServiceDiscoveryConfiguration
     public constructor(init?: Partial<ServiceCallConfigurationDefinition>) {
@@ -1901,7 +1816,6 @@ export class ServiceCallDefinition extends CamelElement {
     dnsServiceDiscovery?: DnsServiceCallServiceDiscoveryConfiguration;
     healthyServiceFilter?: HealthyServiceCallServiceFilterConfiguration;
     stepName?: string = 'serviceCall';
-    ribbonLoadBalancer?: RibbonServiceCallServiceLoadBalancerConfiguration;
     serviceChooserRef?: string;
     consulServiceDiscovery?: ConsulServiceCallServiceDiscoveryConfiguration;
     id?: string;
@@ -1920,7 +1834,6 @@ export class ServiceCallDefinition extends CamelElement {
     serviceFilterRef?: string;
     combinedServiceFilter?: CombinedServiceCallServiceFilterConfiguration;
     name: string = '';
-    etcdServiceDiscovery?: EtcdServiceCallServiceDiscoveryConfiguration;
     staticServiceDiscovery?: StaticServiceCallServiceDiscoveryConfiguration;
     combinedServiceDiscovery?: CombinedServiceCallServiceDiscoveryConfiguration
     public constructor(init?: Partial<ServiceCallDefinition>) {
@@ -2107,23 +2020,6 @@ export class Base64DataFormat extends CamelElement {
     }
 }
 
-export class BeanioDataFormat extends CamelElement {
-    mapping: string = '';
-    ignoreUnexpectedRecords?: boolean;
-    ignoreUnidentifiedRecords?: boolean;
-    beanReaderErrorHandlerType?: string;
-    dataFormatName?: string = 'beanio';
-    unmarshalSingleObject?: boolean;
-    id?: string;
-    encoding?: string;
-    streamName: string = '';
-    ignoreInvalidRecords?: boolean
-    public constructor(init?: Partial<BeanioDataFormat>) {
-        super('BeanioDataFormat')
-        Object.assign(this, init)
-    }
-}
-
 export class BindyDataFormat extends CamelElement {
     unwrapSingleInstance?: boolean;
     dataFormatName?: string = 'bindy';
@@ -2247,7 +2143,6 @@ export class DataFormatsDefinition extends CamelElement {
     barcode?: BarcodeDataFormat;
     avro?: AvroDataFormat | string;
     yaml?: YAMLDataFormat;
-    beanio?: BeanioDataFormat;
     fhirJson?: FhirJsonDataFormat;
     any23?: Any23DataFormat | string;
     custom?: CustomDataFormat | string;
@@ -2407,7 +2302,7 @@ export class JaxbDataFormat extends CamelElement {
     contextPathIsClassName?: boolean;
     schemaLocation?: string;
     contextPath: string = '';
-    schemaSeverityLevel?: number;
+    schemaSeverityLevel?: string;
     xmlStreamWriterWrapper?: string;
     noNamespaceSchemaLocation?: string;
     encoding?: string;
@@ -2775,7 +2670,7 @@ export class YAMLTypeFilterDefinition extends CamelElement {
 export class ZipDeflaterDataFormat extends CamelElement {
     dataFormatName?: string = 'zipDeflater';
     id?: string;
-    compressionLevel?: number
+    compressionLevel?: string
     public constructor(init?: Partial<ZipDeflaterDataFormat>) {
         super('ZipDeflaterDataFormat')
         Object.assign(this, init)
@@ -2791,6 +2686,115 @@ export class ZipFileDataFormat extends CamelElement {
     allowEmptyDirectory?: boolean
     public constructor(init?: Partial<ZipFileDataFormat>) {
         super('ZipFileDataFormat')
+        Object.assign(this, init)
+    }
+}
+
+export class DeadLetterChannelDefinition extends CamelElement {
+    executorServiceRef?: string;
+    redeliveryPolicy?: RedeliveryPolicyDefinition;
+    level?: string;
+    loggerRef?: string;
+    useOriginalMessage?: boolean;
+    deadLetterHandleNewException?: boolean;
+    deadLetterUri: string = '';
+    onRedeliveryRef?: string;
+    retryWhileRef?: string;
+    logName?: string;
+    stepName?: string = 'deadLetterChannel';
+    useOriginalBody?: boolean;
+    id?: string;
+    onPrepareFailureRef?: string;
+    onExceptionOccurredRef?: string;
+    redeliveryPolicyRef?: string
+    public constructor(init?: Partial<DeadLetterChannelDefinition>) {
+        super('DeadLetterChannelDefinition')
+        Object.assign(this, init)
+    }
+}
+
+export class DefaultErrorHandlerDefinition extends CamelElement {
+    executorServiceRef?: string;
+    redeliveryPolicy?: RedeliveryPolicyDefinition;
+    level?: string;
+    loggerRef?: string;
+    useOriginalMessage?: boolean;
+    onRedeliveryRef?: string;
+    retryWhileRef?: string;
+    logName?: string;
+    stepName?: string = 'defaultErrorHandler';
+    useOriginalBody?: boolean;
+    id?: string;
+    onPrepareFailureRef?: string;
+    onExceptionOccurredRef?: string;
+    redeliveryPolicyRef?: string
+    public constructor(init?: Partial<DefaultErrorHandlerDefinition>) {
+        super('DefaultErrorHandlerDefinition')
+        Object.assign(this, init)
+    }
+}
+
+export class ErrorHandlerRefDefinition extends CamelElement {
+    ref: string = '';
+    stepName?: string = 'errorHandlerRef';
+    id?: string
+    public constructor(init?: Partial<ErrorHandlerRefDefinition>) {
+        super('ErrorHandlerRefDefinition')
+        Object.assign(this, init)
+    }
+}
+
+export class JtaTransactionErrorHandlerDefinition extends CamelElement {
+    executorServiceRef?: string;
+    redeliveryPolicy?: RedeliveryPolicyDefinition;
+    level?: string;
+    loggerRef?: string;
+    useOriginalMessage?: boolean;
+    onRedeliveryRef?: string;
+    retryWhileRef?: string;
+    logName?: string;
+    stepName?: string = 'jtaTransactionErrorHandler';
+    useOriginalBody?: boolean;
+    rollbackLoggingLevel?: string;
+    id?: string;
+    onPrepareFailureRef?: string;
+    transactedPolicyRef?: string;
+    onExceptionOccurredRef?: string;
+    redeliveryPolicyRef?: string
+    public constructor(init?: Partial<JtaTransactionErrorHandlerDefinition>) {
+        super('JtaTransactionErrorHandlerDefinition')
+        Object.assign(this, init)
+    }
+}
+
+export class NoErrorHandlerDefinition extends CamelElement {
+    stepName?: string = 'noErrorHandler';
+    id?: string
+    public constructor(init?: Partial<NoErrorHandlerDefinition>) {
+        super('NoErrorHandlerDefinition')
+        Object.assign(this, init)
+    }
+}
+
+export class SpringTransactionErrorHandlerDefinition extends CamelElement {
+    executorServiceRef?: string;
+    redeliveryPolicy?: RedeliveryPolicyDefinition;
+    level?: string;
+    loggerRef?: string;
+    useOriginalMessage?: boolean;
+    onRedeliveryRef?: string;
+    retryWhileRef?: string;
+    logName?: string;
+    stepName?: string = 'springTransactionErrorHandler';
+    useOriginalBody?: boolean;
+    rollbackLoggingLevel?: string;
+    id?: string;
+    onPrepareFailureRef?: string;
+    transactedPolicyRef?: string;
+    onExceptionOccurredRef?: string;
+    redeliveryPolicyRef?: string
+    public constructor(init?: Partial<SpringTransactionErrorHandlerDefinition>) {
+        super('SpringTransactionErrorHandlerDefinition')
         Object.assign(this, init)
     }
 }
@@ -2951,7 +2955,6 @@ export class LanguageExpression extends CamelElement {
 
 export class MethodCallExpression extends CamelElement {
     ref?: string;
-    expression: string = '';
     method?: string;
     trim?: boolean;
     expressionName?: string = 'method';
@@ -3022,7 +3025,6 @@ export class SpELExpression extends CamelElement {
 
 export class TokenizerExpression extends CamelElement {
     endToken?: string;
-    expression: string = '';
     headerName?: string;
     skipFirst?: boolean;
     expressionName?: string = 'tokenize';
@@ -3043,7 +3045,6 @@ export class TokenizerExpression extends CamelElement {
 
 export class XMLTokenizerExpression extends CamelElement {
     mode?: string;
-    expression: string = '';
     headerName?: string;
     trim?: boolean;
     expressionName?: string = 'xtokenize';
@@ -3593,7 +3594,6 @@ export class DataFormatTransformerDefinition extends CamelElement {
     barcode?: BarcodeDataFormat;
     avro?: AvroDataFormat | string;
     yaml?: YAMLDataFormat;
-    beanio?: BeanioDataFormat;
     toType?: string;
     fhirJson?: FhirJsonDataFormat;
     any23?: Any23DataFormat | string;
