@@ -107,8 +107,9 @@ export function cacheClear(rootPath: string, callback: (code: number) => any) {
 
 function prepareCommand(command: string, project?: ProjectModel): string {
     const version = vscode.workspace.getConfiguration().get("camel.version");
-    const token = project && project.target === 'openshift' ? " --token " + project.token : "";
-    return "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel " + command + token;
+    const token = project && project.target ? " --token " + project.token : "";
+    const password = project && project.password ? " --password " + project.password : "";
+    return "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel " + command + token + password;
 }
 
 function executeJbangCommand(rootPath: string, command: string, callback: (code: number, stdout: any, stderr: any) => any) {

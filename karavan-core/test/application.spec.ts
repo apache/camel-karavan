@@ -27,10 +27,10 @@ describe('Project configuration', () => {
         expect(project.name).to.equal('demo');
         expect(project.namespace).to.equal('development');
 
-        project.tag = 'newtag/proj:latest';
+        project.image = 'newtag/proj:latest';
         let newProperties = ProjectModelApi.updateProperties(props, project);
-        const tag = newProperties.split(/\r?\n/).filter(l => l.startsWith("camel.jbang.build.image.tag"))[0].split("=")[1];
-        expect(tag).to.equal(project.tag);
+        const tag = newProperties.split(/\r?\n/).filter(l => l.startsWith("camel.jbang.build.image.image"))[0].split("=")[1];
+        expect(tag).to.equal(project.image);
 
 
         project.routesIncludePattern = "file:x";

@@ -30,17 +30,19 @@ export class ProjectModelApi {
         project.version = this.getValue(map, "project.version");
         project.namespace = this.getValue(map, "project.namespace");
         project.cleanup = this.getValue(map, "project.cleanup") === "true";
-        const tag = this.getValue(map, "build.image.tag", "deploy.image");
-        project.tag = tag ? tag : project.namespace + "/" + project.name + ":" + project.version;
+        const image = this.getValue(map, "build.image.image", "deploy.image");
+        project.image = image ? image : project.namespace + "/" + project.name + ":" + project.version;
         project.classpathFiles = this.getValue(map, "classpathFiles");
         project.routesIncludePattern = this.getValue(map, "routesIncludePattern");
         project.sourceImage = this.getValue(map, "build.image.source-image");
         project.from = this.getValue(map, "build.image.from");
+        project.buildConfig = this.getValue(map, "build.image.build-config") === "true";
 
         project.filename = this.getValue(map, "build.image.jar", "package.uber-jar.jar");
         project.replicas = this.getValue(map, "deploy.replicas");
         project.nodePort = this.getValue(map, "deploy.node-port");
         project.server = this.getValue(map, "deploy.server", "build.image.server");
+        project.username = this.getValue(map, "deploy.username", "build.image.username");
         const openshift = this.getValue(map, "deploy.openshift", "build.image.openshift") === "true";
         const minikube = this.getValue(map, "deploy.minikube", "build.image.minikube") === "true";
         project.target = openshift ? "openshift" : (minikube ? "minikube" : "kubernetes");
@@ -95,7 +97,7 @@ export class ProjectModelApi {
 
     static projectToMap = (project: ProjectModel): Map<string, any> => {
         const map = new Map<string, any>();
-        if (project.tag?.length === 0) project.tag = project.namespace + "/" + project.name + ":" + project.version;
+        if (project.image?.length === 0) project.image = project.namespace + "/" + project.name + ":" + project.version;
         this.setValue(map, "project.name", project.name);
         this.setValue(map, "project.version", project.version);
         this.setValue(map, "project.namespace", project.namespace);
@@ -107,19 +109,22 @@ export class ProjectModelApi {
         this.setValue(map, "routesIncludePattern", project.routesIncludePattern);
         this.setValue(map, "build.image", project.build);
         this.setValue(map, "build.image.openshift", project.target === 'openshift');
-        this.setValue(map, "build.image.minikube", project.target === 'minikube');
+        this.setValue(map, "build.image.build-config", project.buildConfig);
+        this.setValue(map, "build.image.push", project.target === 'openshift' && !project.buildConfig);
         this.setValue(map, "build.image.jar", project.filename);
-        this.setValue(map, "build.image.tag", project.tag);
+        this.setValue(map, "build.image.image", project.image);
         this.setValue(map, "build.image.source-image", project.sourceImage);
         this.setValue(map, "build.image.from", project.from);
         this.setValue(map, "build.image.server", project.server);
+        this.setValue(map, "build.image.username", project.username);
         this.setValue(map, "deploy", project.deploy);
         this.setValue(map, "deploy.openshift", project.target === 'openshift');
         this.setValue(map, "deploy.minikube", project.target === 'minikube');
-        this.setValue(map, "deploy.image", project.tag);
+        this.setValue(map, "deploy.image", project.image);
         this.setValue(map, "deploy.replicas", project.replicas);
         this.setValue(map, "deploy.node-port", project.nodePort);
         this.setValue(map, "deploy.server", project.server);
+        this.setValue(map, "deploy.username", project.username);
         this.setValue(map, "undeploy.openshift", project.target === 'openshift');
         this.setValue(map, "undeploy.minikube", project.target === 'minikube');
         this.setValue(map, "undeploy.server", project.server);
@@ -127,7 +132,7 @@ export class ProjectModelApi {
         this.setValue(map, "manifests.path", project.manifests);
         this.setValue(map, "manifests.openshift", project.target === 'openshift');
         this.setValue(map, "manifests.minikube", project.target === 'minikube');
-        this.setValue(map, "manifests.image", project.tag);
+        this.setValue(map, "manifests.image", project.image);
         this.setValue(map, "manifests.replicas", project.replicas);
         this.setValue(map, "manifests.node-port", project.nodePort);
         this.setValue(map, "manifests.server", project.server);

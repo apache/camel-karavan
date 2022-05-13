@@ -25,7 +25,7 @@ import {KameletsPage} from "./kamelets/KameletsPage";
 import {ComponentsPage} from "./components/ComponentsPage";
 import {EipPage} from "./eip/EipPage";
 import {BuilderPage} from "./builder/BuilderPage";
-import {ProjectModel} from "karavan-core/lib/model/ProjectModel";
+import {ProjectModel, StepStatus} from "karavan-core/lib/model/ProjectModel";
 
 interface Props {
     page: "designer" | "kamelets" | "components" | "eip" | "builder";
@@ -119,7 +119,8 @@ class App extends React.Component<Props, State> {
     public render() {
         const project = ProjectModel.createNew();
         project.status.active = true;
-        project.status.uberJar = "progress";
+        project.status.uberJar = new StepStatus({status:"progress"});
+        project.status.build = new StepStatus({status:"progress"});
         return (
             <Page className="karavan">
                 {this.props.page === "designer" && <KaravanDesigner key={this.state.key} filename={this.state.name} yaml={this.state.yaml}

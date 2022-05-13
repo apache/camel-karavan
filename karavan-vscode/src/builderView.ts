@@ -19,7 +19,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as utils from "./utils";
 import * as commands from "./commands";
-import { ProjectModel } from "karavan-core/lib/model/ProjectModel";
+import { ProjectModel, StepStatus } from "karavan-core/lib/model/ProjectModel";
 import { ProjectModelApi } from "karavan-core/lib/api/ProjectModelApi";
 
 let builderPanel: vscode.WebviewPanel | undefined;
@@ -109,27 +109,27 @@ export class BuilderView {
     start(project: ProjectModel) {
         const [x, files] = this.readProjectInfo(this.rootPath || '');
         project.status.active = true;
-        project.status.uberJar = "pending";
-        project.status.build = "pending";
-        project.status.deploy = "pending";
-        project.status.undeploy = "pending";
+        project.status.uberJar = new StepStatus()
+        project.status.build = new StepStatus()
+        project.status.deploy = new StepStatus()
+        project.status.undeploy = new StepStatus()
         if (project.uberJar) {
-            project.status.uberJar = "progress";
+            project.status.uberJar = StepStatus.progress();
             builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
             this.package(project, files);
         } else if (project.build) {
-            project.status.uberJar = "done";
+            project.status.uberJar.status = "done";
             this.buildImage(project, files);
         }
     }
 
     package(project: ProjectModel, files: string) {
         console.log("package", project);
-        project.status.uberJar = "progress";
+        project.status.uberJar = StepStatus.progress();
         builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
 
         commands.camelJbangPackage(this.rootPath || "", code => {
-            project.status.uberJar = code === 0 ? "done" : "error";
+            project.status.uberJar = code === 0 ? StepStatus.done(project.status.uberJar) : StepStatus.error(project.status.uberJar);
             builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
             if (code === 0 && project.build) {
                 this.buildImage(project, files);
@@ -141,11 +141,11 @@ export class BuilderView {
 
     buildImage(project: ProjectModel, files: string) {
         console.log("buildImage", project);
-        project.status.build = "progress";
+        project.status.build = StepStatus.progress();
         builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
 
         commands.camelJbangBuildImage(this.rootPath || "", project,  code => {
-            project.status.build = code === 0 ? "done" : "error";
+            project.status.build = code === 0 ? StepStatus.done(project.status.build) : StepStatus.error(project.status.build);
             builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
             if (code === 0 && project.deploy) {
                 this.deploy(project, files);
@@ -157,11 +157,11 @@ export class BuilderView {
 
     deploy(project: ProjectModel, files: string) {
         console.log("deploy", project);
-        project.status.deploy = "progress";
+        project.status.deploy = StepStatus.progress();
         builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
 
         commands.camelJbangDeploy(this.rootPath || "", project, code => {
-            project.status.deploy = code === 0 ? "done" : "error";
+            project.status.deploy = code === 0 ? StepStatus.done(project.status.deploy) : StepStatus.error(project.status.deploy);
             builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
             this.finish(project, files, code);
         });
@@ -204,7 +204,7 @@ export class BuilderView {
         const [x, files] = this.readProjectInfo(this.rootPath || '');
         console.log("undelpoy", project);
         project.status.active = true;
-        project.status.undeploy = "progress";
+        project.status.undeploy = StepStatus.progress();
         builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
         commands.camelJbangUndeploy(this.rootPath || '', project, (code) => this.finish(project, files, code));
     }

@@ -15,14 +15,45 @@
  * limitations under the License.
  */
 
-export class ProjectStatus {
-    uberJar: 'pending' | 'progress' | 'done' | 'error' = 'pending';
-    build: 'pending' | 'progress' | 'done' | 'error' = 'pending';
-    deploy: 'pending' | 'progress' | 'done'| 'error' = 'pending';
-    undeploy: 'pending' | 'progress' | 'done'| 'error' = 'pending';
+export class StepStatus {
+    status: 'pending' | 'progress' | 'done' | 'error' = 'pending';
+    startTime: number = Date.now();
+    endTime?: number;
+
+    public constructor(init?: Partial<StepStatus>) {
+        Object.assign(this, init);
+    }
+
+    static progress(): StepStatus {
+        return new StepStatus({status: "progress", startTime: Date.now()})
+    }
+
+    static done(stepStatus?: StepStatus): StepStatus | undefined {
+        if (stepStatus){
+            stepStatus.status = "done";
+            stepStatus.endTime = Date.now();
+        }
+        return stepStatus
+    }
+
+    static error(stepStatus?: StepStatus): StepStatus | undefined {
+        if (stepStatus) {
+            stepStatus.status = "error";
+            stepStatus.endTime = Date.now();
+        }
+        return stepStatus
+    }
+}
+
+export class ProjectStatus extends StepStatus{
+    uberJar?: StepStatus;
+    build?: StepStatus;
+    deploy?: StepStatus;
+    undeploy?: StepStatus;
     active: boolean = false;
 
     public constructor(init?: Partial<ProjectStatus>) {
+        super();
         Object.assign(this, init);
     }
 }
@@ -33,12 +64,14 @@ export class ProjectModel {
     filename: string = 'camel-runner.jar'
     namespace: string = 'default'
     cleanup: boolean = false
-    tag?: string = this.namespace + "/" + this.name + ":" + this.version
+    image?: string = this.namespace + "/" + this.name + ":" + this.version
     sourceImage: string = 'java:openjdk-11-ubi8'
     from: string = 'gcr.io/distroless/java:11'
     replicas: number = 1
     nodePort: number = 30777
     server?: string
+    username?: string
+    password?: string
     token?: string
     target: 'openshift' | 'minikube' | 'kubernetes' = 'minikube'
     deploy: boolean = false

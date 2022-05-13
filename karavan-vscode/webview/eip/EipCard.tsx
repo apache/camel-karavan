@@ -33,7 +33,7 @@ export class EipCard extends React.Component<Props, State> {
                 onClick={event => this.click(event)}
             >
                 <CardHeader>
-                    <img draggable="false" src={CamelUi.getIconForName(component.className)} className="kamelet-icon" alt=""></img>
+                    {CamelUi.getIconForDslName(component.className)}
                 </CardHeader>
                 <CardTitle>{CamelUi.titleFromName(component.title)}</CardTitle>
                 <CardBody>{component.description}</CardBody>
