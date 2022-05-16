@@ -62,6 +62,12 @@ export const ComponentApi = {
         return title ? title : componentName;
     },
 
+    getComponentDescriptionFromUri: (uri: string): string | undefined => {
+        const componentName = uri.split(":")[0];
+        const description = ComponentApi.findByName(componentName)?.component.description;
+        return description ? description : componentName;
+    },
+
     getUriParts: (uri: string): Map<string, string> => {
         const result: Map<string, string> = new Map<string, string>();
         const name = ComponentApi.getComponentNameFromUri(uri);
