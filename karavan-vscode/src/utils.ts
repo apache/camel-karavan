@@ -128,6 +128,14 @@ export function getYamlFiles(baseDir: string): string[] {
     return result;
 }
 
+export function getPropertyFiles(baseDir: string): string[] {
+    const result:string[] = [];
+    getAllFiles(baseDir, []).filter(f => f.endsWith(".properties")).forEach(f => {
+        result.push(f);
+    })
+    return result;
+}
+
 export function getJsonFiles(baseDir: string): string[] {
     const result:string[] = [];
     getAllFiles(baseDir, []).filter(f => f.endsWith(".json")).forEach(f => {

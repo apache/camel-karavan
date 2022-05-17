@@ -349,9 +349,9 @@
     "webpack-cli": "^4.4.0"
   },
   "dependencies": {
-    "@patternfly/patternfly": "4.171.1",
-    "@patternfly/react-core": "4.192.7",
-    "@patternfly/react-table": "^4.71.16",
+    "@patternfly/patternfly": "4.194.4",
+    "@patternfly/react-core": "4.214.1",
+    "@patternfly/react-table": "^4.83.1",
     "@reactour/tour": "^2.10.2",
     "@types/js-yaml": "4.0.5",
     "@types/uuid": "8.3.4",

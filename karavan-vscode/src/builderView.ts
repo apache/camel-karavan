@@ -19,11 +19,11 @@ import * as fs from "fs";
 import * as path from "path";
 import * as utils from "./utils";
 import * as commands from "./commands";
-import { ProjectModel, StepStatus } from "karavan-core/lib/model/ProjectModel";
+import { ProjectModel, StepStatus, Profile } from "karavan-core/lib/model/ProjectModel";
 import { ProjectModelApi } from "karavan-core/lib/api/ProjectModelApi";
 
 let builderPanel: vscode.WebviewPanel | undefined;
-const filename = "application.properties";
+const extension = '.properties';
 
 export class BuilderView {
 
@@ -59,11 +59,11 @@ export class BuilderView {
                         case 'getData':
                             this.sendData("builder");
                             break;
-                        case 'saveProject':
-                            this.saveProject(message.project);
+                        case 'saveProfiles':
+                            this.saveProfiles(message.profiles);
                             break;
                         case 'action':
-                            this.actionProject(message.action, message.project);
+                            this.actionProfile(message.action, message.profile);
                             break;
                     }
                 },
@@ -92,22 +92,24 @@ export class BuilderView {
         builderPanel?.webview.postMessage({ command: 'open', page: page });
         console.log(this.rootPath);
         if (this.rootPath) {
-            const [project, files] = this.readProjectInfo(this.rootPath);
+            const profiles = this.readProfiles(this.rootPath);
+            const files = this.readFiles(this.rootPath);
             // Send data
-            builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
+            builderPanel?.webview.postMessage({ command: 'profiles', files: files, profiles: profiles });
         }
     }
 
-    actionProject(action: "start" | "stop" | "undeploy", project: ProjectModel) {
-        switch (action){
-            case "start" : this.start(project); break;
-            case "stop" : {}; break;
-            case "undeploy" : this.undelpoy(project); break;
+    actionProfile(action: "start" | "stop" | "undeploy", profile: Profile) {
+        switch (action) {
+            case "start": this.start(profile); break;
+            case "stop": { }; break;
+            case "undeploy": this.undelpoy(profile); break;
         }
     }
 
-    start(project: ProjectModel) {
-        const [x, files] = this.readProjectInfo(this.rootPath || '');
+    start(profile: Profile) {
+        const files = this.readFiles(this.rootPath || '');
+        const project = profile.project;
         project.status.active = true;
         project.status.uberJar = new StepStatus()
         project.status.build = new StepStatus()
@@ -144,7 +146,7 @@ export class BuilderView {
         project.status.build = StepStatus.progress();
         builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
 
-        commands.camelJbangBuildImage(this.rootPath || "", project,  code => {
+        commands.camelJbangBuildImage(this.rootPath || "", project, code => {
             project.status.build = code === 0 ? StepStatus.done(project.status.build) : StepStatus.error(project.status.build);
             builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
             if (code === 0 && project.deploy) {
@@ -168,40 +170,52 @@ export class BuilderView {
     }
 
 
-    finish(project: ProjectModel, files: string,  code: number) {
+    finish(project: ProjectModel, files: string, code: number) {
         console.log("finish", project);
-        if (project.cleanup) commands.cleanup(this.rootPath || "", project, () => {})
+        if (project.cleanup) commands.cleanup(this.rootPath || "", project, () => { })
         setTimeout(() => {
             project.status.active = false;
             builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
         }, 1000);
     }
 
-    saveProject(project: ProjectModel) {
-        let properties = ''
-        try {
-            properties = fs.readFileSync(path.resolve(this.rootPath || '', filename)).toString('utf8');
-        } catch (err: any) {
-            if (err.code !== 'ENOENT') throw err;
-        }
-        const newProperties = ProjectModelApi.updateProperties(properties, project);
-        utils.save(filename, newProperties);
+    saveProfiles(profiles: Profile[]) {
+        profiles.forEach(profile => {
+            const filename = profile.name + extension;
+            let properties = ''
+            try {
+                properties = fs.readFileSync(path.resolve(this.rootPath || '', filename)).toString('utf8');
+            } catch (err: any) {
+                if (err.code !== 'ENOENT') throw err;
+            }
+            const newProperties = ProjectModelApi.updateProperties(properties, profile.project);
+            utils.save(filename, newProperties);
+        });
     }
 
-    readProjectInfo(rootPath: string): [ProjectModel, string] {
-        const files = utils.getAllFiles(rootPath, []).map(f => utils.getRalativePath(f)).join(",");
-        let project = ProjectModel.createNew();
-        try {
-            const properties = fs.readFileSync(path.resolve(rootPath, filename)).toString('utf8');
-            project = ProjectModelApi.propertiesToProject(properties);
-        } catch (err: any) {
-            if (err.code !== 'ENOENT') throw err;
-        }
-        return [project, files];
+    readFiles(rootPath: string): string {
+        return utils.getAllFiles(rootPath, []).map(f => utils.getRalativePath(f)).join(",");
     }
 
-    undelpoy(project: ProjectModel) {
-        const [x, files] = this.readProjectInfo(this.rootPath || '');
+    readProfiles(rootPath: string): Profile[] {
+        const profiles: Profile[] = [];
+        fs.readdirSync(rootPath).forEach(file => {
+            const name = path.basename(file).replace(extension, "");
+            try {
+                let project = ProjectModel.createNew();
+                const properties = fs.readFileSync(path.resolve(file)).toString('utf8');
+                project = ProjectModelApi.propertiesToProject(properties);
+                profiles.push(new Profile({name, project}));
+            } catch (err: any) {
+                if (err.code !== 'ENOENT') throw err;
+            }
+        })
+        return profiles;
+    }
+
+    undelpoy(profile: Profile) {
+        const files = this.readFiles(this.rootPath || '');
+        const project = profile.project;
         console.log("undelpoy", project);
         project.status.active = true;
         project.status.undeploy = StepStatus.progress();

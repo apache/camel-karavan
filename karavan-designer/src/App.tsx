@@ -25,7 +25,7 @@ import {KameletsPage} from "./kamelets/KameletsPage";
 import {ComponentsPage} from "./components/ComponentsPage";
 import {EipPage} from "./eip/EipPage";
 import {BuilderPage} from "./builder/BuilderPage";
-import {ProjectModel, StepStatus} from "karavan-core/lib/model/ProjectModel";
+import {Profile, ProjectModel, StepStatus} from "karavan-core/lib/model/ProjectModel";
 
 interface Props {
     page: "designer" | "kamelets" | "components" | "eip" | "builder";
@@ -117,11 +117,11 @@ class App extends React.Component<Props, State> {
     }
 
     public render() {
-        const project = ProjectModel.createNew({profiles:["local", "minikube", "openshift"]});
-        project.properties.set("message", "Hello Placeholder!")
-        project.properties.set("camel.jbang.classpathFiles", "application.properties")
-        project.properties.set("camel.main.routesIncludePattern", "file:demo.yaml")
-        project.properties.set("camel.component.properties.location", "file:application.properties")
+        const project = ProjectModel.createNew({});
+        // project.properties.set("message", "Hello Placeholder!")
+        // project.properties.set("camel.jbang.classpathFiles", "application.properties")
+        // project.properties.set("camel.main.routesIncludePattern", "file:demo.yaml")
+        // project.properties.set("camel.component.properties.location", "file:application.properties")
         project.status.active = true;
         project.status.uberJar = new StepStatus({status:"progress"});
         project.status.build = new StepStatus({status:"progress"});
@@ -134,7 +134,7 @@ class App extends React.Component<Props, State> {
                 {this.props.page === "kamelets" && <KameletsPage dark={document.body.className.includes('vscode-dark')} />}
                 {this.props.page === "components" && <ComponentsPage dark={document.body.className.includes('vscode-dark')} />}
                 {this.props.page === "eip" && <EipPage dark={document.body.className.includes('vscode-dark')} />}
-                {this.props.page === "builder" && <BuilderPage dark={document.body.className.includes('vscode-dark')} project={project}
+                {this.props.page === "builder" && <BuilderPage dark={document.body.className.includes('vscode-dark')} profiles={[Profile.createNew("application")]}
                                                                onChange={project => {
                                                                    // console.log("routesIncludePattern", project.routesIncludePattern);
                                                                    // console.log("classpathFiles", project.classpathFiles);

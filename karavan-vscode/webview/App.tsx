@@ -26,7 +26,7 @@ import { KameletsPage } from "./kamelets/KameletsPage";
 import { ComponentsPage } from "./components/ComponentsPage";
 import { EipPage } from "./eip/EipPage";
 import { BuilderPage } from "./builder/BuilderPage";
-import { ProjectModel } from "karavan-core/lib/model/ProjectModel";
+import { ProjectModel, Profile } from "karavan-core/lib/model/ProjectModel";
 
 interface Props {
   dark: boolean
@@ -46,7 +46,7 @@ interface State {
   active: boolean
   tab?: string
   files: string
-  project: ProjectModel
+  profiles: Profile[]
 }
 
 class App extends React.Component<Props, State> {
@@ -63,7 +63,7 @@ class App extends React.Component<Props, State> {
     page: "designer",
     active: false,
     files: '',
-    project: ProjectModel.createNew()
+    profiles: [Profile.createNew('application')]
   };
 
   saveScheduledChanges = () => {
@@ -97,8 +97,8 @@ class App extends React.Component<Props, State> {
       case 'showStartHelp':
         this.setState({ showStartHelp: message.showStartHelp });
         break;
-      case 'project':
-        this.setState({ project: message.project, files: message.files, key: Math.random().toString() });
+      case 'profiles':
+        this.setState({ profiles: message.profiles, files: message.files, key: Math.random().toString() });
         console.log(message.project)
         break;
       case 'open':
@@ -138,12 +138,12 @@ class App extends React.Component<Props, State> {
     }
   }
 
-  saveProject(project: ProjectModel) {
-    vscode.postMessage({ command: 'saveProject', project: project });
+  saveProfiles(profiles: Profile[]) {
+    vscode.postMessage({ command: 'saveProfiles', profiles: profiles });
   }
 
-  actionProject(action: "start" | "stop" | "undeploy", project: ProjectModel) {
-    vscode.postMessage({ command: 'action', action: action, project: project });
+  actionProfile(action: "start" | "stop" | "undeploy", profile: Profile) {
+    vscode.postMessage({ command: 'action', action: action, profile: profile });
   }
 
   disableStartHelp() {
@@ -173,9 +173,9 @@ class App extends React.Component<Props, State> {
         {this.state.loaded && this.state.page === "components" && <ComponentsPage dark={this.props.dark} />}
         {this.state.loaded && this.state.page === "eip" && <EipPage dark={this.props.dark} />}
         {this.state.loaded && this.state.page === "builder" &&
-          <BuilderPage key={this.state.key} dark={this.props.dark} files={this.state.files} project={this.state.project}
-            onChange={project => this.saveProject(project)}
-            onAction={(action, project) => this.actionProject(action, project)}
+          <BuilderPage key={this.state.key} dark={this.props.dark} files={this.state.files} profiles={this.state.profiles}
+            onChange={profiles => this.saveProfiles(profiles)}
+            onAction={(action, profile) => this.actionProfile(action, profile)}
           />}
       </Page>
     )

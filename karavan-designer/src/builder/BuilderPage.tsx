@@ -46,46 +46,21 @@ import CleanupIcon from '@patternfly/react-icons/dist/esm/icons/remove2-icon';
 import ProjectIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 import ClipboardIcon from '@patternfly/react-icons/dist/esm/icons/clipboard-icon';
 import {FileSelector} from "./FileSelector";
-import {ProjectModel, ProjectStatus, StepStatus} from "karavan-core/lib/model/ProjectModel";
+import {Profile, ProjectModel, StepStatus} from "karavan-core/lib/model/ProjectModel";
 import {ProfileSelector} from "./ProfileSelector";
 import {PropertiesTable} from "./PropertiesTable";
 
 interface Props {
     dark: boolean
-    project: ProjectModel
+    profiles: Profile[]
     files: string
-    onChange?: (project: ProjectModel) => void
-    onAction?: (action: "start" | "stop" | "undeploy", project: ProjectModel) => void
+    onChange?: (profiles: Profile[]) => void
+    onAction?: (action: "start" | "stop" | "undeploy", profile: Profile) => void
 }
 
 interface State {
-    name: string,
-    version: string,
-    filename: string,
-    namespace: string,
-    image?: string,
-    sourceImage: string,
-    from: string,
-    replicas: number,
-    nodePort: number,
-    server?: string,
-    token?: string,
-    username?: string,
-    password?: string,
-    target: 'openshift' | 'minikube' | 'kubernetes',
-    deploy: boolean,
-    build: boolean,
-    uberJar: boolean,
-    routesIncludePattern: string,
-    classpathFiles: string,
-    status: ProjectStatus,
-    cleanup: boolean,
-    manifests: boolean,
-    buildConfig: boolean,
-    path: string,
-    profile?: string,
-    profiles: string [],
-    properties: Map<string, any>
+    profiles: Profile[],
+    profile: Profile,
     key?: string,
     isOpen?: boolean
     tab: string
@@ -93,11 +68,16 @@ interface State {
 
 export class BuilderPage extends React.Component<Props, State> {
 
-    public state: State = {...this.props.project as any, tab: 'project'};
+    public state: State = {
+        profiles: this.props.profiles,
+        profile: this.props.profiles.at(0) || Profile.createNew("application"),
+        tab: 'project'
+    };
     interval: any;
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        this.props.onChange?.call(this, this.state);
+        const profiles = this.state.profiles;
+        if (profiles) this.props.onChange?.call(this, profiles);
     }
 
     componentDidMount() {
@@ -132,10 +112,10 @@ export class BuilderPage extends React.Component<Props, State> {
     }
 
     getBuildConfigField() {
-        const {buildConfig} = this.state;
+        const {buildConfig} = this.state.profile.project;
         return <FormGroup label="Use BuildConfig" fieldId="buildConfig" isRequired={true}>
             <InputGroup style={{display: "flex", flexDirection: "row", justifyContent: "end", alignItems: "center"}}>
-                <Switch isChecked={buildConfig} onChange={checked => this.setState({buildConfig: checked})} id="buildConfig"/>
+                <Switch isChecked={buildConfig} onChange={checked => this.setState(state => {state.profile.project.buildConfig = checked; return state})} id="buildConfig"/>
                 {this.getHelp("Use BuildConfig for build in OpenShift ")}
             </InputGroup>
         </FormGroup>
@@ -160,8 +140,10 @@ export class BuilderPage extends React.Component<Props, State> {
                 {this.getCardHeader("Artifact", <ProjectIcon/>, false)}
                 <CardBody>
                     <Form isHorizontal>
-                        {this.getField("name", "Name", "text", this.state.name, "Project name", val => this.setState({name: val}), true)}
-                        {this.getField("version", "Version", "text", this.state.version, "Project version", val => this.setState({version: val}), true)}
+                        {this.getField("name", "Name", "text", this.state.profile.project.name, "Project name",
+                            val => this.setState(state => {state.profile.project.name= val; return state}), true)}
+                        {this.getField("version", "Version", "text", this.state.profile.project.version, "Project version",
+                            val => this.setState(state => {state.profile.project.version= val; return state}), true)}
                     </Form>
                 </CardBody>
             </Card>
@@ -169,70 +151,86 @@ export class BuilderPage extends React.Component<Props, State> {
     }
 
     getPackageForm() {
-        const {uberJar, classpathFiles, routesIncludePattern} = this.state;
+        const {uberJar, classpathFiles, routesIncludePattern, filename} = this.state.profile.project;
         return <Card className="builder-card" isCompact style={{width: "100%"}}>
-            {this.getCardHeader("Package", <JarIcon/>, true, this.state.uberJar, check => this.setState({uberJar: check}))}
+            {this.getCardHeader("Package", <JarIcon/>, true, uberJar,
+                check => this.setState(state => {state.profile.project.uberJar= check; return state}))}
             <CardBody className={uberJar ? "" : "card-disabled"}>
                 <Form isHorizontal>
-                    {this.getField("filename", "Jar", "text", this.state.filename, "Jar file name", val => this.setState({filename: val}), true, uberJar)}
+                    {this.getField("filename", "Jar", "text", filename, "Jar file name",
+                        val => this.setState(state => {state.profile.project.filename= val; return state}), true, uberJar)}
                     {this.props.files.length > 0 &&
                         <FileSelector source={true} label="Route/source files" help="Routes and source to build and package" files={this.props.files}
-                                      filesSelected={routesIncludePattern} onChange={filesSelected => this.setState({routesIncludePattern: filesSelected})}/>}
+                                      filesSelected={routesIncludePattern}
+                                      onChange={filesSelected => this.setState(state => {state.profile.project.routesIncludePattern= filesSelected; return state})}/>}
                     {this.props.files.length > 0 &&
                         <FileSelector source={false} label="Resources" help="Files to package as resources" files={this.props.files} filesSelected={classpathFiles}
-                                      onChange={filesSelected => this.setState({classpathFiles: filesSelected})}/>}
+                                      onChange={filesSelected => this.setState(state => {state.profile.project.classpathFiles= filesSelected; return state})}/>}
                 </Form>
             </CardBody>
         </Card>
     }
 
     getBuildForm() {
-        const {target, namespace, build, image, sourceImage, server, token, from, buildConfig, username, password} = this.state;
+        const {target, namespace, build, image, sourceImage, server, token, from, buildConfig, username, password} = this.state.profile.project;
         return <Card className="builder-card" isCompact style={{width: "100%"}}>
-            {this.getCardHeader("Build", <ImageIcon/>, true, this.state.build, check => this.setState({build: check}))}
+            {this.getCardHeader("Build", <ImageIcon/>, true, this.state.profile.project.build,
+                check => this.setState(state => {state.profile.project.build= check; return state}))}
             <CardBody className={build ? "" : "card-disabled"}>
                 <Form isHorizontal>
                     <FormGroup label="Target" fieldId="target" isRequired disabled={true}>
                         <ToggleGroup aria-label="Select target">
                             <ToggleGroupItem isDisabled={!build} text="Minikube" buttonId="minikube" isSelected={target === 'minikube'}
-                                             onChange={selected => selected ? this.setState({target: 'minikube'}) : {}}/>
+                                             onChange={selected => selected ? this.setState(state => {state.profile.project.target= 'minikube'; return state}) : {}}/>
                             <ToggleGroupItem isDisabled={!build} text="Kubernetes" buttonId="kubernetes" isSelected={target === 'kubernetes'}
-                                             onChange={selected => selected ? this.setState({target: 'kubernetes'}) : {}}/>
+                                             onChange={selected => selected ? this.setState(state => {state.profile.project.target= 'kubernetes'; return state}) : {}}/>
                             <ToggleGroupItem isDisabled={!build} text="Openshift" buttonId="openshift" isSelected={target === 'openshift'}
-                                             onChange={selected => selected ? this.setState({target: 'openshift'}) : {}}/>
+                                             onChange={selected => selected ? this.setState(state => {state.profile.project.target= 'openshift'; return state}) : {}}/>
                         </ToggleGroup>
                     </FormGroup>
-                    {this.getField("image", "Image name", "text", image, "Image name", val => this.setState({image: val}), true, build)}
+                    {this.getField("image", "Image name", "text", image, "Image name",
+                        val => this.setState(state => {state.profile.project.image= val; return state}), true, build)}
                     {target === 'openshift' && this.getBuildConfigField()}
-                    {!buildConfig && this.getField("from", "Base Image", "text", from, "Base Image", val => this.setState({from: val}), true, build)}
-                    {target === 'openshift' && buildConfig && this.getField("sourceImage", "Source Image", "text", sourceImage, "Source image name (for OpenShift BuildConfig)", val => this.setState({sourceImage: val}), true, build)}
-                    {target !== 'minikube' && this.getField("namespace", "Namespace", "text", namespace, "Namespace to build and/or deploy", val => this.setState({namespace: val}), true, build)}
-                    {target !== 'minikube' && this.getField("server", "Server", "text", server, "Master URL", val => this.setState({server: val}), true, build)}
-                    {target !== 'minikube' && this.getField("username", "Username", "text", username, "Username", val => this.setState({username: val}), false, build)}
-                    {target !== 'minikube' && this.getField("password", "Password", "password", password, "Password (will not be saved)", val => this.setState({password: val}), false, build)}
-                    {target !== 'minikube' && this.getField("token", "Token", "password", token, "Authentication Token (will not be saved)", val => this.setState({token: val}), false, build)}
+                    {!buildConfig && this.getField("from", "Base Image", "text", from, "Base Image",
+                        val => this.setState(state => {state.profile.project.from= val; return state}), true, build)}
+                    {target === 'openshift' && buildConfig && this.getField("sourceImage", "Source Image", "text", sourceImage, "Source image name (for OpenShift BuildConfig)",
+                        val => this.setState(state => {state.profile.project.sourceImage= val; return state}), true, build)}
+                    {target !== 'minikube' && this.getField("namespace", "Namespace", "text", namespace, "Namespace to build and/or deploy",
+                        val => this.setState(state => {state.profile.project.namespace= val; return state}), true, build)}
+                    {target !== 'minikube' && this.getField("server", "Server", "text", server, "Master URL",
+                        val => this.setState(state => {state.profile.project.server= val; return state}), true, build)}
+                    {target !== 'minikube' && this.getField("username", "Username", "text", username, "Username",
+                        val => this.setState(state => {state.profile.project.username= val; return state}), false, build)}
+                    {target !== 'minikube' && this.getField("password", "Password", "password", password, "Password (will not be saved)",
+                        val => this.setState(state => {state.profile.project.password= val; return state}), false, build)}
+                    {target !== 'minikube' && this.getField("token", "Token", "password", token, "Authentication Token (will not be saved)",
+                        val => this.setState(state => {state.profile.project.token= val; return state}), false, build)}
                 </Form>
             </CardBody>
         </Card>
     }
 
     getDeployForm() {
-        const {target, deploy, build} = this.state;
+        const {target, deploy, build, replicas, nodePort} = this.state.profile.project;
         return <Card className="builder-card" isCompact style={{width: "100%"}}>
-            {this.getCardHeader("Deploy", <DeployIcon/>, true, deploy, check => this.setState({deploy: check}))}
+            {this.getCardHeader("Deploy", <DeployIcon/>, true, deploy,
+                check => this.setState(state => {state.profile.project.deploy= check; return state}))}
             <CardBody className={deploy ? "" : "card-disabled"}>
                 <Form isHorizontal>
-                    {this.getField("replicas", "Replicas", "number", this.state.replicas, "Number of replicas of the application", val => this.setState({replicas: val}), true, build)}
-                    {target === 'minikube' && this.getField("nodePort", "Node port", "number", this.state.nodePort, "Node port (minikube)", val => this.setState({nodePort: val}), true, build)}
+                    {this.getField("replicas", "Replicas", "number", replicas, "Number of replicas of the application",
+                        val => this.setState(state => {state.profile.project.replicas= val; return state}), true, build)}
+                    {target === 'minikube' && this.getField("nodePort", "Node port", "number", nodePort, "Node port (minikube)",
+                        val => this.setState(state => {state.profile.project.nodePort= val; return state}), true, build)}
                 </Form>
             </CardBody>
         </Card>
     }
 
     getCleanupForm() {
-        const {cleanup} = this.state;
+        const {cleanup} = this.state.profile.project;
         return <Card className="builder-card" isCompact style={{width: "100%"}}>
-            {this.getCardHeader("Cleanup", <CleanupIcon/>, true, cleanup, check => this.setState({cleanup: check}))}
+            {this.getCardHeader("Cleanup", <CleanupIcon/>, true, cleanup,
+                check => this.setState(state => {state.profile.project.cleanup= check; return state}))}
             <CardBody className={cleanup ? "" : "card-disabled"}>
                 <HelperText>
                     <HelperTextItem variant="indeterminate">Remove created jar and .camel-jbang after build and/or deploy.</HelperTextItem>
@@ -268,7 +266,7 @@ export class BuilderPage extends React.Component<Props, State> {
     }
 
     getProgress() {
-        const {status, uberJar, build, deploy} = this.state;
+        const {status, uberJar, build, deploy} = this.state.profile.project;
         const undeploying = status.active && status.undeploy?.status === "progress";
         return (
             <ProgressStepper isCenterAligned style={{visibility: "visible"}}>
@@ -297,7 +295,7 @@ export class BuilderPage extends React.Component<Props, State> {
     }
 
     getHeader() {
-        const profiles = this.state.profiles;
+        const {profiles, profile} = this.state;
         return (
             <PageSection className="tools-section" variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
                 <Flex className="tools" direction={{default: 'row'}} justifyContent={{default: 'justifyContentSpaceBetween'}} spaceItems={{default: 'spaceItemsLg'}}>
@@ -311,19 +309,22 @@ export class BuilderPage extends React.Component<Props, State> {
                         <Toolbar id="toolbar-group-types">
                             <ToolbarContent>
                                 <ToolbarItem>
-                                    <ProfileSelector project={this.state}
+                                    <ProfileSelector profiles={profiles.map(p => p.name)}
+                                                     profile={profile.name}
                                                      onDelete={profile => {
                                                          this.setState(state => {
-                                                             state.profiles.splice(state.profiles.indexOf(profile, 1));
-                                                             return {profiles: state.profiles, profile: state.profiles.at(0)};
+                                                             state.profiles.splice(state.profiles.findIndex(p => p.name === profile));
+                                                             return {profiles: state.profiles, profile: this.props.profiles.at(0) || Profile.createNew("application"), tab: state.tab};
                                                          })}}
                                                      onChange={profile => {
-                                                         if (profiles.includes(profile)) {
-                                                             this.setState({profile: profile});
+                                                         const prof = profiles.find(p => p.name === profile);
+                                                         if (prof) {
+                                                             this.setState({profile: prof, key: Math.random().toString()});
                                                          } else {
                                                              this.setState(state => {
-                                                                 state.profiles.push(profile);
-                                                                 return {profiles: state.profiles, profile: profile};
+                                                                 const newProfile = Profile.createNew(profile);
+                                                                 state.profiles.push(newProfile);
+                                                                 return {profiles: state.profiles, profile: newProfile, tab: state.tab};
                                                              })
                                                          }
                                                      }}/>
@@ -343,11 +344,11 @@ export class BuilderPage extends React.Component<Props, State> {
     }
 
     onButtonClick(action: "start" | "stop" | "undeploy") {
-        this.props.onAction?.call(this, action, this.state);
+        this.props.onAction?.call(this, action, this.state.profile);
     }
 
     getFooter() {
-        const active = this.state.status.active;
+        const active = this.state.profile.project.status.active;
         const label = active ? "Stop" : "Start";
         const icon = active ? <InProgressIcon/> : <AutomationIcon/>;
         return <div key={this.state.key} className="footer">
@@ -371,12 +372,13 @@ export class BuilderPage extends React.Component<Props, State> {
 
     getPropertiesForm() {
         return (
-            <div className="center">
+            <div className="center" key={this.state.profile.name}>
                 <div className="center-column">
                     <Card className="builder-card" isCompact style={{width: "100%"}}>
                         {this.getCardHeader("Properties", <ClipboardIcon/>, false)}
                         <CardBody>
-                            <PropertiesTable properties={this.state.properties} onChange={properties => this.setState({properties: properties})}/>
+                            <PropertiesTable properties={this.state.profile.project.properties}
+                                             onChange={properties => this.setState(state => {state.profile.project.properties= properties; return state})}/>
                         </CardBody>
                     </Card>
                 </div>

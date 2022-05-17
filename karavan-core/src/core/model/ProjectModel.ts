@@ -82,8 +82,6 @@ export class ProjectModel {
     path: string = ''
     classpathFiles: string = ''
     routesIncludePattern: string = ''
-    profile?: string = 'local'
-    profiles: string[] = ['local']
     status: ProjectStatus = new ProjectStatus()
     properties: Map<string, any> = new Map<string, any>()
 
@@ -93,5 +91,18 @@ export class ProjectModel {
 
     static createNew(init?: Partial<ProjectModel>): ProjectModel {
         return new ProjectModel(init ? init : {})
+    }
+}
+
+export class Profile {
+    name: string = ''
+    project: ProjectModel = ProjectModel.createNew();
+
+    public constructor(init?: Partial<Profile>) {
+        Object.assign(this, init);
+    }
+
+    static createNew(name: string): Profile {
+        return new Profile({name: name, project: ProjectModel.createNew()})
     }
 }
