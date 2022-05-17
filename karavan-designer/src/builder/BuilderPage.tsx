@@ -22,7 +22,7 @@ import {
     ProgressStep,
     ProgressStepper,
     Spinner,
-    Switch,
+    Switch, Tab, Tabs,
     Text,
     TextContent,
     TextInput,
@@ -44,9 +44,11 @@ import ImageIcon from '@patternfly/react-icons/dist/esm/icons/docker-icon';
 import DeployIcon from '@patternfly/react-icons/dist/esm/icons/cloud-upload-alt-icon';
 import CleanupIcon from '@patternfly/react-icons/dist/esm/icons/remove2-icon';
 import ProjectIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
+import ClipboardIcon from '@patternfly/react-icons/dist/esm/icons/clipboard-icon';
 import {FileSelector} from "./FileSelector";
 import {ProjectModel, ProjectStatus, StepStatus} from "karavan-core/lib/model/ProjectModel";
 import {ProfileSelector} from "./ProfileSelector";
+import {PropertiesTable} from "./PropertiesTable";
 
 interface Props {
     dark: boolean
@@ -83,13 +85,15 @@ interface State {
     path: string,
     profile?: string,
     profiles: string [],
+    properties: Map<string, any>
     key?: string,
     isOpen?: boolean
+    tab: string
 }
 
 export class BuilderPage extends React.Component<Props, State> {
 
-    public state: State = this.props.project;
+    public state: State = {...this.props.project as any, tab: 'project'};
     interval: any;
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
@@ -153,7 +157,7 @@ export class BuilderPage extends React.Component<Props, State> {
     getProjectForm() {
         return (
             <Card className="builder-card" isCompact style={{width: "100%"}}>
-                {this.getCardHeader("Project", <ProjectIcon/>, false)}
+                {this.getCardHeader("Artifact", <ProjectIcon/>, false)}
                 <CardBody>
                     <Form isHorizontal>
                         {this.getField("name", "Name", "text", this.state.name, "Project name", val => this.setState({name: val}), true)}
@@ -198,11 +202,11 @@ export class BuilderPage extends React.Component<Props, State> {
                                              onChange={selected => selected ? this.setState({target: 'openshift'}) : {}}/>
                         </ToggleGroup>
                     </FormGroup>
-                    {this.getField("namespace", "Namespace", "text", namespace, "Namespace to build and/or deploy", val => this.setState({namespace: val}), true, build)}
                     {this.getField("image", "Image name", "text", image, "Image name", val => this.setState({image: val}), true, build)}
                     {target === 'openshift' && this.getBuildConfigField()}
                     {!buildConfig && this.getField("from", "Base Image", "text", from, "Base Image", val => this.setState({from: val}), true, build)}
                     {target === 'openshift' && buildConfig && this.getField("sourceImage", "Source Image", "text", sourceImage, "Source image name (for OpenShift BuildConfig)", val => this.setState({sourceImage: val}), true, build)}
+                    {target !== 'minikube' && this.getField("namespace", "Namespace", "text", namespace, "Namespace to build and/or deploy", val => this.setState({namespace: val}), true, build)}
                     {target !== 'minikube' && this.getField("server", "Server", "text", server, "Master URL", val => this.setState({server: val}), true, build)}
                     {target !== 'minikube' && this.getField("username", "Username", "text", username, "Username", val => this.setState({username: val}), false, build)}
                     {target !== 'minikube' && this.getField("password", "Password", "password", password, "Password (will not be saved)", val => this.setState({password: val}), false, build)}
@@ -216,10 +220,10 @@ export class BuilderPage extends React.Component<Props, State> {
         const {target, deploy, build} = this.state;
         return <Card className="builder-card" isCompact style={{width: "100%"}}>
             {this.getCardHeader("Deploy", <DeployIcon/>, true, deploy, check => this.setState({deploy: check}))}
-            <CardBody className={build ? "" : "card-disabled"}>
+            <CardBody className={deploy ? "" : "card-disabled"}>
                 <Form isHorizontal>
-                    {deploy && this.getField("replicas", "Replicas", "number", this.state.replicas, "Number of replicas of the application", val => this.setState({replicas: val}), true, build)}
-                    {deploy && target === 'minikube' && this.getField("nodePort", "Node port", "number", this.state.nodePort, "Node port (minikube)", val => this.setState({nodePort: val}), true, build)}
+                    {this.getField("replicas", "Replicas", "number", this.state.replicas, "Number of replicas of the application", val => this.setState({replicas: val}), true, build)}
+                    {target === 'minikube' && this.getField("nodePort", "Node port", "number", this.state.nodePort, "Node port (minikube)", val => this.setState({nodePort: val}), true, build)}
                 </Form>
             </CardBody>
         </Card>
@@ -328,6 +332,12 @@ export class BuilderPage extends React.Component<Props, State> {
                         </Toolbar>
                     </FlexItem>
                 </Flex>
+                <Tabs className="main-tabs" activeKey={this.state.tab}
+                      onSelect={(event, tabIndex) => {this.setState({tab: tabIndex.toString()})}}
+                      style={{width: "100%"}}>
+                    <Tab eventKey='project' title="Project"></Tab>
+                    <Tab eventKey='properties' title="Properties"></Tab>
+                </Tabs>
             </PageSection>
         )
     }
@@ -359,6 +369,21 @@ export class BuilderPage extends React.Component<Props, State> {
         </div>
     }
 
+    getPropertiesForm() {
+        return (
+            <div className="center">
+                <div className="center-column">
+                    <Card className="builder-card" isCompact style={{width: "100%"}}>
+                        {this.getCardHeader("Properties", <ClipboardIcon/>, false)}
+                        <CardBody>
+                            <PropertiesTable properties={this.state.properties} onChange={properties => this.setState({properties: properties})}/>
+                        </CardBody>
+                    </Card>
+                </div>
+            </div>
+        )
+    }
+
     getCenter() {
         return (
             <div className="center">
@@ -376,6 +401,7 @@ export class BuilderPage extends React.Component<Props, State> {
     }
 
     render() {
+        const tab = this.state.tab;
         return (
             <PageSection className="project-builder" variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}
                          padding={{default: 'noPadding'}}>
@@ -384,7 +410,8 @@ export class BuilderPage extends React.Component<Props, State> {
                         {this.getHeader()}
                     </div>
                     <div style={{overflow: "auto", flexGrow: 1}}>
-                        {this.getCenter()}
+                        {tab === 'project' && this.getCenter()}
+                        {tab === 'properties' && this.getPropertiesForm()}
                     </div>
                     <div style={{flexShrink: "0"}}>
                         {this.getFooter()}

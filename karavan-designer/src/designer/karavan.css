@@ -1177,3 +1177,22 @@ reactour-portal .reactour__popover button:focus-visible {
     flex-direction: column;
     justify-content: space-around;
 }
+
+.karavan .project-builder .project-properties td {
+    padding: 0;
+    margin: 0;
+}
+
+.karavan .project-builder .project-properties td,
+.karavan .project-builder .project-properties tr {
+    border: none;
+}
+
+.karavan .project-builder .project-properties .delete-button {
+    padding: 0 0 0 6px;
+    margin: 0;
+}
+.karavan .project-builder .add-button {
+    width: fit-content;
+    margin-top: 6px;
+}

@@ -85,6 +85,7 @@ export class ProjectModel {
     profile?: string = 'local'
     profiles: string[] = ['local']
     status: ProjectStatus = new ProjectStatus()
+    properties: Map<string, any> = new Map<string, any>()
 
     public constructor(init?: Partial<ProjectModel>) {
         Object.assign(this, init);

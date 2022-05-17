@@ -118,6 +118,10 @@ class App extends React.Component<Props, State> {
 
     public render() {
         const project = ProjectModel.createNew({profiles:["local", "minikube", "openshift"]});
+        project.properties.set("message", "Hello Placeholder!")
+        project.properties.set("camel.jbang.classpathFiles", "application.properties")
+        project.properties.set("camel.main.routesIncludePattern", "file:demo.yaml")
+        project.properties.set("camel.component.properties.location", "file:application.properties")
         project.status.active = true;
         project.status.uberJar = new StepStatus({status:"progress"});
         project.status.build = new StepStatus({status:"progress"});
