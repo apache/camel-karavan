@@ -117,7 +117,7 @@ class App extends React.Component<Props, State> {
     }
 
     public render() {
-        const project = ProjectModel.createNew();
+        const project = ProjectModel.createNew({profiles:["local", "minikube", "openshift"]});
         project.status.active = true;
         project.status.uberJar = new StepStatus({status:"progress"});
         project.status.build = new StepStatus({status:"progress"});
@@ -132,8 +132,8 @@ class App extends React.Component<Props, State> {
                 {this.props.page === "eip" && <EipPage dark={document.body.className.includes('vscode-dark')} />}
                 {this.props.page === "builder" && <BuilderPage dark={document.body.className.includes('vscode-dark')} project={project}
                                                                onChange={project => {
-                                                                   console.log("routesIncludePattern", project.routesIncludePattern);
-                                                                   console.log("classpathFiles", project.classpathFiles);
+                                                                   // console.log("routesIncludePattern", project.routesIncludePattern);
+                                                                   // console.log("classpathFiles", project.classpathFiles);
                                                                }}
                                                                files={'demo.yaml,CustomProcessor.java,script.groovy,docker-compose.yaml,README.MD'}/>}
             </Page>

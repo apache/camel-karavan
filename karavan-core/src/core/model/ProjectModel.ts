@@ -82,13 +82,15 @@ export class ProjectModel {
     path: string = ''
     classpathFiles: string = ''
     routesIncludePattern: string = ''
+    profile?: string = 'local'
+    profiles: string[] = ['local']
     status: ProjectStatus = new ProjectStatus()
 
     public constructor(init?: Partial<ProjectModel>) {
         Object.assign(this, init);
     }
 
-    static createNew(): ProjectModel {
-        return new ProjectModel({})
+    static createNew(init?: Partial<ProjectModel>): ProjectModel {
+        return new ProjectModel(init ? init : {})
     }
 }

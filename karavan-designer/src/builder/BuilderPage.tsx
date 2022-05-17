@@ -1,37 +1,36 @@
 import React from 'react';
 import {
-    Toolbar,
-    ToolbarContent,
-    ToolbarItem,
-    TextInput,
-    PageSection,
-    TextContent,
-    Text,
-    PageSectionVariants,
-    Flex,
-    FlexItem,
     Badge,
     Button,
-    FormGroup,
-    Form,
     Card,
-    CardTitle,
+    CardActions,
     CardBody,
-    CardFooter,
     CardHeader,
     CardHeaderMain,
-    CardActions,
-    Checkbox,
-    Switch,
-    ToggleGroup,
-    ToggleGroupItem,
-    PopoverPosition,
-    Popover,
+    CardTitle,
+    Flex,
+    FlexItem,
+    Form,
+    FormGroup,
+    HelperText,
+    HelperTextItem,
     InputGroup,
+    PageSection,
+    PageSectionVariants,
+    Popover,
+    PopoverPosition,
     ProgressStep,
     ProgressStepper,
     Spinner,
-    HelperTextItem, HelperText
+    Switch,
+    Text,
+    TextContent,
+    TextInput,
+    ToggleGroup,
+    ToggleGroupItem,
+    Toolbar,
+    ToolbarContent,
+    ToolbarItem,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
@@ -40,8 +39,6 @@ import AutomationIcon from '@patternfly/react-icons/dist/esm/icons/bundle-icon';
 import PendingIcon from '@patternfly/react-icons/dist/esm/icons/pending-icon';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import CheckCircleIcon from '@patternfly/react-icons/dist/esm/icons/check-circle-icon';
-import RunIcon from '@patternfly/react-icons/dist/esm/icons/forward-icon';
-import StopIcon from '@patternfly/react-icons/dist/esm/icons/stop-icon';
 import JarIcon from '@patternfly/react-icons/dist/esm/icons/hotjar-icon';
 import ImageIcon from '@patternfly/react-icons/dist/esm/icons/docker-icon';
 import DeployIcon from '@patternfly/react-icons/dist/esm/icons/cloud-upload-alt-icon';
@@ -49,6 +46,7 @@ import CleanupIcon from '@patternfly/react-icons/dist/esm/icons/remove2-icon';
 import ProjectIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 import {FileSelector} from "./FileSelector";
 import {ProjectModel, ProjectStatus, StepStatus} from "karavan-core/lib/model/ProjectModel";
+import {ProfileSelector} from "./ProfileSelector";
 
 interface Props {
     dark: boolean
@@ -83,20 +81,23 @@ interface State {
     manifests: boolean,
     buildConfig: boolean,
     path: string,
-    key?: string;
+    profile?: string,
+    profiles: string [],
+    key?: string,
+    isOpen?: boolean
 }
 
 export class BuilderPage extends React.Component<Props, State> {
 
     public state: State = this.props.project;
-    interval:any;
+    interval: any;
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         this.props.onChange?.call(this, this.state);
     }
 
     componentDidMount() {
-        this.interval = setInterval(() => this.setState(state => ({ key: Math.random().toString()})), 1000);
+        this.interval = setInterval(() => this.setState(state => ({key: Math.random().toString()})), 1000);
     }
 
     componentWillUnmount() {
@@ -129,7 +130,7 @@ export class BuilderPage extends React.Component<Props, State> {
     getBuildConfigField() {
         const {buildConfig} = this.state;
         return <FormGroup label="Use BuildConfig" fieldId="buildConfig" isRequired={true}>
-            <InputGroup style={{display:"flex", flexDirection:"row", justifyContent:"end", alignItems:"center"}}>
+            <InputGroup style={{display: "flex", flexDirection: "row", justifyContent: "end", alignItems: "center"}}>
                 <Switch isChecked={buildConfig} onChange={checked => this.setState({buildConfig: checked})} id="buildConfig"/>
                 {this.getHelp("Use BuildConfig for build in OpenShift ")}
             </InputGroup>
@@ -170,10 +171,12 @@ export class BuilderPage extends React.Component<Props, State> {
             <CardBody className={uberJar ? "" : "card-disabled"}>
                 <Form isHorizontal>
                     {this.getField("filename", "Jar", "text", this.state.filename, "Jar file name", val => this.setState({filename: val}), true, uberJar)}
-                    {this.props.files.length >0 &&
-                        <FileSelector source={true} label="Route/source files" help="Routes and source to build and package" files={this.props.files} filesSelected={routesIncludePattern} onChange={filesSelected => this.setState({routesIncludePattern: filesSelected})}/>}
-                    {this.props.files.length >0 &&
-                        <FileSelector source={false} label="Resources" help="Files to package as resources" files={this.props.files} filesSelected={classpathFiles} onChange={filesSelected => this.setState({classpathFiles: filesSelected})}/>}
+                    {this.props.files.length > 0 &&
+                        <FileSelector source={true} label="Route/source files" help="Routes and source to build and package" files={this.props.files}
+                                      filesSelected={routesIncludePattern} onChange={filesSelected => this.setState({routesIncludePattern: filesSelected})}/>}
+                    {this.props.files.length > 0 &&
+                        <FileSelector source={false} label="Resources" help="Files to package as resources" files={this.props.files} filesSelected={classpathFiles}
+                                      onChange={filesSelected => this.setState({classpathFiles: filesSelected})}/>}
                 </Form>
             </CardBody>
         </Card>
@@ -249,12 +252,12 @@ export class BuilderPage extends React.Component<Props, State> {
         }
     }
 
-    getDescription(stepStatus?: StepStatus){
+    getDescription(stepStatus?: StepStatus) {
         const now = Date.now();
-        let time = 0 ;
+        let time = 0;
         if (stepStatus?.status === 'progress') {
             time = stepStatus?.startTime ? (now - stepStatus.startTime) / 1000 : 0;
-        } else if (stepStatus?.status === 'done' && stepStatus?.endTime){
+        } else if (stepStatus?.status === 'done' && stepStatus?.endTime) {
             time = (stepStatus?.endTime - stepStatus.startTime) / 1000
         }
         return time === 0 ? "" : Math.round(time) + "s";
@@ -290,6 +293,7 @@ export class BuilderPage extends React.Component<Props, State> {
     }
 
     getHeader() {
+        const profiles = this.state.profiles;
         return (
             <PageSection className="tools-section" variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
                 <Flex className="tools" direction={{default: 'row'}} justifyContent={{default: 'justifyContentSpaceBetween'}} spaceItems={{default: 'spaceItemsLg'}}>
@@ -303,8 +307,22 @@ export class BuilderPage extends React.Component<Props, State> {
                         <Toolbar id="toolbar-group-types">
                             <ToolbarContent>
                                 <ToolbarItem>
-                                    <Button variant="plain" onClick={e => {
-                                    }}><HelpIcon/></Button>
+                                    <ProfileSelector project={this.state}
+                                                     onDelete={profile => {
+                                                         this.setState(state => {
+                                                             state.profiles.splice(state.profiles.indexOf(profile, 1));
+                                                             return {profiles: state.profiles, profile: state.profiles.at(0)};
+                                                         })}}
+                                                     onChange={profile => {
+                                                         if (profiles.includes(profile)) {
+                                                             this.setState({profile: profile});
+                                                         } else {
+                                                             this.setState(state => {
+                                                                 state.profiles.push(profile);
+                                                                 return {profiles: state.profiles, profile: profile};
+                                                             })
+                                                         }
+                                                     }}/>
                                 </ToolbarItem>
                             </ToolbarContent>
                         </Toolbar>
@@ -323,22 +341,22 @@ export class BuilderPage extends React.Component<Props, State> {
         const label = active ? "Stop" : "Start";
         const icon = active ? <InProgressIcon/> : <AutomationIcon/>;
         return <div key={this.state.key} className="footer">
-                    <div className="progress">
-                        {active && this.getProgress()}
-                    </div>
-                    <div className="buttons">
-                        <Toolbar id="toolbar-items">
-                            <ToolbarContent>
-                                {!active && <ToolbarItem>
-                                    <Button variant="secondary" isSmall onClick={event => this.onButtonClick("undeploy")}>Undeploy</Button>
-                                </ToolbarItem>}
-                                <ToolbarItem>
-                                    <Button variant="primary" isSmall icon={icon} onClick={event => this.onButtonClick(active ? "stop" : "start")}>{label}</Button>
-                                </ToolbarItem>
-                            </ToolbarContent>
-                        </Toolbar>
-                    </div>
-                </div>
+            <div className="progress">
+                {active && this.getProgress()}
+            </div>
+            <div className="buttons">
+                <Toolbar id="toolbar-items">
+                    <ToolbarContent>
+                        {!active && <ToolbarItem>
+                            <Button variant="secondary" isSmall onClick={event => this.onButtonClick("undeploy")}>Undeploy</Button>
+                        </ToolbarItem>}
+                        <ToolbarItem>
+                            <Button variant="primary" isSmall icon={icon} onClick={event => this.onButtonClick(active ? "stop" : "start")}>{label}</Button>
+                        </ToolbarItem>
+                    </ToolbarContent>
+                </Toolbar>
+            </div>
+        </div>
     }
 
     getCenter() {
