@@ -14,7 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {ProjectModel, ProjectStatus} from "../model/ProjectModel";
+import {ProjectModel, ProjectStatus, ProjectProperty} from "../model/ProjectModel";
+import {v4 as uuidv4} from "uuid";
 
 const PREFIX_JBANG = "camel.jbang";
 const PREFIX_MAIN = "camel.main";
@@ -22,9 +23,10 @@ const PREFIX_MAIN = "camel.main";
 export class ProjectModelApi {
 
     static propertiesToProject = (properties: string): ProjectModel => {
-        const lines = properties.split(/\r?\n/).filter(text => text.trim().length > 0 &&
-            (text.startsWith(PREFIX_JBANG) || text.startsWith(this.getKeyWithPrefix('routesIncludePattern'))));
-        const map = this.propertiesToMap(lines);
+        const allLines = properties.split(/\r?\n/).filter(text => text.trim().length > 0 && !text.trim().startsWith("#"));
+        const managedLines = allLines.filter(text => text.startsWith(PREFIX_JBANG) || text.startsWith(this.getKeyWithPrefix('routesIncludePattern')));
+        const unmanagedLines = allLines.filter(text => !managedLines.includes(text));
+        const map = this.propertiesToMap(managedLines);
         const project = new ProjectModel();
         project.name = this.getValue(map, "project.name");
         project.version = this.getValue(map, "project.version");
@@ -52,12 +54,13 @@ export class ProjectModelApi {
         project.manifests = this.getValue(map, "manifests") === "true";
         project.path = this.getValue(map, "manifests.path");
         project.status = new ProjectStatus();
+        project.properties = this.propertiesFromMap(this.propertiesToMap(unmanagedLines));
 
-        Object.keys(project).forEach(key => {
+        Object.keys(project).filter(key => key !== 'properties').forEach(key => {
             const value = (project as any)[key];
             if ( value === undefined || value === 'undefined') delete (project as any)[key];
         })
-        return new ProjectModel(JSON.parse(JSON.stringify(project)) as ProjectModel);
+        return project;
     }
 
     static getValue = (map: Map<string, any>, ...keys: string[]): any => {
@@ -77,18 +80,20 @@ export class ProjectModelApi {
         return result;
     }
 
+    static propertiesFromMap = (properties: Map<string, any>): ProjectProperty[] =>{
+        try {
+            return Array.from(properties.keys()).map(key => {
+                let x = {id: uuidv4(), key: key, value: properties.get(key)};
+                return x;
+            });
+        } catch (err){
+            return [];
+        }
+    }
+
     static updateProperties = (properties: string, project: ProjectModel): string => {
-        const linesAll = properties.split(/\r?\n/);
-        const nonPropLines = linesAll.filter(text => text.trim().length === 0
-            || (!text.startsWith(PREFIX_JBANG) && !text.startsWith(this.getKeyWithPrefix('routesIncludePattern'))));
-        const propLines = linesAll.filter(text => text.trim().length > 0
-            && (text.startsWith(PREFIX_JBANG) || text.startsWith(this.getKeyWithPrefix('routesIncludePattern'))));
-        const mapFromFile = this.propertiesToMap(propLines);
         const mapFromProject = this.projectToMap(project);
-        const result: string[] = [...nonPropLines];
-        mapFromFile.forEach((value, key) => {
-            if (!mapFromProject.has(key) && mapFromProject.get(key) !== undefined) result.push(key + "=" + value);
-        })
+        const result: string[] = [];
         mapFromProject.forEach((value, key) => {
             if (value !== undefined) result.push(key + "=" + value);
         })
@@ -98,6 +103,10 @@ export class ProjectModelApi {
     static projectToMap = (project: ProjectModel): Map<string, any> => {
         const map = new Map<string, any>();
         if (project.image?.length === 0) project.image = project.namespace + "/" + project.name + ":" + project.version;
+
+        if (project.properties && project.properties.length >0){
+            project.properties.forEach(p => map.set(p.key, p.value));
+        }
         this.setValue(map, "project.name", project.name);
         this.setValue(map, "project.version", project.version);
         this.setValue(map, "project.namespace", project.namespace);

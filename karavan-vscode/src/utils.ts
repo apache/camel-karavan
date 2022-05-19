@@ -32,6 +32,12 @@ export function save(relativePath: string, text: string){
     }
 }
 
+export function deleteFile(fullPath: string){
+    if (vscode.workspace.workspaceFolders) {
+        fs.rmSync(path.resolve(fullPath));
+    }
+}
+
 export function getRalativePath(fullPath: string): string {
     const root = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.path : "";
     const normalizedRoot = vscode.Uri.file(root).fsPath ;
@@ -123,6 +129,14 @@ export function getAllFiles (dirPath, arrayOfFiles: string[]): string[]  {
 export function getYamlFiles(baseDir: string): string[] {
     const result:string[] = [];
     getAllFiles(baseDir, []).filter(f => f.endsWith(".yaml")).forEach(f => {
+        result.push(f);
+    })
+    return result;
+}
+
+export function getPropertyFiles(baseDir: string): string[] {
+    const result:string[] = [];
+    getAllFiles(baseDir, []).filter(f => f.endsWith(".properties")).forEach(f => {
         result.push(f);
     })
     return result;

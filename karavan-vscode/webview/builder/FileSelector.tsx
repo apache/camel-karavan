@@ -28,7 +28,7 @@ export class FileSelector extends React.Component<Props, State> {
 
     isChecked(file: string) {
         const finalFile = this.props.source ? "file:" + file : file;
-        const s = this.props.filesSelected.split(",").map(value => value.trim());
+        const s = this.props.filesSelected ? this.props.filesSelected.split(",").map(value => value.trim()) : [];
         return s.includes(finalFile);
     }
 
@@ -65,11 +65,11 @@ export class FileSelector extends React.Component<Props, State> {
                     <div style={{width:"100%"}}>
                         {files.map(file => {
                             const key = file + this.props.source;
-                         return <Checkbox key={key} label={file} isChecked={this.isChecked(file)} onChange={checked => this.onChange(file, checked)} id={key} name={key}/>
+                            return <Checkbox key={key} label={file} isChecked={this.isChecked(file)} onChange={checked => this.onChange(file, checked)} id={key} name={key}/>
                         })}
                     </div>
                     <Popover aria-label="files" position={PopoverPosition.left}
-                        bodyContent={this.props.help}>
+                             bodyContent={this.props.help}>
                         <Button variant="plain" onClick={e => {}}>
                             <HelpIcon/>
                         </Button>

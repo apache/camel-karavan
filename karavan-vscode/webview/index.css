@@ -407,3 +407,19 @@ color: var(--vscode-editor-foreground);
 .vscode-dark .karavan .project-builder .footer .buttons .pf-c-toolbar {
   background: transparent;
 }
+
+.vscode-dark .project-builder .pf-c-table {
+  background-color: transparent;
+  color:  var(--vscode-input-foreground);
+}
+
+.vscode-dark .pf-c-table {
+  --pf-c-table--cell--Color:  var(--vscode-input-foreground);
+  color:  var(--vscode-input-foreground);
+}
+
+.vscode-dark .profile-modal .text-field {
+  background-color:  var(--vscode-editor-background);
+  border-color:  var(--vscode-input-foreground);
+  color:  var(--vscode-input-foreground);
+}
