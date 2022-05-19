@@ -313,7 +313,7 @@ export class BuilderPage extends React.Component<Props, State> {
                                                      profile={profile.name}
                                                      onDelete={profile => {
                                                          this.setState(state => {
-                                                             state.profiles.splice(state.profiles.findIndex(p => p.name === profile));
+                                                             state.profiles.splice(state.profiles.findIndex(p => p.name === profile), 1);
                                                              return {profiles: state.profiles, profile: this.props.profiles.at(0) || Profile.createNew("application"), tab: state.tab};
                                                          })}}
                                                      onChange={profile => {
@@ -323,6 +323,7 @@ export class BuilderPage extends React.Component<Props, State> {
                                                          } else {
                                                              this.setState(state => {
                                                                  const newProfile = Profile.createNew(profile);
+                                                                 newProfile.project = new ProjectModel(this.state.profile);
                                                                  state.profiles.push(newProfile);
                                                                  return {profiles: state.profiles, profile: newProfile, tab: state.tab};
                                                              })
@@ -378,7 +379,7 @@ export class BuilderPage extends React.Component<Props, State> {
                         {this.getCardHeader("Properties", <ClipboardIcon/>, false)}
                         <CardBody>
                             <PropertiesTable properties={this.state.profile.project.properties}
-                                             onChange={properties => this.setState(state => {state.profile.project.properties= properties; return state})}/>
+                                             onChange={properties => this.setState(state => {state.profile.project.properties = properties; return state})}/>
                         </CardBody>
                     </Card>
                 </div>

@@ -7,12 +7,12 @@ import {
 import '../designer/karavan.css';
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
-import {v4 as uuidv4} from "uuid";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
+import {ProjectProperty} from "karavan-core/lib/model/ProjectModel";
 
 interface Props {
-    properties: Map<string, any>
-    onChange?: (properties: Map<string, any>) => void
+    properties: Property[]
+    onChange?: (properties: Property[]) => void
 }
 
 interface Property {
@@ -30,17 +30,12 @@ interface State {
 export class PropertiesTable extends React.Component<Props, State> {
 
     public state: State = {
-        properties: Array.from(this.props.properties.keys()).map(key => {
-            let x = {id: uuidv4(), key: key, value: this.props.properties.get(key)};
-            return x;
-        }),
+        properties: this.props.properties,
         showDeleteConfirmation: false
     };
 
     sendUpdate = (props: Property[]) => {
-        const properties = new Map<string, any>();
-        props.forEach(p => properties.set(p.key, p.value));
-        this.props.onChange?.call(this, properties);
+        this.props.onChange?.call(this, props);
     }
 
     changeProperty(p: Property, field: "key" | "value", val?: string) {
@@ -64,7 +59,7 @@ export class PropertiesTable extends React.Component<Props, State> {
 
     addProperty() {
         const props = [...this.state.properties];
-        props.push({id: uuidv4(), key:"", value:""})
+        props.push(ProjectProperty.createNew("",""))
         this.setState({properties: props, showDeleteConfirmation: false, deleteId: undefined});
         this.sendUpdate(props);
     }
@@ -96,27 +91,27 @@ export class PropertiesTable extends React.Component<Props, State> {
         return (
             <>
                 {properties.length > 0 &&
-                <TableComposable aria-label="Property table" variant='compact' borders={false} className="project-properties">
-                    <Thead>
-                        <Tr>
-                            <Th key='name'>Name</Th>
-                            <Th key='value'>Value</Th>
-                            <Td></Td>
-                        </Tr>
-                    </Thead>
-                    <Tbody>
-                        {properties.map((property, idx: number) => (
-                            <Tr key={property.id}>
-                                <Td dataLabel="key">{this.getTextInputField(property, "key")}</Td>
-                                <Td dataLabel="value">{this.getTextInputField(property, "value")}</Td>
-                                <Td dataLabel="delete" modifier="fitContent">
-                                    <Button variant={"plain"} icon={<DeleteIcon/>} className={"delete-button"} onClick={event => this.startDelete(property.id)}/>
-                                </Td>
+                    <TableComposable aria-label="Property table" variant='compact' borders={false} className="project-properties">
+                        <Thead>
+                            <Tr>
+                                <Th key='name'>Name</Th>
+                                <Th key='value'>Value</Th>
+                                <Td></Td>
                             </Tr>
-                        ))}
-                    </Tbody>
-                    {this.getDeleteConfirmation()}
-                </TableComposable>}
+                        </Thead>
+                        <Tbody>
+                            {properties.map((property, idx: number) => (
+                                <Tr key={property.id}>
+                                    <Td dataLabel="key">{this.getTextInputField(property, "key")}</Td>
+                                    <Td dataLabel="value">{this.getTextInputField(property, "value")}</Td>
+                                    <Td dataLabel="delete" modifier="fitContent">
+                                        <Button variant={"plain"} icon={<DeleteIcon/>} className={"delete-button"} onClick={event => this.startDelete(property.id)}/>
+                                    </Td>
+                                </Tr>
+                            ))}
+                        </Tbody>
+                        {this.getDeleteConfirmation()}
+                    </TableComposable>}
                 <Button isInline variant={"link"} icon={<PlusIcon/>} className={"add-button"} onClick={event => this.addProperty()}>Add property</Button>
             </>
         )

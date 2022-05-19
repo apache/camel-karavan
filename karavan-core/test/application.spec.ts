@@ -33,13 +33,20 @@ describe('Project configuration', () => {
         expect(tag).to.equal(project.image);
 
 
-        project.routesIncludePattern = "file:x";
+        // project.routesIncludePattern = "file:x";
+        // newProperties = ProjectModelApi.updateProperties(newProperties, project);
+        // project.routesIncludePattern = "file:y";
+        // newProperties = ProjectModelApi.updateProperties(newProperties, project);
+        // project.routesIncludePattern = "";
+        // newProperties = ProjectModelApi.updateProperties(newProperties, project);
+        project.properties = project.properties.map(p => {
+            if (p.key === 'message') {
+              p.value = 'HELLO WORLD'
+              return p;
+            } else return p;
+        });
         newProperties = ProjectModelApi.updateProperties(newProperties, project);
-        project.routesIncludePattern = "file:y";
-        newProperties = ProjectModelApi.updateProperties(newProperties, project);
-        project.routesIncludePattern = "";
-        newProperties = ProjectModelApi.updateProperties(newProperties, project);
-        // console.log(newProperties);
+        console.log(newProperties);
     });
 
 });

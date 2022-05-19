@@ -32,6 +32,12 @@ export function save(relativePath: string, text: string){
     }
 }
 
+export function deleteFile(fullPath: string){
+    if (vscode.workspace.workspaceFolders) {
+        fs.rmSync(path.resolve(fullPath));
+    }
+}
+
 export function getRalativePath(fullPath: string): string {
     const root = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.path : "";
     const normalizedRoot = vscode.Uri.file(root).fsPath ;

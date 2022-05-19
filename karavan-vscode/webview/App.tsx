@@ -99,7 +99,7 @@ class App extends React.Component<Props, State> {
         break;
       case 'profiles':
         this.setState({ profiles: message.profiles, files: message.files, key: Math.random().toString() });
-        console.log(message.project)
+        console.log(message.profiles)
         break;
       case 'open':
         if (this.state.filename === '' && this.state.key === '') {

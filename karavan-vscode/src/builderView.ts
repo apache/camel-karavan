@@ -90,10 +90,10 @@ export class BuilderView {
 
     sendData(page: string) {
         builderPanel?.webview.postMessage({ command: 'open', page: page });
-        console.log(this.rootPath);
         if (this.rootPath) {
             const profiles = this.readProfiles(this.rootPath);
             const files = this.readFiles(this.rootPath);
+            console.log("profiles", profiles);
             // Send data
             builderPanel?.webview.postMessage({ command: 'profiles', files: files, profiles: profiles });
         }
@@ -187,10 +187,19 @@ export class BuilderView {
                 properties = fs.readFileSync(path.resolve(this.rootPath || '', filename)).toString('utf8');
             } catch (err: any) {
                 if (err.code !== 'ENOENT') throw err;
+                vscode.window.showErrorMessage(err);
             }
             const newProperties = ProjectModelApi.updateProperties(properties, profile.project);
             utils.save(filename, newProperties);
         });
+        const rootPath = this.rootPath;
+        const profileNames = profiles.map(p => p.name);
+        if (rootPath){
+            const currentProfiles = this.readProfiles(rootPath);
+            currentProfiles.filter(p => !profileNames.includes(p.name)).forEach(p => {
+                fs.rmSync(path.resolve(rootPath, p.name + extension))
+            });
+        }
     }
 
     readFiles(rootPath: string): string {
@@ -199,15 +208,16 @@ export class BuilderView {
 
     readProfiles(rootPath: string): Profile[] {
         const profiles: Profile[] = [];
-        fs.readdirSync(rootPath).forEach(file => {
+        fs.readdirSync(rootPath).filter(f => f.endsWith(extension)).forEach(file => {
             const name = path.basename(file).replace(extension, "");
             try {
                 let project = ProjectModel.createNew();
-                const properties = fs.readFileSync(path.resolve(file)).toString('utf8');
+                const properties = fs.readFileSync(path.resolve(rootPath, file)).toString('utf8');
                 project = ProjectModelApi.propertiesToProject(properties);
                 profiles.push(new Profile({name, project}));
             } catch (err: any) {
                 if (err.code !== 'ENOENT') throw err;
+                console.log(err)
             }
         })
         return profiles;

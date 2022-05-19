@@ -1105,6 +1105,10 @@ reactour-portal .reactour__popover button:focus-visible {
     font-size: 14px;
 }
 
+.karavan .project-builder .tools-section {
+    padding-left: 10px;
+}
+
 .karavan .project-builder .card-header svg {
     margin-right: 6px;
 }
@@ -1177,17 +1181,14 @@ reactour-portal .reactour__popover button:focus-visible {
     flex-direction: column;
     justify-content: space-around;
 }
-
 .karavan .project-builder .project-properties td {
     padding: 0;
     margin: 0;
 }
-
 .karavan .project-builder .project-properties td,
 .karavan .project-builder .project-properties tr {
     border: none;
 }
-
 .karavan .project-builder .project-properties .delete-button {
     padding: 0 0 0 6px;
     margin: 0;
@@ -1195,4 +1196,8 @@ reactour-portal .reactour__popover button:focus-visible {
 .karavan .project-builder .add-button {
     width: fit-content;
     margin-top: 6px;
+}
+
+.karavan .project-builder .profile-caption {
+    font-size: 1.1em;
 }

@@ -2,20 +2,11 @@ import React from 'react';
 import {
     Button,
     Flex,
-    FlexItem, Form, FormGroup,
-    InputGroup, Modal, ModalVariant,
-    OptionsMenu,
-    OptionsMenuItem,
-    OptionsMenuPosition,
-    OptionsMenuToggle,
-    Text, TextInput,
-    TextVariants,
-    Tooltip,
-    TooltipPosition
+    FlexItem, Form, FormGroup, InputGroup, Modal, ModalVariant, Tab, Tabs, TextInput, ToggleGroup, ToggleGroupItem, Tooltip, TooltipPosition
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
+import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 
 interface Props {
     profiles: string[]
@@ -28,7 +19,7 @@ interface State {
     isSelectorOpen?: boolean
     showDeleteConfirmation?: boolean
     showCreate?: boolean
-    profile?: string
+    newProfile?: string
 }
 
 export class ProfileSelector extends React.Component<Props, State> {
@@ -48,16 +39,16 @@ export class ProfileSelector extends React.Component<Props, State> {
     }
 
     saveAndCloseCreateModal = () => {
-        if (this.state.profile && this.state.profile.length > 0) this.props.onChange?.call(this, this.state.profile);
+        if (this.state.newProfile && this.state.newProfile.length > 0) this.props.onChange?.call(this, this.state.newProfile);
         this.closeModal();
     }
 
     closeModal = () => {
-        this.setState({showCreate: false, profile: undefined});
+        this.setState({showCreate: false, newProfile: undefined});
     }
 
     onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
-        if (event.key === 'Enter' && this.state.profile !== undefined) {
+        if (event.key === 'Enter' && this.state.newProfile !== undefined) {
             this.saveAndCloseCreateModal();
         }
     }
@@ -66,6 +57,7 @@ export class ProfileSelector extends React.Component<Props, State> {
         return (
             <Modal
                 title="Create new profile"
+                className='profile-modal'
                 variant={ModalVariant.small}
                 isOpen={this.state.showCreate}
                 onClose={this.closeModal}
@@ -78,8 +70,8 @@ export class ProfileSelector extends React.Component<Props, State> {
                 <Form isHorizontal>
                     <FormGroup label="Profile" fieldId="profile" isRequired>
                         <TextInput className="text-field" type="text" id="profile" name="profile"
-                                   value={this.state.profile}
-                                   onChange={e => this.setState({profile: e})}/>
+                                   value={this.state.newProfile}
+                                   onChange={e => this.setState({newProfile: e})}/>
                     </FormGroup>
                 </Form>
             </Modal>
@@ -98,20 +90,20 @@ export class ProfileSelector extends React.Component<Props, State> {
                         onClick={e => this.setState({showDeleteConfirmation: false})}>Cancel</Button>
             ]}
             onEscapePress={e => this.setState({showDeleteConfirmation: false})}>
-            <div>Delete current profile</div>
+            <div>Delete profile {this.props.profile}</div>
         </Modal>)
     }
 
     render() {
         const profile = this.props.profile;
-        const menuItems = this.props.profiles.map(p =>
-            <OptionsMenuItem onSelect={event => this.onSelect(event?.currentTarget.id)}
-                             isSelected={profile === p} id={p} key={p}>{p}</OptionsMenuItem>
+        const tabs = this.props.profiles.map(p =>
+            <ToggleGroupItem key={p} text={p} buttonId={p} isSelected={profile === p}
+                             onChange={selected => selected ? this.onSelect(p) : {}}/>
         );
         return (
             <Flex>
                 <FlexItem>
-                    <Text component={TextVariants.h1}>Profile:</Text>
+                    <p className="profile-caption">Profile:</p>
                 </FlexItem>
                 <FlexItem>
                     <InputGroup>
@@ -121,18 +113,15 @@ export class ProfileSelector extends React.Component<Props, State> {
                             content="Create new profile">
                             <Button variant={"plain"} icon={<AddIcon/>} onClick={event => this.setState({showCreate: true})}/>
                         </Tooltip>
-                        <OptionsMenu
-                            id="profile-selector"
-                            menuItems={menuItems}
-                            position={OptionsMenuPosition.right}
-                            isOpen={this.state.isSelectorOpen}
-                            toggle={<OptionsMenuToggle onToggle={open => this.setState({isSelectorOpen: open})} toggleTemplate={profile} />}/>
-                        <Tooltip
+                        <ToggleGroup aria-label="Select target">
+                            {tabs}
+                        </ToggleGroup>
+                        {this.props.profiles.length > 1 &&  <Tooltip
                             aria-label="Delete profile"
                             position={TooltipPosition.bottomEnd}
                             content="Delete selected profile">
                             <Button variant={"plain"} icon={<DeleteIcon/>} onClick={event => this.setState({showDeleteConfirmation: true})}/>
-                        </Tooltip>
+                        </Tooltip>}
                     </InputGroup>
                 </FlexItem>
                 {this.createModalForm()}

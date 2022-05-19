@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {v4 as uuidv4} from "uuid";
 
 export class StepStatus {
     status: 'pending' | 'progress' | 'done' | 'error' = 'pending';
@@ -42,6 +43,20 @@ export class StepStatus {
             stepStatus.endTime = Date.now();
         }
         return stepStatus
+    }
+}
+
+export class ProjectProperty {
+    id: string = ''
+    key: string = ''
+    value: any
+
+    public constructor(init?: Partial<ProjectProperty>) {
+        Object.assign(this, init);
+    }
+
+    static createNew(key: string, value: any): ProjectProperty {
+        return new ProjectProperty({id: uuidv4(), key: key, value: value})
     }
 }
 
@@ -83,7 +98,7 @@ export class ProjectModel {
     classpathFiles: string = ''
     routesIncludePattern: string = ''
     status: ProjectStatus = new ProjectStatus()
-    properties: Map<string, any> = new Map<string, any>()
+    properties: ProjectProperty[] = []
 
     public constructor(init?: Partial<ProjectModel>) {
         Object.assign(this, init);
