@@ -63,7 +63,7 @@
       "properties": {
         "camel.version": {
           "type": "string",
-          "default": "3.16.0",
+          "default": "3.17.0",
           "description": "Camel version"
         },
         "camel.maxMessages": {

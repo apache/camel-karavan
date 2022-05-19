@@ -53,6 +53,7 @@ import {PropertiesTable} from "./PropertiesTable";
 interface Props {
     dark: boolean
     profiles: Profile[]
+    profile?: Profile
     files: string
     onChange?: (profiles: Profile[]) => void
     onAction?: (action: "start" | "stop" | "undeploy", profile: Profile) => void
@@ -70,7 +71,7 @@ export class BuilderPage extends React.Component<Props, State> {
 
     public state: State = {
         profiles: this.props.profiles,
-        profile: this.props.profiles.at(0) || Profile.createNew("application"),
+        profile: this.props.profile ? this.props.profile : (this.props.profiles.at(0) || Profile.createNew("application")),
         tab: 'project'
     };
     interval: any;
@@ -316,14 +317,14 @@ export class BuilderPage extends React.Component<Props, State> {
                                                              state.profiles.splice(state.profiles.findIndex(p => p.name === profile), 1);
                                                              return {profiles: state.profiles, profile: this.props.profiles.at(0) || Profile.createNew("application"), tab: state.tab};
                                                          })}}
-                                                     onChange={profile => {
-                                                         const prof = profiles.find(p => p.name === profile);
+                                                     onChange={profileName => {
+                                                         const prof = profiles.find(p => p.name === profileName);
                                                          if (prof) {
                                                              this.setState({profile: prof, key: Math.random().toString()});
                                                          } else {
                                                              this.setState(state => {
-                                                                 const newProfile = Profile.createNew(profile);
-                                                                 newProfile.project = new ProjectModel(this.state.profile);
+                                                                 const newProfile = Profile.createNew(profileName);
+                                                                 newProfile.project = new ProjectModel(this.state.profile.project);
                                                                  state.profiles.push(newProfile);
                                                                  return {profiles: state.profiles, profile: newProfile, tab: state.tab};
                                                              })

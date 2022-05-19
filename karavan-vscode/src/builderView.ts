@@ -117,65 +117,69 @@ export class BuilderView {
         project.status.undeploy = new StepStatus()
         if (project.uberJar) {
             project.status.uberJar = StepStatus.progress();
-            builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
-            this.package(project, files);
-        } else if (project.build) {
+            builderPanel?.webview.postMessage({ command: 'profile', files: files, profile: Profile.create(profile.name, project) });
+            this.package(profile.name, project, files);
+        } else if (!project.uberJar && project.build) {
             project.status.uberJar.status = "done";
-            this.buildImage(project, files);
+            this.buildImage(profile.name, project, files);
+        } else if (!project.uberJar && !project.build && project.deploy) {
+            project.status.uberJar.status = "done";
+            project.status.build.status = "done";
+            this.deploy(profile.name, project, files);
         }
     }
 
-    package(project: ProjectModel, files: string) {
+    package(profile: string, project: ProjectModel, files: string) {
         console.log("package", project);
         project.status.uberJar = StepStatus.progress();
-        builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
+        builderPanel?.webview.postMessage({ command: 'profile', files: files, profile: Profile.create(profile, project) });
 
-        commands.camelJbangPackage(this.rootPath || "", code => {
+        commands.camelJbangPackage(this.rootPath || "", profile, code => {
             project.status.uberJar = code === 0 ? StepStatus.done(project.status.uberJar) : StepStatus.error(project.status.uberJar);
-            builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
+            builderPanel?.webview.postMessage({ command: 'profile', files: files, profile: Profile.create(profile, project) });
             if (code === 0 && project.build) {
-                this.buildImage(project, files);
+                this.buildImage(profile, project, files);
             } else {
-                this.finish(project, files, code);
+                this.finish(profile, project, files, code);
             }
         });
     }
 
-    buildImage(project: ProjectModel, files: string) {
+    buildImage(profile: string, project: ProjectModel, files: string) {
         console.log("buildImage", project);
         project.status.build = StepStatus.progress();
-        builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
+        builderPanel?.webview.postMessage({ command: 'profile', files: files, profile: Profile.create(profile, project) });
 
-        commands.camelJbangBuildImage(this.rootPath || "", project, code => {
+        commands.camelJbangBuildImage(this.rootPath || "", profile, project, code => {
             project.status.build = code === 0 ? StepStatus.done(project.status.build) : StepStatus.error(project.status.build);
-            builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
+            builderPanel?.webview.postMessage({ command: 'profile', files: files, profile: Profile.create(profile, project) });
             if (code === 0 && project.deploy) {
-                this.deploy(project, files);
+                this.deploy(profile, project, files);
             } else {
-                this.finish(project, files, code);
+                this.finish(profile, project, files, code);
             }
         });
     }
 
-    deploy(project: ProjectModel, files: string) {
+    deploy(profile: string, project: ProjectModel, files: string) {
         console.log("deploy", project);
         project.status.deploy = StepStatus.progress();
-        builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
+        builderPanel?.webview.postMessage({ command: 'profile', files: files, profile: Profile.create(profile, project) });
 
-        commands.camelJbangDeploy(this.rootPath || "", project, code => {
+        commands.camelJbangDeploy(this.rootPath || "", profile, project, code => {
             project.status.deploy = code === 0 ? StepStatus.done(project.status.deploy) : StepStatus.error(project.status.deploy);
-            builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
-            this.finish(project, files, code);
+            builderPanel?.webview.postMessage({ command: 'profile', files: files, profile: Profile.create(profile, project) });
+            this.finish(profile, project, files, code);
         });
     }
 
 
-    finish(project: ProjectModel, files: string, code: number) {
+    finish(profile: string, project: ProjectModel, files: string, code: number) {
         console.log("finish", project);
         if (project.cleanup) commands.cleanup(this.rootPath || "", project, () => { })
         setTimeout(() => {
             project.status.active = false;
-            builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
+            builderPanel?.webview.postMessage({ command: 'profile', files: files, profile: Profile.create(profile, project) });
         }, 1000);
     }
 
@@ -229,7 +233,7 @@ export class BuilderView {
         console.log("undelpoy", project);
         project.status.active = true;
         project.status.undeploy = StepStatus.progress();
-        builderPanel?.webview.postMessage({ command: 'project', files: files, project: project });
-        commands.camelJbangUndeploy(this.rootPath || '', project, (code) => this.finish(project, files, code));
+        builderPanel?.webview.postMessage({ command: 'profile', files: files, profile: Profile.create(profile.name, project) });
+        commands.camelJbangUndeploy(this.rootPath || '',profile.name, project, (code) => this.finish(profile.name, project, files, code));
     }
 }

@@ -120,4 +120,8 @@ export class Profile {
     static createNew(name: string): Profile {
         return new Profile({name: name, project: ProjectModel.createNew()})
     }
+
+    static create(name: string, project: ProjectModel): Profile {
+        return new Profile({name: name, project: project})
+    }
 }

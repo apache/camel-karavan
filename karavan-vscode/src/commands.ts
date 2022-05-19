@@ -22,7 +22,7 @@ import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
 import { ProjectModel } from "karavan-core/lib/model/ProjectModel";
 
 export function camelJbangGenerate(rootPath: string, openApiFullPath: string, fullPath: string, add: boolean, crd?: boolean, generateRoutes?: boolean) {
-    let command = prepareCommand("generate rest -i " + openApiFullPath);
+    let command = prepareCommand("generate rest -i " + openApiFullPath, "application"); // TODO: set profile configurable
     if (generateRoutes === true) command = command + " --routes";
     executeJbangCommand(rootPath, command, (code, stdout, stderr) => {
         console.log('Exit code:', code);
@@ -66,13 +66,13 @@ export function createYaml(filename: string, restYaml: string, camelYaml?: strin
     }
 }
 
-export function camelJbangPackage(rootPath: string, callback: (code: number) => any) {
-    executeJbangCommand(rootPath, prepareCommand("package uber-jar"), (code, stdout, stderr) => callback(code));
+export function camelJbangPackage(rootPath: string, profile: string, callback: (code: number) => any) {
+    executeJbangCommand(rootPath, prepareCommand("package uber-jar --fresh", profile), (code, stdout, stderr) => callback(code));
 }
 
-export function camelJbangBuildImage(rootPath: string, project: ProjectModel, callback: (code: number) => any) {
+export function camelJbangBuildImage(rootPath: string, profile: string, project: ProjectModel, callback: (code: number) => any) {
     const munikubeCommand = "minikube -p minikube docker-env";
-    let command = prepareCommand("build image", project);
+    let command = prepareCommand("build image", profile, project);
     if (project.target === 'minikube') {
         console.log("Build in minikube")
         executeJbangCommand(rootPath, munikubeCommand, (code, stdout, stderr) => {
@@ -88,31 +88,32 @@ export function camelJbangBuildImage(rootPath: string, project: ProjectModel, ca
     }
 }
 
-export function camelJbangDeploy(rootPath: string, project: ProjectModel, callback: (code: number) => any) {
-    executeJbangCommand(rootPath, prepareCommand("deploy", project), (code, stdout, stderr) => callback(code));
+export function camelJbangDeploy(rootPath: string, profile: string, project: ProjectModel, callback: (code: number) => any) {
+    executeJbangCommand(rootPath, prepareCommand("deploy", profile, project), (code, stdout, stderr) => callback(code));
 }
 
-export function camelJbangManifests(rootPath: string, project: ProjectModel, callback: (code: number) => any) {
-    executeJbangCommand(rootPath, prepareCommand("build manifests", project), (code, stdout, stderr) => callback(code));
+export function camelJbangManifests(rootPath: string, profile: string, project: ProjectModel, callback: (code: number) => any) {
+    executeJbangCommand(rootPath, prepareCommand("build manifests", profile, project), (code, stdout, stderr) => callback(code));
 }
 
 
-export function camelJbangUndeploy(rootPath: string, project: ProjectModel, callback: (code: number) => any) {
-    executeJbangCommand(rootPath, prepareCommand("undeploy", project), (code, stdout, stderr) => callback(code));
+export function camelJbangUndeploy(rootPath: string, profile: string, project: ProjectModel, callback: (code: number) => any) {
+    executeJbangCommand(rootPath, prepareCommand("undeploy", profile, project), (code, stdout, stderr) => callback(code));
 }
 
 export function cacheClear(rootPath: string, callback: (code: number) => any) {
     executeJbangCommand(rootPath, "jbang cache clear", (code, stdout, stderr) => callback(code));
 }
 
-function prepareCommand(command: string, project?: ProjectModel): string {
+function prepareCommand(command: string, profile: string, project?: ProjectModel): string {
     const version = vscode.workspace.getConfiguration().get("camel.version");
     const token = project && project.target ? " --token " + project.token : "";
     const password = project && project.password ? " --password " + project.password : "";
-    return "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel " + command + token + password;
+    return "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel " + command + token + password + " --profile " + profile;
 }
 
 function executeJbangCommand(rootPath: string, command: string, callback: (code: number, stdout: any, stderr: any) => any) {
+    console.log("excute command", command)
     const jbang = shell.which('jbang');
     if (jbang) {
         shell.config.execPath = String(jbang);
