@@ -16,7 +16,7 @@
  */
 import {
     Integration,
-    CamelElement, Beans, Dependency,
+    CamelElement, Beans, Dependency, CamelElementMeta,
 } from "../model/IntegrationDefinition";
 import {CamelDefinitionApi} from "./CamelDefinitionApi";
 import {KameletDefinition, NamedBeanDefinition, ToDefinition} from "../model/CamelDefinition";
@@ -212,5 +212,52 @@ export class CamelUtil {
             }
         }
         return result;
+    }
+
+    static findPlaceholdersInObject = (item: any, result: Set<string> = new Set<string>()): Set<string> => {
+        if (typeof item === 'object'){
+            Object.keys(item).forEach(key => {
+                const value = (item as any)[key];
+                if (Array.isArray(value)){
+                    this.findPlaceholdersInArray(value, result);
+                } else if (typeof value === 'object'){
+                    this.findPlaceholdersInObject(value, result);
+                } else {
+                    const r = this.findPlaceholder(value.toString());
+                    if (r[0] && r[1]) result.add(r[1]);
+                }
+            })
+        } else {
+            const r = this.findPlaceholder(item.toString());
+            if (r[0] && r[1]) result.add(r[1]);
+        }
+        return result;
+    }
+
+    static findPlaceholdersInArray = (items: any[] | undefined, result: Set<string> = new Set<string>()): Set<string> => {
+        if (items !== undefined) {
+            items.forEach(item => {
+                if (typeof item === 'object'){
+                    this.findPlaceholdersInObject(item, result);
+                } else {
+                    const r = this.findPlaceholder(item.toString());
+                    if (r[0] && r[1]) result.add(r[1]);
+                }
+            })
+        }
+        return result;
+    }
+
+    static findPlaceholder = (value: string): [boolean, string?] => {
+        let result = false;
+        let placeholder = undefined;
+        if (value !== undefined) {
+            const val = value.trim();
+            result = val.includes("{{") && val.includes("}}");
+            const start = val.search("{{") + 2;
+            const end = val.search("}}");
+            placeholder = val.substring(start, end).trim();
+        }
+        return [result, placeholder];
     }
 }
