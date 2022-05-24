@@ -225,6 +225,7 @@ export class BuilderView {
                 console.log(err)
             }
         })
+        if (profiles.length === 0) profiles.push(Profile.createNew("local"))
         return profiles;
     }
 
@@ -241,7 +242,6 @@ export class BuilderView {
     run(profile: Profile) {
         const project = profile.project;
         console.log("run", project);
-        project.status.active = false;
         commands.camelJbangRun(this.rootPath || '', profile.name);
     }
 }
