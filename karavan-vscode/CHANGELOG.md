@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.0.15
+1. Camel 3.17.0+ DSL
+2. Build Runner to Run, Package Uber-Jar, Build Image, Deploy to minikube and OpenShift
+3. Profiles for Run, Package, Build and Deploy
+4. Catalogue of EIP
+5. Catalogue of Kamelets
+6. Catalogue of Components
+7. Multiple UI improvements
+8. Kamelets 0.8.1
+
 ## 0.0.14
 Usability improvements
 1. Insert new step between existing steps
