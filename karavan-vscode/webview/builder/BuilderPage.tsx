@@ -45,6 +45,7 @@ import DeployIcon from '@patternfly/react-icons/dist/esm/icons/cloud-upload-alt-
 import CleanupIcon from '@patternfly/react-icons/dist/esm/icons/remove2-icon';
 import ProjectIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 import ClipboardIcon from '@patternfly/react-icons/dist/esm/icons/clipboard-icon';
+import RunIcon from '@patternfly/react-icons/dist/esm/icons/play-circle-icon';
 import {FileSelector} from "./FileSelector";
 import {Profile, ProjectModel, StepStatus} from "karavan-core/lib/model/ProjectModel";
 import {ProfileSelector} from "./ProfileSelector";
@@ -56,7 +57,7 @@ interface Props {
     profile?: Profile
     files: string
     onChange?: (profiles: Profile[]) => void
-    onAction?: (action: "start" | "stop" | "undeploy", profile: Profile) => void
+    onAction?: (action: "start" | "stop" | "undeploy" | "run", profile: Profile) => void
 }
 
 interface State {
@@ -302,7 +303,7 @@ export class BuilderPage extends React.Component<Props, State> {
                 <Flex className="tools" direction={{default: 'row'}} justifyContent={{default: 'justifyContentSpaceBetween'}} spaceItems={{default: 'spaceItemsLg'}}>
                     <FlexItem>
                         <TextContent className="header">
-                            <Text component="h2">Project Builder</Text>
+                            <Text component="h2">Build Runner</Text>
                             <Badge isRead className="labels">Powered by Camel JBang</Badge>
                         </TextContent>
                     </FlexItem>
@@ -345,13 +346,13 @@ export class BuilderPage extends React.Component<Props, State> {
         )
     }
 
-    onButtonClick(action: "start" | "stop" | "undeploy") {
+    onButtonClick(action: "start" | "stop" | "undeploy" | "run") {
         this.props.onAction?.call(this, action, this.state.profile);
     }
 
     getFooter() {
         const active = this.state.profile.project.status.active;
-        const label = active ? "Stop" : "Start";
+        const label = active ? "Stop" : "Package";
         const icon = active ? <InProgressIcon/> : <AutomationIcon/>;
         return <div key={this.state.key} className="footer">
             <div className="progress">
@@ -365,6 +366,9 @@ export class BuilderPage extends React.Component<Props, State> {
                         </ToolbarItem>}
                         <ToolbarItem>
                             <Button variant="primary" isSmall icon={icon} onClick={event => this.onButtonClick(active ? "stop" : "start")}>{label}</Button>
+                        </ToolbarItem>
+                        <ToolbarItem>
+                            <Button variant="primary" isSmall icon={<RunIcon/>} onClick={event => this.onButtonClick( "run")}>Run</Button>
                         </ToolbarItem>
                     </ToolbarContent>
                 </Toolbar>

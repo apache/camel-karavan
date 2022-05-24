@@ -1,6 +1,0 @@
-- from:
-    uri: "timer:demo"
-    parameters:
-      period: 3000
-    steps:
-      - log: "${body} ${headers}"
