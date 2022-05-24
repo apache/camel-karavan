@@ -22,11 +22,11 @@ spec:
                       uri: kamelet:kafka-not-secured-sink
                       parameters:
                         topic: parcels
-                        bootstrapServers: localhost:9092
+                        bootstrapServers: '{{kafka-brokers}}'
                   - to:
                       uri: kamelet:postgresql-sink
                       parameters:
-                        serverName: localhost
+                        serverName: '{{postgres-server}}'
                         serverPort: '5432'
                         username: postgres
                         password: postgres
@@ -51,11 +51,11 @@ spec:
                 uri: kamelet:kafka-not-secured-sink
                 parameters:
                   topic: payments
-                  bootstrapServers: localhost:9092
+                  bootstrapServers: '{{kafka-brokers}}'
           parameters:
             destinationType: queue
             destinationName: payments
-            brokerURL: tcp://localhost:61616
+            brokerURL: '{{jms-broker}}'
         id: payment
     - route:
         from:
@@ -85,7 +85,7 @@ spec:
                                 uri: kamelet:mqtt-sink
                                 parameters:
                                   topic: deliveries
-                                  brokerUrl: tcp://localhost:1883
+                                  brokerUrl: '{{mqtt-broker}}'
                       otherwise:
                         steps:
                           - setBody:
@@ -100,7 +100,7 @@ spec:
                           - to:
                               uri: kamelet:postgresql-sink
                               parameters:
-                                serverName: localhost
+                                serverName: '{{postgres-server}}'
                                 serverPort: '5432'
                                 username: postgres
                                 password: postgres
@@ -115,7 +115,7 @@ spec:
                     expression: body.get('id')
           parameters:
             topic: parcels,payments
-            bootstrapServers: localhost:9092
+            bootstrapServers: '{{kafka-brokers}}'
             autoCommitEnable: true
             consumerGroup: postman
         id: aggregator
@@ -127,7 +127,7 @@ spec:
                 message: 'Delivery: ${body}'
           parameters:
             topic: deliveries
-            brokerUrl: tcp://localhost:1883
+            brokerUrl: '{{mqtt-broker}}'
     - beans:
         - name: aggregator
           type: org.apache.camel.processor.aggregate.GroupedBodyAggregationStrategy
