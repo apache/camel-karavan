@@ -60,14 +60,16 @@ Send message to `payments` queue
 ### Install AMQ and AMQ Streams Operators
 Also creates `postman` namespace required for the demo
 ```
-oc apply -k manifests/operators
+cd ../openshift-manifests
+oc login --token=... --server=...
+oc apply -k operators
 ```
 Check that operators are succesfully installed
 ![operators](operators.png)
 
 ### Create AMQ, Kafka and Postgres demo instances 
 ```
-oc apply -k manifests/instances
+oc apply -k instances
 ```
 
 ### Package, build and deploy project
