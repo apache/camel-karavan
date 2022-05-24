@@ -2,13 +2,14 @@
 
 ## 0.0.15
 1. Camel 3.17.0+ DSL
-2. Build Runner to Run, Package Uber-Jar, Build Image, Deploy to minikube and OpenShift
-3. Profiles for Run, Package, Build and Deploy
-4. Catalogue of EIP
-5. Catalogue of Kamelets
-6. Catalogue of Components
-7. Multiple UI improvements
-8. Kamelets 0.8.1
+2. Generate REST DSL and Routes stubs from Open API
+3. Build Runner to Run, Package Uber-Jar, Build Image, Deploy to minikube and OpenShift
+4. Profiles for Run, Package, Build and Deploy
+5. Catalogue of EIP
+6. Catalogue of Kamelets
+7. Catalogue of Components
+8. Multiple UI improvements
+9. Kamelets 0.8.1
 
 ## 0.0.14
 Usability improvements
