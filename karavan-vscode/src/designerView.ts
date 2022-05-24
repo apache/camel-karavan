@@ -18,11 +18,13 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import * as utils from "./utils";
+import * as commands from "./commands";
 import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
 import { Integration } from "karavan-core/lib/model/IntegrationDefinition";
 
 const KARAVAN_LOADED = "karavan:loaded";
 const KARAVAN_PANELS: Map<string, vscode.WebviewPanel> = new Map<string, vscode.WebviewPanel>();
+const extension = '.properties';
 
 export class DesignerView {
 
@@ -44,20 +46,44 @@ export class DesignerView {
     }
 
     jbangRun(fullPath: string) {
+        const filename = this.getFilename(fullPath);
+        if (filename && this.rootPath){
+            this.selectProfile(this.rootPath, filename);
+        }        
+    }
+
+    getFilename(fullPath: string) {
         if (fullPath.startsWith('webview-panel/webview')) {
             const filename = Array.from(KARAVAN_PANELS.entries()).filter(({ 1: v }) => v.active).map(([k]) => k)[0];
-            if (filename) {
-                utils.camelJbangRun(filename);
+            if (filename && this.rootPath) {
+                return filename;
             }
         } else {
             const yaml = fs.readFileSync(path.resolve(fullPath)).toString('utf8');
             const relativePath = utils.getRalativePath(fullPath);
             const filename = path.basename(fullPath);
             const integration = utils.parceYaml(filename, yaml);
-            if (integration[0]) {
-                utils.camelJbangRun(relativePath);
+            if (integration[0] && this.rootPath) {
+                return relativePath;
             } else {
                 vscode.window.showErrorMessage("File is not Camel Integration!")
+            }
+        }
+    }
+
+    selectProfile(rootPath: string, filename?: string) {
+        if (this.rootPath) {
+            const profiles: string [] = fs.readdirSync(this.rootPath).filter(f => f.endsWith(extension)).map(file => path.basename(file).replace(extension, ""));
+            if (profiles && profiles.length > 0){
+                vscode.window.showQuickPick(profiles).then((profile) => {
+                    if (!profile) {
+                        return
+                    } else {
+                        commands.camelJbangRun(rootPath, profile, filename);
+                    }
+                })
+            } else {
+                commands.camelJbangRun(rootPath, "application", filename);
             }
         }
     }

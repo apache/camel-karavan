@@ -20,8 +20,6 @@ import * as path from "path";
 import * as shell from 'shelljs';
 import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
 
-const TERMINALS: Map<string, vscode.Terminal> = new Map<string, vscode.Terminal>();
-
 export function save(relativePath: string, text: string){
     if (vscode.workspace.workspaceFolders) {
         const uriFolder: vscode.Uri = vscode.workspace.workspaceFolders[0].uri;
@@ -77,28 +75,6 @@ export function parceYaml(filename: string, yaml: string): [boolean, string?] {
 export function disableStartHelp(){
     const config = vscode.workspace.getConfiguration();
     config.update("Karavan.showStartHelp", false);
-}
-
-export function camelJbangRun(filename: string) {
-    const version = vscode.workspace.getConfiguration().get("camel.version");
-    const maxMessages: number = vscode.workspace.getConfiguration().get("camel.maxMessages") || -1;
-    const loggingLevel = vscode.workspace.getConfiguration().get("camel.loggingLevel");
-    const dev = vscode.workspace.getConfiguration().get("camel.dev");
-    const health = vscode.workspace.getConfiguration().get("camel.health");
-    const messageTracing = vscode.workspace.getConfiguration().get("camel.messageTracing");
-    const command = "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel run "
-        + toCliFilename(filename)
-        + (maxMessages > -1 ? " --max-messages=" + maxMessages : "")
-        + " --logging-level=" + loggingLevel
-        + (messageTracing ? " --trace" : "")
-        + (dev ? " --dev" : "")
-        + (health ? " --health" : "");
-    const existTerminal = TERMINALS.get(filename);
-    if (existTerminal) existTerminal.dispose();
-    const terminal = vscode.window.createTerminal('Camel: ' + filename);
-    TERMINALS.set(filename, terminal);
-    terminal.show();
-    terminal.sendText(command);
 }
 
 export function toCliFilename(filename: string): string {

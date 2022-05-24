@@ -136,7 +136,7 @@
       },
       {
         "command": "karavan.projectBuilder",
-        "title": "Karavan: Project Builder",
+        "title": "Karavan: Build Runner",
         "icon": {
           "light": "icons/light/builder.svg",
           "dark": "icons/dark/builder.svg"

@@ -36,7 +36,7 @@ export class BuilderView {
             // Karavan webview
             builderPanel = vscode.window.createWebviewPanel(
                 "karavan",
-                "Builder",
+                "Build Runner",
                 vscode.ViewColumn.One,
                 {
                     enableScripts: true,
@@ -99,11 +99,12 @@ export class BuilderView {
         }
     }
 
-    actionProfile(action: "start" | "stop" | "undeploy", profile: Profile) {
+    actionProfile(action: "start" | "stop" | "undeploy" | "run", profile: Profile) {
         switch (action) {
             case "start": this.start(profile); break;
             case "stop": { }; break;
             case "undeploy": this.undelpoy(profile); break;
+            case "run": this.run(profile); break;
         }
     }
 
@@ -235,5 +236,12 @@ export class BuilderView {
         project.status.undeploy = StepStatus.progress();
         builderPanel?.webview.postMessage({ command: 'profile', files: files, profile: Profile.create(profile.name, project) });
         commands.camelJbangUndeploy(this.rootPath || '',profile.name, project, (code) => this.finish(profile.name, project, files, code));
+    }
+
+    run(profile: Profile) {
+        const project = profile.project;
+        console.log("run", project);
+        project.status.active = false;
+        commands.camelJbangRun(this.rootPath || '', profile.name);
     }
 }

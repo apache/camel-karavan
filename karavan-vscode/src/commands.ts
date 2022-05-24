@@ -21,6 +21,8 @@ import * as shell from 'shelljs';
 import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
 import { ProjectModel } from "karavan-core/lib/model/ProjectModel";
 
+const TERMINALS: Map<string, vscode.Terminal> = new Map<string, vscode.Terminal>();
+
 export function camelJbangGenerate(rootPath: string, openApiFullPath: string, fullPath: string, add: boolean, crd?: boolean, generateRoutes?: boolean) {
     let command = prepareCommand("generate rest -i " + openApiFullPath, "application"); // TODO: set profile configurable
     if (generateRoutes === true) command = command + " --routes";
@@ -67,7 +69,7 @@ export function createYaml(filename: string, restYaml: string, camelYaml?: strin
 }
 
 export function camelJbangPackage(rootPath: string, profile: string, callback: (code: number) => any) {
-    executeJbangCommand(rootPath, prepareCommand("package uber-jar --fresh", profile), (code, stdout, stderr) => callback(code));
+    executeJbangCommand(rootPath, prepareCommand("package uber-jar", profile), (code, stdout, stderr) => callback(code));
 }
 
 export function camelJbangBuildImage(rootPath: string, profile: string, project: ProjectModel, callback: (code: number) => any) {
@@ -110,6 +112,18 @@ function prepareCommand(command: string, profile: string, project?: ProjectModel
     const token = project && project.target ? " --token " + project.token : "";
     const password = project && project.password ? " --password " + project.password : "";
     return "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel " + command + token + password + " --profile " + profile;
+}
+
+export function camelJbangRun(rootPath: string, profile: string, filename?: string) {
+    const maxMessages: number = vscode.workspace.getConfiguration().get("camel.maxMessages") || -1;
+    const cmd = (filename ? "run " + filename : "run * " ) + (maxMessages > -1 ? " --max-messages=" + maxMessages : "");
+    const command = prepareCommand(cmd, profile);
+    const existTerminal = TERMINALS.get(profile);
+    if (existTerminal) existTerminal.dispose();
+    const terminal = vscode.window.createTerminal('Camel run: ' + profile);
+    TERMINALS.set(profile, terminal);
+    terminal.show();
+    terminal.sendText(command);
 }
 
 function executeJbangCommand(rootPath: string, command: string, callback: (code: number, stdout: any, stderr: any) => any) {

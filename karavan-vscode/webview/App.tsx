@@ -150,7 +150,7 @@ class App extends React.Component<Props, State> {
     vscode.postMessage({ command: 'saveProfiles', profiles: profiles });
   }
 
-  actionProfile(action: "start" | "stop" | "undeploy", profile: Profile) {
+  actionProfile(action: "start" | "stop" | "undeploy" | "run", profile: Profile) {
     vscode.postMessage({ command: 'action', action: action, profile: profile });
   }
 

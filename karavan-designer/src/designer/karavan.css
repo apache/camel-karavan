@@ -1107,6 +1107,18 @@ reactour-portal .reactour__popover button:focus-visible {
 
 .karavan .project-builder .tools-section {
     padding-left: 10px;
+    padding-right: 10px;
+}
+
+.karavan .project-builder .pf-c-toolbar__content {
+    padding: 0;
+}
+
+.karavan .project-builder .pf-c-tabs__link,
+.karavan .project-builder .pf-c-card__title,
+.karavan .project-builder .profile-caption
+{
+    font-size: 14px;
 }
 
 .karavan .project-builder .card-header svg {
@@ -1196,8 +1208,4 @@ reactour-portal .reactour__popover button:focus-visible {
 .karavan .project-builder .add-button {
     width: fit-content;
     margin-top: 6px;
-}
-
-.karavan .project-builder .profile-caption {
-    font-size: 1.1em;
 }
