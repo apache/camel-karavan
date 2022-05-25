@@ -9,22 +9,34 @@
 ![karavan-logo](images/karavan-logo-dark.png#gh-dark-mode-only)
 ![karavan-logo](images/karavan-logo-light.png#gh-light-mode-only)
 
-## Apache Camel Karavan
-Mastering Tool for Apache Camel makes integration easy and fun through the visualization of pipelines and integration with runtimes.
+
+Mastering Tool for Apache Camel makes integration easy and fun through the visualization of pipelines, integration with runtimes and package, image build and deploy to kubernetes out-of-the-box.
 
 ## Features
-
+### Visual Designer for Integrations
 * Enterprise Integration Patterns DSL
-* REST DSL
+* REST DSL designer
+* OpenAPI to REST DSL generator
 * Beans and dependencies
 * 100+ Kamelets source/sink/action
 * 300+ Components consumer/producer
 * Read/Write Integration CRD (*.yaml with kind:Integration) and plain yaml routes
-* Integration with [Camel-K](https://camel.apache.org/camel-k/next/index.html) and [JBang](https://www.jbang.dev)
+### Runtimes
+* [Camel-K](https://camel.apache.org/camel-k/next/index.html)
+* [Camel JBang](https://camel.apache.org/manual/camel-jbang.html)
+* [Camel Quarkus](https://camel.apache.org/camel-quarkus/2.9.x/reference/extensions/yaml-dsl.html)
+### Build and Deploy
+* Package uber-jar
+* Build Docker/OCI Image
+* Deploy to Kubernetes/OpenShift
+### Documentation
+Build-in catalogues:
+* Enterprise Integration Patterns
+* Kamelets
+* Components
 
 ## VS Code extension
 Install Karavan VS Code extension from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan)
-
 
 ![karavan-vscode](images/karavan-vscode.png)
 
@@ -103,9 +115,3 @@ For SELinux
 ```shell script
 docker run -it -p 8080:8080 -v $(pwd):/deployments/integrations:z ghcr.io/apache/camel-karavan-native:latest
 ```
-
-## Running in GitOps mode
-[Karavan demo on OpenShift](karavan-demo/openshift/README.md)
-
-## Running in Serverless mode
-[Karavan demo on Kubernetes](karavan-demo/serverless/README.md)
