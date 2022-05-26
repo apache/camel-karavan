@@ -1,6 +1,6 @@
 {
   "name": "karavan",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "private": true,
   "scripts": {
     "copy-designer": "cp -r ../../../../karavan-designer/src/designer src && cp -r ../../../../karavan-designer/src/kamelets src && cp -r ../../../../karavan-designer/src/components src && cp -r ../../../../karavan-designer/src/eip src",
