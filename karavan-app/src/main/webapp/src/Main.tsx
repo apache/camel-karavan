@@ -20,7 +20,7 @@ import {
     Avatar,
     PageHeaderTools,
     PageHeaderToolsGroup,
-    PageHeaderToolsItem, Dropdown, DropdownToggle
+    PageHeaderToolsItem, Dropdown, DropdownToggle, NavExpandable, NavGroup
 } from '@patternfly/react-core';
 import {KaravanApi} from "./api/KaravanApi";
 import {IntegrationPage} from "./integrations/IntegrationPage";
@@ -39,6 +39,9 @@ import Icon from "./Logo";
 import {ComponentsPage} from "./components/ComponentsPage";
 import {EipPage} from "./eip/EipPage";
 import {OpenApiPage} from "./integrations/OpenApiPage";
+import {ProjectsPage} from "./projects/ProjectsPage";
+import {Project} from "./models/ProjectModels";
+import {ProjectPage} from "./projects/ProjectPage";
 
 class ToastMessage {
     id: string = ''
@@ -61,12 +64,11 @@ interface State {
     version: string,
     mode: 'local' | 'gitops' | 'serverless',
     isNavOpen: boolean,
-    pageId: 'integrations' | 'configuration' | 'kamelets' | 'designer' | "components" | "eip" | "openapi"
-    integrations: Map<string,string>,
-    openapis: Map<string,string>,
-    integration: Integration,
+    pageId: 'projects' | 'project' | 'configuration' | 'kamelets' | 'designer' | "components" | "eip" | "openapi" | "acl"
+    projects: Project[],
+    project?: Project,
     isModalOpen: boolean,
-    nameToDelete: string,
+    projectToDelete?: Project,
     openapi: string,
     alerts: ToastMessage[],
     request: string
@@ -79,12 +81,9 @@ export class Main extends React.Component<Props, State> {
         version: '',
         mode: 'local',
         isNavOpen: true,
-        pageId: "integrations",
-        integrations: new Map<string,string>(),
-        openapis: new Map<string,string>(),
-        integration: Integration.createNew(),
+        pageId: "projects",
+        projects: [],
         isModalOpen: false,
-        nameToDelete: '',
         alerts: [],
         request: uuidv4(),
         openapi: '',
@@ -106,8 +105,7 @@ export class Main extends React.Component<Props, State> {
         KaravanApi.getComponentNames(names => names.forEach(name => {
             KaravanApi.getComponent(name, json => ComponentApi.saveComponent(json))
         }));
-        this.onGetIntegrations();
-        this.onGetOpenApis();
+        this.onGetProjects();
     }
 
     onNavToggle = () => {
@@ -118,7 +116,7 @@ export class Main extends React.Component<Props, State> {
 
     onNavSelect = (result: any) => {
         if (result.itemId === 'integrations') {
-            this.onGetIntegrations();
+            this.onGetProjects();
         }
         this.setState({
             pageId: result.itemId,
@@ -130,11 +128,11 @@ export class Main extends React.Component<Props, State> {
             <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentSpaceBetween"}}
                   style={{width: "100%"}}>
                 <FlexItem style={{marginTop: "auto", marginBottom: "auto"}}>
-                        {/*<FlexItem>*/}
-                        {/*    <TextContent>*/}
-                        {/*        <Text component={TextVariants.h5}>{"v. " + version}</Text>*/}
-                        {/*    </TextContent>*/}
-                        {/*</FlexItem>*/}
+                    {/*<FlexItem>*/}
+                    {/*    <TextContent>*/}
+                    {/*        <Text component={TextVariants.h5}>{"v. " + version}</Text>*/}
+                    {/*    </TextContent>*/}
+                    {/*</FlexItem>*/}
                 </FlexItem>
                 <FlexItem style={{marginTop: "auto", marginBottom: "auto"}}>
                     <PageHeaderTools>
@@ -172,48 +170,54 @@ export class Main extends React.Component<Props, State> {
 
     pageNav = () => (<Nav onSelect={this.onNavSelect}>
         <NavList>
-            <NavItem id="integrations" to="#" itemId={'integrations'}
-                     isActive={this.state.pageId === 'integrations'}>
-                Integrations
+            <NavItem id="projects" to="#" itemId={'projects'}
+                     isActive={this.state.pageId === 'projects'}>
+                Projects
             </NavItem>
-            <NavItem id="eip" to="#" itemId={"eip"}
-                     isActive={this.state.pageId === 'eip'}>
-                Enterprise Integration Patterns
+            <NavItem id="configuration" to="#" itemId={"configuration"}
+                     isActive={this.state.pageId === 'configuration'}>
+                Configuration
             </NavItem>
-            <NavItem id="kamelets" to="#" itemId={"kamelets"}
-                     isActive={this.state.pageId === 'kamelets'}>
-                Kamelets
+            <NavItem id="acl" to="#" itemId={"acl"}
+                     isActive={this.state.pageId === 'acl'}>
+                User Management
             </NavItem>
-            <NavItem id="components" to="#" itemId={"components"}
-                     isActive={this.state.pageId === 'components'}>
-                Components
-            </NavItem>
-            {/*<NavItem id="configuration" to="#" itemId={"configuration"}*/}
-            {/*         isActive={this.state.pageId === 'configuration'}>*/}
-            {/*    Configuration*/}
-            {/*</NavItem>*/}
+            <NavExpandable id="help" title={"Help"} isExpanded={true}>
+                <NavItem id="eip" to="#" itemId={"eip"}
+                         isActive={this.state.pageId === 'eip'}>
+                    Enterprise Integration Patterns
+                </NavItem>
+                <NavItem id="kamelets" to="#" itemId={"kamelets"}
+                         isActive={this.state.pageId === 'kamelets'}>
+                    Kamelets
+                </NavItem>
+                <NavItem id="components" to="#" itemId={"components"}
+                         isActive={this.state.pageId === 'components'}>
+                    Components
+                </NavItem>
+            </NavExpandable>
         </NavList>
     </Nav>);
 
     sidebar = () => (<PageSidebar nav={this.pageNav()} isNavOpen={this.state.isNavOpen}/>);
 
-    onIntegrationDelete = (name: string, type: 'integration' | 'openapi') => {
-        this.setState({isModalOpen: true, nameToDelete: name})
+    onProjectDelete = (project: Project) => {
+        this.setState({isModalOpen: true, projectToDelete: project})
     };
 
     deleteErrorMessage = (id: string) => {
         this.setState({alerts: this.state.alerts.filter(a => a.id !== id)})
     }
     delete = () => {
-        KaravanApi.deleteIntegration(this.state.nameToDelete, res => {
-            if (res.status === 204) {
-                this.toast("Success", "Integration deleted", "success");
-                this.onGetIntegrations();
-                this.onGetOpenApis();
-            } else {
-                this.toast("Error", res.statusText, "danger");
-            }
-        });
+        if (this.state.projectToDelete)
+            KaravanApi.deleteProject(this.state.projectToDelete, res => {
+                if (res.status === 204) {
+                    this.toast("Success", "Project deleted", "success");
+                    this.onGetProjects();
+                } else {
+                    this.toast("Error", res.statusText, "danger");
+                }
+            });
         this.setState({isModalOpen: false})
     }
 
@@ -223,71 +227,50 @@ export class Main extends React.Component<Props, State> {
         this.setState({alerts: mess})
     }
 
-    onIntegrationSelect = (filename: string, type: 'integration' | 'openapi') => {
-        if (type === 'integration') {
-            KaravanApi.getIntegration(filename, res => {
-                if (res.status === 200) {
-                    const code: string = res.data;
-                    const i = CamelDefinitionYaml.yamlToIntegration(filename, code);
-                    this.setState({isNavOpen: false, pageId: 'designer', integration: i, filename: filename});
-                } else {
-                    this.toast("Error", res.status + ", " + res.statusText, "danger");
-                }
-            });
-        } else {
-            KaravanApi.getOpenApi(filename, res => {
-                if (res.status === 200) {
-                    const code: string = JSON.stringify(res.data, null, 2);
-                    console.log(code)
-                    this.setState({isNavOpen: true, pageId: 'openapi', openapi: code, filename: filename});
-                } else {
-                    this.toast("Error", res.status + ", " + res.statusText, "danger");
-                }
-            });
-        }
+    onProjectSelect = (project: Project) => {
+        this.setState({isNavOpen: true, pageId: 'project', project: project});
     };
 
-    onIntegrationCreate = (i: Integration) => {
-        this.setState({isNavOpen: false, pageId: 'designer', integration: i});
+    onProjectCreate = (project: Project) => {
+        KaravanApi.postProject(project, res => {
+            console.log(res.status)
+            if (res.status === 200) {
+                this.toast("Success", "Project created", "success");
+                this.setState({isNavOpen: true, pageId: 'project', project: project});
+            } else {
+                this.toast("Error", res.status + ", " + res.statusText, "danger");
+            }
+        });
     };
 
-    onGetIntegrations() {
-        KaravanApi.getIntegrations((integrations: {}) => {
-            const map:Map<string, string> = new Map(Object.entries(integrations));
+    onGetProjects() {
+        KaravanApi.getProjects((projects: []) => {
             this.setState({
-                integrations: map, request: uuidv4()
-            })});
+                projects: projects, request: uuidv4()
+            })
+        });
     }
-
-    onGetOpenApis() {
-        KaravanApi.getOpenApis((openapis: {}) => {
-            const map:Map<string, string> = new Map(Object.entries(openapis));
-            this.setState({
-                openapis: map, request: uuidv4()
-            })});
-    };
 
     render() {
         return (
             <Page className="karavan" header={this.header(this.state.version)} sidebar={this.sidebar()}>
-                {this.state.pageId === 'integrations' &&
-                <IntegrationPage key={this.state.request}
-                                 integrations={this.state.integrations}
-                                 openapis={this.state.openapis}
-                                 onRefresh={() => {
-                                     this.onGetIntegrations();
-                                     this.onGetOpenApis();
-                                 }}
-                                 onDelete={this.onIntegrationDelete}
-                                 onSelect={this.onIntegrationSelect}
-                                 onCreate={this.onIntegrationCreate}/>}
+                {this.state.pageId === 'projects' &&
+                    <ProjectsPage key={this.state.request}
+                                  projects={this.state.projects}
+                                  onDelete={this.onProjectDelete}
+                                  onSelect={this.onProjectSelect}
+                                  onRefresh={() => {
+                                      this.onGetProjects();
+                                  }}
+                                  onCreate={this.onProjectCreate}/>}
                 {this.state.pageId === 'configuration' && <ConfigurationPage/>}
                 {this.state.pageId === 'kamelets' && <KameletsPage dark={false}/>}
                 {this.state.pageId === 'components' && <ComponentsPage dark={false}/>}
                 {this.state.pageId === 'eip' && <EipPage dark={false}/>}
-                {this.state.pageId === 'openapi' && <OpenApiPage dark={false} openapi={this.state.openapi} filename={this.state.filename}/>}
-                {this.state.pageId === 'designer' &&
-                <DesignerPage mode={this.state.mode} integration={this.state.integration}/>}
+                {this.state.pageId === 'project' && <ProjectPage project={this.state.project}/>}
+                {this.state.pageId === 'openapi' &&
+                    <OpenApiPage dark={false} openapi={this.state.openapi} filename={this.state.filename}/>}
+
                 <Modal
                     title="Confirmation"
                     variant={ModalVariant.small}
@@ -299,9 +282,7 @@ export class Main extends React.Component<Props, State> {
                                 onClick={e => this.setState({isModalOpen: false})}>Cancel</Button>
                     ]}
                     onEscapePress={e => this.setState({isModalOpen: false})}>
-                    <div>
-                        Are you sure you want to delete integration?
-                    </div>
+                    <div>{"Are you sure you want to delete the project " + this.state.projectToDelete?.name + "?"}</div>
                 </Modal>
                 {this.state.alerts.map((e: ToastMessage) => (
                     <Alert key={e.id} className="main-alert" variant={e.variant} title={e.title} timeout={2000}

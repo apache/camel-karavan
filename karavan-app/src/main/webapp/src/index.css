@@ -49,3 +49,14 @@
   color: initial;
   font-weight: initial;
 }
+
+.karavan .projects-page .icon {
+  height: 16px;
+  width: 16px;
+  margin: auto;
+}
+
+.karavan .project-page .table {
+  margin-top: 16px;
+}
+

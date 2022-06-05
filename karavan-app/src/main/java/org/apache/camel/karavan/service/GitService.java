@@ -56,8 +56,6 @@ public class GitService {
     @Inject
     Vertx vertx;
 
-    @Inject
-    FileSystemService fileSystemService;
 
     private static final Logger LOGGER = Logger.getLogger(GitService.class.getName());
 
@@ -86,7 +84,7 @@ public class GitService {
         } catch (Exception e) {
             LOGGER.error("Error", e);
         }
-        fileSystemService.saveFile(dir, fileName, yaml);
+//        fileSystemService.saveFile(dir, fileName, yaml);
         commitAddedAndPush(git, branch, fileName);
     }
 
@@ -103,7 +101,7 @@ public class GitService {
         LOGGER.info("Delete " + fileName);
         String dir = pullIntegrations(branch);
         Git git = Git.open(Path.of(dir).toFile());
-        fileSystemService.delete(dir, fileName);
+//        fileSystemService.delete(dir, fileName);
         commitDeletedAndPush(git, branch, fileName);
     }
 
@@ -127,9 +125,9 @@ public class GitService {
         try {
             Git git = clone(branch, dir);
             LOGGER.info("Git pull branch : " + git.pull().call());
-            if (fileSystemService.getIntegrationList(dir).isEmpty()) {
-                LOGGER.info("Git pull remote branch : " + git.pull().setRemoteBranchName(mainBranch).call());
-            }
+//            if (fileSystemService.getIntegrationList(dir).isEmpty()) {
+//                LOGGER.info("Git pull remote branch : " + git.pull().setRemoteBranchName(mainBranch).call());
+//            }
         } catch (RefNotAdvertisedException e) {
             LOGGER.error("New repository");
         } catch (Exception e) {

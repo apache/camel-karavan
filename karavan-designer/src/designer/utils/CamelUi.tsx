@@ -175,6 +175,7 @@ export class CamelUi {
     }
 
     static titleFromName = (name?: string) => {
+        name = name ? (name.substring(0, name.lastIndexOf('.')) || name) : undefined;
         return name
             ? name
                 .replace(".yaml", "")

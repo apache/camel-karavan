@@ -24,10 +24,7 @@ export class ConfigurationPage extends React.Component<Props, State> {
     };
 
     componentDidMount() {
-        KaravanApi.getIntegrations((integrations: []) =>
-            this.setState({
-                integrations: integrations
-            }));
+
     }
 
     render() {

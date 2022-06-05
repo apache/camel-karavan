@@ -15,7 +15,7 @@ export class MainToolbar extends React.PureComponent<Props> {
 
         return (
             <PageSection className="tools-section" variant={PageSectionVariants.light}>
-                <Flex className="tools" justifyContent={{default: 'justifyContentSpaceBetween'}}>
+                <Flex className="tools" justifyContent={{default: 'justifyContentSpaceBetween'}} alignItems={{default:'alignItemsCenter'}}>
                     <FlexItem>
                         {title}
                     </FlexItem>

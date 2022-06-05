@@ -16,7 +16,6 @@
  */
 package org.apache.camel.karavan.api;
 
-import org.apache.camel.karavan.service.FileSystemService;
 import org.apache.camel.karavan.service.GeneratorService;
 import org.apache.camel.karavan.service.GitService;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -38,8 +37,8 @@ public class OpenApiResource {
     @ConfigProperty(name = "karavan.mode", defaultValue = "local")
     String mode;
 
-    @Inject
-    FileSystemService fileSystemService;
+//    @Inject
+//    FileSystemService fileSystemService;
 
     @Inject
     GeneratorService generatorService;
@@ -47,46 +46,46 @@ public class OpenApiResource {
     @Inject
     GitService gitService;
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, String> getList(@HeaderParam("username") String username) throws GitAPIException {
-        if (mode.endsWith(GITOPS_MODE)) {
-            String dir = gitService.pullIntegrations(username);
-            return fileSystemService.getOpenApiList(dir).stream().collect(Collectors.toMap(s -> s, s-> ""));
-        } else {
-            return fileSystemService.getOpenApiList().stream().collect(Collectors.toMap(s -> s, s-> ""));
-        }
-    }
-
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @Path("/{name}")
-    public String getJson(@HeaderParam("username") String username, @PathParam("name") String name) throws GitAPIException {
-        switch (mode){
-            case GITOPS_MODE:
-                String dir = gitService.pullIntegrations(username);
-                return fileSystemService.getFile(dir, name);
-            default:
-                return fileSystemService.getIntegrationsFile(name);
-        }
-    }
-
-    @POST
-    @Produces(MediaType.TEXT_PLAIN)
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Path("/{name}/{generateRest}/{generateRoutes}/{integrationName}")
-    public String save(@HeaderParam("username") String username,
-                       @PathParam("name") String name,
-                       @PathParam("integrationName") String integrationName,
-                       @PathParam("generateRest") boolean generateRest,
-                       @PathParam("generateRoutes") boolean generateRoutes,
-                       String json) throws Exception {
-        fileSystemService.saveIntegrationsFile(name, json);
-        if (generateRest) {
-            String yaml = generatorService.generate(json, generateRoutes);
-            fileSystemService.saveIntegrationsFile(integrationName, yaml);
-            return yaml;
-        }
-        return json;
-    }
+//    @GET
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public Map<String, String> getList(@HeaderParam("username") String username) throws GitAPIException {
+//        if (mode.endsWith(GITOPS_MODE)) {
+//            String dir = gitService.pullIntegrations(username);
+//            return fileSystemService.getOpenApiList(dir).stream().collect(Collectors.toMap(s -> s, s-> ""));
+//        } else {
+//            return fileSystemService.getOpenApiList().stream().collect(Collectors.toMap(s -> s, s-> ""));
+//        }
+//    }
+//
+//    @GET
+//    @Produces(MediaType.TEXT_PLAIN)
+//    @Path("/{name}")
+//    public String getJson(@HeaderParam("username") String username, @PathParam("name") String name) throws GitAPIException {
+//        switch (mode){
+//            case GITOPS_MODE:
+//                String dir = gitService.pullIntegrations(username);
+//                return fileSystemService.getFile(dir, name);
+//            default:
+//                return fileSystemService.getIntegrationsFile(name);
+//        }
+//    }
+//
+//    @POST
+//    @Produces(MediaType.TEXT_PLAIN)
+//    @Consumes(MediaType.TEXT_PLAIN)
+//    @Path("/{name}/{generateRest}/{generateRoutes}/{integrationName}")
+//    public String save(@HeaderParam("username") String username,
+//                       @PathParam("name") String name,
+//                       @PathParam("integrationName") String integrationName,
+//                       @PathParam("generateRest") boolean generateRest,
+//                       @PathParam("generateRoutes") boolean generateRoutes,
+//                       String json) throws Exception {
+//        fileSystemService.saveIntegrationsFile(name, json);
+//        if (generateRest) {
+//            String yaml = generatorService.generate(json, generateRoutes);
+//            fileSystemService.saveIntegrationsFile(integrationName, yaml);
+//            return yaml;
+//        }
+//        return json;
+//    }
 }
