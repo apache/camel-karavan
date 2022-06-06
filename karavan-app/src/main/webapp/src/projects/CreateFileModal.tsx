@@ -36,8 +36,9 @@ export class CreateFileModal extends React.Component<Props, State> {
 
     saveAndCloseModal = () => {
         const {name, extension} = this.state;
-        if (name && extension){
-            const file = new ProjectFile(name + '.' + extension, this.props.project.name, '');
+        const filename = (extension !== 'java') ? CamelUi.nameFromTitle(name) : CamelUi.javaNameFromTitle(name)
+        if (filename && extension){
+            const file = new ProjectFile(filename + '.' + extension, this.props.project.name, '');
             KaravanApi.postProjectFile(file, res => {
                 if (res.status === 200) {
                     console.log(res) //TODO show notification

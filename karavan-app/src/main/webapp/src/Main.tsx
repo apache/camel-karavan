@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-    Brand,
     Page,
     PageHeader,
     PageSidebar,
@@ -12,27 +11,19 @@ import {
     Modal,
     Alert,
     AlertActionCloseButton,
-    Text,
     Flex,
     FlexItem,
-    TextVariants,
-    TextContent,
     Avatar,
     PageHeaderTools,
     PageHeaderToolsGroup,
     PageHeaderToolsItem, Dropdown, DropdownToggle, NavExpandable, NavGroup
 } from '@patternfly/react-core';
 import {KaravanApi} from "./api/KaravanApi";
-import {IntegrationPage} from "./integrations/IntegrationPage";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
-import logo from './logo.svg';
 import './designer/karavan.css';
 import {ConfigurationPage} from "./config/ConfigurationPage";
 import {KameletsPage} from "./kamelets/KameletsPage";
-import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {v4 as uuidv4} from "uuid";
-import {DesignerPage} from "./integrations/DesignerPage";
-import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import avatarImg from './avatarImg.svg';
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import Icon from "./Logo";
@@ -208,7 +199,7 @@ export class Main extends React.Component<Props, State> {
     deleteErrorMessage = (id: string) => {
         this.setState({alerts: this.state.alerts.filter(a => a.id !== id)})
     }
-    delete = () => {
+    deleteProject = () => {
         if (this.state.projectToDelete)
             KaravanApi.deleteProject(this.state.projectToDelete, res => {
                 if (res.status === 204) {
@@ -263,11 +254,11 @@ export class Main extends React.Component<Props, State> {
                                       this.onGetProjects();
                                   }}
                                   onCreate={this.onProjectCreate}/>}
+                {this.state.pageId === 'project' && this.state.project && <ProjectPage project={this.state.project}/>}
                 {this.state.pageId === 'configuration' && <ConfigurationPage/>}
                 {this.state.pageId === 'kamelets' && <KameletsPage dark={false}/>}
                 {this.state.pageId === 'components' && <ComponentsPage dark={false}/>}
                 {this.state.pageId === 'eip' && <EipPage dark={false}/>}
-                {this.state.pageId === 'project' && this.state.project && <ProjectPage project={this.state.project}/>}
                 {this.state.pageId === 'openapi' &&
                     <OpenApiPage dark={false} openapi={this.state.openapi} filename={this.state.filename}/>}
 
@@ -277,7 +268,7 @@ export class Main extends React.Component<Props, State> {
                     isOpen={this.state.isModalOpen}
                     onClose={() => this.setState({isModalOpen: false})}
                     actions={[
-                        <Button key="confirm" variant="primary" onClick={e => this.delete()}>Delete</Button>,
+                        <Button key="confirm" variant="primary" onClick={e => this.deleteProject()}>Delete</Button>,
                         <Button key="cancel" variant="link"
                                 onClick={e => this.setState({isModalOpen: false})}>Cancel</Button>
                     ]}
@@ -285,7 +276,8 @@ export class Main extends React.Component<Props, State> {
                     <div>{"Are you sure you want to delete the project " + this.state.projectToDelete?.name + "?"}</div>
                 </Modal>
                 {this.state.alerts.map((e: ToastMessage) => (
-                    <Alert key={e.id} className="main-alert" variant={e.variant} title={e.title} timeout={2000}
+                    <Alert key={e.id} className="main-alert" variant={e.variant} title={e.title}
+                           timeout={e.variant === "success" ? 1000 : 2000}
                            actionClose={<AlertActionCloseButton onClose={() => this.deleteErrorMessage(e.id)}/>}>
                         {e.text}
                     </Alert>

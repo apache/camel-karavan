@@ -1,11 +1,15 @@
 import React from 'react';
 import {
-    Badge, Breadcrumb, BreadcrumbItem,
-    Button, Form,
+    Badge,
+    Breadcrumb,
+    BreadcrumbItem,
+    Button,
+    Form,
     FormGroup,
     PageSection,
     Text,
-    TextContent, TextInput,
+    TextContent,
+    TextInput,
     ToggleGroup,
     ToggleGroupItem,
     Toolbar,
@@ -14,7 +18,15 @@ import {
     DescriptionList,
     DescriptionListTerm,
     DescriptionListGroup,
-    DescriptionListDescription, Card, CardBody, Bullseye, EmptyState, EmptyStateVariant, EmptyStateIcon, Title
+    DescriptionListDescription,
+    Card,
+    CardBody,
+    Bullseye,
+    EmptyState,
+    EmptyStateVariant,
+    EmptyStateIcon,
+    Title,
+    ModalVariant, Modal
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
@@ -42,7 +54,9 @@ interface State {
     file?: ProjectFile,
     files: ProjectFile[],
     isUploadModalOpen: boolean,
+    isDeleteModalOpen: boolean,
     isCreateModalOpen: boolean,
+    fileToDelete?: ProjectFile
 }
 
 export class ProjectPage extends React.Component<Props, State> {
@@ -51,6 +65,7 @@ export class ProjectPage extends React.Component<Props, State> {
         project: this.props.project,
         isUploadModalOpen: false,
         isCreateModalOpen: false,
+        isDeleteModalOpen: false,
         files: []
     };
 
@@ -164,8 +179,20 @@ export class ProjectPage extends React.Component<Props, State> {
         this.setState({file: file});
     }
 
-    delete = (file: ProjectFile) => {
+    openDeleteConfirmation = (file: ProjectFile) => {
+        this.setState({isDeleteModalOpen: true, fileToDelete: file})
+    }
 
+    delete = () => {
+        if (this.state.fileToDelete) {
+            KaravanApi.deleteProjectFile(this.state.fileToDelete, res => {
+                if (res.status === 204) {
+                    this.onRefresh();
+                } else {
+                }
+            });
+            this.setState({isDeleteModalOpen: false, fileToDelete: undefined})
+        }
     }
 
     getType = (name: string) => {
@@ -239,7 +266,7 @@ export class ProjectPage extends React.Component<Props, State> {
                             </Td>
                             <Td modifier={"fitContent"}>
                                 <Button style={{padding: '0'}} variant={"plain"}
-                                        onClick={e => this.delete(file)}>
+                                        onClick={e => this.openDeleteConfirmation(file)}>
                                     <DeleteIcon/>
                                 </Button>
                             </Td>
@@ -317,6 +344,19 @@ export class ProjectPage extends React.Component<Props, State> {
                 {isYaml && this.getDesigner()}
                 {isCode && this.getEditor()}
                 <CreateFileModal project={this.props.project} isOpen={this.state.isCreateModalOpen} onClose={this.closeModal}/>
+                <Modal
+                    title="Confirmation"
+                    variant={ModalVariant.small}
+                    isOpen={this.state.isDeleteModalOpen}
+                    onClose={() => this.setState({isDeleteModalOpen: false})}
+                    actions={[
+                        <Button key="confirm" variant="primary" onClick={e => this.delete()}>Delete</Button>,
+                        <Button key="cancel" variant="link"
+                                onClick={e => this.setState({isDeleteModalOpen: false})}>Cancel</Button>
+                    ]}
+                    onEscapePress={e => this.setState({isDeleteModalOpen: false})}>
+                    <div>{"Are you sure you want to delete the file " + this.state.fileToDelete?.name + "?"}</div>
+                </Modal>
             </PageSection>
         )
     }
