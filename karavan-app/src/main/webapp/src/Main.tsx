@@ -182,7 +182,7 @@ export class Main extends React.Component<Props, State> {
                      isActive={this.state.pageId === 'acl'}>
                 User Management
             </NavItem>
-            <NavExpandable id="help" title={"Help"} isExpanded={true}>
+            <NavExpandable id="help" title={"Help"} isExpanded={false}>
                 <NavItem id="eip" to="#" itemId={"eip"}
                          isActive={this.state.pageId === 'eip'}>
                     Enterprise Integration Patterns
@@ -267,7 +267,7 @@ export class Main extends React.Component<Props, State> {
                 {this.state.pageId === 'kamelets' && <KameletsPage dark={false}/>}
                 {this.state.pageId === 'components' && <ComponentsPage dark={false}/>}
                 {this.state.pageId === 'eip' && <EipPage dark={false}/>}
-                {this.state.pageId === 'project' && <ProjectPage project={this.state.project}/>}
+                {this.state.pageId === 'project' && this.state.project && <ProjectPage project={this.state.project}/>}
                 {this.state.pageId === 'openapi' &&
                     <OpenApiPage dark={false} openapi={this.state.openapi} filename={this.state.filename}/>}
 

@@ -43,23 +43,23 @@ export class DesignerPage extends React.Component<Props, State> {
     }
 
     post = () => {
-        KaravanApi.postIntegrations(this.state.integration.metadata.name, this.state.yaml, res => {
-            if (res.status === 200) {
-                console.log(res) //TODO show notification
-            } else {
-                console.log(res) //TODO show notification
-            }
-        })
+        // KaravanApi.postIntegrations(this.state.integration.metadata.name, this.state.yaml, res => {
+        //     if (res.status === 200) {
+        //         console.log(res) //TODO show notification
+        //     } else {
+        //         console.log(res) //TODO show notification
+        //     }
+        // })
     }
 
     publish = () => {
-        KaravanApi.publishIntegration(this.state.integration.metadata.name, this.state.yaml, res => {
-            if (res.status === 200) {
-                console.log(res) //TODO show notification
-            } else {
-                console.log(res) //TODO show notification
-            }
-        })
+        // KaravanApi.publishIntegration(this.state.integration.metadata.name, this.state.yaml, res => {
+        //     if (res.status === 200) {
+        //         console.log(res) //TODO show notification
+        //     } else {
+        //         console.log(res) //TODO show notification
+        //     }
+        // })
     }
 
     copy = () => {

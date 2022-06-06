@@ -23,3 +23,24 @@ export class ProjectFile {
         this.code = code;
     }
 }
+
+export class ProjectFileType {
+    name: string = '';
+    title: string = '';
+    extension: string = '';
+
+
+    constructor(name: string, title: string, extension: string) {
+        this.name = name;
+        this.title = title;
+        this.extension = extension;
+    }
+}
+
+export const ProjectFileTypes: ProjectFileType[] = [
+    new ProjectFileType("INTEGRATION", "Integration", "yaml"),
+    new ProjectFileType("CODE", "Code", "java"),
+    new ProjectFileType("CODE", "Code", "groovy"),
+    new ProjectFileType("PROPERTIES", "Properties", "properties"),
+    new ProjectFileType("OPENAPI", "OpenAPI", "json"),
+];

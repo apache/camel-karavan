@@ -14,25 +14,27 @@ import {
     DescriptionList,
     DescriptionListTerm,
     DescriptionListGroup,
-    DescriptionListDescription, Card, CardBody
+    DescriptionListDescription, Card, CardBody, Bullseye, EmptyState, EmptyStateVariant, EmptyStateIcon, Title
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
 import {KaravanApi} from "../api/KaravanApi";
-import {Project, ProjectFile} from "../models/ProjectModels";
+import {Project, ProjectFile, ProjectFileTypes} from "../models/ProjectModels";
 import {CamelUi} from "../designer/utils/CamelUi";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
-import {UploadModal} from "../integrations/UploadModal";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import {KaravanDesigner} from "../designer/KaravanDesigner";
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import FileSaver from "file-saver";
 import Editor from "@monaco-editor/react";
+import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
+import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
+import {CreateFileModal} from "./CreateFileModal";
 
 interface Props {
-    project?: Project,
+    project: Project,
 }
 
 interface State {
@@ -40,6 +42,7 @@ interface State {
     file?: ProjectFile,
     files: ProjectFile[],
     isUploadModalOpen: boolean,
+    isCreateModalOpen: boolean,
 }
 
 export class ProjectPage extends React.Component<Props, State> {
@@ -47,6 +50,7 @@ export class ProjectPage extends React.Component<Props, State> {
     public state: State = {
         project: this.props.project,
         isUploadModalOpen: false,
+        isCreateModalOpen: false,
         files: []
     };
 
@@ -104,6 +108,9 @@ export class ProjectPage extends React.Component<Props, State> {
                     <Button variant="secondary" icon={<UploadIcon/>}
                             onClick={e => this.setState({isUploadModalOpen: true})}>Upload</Button>
                 </ToolbarItem>}
+                {file === undefined && <ToolbarItem>
+                    <Button variant={"primary"} icon={<PlusIcon/>} onClick={e => this.setState({isCreateModalOpen: true})}>Create</Button>
+                </ToolbarItem>}
                 {file !== undefined && <ToolbarItem>
                     <Button variant="secondary" icon={<DownloadIcon/>} onClick={e => this.download()}>Download</Button>
                 </ToolbarItem>}
@@ -149,7 +156,7 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     closeModal = () => {
-        this.setState({isUploadModalOpen: false});
+        this.setState({isUploadModalOpen: false, isCreateModalOpen: false});
         this.onRefresh();
     }
 
@@ -162,7 +169,13 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     getType = (name: string) => {
-        return name.endsWith("yaml") ? "Integration" : (name.endsWith("properties") ? "Properties" : "Code")
+        const extension = name.substring(name.lastIndexOf('.') + 1);
+        const type = ProjectFileTypes.filter(p => p.extension === extension).map(p => p.title)[0];
+        if (type) {
+            return type
+        } else {
+            return "Unknown"
+        }
     }
 
     getProjectForm = () => {
@@ -232,6 +245,20 @@ export class ProjectPage extends React.Component<Props, State> {
                             </Td>
                         </Tr>
                     })}
+                    {files.length === 0 &&
+                        <Tr>
+                            <Td colSpan={8}>
+                                <Bullseye>
+                                    <EmptyState variant={EmptyStateVariant.small}>
+                                        <EmptyStateIcon icon={SearchIcon} />
+                                        <Title headingLevel="h2" size="lg">
+                                            No results found
+                                        </Title>
+                                    </EmptyState>
+                                </Bullseye>
+                            </Td>
+                        </Tr>
+                    }
                 </Tbody>
             </TableComposable>
         )
@@ -289,7 +316,7 @@ export class ProjectPage extends React.Component<Props, State> {
                     </PageSection>}
                 {isYaml && this.getDesigner()}
                 {isCode && this.getEditor()}
-                <UploadModal isOpen={this.state.isUploadModalOpen} onClose={this.closeModal}/>
+                <CreateFileModal project={this.props.project} isOpen={this.state.isCreateModalOpen} onClose={this.closeModal}/>
             </PageSection>
         )
     }

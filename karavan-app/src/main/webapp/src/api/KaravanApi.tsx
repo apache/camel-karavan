@@ -81,29 +81,9 @@ export const KaravanApi = {
         });
     },
 
-    postIntegrations: async (name: string, yaml: string, after: (res: AxiosResponse<any>) => void) => {
-        axios.post('/integration/' + name, yaml,
-            {headers: {'Accept': 'text/plain', 'Content-Type': 'text/plain', 'username': 'cameleer'}})
-            .then(res => {
-                after(res);
-            }).catch(err => {
-            after(err);
-        });
-    },
-
-    deleteIntegration: async (name: string, after: (res: AxiosResponse<any>) => void) => {
-        axios.delete('/integration/' + name,
+    deleteProjectFile: async (file: ProjectFile, after: (res: AxiosResponse<any>) => void) => {
+        axios.delete('/file/' + file.project + '/' + file.name,
             {headers:{'username': 'cameleer'}})
-            .then(res => {
-                after(res);
-            }).catch(err => {
-            after(err);
-        });
-    },
-
-    publishIntegration: async (name: string, yaml: string, after: (res: AxiosResponse<any>) => void) => {
-        axios.patch('/integration/' + name, yaml,
-            {headers: {'Accept': 'text/plain', 'Content-Type': 'text/plain', 'username': 'cameleer'}})
             .then(res => {
                 after(res);
             }).catch(err => {

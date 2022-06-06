@@ -13,12 +13,12 @@ import {
     ModalVariant,
     Form,
     Badge,
-    SelectVariant,
-    SelectDirection,
-    Select,
-    SelectOption,
     Tooltip,
-    OptionsMenu, OptionsMenuItem, OptionsMenuToggle, ToggleGroup, ToggleGroupItem
+    ToggleGroup,
+    ToggleGroupItem,
+    Bullseye,
+    EmptyState,
+    EmptyStateVariant, EmptyStateIcon, Title
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
@@ -29,6 +29,7 @@ import {CamelUi} from "../designer/utils/CamelUi";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
+import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 
 interface Props {
     projects: Project[],
@@ -127,7 +128,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                     <FormGroup label="Type" fieldId="type" isRequired>
                         <ToggleGroup aria-label="Default with single selectable">
                             {["KARAVAN", "QUARKUS", "SPRING"].map(value =>
-                                <ToggleGroupItem text={CamelUtil.capitalizeName(value.toLowerCase())} buttonId={value} isSelected={type === value} onChange={selected => this.setState({type: value})} />
+                                <ToggleGroupItem key={value} text={CamelUtil.capitalizeName(value.toLowerCase())} buttonId={value} isSelected={type === value} onChange={selected => this.setState({type: value})} />
                             )}
                         </ToggleGroup>
                     </FormGroup>
@@ -178,6 +179,20 @@ export class ProjectsPage extends React.Component<Props, State> {
                                     </Td>
                                 </Tr>
                             ))}
+                            {projects.length === 0 &&
+                                <Tr>
+                                    <Td colSpan={8}>
+                                        <Bullseye>
+                                            <EmptyState variant={EmptyStateVariant.small}>
+                                                <EmptyStateIcon icon={SearchIcon} />
+                                                <Title headingLevel="h2" size="lg">
+                                                    No results found
+                                                </Title>
+                                            </EmptyState>
+                                        </Bullseye>
+                                    </Td>
+                                </Tr>
+                            }
                         </Tbody>
                     </TableComposable>
                 </PageSection>
