@@ -174,6 +174,11 @@ export class CamelUi {
         return title.replace(/[^a-z0-9+]+/gi, "-").toLowerCase();
     }
 
+    static javaNameFromTitle = (title: string): string => {
+        const name = CamelUi.nameFromTitle(title);
+        return name.split("-").map(v => CamelUtil.capitalizeName(v)).join('');
+    }
+
     static titleFromName = (name?: string) => {
         name = name ? (name.substring(0, name.lastIndexOf('.')) || name) : undefined;
         return name
