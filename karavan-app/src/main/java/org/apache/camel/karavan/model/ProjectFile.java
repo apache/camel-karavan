@@ -11,7 +11,7 @@ public class ProjectFile {
     @ProtoField(number = 2)
     String code;
     @ProtoField(number = 3)
-    @ProtoDoc("@Indexed")
+    @ProtoDoc("@Field(index=Index.YES, analyze = Analyze.YES, store = Store.NO)")
     String project;
 
     @ProtoFactory

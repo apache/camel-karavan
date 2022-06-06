@@ -228,7 +228,7 @@ export class ProjectPage extends React.Component<Props, State> {
                             <DescriptionListDescription>
                                 <ToggleGroup aria-label="Default with single selectable">
                                     {["KARAVAN", "QUARKUS", "SPRING"].map(value =>
-                                        <ToggleGroupItem text={CamelUtil.capitalizeName(value.toLowerCase())}
+                                        <ToggleGroupItem key={value} text={CamelUtil.capitalizeName(value.toLowerCase())}
                                                          buttonId={value} isSelected={project?.type === value}/>
                                     )}
                                 </ToggleGroup>

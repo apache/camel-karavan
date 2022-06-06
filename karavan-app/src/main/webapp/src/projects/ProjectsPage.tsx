@@ -24,7 +24,7 @@ import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
-import {Project} from "../models/ProjectModels";
+import {Project, ProjectFileType, ProjectFileTypes} from "../models/ProjectModels";
 import {CamelUi} from "../designer/utils/CamelUi";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
@@ -58,7 +58,7 @@ export class ProjectsPage extends React.Component<Props, State> {
         name: '',
         version: '',
         folder: '',
-        type: '',
+        type: 'KARAVAN',
     };
 
     tools = () => (<Toolbar id="toolbar-group-types">
@@ -84,14 +84,14 @@ export class ProjectsPage extends React.Component<Props, State> {
     </TextContent>);
 
     closeModal = () => {
-        this.setState({isCreateModalOpen: false, name: '', version: '', folder: '', type: ''});
+        this.setState({isCreateModalOpen: false, name: '', version: '', folder: '', type: 'KARAVAN'});
         this.props.onRefresh.call(this);
     }
 
     saveAndCloseCreateModal = () => {
         const p = new Project(this.state.name, this.state.version, this.state.folder, this.state.type? this.state.type : "KARAVAN");
         this.props.onCreate.call(this, p);
-        this.setState({isCreateModalOpen: false, name: '', version: '', folder: '', type: ''});
+        this.setState({isCreateModalOpen: false, name: '', version: '', folder: '', type: 'KARAVAN'});
     }
 
     onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
@@ -118,7 +118,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                     <FormGroup label="Name" fieldId="name" isRequired>
                         <TextInput className="text-field" type="text" id="name" name="name"
                                    value={this.state.name}
-                                   onChange={e => this.setState({name: e, folder: CamelUi.nameFromTitle(e)})}/>
+                                   onChange={e => this.setState({name: e, folder: CamelUi.nameFromTitle(e.trim())})}/>
                     </FormGroup>
                     <FormGroup label="Version" fieldId="version" isRequired>
                         <TextInput className="text-field" type="text" id="version" name="version"

@@ -16,43 +16,38 @@
  */
 package org.apache.camel.karavan.service;
 
-import io.quarkus.infinispan.client.Remote;
 import io.quarkus.runtime.StartupEvent;
-import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
 import org.apache.camel.karavan.KaravanLifecycleBean;
 import org.apache.camel.karavan.model.GroupedKey;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.infinispan.Cache;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.Search;
+import org.infinispan.commons.api.BasicCache;
+import org.infinispan.commons.api.CacheContainerAdmin;
 import org.infinispan.commons.configuration.XMLStringConfiguration;
+import org.infinispan.configuration.cache.CacheMode;
+import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.configuration.global.GlobalConfigurationBuilder;
+import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.query.dsl.QueryFactory;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Random;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class InfinispanService {
 
-    RemoteCache<GroupedKey, Project> projects;
+    BasicCache<GroupedKey, Project> projects;
 
-    RemoteCache<GroupedKey, ProjectFile> files;
+    BasicCache<GroupedKey, ProjectFile> files;
 
     @Inject
     RemoteCacheManager cacheManager;
@@ -64,10 +59,20 @@ public class InfinispanService {
 
     private static final Logger LOGGER = Logger.getLogger(KaravanLifecycleBean.class.getName());
 
-    void onStart(@Observes StartupEvent ev)  {
-        LOGGER.info("InfinispanService is starting");
-        projects = cacheManager.administration().getOrCreateCache(Project.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, Project.CACHE)));
-        files = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, ProjectFile.CACHE)));
+    void onStart(@Observes StartupEvent ev) {
+        if (cacheManager == null) {
+            LOGGER.info("InfinispanService is starting in local mode");
+            GlobalConfigurationBuilder global = GlobalConfigurationBuilder.defaultClusteredBuilder();
+            DefaultCacheManager cacheManager = new DefaultCacheManager(global.build());
+            ConfigurationBuilder builder = new ConfigurationBuilder();
+            builder.clustering().cacheMode(CacheMode.LOCAL);
+            projects = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Project.CACHE, builder.build());
+            files = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ProjectFile.CACHE, builder.build());
+        } else {
+            LOGGER.info("InfinispanService is starting in remote mode");
+            projects = cacheManager.administration().getOrCreateCache(Project.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, Project.CACHE)));
+            files = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, ProjectFile.CACHE)));
+        }
 
         for (int i = 0; i < 10; i++){
             String project = "parcel-demo" + i;
@@ -99,10 +104,17 @@ public class InfinispanService {
     }
 
     public List<ProjectFile> getProjectFiles(String projectName) {
-        QueryFactory queryFactory = Search.getQueryFactory(files);
-        return queryFactory.<ProjectFile>create("FROM karavan.ProjectFile WHERE project = :project")
-                .setParameter("project", projectName)
-                .execute().list();
+        if (cacheManager == null) {
+            QueryFactory queryFactory = org.infinispan.query.Search.getQueryFactory((Cache<?, ?>) files);
+            return queryFactory.<ProjectFile>create("FROM org.apache.camel.karavan.model.ProjectFile WHERE project = :project")
+                    .setParameter("project", projectName)
+                    .execute().list();
+        } else {
+            QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) files);
+            return queryFactory.<ProjectFile>create("FROM karavan.ProjectFile WHERE project = :project")
+                    .setParameter("project", projectName)
+                    .execute().list();
+        }
     }
 
     public void saveProjectFile(ProjectFile file) {
