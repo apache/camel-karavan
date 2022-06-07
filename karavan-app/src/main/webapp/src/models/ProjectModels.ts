@@ -3,12 +3,14 @@ export class Project {
     version: string = '';
     folder: string = '';
     type: string = '';
+    lastCommit: string = '';
 
-    constructor(name: string, version: string, folder: string, type: string) {
+    constructor(name: string, version: string, folder: string, type: string, lastCommit: string) {
         this.name = name;
         this.version = version;
         this.folder = folder;
         this.type = type;
+        this.lastCommit = lastCommit;
     }
 }
 

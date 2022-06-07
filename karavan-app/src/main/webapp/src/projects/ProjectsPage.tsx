@@ -24,7 +24,7 @@ import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
-import {Project, ProjectFileType, ProjectFileTypes} from "../models/ProjectModels";
+import {Project} from "../models/ProjectModels";
 import {CamelUi} from "../designer/utils/CamelUi";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
@@ -89,7 +89,7 @@ export class ProjectsPage extends React.Component<Props, State> {
     }
 
     saveAndCloseCreateModal = () => {
-        const p = new Project(this.state.name, this.state.version, this.state.folder, this.state.type? this.state.type : "KARAVAN");
+        const p = new Project(this.state.name, this.state.version, this.state.folder, this.state.type? this.state.type : "KARAVAN", '');
         this.props.onCreate.call(this, p);
         this.setState({isCreateModalOpen: false, name: '', version: '', folder: '', type: 'KARAVAN'});
     }

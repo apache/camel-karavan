@@ -225,7 +225,7 @@ export class Main extends React.Component<Props, State> {
     onProjectCreate = (project: Project) => {
         KaravanApi.postProject(project, res => {
             console.log(res.status)
-            if (res.status === 200) {
+            if (res.status === 200 || res.status === 201) {
                 this.toast("Success", "Project created", "success");
                 this.setState({isNavOpen: true, pageId: 'project', project: project});
             } else {

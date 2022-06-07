@@ -26,7 +26,7 @@ import {
     EmptyStateVariant,
     EmptyStateIcon,
     Title,
-    ModalVariant, Modal
+    ModalVariant, Modal, Spinner, Tooltip
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
@@ -44,6 +44,7 @@ import Editor from "@monaco-editor/react";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CreateFileModal} from "./CreateFileModal";
+import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 
 interface Props {
     project: Project,
@@ -56,6 +57,8 @@ interface State {
     isUploadModalOpen: boolean,
     isDeleteModalOpen: boolean,
     isCreateModalOpen: boolean,
+    isPushModalOpen: boolean,
+    isPushing: boolean,
     fileToDelete?: ProjectFile
 }
 
@@ -66,6 +69,8 @@ export class ProjectPage extends React.Component<Props, State> {
         isUploadModalOpen: false,
         isCreateModalOpen: false,
         isDeleteModalOpen: false,
+        isPushModalOpen: false,
+        isPushing: false,
         files: []
     };
 
@@ -99,7 +104,7 @@ export class ProjectPage extends React.Component<Props, State> {
 
     save = (name: string, yaml: string) => {
         const file = this.state.file;
-        if (file){
+        if (file) {
             file.code = yaml;
             this.setState({file: file});
             this.post(file);
@@ -116,20 +121,34 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     tools = () => {
-        const file = this.state.file;
+        const isFile = this.state.file !== undefined;
+        const isPushing = this.state.isPushing;
         return <Toolbar id="toolbar-group-types">
-            <ToolbarContent>
-                {file === undefined && <ToolbarItem>
-                    <Button variant="secondary" icon={<UploadIcon/>}
-                            onClick={e => this.setState({isUploadModalOpen: true})}>Upload</Button>
-                </ToolbarItem>}
-                {file === undefined && <ToolbarItem>
-                    <Button variant={"primary"} icon={<PlusIcon/>} onClick={e => this.setState({isCreateModalOpen: true})}>Create</Button>
-                </ToolbarItem>}
-                {file !== undefined && <ToolbarItem>
+            {isFile && <ToolbarContent>
+                <ToolbarItem>
                     <Button variant="secondary" icon={<DownloadIcon/>} onClick={e => this.download()}>Download</Button>
+                </ToolbarItem>
+            </ToolbarContent>}
+            {!isFile && <ToolbarContent>
+                <ToolbarItem>
+                    {!isPushing && <Button variant={"primary"} icon={<PlusIcon/>}
+                                           onClick={e => this.setState({isCreateModalOpen: true})}>Create</Button>}
+                </ToolbarItem>
+                <ToolbarItem>
+                    {!isPushing && <Button variant="secondary" icon={<UploadIcon/>}
+                                           onClick={e => this.setState({isUploadModalOpen: true})}>Upload</Button>}
+                </ToolbarItem>
+                <ToolbarItem>
+                    {!isPushing && <Button variant="secondary" icon={<PushIcon/>}
+                                           onClick={e => this.setState({isPushModalOpen: true})}>Push</Button>}
+                </ToolbarItem>
+                {isPushing && <ToolbarItem>
+                    <Button variant="link" isDisabled>Pushing...</Button>
                 </ToolbarItem>}
-            </ToolbarContent>
+                {isPushing && <ToolbarItem>
+                    <Spinner isSVG diameter="30px"/>
+                </ToolbarItem>}
+            </ToolbarContent>}
         </Toolbar>
     };
 
@@ -170,8 +189,13 @@ export class ProjectPage extends React.Component<Props, State> {
         }
     }
 
-    closeModal = () => {
-        this.setState({isUploadModalOpen: false, isCreateModalOpen: false});
+    closeModal = (isPushing: boolean = false) => {
+        this.setState({
+            isUploadModalOpen: false,
+            isCreateModalOpen: false,
+            isPushModalOpen: false,
+            isPushing: isPushing
+        });
         this.onRefresh();
     }
 
@@ -193,6 +217,19 @@ export class ProjectPage extends React.Component<Props, State> {
             });
             this.setState({isDeleteModalOpen: false, fileToDelete: undefined})
         }
+    }
+
+    push = () => {
+        this.closeModal(true);
+        KaravanApi.push(this.props.project, res => {
+            console.log(res)
+            if (res.status === 200 || res.status === 201) {
+                this.setState({isPushing: false});
+                this.onRefresh();
+            } else {
+                // Todo notification
+            }
+        });
     }
 
     getType = (name: string) => {
@@ -228,12 +265,21 @@ export class ProjectPage extends React.Component<Props, State> {
                             <DescriptionListDescription>
                                 <ToggleGroup aria-label="Default with single selectable">
                                     {["KARAVAN", "QUARKUS", "SPRING"].map(value =>
-                                        <ToggleGroupItem key={value} text={CamelUtil.capitalizeName(value.toLowerCase())}
+                                        <ToggleGroupItem key={value}
+                                                         text={CamelUtil.capitalizeName(value.toLowerCase())}
                                                          buttonId={value} isSelected={project?.type === value}/>
                                     )}
                                 </ToggleGroup>
                             </DescriptionListDescription>
                         </DescriptionListGroup>
+                        {project?.lastCommit && <DescriptionListGroup>
+                            <DescriptionListTerm>Latest Commit</DescriptionListTerm>
+                            <DescriptionListDescription>
+                                <Tooltip content={project?.lastCommit} position={"right"}>
+                                    <Badge>{project?.lastCommit.substr(0, 7)}</Badge>
+                                </Tooltip>
+                            </DescriptionListDescription>
+                        </DescriptionListGroup>}
                     </DescriptionList>
                 </CardBody>
             </Card>
@@ -277,7 +323,7 @@ export class ProjectPage extends React.Component<Props, State> {
                             <Td colSpan={8}>
                                 <Bullseye>
                                     <EmptyState variant={EmptyStateVariant.small}>
-                                        <EmptyStateIcon icon={SearchIcon} />
+                                        <EmptyStateIcon icon={SearchIcon}/>
                                         <Title headingLevel="h2" size="lg">
                                             No results found
                                         </Title>
@@ -343,7 +389,8 @@ export class ProjectPage extends React.Component<Props, State> {
                     </PageSection>}
                 {isYaml && this.getDesigner()}
                 {isCode && this.getEditor()}
-                <CreateFileModal project={this.props.project} isOpen={this.state.isCreateModalOpen} onClose={this.closeModal}/>
+                <CreateFileModal project={this.props.project} isOpen={this.state.isCreateModalOpen}
+                                 onClose={this.closeModal}/>
                 <Modal
                     title="Confirmation"
                     variant={ModalVariant.small}
@@ -356,6 +403,19 @@ export class ProjectPage extends React.Component<Props, State> {
                     ]}
                     onEscapePress={e => this.setState({isDeleteModalOpen: false})}>
                     <div>{"Are you sure you want to delete the file " + this.state.fileToDelete?.name + "?"}</div>
+                </Modal>
+                <Modal
+                    title="Push"
+                    variant={ModalVariant.small}
+                    isOpen={this.state.isPushModalOpen}
+                    onClose={() => this.setState({isPushModalOpen: false})}
+                    actions={[
+                        <Button key="confirm" variant="primary" onClick={e => this.push()}>Push</Button>,
+                        <Button key="cancel" variant="link"
+                                onClick={e => this.setState({isPushModalOpen: false})}>Cancel</Button>
+                    ]}
+                    onEscapePress={e => this.setState({isPushModalOpen: false})}>
+                    <div>{"Push project to repository"}</div>
                 </Modal>
             </PageSection>
         )

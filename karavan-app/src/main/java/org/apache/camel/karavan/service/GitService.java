@@ -17,10 +17,14 @@
 package org.apache.camel.karavan.service;
 
 import io.vertx.core.Vertx;
+import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.model.ProjectFile;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -34,6 +38,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
 
 @ApplicationScoped
 public class GitService {
@@ -71,13 +77,43 @@ public class GitService {
         g.save("cameleer", "xxx.yaml", "yaml");
     }
 
+    public String save(Project project, List<ProjectFile> files) throws GitAPIException, IOException, URISyntaxException {
+        LOGGER.info("Save project " + project.getName());
+        String uuid = UUID.randomUUID().toString();
+        String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
+        LOGGER.infof("Temp folder created: {}", folder);
+        Git git = null;
+        try {
+            git = clone(folder);
+            checkout(git, false, null, null);
+        } catch (RefNotFoundException e) {
+            LOGGER.error("New repository");
+            git = init(folder);
+        } catch (Exception e) {
+            LOGGER.error("Error", e);
+        }
+        writeProjectToFolder(folder, project, files);
+        return commitAddedAndPush(git).getId().getName();
+    }
+
+    private void writeProjectToFolder(String folder, Project project, List<ProjectFile> files) throws IOException {
+        Files.createDirectories(Paths.get(folder, project.getFolder()));
+        files.forEach(file -> {
+            try {
+                Files.writeString(Paths.get(folder, project.getFolder(), file.getName()), file.getCode());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
     public void save(String branch, String fileName, String yaml) throws GitAPIException, IOException, URISyntaxException {
         LOGGER.info("Save " + fileName);
         String dir = vertx.fileSystem().createTempDirectoryBlocking(branch);
         Git git = null;
         try {
-            git = clone(branch, dir);
-            checkout(git, branch, false, null, null);
+            git = clone(dir);
+            checkout(git, false, null, null);
         } catch (RefNotFoundException e) {
             LOGGER.error("New repository");
             git = init(branch, dir);
@@ -88,14 +124,6 @@ public class GitService {
         commitAddedAndPush(git, branch, fileName);
     }
 
-    public void publish(String branch, String fileName) throws GitAPIException, IOException, URISyntaxException {
-        LOGGER.info("Publish " + fileName);
-        String dir = vertx.fileSystem().createTempDirectoryBlocking(branch);
-        Git git = clone(mainBranch, dir);
-        checkout(git, mainBranch, false, null, null);
-        checkout(git, branch, true, fileName, "origin/" + branch);
-        commitAddedAndPush(git, mainBranch, fileName);
-    }
 
     public void delete(String branch, String fileName) throws GitAPIException, IOException, URISyntaxException {
         LOGGER.info("Delete " + fileName);
@@ -103,6 +131,16 @@ public class GitService {
         Git git = Git.open(Path.of(dir).toFile());
 //        fileSystemService.delete(dir, fileName);
         commitDeletedAndPush(git, branch, fileName);
+    }
+
+    public RevCommit commitAddedAndPush(Git git) throws GitAPIException, IOException, URISyntaxException {
+        LOGGER.info("Commit and push changes");
+        LOGGER.info("Git add: " + git.add().addFilepattern(".").call());
+        RevCommit commit = git.commit().setMessage(LocalDate.now().toString()).call();
+        LOGGER.info("Git commit: " + commit);
+        Iterable<PushResult> result = git.push().add(mainBranch).setRemote("origin").setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password)).call();
+        LOGGER.info("Git push: " + result);
+        return commit;
     }
 
     public void commitAddedAndPush(Git git, String branch, String fileName) throws GitAPIException, IOException, URISyntaxException {
@@ -123,7 +161,7 @@ public class GitService {
         String dir = vertx.fileSystem().createTempDirectoryBlocking(branch);
         LOGGER.info("Pulling into " + dir);
         try {
-            Git git = clone(branch, dir);
+            Git git = clone(dir);
             LOGGER.info("Git pull branch : " + git.pull().call());
 //            if (fileSystemService.getIntegrationList(dir).isEmpty()) {
 //                LOGGER.info("Git pull remote branch : " + git.pull().setRemoteBranchName(mainBranch).call());
@@ -136,22 +174,30 @@ public class GitService {
         return dir;
     }
 
-    private Git init(String branch, String dir) throws GitAPIException, IOException, URISyntaxException {
+    public Git init(String branch, String dir) throws GitAPIException, IOException, URISyntaxException {
         Git git = Git.init().setInitialBranch(mainBranch).setDirectory(Path.of(dir).toFile()).call();
         Files.writeString(Path.of(dir).resolve("README.md"), "#Karavan");
         git.add().addFilepattern("README.md").call();
         git.commit().setMessage("initial commit").call();
         addRemote(git);
         push(git);
-        checkout(git, branch, true, null, null);
+        checkout(git, true, null, null);
         return git;
     }
 
-    private Git clone(String branch, String dir) throws GitAPIException {
+    public Git init(String dir) throws GitAPIException, IOException, URISyntaxException {
+        Git git = Git.init().setInitialBranch(mainBranch).setDirectory(Path.of(dir).toFile()).call();
+        addRemote(git);
+        return git;
+    }
+
+    private Git clone(String dir) throws GitAPIException {
         CloneCommand cloneCommand = Git.cloneRepository();
+        cloneCommand.setCloneAllBranches(false);
         cloneCommand.setDirectory(Paths.get(dir).toFile());
         cloneCommand.setURI(uri);
-        cloneCommand.setBranch(branch);
+        cloneCommand.setBranch(mainBranch);
+        cloneCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password));
         return cloneCommand.call();
     }
 
@@ -163,10 +209,10 @@ public class GitService {
         remoteAddCommand.call();
     }
 
-    private void checkout(Git git, String branch, boolean create, String path, String startPoint) throws GitAPIException {
+    private void checkout(Git git, boolean create, String path, String startPoint) throws GitAPIException {
         // create branch:
         CheckoutCommand checkoutCommand = git.checkout();
-        checkoutCommand.setName(branch);
+        checkoutCommand.setName(mainBranch);
         checkoutCommand.setCreateBranch(create);
         if (startPoint != null){
             checkoutCommand.setStartPoint(startPoint);
@@ -191,7 +237,7 @@ public class GitService {
         pushCommand.call();
     }
 
-    private void pull(Git git) throws GitAPIException {
+    public void pull(Git git) throws GitAPIException {
         // push to remote:
         PullCommand pullCommand = git.pull();
         pullCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password));

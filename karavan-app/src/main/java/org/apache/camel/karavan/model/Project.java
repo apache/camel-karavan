@@ -15,6 +15,8 @@ public class Project {
     String folder;
     @ProtoField(number = 4)
     ProjectType type;
+    @ProtoField(number = 5)
+    String lastCommit;
 
     public enum ProjectType {
         @ProtoEnumValue(number = 0, name = "Karavan")
@@ -26,7 +28,15 @@ public class Project {
     }
 
     @ProtoFactory
-    public Project(String name, String version, String folder,ProjectType type) {
+    public Project(String name, String version, String folder, ProjectType type, String lastCommit) {
+        this.name = name;
+        this.version = version;
+        this.folder = folder;
+        this.type = type;
+        this.lastCommit = lastCommit;
+    }
+
+    public Project(String name, String version, String folder, ProjectType type) {
         this.name = name;
         this.version = version;
         this.folder = folder;
@@ -66,5 +76,13 @@ public class Project {
 
     public void setType(ProjectType type) {
         this.type = type;
+    }
+
+    public String getLastCommit() {
+        return lastCommit;
+    }
+
+    public void setLastCommit(String lastCommit) {
+        this.lastCommit = lastCommit;
     }
 }

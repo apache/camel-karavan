@@ -91,6 +91,16 @@ export const KaravanApi = {
         });
     },
 
+    push: async (project: Project, after: (res: AxiosResponse<any>) => void) => {
+        axios.post('/git', project,
+            {headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'username': 'cameleer'}})
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    },
+
     getKameletNames: async (after: (names: []) => void) => {
         axios.get('/kamelet',
             {headers: {'Accept': 'application/json'}})
