@@ -11,7 +11,7 @@ import {
     Button, Modal, FormGroup, ModalVariant, Switch, Form, FormSelect, FormSelectOption, FileUpload, Wizard, Radio
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {IntegrationCard} from "./IntegrationCard";
+import {IntegrationCard} from "../integrations/IntegrationCard";
 import {MainToolbar} from "../MainToolbar";
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
@@ -55,27 +55,27 @@ export class UploadModal extends React.Component<Props, State> {
 
     saveAndCloseModal = () => {
         const state = this.state;
-        if (this.state.type === "integration"){
-            KaravanApi.postIntegrations(state.filename, state.data, res => {
-                if (res.status === 200) {
-                    console.log(res) //TODO show notification
-                    this.props.onClose?.call(this);
-                } else {
-                    console.log(res) //TODO show notification
-                    this.props.onClose?.call(this);
-                }
-            })
-        } else {
-            KaravanApi.postOpenApi(state.filename, state.data, state.generateRest, state.generateRoutes, state.integrationName, res => {
-                if (res.status === 200) {
-                    console.log(res) //TODO show notification
-                    this.props.onClose?.call(this);
-                } else {
-                    console.log(res) //TODO show notification
-                    this.props.onClose?.call(this);
-                }
-            })
-        }
+        // if (this.state.type === "integration"){
+        //     KaravanApi.postIntegrations(state.filename, state.data, res => {
+        //         if (res.status === 200) {
+        //             console.log(res) //TODO show notification
+        //             this.props.onClose?.call(this);
+        //         } else {
+        //             console.log(res) //TODO show notification
+        //             this.props.onClose?.call(this);
+        //         }
+        //     })
+        // } else {
+        //     KaravanApi.postOpenApi(state.filename, state.data, state.generateRest, state.generateRoutes, state.integrationName, res => {
+        //         if (res.status === 200) {
+        //             console.log(res) //TODO show notification
+        //             this.props.onClose?.call(this);
+        //         } else {
+        //             console.log(res) //TODO show notification
+        //             this.props.onClose?.call(this);
+        //         }
+        //     })
+        // }
     }
 
     handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement> | React.DragEvent<HTMLElement>, file: File) => this.setState({filename: file.name});

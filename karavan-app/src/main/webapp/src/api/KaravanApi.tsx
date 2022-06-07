@@ -1,4 +1,5 @@
 import axios, {AxiosResponse} from "axios";
+import {Project, ProjectFile} from "../models/ProjectModels";
 
 export const KaravanApi = {
 
@@ -14,8 +15,8 @@ export const KaravanApi = {
         });
     },
 
-    getIntegrations: async (after: (integrations: []) => void) => {
-        axios.get('/integration',
+    getProject: async (name: string, after: (project: Project) => void) => {
+        axios.get('/project/' + name,
             {headers: {'Accept': 'application/json', 'username': 'cameleer'}})
             .then(res => {
                 if (res.status === 200) {
@@ -26,29 +27,30 @@ export const KaravanApi = {
         });
     },
 
-    getIntegration: async (name: string, after: (res: AxiosResponse<any>) => void) => {
-        axios.get('/integration/' + name,
-            {headers: {'Accept': 'text/plain', 'username': 'cameleer'}})
+    getProjects: async (after: (projects: []) => void) => {
+        axios.get('/project',
+            {headers: {'Accept': 'application/json', 'username': 'cameleer'}})
             .then(res => {
-                console.log(res.data);
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    },
+
+    postProject: async (project: Project, after: (res: AxiosResponse<any>) => void) => {
+        axios.post('/project', project,
+            {headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'username': 'cameleer'}})
+            .then(res => {
                 after(res);
             }).catch(err => {
             after(err);
         });
     },
 
-    postIntegrations: async (name: string, yaml: string, after: (res: AxiosResponse<any>) => void) => {
-        axios.post('/integration/' + name, yaml,
-            {headers: {'Accept': 'text/plain', 'Content-Type': 'text/plain', 'username': 'cameleer'}})
-            .then(res => {
-                after(res);
-            }).catch(err => {
-            after(err);
-        });
-    },
-
-    deleteIntegration: async (name: string, after: (res: AxiosResponse<any>) => void) => {
-        axios.delete('/integration/' + name,
+    deleteProject: async (project: Project, after: (res: AxiosResponse<any>) => void) => {
+        axios.delete('/project/' + encodeURI(project.name),
             {headers:{'username': 'cameleer'}})
             .then(res => {
                 after(res);
@@ -57,9 +59,41 @@ export const KaravanApi = {
         });
     },
 
-    publishIntegration: async (name: string, yaml: string, after: (res: AxiosResponse<any>) => void) => {
-        axios.patch('/integration/' + name, yaml,
-            {headers: {'Accept': 'text/plain', 'Content-Type': 'text/plain', 'username': 'cameleer'}})
+    getFiles: async (project: string, after: (files: []) => void) => {
+        axios.get('/file/' + project,
+            {headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'username': 'cameleer'}})
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    },
+
+    postProjectFile: async (file: ProjectFile, after: (res: AxiosResponse<any>) => void) => {
+        axios.post('/file', file,
+            {headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'username': 'cameleer'}})
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    },
+
+    deleteProjectFile: async (file: ProjectFile, after: (res: AxiosResponse<any>) => void) => {
+        axios.delete('/file/' + file.project + '/' + file.name,
+            {headers:{'username': 'cameleer'}})
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    },
+
+    push: async (project: Project, after: (res: AxiosResponse<any>) => void) => {
+        axios.post('/git', project,
+            {headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'username': 'cameleer'}})
             .then(res => {
                 after(res);
             }).catch(err => {

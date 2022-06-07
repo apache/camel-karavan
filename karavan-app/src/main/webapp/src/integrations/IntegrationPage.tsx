@@ -18,7 +18,7 @@ import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import UploadIcon from '@patternfly/react-icons/dist/esm/icons/upload-icon';
 import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUi} from "../designer/utils/CamelUi";
-import {UploadModal} from "./UploadModal";
+import {UploadModal} from "../projects/UploadModal";
 
 interface Props {
     integrations: Map<string, string>
