@@ -19,6 +19,46 @@
   width: unset;
 }
 
+.karavan .nav-buttons {
+  background: var(--pf-c-page__header--BackgroundColor);
+}
+
+.karavan .nav-buttons .logo {
+  margin-top: 16px;
+  margin-bottom: 10px;
+  width: 32px;
+  height: 32px;
+}
+
+.karavan .nav-buttons .pf-c-button {
+  padding: 0;
+  width: 64px;
+  height: 64px;
+  color: var(--pf-global--Color--light-100);
+}
+
+.karavan .nav-buttons .pf-c-button svg {
+  width: 24px;
+}
+
+.karavan .nav-buttons .pf-c-avatar {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 6px;
+}
+
+.karavan .nav-buttons .pf-c-button.pf-m-plain {
+  border-left-width: 3px;
+  border-left-style: solid;
+  border-left-color: transparent;
+  border-radius: 0;
+}
+
+.karavan .nav-button-selected .pf-c-button.pf-m-plain {
+  border-left-color: var(--pf-global--active-color--400);
+  background-color: var(--pf-global--BackgroundColor--dark-400);
+}
+
 .karavan .kamelet-section {
   display: flex;
   flex-direction: column;

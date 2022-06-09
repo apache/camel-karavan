@@ -64,8 +64,8 @@ public class GitResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Project push(@HeaderParam("username") String username, Project project) throws Exception {
-        Project p = infinispanService.getProject(project.getName());
-        List<ProjectFile> files = infinispanService.getProjectFiles(project.getName());
+        Project p = infinispanService.getProject(project.getKey());
+        List<ProjectFile> files = infinispanService.getProjectFiles(project.getKey());
         String commitId = gitService.save(p, files);
         p.setLastCommit(commitId);
         infinispanService.saveProject(p);

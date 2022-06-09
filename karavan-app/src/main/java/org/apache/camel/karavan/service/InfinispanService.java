@@ -39,6 +39,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -75,12 +76,14 @@ public class InfinispanService {
         }
 
         for (int i = 0; i < 10; i++){
-            String project = "parcel-demo" + i;
-            projects.put(GroupedKey.create(project, project), new Project(project, "1.0.0",  project, Project.ProjectType.values()[new Random().nextInt(3)]));
+            String groupId = "org.apache.camel.karavan";
+            String artifactId = "parcel-demo" + i;
+            Project p = new Project(groupId, artifactId, "1.0.0",  null, Project.ProjectType.values()[new Random().nextInt(3)]);
+            projects.put(GroupedKey.create(p.getKey(), p.getKey()), p);
 
-            files.put(GroupedKey.create(project,"new-parcels.yaml"), new ProjectFile("new-parcels.yaml", "flows:", project));
-            files.put(GroupedKey.create(project,"parcel-confirmation.yaml"), new ProjectFile("parcel-confirmation.yaml", "rest:", project));
-            files.put(GroupedKey.create(project,"CustomProcessor.java"), new ProjectFile("CustomProcessor.java", "import org.apache.camel.BindToRegistry;\n" +
+            files.put(GroupedKey.create(p.getKey(),"new-parcels.yaml"), new ProjectFile("new-parcels.yaml", "flows:", p.getKey()));
+            files.put(GroupedKey.create(p.getKey(),"parcel-confirmation.yaml"), new ProjectFile("parcel-confirmation.yaml", "rest:", p.getKey()));
+            files.put(GroupedKey.create(p.getKey(),"CustomProcessor.java"), new ProjectFile("CustomProcessor.java", "import org.apache.camel.BindToRegistry;\n" +
                     "import org.apache.camel.Exchange;\n" +
                     "import org.apache.camel.Processor;\n" +
                     "\n" +
@@ -90,8 +93,8 @@ public class InfinispanService {
                     "  public void process(Exchange exchange) throws Exception {\n" +
                     "      exchange.getIn().setBody(\"Hello world\");\n" +
                     "  }\n" +
-                    "}", project));
-            files.put(GroupedKey.create(project,"application.properties"), new ProjectFile("application.properties", "parameter1:hello", project));
+                    "}", p.getKey()));
+            files.put(GroupedKey.create(p.getKey(),"application.properties"), new ProjectFile("application.properties", "parameter1:hello", p.getKey()));
         }
     }
 
@@ -100,7 +103,7 @@ public class InfinispanService {
     }
 
     public void saveProject(Project project) {
-        projects.put(GroupedKey.create(project.getName(), project.getName()), project);
+        projects.put(GroupedKey.create(project.getKey(), project.getKey()), project);
     }
 
     public List<ProjectFile> getProjectFiles(String projectName) {
@@ -119,6 +122,10 @@ public class InfinispanService {
 
     public void saveProjectFile(ProjectFile file) {
         files.put(GroupedKey.create(file.getProject(), file.getName()), file);
+    }
+
+    public void saveProjectFiles(Map<GroupedKey, ProjectFile> f) {
+        files.putAll(f);
     }
 
     public void deleteProject(String project) {

@@ -18,18 +18,25 @@ import {
     ToggleGroupItem,
     Bullseye,
     EmptyState,
-    EmptyStateVariant, EmptyStateIcon, Title
+    EmptyStateVariant,
+    EmptyStateIcon,
+    Title,
+    OverflowMenu,
+    OverflowMenuContent,
+    OverflowMenuGroup,
+    OverflowMenuItem,
+    Flex, FlexItem
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import {Project} from "../models/ProjectModels";
-import {CamelUi} from "../designer/utils/CamelUi";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
+import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";
 
 interface Props {
     projects: Project[],
@@ -42,8 +49,11 @@ interface Props {
 interface State {
     projects: Project[],
     isCreateModalOpen: boolean,
+    isCopy: boolean,
+    projectToCopy?: Project,
     filter: string,
-    name: string,
+    groupId: string,
+    artifactId: string,
     version: string,
     folder: string,
     type: string,
@@ -54,8 +64,10 @@ export class ProjectsPage extends React.Component<Props, State> {
     public state: State = {
         projects: this.props.projects,
         isCreateModalOpen: false,
+        isCopy: false,
         filter: '',
-        name: '',
+        groupId: '',
+        artifactId: '',
         version: '',
         folder: '',
         type: 'KARAVAN',
@@ -74,7 +86,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                         onClick={e => this.props.onRefresh.call(this)}>Refresh</Button>
             </ToolbarItem>
             <ToolbarItem>
-                <Button icon={<PlusIcon/>} onClick={e => this.setState({isCreateModalOpen: true})}>Create</Button>
+                <Button icon={<PlusIcon/>} onClick={e => this.setState({isCreateModalOpen: true, isCopy: false})}>Create</Button>
             </ToolbarItem>
         </ToolbarContent>
     </Toolbar>);
@@ -84,27 +96,28 @@ export class ProjectsPage extends React.Component<Props, State> {
     </TextContent>);
 
     closeModal = () => {
-        this.setState({isCreateModalOpen: false, name: '', version: '', folder: '', type: 'KARAVAN'});
+        this.setState({isCreateModalOpen: false, isCopy: false, groupId: '', artifactId:'', version: '', folder: '', type: 'KARAVAN'});
         this.props.onRefresh.call(this);
     }
 
     saveAndCloseCreateModal = () => {
-        const p = new Project(this.state.name, this.state.version, this.state.folder, this.state.type? this.state.type : "KARAVAN", '');
+        const {groupId, artifactId, version, type} = this.state;
+        const p = new Project(groupId, artifactId, version, '', type? type : "KARAVAN", '');
         this.props.onCreate.call(this, p);
-        this.setState({isCreateModalOpen: false, name: '', version: '', folder: '', type: 'KARAVAN'});
+        this.setState({isCreateModalOpen: false, isCopy: false, groupId: '', artifactId: '', version: '', folder: '', type: 'KARAVAN'});
     }
 
     onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
-        if (event.key === 'Enter' && this.state.name !== undefined && this.state.version !== undefined) {
+        if (event.key === 'Enter' && this.state.groupId !== undefined && this.state.artifactId !== undefined && this.state.version !== undefined) {
             this.saveAndCloseCreateModal();
         }
     }
 
     createModalForm() {
-        const {type } = this.state;
+        const {type, isCopy, projectToCopy } = this.state;
         return (
             <Modal
-                title="Create new Project"
+                title={!isCopy ? "Create new project" : "Copy project from " + projectToCopy?.artifactId}
                 variant={ModalVariant.small}
                 isOpen={this.state.isCreateModalOpen}
                 onClose={this.closeModal}
@@ -115,10 +128,15 @@ export class ProjectsPage extends React.Component<Props, State> {
                 ]}
             >
                 <Form isHorizontal={true} autoComplete="off">
-                    <FormGroup label="Name" fieldId="name" isRequired>
-                        <TextInput className="text-field" type="text" id="name" name="name"
-                                   value={this.state.name}
-                                   onChange={e => this.setState({name: e, folder: CamelUi.nameFromTitle(e.trim())})}/>
+                    <FormGroup label="GroupId" fieldId="group" isRequired>
+                        <TextInput className="text-field" type="text" id="group" name="group"
+                                   value={this.state.groupId}
+                                   onChange={e => this.setState({groupId: e})}/>
+                    </FormGroup>
+                    <FormGroup label="ArtifactId" fieldId="artifact" isRequired>
+                        <TextInput className="text-field" type="text" id="artifact" name="artifact"
+                                   value={this.state.artifactId}
+                                   onChange={e => this.setState({artifactId: e})}/>
                     </FormGroup>
                     <FormGroup label="Version" fieldId="version" isRequired>
                         <TextInput className="text-field" type="text" id="version" name="version"
@@ -138,7 +156,7 @@ export class ProjectsPage extends React.Component<Props, State> {
     }
 
     render() {
-        const projects = this.state.projects.filter(p => p.name.includes(this.state.filter));
+        const projects = this.state.projects.filter(p => p.groupId.includes(this.state.filter) || p.artifactId.includes(this.state.filter));
         return (
             <PageSection className="kamelet-section projects-page" padding={{default: 'noPadding'}}>
                 <PageSection className="tools-section" padding={{default: 'noPadding'}}>
@@ -149,33 +167,58 @@ export class ProjectsPage extends React.Component<Props, State> {
                         <Thead>
                             <Tr>
                                 <Th key='type'>Type</Th>
-                                <Th key='name'>Name</Th>
+                                <Th key='group'>GroupId</Th>
+                                <Th key='artifact'>ArtifactId</Th>
                                 <Th key='version'>Version</Th>
-                                <Th key='folder'>Folder</Th>
-                                <Th key='status'>Status</Th>
+                                <Th key='commit'>Commit</Th>
+                                <Th key='deployment'>Deployment</Th>
                                 <Th key='action'></Th>
                             </Tr>
                         </Thead>
                         <Tbody>
                             {projects.map(project => (
-                                <Tr key={project.name}>
+                                <Tr key={project.artifactId}>
                                     <Td modifier={"fitContent"}>
                                         <Tooltip content={project.type} position={"left"}>
                                             <Badge>{project.type.charAt(0)}</Badge>
                                         </Tooltip>
                                     </Td>
+                                    <Td>{project.groupId}</Td>
                                     <Td>
                                         <Button style={{padding: '6px'}} variant={"link"} onClick={e=>this.props.onSelect?.call(this, project)}>
-                                            {CamelUi.titleFromName(project.name)}
+                                            {project.artifactId}
                                         </Button>
                                     </Td>
                                     <Td>{project.version}</Td>
-                                    <Td>{project.folder}</Td>
-                                    <Td>Active</Td>
-                                    <Td modifier={"fitContent"}>
-                                        <Button style={{padding: '0'}} variant={"plain"} onClick={e=>this.props.onDelete?.call(this, project)}>
-                                            <DeleteIcon/>
-                                        </Button>
+                                    <Td isActionCell>
+                                        <Tooltip content={project.lastCommit} position={"bottom"}>
+                                            <Badge>{project.lastCommit?.substr(0, 7)}</Badge>
+                                        </Tooltip>
+                                    </Td>
+                                    <Td noPadding style={{width:"180px"}}>
+                                        <Flex direction={{default: "row"}}>
+                                            <FlexItem><Badge isRead>dev</Badge></FlexItem>
+                                            <FlexItem><Badge isRead>test</Badge></FlexItem>
+                                            <FlexItem><Badge isRead>prod</Badge></FlexItem>
+                                        </Flex>
+                                    </Td>
+                                    <Td isActionCell>
+                                        <OverflowMenu breakpoint="md">
+                                            <OverflowMenuContent>
+                                                <OverflowMenuGroup groupType="button">
+                                                    <OverflowMenuItem>
+                                                        <Tooltip content={"Copy project"} position={"bottom"}>
+                                                            <Button variant={"plain"} icon={<CopyIcon/>} onClick={e=>this.setState({isCreateModalOpen: true, isCopy: true, projectToCopy: project})}></Button>
+                                                        </Tooltip>
+                                                    </OverflowMenuItem>
+                                                    <OverflowMenuItem>
+                                                        <Tooltip content={"Delete project"} position={"bottom"}>
+                                                            <Button variant={"plain"} icon={<DeleteIcon/>} onClick={e=>this.props.onDelete?.call(this, project)}></Button>
+                                                        </Tooltip>
+                                                    </OverflowMenuItem>
+                                                </OverflowMenuGroup>
+                                            </OverflowMenuContent>
+                                        </OverflowMenu>
                                     </Td>
                                 </Tr>
                             ))}

@@ -2,10 +2,6 @@ import React from 'react';
 import {
     Page,
     PageHeader,
-    PageSidebar,
-    NavItem,
-    NavList,
-    Nav,
     ModalVariant,
     Button,
     Modal,
@@ -16,7 +12,11 @@ import {
     Avatar,
     PageHeaderTools,
     PageHeaderToolsGroup,
-    PageHeaderToolsItem, Dropdown, DropdownToggle, NavExpandable, NavGroup
+    PageHeaderToolsItem,
+    Dropdown,
+    DropdownToggle,
+    Tooltip,
+    Divider
 } from '@patternfly/react-core';
 import {KaravanApi} from "./api/KaravanApi";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
@@ -33,6 +33,13 @@ import {OpenApiPage} from "./integrations/OpenApiPage";
 import {ProjectsPage} from "./projects/ProjectsPage";
 import {Project} from "./models/ProjectModels";
 import {ProjectPage} from "./projects/ProjectPage";
+import TachometerAltIcon from "@patternfly/react-icons/dist/js/icons/tachometer-alt-icon";
+import UsersIcon from "@patternfly/react-icons/dist/js/icons/users-icon";
+import ProjectsIcon from "@patternfly/react-icons/dist/js/icons/repository-icon";
+import KameletsIcon from "@patternfly/react-icons/dist/js/icons/registry-icon";
+import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
+import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
+import ConfigurationIcon from "@patternfly/react-icons/dist/js/icons/cogs-icon";
 
 class ToastMessage {
     id: string = ''
@@ -48,6 +55,18 @@ class ToastMessage {
     }
 }
 
+class MenuItem {
+    pageId: string = '';
+    tooltip: string = '';
+    icon: any;
+
+    constructor(pageId: string, tooltip: string, icon: any) {
+        this.pageId = pageId;
+        this.tooltip = tooltip;
+        this.icon = icon;
+    }
+}
+
 interface Props {
 }
 
@@ -55,7 +74,7 @@ interface State {
     version: string,
     mode: 'local' | 'gitops' | 'serverless',
     isNavOpen: boolean,
-    pageId: 'projects' | 'project' | 'configuration' | 'kamelets' | 'designer' | "components" | "eip" | "openapi" | "acl"
+    pageId: string,
     projects: Project[],
     project?: Project,
     isModalOpen: boolean,
@@ -119,13 +138,6 @@ export class Main extends React.Component<Props, State> {
             <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentSpaceBetween"}}
                   style={{width: "100%"}}>
                 <FlexItem style={{marginTop: "auto", marginBottom: "auto"}}>
-                    {/*<FlexItem>*/}
-                    {/*    <TextContent>*/}
-                    {/*        <Text component={TextVariants.h5}>{"v. " + version}</Text>*/}
-                    {/*    </TextContent>*/}
-                    {/*</FlexItem>*/}
-                </FlexItem>
-                <FlexItem style={{marginTop: "auto", marginBottom: "auto"}}>
                     <PageHeaderTools>
                         <PageHeaderToolsGroup>
                             <PageHeaderToolsItem>
@@ -157,40 +169,42 @@ export class Main extends React.Component<Props, State> {
                     logo={Icon()}
                     headerTools={this.toolBar(version)}
         />
-    );
+    )
 
-    pageNav = () => (<Nav onSelect={this.onNavSelect}>
-        <NavList>
-            <NavItem id="projects" to="#" itemId={'projects'}
-                     isActive={this.state.pageId === 'projects'}>
-                Projects
-            </NavItem>
-            <NavItem id="configuration" to="#" itemId={"configuration"}
-                     isActive={this.state.pageId === 'configuration'}>
-                Configuration
-            </NavItem>
-            <NavItem id="acl" to="#" itemId={"acl"}
-                     isActive={this.state.pageId === 'acl'}>
-                User Management
-            </NavItem>
-            <NavExpandable id="help" title={"Help"} isExpanded={false}>
-                <NavItem id="eip" to="#" itemId={"eip"}
-                         isActive={this.state.pageId === 'eip'}>
-                    Enterprise Integration Patterns
-                </NavItem>
-                <NavItem id="kamelets" to="#" itemId={"kamelets"}
-                         isActive={this.state.pageId === 'kamelets'}>
-                    Kamelets
-                </NavItem>
-                <NavItem id="components" to="#" itemId={"components"}
-                         isActive={this.state.pageId === 'components'}>
-                    Components
-                </NavItem>
-            </NavExpandable>
-        </NavList>
-    </Nav>);
-
-    sidebar = () => (<PageSidebar nav={this.pageNav()} isNavOpen={this.state.isNavOpen}/>);
+    pageNav = () => {
+        const pages: MenuItem[] = [
+            new MenuItem("dashboard", "Dashboard", <TachometerAltIcon/>),
+            new MenuItem("projects", "Projects", <ProjectsIcon/>),
+            new MenuItem("eip", "Enterprise Integration Patterns", <EipIcon/>),
+            new MenuItem("kamelets", "Kamelets", <KameletsIcon/>),
+            new MenuItem("components", "Components", <ComponentsIcon/>),
+            new MenuItem("acl", "Access Control", <UsersIcon/>),
+            new MenuItem("configuration", "Configuration", <ConfigurationIcon/>)
+        ]
+        return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height:"100%"}} spaceItems={{default:"spaceItemsNone"}}>
+            <FlexItem alignSelf={{default:"alignSelfCenter"}}>
+                <Tooltip content={"Apache Camel Karavan"} position={"right"}>
+                    {Icon()}
+                </Tooltip>
+            </FlexItem>
+            {pages.map(page =>
+                <FlexItem className={this.state.pageId === page.pageId ? "nav-button-selected" : ""}>
+                    <Tooltip content={page.tooltip} position={"right"}>
+                        <Button id={page.pageId} icon={page.icon} variant={"plain"}
+                                className={this.state.pageId === page.pageId ? "nav-button-selected" : ""}
+                                onClick={event => this.setState({pageId: page.pageId})}
+                        />
+                    </Tooltip>
+                </FlexItem>
+            )}
+            <FlexItem flex={{default:"flex_2"}} alignSelf={{default:"alignSelfCenter"}}>
+                <Divider/>
+            </FlexItem>
+            <FlexItem alignSelf={{default:"alignSelfCenter"}}>
+                <Avatar src={avatarImg} alt="avatar" border="dark"/>
+            </FlexItem>
+        </Flex>)
+    }
 
     onProjectDelete = (project: Project) => {
         this.setState({isModalOpen: true, projectToDelete: project})
@@ -235,7 +249,7 @@ export class Main extends React.Component<Props, State> {
     };
 
     onGetProjects() {
-        KaravanApi.getProjects((projects: []) => {
+        KaravanApi.getProjects((projects: Project[]) => {
             this.setState({
                 projects: projects, request: uuidv4()
             })
@@ -244,24 +258,30 @@ export class Main extends React.Component<Props, State> {
 
     render() {
         return (
-            <Page className="karavan" header={this.header(this.state.version)} sidebar={this.sidebar()}>
-                {this.state.pageId === 'projects' &&
-                    <ProjectsPage key={this.state.request}
-                                  projects={this.state.projects}
-                                  onDelete={this.onProjectDelete}
-                                  onSelect={this.onProjectSelect}
-                                  onRefresh={() => {
-                                      this.onGetProjects();
-                                  }}
-                                  onCreate={this.onProjectCreate}/>}
-                {this.state.pageId === 'project' && this.state.project && <ProjectPage project={this.state.project}/>}
-                {this.state.pageId === 'configuration' && <ConfigurationPage/>}
-                {this.state.pageId === 'kamelets' && <KameletsPage dark={false}/>}
-                {this.state.pageId === 'components' && <ComponentsPage dark={false}/>}
-                {this.state.pageId === 'eip' && <EipPage dark={false}/>}
-                {this.state.pageId === 'openapi' &&
-                    <OpenApiPage dark={false} openapi={this.state.openapi} filename={this.state.filename}/>}
-
+            <Page className="karavan">
+                <Flex style={{width: "100%", height:"100%"}} alignItems={{default:"alignItemsStretch"}} spaceItems={{ default: 'spaceItemsNone' }}>
+                    <FlexItem>
+                        {this.pageNav()}
+                    </FlexItem>
+                    <FlexItem flex={{default:"flex_2"}} style={{height:"100%"}}>
+                        {this.state.pageId === 'projects' &&
+                            <ProjectsPage key={this.state.request}
+                                          projects={this.state.projects}
+                                          onDelete={this.onProjectDelete}
+                                          onSelect={this.onProjectSelect}
+                                          onRefresh={() => {
+                                              this.onGetProjects();
+                                          }}
+                                          onCreate={this.onProjectCreate}/>}
+                        {this.state.pageId === 'project' && this.state.project && <ProjectPage project={this.state.project}/>}
+                        {this.state.pageId === 'configuration' && <ConfigurationPage/>}
+                        {this.state.pageId === 'kamelets' && <KameletsPage dark={false}/>}
+                        {this.state.pageId === 'components' && <ComponentsPage dark={false}/>}
+                        {this.state.pageId === 'eip' && <EipPage dark={false}/>}
+                        {this.state.pageId === 'openapi' &&
+                            <OpenApiPage dark={false} openapi={this.state.openapi} filename={this.state.filename}/>}
+                    </FlexItem>
+                </Flex>
                 <Modal
                     title="Confirmation"
                     variant={ModalVariant.small}
@@ -273,7 +293,7 @@ export class Main extends React.Component<Props, State> {
                                 onClick={e => this.setState({isModalOpen: false})}>Cancel</Button>
                     ]}
                     onEscapePress={e => this.setState({isModalOpen: false})}>
-                    <div>{"Are you sure you want to delete the project " + this.state.projectToDelete?.name + "?"}</div>
+                    <div>{"Are you sure you want to delete the project " + this.state.projectToDelete?.getKey() + "?"}</div>
                 </Modal>
                 {this.state.alerts.map((e: ToastMessage) => (
                     <Alert key={e.id} className="main-alert" variant={e.variant} title={e.title}

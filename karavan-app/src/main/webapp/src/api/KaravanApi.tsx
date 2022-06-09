@@ -27,12 +27,12 @@ export const KaravanApi = {
         });
     },
 
-    getProjects: async (after: (projects: []) => void) => {
+    getProjects: async (after: (projects: Project[]) => void) => {
         axios.get('/project',
             {headers: {'Accept': 'application/json', 'username': 'cameleer'}})
             .then(res => {
                 if (res.status === 200) {
-                    after(res.data);
+                    after(res.data.map((p: Partial<Project> | undefined) => new Project(p)));
                 }
             }).catch(err => {
             console.log(err);
@@ -49,8 +49,18 @@ export const KaravanApi = {
         });
     },
 
+    copyProject: async (sourceProject: string, project: Project, after: (res: AxiosResponse<any>) => void) => {
+        axios.post('/project/copy/' + sourceProject, project,
+            {headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'username': 'cameleer'}})
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    },
+
     deleteProject: async (project: Project, after: (res: AxiosResponse<any>) => void) => {
-        axios.delete('/project/' + encodeURI(project.name),
+        axios.delete('/project/' + encodeURI(project.getKey()),
             {headers:{'username': 'cameleer'}})
             .then(res => {
                 after(res);
