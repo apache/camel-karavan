@@ -19,6 +19,38 @@
   width: unset;
 }
 
+.karavan .nav-buttons {
+  background: var(--pf-c-page__header--BackgroundColor);
+}
+
+.karavan .nav-buttons .logo {
+  margin-top: 16px;
+  width: 32px;
+  height: 32px;
+}
+
+.karavan .nav-buttons .pf-c-button {
+  padding: 0;
+  width: 64px;
+  height: 64px;
+  color: var(--pf-global--Color--light-100);
+}
+
+.karavan .nav-buttons .pf-c-button svg {
+  width: 24px;
+}
+
+.karavan .nav-buttons .pf-c-avatar {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 6px;
+}
+
+
+.karavan .nav-button-selected {
+  color: red;
+}
+
 .karavan .kamelet-section {
   display: flex;
   flex-direction: column;
