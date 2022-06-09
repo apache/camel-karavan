@@ -2,10 +2,6 @@ import React from 'react';
 import {
     Page,
     PageHeader,
-    PageSidebar,
-    NavItem,
-    NavList,
-    Nav,
     ModalVariant,
     Button,
     Modal,
@@ -19,12 +15,6 @@ import {
     PageHeaderToolsItem,
     Dropdown,
     DropdownToggle,
-    NavExpandable,
-    NavGroup,
-    Tabs,
-    Tab,
-    PageSection,
-    Badge,
     Tooltip,
     Divider
 } from '@patternfly/react-core';
@@ -148,13 +138,6 @@ export class Main extends React.Component<Props, State> {
             <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentSpaceBetween"}}
                   style={{width: "100%"}}>
                 <FlexItem style={{marginTop: "auto", marginBottom: "auto"}}>
-                    {/*<FlexItem>*/}
-                    {/*    <TextContent>*/}
-                    {/*        <Text component={TextVariants.h5}>{"v. " + version}</Text>*/}
-                    {/*    </TextContent>*/}
-                    {/*</FlexItem>*/}
-                </FlexItem>
-                <FlexItem style={{marginTop: "auto", marginBottom: "auto"}}>
                     <PageHeaderTools>
                         <PageHeaderToolsGroup>
                             <PageHeaderToolsItem>
@@ -186,8 +169,7 @@ export class Main extends React.Component<Props, State> {
                     logo={Icon()}
                     headerTools={this.toolBar(version)}
         />
-    );
-
+    )
 
     pageNav = () => {
         const pages: MenuItem[] = [
@@ -267,7 +249,7 @@ export class Main extends React.Component<Props, State> {
     };
 
     onGetProjects() {
-        KaravanApi.getProjects((projects: []) => {
+        KaravanApi.getProjects((projects: Project[]) => {
             this.setState({
                 projects: projects, request: uuidv4()
             })
@@ -311,7 +293,7 @@ export class Main extends React.Component<Props, State> {
                                 onClick={e => this.setState({isModalOpen: false})}>Cancel</Button>
                     ]}
                     onEscapePress={e => this.setState({isModalOpen: false})}>
-                    <div>{"Are you sure you want to delete the project " + this.state.projectToDelete?.name + "?"}</div>
+                    <div>{"Are you sure you want to delete the project " + this.state.projectToDelete?.getKey() + "?"}</div>
                 </Modal>
                 {this.state.alerts.map((e: ToastMessage) => (
                     <Alert key={e.id} className="main-alert" variant={e.variant} title={e.title}

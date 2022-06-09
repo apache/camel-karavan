@@ -160,7 +160,7 @@ export class ProjectPage extends React.Component<Props, State> {
                 <div>
                     <Breadcrumb>
                         <BreadcrumbItem to="#"
-                                        onClick={event => this.setState({file: undefined})}>{"Project: " + this.props.project?.name}</BreadcrumbItem>
+                                        onClick={event => this.setState({file: undefined})}>{"Project: " + this.props.project?.getKey()}</BreadcrumbItem>
                         <BreadcrumbItem to="#" isActive>{this.getType(file?.name)}</BreadcrumbItem>
                     </Breadcrumb>
                     <TextContent className="title">
@@ -176,12 +176,12 @@ export class ProjectPage extends React.Component<Props, State> {
 
     onRefresh = () => {
         if (this.props.project) {
-            KaravanApi.getProject(this.props.project.name, (project: Project) => {
+            KaravanApi.getProject(this.props.project.getKey(), (project: Project) => {
                 this.setState({
                     project: project
                 })
             });
-            KaravanApi.getFiles(this.props.project.name, (files: []) => {
+            KaravanApi.getFiles(this.props.project.getKey(), (files: []) => {
                 this.setState({
                     files: files
                 })
@@ -249,8 +249,12 @@ export class ProjectPage extends React.Component<Props, State> {
                 <CardBody>
                     <DescriptionList isHorizontal>
                         <DescriptionListGroup>
-                            <DescriptionListTerm>Name</DescriptionListTerm>
-                            <DescriptionListDescription>{CamelUi.titleFromName(project?.name)}</DescriptionListDescription>
+                            <DescriptionListTerm>Group</DescriptionListTerm>
+                            <DescriptionListDescription>{project?.groupId}</DescriptionListDescription>
+                        </DescriptionListGroup>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>Artifact</DescriptionListTerm>
+                            <DescriptionListDescription>{project?.artifactId}</DescriptionListDescription>
                         </DescriptionListGroup>
                         <DescriptionListGroup>
                             <DescriptionListTerm>Version</DescriptionListTerm>

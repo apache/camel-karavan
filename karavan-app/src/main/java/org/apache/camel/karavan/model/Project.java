@@ -1,5 +1,6 @@
 package org.apache.camel.karavan.model;
 
+import com.google.common.base.CaseFormat;
 import org.infinispan.protostream.annotations.ProtoEnumValue;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
@@ -8,14 +9,16 @@ public class Project {
     public static final String CACHE = "projects";
 
     @ProtoField(number = 1)
-    String name;
+    String groupId;
     @ProtoField(number = 2)
-    String version;
+    String artifactId;
     @ProtoField(number = 3)
-    String folder;
+    String version;
     @ProtoField(number = 4)
-    ProjectType type;
+    String folder;
     @ProtoField(number = 5)
+    ProjectType type;
+    @ProtoField(number = 6)
     String lastCommit;
 
     public enum ProjectType {
@@ -28,30 +31,53 @@ public class Project {
     }
 
     @ProtoFactory
-    public Project(String name, String version, String folder, ProjectType type, String lastCommit) {
-        this.name = name;
+    public Project(String groupId, String artifactId, String version, String folder, ProjectType type, String lastCommit) {
+        this.groupId = groupId;
+        this.artifactId = artifactId;
         this.version = version;
         this.folder = folder;
         this.type = type;
         this.lastCommit = lastCommit;
     }
 
-    public Project(String name, String version, String folder, ProjectType type) {
-        this.name = name;
+    public Project(String groupId, String artifactId, String version, String folder, ProjectType type) {
+        this.groupId = groupId;
+        this.artifactId = artifactId;
         this.version = version;
-        this.folder = folder;
+        this.folder = folder != null && folder.trim().length() > 0 ? folder : toFolder(groupId, artifactId, version);
         this.type = type;
+    }
+
+    private String toFolder(String groupId, String artifactId, String version){
+        String folder = toKey(groupId, artifactId, version).replaceAll("[^A-Za-z0-9 ]", "_");
+        return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, folder);
+    }
+
+    private String toKey(String groupId, String artifactId, String version){
+        return groupId + ":" + artifactId + ":" + version;
+    }
+
+    public String getKey(){
+        return toKey(groupId, artifactId, version);
     }
 
     public Project() {
     }
 
-    public String getName() {
-        return name;
+    public String getGroupId() {
+        return groupId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    public String getArtifactId() {
+        return artifactId;
+    }
+
+    public void setArtifactId(String artifactId) {
+        this.artifactId = artifactId;
     }
 
     public String getVersion() {

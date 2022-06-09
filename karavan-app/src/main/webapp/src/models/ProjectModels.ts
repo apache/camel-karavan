@@ -1,16 +1,31 @@
 export class Project {
-    name: string = '';
+    groupId: string = '';
+    artifactId: string = '';
     version: string = '';
     folder: string = '';
     type: string = '';
     lastCommit: string = '';
 
-    constructor(name: string, version: string, folder: string, type: string, lastCommit: string) {
-        this.name = name;
-        this.version = version;
-        this.folder = folder;
-        this.type = type;
-        this.lastCommit = lastCommit;
+
+    public constructor(groupId: string, artifactId: string, version: string, folder: string, type: string, lastCommit: string);
+    public constructor(init?: Partial<Project>);
+    public constructor(...args: any[]) {
+        if (args.length === 1){
+            Object.assign(this, args[0]);
+            return;
+        } else {
+            this.groupId = args[0];
+            this.artifactId = args[1];
+            this.version = args[2];
+            this.folder = args[3];
+            this.type = args[4];
+            this.lastCommit = args[5];
+            return;
+        }
+    }
+
+    getKey():string{
+        return this.groupId + ":" + this.artifactId + ":" + this.version;
     }
 }
 

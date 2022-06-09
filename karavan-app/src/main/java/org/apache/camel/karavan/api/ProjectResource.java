@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.api;
 
+import org.apache.camel.karavan.model.GroupedKey;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.service.InfinispanService;
@@ -34,6 +35,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Path("/project")
@@ -46,7 +48,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<Project> getAll(@HeaderParam("username") String username) throws Exception {
         return infinispanService.getProjects().stream()
-                .sorted(Comparator.comparing(Project::getName))
+                .sorted(Comparator.comparing(Project::getKey))
                 .collect(Collectors.toList());
     }
 
@@ -71,5 +73,22 @@ public class ProjectResource {
     public void delete(@HeaderParam("username") String username,
                           @PathParam("project") String project) throws Exception {
         infinispanService.deleteProject(URLDecoder.decode(project, StandardCharsets.UTF_8.toString()));
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/copy/{sourceProject}")
+    public Project copy(@HeaderParam("username") String username, @PathParam("sourceProject") String sourceProject, Project project) throws Exception {
+//        Save project
+        Project s = infinispanService.getProject(sourceProject);
+        project.setType(s.getType());
+        infinispanService.saveProject(project);
+
+//        Copy files
+        Map<GroupedKey, ProjectFile> map = infinispanService.getProjectFiles(sourceProject).stream()
+                .collect(Collectors.toMap(f -> new GroupedKey(project.getKey(), f.getName()), f -> f));
+        infinispanService.saveProjectFiles(map);
+        return project;
     }
 }
