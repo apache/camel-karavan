@@ -100,3 +100,7 @@
   margin-top: 16px;
 }
 
+.create-file-form .pf-c-form__group {
+    grid-template-columns: 80px 1fr !important;
+}
+

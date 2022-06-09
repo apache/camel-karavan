@@ -103,7 +103,13 @@ public class InfinispanService {
     }
 
     public void saveProject(Project project) {
-        projects.put(GroupedKey.create(project.getKey(), project.getKey()), project);
+        GroupedKey key = GroupedKey.create(project.getKey(), project.getKey());
+        boolean isNew = !projects.containsKey(key);
+        projects.put(key, project);
+        if (isNew){
+            String filename = "application.properties";
+            files.put(new GroupedKey(project.getKey(), filename), new ProjectFile(filename, "", project.getKey()));
+        }
     }
 
     public List<ProjectFile> getProjectFiles(String projectName) {

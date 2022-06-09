@@ -66,10 +66,10 @@ export class CreateFileModal extends React.Component<Props, State> {
                     <Button key="cancel" variant="secondary" onClick={this.closeModal}>Cancel</Button>
                 ]}
             >
-                <Form autoComplete="off">
-                    <FormGroup fieldId="type">
+                <Form autoComplete="off" isHorizontal className="create-file-form">
+                    <FormGroup label="Type" fieldId="type" isRequired>
                         <ToggleGroup aria-label="Default with single selectable">
-                            {ProjectFileTypes.map(p => {
+                            {ProjectFileTypes.filter(p => p.name !== 'PROPERTIES').map(p => {
                                 const title = p.title + (p.name === 'CODE' ? ' (' + p.extension + ')' : '');
                                 return <ToggleGroupItem key={title} text={title} buttonId={p.name}
                                                         isSelected={this.state.extension === p.extension}
