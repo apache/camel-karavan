@@ -4,14 +4,9 @@ import {
     Breadcrumb,
     BreadcrumbItem,
     Button,
-    Form,
-    FormGroup,
     PageSection,
     Text,
     TextContent,
-    TextInput,
-    ToggleGroup,
-    ToggleGroupItem,
     Toolbar,
     ToolbarContent,
     ToolbarItem,
@@ -26,14 +21,13 @@ import {
     EmptyStateVariant,
     EmptyStateIcon,
     Title,
-    ModalVariant, Modal, Spinner, Tooltip
+    ModalVariant, Modal, Spinner, Tooltip, Flex, FlexItem,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
 import {KaravanApi} from "../api/KaravanApi";
 import {Project, ProjectFile, ProjectFileTypes} from "../models/ProjectModels";
 import {CamelUi} from "../designer/utils/CamelUi";
-import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
@@ -246,45 +240,56 @@ export class ProjectPage extends React.Component<Props, State> {
         const project = this.state.project;
         return (
             <Card>
-                <CardBody>
-                    <DescriptionList isHorizontal>
-                        <DescriptionListGroup>
-                            <DescriptionListTerm>Group</DescriptionListTerm>
-                            <DescriptionListDescription>{project?.groupId}</DescriptionListDescription>
-                        </DescriptionListGroup>
-                        <DescriptionListGroup>
-                            <DescriptionListTerm>Artifact</DescriptionListTerm>
-                            <DescriptionListDescription>{project?.artifactId}</DescriptionListDescription>
-                        </DescriptionListGroup>
-                        <DescriptionListGroup>
-                            <DescriptionListTerm>Version</DescriptionListTerm>
-                            <DescriptionListDescription>{project?.version}</DescriptionListDescription>
-                        </DescriptionListGroup>
-                        <DescriptionListGroup>
-                            <DescriptionListTerm>Folder</DescriptionListTerm>
-                            <DescriptionListDescription>{project?.folder}</DescriptionListDescription>
-                        </DescriptionListGroup>
-                        <DescriptionListGroup>
-                            <DescriptionListTerm>Type</DescriptionListTerm>
-                            <DescriptionListDescription>
-                                <ToggleGroup aria-label="Default with single selectable">
-                                    {["KARAVAN", "QUARKUS", "SPRING"].map(value =>
-                                        <ToggleGroupItem key={value}
-                                                         text={CamelUtil.capitalizeName(value.toLowerCase())}
-                                                         buttonId={value} isSelected={project?.type === value}/>
-                                    )}
-                                </ToggleGroup>
-                            </DescriptionListDescription>
-                        </DescriptionListGroup>
-                        {project?.lastCommit && <DescriptionListGroup>
-                            <DescriptionListTerm>Latest Commit</DescriptionListTerm>
-                            <DescriptionListDescription>
-                                <Tooltip content={project?.lastCommit} position={"right"}>
-                                    <Badge>{project?.lastCommit.substr(0, 7)}</Badge>
-                                </Tooltip>
-                            </DescriptionListDescription>
-                        </DescriptionListGroup>}
-                    </DescriptionList>
+                <CardBody isFilled>
+                    <Flex direction={{default: "row"}} alignContent={{default: "alignContentSpaceBetween"}}
+                          style={{width: "100%"}}>
+                        <FlexItem flex={{default: "flex_1"}}>
+                            <DescriptionList isHorizontal>
+                                <DescriptionListGroup>
+                                    <DescriptionListTerm>Group</DescriptionListTerm>
+                                    <DescriptionListDescription>{project?.groupId}</DescriptionListDescription>
+                                </DescriptionListGroup>
+                                <DescriptionListGroup>
+                                    <DescriptionListTerm>Artifact</DescriptionListTerm>
+                                    <DescriptionListDescription>{project?.artifactId}</DescriptionListDescription>
+                                </DescriptionListGroup>
+                                <DescriptionListGroup>
+                                    <DescriptionListTerm>Version</DescriptionListTerm>
+                                    <DescriptionListDescription>{project?.version}</DescriptionListDescription>
+                                </DescriptionListGroup>
+                                <DescriptionListGroup>
+                                    <DescriptionListTerm>Type</DescriptionListTerm>
+                                    <DescriptionListDescription>
+                                        <Tooltip content={"Folder: " + project?.folder} position={"bottom"}>
+                                            <Badge>{project?.type.toLowerCase()}</Badge>
+                                        </Tooltip>
+                                    </DescriptionListDescription>
+                                </DescriptionListGroup>
+                            </DescriptionList>
+                        </FlexItem>
+                        <FlexItem flex={{default: "flex_1"}}>
+                            <DescriptionList isHorizontal>
+                                <DescriptionListGroup>
+                                    <DescriptionListTerm>Latest Commit</DescriptionListTerm>
+                                    <DescriptionListDescription>
+                                        <Tooltip content={project?.lastCommit} position={"bottom"}>
+                                            <Badge>{project?.lastCommit?.substr(0, 7)}</Badge>
+                                        </Tooltip>
+                                    </DescriptionListDescription>
+                                </DescriptionListGroup>
+                                <DescriptionListGroup>
+                                    <DescriptionListTerm>Deployment</DescriptionListTerm>
+                                    <DescriptionListDescription>
+                                        <Flex direction={{default: "row"}}>
+                                            <FlexItem><Badge isRead>dev</Badge></FlexItem>
+                                            <FlexItem><Badge isRead>test</Badge></FlexItem>
+                                            <FlexItem><Badge isRead>prod</Badge></FlexItem>
+                                        </Flex>
+                                    </DescriptionListDescription>
+                                </DescriptionListGroup>
+                            </DescriptionList>
+                        </FlexItem>
+                    </Flex>
                 </CardBody>
             </Card>
         )

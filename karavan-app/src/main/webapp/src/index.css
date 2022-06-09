@@ -25,6 +25,7 @@
 
 .karavan .nav-buttons .logo {
   margin-top: 16px;
+  margin-bottom: 10px;
   width: 32px;
   height: 32px;
 }
@@ -46,9 +47,16 @@
   margin-bottom: 6px;
 }
 
+.karavan .nav-buttons .pf-c-button.pf-m-plain {
+  border-left-width: 3px;
+  border-left-style: solid;
+  border-left-color: transparent;
+  border-radius: 0;
+}
 
-.karavan .nav-button-selected {
-  color: red;
+.karavan .nav-button-selected .pf-c-button.pf-m-plain {
+  border-left-color: var(--pf-global--active-color--400);
+  background-color: var(--pf-global--BackgroundColor--dark-400);
 }
 
 .karavan .kamelet-section {

@@ -181,14 +181,14 @@ export class Main extends React.Component<Props, State> {
             new MenuItem("acl", "Access Control", <UsersIcon/>),
             new MenuItem("configuration", "Configuration", <ConfigurationIcon/>)
         ]
-        return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height:"100%"}}>
+        return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height:"100%"}} spaceItems={{default:"spaceItemsNone"}}>
             <FlexItem alignSelf={{default:"alignSelfCenter"}}>
                 <Tooltip content={"Apache Camel Karavan"} position={"right"}>
                     {Icon()}
                 </Tooltip>
             </FlexItem>
             {pages.map(page =>
-                <FlexItem>
+                <FlexItem className={this.state.pageId === page.pageId ? "nav-button-selected" : ""}>
                     <Tooltip content={page.tooltip} position={"right"}>
                         <Button id={page.pageId} icon={page.icon} variant={"plain"}
                                 className={this.state.pageId === page.pageId ? "nav-button-selected" : ""}

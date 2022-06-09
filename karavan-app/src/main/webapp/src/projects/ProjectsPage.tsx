@@ -18,7 +18,14 @@ import {
     ToggleGroupItem,
     Bullseye,
     EmptyState,
-    EmptyStateVariant, EmptyStateIcon, Title, OverflowMenu, OverflowMenuContent, OverflowMenuGroup, OverflowMenuItem
+    EmptyStateVariant,
+    EmptyStateIcon,
+    Title,
+    OverflowMenu,
+    OverflowMenuContent,
+    OverflowMenuGroup,
+    OverflowMenuItem,
+    Flex, FlexItem
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
@@ -163,9 +170,9 @@ export class ProjectsPage extends React.Component<Props, State> {
                                 <Th key='group'>GroupId</Th>
                                 <Th key='artifact'>ArtifactId</Th>
                                 <Th key='version'>Version</Th>
-                                <Th key='status'>Status</Th>
-                                <Th key='action1'></Th>
-                                <Th key='action2'></Th>
+                                <Th key='commit'>Commit</Th>
+                                <Th key='deployment'>Deployment</Th>
+                                <Th key='action'></Th>
                             </Tr>
                         </Thead>
                         <Tbody>
@@ -183,16 +190,31 @@ export class ProjectsPage extends React.Component<Props, State> {
                                         </Button>
                                     </Td>
                                     <Td>{project.version}</Td>
-                                    <Td>Active</Td>
+                                    <Td isActionCell>
+                                        <Tooltip content={project.lastCommit} position={"bottom"}>
+                                            <Badge>{project.lastCommit?.substr(0, 7)}</Badge>
+                                        </Tooltip>
+                                    </Td>
+                                    <Td noPadding style={{width:"180px"}}>
+                                        <Flex direction={{default: "row"}}>
+                                            <FlexItem><Badge isRead>dev</Badge></FlexItem>
+                                            <FlexItem><Badge isRead>test</Badge></FlexItem>
+                                            <FlexItem><Badge isRead>prod</Badge></FlexItem>
+                                        </Flex>
+                                    </Td>
                                     <Td isActionCell>
                                         <OverflowMenu breakpoint="md">
                                             <OverflowMenuContent>
                                                 <OverflowMenuGroup groupType="button">
                                                     <OverflowMenuItem>
-                                                        <Button variant={"plain"} icon={<CopyIcon/>} onClick={e=>this.setState({isCreateModalOpen: true, isCopy: true, projectToCopy: project})}></Button>
+                                                        <Tooltip content={"Copy project"} position={"bottom"}>
+                                                            <Button variant={"plain"} icon={<CopyIcon/>} onClick={e=>this.setState({isCreateModalOpen: true, isCopy: true, projectToCopy: project})}></Button>
+                                                        </Tooltip>
                                                     </OverflowMenuItem>
                                                     <OverflowMenuItem>
-                                                        <Button variant={"plain"} icon={<DeleteIcon/>} onClick={e=>this.props.onDelete?.call(this, project)}></Button>
+                                                        <Tooltip content={"Delete project"} position={"bottom"}>
+                                                            <Button variant={"plain"} icon={<DeleteIcon/>} onClick={e=>this.props.onDelete?.call(this, project)}></Button>
+                                                        </Tooltip>
                                                     </OverflowMenuItem>
                                                 </OverflowMenuGroup>
                                             </OverflowMenuContent>
