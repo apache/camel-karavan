@@ -14,14 +14,6 @@ ENV JBANG_PATH=/jbang/bin
 ENV PATH="${PATH}:/jbang/bin"
 ENV JBANG_DIR="/jbang/.jbang"
 
-# Install Camel Maven Dependencies
-# RUN cd /tmp && \
-#     git clone -b main --depth 1 --single-branch https://github.com/apache/camel.git && \
-#     mvn dependency:resolve -f camel && \
-#     rm /tmp/camel
-
-COPY grapeConfig.xml ~/.groovy/grapeConfig.xml
-
 # Install Camel-JBang
 RUN jbang trust add -o --fresh --quiet https://github.com/apache/camel/blob/HEAD/dsl/camel-jbang/camel-jbang-main/dist/CamelJBang.java && \
     jbang -Dcamel.jbang.version=3.18.0-SNAPSHOT camel@apache/camel --version 
