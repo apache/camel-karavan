@@ -41,6 +41,17 @@ export class ProjectModelApi {
         return result.join("\n");
     }
 
+    static getProfiles = (properties: ProjectProperty[]): string[] => {
+        const result: string[] = [];
+        properties.forEach((p, key) => {
+            if (p.key.startsWith("%")) {
+                const profile = p.key.substring(1, p.key.indexOf("."));
+                if (!result.includes(profile)) result.push(profile);
+            }
+        })
+        return result;
+    }
+
     static updateProperties = (properties: string, project: ProjectModel): string => {
         const mapFromProject = this.projectToMap(project);
         const result: string[] = [];

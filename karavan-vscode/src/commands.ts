@@ -72,56 +72,40 @@ export function camelJbangPackage(rootPath: string, profile: string, callback: (
     executeJbangCommand(rootPath, prepareCommand("package uber-jar", profile), (code, stdout, stderr) => callback(code));
 }
 
-export function camelJbangBuildImage(rootPath: string, profile: string, project: ProjectModel, callback: (code: number) => any) {
-    const munikubeCommand = "minikube -p minikube docker-env";
-    let command = prepareCommand("build image", profile, project);
-    if (project.target === 'minikube') {
-        console.log("Build in minikube")
-        executeJbangCommand(rootPath, munikubeCommand, (code, stdout, stderr) => {
-            if (code === 0) {
-                setMinikubeEnvVariables(stdout).forEach((value: string, key: string) => shell.env[key] = value);
-                executeJbangCommand(rootPath, command, (code, stdout, stderr) => callback(code));
-            }
-        })
-    } else {
-        removeMinikubeEnvVariables();
-        console.log(shell.env)
-        executeJbangCommand(rootPath, command, (code, stdout, stderr) => callback(code));
-    }
-}
-
-export function camelJbangDeploy(rootPath: string, profile: string, project: ProjectModel, callback: (code: number) => any) {
-    executeJbangCommand(rootPath, prepareCommand("deploy", profile, project), (code, stdout, stderr) => callback(code));
-}
-
-export function camelJbangManifests(rootPath: string, profile: string, project: ProjectModel, callback: (code: number) => any) {
-    executeJbangCommand(rootPath, prepareCommand("build manifests", profile, project), (code, stdout, stderr) => callback(code));
-}
-
-
-export function camelJbangUndeploy(rootPath: string, profile: string, project: ProjectModel, callback: (code: number) => any) {
-    executeJbangCommand(rootPath, prepareCommand("undeploy", profile, project), (code, stdout, stderr) => callback(code));
-}
 
 export function cacheClear(rootPath: string, callback: (code: number) => any) {
     executeJbangCommand(rootPath, "jbang cache clear", (code, stdout, stderr) => callback(code));
 }
 
-function prepareCommand(command: string, profile: string, project?: ProjectModel): string {
+function prepareCommand(command: string, profile?: string): string {
     const version = vscode.workspace.getConfiguration().get("camel.version");
-    const token = project && project.target ? " --token " + project.token : "";
-    const password = project && project.password ? " --password " + project.password : "";
-    return "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel " + command + token + password + " --profile " + profile;
+    const p = profile ? " --profile " + profile : "";
+    return "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel " + command + p;
 }
 
-export function camelJbangRun(rootPath: string, profile: string, filename?: string) {
+export function camelJbangRun(rootPath: string, profile?: string, filename?: string) {
     const maxMessages: number = vscode.workspace.getConfiguration().get("camel.maxMessages") || -1;
     const cmd = (filename ? "run " + filename : "run * " ) + (maxMessages > -1 ? " --max-messages=" + maxMessages : "");
     const command = prepareCommand(cmd, profile);
-    const existTerminal = TERMINALS.get(profile);
+    const terminalId = "run_" + profile + "_" + filename;
+    const existTerminal = TERMINALS.get(terminalId);
     if (existTerminal) existTerminal.dispose();
-    const terminal = vscode.window.createTerminal('Camel run: ' + profile);
-    TERMINALS.set(profile, terminal);
+    const terminal = vscode.window.createTerminal('Camel run: ' + filename ? filename : "project");
+    TERMINALS.set(terminalId, terminal);
+    terminal.show();
+    terminal.sendText(command);
+}
+
+export function camelJbangExport(runtime: string, directory: string, gav: string) {
+    const cmd = "export " + runtime 
+            + (directory !== undefined ? " --directory="+directory : "")
+            + (gav !== undefined ? " --gav=" + gav : "");
+    const command = prepareCommand(cmd);
+    const terminalId = "export " + runtime;
+    const existTerminal = TERMINALS.get(terminalId);
+    if (existTerminal) existTerminal.dispose();
+    const terminal = vscode.window.createTerminal('Camel export');
+    TERMINALS.set(terminalId, terminal);
     terminal.show();
     terminal.sendText(command);
 }
@@ -164,10 +148,3 @@ function removeMinikubeEnvVariables() {
     delete shell.env['DOCKER_CERT_PATH'];
     delete shell.env['MINIKUBE_ACTIVE_DOCKERD'];
 }
-
-export function cleanup(rootPath: string, project: ProjectModel, callback: (code: number, stdout: any, stderr: any) => any) {
-    shell.cd(rootPath);
-    shell.rm('-r', path.resolve(rootPath, ".camel-jbang"));
-    shell.rm(path.resolve(rootPath, project.filename));  
-}
-

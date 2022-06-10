@@ -1,8 +1,12 @@
 import React from 'react';
 import {
-    Button,
+    Button, Flex, FlexItem,
     Modal,
-    TextInput,
+    PageSection,
+    Panel,
+    PanelMain,
+    PanelMainBody,
+    TextInput
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
@@ -11,18 +15,12 @@ import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {ProjectProperty} from "karavan-core/lib/model/ProjectModel";
 
 interface Props {
-    properties: Property[]
-    onChange?: (properties: Property[]) => void
-}
-
-interface Property {
-    id: string
-    key: string
-    value: any
+    properties: ProjectProperty[]
+    onChange?: (properties: ProjectProperty[]) => void
 }
 
 interface State {
-    properties: Property[]
+    properties: ProjectProperty[]
     showDeleteConfirmation: boolean
     deleteId?: string
 }
@@ -31,17 +29,17 @@ export class PropertiesTable extends React.Component<Props, State> {
 
     public state: State = {
         properties: this.props.properties,
-        showDeleteConfirmation: false
+        showDeleteConfirmation: false,
     };
 
-    sendUpdate = (props: Property[]) => {
+    sendUpdate = (props: ProjectProperty[]) => {
         this.props.onChange?.call(this, props);
     }
 
-    changeProperty(p: Property, field: "key" | "value", val?: string) {
+    changeProperty(p: ProjectProperty, field: "key" | "value", val?: string) {
         const key: string = field === 'key' && val !== undefined ? val : p.key;
         const value: any = field === 'value' ? val : p.value;
-        const property: Property = {id: p.id, key: key, value: value};
+        const property: ProjectProperty = {id: p.id, key: key, value: value};
         const props = this.state.properties.map(prop => prop.id === property.id ? property : prop);
         this.setState({properties: props});
         this.sendUpdate(props);
@@ -59,7 +57,7 @@ export class PropertiesTable extends React.Component<Props, State> {
 
     addProperty() {
         const props = [...this.state.properties];
-        props.push(ProjectProperty.createNew("",""))
+        props.push(ProjectProperty.createNew("", ""))
         this.setState({properties: props, showDeleteConfirmation: false, deleteId: undefined});
         this.sendUpdate(props);
     }
@@ -80,7 +78,7 @@ export class PropertiesTable extends React.Component<Props, State> {
         </Modal>)
     }
 
-    getTextInputField(property: Property, field: "key" | "value") {
+    getTextInputField(property: ProjectProperty, field: "key" | "value") {
         return (<TextInput isRequired={true} className="text-field" type={"text"} id={"key"} name={"key"}
                            value={field === "key" ? property.key : property.value}
                            onChange={val => this.changeProperty(property, field, val)}/>)
@@ -89,9 +87,10 @@ export class PropertiesTable extends React.Component<Props, State> {
     render() {
         const properties = this.state.properties;
         return (
-            <>
+            <PageSection padding={{default: "noPadding"}}>
                 {properties.length > 0 &&
-                    <TableComposable aria-label="Property table" variant='compact' borders={false} className="project-properties">
+                    <TableComposable aria-label="Property table" variant='compact' borders={false}
+                                     className="project-properties">
                         <Thead>
                             <Tr>
                                 <Th key='name'>Name</Th>
@@ -102,18 +101,30 @@ export class PropertiesTable extends React.Component<Props, State> {
                         <Tbody>
                             {properties.map((property, idx: number) => (
                                 <Tr key={property.id}>
-                                    <Td dataLabel="key">{this.getTextInputField(property, "key")}</Td>
-                                    <Td dataLabel="value">{this.getTextInputField(property, "value")}</Td>
-                                    <Td dataLabel="delete" modifier="fitContent">
-                                        <Button variant={"plain"} icon={<DeleteIcon/>} className={"delete-button"} onClick={event => this.startDelete(property.id)}/>
+                                    <Td noPadding width={20} dataLabel="key">{this.getTextInputField(property, "key")}</Td>
+                                    <Td noPadding width={10} dataLabel="value">{this.getTextInputField(property, "value")}</Td>
+                                    <Td noPadding isActionCell dataLabel="delete">
+                                        <Button variant={"plain"} icon={<DeleteIcon/>} className={"delete-button"}
+                                                onClick={event => this.startDelete(property.id)}/>
                                     </Td>
                                 </Tr>
                             ))}
                         </Tbody>
-                        {this.getDeleteConfirmation()}
                     </TableComposable>}
-                <Button isInline variant={"link"} icon={<PlusIcon/>} className={"add-button"} onClick={event => this.addProperty()}>Add property</Button>
-            </>
+                <Panel>
+                    <PanelMain>
+                        <PanelMainBody>
+                            <Flex direction={{default:"row"}} >
+                                <FlexItem align={{ default: 'alignRight' }}>
+                                    <Button isInline variant={"primary"} icon={<PlusIcon/>}
+                                            className={"add-button"}
+                                            onClick={event => this.addProperty()}>Add property</Button>
+                                </FlexItem>
+                            </Flex>
+                        </PanelMainBody>
+                    </PanelMain>
+                </Panel>
+            </PageSection>
         )
     }
 }

@@ -73,7 +73,7 @@ export class DesignerView {
 
     selectProfile(rootPath: string, filename?: string) {
         if (this.rootPath) {
-            const profiles: string [] = fs.readdirSync(this.rootPath).filter(f => f.endsWith(extension)).map(file => path.basename(file).replace(extension, ""));
+            const profiles: string [] = utils.getProfiles();
             if (profiles && profiles.length > 0){
                 vscode.window.showQuickPick(profiles).then((profile) => {
                     if (!profile) {

@@ -19,6 +19,8 @@ import * as fs from "fs";
 import * as path from "path";
 import * as shell from 'shelljs';
 import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
+import { ProjectModel } from "karavan-core/lib/model/ProjectModel";
+import { ProjectModelApi } from "karavan-core/lib/api/ProjectModelApi";
 
 export function save(relativePath: string, text: string) {
     if (vscode.workspace.workspaceFolders) {
@@ -133,4 +135,16 @@ export function getIntegrationFiles(baseDir: string): string[] {
         const yaml = fs.readFileSync(path.resolve(f)).toString('utf8');
         return !f.startsWith(baseDir + path.sep + "target") && CamelDefinitionYaml.yamlIsIntegration(yaml);
     });
+}
+
+
+export function getProperties(rootPath?: string): string {
+    if (rootPath) return fs.readFileSync(path.resolve(rootPath, "application.properties")).toString('utf8');
+    else return fs.readFileSync(path.resolve("application.properties")).toString('utf8');
+}
+
+export function getProfiles(rootPath?: string): string[] {
+    const text = getProperties(rootPath);
+    const project = ProjectModelApi.propertiesToProject(text);
+    return ProjectModelApi.getProfiles(project.properties);
 }
