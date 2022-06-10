@@ -39,6 +39,7 @@ import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CreateFileModal} from "./CreateFileModal";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
+import {CamelUtil} from "../../../../../../karavan-core/lib/api/CamelUtil";
 
 interface Props {
     project: Project,
@@ -97,10 +98,10 @@ export class ProjectPage extends React.Component<Props, State> {
         // this.setState({view: view});
     }
 
-    save = (name: string, yaml: string) => {
+    save = (name: string, code: string) => {
         const file = this.state.file;
         if (file) {
-            file.code = yaml;
+            file.code = code;
             this.setState({file: file});
             this.post(file);
         }
@@ -368,7 +369,7 @@ export class ProjectPage extends React.Component<Props, State> {
 
     getEditor = () => {
         const file = this.state.file;
-        const language = file?.name.endsWith("java") ? "java" : (file?.name.endsWith("groovy") ? "groovy" : "yaml");
+        const language = file?.name.split('.').pop();
         return (
             file !== undefined &&
             <Editor
@@ -379,6 +380,7 @@ export class ProjectPage extends React.Component<Props, State> {
                 className={'code-editor'}
                 onChange={(value, ev) => {
                     if (value) {
+                        this.save(file?.name, value)
                     }
                 }}
             />
@@ -403,6 +405,7 @@ export class ProjectPage extends React.Component<Props, State> {
                     </PageSection>}
                 {isYaml && this.getDesigner()}
                 {isCode && this.getEditor()}
+                {isProperties && this.getEditor()}
                 <CreateFileModal project={this.props.project} isOpen={this.state.isCreateModalOpen}
                                  onClose={this.closeModal}/>
                 <Modal

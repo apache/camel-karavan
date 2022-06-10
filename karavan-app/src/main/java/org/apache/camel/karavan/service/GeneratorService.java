@@ -24,6 +24,7 @@ import io.vertx.core.Vertx;
 import org.apache.camel.CamelContext;
 import org.apache.camel.generator.openapi.RestDslGenerator;
 import org.apache.camel.impl.lw.LightweightCamelContext;
+import org.apache.camel.karavan.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -49,5 +50,15 @@ public class GeneratorService {
         try (CamelContext context = new LightweightCamelContext()) {
             return RestDslGenerator.toYaml(document).generate(context, generateRoutes);
         }
+    }
+
+    public String getDefaultApplicationProperties(Project project){
+        StringBuilder s = new StringBuilder();
+        s.append("quarkus.container-image.group=").append(project.getGroupId()).append(System.lineSeparator());
+        s.append("quarkus.container-image.name=").append(project.getArtifactId()).append(System.lineSeparator());
+        s.append("quarkus.container-image.tag=").append(project.getVersion()).append(System.lineSeparator());
+        s.append("quarkus.openshift.route.expose=true").append(System.lineSeparator());
+        s.append("quarkus.kubernetes-client.trust-certs=true").append(System.lineSeparator());
+        return s.toString();
     }
 }

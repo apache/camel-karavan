@@ -53,6 +53,9 @@ public class InfinispanService {
     @Inject
     RemoteCacheManager cacheManager;
 
+    @Inject
+    GeneratorService generatorService;
+
     private static final String CACHE_CONFIG = "<distributed-cache name=\"%s\">"
             + " <encoding media-type=\"application/x-protostream\"/>"
             + " <groups enabled=\"true\"/>"
@@ -79,7 +82,7 @@ public class InfinispanService {
             String groupId = "org.apache.camel.karavan";
             String artifactId = "parcel-demo" + i;
             Project p = new Project(groupId, artifactId, "1.0.0",  null, Project.ProjectType.values()[new Random().nextInt(2)]);
-            projects.put(GroupedKey.create(p.getKey(), p.getKey()), p);
+            this.saveProject(p);
 
             files.put(GroupedKey.create(p.getKey(),"new-parcels.yaml"), new ProjectFile("new-parcels.yaml", "flows:", p.getKey()));
             files.put(GroupedKey.create(p.getKey(),"parcel-confirmation.yaml"), new ProjectFile("parcel-confirmation.yaml", "rest:", p.getKey()));
@@ -94,7 +97,6 @@ public class InfinispanService {
                     "      exchange.getIn().setBody(\"Hello world\");\n" +
                     "  }\n" +
                     "}", p.getKey()));
-            files.put(GroupedKey.create(p.getKey(),"application.properties"), new ProjectFile("application.properties", "parameter1:hello", p.getKey()));
         }
     }
 
@@ -108,7 +110,8 @@ public class InfinispanService {
         projects.put(key, project);
         if (isNew){
             String filename = "application.properties";
-            files.put(new GroupedKey(project.getKey(), filename), new ProjectFile(filename, "", project.getKey()));
+            String code = generatorService.getDefaultApplicationProperties(project);
+            files.put(new GroupedKey(project.getKey(), filename), new ProjectFile(filename, code, project.getKey()));
         }
     }
 
