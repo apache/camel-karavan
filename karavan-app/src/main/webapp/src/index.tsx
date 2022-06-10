@@ -13,7 +13,7 @@ ReactDOM.render(
   <Router forceRefresh={true}>
     <Switch>
       {routes.map((route) => (
-        <Route exact path={route.path} render={() => <route.component />} key={route.path} />
+        <Route key={route.path} exact path={route.path} render={() => <route.component />} />
       ))}
     </Switch>
   </Router>,

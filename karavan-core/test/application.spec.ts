@@ -18,27 +18,24 @@ import * as fs from 'fs';
 import 'mocha';
 import {expect} from "chai";
 import {ProjectModelApi} from "../src/core/api/ProjectModelApi";
+import {ProjectProperty} from "../lib/model/ProjectModel";
 
 describe('Project configuration', () => {
 
     it('Read properties', () => {
         const props = fs.readFileSync('test/application.properties',{encoding:'utf8', flag:'r'});
         const project = ProjectModelApi.propertiesToProject(props);
-        expect(project.name).to.equal('demo');
-        expect(project.namespace).to.equal('development');
 
-        project.image = 'newtag/proj:latest';
+        expect("hello world").to.equal(project.properties.find(v => v.key === 'message')?.value);
+
+        project.properties = project.properties.map(value => {
+            if (value.key === 'camel.jbang.health') return ProjectProperty.createNew(value.key, "true");
+            else return value;
+        })
+
         let newProperties = ProjectModelApi.updateProperties(props, project);
-        const tag = newProperties.split(/\r?\n/).filter(l => l.startsWith("camel.jbang.build.image.image"))[0].split("=")[1];
-        expect(tag).to.equal(project.image);
+        expect("true").to.equal(project.properties.find(v => v.key === 'camel.jbang.health')?.value);
 
-
-        // project.routesIncludePattern = "file:x";
-        // newProperties = ProjectModelApi.updateProperties(newProperties, project);
-        // project.routesIncludePattern = "file:y";
-        // newProperties = ProjectModelApi.updateProperties(newProperties, project);
-        // project.routesIncludePattern = "";
-        // newProperties = ProjectModelApi.updateProperties(newProperties, project);
         project.properties = project.properties.map(p => {
             if (p.key === 'message') {
               p.value = 'HELLO WORLD'
@@ -46,7 +43,7 @@ describe('Project configuration', () => {
             } else return p;
         });
         newProperties = ProjectModelApi.updateProperties(newProperties, project);
-        console.log(newProperties);
+        expect("HELLO WORLD").to.equal(project.properties.find(v => v.key === 'message')?.value);
     });
 
 });

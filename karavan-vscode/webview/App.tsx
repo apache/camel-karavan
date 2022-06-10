@@ -25,8 +25,6 @@ import { ComponentApi } from "karavan-core/lib/api/ComponentApi";
 import { KameletsPage } from "./kamelets/KameletsPage";
 import { ComponentsPage } from "./components/ComponentsPage";
 import { EipPage } from "./eip/EipPage";
-import { BuilderPage } from "./builder/BuilderPage";
-import { ProjectModel, Profile } from "karavan-core/lib/model/ProjectModel";
 
 interface Props {
   dark: boolean
@@ -46,8 +44,6 @@ interface State {
   active: boolean
   tab?: string
   files: string
-  profiles: Profile[]
-  profile?: Profile
 }
 
 class App extends React.Component<Props, State> {
@@ -64,7 +60,6 @@ class App extends React.Component<Props, State> {
     page: "designer",
     active: false,
     files: '',
-    profiles: [Profile.createNew('application')],
   };
 
   saveScheduledChanges = () => {
@@ -97,17 +92,6 @@ class App extends React.Component<Props, State> {
         break;
       case 'showStartHelp':
         this.setState({ showStartHelp: message.showStartHelp });
-        break;
-      case 'profiles':
-        this.setState({ profiles: message.profiles, files: message.files, key: Math.random().toString() });
-        console.log(message.profiles)
-        break;
-      case 'profile':
-        this.setState(state => {
-          const s = {...state, files: message.files, key: Math.random().toString(), profile: message.profile};
-          s.profiles = state.profiles.map(p => p.name === message.profile.name ? message.profile : p);
-          return s;
-        });
         break;
       case 'open':
         if (this.state.filename === '' && this.state.key === '') {
@@ -146,14 +130,6 @@ class App extends React.Component<Props, State> {
     }
   }
 
-  saveProfiles(profiles: Profile[]) {
-    vscode.postMessage({ command: 'saveProfiles', profiles: profiles });
-  }
-
-  actionProfile(action: "start" | "stop" | "undeploy" | "run", profile: Profile) {
-    vscode.postMessage({ command: 'action', action: action, profile: profile });
-  }
-
   disableStartHelp() {
     vscode.postMessage({ command: 'disableStartHelp' });
   }
@@ -180,11 +156,6 @@ class App extends React.Component<Props, State> {
         {this.state.loaded && this.state.page === "kamelets" && <KameletsPage dark={this.props.dark} />}
         {this.state.loaded && this.state.page === "components" && <ComponentsPage dark={this.props.dark} />}
         {this.state.loaded && this.state.page === "eip" && <EipPage dark={this.props.dark} />}
-        {this.state.loaded && this.state.page === "builder" &&
-          <BuilderPage key={this.state.key} dark={this.props.dark} files={this.state.files} profiles={this.state.profiles} profile={this.state.profile}
-            onChange={profiles => this.saveProfiles(profiles)}
-            onAction={(action, profile) => this.actionProfile(action, profile)}
-          />}
       </Page>
     )
   }

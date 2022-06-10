@@ -40,6 +40,7 @@ import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";
 
 interface Props {
     projects: Project[],
+    config: any,
     onSelect: (project: Project) => void
     onCreate: (project: Project) => void
     onDelete: (project: Project) => void
@@ -56,7 +57,7 @@ interface State {
     artifactId: string,
     version: string,
     folder: string,
-    type: string,
+    runtime: string,
 }
 
 export class ProjectsPage extends React.Component<Props, State> {
@@ -66,11 +67,11 @@ export class ProjectsPage extends React.Component<Props, State> {
         isCreateModalOpen: false,
         isCopy: false,
         filter: '',
-        groupId: '',
+        groupId: this.props.config.groupId,
         artifactId: '',
         version: '',
         folder: '',
-        type: 'KARAVAN',
+        runtime: this.props.config.defaultRuntime,
     };
 
     tools = () => (<Toolbar id="toolbar-group-types">
@@ -96,15 +97,15 @@ export class ProjectsPage extends React.Component<Props, State> {
     </TextContent>);
 
     closeModal = () => {
-        this.setState({isCreateModalOpen: false, isCopy: false, groupId: '', artifactId:'', version: '', folder: '', type: 'KARAVAN'});
+        this.setState({isCreateModalOpen: false, isCopy: false, groupId: this.props.config.groupId, artifactId:'', version: '', folder: '', runtime: this.props.config.defaultRuntime});
         this.props.onRefresh.call(this);
     }
 
     saveAndCloseCreateModal = () => {
-        const {groupId, artifactId, version, type} = this.state;
-        const p = new Project(groupId, artifactId, version, '', type? type : "KARAVAN", '');
+        const {groupId, artifactId, version, runtime} = this.state;
+        const p = new Project(groupId, artifactId, version, '', runtime ? runtime : this.props.config.defaultRuntime, '');
         this.props.onCreate.call(this, p);
-        this.setState({isCreateModalOpen: false, isCopy: false, groupId: '', artifactId: '', version: '', folder: '', type: 'KARAVAN'});
+        this.setState({isCreateModalOpen: false, isCopy: false, groupId: this.props.config.groupId, artifactId: '', version: '', folder: '', runtime: this.props.config.defaultRuntime});
     }
 
     onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
@@ -114,7 +115,7 @@ export class ProjectsPage extends React.Component<Props, State> {
     }
 
     createModalForm() {
-        const {type, isCopy, projectToCopy } = this.state;
+        const {runtime, isCopy, projectToCopy } = this.state;
         return (
             <Modal
                 title={!isCopy ? "Create new project" : "Copy project from " + projectToCopy?.artifactId}
@@ -143,10 +144,10 @@ export class ProjectsPage extends React.Component<Props, State> {
                                    value={this.state.version}
                                    onChange={e => this.setState({version: e})}/>
                     </FormGroup>
-                    <FormGroup label="Type" fieldId="type" isRequired>
-                        <ToggleGroup aria-label="Default with single selectable">
-                            {["KARAVAN", "QUARKUS", "SPRING"].map(value =>
-                                <ToggleGroupItem key={value} text={CamelUtil.capitalizeName(value.toLowerCase())} buttonId={value} isSelected={type === value} onChange={selected => this.setState({type: value})} />
+                    <FormGroup label="Runtime" fieldId="runtime" isRequired>
+                        <ToggleGroup aria-label="Runtime">
+                            {["QUARKUS", "SPRING"].map(value =>
+                                <ToggleGroupItem key={value} text={CamelUtil.capitalizeName(value.toLowerCase())} buttonId={value} isSelected={runtime === value} onChange={selected => this.setState({runtime: value})} />
                             )}
                         </ToggleGroup>
                     </FormGroup>
@@ -157,6 +158,9 @@ export class ProjectsPage extends React.Component<Props, State> {
 
     render() {
         const projects = this.state.projects.filter(p => p.groupId.includes(this.state.filter) || p.artifactId.includes(this.state.filter));
+        const environments: string[] = this.props.config.environments && Array.isArray(this.props.config.environments)
+            ? Array.from(this.props.config.environments)
+            : [];
         return (
             <PageSection className="kamelet-section projects-page" padding={{default: 'noPadding'}}>
                 <PageSection className="tools-section" padding={{default: 'noPadding'}}>
@@ -166,7 +170,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                     <TableComposable aria-label="Projects" variant={"compact"}>
                         <Thead>
                             <Tr>
-                                <Th key='type'>Type</Th>
+                                <Th key='type'>Runtime</Th>
                                 <Th key='group'>GroupId</Th>
                                 <Th key='artifact'>ArtifactId</Th>
                                 <Th key='version'>Version</Th>
@@ -179,8 +183,8 @@ export class ProjectsPage extends React.Component<Props, State> {
                             {projects.map(project => (
                                 <Tr key={project.artifactId}>
                                     <Td modifier={"fitContent"}>
-                                        <Tooltip content={project.type} position={"left"}>
-                                            <Badge>{project.type.charAt(0)}</Badge>
+                                        <Tooltip content={project.runtime} position={"left"}>
+                                            <Badge>{project.runtime.charAt(0)}</Badge>
                                         </Tooltip>
                                     </Td>
                                     <Td>{project.groupId}</Td>
@@ -197,9 +201,8 @@ export class ProjectsPage extends React.Component<Props, State> {
                                     </Td>
                                     <Td noPadding style={{width:"180px"}}>
                                         <Flex direction={{default: "row"}}>
-                                            <FlexItem><Badge isRead>dev</Badge></FlexItem>
-                                            <FlexItem><Badge isRead>test</Badge></FlexItem>
-                                            <FlexItem><Badge isRead>prod</Badge></FlexItem>
+                                            {environments.filter(e => e !== undefined)
+                                                .map(e => <FlexItem key={e}><Badge isRead>{e}</Badge></FlexItem>)}
                                         </Flex>
                                     </Td>
                                     <Td isActionCell>

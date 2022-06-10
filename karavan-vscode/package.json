@@ -47,14 +47,15 @@
     "onCommand:karavan.create-yaml",
     "onCommand:karavan.open",
     "onCommand:karavan.open-file",
-    "onCommand:karavan.jbang-run",
+    "onCommand:karavan.jbang-run-file",
+    "onCommand:karavan.jbang-run-project",
+    "onCommand:karavan.jbang-export",
     "onCommand:karavan.generate-rest",
     "onView:integrations",
     "onCommand:karavan.openKamelets",
     "onCommand:karavan.openComponents",
     "onCommand:karavan.openEip",
-    "onCommand:karavan.reportIssue",
-    "onCommand:karavan.projectBuilder"
+    "onCommand:karavan.reportIssue"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -135,19 +136,27 @@
         "title": "Karavan: Open editor"
       },
       {
-        "command": "karavan.projectBuilder",
-        "title": "Karavan: Build Runner",
-        "icon": {
-          "light": "icons/light/builder.svg",
-          "dark": "icons/dark/builder.svg"
-        }
-      },
-      {
-        "command": "karavan.jbang-run",
-        "title": "Karavan: JBang Run",
+        "command": "karavan.jbang-run-file",
+        "title": "Karavan: Run File",
         "icon": {
           "light": "./icons/light/run.svg",
           "dark": "./icons/dark/run.svg"
+        }
+      },
+      {
+        "command": "karavan.jbang-run-project",
+        "title": "Karavan: Run Project",
+        "icon": {
+          "light": "./icons/light/run.svg",
+          "dark": "./icons/dark/run.svg"
+        }
+      },
+      {
+        "command": "karavan.jbang-export",
+        "title": "Karavan: Export",
+        "icon": {
+          "light": "./icons/light/builder.svg",
+          "dark": "./icons/dark/builder.svg"
         }
       },
       {
@@ -202,15 +211,20 @@
           "when": "resourceExtname == .yaml"
         },
         {
-          "command": "karavan.jbang-run",
+          "command": "karavan.jbang-run-file",
           "when": "resourceExtname == .yaml"
+        },
+        {
+          "command": "karavan.jbang-run-project",
+          "when": "explorerResourceIsFolder || explorerResourceIsRoot"
+        },
+        {
+          "command": "karavan.jbang-export",
+          "when": "explorerResourceIsFolder || explorerResourceIsRoot"
         },
         {
           "command": "karavan.generate-rest",
           "when": "resourceExtname == .json"
-        },
-        {
-          "command": "karavan.projectBuilder"
         }
       ],
       "editor/title": [
@@ -220,7 +234,7 @@
           "group": "navigation"
         },
         {
-          "command": "karavan.jbang-run",
+          "command": "karavan.jbang-run-file",
           "when": "resourceExtname == .yaml || karavan:loaded",
           "group": "navigation"
         }
@@ -229,17 +243,22 @@
         {
           "command": "integrations.refresh",
           "when": "view == integrations",
-          "group": "navigation"
+          "group": "navigation@4"
+        },
+        {
+          "command": "karavan.jbang-run-project",
+          "when": "view == integrations",
+          "group": "navigation@1"
         },
         {
           "command": "karavan.create-crd",
           "when": "view == integrations",
-          "group": "navigation"
+          "group": "navigation@3"
         },
         {
-          "command": "karavan.projectBuilder",
+          "command": "karavan.jbang-export",
           "when": "view == integrations",
-          "group": "navigation"
+          "group": "navigation@2"
         },
         {
           "command": "openapi.refresh",
@@ -259,7 +278,7 @@
           "group": "navigation_1_open@2"
         },
         {
-          "command": "karavan.jbang-run",
+          "command": "karavan.jbang-run-file",
           "when": "view == integrations && viewItem == 'integration'",
           "group": "navigation_2_run@1"
         },

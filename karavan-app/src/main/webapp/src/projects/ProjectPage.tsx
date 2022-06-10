@@ -39,9 +39,11 @@ import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CreateFileModal} from "./CreateFileModal";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
+import {PropertiesEditor} from "./PropertiesEditor";
 
 interface Props {
     project: Project,
+    config: any,
 }
 
 interface State {
@@ -96,10 +98,10 @@ export class ProjectPage extends React.Component<Props, State> {
         // this.setState({view: view});
     }
 
-    save = (name: string, yaml: string) => {
+    save = (name: string, code: string) => {
         const file = this.state.file;
         if (file) {
-            file.code = yaml;
+            file.code = code;
             this.setState({file: file});
             this.post(file);
         }
@@ -238,6 +240,9 @@ export class ProjectPage extends React.Component<Props, State> {
 
     getProjectForm = () => {
         const project = this.state.project;
+        const environments: string[] = this.props.config.environments && Array.isArray(this.props.config.environments)
+            ? Array.from(this.props.config.environments)
+            : [];
         return (
             <Card>
                 <CardBody isFilled>
@@ -258,11 +263,13 @@ export class ProjectPage extends React.Component<Props, State> {
                                     <DescriptionListDescription>{project?.version}</DescriptionListDescription>
                                 </DescriptionListGroup>
                                 <DescriptionListGroup>
-                                    <DescriptionListTerm>Type</DescriptionListTerm>
+                                    <DescriptionListTerm>Folder</DescriptionListTerm>
+                                    <DescriptionListDescription>{project?.folder}</DescriptionListDescription>
+                                </DescriptionListGroup>
+                                <DescriptionListGroup>
+                                    <DescriptionListTerm>Runtime</DescriptionListTerm>
                                     <DescriptionListDescription>
-                                        <Tooltip content={"Folder: " + project?.folder} position={"bottom"}>
-                                            <Badge>{project?.type.toLowerCase()}</Badge>
-                                        </Tooltip>
+                                        <Badge>{project?.runtime}</Badge>
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>
                             </DescriptionList>
@@ -281,9 +288,8 @@ export class ProjectPage extends React.Component<Props, State> {
                                     <DescriptionListTerm>Deployment</DescriptionListTerm>
                                     <DescriptionListDescription>
                                         <Flex direction={{default: "row"}}>
-                                            <FlexItem><Badge isRead>dev</Badge></FlexItem>
-                                            <FlexItem><Badge isRead>test</Badge></FlexItem>
-                                            <FlexItem><Badge isRead>prod</Badge></FlexItem>
+                                            {environments.filter(e => e !== undefined)
+                                                .map(e => <FlexItem key={e}><Badge isRead>{e}</Badge></FlexItem>)}
                                         </Flex>
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>
@@ -363,7 +369,7 @@ export class ProjectPage extends React.Component<Props, State> {
 
     getEditor = () => {
         const file = this.state.file;
-        const language = file?.name.endsWith("java") ? "java" : (file?.name.endsWith("groovy") ? "groovy" : "yaml");
+        const language = file?.name.split('.').pop();
         return (
             file !== undefined &&
             <Editor
@@ -374,8 +380,20 @@ export class ProjectPage extends React.Component<Props, State> {
                 className={'code-editor'}
                 onChange={(value, ev) => {
                     if (value) {
+                        this.save(file?.name, value)
                     }
                 }}
+            />
+        )
+    }
+
+    getPropertiesEditor = () => {
+        const file = this.state.file;
+        return (
+            file !== undefined &&
+            <PropertiesEditor
+                file={file}
+                onSave={(name, code) => this.save(name, code)}
             />
         )
     }
@@ -398,6 +416,7 @@ export class ProjectPage extends React.Component<Props, State> {
                     </PageSection>}
                 {isYaml && this.getDesigner()}
                 {isCode && this.getEditor()}
+                {isProperties && this.getPropertiesEditor()}
                 <CreateFileModal project={this.props.project} isOpen={this.state.isCreateModalOpen}
                                  onClose={this.closeModal}/>
                 <Modal

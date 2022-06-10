@@ -46,6 +46,17 @@ export class StepStatus {
     }
 }
 
+export class ProjectStatus extends StepStatus{
+    export?: StepStatus;
+    package?: StepStatus;
+    active: boolean = false;
+
+    public constructor(init?: Partial<ProjectStatus>) {
+        super();
+        Object.assign(this, init);
+    }
+}
+
 export class ProjectProperty {
     id: string = ''
     key: string = ''
@@ -60,43 +71,7 @@ export class ProjectProperty {
     }
 }
 
-export class ProjectStatus extends StepStatus{
-    uberJar?: StepStatus;
-    build?: StepStatus;
-    deploy?: StepStatus;
-    undeploy?: StepStatus;
-    active: boolean = false;
-
-    public constructor(init?: Partial<ProjectStatus>) {
-        super();
-        Object.assign(this, init);
-    }
-}
-
 export class ProjectModel {
-    name: string = 'demo'
-    version: string = '1.0.0'
-    filename: string = 'camel-runner.jar'
-    namespace: string = 'default'
-    cleanup: boolean = false
-    image?: string = this.namespace + "/" + this.name + ":" + this.version
-    sourceImage: string = 'java:openjdk-11-ubi8'
-    from: string = 'gcr.io/distroless/java:11'
-    replicas: number = 1
-    nodePort: number = 30777
-    server?: string
-    username?: string
-    password?: string
-    token?: string
-    target: 'openshift' | 'minikube' | 'kubernetes' = 'minikube'
-    deploy: boolean = false
-    build: boolean = false
-    buildConfig: boolean = false
-    uberJar: boolean = true
-    manifests: boolean = true
-    path: string = ''
-    classpathFiles: string = ''
-    routesIncludePattern: string = ''
     status: ProjectStatus = new ProjectStatus()
     properties: ProjectProperty[] = []
 
@@ -106,22 +81,5 @@ export class ProjectModel {
 
     static createNew(init?: Partial<ProjectModel>): ProjectModel {
         return new ProjectModel(init ? init : {})
-    }
-}
-
-export class Profile {
-    name: string = ''
-    project: ProjectModel = ProjectModel.createNew();
-
-    public constructor(init?: Partial<Profile>) {
-        Object.assign(this, init);
-    }
-
-    static createNew(name: string): Profile {
-        return new Profile({name: name, project: ProjectModel.createNew()})
-    }
-
-    static create(name: string, project: ProjectModel): Profile {
-        return new Profile({name: name, project: project})
     }
 }

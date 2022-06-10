@@ -3,6 +3,7 @@ import {
     CardHeader, Card, CardTitle, CardBody, CardActions, CardFooter,Badge
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
+import {KameletModel} from "karavan-core/lib/model/KameletModels";
 import {camelIcon, CamelUi} from "../designer/utils/CamelUi";
 import {Component} from "karavan-core/lib/model/ComponentModels";
 
