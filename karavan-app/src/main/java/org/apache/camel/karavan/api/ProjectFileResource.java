@@ -52,7 +52,6 @@ public class ProjectFileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public ProjectFile save(@HeaderParam("username") String username, ProjectFile file) throws Exception {
         infinispanService.saveProjectFile(file);
-        file.setCode("");
         return file;
     }
 

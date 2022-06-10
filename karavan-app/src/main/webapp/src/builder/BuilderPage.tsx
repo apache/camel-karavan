@@ -3,6 +3,7 @@ import {
     Badge,
     Button,
     Card,
+    CardActions,
     CardBody,
     CardHeader,
     CardHeaderMain,
@@ -19,6 +20,7 @@ import {
     ProgressStep,
     ProgressStepper,
     Spinner,
+    Switch, Tab, Tabs,
     Text,
     TextContent,
     TextInput,
@@ -37,6 +39,7 @@ import ProjectIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 import ClipboardIcon from '@patternfly/react-icons/dist/esm/icons/clipboard-icon';
 import RunIcon from '@patternfly/react-icons/dist/esm/icons/play-circle-icon';
 import {ProjectModel, StepStatus} from "karavan-core/lib/model/ProjectModel";
+import {ProfileSelector} from "./ProfileSelector";
 import {PropertiesTable} from "./PropertiesTable";
 
 interface Props {

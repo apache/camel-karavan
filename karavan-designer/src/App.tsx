@@ -25,7 +25,7 @@ import {KameletsPage} from "./kamelets/KameletsPage";
 import {ComponentsPage} from "./components/ComponentsPage";
 import {EipPage} from "./eip/EipPage";
 import {BuilderPage} from "./builder/BuilderPage";
-import {Profile, ProjectModel, StepStatus} from "karavan-core/lib/model/ProjectModel";
+import {ProjectModel, StepStatus} from "karavan-core/lib/model/ProjectModel";
 
 interface Props {
     page: "designer" | "kamelets" | "components" | "eip" | "builder";
@@ -123,8 +123,8 @@ class App extends React.Component<Props, State> {
         // project.properties.set("camel.main.routesIncludePattern", "file:demo.yaml")
         // project.properties.set("camel.component.properties.location", "file:application.properties")
         project.status.active = true;
-        project.status.uberJar = new StepStatus({status:"progress"});
-        project.status.build = new StepStatus({status:"progress"});
+        project.status.export = new StepStatus({status:"progress"});
+        project.status.package = new StepStatus({status:"progress"});
         return (
             <Page className="karavan">
                 {this.props.page === "designer" && <KaravanDesigner key={this.state.key} filename={this.state.name} yaml={this.state.yaml}
@@ -134,7 +134,7 @@ class App extends React.Component<Props, State> {
                 {this.props.page === "kamelets" && <KameletsPage dark={document.body.className.includes('vscode-dark')} />}
                 {this.props.page === "components" && <ComponentsPage dark={document.body.className.includes('vscode-dark')} />}
                 {this.props.page === "eip" && <EipPage dark={document.body.className.includes('vscode-dark')} />}
-                {this.props.page === "builder" && <BuilderPage dark={document.body.className.includes('vscode-dark')} profiles={[Profile.createNew("application")]}
+                {this.props.page === "builder" && <BuilderPage dark={document.body.className.includes('vscode-dark')} project={project}
                                                                onChange={project => {
                                                                    // console.log("routesIncludePattern", project.routesIncludePattern);
                                                                    // console.log("classpathFiles", project.classpathFiles);

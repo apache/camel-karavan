@@ -1,24 +1,9 @@
 import React from 'react';
 import {
-    Toolbar,
-    ToolbarContent,
-    Gallery,
-    ToolbarItem,
     TextInput,
-    PageSection,
-    TextContent,
-    Text,
-    Button, Modal, FormGroup, ModalVariant, Switch, Form, FormSelect, FormSelectOption, FileUpload, Wizard, Radio
+    Button, Modal, FormGroup, ModalVariant, Switch, Form, FileUpload, Radio
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {IntegrationCard} from "../integrations/IntegrationCard";
-import {MainToolbar} from "../MainToolbar";
-import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
-import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
-import UploadIcon from '@patternfly/react-icons/dist/esm/icons/upload-icon';
-import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
-import {CamelUi} from "../designer/utils/CamelUi";
-import {KaravanApi} from "../api/KaravanApi";
 
 interface Props {
     isOpen: boolean,

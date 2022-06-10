@@ -103,7 +103,7 @@ export class PropertiesTable extends React.Component<Props, State> {
                                 <Tr key={property.id}>
                                     <Td noPadding width={20} dataLabel="key">{this.getTextInputField(property, "key")}</Td>
                                     <Td noPadding width={10} dataLabel="value">{this.getTextInputField(property, "value")}</Td>
-                                    <Td noPadding isActionCell dataLabel="delete">
+                                    <Td noPadding isActionCell dataLabel="delete" className="action-cell">
                                         <Button variant={"plain"} icon={<DeleteIcon/>} className={"delete-button"}
                                                 onClick={event => this.startDelete(property.id)}/>
                                     </Td>

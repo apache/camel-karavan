@@ -23,33 +23,22 @@ export class ProjectModelApi {
         const lines = properties.split(/\r?\n/).filter(text => text.trim().length > 0 && !text.trim().startsWith("#"));
         const project = new ProjectModel();
 
-        project.properties = this.propertiesFromMap(this.propertiesToMap(lines));
-
-        Object.keys(project).filter(key => key !== 'properties').forEach(key => {
-            const value = (project as any)[key];
-            if ( value === undefined || value === 'undefined') delete (project as any)[key];
-        })
+        project.properties = lines.map(value => this.stringToProperty(value));
         return project;
     }
 
-    static propertiesToMap = (properties: string[]): Map<string, any> => {
-        const result = new Map<string, any>();
-        properties.forEach(line => {
-            const pair = line.split("=").map(line => line.trim());
-            result.set(pair[0], pair[1]);
-        })
-        return result;
+    static stringToProperty = (line: string): ProjectProperty => {
+        const pair = line.split("=");
+        const value = pair[1];
+        return ProjectProperty.createNew(pair[0], value);
     }
 
-    static propertiesFromMap = (properties: Map<string, any>): ProjectProperty[] =>{
-        try {
-            return Array.from(properties.keys()).map(key => {
-                let x = {id: uuidv4(), key: key, value: properties.get(key)};
-                return x;
-            });
-        } catch (err){
-            return [];
-        }
+    static propertiesToString = (properties: ProjectProperty[]): string => {
+        const result: string[] = [];
+        properties.forEach((p, key) => {
+            if (p !== undefined) result.push(p.key + "=" + p.value);
+        })
+        return result.join("\n");
     }
 
     static updateProperties = (properties: string, project: ProjectModel): string => {
@@ -64,7 +53,7 @@ export class ProjectModelApi {
     static projectToMap = (project: ProjectModel): Map<string, any> => {
         const map = new Map<string, any>();
 
-        if (project.properties && project.properties.length >0){
+        if (project.properties && project.properties.length > 0) {
             project.properties.forEach(p => map.set(p.key, p.value));
         }
         return map;

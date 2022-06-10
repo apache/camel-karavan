@@ -16,22 +16,63 @@
  */
 import {v4 as uuidv4} from "uuid";
 
+export class StepStatus {
+    status: 'pending' | 'progress' | 'done' | 'error' = 'pending';
+    startTime: number = Date.now();
+    endTime?: number;
+
+    public constructor(init?: Partial<StepStatus>) {
+        Object.assign(this, init);
+    }
+
+    static progress(): StepStatus {
+        return new StepStatus({status: "progress", startTime: Date.now()})
+    }
+
+    static done(stepStatus?: StepStatus): StepStatus | undefined {
+        if (stepStatus){
+            stepStatus.status = "done";
+            stepStatus.endTime = Date.now();
+        }
+        return stepStatus
+    }
+
+    static error(stepStatus?: StepStatus): StepStatus | undefined {
+        if (stepStatus) {
+            stepStatus.status = "error";
+            stepStatus.endTime = Date.now();
+        }
+        return stepStatus
+    }
+}
+
+export class ProjectStatus extends StepStatus{
+    export?: StepStatus;
+    package?: StepStatus;
+    active: boolean = false;
+
+    public constructor(init?: Partial<ProjectStatus>) {
+        super();
+        Object.assign(this, init);
+    }
+}
+
 export class ProjectProperty {
     id: string = ''
     key: string = ''
-    profile?: string
     value: any
 
     public constructor(init?: Partial<ProjectProperty>) {
         Object.assign(this, init);
     }
 
-    static createNew(key: string, value: any, profile?: string): ProjectProperty {
-        return new ProjectProperty({id: uuidv4(), key: key, value: value, profile: profile})
+    static createNew(key: string, value: any): ProjectProperty {
+        return new ProjectProperty({id: uuidv4(), key: key, value: value})
     }
 }
 
 export class ProjectModel {
+    status: ProjectStatus = new ProjectStatus()
     properties: ProjectProperty[] = []
 
     public constructor(init?: Partial<ProjectModel>) {
@@ -40,22 +81,5 @@ export class ProjectModel {
 
     static createNew(init?: Partial<ProjectModel>): ProjectModel {
         return new ProjectModel(init ? init : {})
-    }
-}
-
-export class Profile {
-    name: string = ''
-    project: ProjectModel = ProjectModel.createNew();
-
-    public constructor(init?: Partial<Profile>) {
-        Object.assign(this, init);
-    }
-
-    static createNew(name: string): Profile {
-        return new Profile({name: name, project: ProjectModel.createNew()})
-    }
-
-    static create(name: string, project: ProjectModel): Profile {
-        return new Profile({name: name, project: project})
     }
 }
