@@ -78,7 +78,7 @@ public class InfinispanService {
         for (int i = 0; i < 10; i++){
             String groupId = "org.apache.camel.karavan";
             String artifactId = "parcel-demo" + i;
-            Project p = new Project(groupId, artifactId, "1.0.0",  null, Project.ProjectType.values()[new Random().nextInt(3)]);
+            Project p = new Project(groupId, artifactId, "1.0.0",  null, Project.ProjectType.values()[new Random().nextInt(2)]);
             projects.put(GroupedKey.create(p.getKey(), p.getKey()), p);
 
             files.put(GroupedKey.create(p.getKey(),"new-parcels.yaml"), new ProjectFile("new-parcels.yaml", "flows:", p.getKey()));

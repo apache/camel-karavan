@@ -17,39 +17,37 @@ public class Project {
     @ProtoField(number = 4)
     String folder;
     @ProtoField(number = 5)
-    ProjectType type;
+    ProjectType runtime;
     @ProtoField(number = 6)
     String lastCommit;
 
     public enum ProjectType {
-        @ProtoEnumValue(number = 0, name = "Karavan")
-        KARAVAN,
-        @ProtoEnumValue(number = 1, name = "Quarkus")
+        @ProtoEnumValue(number = 0, name = "Quarkus")
         QUARKUS,
-        @ProtoEnumValue(number = 2, name = "Spring")
+        @ProtoEnumValue(number = 1, name = "Spring")
         SPRING
     }
 
     @ProtoFactory
-    public Project(String groupId, String artifactId, String version, String folder, ProjectType type, String lastCommit) {
+    public Project(String groupId, String artifactId, String version, String folder, ProjectType runtime, String lastCommit) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
         this.folder = folder;
-        this.type = type;
+        this.runtime = runtime;
         this.lastCommit = lastCommit;
     }
 
-    public Project(String groupId, String artifactId, String version, String folder, ProjectType type) {
+    public Project(String groupId, String artifactId, String version, String folder, ProjectType runtime) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
-        this.folder = folder != null && folder.trim().length() > 0 ? folder : toFolder(groupId, artifactId, version);
-        this.type = type;
+        this.folder = folder != null && folder.trim().length() > 0 ? folder : toFolder(artifactId, version);
+        this.runtime = runtime;
     }
 
-    private String toFolder(String groupId, String artifactId, String version){
-        String folder = toKey(groupId, artifactId, version).replaceAll("[^A-Za-z0-9 ]", "_");
+    private String toFolder(String artifactId, String version){
+        String folder = (artifactId+version).replaceAll("[^A-Za-z0-9 ]", "_");
         return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, folder);
     }
 
@@ -96,12 +94,12 @@ public class Project {
         this.folder = folder;
     }
 
-    public ProjectType getType() {
-        return type;
+    public ProjectType getRuntime() {
+        return runtime;
     }
 
-    public void setType(ProjectType type) {
-        this.type = type;
+    public void setRuntime(ProjectType runtime) {
+        this.runtime = runtime;
     }
 
     public String getLastCommit() {

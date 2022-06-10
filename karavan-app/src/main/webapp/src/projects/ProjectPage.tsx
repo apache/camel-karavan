@@ -42,6 +42,7 @@ import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 
 interface Props {
     project: Project,
+    config: any,
 }
 
 interface State {
@@ -238,6 +239,9 @@ export class ProjectPage extends React.Component<Props, State> {
 
     getProjectForm = () => {
         const project = this.state.project;
+        const environments: string[] = this.props.config.environments && Array.isArray(this.props.config.environments)
+            ? Array.from(this.props.config.environments)
+            : [];
         return (
             <Card>
                 <CardBody isFilled>
@@ -258,11 +262,13 @@ export class ProjectPage extends React.Component<Props, State> {
                                     <DescriptionListDescription>{project?.version}</DescriptionListDescription>
                                 </DescriptionListGroup>
                                 <DescriptionListGroup>
-                                    <DescriptionListTerm>Type</DescriptionListTerm>
+                                    <DescriptionListTerm>Folder</DescriptionListTerm>
+                                    <DescriptionListDescription>{project?.folder}</DescriptionListDescription>
+                                </DescriptionListGroup>
+                                <DescriptionListGroup>
+                                    <DescriptionListTerm>Runtime</DescriptionListTerm>
                                     <DescriptionListDescription>
-                                        <Tooltip content={"Folder: " + project?.folder} position={"bottom"}>
-                                            <Badge>{project?.type.toLowerCase()}</Badge>
-                                        </Tooltip>
+                                        <Badge>{project?.runtime}</Badge>
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>
                             </DescriptionList>
@@ -281,9 +287,8 @@ export class ProjectPage extends React.Component<Props, State> {
                                     <DescriptionListTerm>Deployment</DescriptionListTerm>
                                     <DescriptionListDescription>
                                         <Flex direction={{default: "row"}}>
-                                            <FlexItem><Badge isRead>dev</Badge></FlexItem>
-                                            <FlexItem><Badge isRead>test</Badge></FlexItem>
-                                            <FlexItem><Badge isRead>prod</Badge></FlexItem>
+                                            {environments.filter(e => e !== undefined)
+                                                .map(e => <FlexItem key={e}><Badge isRead>{e}</Badge></FlexItem>)}
                                         </Flex>
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>

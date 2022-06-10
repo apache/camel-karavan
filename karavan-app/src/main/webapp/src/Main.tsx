@@ -1,7 +1,6 @@
 import React from 'react';
 import {
     Page,
-    PageHeader,
     ModalVariant,
     Button,
     Modal,
@@ -10,11 +9,6 @@ import {
     Flex,
     FlexItem,
     Avatar,
-    PageHeaderTools,
-    PageHeaderToolsGroup,
-    PageHeaderToolsItem,
-    Dropdown,
-    DropdownToggle,
     Tooltip,
     Divider
 } from '@patternfly/react-core';
@@ -71,8 +65,7 @@ interface Props {
 }
 
 interface State {
-    version: string,
-    mode: 'local' | 'gitops' | 'serverless',
+    config: any,
     isNavOpen: boolean,
     pageId: string,
     projects: Project[],
@@ -88,8 +81,7 @@ interface State {
 export class Main extends React.Component<Props, State> {
 
     public state: State = {
-        version: '',
-        mode: 'local',
+        config: {},
         isNavOpen: true,
         pageId: "projects",
         projects: [],
@@ -105,8 +97,7 @@ export class Main extends React.Component<Props, State> {
     componentDidMount() {
         KaravanApi.getConfiguration((config: any) => {
             this.setState({
-                version: config?.['karavan.version'],
-                mode: config?.['karavan.mode'],
+                config: config
             })
         });
         KaravanApi.getKameletNames(names => names.forEach(name => {
@@ -131,45 +122,7 @@ export class Main extends React.Component<Props, State> {
         this.setState({
             pageId: result.itemId,
         });
-    };
-
-    toolBar = (version: string) => (
-        <div className="top-toolbar">
-            <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentSpaceBetween"}}
-                  style={{width: "100%"}}>
-                <FlexItem style={{marginTop: "auto", marginBottom: "auto"}}>
-                    <PageHeaderTools>
-                        <PageHeaderToolsGroup>
-                            <PageHeaderToolsItem>
-                                <Avatar src={avatarImg} alt="avatar" border="dark"/>
-                            </PageHeaderToolsItem>
-                            <PageHeaderToolsItem>
-                                <Dropdown
-                                    isPlain
-                                    position="right"
-                                    onSelect={event => {
-                                    }}
-                                    isOpen={false}
-                                    toggle={<DropdownToggle onToggle={isOpen => {
-                                    }}>cameleer</DropdownToggle>}
-                                    // dropdownItems={userDropdownItems}
-                                />
-                            </PageHeaderToolsItem>
-                        </PageHeaderToolsGroup>
-                    </PageHeaderTools>
-                </FlexItem>
-            </Flex>
-        </div>
-    )
-
-    header = (version: string) => (
-        <PageHeader className="page-header"
-                    onNavToggle={this.onNavToggle}
-                    showNavToggle
-                    logo={Icon()}
-                    headerTools={this.toolBar(version)}
-        />
-    )
+    }
 
     pageNav = () => {
         const pages: MenuItem[] = [
@@ -183,12 +136,12 @@ export class Main extends React.Component<Props, State> {
         ]
         return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height:"100%"}} spaceItems={{default:"spaceItemsNone"}}>
             <FlexItem alignSelf={{default:"alignSelfCenter"}}>
-                <Tooltip content={"Apache Camel Karavan"} position={"right"}>
+                <Tooltip content={"Apache Camel Karavan " + this.state.config.version} position={"right"}>
                     {Icon()}
                 </Tooltip>
             </FlexItem>
             {pages.map(page =>
-                <FlexItem className={this.state.pageId === page.pageId ? "nav-button-selected" : ""}>
+                <FlexItem key={page.pageId} className={this.state.pageId === page.pageId ? "nav-button-selected" : ""}>
                     <Tooltip content={page.tooltip} position={"right"}>
                         <Button id={page.pageId} icon={page.icon} variant={"plain"}
                                 className={this.state.pageId === page.pageId ? "nav-button-selected" : ""}
@@ -267,13 +220,14 @@ export class Main extends React.Component<Props, State> {
                         {this.state.pageId === 'projects' &&
                             <ProjectsPage key={this.state.request}
                                           projects={this.state.projects}
+                                          config={this.state.config}
                                           onDelete={this.onProjectDelete}
                                           onSelect={this.onProjectSelect}
                                           onRefresh={() => {
                                               this.onGetProjects();
                                           }}
                                           onCreate={this.onProjectCreate}/>}
-                        {this.state.pageId === 'project' && this.state.project && <ProjectPage project={this.state.project}/>}
+                        {this.state.pageId === 'project' && this.state.project && <ProjectPage project={this.state.project} config={this.state.config}/>}
                         {this.state.pageId === 'configuration' && <ConfigurationPage/>}
                         {this.state.pageId === 'kamelets' && <KameletsPage dark={false}/>}
                         {this.state.pageId === 'components' && <ComponentsPage dark={false}/>}

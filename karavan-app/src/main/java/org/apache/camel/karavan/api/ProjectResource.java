@@ -82,7 +82,7 @@ public class ProjectResource {
     public Project copy(@HeaderParam("username") String username, @PathParam("sourceProject") String sourceProject, Project project) throws Exception {
 //        Save project
         Project s = infinispanService.getProject(sourceProject);
-        project.setType(s.getType());
+        project.setRuntime(s.getRuntime());
         infinispanService.saveProject(project);
 
 //        Copy files
