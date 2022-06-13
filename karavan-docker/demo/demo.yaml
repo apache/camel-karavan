@@ -6,4 +6,4 @@
             message: ${body}
       parameters:
         period: 2000
-        message: Hello World
+        message: '{{message}}'

@@ -17,11 +17,11 @@ public class Project {
     @ProtoField(number = 4)
     String folder;
     @ProtoField(number = 5)
-    ProjectType runtime;
+    Project.CamelRuntime runtime;
     @ProtoField(number = 6)
     String lastCommit;
 
-    public enum ProjectType {
+    public enum CamelRuntime {
         @ProtoEnumValue(number = 0, name = "Quarkus")
         QUARKUS,
         @ProtoEnumValue(number = 1, name = "Spring")
@@ -29,7 +29,7 @@ public class Project {
     }
 
     @ProtoFactory
-    public Project(String groupId, String artifactId, String version, String folder, ProjectType runtime, String lastCommit) {
+    public Project(String groupId, String artifactId, String version, String folder, CamelRuntime runtime, String lastCommit) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
@@ -38,7 +38,7 @@ public class Project {
         this.lastCommit = lastCommit;
     }
 
-    public Project(String groupId, String artifactId, String version, String folder, ProjectType runtime) {
+    public Project(String groupId, String artifactId, String version, String folder, CamelRuntime runtime) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
@@ -94,11 +94,11 @@ public class Project {
         this.folder = folder;
     }
 
-    public ProjectType getRuntime() {
+    public CamelRuntime getRuntime() {
         return runtime;
     }
 
-    public void setRuntime(ProjectType runtime) {
+    public void setRuntime(CamelRuntime runtime) {
         this.runtime = runtime;
     }
 

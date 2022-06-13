@@ -54,6 +54,8 @@ public class GeneratorService {
 
     public String getDefaultApplicationProperties(Project project){
         StringBuilder s = new StringBuilder();
+        s.append("camel.jbang.gav=").append(project.getKey()).append(System.lineSeparator());
+        s.append("camel.jbang.runtime=").append(project.getRuntime().name().toLowerCase()).append(System.lineSeparator());
         s.append("quarkus.container-image.group=").append(project.getGroupId()).append(System.lineSeparator());
         s.append("quarkus.container-image.name=").append(project.getArtifactId()).append(System.lineSeparator());
         s.append("quarkus.container-image.tag=").append(project.getVersion()).append(System.lineSeparator());
