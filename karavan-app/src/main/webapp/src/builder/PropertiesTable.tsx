@@ -102,15 +102,15 @@ export class PropertiesTable extends React.Component<Props, State> {
                             {properties.map((property, idx: number) => {
                                 const readOnly = ["camel.jbang.gav", "camel.jbang.runtime"].includes(property.key);
                                 return (
-                                <Tr key={property.id}>
-                                    <Td noPadding width={20} dataLabel="key">{this.getTextInputField(property, "key", readOnly)}</Td>
-                                    <Td noPadding width={10} dataLabel="value">{this.getTextInputField(property, "value", readOnly)}</Td>
-                                    <Td noPadding isActionCell dataLabel="delete">
-                                        {!readOnly && <Button variant={"plain"} icon={<DeleteIcon/>} className={"delete-button"}
-                                                 onClick={event => this.startDelete(property.id)}/>}
-                                    </Td>
-                                </Tr>
-                            )})}
+                                    <Tr key={property.id}>
+                                        <Td noPadding width={20} dataLabel="key">{this.getTextInputField(property, "key", readOnly)}</Td>
+                                        <Td noPadding width={10} dataLabel="value">{this.getTextInputField(property, "value", readOnly)}</Td>
+                                        <Td noPadding isActionCell dataLabel="delete">
+                                            {!readOnly && <Button variant={"plain"} icon={<DeleteIcon/>} className={"delete-button"}
+                                                                  onClick={event => this.startDelete(property.id)}/>}
+                                        </Td>
+                                    </Tr>
+                                )})}
                         </Tbody>
                     </TableComposable>}
                 <Panel>

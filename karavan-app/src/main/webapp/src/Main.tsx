@@ -136,7 +136,7 @@ export class Main extends React.Component<Props, State> {
         ]
         return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height:"100%"}} spaceItems={{default:"spaceItemsNone"}}>
             <FlexItem alignSelf={{default:"alignSelfCenter"}}>
-                <Tooltip content={"Apache Camel Karavan " + this.state.config.version} position={"right"}>
+                <Tooltip className="logo-tooltip" content={"Apache Camel Karavan " + this.state.config.version} position={"right"}>
                     {Icon()}
                 </Tooltip>
             </FlexItem>
