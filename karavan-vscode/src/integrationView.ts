@@ -14,40 +14,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as vscode from "vscode";
+import { workspace, TreeDataProvider, EventEmitter, Event, TreeItem, ProviderResult, Command, ThemeIcon, TreeItemCollapsibleState } from "vscode";
 import * as path from "path";
 import * as utils from "./utils";
-import * as fs from "fs";
 import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
 import { DesignerView } from "./designerView";
 import { Integration } from "karavan-core/lib/model/IntegrationDefinition";
 
-export class IntegrationView implements vscode.TreeDataProvider<IntegrationItem> {
+export class IntegrationView implements TreeDataProvider<IntegrationItem> {
 
 	constructor(private designer: DesignerView, private rootPath: string | undefined) {
 
 	}
-	private _onDidChangeTreeData: vscode.EventEmitter<IntegrationItem | undefined | void> = new vscode.EventEmitter<IntegrationItem | undefined | void>();
-	readonly onDidChangeTreeData: vscode.Event<IntegrationItem | undefined | void> = this._onDidChangeTreeData.event;
+	private _onDidChangeTreeData: EventEmitter<IntegrationItem | undefined | void> = new EventEmitter<IntegrationItem | undefined | void>();
+	readonly onDidChangeTreeData: Event<IntegrationItem | undefined | void> = this._onDidChangeTreeData.event;
 
-	getTreeItem(element: IntegrationItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
+	getTreeItem(element: IntegrationItem): TreeItem | Thenable<TreeItem> {
 		return element;
 	}
-	getChildren(element?: IntegrationItem): vscode.ProviderResult<IntegrationItem[]> {
-		const integrations: IntegrationItem[] = [];
+	getChildren(element?: IntegrationItem): ProviderResult<IntegrationItem[]> {
 		if (element === undefined && this.rootPath) {
-			utils.getIntegrationFiles(this.rootPath).forEach(f => {
-				const yaml = fs.readFileSync(path.resolve(f)).toString('utf8');
-				const filename = path.basename(f);
-				const i = CamelDefinitionYaml.yamlToIntegration(filename, yaml);
-				integrations.push(new IntegrationItem(i.metadata.name, f, i.crd ? "CRD" : "", i, { command: 'karavan.open', title: '', arguments: [{ fsPath: f }] }));
-			})
+			return this.getIntegrations(this.rootPath);
 		} else if (element && element.integration) {
+			const integrations: IntegrationItem[] = [];
 			element.integration.spec.flows?.forEach(f => {
 				integrations.push(new IntegrationItem(f.dslName.replace("Definition", ""), "", f.id, undefined, undefined));
 			})
+			return integrations;
 		}
-		return Promise.resolve(integrations);
+		return Promise.resolve([]);
+	}
+
+	async getIntegrations(dir: string) {
+		const result:IntegrationItem[] = []
+		const files = await utils.getYamlFiles(dir);
+		for (let x in files){
+			const filename = files[x];
+			const readData = await utils.readFile(path.resolve(filename));
+			const yaml = Buffer.from(readData).toString('utf8');
+			if (!filename.startsWith(dir + path.sep + "target") && CamelDefinitionYaml.yamlIsIntegration(yaml)){
+				const basename = path.basename(filename);
+				const i = CamelDefinitionYaml.yamlToIntegration(basename, yaml);
+				result.push(new IntegrationItem(i.metadata.name, filename, i.crd ? "CRD" : "", i, { command: 'karavan.open', title: '', arguments: [{ fsPath: filename }] }));
+			}
+			
+		}
+		return result;
 	}
 
 	refresh(): void {
@@ -55,23 +67,23 @@ export class IntegrationView implements vscode.TreeDataProvider<IntegrationItem>
 	}
 }
 
-export class IntegrationItem extends vscode.TreeItem {
+export class IntegrationItem extends TreeItem {
 
 	constructor(
 		public readonly title: string,
 		public readonly fsPath: string,
 		public readonly description: string,
 		public readonly integration?: Integration,
-		public readonly command?: vscode.Command
+		public readonly command?: Command
 	) {
-		super(title, integration ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None);
+		super(title, integration ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
 		this.tooltip = this.fsPath;
 	}
 
 	iconPath = this.integration ? {
 		light: path.join(__filename, '..', '..', 'icons', 'light', this.integration?.crd ? 'crd.svg' : 'karavan.svg'),
 		dark: path.join(__filename, '..', '..', 'icons', 'dark', this.integration?.crd ? 'crd.svg' : 'karavan.svg')
-	} : vscode.ThemeIcon.File;
+	} : ThemeIcon.File;
 
 	contextValue = this.integration ? 'integration' : "route";
 }

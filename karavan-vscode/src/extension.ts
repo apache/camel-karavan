@@ -14,82 +14,104 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import vscode, { window } from 'vscode';
-import * as fs from "fs";
+import { ExtensionContext, Uri, window, workspace, commands } from 'vscode';
 import { DesignerView } from "./designerView";
 import { IntegrationView } from "./integrationView";
 import { HelpView } from "./helpView";
 import { selectFileName, inputFileName, OpenApiView, OpenApiItem } from "./openapiView";
 import * as path from "path";
-import * as commands from "./commands";
+import * as jbang from "./jbang";
 import * as utils from "./utils";
+import * as fs from "fs";
 
 const KARAVAN_LOADED = "karavan:loaded";
 
-export function activate(context: vscode.ExtensionContext) {
-    const webviewContent = fs
-        .readFileSync(
-            vscode.Uri.joinPath(context.extensionUri, "dist/index.html").fsPath,
-            { encoding: "utf-8" }
-        )
-        .replace(
-            "styleUri",
-            vscode.Uri.joinPath(context.extensionUri, "/dist/main.css")
-                .with({ scheme: "vscode-resource" })
-                .toString()
-        )
-        .replace(
-            "scriptUri",
-            vscode.Uri.joinPath(context.extensionUri, "/dist/webview.js")
-                .with({ scheme: "vscode-resource" })
-                .toString()
-        );
-
-    const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
-        ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+export function activate(context: ExtensionContext) {
+    const webviewContent = `<!DOCTYPE html>
+    <html lang="en">
+    
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <link href="styleUri" rel="stylesheet" type="text/css" />
+    </head>
+    
+    <body>
+      <noscript>You need to enable JavaScript to run this app.</noscript>
+      <div id="root">
+        <div class="pf-c-page karavan">
+          <main class="pf-c-page__main" tabindex="-1">
+            <section class="pf-c-page__main-section pf-m-dark-200 loading-page"><svg
+                class="pf-c-spinner pf-m-xl progress-stepper" role="progressbar" aria-valuetext="Loading..."
+                viewBox="0 0 100 100" style="--pf-c-spinner--diameter:80px" aria-label="Loading...">
+                <circle class="pf-c-spinner__path" cx="50" cy="50" r="45" fill="none"></circle>
+              </svg></section>
+          </main>
+        </div>
+      </div>
+      <script>
+      </script>
+      <script src="scriptUri"></script>
+    </body>
+    
+    </html>`
+            .replace(
+                "styleUri",
+                Uri.joinPath(context.extensionUri, "/dist/main.css")
+                    .with({ scheme: "vscode-resource" })
+                    .toString()
+            )
+            .replace(
+                "scriptUri",
+                Uri.joinPath(context.extensionUri, "/dist/webview.js")
+                    .with({ scheme: "vscode-resource" })
+                    .toString()
+            );
+    const rootPath = (workspace.workspaceFolders && (workspace.workspaceFolders.length > 0))
+        ? workspace.workspaceFolders[0].uri.fsPath : undefined;
 
     // Register views    
     const designer = new DesignerView(context, webviewContent, rootPath);
 
     const integrationView = new IntegrationView(designer, rootPath);
-    vscode.window.registerTreeDataProvider('integrations', integrationView);
-    vscode.commands.registerCommand('integrations.refresh', () => integrationView.refresh());
+    window.registerTreeDataProvider('integrations', integrationView);
+    commands.registerCommand('integrations.refresh', () => integrationView.refresh());
 
     const openapiView = new OpenApiView(designer, rootPath);
-    vscode.window.registerTreeDataProvider('openapi', openapiView);
-    vscode.commands.registerCommand('openapi.refresh', () => openapiView.refresh());
+    window.registerTreeDataProvider('openapi', openapiView);
+    commands.registerCommand('openapi.refresh', () => openapiView.refresh());
 
     const helpView = new HelpView(context, webviewContent);
-    vscode.window.registerTreeDataProvider('help', helpView);
-    vscode.commands.registerCommand('karavan.openKamelets', () => helpView.openKaravanWebView("kamelets"));
-    vscode.commands.registerCommand('karavan.openComponents', () => helpView.openKaravanWebView("components"));
-    vscode.commands.registerCommand('karavan.openEip', () => helpView.openKaravanWebView("eip"));
+    window.registerTreeDataProvider('help', helpView);
+    commands.registerCommand('karavan.openKamelets', () => helpView.openKaravanWebView("kamelets"));
+    commands.registerCommand('karavan.openComponents', () => helpView.openKaravanWebView("components"));
+    commands.registerCommand('karavan.openEip', () => helpView.openKaravanWebView("eip"));
 
     // Create new Integration CRD command
-    const createCrd = vscode.commands.registerCommand("karavan.create-crd", (...args: any[]) => {
+    const createCrd = commands.registerCommand("karavan.create-crd", (...args: any[]) => {
         if (args.length > 0) designer.createIntegration(true, args[0].fsPath)
         else designer.createIntegration(true, rootPath)
     });
     context.subscriptions.push(createCrd);
 
     // Create new Integration YAML command
-    const createYaml = vscode.commands.registerCommand("karavan.create-yaml", (...args: any[]) => designer.createIntegration(false, args[0].fsPath));
+    const createYaml = commands.registerCommand("karavan.create-yaml", (...args: any[]) => designer.createIntegration(false, args[0].fsPath));
     context.subscriptions.push(createYaml);
 
     // Open integration in designer command
-    const open = vscode.commands.registerCommand("karavan.open", (...args: any[]) => designer.karavanOpen(args[0].fsPath, args[0].tab));
+    const open = commands.registerCommand("karavan.open", (...args: any[]) => designer.karavanOpen(args[0].fsPath, args[0].tab));
     context.subscriptions.push(open);
 
     // Open integration in editor command
-    const openFile = vscode.commands.registerCommand("karavan.open-file", (...args: any[]) => {
-        let uri = vscode.Uri.file(args[0].fsPath);
-        vscode.window.showTextDocument(uri, { preserveFocus: false, preview: false });
+    const openFile = commands.registerCommand("karavan.open-file", (...args: any[]) => {
+        let uri = Uri.file(args[0].fsPath);
+        window.showTextDocument(uri, { preserveFocus: false, preview: false });
     });
     context.subscriptions.push(openFile);
 
     // Export to Quarkus or Spring
     const exportOptions = ["Quarkus", "Spring"];
-    const exportCommand = vscode.commands.registerCommand("karavan.jbang-export", (...args: any[]) => {
+    const exportCommand = commands.registerCommand("karavan.jbang-export", (...args: any[]) => {
         window.showQuickPick(exportOptions, { title: "Select Runtime", canPickMany: false }).then((value) => {
             if (value) inputExportFolder(value, rootPath);
         })
@@ -97,28 +119,29 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(exportCommand);
 
     // Run Integration in designer command
-    const run = vscode.commands.registerCommand("karavan.jbang-run-file", (...args: any[]) => designer.jbangRun(args[0].fsPath));
+    const run = commands.registerCommand("karavan.jbang-run-file", (...args: any[]) => designer.jbangRun(args[0].fsPath));
     context.subscriptions.push(run);
 
     // Run project
-    const runProjectCommand = vscode.commands.registerCommand("karavan.jbang-run-project", (...args: any[]) => {
+    const runProjectCommand = commands.registerCommand("karavan.jbang-run-project", (...args: any[]) => {
         console.log("RUN PROJECT")
-        const profiles = utils.getProfiles(rootPath);
-        console.log("profiles", profiles)
-        if (profiles && profiles.length > 0) {
-            profiles.push("Default");
-            window.showQuickPick(profiles, { title: "Select Profile", canPickMany: false }).then((value) => {
-                if (value && rootPath) commands.camelJbangRun(rootPath, value !== "Default" ? value : undefined);
-            })
-        } else {
-            if (rootPath) commands.camelJbangRun(rootPath);
-        }
+        utils.getProfiles(rootPath).then(profiles => {
+            console.log("profiles", profiles)
+            if (profiles && profiles.length > 0) {
+                profiles.push("Default");
+                window.showQuickPick(profiles, { title: "Select Profile", canPickMany: false }).then((value) => {
+                    if (value && rootPath) jbang.camelJbangRun(rootPath, value !== "Default" ? value : undefined);
+                })
+            } else {
+                if (rootPath) jbang.camelJbangRun(rootPath);
+            }
+        })
     });
     context.subscriptions.push(runProjectCommand);
 
     // Generate RST API from OpenAPI specification command
     const generateOptions = ["Create new CRD", "Create new YAML", "Add to existing file"];
-    const generateRest = vscode.commands.registerCommand('karavan.generate-rest', async (...args: any[]) => {
+    const generateRest = commands.registerCommand('karavan.generate-rest', async (...args: any[]) => {
         const openApi: OpenApiItem = args[0];
         window.showQuickPick(generateOptions, { title: "Select REST Generator options", canPickMany: false }).then((value) => {
             switch (value) {
@@ -131,8 +154,8 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(generateRest);
 
     // Create issue command
-    vscode.commands.registerCommand('karavan.reportIssue', () => {
-        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://github.com/apache/camel-karavan/issues/new?title=[VS+Code]New+report&template=issue_template.md'));
+    commands.registerCommand('karavan.reportIssue', () => {
+        commands.executeCommand('open', Uri.parse('https://github.com/apache/camel-karavan/issues/new?title=[VS+Code]New+report&template=issue_template.md'));
     });
 }
 
@@ -140,7 +163,7 @@ export function activate(context: vscode.ExtensionContext) {
  * export into folder
  */
 export async function inputExportFolder(runtime: string, rootPath?: string) {
-    vscode.window.showInputBox({
+    window.showInputBox({
         title: "Export project with " + runtime,
         ignoreFocusOut: true,
         prompt: "Export folder name",
@@ -163,7 +186,7 @@ export async function inputExportFolder(runtime: string, rootPath?: string) {
  * export with gav
  */
 export async function inputExportGav(runtime: string, folder: string) {
-    vscode.window.showInputBox({
+    window.showInputBox({
         title: "Export project with " + runtime,
         ignoreFocusOut: true,
         prompt: "groupId:artifactId:version",
@@ -176,13 +199,13 @@ export async function inputExportGav(runtime: string, folder: string) {
         }
     }).then(gav => {
         if (gav) {
-            commands.camelJbangExport(runtime.toLowerCase(), folder, gav);
+            jbang.camelJbangExport(runtime.toLowerCase(), folder, gav);
         }
     });
 }
 
 export function deactivate() {
-    vscode.commands.executeCommand("setContext", KARAVAN_LOADED, false);
+    commands.executeCommand("setContext", KARAVAN_LOADED, false);
 }
 
 

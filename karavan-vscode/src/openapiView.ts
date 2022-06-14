@@ -14,40 +14,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import vscode, { window } from "vscode";
+import { Command, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window, Event } from "vscode";
 import * as path from "path";
 import * as utils from "./utils";
-import * as commands from "./commands";
-import * as fs from "fs";
+import * as jbang from "./jbang";
 import { ThemeIcon } from "vscode";
-import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
 import { DesignerView } from "./designerView";
-import { Integration } from "karavan-core/lib/model/IntegrationDefinition";
 
-export class OpenApiView implements vscode.TreeDataProvider<OpenApiItem> {
+export class OpenApiView implements TreeDataProvider<OpenApiItem> {
 
 	constructor(private designer: DesignerView, private rootPath: string | undefined) {
 
 	}
-	private _onDidChangeTreeData: vscode.EventEmitter<OpenApiItem | undefined | void> = new vscode.EventEmitter<OpenApiItem | undefined | void>();
-	readonly onDidChangeTreeData: vscode.Event<OpenApiItem | undefined | void> = this._onDidChangeTreeData.event;
+	private _onDidChangeTreeData: EventEmitter<OpenApiItem | undefined | void> = new EventEmitter<OpenApiItem | undefined | void>();
+	readonly onDidChangeTreeData: Event<OpenApiItem | undefined | void> = this._onDidChangeTreeData.event;
 
-	getTreeItem(element: OpenApiItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
+	getTreeItem(element: OpenApiItem): TreeItem | Thenable<TreeItem> {
 		return element;
 	}
-	getChildren(element?: OpenApiItem): vscode.ProviderResult<OpenApiItem[]> {
-		const openapis: OpenApiItem[] = [];
+	getChildren(element?: OpenApiItem): ProviderResult<OpenApiItem[]> {
 		if (this.rootPath) {
-			utils.getJsonFiles(this.rootPath).forEach(f => {
-				const json = fs.readFileSync(path.resolve(f)).toString('utf8');
-				const api = JSON.parse(json);
-				if (api.openapi) {
-					const filename = path.basename(f);
-					openapis.push(new OpenApiItem(filename, f, api?.info?.title, { command: 'karavan.open-file', title: 'Open file', arguments: [{ fsPath: f }] }));
-				}
-			})
+			return this.getOpenApiItems(this.rootPath);
+		} else {
+			return Promise.resolve([]);
 		}
-		return Promise.resolve(openapis);
+	}
+
+	async getOpenApiItems(dir: string) {
+		const result:OpenApiItem[] = []
+		const files = await utils.getJsonFiles(dir);
+		for (let x in files){
+			const filename = files[x];
+			const readData = await utils.readFile(path.resolve(filename));
+			const json = Buffer.from(readData).toString('utf8');
+			const api = JSON.parse(json);
+			if (api.openapi) {
+				const basename = path.basename(filename);
+				result.push(new OpenApiItem(basename, filename, api?.info?.title, { command: 'karavan.open-file', title: 'Open file', arguments: [{ fsPath: filename }] }));
+			}
+		}
+		return result;
 	}
 
 	refresh(): void {
@@ -55,15 +61,15 @@ export class OpenApiView implements vscode.TreeDataProvider<OpenApiItem> {
 	}
 }
 
-export class OpenApiItem extends vscode.TreeItem {
+export class OpenApiItem extends TreeItem {
 
 	constructor(
 		public readonly title: string,
 		public readonly fsPath: string,
 		public readonly description: string,
-		public readonly command?: vscode.Command
+		public readonly command?: Command
 	) {
-		super(title, vscode.TreeItemCollapsibleState.None);
+		super(title, TreeItemCollapsibleState.None);
 		this.tooltip = this.fsPath;
 	}
 
@@ -82,7 +88,7 @@ export async function selectRouteGeneration(rootPath: string, openApiFullPath: s
 		placeHolder: 'Select option',
 	}).then(option => {
 		const generateRoutes: boolean = option !== undefined && option === options[0];
-		commands.camelJbangGenerate(rootPath, openApiFullPath, fullPath, add, crd, generateRoutes);
+		jbang.camelJbangGenerate(rootPath, openApiFullPath, fullPath, add, crd, generateRoutes);
 	});
 }
 
@@ -107,7 +113,7 @@ export async function selectFileName(rootPath?: string, openApi?: OpenApiItem) {
  * Create new file and add REST API
  */
 export async function inputFileName(crd: boolean, rootPath?: string, openApi?: OpenApiItem) {
-	vscode.window.showInputBox({
+	window.showInputBox({
 		title: "Generate REST API from " + openApi?.title,
 		ignoreFocusOut: true,
 		prompt: "Integration file name",
