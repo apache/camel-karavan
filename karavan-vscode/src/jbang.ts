@@ -14,40 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as vscode from "vscode";
-import * as fs from "fs";
+import { workspace, window, Terminal } from "vscode";
 import * as path from "path";
 import * as shell from 'shelljs';
 import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
-import { ProjectModel } from "karavan-core/lib/model/ProjectModel";
+import * as utils from "./utils";
 
-const TERMINALS: Map<string, vscode.Terminal> = new Map<string, vscode.Terminal>();
+const TERMINALS: Map<string, Terminal> = new Map<string, Terminal>();
 
-export function camelJbangGenerate(rootPath: string, openApiFullPath: string, fullPath: string, add: boolean, crd?: boolean, generateRoutes?: boolean) {
+export async function camelJbangGenerate(rootPath: string, openApiFullPath: string, fullPath: string, add: boolean, crd?: boolean, generateRoutes?: boolean) {
     let command = prepareCommand("generate rest -i " + openApiFullPath, "application"); // TODO: set profile configurable
     if (generateRoutes === true) command = command + " --routes";
     executeJbangCommand(rootPath, command, (code, stdout, stderr) => {
         console.log('Exit code:', code);
         if (code === 0) {
-            // console.log('Program output:', stdout);
             const filename = path.basename(fullPath);
             let yaml;
             if (add) {
-                const camelYaml = fs.readFileSync(path.resolve(fullPath)).toString('utf8');
-                yaml = createYaml(filename, stdout, camelYaml, undefined);
+                utils.readFile(fullPath).then(readData => {
+                    const camelYaml = Buffer.from(readData).toString('utf8');
+                    yaml = createYaml(filename, stdout, camelYaml, undefined);
+                    utils.write(fullPath, yaml);
+                });
             } else {
                 yaml = createYaml(filename, stdout, undefined, crd);
+                utils.write(fullPath, yaml);
             }
-            const uriFile: vscode.Uri = vscode.Uri.file(fullPath);
-            fs.writeFile(uriFile.fsPath, yaml, err => {
-                if (err) vscode.window.showErrorMessage("Error: " + err?.message);
-                else {
-                    vscode.commands.executeCommand('integrations.refresh')
-                        .then(x => vscode.commands.executeCommand('karavan.open', { fsPath: fullPath, tab: 'rest' }));
-                }
-            });
         } else {
-            vscode.window.showErrorMessage(stderr);
+            window.showErrorMessage(stderr);
         }
     });
 }
@@ -78,33 +72,33 @@ export function cacheClear(rootPath: string, callback: (code: number) => any) {
 }
 
 function prepareCommand(command: string, profile?: string): string {
-    const version = vscode.workspace.getConfiguration().get("camel.version");
+    const version = workspace.getConfiguration().get("camel.version");
     const p = profile ? " --profile " + profile : "";
     return "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel " + command + p;
 }
 
 export function camelJbangRun(rootPath: string, profile?: string, filename?: string) {
-    const maxMessages: number = vscode.workspace.getConfiguration().get("camel.maxMessages") || -1;
-    const cmd = (filename ? "run " + filename : "run * " ) + (maxMessages > -1 ? " --max-messages=" + maxMessages : "");
+    const maxMessages: number = workspace.getConfiguration().get("camel.maxMessages") || -1;
+    const cmd = (filename ? "run " + filename : "run * ") + (maxMessages > -1 ? " --max-messages=" + maxMessages : "");
     const command = prepareCommand(cmd, profile);
     const terminalId = "run_" + profile + "_" + filename;
     const existTerminal = TERMINALS.get(terminalId);
     if (existTerminal) existTerminal.dispose();
-    const terminal = vscode.window.createTerminal('Camel run: ' + filename ? filename : "project");
+    const terminal = window.createTerminal('Camel run: ' + filename ? filename : "project");
     TERMINALS.set(terminalId, terminal);
     terminal.show();
     terminal.sendText(command);
 }
 
 export function camelJbangExport(runtime: string, directory: string, gav: string) {
-    const cmd = "export " + runtime 
-            + (directory !== undefined ? " --directory="+directory : "")
-            + (gav !== undefined ? " --gav=" + gav : "");
+    const cmd = "export " + runtime
+        + (directory !== undefined ? " --directory=" + directory : "")
+        + (gav !== undefined ? " --gav=" + gav : "");
     const command = prepareCommand(cmd);
     const terminalId = "export " + runtime;
     const existTerminal = TERMINALS.get(terminalId);
     if (existTerminal) existTerminal.dispose();
-    const terminal = vscode.window.createTerminal('Camel export');
+    const terminal = window.createTerminal('Camel export');
     TERMINALS.set(terminalId, terminal);
     terminal.show();
     terminal.sendText(command);
@@ -120,12 +114,12 @@ function executeJbangCommand(rootPath: string, command: string, callback: (code:
             if (code === 0) {
                 // vscode.window.showInformationMessage(stdout);
             } else {
-                vscode.window.showErrorMessage(stderr);
+                window.showErrorMessage(stderr);
             }
             callback(code, stdout, stderr);
         });
     } else {
-        vscode.window.showErrorMessage("JBang not found!");
+        window.showErrorMessage("JBang not found!");
     }
 }
 

@@ -14,56 +14,61 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as vscode from "vscode";
-import * as fs from "fs";
 import * as path from "path";
-import * as shell from 'shelljs';
+import { workspace, Uri, window, ExtensionContext, FileType} from "vscode";
 import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
-import { ProjectModel } from "karavan-core/lib/model/ProjectModel";
 import { ProjectModelApi } from "karavan-core/lib/api/ProjectModelApi";
 
 export function save(relativePath: string, text: string) {
-    if (vscode.workspace.workspaceFolders) {
-        const uriFolder: vscode.Uri = vscode.workspace.workspaceFolders[0].uri;
-        const uriFile: vscode.Uri = vscode.Uri.file(path.join(uriFolder.path, relativePath));
-        fs.writeFile(uriFile.fsPath, text, err => {
-            if (err) vscode.window.showErrorMessage("Error: " + err?.message);
-        });
+    if (workspace.workspaceFolders) {
+        const uriFolder: Uri = workspace.workspaceFolders[0].uri;
+        write(path.join(uriFolder.path, relativePath), text);
     }
 }
 
 export function deleteFile(fullPath: string) {
-    if (vscode.workspace.workspaceFolders) {
-        fs.rmSync(path.resolve(fullPath));
+    if (workspace.workspaceFolders) {
+        const uriFile: Uri = Uri.file(path.resolve(fullPath));
+        workspace.fs.delete(uriFile);
     }
 }
 
 export function getRalativePath(fullPath: string): string {
-    const root = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.path : "";
-    const normalizedRoot = vscode.Uri.file(root).fsPath;
+    const root = workspace.workspaceFolders ? workspace.workspaceFolders[0].uri.path : "";
+    const normalizedRoot = Uri.file(root).fsPath;
     const relativePath = path.resolve(fullPath).replace(normalizedRoot + path.sep, '');
     return relativePath;
 }
 
-export function readKamelets(context: vscode.ExtensionContext): string[] {
+export async function readKamelets(context: ExtensionContext) {
     const dir = path.join(context.extensionPath, 'kamelets');
-    const yamls: string[] = fs.readdirSync(dir).filter(file => file.endsWith("yaml")).map(file => fs.readFileSync(dir + "/" + file, 'utf-8'));
-    try {
-        const kameletsPath: string | undefined = vscode.workspace.getConfiguration().get("Karavan.kameletsPath");
-        if (kameletsPath && kameletsPath.trim().length > 0) {
-            const kameletsDir = path.isAbsolute(kameletsPath) ? kameletsPath : path.resolve(kameletsPath);
-            const customKamelets: string[] = fs.readdirSync(kameletsDir).filter(file => file.endsWith("yaml")).map(file => fs.readFileSync(kameletsDir + "/" + file, 'utf-8'));
-            if (customKamelets && customKamelets.length > 0) yamls.push(...customKamelets);
-        }
-    } catch (e) {
-
+    const yamls: string[] = await readFilesInDirByExtension(dir, "yaml");
+    const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
+    if (kameletsPath && kameletsPath.trim().length > 0) {
+        const kameletsDir = path.isAbsolute(kameletsPath) ? kameletsPath : path.resolve(kameletsPath);
+        const customKamelets: string[] = await readFilesInDirByExtension(kameletsDir, "yaml");
+        if (customKamelets && customKamelets.length > 0) yamls.push(...customKamelets);
     }
     return yamls;
 }
 
-export function readComponents(context: vscode.ExtensionContext): string[] {
+async function readFilesInDirByExtension(dir: string, extension: string) {
+    const result: string[] = [];
+    const dirs: [string, FileType][] = await readDirectory(dir);
+    for (let d in dirs) {
+        const filename = dirs[d][0];
+        if (filename.endsWith(extension)){
+            const file = await readFile(dir + "/" + filename);
+            const code = Buffer.from(file).toString('utf8');
+            result.push(code);
+        }
+    }
+    return result;
+}
+
+export async function readComponents(context: ExtensionContext) {
     const dir = path.join(context.extensionPath, 'components');
-    const jsons: string[] = fs.readdirSync(dir).filter(file => file.endsWith("json")).map(file => fs.readFileSync(dir + "/" + file, 'utf-8'));
+    const jsons: string[] = await readFilesInDirByExtension(dir, "json");
     return jsons;
 }
 
@@ -77,7 +82,7 @@ export function parceYaml(filename: string, yaml: string): [boolean, string?] {
 }
 
 export function disableStartHelp() {
-    const config = vscode.workspace.getConfiguration();
+    const config = workspace.getConfiguration();
     config.update("Karavan.showStartHelp", false);
 }
 
@@ -91,60 +96,98 @@ export function nameFromTitle(title: string): string {
     return title.replace(/[^a-z0-9+]+/gi, "-").toLowerCase();
 }
 
-export function getAllFiles(dirPath, arrayOfFiles: string[]): string[] {
-    const files = fs.readdirSync(dirPath)
+export async function getAllFiles(dirPath, arrayOfFiles: string[]) {
+    const files = await readDirectory(dirPath)
 
-    arrayOfFiles = arrayOfFiles || []
+    arrayOfFiles = arrayOfFiles || [];
 
-    files.forEach(function (file) {
-        if (fs.statSync(dirPath + "/" + file).isDirectory()) {
-            arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles)
+    for (let x in files){
+        const filename = files[x][0];
+        const type = files[x][1];
+        if (type === FileType.Directory) {
+            arrayOfFiles = await getAllFiles(dirPath + "/" + filename, arrayOfFiles)
         } else {
-            arrayOfFiles.push(path.join(dirPath, "/", file))
+            arrayOfFiles.push(path.join(dirPath, "/", filename))
         }
-    })
+    }
     return arrayOfFiles
 }
 
-export function getYamlFiles(baseDir: string): string[] {
+export async function getYamlFiles(baseDir: string) {
     const result: string[] = [];
-    getAllFiles(baseDir, []).filter(f => f.endsWith(".yaml")).forEach(f => {
+    (await getAllFiles(baseDir, [])).filter(f => f.endsWith(".yaml")).forEach(f => {
         result.push(f);
     })
     return result;
 }
 
-export function getPropertyFiles(baseDir: string): string[] {
+export async function getPropertyFiles(baseDir: string) {
     const result: string[] = [];
-    getAllFiles(baseDir, []).filter(f => f.endsWith(".properties")).forEach(f => {
+    (await getAllFiles(baseDir, [])).filter(f => f.endsWith(".properties")).forEach(f => {
         result.push(f);
     })
     return result;
 }
 
-export function getJsonFiles(baseDir: string): string[] {
+export async function getJsonFiles(baseDir: string) {
     const result: string[] = [];
-    getAllFiles(baseDir, []).filter(f => f.endsWith(".json")).forEach(f => {
+    (await getAllFiles(baseDir, [])).filter(f => f.endsWith(".json")).forEach(f => {
         result.push(f);
     })
     return result;
 }
 
-export function getIntegrationFiles(baseDir: string): string[] {
-    return getYamlFiles(baseDir).filter(f => {
-        const yaml = fs.readFileSync(path.resolve(f)).toString('utf8');
-        return !f.startsWith(baseDir + path.sep + "target") && CamelDefinitionYaml.yamlIsIntegration(yaml);
-    });
+export async function getIntegrationFiles(baseDir: string) {
+    const result: string[] = []
+    const files = await getYamlFiles(baseDir);
+    for (let x in files){
+        const filename = files[x];
+        const readData = await readFile(path.resolve(filename));
+        const yaml = Buffer.from(readData).toString('utf8');
+        if (!filename.startsWith(baseDir + path.sep + "target") && CamelDefinitionYaml.yamlIsIntegration(yaml)){
+            result.push(yaml);
+        }
+    }
+    return result;
 }
 
 
-export function getProperties(rootPath?: string): string {
-    if (rootPath) return fs.readFileSync(path.resolve(rootPath, "application.properties")).toString('utf8');
-    else return fs.readFileSync(path.resolve("application.properties")).toString('utf8');
+export async function getProperties(rootPath?: string) {
+    if (rootPath) {
+        const readData = await readFile(path.resolve(rootPath, "application.properties"));
+        return Buffer.from(readData).toString('utf8');
+    } else {
+        const readData = await readFile(path.resolve("application.properties"));
+        return Buffer.from(readData).toString('utf8');
+    }
 }
 
-export function getProfiles(rootPath?: string): string[] {
-    const text = getProperties(rootPath);
+export async function getProfiles(rootPath?: string) {
+    const text = await getProperties(rootPath);
     const project = ProjectModelApi.propertiesToProject(text);
     return ProjectModelApi.getProfiles(project.properties);
+}
+
+export async function stat(fullPath: string) {
+    const uriFile: Uri = Uri.file(fullPath);
+    return  workspace.fs.stat(uriFile);
+}
+
+export async function readDirectory(fullPath: string) {
+    const uriFile: Uri = Uri.file(fullPath);
+    return workspace.fs.readDirectory(uriFile);
+}
+
+export async function readFile(fullPath: string) {
+    const uriFile: Uri = Uri.file(fullPath);
+    return workspace.fs.readFile(uriFile);
+}
+
+export async function write(fullPath: string, code: string) {
+    const uriFile: Uri = Uri.file(fullPath);
+    workspace.fs.writeFile(uriFile, Buffer.from(code, 'utf8'))
+    .then(
+        value => {}, 
+        reason => window.showErrorMessage("Error: " + reason) 
+    );
 }
