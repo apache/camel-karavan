@@ -46,12 +46,12 @@ public class Project {
         this.runtime = runtime;
     }
 
-    private String toFolder(String artifactId, String version){
+    public static String toFolder(String artifactId, String version){
         String folder = (artifactId+version).replaceAll("[^A-Za-z0-9 ]", "_");
         return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, folder);
     }
 
-    private String toKey(String groupId, String artifactId, String version){
+    public static String toKey(String groupId, String artifactId, String version){
         return groupId + ":" + artifactId + ":" + version;
     }
 

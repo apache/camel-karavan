@@ -183,9 +183,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                             {projects.map(project => (
                                 <Tr key={project.artifactId}>
                                     <Td modifier={"fitContent"}>
-                                        <Tooltip content={project.runtime} position={"left"}>
-                                            <Badge>{project.runtime.charAt(0)}</Badge>
-                                        </Tooltip>
+                                        <Badge className="runtime-badge">{project.runtime}</Badge>
                                     </Td>
                                     <Td>{project.groupId}</Td>
                                     <Td>

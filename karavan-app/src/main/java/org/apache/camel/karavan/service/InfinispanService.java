@@ -107,6 +107,9 @@ public class InfinispanService {
     public void saveProject(Project project) {
         GroupedKey key = GroupedKey.create(project.getKey(), project.getKey());
         boolean isNew = !projects.containsKey(key);
+        if (project.getFolder() == null || project.getFolder().trim().length() == 0) {
+            project.setFolder(Project.toFolder(project.getArtifactId(), project.getVersion()));
+        }
         projects.put(key, project);
         if (isNew){
             String filename = "application.properties";
