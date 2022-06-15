@@ -95,7 +95,7 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(createCrd);
 
     // Create new Integration YAML command
-    const createYaml = commands.registerCommand("karavan.create-yaml", (...args: any[]) => designer.createIntegration(false, args[0].fsPath));
+    const createYaml = commands.registerCommand("karavan.create-yaml", (...args: any[]) => designer.createIntegration(false, args[0]?.fsPath));
     context.subscriptions.push(createYaml);
 
     // Open integration in designer command
