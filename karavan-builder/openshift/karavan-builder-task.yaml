@@ -19,11 +19,12 @@ spec:
           CHECKOUT_DIR="/scripts"
 
           git clone --depth 1 --branch main $(inputs.params.git) ${CHECKOUT_DIR}
-
+          
           cd ${CHECKOUT_DIR}/$(inputs.params.project) 
 
           entrypoint -Dcamel.jbang.version=3.18.0-SNAPSHOT camel@apache/camel export
       
+          export LAST_COMMIT=$(git rev-parse --short HEAD)
           export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
           /opt/mvnd/bin/mvnd package \
             -Dquarkus.container-image.build=true \
@@ -31,15 +32,13 @@ spec:
             -Dquarkus.container-image.insecure=true \
             -Dquarkus.container-image.username=sa \
             -Dquarkus.container-image.password=${TOKEN} \
-            -Dquarkus.kubernetes-client.master-url=kubernetes.default.svc \
-            -Dquarkus.kubernetes-client.token=${TOKEN} \
-            -Dquarkus.openshift.deployment-kind=Deployment \
-            -Dquarkus.kubernetes.deploy=true \
             -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 \
             -Dquarkus.container-image.builder=jib \
+            -Dquarkus.kubernetes-client.master-url=kubernetes.default.svc \
+            -Dquarkus.kubernetes-client.token=${TOKEN} \
+            -Dquarkus.kubernetes.deploy=true \
             -Dquarkus.openshift.route.expose=true
-      image: 'entropy1/camel-karavan-builder:3.18.0-SNAPSHOT'
-      resources: {}
+      image: 'ghcr.io/apache/camel-karavan-builder:0.0.16'
       volumeMounts:
         - mountPath: /root/.m2
           name: m2-cache
@@ -51,6 +50,12 @@ spec:
             secretKeyRef:
               name: karavan-git-secret
               key: token
+    - name: rollout
+      image: >-
+        image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      script: |
+        #!/usr/bin/env bash
+        oc rollout latest dc/$(inputs.params.project) 
   volumes:
     - name: m2-cache
       persistentVolumeClaim:
