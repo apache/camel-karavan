@@ -1,0 +1,60 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: karavan-builder
+spec:
+  params:
+    - name: runtime
+      type: string
+    - name: gav
+      type: string
+    - name: project
+      type: string 
+    - name: git
+      type: string      
+  steps:
+    - name: karavan-build-deploy
+      script: |
+          #!/usr/bin/env bash
+          CHECKOUT_DIR="/scripts"
+
+          git clone --depth 1 --branch main $(inputs.params.git) ${CHECKOUT_DIR}
+
+          cd ${CHECKOUT_DIR}/$(inputs.params.project) 
+
+          entrypoint -Dcamel.jbang.version=3.18.0-SNAPSHOT camel@apache/camel export
+      
+          export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+          /opt/mvnd/bin/mvnd package \
+            -Dquarkus.container-image.build=true \
+            -Dquarkus.container-image.push=true \
+            -Dquarkus.container-image.insecure=true \
+            -Dquarkus.container-image.username=sa \
+            -Dquarkus.container-image.password=${TOKEN} \
+            -Dquarkus.kubernetes-client.master-url=kubernetes.default.svc \
+            -Dquarkus.kubernetes-client.token=${TOKEN} \
+            -Dquarkus.openshift.deployment-kind=Deployment \
+            -Dquarkus.kubernetes.deploy=true \
+            -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 \
+            -Dquarkus.container-image.builder=jib \
+            -Dquarkus.openshift.route.expose=true
+      image: 'entropy1/camel-karavan-builder:3.18.0-SNAPSHOT'
+      resources: {}
+      volumeMounts:
+        - mountPath: /root/.m2
+          name: m2-cache
+        - mountPath: /jbang/.jbang/cache
+          name: jbang-cache  
+      env:
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: karavan-git-secret
+              key: token
+  volumes:
+    - name: m2-cache
+      persistentVolumeClaim:
+        claimName: karavan-m2-cache 
+    - name: jbang-cache
+      persistentVolumeClaim:
+        claimName: karavan-jbang-cache
