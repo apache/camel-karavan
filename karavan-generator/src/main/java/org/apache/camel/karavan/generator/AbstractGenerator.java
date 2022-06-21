@@ -41,7 +41,7 @@ public class AbstractGenerator {
 
     protected String getCamelYamlDSL() {
         try {
-            InputStream inputStream = YamlRoutesBuilderLoader.class.getResourceAsStream("/camelYamlDsl.json");
+            InputStream inputStream = YamlRoutesBuilderLoader.class.getResourceAsStream("/schema/camelYamlDsl.json");
             String data = new BufferedReader(new InputStreamReader(inputStream))
                     .lines().collect(Collectors.joining(System.getProperty("line.separator")));
             return data;

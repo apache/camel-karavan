@@ -344,6 +344,7 @@ export class ExpressionSubElementDefinition extends CamelElement {
     method?: MethodCallExpression | string;
     xquery?: XQueryExpression | string;
     datasonnet?: DatasonnetExpression | string;
+    jq?: JqExpression | string;
     language?: LanguageExpression;
     simple?: SimpleExpression | string;
     hl7terser?: Hl7TerserExpression | string;
@@ -1036,6 +1037,7 @@ export class ResumableDefinition extends CamelElement {
     inheritErrorHandler?: boolean;
     stepName?: string = 'resumable';
     resumeStrategy: string = '';
+    intermittent?: boolean;
     description?: string;
     id?: string
     public constructor(init?: Partial<ResumableDefinition>) {
@@ -2855,6 +2857,7 @@ export class ExpressionDefinition extends CamelElement {
     method?: MethodCallExpression | string;
     xquery?: XQueryExpression | string;
     datasonnet?: DatasonnetExpression | string;
+    jq?: JqExpression | string;
     language?: LanguageExpression;
     simple?: SimpleExpression | string;
     hl7terser?: Hl7TerserExpression | string;
@@ -2919,6 +2922,19 @@ export class JoorExpression extends CamelElement {
     resultType?: string
     public constructor(init?: Partial<JoorExpression>) {
         super('JoorExpression')
+        Object.assign(this, init)
+    }
+}
+
+export class JqExpression extends CamelElement {
+    expression: string = '';
+    headerName?: string;
+    trim?: boolean;
+    expressionName?: string = 'jq';
+    id?: string;
+    resultType?: string
+    public constructor(init?: Partial<JqExpression>) {
+        super('JqExpression')
         Object.assign(this, init)
     }
 }

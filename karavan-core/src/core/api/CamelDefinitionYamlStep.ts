@@ -186,6 +186,7 @@ import {
     HeaderExpression,
     Hl7TerserExpression,
     JoorExpression,
+    JqExpression,
     JsonPathExpression,
     LanguageExpression,
     MethodCallExpression,
@@ -678,6 +679,9 @@ export class CamelDefinitionYamlStep {
         } 
         if (element?.datasonnet !== undefined) { 
             def.datasonnet = CamelDefinitionYamlStep.readDatasonnetExpression(element.datasonnet); 
+        } 
+        if (element?.jq !== undefined) { 
+            def.jq = CamelDefinitionYamlStep.readJqExpression(element.jq); 
         } 
         if (element?.language !== undefined) { 
             def.language = CamelDefinitionYamlStep.readLanguageExpression(element.language); 
@@ -2680,6 +2684,9 @@ export class CamelDefinitionYamlStep {
         if (element?.datasonnet !== undefined) { 
             def.datasonnet = CamelDefinitionYamlStep.readDatasonnetExpression(element.datasonnet); 
         } 
+        if (element?.jq !== undefined) { 
+            def.jq = CamelDefinitionYamlStep.readJqExpression(element.jq); 
+        } 
         if (element?.language !== undefined) { 
             def.language = CamelDefinitionYamlStep.readLanguageExpression(element.language); 
         } 
@@ -2750,6 +2757,13 @@ export class CamelDefinitionYamlStep {
     static readJoorExpression = (element: any): JoorExpression => {
         if (element && typeof element === 'string') element = {expression: element};
         const def = element ? new JoorExpression({...element}) : new JoorExpression();
+
+        return def;
+    }
+
+    static readJqExpression = (element: any): JqExpression => {
+        if (element && typeof element === 'string') element = {expression: element};
+        const def = element ? new JqExpression({...element}) : new JqExpression();
 
         return def;
     }

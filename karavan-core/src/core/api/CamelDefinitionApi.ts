@@ -185,6 +185,7 @@ import {
     HeaderExpression,
     Hl7TerserExpression,
     JoorExpression,
+    JqExpression,
     JsonPathExpression,
     LanguageExpression,
     MethodCallExpression,
@@ -666,6 +667,9 @@ export class CamelDefinitionApi {
         } 
         if (element?.datasonnet !== undefined) { 
             def.datasonnet = CamelDefinitionApi.createDatasonnetExpression(element.datasonnet); 
+        } 
+        if (element?.jq !== undefined) { 
+            def.jq = CamelDefinitionApi.createJqExpression(element.jq); 
         } 
         if (element?.language !== undefined) { 
             def.language = CamelDefinitionApi.createLanguageExpression(element.language); 
@@ -2626,6 +2630,9 @@ export class CamelDefinitionApi {
         if (element?.datasonnet !== undefined) { 
             def.datasonnet = CamelDefinitionApi.createDatasonnetExpression(element.datasonnet); 
         } 
+        if (element?.jq !== undefined) { 
+            def.jq = CamelDefinitionApi.createJqExpression(element.jq); 
+        } 
         if (element?.language !== undefined) { 
             def.language = CamelDefinitionApi.createLanguageExpression(element.language); 
         } 
@@ -2699,6 +2706,14 @@ export class CamelDefinitionApi {
     static createJoorExpression = (element: any): JoorExpression => {
         if (element && typeof element === 'string') element = {expression: element};
         const def = element ? new JoorExpression({...element}) : new JoorExpression();
+        def.uuid = element?.uuid ? element.uuid : def.uuid;
+
+        return def;
+    }
+
+    static createJqExpression = (element: any): JqExpression => {
+        if (element && typeof element === 'string') element = {expression: element};
+        const def = element ? new JqExpression({...element}) : new JqExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
 
         return def;
@@ -3477,6 +3492,7 @@ export class CamelDefinitionApi {
             case 'HeaderExpression': return CamelDefinitionApi.createHeaderExpression(newBody);
             case 'Hl7TerserExpression': return CamelDefinitionApi.createHl7TerserExpression(newBody);
             case 'JoorExpression': return CamelDefinitionApi.createJoorExpression(newBody);
+            case 'JqExpression': return CamelDefinitionApi.createJqExpression(newBody);
             case 'JsonPathExpression': return CamelDefinitionApi.createJsonPathExpression(newBody);
             case 'LanguageExpression': return CamelDefinitionApi.createLanguageExpression(newBody);
             case 'MethodCallExpression': return CamelDefinitionApi.createMethodCallExpression(newBody);
@@ -3549,6 +3565,7 @@ export class CamelDefinitionApi {
             case 'HeaderExpression': return CamelDefinitionApi.createHeaderExpression(newBody);
             case 'CSimpleExpression': return CamelDefinitionApi.createCSimpleExpression(newBody);
             case 'XMLTokenizerExpression': return CamelDefinitionApi.createXMLTokenizerExpression(newBody);
+            case 'JqExpression': return CamelDefinitionApi.createJqExpression(newBody);
             case 'DatasonnetExpression': return CamelDefinitionApi.createDatasonnetExpression(newBody);
             case 'TokenizerExpression': return CamelDefinitionApi.createTokenizerExpression(newBody);
             case 'SpELExpression': return CamelDefinitionApi.createSpELExpression(newBody);
