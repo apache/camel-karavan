@@ -52,6 +52,7 @@ yarn-error.log*
 /keys/*
 *.jar
 
+/karavan-app/karavan-data*
 /karavan-app/src/main/webapp/src/designer/*
 /karavan-app/src/main/resources/kamelets/*
 /karavan-core/lib/

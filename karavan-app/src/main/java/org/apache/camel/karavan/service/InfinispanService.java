@@ -34,6 +34,7 @@ import org.infinispan.commons.api.CacheContainerAdmin;
 import org.infinispan.commons.configuration.XMLStringConfiguration;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.configuration.cache.SingleFileStoreConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.query.dsl.QueryFactory;
@@ -74,9 +75,16 @@ public class InfinispanService {
         if (cacheManager == null) {
             LOGGER.info("InfinispanService is starting in local mode");
             GlobalConfigurationBuilder global = GlobalConfigurationBuilder.defaultClusteredBuilder();
+            global.globalState().enable().persistentLocation("karavan-data");
             DefaultCacheManager cacheManager = new DefaultCacheManager(global.build());
             ConfigurationBuilder builder = new ConfigurationBuilder();
-            builder.clustering().cacheMode(CacheMode.LOCAL);
+            builder.clustering()
+                    .cacheMode(CacheMode.LOCAL)
+                    .persistence().passivation(false)
+                    .addStore(SingleFileStoreConfigurationBuilder.class)
+                    .shared(false)
+                    .preload(true)
+                    .fetchPersistentState(true);
             projects = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Project.CACHE, builder.build());
             files = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ProjectFile.CACHE, builder.build());
         } else {
@@ -85,7 +93,7 @@ public class InfinispanService {
             files = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, ProjectFile.CACHE)));
         }
         if (ProfileManager.getLaunchMode().isDevOrTest()){
-            generateDevProjects();
+//            generateDevProjects();
         }
     }
 
