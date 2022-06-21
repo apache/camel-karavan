@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.apicurio.datamodels.Library;
 import io.apicurio.datamodels.openapi.models.OasDocument;
-import io.vertx.core.Vertx;
 import org.apache.camel.CamelContext;
 import org.apache.camel.generator.openapi.RestDslGenerator;
 import org.apache.camel.impl.lw.LightweightCamelContext;
@@ -29,17 +28,12 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 @ApplicationScoped
 public class GeneratorService {
 
-
-    @ConfigProperty(name = "karavan.folder.integrations")
-    String integrations;
-
-    @Inject
-    Vertx vertx;
+    @ConfigProperty(name = "karavan.config.group-id")
+    String groupId;
 
     private static final Logger LOGGER = Logger.getLogger(GeneratorService.class.getName());
 
@@ -54,12 +48,14 @@ public class GeneratorService {
 
     public String getDefaultApplicationProperties(Project project){
         StringBuilder s = new StringBuilder();
-        s.append("camel.jbang.gav=").append(project.getKey()).append(System.lineSeparator());
+        s.append("camel.jbang.projectId=").append(project.getProjectId()).append(System.lineSeparator());
+        s.append("camel.jbang.projectName=").append(project.getName()).append(System.lineSeparator());
+        s.append("camel.jbang.projectDescription=").append(project.getDescription()).append(System.lineSeparator());
+        s.append("camel.jbang.gav=").append(groupId).append(":").append(project.getProjectId()).append(":").append("1.0.0").append(System.lineSeparator());
         s.append("camel.jbang.runtime=").append(project.getRuntime().name().toLowerCase()).append(System.lineSeparator());
-        s.append("quarkus.container-image.group=").append(project.getGroupId()).append(System.lineSeparator());
-        s.append("quarkus.container-image.name=").append(project.getArtifactId()).append(System.lineSeparator());
-        s.append("quarkus.container-image.tag=").append(project.getVersion()).append(System.lineSeparator());
-        s.append("quarkus.openshift.route.expose=true").append(System.lineSeparator());
+        s.append("quarkus.container-image.group=").append(groupId).append(System.lineSeparator());
+        s.append("quarkus.container-image.name=").append(project.getProjectId()).append(System.lineSeparator());
+        s.append("quarkus.openshift.route.expose=false").append(System.lineSeparator());
         s.append("quarkus.kubernetes-client.trust-certs=true").append(System.lineSeparator());
         return s.toString();
     }

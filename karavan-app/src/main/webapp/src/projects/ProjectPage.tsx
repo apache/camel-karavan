@@ -156,7 +156,7 @@ export class ProjectPage extends React.Component<Props, State> {
                 <div>
                     <Breadcrumb>
                         <BreadcrumbItem to="#"
-                                        onClick={event => this.setState({file: undefined})}>{"Project: " + this.props.project?.getKey()}</BreadcrumbItem>
+                                        onClick={event => this.setState({file: undefined})}>{"Project: " + this.props.project?.projectId}</BreadcrumbItem>
                         <BreadcrumbItem to="#" isActive>{this.getType(file?.name)}</BreadcrumbItem>
                     </Breadcrumb>
                     <TextContent className="title">
@@ -172,12 +172,12 @@ export class ProjectPage extends React.Component<Props, State> {
 
     onRefresh = () => {
         if (this.props.project) {
-            KaravanApi.getProject(this.props.project.getKey(), (project: Project) => {
+            KaravanApi.getProject(this.props.project.projectId, (project: Project) => {
                 this.setState({
                     project: project
                 })
             });
-            KaravanApi.getFiles(this.props.project.getKey(), (files: []) => {
+            KaravanApi.getFiles(this.props.project.projectId, (files: []) => {
                 this.setState({
                     files: files
                 })
@@ -251,27 +251,18 @@ export class ProjectPage extends React.Component<Props, State> {
                         <FlexItem flex={{default: "flex_1"}}>
                             <DescriptionList isHorizontal>
                                 <DescriptionListGroup>
-                                    <DescriptionListTerm>Group</DescriptionListTerm>
-                                    <DescriptionListDescription>{project?.groupId}</DescriptionListDescription>
+                                    <DescriptionListTerm>Project ID</DescriptionListTerm>
+                                    <DescriptionListDescription>{project?.projectId}</DescriptionListDescription>
                                 </DescriptionListGroup>
                                 <DescriptionListGroup>
-                                    <DescriptionListTerm>Artifact</DescriptionListTerm>
-                                    <DescriptionListDescription>{project?.artifactId}</DescriptionListDescription>
+                                    <DescriptionListTerm>Name</DescriptionListTerm>
+                                    <DescriptionListDescription>{project?.name}</DescriptionListDescription>
                                 </DescriptionListGroup>
                                 <DescriptionListGroup>
-                                    <DescriptionListTerm>Version</DescriptionListTerm>
-                                    <DescriptionListDescription>{project?.version}</DescriptionListDescription>
+                                    <DescriptionListTerm>Description</DescriptionListTerm>
+                                    <DescriptionListDescription>{project?.description}</DescriptionListDescription>
                                 </DescriptionListGroup>
-                                <DescriptionListGroup>
-                                    <DescriptionListTerm>Folder</DescriptionListTerm>
-                                    <DescriptionListDescription>{project?.folder}</DescriptionListDescription>
-                                </DescriptionListGroup>
-                                <DescriptionListGroup>
-                                    <DescriptionListTerm>Runtime</DescriptionListTerm>
-                                    <DescriptionListDescription>
-                                        <Badge>{project?.runtime}</Badge>
-                                    </DescriptionListDescription>
-                                </DescriptionListGroup>
+
                             </DescriptionList>
                         </FlexItem>
                         <FlexItem flex={{default: "flex_1"}}>

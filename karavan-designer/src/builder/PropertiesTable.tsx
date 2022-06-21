@@ -100,7 +100,7 @@ export class PropertiesTable extends React.Component<Props, State> {
                         </Thead>
                         <Tbody>
                             {properties.map((property, idx: number) => {
-                                const readOnly = ["camel.jbang.gav", "camel.jbang.runtime"].includes(property.key);
+                                const readOnly = property.key.startsWith("camel.jbang");
                                 return (
                                     <Tr key={property.id}>
                                         <Td noPadding width={20} dataLabel="key">{this.getTextInputField(property, "key", readOnly)}</Td>

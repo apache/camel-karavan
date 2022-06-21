@@ -34,9 +34,9 @@ import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import {Project} from "../models/ProjectModels";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
-import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";
+import {CamelUi} from "../designer/utils/CamelUi";
 
 interface Props {
     projects: Project[],
@@ -53,11 +53,9 @@ interface State {
     isCopy: boolean,
     projectToCopy?: Project,
     filter: string,
-    groupId: string,
-    artifactId: string,
-    version: string,
-    folder: string,
-    runtime: string,
+    name: string,
+    description: string,
+    projectId: string,
 }
 
 export class ProjectsPage extends React.Component<Props, State> {
@@ -67,11 +65,9 @@ export class ProjectsPage extends React.Component<Props, State> {
         isCreateModalOpen: false,
         isCopy: false,
         filter: '',
-        groupId: this.props.config.groupId,
-        artifactId: '',
-        version: '',
-        folder: '',
-        runtime: this.props.config.defaultRuntime,
+        name: '',
+        description: '',
+        projectId: '',
     };
 
     tools = () => (<Toolbar id="toolbar-group-types">
@@ -97,28 +93,28 @@ export class ProjectsPage extends React.Component<Props, State> {
     </TextContent>);
 
     closeModal = () => {
-        this.setState({isCreateModalOpen: false, isCopy: false, groupId: this.props.config.groupId, artifactId:'', version: '', folder: '', runtime: this.props.config.defaultRuntime});
+        this.setState({isCreateModalOpen: false, isCopy: false, name: this.props.config.groupId, description:'', projectId: ''});
         this.props.onRefresh.call(this);
     }
 
     saveAndCloseCreateModal = () => {
-        const {groupId, artifactId, version, runtime} = this.state;
-        const p = new Project(groupId, artifactId, version, '', runtime ? runtime : this.props.config.defaultRuntime, '');
+        const {name, description, projectId} = this.state;
+        const p = new Project(projectId, name, description, '');
         this.props.onCreate.call(this, p);
-        this.setState({isCreateModalOpen: false, isCopy: false, groupId: this.props.config.groupId, artifactId: '', version: '', folder: '', runtime: this.props.config.defaultRuntime});
+        this.setState({isCreateModalOpen: false, isCopy: false, name: this.props.config.groupId, description: '',  projectId: ''});
     }
 
     onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
-        if (event.key === 'Enter' && this.state.groupId !== undefined && this.state.artifactId !== undefined && this.state.version !== undefined) {
+        if (event.key === 'Enter' && this.state.name !== undefined && this.state.description !== undefined && this.state.projectId !== undefined) {
             this.saveAndCloseCreateModal();
         }
     }
 
     createModalForm() {
-        const {runtime, isCopy, projectToCopy } = this.state;
+        const {isCopy, projectToCopy, projectId, name} = this.state;
         return (
             <Modal
-                title={!isCopy ? "Create new project" : "Copy project from " + projectToCopy?.artifactId}
+                title={!isCopy ? "Create new project" : "Copy project from " + projectToCopy?.projectId}
                 variant={ModalVariant.small}
                 isOpen={this.state.isCreateModalOpen}
                 onClose={this.closeModal}
@@ -129,27 +125,21 @@ export class ProjectsPage extends React.Component<Props, State> {
                 ]}
             >
                 <Form isHorizontal={true} autoComplete="off">
-                    <FormGroup label="GroupId" fieldId="group" isRequired>
-                        <TextInput className="text-field" type="text" id="group" name="group"
-                                   value={this.state.groupId}
-                                   onChange={e => this.setState({groupId: e})}/>
+                    <FormGroup label="Name" fieldId="name" isRequired>
+                        <TextInput className="text-field" type="text" id="name" name="name"
+                                   value={this.state.name}
+                                   onChange={e => this.setState({name: e})}/>
                     </FormGroup>
-                    <FormGroup label="ArtifactId" fieldId="artifact" isRequired>
-                        <TextInput className="text-field" type="text" id="artifact" name="artifact"
-                                   value={this.state.artifactId}
-                                   onChange={e => this.setState({artifactId: e})}/>
+                    <FormGroup label="Description" fieldId="description" isRequired>
+                        <TextInput className="text-field" type="text" id="description" name="description"
+                                   value={this.state.description}
+                                   onChange={e => this.setState({description: e})}/>
                     </FormGroup>
-                    <FormGroup label="Version" fieldId="version" isRequired>
-                        <TextInput className="text-field" type="text" id="version" name="version"
-                                   value={this.state.version}
-                                   onChange={e => this.setState({version: e})}/>
-                    </FormGroup>
-                    <FormGroup label="Runtime" fieldId="runtime" isRequired>
-                        <ToggleGroup aria-label="Runtime">
-                            {["QUARKUS", "SPRING"].map(value =>
-                                <ToggleGroupItem key={value} text={CamelUtil.capitalizeName(value.toLowerCase())} buttonId={value} isSelected={runtime === value} onChange={selected => this.setState({runtime: value})} />
-                            )}
-                        </ToggleGroup>
+                    <FormGroup label="Project ID" fieldId="projectId" isRequired helperText="Unique project name">
+                        <TextInput className="text-field" type="text" id="projectId" name="projectId"
+                                   value={this.state.projectId}
+                                   onFocus={e => this.setState({projectId : projectId === '' ? CamelUi.nameFromTitle(name) : projectId})}
+                                   onChange={e => this.setState({projectId: CamelUi.nameFromTitle(e)})}/>
                     </FormGroup>
                 </Form>
             </Modal>
@@ -157,7 +147,7 @@ export class ProjectsPage extends React.Component<Props, State> {
     }
 
     render() {
-        const projects = this.state.projects.filter(p => p.groupId.includes(this.state.filter) || p.artifactId.includes(this.state.filter));
+        const projects = this.state.projects.filter(p => p.name.includes(this.state.filter) || p.description.includes(this.state.filter));
         const environments: string[] = this.props.config.environments && Array.isArray(this.props.config.environments)
             ? Array.from(this.props.config.environments)
             : [];
@@ -171,9 +161,9 @@ export class ProjectsPage extends React.Component<Props, State> {
                         <Thead>
                             <Tr>
                                 <Th key='type'>Runtime</Th>
-                                <Th key='group'>GroupId</Th>
-                                <Th key='artifact'>ArtifactId</Th>
-                                <Th key='version'>Version</Th>
+                                <Th key='projectId'>Project ID</Th>
+                                <Th key='name'>Name</Th>
+                                <Th key='description'>Description</Th>
                                 <Th key='commit'>Commit</Th>
                                 <Th key='deployment'>Deployment</Th>
                                 <Th key='action'></Th>
@@ -181,17 +171,17 @@ export class ProjectsPage extends React.Component<Props, State> {
                         </Thead>
                         <Tbody>
                             {projects.map(project => (
-                                <Tr key={project.artifactId}>
+                                <Tr key={project.projectId}>
                                     <Td modifier={"fitContent"}>
-                                        <Badge className="runtime-badge">{project.runtime}</Badge>
+                                        <Badge className="runtime-badge">{this.props.config.runtime}</Badge>
                                     </Td>
-                                    <Td>{project.groupId}</Td>
                                     <Td>
                                         <Button style={{padding: '6px'}} variant={"link"} onClick={e=>this.props.onSelect?.call(this, project)}>
-                                            {project.artifactId}
+                                            {project.projectId}
                                         </Button>
                                     </Td>
-                                    <Td>{project.version}</Td>
+                                    <Td>{project.name}</Td>
+                                    <Td>{project.description}</Td>
                                     <Td isActionCell>
                                         <Tooltip content={project.lastCommit} position={"bottom"}>
                                             <Badge>{project.lastCommit?.substr(0, 7)}</Badge>

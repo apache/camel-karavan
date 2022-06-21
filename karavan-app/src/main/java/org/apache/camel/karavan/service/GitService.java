@@ -78,7 +78,7 @@ public class GitService {
     }
 
     public String save(Project project, List<ProjectFile> files) throws GitAPIException, IOException, URISyntaxException {
-        LOGGER.info("Save project " + project.getKey());
+        LOGGER.info("Save project " + project.getProjectId());
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
         LOGGER.infof("Temp folder created: {}", folder);
@@ -97,10 +97,10 @@ public class GitService {
     }
 
     private void writeProjectToFolder(String folder, Project project, List<ProjectFile> files) throws IOException {
-        Files.createDirectories(Paths.get(folder, project.getFolder()));
+        Files.createDirectories(Paths.get(folder, project.getProjectId()));
         files.forEach(file -> {
             try {
-                Files.writeString(Paths.get(folder, project.getFolder(), file.getName()), file.getCode());
+                Files.writeString(Paths.get(folder, project.getProjectId(), file.getName()), file.getCode());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
