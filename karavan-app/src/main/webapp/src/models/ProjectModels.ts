@@ -1,42 +1,33 @@
 export class Project {
-    groupId: string = '';
-    artifactId: string = '';
-    version: string = '';
-    folder: string = '';
-    runtime: string = '';
+    projectId: string = '';
+    name: string = '';
+    description: string = '';
     lastCommit: string = '';
 
-
-    public constructor(groupId: string, artifactId: string, version: string, folder: string, runtime: string, lastCommit: string);
+    public constructor(projectId: string, name: string, description: string, lastCommit: string);
     public constructor(init?: Partial<Project>);
     public constructor(...args: any[]) {
         if (args.length === 1){
             Object.assign(this, args[0]);
             return;
         } else {
-            this.groupId = args[0];
-            this.artifactId = args[1];
-            this.version = args[2];
-            this.folder = args[3];
-            this.runtime = args[4];
-            this.lastCommit = args[5];
+            this.projectId = args[0];
+            this.name = args[1];
+            this.description = args[2];
+            this.lastCommit = args[3];
             return;
         }
-    }
-
-    getKey():string{
-        return this.groupId + ":" + this.artifactId + ":" + this.version;
     }
 }
 
 export class ProjectFile {
     name: string = '';
-    project: string = '';
+    projectId: string = '';
     code: string = '';
 
-    constructor(name: string, project: string, code: string) {
+    constructor(name: string, projectId: string, code: string) {
         this.name = name;
-        this.project = project;
+        this.projectId = projectId;
         this.code = code;
     }
 }

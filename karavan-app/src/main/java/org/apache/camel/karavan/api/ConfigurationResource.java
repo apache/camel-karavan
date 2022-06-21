@@ -25,7 +25,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -35,8 +34,6 @@ public class ConfigurationResource {
     @ConfigProperty(name = "karavan.version")
     String version;
 
-    @ConfigProperty(name = "karavan.mode")
-    String mode;
 
     @Inject
     KaravanConfiguration configuration;
@@ -47,10 +44,8 @@ public class ConfigurationResource {
         return RestResponse.ResponseBuilder.ok(
                 Map.of(
                         "version", version,
-                        "mode", mode,
                         "environments", configuration.environments().stream().map(e -> e.name()).collect(Collectors.toList()),
-                        "defaultRuntime", configuration.defaultRuntime(),
-                        "groupId", configuration.groupId()
+                        "runtime", configuration.runtime()
                 )
         ).build();
     }

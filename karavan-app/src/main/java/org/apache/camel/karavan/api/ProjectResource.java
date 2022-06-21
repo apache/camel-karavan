@@ -48,7 +48,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<Project> getAll(@HeaderParam("username") String username) throws Exception {
         return infinispanService.getProjects().stream()
-                .sorted(Comparator.comparing(Project::getKey))
+                .sorted(Comparator.comparing(Project::getProjectId))
                 .collect(Collectors.toList());
     }
 
@@ -87,7 +87,7 @@ public class ProjectResource {
 
 //        Copy files
         Map<GroupedKey, ProjectFile> map = infinispanService.getProjectFiles(sourceProject).stream()
-                .collect(Collectors.toMap(f -> new GroupedKey(project.getKey(), f.getName()), f -> f));
+                .collect(Collectors.toMap(f -> new GroupedKey(project.getProjectId(), f.getName()), f -> f));
         infinispanService.saveProjectFiles(map);
         return project;
     }

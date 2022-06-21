@@ -1,6 +1,5 @@
 package org.apache.camel.karavan.model;
 
-import com.google.common.base.CaseFormat;
 import org.infinispan.protostream.annotations.ProtoEnumValue;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
@@ -9,89 +8,67 @@ public class Project {
     public static final String CACHE = "projects";
 
     @ProtoField(number = 1)
-    String groupId;
+    String projectId;
     @ProtoField(number = 2)
-    String artifactId;
+    String name;
     @ProtoField(number = 3)
-    String version;
+    String description;
     @ProtoField(number = 4)
-    String folder;
-    @ProtoField(number = 5)
     Project.CamelRuntime runtime;
-    @ProtoField(number = 6)
+    @ProtoField(number = 5)
     String lastCommit;
 
     public enum CamelRuntime {
         @ProtoEnumValue(number = 0, name = "Quarkus")
         QUARKUS,
         @ProtoEnumValue(number = 1, name = "Spring")
-        SPRING
+        SPRING,
+        @ProtoEnumValue(number = 2, name = "Main")
+        MAIN
     }
 
     @ProtoFactory
-    public Project(String groupId, String artifactId, String version, String folder, CamelRuntime runtime, String lastCommit) {
-        this.groupId = groupId;
-        this.artifactId = artifactId;
-        this.version = version;
-        this.folder = folder;
+    public Project(String projectId, String name, String description, CamelRuntime runtime, String lastCommit) {
+        this.projectId = projectId;
+        this.name = name;
+        this.description = description;
         this.runtime = runtime;
         this.lastCommit = lastCommit;
     }
 
-    public Project(String groupId, String artifactId, String version, String folder, CamelRuntime runtime) {
-        this.groupId = groupId;
-        this.artifactId = artifactId;
-        this.version = version;
-        this.folder = folder != null && folder.trim().length() > 0 ? folder : toFolder(artifactId, version);
+    public Project(String projectId, String name, String description, CamelRuntime runtime) {
+        this.projectId = projectId;
+        this.name = name;
+        this.description = description;
         this.runtime = runtime;
     }
 
-    public static String toFolder(String artifactId, String version){
-        String folder = (artifactId+version).replaceAll("[^A-Za-z0-9 ]", "_");
-        return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, folder);
-    }
-
-    public static String toKey(String groupId, String artifactId, String version){
-        return groupId + ":" + artifactId + ":" + version;
-    }
-
-    public String getKey(){
-        return toKey(groupId, artifactId, version);
-    }
 
     public Project() {
     }
 
-    public String getGroupId() {
-        return groupId;
+    public String getProjectId() {
+        return projectId;
     }
 
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 
-    public String getArtifactId() {
-        return artifactId;
+    public String getName() {
+        return name;
     }
 
-    public void setArtifactId(String artifactId) {
-        this.artifactId = artifactId;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getVersion() {
-        return version;
+    public String getDescription() {
+        return description;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public String getFolder() {
-        return folder;
-    }
-
-    public void setFolder(String folder) {
-        this.folder = folder;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public CamelRuntime getRuntime() {

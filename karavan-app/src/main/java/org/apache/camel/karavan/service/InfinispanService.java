@@ -17,10 +17,14 @@
 package org.apache.camel.karavan.service;
 
 import io.quarkus.runtime.StartupEvent;
+import io.quarkus.runtime.configuration.ProfileManager;
 import org.apache.camel.karavan.KaravanLifecycleBean;
 import org.apache.camel.karavan.model.GroupedKey;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
+import org.eclipse.microprofile.config.Config;
+import org.eclipse.microprofile.config.ConfigProvider;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.infinispan.Cache;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
@@ -56,6 +60,9 @@ public class InfinispanService {
     @Inject
     GeneratorService generatorService;
 
+    @ConfigProperty(name = "karavan.config.runtime")
+    String runtime;
+
     private static final String CACHE_CONFIG = "<distributed-cache name=\"%s\">"
             + " <encoding media-type=\"application/x-protostream\"/>"
             + " <groups enabled=\"true\"/>"
@@ -77,26 +84,8 @@ public class InfinispanService {
             projects = cacheManager.administration().getOrCreateCache(Project.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, Project.CACHE)));
             files = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, ProjectFile.CACHE)));
         }
-
-        for (int i = 0; i < 10; i++){
-            String groupId = "org.apache.camel.karavan";
-            String artifactId = "parcel-demo" + i;
-            Project p = new Project(groupId, artifactId, "1.0.0",  null, Project.CamelRuntime.values()[new Random().nextInt(2)]);
-            this.saveProject(p);
-
-            files.put(GroupedKey.create(p.getKey(),"new-parcels.yaml"), new ProjectFile("new-parcels.yaml", "flows:", p.getKey()));
-            files.put(GroupedKey.create(p.getKey(),"parcel-confirmation.yaml"), new ProjectFile("parcel-confirmation.yaml", "rest:", p.getKey()));
-            files.put(GroupedKey.create(p.getKey(),"CustomProcessor.java"), new ProjectFile("CustomProcessor.java", "import org.apache.camel.BindToRegistry;\n" +
-                    "import org.apache.camel.Exchange;\n" +
-                    "import org.apache.camel.Processor;\n" +
-                    "\n" +
-                    "@BindToRegistry(\"myBean\")\n" +
-                    "public class CustomProcessor implements Processor {\n" +
-                    "\n" +
-                    "  public void process(Exchange exchange) throws Exception {\n" +
-                    "      exchange.getIn().setBody(\"Hello world\");\n" +
-                    "  }\n" +
-                    "}", p.getKey()));
+        if (ProfileManager.getLaunchMode().isDevOrTest()){
+            generateDevProjects();
         }
     }
 
@@ -105,35 +94,33 @@ public class InfinispanService {
     }
 
     public void saveProject(Project project) {
-        GroupedKey key = GroupedKey.create(project.getKey(), project.getKey());
+        GroupedKey key = GroupedKey.create(project.getProjectId(), project.getProjectId());
         boolean isNew = !projects.containsKey(key);
-        if (project.getFolder() == null || project.getFolder().trim().length() == 0) {
-            project.setFolder(Project.toFolder(project.getArtifactId(), project.getVersion()));
-        }
+        project.setRuntime(Project.CamelRuntime.valueOf(runtime));
         projects.put(key, project);
         if (isNew){
             String filename = "application.properties";
             String code = generatorService.getDefaultApplicationProperties(project);
-            files.put(new GroupedKey(project.getKey(), filename), new ProjectFile(filename, code, project.getKey()));
+            files.put(new GroupedKey(project.getProjectId(), filename), new ProjectFile(filename, code, project.getProjectId()));
         }
     }
 
-    public List<ProjectFile> getProjectFiles(String projectName) {
+    public List<ProjectFile> getProjectFiles(String projectId) {
         if (cacheManager == null) {
             QueryFactory queryFactory = org.infinispan.query.Search.getQueryFactory((Cache<?, ?>) files);
-            return queryFactory.<ProjectFile>create("FROM org.apache.camel.karavan.model.ProjectFile WHERE project = :project")
-                    .setParameter("project", projectName)
+            return queryFactory.<ProjectFile>create("FROM org.apache.camel.karavan.model.ProjectFile WHERE projectId = :projectId")
+                    .setParameter("projectId", projectId)
                     .execute().list();
         } else {
             QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) files);
-            return queryFactory.<ProjectFile>create("FROM karavan.ProjectFile WHERE project = :project")
-                    .setParameter("project", projectName)
+            return queryFactory.<ProjectFile>create("FROM karavan.ProjectFile WHERE projectId = :projectId")
+                    .setParameter("projectId", projectId)
                     .execute().list();
         }
     }
 
     public void saveProjectFile(ProjectFile file) {
-        files.put(GroupedKey.create(file.getProject(), file.getName()), file);
+        files.put(GroupedKey.create(file.getProjectId(), file.getName()), file);
     }
 
     public void saveProjectFiles(Map<GroupedKey, ProjectFile> f) {
@@ -150,5 +137,27 @@ public class InfinispanService {
 
     public Project getProject(String project) {
         return projects.get(GroupedKey.create(project, project));
+    }
+
+    private void generateDevProjects(){
+        for (int i = 0; i < 10; i++){
+            String projectId = "parcel-demo" + i;
+            Project p = new Project(projectId, "Demo project " + i, "Demo project placeholder for UI testing purposes", Project.CamelRuntime.valueOf(runtime));
+            this.saveProject(p);
+
+            files.put(GroupedKey.create(p.getProjectId(),"new-parcels.yaml"), new ProjectFile("new-parcels.yaml", "flows:", p.getProjectId()));
+            files.put(GroupedKey.create(p.getProjectId(),"parcel-confirmation.yaml"), new ProjectFile("parcel-confirmation.yaml", "rest:", p.getProjectId()));
+            files.put(GroupedKey.create(p.getProjectId(),"CustomProcessor.java"), new ProjectFile("CustomProcessor.java", "import org.apache.camel.BindToRegistry;\n" +
+                    "import org.apache.camel.Exchange;\n" +
+                    "import org.apache.camel.Processor;\n" +
+                    "\n" +
+                    "@BindToRegistry(\"myBean\")\n" +
+                    "public class CustomProcessor implements Processor {\n" +
+                    "\n" +
+                    "  public void process(Exchange exchange) throws Exception {\n" +
+                    "      exchange.getIn().setBody(\"Hello world\");\n" +
+                    "  }\n" +
+                    "}", p.getProjectId()));
+        }
     }
 }

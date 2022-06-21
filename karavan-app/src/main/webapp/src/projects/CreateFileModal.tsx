@@ -5,7 +5,7 @@ import {
     FormGroup,
     ModalVariant,
     Form,
-    ToggleGroupItem, ToggleGroup, TextInputGroupMain, ChipGroup, Chip, TextInputGroupUtilities, TextInputGroup, Text
+    ToggleGroupItem, ToggleGroup, TextInputGroupMain, TextInputGroupUtilities, TextInputGroup, Text
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
@@ -38,7 +38,7 @@ export class CreateFileModal extends React.Component<Props, State> {
         const {name, extension} = this.state;
         const filename = (extension !== 'java') ? CamelUi.nameFromTitle(name) : CamelUi.javaNameFromTitle(name)
         if (filename && extension){
-            const file = new ProjectFile(filename + '.' + extension, this.props.project.getKey(), '');
+            const file = new ProjectFile(filename + '.' + extension, this.props.project.projectId, '');
             KaravanApi.postProjectFile(file, res => {
                 if (res.status === 200) {
                     console.log(res) //TODO show notification

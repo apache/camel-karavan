@@ -60,7 +60,7 @@ export const KaravanApi = {
     },
 
     deleteProject: async (project: Project, after: (res: AxiosResponse<any>) => void) => {
-        axios.delete('/project/' + encodeURI(project.getKey()),
+        axios.delete('/project/' + encodeURI(project.projectId),
             {headers:{'username': 'cameleer'}})
             .then(res => {
                 after(res);
@@ -92,7 +92,7 @@ export const KaravanApi = {
     },
 
     deleteProjectFile: async (file: ProjectFile, after: (res: AxiosResponse<any>) => void) => {
-        axios.delete('/file/' + file.project + '/' + file.name,
+        axios.delete('/file/' + file.projectId + '/' + file.name,
             {headers:{'username': 'cameleer'}})
             .then(res => {
                 after(res);

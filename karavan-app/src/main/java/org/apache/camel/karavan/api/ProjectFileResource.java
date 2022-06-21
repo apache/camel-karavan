@@ -41,10 +41,10 @@ public class ProjectFileResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{project}")
+    @Path("/{projectId}")
     public List<ProjectFile> get(@HeaderParam("username") String username,
-                                      @PathParam("project") String project) throws Exception {
-        return infinispanService.getProjectFiles(project);
+                                      @PathParam("projectId") String projectId) throws Exception {
+        return infinispanService.getProjectFiles(projectId);
     }
 
     @POST

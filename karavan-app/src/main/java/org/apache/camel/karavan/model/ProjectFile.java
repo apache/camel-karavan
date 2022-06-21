@@ -12,13 +12,13 @@ public class ProjectFile {
     String code;
     @ProtoField(number = 3)
     @ProtoDoc("@Field(index=Index.YES, analyze = Analyze.YES, store = Store.NO)")
-    String project;
+    String projectId;
 
     @ProtoFactory
-    public ProjectFile(String name, String code, String project) {
+    public ProjectFile(String name, String code, String projectId) {
         this.name = name;
         this.code = code;
-        this.project = project;
+        this.projectId = projectId;
     }
 
     public ProjectFile() {
@@ -40,11 +40,11 @@ public class ProjectFile {
         this.code = code;
     }
 
-    public String getProject() {
-        return project;
+    public String getProjectId() {
+        return projectId;
     }
 
-    public void setProject(String project) {
-        this.project = project;
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 }
