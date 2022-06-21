@@ -27,7 +27,7 @@ export class CreateFileModal extends React.Component<Props, State> {
 
     public state: State = {
         name: '',
-        extension: '',
+        extension: 'yaml',
     };
 
     closeModal = () => {
@@ -68,7 +68,7 @@ export class CreateFileModal extends React.Component<Props, State> {
             >
                 <Form autoComplete="off" isHorizontal className="create-file-form">
                     <FormGroup label="Type" fieldId="type" isRequired>
-                        <ToggleGroup aria-label="Default with single selectable">
+                        <ToggleGroup aria-label="Type">
                             {ProjectFileTypes.filter(p => p.name !== 'PROPERTIES').map(p => {
                                 const title = p.title + (p.name === 'CODE' ? ' (' + p.extension + ')' : '');
                                 return <ToggleGroupItem key={title} text={title} buttonId={p.name}

@@ -5,5 +5,4 @@ resources:
 - karavan-builder-pvc.yaml
 - karavan-builder-sa.yaml
 - karavan-builder-task.yaml
-- karavan-git-secret.yaml
 - karavan-builder-pipeline.yaml

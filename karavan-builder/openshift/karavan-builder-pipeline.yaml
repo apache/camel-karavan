@@ -4,21 +4,13 @@ metadata:
   name: karavan-pipeline
 spec:
   params:
-    - name: GIT_REPO
-      type: string
     - name: PROJECT_NAME
       type: string
   tasks:
     - name: karavan-build-deploy
       params:
-        - name: runtime
-          value: quarkus
-        - name: gav
-          value: 'com.acme:demo:1.0.0'
         - name: project
           value: $(params.PROJECT_NAME)
-        - name: git
-          value: $(params.GIT_REPO)
       taskRef:
         kind: Task
         name: karavan-builder

@@ -35,6 +35,15 @@ public class GeneratorService {
     @ConfigProperty(name = "karavan.config.group-id")
     String groupId;
 
+    @ConfigProperty(name = "karavan.config.image-group")
+    String imageGroup;
+
+    @ConfigProperty(name = "karavan.config.runtime")
+    String runtime;
+
+    @ConfigProperty(name = "karavan.config.runtime-version")
+    String runtimeVersion;
+
     private static final Logger LOGGER = Logger.getLogger(GeneratorService.class.getName());
 
     public String generate(String openApi, boolean generateRoutes) throws Exception {
@@ -48,14 +57,27 @@ public class GeneratorService {
 
     public String getDefaultApplicationProperties(Project project){
         StringBuilder s = new StringBuilder();
-        s.append("camel.jbang.projectId=").append(project.getProjectId()).append(System.lineSeparator());
-        s.append("camel.jbang.projectName=").append(project.getName()).append(System.lineSeparator());
-        s.append("camel.jbang.projectDescription=").append(project.getDescription()).append(System.lineSeparator());
+        s.append("camel.jbang.project-id=").append(project.getProjectId()).append(System.lineSeparator());
+        s.append("camel.jbang.project-name=").append(project.getName()).append(System.lineSeparator());
+        s.append("camel.jbang.project-description=").append(project.getDescription()).append(System.lineSeparator());
         s.append("camel.jbang.gav=").append(groupId).append(":").append(project.getProjectId()).append(":").append("1.0.0").append(System.lineSeparator());
-        s.append("camel.jbang.runtime=").append(project.getRuntime().name().toLowerCase()).append(System.lineSeparator());
-        s.append("quarkus.container-image.group=").append(groupId).append(System.lineSeparator());
+        s.append("camel.jbang.runtime=").append(runtime.toLowerCase()).append(System.lineSeparator());
+        s.append("camel.jbang.quarkusVersion=").append(runtimeVersion).append(System.lineSeparator());
+        s.append("camel.jbang.dependencies=")
+                .append("mvn:io.quarkus:quarkus-container-image-jib,")
+                .append("mvn:org.apache.camel.quarkus:camel-quarkus-microprofile-health,")
+                .append("mvn:io.quarkus:quarkus-openshift").append(System.lineSeparator());
+
+        s.append("camel.health.enabled=true").append(System.lineSeparator());
+        s.append("camel.health.routes-enabled=true").append(System.lineSeparator());
+        s.append("camel.health.consumers-enabled=true").append(System.lineSeparator());
+        s.append("camel.health.registry-enabled=true").append(System.lineSeparator());
+        s.append("camel.health.exposure-level=full").append(System.lineSeparator());
+
+        s.append("quarkus.container-image.group=").append(imageGroup).append(System.lineSeparator());
         s.append("quarkus.container-image.name=").append(project.getProjectId()).append(System.lineSeparator());
         s.append("quarkus.openshift.route.expose=false").append(System.lineSeparator());
+        s.append("quarkus.openshift.part-of=").append(project.getProjectId()).append(System.lineSeparator());
         s.append("quarkus.kubernetes-client.trust-certs=true").append(System.lineSeparator());
         return s.toString();
     }

@@ -8,7 +8,9 @@ import java.util.List;
 public interface KaravanConfiguration {
 
     String groupId();
+    String imageGroup();
     String runtime();
+    String runtimeVersion();
     List<Environment> environments();
 
     interface Environment {
