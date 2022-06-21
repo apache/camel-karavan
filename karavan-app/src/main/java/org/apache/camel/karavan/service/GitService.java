@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.service;
 
+import io.quarkus.runtime.StartupEvent;
 import io.vertx.core.Vertx;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
@@ -31,6 +32,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -62,8 +64,11 @@ public class GitService {
     @Inject
     Vertx vertx;
 
-
     private static final Logger LOGGER = Logger.getLogger(GitService.class.getName());
+
+    void onStart(@Observes StartupEvent ev) {
+        LOGGER.info("Git service for repo: " + uri);
+    }
 
     public void cloneRepo() throws GitAPIException {
         LOGGER.info("Cloning repository...");

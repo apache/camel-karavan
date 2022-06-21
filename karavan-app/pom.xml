@@ -90,18 +90,9 @@
             <version>13.0.10.Final</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.camel.quarkus</groupId>
-            <artifactId>camel-quarkus-kubernetes</artifactId>
-            <version>2.9.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>io.quarkus</groupId>-->
-<!--            <artifactId>quarkus-openshift</artifactId>-->
-<!--        </dependency>-->
         <!-- Code generator -->
         <dependency>
             <groupId>org.apache.camel</groupId>
@@ -110,7 +101,7 @@
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-container-image-docker</artifactId>
+            <artifactId>quarkus-container-image-jib</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>

@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: karavan-builder
+  name: karavan-quarkus-builder
 spec:
   params:
     - name: project
@@ -12,7 +12,7 @@ spec:
           #!/usr/bin/env bash
           CHECKOUT_DIR="/scripts"
 
-          git clone --depth 1 --branch main ${GITHUB_REPOSITORY} ${CHECKOUT_DIR}
+          git clone --depth 1 --branch main ${GIT_REPOSITORY} ${CHECKOUT_DIR}
           
           cd ${CHECKOUT_DIR}/$(inputs.params.project) 
 
@@ -38,16 +38,21 @@ spec:
         - mountPath: /jbang/.jbang/cache
           name: jbang-cache  
       env:
-        - name: GITHUB_REPOSITORY
+        - name: GIT_REPOSITORY
           valueFrom:
             secretKeyRef:
-              name: karavan-git-secret
-              key: repository
-        - name: GITHUB_TOKEN
+              name: karavan
+              key: git-repository
+        - name: GIT_USERNAME
           valueFrom:
             secretKeyRef:
-              name: karavan-git-secret
-              key: token
+              name: karavan
+              key: git-username
+        - name: GIT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: git-token
     - name: rollout
       image: >-
         image-registry.openshift-image-registry.svc:5000/openshift/cli:latest

@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: karavan-pipeline
+  name: karavan-quarkus
 spec:
   params:
     - name: PROJECT_NAME
@@ -13,4 +13,4 @@ spec:
           value: $(params.PROJECT_NAME)
       taskRef:
         kind: Task
-        name: karavan-builder
+        name: karavan-quarkus-builder

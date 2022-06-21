@@ -2,7 +2,8 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-- karavan-builder-pvc.yaml
-- karavan-builder-sa.yaml
-- karavan-builder-task.yaml
-- karavan-builder-pipeline.yaml
+- karavan-quarkus-pvc.yaml
+- karavan-secret.yaml
+- karavan-quarkus-task.yaml
+- karavan-quarkus-pipeline.yaml
+- karavan-app.yaml
