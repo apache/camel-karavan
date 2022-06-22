@@ -28,7 +28,6 @@ import {EventBus} from "../utils/EventBus";
 import {ChildElement, CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import ReactDOM from "react-dom";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {AggregateIcon, ChoiceIcon, FilterIcon, SagaIcon, SortIcon, SplitIcon, TransformIcon} from "../utils/KaravanIcons";
 
 interface Props {
     step: CamelElement,

@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 import React from 'react';
-import {
-    AccordionItem, AccordionToggle, AccordionContent, Button
-} from '@patternfly/react-core';
+import {Button} from '@patternfly/react-core';
 import '../karavan.css';
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";

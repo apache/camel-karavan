@@ -16,20 +16,15 @@
  */
 import React from 'react';
 import {
-    Button, Drawer, DrawerContent, DrawerContentBody, DrawerPanelContent, EmptyState, EmptyStateBody, EmptyStateIcon, Modal, PageSection, Title
+    Button, DrawerPanelContent, EmptyState, EmptyStateBody, EmptyStateIcon, Modal, PageSection, Title
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {NamedBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUi} from "../utils/CamelUi";
-import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
-import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {TraitProperties} from "./TraitProperties";
-import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {TraitCard} from "./TraitCard";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 import {CamelElement} from "karavan-core/src/core/model/IntegrationDefinition";
-import {DslProperties} from "../route/DslProperties";
 
 interface Props {
     onSave?: (integration: Integration, propertyOnly: boolean) => void

@@ -18,7 +18,7 @@ import React from 'react';
 import {
     Form,
     FormGroup,
-    TextInput, Button, Title, Tooltip, Text, TextVariants, Popover,
+    TextInput, Button, Title, Tooltip, Popover,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
