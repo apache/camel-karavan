@@ -99,13 +99,17 @@
 .karavan .project-page .table {
   margin-top: 16px;
 }
+.karavan .project-page .project-button {
+  width: 100px;
+}
 
 .karavan .action-cell {
   padding: 0;
 }
 
 .karavan .runtime-badge {
-  width: 75px;
+  min-width: 18px;
+  padding: 0;
 }
 
 .create-file-form .pf-c-form__group {

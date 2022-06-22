@@ -16,5 +16,6 @@ public interface KaravanConfiguration {
     interface Environment {
         String name();
         String cluster();
+        String namespace();
     }
 }

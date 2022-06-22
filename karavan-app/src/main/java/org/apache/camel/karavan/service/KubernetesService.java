@@ -16,12 +16,16 @@
  */
 package org.apache.camel.karavan.service;
 
+import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.tekton.client.DefaultTektonClient;
 import io.fabric8.tekton.pipeline.v1beta1.ParamBuilder;
+import io.fabric8.tekton.pipeline.v1beta1.PipelineRef;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRefBuilder;
+import io.fabric8.tekton.pipeline.v1beta1.PipelineRun;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunBuilder;
+import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpec;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpecBuilder;
 import org.apache.camel.karavan.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -44,26 +48,35 @@ public class KubernetesService {
 
     private static final Logger LOGGER = Logger.getLogger(KubernetesService.class.getName());
 
-    public String createPipelineRun(Project project) throws Exception {
+    public String createPipelineRun(Project project, String namespace) throws Exception {
+
+        Map<String, String> labels = Map.of(
+                "karavan-project-id", project.getProjectId(),
+                "tekton.dev/pipeline", "karavan-quarkus"
+        );
+
+        ObjectMeta meta = new ObjectMetaBuilder()
+                .withGenerateName("karavan-" + project.getProjectId() + "-")
+                .withLabels(labels)
+                .withNamespace(namespace)
+                .build();
+
+        PipelineRef ref = new PipelineRefBuilder().withName("karavan-quarkus").build();
+
+        PipelineRunSpec spec = new PipelineRunSpecBuilder()
+                .withPipelineRef(ref)
+                .withServiceAccountName("pipeline")
+                .withParams(new ParamBuilder().withName("PROJECT_NAME").withNewValue(project.getProjectId()).build())
+                .build();
 
         PipelineRunBuilder pipelineRun = new PipelineRunBuilder()
-                .withMetadata(
-                        new ObjectMetaBuilder()
-                                .withGenerateName("karavan-" + project.getProjectId() + "-")
-                                .withLabels(Map.of(
-                                        "karavan-project-id", project.getProjectId(),
-                                        "tekton.dev/pipeline", "karavan-quarkus"
-                                )).build()
-                )
-                .withSpec(
-                        new PipelineRunSpecBuilder()
-                                .withPipelineRef(
-                                        new PipelineRefBuilder().withName("karavan-quarkus").build()
-                                )
-                                .withServiceAccountName("pipeline")
-                                .withParams(new ParamBuilder().withName("PROJECT_NAME").withNewValue(project.getProjectId()).build())
-                                .build()
-                );
+                .withMetadata(meta)
+                .withSpec(spec);
+
         return tektonClient().v1beta1().pipelineRuns().create(pipelineRun.build()).getMetadata().getName();
+    }
+
+    public PipelineRun getPipelineRun(String name, String namespace) throws Exception {
+        return tektonClient().v1beta1().pipelineRuns().inNamespace(namespace).withName(name).get();
     }
 }
