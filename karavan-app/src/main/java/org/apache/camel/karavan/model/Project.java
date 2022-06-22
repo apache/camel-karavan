@@ -17,6 +17,8 @@ public class Project {
     Project.CamelRuntime runtime;
     @ProtoField(number = 5)
     String lastCommit;
+    @ProtoField(number = 6)
+    String lastPipelineRun;
 
     public enum CamelRuntime {
         @ProtoEnumValue(number = 0, name = "Quarkus")
@@ -28,12 +30,13 @@ public class Project {
     }
 
     @ProtoFactory
-    public Project(String projectId, String name, String description, CamelRuntime runtime, String lastCommit) {
+    public Project(String projectId, String name, String description, CamelRuntime runtime, String lastCommit, String lastPipelineRun) {
         this.projectId = projectId;
         this.name = name;
         this.description = description;
         this.runtime = runtime;
         this.lastCommit = lastCommit;
+        this.lastPipelineRun = lastPipelineRun;
     }
 
     public Project(String projectId, String name, String description, CamelRuntime runtime) {
@@ -85,5 +88,13 @@ public class Project {
 
     public void setLastCommit(String lastCommit) {
         this.lastCommit = lastCommit;
+    }
+
+    public String getLastPipelineRun() {
+        return lastPipelineRun;
+    }
+
+    public void setLastPipelineRun(String lastPipelineRun) {
+        this.lastPipelineRun = lastPipelineRun;
     }
 }

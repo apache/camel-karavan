@@ -111,6 +111,16 @@ export const KaravanApi = {
         });
     },
 
+    tekton: async (project: Project, environment: string, after: (res: AxiosResponse<any>) => void) => {
+        axios.post('/tekton/' + environment, project,
+            {headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'username': 'cameleer'}})
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    },
+
     getKameletNames: async (after: (names: []) => void) => {
         axios.get('/kamelet',
             {headers: {'Accept': 'application/json'}})

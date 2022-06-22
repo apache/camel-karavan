@@ -21,7 +21,7 @@ import {
     EmptyStateVariant,
     EmptyStateIcon,
     Title,
-    ModalVariant, Modal, Spinner, Tooltip, Flex, FlexItem,
+    ModalVariant, Modal, Spinner, Tooltip, Flex, FlexItem, ToggleGroup, ToggleGroupItem,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
@@ -38,8 +38,13 @@ import Editor from "@monaco-editor/react";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CreateFileModal} from "./CreateFileModal";
+import BuildIcon from "@patternfly/react-icons/dist/esm/icons/build-icon";
+import DeployIcon from "@patternfly/react-icons/dist/esm/icons/process-automation-icon";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 import {PropertiesEditor} from "./PropertiesEditor";
+import PendingIcon from "@patternfly/react-icons/dist/esm/icons/pending-icon";
+import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
+import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 
 interface Props {
     project: Project,
@@ -53,9 +58,11 @@ interface State {
     isUploadModalOpen: boolean,
     isDeleteModalOpen: boolean,
     isCreateModalOpen: boolean,
-    isPushModalOpen: boolean,
     isPushing: boolean,
-    fileToDelete?: ProjectFile
+    isBuilding: boolean,
+    fileToDelete?: ProjectFile,
+    environments: string[],
+    environment: string
 }
 
 export class ProjectPage extends React.Component<Props, State> {
@@ -65,9 +72,13 @@ export class ProjectPage extends React.Component<Props, State> {
         isUploadModalOpen: false,
         isCreateModalOpen: false,
         isDeleteModalOpen: false,
-        isPushModalOpen: false,
         isPushing: false,
-        files: []
+        isBuilding: false,
+        files: [],
+        environments: this.props.config.environments && Array.isArray(this.props.config.environments)
+            ? Array.from(this.props.config.environments) : [],
+        environment: this.props.config.environments && Array.isArray(this.props.config.environments)
+            ? this.props.config.environments[0] : ''
     };
 
     componentDidMount() {
@@ -118,7 +129,6 @@ export class ProjectPage extends React.Component<Props, State> {
 
     tools = () => {
         const isFile = this.state.file !== undefined;
-        const isPushing = this.state.isPushing;
         return <Toolbar id="toolbar-group-types">
             {isFile && <ToolbarContent>
                 <ToolbarItem>
@@ -127,23 +137,13 @@ export class ProjectPage extends React.Component<Props, State> {
             </ToolbarContent>}
             {!isFile && <ToolbarContent>
                 <ToolbarItem>
-                    {!isPushing && <Button variant={"primary"} icon={<PlusIcon/>}
-                                           onClick={e => this.setState({isCreateModalOpen: true})}>Create</Button>}
+                    <Button variant={"primary"} icon={<PlusIcon/>}
+                            onClick={e => this.setState({isCreateModalOpen: true})}>Create</Button>
                 </ToolbarItem>
                 <ToolbarItem>
-                    {!isPushing && <Button variant="secondary" icon={<UploadIcon/>}
-                                           onClick={e => this.setState({isUploadModalOpen: true})}>Upload</Button>}
+                    <Button variant="secondary" icon={<UploadIcon/>}
+                            onClick={e => this.setState({isUploadModalOpen: true})}>Upload</Button>
                 </ToolbarItem>
-                <ToolbarItem>
-                    {!isPushing && <Button variant="secondary" icon={<PushIcon/>}
-                                           onClick={e => this.setState({isPushModalOpen: true})}>Push</Button>}
-                </ToolbarItem>
-                {isPushing && <ToolbarItem>
-                    <Button variant="link" isDisabled>Pushing...</Button>
-                </ToolbarItem>}
-                {isPushing && <ToolbarItem>
-                    <Spinner isSVG diameter="30px"/>
-                </ToolbarItem>}
             </ToolbarContent>}
         </Toolbar>
     };
@@ -189,7 +189,6 @@ export class ProjectPage extends React.Component<Props, State> {
         this.setState({
             isUploadModalOpen: false,
             isCreateModalOpen: false,
-            isPushModalOpen: false,
             isPushing: isPushing
         });
         this.onRefresh();
@@ -215,12 +214,26 @@ export class ProjectPage extends React.Component<Props, State> {
         }
     }
 
-    push = () => {
-        this.closeModal(true);
+    push = (after?: () => void) => {
+        this.setState({isPushing: true});
         KaravanApi.push(this.props.project, res => {
             console.log(res)
             if (res.status === 200 || res.status === 201) {
                 this.setState({isPushing: false});
+                after?.call(this);
+                this.onRefresh();
+            } else {
+                // Todo notification
+            }
+        });
+    }
+
+    build = () => {
+        this.setState({isBuilding: true});
+        KaravanApi.tekton(this.props.project, this.state.environment, res => {
+            console.log(res)
+            if (res.status === 200 || res.status === 201) {
+                this.setState({isBuilding: false});
                 this.onRefresh();
             } else {
                 // Todo notification
@@ -238,11 +251,53 @@ export class ProjectPage extends React.Component<Props, State> {
         }
     }
 
+    pushButton = () => {
+        const isPushing = this.state.isPushing;
+        return (<Tooltip content="Commit and push to git" position={"left"}>
+            <Button isLoading={isPushing ? true : undefined} isSmall variant="secondary"
+                    className="project-button"
+                    icon={!isPushing ? <PushIcon/> : <div></div>}
+                    onClick={e => this.push()}>
+                {isPushing ? "..." : "Commit"}
+            </Button>
+        </Tooltip>)
+    }
+
+    buildButton = () => {
+        const isDeploying = this.state.isBuilding;
+        return (<Tooltip content="Commit, push, build and deploy" position={"left"}>
+            <Button isLoading={isDeploying ? true : undefined} isSmall variant="secondary"
+                    className="project-button"
+                    icon={!isDeploying ? <BuildIcon/> : <div></div>}
+                    onClick={e => {
+                        this.push(() => this.build());
+                    }}>
+                {isDeploying ? "..." : "Run"}
+            </Button>
+        </Tooltip>)
+    }
+
+    getProgressIcon(status?: 'pending' | 'progress' | 'done' | 'error') {
+        switch (status) {
+            case "pending":
+                return <PendingIcon color={"grey"}/>;
+            case "progress":
+                return <Spinner isSVG size="md"/>
+            case "done":
+                return <CheckCircleIcon color={"green"}/>;
+            case "error":
+                return <ExclamationCircleIcon color={"red"}/>;
+            default:
+                return undefined;
+        }
+    }
+
+    getCurrentStatus() {
+        return (<Text>OK</Text>)
+    }
+
     getProjectForm = () => {
-        const project = this.state.project;
-        const environments: string[] = this.props.config.environments && Array.isArray(this.props.config.environments)
-            ? Array.from(this.props.config.environments)
-            : [];
+        const {project, environments, environment, isBuilding} = this.state;
         return (
             <Card>
                 <CardBody isFilled>
@@ -262,21 +317,28 @@ export class ProjectPage extends React.Component<Props, State> {
                                     <DescriptionListTerm>Description</DescriptionListTerm>
                                     <DescriptionListDescription>{project?.description}</DescriptionListDescription>
                                 </DescriptionListGroup>
-
                             </DescriptionList>
                         </FlexItem>
                         <FlexItem flex={{default: "flex_1"}}>
                             <DescriptionList isHorizontal>
                                 <DescriptionListGroup>
-                                    <DescriptionListTerm>Latest Commit</DescriptionListTerm>
+                                    <DescriptionListTerm>Last Commit</DescriptionListTerm>
                                     <DescriptionListDescription>
                                         <Tooltip content={project?.lastCommit} position={"bottom"}>
-                                            <Badge>{project?.lastCommit?.substr(0, 7)}</Badge>
+                                            <Badge>{project?.lastCommit ? project?.lastCommit?.substr(0, 7) : "-"}</Badge>
                                         </Tooltip>
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>
                                 <DescriptionListGroup>
-                                    <DescriptionListTerm>Deployment</DescriptionListTerm>
+                                    <DescriptionListTerm>Last Pipeline Run</DescriptionListTerm>
+                                    <DescriptionListDescription>
+                                        <Tooltip content={project?.lastPipelineRun} position={"bottom"}>
+                                            <Badge>{project?.lastPipelineRun ? project?.lastPipelineRun : "-"}</Badge>
+                                        </Tooltip>
+                                    </DescriptionListDescription>
+                                </DescriptionListGroup>
+                                <DescriptionListGroup>
+                                    <DescriptionListTerm>Status</DescriptionListTerm>
                                     <DescriptionListDescription>
                                         <Flex direction={{default: "row"}}>
                                             {environments.filter(e => e !== undefined)
@@ -284,7 +346,31 @@ export class ProjectPage extends React.Component<Props, State> {
                                         </Flex>
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>
+                                {/*<DescriptionListGroup>*/}
+                                {/*    <DescriptionListTerm>Environment</DescriptionListTerm>*/}
+                                {/*    <DescriptionListDescription>*/}
+                                {/*        <ToggleGroup isCompact>*/}
+                                {/*            {environments.filter(e => e !== undefined)*/}
+                                {/*                .map(e => <ToggleGroupItem key={e} text={e} isSelected={environment === e}*/}
+                                {/*                                           onChange={s => this.setState({environment: e})}>*/}
+                                {/*                </ToggleGroupItem>)}*/}
+                                {/*        </ToggleGroup>*/}
+                                {/*    </DescriptionListDescription>*/}
+                                {/*</DescriptionListGroup>*/}
                             </DescriptionList>
+                        </FlexItem>
+                        <FlexItem >
+                            <Flex direction={{default: "column"}}>
+                                <FlexItem>
+                                    {this.pushButton()}
+                                </FlexItem>
+                                <FlexItem>
+                                    {this.buildButton()}
+                                </FlexItem>
+                                <FlexItem>
+                                    <Button isSmall style={{visibility:"hidden"}}>Refresh</Button>
+                                </FlexItem>
+                            </Flex>
                         </FlexItem>
                     </Flex>
                 </CardBody>
@@ -422,19 +508,6 @@ export class ProjectPage extends React.Component<Props, State> {
                     ]}
                     onEscapePress={e => this.setState({isDeleteModalOpen: false})}>
                     <div>{"Are you sure you want to delete the file " + this.state.fileToDelete?.name + "?"}</div>
-                </Modal>
-                <Modal
-                    title="Push"
-                    variant={ModalVariant.small}
-                    isOpen={this.state.isPushModalOpen}
-                    onClose={() => this.setState({isPushModalOpen: false})}
-                    actions={[
-                        <Button key="confirm" variant="primary" onClick={e => this.push()}>Push</Button>,
-                        <Button key="cancel" variant="link"
-                                onClick={e => this.setState({isPushModalOpen: false})}>Cancel</Button>
-                    ]}
-                    onEscapePress={e => this.setState({isPushModalOpen: false})}>
-                    <div>{"Push project to repository"}</div>
                 </Modal>
             </PageSection>
         )
