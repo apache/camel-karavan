@@ -16,7 +16,6 @@
  */
 import {Subject} from 'rxjs';
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
-import {DslMetaModel} from "./DslMetaModel";
 
 const positions = new Subject<DslPosition>();
 const tourEvents = new Subject<TourEvent>();

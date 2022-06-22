@@ -17,19 +17,12 @@
 import React from 'react';
 import {
     Form,
-    FormGroup,
-    TextInput, Button,
+    FormGroup
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
-import {
-    NamedBeanDefinition,
-} from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
-import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {v4 as uuidv4} from "uuid";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
-import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import {IntegrationHeader} from "../utils/KaravanComponents";
 
 interface Props {

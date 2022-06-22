@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    EmptyState, EmptyStateBody, EmptyStateIcon, Modal,
+    EmptyState, EmptyStateBody, EmptyStateIcon,
     PageSection, Title
 } from '@patternfly/react-core';
 import '../karavan.css';
