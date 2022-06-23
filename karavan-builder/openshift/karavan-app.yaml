@@ -65,26 +65,26 @@ spec:
             - containerPort: 8080
               name: http
               protocol: TCP
-          livenessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /q/health/live
-              port: 8080
-              scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
-            successThreshold: 1
-            timeoutSeconds: 10
-          readinessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /q/health/ready
-              port: 8080
-              scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
-            successThreshold: 1
-            timeoutSeconds: 10    
+          # livenessProbe:
+          #   failureThreshold: 3
+          #   httpGet:
+          #     path: /q/health/live
+          #     port: 8080
+          #     scheme: HTTP
+          #   initialDelaySeconds: 0
+          #   periodSeconds: 30
+          #   successThreshold: 1
+          #   timeoutSeconds: 10
+          # readinessProbe:
+          #   failureThreshold: 3
+          #   httpGet:
+          #     path: /q/health/ready
+          #     port: 8080
+          #     scheme: HTTP
+          #   initialDelaySeconds: 0
+          #   periodSeconds: 30
+          #   successThreshold: 1
+          #   timeoutSeconds: 10    
       volumes:
         - name: karavan-data
           persistentVolumeClaim:

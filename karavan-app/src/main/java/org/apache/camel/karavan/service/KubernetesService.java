@@ -18,7 +18,9 @@ package org.apache.camel.karavan.service;
 
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
+import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.tekton.client.DefaultTektonClient;
 import io.fabric8.tekton.pipeline.v1beta1.ParamBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRef;
@@ -34,21 +36,29 @@ import org.jboss.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import java.util.Map;
+import java.util.Objects;
 
 @ApplicationScoped
 public class KubernetesService {
 
-    @ConfigProperty(name = "karavan.config.runtime")
-    String runtime;
+
+    @ConfigProperty(name = "kubernetes.namespace", defaultValue = "localhost")
+    String namespace;
+
+    @Produces
+    public KubernetesClient kubernetesClient() {
+        return new DefaultKubernetesClient();
+    }
 
     @Produces
     public DefaultTektonClient tektonClient() {
-        return new DefaultTektonClient(new DefaultKubernetesClient());
+        return new DefaultTektonClient(kubernetesClient());
     }
 
     private static final Logger LOGGER = Logger.getLogger(KubernetesService.class.getName());
 
     public String createPipelineRun(Project project, String namespace) throws Exception {
+        LOGGER.info("Pipeline is creating for " + project.getProjectId());
 
         Map<String, String> labels = Map.of(
                 "karavan-project-id", project.getProjectId(),
@@ -69,14 +79,24 @@ public class KubernetesService {
                 .withParams(new ParamBuilder().withName("PROJECT_NAME").withNewValue(project.getProjectId()).build())
                 .build();
 
-        PipelineRunBuilder pipelineRun = new PipelineRunBuilder()
+        PipelineRunBuilder pipelineRunBuilder = new PipelineRunBuilder()
                 .withMetadata(meta)
                 .withSpec(spec);
 
-        return tektonClient().v1beta1().pipelineRuns().create(pipelineRun.build()).getMetadata().getName();
+        PipelineRun pipelineRun = tektonClient().v1beta1().pipelineRuns().create(pipelineRunBuilder.build());
+        LOGGER.info("Pipeline run started " + pipelineRun.getMetadata().getName());
+        return pipelineRun.getMetadata().getName();
     }
 
-    public PipelineRun getPipelineRun(String name, String namespace) throws Exception {
+    public PipelineRun getPipelineRun(String name, String namespace)  {
         return tektonClient().v1beta1().pipelineRuns().inNamespace(namespace).withName(name).get();
+    }
+
+    public Secret getKaravanSecret() {
+        return kubernetesClient().secrets().inNamespace(namespace).withName("karavan").get();
+    }
+
+    public boolean inKubernetes(){
+        return !Objects.equals(namespace, "localhost");
     }
 }
