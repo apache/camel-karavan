@@ -22,6 +22,7 @@ import org.apache.camel.karavan.KaravanLifecycleBean;
 import org.apache.camel.karavan.model.GroupedKey;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
+import org.apache.camel.karavan.model.ProjectStatus;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -45,7 +46,6 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -54,6 +54,8 @@ public class InfinispanService {
     BasicCache<GroupedKey, Project> projects;
 
     BasicCache<GroupedKey, ProjectFile> files;
+
+    BasicCache<GroupedKey, ProjectStatus> statuses;
 
     @Inject
     RemoteCacheManager cacheManager;
@@ -87,10 +89,12 @@ public class InfinispanService {
                     .fetchPersistentState(true);
             projects = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Project.CACHE, builder.build());
             files = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ProjectFile.CACHE, builder.build());
+            statuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ProjectStatus.CACHE, builder.build());
         } else {
             LOGGER.info("InfinispanService is starting in remote mode");
             projects = cacheManager.administration().getOrCreateCache(Project.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, Project.CACHE)));
             files = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, ProjectFile.CACHE)));
+            statuses = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, ProjectStatus.CACHE)));
         }
         if (ProfileManager.getLaunchMode().isDevOrTest()){
 //            generateDevProjects();
@@ -145,6 +149,10 @@ public class InfinispanService {
 
     public Project getProject(String project) {
         return projects.get(GroupedKey.create(project, project));
+    }
+
+    public Project getProjectStatus(String projectId) {
+        return projects.get(GroupedKey.create(projectId, projectId));
     }
 
     private void generateDevProjects(){

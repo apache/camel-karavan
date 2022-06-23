@@ -41,7 +41,6 @@ import java.util.Objects;
 @ApplicationScoped
 public class KubernetesService {
 
-
     @ConfigProperty(name = "kubernetes.namespace", defaultValue = "localhost")
     String namespace;
 

@@ -48,11 +48,11 @@ spec:
             secretKeyRef:
               name: karavan
               key: git-username
-        - name: GIT_TOKEN
+        - name: GIT_PASSWORD
           valueFrom:
             secretKeyRef:
               name: karavan
-              key: git-token
+              key: git-password
     - name: rollout
       image: >-
         image-registry.openshift-image-registry.svc:5000/openshift/cli:latest

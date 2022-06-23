@@ -403,7 +403,7 @@ export class ProjectPage extends React.Component<Props, State> {
                                 </Button>
                             </Td>
                             <Td modifier={"fitContent"}>
-                                <Button style={{padding: '0'}} variant={"plain"}
+                                <Button style={{padding: '0'}} variant={"plain"} isDisabled={file.name === 'application.properties'}
                                         onClick={e => this.openDeleteConfirmation(file)}>
                                     <DeleteIcon/>
                                 </Button>
