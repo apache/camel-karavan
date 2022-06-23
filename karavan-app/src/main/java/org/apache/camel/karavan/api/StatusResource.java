@@ -16,14 +16,14 @@
  */
 package org.apache.camel.karavan.api;
 
-import io.vertx.core.CompositeFuture;
-import io.vertx.core.Future;
-import io.vertx.core.Vertx;
-import io.vertx.ext.web.client.HttpResponse;
-import io.vertx.ext.web.client.WebClient;
+import io.vertx.mutiny.core.Vertx;
+import io.vertx.mutiny.core.buffer.Buffer;
+import io.vertx.mutiny.ext.web.client.HttpResponse;
+import  io.vertx.mutiny.ext.web.client.WebClient;
 import org.apache.camel.karavan.model.KaravanConfiguration;
 import org.apache.camel.karavan.model.ProjectStatus;
 import org.apache.camel.karavan.service.InfinispanService;
+import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -32,12 +32,15 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Path("/status")
 public class StatusResource {
+
+    private static final Logger LOGGER = Logger.getLogger(StatusResource.class.getName());
 
     @Inject
     InfinispanService infinispanService;
@@ -65,22 +68,21 @@ public class StatusResource {
         status.setProjectId(projectId);
         status.setLastUpdate(System.currentTimeMillis());
         Map<String, ProjectStatus.Status> statuses = new HashMap<>(configuration.environments().size());
-        Map<String, Future> responses = new HashMap<>(configuration.environments().size());
         configuration.environments().forEach(e -> {
             String url = String.format("http://%s.%s.%s/q/health", projectId, e.namespace(), e.cluster());
-            responses.put(e.name(), getWebClient().getAbs(url).timeout(3000).send());
-        });
-        CompositeFuture.join(new ArrayList<>(responses.values())).onComplete(e -> {
-            responses.forEach((env, event) -> {
-                System.out.println(env + " : " + event.toString());
-                if (event.succeeded()
-                        && event.result() instanceof HttpResponse
-                        && ((HttpResponse) event.result()).bodyAsJsonObject().getString("status").equals("UP")){
-                            statuses.put(env, ProjectStatus.Status.UP);
-                        } else {
-                            statuses.put(env, ProjectStatus.Status.DOWN);
-                        }
-            });
+            // TODO: make it reactive
+            try {
+                HttpResponse<Buffer> result = getWebClient().getAbs(url).timeout(1000).send().subscribeAsCompletionStage().toCompletableFuture().get();
+                if (result.bodyAsJsonObject().getString("status").equals("UP")){
+                    statuses.put(e.name(), ProjectStatus.Status.UP);
+                } else {
+                    statuses.put(e.name(), ProjectStatus.Status.DOWN);
+                }
+            } catch (Exception ex) {
+
+                statuses.put(e.name(), ProjectStatus.Status.DOWN);
+                LOGGER.error(ex);
+            }
         });
         status.setStatuses(statuses);
         return status;
