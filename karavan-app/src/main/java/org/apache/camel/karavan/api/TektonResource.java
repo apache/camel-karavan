@@ -16,10 +16,8 @@
  */
 package org.apache.camel.karavan.api;
 
-import io.fabric8.tekton.pipeline.v1beta1.PipelineRun;
 import org.apache.camel.karavan.model.KaravanConfiguration;
 import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.service.InfinispanService;
 import org.apache.camel.karavan.service.KubernetesService;
 import org.jboss.logging.Logger;
