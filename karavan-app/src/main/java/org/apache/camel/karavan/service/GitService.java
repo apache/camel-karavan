@@ -25,6 +25,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.storage.file.FileBasedConfig;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
@@ -68,13 +69,6 @@ public class GitService {
 
     void onStart(@Observes StartupEvent ev) {
         LOGGER.info("Git service for repo: " + uri);
-    }
-
-    public void cloneRepo() throws GitAPIException {
-        LOGGER.info("Cloning repository...");
-        try (Git git = Git.cloneRepository().setDirectory(Path.of(integrations).toFile()).setURI(uri).call()) {
-            LOGGER.info("Git status: " + git.status().call());
-        }
     }
 
     public static void main(String[] args) throws GitAPIException, IOException, URISyntaxException {

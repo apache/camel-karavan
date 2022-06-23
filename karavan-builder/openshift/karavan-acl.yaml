@@ -1,0 +1,77 @@
+# Service account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: karavan
+  labels:
+    app.kubernetes.io/name: karavan
+    app.openshift.io/runtime: camel
+---
+# Role view-secrets
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: karavan-view-secrets
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+---
+# Role tekton run pipeline
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: karavan-tekton-run
+rules:
+  - verbs:
+      - get
+      - list
+      - watch
+      - create
+    apiGroups:
+      - tekton.dev
+    resources:
+      - pipelinerun
+---
+# Role bindings
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: karavan-tekton
+subjects:
+  - kind: ServiceAccount
+    name: karavan
+    namespace: karavan
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: karavan-tekton-run
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: karavan-view
+roleRef:
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+  name: view
+subjects:
+  - kind: ServiceAccount
+    name: karavan
+    namespace: karavan
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: karavan-view-secrets
+roleRef:
+  kind: Role
+  apiGroup: rbac.authorization.k8s.io
+  name: karavan-view-secrets
+subjects:
+  - kind: ServiceAccount
+    name: karavan
+    namespace: karavan
