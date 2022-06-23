@@ -16,13 +16,20 @@
  */
 package org.apache.camel.karavan.api;
 
+import io.quarkus.runtime.configuration.ProfileManager;
+import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.ext.web.client.HttpResponse;
-import  io.vertx.mutiny.ext.web.client.WebClient;
+import io.vertx.mutiny.ext.web.client.WebClient;
 import org.apache.camel.karavan.model.KaravanConfiguration;
+import org.apache.camel.karavan.model.ProjectEnvStatus;
 import org.apache.camel.karavan.model.ProjectStatus;
 import org.apache.camel.karavan.service.InfinispanService;
+import org.eclipse.microprofile.faulttolerance.Asynchronous;
+import org.eclipse.microprofile.faulttolerance.Fallback;
+import org.eclipse.microprofile.faulttolerance.Retry;
+import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
@@ -32,10 +39,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Path("/status")
 public class StatusResource {
@@ -54,7 +63,7 @@ public class StatusResource {
     WebClient webClient;
 
     public WebClient getWebClient() {
-        if (webClient == null){
+        if (webClient == null) {
             webClient = WebClient.create(vertx);
         }
         return webClient;
@@ -63,28 +72,49 @@ public class StatusResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{projectId}")
-    public ProjectStatus getStatus(@HeaderParam("username") String username, @PathParam("projectId") String projectId) throws Exception {
+    @Timeout(value = 1000)
+    @Retry(maxRetries = 0)
+    @Asynchronous
+    @Fallback(fallbackMethod = "fallbackStatus")
+    public Uni<ProjectStatus> getStatus(@HeaderParam("username") String username, @PathParam("projectId") String projectId) throws Exception {
         ProjectStatus status = new ProjectStatus();
         status.setProjectId(projectId);
         status.setLastUpdate(System.currentTimeMillis());
-        Map<String, ProjectStatus.Status> statuses = new HashMap<>(configuration.environments().size());
+        List<ProjectEnvStatus> statuses = new ArrayList<>(configuration.environments().size());
         configuration.environments().forEach(e -> {
-            String url = String.format("http://%s.%s.%s/q/health", projectId, e.namespace(), e.cluster());
+            String url = ProfileManager.getActiveProfile().equals("dev")
+                    ? String.format("http://%s-%s.%s/q/health", projectId, e.namespace(), e.cluster())
+                    : String.format("http://%s.%s.%s/q/health", projectId, e.namespace(), e.cluster());
             // TODO: make it reactive
             try {
                 HttpResponse<Buffer> result = getWebClient().getAbs(url).timeout(1000).send().subscribeAsCompletionStage().toCompletableFuture().get();
-                if (result.bodyAsJsonObject().getString("status").equals("UP")){
-                    statuses.put(e.name(), ProjectStatus.Status.UP);
+                if (result.bodyAsJsonObject().getString("status").equals("UP")) {
+                    statuses.add(new ProjectEnvStatus(e.name(), ProjectEnvStatus.Status.UP));
                 } else {
-                    statuses.put(e.name(), ProjectStatus.Status.DOWN);
+                    statuses.add(new ProjectEnvStatus(e.name(), ProjectEnvStatus.Status.DOWN));
                 }
             } catch (Exception ex) {
-
-                statuses.put(e.name(), ProjectStatus.Status.DOWN);
+                statuses.add(new ProjectEnvStatus(e.name(), ProjectEnvStatus.Status.DOWN));
                 LOGGER.error(ex);
             }
         });
         status.setStatuses(statuses);
-        return status;
+        LOGGER.info("Storing status in cache for " + projectId);
+        infinispanService.saveProjectStatus(status);
+        return Uni.createFrom().item(status);
+    }
+
+    public Uni<ProjectStatus> fallbackStatus(String username, String projectId) {
+        LOGGER.info("Return cached status for " + projectId);
+        ProjectStatus status = infinispanService.getProjectStatus(projectId);
+        if (status != null){
+            return Uni.createFrom().item(status);
+        } else {
+            return Uni.createFrom().item(new ProjectStatus(
+                    projectId,
+                    configuration.environments().stream().map(e -> new ProjectEnvStatus(e.name(), ProjectEnvStatus.Status.DOWN)).collect(Collectors.toList()),
+                    Long.valueOf(0)
+            ));
+        }
     }
 }
