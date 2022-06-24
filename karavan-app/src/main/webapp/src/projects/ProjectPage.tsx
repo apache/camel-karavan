@@ -21,12 +21,12 @@ import {
     EmptyStateVariant,
     EmptyStateIcon,
     Title,
-    ModalVariant, Modal, Spinner, Tooltip, Flex, FlexItem, ToggleGroup, ToggleGroupItem,
+    ModalVariant, Modal, Spinner, Tooltip, Flex, FlexItem, ProgressStep, ProgressStepper
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
 import {KaravanApi} from "../api/KaravanApi";
-import {Project, ProjectFile, ProjectFileTypes} from "../models/ProjectModels";
+import {Project, ProjectFile, ProjectFileTypes, ProjectStatus} from "../models/ProjectModels";
 import {CamelUi} from "../designer/utils/CamelUi";
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
@@ -39,7 +39,6 @@ import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CreateFileModal} from "./CreateFileModal";
 import BuildIcon from "@patternfly/react-icons/dist/esm/icons/build-icon";
-import DeployIcon from "@patternfly/react-icons/dist/esm/icons/process-automation-icon";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 import {PropertiesEditor} from "./PropertiesEditor";
 import PendingIcon from "@patternfly/react-icons/dist/esm/icons/pending-icon";
@@ -53,6 +52,7 @@ interface Props {
 
 interface State {
     project?: Project,
+    status?: ProjectStatus,
     file?: ProjectFile,
     files: ProjectFile[],
     isUploadModalOpen: boolean,
@@ -62,7 +62,8 @@ interface State {
     isBuilding: boolean,
     fileToDelete?: ProjectFile,
     environments: string[],
-    environment: string
+    environment: string,
+    key?: string,
 }
 
 export class ProjectPage extends React.Component<Props, State> {
@@ -80,9 +81,42 @@ export class ProjectPage extends React.Component<Props, State> {
         environment: this.props.config.environments && Array.isArray(this.props.config.environments)
             ? this.props.config.environments[0] : ''
     };
+    interval: any;
 
     componentDidMount() {
         this.onRefresh();
+        this.interval = setInterval(() => this.onRefreshStatus(), 3000);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.interval);
+    }
+
+    onRefresh = () => {
+        if (this.props.project) {
+            KaravanApi.getProject(this.props.project.projectId, (project: Project) => {
+                this.setState({
+                    project: project
+                })
+            });
+            KaravanApi.getFiles(this.props.project.projectId, (files: []) => {
+                this.setState({
+                    files: files
+                })
+            });
+        }
+    }
+
+    onRefreshStatus = () => {
+        if (this.props.project) {
+            KaravanApi.getProjectStatus(this.props.project.projectId, (status: ProjectStatus) => {
+                this.setState({
+                    key: Math.random().toString(),
+                    status: status
+                });
+                console.log(status);
+            });
+        }
     }
 
     post = (file: ProjectFile) => {
@@ -169,21 +203,6 @@ export class ProjectPage extends React.Component<Props, State> {
             </TextContent>}
         </div>)
     };
-
-    onRefresh = () => {
-        if (this.props.project) {
-            KaravanApi.getProject(this.props.project.projectId, (project: Project) => {
-                this.setState({
-                    project: project
-                })
-            });
-            KaravanApi.getFiles(this.props.project.projectId, (files: []) => {
-                this.setState({
-                    files: files
-                })
-            });
-        }
-    }
 
     closeModal = (isPushing: boolean = false) => {
         this.setState({
@@ -272,7 +291,7 @@ export class ProjectPage extends React.Component<Props, State> {
                     onClick={e => {
                         this.push(() => this.build());
                     }}>
-                {isDeploying ? "..." : "Run"}
+                {isDeploying ? "..." : "Build"}
             </Button>
         </Tooltip>)
     }
@@ -296,8 +315,37 @@ export class ProjectPage extends React.Component<Props, State> {
         return (<Text>OK</Text>)
     }
 
+    getPipelineState() {
+        const {project, status} = this.state;
+        const isRunning = status?.pipeline === 'Running';
+        const isFailed = status?.pipeline === 'Failed';
+        const isSucceeded = status?.pipeline === 'Succeeded';
+        let classname = "pipeline"
+        if (isRunning) classname = classname + " pipeline-running";
+        if (isFailed) classname = classname + " pipeline-running";
+        if (isSucceeded) classname = classname + " pipeline-succeeded";
+        return (
+                <Flex spaceItems={{ default: 'spaceItemsNone' }} className={classname} direction={{default:"row"}} alignItems={{default: "alignItemsCenter"}}>
+                    <FlexItem style={{height:"18px"}}>
+                        {isRunning && <Spinner isSVG diameter="16px"/>}
+                    </FlexItem>
+                    <FlexItem style={{height:"18px"}}>
+                        {project?.lastPipelineRun ? project?.lastPipelineRun : "-"}
+                    </FlexItem>
+                </Flex>
+            )
+    }
+
+    isUp(env: string): boolean {
+        if (this.state.status) {
+            return this.state.status.statuses.find(s => s.environment === env)?.status === 'UP';
+        } else {
+            return false;
+        }
+    }
+
     getProjectForm = () => {
-        const {project, environments, environment, isBuilding} = this.state;
+        const {project, environments} = this.state;
         return (
             <Card>
                 <CardBody isFilled>
@@ -322,7 +370,7 @@ export class ProjectPage extends React.Component<Props, State> {
                         <FlexItem flex={{default: "flex_1"}}>
                             <DescriptionList isHorizontal>
                                 <DescriptionListGroup>
-                                    <DescriptionListTerm>Last Commit</DescriptionListTerm>
+                                    <DescriptionListTerm>Commit</DescriptionListTerm>
                                     <DescriptionListDescription>
                                         <Tooltip content={project?.lastCommit} position={"bottom"}>
                                             <Badge>{project?.lastCommit ? project?.lastCommit?.substr(0, 7) : "-"}</Badge>
@@ -330,36 +378,25 @@ export class ProjectPage extends React.Component<Props, State> {
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>
                                 <DescriptionListGroup>
-                                    <DescriptionListTerm>Last Pipeline Run</DescriptionListTerm>
+                                    <DescriptionListTerm>Pipeline Run</DescriptionListTerm>
                                     <DescriptionListDescription>
-                                        <Tooltip content={project?.lastPipelineRun} position={"bottom"}>
-                                            <Badge>{project?.lastPipelineRun ? project?.lastPipelineRun : "-"}</Badge>
-                                        </Tooltip>
+                                        {this.getPipelineState()}
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>
-                                <DescriptionListGroup>
+                                <DescriptionListGroup key={this.state.key}>
                                     <DescriptionListTerm>Status</DescriptionListTerm>
                                     <DescriptionListDescription>
                                         <Flex direction={{default: "row"}}>
                                             {environments.filter(e => e !== undefined)
-                                                .map(e => <FlexItem key={e}><Badge isRead>{e}</Badge></FlexItem>)}
+                                                .map(e => <FlexItem key={e}><Badge
+                                                    className={this.isUp(e) ? "badge-env-up" : ""}
+                                                    isRead>{e}</Badge></FlexItem>)}
                                         </Flex>
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>
-                                {/*<DescriptionListGroup>*/}
-                                {/*    <DescriptionListTerm>Environment</DescriptionListTerm>*/}
-                                {/*    <DescriptionListDescription>*/}
-                                {/*        <ToggleGroup isCompact>*/}
-                                {/*            {environments.filter(e => e !== undefined)*/}
-                                {/*                .map(e => <ToggleGroupItem key={e} text={e} isSelected={environment === e}*/}
-                                {/*                                           onChange={s => this.setState({environment: e})}>*/}
-                                {/*                </ToggleGroupItem>)}*/}
-                                {/*        </ToggleGroup>*/}
-                                {/*    </DescriptionListDescription>*/}
-                                {/*</DescriptionListGroup>*/}
                             </DescriptionList>
                         </FlexItem>
-                        <FlexItem >
+                        <FlexItem>
                             <Flex direction={{default: "column"}}>
                                 <FlexItem>
                                     {this.pushButton()}
@@ -368,7 +405,7 @@ export class ProjectPage extends React.Component<Props, State> {
                                     {this.buildButton()}
                                 </FlexItem>
                                 <FlexItem>
-                                    <Button isSmall style={{visibility:"hidden"}}>Refresh</Button>
+                                    <Button isSmall style={{visibility: "hidden"}}>Refresh</Button>
                                 </FlexItem>
                             </Flex>
                         </FlexItem>
@@ -403,7 +440,8 @@ export class ProjectPage extends React.Component<Props, State> {
                                 </Button>
                             </Td>
                             <Td modifier={"fitContent"}>
-                                <Button style={{padding: '0'}} variant={"plain"} isDisabled={file.name === 'application.properties'}
+                                <Button style={{padding: '0'}} variant={"plain"}
+                                        isDisabled={file.name === 'application.properties'}
                                         onClick={e => this.openDeleteConfirmation(file)}>
                                     <DeleteIcon/>
                                 </Button>

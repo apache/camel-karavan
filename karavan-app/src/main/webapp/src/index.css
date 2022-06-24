@@ -99,8 +99,42 @@
 .karavan .project-page .table {
   margin-top: 16px;
 }
+
 .karavan .project-page .project-button {
   width: 100px;
+}
+
+.karavan .project-page .badge-env-up {
+  background-color: rgb(56, 129, 47);
+  color: white;
+}
+
+.karavan .project-page .pipeline {
+  background-color: #f5f5f5;
+  border-radius: 24px;
+  font-size: 12px;
+  font-weight: bold;
+  width: fit-content;
+  padding-right: 8px;
+  padding-left: 8px;
+}
+
+.karavan .project-page .pipeline-running {
+  background-color: rgb(139, 193, 247);
+}
+
+.karavan .project-page .pipeline-succeeded {
+  background-color: rgb(56, 129, 47);
+  color: white;
+}
+
+.karavan .project-page .pipeline-failed {
+  background-color: #C9190B;
+  color: white;
+}
+
+.karavan .project-page .pipeline .pf-c-progress-stepper__step-main {
+  display: none;
 }
 
 .karavan .action-cell {

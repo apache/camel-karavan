@@ -22,6 +22,23 @@ export class Project {
     }
 }
 
+export class ProjectEnvStatus {
+    environment: string = '';
+    status: string = '';
+
+    constructor(environment: string, status: string) {
+        this.environment = environment;
+        this.status = status;
+    }
+}
+
+export class ProjectStatus {
+    projectId: string = '';
+    lastUpdate: number = 0;
+    statuses: ProjectEnvStatus[] = [];
+    pipeline: string = 'Running'
+}
+
 export class ProjectFile {
     name: string = '';
     projectId: string = '';

@@ -130,7 +130,6 @@ public class InfinispanService {
                     .execute().list();
         }
     }
-
     public void saveProjectFile(ProjectFile file) {
         files.put(GroupedKey.create(file.getProjectId(), file.getName()), file);
     }
@@ -151,8 +150,12 @@ public class InfinispanService {
         return projects.get(GroupedKey.create(project, project));
     }
 
-    public Project getProjectStatus(String projectId) {
-        return projects.get(GroupedKey.create(projectId, projectId));
+    public ProjectStatus getProjectStatus(String projectId) {
+        return statuses.get(GroupedKey.create(projectId, projectId));
+    }
+
+    public void saveProjectStatus(ProjectStatus status) {
+        statuses.put(GroupedKey.create(status.getProjectId(), status.getProjectId()), status);
     }
 
     private void generateDevProjects(){

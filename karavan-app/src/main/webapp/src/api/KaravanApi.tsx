@@ -1,5 +1,5 @@
 import axios, {AxiosResponse} from "axios";
-import {Project, ProjectFile} from "../models/ProjectModels";
+import {Project, ProjectFile, ProjectStatus} from "../models/ProjectModels";
 
 export const KaravanApi = {
 
@@ -15,8 +15,20 @@ export const KaravanApi = {
         });
     },
 
-    getProject: async (name: string, after: (project: Project) => void) => {
-        axios.get('/project/' + name,
+    getProject: async (projectId: string, after: (project: Project) => void) => {
+        axios.get('/project/' + projectId,
+            {headers: {'Accept': 'application/json', 'username': 'cameleer'}})
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    },
+
+    getProjectStatus: async (projectId: string, after: (status: ProjectStatus) => void) => {
+        axios.get('/status/' + projectId,
             {headers: {'Accept': 'application/json', 'username': 'cameleer'}})
             .then(res => {
                 if (res.status === 200) {
