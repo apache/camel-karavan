@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.api;
 
+import io.fabric8.tekton.pipeline.v1beta1.PipelineRun;
 import io.quarkus.runtime.configuration.ProfileManager;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
@@ -23,9 +24,11 @@ import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.apache.camel.karavan.model.KaravanConfiguration;
+import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectEnvStatus;
 import org.apache.camel.karavan.model.ProjectStatus;
 import org.apache.camel.karavan.service.InfinispanService;
+import org.apache.camel.karavan.service.KubernetesService;
 import org.eclipse.microprofile.faulttolerance.Asynchronous;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Retry;
@@ -53,6 +56,9 @@ public class StatusResource {
 
     @Inject
     InfinispanService infinispanService;
+
+    @Inject
+    KubernetesService kubernetesService;
 
     @Inject
     KaravanConfiguration configuration;
@@ -99,6 +105,15 @@ public class StatusResource {
             }
         });
         status.setStatuses(statuses);
+
+        Project project = infinispanService.getProject(projectId);
+        PipelineRun pipelineRun = kubernetesService.getPipelineRun(project.getLastPipelineRun(), configuration.environments().get(0).namespace());
+        if (pipelineRun != null) {
+            status.setPipeline(pipelineRun.getStatus().getConditions().get(0).getReason());
+        } else {
+            status.setPipeline("Undefined");
+        }
+
         LOGGER.info("Storing status in cache for " + projectId);
         infinispanService.saveProjectStatus(status);
         return Uni.createFrom().item(status);
@@ -113,7 +128,7 @@ public class StatusResource {
             return Uni.createFrom().item(new ProjectStatus(
                     projectId,
                     configuration.environments().stream().map(e -> new ProjectEnvStatus(e.name(), ProjectEnvStatus.Status.DOWN)).collect(Collectors.toList()),
-                    Long.valueOf(0)
+                    Long.valueOf(0), "Undefined"
             ));
         }
     }

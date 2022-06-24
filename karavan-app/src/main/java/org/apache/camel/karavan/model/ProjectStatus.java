@@ -15,6 +15,8 @@ public class ProjectStatus {
     List<ProjectEnvStatus> statuses;
     @ProtoField(number = 3)
     Long lastUpdate;
+    @ProtoField(number = 4)
+    String pipeline;
 
     public enum Status {
         @ProtoEnumValue(number = 0, name = "DOWN")
@@ -24,10 +26,11 @@ public class ProjectStatus {
     }
 
     @ProtoFactory
-    public ProjectStatus(String projectId, List<ProjectEnvStatus> statuses, Long lastUpdate) {
+    public ProjectStatus(String projectId, List<ProjectEnvStatus> statuses, Long lastUpdate, String pipeline) {
         this.projectId = projectId;
         this.statuses = statuses;
         this.lastUpdate = lastUpdate;
+        this.pipeline = pipeline;
     }
 
     public ProjectStatus() {
@@ -55,5 +58,13 @@ public class ProjectStatus {
 
     public void setLastUpdate(Long lastUpdate) {
         this.lastUpdate = lastUpdate;
+    }
+
+    public String getPipeline() {
+        return pipeline;
+    }
+
+    public void setPipeline(String pipeline) {
+        this.pipeline = pipeline;
     }
 }
