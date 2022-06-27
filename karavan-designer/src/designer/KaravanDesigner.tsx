@@ -155,9 +155,9 @@ export class KaravanDesigner extends React.Component<Props, State> {
                 {tab === 'beans' && <BeansDesigner integration={this.state.integration}
                                                    onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                    dark={this.props.dark}/>}
-                {tab === 'dependencies' && <DependenciesDesigner integration={this.state.integration}
-                                                                 onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
-                                                                 dark={this.props.dark}/>}
+                {/*{tab === 'dependencies' && <DependenciesDesigner integration={this.state.integration}*/}
+                {/*                                                 onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}*/}
+                {/*                                                 dark={this.props.dark}/>}*/}
                 {tab === 'error' && <ErrorDesigner integration={this.state.integration}
                                                    onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                    dark={this.props.dark}/>}
