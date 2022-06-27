@@ -18,13 +18,11 @@ package org.apache.camel.karavan.service;
 
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.runtime.configuration.ProfileManager;
-import org.apache.camel.karavan.KaravanLifecycleBean;
+import io.vertx.core.eventbus.EventBus;
 import org.apache.camel.karavan.model.GroupedKey;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.model.ProjectStatus;
-import org.eclipse.microprofile.config.Config;
-import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.infinispan.Cache;
 import org.infinispan.client.hotrod.RemoteCache;
@@ -63,6 +61,9 @@ public class InfinispanService {
     @Inject
     GeneratorService generatorService;
 
+    @Inject
+    EventBus bus;
+
     @ConfigProperty(name = "karavan.config.runtime")
     String runtime;
 
@@ -71,7 +72,7 @@ public class InfinispanService {
             + " <groups enabled=\"true\"/>"
             + "</distributed-cache>";
 
-    private static final Logger LOGGER = Logger.getLogger(KaravanLifecycleBean.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(KaravanService.class.getName());
 
     void onStart(@Observes StartupEvent ev) {
         if (cacheManager == null) {
@@ -96,7 +97,11 @@ public class InfinispanService {
             files = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, ProjectFile.CACHE)));
             statuses = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, ProjectStatus.CACHE)));
         }
-        if (ProfileManager.getLaunchMode().isDevOrTest()){
+        if (getProjects().isEmpty()) {
+            LOGGER.info("No projects found in the Data Grid");
+            bus.publish(KaravanService.IMPORT_PROJECTS, "");
+        }
+        if (ProfileManager.getLaunchMode().isDevOrTest() && getProjects().isEmpty()){
 //            generateDevProjects();
         }
     }
@@ -158,7 +163,8 @@ public class InfinispanService {
         statuses.put(GroupedKey.create(status.getProjectId(), status.getProjectId()), status);
     }
 
-    private void generateDevProjects(){
+    private void generateDevProjects() {
+        LOGGER.info("Generate demo projects");
         for (int i = 0; i < 10; i++){
             String projectId = "parcel-demo" + i;
             Project p = new Project(projectId, "Demo project " + i, "Demo project placeholder for UI testing purposes", Project.CamelRuntime.valueOf(runtime));

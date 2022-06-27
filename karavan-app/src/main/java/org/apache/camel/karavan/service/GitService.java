@@ -18,6 +18,7 @@ package org.apache.camel.karavan.service;
 
 import io.fabric8.kubernetes.api.model.Secret;
 import io.quarkus.runtime.StartupEvent;
+import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.Vertx;
 import org.apache.camel.karavan.model.GitConfig;
 import org.apache.camel.karavan.model.Project;
@@ -44,8 +45,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -105,6 +109,65 @@ public class GitService {
         return commitAddedAndPush(git, gitConfig.getMainBranch(), cred).getId().getName();
     }
 
+    public List<Tuple2<String, Map<String, String>>> readProjectsFromRepository() throws GitAPIException, IOException, URISyntaxException {
+        LOGGER.info("Read projects from repository");
+        GitConfig gitConfig = getGitConfig();
+        CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
+        String uuid = UUID.randomUUID().toString();
+        String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
+        LOGGER.infof("Temp folder created: %s", folder);
+        List<Tuple2<String, Map<String, String>>> result = new ArrayList<>();
+        Git git = null;
+        try {
+            git = clone(folder, gitConfig.getUri(), gitConfig.getMainBranch(), cred);
+            checkout(git, false, null, null, gitConfig.getMainBranch());
+            List<String> projects = readProjectsFromFolder(folder);
+            projects.forEach(project -> {
+                Map<String, String> files = readProjectFilesFromFolder(folder, project);
+                result.add(Tuple2.of(project, files));
+            });
+            return result;
+        } catch (RefNotFoundException e) {
+            LOGGER.error("New repository");
+            return result;
+        } catch (Exception e) {
+            LOGGER.error("Error", e);
+            return result;
+        }
+    }
+
+    private List<String> readProjectsFromFolder(String folder) throws IOException {
+        LOGGER.info("Read projects from " + folder);
+        List<String> files = new ArrayList<>();
+        vertx.fileSystem().readDirBlocking(folder).forEach(f -> {
+            String[] filenames = f.split(File.separator);
+            String folderName = filenames[filenames.length -1];
+            if (!folderName.startsWith(".") && Files.isDirectory(Paths.get(f))) {
+                LOGGER.info("Importing project from folder " + folderName);
+                files.add(folderName);
+            }
+        });
+        return files;
+    }
+
+    private Map<String, String> readProjectFilesFromFolder(String repoFolder, String projectFolder) {
+        LOGGER.infof("Read files from %s/%s", repoFolder, projectFolder );
+        Map<String, String> files = new HashMap<>();
+        vertx.fileSystem().readDirBlocking(repoFolder + File.separator + projectFolder).forEach(f -> {
+            String[] filenames = f.split(File.separator);
+            String filename = filenames[filenames.length -1];
+            if (!filename.startsWith(".") && !Files.isDirectory(Paths.get(f))) {
+                LOGGER.info("Importing file " + filename);
+                try {
+                    files.put(filename, Files.readString(Paths.get(f)));
+                } catch (IOException e) {
+                    LOGGER.error("Error during file read", e);
+                }
+            }
+        });
+        return files;
+    }
+
     private void writeProjectToFolder(String folder, Project project, List<ProjectFile> files) throws IOException {
         Files.createDirectories(Paths.get(folder, project.getProjectId()));
         LOGGER.info("Write files for project " + project.getProjectId());
@@ -113,7 +176,7 @@ public class GitService {
                 LOGGER.info("Add file " + file.getName());
                 Files.writeString(Paths.get(folder, project.getProjectId(), file.getName()), file.getCode());
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                LOGGER.error("Error during file write", e);
             }
         });
     }
