@@ -114,7 +114,7 @@ export class ProjectPage extends React.Component<Props, State> {
                     key: Math.random().toString(),
                     status: status
                 });
-                console.log(status);
+                // console.log(status);
             });
         }
     }
@@ -325,15 +325,16 @@ export class ProjectPage extends React.Component<Props, State> {
         if (isFailed) classname = classname + " pipeline-running";
         if (isSucceeded) classname = classname + " pipeline-succeeded";
         return (
-                <Flex spaceItems={{ default: 'spaceItemsNone' }} className={classname} direction={{default:"row"}} alignItems={{default: "alignItemsCenter"}}>
-                    <FlexItem style={{height:"18px"}}>
-                        {isRunning && <Spinner isSVG diameter="16px"/>}
-                    </FlexItem>
-                    <FlexItem style={{height:"18px"}}>
-                        {project?.lastPipelineRun ? project?.lastPipelineRun : "-"}
-                    </FlexItem>
-                </Flex>
-            )
+            <Flex spaceItems={{default: 'spaceItemsNone'}} className={classname} direction={{default: "row"}}
+                  alignItems={{default: "alignItemsCenter"}}>
+                <FlexItem style={{height: "18px"}}>
+                    {isRunning && <Spinner isSVG diameter="16px"/>}
+                </FlexItem>
+                <FlexItem style={{height: "18px"}}>
+                    {project?.lastPipelineRun ? project?.lastPipelineRun : "-"}
+                </FlexItem>
+            </Flex>
+        )
     }
 
     isUp(env: string): boolean {
@@ -345,7 +346,7 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     getProjectForm = () => {
-        const {project, environments} = this.state;
+        const {project, environments, status} = this.state;
         return (
             <Card>
                 <CardBody isFilled>
@@ -388,9 +389,13 @@ export class ProjectPage extends React.Component<Props, State> {
                                     <DescriptionListDescription>
                                         <Flex direction={{default: "row"}}>
                                             {environments.filter(e => e !== undefined)
-                                                .map(e => <FlexItem key={e}><Badge
-                                                    className={this.isUp(e) ? "badge-env-up" : ""}
-                                                    isRead>{e}</Badge></FlexItem>)}
+                                                .map(e =>
+                                                    <FlexItem key={e}>
+                                                        <Tooltip content={"Last update: " + (status ? new Date(status.lastUpdate).toISOString() : "N/A")}
+                                                                 position={"bottom"}>
+                                                            <Badge className={this.isUp(e) ? "badge-env-up" : ""} isRead>{e}</Badge>
+                                                        </Tooltip>
+                                                    </FlexItem>)}
                                         </Flex>
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>

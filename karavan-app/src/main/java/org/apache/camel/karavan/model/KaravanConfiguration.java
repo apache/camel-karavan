@@ -11,6 +11,7 @@ public interface KaravanConfiguration {
     String imageGroup();
     String runtime();
     String runtimeVersion();
+    Long statusThreshold();
     List<Environment> environments();
 
     interface Environment {
