@@ -8,13 +8,14 @@ import {
     DescriptionListGroup,
     DescriptionListDescription,
     Card,
-    CardBody, Spinner, Tooltip, Flex, FlexItem
+    CardBody, Spinner, Tooltip, Flex, FlexItem, Tabs, Tab, PageSection
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
 import {Project, ProjectFileTypes, ProjectStatus} from "../models/ProjectModels";
 import BuildIcon from "@patternfly/react-icons/dist/esm/icons/build-icon";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
+import {ProjectDashboard} from "./ProjectDashboard";
 
 interface Props {
     project: Project,
@@ -29,6 +30,7 @@ interface State {
     environments: string[],
     environment: string,
     key?: string,
+    tab: string | number;
 }
 
 export class ProjectHeader extends React.Component<Props, State> {
@@ -40,7 +42,8 @@ export class ProjectHeader extends React.Component<Props, State> {
         environments: this.props.config.environments && Array.isArray(this.props.config.environments)
             ? Array.from(this.props.config.environments) : [],
         environment: this.props.config.environments && Array.isArray(this.props.config.environments)
-            ? this.props.config.environments[0] : ''
+            ? this.props.config.environments[0] : '',
+        tab: "details"
     };
     interval: any;
 
@@ -172,13 +175,13 @@ export class ProjectHeader extends React.Component<Props, State> {
         }
     }
 
-    render() {
+    getProjectInfo() {
         const {project, environments, status} = this.state;
         return (
             <Card>
-                <CardBody isFilled>
+                <CardBody>
                     <Flex direction={{default: "row"}} alignContent={{default: "alignContentSpaceBetween"}}
-                          style={{width: "100%"}}>
+                          className="project-details">
                         <FlexItem flex={{default: "flex_1"}}>
                             <DescriptionList isHorizontal>
                                 <DescriptionListGroup>
@@ -218,7 +221,8 @@ export class ProjectHeader extends React.Component<Props, State> {
                                             {environments.filter(e => e !== undefined)
                                                 .map(e =>
                                                     <FlexItem key={e}>
-                                                        <Badge className={this.isUp(e) ? "badge-env-up" : ""} isRead>{e}</Badge>
+                                                        <Badge className={this.isUp(e) ? "badge-env-up" : ""}
+                                                               isRead>{e}</Badge>
                                                     </FlexItem>)}
                                         </Flex>
                                     </DescriptionListDescription>
@@ -240,7 +244,27 @@ export class ProjectHeader extends React.Component<Props, State> {
                         </FlexItem>
                     </Flex>
                 </CardBody>
-            </Card>
+            </Card>)
+    }
+
+    render() {
+        const {tab} = this.state;
+        return (
+            <Flex direction={{default: "column"}} spaceItems={{default:"spaceItemsNone"}}>
+                <FlexItem>
+                    <Tabs activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex})}>
+                        <Tab eventKey="details" title="Details"/>
+                        <Tab eventKey="dashboard" title="Dashboard"/>
+                    </Tabs>
+                </FlexItem>
+                <FlexItem>
+                    <PageSection padding={{default: "padding"}}>
+                        {tab === 'details' && this.getProjectInfo()}
+                        {tab === 'dashboard' &&
+                            <ProjectDashboard project={this.props.project} config={this.props.config}/>}
+                    </PageSection>
+                </FlexItem>
+            </Flex>
         )
     }
 }
