@@ -71,6 +71,9 @@ public class GitService {
             String uri = new String(Base64.getDecoder().decode(secret.getData().get("git-repository").getBytes(StandardCharsets.UTF_8)));
             String username = new String(Base64.getDecoder().decode(secret.getData().get("git-username").getBytes(StandardCharsets.UTF_8)));
             String password = new String(Base64.getDecoder().decode(secret.getData().get("git-password").getBytes(StandardCharsets.UTF_8)));
+            if (secret.getData().containsKey("git-main")){
+                mainBranch = new String(Base64.getDecoder().decode(secret.getData().get("git-main").getBytes(StandardCharsets.UTF_8)));
+            }
             return new GitConfig(uri, username, password, mainBranch);
         } else {
             String uri = ConfigProvider.getConfig().getValue("karavan.git-repository", String.class);

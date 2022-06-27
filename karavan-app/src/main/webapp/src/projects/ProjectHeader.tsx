@@ -218,10 +218,7 @@ export class ProjectHeader extends React.Component<Props, State> {
                                             {environments.filter(e => e !== undefined)
                                                 .map(e =>
                                                     <FlexItem key={e}>
-                                                        <Tooltip content={"Last update: " + (status ? new Date(status.lastUpdate).toISOString() : "N/A")}
-                                                                 position={"bottom"}>
-                                                            <Badge className={this.isUp(e) ? "badge-env-up" : ""} isRead>{e}</Badge>
-                                                        </Tooltip>
+                                                        <Badge className={this.isUp(e) ? "badge-env-up" : ""} isRead>{e}</Badge>
                                                     </FlexItem>)}
                                         </Flex>
                                     </DescriptionListDescription>

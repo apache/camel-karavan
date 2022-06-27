@@ -14,7 +14,5 @@
 #  limitations under the License.
 FROM gcr.io/distroless/java:11
 COPY target/*-runner.jar /deployments/karavan.jar
-COPY src/main/resources/kamelets/* /deployments/kamelets-buildin/
-COPY src/main/resources/components/* /deployments/components/
 WORKDIR /deployments
 CMD ["karavan.jar"]

@@ -16,47 +16,43 @@
  */
 package org.apache.camel.karavan.api;
 
-import io.vertx.core.Vertx;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
-import java.io.File;
-import java.nio.file.Paths;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Path("/component")
 public class ComponentResources {
 
-    @ConfigProperty(name = "karavan.folder.components")
-    String components;
-
-    @Inject
-    Vertx vertx;
-
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<String> getList() {
-        return vertx.fileSystem().readDirBlocking(Paths.get(components).toString())
-                .stream()
-                .filter(s -> s.endsWith(".json"))
-                .map(s -> {
-                    String[] parts = s.split(Pattern.quote(File.separator));
-                    return parts[parts.length - 1];
-                }).collect(Collectors.toList());
+        String list = getResourceFile("components.properties");
+        return List.of(list.split(System.getProperty("line.separator"))).stream()
+                .map(s -> s + ".json").collect(Collectors.toList());
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{name}")
     public String getJson(@PathParam("name") String name) {
-        return vertx.fileSystem().readFileBlocking(Paths.get(components, name).toString()).toString();
+        return getResourceFile(name);
+    }
+
+    private String getResourceFile(String path) {
+        try {
+            InputStream inputStream = KameletResources.class.getResourceAsStream("/components/" + path);
+            String data = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines().collect(Collectors.joining(System.getProperty("line.separator")));
+            return data;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

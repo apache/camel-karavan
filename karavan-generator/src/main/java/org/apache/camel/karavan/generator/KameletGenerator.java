@@ -28,7 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
-public class KameletGenerator {
+public class KameletGenerator extends AbstractGenerator {
 
     @Inject
     Vertx vertx;
@@ -38,18 +38,23 @@ public class KameletGenerator {
 
     public static void generate() throws Exception {
         KameletGenerator g = new KameletGenerator();
-        g.createKamelets("karavan-app/src/main/resources/kamelets");
-        g.createKamelets("karavan-vscode/kamelets");
-        g.createKamelets("karavan-designer/public/kamelets");
+        g.createKamelets("karavan-app/src/main/resources/kamelets", true);
+        g.createKamelets("karavan-vscode/kamelets", false);
+        g.createKamelets("karavan-designer/public/kamelets", false);
     }
 
-    public void createKamelets(String folder) {
+    public void createKamelets(String folder, boolean addList) {
         LOGGER.info("Creating default Kamelets");
         clearDirectory(Paths.get(folder).toFile());
         KameletsCatalog catalog = new KameletsCatalog();
+        StringBuilder list = new StringBuilder();
         catalog.getKamelets().entrySet().stream()
                 .map(k -> k.getValue().getMetadata().getName())
-                .forEach(name -> saveKamelet(folder, name));
+                .forEach(name -> {
+                    saveKamelet(folder, name);
+                    list.append(name).append("\n");
+                });
+        saveFile(folder, "kamelets.properties", list.toString());
         LOGGER.info("Created default Kamelets");
     }
 

@@ -29,7 +29,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public final class CamelComponentsGenerator {
+public final class CamelComponentsGenerator extends AbstractGenerator {
 
     @Inject
     Vertx vertx;
@@ -63,16 +63,6 @@ public final class CamelComponentsGenerator {
             }
         });
         saveFile(path, "components.properties", list.toString());
-    }
-
-    public void saveFile(String folder, String fileName, String text) {
-//        LOGGER.info("Creating component " + fileName);
-        try {
-            File targetFile = Paths.get(folder, fileName).toFile();
-            Files.copy(new ByteArrayInputStream(text.getBytes()), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public List<String> getComponents() {
