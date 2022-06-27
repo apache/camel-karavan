@@ -29,6 +29,7 @@
   "dependencies": {
     "@monaco-editor/react": "4.3.1",
     "@patternfly/patternfly": "4.194.4",
+    "@patternfly/react-charts": "^6.74.3",
     "@patternfly/react-core": "4.214.1",
     "@patternfly/react-table": "^4.83.1",
     "@reactour/tour": "^2.10.2",

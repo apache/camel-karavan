@@ -96,6 +96,18 @@
   margin: auto;
 }
 
+.karavan .project-page .project-page-section {
+  background-color: white;
+  /*padding-right: var(--pf-c-page__main-section--PaddingRight);*/
+  /*padding-left: var(--pf-c-page__main-section--PaddingLeft);*/
+}
+
+.karavan .project-page .project-details {
+  /*padding-right: var(--pf-c-page__main-section--PaddingRight);*/
+  /*padding-left: var(--pf-c-page__main-section--PaddingLeft);*/
+  width: 100%;
+}
+
 .karavan .project-page .table {
   margin-top: 16px;
 }

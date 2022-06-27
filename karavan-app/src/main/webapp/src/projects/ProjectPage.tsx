@@ -15,7 +15,7 @@ import {
     EmptyStateVariant,
     EmptyStateIcon,
     Title,
-    ModalVariant, Modal, Spinner, Tooltip, Flex, FlexItem, ToggleGroup, ToggleGroupItem
+    ModalVariant, Modal, Spinner, Tooltip, Flex, FlexItem, ToggleGroup, ToggleGroupItem, Card, CardBody
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
@@ -320,8 +320,8 @@ export class ProjectPage extends React.Component<Props, State> {
                     <MainToolbar title={this.title()} tools={this.tools()}/>
                 </PageSection>
                 {file === undefined &&
-                    <PageSection isFilled className="kamelets-page"
-                                 padding={{default: file !== undefined ? 'noPadding' : 'padding'}}>
+                    <PageSection isFilled className="kamelets-page project-page-section"
+                                 padding={{default: file !== undefined ? 'noPadding' : 'noPadding'}}>
                         {<ProjectHeader project={this.props.project} config={this.props.config}/>}
                         {this.getProjectFiles()}
                     </PageSection>}
