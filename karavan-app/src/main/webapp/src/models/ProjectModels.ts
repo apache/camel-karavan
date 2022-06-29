@@ -3,9 +3,8 @@ export class Project {
     name: string = '';
     description: string = '';
     lastCommit: string = '';
-    lastPipelineRun: string = '';
 
-    public constructor(projectId: string, name: string, description: string, lastCommit: string, lastPipelineRun: string);
+    public constructor(projectId: string, name: string, description: string, lastCommit: string);
     public constructor(init?: Partial<Project>);
     public constructor(...args: any[]) {
         if (args.length === 1){
@@ -16,7 +15,6 @@ export class Project {
             this.name = args[1];
             this.description = args[2];
             this.lastCommit = args[3];
-            this.lastPipelineRun = args[4];
             return;
         }
     }
@@ -25,18 +23,21 @@ export class Project {
 export class ProjectEnvStatus {
     environment: string = '';
     status: string = '';
+    lastPipelineRun: string = '';
+    lastPipelineRunResult: string = '';
+    deploymentStatus: DeploymentStatus = new DeploymentStatus();
+}
 
-    constructor(environment: string, status: string) {
-        this.environment = environment;
-        this.status = status;
-    }
+export class DeploymentStatus {
+    image: string = '';
+    replicas: number = 0;
+    readyReplicas: number = 0;
 }
 
 export class ProjectStatus {
     projectId: string = '';
     lastUpdate: number = 0;
     statuses: ProjectEnvStatus[] = [];
-    pipeline: string = 'Running'
 }
 
 export class ProjectFile {

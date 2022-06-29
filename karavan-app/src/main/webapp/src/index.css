@@ -140,8 +140,17 @@
   color: white;
 }
 
+.karavan .project-page .env-chart {
+  font-size: 18px;
+}
+
 .karavan .project-page .pipeline-failed {
   background-color: #C9190B;
+  color: white;
+}
+
+.karavan .project-page .replicas-ready {
+  background-color: rgb(56, 129, 47);
   color: white;
 }
 

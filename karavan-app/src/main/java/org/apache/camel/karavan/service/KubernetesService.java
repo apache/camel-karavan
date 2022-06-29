@@ -31,12 +31,16 @@ import io.fabric8.tekton.pipeline.v1beta1.PipelineRun;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpec;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpecBuilder;
+import io.smallrye.mutiny.tuples.Tuple2;
+import io.smallrye.mutiny.tuples.Tuple3;
+import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 
@@ -63,12 +67,12 @@ public class KubernetesService {
 
     private static final Logger LOGGER = Logger.getLogger(KubernetesService.class.getName());
 
-    public String createPipelineRun(Project project, String namespace) throws Exception {
+    public String createPipelineRun(Project project, String pipelineName, String namespace) throws Exception {
         LOGGER.info("Pipeline is creating for " + project.getProjectId());
 
         Map<String, String> labels = Map.of(
                 "karavan-project-id", project.getProjectId(),
-                "tekton.dev/pipeline", "karavan-quarkus"
+                "tekton.dev/pipeline", pipelineName
         );
 
         ObjectMeta meta = new ObjectMetaBuilder()
@@ -94,20 +98,51 @@ public class KubernetesService {
         return pipelineRun.getMetadata().getName();
     }
 
-    public PipelineRun getPipelineRun(String name, String namespace)  {
-        return tektonClient().v1beta1().pipelineRuns().inNamespace(namespace).withName(name).get();
+    public PipelineRun getPipelineRun(String pipelineRuneName, String namespace)  {
+        return tektonClient().v1beta1().pipelineRuns().inNamespace(namespace).withName(pipelineRuneName).get();
     }
 
-    public String getReplicas(String name, String namespace)  {
-        if (kubernetesClient().isAdaptable(OpenShiftClient.class)) {
-            DeploymentConfig dc = openshiftClient().deploymentConfigs().inNamespace(namespace).withName(name).get();
-            dc.getSpec().getReplicas();
-            dc.getStatus().getReadyReplicas();
-        } else {
-//            throw new Exception("Adapting to OpenShiftClient not support. Check if adapter is present, and that env provides /oapi root path.");
-        }
-        return "";
+    public PipelineRun getLastPipelineRun(String projectId, String pipelineName, String namespace)  {
+
+        tektonClient().v1beta1().pipelineRuns().inNamespace(namespace)
+                .withLabel("karavan-project-id", projectId)
+                .withLabel("tekton.dev/pipeline", pipelineName)
+                .list().getItems().sort(Comparator.comparing(o -> o.getMetadata().getCreationTimestamp()));
+
+
+        return tektonClient().v1beta1().pipelineRuns().inNamespace(namespace)
+                .withLabel("karavan-project-id", projectId)
+                .withLabel("tekton.dev/pipeline", pipelineName)
+                .list().getItems().stream().sorted((o1, o2) -> o2.getMetadata().getCreationTimestamp().compareTo(o1.getMetadata().getCreationTimestamp()))
+                .findFirst().get();
     }
+
+
+    public Tuple2<Boolean, DeploymentStatus> getDeploymentStatus(String name, String namespace)  {
+        if (kubernetesClient().isAdaptable(OpenShiftClient.class)) {
+            try {
+                DeploymentConfig dc = openshiftClient().deploymentConfigs().inNamespace(namespace).withName(name).get();
+                String dsImage = dc.getSpec().getTemplate().getSpec().getContainers().get(0).getImage();
+                String imageName = dsImage.startsWith("image-registry.openshift-image-registry.svc")
+                        ? dsImage.replace("image-registry.openshift-image-registry.svc:5000/", "")
+                        : dsImage;
+                return Tuple2.of(true,
+                        new DeploymentStatus(
+                                imageName,
+                                dc.getSpec().getReplicas(),
+                                dc.getStatus().getReadyReplicas()
+                        )
+                        );
+            } catch (Exception ex){
+                LOGGER.error(ex.getMessage());
+                return Tuple2.of(false, new DeploymentStatus());
+            }
+        } else {
+            // TODO: Implement Deployment for Kubernetes/Minikube
+            return  Tuple2.of(true, new DeploymentStatus());
+        }
+    }
+
 
     public Secret getKaravanSecret() {
         return kubernetesClient().secrets().inNamespace(namespace).withName("karavan").get();
