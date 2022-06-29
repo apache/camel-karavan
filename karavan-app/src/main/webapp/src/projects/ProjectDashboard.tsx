@@ -86,27 +86,27 @@ export class ProjectDashboard extends React.Component<Props, State> {
         return (<Text>OK</Text>)
     }
 
-    getPipelineState() {
-        const {project, status} = this.state;
-        const isRunning = status?.pipeline === 'Running';
-        const isFailed = status?.pipeline === 'Failed';
-        const isSucceeded = status?.pipeline === 'Succeeded';
-        let classname = "pipeline"
-        if (isRunning) classname = classname + " pipeline-running";
-        if (isFailed) classname = classname + " pipeline-running";
-        if (isSucceeded) classname = classname + " pipeline-succeeded";
-        return (
-            <Flex spaceItems={{default: 'spaceItemsNone'}} className={classname} direction={{default: "row"}}
-                  alignItems={{default: "alignItemsCenter"}}>
-                <FlexItem style={{height: "18px"}}>
-                    {isRunning && <Spinner isSVG diameter="16px"/>}
-                </FlexItem>
-                <FlexItem style={{height: "18px"}}>
-                    {project?.lastPipelineRun ? project?.lastPipelineRun : "-"}
-                </FlexItem>
-            </Flex>
-        )
-    }
+    // getPipelineState() {
+    //     const {project, status} = this.state;
+    //     const isRunning = status?.pipeline === 'Running';
+    //     const isFailed = status?.pipeline === 'Failed';
+    //     const isSucceeded = status?.pipeline === 'Succeeded';
+    //     let classname = "pipeline"
+    //     if (isRunning) classname = classname + " pipeline-running";
+    //     if (isFailed) classname = classname + " pipeline-running";
+    //     if (isSucceeded) classname = classname + " pipeline-succeeded";
+    //     return (
+    //         <Flex spaceItems={{default: 'spaceItemsNone'}} className={classname} direction={{default: "row"}}
+    //               alignItems={{default: "alignItemsCenter"}}>
+    //             <FlexItem style={{height: "18px"}}>
+    //                 {isRunning && <Spinner isSVG diameter="16px"/>}
+    //             </FlexItem>
+    //             <FlexItem style={{height: "18px"}}>
+    //                 {project?.lastPipelineRun ? project?.lastPipelineRun : "-"}
+    //             </FlexItem>
+    //         </Flex>
+    //     )
+    // }
 
     isUp(env: string): boolean {
         if (this.state.status) {

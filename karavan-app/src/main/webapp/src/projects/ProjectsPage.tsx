@@ -99,7 +99,7 @@ export class ProjectsPage extends React.Component<Props, State> {
 
     saveAndCloseCreateModal = () => {
         const {name, description, projectId} = this.state;
-        const p = new Project(projectId, name, description, '', '');
+        const p = new Project(projectId, name, description, '');
         this.props.onCreate.call(this, p);
         this.setState({isCreateModalOpen: false, isCopy: false, name: this.props.config.groupId, description: '',  projectId: ''});
     }

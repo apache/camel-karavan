@@ -56,9 +56,7 @@ public class TektonResource {
         Project p = infinispanService.getProject(project.getProjectId());
         Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
         if (env.isPresent()) {
-            String pipelineRunId = kubernetesService.createPipelineRun(project, env.get().namespace());
-            p.setLastPipelineRun(pipelineRunId);
-            infinispanService.saveProject(p);
+            kubernetesService.createPipelineRun(project, env.get().pipeline(), env.get().namespace());
         }
         return p;
     }

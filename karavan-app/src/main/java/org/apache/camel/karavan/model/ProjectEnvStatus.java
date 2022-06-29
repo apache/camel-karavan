@@ -9,6 +9,12 @@ public class ProjectEnvStatus {
     String environment;
     @ProtoField(number = 2)
     Status status;
+    @ProtoField(number = 3)
+    String lastPipelineRun;
+    @ProtoField(number = 4)
+    String lastPipelineRunResult;
+    @ProtoField(number = 5)
+    DeploymentStatus deploymentStatus;
 
     public enum Status {
         @ProtoEnumValue(number = 0, name = "DOWN")
@@ -18,9 +24,16 @@ public class ProjectEnvStatus {
     }
 
     @ProtoFactory
-    public ProjectEnvStatus(String environment, Status status) {
+    public ProjectEnvStatus(String environment, Status status, String lastPipelineRun, String lastPipelineRunResult, DeploymentStatus deploymentStatus) {
         this.environment = environment;
         this.status = status;
+        this.lastPipelineRun = lastPipelineRun;
+        this.lastPipelineRunResult = lastPipelineRunResult;
+        this.deploymentStatus = deploymentStatus;
+    }
+
+    public ProjectEnvStatus(String environment) {
+        this.environment = environment;
     }
 
     public String getEnvironment() {
@@ -37,5 +50,29 @@ public class ProjectEnvStatus {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public String getLastPipelineRun() {
+        return lastPipelineRun;
+    }
+
+    public void setLastPipelineRun(String lastPipelineRun) {
+        this.lastPipelineRun = lastPipelineRun;
+    }
+
+    public String getLastPipelineRunResult() {
+        return lastPipelineRunResult;
+    }
+
+    public void setLastPipelineRunResult(String lastPipelineRunResult) {
+        this.lastPipelineRunResult = lastPipelineRunResult;
+    }
+
+    public DeploymentStatus getDeploymentStatus() {
+        return deploymentStatus;
+    }
+
+    public void setDeploymentStatus(DeploymentStatus deploymentStatus) {
+        this.deploymentStatus = deploymentStatus;
     }
 }

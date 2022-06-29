@@ -27,6 +27,7 @@ spec:
           entrypoint -Dcamel.jbang.version=3.18.0-SNAPSHOT camel@apache/camel export
       
           export LAST_COMMIT=$(git rev-parse --short HEAD)
+          export DATE=$(date '+%Y%m%d%H%M%S')
           export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
           export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 
@@ -41,7 +42,8 @@ spec:
             -Dquarkus.kubernetes-client.master-url=kubernetes.default.svc \
             -Dquarkus.kubernetes-client.token=${TOKEN} \
             -Dquarkus.kubernetes.deploy=true \
-            -Dquarkus.container-image.group=${NAMESPACE}
+            -Dquarkus.container-image.group=${NAMESPACE} \
+            -Dquarkus.container-image.tag=${DATE}
       image: 'ghcr.io/apache/camel-karavan-builder:0.0.16'
       volumeMounts:
         - mountPath: /root/.m2

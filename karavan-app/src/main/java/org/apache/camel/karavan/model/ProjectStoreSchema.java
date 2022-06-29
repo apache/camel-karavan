@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 @AutoProtoSchemaBuilder(
         includeClasses = {
-                GroupedKey.class, Project.class, ProjectFile.class, ProjectStatus.class, ProjectEnvStatus.class
+                GroupedKey.class, Project.class, ProjectFile.class, ProjectStatus.class, ProjectEnvStatus.class, DeploymentStatus.class
         },
         schemaPackageName = "karavan")
 public interface ProjectStoreSchema extends GeneratedSchema {

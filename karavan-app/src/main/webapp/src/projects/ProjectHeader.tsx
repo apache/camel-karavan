@@ -8,14 +8,18 @@ import {
     DescriptionListGroup,
     DescriptionListDescription,
     Card,
-    CardBody, Spinner, Tooltip, Flex, FlexItem, Tabs, Tab, PageSection
+    CardBody, Tooltip, Flex, FlexItem, Tabs, Tab, PageSection, TextVariants, Spinner, Divider
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
 import {Project, ProjectFileTypes, ProjectStatus} from "../models/ProjectModels";
 import BuildIcon from "@patternfly/react-icons/dist/esm/icons/build-icon";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
+import DeployIcon from "@patternfly/react-icons/dist/esm/icons/cluster-icon";
 import {ProjectDashboard} from "./ProjectDashboard";
+import {ChartDonut, ChartLabel} from "@patternfly/react-charts";
+import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 
 interface Props {
     project: Project,
@@ -141,32 +145,158 @@ export class ProjectHeader extends React.Component<Props, State> {
         </Tooltip>)
     }
 
+    deployButton = () => {
+        const isDeploying = this.state.isBuilding;
+        return (<Tooltip content="Deploy" position={"left"}>
+            <Button isLoading={isDeploying ? true : undefined} isSmall variant="secondary"
+                    className="project-button"
+                    icon={!isDeploying ? <DeployIcon/> : <div></div>}
+                    onClick={e => {
+                        this.push(() => this.build());
+                    }}>
+                {isDeploying ? "..." : "Deploy"}
+            </Button>
+        </Tooltip>)
+    }
+
     getCurrentStatus() {
         return (<Text>OK</Text>)
     }
 
-    getPipelineState() {
-        const {project, status} = this.state;
-        const isRunning = status?.pipeline === 'Running';
-        const isFailed = status?.pipeline === 'Failed';
-        const isSucceeded = status?.pipeline === 'Succeeded';
+    getCommitPanel() {
+        const {project, environments, status} = this.state;
+        return (<Flex justifyContent={{default:"justifyContentSpaceBetween"}}>
+            <FlexItem>
+                <Tooltip content={project?.lastCommit} position={"right"}>
+                    <Badge>{project?.lastCommit ? project?.lastCommit?.substr(0, 7) : "-"}</Badge>
+                </Tooltip>
+            </FlexItem>
+            <FlexItem>
+                {this.pushButton()}
+            </FlexItem>
+        </Flex>)
+    }
+
+
+    getEnvDonut(env: string) {
+        return (
+            <div style={{height: '50px', width: '50px'}}>
+                    <ChartDonut
+                        constrainToVisibleArea={true}
+                        data={[{x: "", y: 100}]}
+                        colorScale={[this.isUp(env) ? "rgb(56, 129, 47)" : "#8bc1f7"]}
+                        labels={({datum}) => datum.x ? datum.x : null}
+                        title={env}
+                        titleComponent={<ChartLabel style={{fontSize: "56px"}}/>}
+                        radius={100}
+                        innerRadius={80}
+                        style={{border: {width: "20px"}}}
+                    >
+                    </ChartDonut>
+                </div>)
+    }
+
+    getEnvChartPanel(env: string) {
+        return (<div style={{height: '60px', width: '60px'}}>
+            <ChartDonut
+                constrainToVisibleArea={true}
+                data={[{x: "", y: 100}]}
+                colorScale={[this.isUp(env) ? "rgb(56, 129, 47)" : "#8bc1f7"]}
+                labels={({datum}) => datum.x ? datum.x : null}
+                title={env}
+                titleComponent={<ChartLabel style={{fontSize: "56px"}}/>}
+                radius={100}
+                innerRadius={80}
+                style={{border: {width: "20px"}}}
+            >
+            </ChartDonut>
+        </div>)
+    }
+
+    getEnvPanel(env: string) {
+        const {status} = this.state;
+        const deploymentStatus = status?.statuses.find(s => s.environment === env)?.deploymentStatus;
+        const ok = (deploymentStatus && deploymentStatus?.readyReplicas > 0 && deploymentStatus?.replicas === deploymentStatus?.readyReplicas);
+        return (<DescriptionList isHorizontal>
+            <Text style={{fontSize:"1.2em", fontWeight:"bold"}}>Deployment</Text>
+            <DescriptionListGroup>
+                <DescriptionListTerm>Pipeline</DescriptionListTerm>
+                <DescriptionListDescription>{this.getPipelineState(env)}</DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+                <DescriptionListTerm>Image</DescriptionListTerm>
+                <DescriptionListDescription>
+                    <Badge>{deploymentStatus ? deploymentStatus.image : "-"}</Badge>
+                </DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+                <DescriptionListTerm>Replicas</DescriptionListTerm>
+                <DescriptionListDescription><Badge isRead={!ok}>{deploymentStatus ? deploymentStatus.replicas : "-"}</Badge>
+                </DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+                <DescriptionListTerm>Ready replicas</DescriptionListTerm>
+                <DescriptionListDescription><Badge isRead={!ok}>{deploymentStatus ? deploymentStatus.readyReplicas : "-"}</Badge>
+                </DescriptionListDescription>
+            </DescriptionListGroup>
+        </DescriptionList>)
+    }
+
+    getHealthPanel(env: string) {
+        const {status} = this.state;
+        const camelStatus: string = "UP";
+        const routesStatus: string = "UP";
+        const consumersStatus: string = "UP";
+        const contextStatus: string = "UP";
+        return (<DescriptionList isHorizontal>
+            <Text style={{fontSize:"1.2em", fontWeight:"bold"}}>Health</Text>
+            <DescriptionListGroup>
+                <DescriptionListTerm>Status</DescriptionListTerm>
+                <DescriptionListDescription><Badge isRead={camelStatus === "DOWN"}>{camelStatus}</Badge></DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+                <DescriptionListTerm>Consumers</DescriptionListTerm>
+                <DescriptionListDescription><Badge isRead={consumersStatus === "DOWN"}>{consumersStatus}</Badge></DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+                <DescriptionListTerm>Routes</DescriptionListTerm>
+                <DescriptionListDescription><Badge isRead={routesStatus === "DOWN"}>{routesStatus}</Badge></DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+                <DescriptionListTerm>Context</DescriptionListTerm>
+                <DescriptionListDescription><Badge isRead={contextStatus === "DOWN"}>{contextStatus}</Badge></DescriptionListDescription>
+            </DescriptionListGroup>
+        </DescriptionList>)
+    }
+
+    getPipelineState(env: string) {
+        const {status} = this.state;
+        const pipeline = status?.statuses.find(s => s.environment === env)?.lastPipelineRun;
+        const pipelineResult = status?.statuses.find(s => s.environment === env)?.lastPipelineRunResult;
+        const isRunning = pipelineResult === 'Running';
+        const isFailed = pipelineResult === 'Failed';
+        const isSucceeded = pipelineResult === 'Succeeded';
         let classname = "pipeline"
         if (isRunning) classname = classname + " pipeline-running";
         if (isFailed) classname = classname + " pipeline-failed";
         if (isSucceeded) classname = classname + " pipeline-succeeded";
         return (
-            <Tooltip content={status?.pipeline} position={"right"}>
-                <Flex spaceItems={{default: 'spaceItemsNone'}} className={classname} direction={{default: "row"}}
-                      alignItems={{default: "alignItemsCenter"}}>
-                    <FlexItem style={{height: "18px"}}>
-                        {isRunning && <Spinner isSVG diameter="16px"/>}
-                    </FlexItem>
-                    <FlexItem style={{height: "18px"}}>
-                        {project?.lastPipelineRun ? project?.lastPipelineRun : "-"}
-                    </FlexItem>
-                </Flex>
-            </Tooltip>
-
+            <Flex justifyContent={{default:"justifyContentSpaceBetween"}}>
+                <FlexItem>
+                    <Tooltip content={pipelineResult} position={"right"}>
+                        <Flex spaceItems={{default: 'spaceItemsNone'}} className={classname} direction={{default: "row"}}
+                              alignItems={{default: "alignItemsCenter"}}>
+                            <FlexItem style={{height: "18px"}}>
+                                {isRunning && <Spinner isSVG diameter="16px"/>}
+                            </FlexItem>
+                            <FlexItem style={{height: "18px"}}>
+                                <Text>{pipeline ? pipeline : "-"}</Text>
+                            </FlexItem>
+                        </Flex>
+                    </Tooltip>
+                </FlexItem>
+                <FlexItem>{env === "dev" && this.buildButton()}</FlexItem>
+            </Flex>
         )
     }
 
@@ -178,72 +308,49 @@ export class ProjectHeader extends React.Component<Props, State> {
         }
     }
 
+    getProjectDescription() {
+        const {project} = this.state;
+        return (<DescriptionList isHorizontal>
+            <Text style={{fontSize:"1.2em", fontWeight:"bold"}}>Details</Text>
+            <DescriptionListGroup>
+                <DescriptionListTerm>Project ID</DescriptionListTerm>
+                <DescriptionListDescription>{project?.projectId}</DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+                <DescriptionListTerm>Name</DescriptionListTerm>
+                <DescriptionListDescription>{project?.name}</DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+                <DescriptionListTerm>Description</DescriptionListTerm>
+                <DescriptionListDescription>{project?.description}</DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+                <DescriptionListTerm>Last commit</DescriptionListTerm>
+                <DescriptionListDescription>
+                    {this.getCommitPanel()}
+                </DescriptionListDescription>
+            </DescriptionListGroup>
+        </DescriptionList>)
+    }
+
     getProjectInfo() {
-        const {project, environments, status} = this.state;
         return (
             <Card>
                 <CardBody>
-                    <Flex direction={{default: "row"}} alignContent={{default: "alignContentSpaceBetween"}}
+                    <Flex direction={{default: "row"}}
+                          justifyContent={{default: "justifyContentSpaceBetween"}}
+                          alignItems={{default: "alignItemsFlexStart"}}
                           className="project-details">
                         <FlexItem flex={{default: "flex_1"}}>
-                            <DescriptionList isHorizontal>
-                                <DescriptionListGroup>
-                                    <DescriptionListTerm>Project ID</DescriptionListTerm>
-                                    <DescriptionListDescription>{project?.projectId}</DescriptionListDescription>
-                                </DescriptionListGroup>
-                                <DescriptionListGroup>
-                                    <DescriptionListTerm>Name</DescriptionListTerm>
-                                    <DescriptionListDescription>{project?.name}</DescriptionListDescription>
-                                </DescriptionListGroup>
-                                <DescriptionListGroup>
-                                    <DescriptionListTerm>Description</DescriptionListTerm>
-                                    <DescriptionListDescription>{project?.description}</DescriptionListDescription>
-                                </DescriptionListGroup>
-                            </DescriptionList>
+                                {this.getProjectDescription()}
                         </FlexItem>
+                        <Divider orientation={{default:"vertical"}}/>
                         <FlexItem flex={{default: "flex_1"}}>
-                            <DescriptionList isHorizontal>
-                                <DescriptionListGroup>
-                                    <DescriptionListTerm>Commit</DescriptionListTerm>
-                                    <DescriptionListDescription>
-                                        <Tooltip content={project?.lastCommit} position={"right"}>
-                                            <Badge>{project?.lastCommit ? project?.lastCommit?.substr(0, 7) : "-"}</Badge>
-                                        </Tooltip>
-                                    </DescriptionListDescription>
-                                </DescriptionListGroup>
-                                <DescriptionListGroup>
-                                    <DescriptionListTerm>Pipeline Run</DescriptionListTerm>
-                                    <DescriptionListDescription>
-                                        {this.getPipelineState()}
-                                    </DescriptionListDescription>
-                                </DescriptionListGroup>
-                                <DescriptionListGroup key={this.state.key}>
-                                    <DescriptionListTerm>Status</DescriptionListTerm>
-                                    <DescriptionListDescription>
-                                        <Flex direction={{default: "row"}}>
-                                            {environments.filter(e => e !== undefined)
-                                                .map(e =>
-                                                    <FlexItem key={e}>
-                                                        <Badge className={this.isUp(e) ? "badge-env-up" : ""}
-                                                               isRead>{e}</Badge>
-                                                    </FlexItem>)}
-                                        </Flex>
-                                    </DescriptionListDescription>
-                                </DescriptionListGroup>
-                            </DescriptionList>
+                            {this.getHealthPanel("dev")}
                         </FlexItem>
-                        <FlexItem>
-                            <Flex direction={{default: "column"}}>
-                                <FlexItem>
-                                    {this.pushButton()}
-                                </FlexItem>
-                                <FlexItem>
-                                    {this.buildButton()}
-                                </FlexItem>
-                                <FlexItem>
-                                    <Button isSmall style={{visibility: "hidden"}}>Refresh</Button>
-                                </FlexItem>
-                            </Flex>
+                        <Divider orientation={{default:"vertical"}}/>
+                        <FlexItem flex={{default: "flex_1"}}>
+                            {this.getEnvPanel("dev")}
                         </FlexItem>
                     </Flex>
                 </CardBody>

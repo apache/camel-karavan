@@ -20,12 +20,13 @@ import io.fabric8.tekton.pipeline.v1beta1.PipelineRun;
 import io.quarkus.runtime.configuration.ProfileManager;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.tuples.Tuple2;
+import io.smallrye.mutiny.tuples.Tuple3;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
+import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.KaravanConfiguration;
-import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectEnvStatus;
 import org.apache.camel.karavan.model.ProjectStatus;
 import org.jboss.logging.Logger;
@@ -34,6 +35,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class StatusService {
@@ -64,10 +66,10 @@ public class StatusService {
         return webClient;
     }
 
-    @ConsumeEvent(value = CMD_COLLECT_STATUSES, blocking = true)
+    @ConsumeEvent(value = CMD_COLLECT_STATUSES, blocking = true, ordered = true)
     public void collectStatuses(String projectId) throws Exception {
-        LOGGER.info("Event received to collect statuses for the project " + projectId);
-        if (System.currentTimeMillis() - lastCollect > configuration.statusThreshold()){
+//        LOGGER.info("Event received to collect statuses for the project " + projectId);
+        if ((System.currentTimeMillis() - lastCollect) > configuration.statusThreshold()){
             getStatuses(projectId);
             lastCollect = System.currentTimeMillis();
         }
@@ -75,6 +77,7 @@ public class StatusService {
 
     private void getStatuses(String projectId) throws Exception {
         LOGGER.info("Start to collect statuses for the project " + projectId);
+        ProjectStatus old = infinispanService.getProjectStatus(projectId);
         ProjectStatus status = new ProjectStatus();
         status.setProjectId(projectId);
         status.setLastUpdate(System.currentTimeMillis());
@@ -83,46 +86,69 @@ public class StatusService {
             String url = ProfileManager.getActiveProfile().equals("dev")
                     ? String.format("http://%s-%s.%s/q/health", projectId, e.namespace(), e.cluster())
                     : String.format("http://%s.%s.%s/q/health", projectId, e.namespace(), e.cluster());
-            Tuple2<Boolean, ProjectEnvStatus> s = getProjectEnvStatus(url, e.name());
-            if (s.getItem1()) statuses.add(s.getItem2());
+            Tuple2<Boolean, ProjectEnvStatus.Status> health = getProjectEnvStatus(url, e.name());
+            Tuple2<Boolean, DeploymentStatus> ds = kubernetesService.getDeploymentStatus(projectId, e.namespace());
+            Tuple3<Boolean, String, String> pipeline = getProjectPipelineStatus(projectId, e.pipeline(), e.namespace());
+            ProjectEnvStatus pes = new ProjectEnvStatus(e.name());
+
+            if (health.getItem1()){
+                pes.setStatus(health.getItem2());
+            } else if (old != null){
+                Optional<ProjectEnvStatus> opes = old.getStatuses().stream().filter(x -> x.getEnvironment().equals(e.name())).findFirst();
+                if (opes.isPresent()) pes.setStatus(opes.get().getStatus());
+            }
+
+            if (ds.getItem1()){
+                pes.setDeploymentStatus(ds.getItem2());
+            } else if (old != null){
+                Optional<ProjectEnvStatus> opes = old.getStatuses().stream().filter(x -> x.getEnvironment().equals(e.name())).findFirst();
+                if (opes.isPresent()) pes.setDeploymentStatus(opes.get().getDeploymentStatus());
+            }
+
+            if (pipeline.getItem1()){
+                pes.setLastPipelineRun(pipeline.getItem2());
+                pes.setLastPipelineRunResult(pipeline.getItem3());
+            } else if (old != null){
+                Optional<ProjectEnvStatus> opes = old.getStatuses().stream().filter(x -> x.getEnvironment().equals(e.name())).findFirst();
+                if (opes.isPresent()) {
+                    pes.setLastPipelineRun(opes.get().getLastPipelineRun());
+                    pes.setLastPipelineRunResult(opes.get().getLastPipelineRunResult());
+                }
+            }
+            statuses.add(pes);
         });
         status.setStatuses(statuses);
-
-        Project project = infinispanService.getProject(projectId);
-        Tuple2<Boolean, String> p = getProjectPipelineStatus(project.getLastPipelineRun());
-        System.out.println(p.getItem2());
-        if (p.getItem1()) status.setPipeline(p.getItem2());
 
         LOGGER.info("Storing status in cache for " + projectId);
         infinispanService.saveProjectStatus(status);
     }
 
-    private Tuple2<Boolean, String> getProjectPipelineStatus(String lastPipelineRun) {
+    private Tuple3<Boolean, String, String> getProjectPipelineStatus(String projectId, String pipelineName, String namespace) {
         try {
-            PipelineRun pipelineRun = kubernetesService.getPipelineRun(lastPipelineRun, configuration.environments().get(0).namespace());
+            PipelineRun pipelineRun = kubernetesService.getLastPipelineRun(projectId, pipelineName, namespace);
             if (pipelineRun != null) {
-                return Tuple2.of(true, pipelineRun.getStatus().getConditions().get(0).getReason());
+                return Tuple3.of(true, pipelineRun.getMetadata().getName(), pipelineRun.getStatus().getConditions().get(0).getReason());
             } else {
-                return Tuple2.of(true,"Undefined");
+                return Tuple3.of(true,"","Undefined");
             }
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
-            return Tuple2.of(false, "Undefined");
+            return Tuple3.of(false, "", "Undefined");
         }
     }
 
-    private Tuple2<Boolean, ProjectEnvStatus> getProjectEnvStatus(String url, String env) {
+    private Tuple2<Boolean, ProjectEnvStatus.Status> getProjectEnvStatus(String url, String env) {
         // TODO: make it reactive
         try {
             HttpResponse<Buffer> result = getWebClient().getAbs(url).timeout(1000).send().subscribeAsCompletionStage().toCompletableFuture().get();
-            if (result.bodyAsJsonObject().getString("status").equals("UP")) {
-                return Tuple2.of(true, new ProjectEnvStatus(env, ProjectEnvStatus.Status.UP));
+            if (result.statusCode() == 200 && result.bodyAsJsonObject().getString("status").equals("UP")) {
+                return Tuple2.of(true, ProjectEnvStatus.Status.UP);
             } else {
-                return Tuple2.of(true, new ProjectEnvStatus(env, ProjectEnvStatus.Status.DOWN));
+                return Tuple2.of(true, ProjectEnvStatus.Status.DOWN);
             }
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
-            return Tuple2.of(false, new ProjectEnvStatus(env, ProjectEnvStatus.Status.DOWN));
+            return Tuple2.of(false, ProjectEnvStatus.Status.DOWN);
         }
     }
 

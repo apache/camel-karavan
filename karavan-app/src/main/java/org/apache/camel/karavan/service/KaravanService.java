@@ -16,14 +16,17 @@
  */
 package org.apache.camel.karavan.service;
 
+import io.quarkus.runtime.StartupEvent;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.tuples.Tuple2;
+import org.apache.camel.karavan.model.KaravanConfiguration;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
@@ -45,6 +48,13 @@ public class KaravanService {
     @ConfigProperty(name = "karavan.config.runtime")
     String runtime;
 
+    @Inject
+    KaravanConfiguration configuration;
+
+    void onStart(@Observes StartupEvent ev) {
+        configuration.environments().forEach(environment -> System.out.println(environment.name()));
+    }
+
     @ConsumeEvent(value = IMPORT_PROJECTS, blocking = true)
     void importProjects(String data) {
         LOGGER.info("Import projects from Git");
@@ -53,7 +63,7 @@ public class KaravanService {
             repo.forEach(p -> {
                 String folderName = p.getItem1();
                 String name = Arrays.stream(folderName.split("-")).map(s -> capitalize(s)).collect(Collectors.joining(" "));
-                Project project = new Project(folderName, name, name, Project.CamelRuntime.valueOf(runtime.toUpperCase()), "", "");
+                Project project = new Project(folderName, name, name, Project.CamelRuntime.valueOf(runtime.toUpperCase()), "");
                 infinispanService.saveProject(project);
                 p.getItem2().forEach((key, value) -> {
                     ProjectFile file = new ProjectFile(key, value, folderName);
