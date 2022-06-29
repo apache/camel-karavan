@@ -4,7 +4,7 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {Project, ProjectFile, ProjectFileTypes} from "../models/ProjectModels";
-import {PropertiesTable} from "../builder/PropertiesTable";
+import {PropertiesTable} from "./PropertiesTable";
 import {ProjectModel} from "karavan-core/lib/model/ProjectModel";
 import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
 

@@ -49,7 +49,7 @@ export class ProjectHeader extends React.Component<Props, State> {
 
     componentDidMount() {
         this.onRefresh();
-        this.interval = setInterval(() => this.onRefreshStatus(), 3000);
+        this.interval = setInterval(() => this.onRefreshStatus(), 700);
     }
 
     componentWillUnmount() {
@@ -152,18 +152,21 @@ export class ProjectHeader extends React.Component<Props, State> {
         const isSucceeded = status?.pipeline === 'Succeeded';
         let classname = "pipeline"
         if (isRunning) classname = classname + " pipeline-running";
-        if (isFailed) classname = classname + " pipeline-running";
+        if (isFailed) classname = classname + " pipeline-failed";
         if (isSucceeded) classname = classname + " pipeline-succeeded";
         return (
-            <Flex spaceItems={{default: 'spaceItemsNone'}} className={classname} direction={{default: "row"}}
-                  alignItems={{default: "alignItemsCenter"}}>
-                <FlexItem style={{height: "18px"}}>
-                    {isRunning && <Spinner isSVG diameter="16px"/>}
-                </FlexItem>
-                <FlexItem style={{height: "18px"}}>
-                    {project?.lastPipelineRun ? project?.lastPipelineRun : "-"}
-                </FlexItem>
-            </Flex>
+            <Tooltip content={status?.pipeline} position={"right"}>
+                <Flex spaceItems={{default: 'spaceItemsNone'}} className={classname} direction={{default: "row"}}
+                      alignItems={{default: "alignItemsCenter"}}>
+                    <FlexItem style={{height: "18px"}}>
+                        {isRunning && <Spinner isSVG diameter="16px"/>}
+                    </FlexItem>
+                    <FlexItem style={{height: "18px"}}>
+                        {project?.lastPipelineRun ? project?.lastPipelineRun : "-"}
+                    </FlexItem>
+                </Flex>
+            </Tooltip>
+
         )
     }
 
@@ -203,7 +206,7 @@ export class ProjectHeader extends React.Component<Props, State> {
                                 <DescriptionListGroup>
                                     <DescriptionListTerm>Commit</DescriptionListTerm>
                                     <DescriptionListDescription>
-                                        <Tooltip content={project?.lastCommit} position={"bottom"}>
+                                        <Tooltip content={project?.lastCommit} position={"right"}>
                                             <Badge>{project?.lastCommit ? project?.lastCommit?.substr(0, 7) : "-"}</Badge>
                                         </Tooltip>
                                     </DescriptionListDescription>

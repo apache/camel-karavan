@@ -147,6 +147,7 @@ export class ProjectsPage extends React.Component<Props, State> {
     }
 
     render() {
+        const runtime = this.props.config?.runtime ? this.props.config.runtime : "QUARKUS";
         const projects = this.state.projects.filter(p => p.name.includes(this.state.filter) || p.description.includes(this.state.filter));
         const environments: string[] = this.props.config.environments && Array.isArray(this.props.config.environments)
             ? Array.from(this.props.config.environments)
@@ -173,8 +174,8 @@ export class ProjectsPage extends React.Component<Props, State> {
                             {projects.map(project => (
                                 <Tr key={project.projectId}>
                                     <Td modifier={"fitContent"}>
-                                        <Tooltip content={this.props.config.runtime} position={"left"}>
-                                            <Badge className="runtime-badge">{this.props.config.runtime.substring(0,1)}</Badge>
+                                        <Tooltip content={runtime} position={"left"}>
+                                            <Badge className="runtime-badge">{runtime.substring(0,1)}</Badge>
                                         </Tooltip>
                                     </Td>
                                     <Td>
