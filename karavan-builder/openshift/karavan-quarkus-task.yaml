@@ -18,6 +18,8 @@ spec:
               prefix=https://
               url="${GIT_REPOSITORY/$prefix/$replacer}"    
               git clone --depth 1 --branch main $url ${CHECKOUT_DIR}
+          else
+              git clone --depth 1 --branch main ${GIT_REPOSITORY} ${CHECKOUT_DIR}    
           fi
 
           cd ${CHECKOUT_DIR}/$(inputs.params.project) 
