@@ -118,14 +118,14 @@ export class ProjectDashboard extends React.Component<Props, State> {
 
     getEnvironmentData() {
         const used  = true;
-        const specReplicas = 3;
-        const data = Array.from({length: specReplicas}, (v, k) => {
-            return { x: k, y: 100/specReplicas }
+        const replicas = 3;
+        const data = Array.from({length: replicas}, (v, k) => {
+            return { x: k, y: 100/replicas }
         });
-        const statusReplicas = 2;
-        const colorScale = Array.from({length: specReplicas}, (v, k) => {
+        const readyReplicas = 2;
+        const colorScale = Array.from({length: replicas}, (v, k) => {
             console.log(" " + k)
-            if (k < statusReplicas) return "rgb(56, 129, 47)"
+            if (k < readyReplicas) return "rgb(56, 129, 47)"
             else return "#8bc1f7"
         })
         return (

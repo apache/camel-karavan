@@ -53,7 +53,7 @@ import ProjectIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 import ClipboardIcon from '@patternfly/react-icons/dist/esm/icons/clipboard-icon';
 import RunIcon from '@patternfly/react-icons/dist/esm/icons/play-circle-icon';
 import {ProjectModel, StepStatus} from "karavan-core/lib/model/ProjectModel";
-import {PropertiesTable} from "./PropertiesTable";
+import {PropertiesTable} from "../projects/PropertiesTable";
 
 interface Props {
     project: ProjectModel,

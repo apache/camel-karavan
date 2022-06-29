@@ -69,6 +69,7 @@ public class StatusService {
         LOGGER.info("Event received to collect statuses for the project " + projectId);
         if (System.currentTimeMillis() - lastCollect > configuration.statusThreshold()){
             getStatuses(projectId);
+            lastCollect = System.currentTimeMillis();
         }
     }
 
@@ -89,6 +90,7 @@ public class StatusService {
 
         Project project = infinispanService.getProject(projectId);
         Tuple2<Boolean, String> p = getProjectPipelineStatus(project.getLastPipelineRun());
+        System.out.println(p.getItem2());
         if (p.getItem1()) status.setPipeline(p.getItem2());
 
         LOGGER.info("Storing status in cache for " + projectId);

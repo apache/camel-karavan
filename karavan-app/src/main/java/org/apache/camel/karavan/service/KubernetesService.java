@@ -21,6 +21,8 @@ import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.tekton.client.DefaultTektonClient;
 import io.fabric8.tekton.pipeline.v1beta1.ParamBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRef;
@@ -52,6 +54,11 @@ public class KubernetesService {
     @Produces
     public DefaultTektonClient tektonClient() {
         return new DefaultTektonClient(kubernetesClient());
+    }
+
+    @Produces
+    public OpenShiftClient openshiftClient() {
+        return kubernetesClient().adapt(OpenShiftClient.class);
     }
 
     private static final Logger LOGGER = Logger.getLogger(KubernetesService.class.getName());
@@ -89,6 +96,17 @@ public class KubernetesService {
 
     public PipelineRun getPipelineRun(String name, String namespace)  {
         return tektonClient().v1beta1().pipelineRuns().inNamespace(namespace).withName(name).get();
+    }
+
+    public String getReplicas(String name, String namespace)  {
+        if (kubernetesClient().isAdaptable(OpenShiftClient.class)) {
+            DeploymentConfig dc = openshiftClient().deploymentConfigs().inNamespace(namespace).withName(name).get();
+            dc.getSpec().getReplicas();
+            dc.getStatus().getReadyReplicas();
+        } else {
+//            throw new Exception("Adapting to OpenShiftClient not support. Check if adapter is present, and that env provides /oapi root path.");
+        }
+        return "";
     }
 
     public Secret getKaravanSecret() {
