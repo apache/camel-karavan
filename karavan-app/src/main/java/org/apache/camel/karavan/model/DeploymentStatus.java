@@ -10,15 +10,18 @@ public class DeploymentStatus {
     Integer replicas;
     @ProtoField(number = 3)
     Integer readyReplicas;
+    @ProtoField(number = 4)
+    Integer unavailableReplicas;
 
     public DeploymentStatus() {
     }
 
     @ProtoFactory
-    public DeploymentStatus(String image, Integer replicas, Integer readyReplicas) {
+    public DeploymentStatus(String image, Integer replicas, Integer readyReplicas, Integer unavailableReplicas) {
         this.image = image;
         this.replicas = replicas;
         this.readyReplicas = readyReplicas;
+        this.unavailableReplicas = unavailableReplicas;
     }
 
     public String getImage() {
@@ -43,5 +46,13 @@ public class DeploymentStatus {
 
     public void setReadyReplicas(Integer readyReplicas) {
         this.readyReplicas = readyReplicas;
+    }
+
+    public Integer getUnavailableReplicas() {
+        return unavailableReplicas;
+    }
+
+    public void setUnavailableReplicas(Integer unavailableReplicas) {
+        this.unavailableReplicas = unavailableReplicas;
     }
 }

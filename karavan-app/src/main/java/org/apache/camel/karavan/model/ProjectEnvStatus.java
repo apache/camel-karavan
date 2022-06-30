@@ -10,25 +10,45 @@ public class ProjectEnvStatus {
     @ProtoField(number = 2)
     Status status;
     @ProtoField(number = 3)
-    String lastPipelineRun;
+    Status contextStatus;
     @ProtoField(number = 4)
-    String lastPipelineRunResult;
+    Status consumerStatus;
     @ProtoField(number = 5)
+    Status routesStatus;
+    @ProtoField(number = 6)
+    Status registryStatus;
+    @ProtoField(number = 7)
+    String contextVersion;
+    @ProtoField(number = 8)
+    String lastPipelineRun;
+    @ProtoField(number = 9)
+    String lastPipelineRunResult;
+    @ProtoField(number = 10)
+    Long lastPipelineRunTime;
+    @ProtoField(number = 11)
     DeploymentStatus deploymentStatus;
 
     public enum Status {
         @ProtoEnumValue(number = 0, name = "DOWN")
         DOWN,
         @ProtoEnumValue(number = 1, name = "UP")
-        UP
+        UP,
+        @ProtoEnumValue(number = 2, name = "NA")
+        NA
     }
 
     @ProtoFactory
-    public ProjectEnvStatus(String environment, Status status, String lastPipelineRun, String lastPipelineRunResult, DeploymentStatus deploymentStatus) {
+    public ProjectEnvStatus(String environment, Status status, Status contextStatus, Status consumerStatus, Status routesStatus, Status registryStatus, String contextVersion, String lastPipelineRun, String lastPipelineRunResult, Long lastPipelineRunTime, DeploymentStatus deploymentStatus) {
         this.environment = environment;
         this.status = status;
+        this.contextStatus = contextStatus;
+        this.consumerStatus = consumerStatus;
+        this.routesStatus = routesStatus;
+        this.registryStatus = registryStatus;
+        this.contextVersion = contextVersion;
         this.lastPipelineRun = lastPipelineRun;
         this.lastPipelineRunResult = lastPipelineRunResult;
+        this.lastPipelineRunTime = lastPipelineRunTime;
         this.deploymentStatus = deploymentStatus;
     }
 
@@ -50,6 +70,38 @@ public class ProjectEnvStatus {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public Status getContextStatus() {
+        return contextStatus;
+    }
+
+    public void setContextStatus(Status contextStatus) {
+        this.contextStatus = contextStatus;
+    }
+
+    public Status getConsumerStatus() {
+        return consumerStatus;
+    }
+
+    public void setConsumerStatus(Status consumerStatus) {
+        this.consumerStatus = consumerStatus;
+    }
+
+    public Status getRoutesStatus() {
+        return routesStatus;
+    }
+
+    public void setRoutesStatus(Status routesStatus) {
+        this.routesStatus = routesStatus;
+    }
+
+    public Status getRegistryStatus() {
+        return registryStatus;
+    }
+
+    public void setRegistryStatus(Status registryStatus) {
+        this.registryStatus = registryStatus;
     }
 
     public String getLastPipelineRun() {
@@ -74,5 +126,21 @@ public class ProjectEnvStatus {
 
     public void setDeploymentStatus(DeploymentStatus deploymentStatus) {
         this.deploymentStatus = deploymentStatus;
+    }
+
+    public String getContextVersion() {
+        return contextVersion;
+    }
+
+    public void setContextVersion(String contextVersion) {
+        this.contextVersion = contextVersion;
+    }
+
+    public Long getLastPipelineRunTime() {
+        return lastPipelineRunTime;
+    }
+
+    public void setLastPipelineRunTime(Long lastPipelineRunTime) {
+        this.lastPipelineRunTime = lastPipelineRunTime;
     }
 }
