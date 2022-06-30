@@ -19,8 +19,6 @@ package org.apache.camel.karavan.service;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRun;
 import io.quarkus.runtime.configuration.ProfileManager;
 import io.quarkus.vertx.ConsumeEvent;
-import io.smallrye.mutiny.tuples.Tuple2;
-import io.smallrye.mutiny.tuples.Tuple3;
 import io.smallrye.mutiny.tuples.Tuple4;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.Vertx;
@@ -32,17 +30,12 @@ import org.apache.camel.karavan.model.KaravanConfiguration;
 import org.apache.camel.karavan.model.ProjectEnvStatus;
 import org.apache.camel.karavan.model.ProjectStatus;
 import org.jboss.logging.Logger;
-import org.ocpsoft.prettytime.Duration;
-import org.ocpsoft.prettytime.PrettyTime;
-import org.ocpsoft.prettytime.TimeUnit;
-import org.ocpsoft.prettytime.impl.DurationImpl;
-import org.ocpsoft.prettytime.units.Second;
+
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
