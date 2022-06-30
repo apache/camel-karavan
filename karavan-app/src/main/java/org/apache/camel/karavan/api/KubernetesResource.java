@@ -86,4 +86,17 @@ public class KubernetesResource {
             return Response.noContent().build();
         }
     }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/container/log/{environment}/{name}")
+    public Response getContainerLog(@HeaderParam("username") String username, @PathParam("environment") String environment,
+                                   @PathParam("name") String name) throws Exception {
+        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
+        if (env.isPresent()) {
+            return Response.ok(kubernetesService.getContainerLog(name, env.get().namespace())).build();
+        } else {
+            return Response.noContent().build();
+        }
+    }
 }

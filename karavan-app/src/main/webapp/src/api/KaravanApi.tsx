@@ -123,13 +123,37 @@ export const KaravanApi = {
         });
     },
 
-    tekton: async (project: Project, environment: string, after: (res: AxiosResponse<any>) => void) => {
-        axios.post('kubernetes/pipeline/' + environment, project,
+    pipelineRun: async (project: Project, environment: string, after: (res: AxiosResponse<any>) => void) => {
+        axios.post('/kubernetes/pipeline/' + environment, project,
             {headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'username': 'cameleer'}})
             .then(res => {
                 after(res);
             }).catch(err => {
             after(err);
+        });
+    },
+
+    getPipelineLog: async (environment: string, pipelineRunName: string, after: (res: AxiosResponse<any>) => void) => {
+        axios.get('/kubernetes/pipeline/log/' + environment + "/" + pipelineRunName,
+            {headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'username': 'cameleer'}})
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    },
+
+    getContainerLog: async (environment: string, name: string, after: (res: AxiosResponse<string>) => void) => {
+        axios.get('/kubernetes/container/log/' + environment + "/" + name,
+            {headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'username': 'cameleer'}})
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
         });
     },
 

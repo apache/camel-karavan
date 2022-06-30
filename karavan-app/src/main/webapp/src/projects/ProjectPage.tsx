@@ -9,13 +9,19 @@ import {
     TextContent,
     Toolbar,
     ToolbarContent,
-    ToolbarItem,
     Bullseye,
     EmptyState,
     EmptyStateVariant,
     EmptyStateIcon,
     Title,
-    ModalVariant, Modal, Spinner, Tooltip, Flex, FlexItem, ToggleGroup, ToggleGroupItem, Card, CardBody
+    ModalVariant,
+    Modal,
+    Flex,
+    FlexItem,
+    ToggleGroup,
+    ToggleGroupItem,
+    CodeBlockCode,
+    CodeBlock, Skeleton
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
@@ -32,12 +38,7 @@ import Editor from "@monaco-editor/react";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CreateFileModal} from "./CreateFileModal";
-import BuildIcon from "@patternfly/react-icons/dist/esm/icons/build-icon";
-import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 import {PropertiesEditor} from "./PropertiesEditor";
-import PendingIcon from "@patternfly/react-icons/dist/esm/icons/pending-icon";
-import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 import {ProjectHeader} from "./ProjectHeader";
 
 interface Props {
@@ -146,21 +147,34 @@ export class ProjectPage extends React.Component<Props, State> {
                 </Flex>
             </ToolbarContent>
         </Toolbar>
-    };
+    }
+
+    getType = (name: string) => {
+        const extension = name.substring(name.lastIndexOf('.') + 1);
+        const type = ProjectFileTypes.filter(p => p.extension === extension).map(p => p.title)[0];
+        if (type) {
+            return type
+        } else {
+            return "Unknown"
+        }
+    }
 
     title = () => {
         const file = this.state.file;
         const isFile = file !== undefined;
+        const isLog = file !== undefined && file.name.endsWith("log");
+        const filename = file ? file.name.substring(0, file.name.lastIndexOf('.')) : "";
         return (<div className="dsl-title">
             {isFile &&
                 <div>
                     <Breadcrumb>
-                        <BreadcrumbItem to="#"
-                                        onClick={event => this.setState({file: undefined})}>{"Project: " + this.props.project?.projectId}</BreadcrumbItem>
+                        <BreadcrumbItem to="#" onClick={event => this.setState({file: undefined})}>
+                            {"Project: " + this.props.project?.projectId}
+                        </BreadcrumbItem>
                         <BreadcrumbItem to="#" isActive>{this.getType(file?.name)}</BreadcrumbItem>
                     </Breadcrumb>
                     <TextContent className="title">
-                        <Text component="h1">{CamelUi.titleFromName(file.name)}</Text>
+                        <Text component="h1">{isLog ? filename : CamelUi.titleFromName(file.name)}</Text>
                     </TextContent>
                 </div>
             }
@@ -198,17 +212,6 @@ export class ProjectPage extends React.Component<Props, State> {
         }
     }
 
-
-    getType = (name: string) => {
-        const extension = name.substring(name.lastIndexOf('.') + 1);
-        const type = ProjectFileTypes.filter(p => p.extension === extension).map(p => p.title)[0];
-        if (type) {
-            return type
-        } else {
-            return "Unknown"
-        }
-    }
-
     getProjectFiles = () => {
         const files = this.state.files;
         return (
@@ -217,6 +220,7 @@ export class ProjectPage extends React.Component<Props, State> {
                     <Tr>
                         <Th key='type'>Type</Th>
                         <Th key='name'>Name</Th>
+                        <Th key='filename'>Filename</Th>
                         <Th key='action'></Th>
                     </Tr>
                 </Thead>
@@ -233,6 +237,7 @@ export class ProjectPage extends React.Component<Props, State> {
                                     {CamelUi.titleFromName(file.name)}
                                 </Button>
                             </Td>
+                            <Td>{file.name}</Td>
                             <Td modifier={"fitContent"}>
                                 <Button style={{padding: '0'}} variant={"plain"}
                                         isDisabled={file.name === 'application.properties'}
@@ -296,6 +301,49 @@ export class ProjectPage extends React.Component<Props, State> {
         )
     }
 
+    showPipelineLog = (type: 'container' | 'pipeline', name: string, environment: string) => {
+        const filename = name + ".log";
+        const code = '';
+        this.setState({file: new ProjectFile(filename, this.props.project.projectId, code)});
+        if (type === 'pipeline'){
+            KaravanApi.getPipelineLog(environment, name, (res: any) => {
+                if (Array.isArray(res) && Array.from(res).length > 0)
+                    this.setState({file: new ProjectFile(filename, this.props.project.projectId, res.at(0).log)});
+            });
+        } else if (type === 'container'){
+            KaravanApi.getContainerLog(environment, name, (res: any) => {
+                this.setState({file: new ProjectFile(filename, this.props.project.projectId, res)});
+            });
+        }
+
+    }
+
+    getLogView = () => {
+        const file = this.state.file;
+        return (
+            <div style={{overflowX: "auto"}}>
+                {file !== undefined && file.code.length !== 0 &&
+                    <CodeBlock>
+                        <CodeBlockCode id="code-content">{file.code}</CodeBlockCode>
+                    </CodeBlock>}
+                {file === undefined || file.code.length === 0 &&
+                    <div>
+                        <Skeleton width="25%" screenreaderText="Loading contents" />
+                        <br />
+                        <Skeleton width="33%" />
+                        <br />
+                        <Skeleton width="50%" />
+                        <br />
+                        <Skeleton width="66%" />
+                        <br />
+                        <Skeleton width="75%" />
+                        <br />
+                        <Skeleton />
+                    </div>}
+            </div>
+        )
+    }
+
     getPropertiesEditor = () => {
         const file = this.state.file;
         return (
@@ -311,6 +359,7 @@ export class ProjectPage extends React.Component<Props, State> {
         const {file, mode} = this.state;
         const isYaml = file !== undefined && file.name.endsWith("yaml");
         const isProperties = file !== undefined && file.name.endsWith("properties");
+        const isLog = file !== undefined && file.name.endsWith("log");
         const isCode = file !== undefined && (file.name.endsWith("java") || file.name.endsWith("groovy"));
         const showDesigner = isYaml && mode === 'design';
         const showEditor = isCode || (isYaml && mode === 'code');
@@ -322,11 +371,12 @@ export class ProjectPage extends React.Component<Props, State> {
                 {file === undefined &&
                     <PageSection isFilled className="kamelets-page project-page-section"
                                  padding={{default: file !== undefined ? 'noPadding' : 'noPadding'}}>
-                        {<ProjectHeader project={this.props.project} config={this.props.config}/>}
+                        {<ProjectHeader project={this.props.project} config={this.props.config} showLog={this.showPipelineLog}/>}
                         {this.getProjectFiles()}
                     </PageSection>}
                 {showDesigner && this.getDesigner()}
                 {showEditor && this.getEditor()}
+                {isLog && this.getLogView()}
                 {isProperties && this.getPropertiesEditor()}
                 <CreateFileModal project={this.props.project} isOpen={this.state.isCreateModalOpen}
                                  onClose={this.closeModal}/>

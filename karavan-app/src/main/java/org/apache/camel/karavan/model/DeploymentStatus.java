@@ -3,6 +3,9 @@ package org.apache.camel.karavan.model;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DeploymentStatus {
     @ProtoField(number = 1)
     String image;
@@ -12,16 +15,25 @@ public class DeploymentStatus {
     Integer readyReplicas;
     @ProtoField(number = 4)
     Integer unavailableReplicas;
+    @ProtoField(number = 5, collectionImplementation = ArrayList.class)
+    List<PodStatus> podStatuses;
+
 
     public DeploymentStatus() {
+        this.image = "";
+        this.replicas = 0;
+        this.readyReplicas = 0;
+        this.unavailableReplicas = 0;
+        this.podStatuses = new ArrayList<>(0);
     }
 
     @ProtoFactory
-    public DeploymentStatus(String image, Integer replicas, Integer readyReplicas, Integer unavailableReplicas) {
+    public DeploymentStatus(String image, Integer replicas, Integer readyReplicas, Integer unavailableReplicas, List<PodStatus> podStatuses) {
         this.image = image;
         this.replicas = replicas;
         this.readyReplicas = readyReplicas;
         this.unavailableReplicas = unavailableReplicas;
+        this.podStatuses = podStatuses;
     }
 
     public String getImage() {
@@ -54,5 +66,13 @@ public class DeploymentStatus {
 
     public void setUnavailableReplicas(Integer unavailableReplicas) {
         this.unavailableReplicas = unavailableReplicas;
+    }
+
+    public List<PodStatus> getPodStatuses() {
+        return podStatuses;
+    }
+
+    public void setPodStatuses(List<PodStatus> podStatuses) {
+        this.podStatuses = podStatuses;
     }
 }

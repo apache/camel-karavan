@@ -39,6 +39,15 @@ export class DeploymentStatus {
     replicas: number = 0;
     readyReplicas: number = 0;
     unavailableReplicas: number = 0;
+    podStatuses: PodStatus[] = []
+}
+
+export class PodStatus {
+    name: string = '';
+    started: boolean = false;
+    ready: boolean = false;
+    reason: string = '';
+    deployment: string = '';
 }
 
 export class ProjectStatus {
@@ -78,4 +87,5 @@ export const ProjectFileTypes: ProjectFileType[] = [
     new ProjectFileType("CODE", "Code", "groovy"),
     new ProjectFileType("PROPERTIES", "Properties", "properties"),
     new ProjectFileType("OPENAPI", "OpenAPI", "json"),
+    new ProjectFileType("LOG", "Log", "log"),
 ];
