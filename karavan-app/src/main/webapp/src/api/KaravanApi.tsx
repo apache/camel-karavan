@@ -124,7 +124,7 @@ export const KaravanApi = {
     },
 
     tekton: async (project: Project, environment: string, after: (res: AxiosResponse<any>) => void) => {
-        axios.post('/tekton/' + environment, project,
+        axios.post('kubernetes/pipeline/' + environment, project,
             {headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'username': 'cameleer'}})
             .then(res => {
                 after(res);

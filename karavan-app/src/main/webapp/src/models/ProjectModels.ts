@@ -23,8 +23,14 @@ export class Project {
 export class ProjectEnvStatus {
     environment: string = '';
     status: string = '';
+    contextStatus: string = '';
+    consumerStatus: string = '';
+    routesStatus: string = '';
+    registryStatus: string = '';
+    contextVersion: string = '';
     lastPipelineRun: string = '';
     lastPipelineRunResult: string = '';
+    lastPipelineRunTime: number = 0;
     deploymentStatus: DeploymentStatus = new DeploymentStatus();
 }
 
@@ -32,6 +38,7 @@ export class DeploymentStatus {
     image: string = '';
     replicas: number = 0;
     readyReplicas: number = 0;
+    unavailableReplicas: number = 0;
 }
 
 export class ProjectStatus {

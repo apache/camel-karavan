@@ -17,7 +17,6 @@
 package org.apache.camel.karavan.api;
 
 import io.vertx.core.eventbus.EventBus;
-import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.KaravanConfiguration;
 import org.apache.camel.karavan.model.ProjectEnvStatus;
 import org.apache.camel.karavan.model.ProjectStatus;
@@ -59,7 +58,7 @@ public class StatusResource {
         } else {
             return new ProjectStatus( projectId,
                     configuration.environments()
-                            .stream().map(e -> new ProjectEnvStatus(e.name(), ProjectEnvStatus.Status.DOWN, "-", "Undefined", new DeploymentStatus()))
+                            .stream().map(e -> new ProjectEnvStatus(e.name()))
                             .collect(Collectors.toList()),
                     Long.valueOf(0));
         }

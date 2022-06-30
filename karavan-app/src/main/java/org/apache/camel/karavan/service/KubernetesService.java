@@ -41,6 +41,7 @@ import org.jboss.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -98,18 +99,27 @@ public class KubernetesService {
         return pipelineRun.getMetadata().getName();
     }
 
-    public PipelineRun getPipelineRun(String pipelineRuneName, String namespace)  {
+    public PipelineRun getPipelineRun(String pipelineRuneName, String namespace) {
         return tektonClient().v1beta1().pipelineRuns().inNamespace(namespace).withName(pipelineRuneName).get();
     }
 
-    public PipelineRun getLastPipelineRun(String projectId, String pipelineName, String namespace)  {
+    public Map<String,String> getPipelineRunLog(String pipelineRuneName, String namespace) {
+        Map<String,String> result = new HashMap<>(1);
+        PipelineRun pipelineRun = getPipelineRun(pipelineRuneName, namespace);
+        pipelineRun.getStatus().getTaskRuns().forEach((s, pipelineRunTaskRunStatus) -> {
+            String podName = pipelineRunTaskRunStatus.getStatus().getPodName();
+            StringBuilder log = new StringBuilder();
+            pipelineRunTaskRunStatus.getStatus().getSteps().forEach(stepState -> {
+                String logText = kubernetesClient().pods().inNamespace(namespace).withName(podName).inContainer(stepState.getContainer()).getLog(true);
+                log.append(stepState.getContainer()).append(System.lineSeparator());
+                log.append(logText).append(System.lineSeparator());
+            });
+            result.put(s, log.toString());
+        });
+        return result;
+    }
 
-        tektonClient().v1beta1().pipelineRuns().inNamespace(namespace)
-                .withLabel("karavan-project-id", projectId)
-                .withLabel("tekton.dev/pipeline", pipelineName)
-                .list().getItems().sort(Comparator.comparing(o -> o.getMetadata().getCreationTimestamp()));
-
-
+    public PipelineRun getLastPipelineRun(String projectId, String pipelineName, String namespace) {
         return tektonClient().v1beta1().pipelineRuns().inNamespace(namespace)
                 .withLabel("karavan-project-id", projectId)
                 .withLabel("tekton.dev/pipeline", pipelineName)
@@ -118,28 +128,27 @@ public class KubernetesService {
     }
 
 
-    public Tuple2<Boolean, DeploymentStatus> getDeploymentStatus(String name, String namespace)  {
-        if (kubernetesClient().isAdaptable(OpenShiftClient.class)) {
-            try {
+    public DeploymentStatus getDeploymentStatus(String name, String namespace) {
+        try {
+            if (kubernetesClient().isAdaptable(OpenShiftClient.class)) {
                 DeploymentConfig dc = openshiftClient().deploymentConfigs().inNamespace(namespace).withName(name).get();
                 String dsImage = dc.getSpec().getTemplate().getSpec().getContainers().get(0).getImage();
                 String imageName = dsImage.startsWith("image-registry.openshift-image-registry.svc")
                         ? dsImage.replace("image-registry.openshift-image-registry.svc:5000/", "")
                         : dsImage;
-                return Tuple2.of(true,
-                        new DeploymentStatus(
-                                imageName,
-                                dc.getSpec().getReplicas(),
-                                dc.getStatus().getReadyReplicas()
-                        )
-                        );
-            } catch (Exception ex){
-                LOGGER.error(ex.getMessage());
-                return Tuple2.of(false, new DeploymentStatus());
+                return new DeploymentStatus(
+                        imageName,
+                        dc.getSpec().getReplicas(),
+                        dc.getStatus().getReadyReplicas(),
+                        dc.getStatus().getUnavailableReplicas()
+                );
+            } else {
+                // TODO: Implement Deployment for Kubernetes/Minikube
+                return new DeploymentStatus();
             }
-        } else {
-            // TODO: Implement Deployment for Kubernetes/Minikube
-            return  Tuple2.of(true, new DeploymentStatus());
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+            return new DeploymentStatus();
         }
     }
 
@@ -148,7 +157,7 @@ public class KubernetesService {
         return kubernetesClient().secrets().inNamespace(namespace).withName("karavan").get();
     }
 
-    public boolean inKubernetes(){
+    public boolean inKubernetes() {
         return !Objects.equals(namespace, "localhost");
     }
 }

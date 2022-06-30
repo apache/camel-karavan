@@ -34,8 +34,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Optional;
 
-@Path("/tekton")
-public class TektonResource {
+@Path("/kubernetes")
+public class KubernetesResource {
 
     @Inject
     InfinispanService infinispanService;
@@ -46,13 +46,13 @@ public class TektonResource {
     @Inject
     KaravanConfiguration configuration;
 
-    private static final Logger LOGGER = Logger.getLogger(TektonResource.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(KubernetesResource.class.getName());
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/{environment}")
-    public Project push(@HeaderParam("username") String username, @PathParam("environment") String environment, Project project) throws Exception {
+    @Path("/pipeline/{environment}")
+    public Project createPipeline(@HeaderParam("username") String username, @PathParam("environment") String environment, Project project) throws Exception {
         Project p = infinispanService.getProject(project.getProjectId());
         Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
         if (env.isPresent()) {
@@ -63,12 +63,25 @@ public class TektonResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{environment}/{name}")
-    public Response get(@HeaderParam("username") String username, @PathParam("environment") String environment,
+    @Path("/pipeline/{environment}/{name}")
+    public Response getPipeline(@HeaderParam("username") String username, @PathParam("environment") String environment,
                         @PathParam("name") String name) throws Exception {
         Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
         if (env.isPresent()) {
             return Response.ok(kubernetesService.getPipelineRun(name, env.get().namespace())).build();
+        } else {
+            return Response.noContent().build();
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/pipeline/log/{environment}/{name}")
+    public Response getPipelineLog(@HeaderParam("username") String username, @PathParam("environment") String environment,
+                        @PathParam("name") String name) throws Exception {
+        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
+        if (env.isPresent()) {
+            return Response.ok(kubernetesService.getPipelineRunLog(name, env.get().namespace())).build();
         } else {
             return Response.noContent().build();
         }
