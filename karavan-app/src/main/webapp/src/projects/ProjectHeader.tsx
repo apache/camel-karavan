@@ -7,13 +7,14 @@ import {
     PageSection,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {Project, ProjectStatus} from "../models/ProjectModels";
+import {Project, ProjectFile, ProjectStatus} from "../models/ProjectModels";
 import {ProjectDashboard} from "./ProjectDashboard";
 import {ProjectInfo} from "./ProjectInfo";
 
 interface Props {
     project: Project,
     config: any,
+    showLog: (type: 'container' | 'pipeline', name: string, environment: string) => void
 }
 
 interface State {
@@ -41,7 +42,7 @@ export class ProjectHeader extends React.Component<Props, State> {
                 </FlexItem>
                 <FlexItem>
                     <PageSection padding={{default: "padding"}}>
-                        {tab === 'details' && <ProjectInfo project={this.props.project} config={this.props.config}/>}
+                        {tab === 'details' && <ProjectInfo project={this.props.project} config={this.props.config} showLog={this.props.showLog}/>}
                         {tab === 'dashboard' && <ProjectDashboard project={this.props.project} config={this.props.config}/>}
                     </PageSection>
                 </FlexItem>

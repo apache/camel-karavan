@@ -14,13 +14,16 @@ import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
 import {DeploymentStatus, Project, ProjectStatus} from "../models/ProjectModels";
 import BuildIcon from "@patternfly/react-icons/dist/esm/icons/build-icon";
+import RolloutIcon from "@patternfly/react-icons/dist/esm/icons/process-automation-icon";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
+import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import ClockIcon from "@patternfly/react-icons/dist/esm/icons/clock-icon";
 
 interface Props {
     project: Project,
     config: any,
+    showLog: (type: 'container' | 'pipeline', name: string, environment: string) => void
 }
 
 interface State {
@@ -28,6 +31,7 @@ interface State {
     status?: ProjectStatus,
     isPushing: boolean,
     isBuilding: boolean,
+    isRolling: boolean,
     environments: string[],
     environment: string,
     key?: string,
@@ -39,6 +43,7 @@ export class ProjectInfo extends React.Component<Props, State> {
         project: this.props.project,
         isPushing: false,
         isBuilding: false,
+        isRolling: false,
         environments: this.props.config.environments && Array.isArray(this.props.config.environments)
             ? Array.from(this.props.config.environments) : [],
         environment: this.props.config.environments && Array.isArray(this.props.config.environments)
@@ -93,10 +98,23 @@ export class ProjectInfo extends React.Component<Props, State> {
 
     build = () => {
         this.setState({isBuilding: true});
-        KaravanApi.tekton(this.props.project, this.state.environment, res => {
+        KaravanApi.pipelineRun(this.props.project, this.state.environment, res => {
             console.log(res)
             if (res.status === 200 || res.status === 201) {
                 this.setState({isBuilding: false});
+                this.onRefresh();
+            } else {
+                // Todo notification
+            }
+        });
+    }
+
+    rollout = () => {
+        this.setState({isRolling: true});
+        KaravanApi.rolloutDeployment(this.props.project.projectId, this.state.environment, res => {
+            console.log(res)
+            if (res.status === 200 || res.status === 201) {
+                this.setState({isRolling: false});
                 this.onRefresh();
             } else {
                 // Todo notification
@@ -125,7 +143,19 @@ export class ProjectInfo extends React.Component<Props, State> {
                     onClick={e => {
                         this.push(() => this.build());
                     }}>
-                {isDeploying ? "..." : "Build"}
+                {isDeploying ? "..." : "Run"}
+            </Button>
+        </Tooltip>)
+    }
+
+    rolloutButton = () => {
+        const isRolling = this.state.isRolling;
+        return (<Tooltip content="Rollout deployment" position={"left"}>
+            <Button isLoading={isRolling ? true : undefined} isSmall variant="secondary"
+                    className="project-button"
+                    icon={!isRolling ? <RolloutIcon/> : <div></div>}
+                    onClick={e => this.rollout()}>
+                {isRolling ? "..." : "Rollout"}
             </Button>
         </Tooltip>)
     }
@@ -151,12 +181,6 @@ export class ProjectInfo extends React.Component<Props, State> {
         return (
             <DescriptionList isHorizontal>
                 <DescriptionListGroup>
-                    <DescriptionListTerm>Commit</DescriptionListTerm>
-                    <DescriptionListDescription>
-                        {this.getCommitPanel()}
-                    </DescriptionListDescription>
-                </DescriptionListGroup>
-                <DescriptionListGroup>
                     <DescriptionListTerm>Pipeline</DescriptionListTerm>
                     <DescriptionListDescription>
                         {this.getPipelineState(env)}
@@ -166,6 +190,12 @@ export class ProjectInfo extends React.Component<Props, State> {
                     <DescriptionListTerm>Replicas</DescriptionListTerm>
                     <DescriptionListDescription>
                         {deploymentStatus && this.getReplicasPanel(deploymentStatus)}
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>Pods</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        {deploymentStatus && this.getPodsPanel(deploymentStatus, env)}
                     </DescriptionListDescription>
                 </DescriptionListGroup>
                 <DescriptionListGroup>
@@ -196,6 +226,31 @@ export class ProjectInfo extends React.Component<Props, State> {
         )
     }
 
+    getPodsPanel(deploymentStatus: DeploymentStatus, env: string) {
+        const podStatuses = deploymentStatus.podStatuses;
+        return (
+        <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
+            <FlexItem>
+                <LabelGroup numLabels={3}>
+                    {podStatuses.map(pod => {
+                        const running = pod.started && pod.ready;
+                        return (
+                            <Tooltip content={running ? "Running" : pod.reason}>
+                                <Label icon={running ? <UpIcon/> : <DownIcon/>} color={running ? "green" : "red"} >
+                                    <Button variant="link" onClick={e => this.props.showLog?.call(this, 'container', pod.name, env)}>
+                                        {pod.name}
+                                    </Button>
+                                </Label>
+                            </Tooltip>
+                        )}
+                    )}
+                </LabelGroup>
+            </FlexItem>
+            <FlexItem>{env === "dev" && this.rolloutButton()}</FlexItem>
+        </Flex>
+        )
+    }
+
     getHealthPanel(env: string) {
         const status = this.state.status?.statuses.find(s => s.environment === env)
         const registryStatus = status?.registryStatus;
@@ -205,8 +260,8 @@ export class ProjectInfo extends React.Component<Props, State> {
         const contextVersion = status?.contextVersion;
         return (
             <LabelGroup numLabels={5}>
+                {contextVersion && <Label icon={<UpIcon/>} color={contextStatus === "UP" ? "green" : "grey"}>{contextVersion}</Label>}
                 <Label icon={<UpIcon/>} color={contextStatus === "UP" ? "green" : "grey"}>Context</Label>
-                <Label icon={<UpIcon/>} color={contextStatus === "UP" ? "green" : "grey"}>{contextVersion}</Label>
                 <Label icon={<UpIcon/>} color={consumersStatus === "UP" ? "green" : "grey"}>Consumers</Label>
                 <Label icon={<UpIcon/>} color={routesStatus === "UP" ? "green" : "grey"}>Routes</Label>
                 <Label icon={<UpIcon/>} color={registryStatus === "UP" ? "green" : "grey"}>Registry</Label>
@@ -228,8 +283,13 @@ export class ProjectInfo extends React.Component<Props, State> {
                 <FlexItem>
                     <Tooltip content={pipelineResult} position={"right"}>
                         <LabelGroup numLabels={2}>
-                            <Label icon={isRunning ? <Spinner isSVG diameter="16px"/> : <UpIcon/>}
-                                   color={color}>{pipeline ? pipeline : "-"}</Label>
+                            <Label icon={isRunning ? <Spinner isSVG diameter="16px"/> : <UpIcon/>} color={color}>
+                                <Button variant="link" onClick={e => {
+                                    if (pipeline) this.props.showLog?.call(this, 'pipeline', pipeline, env);
+                                }}>
+                                    {pipeline ? pipeline : "-"}
+                                </Button>
+                            </Label>
                             {lastPipelineRunTime && lastPipelineRunTime > 0 &&
                                 <Label icon={<ClockIcon/>} color={color}>{lastPipelineRunTime + "s"}</Label>}
                         </LabelGroup>
@@ -262,6 +322,12 @@ export class ProjectInfo extends React.Component<Props, State> {
             <DescriptionListGroup>
                 <DescriptionListTerm>Description</DescriptionListTerm>
                 <DescriptionListDescription>{project?.description}</DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+                <DescriptionListTerm>Commit</DescriptionListTerm>
+                <DescriptionListDescription>
+                    {this.getCommitPanel()}
+                </DescriptionListDescription>
             </DescriptionListGroup>
         </DescriptionList>)
     }

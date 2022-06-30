@@ -18,6 +18,7 @@ package org.apache.camel.karavan.service;
 
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
+import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -34,16 +35,21 @@ import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpecBuilder;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.smallrye.mutiny.tuples.Tuple3;
 import org.apache.camel.karavan.model.DeploymentStatus;
+import org.apache.camel.karavan.model.PipelineRunLog;
+import org.apache.camel.karavan.model.PodStatus;
 import org.apache.camel.karavan.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class KubernetesService {
@@ -103,8 +109,13 @@ public class KubernetesService {
         return tektonClient().v1beta1().pipelineRuns().inNamespace(namespace).withName(pipelineRuneName).get();
     }
 
-    public Map<String,String> getPipelineRunLog(String pipelineRuneName, String namespace) {
-        Map<String,String> result = new HashMap<>(1);
+    public String getContainerLog(String podName, String namespace) {
+        String logText = kubernetesClient().pods().inNamespace(namespace).withName(podName).getLog(true);
+        return logText;
+    }
+
+    public List<PipelineRunLog> getPipelineRunLog(String pipelineRuneName, String namespace) {
+        List<PipelineRunLog> result = new ArrayList<>(1);
         PipelineRun pipelineRun = getPipelineRun(pipelineRuneName, namespace);
         pipelineRun.getStatus().getTaskRuns().forEach((s, pipelineRunTaskRunStatus) -> {
             String podName = pipelineRunTaskRunStatus.getStatus().getPodName();
@@ -114,7 +125,7 @@ public class KubernetesService {
                 log.append(stepState.getContainer()).append(System.lineSeparator());
                 log.append(logText).append(System.lineSeparator());
             });
-            result.put(s, log.toString());
+            result.add(new PipelineRunLog(s, log.toString()));
         });
         return result;
     }
@@ -127,6 +138,18 @@ public class KubernetesService {
                 .findFirst().get();
     }
 
+    public void rolloutDeployment(String name, String namespace) {
+        try {
+            if (kubernetesClient().isAdaptable(OpenShiftClient.class)) {
+                openshiftClient().deploymentConfigs().inNamespace(namespace).withName(name).deployLatest();
+            } else {
+                // TODO: Implement Deployment for Kubernetes/Minikube
+            }
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+        }
+    }
+
 
     public DeploymentStatus getDeploymentStatus(String name, String namespace) {
         try {
@@ -136,11 +159,26 @@ public class KubernetesService {
                 String imageName = dsImage.startsWith("image-registry.openshift-image-registry.svc")
                         ? dsImage.replace("image-registry.openshift-image-registry.svc:5000/", "")
                         : dsImage;
+
+                List<Pod> pods = openshiftClient().pods().inNamespace(namespace)
+                        .withLabel("app.kubernetes.io/name", name)
+                        .withLabel("deploymentconfig", name)
+                        .list().getItems();
+
+                List<PodStatus> podStatuses = pods.stream().map(pod -> new PodStatus(
+                        pod.getMetadata().getName(),
+                        pod.getStatus().getContainerStatuses().get(0).getStarted(),
+                        pod.getStatus().getContainerStatuses().get(0).getReady(),
+                        getPodReason(pod),
+                        pod.getMetadata().getLabels().get("deployment")
+                        )).collect(Collectors.toList());
+
                 return new DeploymentStatus(
                         imageName,
                         dc.getSpec().getReplicas(),
                         dc.getStatus().getReadyReplicas(),
-                        dc.getStatus().getUnavailableReplicas()
+                        dc.getStatus().getUnavailableReplicas(),
+                        podStatuses
                 );
             } else {
                 // TODO: Implement Deployment for Kubernetes/Minikube
@@ -152,6 +190,13 @@ public class KubernetesService {
         }
     }
 
+    private String getPodReason (Pod pod){
+        try {
+            return pod.getStatus().getContainerStatuses().get(0).getState().getWaiting().getReason();
+        } catch (Exception e){
+            return "";
+        }
+    }
 
     public Secret getKaravanSecret() {
         return kubernetesClient().secrets().inNamespace(namespace).withName("karavan").get();
