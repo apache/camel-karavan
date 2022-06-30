@@ -12,8 +12,9 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
-import {DeploymentStatus, Project, ProjectFile, ProjectStatus} from "../models/ProjectModels";
+import {DeploymentStatus, Project, ProjectStatus} from "../models/ProjectModels";
 import BuildIcon from "@patternfly/react-icons/dist/esm/icons/build-icon";
+import RolloutIcon from "@patternfly/react-icons/dist/esm/icons/process-automation-icon";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
@@ -30,6 +31,7 @@ interface State {
     status?: ProjectStatus,
     isPushing: boolean,
     isBuilding: boolean,
+    isRolling: boolean,
     environments: string[],
     environment: string,
     key?: string,
@@ -41,6 +43,7 @@ export class ProjectInfo extends React.Component<Props, State> {
         project: this.props.project,
         isPushing: false,
         isBuilding: false,
+        isRolling: false,
         environments: this.props.config.environments && Array.isArray(this.props.config.environments)
             ? Array.from(this.props.config.environments) : [],
         environment: this.props.config.environments && Array.isArray(this.props.config.environments)
@@ -106,6 +109,19 @@ export class ProjectInfo extends React.Component<Props, State> {
         });
     }
 
+    rollout = () => {
+        this.setState({isRolling: true});
+        KaravanApi.rolloutDeployment(this.props.project.projectId, this.state.environment, res => {
+            console.log(res)
+            if (res.status === 200 || res.status === 201) {
+                this.setState({isRolling: false});
+                this.onRefresh();
+            } else {
+                // Todo notification
+            }
+        });
+    }
+
     pushButton = () => {
         const isPushing = this.state.isPushing;
         return (<Tooltip content="Commit and push to git" position={"left"}>
@@ -128,6 +144,18 @@ export class ProjectInfo extends React.Component<Props, State> {
                         this.push(() => this.build());
                     }}>
                 {isDeploying ? "..." : "Run"}
+            </Button>
+        </Tooltip>)
+    }
+
+    rolloutButton = () => {
+        const isRolling = this.state.isRolling;
+        return (<Tooltip content="Rollout deployment" position={"left"}>
+            <Button isLoading={isRolling ? true : undefined} isSmall variant="secondary"
+                    className="project-button"
+                    icon={!isRolling ? <RolloutIcon/> : <div></div>}
+                    onClick={e => this.rollout()}>
+                {isRolling ? "..." : "Rollout"}
             </Button>
         </Tooltip>)
     }
@@ -201,20 +229,25 @@ export class ProjectInfo extends React.Component<Props, State> {
     getPodsPanel(deploymentStatus: DeploymentStatus, env: string) {
         const podStatuses = deploymentStatus.podStatuses;
         return (
-            <LabelGroup numLabels={3}>
-                {podStatuses.map(pod => {
-                    const running = pod.started && pod.ready;
-                    return (
-                        <Tooltip content={running ? "Running" : pod.reason}>
-                        <Label icon={running ? <UpIcon/> : <DownIcon/>} color={running ? "green" : "red"} >
-                            <Button variant="link" onClick={e => this.props.showLog?.call(this, 'container', pod.name, env)}>
-                                {pod.name}
-                            </Button>
-                        </Label>
-                    </Tooltip>
+        <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
+            <FlexItem>
+                <LabelGroup numLabels={3}>
+                    {podStatuses.map(pod => {
+                        const running = pod.started && pod.ready;
+                        return (
+                            <Tooltip content={running ? "Running" : pod.reason}>
+                                <Label icon={running ? <UpIcon/> : <DownIcon/>} color={running ? "green" : "red"} >
+                                    <Button variant="link" onClick={e => this.props.showLog?.call(this, 'container', pod.name, env)}>
+                                        {pod.name}
+                                    </Button>
+                                </Label>
+                            </Tooltip>
+                        )}
                     )}
-                )}
-            </LabelGroup>
+                </LabelGroup>
+            </FlexItem>
+            <FlexItem>{env === "dev" && this.rolloutButton()}</FlexItem>
+        </Flex>
         )
     }
 

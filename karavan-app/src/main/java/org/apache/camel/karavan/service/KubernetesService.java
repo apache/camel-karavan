@@ -138,6 +138,18 @@ public class KubernetesService {
                 .findFirst().get();
     }
 
+    public void rolloutDeployment(String name, String namespace) {
+        try {
+            if (kubernetesClient().isAdaptable(OpenShiftClient.class)) {
+                openshiftClient().deploymentConfigs().inNamespace(namespace).withName(name).deployLatest();
+            } else {
+                // TODO: Implement Deployment for Kubernetes/Minikube
+            }
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+        }
+    }
+
 
     public DeploymentStatus getDeploymentStatus(String name, String namespace) {
         try {

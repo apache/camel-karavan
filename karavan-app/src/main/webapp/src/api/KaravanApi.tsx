@@ -157,6 +157,16 @@ export const KaravanApi = {
         });
     },
 
+    rolloutDeployment: async (name: string, environment: string, after: (res: AxiosResponse<any>) => void) => {
+        axios.post('/kubernetes/deployment/rollout/' + environment + '/' + name, "",
+            {headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'username': 'cameleer'}})
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    },
+
     getKameletNames: async (after: (names: []) => void) => {
         axios.get('/kamelet',
             {headers: {'Accept': 'application/json'}})
