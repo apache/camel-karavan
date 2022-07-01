@@ -13,6 +13,7 @@
 .karavan .pf-c-page__main {
   overflow: hidden;
 }
+
 .logo,
 .logo svg {
   height: 48px;
@@ -90,18 +91,37 @@
   font-weight: initial;
 }
 
+/*Projects*/
+
+.karavan .tools .pf-c-button {
+  font-size: 14px;
+}
+
 .karavan .projects-page .icon {
   height: 16px;
   width: 16px;
   margin: auto;
 }
 
+.karavan .projects-page .pf-m-link {
+  font-size: 14px;
+}
+
 .karavan .project-page .project-page-section {
   background-color: white;
 }
 
-.karavan .project-page .project-details {
+.karavan .project-page .pf-c-description-list__group {
+  min-height: 30px;
+}
 
+.karavan .project-page .pf-c-tabs__link,
+.karavan .project-page .pf-m-link {
+  font-size: 14px;
+}
+
+.karavan .project-page .pf-c-description-list__text {
+  font-size: 15px;
 }
 
 .karavan .project-page .table {

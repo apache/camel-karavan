@@ -8,7 +8,7 @@ import {
     DescriptionListGroup,
     DescriptionListDescription,
     Card,
-    CardBody, Spinner, Tooltip, Flex, FlexItem, Divider, LabelGroup, Label
+    CardBody, Spinner, Tooltip, Flex, FlexItem, Divider, LabelGroup, Label, Modal
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
@@ -19,11 +19,13 @@ import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import ClockIcon from "@patternfly/react-icons/dist/esm/icons/clock-icon";
+import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
 
 interface Props {
     project: Project,
     config: any,
     showLog: (type: 'container' | 'pipeline', name: string, environment: string) => void
+    deleteEntity: (type: 'pod' | 'deployment', name: string, environment: string) => void
 }
 
 interface State {
@@ -32,6 +34,10 @@ interface State {
     isPushing: boolean,
     isBuilding: boolean,
     isRolling: boolean,
+    showDeleteConfirmation: boolean,
+    deleteEntity?: 'pod' | 'deployment',
+    deleteEntityName?: string,
+    deleteEntityEnv?: string,
     environments: string[],
     environment: string,
     key?: string,
@@ -44,6 +50,7 @@ export class ProjectInfo extends React.Component<Props, State> {
         isPushing: false,
         isBuilding: false,
         isRolling: false,
+        showDeleteConfirmation: false,
         environments: this.props.config.environments && Array.isArray(this.props.config.environments)
             ? Array.from(this.props.config.environments) : [],
         environment: this.props.config.environments && Array.isArray(this.props.config.environments)
@@ -160,6 +167,22 @@ export class ProjectInfo extends React.Component<Props, State> {
         </Tooltip>)
     }
 
+    deleteDeploymentButton = (env: string) => {
+        return (<Tooltip content="Delete deployment" position={"left"}>
+            <Button isSmall variant="secondary"
+                    className="project-button"
+                    icon={<DeleteIcon/>}
+                    onClick={e => this.setState({
+                        showDeleteConfirmation: true,
+                        deleteEntity: "deployment",
+                        deleteEntityEnv: env,
+                        deleteEntityName: this.state.project?.projectId
+                    })}>
+                {"Delete"}
+            </Button>
+        </Tooltip>)
+    }
+
     getCommitPanel() {
         const {project} = this.state;
         return (
@@ -187,9 +210,9 @@ export class ProjectInfo extends React.Component<Props, State> {
                     </DescriptionListDescription>
                 </DescriptionListGroup>
                 <DescriptionListGroup>
-                    <DescriptionListTerm>Replicas</DescriptionListTerm>
+                    <DescriptionListTerm>Deployment</DescriptionListTerm>
                     <DescriptionListDescription>
-                        {deploymentStatus && this.getReplicasPanel(deploymentStatus)}
+                        {deploymentStatus && this.getReplicasPanel(deploymentStatus, env)}
                     </DescriptionListDescription>
                 </DescriptionListGroup>
                 <DescriptionListGroup>
@@ -207,48 +230,74 @@ export class ProjectInfo extends React.Component<Props, State> {
             </DescriptionList>)
     }
 
-    getReplicasPanel(deploymentStatus: DeploymentStatus) {
+    getReplicasPanel(deploymentStatus: DeploymentStatus, env: string) {
         const ok = (deploymentStatus && deploymentStatus?.readyReplicas > 0
             && deploymentStatus.unavailableReplicas === 0
             && deploymentStatus?.replicas === deploymentStatus?.readyReplicas)
         return (
+            <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
+                <FlexItem>
             <LabelGroup numLabels={3}>
                 <Tooltip content={"Ready Replicas / Replicas"} position={"left"}>
-                    <Label icon={<UpIcon/>}
-                           color={ok ? "green" : "grey"}>{deploymentStatus.readyReplicas + " / " + deploymentStatus.replicas}</Label>
+                    <Label icon={ok ? <UpIcon/> : <DownIcon/>}
+                           color={ok ? "green" : "grey"}>{"Replicas: " + deploymentStatus.readyReplicas + " / " + deploymentStatus.replicas}</Label>
                 </Tooltip>
                 {deploymentStatus.unavailableReplicas > 0 &&
                     <Tooltip content={"Unavailable replicas"} position={"right"}>
-                        <Label icon={<UpIcon/>} color={"red"}>{deploymentStatus.unavailableReplicas}</Label>
+                        <Label icon={<DownIcon/>} color={"red"}>{deploymentStatus.unavailableReplicas}</Label>
                     </Tooltip>
                 }
             </LabelGroup>
+                </FlexItem>
+                <FlexItem>{env === "dev" && this.deleteDeploymentButton(env)}</FlexItem>
+            </Flex>
         )
     }
 
     getPodsPanel(deploymentStatus: DeploymentStatus, env: string) {
         const podStatuses = deploymentStatus.podStatuses;
         return (
-        <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
-            <FlexItem>
-                <LabelGroup numLabels={3}>
-                    {podStatuses.map(pod => {
-                        const running = pod.started && pod.ready;
-                        return (
-                            <Tooltip content={running ? "Running" : pod.reason}>
-                                <Label icon={running ? <UpIcon/> : <DownIcon/>} color={running ? "green" : "red"} >
-                                    <Button variant="link" onClick={e => this.props.showLog?.call(this, 'container', pod.name, env)}>
-                                        {pod.name}
-                                    </Button>
-                                </Label>
-                            </Tooltip>
+            <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
+                <FlexItem>
+                    <LabelGroup numLabels={3}>
+                        {(podStatuses === undefined || podStatuses.length === 0) && <Label icon={<DownIcon/>} color={"grey"}>No pods</Label>}
+                        {podStatuses.map(pod => {
+                                const running = pod.started && pod.ready;
+                                return (
+                                    <Tooltip content={running ? "Running" : pod.reason}>
+                                        <Label icon={running ? <UpIcon/> : <DownIcon/>} color={running ? "green" : "red"}>
+                                            <Button variant="link"
+                                                    onClick={e => this.props.showLog?.call(this, 'container', pod.name, env)}>
+                                                {pod.name}
+                                            </Button>
+                                            <Tooltip content={"Delete Pod"}>
+                                                <Button icon={<DeleteIcon/>} variant="link" onClick={e => this.setState({
+                                                    showDeleteConfirmation: true,
+                                                    deleteEntity: "pod",
+                                                    deleteEntityEnv: env,
+                                                    deleteEntityName: pod.name
+                                                })}></Button>
+                                            </Tooltip>
+                                        </Label>
+                                    </Tooltip>
+                                )
+                            }
                         )}
-                    )}
-                </LabelGroup>
-            </FlexItem>
-            <FlexItem>{env === "dev" && this.rolloutButton()}</FlexItem>
-        </Flex>
+                    </LabelGroup>
+                </FlexItem>
+                <FlexItem>{env === "dev" && this.rolloutButton()}</FlexItem>
+            </Flex>
         )
+    }
+
+    getStatusColor(status?: string) {
+        if (status === 'UP') return 'green';
+        if (status === 'DOWN') return 'red';
+        if (status === 'NA') return 'blue';
+    }
+
+    getStatusIcon(status?: string) {
+        return (status === 'UP' ? <UpIcon/> : <DownIcon/>)
     }
 
     getHealthPanel(env: string) {
@@ -260,11 +309,13 @@ export class ProjectInfo extends React.Component<Props, State> {
         const contextVersion = status?.contextVersion;
         return (
             <LabelGroup numLabels={5}>
-                {contextVersion && <Label icon={<UpIcon/>} color={contextStatus === "UP" ? "green" : "grey"}>{contextVersion}</Label>}
-                <Label icon={<UpIcon/>} color={contextStatus === "UP" ? "green" : "grey"}>Context</Label>
-                <Label icon={<UpIcon/>} color={consumersStatus === "UP" ? "green" : "grey"}>Consumers</Label>
-                <Label icon={<UpIcon/>} color={routesStatus === "UP" ? "green" : "grey"}>Routes</Label>
-                <Label icon={<UpIcon/>} color={registryStatus === "UP" ? "green" : "grey"}>Registry</Label>
+                {contextVersion &&
+                    <Label icon={this.getStatusIcon(contextStatus)} color={this.getStatusColor(contextStatus)}>{contextVersion}</Label>}
+                <Label icon={this.getStatusIcon(contextStatus)} color={this.getStatusColor(contextStatus)}>Context</Label>
+                <Label icon={this.getStatusIcon(consumersStatus)} color={this.getStatusColor(consumersStatus)}>Consumers</Label>
+                <Label icon={this.getStatusIcon(routesStatus)} color={this.getStatusColor(routesStatus)}>Routes</Label>
+                {registryStatus !== 'NA' &&
+                    <Label icon={this.getStatusIcon(registryStatus)} color={this.getStatusColor(registryStatus)}>Registry</Label>}
             </LabelGroup>
         )
     }
@@ -274,38 +325,31 @@ export class ProjectInfo extends React.Component<Props, State> {
         const pipeline = status?.lastPipelineRun;
         const pipelineResult = status?.lastPipelineRunResult;
         const lastPipelineRunTime = status?.lastPipelineRunTime;
+        const showTime = lastPipelineRunTime && lastPipelineRunTime > 0;
         const isRunning = pipelineResult === 'Running';
         const isFailed = pipelineResult === 'Failed';
         const isSucceeded = pipelineResult === 'Succeeded';
         const color = isSucceeded ? "green" : (isFailed ? "red" : (isRunning ? "blue" : "grey"))
+        const icon = isSucceeded ? <UpIcon/> : <DownIcon/>
         return (
             <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
                 <FlexItem>
                     <Tooltip content={pipelineResult} position={"right"}>
                         <LabelGroup numLabels={2}>
-                            <Label icon={isRunning ? <Spinner isSVG diameter="16px"/> : <UpIcon/>} color={color}>
+                            <Label icon={isRunning ? <Spinner isSVG diameter="16px"/> : icon} color={color}>
                                 <Button variant="link" onClick={e => {
                                     if (pipeline) this.props.showLog?.call(this, 'pipeline', pipeline, env);
                                 }}>
                                     {pipeline ? pipeline : "-"}
                                 </Button>
                             </Label>
-                            {lastPipelineRunTime && lastPipelineRunTime > 0 &&
-                                <Label icon={<ClockIcon/>} color={color}>{lastPipelineRunTime + "s"}</Label>}
+                            {showTime && <Label icon={<ClockIcon/>} color={color}>{lastPipelineRunTime + "s"}</Label>}
                         </LabelGroup>
                     </Tooltip>
                 </FlexItem>
                 <FlexItem>{env === "dev" && this.buildButton()}</FlexItem>
             </Flex>
         )
-    }
-
-    isUp(env: string): boolean {
-        if (this.state.status) {
-            return this.state.status.statuses.find(s => s.environment === env)?.status === 'UP';
-        } else {
-            return false;
-        }
     }
 
     getProjectDescription() {
@@ -332,6 +376,29 @@ export class ProjectInfo extends React.Component<Props, State> {
         </DescriptionList>)
     }
 
+    getDeleteConfirmation() {
+        const {deleteEntity, deleteEntityEnv, deleteEntityName} = this.state;
+        return (<Modal
+            className="modal-delete"
+            title="Confirmation"
+            isOpen={this.state.showDeleteConfirmation}
+            onClose={() => this.setState({showDeleteConfirmation: false})}
+            actions={[
+                <Button key="confirm" variant="primary" onClick={e => {
+                    if (deleteEntityEnv && deleteEntityName && deleteEntity) {
+                        this.props.deleteEntity?.call(this, deleteEntity, deleteEntityName, deleteEntityEnv);
+                        this.setState({showDeleteConfirmation: false});
+                    }
+                }}>Delete
+                </Button>,
+                <Button key="cancel" variant="link"
+                        onClick={e => this.setState({showDeleteConfirmation: false})}>Cancel</Button>
+            ]}
+            onEscapePress={e => this.setState({showDeleteConfirmation: false})}>
+            <div>{"Delete " + deleteEntity + " " + deleteEntityName + "?"}</div>
+        </Modal>)
+    }
+
     render() {
         return (
             <Card>
@@ -348,6 +415,7 @@ export class ProjectInfo extends React.Component<Props, State> {
                         </FlexItem>
                     </Flex>
                 </CardBody>
+                {this.state.showDeleteConfirmation && this.getDeleteConfirmation()}
             </Card>
         )
     }

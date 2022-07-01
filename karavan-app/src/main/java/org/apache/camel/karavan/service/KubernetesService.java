@@ -20,6 +20,8 @@ import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.api.model.DeploymentConfig;
@@ -32,6 +34,7 @@ import io.fabric8.tekton.pipeline.v1beta1.PipelineRun;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpec;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpecBuilder;
+import io.quarkus.kubernetes.client.runtime.KubernetesClientBuildConfig;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.smallrye.mutiny.tuples.Tuple3;
 import org.apache.camel.karavan.model.DeploymentStatus;
@@ -150,6 +153,25 @@ public class KubernetesService {
         }
     }
 
+    public void deleteDeployment(String name, String namespace) {
+        try {
+            if (kubernetesClient().isAdaptable(OpenShiftClient.class)) {
+                openshiftClient().deploymentConfigs().inNamespace(namespace).withName(name).delete();
+            } else {
+                // TODO: Implement Deployment for Kubernetes/Minikube
+            }
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+        }
+    }
+
+    public void deletePod(String name, String namespace) {
+        try {
+            kubernetesClient().pods().inNamespace(namespace).withName(name).delete();
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+        }
+    }
 
     public DeploymentStatus getDeploymentStatus(String name, String namespace) {
         try {
