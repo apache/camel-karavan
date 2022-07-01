@@ -153,6 +153,25 @@ public class KubernetesService {
         }
     }
 
+    public void deleteDeployment(String name, String namespace) {
+        try {
+            if (kubernetesClient().isAdaptable(OpenShiftClient.class)) {
+                openshiftClient().deploymentConfigs().inNamespace(namespace).withName(name).delete();
+            } else {
+                // TODO: Implement Deployment for Kubernetes/Minikube
+            }
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+        }
+    }
+
+    public void deletePod(String name, String namespace) {
+        try {
+            kubernetesClient().pods().inNamespace(namespace).withName(name).delete();
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+        }
+    }
 
     public DeploymentStatus getDeploymentStatus(String name, String namespace) {
         try {

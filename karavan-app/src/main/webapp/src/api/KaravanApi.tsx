@@ -167,6 +167,26 @@ export const KaravanApi = {
         });
     },
 
+    deleteDeployment: async (environment: string, name: string, after: (res: AxiosResponse<any>) => void) => {
+        axios.delete('/kubernetes/deployment/' + environment + '/' + name,
+            {headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'username': 'cameleer'}})
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    },
+
+    deletePod: async (environment: string, name: string, after: (res: AxiosResponse<any>) => void) => {
+        axios.delete('/kubernetes/pod/' + environment + '/' + name,
+            {headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'username': 'cameleer'}})
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    },
+
     getKameletNames: async (after: (names: []) => void) => {
         axios.get('/kamelet',
             {headers: {'Accept': 'application/json'}})

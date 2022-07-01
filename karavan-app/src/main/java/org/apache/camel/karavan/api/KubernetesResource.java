@@ -24,6 +24,7 @@ import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -108,6 +109,32 @@ public class KubernetesResource {
         Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
         if (env.isPresent()) {
             kubernetesService.rolloutDeployment(name, env.get().namespace());
+            return Response.ok().build();
+        }
+        return Response.noContent().build();
+    }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/deployment/{environment}/{name}")
+    public Response deleteDeployment(@HeaderParam("username") String username, @PathParam("environment") String environment, @PathParam("name") String name) throws Exception {
+        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
+        if (env.isPresent()) {
+            kubernetesService.deleteDeployment(name, env.get().namespace());
+            return Response.ok().build();
+        }
+        return Response.noContent().build();
+    }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/pod/{environment}/{name}")
+    public Response deletePod(@HeaderParam("username") String username, @PathParam("environment") String environment, @PathParam("name") String name) throws Exception {
+        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
+        if (env.isPresent()) {
+            kubernetesService.deletePod(name, env.get().namespace());
             return Response.ok().build();
         }
         return Response.noContent().build();

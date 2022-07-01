@@ -318,6 +318,21 @@ export class ProjectPage extends React.Component<Props, State> {
 
     }
 
+    deleteEntity = (type: 'pod' | 'deployment', name: string, environment: string) => {
+        switch (type) {
+            case "deployment": KaravanApi.deleteDeployment(environment, name, (res: any) => {
+                if (Array.isArray(res) && Array.from(res).length > 0)
+                    this.onRefresh();
+            });
+                break;
+            case "pod": KaravanApi.deletePod(environment, name, (res: any) => {
+                if (Array.isArray(res) && Array.from(res).length > 0)
+                    this.onRefresh();
+            });
+                break;
+        }
+    }
+
     getLogView = () => {
         const file = this.state.file;
         return (
@@ -371,7 +386,7 @@ export class ProjectPage extends React.Component<Props, State> {
                 {file === undefined &&
                     <PageSection isFilled className="kamelets-page project-page-section"
                                  padding={{default: file !== undefined ? 'noPadding' : 'noPadding'}}>
-                        {<ProjectHeader project={this.props.project} config={this.props.config} showLog={this.showPipelineLog}/>}
+                        {<ProjectHeader project={this.props.project} config={this.props.config} showLog={this.showPipelineLog} deleteEntity={this.deleteEntity}/>}
                         {this.getProjectFiles()}
                     </PageSection>}
                 {showDesigner && this.getDesigner()}
