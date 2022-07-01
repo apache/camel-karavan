@@ -250,6 +250,12 @@ export class ProjectInfo extends React.Component<Props, State> {
         </Flex>
         )
     }
+    
+    getStatusColor(status?: string){
+        if (status === 'UP') return 'green';
+        if (status === 'DOWN') return 'red';
+        if (status === 'NA') return 'blue';
+    }
 
     getHealthPanel(env: string) {
         const status = this.state.status?.statuses.find(s => s.environment === env)
@@ -260,11 +266,11 @@ export class ProjectInfo extends React.Component<Props, State> {
         const contextVersion = status?.contextVersion;
         return (
             <LabelGroup numLabels={5}>
-                {contextVersion && <Label icon={<UpIcon/>} color={contextStatus === "UP" ? "green" : "grey"}>{contextVersion}</Label>}
-                <Label icon={<UpIcon/>} color={contextStatus === "UP" ? "green" : "grey"}>Context</Label>
-                <Label icon={<UpIcon/>} color={consumersStatus === "UP" ? "green" : "grey"}>Consumers</Label>
-                <Label icon={<UpIcon/>} color={routesStatus === "UP" ? "green" : "grey"}>Routes</Label>
-                <Label icon={<UpIcon/>} color={registryStatus === "UP" ? "green" : "grey"}>Registry</Label>
+                {contextVersion && <Label icon={<UpIcon/>} color={this.getStatusColor(contextStatus)}>{contextVersion}</Label>}
+                <Label icon={<UpIcon/>} color={this.getStatusColor(contextStatus)}>Context</Label>
+                <Label icon={<UpIcon/>} color={this.getStatusColor(consumersStatus)}>Consumers</Label>
+                <Label icon={<UpIcon/>} color={this.getStatusColor(routesStatus)}>Routes</Label>
+                {registryStatus !== 'NA' && <Label icon={<UpIcon/>} color={this.getStatusColor(registryStatus)}>Registry</Label>}
             </LabelGroup>
         )
     }
@@ -274,6 +280,7 @@ export class ProjectInfo extends React.Component<Props, State> {
         const pipeline = status?.lastPipelineRun;
         const pipelineResult = status?.lastPipelineRunResult;
         const lastPipelineRunTime = status?.lastPipelineRunTime;
+        const showTime = lastPipelineRunTime && lastPipelineRunTime > 0;
         const isRunning = pipelineResult === 'Running';
         const isFailed = pipelineResult === 'Failed';
         const isSucceeded = pipelineResult === 'Succeeded';
@@ -290,22 +297,13 @@ export class ProjectInfo extends React.Component<Props, State> {
                                     {pipeline ? pipeline : "-"}
                                 </Button>
                             </Label>
-                            {lastPipelineRunTime && lastPipelineRunTime > 0 &&
-                                <Label icon={<ClockIcon/>} color={color}>{lastPipelineRunTime + "s"}</Label>}
+                            {showTime && <Label icon={<ClockIcon/>} color={color}>{lastPipelineRunTime + "s"}</Label>}
                         </LabelGroup>
                     </Tooltip>
                 </FlexItem>
                 <FlexItem>{env === "dev" && this.buildButton()}</FlexItem>
             </Flex>
         )
-    }
-
-    isUp(env: string): boolean {
-        if (this.state.status) {
-            return this.state.status.statuses.find(s => s.environment === env)?.status === 'UP';
-        } else {
-            return false;
-        }
     }
 
     getProjectDescription() {

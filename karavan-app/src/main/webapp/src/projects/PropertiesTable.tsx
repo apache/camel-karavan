@@ -129,6 +129,7 @@ export class PropertiesTable extends React.Component<Props, State> {
                                 )})}
                         </Tbody>
                     </TableComposable>}
+                {this.state.showDeleteConfirmation && this.getDeleteConfirmation()}
                 <Panel>
                     <PanelMain>
                         <PanelMainBody>
