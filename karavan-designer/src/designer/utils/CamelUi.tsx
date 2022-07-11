@@ -36,7 +36,7 @@ const StepElements: string[] = [
     "DynamicRouterDefinition",
     "EnrichDefinition",
     // "ErrorHandlerBuilderDeserializer",
-    "ErrorHandlerDefinition",
+    // "ErrorHandlerDefinition",
     "FilterDefinition",
     "LogDefinition",
     "LoopDefinition",
@@ -55,6 +55,7 @@ const StepElements: string[] = [
     "SplitDefinition",
     "ThreadsDefinition",
     "ThrottleDefinition",
+    "ThrowExceptionDefinition",
     "ToDynamicDefinition",
     "TransformDefinition",
     "TransactedDefinition",
@@ -408,6 +409,10 @@ export class CamelUi {
                 return "data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:none;%7D%3C/style%3E%3C/defs%3E%3Ctitle%3Einsert%3C/title%3E%3Cg class='layer'%3E%3Ctitle%3ELayer 1%3C/title%3E%3Crect class='cls-1' data-name='&lt;Transparent Rectangle&gt;' height='32' id='_Transparent_Rectangle_' width='31.94228' x='0' y='0'/%3E%3Cg id='svg_5' transform='matrix(1 0 0 1 0 0) rotate(180 16 15.5)'%3E%3Cpath d='m2,9l9,0l0,-7l-9,0l0,7zm2,-5l5,0l0,3l-5,0l0,-3z' id='svg_1'/%3E%3Cpath d='m2,19l9,0l0,-7l-9,0l0,7zm2,-5l5,0l0,3l-5,0l0,-3z' id='svg_2'/%3E%3Cpath d='m2,29l9,0l0,-7l-9,0l0,7zm2,-5l5,0l0,3l-5,0l0,-3z' id='svg_3'/%3E%3Cpath d='m27,9l-9,0l3.41,-3.59l-1.41,-1.41l-6,6l6,6l1.41,-1.41l-3.41,-3.59l9,0a1,1 0 0 1 1,1l0,12a1,1 0 0 1 -1,1l-12,0l0,2l12,0a3,3 0 0 0 3,-3l0,-12a3,3 0 0 0 -3,-3z' id='svg_4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E";
             case "ErrorHandlerBuilderRef":
                 return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='top-icon' width='36px' height='36px' viewBox='0 0 36 36' version='1.1' preserveAspectRatio='xMidYMid meet'%3E%3Ccircle class='clr-i-outline clr-i-outline-path-1' cx='18' cy='26.06' r='1.33'%3E%3C/circle%3E%3Cpath class='clr-i-outline clr-i-outline-path-2' d='M18,22.61a1,1,0,0,1-1-1v-12a1,1,0,1,1,2,0v12A1,1,0,0,1,18,22.61Z'%3E%3C/path%3E%3Cpath class='clr-i-outline clr-i-outline-path-3' d='M18,34A16,16,0,1,1,34,18,16,16,0,0,1,18,34ZM18,4A14,14,0,1,0,32,18,14,14,0,0,0,18,4Z'%3E%3C/path%3E%3Crect x='0' y='0' width='36' height='36' fill-opacity='0'%3E%3C/rect%3E%3C/svg%3E";
+            case "ThrowExceptionDefinition":
+                return "data:image/svg+xml,%0A%3Csvg width='32px' height='32px' viewBox='0 0 32 32' id='icon' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:none;%7D%3C/style%3E%3C/defs%3E%3Ctitle%3Ewarning%3C/title%3E%3Cpath d='M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Zm0,26A12,12,0,1,1,28,16,12,12,0,0,1,16,28Z' transform='translate(0 0)'/%3E%3Crect x='15' y='8' width='2' height='11'/%3E%3Cpath d='M16,22a1.5,1.5,0,1,0,1.5,1.5A1.5,1.5,0,0,0,16,22Z' transform='translate(0 0)'/%3E%3Crect id='_Transparent_Rectangle_' data-name='&lt;Transparent Rectangle&gt;' class='cls-1' width='32' height='32'/%3E%3C/svg%3E";
+            case "OnExceptionDefinition":
+                return "data:image/svg+xml,%3Csvg version='1.1' id='icon' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='32px' height='32px' viewBox='0 0 32 32' style='enable-background:new 0 0 32 32;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:none;%7D .st1%7Bopacity:0;fill-opacity:0;%7D%0A%3C/style%3E%3Crect id='Transparent_Rectangle' class='st0' width='32' height='32'/%3E%3Cpath id='Compound_Path' d='M16,2C8.3,2,2,8.3,2,16s6.3,14,14,14s14-6.3,14-14C30,8.3,23.7,2,16,2z M14.9,8h2.2v11h-2.2V8z M16,25 c-0.8,0-1.5-0.7-1.5-1.5S15.2,22,16,22c0.8,0,1.5,0.7,1.5,1.5S16.8,25,16,25z'/%3E%3Cpath id='inner-path' class='st1' d='M17.5,23.5c0,0.8-0.7,1.5-1.5,1.5c-0.8,0-1.5-0.7-1.5-1.5S15.2,22,16,22 C16.8,22,17.5,22.7,17.5,23.5z M17.1,8h-2.2v11h2.2V8z'/%3E%3C/svg%3E";
             default:
                 return camelIcon;
         }
