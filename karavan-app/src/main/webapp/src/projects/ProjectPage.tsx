@@ -21,7 +21,7 @@ import {
     ToggleGroup,
     ToggleGroupItem,
     CodeBlockCode,
-    CodeBlock, Skeleton
+    CodeBlock, Skeleton, Switch, Checkbox
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
@@ -40,6 +40,8 @@ import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CreateFileModal} from "./CreateFileModal";
 import {PropertiesEditor} from "./PropertiesEditor";
 import {ProjectHeader} from "./ProjectHeader";
+import {ProjectModel, ProjectProperty} from "karavan-core/lib/model/ProjectModel";
+import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
 
 interface Props {
     project: Project,
@@ -55,7 +57,9 @@ interface State {
     isDeleteModalOpen: boolean,
     isCreateModalOpen: boolean,
     fileToDelete?: ProjectFile,
-    mode: "design" | "code";
+    mode: "design" | "code",
+    editAdvancedProperties: boolean
+    key: string
 }
 
 export class ProjectPage extends React.Component<Props, State> {
@@ -66,7 +70,9 @@ export class ProjectPage extends React.Component<Props, State> {
         isCreateModalOpen: false,
         isDeleteModalOpen: false,
         files: [],
-        mode: "design"
+        mode: "design",
+        editAdvancedProperties: false,
+        key: ''
     };
 
     componentDidMount() {
@@ -120,19 +126,44 @@ export class ProjectPage extends React.Component<Props, State> {
         }
     }
 
+    addProperty() {
+        const file = this.state.file;
+        if (file){
+            const project = file ? ProjectModelApi.propertiesToProject(file?.code) : ProjectModel.createNew();
+            const props = project.properties;
+            props.push(ProjectProperty.createNew("", ""))
+            this.save(file.name, ProjectModelApi.propertiesToString(props));
+            this.setState({key: Math.random().toString()});
+        }
+    }
+
     tools = () => {
         const {file, mode} = this.state;
         const isFile = file !== undefined;
         const isYaml = file !== undefined && file.name.endsWith("yaml");
+        const isProperties = file !== undefined && file.name.endsWith("properties");
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
-                <Flex className="toolbar" direction={{default: "row"}}>
+                <Flex className="toolbar" direction={{default: "row"}} alignItems={{default:"alignItemsCenter"}}>
                     {isYaml && <FlexItem>
                         <ToggleGroup>
                             <ToggleGroupItem text="Design" buttonId="design" isSelected={mode === "design"} onChange={s => this.setState({mode:"design"})} />
                             <ToggleGroupItem text="Code" buttonId="code" isSelected={mode === "code"} onChange={s => this.setState({mode:"code"})} />
                         </ToggleGroup>
                     </FlexItem>}
+
+                    {isProperties && <FlexItem>
+                        <Checkbox
+                            id="advanced"
+                            label="Edit advanced"
+                            isChecked={this.state.editAdvancedProperties}
+                            onChange={checked => this.setState({editAdvancedProperties: checked})}
+                        />
+                    </FlexItem>}
+                    {isProperties && <FlexItem>
+                        <Button variant="primary" icon={<PlusIcon/>} onClick={e => this.addProperty()}>Add property</Button>
+                    </FlexItem>}
+
                     {isFile && <FlexItem>
                         <Button variant="secondary" icon={<DownloadIcon/>} onClick={e => this.download()}>Download</Button>
                     </FlexItem>}
@@ -363,7 +394,8 @@ export class ProjectPage extends React.Component<Props, State> {
         const file = this.state.file;
         return (
             file !== undefined &&
-            <PropertiesEditor
+            <PropertiesEditor key={this.state.key}
+                editAdvanced={this.state.editAdvancedProperties}
                 file={file}
                 onSave={(name, code) => this.save(name, code)}
             />
