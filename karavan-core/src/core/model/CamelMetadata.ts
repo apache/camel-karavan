@@ -1424,7 +1424,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('pausable', 'PausableDefinition', 'Pausable', "Pausable EIP to support resuming processing from last known offset.", 'eip,routing', [
         new PropertyMeta('consumerListener', 'Consumer Listener', "Sets the consumer listener to use", 'string', '', '', true, false, false, false, ''),
-        new PropertyMeta('untilCheck', 'Until Check', "untilCheck", 'string', '', '', true, false, false, false, ''),
+        new PropertyMeta('untilCheck', 'Until Check', "References to a java.util.function.Predicate to use for until checks. The predicate is responsible for evaluating whether the processing can resume or not. Such predicate should return true if the consumption can resume, or false otherwise. The exact point of when the predicate is called is dependent on the component, and it may be called on either one of the available events. Implementations should not assume the predicate to be called at any specific point.", 'string', '', '', true, false, false, false, ''),
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, ''),
     ]),
