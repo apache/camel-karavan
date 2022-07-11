@@ -139,7 +139,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
                     <Tab data-tour="routes" eventKey='routes' title={this.getTab("Routes", "Integration flows", "routes")}></Tab>
                     <Tab eventKey='rest' title={this.getTab("REST", "REST services", "rest")}></Tab>
                     <Tab eventKey='beans' title={this.getTab("Beans", "Beans Configuration", "beans")}></Tab>
-                    <Tab eventKey='dependencies' title={this.getTab("Dependencies", "Dependencies", "dependencies")}></Tab>
+                    {/*<Tab eventKey='dependencies' title={this.getTab("Dependencies", "Dependencies", "dependencies")}></Tab>*/}
                     {/*<Tab eventKey='traits' title={this.getTab("Traits", "traits configuration", "traits")}></Tab>*/}
                     <Tab eventKey='error' title={this.getTab("Error", "Error Handler", "error")}></Tab>
                     <Tab eventKey='exception' title={this.getTab("Exceptions", "Exception Clauses per type", "exception")}></Tab>
@@ -164,9 +164,9 @@ export class KaravanDesigner extends React.Component<Props, State> {
                 {tab === 'exception' && <ExceptionDesigner integration={this.state.integration}
                                                            onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                            dark={this.props.dark}/>}
-                {tab === 'traits' && <TraitsDesigner integration={this.state.integration}
-                                                           onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
-                                                           dark={this.props.dark}/>}
+                {/*{tab === 'traits' && <TraitsDesigner integration={this.state.integration}*/}
+                {/*                                           onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}*/}
+                {/*                                           dark={this.props.dark}/>}*/}
                 {this.getHelpWindow()}
             </PageSection>
         )
