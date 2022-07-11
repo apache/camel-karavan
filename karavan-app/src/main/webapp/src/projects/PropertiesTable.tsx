@@ -16,23 +16,20 @@
  */
 import React from 'react';
 import {
-    Button, Flex, FlexItem,
+    Button,
     Modal,
     PageSection,
-    Panel,
-    PanelMain,
-    PanelMainBody,
     TextInput
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
-import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {ProjectProperty} from "karavan-core/lib/model/ProjectModel";
 
 interface Props {
     properties: ProjectProperty[]
     onChange?: (properties: ProjectProperty[]) => void
+    editAdvanced: boolean
 }
 
 interface State {
@@ -46,7 +43,7 @@ export class PropertiesTable extends React.Component<Props, State> {
     public state: State = {
         properties: this.props.properties,
         showDeleteConfirmation: false,
-    };
+    }
 
     sendUpdate = (props: ProjectProperty[]) => {
         this.props.onChange?.call(this, props);
@@ -67,13 +64,6 @@ export class PropertiesTable extends React.Component<Props, State> {
 
     confirmDelete() {
         const props = this.state.properties.filter(p => p.id !== this.state.deleteId);
-        this.setState({properties: props, showDeleteConfirmation: false, deleteId: undefined});
-        this.sendUpdate(props);
-    }
-
-    addProperty() {
-        const props = [...this.state.properties];
-        props.push(ProjectProperty.createNew("", ""))
         this.setState({properties: props, showDeleteConfirmation: false, deleteId: undefined});
         this.sendUpdate(props);
     }
@@ -111,17 +101,17 @@ export class PropertiesTable extends React.Component<Props, State> {
                             <Tr>
                                 <Th key='name'>Name</Th>
                                 <Th key='value'>Value</Th>
-                                <Td></Td>
+                                <Th></Th>
                             </Tr>
                         </Thead>
                         <Tbody>
                             {properties.map((property, idx: number) => {
-                                const readOnly = false;// property.key.startsWith("camel.jbang");
+                                const readOnly = property.key.startsWith("camel.jbang") && !this.props.editAdvanced;
                                 return (
                                     <Tr key={property.id}>
-                                        <Td noPadding width={20} dataLabel="key">{this.getTextInputField(property, "key", readOnly)}</Td>
-                                        <Td noPadding width={10} dataLabel="value">{this.getTextInputField(property, "value", readOnly)}</Td>
-                                        <Td noPadding isActionCell dataLabel="delete">
+                                        <Td noPadding width={10} dataLabel="key">{this.getTextInputField(property, "key", readOnly)}</Td>
+                                        <Td noPadding width={20} dataLabel="value">{this.getTextInputField(property, "value", readOnly)}</Td>
+                                        <Td noPadding isActionCell dataLabel="delete" className="delete-cell">
                                             {!readOnly && <Button variant={"plain"} icon={<DeleteIcon/>} className={"delete-button"}
                                                                   onClick={event => this.startDelete(property.id)}/>}
                                         </Td>
@@ -130,19 +120,6 @@ export class PropertiesTable extends React.Component<Props, State> {
                         </Tbody>
                     </TableComposable>}
                 {this.state.showDeleteConfirmation && this.getDeleteConfirmation()}
-                <Panel>
-                    <PanelMain>
-                        <PanelMainBody>
-                            <Flex direction={{default:"row"}} >
-                                <FlexItem align={{ default: 'alignRight' }}>
-                                    <Button isInline variant={"primary"} icon={<PlusIcon/>}
-                                            className={"add-button"}
-                                            onClick={event => this.addProperty()}>Add property</Button>
-                                </FlexItem>
-                            </Flex>
-                        </PanelMainBody>
-                    </PanelMain>
-                </Panel>
             </PageSection>
         )
     }
