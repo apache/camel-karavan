@@ -19,5 +19,6 @@ public interface KaravanConfiguration {
         String cluster();
         String namespace();
         String pipeline();
+        Boolean active();
     }
 }
