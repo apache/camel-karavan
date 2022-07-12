@@ -139,4 +139,37 @@ public class KubernetesResource {
         }
         return Response.noContent().build();
     }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/configmap/{environment}")
+    public Response getConfigMaps(@HeaderParam("username") String username, @PathParam("environment") String environment) throws Exception {
+        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
+        if (env.isPresent()) {
+            return Response.ok(kubernetesService.getConfigMaps(env.get().namespace())).build();
+        }
+        return Response.noContent().build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/secret/{environment}")
+    public Response getSecrets(@HeaderParam("username") String username, @PathParam("environment") String environment) throws Exception {
+        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
+        if (env.isPresent()) {
+            return Response.ok(kubernetesService.getSecrets(env.get().namespace())).build();
+        }
+        return Response.noContent().build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/service/{environment}")
+    public Response getServices(@HeaderParam("username") String username, @PathParam("environment") String environment) throws Exception {
+        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
+        if (env.isPresent()) {
+            return Response.ok(kubernetesService.getServices(env.get().namespace())).build();
+        }
+        return Response.noContent().build();
+    }
 }

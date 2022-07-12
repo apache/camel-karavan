@@ -42,6 +42,7 @@ import {PropertiesEditor} from "./PropertiesEditor";
 import {ProjectHeader} from "./ProjectHeader";
 import {ProjectModel, ProjectProperty} from "karavan-core/lib/model/ProjectModel";
 import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
+import {KubernetesAPI} from "../designer/utils/KubernetesAPI";
 
 interface Props {
     project: Project,
@@ -60,6 +61,8 @@ interface State {
     mode: "design" | "code",
     editAdvancedProperties: boolean
     key: string
+    environments: string[],
+    environment: string,
 }
 
 export class ProjectPage extends React.Component<Props, State> {
@@ -72,7 +75,11 @@ export class ProjectPage extends React.Component<Props, State> {
         files: [],
         mode: "design",
         editAdvancedProperties: false,
-        key: ''
+        key: '',
+        environments: this.props.config.environments && Array.isArray(this.props.config.environments)
+            ? Array.from(this.props.config.environments) : [],
+        environment: this.props.config.environments && Array.isArray(this.props.config.environments)
+            ? this.props.config.environments[0] : ''
     };
 
     componentDidMount() {
@@ -91,15 +98,24 @@ export class ProjectPage extends React.Component<Props, State> {
                     files: files
                 })
             });
+            KaravanApi.getConfigMaps(this.state.environment, (any: []) => {
+                KubernetesAPI.setConfigMaps(any);
+            });
+            KaravanApi.getSecrets(this.state.environment, (any: []) => {
+                KubernetesAPI.setSecrets(any);
+            });
+            KaravanApi.getServices(this.state.environment, (any: []) => {
+                KubernetesAPI.setServices(any);
+            });
         }
     }
 
     post = (file: ProjectFile) => {
         KaravanApi.postProjectFile(file, res => {
             if (res.status === 200) {
-                console.log(res) //TODO show notification
+                // console.log(res) //TODO show notification
             } else {
-                console.log(res) //TODO show notification
+                // console.log(res) //TODO show notification
             }
         })
     }
@@ -418,7 +434,11 @@ export class ProjectPage extends React.Component<Props, State> {
                 {file === undefined &&
                     <PageSection isFilled className="kamelets-page project-page-section"
                                  padding={{default: file !== undefined ? 'noPadding' : 'noPadding'}}>
-                        {<ProjectHeader project={this.props.project} config={this.props.config} showLog={this.showPipelineLog} deleteEntity={this.deleteEntity}/>}
+                        {<ProjectHeader project={this.props.project}
+                                        config={this.props.config}
+                                        environments={this.state.environments}
+                                        showLog={this.showPipelineLog}
+                                        deleteEntity={this.deleteEntity}/>}
                         {this.getProjectFiles()}
                     </PageSection>}
                 {showDesigner && this.getDesigner()}

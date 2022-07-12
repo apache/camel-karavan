@@ -187,6 +187,43 @@ export const KaravanApi = {
         });
     },
 
+    getConfigMaps: async (environment: string, after: (any: []) => void) => {
+        axios.get('/kubernetes/configmap/' + environment,
+            {headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'username': 'cameleer'}})
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    },
+
+    getSecrets: async (environment: string, after: (any: []) => void) => {
+        axios.get('/kubernetes/secret/' + environment,
+            {headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'username': 'cameleer'}})
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    },
+
+    getServices: async (environment: string, after: (any: []) => void) => {
+        axios.get('/kubernetes/service/' + environment,
+            {headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'username': 'cameleer'}})
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    },
+
+
     getKameletNames: async (after: (names: []) => void) => {
         axios.get('/kamelet',
             {headers: {'Accept': 'application/json'}})

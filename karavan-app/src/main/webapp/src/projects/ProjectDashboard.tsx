@@ -1,32 +1,25 @@
 import React from 'react';
 import {
     Badge,
-    Button,
     Text,
-    DescriptionList,
-    DescriptionListTerm,
-    DescriptionListGroup,
-    DescriptionListDescription,
     Card,
-    CardBody, Spinner, Tooltip, Flex, FlexItem, Tabs, Tab, PageSection
+    CardBody, Flex, FlexItem,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
 import {Project, ProjectFileTypes, ProjectStatus} from "../models/ProjectModels";
-import BuildIcon from "@patternfly/react-icons/dist/esm/icons/build-icon";
-import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
-import {ChartDonut, ChartDonutThreshold, ChartDonutUtilization} from "@patternfly/react-charts";
+import {ChartDonut} from "@patternfly/react-charts";
 
 interface Props {
     project: Project,
     config: any,
+    environments: string [],
 }
 
 interface State {
     project?: Project,
     status?: ProjectStatus,
-    environments: string[],
-    environment: string,
+
     key?: string,
 }
 
@@ -34,10 +27,6 @@ export class ProjectDashboard extends React.Component<Props, State> {
 
     public state: State = {
         project: this.props.project,
-        environments: this.props.config.environments && Array.isArray(this.props.config.environments)
-            ? Array.from(this.props.config.environments) : [],
-        environment: this.props.config.environments && Array.isArray(this.props.config.environments)
-            ? this.props.config.environments[0] : ''
     };
     interval: any;
 
@@ -143,7 +132,7 @@ export class ProjectDashboard extends React.Component<Props, State> {
     }
 
     render() {
-        const {project, environments, status} = this.state;
+        const { environments } = this.props;
         return (
             <Flex direction={{default: "column"}}>
                 {environments.filter(e => e !== undefined)

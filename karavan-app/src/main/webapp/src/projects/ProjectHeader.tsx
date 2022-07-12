@@ -14,6 +14,7 @@ import {ProjectInfo} from "./ProjectInfo";
 interface Props {
     project: Project,
     config: any,
+    environments: string [],
     showLog: (type: 'container' | 'pipeline', name: string, environment: string) => void
     deleteEntity: (type: 'pod' | 'deployment', name: string, environment: string) => void
 }
@@ -44,7 +45,7 @@ export class ProjectHeader extends React.Component<Props, State> {
                 <FlexItem>
                     <PageSection padding={{default: "padding"}}>
                         {tab === 'details' && <ProjectInfo project={this.props.project} config={this.props.config} deleteEntity={this.props.deleteEntity} showLog={this.props.showLog}/>}
-                        {tab === 'dashboard' && <ProjectDashboard project={this.props.project} config={this.props.config}/>}
+                        {tab === 'dashboard' && <ProjectDashboard environments={this.props.environments} project={this.props.project} config={this.props.config}/>}
                     </PageSection>
                 </FlexItem>
             </Flex>
