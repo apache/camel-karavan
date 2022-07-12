@@ -26,6 +26,7 @@ import {ComponentsPage} from "./components/ComponentsPage";
 import {EipPage} from "./eip/EipPage";
 import {BuilderPage} from "./builder/BuilderPage";
 import {ProjectModel, StepStatus} from "karavan-core/lib/model/ProjectModel";
+import {KubernetesAPI} from "./designer/utils/KubernetesAPI";
 
 interface Props {
     page: "designer" | "kamelets" | "components" | "eip" | "builder";
@@ -67,7 +68,6 @@ class App extends React.Component<Props, State> {
     };
 
     componentDidMount() {
-
         ["http-secured-sink.kamelet.yaml",
             "timer-source.kamelet.yaml",
             "http-secured-source.kamelet.yaml",
@@ -107,7 +107,6 @@ class App extends React.Component<Props, State> {
             fetch("components/" + name)
                 .then((r) => r.text())
                 .then(value => ComponentApi.saveComponent(value)));
-
     }
 
     save(filename: string, yaml: string, propertyOnly: boolean) {

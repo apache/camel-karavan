@@ -20,8 +20,6 @@ import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Secret;
-import io.fabric8.kubernetes.client.Config;
-import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.api.model.DeploymentConfig;
@@ -34,9 +32,6 @@ import io.fabric8.tekton.pipeline.v1beta1.PipelineRun;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpec;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpecBuilder;
-import io.quarkus.kubernetes.client.runtime.KubernetesClientBuildConfig;
-import io.smallrye.mutiny.tuples.Tuple2;
-import io.smallrye.mutiny.tuples.Tuple3;
 import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.PipelineRunLog;
 import org.apache.camel.karavan.model.PodStatus;
@@ -47,8 +42,6 @@ import org.jboss.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -58,7 +51,7 @@ import java.util.stream.Collectors;
 public class KubernetesService {
 
     @ConfigProperty(name = "kubernetes.namespace", defaultValue = "localhost")
-    String namespace;
+    String currentNamespace;
 
     @Produces
     public KubernetesClient kubernetesClient() {
@@ -220,11 +213,40 @@ public class KubernetesService {
         }
     }
 
+    public List<String> getConfigMaps(String namespace) {
+        List<String> result = new ArrayList<>();
+        kubernetesClient().configMaps().inNamespace(namespace).list().getItems().forEach(configMap -> {
+            System.out.println(configMap.getMetadata().getName());
+            String name = configMap.getMetadata().getName();
+            configMap.getData().keySet().forEach(data -> result.add(name + "/" + data));
+        });
+        return result;
+    }
+
+    public List<String> getSecrets(String namespace) {
+        List<String> result = new ArrayList<>();
+        kubernetesClient().secrets().inNamespace(namespace).list().getItems().forEach(secret -> {
+            String name = secret.getMetadata().getName();
+            secret.getData().keySet().forEach(data -> result.add(name + "/" + data));
+        });
+        return result;
+    }
+
+    public List<String> getServices(String namespace) {
+        List<String> result = new ArrayList<>();
+        kubernetesClient().services().inNamespace(namespace).list().getItems().forEach(service -> {
+            String name = service.getMetadata().getName();
+            String host = name + "." + namespace + ".svc.cluster.local";
+            service.getSpec().getPorts().forEach(port -> result.add(name + "|" + host + ":" + port.getPort()));
+        });
+        return result;
+    }
+
     public Secret getKaravanSecret() {
-        return kubernetesClient().secrets().inNamespace(namespace).withName("karavan").get();
+        return kubernetesClient().secrets().inNamespace(currentNamespace).withName("karavan").get();
     }
 
     public boolean inKubernetes() {
-        return !Objects.equals(namespace, "localhost");
+        return !Objects.equals(currentNamespace, "localhost");
     }
 }

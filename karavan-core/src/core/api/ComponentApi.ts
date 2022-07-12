@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 import {Component, ComponentProperty} from "../model/ComponentModels";
-import {CamelMetadataApi} from "../model/CamelMetadata";
-import {Kamelets} from "./KameletApi";
 
 export const Components: Component[] = [];
 

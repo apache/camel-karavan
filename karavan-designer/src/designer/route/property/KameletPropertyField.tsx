@@ -19,7 +19,7 @@ import {
     FormGroup,
     TextInput,
     Popover,
-    Switch, InputGroup, Button, TextArea, Text, Tooltip,
+    Switch, InputGroup, Button, TextArea, Text, Tooltip, Modal,
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -27,6 +27,11 @@ import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
 import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
 import {Property} from "karavan-core/lib/model/KameletModels";
+import {KubernetesSelector} from "./KubernetesSelector";
+import {KubernetesAPI} from "../../utils/KubernetesAPI";
+import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
+import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
+import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 
 interface Props {
     property: Property,
@@ -37,6 +42,9 @@ interface Props {
 interface State {
     selectIsOpen: boolean
     showEditor: boolean
+    showPassword: boolean
+    showKubernetesSelector: boolean
+    kubernetesSelectorProperty?: string
 }
 
 export class KameletPropertyField extends React.Component<Props, State> {
@@ -44,6 +52,8 @@ export class KameletPropertyField extends React.Component<Props, State> {
     public state: State = {
         selectIsOpen: false,
         showEditor: false,
+        showPassword: false,
+        showKubernetesSelector: false,
     }
 
     openSelect = () => {
@@ -55,17 +65,58 @@ export class KameletPropertyField extends React.Component<Props, State> {
         this.setState({selectIsOpen: false});
     }
 
+    selectKubernetes = (value: string) => {
+        const propertyId = this.state.kubernetesSelectorProperty;
+        if (propertyId){
+            if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
+            this.parametersChanged(propertyId, value);
+            this.setState({showKubernetesSelector: false, kubernetesSelectorProperty: undefined})
+        }
+    }
+
+    openKubernetesSelector = (propertyName: string) => {
+        this.setState({kubernetesSelectorProperty: propertyName, showKubernetesSelector: true});
+    }
+
+    closeKubernetesSelector = () => {
+        this.setState({showKubernetesSelector: false})
+    }
+
+    getKubernetesSelectorModal() {
+        return (
+            <Modal
+                title="Select from Kubernetes"
+                width={'50%'}
+                className='dsl-modal'
+                isOpen={this.state.showKubernetesSelector}
+                onClose={() => this.closeKubernetesSelector()}
+                actions={{}}>
+                <KubernetesSelector
+                    dark={false}
+                    onSelect={this.selectKubernetes}/>
+            </Modal>)
+    }
+
     getStringInput() {
         const showEditor = this.state.showEditor;
+        const showPassword = this.state.showPassword;
         const property = this.props.property;
         const value = this.props.value;
         const prefix = "parameters";
         const id = prefix + "-" + property.id;
+        const noKubeSelectorButton = ["uri", "id", "description", "group"].includes(property.id);
+        const showKubeSelectorButton = KubernetesAPI.inKubernetes && !showEditor && !noKubeSelectorButton
         return <InputGroup>
+            {showKubeSelectorButton  &&
+                <Tooltip position="bottom-end" content="Select from Kubernetes">
+                    <Button variant="control" onClick={e => this.openKubernetesSelector(property.id)}>
+                        <KubernetesIcon/>
+                    </Button>
+                </Tooltip>}
             {(!showEditor || property.format === "password") &&
                 <TextInput
                     className="text-field" isRequired
-                    type={property.format ? "password" : "text"}
+                    type={property.format && !showPassword ? "password" : "text"}
                     id={id} name={id}
                     value={value}
                     onChange={e => this.parametersChanged(property.id, e)}/>}
@@ -83,6 +134,13 @@ export class KameletPropertyField extends React.Component<Props, State> {
                     </Button>
                 </Tooltip>
             }
+            {property.format === "password" &&
+                <Tooltip position="bottom-end" content={showPassword ? "Hide" : "Show"}>
+                    <Button variant="control" onClick={e => this.setState({showPassword: !showPassword})}>
+                        {showPassword ? <ShowIcon/> : <HideIcon/>}
+                    </Button>
+                </Tooltip>
+            }
         </InputGroup>
     }
 
@@ -92,44 +150,47 @@ export class KameletPropertyField extends React.Component<Props, State> {
         const prefix = "parameters";
         const id = prefix + "-" + property.id;
         return (
-            <FormGroup
-                data-tour={property.id}
-                key={id}
-                label={property.title}
-                fieldId={id}
-                labelIcon={
-                    <Popover
-                        position={"left"}
-                        headerContent={property.title}
-                        bodyContent={property.description}
-                        footerContent={
-                            <div>
-                                {property.default !== undefined &&
-                                    <div>Default: {property.default.toString()}</div>}
-                                {property.example !== undefined && <div>Example: {property.example}</div>}
-                            </div>
-                        }>
-                        <button type="button" aria-label="More info" onClick={e => e.preventDefault()}
-                                className="pf-c-form__group-label-help">
-                            <HelpIcon noVerticalAlign/>
-                        </button>
-                    </Popover>
-                }>
-                {property.type === 'string' && this.getStringInput()
-                }
-                {['integer', 'int', 'number'].includes(property.type) &&
-                    <TextInput className="text-field" isRequired type='number' id={id} name={id} value={value}
-                               onChange={e => this.parametersChanged(property.id, Number(e))}
-                    />
-                }
-                {property.type === 'boolean' && <Switch
-                    id={id} name={id}
-                    value={value?.toString()}
-                    aria-label={id}
-                    isChecked={Boolean(value) === true}
-                    onChange={e => this.parametersChanged(property.id, !Boolean(value))}/>
-                }
-            </FormGroup>
+            <div>
+                <FormGroup
+                    data-tour={property.id}
+                    key={id}
+                    label={property.title}
+                    fieldId={id}
+                    labelIcon={
+                        <Popover
+                            position={"left"}
+                            headerContent={property.title}
+                            bodyContent={property.description}
+                            footerContent={
+                                <div>
+                                    {property.default !== undefined &&
+                                        <div>Default: {property.default.toString()}</div>}
+                                    {property.example !== undefined && <div>Example: {property.example}</div>}
+                                </div>
+                            }>
+                            <button type="button" aria-label="More info" onClick={e => e.preventDefault()}
+                                    className="pf-c-form__group-label-help">
+                                <HelpIcon noVerticalAlign/>
+                            </button>
+                        </Popover>
+                    }>
+                    {property.type === 'string' && this.getStringInput()
+                    }
+                    {['integer', 'int', 'number'].includes(property.type) &&
+                        <TextInput className="text-field" isRequired type='number' id={id} name={id} value={value}
+                                   onChange={e => this.parametersChanged(property.id, Number(e))}
+                        />
+                    }
+                    {property.type === 'boolean' && <Switch
+                        id={id} name={id}
+                        value={value?.toString()}
+                        aria-label={id}
+                        isChecked={Boolean(value) === true}
+                        onChange={e => this.parametersChanged(property.id, !Boolean(value))}/>
+                    }
+                </FormGroup>
+                {this.getKubernetesSelectorModal()}
+            </div>
         )
     }
 }
