@@ -52,7 +52,6 @@ public class KaravanService {
     KaravanConfiguration configuration;
 
     void onStart(@Observes StartupEvent ev) {
-        configuration.environments().forEach(environment -> System.out.println(environment.name()));
     }
 
     @ConsumeEvent(value = IMPORT_PROJECTS, blocking = true)

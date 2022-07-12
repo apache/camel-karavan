@@ -216,7 +216,6 @@ public class KubernetesService {
     public List<String> getConfigMaps(String namespace) {
         List<String> result = new ArrayList<>();
         kubernetesClient().configMaps().inNamespace(namespace).list().getItems().forEach(configMap -> {
-            System.out.println(configMap.getMetadata().getName());
             String name = configMap.getMetadata().getName();
             configMap.getData().keySet().forEach(data -> result.add(name + "/" + data));
         });

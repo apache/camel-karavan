@@ -84,8 +84,8 @@ public class StatusService {
         ProjectStatus status = new ProjectStatus();
         status.setProjectId(projectId);
         status.setLastUpdate(System.currentTimeMillis());
-        List<ProjectEnvStatus> statuses = new ArrayList<>(configuration.environments().size());
-        configuration.environments().forEach(e -> {
+        List<ProjectEnvStatus> statuses = new ArrayList<>(1);
+        configuration.environments().stream().filter(e -> e.active()).forEach(e -> {
             String url = ProfileManager.getActiveProfile().equals("dev")
                     ? String.format("http://%s-%s.%s/q/health", projectId, e.namespace(), e.cluster())
                     : String.format("http://%s.%s.%s/q/health", projectId, e.namespace(), e.cluster());
