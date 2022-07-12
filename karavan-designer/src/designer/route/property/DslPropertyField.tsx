@@ -49,6 +49,7 @@ import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
 import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
 import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
 import {KubernetesSelector} from "./KubernetesSelector";
+import {KubernetesAPI} from "../../utils/KubernetesAPI";
 
 interface Props {
     property: PropertyMeta,
@@ -183,10 +184,10 @@ export class DslPropertyField extends React.Component<Props, State> {
 
     getStringInput = (property: PropertyMeta, value: any) => {
         const showEditor = this.state.showEditor;
-        const showConfigMapSecretSelector = this.state.showKubernetesSelector;
-        const inKubernetes = true;//this.props.inKubernetes;
+        const inKubernetes = KubernetesAPI.inKubernetes;
+        const noKubeSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
         return (<InputGroup>
-            {inKubernetes && !showEditor &&
+            {inKubernetes && !showEditor && !noKubeSelectorButton &&
                 <Tooltip position="bottom-end" content="Select from Kubernetes">
                     <Button variant="control" onClick={e => this.openKubernetesSelector(property.name)}>
                         <KubernetesIcon/>

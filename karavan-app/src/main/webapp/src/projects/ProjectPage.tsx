@@ -98,6 +98,7 @@ export class ProjectPage extends React.Component<Props, State> {
                     files: files
                 })
             });
+            KubernetesAPI.inKubernetes = true;
             KaravanApi.getConfigMaps(this.state.environment, (any: []) => {
                 KubernetesAPI.setConfigMaps(any);
             });

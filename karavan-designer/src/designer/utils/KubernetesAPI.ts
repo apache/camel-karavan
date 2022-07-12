@@ -1,5 +1,6 @@
 export class KubernetesAPI {
 
+    static inKubernetes: boolean = false;
     static configMaps: string[] = [];
     static secrets: string[] = [];
     static services: string[] = [];
