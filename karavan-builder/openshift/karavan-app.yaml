@@ -43,6 +43,9 @@ spec:
           image: ghcr.io/apache/camel-karavan:0.0.16
           imagePullPolicy: Always
           name: karavan
+          resources:
+            requests:
+              memory: "2048Mi"
           volumeMounts:
             - name: karavan-data
               mountPath: /deployments/karavan-data

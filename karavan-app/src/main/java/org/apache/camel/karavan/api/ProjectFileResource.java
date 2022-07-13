@@ -17,6 +17,7 @@
 package org.apache.camel.karavan.api;
 
 import org.apache.camel.karavan.model.ProjectFile;
+import org.apache.camel.karavan.service.GeneratorService;
 import org.apache.camel.karavan.service.InfinispanService;
 
 import javax.inject.Inject;
@@ -39,11 +40,14 @@ public class ProjectFileResource {
     @Inject
     InfinispanService infinispanService;
 
+    @Inject
+    GeneratorService generatorService;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{projectId}")
     public List<ProjectFile> get(@HeaderParam("username") String username,
-                                      @PathParam("projectId") String projectId) throws Exception {
+                                 @PathParam("projectId") String projectId) throws Exception {
         return infinispanService.getProjectFiles(projectId);
     }
 
@@ -59,11 +63,29 @@ public class ProjectFileResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{project}/{filename}")
     public void delete(@HeaderParam("username") String username,
-                          @PathParam("project") String project,
-                            @PathParam("filename") String filename) throws Exception {
+                       @PathParam("project") String project,
+                       @PathParam("filename") String filename) throws Exception {
         infinispanService.deleteProjectFile(
                 URLDecoder.decode(project, StandardCharsets.UTF_8.toString()),
                 URLDecoder.decode(filename, StandardCharsets.UTF_8.toString())
         );
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/openapi/{generateRest}/{generateRoutes}/{integrationName}")
+    public ProjectFile saveOpenapi(@HeaderParam("username") String username,
+                                   @PathParam("integrationName") String integrationName,
+                                   @PathParam("generateRest") boolean generateRest,
+                                   @PathParam("generateRoutes") boolean generateRoutes, ProjectFile file) throws Exception {
+        infinispanService.saveProjectFile(file);
+        if (generateRest) {
+            String yaml = generatorService.generate(file.getCode(), generateRoutes);
+            ProjectFile integration = new ProjectFile(integrationName, yaml, file.getProjectId());
+            infinispanService.saveProjectFile(integration);
+            return file;
+        }
+        return file;
     }
 }

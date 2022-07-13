@@ -43,6 +43,7 @@ import {ProjectHeader} from "./ProjectHeader";
 import {ProjectModel, ProjectProperty} from "karavan-core/lib/model/ProjectModel";
 import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
 import {KubernetesAPI} from "../designer/utils/KubernetesAPI";
+import {UploadModal} from "./UploadModal";
 
 interface Props {
     project: Project,
@@ -424,7 +425,7 @@ export class ProjectPage extends React.Component<Props, State> {
         const isYaml = file !== undefined && file.name.endsWith("yaml");
         const isProperties = file !== undefined && file.name.endsWith("properties");
         const isLog = file !== undefined && file.name.endsWith("log");
-        const isCode = file !== undefined && (file.name.endsWith("java") || file.name.endsWith("groovy"));
+        const isCode = file !== undefined && (file.name.endsWith("java") || file.name.endsWith("groovy") || file.name.endsWith("json"));
         const showDesigner = isYaml && mode === 'design';
         const showEditor = isCode || (isYaml && mode === 'code');
         return (
@@ -461,6 +462,7 @@ export class ProjectPage extends React.Component<Props, State> {
                     onEscapePress={e => this.setState({isDeleteModalOpen: false})}>
                     <div>{"Are you sure you want to delete the file " + this.state.fileToDelete?.name + "?"}</div>
                 </Modal>
+                <UploadModal projectId={this.props.project.projectId} isOpen={this.state.isUploadModalOpen} onClose={this.closeModal}/>
             </PageSection>
         )
     }
