@@ -294,10 +294,10 @@ export const KaravanApi = {
         });
     },
 
-    postOpenApi: async (name: string, json: string, generateRest: boolean, generateRoutes: boolean, integrationName: string,  after: (res: AxiosResponse<any>) => void) => {
-        const uri = `/openapi/${name}/${generateRest}/${generateRoutes}/${integrationName}`;
-        axios.post(encodeURI(uri), json,
-            {headers: {'Accept': 'text/plain', 'Content-Type': 'text/plain', 'username': 'cameleer'}})
+    postOpenApi: async (file: ProjectFile, generateRest: boolean, generateRoutes: boolean, integrationName: string,  after: (res: AxiosResponse<any>) => void) => {
+        const uri = `/file/openapi/${generateRest}/${generateRoutes}/${integrationName}`;
+        axios.post(encodeURI(uri), file,
+            {headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'username': 'cameleer'}})
             .then(res => {
                 after(res);
             }).catch(err => {

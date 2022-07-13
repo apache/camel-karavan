@@ -23,7 +23,6 @@ import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import Icon from "./Logo";
 import {ComponentsPage} from "./components/ComponentsPage";
 import {EipPage} from "./eip/EipPage";
-import {OpenApiPage} from "./integrations/OpenApiPage";
 import {ProjectsPage} from "./projects/ProjectsPage";
 import {Project} from "./models/ProjectModels";
 import {ProjectPage} from "./projects/ProjectPage";
@@ -232,8 +231,6 @@ export class Main extends React.Component<Props, State> {
                         {this.state.pageId === 'kamelets' && <KameletsPage dark={false}/>}
                         {this.state.pageId === 'components' && <ComponentsPage dark={false}/>}
                         {this.state.pageId === 'eip' && <EipPage dark={false}/>}
-                        {this.state.pageId === 'openapi' &&
-                            <OpenApiPage dark={false} openapi={this.state.openapi} filename={this.state.filename}/>}
                     </FlexItem>
                 </Flex>
                 <Modal

@@ -41,10 +41,10 @@ export class CreateFileModal extends React.Component<Props, State> {
             const file = new ProjectFile(filename + '.' + extension, this.props.project.projectId, '');
             KaravanApi.postProjectFile(file, res => {
                 if (res.status === 200) {
-                    console.log(res) //TODO show notification
+                    // console.log(res) //TODO show notification
                     this.props.onClose?.call(this);
                 } else {
-                    console.log(res) //TODO show notification
+                    // console.log(res) //TODO show notification
                     this.props.onClose?.call(this);
                 }
             })
@@ -69,7 +69,7 @@ export class CreateFileModal extends React.Component<Props, State> {
                 <Form autoComplete="off" isHorizontal className="create-file-form">
                     <FormGroup label="Type" fieldId="type" isRequired>
                         <ToggleGroup aria-label="Type">
-                            {ProjectFileTypes.filter(p => p.name !== 'PROPERTIES' && p.name !== 'LOG').map(p => {
+                            {ProjectFileTypes.filter(p => !['PROPERTIES', 'LOG'].includes(p.name)).map(p => {
                                 const title = p.title + (p.name === 'CODE' ? ' (' + p.extension + ')' : '');
                                 return <ToggleGroupItem key={title} text={title} buttonId={p.name}
                                                         isSelected={this.state.extension === p.extension}
