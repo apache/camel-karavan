@@ -166,7 +166,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                                 <Th key='name'>Name</Th>
                                 <Th key='description'>Description</Th>
                                 <Th key='commit'>Commit</Th>
-                                <Th key='deployment'>Deployment</Th>
+                                <Th key='deployment'>Environment</Th>
                                 <Th key='action'></Th>
                             </Tr>
                         </Thead>

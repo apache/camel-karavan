@@ -28,7 +28,7 @@ export const KaravanApi = {
     },
 
     getProjectStatus: async (projectId: string, after: (status: ProjectStatus) => void) => {
-        axios.get('/status/' + projectId,
+        axios.get('/status/project/' + projectId,
             {headers: {'Accept': 'application/json', 'username': 'cameleer'}})
             .then(res => {
                 if (res.status === 200) {

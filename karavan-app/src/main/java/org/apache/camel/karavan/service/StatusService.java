@@ -79,7 +79,6 @@ public class StatusService {
     }
 
     private void getStatuses(String projectId) throws Exception {
-        LOGGER.info("Start to collect statuses for the project " + projectId);
         ProjectStatus old = infinispanService.getProjectStatus(projectId);
         ProjectStatus status = new ProjectStatus();
         status.setProjectId(projectId);
@@ -109,8 +108,6 @@ public class StatusService {
             statuses.add(pes);
         });
         status.setStatuses(statuses);
-
-        LOGGER.info("Storing status in cache for " + projectId);
         infinispanService.saveProjectStatus(status);
     }
 

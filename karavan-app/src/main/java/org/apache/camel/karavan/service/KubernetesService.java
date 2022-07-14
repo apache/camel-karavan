@@ -32,6 +32,7 @@ import io.fabric8.tekton.pipeline.v1beta1.PipelineRun;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpec;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpecBuilder;
+import io.fabric8.tekton.pipeline.v1beta1.WorkspaceBindingBuilder;
 import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.PipelineRunLog;
 import org.apache.camel.karavan.model.PodStatus;
@@ -90,6 +91,9 @@ public class KubernetesService {
                 .withPipelineRef(ref)
                 .withServiceAccountName("pipeline")
                 .withParams(new ParamBuilder().withName("PROJECT_NAME").withNewValue(project.getProjectId()).build())
+                .withWorkspaces(
+                        new WorkspaceBindingBuilder().withName("m2-cache").withNewPersistentVolumeClaim("karavan-m2-cache", false).build(),
+                        new WorkspaceBindingBuilder().withName("jbang-cache").withNewPersistentVolumeClaim("karavan-jbang-cache", false).build())
                 .build();
 
         PipelineRunBuilder pipelineRunBuilder = new PipelineRunBuilder()

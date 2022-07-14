@@ -141,10 +141,17 @@ export class ProjectInfo extends React.Component<Props, State> {
         </Tooltip>)
     }
 
-    buildButton = () => {
+    buildButton = (env: string) => {
         const isDeploying = this.state.isBuilding;
+        const isPushing = this.state.isPushing;
+        const status = this.state.status?.statuses.find(s => s.environment === env)
+        const pipelineResult = status?.lastPipelineRunResult;
+        const isRunning = pipelineResult === 'Running';
         return (<Tooltip content="Commit, push, build and deploy" position={"left"}>
-            <Button isLoading={isDeploying ? true : undefined} isSmall variant="secondary"
+            <Button isLoading={isDeploying ? true : undefined}
+                    isDisabled={isDeploying || isRunning || isPushing}
+                    isSmall
+                    variant="secondary"
                     className="project-button"
                     icon={!isDeploying ? <BuildIcon/> : <div></div>}
                     onClick={e => {
@@ -347,7 +354,7 @@ export class ProjectInfo extends React.Component<Props, State> {
                         </LabelGroup>
                     </Tooltip>
                 </FlexItem>
-                <FlexItem>{env === "dev" && this.buildButton()}</FlexItem>
+                <FlexItem>{env === "dev" && this.buildButton(env)}</FlexItem>
             </Flex>
         )
     }
