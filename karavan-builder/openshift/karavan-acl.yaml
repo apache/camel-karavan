@@ -13,28 +13,15 @@ kind: Role
 metadata:
   name: karavan-app
 rules:
-  - apiGroups:
-      - ""
-    resources:
-      - secrets
-      - configmaps
-    verbs:
-      - get
-      - list
-  - apiGroups:
-      - ""
-      - apps.openshift.io
-    resources:
-      - deploymentconfigs
-      - replicationcontrollers
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
+  - apiGroups: [""]
+    resources: ["secrets", "configmaps"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["persistentvolumes", "persistentvolumeclaims"]
+    verbs: ["*"]
+  - apiGroups: ["", "apps.openshift.io"]
+    resources: ["deploymentconfigs", "replicationcontrollers"]
+    verbs: ["*"]
 ---
 # Role tekton run pipeline
 kind: Role

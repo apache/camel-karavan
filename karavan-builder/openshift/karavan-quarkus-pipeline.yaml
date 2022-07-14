@@ -14,3 +14,11 @@ spec:
       taskRef:
         kind: Task
         name: karavan-quarkus-builder
+      workspaces:
+        - name: m2-cache
+          workspace: m2-cache
+        - name: jbang-cache
+          workspace: jbang-cache  
+  workspaces:
+    - name: m2-cache
+    - name: jbang-cache
