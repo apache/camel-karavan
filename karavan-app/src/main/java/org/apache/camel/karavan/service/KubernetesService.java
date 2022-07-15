@@ -23,6 +23,7 @@ import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.tekton.client.DefaultTektonClient;
 import io.fabric8.tekton.pipeline.v1beta1.ParamBuilder;
@@ -43,6 +44,7 @@ import org.jboss.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -242,6 +244,23 @@ public class KubernetesService {
             String host = name + "." + namespace + ".svc.cluster.local";
             service.getSpec().getPorts().forEach(port -> result.add(name + "|" + host + ":" + port.getPort()));
         });
+        return result;
+    }
+
+    public List<String> getProjectImageTags (String projectId, String namespace){
+        List<String> result = new ArrayList<>();
+        try {
+            if (kubernetesClient().isAdaptable(OpenShiftClient.class)) {
+                ImageStream is = openshiftClient().imageStreams().inNamespace(namespace).withName(projectId).get();
+                if (is != null) {
+                    result.addAll(is.getSpec().getTags().stream().map(t -> t.getName()).sorted(Comparator.reverseOrder()).collect(Collectors.toList()));
+                }
+            } else {
+                // TODO: Implement for Kubernetes/Minikube
+            }
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+        }
         return result;
     }
 

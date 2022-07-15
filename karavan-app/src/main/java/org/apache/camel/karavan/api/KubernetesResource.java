@@ -33,6 +33,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Optional;
 
 @Path("/kubernetes")
@@ -136,6 +137,17 @@ public class KubernetesResource {
         if (env.isPresent()) {
             kubernetesService.deletePod(name, env.get().namespace());
             return Response.ok().build();
+        }
+        return Response.noContent().build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/imagetag/{environment}/{projectId}")
+    public Response getProjectImageTags(@HeaderParam("username") String username, @PathParam("environment") String environment, @PathParam("projectId") String projectId) throws Exception {
+        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
+        if (env.isPresent()) {
+            return Response.ok(kubernetesService.getProjectImageTags(projectId, env.get().namespace())).build();
         }
         return Response.noContent().build();
     }
