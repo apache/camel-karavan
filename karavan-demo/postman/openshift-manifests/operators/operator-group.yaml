@@ -1,7 +1,7 @@
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
 metadata:
-  name: postman
+  name: karavan
 spec:
   targetNamespaces:
-  - postman
+  - karavan

@@ -12,9 +12,6 @@ spec:
           #!/usr/bin/env bash
           CHECKOUT_DIR="/scripts"
 
-          ls -la $(workspaces.m2-cache.path)
-          ls -la $(workspaces.jbang-cache.path)
-
           if  [[ $GIT_REPOSITORY == https* ]] ;
           then
               replacer=https://$GIT_PASSWORD@

@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  annotations:
-    openshift.io/description: postman
-    openshift.io/display-name: postman
-  name: postman
