@@ -2,7 +2,6 @@ import React from 'react';
 import {
     Badge,
     Button,
-    Text,
     DescriptionList,
     DescriptionListTerm,
     DescriptionListGroup,

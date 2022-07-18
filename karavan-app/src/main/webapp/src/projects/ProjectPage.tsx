@@ -21,7 +21,7 @@ import {
     ToggleGroup,
     ToggleGroupItem,
     CodeBlockCode,
-    CodeBlock, Skeleton, Switch, Checkbox
+    CodeBlock, Skeleton, Switch, Checkbox, Tabs, Tab
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
@@ -39,11 +39,12 @@ import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CreateFileModal} from "./CreateFileModal";
 import {PropertiesEditor} from "./PropertiesEditor";
-import {ProjectHeader} from "./ProjectHeader";
 import {ProjectModel, ProjectProperty} from "karavan-core/lib/model/ProjectModel";
 import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
 import {KubernetesAPI} from "../designer/utils/KubernetesAPI";
 import {UploadModal} from "./UploadModal";
+import {ProjectInfo} from "./ProjectInfo";
+import {ProjectDashboard} from "./ProjectDashboard";
 
 interface Props {
     project: Project,
@@ -64,6 +65,7 @@ interface State {
     key: string
     environments: string[],
     environment: string,
+    tab: string | number;
 }
 
 export class ProjectPage extends React.Component<Props, State> {
@@ -77,6 +79,7 @@ export class ProjectPage extends React.Component<Props, State> {
         mode: "design",
         editAdvancedProperties: false,
         key: '',
+        tab: "details",
         environments: this.props.config.environments && Array.isArray(this.props.config.environments)
             ? Array.from(this.props.config.environments) : [],
         environment: this.props.config.environments && Array.isArray(this.props.config.environments)
@@ -421,7 +424,7 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     render() {
-        const {file, mode} = this.state;
+        const {file, mode, tab} = this.state;
         const isYaml = file !== undefined && file.name.endsWith("yaml");
         const isProperties = file !== undefined && file.name.endsWith("properties");
         const isLog = file !== undefined && file.name.endsWith("log");
@@ -436,12 +439,21 @@ export class ProjectPage extends React.Component<Props, State> {
                 {file === undefined &&
                     <PageSection isFilled className="kamelets-page project-page-section"
                                  padding={{default: file !== undefined ? 'noPadding' : 'noPadding'}}>
-                        {<ProjectHeader project={this.props.project}
-                                        config={this.props.config}
-                                        environments={this.state.environments}
-                                        showLog={this.showPipelineLog}
-                                        deleteEntity={this.deleteEntity}/>}
-                        {this.getProjectFiles()}
+                        <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
+                            <FlexItem>
+                                <Tabs activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex})}>
+                                    <Tab eventKey="details" title="Details"/>
+                                    <Tab eventKey="dashboard" title="Dashboard"/>
+                                </Tabs>
+                            </FlexItem>
+                            <FlexItem>
+                                <PageSection padding={{default: "padding"}}>
+                                    {tab === 'details' && <ProjectInfo project={this.props.project} config={this.props.config} deleteEntity={this.deleteEntity} showLog={this.showPipelineLog}/>}
+                                    {tab === 'dashboard' && <ProjectDashboard environments={this.state.environments} project={this.props.project} config={this.props.config}/>}
+                                </PageSection>
+                            </FlexItem>
+                        </Flex>
+                        {tab === 'details' && this.getProjectFiles()}
                     </PageSection>}
                 {showDesigner && this.getDesigner()}
                 {showEditor && this.getEditor()}

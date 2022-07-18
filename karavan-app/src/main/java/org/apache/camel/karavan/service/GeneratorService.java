@@ -69,9 +69,6 @@ public class GeneratorService {
                 .append("mvn:io.quarkus:quarkus-openshift").append(System.lineSeparator());
 
         s.append("camel.health.enabled=true").append(System.lineSeparator());
-        s.append("camel.health.routes-enabled=true").append(System.lineSeparator());
-        s.append("camel.health.consumers-enabled=true").append(System.lineSeparator());
-        s.append("camel.health.registry-enabled=true").append(System.lineSeparator());
         s.append("camel.health.exposure-level=full").append(System.lineSeparator());
 
         s.append("quarkus.container-image.group=").append(imageGroup).append(System.lineSeparator());

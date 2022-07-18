@@ -7,8 +7,8 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
-import {Project, ProjectFileTypes, ProjectStatus} from "../models/ProjectModels";
-import {ChartDonut} from "@patternfly/react-charts";
+import {Project, ProjectEnvStatus, ProjectFileTypes, ProjectStatus} from "../models/ProjectModels";
+import {ChartDonut, ChartDonutThreshold, ChartDonutUtilization} from "@patternfly/react-charts";
 
 interface Props {
     project: Project,
@@ -19,7 +19,6 @@ interface Props {
 interface State {
     project?: Project,
     status?: ProjectStatus,
-
     key?: string,
 }
 
@@ -71,32 +70,6 @@ export class ProjectDashboard extends React.Component<Props, State> {
         }
     }
 
-    getCurrentStatus() {
-        return (<Text>OK</Text>)
-    }
-
-    // getPipelineState() {
-    //     const {project, status} = this.state;
-    //     const isRunning = status?.pipeline === 'Running';
-    //     const isFailed = status?.pipeline === 'Failed';
-    //     const isSucceeded = status?.pipeline === 'Succeeded';
-    //     let classname = "pipeline"
-    //     if (isRunning) classname = classname + " pipeline-running";
-    //     if (isFailed) classname = classname + " pipeline-running";
-    //     if (isSucceeded) classname = classname + " pipeline-succeeded";
-    //     return (
-    //         <Flex spaceItems={{default: 'spaceItemsNone'}} className={classname} direction={{default: "row"}}
-    //               alignItems={{default: "alignItemsCenter"}}>
-    //             <FlexItem style={{height: "18px"}}>
-    //                 {isRunning && <Spinner isSVG diameter="16px"/>}
-    //             </FlexItem>
-    //             <FlexItem style={{height: "18px"}}>
-    //                 {project?.lastPipelineRun ? project?.lastPipelineRun : "-"}
-    //             </FlexItem>
-    //         </Flex>
-    //     )
-    // }
-
     isUp(env: string): boolean {
         if (this.state.status) {
             return this.state.status.statuses.find(s => s.environment === env)?.status === 'UP';
@@ -105,30 +78,39 @@ export class ProjectDashboard extends React.Component<Props, State> {
         }
     }
 
-    getEnvironmentData() {
-        const used  = true;
-        const replicas = 3;
-        const data = Array.from({length: replicas}, (v, k) => {
-            return { x: k, y: 100/replicas }
-        });
-        const readyReplicas = 2;
-        const colorScale = Array.from({length: replicas}, (v, k) => {
-            console.log(" " + k)
-            if (k < readyReplicas) return "rgb(56, 129, 47)"
-            else return "#8bc1f7"
-        })
-        return (
-            <div style={{ height: '130px', width: '130px' }}>
-                <ChartDonut
-                    constrainToVisibleArea={true}
-                    data={data}
-                    colorScale={colorScale}
-                    labels={({ datum }) => datum.x ? datum.x : null}
-                    title="Pods"
-                >
-                </ChartDonut>
-            </div>
-        );
+    getEnvironmentData(env: string) {
+        const pes  = this.state.status?.statuses.find(s => s.environment == env);
+        if (pes){
+            const replicas = pes.deploymentStatus.replicas;
+            const data = Array.from({length: replicas}, (v, k) => {
+                return { x: k, y: 100/replicas }
+            });
+            const unavailableReplicas = pes.deploymentStatus.unavailableReplicas;
+            const dataU = Array.from({length: unavailableReplicas}, (v, k) => {
+                return { x: k, y: 100/unavailableReplicas }
+            });
+            const readyReplicas = pes.deploymentStatus.readyReplicas;
+            const colorScale = Array.from({length: replicas}, (v, k) => {
+                if (k < readyReplicas) return "rgb(56, 129, 47)"
+                else return "#8bc1f7"
+            })
+            return (
+                <div style={{ height: '185px', width: '185px' }}>
+                    <ChartDonutThreshold
+                        constrainToVisibleArea
+                        data={data}
+                        colorScale={colorScale}
+                        height={185}
+                        width={185}
+                    >
+                        <ChartDonutThreshold
+                            data={dataU}
+                            title="Pods"
+                        />
+                    </ChartDonutThreshold>
+                </div>
+            );
+        }
     }
 
     render() {
@@ -145,7 +127,7 @@ export class ProjectDashboard extends React.Component<Props, State> {
                                             <Badge className={this.isUp(e) ? "badge-env-up" : ""} isRead>{e}</Badge>
                                         </FlexItem>
                                         <FlexItem>
-                                            {this.getEnvironmentData()}
+                                            {this.getEnvironmentData(e)}
                                         </FlexItem>
                                     </Flex>
                                 </CardBody>

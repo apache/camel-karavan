@@ -48,11 +48,6 @@ spec:
             -Dquarkus.container-image.group=${NAMESPACE} \
             -Dquarkus.container-image.tag=${DATE}
       image: 'ghcr.io/apache/camel-karavan-builder:0.0.16'
-      # volumeMounts:
-      #   - mountPath: /root/.m2
-      #     name: m2-cache
-      #   - mountPath: /jbang/.jbang/cache
-      #     name: jbang-cache  
       env:
         - name: GIT_REPOSITORY
           valueFrom:
@@ -76,13 +71,6 @@ spec:
         #!/usr/bin/env bash
         oc label dc/$(inputs.params.project) app.openshift.io/runtime=camel --overwrite=true
         oc rollout latest dc/$(inputs.params.project) 
-  # volumes:
-  #   - name: m2-cache
-  #     persistentVolumeClaim:
-  #       claimName: karavan-m2-cache 
-  #   - name: jbang-cache
-  #     persistentVolumeClaim:
-  #       claimName: karavan-jbang-cache
   workspaces:
     - mountPath: /root/.m2
       name: m2-cache
