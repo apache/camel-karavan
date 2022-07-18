@@ -31,6 +31,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Path("/status")
@@ -49,8 +51,8 @@ public class StatusResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{projectId}")
-    public ProjectStatus getStatus(@HeaderParam("username") String username, @PathParam("projectId") String projectId) throws Exception {
+    @Path("/project/{projectId}")
+    public ProjectStatus getStatus(@HeaderParam("username") String username, @PathParam("projectId") String projectId) {
         bus.publish(StatusService.CMD_COLLECT_STATUSES, projectId);
         ProjectStatus status = infinispanService.getProjectStatus(projectId);
         if (status != null){
@@ -62,5 +64,31 @@ public class StatusResource {
                             .collect(Collectors.toList()),
                     Long.valueOf(0));
         }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/projects")
+    public Map<String, Map> getSimpleStatus(@HeaderParam("username") String username) throws Exception {
+        Map<String, Map> result = new HashMap<>();
+        infinispanService.getProjects().forEach(project -> {
+            ProjectStatus ps = getStatus(username, project.getProjectId());
+            Map<String, String> statuses = new HashMap<>();
+            ps.getStatuses().forEach(pes -> {
+                if (pes.getLastPipelineRunResult() == null || pes.getDeploymentStatus() == null || pes.getContextStatus() == null){
+                    statuses.put(pes.getEnvironment(), "N/A");
+                } else {
+                    boolean pipelineOK = pes.getLastPipelineRunResult().equals("Succeeded");
+                    System.out.println(pes.getLastPipelineRunResult());
+                    boolean deploymentOK = pes.getDeploymentStatus().getReadyReplicas() == pes.getDeploymentStatus().getReplicas() && pes.getDeploymentStatus().getUnavailableReplicas() == 0;
+                    boolean camelOK = pes.getContextStatus().equals(ProjectEnvStatus.Status.UP) && pes.getConsumerStatus().equals(ProjectEnvStatus.Status.UP) && pes.getRoutesStatus().equals(ProjectEnvStatus.Status.UP);
+                    String status = (pipelineOK && deploymentOK && camelOK) ? "UP" : "DOWN";
+                    statuses.put(pes.getEnvironment(), status);
+                }
+            });
+            result.put(project.getProjectId(), statuses);
+        });
+
+        return result;
     }
 }

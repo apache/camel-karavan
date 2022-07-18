@@ -44,7 +44,9 @@ public class ConfigurationResource {
         return Response.ok(
                 Map.of(
                         "version", version,
-                        "environments", configuration.environments().stream().map(e -> e.name()).collect(Collectors.toList()),
+                        "environments", configuration.environments().stream()
+                                        .filter(e -> e.active())
+                                .map(e -> e.name()).collect(Collectors.toList()),
                         "runtime", configuration.runtime()
                 )
         ).build();
