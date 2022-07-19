@@ -1,0 +1,16 @@
+apiVersion: camel.apache.org/v1
+kind: Karavan
+metadata:
+  name: karavan
+  annotations:
+    camel.apache.org/support.level: Preview
+    camel.apache.org/version: 0.0.11
+    camel.apache.org/provider: Apache Software Foundation
+spec:
+  instances: 2
+  mode: serverless
+#  git:
+#    uri: http://gitea:3000/git/karavan.git
+#    username: git
+#    password: gitgit
+#    main: master
