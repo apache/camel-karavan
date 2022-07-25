@@ -21,7 +21,7 @@ import {
     DrawerContent,
     DrawerContentBody,
     Button, Modal,
-    PageSection
+    PageSection, Flex, FlexItem, Text
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {DslSelector} from "./DslSelector";
@@ -124,15 +124,22 @@ export class RouteDesigner extends React.Component<Props, State> {
                 this.openSelector(step?.uuid, !step?.dslName ? undefined : "FromDefinition", true, undefined, event.selectorTabIndex)
                 break;
             case "closeSelector":
-                if (event.step){
+                if (event.step) {
                     const clone = CamelUtil.cloneIntegration(this.props.integration);
-                    this.setState({integration: clone, key: Math.random().toString(), showSelector: false, selectedStep: event.step, selectedUuid: event.step.uuid, propertyOnly: false });
+                    this.setState({
+                        integration: clone,
+                        key: Math.random().toString(),
+                        showSelector: false,
+                        selectedStep: event.step,
+                        selectedUuid: event.step.uuid,
+                        propertyOnly: false
+                    });
                 } else {
                     this.setState({showSelector: false, key: Math.random().toString()});
                 }
                 break;
             case "selectElement":
-                if (event.step) this.selectElement( event.step);
+                if (event.step) this.selectElement(event.step);
                 break;
         }
     }
@@ -223,7 +230,14 @@ export class RouteDesigner extends React.Component<Props, State> {
     }
 
     openSelector = (parentId: string | undefined, parentDsl: string | undefined, showSteps: boolean = true, position?: number | undefined, selectorTabIndex?: string | number) => {
-        this.setState({showSelector: true, parentId: parentId || '', parentDsl: parentDsl, showSteps: showSteps, selectedPosition: position, selectorTabIndex: selectorTabIndex})
+        this.setState({
+            showSelector: true,
+            parentId: parentId || '',
+            parentDsl: parentDsl,
+            showSteps: showSteps,
+            selectedPosition: position,
+            selectorTabIndex: selectorTabIndex
+        })
     }
 
     closeDslSelector = () => {
@@ -295,23 +309,16 @@ export class RouteDesigner extends React.Component<Props, State> {
 
     getSelectorModal() {
         return (
-            <Modal
-                data-tour="selector"
-                title={this.state.parentDsl === undefined ? "Select source/from" : "Select step"}
-                width={'90%'}
-                className='dsl-modal'
+            <DslSelector
                 isOpen={this.state.showSelector}
                 onClose={() => this.closeDslSelector()}
-                actions={{}}>
-                <DslSelector
-                    dark={this.props.dark}
-                    parentId={this.state.parentId}
-                    parentDsl={this.state.parentDsl}
-                    showSteps={this.state.showSteps}
-                    position={this.state.selectedPosition}
-                    tabIndex={this.state.selectorTabIndex}
-                    onDslSelect={this.onDslSelect}/>
-            </Modal>)
+                dark={this.props.dark}
+                parentId={this.state.parentId}
+                parentDsl={this.state.parentDsl}
+                showSteps={this.state.showSteps}
+                position={this.state.selectedPosition}
+                tabIndex={this.state.selectorTabIndex}
+                onDslSelect={this.onDslSelect}/>)
     }
 
     getDeleteConfirmation() {
@@ -335,7 +342,9 @@ export class RouteDesigner extends React.Component<Props, State> {
 
     getPropertiesPanel() {
         return (
-            <DrawerPanelContent onResize={width => this.setState({key: Math.random().toString(1)})} style={{transform: "initial"}} isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'300px'}>
+            <DrawerPanelContent onResize={width => this.setState({key: Math.random().toString(1)})}
+                                style={{transform: "initial"}} isResizable hasNoBorder defaultSize={'400px'}
+                                maxSize={'800px'} minSize={'300px'}>
                 <DslProperties ref={this.state.ref}
                                integration={this.state.integration}
                                step={this.state.selectedStep}
@@ -353,7 +362,8 @@ export class RouteDesigner extends React.Component<Props, State> {
         const routes = CamelUi.getRoutes(this.state.integration);
         return (
             <div className="graph">
-                <DslConnections height={this.state.height} width={this.state.width} top={this.state.top} left={this.state.left} integration={this.state.integration}/>
+                <DslConnections height={this.state.height} width={this.state.width} top={this.state.top}
+                                left={this.state.left} integration={this.state.integration}/>
                 <div className="flows" data-click="FLOWS" onClick={event => this.unselectElement(event)}
                      ref={el => this.onResizePage(el)}>
                     {routes?.map((route: any, index: number) => (

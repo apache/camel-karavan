@@ -169,17 +169,11 @@ export class DslPropertyField extends React.Component<Props, State> {
 
     getKubernetesSelectorModal() {
         return (
-            <Modal
-                title="Select from Kubernetes"
-                width={'50%'}
-                className='dsl-modal'
+            <KubernetesSelector
+                dark={false}
                 isOpen={this.state.showKubernetesSelector}
                 onClose={() => this.closeKubernetesSelector()}
-                actions={{}}>
-                <KubernetesSelector
-                    dark={false}
-                    onSelect={this.selectKubernetes}/>
-            </Modal>)
+                onSelect={this.selectKubernetes}/>)
     }
 
     getStringInput = (property: PropertyMeta, value: any) => {

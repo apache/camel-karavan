@@ -58,7 +58,7 @@ Send message to `payments` queue
 
 
 ### Install AMQ and AMQ Streams Operators
-Also creates `postman` namespace required for the demo
+Also creates `karavan` namespace required for the demo
 ```
 cd ../openshift-manifests
 oc login --token=... --server=...

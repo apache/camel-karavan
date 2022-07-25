@@ -17,16 +17,20 @@
 import React from 'react';
 import {
     Badge,
-    Button,
-    Form, FormGroup, PageSection,
+    Button, Flex, FlexItem,
+    Form, FormGroup, Modal, PageSection,
     Tab, Tabs, TabTitleText, TextInput,
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import {KubernetesAPI} from "../../utils/KubernetesAPI";
+import {CamelUi} from "../../utils/CamelUi";
+import {CamelUtil} from "../../../../../../../../karavan-core/lib/api/CamelUtil";
 
 interface Props {
     onSelect: (value: string) => void,
+    onClose?: () => void,
+    isOpen: boolean,
     dark: boolean,
 }
 
@@ -71,123 +75,171 @@ export class KubernetesSelector extends React.Component<Props, State> {
         )
     }
 
-    render() {
+    getConfigMapTable() {
         const configMaps = this.state.configMaps;
-        console.log(configMaps);
-        const secrets = this.state.secrets;
-        const services = this.state.services;
-        console.log(services);
         return (
-            <PageSection variant={this.props.dark ? "darker" : "light"}>
-                {this.searchInput()}
-                <Tabs data-tour="selector-tabs" style={{overflow: 'hidden'}} activeKey={this.state.tabIndex} onSelect={this.selectTab}>
-                    <Tab eventKey={"configMap"} key={"configMap"} title={<TabTitleText>ConfigMaps</TabTitleText>}>
-                        <TableComposable variant='compact' borders={false}>
-                            <Thead>
-                                <Tr>
-                                    <Th/>
-                                    <Th key='name'>Name</Th>
-                                    <Th key='data'>Data</Th>
+            <TableComposable variant='compact' borders={false}>
+                <Thead>
+                    <Tr>
+                        <Th/>
+                        <Th key='name'>Name</Th>
+                        <Th key='data'>Data</Th>
+                    </Tr>
+                </Thead>
+                <Tbody>
+                    {configMaps
+                        .filter(name => this.checkFilter(name))
+                        .map((name, idx: number) => {
+                            const configMapName = name.split("/")[0];
+                            const data = name.split("/")[1];
+                            return (
+                                <Tr key={name}>
+                                    <Td noPadding isActionCell>
+                                        <Badge>CM</Badge>
+                                    </Td>
+                                    <Td noPadding>
+                                        {configMapName}
+                                    </Td>
+                                    <Td noPadding>
+                                        <Button style={{padding: '6px'}} variant={"link"} onClick={
+                                            e => this.props.onSelect?.call(this, "configmap:" + name)}>
+                                            {data}
+                                        </Button>
+                                    </Td>
                                 </Tr>
-                            </Thead>
-                            <Tbody>
-                                {configMaps
-                                    .filter(name => this.checkFilter(name))
-                                    .map((name, idx: number) => {
-                                        const configMapName = name.split("/")[0];
-                                        const data = name.split("/")[1];
-                                        return (
-                                            <Tr key={name}>
-                                                <Td noPadding isActionCell>
-                                                    <Badge>CM</Badge>
-                                                </Td>
-                                                <Td noPadding>
-                                                    {configMapName}
-                                                </Td>
-                                                <Td noPadding>
-                                                    <Button style={{padding: '6px'}} variant={"link"} onClick={
-                                                        e => this.props.onSelect?.call(this, "configmap:" + name)}>
-                                                        {data}
-                                                    </Button>
-                                                </Td>
-                                            </Tr>
-                                        )
-                                    })}
-                            </Tbody>
-                        </TableComposable>
-                    </Tab>
-                    <Tab eventKey={"secret"} key={"secret"} title={<TabTitleText>Secrets</TabTitleText>}>
-                        <TableComposable variant='compact' borders={false}>
-                            <Thead>
-                                <Tr>
-                                    <Th/>
-                                    <Th key='name'>Name</Th>
-                                    <Th key='data'>Data</Th>
+                            )
+                        })}
+                </Tbody>
+            </TableComposable>
+        )
+    }
+
+    getSecretsTable() {
+        const secrets = this.state.secrets;
+        return (
+            <TableComposable variant='compact' borders={false}>
+                <Thead>
+                    <Tr>
+                        <Th/>
+                        <Th key='name'>Name</Th>
+                        <Th key='data'>Data</Th>
+                    </Tr>
+                </Thead>
+                <Tbody>
+                    {secrets
+                        .filter(name => this.checkFilter(name))
+                        .map((name, idx: number) => {
+                            const configMapName = name.split("/")[0];
+                            const data = name.split("/")[1];
+                            return (
+                                <Tr key={name}>
+                                    <Td noPadding isActionCell>
+                                        <Badge>S</Badge>
+                                    </Td>
+                                    <Td noPadding>
+                                        {configMapName}
+                                    </Td>
+                                    <Td noPadding>
+                                        <Button style={{padding: '6px'}} variant={"link"} onClick={
+                                            e => this.props.onSelect?.call(this, "secret:" + name)}>
+                                            {data}
+                                        </Button>
+                                    </Td>
                                 </Tr>
-                            </Thead>
-                            <Tbody>
-                                {secrets
-                                    .filter(name => this.checkFilter(name))
-                                    .map((name, idx: number) => {
-                                        const configMapName = name.split("/")[0];
-                                        const data = name.split("/")[1];
-                                        return (
-                                            <Tr key={name}>
-                                                <Td noPadding isActionCell>
-                                                    <Badge>S</Badge>
-                                                </Td>
-                                                <Td noPadding>
-                                                    {configMapName}
-                                                </Td>
-                                                <Td noPadding>
-                                                    <Button style={{padding: '6px'}} variant={"link"} onClick={
-                                                        e => this.props.onSelect?.call(this, "secret:" + name)}>
-                                                        {data}
-                                                    </Button>
-                                                </Td>
-                                            </Tr>
-                                        )
-                                    })}
-                            </Tbody>
-                        </TableComposable>
-                    </Tab>
-                    <Tab eventKey={"service"} key={"service"} title={<TabTitleText>Services</TabTitleText>}>
-                        <TableComposable variant='compact' borders={false}>
-                            <Thead>
-                                <Tr>
-                                    <Th/>
-                                    <Th key='name'>Name</Th>
-                                    <Th key='host'>Host:Port</Th>
+                            )
+                        })}
+                </Tbody>
+            </TableComposable>
+        )
+    }
+
+    getServicesTable() {
+        const services = this.state.services;
+        return (
+            <TableComposable variant='compact' borders={false}>
+                <Thead>
+                    <Tr>
+                        <Th/>
+                        <Th key='name'>Name</Th>
+                        {/*<Th key='hostPort'>Host:Port</Th>*/}
+                        <Th key='host'>Host</Th>
+                        <Th key='port'>Port</Th>
+                    </Tr>
+                </Thead>
+                <Tbody>
+                    {services
+                        .filter(name => this.checkFilter(name))
+                        .map((name, idx: number) => {
+                            const serviceName = name.split("|")[0];
+                            const hostPort = name.split("|")[1];
+                            const host = hostPort.split(":")[0];
+                            const port = hostPort.split(":")[1];
+                            return (
+                                <Tr key={name}>
+                                    <Td noPadding isActionCell>
+                                        <Badge>S</Badge>
+                                    </Td>
+                                    <Td noPadding>
+                                        {serviceName}
+                                    </Td>
+                                    {/*<Td noPadding>*/}
+                                    {/*    <Button style={{padding: '6px'}} variant={"link"} onClick={*/}
+                                    {/*        e => this.props.onSelect?.call(this, hostPort)}>*/}
+                                    {/*        {hostPort}*/}
+                                    {/*    </Button>*/}
+                                    {/*</Td>*/}
+                                    <Td noPadding>
+                                        <Button style={{padding: '6px'}} variant={"link"} onClick={
+                                            e => this.props.onSelect?.call(this, host)}>
+                                            {host}
+                                        </Button>
+                                    </Td>
+                                    <Td noPadding>
+                                        <Button style={{padding: '6px'}} variant={"link"} onClick={
+                                            e => this.props.onSelect?.call(this, port)}>
+                                            {port}
+                                        </Button>
+                                    </Td>
                                 </Tr>
-                            </Thead>
-                            <Tbody>
-                                {services
-                                    .filter(name => this.checkFilter(name))
-                                    .map((name, idx: number) => {
-                                        const serviceName = name.split("|")[0];
-                                        const hostPort = name.split("|")[1];
-                                        return (
-                                            <Tr key={name}>
-                                                <Td noPadding isActionCell>
-                                                    <Badge>S</Badge>
-                                                </Td>
-                                                <Td noPadding>
-                                                    {serviceName}
-                                                </Td>
-                                                <Td noPadding>
-                                                    <Button style={{padding: '6px'}} variant={"link"} onClick={
-                                                        e => this.props.onSelect?.call(this, hostPort)}>
-                                                        {hostPort}
-                                                    </Button>
-                                                </Td>
-                                            </Tr>
-                                        )
-                                    })}
-                            </Tbody>
-                        </TableComposable>
-                    </Tab>
-                </Tabs>
-            </PageSection>
-        );
+                            )
+                        })}
+                </Tbody>
+            </TableComposable>
+        )
+    }
+
+    render() {
+        const tabIndex = this.state.tabIndex;
+        return (
+            <Modal
+                aria-label="Select from Kubernetes"
+                width={'50%'}
+                className='dsl-modal'
+                isOpen={this.props.isOpen}
+                onClose={this.props.onClose}
+                header={
+                    <Flex direction={{default: "column"}}>
+                        <FlexItem>
+                            <h3>{"Select from Kubernetes"}</h3>
+                            {this.searchInput()}
+                        </FlexItem>
+                        <FlexItem>
+                            <Tabs data-tour="selector-tabs" style={{overflow: 'hidden'}} activeKey={this.state.tabIndex} onSelect={this.selectTab}>
+                                <Tab eventKey={"configMap"} key={"configMap"} title={<TabTitleText>ConfigMaps</TabTitleText>} />
+                                <Tab eventKey={"secret"} key={"secret"} title={<TabTitleText>Secrets</TabTitleText>} />
+                                <Tab eventKey={"service"} key={"service"} title={<TabTitleText>Services</TabTitleText>} />
+                            </Tabs>
+                        </FlexItem>
+                    </Flex>
+                }
+                actions={{}}>
+                <PageSection variant={this.props.dark ? "darker" : "light"}>
+                    {this.searchInput()}
+                    {tabIndex === 'configMap' && this.getConfigMapTable()}
+                    {tabIndex === 'secret' && this.getSecretsTable()}
+                    {tabIndex === 'service' && this.getServicesTable()}
+                </PageSection>
+            </Modal>
+        )
     }
 }
