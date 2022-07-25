@@ -78,3 +78,26 @@ subjects:
   - kind: ServiceAccount
     name: karavan
     namespace: karavan
+---
+# Pipeline shoulf have access to create rolebindings
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: karavan-pipeline-rolebindings
+rules:
+  - apiGroups: ["", "rbac.authorization.k8s.io"]
+    resources: ["rolebindings"]
+    verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: karavan-pipeline-rolebindings
+roleRef:
+  kind: Role
+  apiGroup: rbac.authorization.k8s.io
+  name: karavan-pipeline-rolebindings
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: karavan

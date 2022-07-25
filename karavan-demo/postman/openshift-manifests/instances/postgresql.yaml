@@ -9,7 +9,6 @@ metadata:
     app.openshift.io/runtime: postgres
     deploymentconfig: postgres
   name: postgres
-  namespace: postman
   annotations:
     argocd.argoproj.io/sync-options: Validate=false
 spec:
@@ -154,7 +153,6 @@ metadata:
     app.kubernetes.io/instance: postgres
     app.kubernetes.io/part-of: postgres
   name: postgres
-  namespace: postman
 spec:
   ports:
   - name: postgresql

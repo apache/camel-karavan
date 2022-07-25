@@ -71,11 +71,12 @@ public class GeneratorService {
         s.append("camel.health.enabled=true").append(System.lineSeparator());
         s.append("camel.health.exposure-level=full").append(System.lineSeparator());
 
+        s.append("quarkus.kubernetes-client.trust-certs=true").append(System.lineSeparator());
         s.append("quarkus.container-image.group=").append(imageGroup).append(System.lineSeparator());
         s.append("quarkus.container-image.name=").append(project.getProjectId()).append(System.lineSeparator());
         s.append("quarkus.openshift.route.expose=false").append(System.lineSeparator());
         s.append("quarkus.openshift.part-of=").append(project.getProjectId()).append(System.lineSeparator());
-        s.append("quarkus.kubernetes-client.trust-certs=true").append(System.lineSeparator());
+        s.append("quarkus.openshift.replicas=1").append(System.lineSeparator());
         return s.toString();
     }
 }

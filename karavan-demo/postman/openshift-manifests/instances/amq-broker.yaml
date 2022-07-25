@@ -3,7 +3,6 @@ kind: ActiveMQArtemis
 metadata:
   name: amq
   application: amq
-  namespace: postman
 spec:
   acceptors:
     - port: 61616
@@ -39,7 +38,6 @@ kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
   name: console
-  namespace: amq
 spec:
   to:
     kind: Service

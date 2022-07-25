@@ -2,7 +2,6 @@ kind: Kafka
 apiVersion: kafka.strimzi.io/v1beta2
 metadata:
   name: kafka
-  namespace: postman
 spec:
   kafka:
     version: 3.1.0

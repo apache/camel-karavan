@@ -16,6 +16,10 @@
  */
 package org.apache.camel.karavan.api;
 
+import io.smallrye.mutiny.Multi;
+import io.vertx.core.json.JsonObject;
+import io.vertx.mutiny.core.eventbus.EventBus;
+import io.vertx.mutiny.core.eventbus.Message;
 import org.apache.camel.karavan.model.KaravanConfiguration;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.service.InfinispanService;
@@ -33,11 +37,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 import java.util.Optional;
 
 @Path("/kubernetes")
 public class KubernetesResource {
+
+    @Inject
+    EventBus eventBus;
 
     @Inject
     InfinispanService infinispanService;
@@ -183,5 +189,19 @@ public class KubernetesResource {
             return Response.ok(kubernetesService.getServices(env.get().namespace())).build();
         }
         return Response.noContent().build();
+    }
+
+    // TODO: implement log watch
+    @GET
+    @Path("/container/log/watch/{environment}/{name}")
+    @Produces(MediaType.SERVER_SENT_EVENTS)
+    public Multi<String> getContainerLogWatch(@HeaderParam("username") String username, @PathParam("environment") String environment, @PathParam("name") String name){
+        LOGGER.info("Start sourcing");
+        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
+        if (env.isPresent()) {
+//            eventBus.publish(podName + "-" + namespace, new String(is.readNBytes(i)));
+//            kubernetesService.startContainerLogWatch(name, env.get().namespace());
+        }
+        return eventBus.<String>consumer(name + "-" + env.get().namespace()).toMulti().map(Message::body);
     }
 }

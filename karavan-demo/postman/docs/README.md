@@ -58,7 +58,7 @@ Send message to `payments` queue
 
 
 ### Install AMQ and AMQ Streams Operators
-Also creates `postman` namespace required for the demo
+Also creates `karavan` namespace required for the demo
 ```
 cd ../openshift-manifests
 oc login --token=... --server=...
@@ -69,7 +69,7 @@ Check that operators are succesfully installed
 
 ### Create AMQ, Kafka and Postgres demo instances 
 ```
-oc apply -k instances
+oc apply -k instances -n karavan
 ```
 
 ### Package, build and deploy project
@@ -86,7 +86,7 @@ oc apply -k instances
 ```
 appsurl=$(oc get ingresses.config.openshift.io cluster  -o template --template '{{.spec.domain}}')
 
-curl -X POST -H "Content-Type: application/json" --data '{"id":"1","address":"666 Sin Street, Holy City"}' http://postman-postman.$appsurl/parcels
+curl -X POST -H "Content-Type: application/json" --data '{"id":"1","address":"666 Sin Street, Holy City"}' http://postman-karavan.$appsurl/parcels
 ```
 ### Publish payment
 Open AMQ7 Broker Management 

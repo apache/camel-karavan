@@ -489,6 +489,7 @@
 .karavan .dsl-page .flows {
     width: 100%;
     position: relative;
+    margin-bottom: 80px;
 }
 
 .karavan .dsl-page .flows .add-flow {

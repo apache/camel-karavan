@@ -22,6 +22,7 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.dsl.LogWatch;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.client.OpenShiftClient;
@@ -34,6 +35,8 @@ import io.fabric8.tekton.pipeline.v1beta1.PipelineRunBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpec;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpecBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.WorkspaceBindingBuilder;
+import io.vertx.core.json.JsonObject;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.PipelineRunLog;
 import org.apache.camel.karavan.model.PodStatus;
@@ -43,6 +46,9 @@ import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -52,6 +58,9 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class KubernetesService {
+
+    @Inject
+    EventBus eventBus;
 
     @ConfigProperty(name = "kubernetes.namespace", defaultValue = "localhost")
     String currentNamespace;
@@ -114,6 +123,21 @@ public class KubernetesService {
     public String getContainerLog(String podName, String namespace) {
         String logText = kubernetesClient().pods().inNamespace(namespace).withName(podName).getLog(true);
         return logText;
+    }
+
+
+    // TODO: implement log watch
+    public void startContainerLogWatch(String podName, String namespace) {
+        LogWatch logWatch = kubernetesClient().pods().inNamespace(namespace).withName(podName).watchLog();
+        InputStream is = logWatch.getOutput();
+        Integer i;
+        try {
+            while ((i = is.available()) != null) {
+                eventBus.publish(podName + "-" + namespace, new String(is.readNBytes(i)));
+            }
+        } catch (IOException e){
+            LOGGER.error(e);
+        }
     }
 
     public List<PipelineRunLog> getPipelineRunLog(String pipelineRuneName, String namespace) {

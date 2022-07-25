@@ -16,7 +16,6 @@
  */
 package org.apache.camel.karavan.api;
 
-import io.vertx.core.Vertx;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.service.GitService;
@@ -37,10 +36,6 @@ public class GitResource {
 
     @Inject
     InfinispanService infinispanService;
-
-    @Inject
-    Vertx vertx;
-
     @Inject
     GitService gitService;
 
