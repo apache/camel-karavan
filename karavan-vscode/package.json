@@ -4,7 +4,7 @@
   "displayName": "Karavan",
   "icon": "icons/karavan.png",
   "description": "Apache Camel Mastering Tool",
-  "version": "0.0.16",
+  "version": "3.18.0",
   "license": "Apache-2.0",
   "preview": true,
   "bugs": {
