@@ -8,7 +8,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}-builder
-  TAG: 0.0.16
+  TAG: 3.18.0
 
 jobs:
   build:
