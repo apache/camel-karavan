@@ -52,7 +52,7 @@ jobs:
           mvn package -f karavan-app -DskipTest \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=true \
-          -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}:0.0.16 \
+          -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}:3.18.0 \
           -Dquarkus.container-image.username=${{ github.actor }} \
           -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }}
         if: ${{ github.ref == 'refs/heads/main' }}
