@@ -21,7 +21,7 @@ import {
     DrawerContent,
     DrawerContentBody,
     Button, Modal,
-    PageSection, Flex, FlexItem, Text
+    PageSection
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {DslSelector} from "./DslSelector";

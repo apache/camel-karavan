@@ -19,7 +19,7 @@ import {
     FormGroup,
     TextInput,
     Popover,
-    Switch, InputGroup, Button, TextArea, Text, Tooltip, Modal,
+    Switch, InputGroup, Button, TextArea, Tooltip
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";

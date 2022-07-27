@@ -26,7 +26,6 @@ import {ComponentsPage} from "./components/ComponentsPage";
 import {EipPage} from "./eip/EipPage";
 import {BuilderPage} from "./builder/BuilderPage";
 import {ProjectModel, StepStatus} from "karavan-core/lib/model/ProjectModel";
-import {KubernetesAPI} from "./designer/utils/KubernetesAPI";
 
 interface Props {
     page: "designer" | "kamelets" | "components" | "eip" | "builder";
@@ -44,26 +43,37 @@ class App extends React.Component<Props, State> {
         name: 'demo.yaml',
         key: '',
         yaml:
-        'apiVersion: camel.apache.org/v1\n' +
-        'kind: Integration\n' +
-        'metadata:\n' +
-        '  name: postman.yaml\n' +
-        'spec:\n' +
-        '  flows:\n' +
-        '    - route:\n' +
-        '        from:\n' +
-        '          uri: kamelet:timer-source\n' +
-        '          steps:\n' +
-        '            - log:\n' +
-        '                message: ${body}\n' +
-        '            - aggregate: {}\n' +
-        '            - choice: {}\n' +
-        '            - split:\n' +
-        '                expression: {}\n' +
-        '            - saga: {}\n' +
-        '          parameters:\n' +
-        '            period: 2000\n' +
-        '            message: Hello World\n' +
+            'apiVersion: camel.apache.org/v1\n' +
+            'kind: Integration\n' +
+            'metadata:\n' +
+            '  name: postman.yaml\n' +
+            'spec:\n' +
+            '  flows:\n' +
+            '    - route:\n' +
+            '        from:\n' +
+            '          uri: kamelet:timer-source\n' +
+            '          steps:\n' +
+            '            - log:\n' +
+            '                message: ${body}\n' +
+            '            - aggregate: {}\n' +
+            '            - choice: {}\n' +
+            '            - split:\n' +
+            '                expression: {}\n' +
+            '            - saga: {}\n' +
+            '            - to:\n' +
+            '                uri: direct:hello-world\n' +
+            '            - to:\n' +
+            '                uri: salesforce:getSObject\n' +
+            '                parameters:\n' +
+            '                  sObjectId: xxx\n' +
+            '                  sObjectClass: Account\n' +
+            '          parameters:\n' +
+            '            period: 2000\n' +
+            '            message: Hello World\n' +
+            '    - route:\n' +
+            '        from:\n' +
+            '          uri: direct:hello-world\n' +
+            '        id: hello-world' +
             ''
     };
 
@@ -102,6 +112,7 @@ class App extends React.Component<Props, State> {
             "pg-replication-slot.json",
             "rest-api.json",
             "rest-openapi.json",
+            "salesforce.json",
             "kubernetes-service-accounts.json",
             "mvel.json"].forEach(name =>
             fetch("components/" + name)

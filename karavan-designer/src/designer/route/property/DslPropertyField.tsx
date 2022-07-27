@@ -152,7 +152,7 @@ export class DslPropertyField extends React.Component<Props, State> {
 
     selectKubernetes = (value: string) => {
         const propertyName = this.state.kubernetesSelectorProperty;
-        if (propertyName){
+        if (propertyName) {
             if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
             this.propertyChanged(propertyName, value);
             this.setState({showKubernetesSelector: false, kubernetesSelectorProperty: undefined})
@@ -242,7 +242,7 @@ export class DslPropertyField extends React.Component<Props, State> {
     }
 
     getSwitch = (property: PropertyMeta, value: any) => {
-        const isChecked = value != undefined ? Boolean(value) : Boolean(property.defaultValue != undefined && property.defaultValue === 'true');
+        const isChecked = value !== undefined ? Boolean(value) : Boolean(property.defaultValue !== undefined && property.defaultValue === 'true');
         return (
             <Switch
                 id={property.name} name={property.name}
@@ -476,15 +476,18 @@ export class DslPropertyField extends React.Component<Props, State> {
     getMainComponentParameters = (properties: ComponentProperty[]) => {
         return (
             <div className="parameters">
-                {properties.map(kp =>
-                    <ComponentParameterField
+                {properties.map(kp => {
+                    // console.log(kp);
+                    // console.log(CamelDefinitionApiExt.getParametersValue(this.props.element, kp.name, kp.kind === 'path'));
+                    return (<ComponentParameterField
                         key={kp.name}
                         property={kp}
                         element={this.props.element}
                         integration={this.props.integration}
                         value={CamelDefinitionApiExt.getParametersValue(this.props.element, kp.name, kp.kind === 'path')}
                         onParameterChange={this.props.onParameterChange}
-                    />)}
+                    />)
+                })}
             </div>
         )
     }
@@ -524,7 +527,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                     bodyContent={property.description}
                     footerContent={
                         <div>
-                            {property.defaultValue !== undefined && property.defaultValue.toString().trim().length >0 && <div>{"Default: " + property.defaultValue}</div>}
+                            {property.defaultValue !== undefined && property.defaultValue.toString().trim().length > 0 && <div>{"Default: " + property.defaultValue}</div>}
                             {property.required && <b>Required</b>}
                         </div>
                     }>
@@ -544,7 +547,7 @@ export class DslPropertyField extends React.Component<Props, State> {
         return ['string'].includes(property.type) && property.name !== 'expression' && property.isArray && !property.enumVals;
     }
 
-    getComponentParameters (property: PropertyMeta) {
+    getComponentParameters(property: PropertyMeta) {
         const properties = CamelUtil.getComponentProperties(this.props.element);
         const propertiesMain = properties.filter(p => !p.label.includes("advanced") && !p.label.includes("security") && !p.label.includes("scheduler"));
         const propertiesAdvanced = properties.filter(p => p.label.includes("advanced"));
@@ -553,11 +556,11 @@ export class DslPropertyField extends React.Component<Props, State> {
         return (
             <>
                 {property.name === 'parameters' && this.getMainComponentParameters(propertiesMain)}
-                {property.name === 'parameters' && this.props.element && propertiesScheduler.length >0
+                {property.name === 'parameters' && this.props.element && propertiesScheduler.length > 0
                     && this.getExpandableComponentParameters(propertiesScheduler, "Scheduler parameters")}
-                {property.name === 'parameters' && this.props.element && propertiesSecurity.length >0
+                {property.name === 'parameters' && this.props.element && propertiesSecurity.length > 0
                     && this.getExpandableComponentParameters(propertiesSecurity, "Security parameters")}
-                {property.name === 'parameters' && this.props.element && propertiesAdvanced.length >0
+                {property.name === 'parameters' && this.props.element && propertiesAdvanced.length > 0
                     && this.getExpandableComponentParameters(propertiesAdvanced, "Advanced parameters")}
             </>
         )

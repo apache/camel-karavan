@@ -181,7 +181,6 @@ export class BuilderPage extends React.Component<Props, State> {
     }
 
     getHeader() {
-        const {project} = this.state;
         return (
             <PageSection className="tools-section" variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
                 <Flex className="tools" direction={{default: 'row'}} justifyContent={{default: 'justifyContentSpaceBetween'}} spaceItems={{default: 'spaceItemsLg'}}>

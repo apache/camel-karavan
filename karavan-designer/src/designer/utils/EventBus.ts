@@ -24,6 +24,7 @@ export class DslPosition {
     step: CamelElement = new CamelElement("");
     parent: CamelElement | undefined;
     inSteps: boolean = false;
+    isSelected: boolean = false;
     position: number = 0;
     rect: DOMRect = new DOMRect();
     headerRect: DOMRect = new DOMRect();
@@ -35,7 +36,8 @@ export class DslPosition {
                 rect: DOMRect,
                 headerRect:DOMRect,
                 position: number,
-                inSteps: boolean = false) {
+                inSteps: boolean = false,
+                isSelected: boolean = false) {
         this.command = command;
         this.step = step;
         this.parent = parent;
@@ -43,6 +45,7 @@ export class DslPosition {
         this.headerRect = headerRect;
         this.inSteps = inSteps;
         this.position = position;
+        this.isSelected = isSelected;
     }
 }
 
@@ -68,7 +71,8 @@ export const EventBus = {
                    rect: DOMRect,
                    headerRect: DOMRect,
                    position: number,
-                   inSteps: boolean = false) => positions.next(new DslPosition(command, step, parent, rect, headerRect, position, inSteps)),
+                   inSteps: boolean = false,
+                   isSelected: boolean = false) => positions.next(new DslPosition(command, step, parent, rect, headerRect, position, inSteps, isSelected)),
     onPosition: () => positions.asObservable(),
 
 

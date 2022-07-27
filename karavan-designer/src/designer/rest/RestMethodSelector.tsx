@@ -17,9 +17,9 @@
 import React from 'react';
 import {
     Badge,
-    Card, CardBody, CardFooter, CardHeader, Form, FormGroup, Gallery, PageSection,
+    Card, CardBody, CardFooter, CardHeader, Gallery, PageSection,
     Tab, Tabs, TabTitleText,
-    Text, TextInput,
+    Text
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {CamelUi} from "../utils/CamelUi";

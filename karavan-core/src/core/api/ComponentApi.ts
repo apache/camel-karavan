@@ -76,7 +76,11 @@ export const ComponentApi = {
             const syntaxSeparators = ComponentApi.getSyntaxSeparators(syntax + '');
             let newUri = uri === name ? name + syntaxSeparators.join('') : uri;
             result.set(name, name);
-            if (name === 'cxf') { // workaround for CXF component
+            if (name === 'salesforce') { // workaround for salesforce component
+                const parts = newUri.split(":");
+                if (parts.length === 2) result.set("operationName", parts.at(1) || '').set("topicName", '')
+                else if (parts.length === 3) result.set("operationName", parts.at(1) || '').set("topicName", parts.at(2) || '')
+            } else if (name === 'cxf') { // workaround for CXF component
                 const cxfParts = newUri.split(":");
                 const firstPart = cxfParts.at(1);
                 const secondPart = cxfParts.at(2);
@@ -94,7 +98,7 @@ export const ComponentApi = {
                 result.set("systemName", systemName);
                 result.set("objectPath", objectPath);
                 result.set("type", type);
-            } else { // workaround for CXF component end
+            } else { // workarounds end
                 syntaxParts.filter((x, i) => i > 0).forEach((part, index) => {
                     if (index < syntaxParts.length - 1) {
                         const startSeparator = syntaxSeparators[index];
@@ -173,20 +177,21 @@ export const ComponentApi = {
     buildComponentUri: (uri: string, pathParameter: string, pathParameterValue: string): string | undefined => {
         const name = ComponentApi.getComponentNameFromUri(uri);
         if (name) {
-            // workaround for CXF component start
-            if (name === 'cxf') {
+            if (name === 'cxf') { // workaround for CXF component start
                 if (pathParameter === 'beanId' && pathParameterValue && pathParameterValue.trim().length > 0) return "cxf:" + pathParameterValue;
                 if (pathParameter === 'address' && pathParameterValue && pathParameterValue.trim().length > 0) return "cxf:" + pathParameterValue;
-            } else { // workaround for CXF component end
+            } else { // workarounds end
                 const map = ComponentApi.getUriParts(uri);
                 map.set(pathParameter, pathParameterValue);
                 const separators = ComponentApi.getUriSeparators(uri);
                 const result: string[] = [];
                 Array.from(map.keys()).forEach((key, index) => {
-                    const val = map.get(key);
-                    result.push(val ? val : '');
-                    result.push(separators[index]);
+                    const val = map.get(key) || '';
+                    const separator = separators[index];
+                    result.push(val);
+                    if (separator) result.push(separators[index]);
                 });
+                if (result.at(result.length -1) === '') return result.slice(0, -2).join(''); // remove last colon
                 return result.join('');
             }
         }

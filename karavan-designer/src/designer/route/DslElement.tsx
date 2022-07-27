@@ -171,7 +171,7 @@ export class DslElement extends React.Component<Props, State> {
         return style;
     }
 
-    sendPosition = (el: HTMLDivElement | null) => {
+    sendPosition = (el: HTMLDivElement | null, isSelected: boolean) => {
         const node = ReactDOM.findDOMNode(this);
         if (node && el) {
             const header = Array.from(node.childNodes.values()).filter((n: any) => n.classList.contains("header"))[0];
@@ -179,7 +179,7 @@ export class DslElement extends React.Component<Props, State> {
                 const headerIcon: any = Array.from(header.childNodes.values()).filter((n: any) => n.classList.contains("header-icon"))[0];
                 const headerRect = headerIcon.getBoundingClientRect();
                 const rect = el.getBoundingClientRect();
-                EventBus.sendPosition("add", this.state.step, this.props.parent, rect, headerRect, this.props.position, this.props.inSteps);
+                EventBus.sendPosition("add", this.state.step, this.props.parent, rect, headerRect, this.props.position, this.props.inSteps, isSelected);
             }
         }
     }
@@ -194,7 +194,7 @@ export class DslElement extends React.Component<Props, State> {
         return (
             <div className={headerClasses} style={this.getHeaderStyle()} data-tour={step.dslName}>
                 {this.state.step.dslName !== 'RouteDefinition' &&
-                    <div ref={el => this.sendPosition(el)}
+                    <div ref={el => this.sendPosition(el, this.isSelected())}
                          data-tour={step.dslName + "-icon"}
                          className={"header-icon"}
                          style={this.isWide() ? {width: ""} : {}}>
@@ -214,7 +214,7 @@ export class DslElement extends React.Component<Props, State> {
 
     getHeaderTextWithTooltip = (step: CamelElement) => {
         const checkRequired = CamelUtil.checkRequired(step);
-        const title = CamelUi.getElementTitle(this.state.step);
+        const title = (step as any).description ? (step as any).description : CamelUi.getElementTitle(this.state.step);
         let className = this.hasWideChildrenElement() ? "text text-right" : "text text-bottom";
         if (!checkRequired[0]) className = className + " header-text-required";
         if (checkRequired[0]) return <Text className={className}>{title}</Text>
@@ -326,7 +326,6 @@ export class DslElement extends React.Component<Props, State> {
     }
 
     getAddStepButton() {
-        const tourClass = this.props.showTour ? "add-button-tour" : "";
         return (
             <Tooltip position={"bottom"}
                      content={<div>{"Add step to " + CamelUi.getTitle(this.state.step)}</div>}>
@@ -378,7 +377,7 @@ export class DslElement extends React.Component<Props, State> {
             <div key={"root" + element.uuid}
                  data-tour={this.props.parent ? "" : "route-created"}
                  className={this.isSelected() ? "step-element step-element-selected" : "step-element"}
-                 ref={el => this.sendPosition(el)}
+                 ref={el => this.sendPosition(el, this.isSelected())}
                  style={{
                      borderStyle: this.hasBorder() ? "dotted" : "none",
                      borderColor: this.isSelected() ? "var(--step-border-color-selected)" : "var(--step-border-color)",

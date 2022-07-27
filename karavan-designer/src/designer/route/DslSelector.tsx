@@ -45,8 +45,14 @@ interface State {
 
 export class DslSelector extends React.Component<Props, State> {
 
+    getDefaultTabIndex = () => {
+        const x = CamelUi.getSelectorModelTypes(this.props.parentDsl, this.props.showSteps);
+        if (x.length > 0) return x[0][0]
+        else return '';
+    }
+
     public state: State = {
-        tabIndex: this.props.tabIndex ? this.props.tabIndex : CamelUi.getSelectorModelTypes(this.props.parentDsl, this.props.showSteps)[0][0],
+        tabIndex: this.props.tabIndex ? this.props.tabIndex : this.getDefaultTabIndex(),
     }
 
 
