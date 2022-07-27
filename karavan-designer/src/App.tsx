@@ -62,6 +62,11 @@ class App extends React.Component<Props, State> {
             '            - saga: {}\n' +
             '            - to:\n' +
             '                uri: direct:hello-world\n' +
+            '            - to:\n' +
+            '                uri: salesforce:getSObject\n' +
+            '                parameters:\n' +
+            '                  sObjectId: xxx\n' +
+            '                  sObjectClass: Account\n' +
             '          parameters:\n' +
             '            period: 2000\n' +
             '            message: Hello World\n' +
@@ -107,6 +112,7 @@ class App extends React.Component<Props, State> {
             "pg-replication-slot.json",
             "rest-api.json",
             "rest-openapi.json",
+            "salesforce.json",
             "kubernetes-service-accounts.json",
             "mvel.json"].forEach(name =>
             fetch("components/" + name)
@@ -116,7 +122,7 @@ class App extends React.Component<Props, State> {
 
     save(filename: string, yaml: string, propertyOnly: boolean) {
         // console.log(filename);
-        console.log(yaml);
+        // console.log(yaml);
         // console.log(propertyOnly);
     }
 
