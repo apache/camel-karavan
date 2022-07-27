@@ -360,7 +360,7 @@
 }
 
 .karavan .properties .pf-c-select__menu-item-description {
-   overflow-wrap: anywhere;
+    overflow-wrap: anywhere;
 }
 
 .karavan .properties .number {
@@ -516,9 +516,9 @@
 }
 
 .karavan .dsl-page .graph .connections .path {
-     stroke: var(--pf-global--Color--200);
-     stroke-width: 1;
-     fill: transparent;
+    stroke: var(--pf-global--Color--200);
+    stroke-width: 1;
+    fill: transparent;
 }
 
 .karavan .dsl-page .graph .connections .circle-outgoing,
@@ -533,14 +533,23 @@
     -webkit-animation: dashdraw .5s linear infinite;
     animation: dashdraw .5s linear infinite;
     stroke: var(--pf-global--Color--200);
-    strokeWidth: 1;
+    stroke-width: 1;
     fill: transparent;
 }
 
 .karavan .dsl-page .graph .connections .path-direct {
     stroke-dasharray: 0;
     stroke: var(--pf-global--Color--200);
-    strokeWidth: 1;
+    stroke-width: 0.7;
+    stroke-opacity: 0.7;
+    fill: transparent;
+}
+
+.karavan .dsl-page .graph .connections .path-direct-selected {
+    stroke-dasharray: 0;
+    stroke: var(--pf-global--active-color--100);
+    stroke-width: 1;
+    stroke-opacity: 1;
     fill: transparent;
 }
 
@@ -549,7 +558,7 @@
     stroke: var(--pf-global--Color--200);
     -webkit-animation: dashdraw .5s linear infinite;
     animation: dashdraw .5s linear infinite;
-    strokeWidth: 1;
+    stroke-width: 1;
     fill: transparent;
 }
 

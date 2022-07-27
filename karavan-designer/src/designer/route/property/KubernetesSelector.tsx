@@ -24,8 +24,6 @@ import {
 import '../../karavan.css';
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import {KubernetesAPI} from "../../utils/KubernetesAPI";
-import {CamelUi} from "../../utils/CamelUi";
-import {CamelUtil} from "../../../../../../../../karavan-core/lib/api/CamelUtil";
 
 interface Props {
     onSelect: (value: string) => void,

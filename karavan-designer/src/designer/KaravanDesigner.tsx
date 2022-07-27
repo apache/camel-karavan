@@ -29,8 +29,6 @@ import {BeansDesigner} from "./beans/BeansDesigner";
 import {RestDesigner} from "./rest/RestDesigner";
 import {ErrorDesigner} from "./error/ErrorDesigner";
 import {ExceptionDesigner} from "./exception/ExceptionDesigner";
-import {DependenciesDesigner} from "./dependencies/DependenciesDesigner";
-import {TraitsDesigner} from "./traits/TraitsDesigner";
 import KaravanTour from "./KaravanTour";
 import WandIcon from "@patternfly/react-icons/dist/js/icons/magic-icon";
 import {getDesignerIcon} from "./utils/KaravanIcons";
@@ -139,11 +137,8 @@ export class KaravanDesigner extends React.Component<Props, State> {
                     <Tab data-tour="routes" eventKey='routes' title={this.getTab("Routes", "Integration flows", "routes")}></Tab>
                     <Tab eventKey='rest' title={this.getTab("REST", "REST services", "rest")}></Tab>
                     <Tab eventKey='beans' title={this.getTab("Beans", "Beans Configuration", "beans")}></Tab>
-                    {/*<Tab eventKey='dependencies' title={this.getTab("Dependencies", "Dependencies", "dependencies")}></Tab>*/}
-                    {/*<Tab eventKey='traits' title={this.getTab("Traits", "traits configuration", "traits")}></Tab>*/}
                     <Tab eventKey='error' title={this.getTab("Error", "Error Handler", "error")}></Tab>
                     <Tab eventKey='exception' title={this.getTab("Exceptions", "Exception Clauses per type", "exception")}></Tab>
-                    {/*<Tab eventKey='code' title={this.getTab("Code", "Code", "code")}></Tab>*/}
                 </Tabs>
                 {tab === 'routes' && <RouteDesigner integration={this.state.integration}
                                                     showTour={this.state.showTour}
@@ -155,18 +150,12 @@ export class KaravanDesigner extends React.Component<Props, State> {
                 {tab === 'beans' && <BeansDesigner integration={this.state.integration}
                                                    onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                    dark={this.props.dark}/>}
-                {/*{tab === 'dependencies' && <DependenciesDesigner integration={this.state.integration}*/}
-                {/*                                                 onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}*/}
-                {/*                                                 dark={this.props.dark}/>}*/}
                 {tab === 'error' && <ErrorDesigner integration={this.state.integration}
                                                    onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                    dark={this.props.dark}/>}
                 {tab === 'exception' && <ExceptionDesigner integration={this.state.integration}
                                                            onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                            dark={this.props.dark}/>}
-                {/*{tab === 'traits' && <TraitsDesigner integration={this.state.integration}*/}
-                {/*                                           onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}*/}
-                {/*                                           dark={this.props.dark}/>}*/}
                 {this.getHelpWindow()}
             </PageSection>
         )

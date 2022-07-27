@@ -189,6 +189,10 @@
   margin: 0;
 }
 
+.karavan .project-page  .pf-c-label__icon {
+  height: 16px;
+}
+
 .karavan .action-cell {
   padding: 0;
 }

@@ -32,7 +32,6 @@ import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import {IntegrationHeader} from "../utils/KaravanComponents";
 import CloneIcon from '@patternfly/react-icons/dist/esm/icons/clone-icon'
-import {PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 
 interface Props {
