@@ -42,10 +42,14 @@
   width: 24px;
 }
 
-.karavan .nav-buttons .pf-c-avatar {
+.karavan .nav-buttons .avatar {
   width: 32px;
   height: 32px;
   margin-bottom: 6px;
+  border: solid var(--pf-global--Color--light-100) 1px;
+  background-color: var(--pf-global--Color--light-100);
+  border-radius: 32px;
+  padding: 6px;
 }
 
 .karavan .nav-buttons .pf-c-button.pf-m-plain {
@@ -208,4 +212,8 @@
 
 .logo-tooltip {
   margin-left: 16px;
+}
+
+.karavan .pf-c-code-block__code {
+  overflow-wrap: anywhere;
 }

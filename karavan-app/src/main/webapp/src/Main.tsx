@@ -18,7 +18,6 @@ import './designer/karavan.css';
 import {ConfigurationPage} from "./config/ConfigurationPage";
 import {KameletsPage} from "./kamelets/KameletsPage";
 import {v4 as uuidv4} from "uuid";
-import avatarImg from './avatarImg.svg';
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import Icon from "./Logo";
 import {ComponentsPage} from "./components/ComponentsPage";
@@ -26,8 +25,8 @@ import {EipPage} from "./eip/EipPage";
 import {ProjectsPage} from "./projects/ProjectsPage";
 import {Project} from "./models/ProjectModels";
 import {ProjectPage} from "./projects/ProjectPage";
-import TachometerAltIcon from "@patternfly/react-icons/dist/js/icons/tachometer-alt-icon";
 import UsersIcon from "@patternfly/react-icons/dist/js/icons/users-icon";
+import UserIcon from "@patternfly/react-icons/dist/js/icons/user-icon";
 import ProjectsIcon from "@patternfly/react-icons/dist/js/icons/repository-icon";
 import KameletsIcon from "@patternfly/react-icons/dist/js/icons/registry-icon";
 import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
@@ -153,7 +152,7 @@ export class Main extends React.Component<Props, State> {
                 <Divider/>
             </FlexItem>
             <FlexItem alignSelf={{default:"alignSelfCenter"}}>
-                <Avatar src={avatarImg} alt="avatar" border="dark"/>
+                <UserIcon className="avatar"/>
             </FlexItem>
         </Flex>)
     }
@@ -211,7 +210,7 @@ export class Main extends React.Component<Props, State> {
     render() {
         return (
             <Page className="karavan">
-                <Flex style={{width: "100%", height:"100%"}} alignItems={{default:"alignItemsStretch"}} spaceItems={{ default: 'spaceItemsNone' }}>
+                <Flex direction={{default:"row"}} style={{width: "100%", height:"100%"}} alignItems={{default:"alignItemsStretch"}} spaceItems={{ default: 'spaceItemsNone' }}>
                     <FlexItem>
                         {this.pageNav()}
                     </FlexItem>

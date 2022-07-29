@@ -24,8 +24,8 @@ spec:
 
           cd ${CHECKOUT_DIR}/$(inputs.params.project) 
 
-          entrypoint -Dcamel.jbang.version=3.18.1-SNAPSHOT camel@apache/camel export
-      
+          entrypoint -Dcamel.jbang.version=3.19.0-SNAPSHOT camel@apache/camel export
+
           export LAST_COMMIT=$(git rev-parse --short HEAD)
           export DATE=$(date '+%Y%m%d%H%M%S')
           export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
@@ -66,8 +66,8 @@ spec:
         image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
       script: |
         #!/usr/bin/env bash
-        oc label dc/$(inputs.params.project) app.openshift.io/runtime=camel --overwrite=true
         oc rollout latest dc/$(inputs.params.project) 
+        oc label dc/$(inputs.params.project) app.openshift.io/runtime=camel --overwrite=true
   workspaces:
     - mountPath: /root/.m2
       name: m2-cache
