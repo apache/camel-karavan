@@ -25,7 +25,7 @@ spec:
           cd ${CHECKOUT_DIR}/$(inputs.params.project) 
 
           entrypoint -Dcamel.jbang.version=3.19.0-SNAPSHOT camel@apache/camel export
-      
+
           export LAST_COMMIT=$(git rev-parse --short HEAD)
           export DATE=$(date '+%Y%m%d%H%M%S')
           export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
