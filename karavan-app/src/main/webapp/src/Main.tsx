@@ -125,7 +125,7 @@ export class Main extends React.Component<Props, State> {
 
     pageNav = () => {
         const pages: MenuItem[] = [
-            new MenuItem("dashboard", "Dashboard", <TachometerAltIcon/>),
+            // new MenuItem("dashboard", "Dashboard", <TachometerAltIcon/>),
             new MenuItem("projects", "Projects", <ProjectsIcon/>),
             new MenuItem("eip", "Enterprise Integration Patterns", <EipIcon/>),
             new MenuItem("kamelets", "Kamelets", <KameletsIcon/>),
