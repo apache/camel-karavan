@@ -21,7 +21,7 @@ import {
     ToggleGroup,
     ToggleGroupItem,
     CodeBlockCode,
-    CodeBlock, Skeleton, Switch, Checkbox, Tabs, Tab
+    CodeBlock, Skeleton, Checkbox, Tabs, Tab
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
