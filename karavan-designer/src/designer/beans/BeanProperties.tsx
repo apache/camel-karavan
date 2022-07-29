@@ -18,7 +18,7 @@ import React from 'react';
 import {
     Form,
     FormGroup,
-    TextInput, Button, Title, Tooltip, Popover,
+    TextInput, Button, Title, Tooltip, Popover, InputGroup,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -33,6 +33,10 @@ import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import {IntegrationHeader} from "../utils/KaravanComponents";
 import CloneIcon from '@patternfly/react-icons/dist/esm/icons/clone-icon'
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
+import {KubernetesSelector} from "../route/property/KubernetesSelector";
+import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
+import {KubernetesAPI} from "../utils/KubernetesAPI";
+
 
 interface Props {
     integration: Integration
@@ -45,7 +49,10 @@ interface Props {
 interface State {
     bean?: NamedBeanDefinition
     properties: Map<string, [string, string]>
-    key: string
+    key: string,
+    showKubernetesSelector: boolean
+    kubernetesSelectorUuid?: string
+    kubernetesSelectorProperty?: string
 }
 
 export class BeanProperties extends React.Component<Props, State> {
@@ -59,6 +66,7 @@ export class BeanProperties extends React.Component<Props, State> {
     public state: State = {
         bean: this.props.bean,
         key: '',
+        showKubernetesSelector: false,
         properties: this.props.bean?.properties ? this.preparePropertiesMap(this.props.bean?.properties) : new Map<string, [string, string]>()
     };
 
@@ -104,6 +112,33 @@ export class BeanProperties extends React.Component<Props, State> {
             state.properties.delete(uuid);
             return {properties: state.properties, key: Math.random().toString()};
         })
+    }
+
+    selectKubernetes = (value: string) => {
+        const propertyId = this.state.kubernetesSelectorProperty;
+        const uuid = this.state.kubernetesSelectorUuid;
+        if (propertyId && uuid){
+            if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
+            this.propertyChanged(uuid, propertyId, value);
+            this.setState({showKubernetesSelector: false, kubernetesSelectorProperty: undefined})
+        }
+    }
+
+    openKubernetesSelector = (uuid: string, propertyName: string) => {
+        this.setState({kubernetesSelectorUuid: uuid, kubernetesSelectorProperty: propertyName, showKubernetesSelector: true});
+    }
+
+    closeKubernetesSelector = () => {
+        this.setState({showKubernetesSelector: false})
+    }
+
+    getKubernetesSelectorModal() {
+        return (
+            <KubernetesSelector
+                dark={false}
+                isOpen={this.state.showKubernetesSelector}
+                onClose={() => this.closeKubernetesSelector()}
+                onSelect={this.selectKubernetes}/>)
     }
 
     cloneBean = () => {
@@ -161,8 +196,16 @@ export class BeanProperties extends React.Component<Props, State> {
                         const value = v[1][1];
                         return (
                             <div key={"key-" + i} className="bean-property">
-                                <TextInput className="text-field" isRequired type="text" id="key" name="key" value={key} onChange={e => this.propertyChanged(i, e, value)}/>
-                                <TextInput className="text-field" isRequired type="text" id="value" name="value" value={value} onChange={e => this.propertyChanged(i, key, e)}/>
+                                <TextInput placeholder="Bean Field Name" className="text-field" isRequired type="text" id="key" name="key" value={key} onChange={e => this.propertyChanged(i, e, value)}/>
+                                <InputGroup>
+                                    {KubernetesAPI.inKubernetes &&
+                                        <Tooltip position="bottom-end" content="Select value from Kubernetes">
+                                        <Button variant="control" onClick={e => this.openKubernetesSelector(i, key)}>
+                                            <KubernetesIcon/>
+                                        </Button>
+                                    </Tooltip>}
+                                    <TextInput placeholder="Bean Field Value" className="text-field" isRequired type="text" id="value" name="value" value={value} onChange={e => this.propertyChanged(i, key, e)}/>
+                                </InputGroup>
                                 <Button variant="link" className="delete-button" onClick={e => this.propertyDeleted(i)}><DeleteIcon/></Button>
                             </div>
                         )
@@ -180,6 +223,7 @@ export class BeanProperties extends React.Component<Props, State> {
                     {this.state.bean === undefined && <IntegrationHeader integration={this.props.integration}/>}
                     {this.state.bean !== undefined && this.getBeanForm()}
                 </Form>
+                {this.getKubernetesSelectorModal()}
             </div>
         )
     }
