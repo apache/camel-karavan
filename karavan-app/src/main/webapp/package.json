@@ -3,7 +3,7 @@
   "version": "3.18.0",
   "private": true,
   "scripts": {
-    "copy-designer": "cp -r ../../../../karavan-designer/src/designer src && cp -r ../../../../karavan-designer/src/kamelets src && cp -r ../../../../karavan-designer/src/components src && cp -r ../../../../karavan-designer/src/eip src && cp -r ../../../../karavan-designer/src/builder src",
+    "copy-designer": "cp -r ../../../../karavan-designer/src/designer src && cp -r ../../../../karavan-designer/src/kamelets src && cp -r ../../../../karavan-designer/src/components src && cp -r ../../../../karavan-designer/src/eip src",
     "start": "npm run copy-designer && react-scripts start",
     "build": "npm run copy-designer && react-scripts build",
     "prod": "npm run copy-designer && react-scripts build --dest && rsync -a build/* ../resources/META-INF/resources"

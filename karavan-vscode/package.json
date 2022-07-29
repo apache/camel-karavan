@@ -381,7 +381,7 @@
     ]
   },
   "scripts": {
-    "copy-designer": "cp -r ../karavan-designer/src/designer webview && cp -r ../karavan-designer/src/kamelets webview && cp -r ../karavan-designer/src/components webview && cp -r ../karavan-designer/src/eip webview && cp -r ../karavan-designer/src/builder webview",
+    "copy-designer": "cp -r ../karavan-designer/src/designer webview && cp -r ../karavan-designer/src/kamelets webview && cp -r ../karavan-designer/src/components webview && cp -r ../karavan-designer/src/eip webview",
     "vscode:prepublish": "npm run copy-designer && npm run package",
     "compile": "npm run copy-designer && cross-env NODE_ENV=development webpack --progress",
     "watch": "npm run copy-designer && cross-env NODE_ENV=development webpack --progress --watch",
