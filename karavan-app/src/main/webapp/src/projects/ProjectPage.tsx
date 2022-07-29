@@ -353,7 +353,7 @@ export class ProjectPage extends React.Component<Props, State> {
         )
     }
 
-    showPipelineLog = (type: 'container' | 'pipeline', name: string, environment: string) => {
+    showLogs = (type: 'container' | 'pipeline', name: string, environment: string) => {
         const filename = name + ".log";
         const code = '';
         this.setState({file: new ProjectFile(filename, this.props.project.projectId, code)});
@@ -388,9 +388,9 @@ export class ProjectPage extends React.Component<Props, State> {
     getLogView = () => {
         const file = this.state.file;
         return (
-            <div style={{overflowX: "auto"}}>
+            <div style={{overflow: "auto"}}>
                 {file !== undefined && file.code.length !== 0 &&
-                    <CodeBlock>
+                    <CodeBlock style={{width:"90%"}}>
                         <CodeBlockCode id="code-content">{file.code}</CodeBlockCode>
                     </CodeBlock>}
                 {file === undefined || file.code.length === 0 &&
@@ -448,7 +448,7 @@ export class ProjectPage extends React.Component<Props, State> {
                             </FlexItem>
                             <FlexItem>
                                 <PageSection padding={{default: "padding"}}>
-                                    {tab === 'details' && <ProjectInfo project={this.props.project} config={this.props.config} deleteEntity={this.deleteEntity} showLog={this.showPipelineLog}/>}
+                                    {tab === 'details' && <ProjectInfo project={this.props.project} config={this.props.config} deleteEntity={this.deleteEntity} showLog={this.showLogs}/>}
                                     {tab === 'dashboard' && <ProjectDashboard environments={this.state.environments} project={this.props.project} config={this.props.config}/>}
                                 </PageSection>
                             </FlexItem>
