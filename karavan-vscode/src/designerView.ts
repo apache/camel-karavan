@@ -49,7 +49,7 @@ export class DesignerView {
     jbangRun(fullPath: string) {
         const filename = this.getFilename(fullPath);
         if (filename && this.rootPath) {
-            this.selectProfile(this.rootPath, filename);
+            jbang.camelJbangRun(this.rootPath, filename);
         }
     }
 
@@ -73,25 +73,6 @@ export class DesignerView {
             });
         }
     }
-
-    selectProfile(rootPath: string, filename?: string) {
-        if (this.rootPath) {
-            utils.getProfiles().then(profiles => {
-                if (profiles && profiles.length > 0) {
-                    window.showQuickPick(profiles).then((profile) => {
-                        if (!profile) {
-                            return
-                        } else {
-                            jbang.camelJbangRun(rootPath, profile, filename);
-                        }
-                    })
-                } else {
-                    jbang.camelJbangRun(rootPath, "application", filename);
-                }
-            });
-        }
-    }
-
     createIntegration(crd: boolean, rootPath?: string) {
         window
             .showInputBox({
