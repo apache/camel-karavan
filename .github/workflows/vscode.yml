@@ -49,7 +49,7 @@ jobs:
       #  Building Karavan VSCode extensions
       - name: Karavan VS Code extension (install dependencies)
         working-directory: ./karavan-vscode  
-        run: npm install 
+        run: npm install && npm pack
 
       - name: Karavan VS Code extension (build)
         working-directory: ./karavan-vscode  
