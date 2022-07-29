@@ -187,13 +187,11 @@ export class CamelDefinitionYaml {
             const int: Integration = new Integration({...camelized});
             integration.spec.flows?.push(...this.flowsToCamelElements(int.spec.flows || []));
             integration.spec.dependencies = this.dependenciesToDependency(int.spec.dependencies);
-            if (int.spec.traits) integration.spec.traits = TraitApi.traitsFromYaml(int.spec.traits);
         } else if (Array.isArray(camelized)) {
             integration.crd = false;
             const flows: any[] = camelized;
             integration.spec.flows?.push(...this.flowsToCamelElements(flows));
             integration.spec.dependencies = this.modelineToDependency(text);
-            // integration.spec.traits = this.traitsToCamelElements(flows); // TODO: Plain yaml Trait ???
         }
         return integration;
     }

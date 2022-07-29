@@ -23,7 +23,7 @@ import * as utils from "./utils";
 const TERMINALS: Map<string, Terminal> = new Map<string, Terminal>();
 
 export async function camelJbangGenerate(rootPath: string, openApiFullPath: string, fullPath: string, add: boolean, crd?: boolean, generateRoutes?: boolean) {
-    let command = prepareCommand("generate rest -i " + openApiFullPath, "application"); // TODO: set profile configurable
+    let command = prepareCommand("generate rest -i " + openApiFullPath); 
     if (generateRoutes === true) command = command + " --routes";
     executeJbangCommand(rootPath, command, (code, stdout, stderr) => {
         console.log('Exit code:', code);
@@ -63,7 +63,7 @@ export function createYaml(filename: string, restYaml: string, camelYaml?: strin
 }
 
 export function camelJbangPackage(rootPath: string, profile: string, callback: (code: number) => any) {
-    executeJbangCommand(rootPath, prepareCommand("package uber-jar", profile), (code, stdout, stderr) => callback(code));
+    executeJbangCommand(rootPath, prepareCommand("package uber-jar"), (code, stdout, stderr) => callback(code));
 }
 
 
@@ -71,17 +71,16 @@ export function cacheClear(rootPath: string, callback: (code: number) => any) {
     executeJbangCommand(rootPath, "jbang cache clear", (code, stdout, stderr) => callback(code));
 }
 
-function prepareCommand(command: string, profile?: string): string {
+function prepareCommand(command: string): string {
     const version = workspace.getConfiguration().get("camel.version");
-    const p = profile ? " --profile " + profile : "";
-    return "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel " + command + p;
+    return "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel " + command;
 }
 
-export function camelJbangRun(rootPath: string, profile?: string, filename?: string) {
+export function camelJbangRun(rootPath: string, filename?: string) {
     const maxMessages: number = workspace.getConfiguration().get("camel.maxMessages") || -1;
     const cmd = (filename ? "run " + filename : "run * ") + (maxMessages > -1 ? " --max-messages=" + maxMessages : "");
-    const command = prepareCommand(cmd, profile);
-    const terminalId = "run_" + profile + "_" + filename;
+    const command = prepareCommand(cmd);
+    const terminalId = "run_" + filename;
     const existTerminal = TERMINALS.get(terminalId);
     if (existTerminal) existTerminal.dispose();
     const terminal = window.createTerminal('Camel run: ' + filename ? filename : "project");
@@ -90,12 +89,10 @@ export function camelJbangRun(rootPath: string, profile?: string, filename?: str
     terminal.sendText(command);
 }
 
-export function camelJbangExport(runtime: string, directory: string, gav: string) {
-    const cmd = "export " + runtime
-        + (directory !== undefined ? " --directory=" + directory : "")
-        + (gav !== undefined ? " --gav=" + gav : "");
+export function camelJbangExport(directory: string) {
+    const cmd = "export  --directory=" + directory;
     const command = prepareCommand(cmd);
-    const terminalId = "export " + runtime;
+    const terminalId = "export";
     const existTerminal = TERMINALS.get(terminalId);
     if (existTerminal) existTerminal.dispose();
     const terminal = window.createTerminal('Camel export');

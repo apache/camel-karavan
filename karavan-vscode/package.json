@@ -33,10 +33,6 @@
   "homepage": "https://github.com/apache/camel-karavan/tree/main/karavan-vscode",
   "keywords": [
     "Camel",
-    "Camel K",
-    "Camel-K",
-    "camelk",
-    "kamel",
     "Tool",
     "Integration",
     "Camel Yaml",
@@ -45,17 +41,18 @@
   "activationEvents": [
     "onCommand:karavan.create-crd",
     "onCommand:karavan.create-yaml",
+    "onCommand:karavan.create-application",
     "onCommand:karavan.open",
     "onCommand:karavan.open-file",
     "onCommand:karavan.jbang-run-file",
     "onCommand:karavan.jbang-run-project",
     "onCommand:karavan.jbang-export",
     "onCommand:karavan.generate-rest",
-    "onView:integrations",
     "onCommand:karavan.openKamelets",
     "onCommand:karavan.openComponents",
     "onCommand:karavan.openEip",
-    "onCommand:karavan.reportIssue"
+    "onCommand:karavan.reportIssue",
+    "onView:integrations"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -64,13 +61,36 @@
       "properties": {
         "camel.version": {
           "type": "string",
-          "default": "3.17.0",
-          "description": "Camel version"
+          "default": "3.18.0",
+          "description": "Camel version",
+          "scope": "machine",
+          "order": 10
+        },
+        "camel.runtimes": {
+          "type": "string",
+          "default": "quarkus",
+          "enum": [
+            "quarkus",
+            "spring-boot",
+            "camel-main"
+          ],
+          "description": "Runtimes",
+          "scope": "machine",
+          "order": 20
+        },
+        "camel.quarkus-version": {
+          "type": "string",
+          "default": "2.11.0.Final",
+          "description": "Camel-quarkus version",
+          "scope": "machine",
+          "order": 21
         },
         "camel.maxMessages": {
           "type": "integer",
           "default": 10,
-          "description": "Maximum number of messages to process before stopping"
+          "description": "Maximum number of messages to process before stopping",
+          "scope": "machine",
+          "order": 30
         },
         "camel.loggingLevel": {
           "type": "string",
@@ -81,32 +101,77 @@
             "debug",
             "trace"
           ],
-          "description": "Logging level"
+          "description": "Logging level",
+          "scope": "machine",
+          "order": 40
         },
         "camel.dev": {
           "type": "boolean",
           "default": "true",
-          "description": "Run in developer mode (including reload routes on change)"
-        },
-        "camel.health": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable health-check when run in Jbang"
+          "description": "Run in developer mode (including reload routes on change)",
+          "scope": "machine",
+          "order": 50
         },
         "camel.messageTracing": {
           "type": "boolean",
           "default": false,
-          "description": "Logging message details during routing"
+          "description": "Logging message details during routing",
+          "scope": "machine",
+          "order": 60
         },
         "Karavan.kameletsPath": {
           "type": "string",
           "default": "",
-          "description": "Custom Kamelets Path"
+          "description": "Custom Kamelets Path",
+          "scope": "machine",
+          "order": 65
         },
         "Karavan.showStartHelp": {
           "type": "boolean",
           "default": true,
-          "description": "Show Karavan help tour"
+          "description": "Show Karavan help tour",
+          "scope": "machine",
+          "order": 70
+        },
+        "Karavan.applicationProperties": {
+          "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            },
+            "default": [
+              "camel.jbang.project-id=$NAME",
+              "camel.jbang.project-name=$NAME",
+              "camel.jbang.project-description=$NAME",
+              "camel.jbang.gav=$GAV",
+              "camel.jbang.runtime=$RUNTIME",
+              "camel.jbang.dependencies=mvn:io.quarkus:quarkus-container-image-jib,mvn:org.apache.camel.quarkus:camel-quarkus-microprofile-health,mvn:io.quarkus:quarkus-openshift",
+              "camel.health.enabled=true",
+              "camel.health.exposure-level=full"
+            ],
+          "description": "Default application.properties template",
+          "scope": "machine",
+          "order": 99
+        },
+        "Karavan.quarkusApplicationProperties": {
+          "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            },
+            "default": [
+              "camel.jbang.quarkusVersion=$RUNTIME_VERSION",
+              "quarkus.kubernetes-client.trust-certs=true",
+              "quarkus.container-image.builder=jib",
+              "quarkus.container-image.group=karavan",
+              "quarkus.container-image.name=$NAME",
+              "quarkus.openshift.route.expose=false",
+              "quarkus.openshift.part-of=$NAME",
+              "quarkus.openshift.replicas=1"
+            ],
+          "description": "Default application.properties template for Quarkus Runtime",
+          "scope": "machine",
+          "order": 100
         }
       }
     },
@@ -114,14 +179,16 @@
       {
         "command": "karavan.create-crd",
         "title": "Karavan: Create CRD",
-        "icon": {
-          "light": "./icons/light/add.svg",
-          "dark": "./icons/dark/add.svg"
-        }
+        "icon": "$(add)"
       },
       {
         "command": "karavan.create-yaml",
         "title": "Karavan: Create Integration"
+      },
+      {
+        "command": "karavan.create-application",
+        "title": "Karavan: Create Application",
+        "icon": "$(symbol-property)"
       },
       {
         "command": "karavan.open",
@@ -138,26 +205,17 @@
       {
         "command": "karavan.jbang-run-file",
         "title": "Karavan: Run File",
-        "icon": {
-          "light": "./icons/light/run.svg",
-          "dark": "./icons/dark/run.svg"
-        }
+        "icon": "$(run)"
       },
       {
         "command": "karavan.jbang-run-project",
         "title": "Karavan: Run Project",
-        "icon": {
-          "light": "./icons/light/run.svg",
-          "dark": "./icons/dark/run.svg"
-        }
+        "icon": "$(run)"
       },
       {
         "command": "karavan.jbang-export",
         "title": "Karavan: Export",
-        "icon": {
-          "light": "./icons/light/builder.svg",
-          "dark": "./icons/dark/builder.svg"
-        }
+        "icon": "$(export)"
       },
       {
         "command": "karavan.generate-rest",
@@ -166,18 +224,12 @@
       {
         "command": "integrations.refresh",
         "title": "Refresh",
-        "icon": {
-          "light": "icons/light/refresh.svg",
-          "dark": "icons/dark/refresh.svg"
-        }
+        "icon": "$(refresh)"
       },
       {
         "command": "openapi.refresh",
         "title": "Refresh",
-        "icon": {
-          "light": "icons/light/refresh.svg",
-          "dark": "icons/dark/refresh.svg"
-        }
+        "icon": "$(refresh)"
       },
       {
         "command": "karavan.openKamelets",
@@ -204,6 +256,10 @@
         },
         {
           "command": "karavan.create-yaml",
+          "when": "explorerResourceIsFolder || explorerResourceIsRoot"
+        },
+        {
+          "command": "karavan.create-application",
           "when": "explorerResourceIsFolder || explorerResourceIsRoot"
         },
         {

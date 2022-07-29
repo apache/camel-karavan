@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ExtensionContext, Uri, window, workspace, commands } from 'vscode';
+import { ExtensionContext, Uri, window, workspace, commands, QuickPickItem } from 'vscode';
 import { DesignerView } from "./designerView";
 import { IntegrationView } from "./integrationView";
 import { HelpView } from "./helpView";
@@ -109,12 +109,31 @@ export function activate(context: ExtensionContext) {
     });
     context.subscriptions.push(openFile);
 
-    // Export to Quarkus or Spring
-    const exportOptions = ["Quarkus", "Spring"];
+    // Create application
+    const applicationCommand = commands.registerCommand("karavan.create-application", (...args: any[]) => {
+        if (rootPath){
+            const defaultRuntime: string = workspace.getConfiguration().get("camel.runtimes") || '';
+            const runtimeOptions: QuickPickItem [] = [
+                {label: "quarkus", picked: "quarkus" === defaultRuntime},
+                {label: "spring-boot", picked: "spring-boot" === defaultRuntime},
+                {label: "camel-main", picked: "camel-main" === defaultRuntime}
+            ];
+            utils.hasApplicationProperties(rootPath).then(hasAP => {
+                if (hasAP){
+                    window.showInformationMessage("Folder already contains application.properties");
+                } else {
+                    window.showQuickPick(runtimeOptions, { title: "Select Runtime", canPickMany: false }).then((value) => {
+                        if (value) inputExportGav(value.label) 
+                    })
+                }
+            })
+        } 
+    });
+    context.subscriptions.push(applicationCommand);
+
+    // Export project
     const exportCommand = commands.registerCommand("karavan.jbang-export", (...args: any[]) => {
-        window.showQuickPick(exportOptions, { title: "Select Runtime", canPickMany: false }).then((value) => {
-            if (value) inputExportFolder(value, rootPath);
-        })
+        inputExportFolder(rootPath);
     });
     context.subscriptions.push(exportCommand);
 
@@ -124,18 +143,7 @@ export function activate(context: ExtensionContext) {
 
     // Run project
     const runProjectCommand = commands.registerCommand("karavan.jbang-run-project", (...args: any[]) => {
-        console.log("RUN PROJECT")
-        utils.getProfiles(rootPath).then(profiles => {
-            console.log("profiles", profiles)
-            if (profiles && profiles.length > 0) {
-                profiles.push("Default");
-                window.showQuickPick(profiles, { title: "Select Profile", canPickMany: false }).then((value) => {
-                    if (value && rootPath) jbang.camelJbangRun(rootPath, value !== "Default" ? value : undefined);
-                })
-            } else {
-                if (rootPath) jbang.camelJbangRun(rootPath);
-            }
-        })
+        if (rootPath) jbang.camelJbangRun(rootPath);
     });
     context.subscriptions.push(runProjectCommand);
 
@@ -162,11 +170,12 @@ export function activate(context: ExtensionContext) {
 /**
  * export into folder
  */
-export async function inputExportFolder(runtime: string, rootPath?: string) {
+export async function inputExportFolder(rootPath?: string) {
     window.showInputBox({
-        title: "Export project with " + runtime,
+        title: "Export project",
         ignoreFocusOut: true,
         prompt: "Export folder name",
+        value: "export",
         validateInput: (text: string): string | undefined => {
             if (!text || text.length === 0) {
                 return 'Name should not be empty';
@@ -177,7 +186,7 @@ export async function inputExportFolder(runtime: string, rootPath?: string) {
     }).then(folder => {
         if (folder && rootPath) {
             const fullPath = rootPath + path.sep + folder;
-            inputExportGav(runtime.toLowerCase(), folder);
+            jbang.camelJbangExport(fullPath);
         }
     });
 }
@@ -185,7 +194,7 @@ export async function inputExportFolder(runtime: string, rootPath?: string) {
 /**
  * export with gav
  */
-export async function inputExportGav(runtime: string, folder: string) {
+export async function inputExportGav(runtime: string) {
     window.showInputBox({
         title: "Export project with " + runtime,
         ignoreFocusOut: true,
@@ -199,7 +208,7 @@ export async function inputExportGav(runtime: string, folder: string) {
         }
     }).then(gav => {
         if (gav) {
-            jbang.camelJbangExport(runtime.toLowerCase(), folder, gav);
+            utils.crateApplicationproperties(runtime, gav)
         }
     });
 }

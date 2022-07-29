@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    CardHeader, Card, CardTitle, CardBody, CardActions, CardFooter,Badge
+    CardHeader, Card, CardTitle, CardBody, CardFooter,Badge
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KameletModel} from "karavan-core/lib/model/KameletModels";

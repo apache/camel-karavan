@@ -218,7 +218,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
                 id={id} name={id}
                 value={value?.toString()}
                 aria-label={id}
-                isChecked={value !== undefined ? Boolean(value) === true : property.defaultValue != undefined && property.defaultValue === 'true'}
+                isChecked={value !== undefined ? Boolean(value) === true : property.defaultValue !== undefined && property.defaultValue === 'true'}
                 onChange={e => this.parametersChanged(property.name, !Boolean(value))}/>
         )
     }

@@ -17,7 +17,6 @@
 import * as path from "path";
 import { workspace, Uri, window, ExtensionContext, FileType} from "vscode";
 import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
-import { ProjectModelApi } from "karavan-core/lib/api/ProjectModelApi";
 
 export function save(relativePath: string, text: string) {
     if (workspace.workspaceFolders) {
@@ -121,6 +120,10 @@ export async function getYamlFiles(baseDir: string) {
     return result;
 }
 
+export async function hasApplicationProperties(baseDir: string) {
+    return (await getPropertyFiles(baseDir)).includes(baseDir + path.sep + 'application.properties');
+}
+
 export async function getPropertyFiles(baseDir: string) {
     const result: string[] = [];
     (await getAllFiles(baseDir, [])).filter(f => f.endsWith(".properties")).forEach(f => {
@@ -162,12 +165,6 @@ export async function getProperties(rootPath?: string) {
     }
 }
 
-export async function getProfiles(rootPath?: string) {
-    const text = await getProperties(rootPath);
-    const project = ProjectModelApi.propertiesToProject(text);
-    return ProjectModelApi.getProfiles(project.properties);
-}
-
 export async function stat(fullPath: string) {
     const uriFile: Uri = Uri.file(fullPath);
     return  workspace.fs.stat(uriFile);
@@ -190,4 +187,26 @@ export async function write(fullPath: string, code: string) {
         value => {}, 
         reason => window.showErrorMessage("Error: " + reason) 
     );
+}
+
+export async function crateApplicationproperties(runtime: string, gav: string, ) {
+    if (workspace.workspaceFolders) {
+        const uriFolder: Uri = workspace.workspaceFolders[0].uri;
+        const parts = uriFolder.fsPath.split(path.sep);
+        const name = parts.at(parts.length -1) || '';
+
+        const runtimeVersion: string = workspace.getConfiguration().get("camel." + runtime + "-version") || '';
+        const props: string [] = workspace.getConfiguration().get("Karavan.applicationProperties") || [];
+        const runtimeDefaults: [] = (runtime === 'quarkus') 
+            ? workspace.getConfiguration().get("Karavan.quarkusApplicationProperties") || []
+            : [];
+        const text = props.concat(runtimeDefaults).map(v => {
+            if (v.includes('$NAME')) return v.replace('$NAME', name)
+            else if (v.includes('$GAV')) return v.replace('$GAV', gav)
+            else if (v.includes('$RUNTIME_VERSION')) return v.replace('$RUNTIME_VERSION', runtimeVersion) // $RUNTIME_VERSION should be before $RUNTIME
+            else if (v.includes('$RUNTIME')) return v.replace('$RUNTIME', runtime)
+            else return v;
+        }).join('\n');
+        write(path.join(uriFolder.path, "application.properties"), text);
+    }
 }

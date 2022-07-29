@@ -16,11 +16,10 @@
  */
 import {
     Integration,
-    CamelElement, Beans, Dependency, CamelElementMeta,
+    CamelElement, Beans, Dependency,
 } from "../model/IntegrationDefinition";
 import {CamelDefinitionApi} from "./CamelDefinitionApi";
 import {KameletDefinition, NamedBeanDefinition, ToDefinition} from "../model/CamelDefinition";
-import {TraitApi} from "../model/TraitDefinition";
 import {KameletApi} from "./KameletApi";
 import {KameletModel, Property} from "../model/KameletModels";
 import {ComponentProperty} from "../model/ComponentModels";
@@ -44,7 +43,6 @@ export class CamelUtil {
                 flows.push(newBeans);
             });
         int.spec.flows = flows;
-        if (int.spec.traits) int.spec.traits = TraitApi.cloneTrait(int.spec.traits);
         return int;
     }
 
