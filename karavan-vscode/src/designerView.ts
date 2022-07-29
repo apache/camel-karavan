@@ -151,7 +151,7 @@ export class DesignerView {
             // Handle reopen
             panel.onDidChangeViewState((e: WebviewPanelOnDidChangeViewStateEvent) => {
                 console.log(e);
-                if (e.webviewPanel.active || e.webviewPanel.reveal) {
+                if (e.webviewPanel.active) {
                     e.webviewPanel.webview.postMessage({ command: 'activate', tab: tab });
                 } else {
                     e.webviewPanel.webview.postMessage({ command: 'deactivate' });
