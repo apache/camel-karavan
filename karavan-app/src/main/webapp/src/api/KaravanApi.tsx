@@ -1,5 +1,6 @@
 import axios, {AxiosResponse} from "axios";
 import {Project, ProjectFile, ProjectStatus} from "../models/ProjectModels";
+import { Buffer } from 'buffer';
 
 export const KaravanApi = {
 
@@ -301,7 +302,19 @@ export const KaravanApi = {
             .then(res => {
                 after(res);
             }).catch(err => {
-            after(err);
+                after(err);
+        });
+    },
+
+    auth: async (username: string, password: string, after: (res: any) => void) => {
+        const token = username + ":" + password;
+        const basicAuth = "Basic " + Buffer.from(token).toString('base64');
+        axios.post('/auth/', "",
+            {headers: {Accept: 'application/json', "Content-Type": 'application/json', Authorization: basicAuth }})
+            .then(res => {
+                after(res);
+            }).catch(err => {
+                after(err.response);
         });
     },
 }

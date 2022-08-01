@@ -14,6 +14,10 @@
   overflow: hidden;
 }
 
+.karavan .login-logo {
+  width: 300px;
+}
+
 .logo,
 .logo svg {
   height: 48px;

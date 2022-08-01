@@ -16,39 +16,33 @@
  */
 package org.apache.camel.karavan.api;
 
-import org.apache.camel.karavan.model.KaravanConfiguration;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.apache.camel.karavan.service.AuthService;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-@Path("/configuration")
-public class ConfigurationResource {
-
-    @ConfigProperty(name = "karavan.version")
-    String version;
+@Path("/auth")
+public class AuthResource {
 
     @Inject
-    KaravanConfiguration configuration;
+    AuthService authService;
 
-    @GET
+    @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getConfiguration() throws Exception {
-        return Response.ok(
-                Map.of(
-                        "version", version,
-                        "environments", configuration.environments().stream()
-                                        .filter(e -> e.active())
-                                .map(e -> e.name()).collect(Collectors.toList()),
-                        "runtime", configuration.runtime()
-                )
-        ).build();
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response auth(@HeaderParam("Authorization") String basicAuth, @Context HttpHeaders headers) throws Exception {
+        if (authService.login(basicAuth)){
+            return Response.ok().build();
+        } else {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
     }
-
 }
