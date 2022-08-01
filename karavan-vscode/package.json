@@ -145,7 +145,7 @@
             "camel.jbang.project-description=$NAME",
             "camel.jbang.gav=$GAV",
             "camel.jbang.runtime=$RUNTIME",
-            "camel.jbang.dependencies=mvn:io.quarkus:quarkus-container-image-jib,mvn:org.apache.camel.quarkus:camel-quarkus-microprofile-health,mvn:io.quarkus:quarkus-openshift",
+            "camel.jbang.dependencies=mvn:io.quarkus:quarkus-container-image-jib,camel:microprofile-health,mvn:io.quarkus:quarkus-openshift",
             "camel.health.enabled=true",
             "camel.health.exposure-level=full"
           ],

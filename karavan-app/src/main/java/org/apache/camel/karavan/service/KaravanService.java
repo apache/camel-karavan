@@ -31,6 +31,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -64,10 +65,22 @@ public class KaravanService {
                 String name = Arrays.stream(folderName.split("-")).map(s -> capitalize(s)).collect(Collectors.joining(" "));
                 Project project = new Project(folderName, name, name, Project.CamelRuntime.valueOf(runtime.toUpperCase()), "");
                 infinispanService.saveProject(project);
+
+                AtomicReference<ProjectFile> properties = new AtomicReference<>();
                 p.getItem2().forEach((key, value) -> {
                     ProjectFile file = new ProjectFile(key, value, folderName);
                     infinispanService.saveProjectFile(file);
+                    if (isApplicationProperties(file)) {
+                        properties.set(file);
+                    }
                 });
+                // update project
+                if (properties != null){
+                    project.setDescription(getProjectDescription(properties.get()));
+                    project.setDescription(getProjectName(properties.get()));
+                    infinispanService.saveProject(project);
+                }
+
             });
         } catch (Exception e) {
             LOGGER.error("Error during project import", e);
@@ -78,8 +91,25 @@ public class KaravanService {
         if(str == null || str.isEmpty()) {
             return str;
         }
-
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
+    private static boolean isApplicationProperties(ProjectFile file) {
+        return file.getName().equalsIgnoreCase("application.properties");
+    }
+
+    private static String getProperty(ProjectFile file, String property) {
+        String prefix = property + "=";
+        return  Arrays.stream(file.getCode().split(System.lineSeparator())).filter(s -> s.startsWith(prefix))
+                .findFirst().orElseGet(() -> "")
+                .replace(prefix, "");
+    }
+
+    private static String getProjectDescription(ProjectFile file) {
+        return getProperty(file, "camel.jbang.project-description");
+    }
+
+    private static String getProjectName(ProjectFile file) {
+        return getProperty(file, "camel.jbang.project-name");
+    }
 }
