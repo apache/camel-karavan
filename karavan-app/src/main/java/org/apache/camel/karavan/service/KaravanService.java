@@ -77,7 +77,7 @@ public class KaravanService {
                 // update project
                 if (properties != null){
                     project.setDescription(getProjectDescription(properties.get()));
-                    project.setDescription(getProjectName(properties.get()));
+                    project.setName(getProjectName(properties.get()));
                     infinispanService.saveProject(project);
                 }
 
