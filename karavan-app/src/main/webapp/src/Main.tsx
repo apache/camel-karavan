@@ -32,6 +32,8 @@ import KameletsIcon from "@patternfly/react-icons/dist/js/icons/registry-icon";
 import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
 import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
 import ConfigurationIcon from "@patternfly/react-icons/dist/js/icons/cogs-icon";
+import {MainLogin} from "./MainLogin";
+import {AxiosResponse} from "axios";
 
 class ToastMessage {
     id: string = ''
@@ -72,8 +74,10 @@ interface State {
     projectToDelete?: Project,
     openapi: string,
     alerts: ToastMessage[],
-    request: string
-    filename: string
+    request: string,
+    filename: string,
+    key: string,
+    isAuthorized: boolean
 }
 
 export class Main extends React.Component<Props, State> {
@@ -87,7 +91,9 @@ export class Main extends React.Component<Props, State> {
         alerts: [],
         request: uuidv4(),
         openapi: '',
-        filename: ''
+        filename: '',
+        isAuthorized: false,
+        key: ''
     };
 
     designer = React.createRef();
@@ -98,6 +104,12 @@ export class Main extends React.Component<Props, State> {
                 config: config
             })
         });
+        if (this.state.isAuthorized) {
+            this.getData();
+        }
+    }
+
+    getData() {
         KaravanApi.getKameletNames(names => names.forEach(name => {
             KaravanApi.getKamelet(name, yaml => KameletApi.saveKamelet(yaml))
         }));
@@ -199,7 +211,7 @@ export class Main extends React.Component<Props, State> {
         });
     };
 
-    onGetProjects() {
+    onGetProjects = () => {
         KaravanApi.getProjects((projects: Project[]) => {
             this.setState({
                 projects: projects, request: uuidv4()
@@ -207,9 +219,20 @@ export class Main extends React.Component<Props, State> {
         });
     }
 
-    render() {
+    onLogin = (username: string, password: string) => {
+        KaravanApi.auth(username, password, (res: any) => {
+            if (res?.status === 200) {
+                this.setState({isAuthorized: true});
+                this.getData();
+            } else {
+                this.toast("Error", "Incorrect username and/or password!", "danger");
+            }
+        });
+    }
+
+    getMain() {
         return (
-            <Page className="karavan">
+            <div>
                 <Flex direction={{default:"row"}} style={{width: "100%", height:"100%"}} alignItems={{default:"alignItemsStretch"}} spaceItems={{ default: 'spaceItemsNone' }}>
                     <FlexItem>
                         {this.pageNav()}
@@ -245,6 +268,16 @@ export class Main extends React.Component<Props, State> {
                     onEscapePress={e => this.setState({isModalOpen: false})}>
                     <div>{"Are you sure you want to delete the project " + this.state.projectToDelete?.projectId + "?"}</div>
                 </Modal>
+            </div>
+        )
+    }
+
+    render() {
+        const {isAuthorized} = this.state;
+        return (
+            <Page className="karavan">
+                {isAuthorized && this.getMain()}
+                {!isAuthorized && <MainLogin config={this.state.config} onLogin={this.onLogin}/>}
                 {this.state.alerts.map((e: ToastMessage) => (
                     <Alert key={e.id} className="main-alert" variant={e.variant} title={e.title}
                            timeout={e.variant === "success" ? 1000 : 2000}
