@@ -64,8 +64,8 @@ public class GeneratorService {
         s.append("camel.jbang.runtime=").append(runtime.toLowerCase()).append(System.lineSeparator());
         s.append("camel.jbang.quarkusVersion=").append(runtimeVersion).append(System.lineSeparator());
         s.append("camel.jbang.dependencies=")
+                .append("camel:microprofile-health,")
                 .append("mvn:io.quarkus:quarkus-container-image-jib,")
-                .append("mvn:org.apache.camel.quarkus:camel-quarkus-microprofile-health,")
                 .append("mvn:io.quarkus:quarkus-openshift").append(System.lineSeparator());
 
         s.append("camel.health.enabled=true").append(System.lineSeparator());
