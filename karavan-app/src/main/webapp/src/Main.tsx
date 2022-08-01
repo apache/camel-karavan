@@ -232,7 +232,7 @@ export class Main extends React.Component<Props, State> {
 
     getMain() {
         return (
-            <div>
+            <>
                 <Flex direction={{default:"row"}} style={{width: "100%", height:"100%"}} alignItems={{default:"alignItemsStretch"}} spaceItems={{ default: 'spaceItemsNone' }}>
                     <FlexItem>
                         {this.pageNav()}
@@ -268,7 +268,7 @@ export class Main extends React.Component<Props, State> {
                     onEscapePress={e => this.setState({isModalOpen: false})}>
                     <div>{"Are you sure you want to delete the project " + this.state.projectToDelete?.projectId + "?"}</div>
                 </Modal>
-            </div>
+            </>
         )
     }
 
