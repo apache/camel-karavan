@@ -72,7 +72,9 @@ public class ProjectResource {
     @Path("/{project}")
     public void delete(@HeaderParam("username") String username,
                           @PathParam("project") String project) throws Exception {
-        infinispanService.deleteProject(URLDecoder.decode(project, StandardCharsets.UTF_8.toString()));
+        String projectId = URLDecoder.decode(project, StandardCharsets.UTF_8.toString());
+        infinispanService.getProjectFiles(projectId).forEach(file -> infinispanService.deleteProjectFile(projectId, file.getName()));
+        infinispanService.deleteProject(projectId);
     }
 
     @POST
