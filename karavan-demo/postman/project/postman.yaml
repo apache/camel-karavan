@@ -4,221 +4,130 @@ metadata:
   name: Postman Demo
 spec:
   flows:
-    - dslName: RestDefinition
-      post:
-        - dslName: PostDefinition
-          stepName: post
-          to: 'direct:post'
-          inArray: true
-          inSteps: false
-      stepName: rest
-      path: /parcels
-      consumes: application/json
-      produces: application/json
-    - dslName: RouteDefinition
-      stepName: route
-      from:
-        uri: 'direct:post'
-        steps:
-          - dslName: LogDefinition
-            stepName: log
-            message: 'Received: ${body}'
-            inArray: true
-            inSteps: true
-          - steps:
-              - uri: 'kamelet:kafka-not-secured-sink'
-                dslName: ToDefinition
-                stepName: to
-                parameters:
-                  topic: parcels
-                  bootstrapServers: 'localhost:9091'
-                inArray: true
-                inSteps: true
-              - uri: 'kamelet:postgresql-sink'
-                dslName: ToDefinition
-                stepName: to
-                parameters:
-                  serverName: localhost
-                  serverPort: '5432'
-                  username: postgres
-                  password: postgres
-                  databaseName: demo
-                  query: >-
-                    INSERT INTO parcels (id,address) VALUES (:#id,:#address) ON
-                    CONFLICT (id)  DO NOTHING
-                inArray: true
-                inSteps: true
-            dslName: MulticastDefinition
-            stepName: multicast
-            aggregationStrategy: >-
-              #class:org.apache.camel.processor.aggregate.UseOriginalAggregationStrategy
-            parallelProcessing: true
-            streaming: true
-            inArray: true
-            inSteps: true
-        dslName: FromDefinition
-        stepName: from
-      id: post
-    - dslName: RouteDefinition
-      stepName: route
-      from:
-        uri: 'kamelet:jms-apache-artemis-source'
-        steps:
-          - uri: 'xj:identity'
-            dslName: ToDefinition
-            stepName: to
-            parameters:
-              transformDirection: XML2JSON
-            inArray: true
-            inSteps: true
-          - uri: 'kamelet:kafka-not-secured-sink'
-            dslName: ToDefinition
-            stepName: to
-            parameters:
-              topic: payments
-              bootstrapServers: 'localhost:9091'
-            inArray: true
-            inSteps: true
-        dslName: FromDefinition
-        stepName: from
-        parameters:
-          destinationType: queue
-          destinationName: payments
-          brokerURL: 'tcp://localhost:61616'
-      id: payment
-    - dslName: RouteDefinition
-      stepName: route
-      from:
-        uri: 'kamelet:kafka-not-secured-source'
-        steps:
-          - dslName: LogDefinition
-            stepName: log
-            message: 'Aggegating: ${body}'
-            inArray: true
-            inSteps: true
-          - dslName: UnmarshalDefinition
-            stepName: unmarshal
-            json:
-              dslName: JsonDataFormat
-              library: jackson
-            inArray: true
-            inSteps: true
-          - steps:
-              - dslName: ChoiceDefinition
-                stepName: choice
-                when:
-                  - steps:
-                      - dslName: MarshalDefinition
-                        stepName: marshal
-                        json:
-                          dslName: JsonDataFormat
-                          library: jackson
-                        inArray: true
-                        inSteps: true
-                      - dslName: LogDefinition
-                        stepName: log
-                        message: 'Send to MQTT : ${body}'
-                        inArray: true
-                        inSteps: true
-                      - uri: 'kamelet:mqtt-sink'
-                        dslName: ToDefinition
-                        stepName: to
-                        parameters:
-                          topic: deliveries
-                          brokerUrl: 'tcp://localhost:61616'
-                        inArray: true
-                        inSteps: true
-                    dslName: WhenDefinition
-                    stepName: when
-                    expression:
-                      dslName: ExpressionDefinition
-                      stepName: expression
-                      groovy:
-                        dslName: GroovyExpression
-                        expression: >-
-                          body.find { it.containsKey('status') }.status ==
-                          'confirmed'
-                    inArray: true
-                    inSteps: false
-                otherwise:
-                  steps:
-                    - dslName: SetBodyDefinition
-                      stepName: setBody
-                      expression:
-                        dslName: ExpressionDefinition
-                        stepName: expression
-                        groovy:
-                          dslName: GroovyExpression
-                          expression: 'body.find { it.containsKey(''status'') } '
-                      inArray: true
-                      inSteps: true
-                    - dslName: MarshalDefinition
-                      stepName: marshal
-                      json:
-                        dslName: JsonDataFormat
-                        library: jackson
-                      inArray: true
-                      inSteps: true
-                    - dslName: LogDefinition
-                      stepName: log
-                      message: 'Send to database: ${body}'
-                      inArray: true
-                      inSteps: true
-                    - uri: 'kamelet:postgresql-sink'
-                      dslName: ToDefinition
-                      stepName: to
+    - rest:
+        post:
+          - to: direct:post
+        path: /parcels
+        consumes: application/json
+        produces: application/json
+    - route:
+        from:
+          uri: direct:post
+          steps:
+            - log:
+                message: 'Received: ${body}'
+            - multicast:
+                steps:
+                  - to:
+                      uri: kamelet:kafka-not-secured-sink
+                      parameters:
+                        topic: parcels
+                        bootstrapServers: localhost:9092
+                  - to:
+                      uri: kamelet:postgresql-sink
                       parameters:
                         serverName: localhost
                         serverPort: '5432'
                         username: postgres
                         password: postgres
                         databaseName: demo
-                        query: 'UPDATE parcels set status = ''CANCELED'' WHERE id = :#id'
-                      inArray: true
-                      inSteps: true
-                  dslName: OtherwiseDefinition
-                  stepName: otherwise
-                inArray: true
-                inSteps: true
-            dslName: AggregateDefinition
-            aggregationStrategy: aggregator
-            stepName: aggregate
-            completionSize: 2
-            correlationExpression:
-              dslName: ExpressionSubElementDefinition
-              stepName: expressionSubElement
-              groovy:
-                dslName: GroovyExpression
-                expression: body.get('id')
-            inArray: true
-            inSteps: true
-        dslName: FromDefinition
-        stepName: from
-        parameters:
-          topic: 'parcels,payments'
-          bootstrapServers: 'localhost:9091'
-          autoCommitEnable: true
-          consumerGroup: postman
-      id: aggregator
-    - dslName: RouteDefinition
-      stepName: route
-      from:
-        uri: 'kamelet:mqtt-source'
-        steps:
-          - dslName: LogDefinition
-            stepName: log
-            message: 'Delivery: ${body}'
-            inArray: true
-            inSteps: true
-        dslName: FromDefinition
-        stepName: from
-        parameters:
-          topic: deliveries
-          brokerUrl: 'tcp://localhost:61616'
-    - dslName: Beans
-      beans:
-        - dslName: NamedBeanDefinition
-          name: aggregator
+                        query: >-
+                          INSERT INTO parcels (id,address) VALUES
+                          (:#id,:#address) ON CONFLICT (id)  DO NOTHING
+                aggregationStrategy: >-
+                  #class:org.apache.camel.processor.aggregate.UseOriginalAggregationStrategy
+                parallelProcessing: true
+                streaming: true
+        id: post
+    - route:
+        from:
+          uri: kamelet:jms-apache-artemis-source
+          steps:
+            - to:
+                uri: xj:identity
+                parameters:
+                  transformDirection: XML2JSON
+            - to:
+                uri: kamelet:kafka-not-secured-sink
+                parameters:
+                  topic: payments
+                  bootstrapServers: localhost:9092
+          parameters:
+            destinationType: queue
+            destinationName: payments
+            brokerURL: tcp://localhost:61616
+        id: payment
+    - route:
+        from:
+          uri: kamelet:kafka-not-secured-source
+          steps:
+            - log:
+                message: 'Aggegating: ${body}'
+            - unmarshal:
+                json:
+                  library: jackson
+            - aggregate:
+                steps:
+                  - choice:
+                      when:
+                        - expression:
+                            groovy:
+                              expression: >-
+                                body.find { it.containsKey('status') }.status ==
+                                'confirmed'
+                          steps:
+                            - marshal:
+                                json:
+                                  library: jackson
+                            - log:
+                                message: 'Send to MQTT : ${body}'
+                            - to:
+                                uri: kamelet:mqtt-sink
+                                parameters:
+                                  topic: deliveries
+                                  brokerUrl: tcp://localhost:1883
+                      otherwise:
+                        steps:
+                          - setBody:
+                              expression:
+                                groovy:
+                                  expression: 'body.find { it.containsKey(''status'') } '
+                          - marshal:
+                              json:
+                                library: jackson
+                          - log:
+                              message: 'Send to database: ${body}'
+                          - to:
+                              uri: kamelet:postgresql-sink
+                              parameters:
+                                serverName: localhost
+                                serverPort: '5432'
+                                username: postgres
+                                password: postgres
+                                databaseName: demo
+                                query: >-
+                                  UPDATE parcels set status = 'CANCELED' WHERE
+                                  id = :#id
+                aggregationStrategy: aggregator
+                completionSize: 2
+                correlationExpression:
+                  groovy:
+                    expression: body.get('id')
+          parameters:
+            topic: parcels,payments
+            bootstrapServers: localhost:9092
+            autoCommitEnable: true
+            consumerGroup: postman
+        id: aggregator
+    - route:
+        from:
+          uri: kamelet:mqtt-source
+          steps:
+            - log:
+                message: 'Delivery: ${body}'
+          parameters:
+            topic: deliveries
+            brokerUrl: tcp://localhost:1883
+    - beans:
+        - name: aggregator
           type: org.apache.camel.processor.aggregate.GroupedBodyAggregationStrategy
-          inArray: true
-          inSteps: false
