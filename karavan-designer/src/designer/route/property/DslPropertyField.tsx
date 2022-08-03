@@ -70,6 +70,7 @@ interface State {
     showEditor: boolean
     showKubernetesSelector: boolean
     kubernetesSelectorProperty?: string
+    ref: any
 }
 
 export class DslPropertyField extends React.Component<Props, State> {
@@ -80,6 +81,7 @@ export class DslPropertyField extends React.Component<Props, State> {
         isShowAdvanced: new Map<string, boolean>(),
         showEditor: false,
         showKubernetesSelector: false,
+        ref: React.createRef(),
     };
 
     openSelect = (propertyName: string, isExpanded: boolean) => {
@@ -151,6 +153,15 @@ export class DslPropertyField extends React.Component<Props, State> {
     }
 
     selectKubernetes = (value: string) => {
+        // check if there is a selection
+        const textVal = this.state.ref.current;
+        const cursorStart = textVal.selectionStart;
+        const cursorEnd = textVal.selectionEnd;
+        if (cursorStart !== cursorEnd){
+            const prevValue = this.props.value;
+            const selectedText = prevValue.substring(cursorStart, cursorEnd)
+            value = prevValue.replace(selectedText, value);
+        }
         const propertyName = this.state.kubernetesSelectorProperty;
         if (propertyName) {
             if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
@@ -188,6 +199,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                     </Button>
                 </Tooltip>}
             {(!showEditor || property.secret) && <TextInput
+                ref={this.state.ref}
                 className="text-field" isRequired isReadOnly={this.isUriReadOnly(property)}
                 type={['integer', 'number'].includes(property.type) ? 'number' : (property.secret ? "password" : "text")}
                 id={property.name} name={property.name}
@@ -195,6 +207,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                 onChange={e => this.propertyChanged(property.name, ['integer', 'number'].includes(property.type) ? Number(e) : e)}/>
             }
             {showEditor && !property.secret && <TextArea
+                ref={this.state.ref}
                 autoResize={true}
                 className="text-field" isRequired isReadOnly={this.isUriReadOnly(property)}
                 type="text"

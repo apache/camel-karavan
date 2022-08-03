@@ -34,6 +34,9 @@ import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefin
 import {ToDefinition} from "karavan-core/lib/model/CamelDefinition";
 import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
 import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
+import {KubernetesSelector} from "./KubernetesSelector";
+import {KubernetesAPI} from "../../utils/KubernetesAPI";
+import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
 
 const prefix = "parameters";
 const beanPrefix = "#bean:";
@@ -49,13 +52,18 @@ interface Props {
 interface State {
     selectStatus: Map<string, boolean>
     showEditor: boolean
+    showKubernetesSelector: boolean
+    kubernetesSelectorProperty?: string
+    ref: any
 }
 
 export class ComponentParameterField extends React.Component<Props, State> {
 
     public state: State = {
         selectStatus: new Map<string, boolean>(),
-        showEditor: false
+        showEditor: false,
+        showKubernetesSelector: false,
+        ref: React.createRef(),
     }
 
     parametersChanged = (parameter: string, value: string | number | boolean | any, pathParameter?: boolean, newRoute?: RouteToCreate) => {
@@ -148,18 +156,61 @@ export class ComponentParameterField extends React.Component<Props, State> {
         )
     }
 
+    selectKubernetes = (value: string) => {
+        // check if there is a selection
+        const textVal = this.state.ref.current;
+        const cursorStart = textVal.selectionStart;
+        const cursorEnd = textVal.selectionEnd;
+        if (cursorStart !== cursorEnd){
+            const prevValue = this.props.value;
+            const selectedText = prevValue.substring(cursorStart, cursorEnd)
+            value = prevValue.replace(selectedText, value);
+        }
+        const propertyName = this.state.kubernetesSelectorProperty;
+        if (propertyName) {
+            if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
+            this.parametersChanged(propertyName, value);
+            this.setState({showKubernetesSelector: false, kubernetesSelectorProperty: undefined})
+        }
+    }
+
+    openKubernetesSelector = (propertyName: string) => {
+        this.setState({kubernetesSelectorProperty: propertyName, showKubernetesSelector: true});
+    }
+
+    closeKubernetesSelector = () => {
+        this.setState({showKubernetesSelector: false})
+    }
+
+    getKubernetesSelectorModal() {
+        return (
+            <KubernetesSelector
+                dark={false}
+                isOpen={this.state.showKubernetesSelector}
+                onClose={() => this.closeKubernetesSelector()}
+                onSelect={this.selectKubernetes}/>)
+    }
+
     getStringInput(property: ComponentProperty, value: any) {
         const showEditor = this.state.showEditor;
+        const inKubernetes = KubernetesAPI.inKubernetes;
         const id = prefix + "-" + property.name;
+        const noKubeSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
         return <InputGroup>
+            {inKubernetes && !showEditor && !noKubeSelectorButton &&
+                <Tooltip position="bottom-end" content="Select from Kubernetes">
+                    <Button variant="control" onClick={e => this.openKubernetesSelector(property.name)}>
+                        <KubernetesIcon/>
+                    </Button>
+                </Tooltip>}
             {(!showEditor || property.secret) &&
-                <TextInput className="text-field" isRequired
+                <TextInput className="text-field" isRequired ref={this.state.ref}
                            type={property.secret ? "password" : "text"}
                            id={id} name={id}
                            value={value !== undefined ? value : property.defaultValue}
                            onChange={e => this.parametersChanged(property.name, e, property.kind === 'path')}/>}
             {showEditor && !property.secret &&
-                <TextArea autoResize={true}
+                <TextArea autoResize={true} ref={this.state.ref}
                           className="text-field" isRequired
                           type="text"
                           id={id} name={id}
@@ -261,6 +312,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
                     && this.getSelect(property, value)}
                 {property.type === 'boolean'
                     && this.getSwitch(property, value)}
+                {this.getKubernetesSelectorModal()}
             </FormGroup>
         )
     }

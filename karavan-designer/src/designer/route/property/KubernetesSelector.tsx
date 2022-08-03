@@ -177,15 +177,15 @@ export class KubernetesSelector extends React.Component<Props, State> {
                                     <Td noPadding isActionCell>
                                         <Badge>S</Badge>
                                     </Td>
-                                    <Td noPadding>
-                                        {serviceName}
-                                    </Td>
                                     {/*<Td noPadding>*/}
-                                    {/*    <Button style={{padding: '6px'}} variant={"link"} onClick={*/}
-                                    {/*        e => this.props.onSelect?.call(this, hostPort)}>*/}
-                                    {/*        {hostPort}*/}
-                                    {/*    </Button>*/}
+                                    {/*    {serviceName}*/}
                                     {/*</Td>*/}
+                                    <Td noPadding>
+                                        <Button style={{padding: '6px'}} variant={"link"} onClick={
+                                            e => this.props.onSelect?.call(this, hostPort)}>
+                                            {serviceName}
+                                        </Button>
+                                    </Td>
                                     <Td noPadding>
                                         <Button style={{padding: '6px'}} variant={"link"} onClick={
                                             e => this.props.onSelect?.call(this, host)}>
