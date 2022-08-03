@@ -9,5 +9,5 @@ yarn-error.log
 webview/designer
 webview/components
 webview/kamelets
-core/api/*
-core/model/*
+webview/core
+webview/eip

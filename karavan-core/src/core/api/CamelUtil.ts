@@ -16,7 +16,7 @@
  */
 import {
     Integration,
-    CamelElement, Beans, Dependency,
+    CamelElement, Beans
 } from "../model/IntegrationDefinition";
 import {CamelDefinitionApi} from "./CamelDefinitionApi";
 import {KameletDefinition, NamedBeanDefinition, ToDefinition} from "../model/CamelDefinition";
@@ -33,7 +33,6 @@ export class CamelUtil {
         const clone = JSON.parse(JSON.stringify(integration));
         const int: Integration = new Integration({...clone});
         const flows: any[] = [];
-        int.spec.dependencies = int.spec.dependencies?.map(d => this.cloneDependency(d));
         int.spec.flows?.filter((e: any) => e.dslName !== 'Beans')
             .forEach(f => flows.push(CamelDefinitionApi.createStep(f.dslName, f)));
         int.spec.flows?.filter((e: any) => e.dslName === 'Beans')
@@ -49,13 +48,6 @@ export class CamelUtil {
     static cloneStep = (step: CamelElement): CamelElement => {
         const clone = JSON.parse(JSON.stringify(step));
         return CamelDefinitionApi.createStep(step.dslName, clone, true);
-    }
-
-    static cloneDependency = (dependency: Dependency): Dependency => {
-        const clone = JSON.parse(JSON.stringify(dependency));
-        const newDependency = new Dependency(clone);
-        newDependency.uuid = dependency.uuid;
-        return newDependency;
     }
 
     static cloneBean = (bean: NamedBeanDefinition): NamedBeanDefinition => {
@@ -248,7 +240,7 @@ export class CamelUtil {
 
     static findPlaceholder = (value: string): [boolean, string?] => {
         let result = false;
-        let placeholder = undefined;
+        let placeholder: string | undefined = undefined;
         if (value !== undefined) {
             const val = value.trim();
             result = val.includes("{{") && val.includes("}}");

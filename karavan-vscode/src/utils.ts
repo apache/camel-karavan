@@ -16,7 +16,7 @@
  */
 import * as path from "path";
 import { workspace, Uri, window, ExtensionContext, FileType} from "vscode";
-import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
+import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
 
 export function save(relativePath: string, text: string) {
     if (workspace.workspaceFolders) {

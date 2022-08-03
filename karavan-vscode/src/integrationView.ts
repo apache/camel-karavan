@@ -17,9 +17,9 @@
 import { workspace, TreeDataProvider, EventEmitter, Event, TreeItem, ProviderResult, Command, ThemeIcon, TreeItemCollapsibleState } from "vscode";
 import * as path from "path";
 import * as utils from "./utils";
-import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
+import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
 import { DesignerView } from "./designerView";
-import { Integration } from "karavan-core/lib/model/IntegrationDefinition";
+import { Integration } from "core/model/IntegrationDefinition";
 
 export class IntegrationView implements TreeDataProvider<IntegrationItem> {
 

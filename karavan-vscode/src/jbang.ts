@@ -17,7 +17,7 @@
 import { workspace, window, Terminal } from "vscode";
 import * as path from "path";
 import * as shell from 'shelljs';
-import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
+import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
 import * as utils from "./utils";
 
 const TERMINALS: Map<string, Terminal> = new Map<string, Terminal>();

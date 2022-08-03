@@ -29,7 +29,7 @@ import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table
 import {Component} from "karavan-core/lib/model/ComponentModels";
 import {camelIcon, CamelUi} from "../designer/utils/CamelUi";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
-import {ComponentProperty} from "karavan-core/src/core/model/ComponentModels";
+import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 
 interface Props {
     component?: Component,

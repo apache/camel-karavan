@@ -23,7 +23,7 @@ import {
 } from "../model/CamelDefinition";
 import {
     Beans,
-    CamelElement, CamelElementMeta, Dependency,
+    CamelElement, CamelElementMeta,
     Integration
 } from "../model/IntegrationDefinition";
 import {CamelDefinitionApi} from "./CamelDefinitionApi";
@@ -230,21 +230,6 @@ export class CamelDefinitionApiExt {
             }
         })
         integration.spec.flows = flows;
-        return integration;
-    }
-
-    static addDependencyToIntegration = (integration: Integration, dependency: Dependency): Integration => {
-        const deps: Dependency[] = [];
-        if (integration.spec.dependencies) {
-            deps.push(...integration.spec.dependencies?.filter(d => d.uuid !== dependency.uuid));
-        }
-        deps.push(dependency);
-        integration.spec.dependencies = deps;
-        return integration;
-    }
-
-    static deleteDependencyFromIntegration = (integration: Integration, dependency?: Dependency): Integration => {
-        integration.spec.dependencies = integration.spec.dependencies?.filter(d => d.uuid !== dependency?.uuid);
         return integration;
     }
 

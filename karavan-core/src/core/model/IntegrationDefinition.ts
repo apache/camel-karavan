@@ -17,32 +17,9 @@
 import {v4 as uuidv4} from 'uuid';
 import {NamedBeanDefinition} from "./CamelDefinition";
 
-export class Dependency {
-    group: string = '';
-    artifact: string = '';
-    version: string = '';
-    uuid: string = '';
-    dslName: string = '';
-
-    public constructor(init?: Partial<Dependency>) {
-        Object.assign(this, init);
-        this.dslName = 'Dependency';
-        this.uuid = uuidv4();
-    }
-
-    static createNew(url: string): Dependency {
-        const parts = url.split(":");
-        return new Dependency({group:parts[1], artifact:parts[2], version:parts[3]})
-    }
-
-    getFullName(): string {
-        return this.group + ":" + this.artifact + ":" + this.version;
-    }
-}
 
 export class Spec {
     flows?: any[] = [];
-    dependencies?: Dependency[] = [];
 
     public constructor(init?: Partial<Spec>) {
         Object.assign(this, init);

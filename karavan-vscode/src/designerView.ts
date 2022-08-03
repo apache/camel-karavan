@@ -18,8 +18,8 @@ import { workspace, Uri, window, commands, WebviewPanel, ExtensionContext, ViewC
 import * as path from "path";
 import * as utils from "./utils";
 import * as jbang from "./jbang";
-import { CamelDefinitionYaml } from "karavan-core/lib/api/CamelDefinitionYaml";
-import { Integration } from "karavan-core/lib/model/IntegrationDefinition";
+import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
+import { Integration } from "core/model/IntegrationDefinition";
 
 const KARAVAN_LOADED = "karavan:loaded";
 const KARAVAN_PANELS: Map<string, WebviewPanel> = new Map<string, WebviewPanel>();
