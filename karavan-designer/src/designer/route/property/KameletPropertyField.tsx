@@ -45,6 +45,7 @@ interface State {
     showPassword: boolean
     showKubernetesSelector: boolean
     kubernetesSelectorProperty?: string
+    ref: any
 }
 
 export class KameletPropertyField extends React.Component<Props, State> {
@@ -54,6 +55,7 @@ export class KameletPropertyField extends React.Component<Props, State> {
         showEditor: false,
         showPassword: false,
         showKubernetesSelector: false,
+        ref: React.createRef(),
     }
 
     openSelect = () => {
@@ -66,6 +68,15 @@ export class KameletPropertyField extends React.Component<Props, State> {
     }
 
     selectKubernetes = (value: string) => {
+        // check if there is a selection
+        const textVal = this.state.ref.current;
+        const cursorStart = textVal.selectionStart;
+        const cursorEnd = textVal.selectionEnd;
+        if (cursorStart !== cursorEnd){
+            const prevValue = this.props.value;
+            const selectedText = prevValue.substring(cursorStart, cursorEnd)
+            value = prevValue.replace(selectedText, value);
+        }
         const propertyId = this.state.kubernetesSelectorProperty;
         if (propertyId){
             if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
@@ -109,6 +120,7 @@ export class KameletPropertyField extends React.Component<Props, State> {
                 </Tooltip>}
             {(!showEditor || property.format === "password") &&
                 <TextInput
+                    ref={this.state.ref}
                     className="text-field" isRequired
                     type={property.format && !showPassword ? "password" : "text"}
                     id={id} name={id}
