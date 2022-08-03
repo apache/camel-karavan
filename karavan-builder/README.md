@@ -8,7 +8,7 @@
 2. OpenShift 4.10+ CLI installed
 
 ### Installation
-* Deploy Tekton Operator
+1. Deploy Tekton Operator
     ```
     oc apply -f openshift/pipeline-operator.yaml
     ```
@@ -16,6 +16,7 @@
     ```
     oc apply -f openshift/karavan-namespace.yaml
     ```
+
 3. Set git parameters
     Edit `karavan-secret.yaml` and set git repository, username and token
 
