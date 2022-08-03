@@ -15,12 +15,12 @@ cd ../artemis
 ./prepare-docker.sh --from-release --artemis-version 2.22.0
 cd _TMP_/artemis/2.22.0
 docker build -f ./docker/Dockerfile-adoptopenjdk-11 -t artemis-adoptopenjdk-11 .
-cd ../../../../project
 ```
 For MacOS users, in case of `tree command not found` error, install tree `brew install tree`
 
 ### Start environment
 ```
+cd docker-compose
 docker-compose up
 ```
 
@@ -54,7 +54,8 @@ Send message to `payments` queue
 2. Apache Camel [Karavan](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan) extension installed
 3. [Jbang](https://www.jbang.dev/download/) installed
 4. OpenShift 4.9+ cluster up and running
-4. OpenShift 4.9+ CLI installed
+5. OpenShift 4.9+ CLI installed
+6. Apache Camel Karavan installed in OpenShift
 
 
 ### Install AMQ and AMQ Streams Operators
@@ -73,14 +74,13 @@ oc apply -k instances -n karavan
 ```
 
 ### Package, build and deploy project
-1. Open Project builder
-![builder](builder.png)
+1. Open Karavan Application
+2. Create project Postman
+3. Create integration postman
+4. Replace integration code with [postman.yaml](project/postman.yaml)
+5. Set Kamelets configuration according their services in Openshift
+6. Click `Run` button
 
-2. Configure Project and click Start
-![deploy](deploy.png)
-```
-
-```
 
 ### Publish parcel
 ```
