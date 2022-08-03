@@ -1,10 +1,25 @@
-### Build docker image
-```
-docker build -t apache/camel-karavan-builder .
-```
+## Karavan Self-Managed iPaaS
 
-### To deploy to test and prod from karavan namespace
-```
-oc policy add-role-to-user system:image-puller system:serviceaccount:test:default --namespace=karavan
-oc policy add-role-to-user system:image-puller system:serviceaccount:prod:default --namespace=karavan
-```
+### Architecture
+![karavan-ipaas](../images/karavan-ipaas.png)
+
+### Requirements
+1. OpenShift 4.10+ cluster up and running
+2. OpenShift 4.10+ CLI installed
+
+### Installation
+* Deploy Tekton Operator
+    ```
+    oc apply -f openshift/pipeline-operator.yaml
+    ```
+2. Create namespace
+    ```
+    oc apply -f openshift/karavan-namespace.yaml
+    ```
+3. Set git parameters
+    Edit `karavan-secret.yaml` and set git repository, username and token
+
+4. Deploy karavan
+    ```
+    oc apply -k openshift
+    ```
