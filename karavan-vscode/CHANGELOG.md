@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.18.0
+1. Camel 3.18.0+ DSL
+2. Export to Camel-Qurkus, Spring-Boot and Camel-Main
+3. Default application.properties
+
 ## 0.0.15
 1. Camel 3.17.0+ DSL
 2. Generate REST DSL and Routes stubs from Open API
