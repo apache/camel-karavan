@@ -51,9 +51,9 @@ jobs:
         working-directory: ./karavan-vscode  
         run: npm update && npm install 
 
-      - name: Karavan VS Code extension (build)
-        working-directory: ./karavan-vscode  
-        run: npm run package
+      # - name: Karavan VS Code extension (build)
+      #   working-directory: ./karavan-vscode  
+      #   run: npm run package
 
       - name: Karavan VS Code extension (install vsce)
         working-directory: ./karavan-vscode
