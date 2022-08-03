@@ -6,4 +6,8 @@ node_modules
 .DS_Store
 .idea
 yarn-error.log
-designer
+webview/designer
+webview/components
+webview/kamelets
+webview/core
+webview/eip

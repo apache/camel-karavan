@@ -22,7 +22,7 @@ import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {NamedBeanDefinition, RouteDefinition, SagaDefinition, ToDefinition} from "karavan-core/lib/model/CamelDefinition";
-import {CamelElement, Dependency, Integration} from "karavan-core/lib/model/IntegrationDefinition";
+import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {AggregateIcon, ChoiceIcon, FilterIcon, SagaIcon, SortIcon, SplitIcon, TransformIcon} from "./KaravanIcons";
 import React from "react";
 
@@ -482,9 +482,6 @@ export class CamelUi {
         if (beans && beans.length > 0 && beans[0].beans && beans[0].beans.length > 0){
             result.set('beans', Array.from(beans[0].beans).length);
         }
-        if (i.spec.dependencies && i.spec.dependencies.length > 0){
-            result.set('dependencies', i.spec.dependencies.length);
-        }
         return result;
     }
 
@@ -503,9 +500,4 @@ export class CamelUi {
         }
         return result;
     }
-
-    static getDependencies = (integration: Integration): Dependency[] => {
-        return integration.spec.dependencies || [];
-    }
-
 }

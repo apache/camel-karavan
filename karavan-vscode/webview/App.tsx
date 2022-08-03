@@ -20,8 +20,8 @@ import {
 } from "@patternfly/react-core";
 import { KaravanDesigner } from "./designer/KaravanDesigner";
 import vscode from "./vscode";
-import { KameletApi } from "karavan-core/lib/api/KameletApi";
-import { ComponentApi } from "karavan-core/lib/api/ComponentApi";
+import { KameletApi } from "core/api/KameletApi";
+import { ComponentApi } from "core/api/ComponentApi";
 import { KameletsPage } from "./kamelets/KameletsPage";
 import { ComponentsPage } from "./components/ComponentsPage";
 import { EipPage } from "./eip/EipPage";
