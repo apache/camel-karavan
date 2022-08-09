@@ -56,17 +56,6 @@ public class AbstractGenerator {
         }
     }
 
-    protected String getTraitsYaml() {
-        try {
-            InputStream inputStream = TraitDefinitionGenerator.class.getResourceAsStream("/traits.yaml");
-            String data = new BufferedReader(new InputStreamReader(inputStream))
-                    .lines().collect(Collectors.joining(System.getProperty("line.separator")));
-            return data;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     protected String readFileText(String template) {
         Buffer templateBuffer = vertx.fileSystem().readFileBlocking(template);
         return templateBuffer.toString();

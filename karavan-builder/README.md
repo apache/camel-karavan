@@ -15,6 +15,7 @@
 2. Create namespace
     ```
     oc apply -f openshift/karavan-namespace.yaml
+    oc project karavan
     ```
 
 3. Set git parameters

@@ -373,10 +373,12 @@ export class DslElement extends React.Component<Props, State> {
 
     render() {
         const element: CamelElement = this.state.step;
+        const hideSteps = element.dslName === 'StepDefinition';
+        const className = "step-element" + (this.isSelected() ? " step-element-selected" : "");
         return (
             <div key={"root" + element.uuid}
                  data-tour={this.props.parent ? "" : "route-created"}
-                 className={this.isSelected() ? "step-element step-element-selected" : "step-element"}
+                 className={className}
                  ref={el => this.sendPosition(el, this.isSelected())}
                  style={{
                      borderStyle: this.hasBorder() ? "dotted" : "none",

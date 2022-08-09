@@ -51,6 +51,10 @@ class App extends React.Component<Props, State> {
             '        from:\n' +
             '          uri: kamelet:timer-source\n' +
             '          steps:\n' +
+            '            - step:\n' +
+            '                steps:\n' +
+            '                  - choice: {}\n' +
+            '                  - log: {}\n' +
             '            - log:\n' +
             '                message: ${body}\n' +
             '            - aggregate: {}\n' +
@@ -120,7 +124,7 @@ class App extends React.Component<Props, State> {
 
     save(filename: string, yaml: string, propertyOnly: boolean) {
         // console.log(filename);
-        // console.log(yaml);
+        console.log(yaml);
         // console.log(propertyOnly);
     }
 
