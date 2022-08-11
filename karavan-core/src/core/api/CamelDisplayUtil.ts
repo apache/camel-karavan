@@ -32,9 +32,11 @@ export class CamelDisplayUtil {
     static getParentStepDefinitions = (flows: CamelElement[] | undefined, uuid: string): string[] => {
         const result: string[] = [];
         let meta = CamelDefinitionApiExt.findStep(flows, uuid);
+        if (meta)
         while (meta.step?.dslName !== 'FromDefinition') {
             if (meta.step?.dslName === 'StepDefinition') result.push(meta.step.uuid);
-            if (meta.parentUuid) meta = CamelDefinitionApiExt.findStep(flows, meta.parentUuid);
+            if (meta.parentUuid) meta = CamelDefinitionApiExt.findStep(flows, meta.parentUuid)
+            else break;
         }
         return result;
     }
