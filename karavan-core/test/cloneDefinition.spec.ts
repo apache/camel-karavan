@@ -26,7 +26,6 @@ import {ExpressionDefinition} from "../src/core/model/CamelDefinition";
 import {Integration} from "../src/core/model/IntegrationDefinition";
 import {RouteDefinition} from "../src/core/model/CamelDefinition";
 import {CamelUtil} from "../src/core/api/CamelUtil";
-import {CamelTrait} from "../src/core/model/TraitDefinition";
 
 describe('Clone', () => {
 

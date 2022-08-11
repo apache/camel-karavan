@@ -24,6 +24,8 @@ import {KaravanDesigner} from "./designer/KaravanDesigner";
 import {KameletsPage} from "./kamelets/KameletsPage";
 import {ComponentsPage} from "./components/ComponentsPage";
 import {EipPage} from "./eip/EipPage";
+import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
+import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 
 interface Props {
     page: "designer" | "kamelets" | "components" | "eip" | "builder";
@@ -51,6 +53,10 @@ class App extends React.Component<Props, State> {
             '        from:\n' +
             '          uri: kamelet:timer-source\n' +
             '          steps:\n' +
+            '            - step:\n' +
+            '                steps:\n' +
+            '                  - choice: {}\n' +
+            '                  - log: {}\n' +
             '            - log:\n' +
             '                message: ${body}\n' +
             '            - aggregate: {}\n' +

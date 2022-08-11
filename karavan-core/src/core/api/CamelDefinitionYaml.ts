@@ -23,19 +23,13 @@ import {CamelDefinitionYamlStep} from "./CamelDefinitionYamlStep";
 export class CamelDefinitionYaml {
 
     static integrationToYaml = (integration: Integration): string => {
-        console.log("integrationToYaml");
-        console.log(integration);
         const clone: any = CamelUtil.cloneIntegration(integration);
-        console.log(clone);
         const flows = integration.spec.flows
         clone.spec.flows = flows?.map((f: any) => CamelDefinitionYaml.cleanupElement(f)).filter(x => Object.keys(x).length !== 0);
-        console.log(clone);
         if (integration.crd) {
             delete clone.crd
             const i = JSON.parse(JSON.stringify(clone, null, 3)); // fix undefined in string attributes
-            console.log(i);
             const text = CamelDefinitionYaml.yamlDump(i);
-            console.log(text);
             return text;
         } else {
             const f = JSON.parse(JSON.stringify(clone.spec.flows, null, 3));
@@ -60,6 +54,7 @@ export class CamelDefinitionYaml {
             if (object.properties && Object.keys(object.properties).length === 0) delete object.properties;
         }
         delete object.uuid;
+        delete object.show;
         Object.keys(object)
             .forEach(key => {
                 if (object[key] instanceof CamelElement || (typeof object[key] === 'object' && object[key].dslName)) {

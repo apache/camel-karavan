@@ -16,8 +16,6 @@
  */
 package org.apache.camel.karavan.generator;
 
-import org.apache.camel.model.RouteDefinition;
-
 public final class KaravanGenerator {
 
     public static void main(String[] args) throws Exception {
@@ -27,7 +25,6 @@ public final class KaravanGenerator {
         CamelMetadataGenerator.generate();
         KameletGenerator.generate();
         CamelComponentsGenerator.generate();
-        TraitDefinitionGenerator.generate();
         System.exit(0);
     }
 

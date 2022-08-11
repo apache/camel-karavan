@@ -59,8 +59,8 @@ export class DslConnections extends React.Component<Props, State> {
     setPosition(evt: DslPosition) {
         if (evt.command === "add") this.setState(prevState => ({steps: prevState.steps.set(evt.step.uuid, evt)}));
         else if (evt.command === "delete") this.setState(prevState => {
-            prevState.steps.clear();
-            // prevState.steps.delete(evt.step.uuid);
+            // prevState.steps.clear();
+            prevState.steps.delete(evt.step.uuid);
             return {steps: prevState.steps};
         });
     }
@@ -371,7 +371,7 @@ export class DslConnections extends React.Component<Props, State> {
                 const startY = parent.headerRect.y + parent.headerRect.height - this.props.top;
                 if ((!pos.inSteps || (pos.inSteps && pos.position === 0)) && parent.step.dslName !== 'MulticastDefinition') {
                     return (
-                        <path d={`M ${startX},${startY} C ${startX},${endY} ${endX},${startY}   ${endX},${endY}`}
+                        <path name={pos.step.dslName} d={`M ${startX},${startY} C ${startX},${endY} ${endX},${startY}   ${endX},${endY}`}
                               className="path" key={pos.step.uuid} markerEnd="url(#arrowhead)"/>
                     )
                 } else if (parent.step.dslName === 'MulticastDefinition' && pos.inSteps) {
