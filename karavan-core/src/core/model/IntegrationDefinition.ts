@@ -53,6 +53,7 @@ export class Integration {
 export class CamelElement {
     uuid: string = ''
     dslName: string = ''
+    show: boolean = true
 
     constructor(dslName: string) {
         this.uuid = uuidv4()

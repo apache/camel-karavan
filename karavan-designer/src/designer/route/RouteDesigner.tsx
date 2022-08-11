@@ -39,6 +39,7 @@ import {EventBus, TourEvent} from "../utils/EventBus";
 import {CamelUi, RouteToCreate} from "../utils/CamelUi";
 import {findDOMNode} from "react-dom";
 import {Subscription} from "rxjs";
+import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 
 interface Props {
     onSave?: (integration: Integration, propertyOnly: boolean) => void
@@ -74,7 +75,7 @@ interface State {
 export class RouteDesigner extends React.Component<Props, State> {
 
     public state: State = {
-        integration: this.props.integration,
+        integration: CamelDisplayUtil.setIntegrationVisibility(this.props.integration, undefined),
         showSelector: false,
         showDeleteConfirmation: false,
         deleteMessage: '',
@@ -154,13 +155,6 @@ export class RouteDesigner extends React.Component<Props, State> {
         this.setState({clipboardStep: step, key: Math.random().toString()});
     }
 
-    unselectElement = (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        if ((evt.target as any).dataset.click === 'FLOWS') {
-            evt.stopPropagation()
-            this.setState({selectedStep: undefined, selectedUuid: '', showSelector: false, selectedPosition: undefined})
-        }
-    };
-
     onPropertyUpdate = (element: CamelElement, newRoute?: RouteToCreate) => {
         if (newRoute) {
             let i = CamelDefinitionApiExt.updateIntegrationRouteElement(this.state.integration, element);
@@ -226,7 +220,16 @@ export class RouteDesigner extends React.Component<Props, State> {
     }
 
     selectElement = (element: CamelElement) => {
-        this.setState({selectedStep: element, selectedUuid: element.uuid, showSelector: false})
+        const i = CamelDisplayUtil.setIntegrationVisibility(this.state.integration, element.uuid);
+        this.setState({integration: i, selectedStep: element, selectedUuid: element.uuid, showSelector: false})
+    }
+
+    unselectElement = (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if ((evt.target as any).dataset.click === 'FLOWS') {
+            evt.stopPropagation()
+            const i = CamelDisplayUtil.setIntegrationVisibility(this.state.integration, undefined);
+            this.setState({integration: i, selectedStep: undefined, selectedUuid: '', showSelector: false, selectedPosition: undefined})
+        }
     }
 
     openSelector = (parentId: string | undefined, parentDsl: string | undefined, showSteps: boolean = true, position?: number | undefined, selectorTabIndex?: string | number) => {
@@ -368,6 +371,7 @@ export class RouteDesigner extends React.Component<Props, State> {
                      ref={el => this.onResizePage(el)}>
                     {routes?.map((route: any, index: number) => (
                         <DslElement key={route.uuid + this.state.key}
+                                    integration={this.state.integration}
                                     openSelector={this.openSelector}
                                     deleteElement={this.showDeleteConfirmation}
                                     selectElement={this.selectElement}

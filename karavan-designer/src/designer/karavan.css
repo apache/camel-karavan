@@ -771,6 +771,10 @@
     z-index: 100;
 }
 
+.karavan .dsl-page .flows .hidden-step {
+    display: none;
+}
+
 .element-builder .add-button {
     top: 0;
     right: 5px;

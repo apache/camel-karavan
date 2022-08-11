@@ -54,6 +54,7 @@ export class CamelDefinitionYaml {
             if (object.properties && Object.keys(object.properties).length === 0) delete object.properties;
         }
         delete object.uuid;
+        delete object.show;
         Object.keys(object)
             .forEach(key => {
                 if (object[key] instanceof CamelElement || (typeof object[key] === 'object' && object[key].dslName)) {
