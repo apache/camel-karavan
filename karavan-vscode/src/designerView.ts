@@ -47,32 +47,31 @@ export class DesignerView {
     }
 
     jbangRun(fullPath: string) {
-        const filename = this.getFilename(fullPath);
-        if (filename && this.rootPath) {
-            jbang.camelJbangRun(this.rootPath, filename);
-        }
-    }
-
-    getFilename(fullPath: string) {
         if (fullPath.startsWith('webview-panel/webview')) {
-            const filename = Array.from(KARAVAN_PANELS.entries()).filter(({ 1: v }) => v.active).map(([k]) => k)[0];
-            if (filename && this.rootPath) {
-                return filename;
-            }
+            const filename = this.getFilenameFromWebView();
+            jbang.camelJbangRun(filename);
         } else {
             utils.readFile(path.resolve(fullPath)).then(readData => {
                 const yaml = Buffer.from(readData).toString('utf8');
                 const relativePath = utils.getRalativePath(fullPath);
                 const filename = path.basename(fullPath);
                 const integration = utils.parceYaml(filename, yaml);
-                if (integration[0] && this.rootPath) {
-                    return relativePath;
+                if (integration[0] && utils.getRoot() !== undefined) {
+                    jbang.camelJbangRun(relativePath);
                 } else {
                     window.showErrorMessage("File is not Camel Integration!")
                 }
             });
         }
     }
+
+    getFilenameFromWebView() {
+        const filename = Array.from(KARAVAN_PANELS.entries()).filter(({ 1: v }) => v.active).map(([k]) => k)[0];
+        if (filename && utils.getRoot() !== undefined) {
+            return filename;
+        }
+    }
+
     createIntegration(crd: boolean, rootPath?: string) {
         window
             .showInputBox({

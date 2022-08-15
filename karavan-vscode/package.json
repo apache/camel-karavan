@@ -107,7 +107,7 @@
         },
         "camel.dev": {
           "type": "boolean",
-          "default": "true",
+          "default": "false",
           "description": "Run in developer mode (including reload routes on change)",
           "scope": "machine",
           "order": 50

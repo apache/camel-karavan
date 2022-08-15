@@ -18,6 +18,11 @@ import * as path from "path";
 import { workspace, Uri, window, ExtensionContext, FileType} from "vscode";
 import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
 
+export function getRoot(): string | undefined {
+    return (workspace.workspaceFolders && (workspace.workspaceFolders.length > 0))
+        ? workspace.workspaceFolders[0].uri.fsPath : undefined;
+}
+
 export function save(relativePath: string, text: string) {
     if (workspace.workspaceFolders) {
         const uriFolder: Uri = workspace.workspaceFolders[0].uri;

@@ -76,10 +76,11 @@ function prepareCommand(command: string): string {
     return "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel " + command;
 }
 
-export function camelJbangRun(rootPath: string, filename?: string) {
+export function camelJbangRun(filename?: string) {
     const maxMessages: number = workspace.getConfiguration().get("camel.maxMessages") || -1;
+    const dev: boolean = workspace.getConfiguration().get("camel.dev") || false;
     const cmd = (filename ? "run " + filename : "run * ") + (maxMessages > -1 ? " --max-messages=" + maxMessages : "");
-    const command = prepareCommand(cmd);
+    const command = prepareCommand(cmd) + (dev === true ? " --dev" : "");
     const terminalId = "run_" + filename;
     const existTerminal = TERMINALS.get(terminalId);
     if (existTerminal) existTerminal.dispose();
