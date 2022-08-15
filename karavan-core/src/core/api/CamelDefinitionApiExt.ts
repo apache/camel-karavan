@@ -150,7 +150,7 @@ export class CamelDefinitionApiExt {
         return new CamelElementMeta(result?.step, result?.parentUuid, result?.position);
     }
 
-    static moveRouteElement = (integration: Integration, source: string, target: string): Integration => {
+    static moveRouteElement = (integration: Integration, source: string, target: string, asChild: boolean): Integration => {
         const sourceFindStep = CamelDefinitionApiExt.findElementMetaInIntegration(integration, source);
         const sourceStep = sourceFindStep.step;
         const sourceUuid = sourceStep?.uuid;
@@ -158,13 +158,17 @@ export class CamelDefinitionApiExt {
         const parentUuid = targetFindStep.parentUuid;
         if (sourceUuid && parentUuid && sourceStep && !this.findElementPathUuids(integration, target).includes(source)) {
             CamelDefinitionApiExt.deleteStepFromIntegration(integration, sourceUuid);
-            switch (targetFindStep.step?.dslName) {
-                case 'when':
-                    return CamelDefinitionApiExt.addStepToIntegration(integration, sourceStep, targetFindStep.step?.uuid, undefined);
-                case 'otherwise':
-                    return CamelDefinitionApiExt.addStepToIntegration(integration, sourceStep, targetFindStep.step?.uuid, undefined);
-                default:
-                    return CamelDefinitionApiExt.addStepToIntegration(integration, sourceStep, parentUuid, targetFindStep.position);
+            if (asChild) {
+                return CamelDefinitionApiExt.addStepToIntegration(integration, sourceStep, target, (targetFindStep?.step as any)?.steps?.length);
+            } else {
+                switch (targetFindStep.step?.dslName) {
+                    case 'when':
+                        return CamelDefinitionApiExt.addStepToIntegration(integration, sourceStep, targetFindStep.step?.uuid, undefined);
+                    case 'otherwise':
+                        return CamelDefinitionApiExt.addStepToIntegration(integration, sourceStep, targetFindStep.step?.uuid, undefined);
+                    default:
+                        return CamelDefinitionApiExt.addStepToIntegration(integration, sourceStep, parentUuid, targetFindStep.position);
+                }
             }
         }
         return integration;

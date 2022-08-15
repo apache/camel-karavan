@@ -877,6 +877,17 @@
     opacity: 0.5;
 }
 
+.move-modal {
+    width: 270px !important;
+}
+
+.move-modal .pf-c-modal-box__body {
+    margin-right: 0 !important;
+}
+.move-modal .pf-m-plain {
+    display: none;
+}
+
 .yaml-code {
     overflow: auto;
     height: 100%;

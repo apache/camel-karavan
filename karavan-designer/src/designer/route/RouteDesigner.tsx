@@ -289,8 +289,8 @@ export class RouteDesigner extends React.Component<Props, State> {
         this.setState({integration: i, propertyOnly: false, showSelector: false, key: Math.random().toString()});
     }
 
-    moveElement = (source: string, target: string) => {
-        const i = CamelDefinitionApiExt.moveRouteElement(this.state.integration, source, target);
+    moveElement = (source: string, target: string, asChild: boolean) => {
+        const i = CamelDefinitionApiExt.moveRouteElement(this.state.integration, source, target, asChild);
         const clone = CamelUtil.cloneIntegration(i);
         const selectedStep = CamelDefinitionApiExt.findElementInIntegration(clone, source);
         this.setState({
