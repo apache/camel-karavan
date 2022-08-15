@@ -80,7 +80,7 @@
         },
         "camel.quarkus-version": {
           "type": "string",
-          "default": "2.11.0.Final",
+          "default": "2.11.2.Final",
           "description": "Camel-quarkus version",
           "scope": "machine",
           "order": 21
