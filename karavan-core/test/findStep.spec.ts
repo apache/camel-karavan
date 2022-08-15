@@ -28,6 +28,9 @@ import {
 import {CamelUtil} from "../src/core/api/CamelUtil";
 import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
 import {Integration} from "../src/core/model/IntegrationDefinition";
+import * as fs from 'fs';
+import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
+import {StepDefinition} from "../lib/model/CamelDefinition";
 
 describe('Find Step', () => {
 
@@ -41,9 +44,9 @@ describe('Find Step', () => {
             steps: [log1, log2, log3]
         })
         const choice = new ChoiceDefinition({when: [when1]})
-        const flow1 = new FromDefinition({uri: "direct1"});
-        flow1.steps?.push(choice);
-        i.spec.flows?.push(flow1);
+        const from1 = new FromDefinition({uri: "direct1"});
+        from1.steps?.push(choice);
+        i.spec.flows?.push(new RouteDefinition({from: from1}));
         const when2: WhenDefinition = CamelUtil.cloneStep(when1);
         if (when2 && when2.expression) {
             when2.expression.simple = new SimpleExpression({expression: '$[body} == "hello world"'});
@@ -62,9 +65,9 @@ describe('Find Step', () => {
             expression: new ExpressionDefinition({simple: new SimpleExpression({expression: '$[body} != null'})}),
             steps: [log1, log2, log3]
         })
-        const flow1 = new FromDefinition({uri: "direct1"});
-        flow1.steps?.push(filter);
-        i.spec.flows?.push(flow1);
+        const from1 = new FromDefinition({uri: "direct1"});
+        from1.steps?.push(filter);
+        i.spec.flows?.push(new RouteDefinition({from: from1}));
 
 
         const log: LogDefinition = <LogDefinition> CamelDefinitionApiExt.findElementInIntegration(i, log2.uuid);
@@ -92,5 +95,25 @@ describe('Find Step', () => {
         const log: LogDefinition = <LogDefinition> CamelDefinitionApiExt.findElementInIntegration(i, log2.uuid);
         expect(log.logName).to.equal(log2.logName);
         expect(log.message).to.equal(log2.message);
+    });
+
+    it('Find Steps in YAML', () => {
+        const yaml = fs.readFileSync('test/findStep.yaml',{encoding:'utf8', flag:'r'});
+        const i = CamelDefinitionYaml.yamlToIntegration("demo.yaml", yaml);
+        const step: StepDefinition = i.spec.flows?.[0].from.steps[0];
+        const choice: ChoiceDefinition = i.spec.flows?.[0].from.steps[0].steps[0];
+        const log: LogDefinition = i.spec.flows?.[0].from.steps[1];
+
+        // i.spec.flows?.[0].from.steps?.forEach((s:any) => console.log(s.uuid, CamelDefinitionApiExt.findElementInIntegration(i, s.uuid)?.dslName));
+
+        console.log('----')
+        CamelDefinitionApiExt.findElementPathUuids(i, log.uuid).forEach(u => console.log(u, CamelDefinitionApiExt.findElementInIntegration(i, u)?.dslName))
+
+        console.log('----')
+        CamelDefinitionApiExt.findElementPathUuids(i, step.uuid).forEach(u => console.log(u, CamelDefinitionApiExt.findElementInIntegration(i, u)?.dslName))
+
+        console.log('----')
+        CamelDefinitionApiExt.findElementPathUuids(i, choice.uuid).forEach(u => console.log(u, CamelDefinitionApiExt.findElementInIntegration(i, u)?.dslName))
+
     });
 });

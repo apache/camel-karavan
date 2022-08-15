@@ -1,0 +1,35 @@
+apiVersion: camel.apache.org/v1
+kind: Integration
+metadata:
+  name: postman.yaml
+spec:
+  flows:
+    - route:
+        from:
+          uri: kamelet:timer-source
+          steps:
+            - step:
+                steps:
+                  - choice: {}
+                  - log: {}
+            - log:
+                message: ${body}
+            - aggregate: {}
+            - choice: {}
+            - split:
+                expression: {}
+            - saga: {}
+            - to:
+                uri: direct:hello-world
+            - to:
+                uri: salesforce:getSObject
+                parameters:
+                  sObjectId: xxx
+                  sObjectClass: Account
+          parameters:
+            period: 2000
+            message: Hello World
+    - route:
+        from:
+          uri: direct:hello-world
+        id: hello-world
