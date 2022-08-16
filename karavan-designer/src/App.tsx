@@ -77,8 +77,10 @@ class App extends React.Component<Props, State> {
             '    - route:\n' +
             '        from:\n' +
             '          uri: direct:hello-world\n' +
-            '        id: hello-world' +
-            ''
+            '        id: hello-world\n' +
+            '    - beans:\n' +
+            '        - name: FFF\n' +
+            '          type: GGGG\n'
     };
 
     componentDidMount() {

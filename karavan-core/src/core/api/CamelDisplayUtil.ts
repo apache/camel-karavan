@@ -44,12 +44,18 @@ export class CamelDisplayUtil {
 
     static setIntegrationVisibility = (integration: Integration, selectedUuid: string | undefined): Integration => {
         const clone: any = CamelUtil.cloneIntegration(integration);
-        const flows = integration.spec.flows;
         const expandedUuids: string[] = [];
         if (selectedUuid) {
             expandedUuids.push(...this.getParentStepDefinitions(integration, selectedUuid));
         }
-        clone.spec.flows = flows?.map((f: any) => this.setElementVisibility(f, true, expandedUuids)).filter(x => Object.keys(x).length !== 0);
+        const flows: any[] = [];
+        clone.spec.flows?.filter((flow: any) => flow.dslName !== 'RouteDefinition').forEach((bean :any) => flows.push(bean));
+        const routes = clone.spec.flows
+            ?.filter((flow: any) => flow.dslName === 'RouteDefinition')
+            .map((f: any) => CamelDisplayUtil.setElementVisibility(f, true, expandedUuids))
+            .filter((x: any) => Object.keys(x).length !== 0);
+        flows.push(...routes);
+        clone.spec.flows = flows;
         return clone;
     }
 

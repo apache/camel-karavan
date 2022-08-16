@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {CSSProperties, DragEventHandler} from 'react';
+import React, {CSSProperties} from 'react';
 import {
     Button,
-    Flex, FlexItem, Gallery,
-    Modal, ModalVariant, PageSection, Tab, Tabs, TabTitleText,
+    Flex,
+    Modal, ModalVariant,
     Text, Tooltip,
 } from '@patternfly/react-core';
 import '../karavan.css';

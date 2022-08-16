@@ -98,16 +98,15 @@ export class CamelDefinitionApiExt {
     }
 
     static findElementMetaInIntegration = (integration: Integration, uuid: string): CamelElementMeta => {
-        const routes = integration.spec.flows?.filter(f => f.dslName === 'RouteDefinition')
+        const i = CamelUtil.cloneIntegration(integration);
+        const routes = i.spec.flows?.filter(f => f.dslName === 'RouteDefinition')
         return CamelDefinitionApiExt.findElementInElements(routes, uuid);
     }
 
     static findElementPathUuids = (integration: Integration, uuid: string): string[] => {
         const result: string[] = [];
         let meta = CamelDefinitionApiExt.findElementMetaInIntegration(integration, uuid);
-        // console.log(meta)
         if (meta && meta.parentUuid) {
-            // let parent = CamelDefinitionApiExt.findElementMetaInIntegration(integration, meta.parentUuid);
             while (meta.step?.dslName !== 'FromDefinition') {
                 if (meta.parentUuid) {
                     result.push(meta.parentUuid);
@@ -125,8 +124,6 @@ export class CamelDefinitionApiExt {
         if (steps !== undefined) {
             for (let index = 0, step: CamelElement; step = steps[index]; index++) {
                 if (step.uuid === uuid) {
-                    // const p = [...result.pathUuids];
-                    // p.push(step.uuid);
                     result = new CamelElementMeta(step, parentUuid, index);
                     break;
                 } else {
@@ -135,12 +132,10 @@ export class CamelDefinitionApiExt {
                         const cel = CamelDefinitionApiExt.getElementChildren(step, e);
                         if (e.multiple) {
                             result = CamelDefinitionApiExt.findElementInElements(cel, uuid, result, step.uuid);
-                            // result.pathUuids.push(step.uuid);
                         } else {
                             const prop = (step as any)[e.name];
                             if (prop && prop.hasOwnProperty("uuid")) {
                                 result = CamelDefinitionApiExt.findElementInElements([prop], uuid, result, prop.uuid);
-                                // result.pathUuids.push(prop.uuid);
                             }
                         }
                     })
