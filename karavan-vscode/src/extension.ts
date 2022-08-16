@@ -143,7 +143,7 @@ export function activate(context: ExtensionContext) {
 
     // Run project
     const runProjectCommand = commands.registerCommand("karavan.jbang-run-project", (...args: any[]) => {
-        if (rootPath) jbang.camelJbangRun(rootPath);
+        jbang.camelJbangRun();
     });
     context.subscriptions.push(runProjectCommand);
 

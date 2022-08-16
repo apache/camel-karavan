@@ -1112,6 +1112,8 @@ export class RouteDefinition extends CamelElement {
     streamCaching?: boolean;
     id?: string;
     precondition?: string;
+    startupOrder?: number;
+    routePolicy?: string;
     autoStartup?: boolean;
     group?: string
     public constructor(init?: Partial<RouteDefinition>) {
@@ -3064,6 +3066,7 @@ export class XMLTokenizerExpression extends CamelElement {
     headerName?: string;
     trim?: boolean;
     expressionName?: string = 'xtokenize';
+    namespace?: PropertyDefinition[] = [];
     id?: string;
     group?: number
     public constructor(init?: Partial<XMLTokenizerExpression>) {
@@ -3083,6 +3086,7 @@ export class XPathExpression extends CamelElement {
     trim?: boolean;
     objectModel?: string;
     logNamespaces?: boolean;
+    namespace?: PropertyDefinition[] = [];
     threadSafety?: boolean;
     id?: string;
     resultType?: string
@@ -3098,6 +3102,7 @@ export class XQueryExpression extends CamelElement {
     configurationRef?: string;
     trim?: boolean;
     expressionName?: string = 'xquery';
+    namespace?: PropertyDefinition[] = [];
     id?: string;
     type?: string
     public constructor(init?: Partial<XQueryExpression>) {

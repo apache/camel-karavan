@@ -2795,6 +2795,7 @@ export class CamelDefinitionApi {
         
         const def = element ? new XMLTokenizerExpression({...element}) : new XMLTokenizerExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
+        def.namespace = element && element?.namespace ? element?.namespace.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
 
         return def;
     }
@@ -2803,6 +2804,7 @@ export class CamelDefinitionApi {
         if (element && typeof element === 'string') element = {expression: element};
         const def = element ? new XPathExpression({...element}) : new XPathExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
+        def.namespace = element && element?.namespace ? element?.namespace.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
 
         return def;
     }
@@ -2811,6 +2813,7 @@ export class CamelDefinitionApi {
         if (element && typeof element === 'string') element = {expression: element};
         const def = element ? new XQueryExpression({...element}) : new XQueryExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid;
+        def.namespace = element && element?.namespace ? element?.namespace.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
 
         return def;
     }

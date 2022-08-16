@@ -37,6 +37,8 @@ import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
 import {KubernetesSelector} from "./KubernetesSelector";
 import {KubernetesAPI} from "../../utils/KubernetesAPI";
 import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
+import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
+import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 
 const prefix = "parameters";
 const beanPrefix = "#bean:";
@@ -52,6 +54,7 @@ interface Props {
 interface State {
     selectStatus: Map<string, boolean>
     showEditor: boolean
+    showPassword: boolean
     showKubernetesSelector: boolean
     kubernetesSelectorProperty?: string
     ref: any
@@ -62,6 +65,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
     public state: State = {
         selectStatus: new Map<string, boolean>(),
         showEditor: false,
+        showPassword: false,
         showKubernetesSelector: false,
         ref: React.createRef(),
     }
@@ -192,7 +196,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
     }
 
     getStringInput(property: ComponentProperty, value: any) {
-        const showEditor = this.state.showEditor;
+        const {showEditor, showPassword} = this.state;
         const inKubernetes = KubernetesAPI.inKubernetes;
         const id = prefix + "-" + property.name;
         const noKubeSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
@@ -205,7 +209,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
                 </Tooltip>}
             {(!showEditor || property.secret) &&
                 <TextInput className="text-field" isRequired ref={this.state.ref}
-                           type={property.secret ? "password" : "text"}
+                           type={property.secret && !showPassword ? "password" : "text"}
                            id={id} name={id}
                            value={value !== undefined ? value : property.defaultValue}
                            onChange={e => this.parametersChanged(property.name, e, property.kind === 'path')}/>}
@@ -220,6 +224,13 @@ export class ComponentParameterField extends React.Component<Props, State> {
                 <Tooltip position="bottom-end" content={showEditor ? "Change to TextField" : "Change to Text Area"}>
                     <Button variant="control" onClick={e => this.setState({showEditor: !showEditor})}>
                         {showEditor ? <CompressIcon/> : <ExpandIcon/>}
+                    </Button>
+                </Tooltip>
+            }
+            {property.secret &&
+                <Tooltip position="bottom-end" content={showPassword ? "Hide" : "Show"}>
+                    <Button variant="control" onClick={e => this.setState({showPassword: !showPassword})}>
+                        {showPassword ? <ShowIcon/> : <HideIcon/>}
                     </Button>
                 </Tooltip>
             }

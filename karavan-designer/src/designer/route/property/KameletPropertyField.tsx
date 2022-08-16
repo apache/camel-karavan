@@ -103,10 +103,8 @@ export class KameletPropertyField extends React.Component<Props, State> {
     }
 
     getStringInput() {
-        const showEditor = this.state.showEditor;
-        const showPassword = this.state.showPassword;
-        const property = this.props.property;
-        const value = this.props.value;
+        const {showEditor, showPassword} = this.state;
+        const {property, value} = this.props;
         const prefix = "parameters";
         const id = prefix + "-" + property.id;
         const noKubeSelectorButton = ["uri", "id", "description", "group"].includes(property.id);

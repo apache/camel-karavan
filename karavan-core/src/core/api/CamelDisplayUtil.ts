@@ -24,31 +24,38 @@ export class CamelDisplayUtil {
     static isStepDefinitionExpanded = (integration: Integration, stepUuid: string, selectedUuid: string | undefined): boolean => {
         const expandedUuids: string[] = [];
         if (selectedUuid) {
-            expandedUuids.push(...this.getParentStepDefinitions(integration.spec.flows, selectedUuid));
+            expandedUuids.push(...this.getParentStepDefinitions(integration, selectedUuid));
         }
         return expandedUuids.includes(stepUuid);
     }
 
-    static getParentStepDefinitions = (flows: CamelElement[] | undefined, uuid: string): string[] => {
+    static getParentStepDefinitions = (integration: Integration, uuid: string): string[] => {
         const result: string[] = [];
-        let meta = CamelDefinitionApiExt.findStep(flows, uuid);
-        if (meta)
-        while (meta.step?.dslName !== 'FromDefinition') {
-            if (meta.step?.dslName === 'StepDefinition') result.push(meta.step.uuid);
-            if (meta.parentUuid) meta = CamelDefinitionApiExt.findStep(flows, meta.parentUuid)
-            else break;
+        let meta = CamelDefinitionApiExt.findElementMetaInIntegration(integration, uuid);
+        if (meta) {
+            while (meta.step?.dslName !== 'FromDefinition') {
+                if (meta.step?.dslName === 'StepDefinition') result.push(meta.step.uuid);
+                if (meta.parentUuid) meta = CamelDefinitionApiExt.findElementMetaInIntegration(integration, meta.parentUuid)
+                else break;
+            }
         }
         return result;
     }
 
     static setIntegrationVisibility = (integration: Integration, selectedUuid: string | undefined): Integration => {
         const clone: any = CamelUtil.cloneIntegration(integration);
-        const flows = integration.spec.flows;
         const expandedUuids: string[] = [];
         if (selectedUuid) {
-            expandedUuids.push(...this.getParentStepDefinitions(flows, selectedUuid));
+            expandedUuids.push(...this.getParentStepDefinitions(integration, selectedUuid));
         }
-        clone.spec.flows = flows?.map((f: any) => this.setElementVisibility(f, true, expandedUuids)).filter(x => Object.keys(x).length !== 0);
+        const flows: any[] = [];
+        clone.spec.flows?.filter((flow: any) => flow.dslName !== 'RouteDefinition').forEach((bean :any) => flows.push(bean));
+        const routes = clone.spec.flows
+            ?.filter((flow: any) => flow.dslName === 'RouteDefinition')
+            .map((f: any) => CamelDisplayUtil.setElementVisibility(f, true, expandedUuids))
+            .filter((x: any) => Object.keys(x).length !== 0);
+        flows.push(...routes);
+        clone.spec.flows = flows;
         return clone;
     }
 

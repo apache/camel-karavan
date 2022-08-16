@@ -19,10 +19,11 @@ import * as fs from 'fs';
 import 'mocha';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
 
+
 describe('bean configuration', () => {
 
     it('Read beans from plain YAML', () => {
-        const yaml = fs.readFileSync('test/beans1.yaml',{encoding:'utf8', flag:'r'});
+        const yaml = fs.readFileSync('test/beans1.yaml', {encoding: 'utf8', flag: 'r'});
         const i = CamelDefinitionYaml.yamlToIntegration("beans.yaml", yaml);
         expect(i.metadata.name).to.equal('beans.yaml');
         expect(i.kind).to.equal('Integration');

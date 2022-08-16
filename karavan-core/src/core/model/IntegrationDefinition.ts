@@ -82,12 +82,10 @@ export class CamelElementMeta {
     step?: CamelElement
     parentUuid?: string
     position: number = 0;
-    pathUuids: string [] = [];
 
-    constructor(step?: CamelElement, parentUuid?: string, position?: number, pathUuids?: string []) {
+    constructor(step?: CamelElement, parentUuid?: string, position?: number) {
         this.step = step;
         this.parentUuid = parentUuid;
         this.position = position || 0;
-        this.pathUuids = pathUuids || this.pathUuids;
     }
 }

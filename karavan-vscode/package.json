@@ -4,7 +4,7 @@
   "displayName": "Karavan",
   "icon": "icons/karavan.png",
   "description": "Apache Camel Mastering Tool",
-  "version": "3.18.0",
+  "version": "3.18.1",
   "license": "Apache-2.0",
   "preview": true,
   "bugs": {
@@ -61,7 +61,7 @@
       "properties": {
         "camel.version": {
           "type": "string",
-          "default": "3.18.0",
+          "default": "3.18.1",
           "description": "Camel version",
           "scope": "machine",
           "order": 10
@@ -80,7 +80,7 @@
         },
         "camel.quarkus-version": {
           "type": "string",
-          "default": "2.11.0.Final",
+          "default": "2.11.2.Final",
           "description": "Camel-quarkus version",
           "scope": "machine",
           "order": 21
@@ -107,7 +107,7 @@
         },
         "camel.dev": {
           "type": "boolean",
-          "default": "true",
+          "default": "false",
           "description": "Run in developer mode (including reload routes on change)",
           "scope": "machine",
           "order": 50

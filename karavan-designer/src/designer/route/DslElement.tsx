@@ -16,6 +16,9 @@
  */
 import React, {CSSProperties} from 'react';
 import {
+    Button,
+    Flex,
+    Modal, ModalVariant,
     Text, Tooltip,
 } from '@patternfly/react-core';
 import '../karavan.css';
@@ -37,7 +40,7 @@ interface Props {
     deleteElement: any
     selectElement: any
     openSelector: (parentId: string | undefined, parentDsl: string | undefined, showSteps: boolean, position?: number | undefined) => void
-    moveElement: (source: string, target: string) => void
+    moveElement: (source: string, target: string, asChild: boolean) => void
     selectedUuid: string
     inSteps: boolean
     position: number
@@ -46,6 +49,8 @@ interface Props {
 
 interface State {
     showSelector: boolean
+    showMoveConfirmation: boolean
+    moveElements: [string | undefined, string | undefined]
     tabIndex: string | number
     selectedUuid: string
     isDragging: boolean
@@ -56,6 +61,8 @@ export class DslElement extends React.Component<Props, State> {
 
     public state: State = {
         showSelector: false,
+        showMoveConfirmation: false,
+        moveElements: [undefined, undefined],
         tabIndex: 0,
         selectedUuid: this.props.selectedUuid,
         isDragging: false,
@@ -89,6 +96,34 @@ export class DslElement extends React.Component<Props, State> {
     selectElement = (evt: React.MouseEvent) => {
         evt.stopPropagation();
         this.props.selectElement.call(this, this.props.step);
+    }
+
+    dragElement = (event: React.DragEvent<HTMLDivElement>, element: CamelElement) => {
+        event.preventDefault();
+        event.stopPropagation();
+        this.setState({isDraggedOver: false});
+        const sourceUuid = event.dataTransfer.getData("text/plain");
+        const targetUuid = element.uuid;
+        if (sourceUuid !== targetUuid) {
+            if (element.hasSteps()){
+                this.setState({showMoveConfirmation: true, moveElements: [sourceUuid, targetUuid]});
+            } else {
+                this.props.moveElement?.call(this, sourceUuid, targetUuid, false);
+            }
+        }
+    }
+
+    confirmMove = (asChild: boolean) => {
+        const sourceUuid = this.state.moveElements[0];
+        const targetUuid = this.state.moveElements[1];
+        if (sourceUuid && targetUuid && sourceUuid !== targetUuid) {
+            this.props.moveElement?.call(this, sourceUuid, targetUuid, asChild);
+            this.setState({showMoveConfirmation: false, moveElements: [undefined, undefined]})
+        }
+    }
+
+    cancelMove = () => {
+        this.setState({showMoveConfirmation: false, moveElements: [undefined, undefined]})
     }
 
     isSelected = (): boolean => {
@@ -192,7 +227,7 @@ export class DslElement extends React.Component<Props, State> {
         const step: CamelElement = this.props.step;
         const availableModels = CamelUi.getSelectorModelsForParent(step.dslName, false);
         const showAddButton = !['CatchDefinition', 'RouteDefinition'].includes(step.dslName) && availableModels.length > 0;
-        const showInsertButton = !['FromDefinition', 'RouteDefinition', 'CatchDefinition', 'FinallyDefinition', 'ChoiceDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(step.dslName);
+        const showInsertButton = !['FromDefinition', 'RouteDefinition', 'CatchDefinition', 'FinallyDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(step.dslName);
         const headerClass = step.dslName === 'RouteDefinition' ? "header-route" : "header"
         const headerClasses = this.isSelected() ? headerClass + " selected" : headerClass;
         return (
@@ -380,6 +415,24 @@ export class DslElement extends React.Component<Props, State> {
         )
     }
 
+    getMoveConfirmation() {
+        return (
+            <Modal
+                aria-label="title"
+                className='move-modal'
+                isOpen={this.state.showMoveConfirmation}
+                variant={ModalVariant.small}
+            ><Flex direction={{default: "column"}}>
+                <div>Select move type:</div>
+                <Button key="place" variant="primary" onClick={event => this.confirmMove(false)}>Shift (target down)</Button>
+                <Button key="child" variant="secondary" onClick={event => this.confirmMove(true)}>Move as target step</Button>
+                <Button key="cancel" variant="tertiary" onClick={event => this.cancelMove()}>Cancel</Button>
+            </Flex>
+
+            </Modal>
+        )
+    }
+
     render() {
         const element: CamelElement = this.props.step;
         const className = "step-element" + (this.isSelected() ? " step-element-selected" : "")
@@ -428,20 +481,12 @@ export class DslElement extends React.Component<Props, State> {
                      this.setState({isDraggedOver: false});
 
                  }}
-                 onDrop={event => {
-                     event.preventDefault();
-                     event.stopPropagation();
-                     this.setState({isDraggedOver: false});
-                     const sourceUuid = event.dataTransfer.getData("text/plain");
-                     const targetUuid = element.uuid;
-                     if (sourceUuid !== targetUuid) {
-                         this.props.moveElement?.call(this, sourceUuid, targetUuid);
-                     }
-                 }}
+                 onDrop={event => this.dragElement(event, element)}
                  draggable={!this.isNotDraggable()}
             >
                 {this.getElementHeader()}
                 {this.getChildElements()}
+                {this.getMoveConfirmation()}
             </div>
         )
     }

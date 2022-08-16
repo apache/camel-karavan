@@ -156,6 +156,7 @@ export class RouteDesigner extends React.Component<Props, State> {
     }
 
     onPropertyUpdate = (element: CamelElement, newRoute?: RouteToCreate) => {
+        console.log(this.state.integration)
         if (newRoute) {
             let i = CamelDefinitionApiExt.updateIntegrationRouteElement(this.state.integration, element);
             const f = CamelDefinitionApi.createFromDefinition({uri: newRoute.componentName + ":" + newRoute.name})
@@ -172,7 +173,9 @@ export class RouteDesigner extends React.Component<Props, State> {
             });
         } else {
             const clone = CamelUtil.cloneIntegration(this.state.integration);
+            console.log(clone);
             const i = CamelDefinitionApiExt.updateIntegrationRouteElement(clone, element);
+            console.log(i);
             this.setState({integration: i, propertyOnly: true, key: Math.random().toString()});
         }
     }
@@ -289,8 +292,8 @@ export class RouteDesigner extends React.Component<Props, State> {
         this.setState({integration: i, propertyOnly: false, showSelector: false, key: Math.random().toString()});
     }
 
-    moveElement = (source: string, target: string) => {
-        const i = CamelDefinitionApiExt.moveRouteElement(this.state.integration, source, target);
+    moveElement = (source: string, target: string, asChild: boolean) => {
+        const i = CamelDefinitionApiExt.moveRouteElement(this.state.integration, source, target, asChild);
         const clone = CamelUtil.cloneIntegration(i);
         const selectedStep = CamelDefinitionApiExt.findElementInIntegration(clone, source);
         this.setState({

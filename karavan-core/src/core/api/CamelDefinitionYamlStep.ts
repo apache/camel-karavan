@@ -2834,6 +2834,7 @@ export class CamelDefinitionYamlStep {
     static readXMLTokenizerExpression = (element: any): XMLTokenizerExpression => {
         
         const def = element ? new XMLTokenizerExpression({...element}) : new XMLTokenizerExpression();
+        def.namespace = element && element?.namespace ? element?.namespace.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
 
         return def;
     }
@@ -2841,6 +2842,7 @@ export class CamelDefinitionYamlStep {
     static readXPathExpression = (element: any): XPathExpression => {
         if (element && typeof element === 'string') element = {expression: element};
         const def = element ? new XPathExpression({...element}) : new XPathExpression();
+        def.namespace = element && element?.namespace ? element?.namespace.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
 
         return def;
     }
@@ -2848,6 +2850,7 @@ export class CamelDefinitionYamlStep {
     static readXQueryExpression = (element: any): XQueryExpression => {
         if (element && typeof element === 'string') element = {expression: element};
         const def = element ? new XQueryExpression({...element}) : new XQueryExpression();
+        def.namespace = element && element?.namespace ? element?.namespace.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
 
         return def;
     }
