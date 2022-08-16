@@ -26,7 +26,7 @@ docker-compose up
 
 ### Start integration 
 ```
-jbang -Dcamel.jbang.version=3.18.0 camel@apache/camel run *
+jbang -Dcamel.jbang.version=3.18.1 camel@apache/camel run *
 ```
 
 ### Publish parcel

@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.18.1
+1. Upgrade to Camel 3.18.1 and jbang 0.97.0
+2. DSL Elements could be moved (drag-and-drop) to Step DSL as steps
+3. Fixed issues with Drag-and-Drop
+4. Fixed issues with Beans and REST dissapearing
+5. Fixed issues with run local with jbang in `--dev` mode
+
 ## 3.18.0
 1. Camel 3.18.0+ DSL
 2. Export to Camel-Qurkus, Spring-Boot and Camel-Main

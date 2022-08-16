@@ -1,7 +1,7 @@
 {
   "name": "karavan-core",
   "publisher": "camel-karavan",
-  "version": "3.18.0",
+  "version": "3.18.1",
   "description": "Apache Camel Karavan Core",
   "scripts": {
     "build": "tsc",
