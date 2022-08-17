@@ -10,13 +10,13 @@
 ![karavan-logo](images/karavan-logo-light.png#gh-light-mode-only)
 
 
-Mastering Tool for Apache Camel makes integration easy and fun through the visualization of pipelines, integration with runtimes and package, image build and deploy to kubernetes out-of-the-box.
+Integration Toolkit for Apache Camel makes integration easy and fun through the visualization of pipelines, integration with runtimes and package, image build and deploy to kubernetes out-of-the-box.
 
 ![karavan-about](images/karavan-about.png)
 
 ## Features
 ### Mode
-* [Self-managed iPaaS](karavan-builder/README.md)
+* [Cloud-native](karavan-builder/README.md)
 * [VS Code extension](karavan-vscode/README.md)
 ### Visual Designer for Integrations
 * Enterprise Integration Patterns DSL
@@ -40,8 +40,8 @@ Build-in catalogues:
 * Kamelets
 * Components
 
-## Karavan Self-Managed iPaaS
-More about [Karavan Self-Managed iPaaS](karavan-builder/README.md)
+## Karavan cloud-native integration toolkit
+More about [cloud-native Karavan](karavan-builder/README.md)
 
 ![karavan-ipaas-1](images/karavan-ipaas-1.png)
 
