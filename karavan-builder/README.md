@@ -1,4 +1,4 @@
-## Karavan Self-Managed iPaaS
+## Karavan cloud-native integration toolkit
 
 ### Architecture
 ![karavan-ipaas](../images/karavan-ipaas.png)
