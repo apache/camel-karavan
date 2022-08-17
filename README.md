@@ -41,7 +41,7 @@ Build-in catalogues:
 * Components
 
 ## Karavan cloud-native integration toolkit
-More about [cloud-native Karavan](karavan-builder/README.md)
+Karavan cloud-native integration toolkit is a user application to manage projects, design and monitor integrations, Tekton pipeline to build and deploy integrations. More about [cloud-native Karavan](karavan-builder/README.md)
 
 ![karavan-ipaas-1](images/karavan-ipaas-1.png)
 
