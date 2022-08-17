@@ -32,7 +32,7 @@ describe('CRD YAML to Integration', () => {
         expect(i.metadata.name).to.equal('test1.yaml');
         expect(i.kind).to.equal('Integration');
         expect(i.spec.flows?.length).to.equal(1);
-        expect(i.crd).to.equal(true);
+        expect(i.type).to.equal('crd');
         if (i.spec.flows){
             const f:FilterDefinition = (i.spec.flows[0] as RouteDefinition).from.steps[1];
             const t:ToDefinition = <ToDefinition> (f.steps ? f.steps[0] : undefined);
@@ -47,7 +47,7 @@ describe('CRD YAML to Integration', () => {
         expect(i.metadata.name).to.equal('test1.yaml');
         expect(i.kind).to.equal('Integration');
         expect(i.spec.flows?.length).to.equal(1);
-        expect(i.crd).to.equal(true);
+        expect(i.type).to.equal('crd');
 
         if (i.spec.flows){
             const f:FilterDefinition = (i.spec.flows[0] as RouteDefinition).from.steps[1];

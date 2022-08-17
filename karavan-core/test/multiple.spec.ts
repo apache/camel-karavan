@@ -28,7 +28,7 @@ describe('Plain YAML to integration', () => {
         expect(i.metadata.name).to.equal('test1.yaml');
         expect(i.kind).to.equal('Integration');
         expect(i.spec.flows?.length).to.equal(2);
-        expect(i.crd).to.equal(false);
+        expect(i.type).to.equal('plain');
         if (i.spec.flows) {
             expect(i.spec.flows[0].from.uri).to.equal('netty-http:http://localhost:8080/demo');
             expect(i.spec.flows[1].from.uri).to.equal('kamelet:aws-kinesis-source');
