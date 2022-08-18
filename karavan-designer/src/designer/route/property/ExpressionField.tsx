@@ -92,7 +92,6 @@ export class ExpressionField extends React.Component<Props, State> {
 
     getProps = (): PropertyMeta[] => {
         const dslName = this.getValueClassName();
-        console.log(CamelDefinitionApiExt.getElementProperties(dslName))
         return CamelDefinitionApiExt.getElementProperties(dslName)
             .filter(p => p.name !== 'id')
             .filter(p => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)) || (dslName === 'CatchDefinition' && p.name === 'onWhen'));

@@ -51,29 +51,39 @@ class App extends React.Component<Props, State> {
             '  flows:\n' +
             '    - route:\n' +
             '        from:\n' +
-            '          uri: kamelet:timer-source\n' +
+            '          uri: timer:demo\n' +
             '          steps:\n' +
-            '            - step:\n' +
+            '            - doTry:\n' +
             '                steps:\n' +
-            '                  - choice: {}\n' +
-            '                  - log: {}\n' +
-            '            - log:\n' +
-            '                message: ${body}\n' +
-            '            - aggregate: {}\n' +
-            '            - choice: {}\n' +
-            '            - split:\n' +
-            '                expression: {}\n' +
-            '            - saga: {}\n' +
-            '            - to:\n' +
-            '                uri: direct:hello-world\n' +
-            '            - to:\n' +
-            '                uri: salesforce:getSObject\n' +
-            '                parameters:\n' +
-            '                  sObjectId: xxx\n' +
-            '                  sObjectClass: Account\n' +
-            '          parameters:\n' +
-            '            period: 2000\n' +
-            '            message: Hello World\n' +
+            '                  - setBody:\n' +
+            '                      expression:\n' +
+            '                        groovy:\n' +
+            '                          expression: 1000 / 0\n' +
+            '                doCatch:\n' +
+            '                  - steps:\n' +
+            '                      - log:\n' +
+            '                          message: Exception\n' +
+            '                    exception:\n' +
+            '                      - java.lang.ArithmeticException\n' +
+            '                doFinally:\n' +
+            '                  steps:\n' +
+            '                    - log:\n' +
+            '                        message: ${body}\n' +
+            // '            - aggregate: {}\n' +
+            // '            - choice: {}\n' +
+            // '            - split:\n' +
+            // '                expression: {}\n' +
+            // '            - saga: {}\n' +
+            // '            - to:\n' +
+            // '                uri: direct:hello-world\n' +
+            // '            - to:\n' +
+            // '                uri: salesforce:getSObject\n' +
+            // '                parameters:\n' +
+            // '                  sObjectId: xxx\n' +
+            // '                  sObjectClass: Account\n' +
+            // '          parameters:\n' +
+            // '            period: 2000\n' +
+            // '            message: Hello World\n' +
             '    - route:\n' +
             '        from:\n' +
             '          uri: direct:hello-world\n' +
