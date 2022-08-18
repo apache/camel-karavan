@@ -32,8 +32,10 @@ export class CamelDisplayUtil {
     static getParentStepDefinitions = (integration: Integration, uuid: string): string[] => {
         const result: string[] = [];
         let meta = CamelDefinitionApiExt.findElementMetaInIntegration(integration, uuid);
+        let i = 0;
         if (meta) {
-            while (meta.step?.dslName !== 'FromDefinition') {
+            while (meta.step?.dslName !== 'FromDefinition' && i < 100) {
+                i++;
                 if (meta.step?.dslName === 'StepDefinition') result.push(meta.step.uuid);
                 if (meta.parentUuid) meta = CamelDefinitionApiExt.findElementMetaInIntegration(integration, meta.parentUuid)
                 else break;

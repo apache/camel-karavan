@@ -19,6 +19,7 @@ import * as fs from 'fs';
 import 'mocha';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
 import {Integration} from "../src/core/model/IntegrationDefinition";
+import {FinallyDefinition} from "../lib/model/CamelDefinition";
 
 
 describe('Plain YAML to integration', () => {
@@ -47,6 +48,18 @@ describe('Plain YAML to integration', () => {
             expect(i.spec.flows[0].from.uri).to.equal('timer:info');
             expect(i.spec.flows[0].from.steps[0].expression.constant.expression).to.equal("Hello Yaml !!!");
         }
+    });
+
+    it('YAML <-> Integration', () => {
+        const yaml = fs.readFileSync('test/plain-try-catch.yaml',{encoding:'utf8', flag:'r'});
+        const i = CamelDefinitionYaml.yamlToIntegration("try-catch.yaml", yaml);
+        expect(i.metadata.name).to.equal('try-catch.yaml');
+        expect(i.kind).to.equal('Integration');
+        expect(i.spec.flows?.length).to.equal(1);
+        expect(i.type).to.equal('plain');
+        const f: FinallyDefinition = i.spec.flows?.[0].from?.steps[0].doFinally;
+        const yaml2 = CamelDefinitionYaml.integrationToYaml(i);
+        expect(yaml).to.equal(yaml2);
     });
 
 });

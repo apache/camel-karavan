@@ -123,6 +123,7 @@ export class CamelDefinitionYaml {
                 || dslName === 'ExpressionDefinition'
                 || dslName?.endsWith('Expression')
                 || stepName === 'otherwise'
+                || stepName === 'doFinally'
                 || key === 'from') {
                 delete newValue.inArray;
                 delete newValue.inSteps;
@@ -135,14 +136,6 @@ export class CamelDefinitionYaml {
                 return xValue;
             }
         } else {
-            if (value?.dslName && value.dslName.endsWith("Trait") && value.dslName !== 'Trait'){
-                delete value.dslName;
-                return {configuration: value};
-            } else if (value?.dslName === 'Trait' && value?.threeScale){
-                delete value.dslName;
-                value["3scale"] = {configuration: value.threeScale};
-                return value;
-            }
             delete value?.dslName;
             return value;
         }
