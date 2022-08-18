@@ -72,10 +72,10 @@ export class DesignerView {
         }
     }
 
-    createIntegration(crd: boolean, rootPath?: string) {
+    createIntegration(type: 'crd' | 'plain' | 'kamelet', rootPath?: string) {
         window
             .showInputBox({
-                title: crd ? "Create Camel Integration CRD" : "Create Camel Integration YAML",
+                title: type === 'crd' ? "Create Camel Integration CRD" : "Create Camel Integration YAML",
                 ignoreFocusOut: true,
                 prompt: "Integration name",
                 validateInput: (text: string): string | undefined => {
@@ -89,7 +89,7 @@ export class DesignerView {
                 if (value) {
                     const name = utils.nameFromTitle(value);
                     const i = Integration.createNew(name);
-                    i.crd = crd;
+                    i.type = type;
                     const yaml = CamelDefinitionYaml.integrationToYaml(i);
                     const filename = name.toLocaleLowerCase().endsWith('.yaml') ? name : name + '.yaml';
                     const relativePath = (this.rootPath ? rootPath?.replace(this.rootPath, "") : rootPath) + path.sep + filename;

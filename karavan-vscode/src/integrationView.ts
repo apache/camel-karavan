@@ -55,7 +55,7 @@ export class IntegrationView implements TreeDataProvider<IntegrationItem> {
 			if (!filename.startsWith(dir + path.sep + "target") && CamelDefinitionYaml.yamlIsIntegration(yaml)){
 				const basename = path.basename(filename);
 				const i = CamelDefinitionYaml.yamlToIntegration(basename, yaml);
-				result.push(new IntegrationItem(i.metadata.name, filename, i.crd ? "CRD" : "", i, { command: 'karavan.open', title: '', arguments: [{ fsPath: filename }] }));
+				result.push(new IntegrationItem(i.metadata.name, filename, i.type === 'crd' ? "CRD" : "", i, { command: 'karavan.open', title: '', arguments: [{ fsPath: filename }] }));
 			}
 			
 		}
@@ -81,8 +81,8 @@ export class IntegrationItem extends TreeItem {
 	}
 
 	iconPath = this.integration ? {
-		light: path.join(__filename, '..', '..', 'icons', 'light', this.integration?.crd ? 'crd.svg' : 'karavan.svg'),
-		dark: path.join(__filename, '..', '..', 'icons', 'dark', this.integration?.crd ? 'crd.svg' : 'karavan.svg')
+		light: path.join(__filename, '..', '..', 'icons', 'light', this.integration?.type === 'crd' ? 'crd.svg' : 'karavan.svg'),
+		dark: path.join(__filename, '..', '..', 'icons', 'dark', this.integration?.type === 'crd' ? 'crd.svg' : 'karavan.svg')
 	} : ThemeIcon.File;
 
 	contextValue = this.integration ? 'integration' : "route";

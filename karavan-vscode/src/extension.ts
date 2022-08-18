@@ -89,13 +89,13 @@ export function activate(context: ExtensionContext) {
 
     // Create new Integration CRD command
     const createCrd = commands.registerCommand("karavan.create-crd", (...args: any[]) => {
-        if (args.length > 0) designer.createIntegration(true, args[0].fsPath)
-        else designer.createIntegration(true, rootPath)
+        if (args.length > 0) designer.createIntegration("crd", args[0].fsPath)
+        else designer.createIntegration("crd", rootPath)
     });
     context.subscriptions.push(createCrd);
 
     // Create new Integration YAML command
-    const createYaml = commands.registerCommand("karavan.create-yaml", (...args: any[]) => designer.createIntegration(false, args[0]?.fsPath));
+    const createYaml = commands.registerCommand("karavan.create-yaml", (...args: any[]) => designer.createIntegration("plain", args[0]?.fsPath));
     context.subscriptions.push(createYaml);
 
     // Open integration in designer command
