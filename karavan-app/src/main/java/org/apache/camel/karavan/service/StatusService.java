@@ -72,9 +72,11 @@ public class StatusService {
 
     @ConsumeEvent(value = CMD_COLLECT_STATUSES, blocking = true, ordered = true)
     public void collectStatuses(String projectId) throws Exception {
-        if ((System.currentTimeMillis() - lastCollect) > configuration.statusThreshold()){
-            getStatuses(projectId);
-            lastCollect = System.currentTimeMillis();
+        if ((System.currentTimeMillis() - lastCollect) > configuration.statusThreshold()) {
+            if (infinispanService.getProject(projectId).getDeployed()) {
+                getStatuses(projectId);
+                lastCollect = System.currentTimeMillis();
+            }
         }
     }
 

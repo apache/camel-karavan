@@ -10,21 +10,33 @@ spec:
     - name: karavan-build-deploy
       script: |
           #!/usr/bin/env bash
-          CHECKOUT_DIR="/scripts"
-
-          if  [[ $GIT_REPOSITORY == https* ]] ;
+          KAMELETS_DIR="/kamelets"
+          
+          if  [[ $KAMELETS_GIT_REPOSITORY == https* ]] ;
           then
-              replacer=https://$GIT_PASSWORD@
+              replacer=https://$KAMELETS_GIT_PASSWORD@
               prefix=https://
-              url="${GIT_REPOSITORY/$prefix/$replacer}"    
-              git clone --depth 1 --branch main $url ${CHECKOUT_DIR}
+              url="${KAMELETS_GIT_REPOSITORY/$prefix/$replacer}"    
+              git clone --depth 1 --branch ${KAMELETS_GIT_MAIN} $url ${KAMELETS_DIR}
           else
-              git clone --depth 1 --branch main ${GIT_REPOSITORY} ${CHECKOUT_DIR}    
+              git clone --depth 1 --branch ${KAMELETS_GIT_MAIN} ${KAMELETS_GIT_REPOSITORY} ${KAMELETS_DIR}    
+          fi
+
+          CHECKOUT_DIR="/scripts"
+          
+          if  [[ $PROJECTS_GIT_REPOSITORY == https* ]] ;
+          then
+              replacer=https://$PROJECTS_GIT_PASSWORD@
+              prefix=https://
+              url="${PROJECTS_GIT_REPOSITORY/$prefix/$replacer}"    
+              git clone --depth 1 --branch ${PROJECTS_GIT_MAIN} $url ${CHECKOUT_DIR}
+          else
+              git clone --depth 1 --branch ${PROJECTS_GIT_MAIN} ${PROJECTS_GIT_REPOSITORY} ${CHECKOUT_DIR}    
           fi
 
           cd ${CHECKOUT_DIR}/$(inputs.params.project) 
 
-          entrypoint -Dcamel.jbang.version=3.18.1 camel@apache/camel export
+          entrypoint -Dcamel.jbang.version=3.18.1 camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR}
 
           export LAST_COMMIT=$(git rev-parse --short HEAD)
           export DATE=$(date '+%Y%m%d%H%M%S')
@@ -44,23 +56,48 @@ spec:
             -Dquarkus.kubernetes.deploy=true \
             -Dquarkus.container-image.group=${NAMESPACE} \
             -Dquarkus.container-image.tag=${DATE}
-      image: 'ghcr.io/apache/camel-karavan-builder:3.18.2'
+      image: 'ghcr.io/apache/camel-karavan-builder:3.18.3'
       env:
-        - name: GIT_REPOSITORY
+        - name: PROJECTS_GIT_REPOSITORY
           valueFrom:
             secretKeyRef:
               name: karavan
-              key: git-repository
-        - name: GIT_USERNAME
+              key: projects-git-repository
+        - name: PROJECTS_GIT_USERNAME
           valueFrom:
             secretKeyRef:
               name: karavan
-              key: git-username
-        - name: GIT_PASSWORD
+              key: projects-git-username
+        - name: PROJECTS_GIT_PASSWORD
           valueFrom:
             secretKeyRef:
               name: karavan
-              key: git-password
+              key: projects-git-password
+        - name: PROJECTS_GIT_MAIN
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: projects-git-main
+        - name: KAMELETS_GIT_REPOSITORY
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: kamelets-git-repository
+        - name: KAMELETS_GIT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: kamelets-git-username
+        - name: KAMELETS_GIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: kamelets-git-password
+        - name: KAMELETS_GIT_MAIN
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: kamelets-git-main      
     - name: rollout
       image: >-
         image-registry.openshift-image-registry.svc:5000/openshift/cli:latest

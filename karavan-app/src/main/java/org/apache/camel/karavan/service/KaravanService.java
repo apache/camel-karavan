@@ -39,6 +39,7 @@ public class KaravanService {
 
     private static final Logger LOGGER = Logger.getLogger(KaravanService.class.getName());
     public static final String IMPORT_PROJECTS = "import-projects";
+    public static final String LOAD_CUSTOM_KAMELETS = "load-custom-kamelets";
 
     @Inject
     InfinispanService infinispanService;
@@ -63,7 +64,7 @@ public class KaravanService {
             repo.forEach(p -> {
                 String folderName = p.getItem1();
                 String name = Arrays.stream(folderName.split("-")).map(s -> capitalize(s)).collect(Collectors.joining(" "));
-                Project project = new Project(folderName, name, name, Project.CamelRuntime.valueOf(runtime.toUpperCase()), "");
+                Project project = new Project(folderName, name, name, Project.CamelRuntime.valueOf(runtime.toUpperCase()), "", false);
                 infinispanService.saveProject(project);
 
                 AtomicReference<ProjectFile> properties = new AtomicReference<>();
@@ -81,6 +82,21 @@ public class KaravanService {
                     infinispanService.saveProject(project);
                 }
 
+            });
+        } catch (Exception e) {
+            LOGGER.error("Error during project import", e);
+        }
+    }
+
+    @ConsumeEvent(value = LOAD_CUSTOM_KAMELETS, blocking = true)
+    void loadCustomKamelets(String data) {
+        LOGGER.info("Load custom Kamelets from Git");
+        try {
+            List<Tuple2<String, String>> repo = gitService.readKameletsFromRepository();
+            repo.forEach(p -> {
+                String name = p.getItem1();
+                String yaml = p.getItem2();
+                infinispanService.saveKamelet(name, yaml);
             });
         } catch (Exception e) {
             LOGGER.error("Error during project import", e);

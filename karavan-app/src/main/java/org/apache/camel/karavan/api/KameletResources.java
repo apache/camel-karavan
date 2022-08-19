@@ -17,6 +17,7 @@
 package org.apache.camel.karavan.api;
 
 import io.vertx.core.Vertx;
+import org.apache.camel.karavan.service.InfinispanService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.inject.Inject;
@@ -38,9 +39,8 @@ import java.util.stream.Collectors;
 @Path("/kamelet")
 public class KameletResources {
 
-
-    @ConfigProperty(name = "karavan.folder.kamelets")
-    String kameletsCustom;
+    @Inject
+    InfinispanService infinispanService;
 
     @Inject
     Vertx vertx;
@@ -49,10 +49,7 @@ public class KameletResources {
     @Produces(MediaType.APPLICATION_JSON)
     public List<String> getList() throws Exception {
         List<String> kameletList = getBuildInKameletsList();
-        if (Files.exists(Paths.get(kameletsCustom))) {
-            List<String> customKameletList = getCustomKamelets();
-            kameletList.addAll(customKameletList);
-        }
+        kameletList.addAll(infinispanService.getKameletNames());
         return kameletList;
     }
 
@@ -74,22 +71,12 @@ public class KameletResources {
     }
 
 
-    private List<String> getCustomKamelets() {
-        return vertx.fileSystem().readDirBlocking(Paths.get(kameletsCustom).toString())
-                .stream()
-                .filter(s -> s.endsWith(".yaml"))
-                .map(s -> {
-                    String[] parts = s.split(Pattern.quote(File.separator));
-                    return parts[parts.length - 1];
-                }).collect(Collectors.toList());
-    }
-
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/{name}")
     public String getYaml(@PathParam("name") String name) {
-        if (Files.exists(Paths.get(kameletsCustom, name))) {
-            return vertx.fileSystem().readFileBlocking(Paths.get(kameletsCustom, name).toString()).toString();
+        if (infinispanService.getKameletNames().contains(name)) {
+            return infinispanService.getKameletYaml(name);
         } else {
             return getResourceFile(name);
         }
