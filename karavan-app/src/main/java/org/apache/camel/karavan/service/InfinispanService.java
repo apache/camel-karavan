@@ -20,6 +20,7 @@ import io.quarkus.runtime.StartupEvent;
 import io.quarkus.runtime.configuration.ProfileManager;
 import io.vertx.core.eventbus.EventBus;
 import org.apache.camel.karavan.model.GroupedKey;
+import org.apache.camel.karavan.model.Kamelet;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.model.ProjectStatus;
@@ -55,6 +56,8 @@ public class InfinispanService {
     BasicCache<GroupedKey, ProjectFile> files;
 
     BasicCache<GroupedKey, ProjectStatus> statuses;
+
+    BasicCache<String, String> kamelets;
 
     @Inject
     RemoteCacheManager cacheManager;
@@ -92,16 +95,21 @@ public class InfinispanService {
             projects = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Project.CACHE, builder.build());
             files = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ProjectFile.CACHE, builder.build());
             statuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ProjectStatus.CACHE, builder.build());
+            kamelets = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Kamelet.CACHE, builder.build());
         } else {
             LOGGER.info("InfinispanService is starting in remote mode");
             projects = cacheManager.administration().getOrCreateCache(Project.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, Project.CACHE)));
             files = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, ProjectFile.CACHE)));
             statuses = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, ProjectStatus.CACHE)));
+            kamelets = cacheManager.administration().getOrCreateCache(Kamelet.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, Kamelet.CACHE)));
         }
         if (getProjects().isEmpty()) {
             LOGGER.info("No projects found in the Data Grid");
             bus.publish(KaravanService.IMPORT_PROJECTS, "");
         }
+
+        bus.publish(KaravanService.LOAD_CUSTOM_KAMELETS, "");
+
         if (ProfileManager.getLaunchMode().isDevOrTest() && getProjects().isEmpty()){
 //            generateDevProjects();
         }
@@ -164,26 +172,15 @@ public class InfinispanService {
         statuses.put(GroupedKey.create(status.getProjectId(), status.getProjectId()), status);
     }
 
-    private void generateDevProjects() {
-        LOGGER.info("Generate demo projects");
-        for (int i = 0; i < 10; i++){
-            String projectId = "parcel-demo" + i;
-            Project p = new Project(projectId, "Demo project " + i, "Demo project placeholder for UI testing purposes", Project.CamelRuntime.valueOf(runtime));
-            this.saveProject(p);
+    public List<String> getKameletNames() {
+        return kamelets.keySet().stream().collect(Collectors.toList());
+    }
 
-            files.put(GroupedKey.create(p.getProjectId(),"new-parcels.yaml"), new ProjectFile("new-parcels.yaml", "flows:", p.getProjectId()));
-            files.put(GroupedKey.create(p.getProjectId(),"parcel-confirmation.yaml"), new ProjectFile("parcel-confirmation.yaml", "rest:", p.getProjectId()));
-            files.put(GroupedKey.create(p.getProjectId(),"CustomProcessor.java"), new ProjectFile("CustomProcessor.java", "import org.apache.camel.BindToRegistry;\n" +
-                    "import org.apache.camel.Exchange;\n" +
-                    "import org.apache.camel.Processor;\n" +
-                    "\n" +
-                    "@BindToRegistry(\"myBean\")\n" +
-                    "public class CustomProcessor implements Processor {\n" +
-                    "\n" +
-                    "  public void process(Exchange exchange) throws Exception {\n" +
-                    "      exchange.getIn().setBody(\"Hello world\");\n" +
-                    "  }\n" +
-                    "}", p.getProjectId()));
-        }
+    public String getKameletYaml(String name) {
+        return kamelets.get(name);
+    }
+
+    public void saveKamelet(String name, String yaml) {
+        kamelets.put(name, yaml);
     }
 }

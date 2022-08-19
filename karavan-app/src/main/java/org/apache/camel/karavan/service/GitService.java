@@ -56,6 +56,9 @@ import java.util.UUID;
 @ApplicationScoped
 public class GitService {
 
+    private static final String PROJECTS = "projects";
+    private static final String KAMELETS = "kamelets";
+
     @Inject
     Vertx vertx;
 
@@ -65,31 +68,33 @@ public class GitService {
     private static final Logger LOGGER = Logger.getLogger(GitService.class.getName());
 
     void onStart(@Observes StartupEvent ev) {
-        LOGGER.info("Git service for repo: " + getGitConfig().getUri());
+        LOGGER.info("Git service for projects repo: " + getGitConfig(PROJECTS).getUri());
+        LOGGER.info("Git service for kamelets repo: " + getGitConfig(KAMELETS).getUri());
     }
 
-    private GitConfig getGitConfig() {
-        String mainBranch = ConfigProvider.getConfig().getValue("karavan.git-main", String.class);
+    private GitConfig getGitConfig(String name) {
+        String prefix = "karavan." + name + "-";
+        String mainBranch = ConfigProvider.getConfig().getValue(prefix + "git-main", String.class);
         if (kubernetesService.inKubernetes()){
             Secret secret =  kubernetesService.getKaravanSecret();
-            String uri = new String(Base64.getDecoder().decode(secret.getData().get("git-repository").getBytes(StandardCharsets.UTF_8)));
-            String username = new String(Base64.getDecoder().decode(secret.getData().get("git-username").getBytes(StandardCharsets.UTF_8)));
-            String password = new String(Base64.getDecoder().decode(secret.getData().get("git-password").getBytes(StandardCharsets.UTF_8)));
-            if (secret.getData().containsKey("git-main")){
-                mainBranch = new String(Base64.getDecoder().decode(secret.getData().get("git-main").getBytes(StandardCharsets.UTF_8)));
+            String uri = new String(Base64.getDecoder().decode(secret.getData().get(prefix + "git-repository").getBytes(StandardCharsets.UTF_8)));
+            String username = new String(Base64.getDecoder().decode(secret.getData().get(prefix + "git-username").getBytes(StandardCharsets.UTF_8)));
+            String password = new String(Base64.getDecoder().decode(secret.getData().get(prefix + "git-password").getBytes(StandardCharsets.UTF_8)));
+            if (secret.getData().containsKey(prefix + "git-main")){
+                mainBranch = new String(Base64.getDecoder().decode(secret.getData().get(prefix + "git-main").getBytes(StandardCharsets.UTF_8)));
             }
             return new GitConfig(uri, username, password, mainBranch);
         } else {
-            String uri = ConfigProvider.getConfig().getValue("karavan.git-repository", String.class);
-            String username = ConfigProvider.getConfig().getValue("karavan.git-username", String.class);
-            String password = ConfigProvider.getConfig().getValue("karavan.git-password", String.class);
+            String uri = ConfigProvider.getConfig().getValue(prefix + "git-repository", String.class);
+            String username = ConfigProvider.getConfig().getValue(prefix + "git-username", String.class);
+            String password = ConfigProvider.getConfig().getValue(prefix + "git-password", String.class);
             return new GitConfig(uri, username, password, mainBranch);
         }
     }
 
     public String commitAndPushProject(Project project, List<ProjectFile> files) throws GitAPIException, IOException, URISyntaxException {
         LOGGER.info("Commit and push project " + project.getProjectId());
-        GitConfig gitConfig = getGitConfig();
+        GitConfig gitConfig = getGitConfig(PROJECTS);
         CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
@@ -109,9 +114,29 @@ public class GitService {
         return commitAddedAndPush(git, gitConfig.getMainBranch(), cred).getId().getName();
     }
 
-    public List<Tuple2<String, Map<String, String>>> readProjectsFromRepository() throws GitAPIException, IOException, URISyntaxException {
+    public List<Tuple2<String, String>> readKameletsFromRepository() {
+        LOGGER.info("Read kamelets from repository");
+        GitConfig gitConfig = getGitConfig(KAMELETS);
+        CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
+        String uuid = UUID.randomUUID().toString();
+        String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
+        LOGGER.infof("Temp folder created: %s", folder);
+        try {
+            Git git = clone(folder, gitConfig.getUri(), gitConfig.getMainBranch(), cred);
+            checkout(git, false, null, null, gitConfig.getMainBranch());
+            return readKameletsFromFolder(folder);
+        } catch (RefNotFoundException e) {
+            LOGGER.error("New repository");
+            return List.of();
+        } catch (Exception e) {
+            LOGGER.error("Error", e);
+            return List.of();
+        }
+    }
+
+    public List<Tuple2<String, Map<String, String>>> readProjectsFromRepository() {
         LOGGER.info("Read projects from repository");
-        GitConfig gitConfig = getGitConfig();
+        GitConfig gitConfig = getGitConfig(PROJECTS);
         CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
@@ -136,7 +161,22 @@ public class GitService {
         }
     }
 
-    private List<String> readProjectsFromFolder(String folder) throws IOException {
+    private List<Tuple2<String, String>> readKameletsFromFolder(String folder) {
+        LOGGER.info("Read kamelets from " + folder);
+        List<Tuple2<String, String>> kamelets = new ArrayList<>();
+        vertx.fileSystem().readDirBlocking(folder).stream().filter(f -> f.endsWith("kamelet.yaml")).forEach(f -> {
+            Path path = Paths.get(f);
+            try {
+                String yaml = Files.readString(path);
+                kamelets.add(Tuple2.of(path.getFileName().toString(), yaml));
+            } catch (IOException e) {
+                LOGGER.error("Error during file read", e);
+            }
+        });
+        return kamelets;
+    }
+
+    private List<String> readProjectsFromFolder(String folder) {
         LOGGER.info("Read projects from " + folder);
         List<String> files = new ArrayList<>();
         vertx.fileSystem().readDirBlocking(folder).forEach(f -> {

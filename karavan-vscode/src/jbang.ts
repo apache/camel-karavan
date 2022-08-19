@@ -78,8 +78,11 @@ function prepareCommand(command: string): string {
 
 export function camelJbangRun(filename?: string) {
     const maxMessages: number = workspace.getConfiguration().get("camel.maxMessages") || -1;
+    const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
     const dev: boolean = workspace.getConfiguration().get("camel.dev") || false;
-    const cmd = (filename ? "run " + filename : "run * ") + (maxMessages > -1 ? " --max-messages=" + maxMessages : "");
+    const cmd = (filename ? "run " + filename : "run * ") 
+        + (maxMessages > -1 ? " --max-messages=" + maxMessages : "")
+        + (kameletsPath && kameletsPath.trim().length >0 ? " --local-kamelet-dir=" + kameletsPath : "");
     const command = prepareCommand(cmd) + (dev === true ? " --dev" : "");
     const terminalId = "run_" + filename;
     const existTerminal = TERMINALS.get(terminalId);
@@ -91,7 +94,9 @@ export function camelJbangRun(filename?: string) {
 }
 
 export function camelJbangExport(directory: string) {
-    const cmd = "export  --directory=" + directory;
+    const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
+    const cmd = "export  --directory=" + directory
+        + (kameletsPath && kameletsPath.trim().length >0 ? " --local-kamelet-dir=" + kameletsPath : "");
     const command = prepareCommand(cmd);
     const terminalId = "export";
     const existTerminal = TERMINALS.get(terminalId);
