@@ -35,11 +35,11 @@ export class Metadata {
 }
 
 export class Integration {
-    apiVersion: string = 'camel.apache.org/v1';
-    kind: string = 'Integration';
+    apiVersion: string = 'camel.apache.org/v1'; // camel.apache.org/v1alpha1
+    kind: string = 'Integration';  // Kamelet
     metadata: Metadata = new Metadata();
     spec: Spec = new Spec();
-    crd: boolean = true;
+    type: 'crd' | 'plain' | 'kamelet' = 'crd';
 
     public constructor(init?: Partial<Integration>) {
         Object.assign(this, init);

@@ -106,14 +106,14 @@ describe('Find Step', () => {
 
         // i.spec.flows?.[0].from.steps?.forEach((s:any) => console.log(s.uuid, CamelDefinitionApiExt.findElementInIntegration(i, s.uuid)?.dslName));
 
-        console.log('----')
-        CamelDefinitionApiExt.findElementPathUuids(i, log.uuid).forEach(u => console.log(u, CamelDefinitionApiExt.findElementInIntegration(i, u)?.dslName))
+        // console.log('----')
+        // CamelDefinitionApiExt.findElementPathUuids(i, log.uuid).forEach(u => console.log(u, CamelDefinitionApiExt.findElementInIntegration(i, u)?.dslName))
 
-        console.log('----')
-        CamelDefinitionApiExt.findElementPathUuids(i, step.uuid).forEach(u => console.log(u, CamelDefinitionApiExt.findElementInIntegration(i, u)?.dslName))
+        // console.log('----')
+        // CamelDefinitionApiExt.findElementPathUuids(i, step.uuid).forEach(u => console.log(u, CamelDefinitionApiExt.findElementInIntegration(i, u)?.dslName))
 
-        console.log('----')
-        CamelDefinitionApiExt.findElementPathUuids(i, choice.uuid).forEach(u => console.log(u, CamelDefinitionApiExt.findElementInIntegration(i, u)?.dslName))
+        // console.log('----')
+        // CamelDefinitionApiExt.findElementPathUuids(i, choice.uuid).forEach(u => console.log(u, CamelDefinitionApiExt.findElementInIntegration(i, u)?.dslName))
 
     });
 });

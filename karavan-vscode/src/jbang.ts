@@ -55,7 +55,7 @@ export function createYaml(filename: string, restYaml: string, camelYaml?: strin
         return CamelDefinitionYaml.integrationToYaml(i);
     } else if (crd === true) {
         const i = CamelDefinitionYaml.yamlToIntegration(filename, restYaml);
-        i.crd = true;
+        i.type = 'crd';
         return CamelDefinitionYaml.integrationToYaml(i);
     } else {
         return restYaml;

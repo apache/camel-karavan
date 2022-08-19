@@ -32,7 +32,7 @@ describe('REST DSL', () => {
         expect(i.metadata.name).to.equal('RestDsl');
         expect(i.kind).to.equal('Integration');
         expect(i.spec.flows?.length).to.equal(3);
-        expect(i.crd).to.equal(true);
+        expect(i.type).to.equal('crd');
 
         i.spec.flows?.filter(f => f.dslName === 'RestDefinition').forEach(f => {
             const rest = f as RestDefinition;

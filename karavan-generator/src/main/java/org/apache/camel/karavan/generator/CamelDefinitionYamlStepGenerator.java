@@ -131,7 +131,11 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
                             ) {
                     String code = String.format(
                                     "        if (element?.%1$s !== undefined) { \n" +
-                                    "            def.%1$s = CamelDefinitionYamlStep.read%2$s(element.%1$s); \n" +
+                                    "            if (Array.isArray(element.%1$s)) { \n" +
+                                    "               def.%1$s = CamelDefinitionYamlStep.read%2$s(element.%1$s[0]); \n" +
+                                    "            } else { \n" +
+                                    "               def.%1$s = CamelDefinitionYamlStep.read%2$s(element.%1$s); \n" +
+                                    "            } \n" +
                                     "        } \n"
                             , aName, getAttributeClass(aValue));
                     attrs.put(aName, code);

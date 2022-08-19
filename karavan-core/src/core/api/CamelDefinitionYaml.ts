@@ -26,8 +26,8 @@ export class CamelDefinitionYaml {
         const clone: any = CamelUtil.cloneIntegration(integration);
         const flows = integration.spec.flows
         clone.spec.flows = flows?.map((f: any) => CamelDefinitionYaml.cleanupElement(f)).filter(x => Object.keys(x).length !== 0);
-        if (integration.crd) {
-            delete clone.crd
+        if (integration.type === 'crd') {
+            delete clone.type
             const i = JSON.parse(JSON.stringify(clone, null, 3)); // fix undefined in string attributes
             const text = CamelDefinitionYaml.yamlDump(i);
             return text;
@@ -123,6 +123,7 @@ export class CamelDefinitionYaml {
                 || dslName === 'ExpressionDefinition'
                 || dslName?.endsWith('Expression')
                 || stepName === 'otherwise'
+                || stepName === 'doFinally'
                 || key === 'from') {
                 delete newValue.inArray;
                 delete newValue.inSteps;
@@ -135,14 +136,6 @@ export class CamelDefinitionYaml {
                 return xValue;
             }
         } else {
-            if (value?.dslName && value.dslName.endsWith("Trait") && value.dslName !== 'Trait'){
-                delete value.dslName;
-                return {configuration: value};
-            } else if (value?.dslName === 'Trait' && value?.threeScale){
-                delete value.dslName;
-                value["3scale"] = {configuration: value.threeScale};
-                return value;
-            }
             delete value?.dslName;
             return value;
         }
@@ -153,12 +146,12 @@ export class CamelDefinitionYaml {
         const fromYaml: any = yaml.load(text);
         const camelized: any = CamelUtil.camelizeObject(fromYaml);
         if (camelized?.apiVersion && camelized.apiVersion.startsWith('camel.apache.org') && camelized.kind && camelized.kind === 'Integration') {
-            integration.crd = true;
+            integration.type = 'crd';
             if (camelized?.metadata?.name) integration.metadata.name = camelized?.metadata?.name;
             const int: Integration = new Integration({...camelized});
             integration.spec.flows?.push(...this.flowsToCamelElements(int.spec.flows || []));
         } else if (Array.isArray(camelized)) {
-            integration.crd = false;
+            integration.type = 'plain';
             const flows: any[] = camelized;
             integration.spec.flows?.push(...this.flowsToCamelElements(flows));
         }

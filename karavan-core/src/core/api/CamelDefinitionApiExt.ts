@@ -135,7 +135,7 @@ export class CamelDefinitionApiExt {
                         } else {
                             const prop = (step as any)[e.name];
                             if (prop && prop.hasOwnProperty("uuid")) {
-                                result = CamelDefinitionApiExt.findElementInElements([prop], uuid, result, prop.uuid);
+                                result = CamelDefinitionApiExt.findElementInElements([prop], uuid, result, step.uuid);
                             }
                         }
                     })
