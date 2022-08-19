@@ -73,21 +73,22 @@ public class GitService {
     }
 
     private GitConfig getGitConfig(String name) {
-        String prefix = "karavan." + name + "-";
-        String mainBranch = ConfigProvider.getConfig().getValue(prefix + "git-main", String.class);
+        String propertiesPrefix = "karavan." + name + "-";
+        String mainBranch = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-main", String.class);
         if (kubernetesService.inKubernetes()){
+            String kubernetesPrefix = name + "-";
             Secret secret =  kubernetesService.getKaravanSecret();
-            String uri = new String(Base64.getDecoder().decode(secret.getData().get(prefix + "git-repository").getBytes(StandardCharsets.UTF_8)));
-            String username = new String(Base64.getDecoder().decode(secret.getData().get(prefix + "git-username").getBytes(StandardCharsets.UTF_8)));
-            String password = new String(Base64.getDecoder().decode(secret.getData().get(prefix + "git-password").getBytes(StandardCharsets.UTF_8)));
-            if (secret.getData().containsKey(prefix + "git-main")){
-                mainBranch = new String(Base64.getDecoder().decode(secret.getData().get(prefix + "git-main").getBytes(StandardCharsets.UTF_8)));
+            String uri = new String(Base64.getDecoder().decode(secret.getData().get(kubernetesPrefix + "git-repository").getBytes(StandardCharsets.UTF_8)));
+            String username = new String(Base64.getDecoder().decode(secret.getData().get(kubernetesPrefix + "git-username").getBytes(StandardCharsets.UTF_8)));
+            String password = new String(Base64.getDecoder().decode(secret.getData().get(kubernetesPrefix + "git-password").getBytes(StandardCharsets.UTF_8)));
+            if (secret.getData().containsKey(kubernetesPrefix + "git-main")){
+                mainBranch = new String(Base64.getDecoder().decode(secret.getData().get(kubernetesPrefix + "git-main").getBytes(StandardCharsets.UTF_8)));
             }
             return new GitConfig(uri, username, password, mainBranch);
         } else {
-            String uri = ConfigProvider.getConfig().getValue(prefix + "git-repository", String.class);
-            String username = ConfigProvider.getConfig().getValue(prefix + "git-username", String.class);
-            String password = ConfigProvider.getConfig().getValue(prefix + "git-password", String.class);
+            String uri = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-repository", String.class);
+            String username = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-username", String.class);
+            String password = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-password", String.class);
             return new GitConfig(uri, username, password, mainBranch);
         }
     }
