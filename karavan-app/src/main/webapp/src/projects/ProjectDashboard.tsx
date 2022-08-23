@@ -7,8 +7,8 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
-import {Project, ProjectEnvStatus, ProjectFileTypes, ProjectStatus} from "../models/ProjectModels";
-import {ChartDonut, ChartDonutThreshold, ChartDonutUtilization} from "@patternfly/react-charts";
+import {Project, ProjectFileTypes, ProjectStatus} from "../models/ProjectModels";
+import {ChartDonutThreshold} from "@patternfly/react-charts";
 
 interface Props {
     project: Project,

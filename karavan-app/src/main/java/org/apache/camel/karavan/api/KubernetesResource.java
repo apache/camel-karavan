@@ -65,6 +65,8 @@ public class KubernetesResource {
         Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
         if (env.isPresent()) {
             kubernetesService.createPipelineRun(project, env.get().pipeline(), env.get().namespace());
+            p.setDeployed(true); // TODO:  Replace this update by updating from Pipeline
+            infinispanService.saveProject(p); // TODO:  Replace this update by updating from Pipeline
         }
         return p;
     }

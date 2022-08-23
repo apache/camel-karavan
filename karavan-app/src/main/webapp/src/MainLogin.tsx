@@ -3,10 +3,8 @@ import {
     Bullseye, Card, CardBody, CardFooter, CardTitle,
     LoginForm,
     LoginMainFooterBandItem,
-    LoginMainFooterLinksItem,
-    LoginPage, Text
+    LoginMainFooterLinksItem, Text
 } from '@patternfly/react-core';
-import {Project} from "./models/ProjectModels";
 
 interface Props {
     config: any,
