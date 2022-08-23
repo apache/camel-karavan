@@ -156,7 +156,7 @@ export class ProjectInfo extends React.Component<Props, State> {
                     onClick={e => {
                         this.push(() => this.build());
                     }}>
-                {isDeploying ? "..." : "Run"}
+                {isDeploying ? "..." : "Deploy"}
             </Button>
         </Tooltip>)
     }
