@@ -131,9 +131,9 @@ public class KubernetesResource {
         Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
         if (env.isPresent()) {
             kubernetesService.deleteDeployment(name, env.get().namespace());
-            Project p = infinispanService.getProject(name);
-            p.setDeployed(false);
-            infinispanService.saveProject(p);
+//            Project p = infinispanService.getProject(name); // TODO: p.setDeployed(false) than karavan keeps pod/camel statuses up forever
+//            p.setDeployed(false);
+//            infinispanService.saveProject(p);
             return Response.ok().build();
         }
         return Response.noContent().build();
