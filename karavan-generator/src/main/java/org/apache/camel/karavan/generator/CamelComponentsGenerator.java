@@ -34,8 +34,6 @@ public final class CamelComponentsGenerator extends AbstractGenerator {
     @Inject
     Vertx vertx;
 
-    private static final Logger LOGGER = Logger.getLogger(KameletGenerator.class.getName());
-
     public static void main(String[] args) throws Exception {
         CamelComponentsGenerator.generate();
         System.exit(0);

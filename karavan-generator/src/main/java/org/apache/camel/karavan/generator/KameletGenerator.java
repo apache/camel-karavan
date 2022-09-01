@@ -33,9 +33,6 @@ public class KameletGenerator extends AbstractGenerator {
     @Inject
     Vertx vertx;
 
-
-    private static final Logger LOGGER = Logger.getLogger(KameletGenerator.class.getName());
-
     public static void generate() throws Exception {
         KameletGenerator g = new KameletGenerator();
         g.createKamelets("karavan-app/src/main/resources/kamelets", true);
@@ -44,7 +41,7 @@ public class KameletGenerator extends AbstractGenerator {
     }
 
     public void createKamelets(String folder, boolean addList) {
-        LOGGER.info("Creating default Kamelets");
+        System.out.println("Creating default Kamelets");
         clearDirectory(Paths.get(folder).toFile());
         KameletsCatalog catalog = new KameletsCatalog();
         StringBuilder list = new StringBuilder();
@@ -55,7 +52,7 @@ public class KameletGenerator extends AbstractGenerator {
                     list.append(name).append("\n");
                 });
         saveFile(folder, "kamelets.properties", list.toString());
-        LOGGER.info("Created default Kamelets");
+        System.out.println("Created default Kamelets");
     }
 
     public void saveKamelet(String folder, String name) {
