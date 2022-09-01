@@ -31,6 +31,7 @@ const StepElements: string[] = [
     "BeanDefinition",
     "ChoiceDefinition",
     "CircuitBreakerDefinition",
+    "ClaimCheckDefinition",
     "ConvertBodyDefinition",
     "DynamicRouterDefinition",
     "EnrichDefinition",
