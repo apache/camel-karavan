@@ -82,7 +82,7 @@ export function camelJbangRun(filename?: string) {
     const dev: boolean = workspace.getConfiguration().get("camel.dev") || false;
     const cmd = (filename ? "run " + filename : "run * ") 
         + (maxMessages > -1 ? " --max-messages=" + maxMessages : "")
-        + (kameletsPath && kameletsPath.trim().length >0 ? " --local-kamelet-dir=" + kameletsPath : "");
+        + (kameletsPath && kameletsPath.trim().length > 0 ? " --local-kamelet-dir=" + kameletsPath : "");
     const command = prepareCommand(cmd) + (dev === true ? " --dev" : "");
     const terminalId = "run_" + filename;
     const existTerminal = TERMINALS.get(terminalId);

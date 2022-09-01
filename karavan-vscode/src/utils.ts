@@ -61,7 +61,7 @@ async function readFilesInDirByExtension(dir: string, extension: string) {
     const dirs: [string, FileType][] = await readDirectory(dir);
     for (let d in dirs) {
         const filename = dirs[d][0];
-        if (filename.endsWith(extension)){
+        if (filename !== undefined && filename.endsWith(extension)){
             const file = await readFile(dir + "/" + filename);
             const code = Buffer.from(file).toString('utf8');
             result.push(code);
