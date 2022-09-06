@@ -9,10 +9,40 @@
 ![karavan-logo](images/karavan-logo-dark.png#gh-dark-mode-only)
 ![karavan-logo](images/karavan-logo-light.png#gh-light-mode-only)
 
-
-Integration Toolkit for Apache Camel makes integration easy and fun through the visualization of pipelines, integration with runtimes and package, image build and deploy to kubernetes out-of-the-box.
+Karavan is an Integration Toolkit for Apache Camel, which makes integration easy and fun through the visualization of pipelines, integration with runtimes and package, image build and deploy to kubernetes out-of-the-box.
 
 ![karavan-about](images/karavan-about.png)
+
+Integrations could be created using visual designer that includes Enterprise Integration Patterns DSL, REST API and Beans builder, all Camel Kamelets and Components. 
+
+Karavan uses YAML (Integration CRD or plain) to read/write integrations.
+
+Integrations could be run directly from Karavan UI using Camel Jbang. Also they could exported in Maven project with preconfigured Camel Quarkus, Camel Spring-Boot or Camel Main runtime.
+
+![karavan-clouds](images/karavan-clouds.png)
+
+Integration project output is a runnable uber-jar or an OCI image for local environment or a deployed application to a Kubernetes/OpenShift in any cloud provider.
+
+## Installation
+Two types of applications are available: 
+1. [Cloud-native](karavan-builder/README.md) application deployed into Kubernetes/OpenShift 
+2. [VS Code extension](karavan-vscode/README.md) available on the [Marketplace](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan). 
+
+Both applications share same visual designer and work with Camel YAMl DSL.
+
+## Karavan cloud-native application
+Karavan cloud-native integration toolkit is an application to manage projects, design and monitor integrations, Tekton pipeline to build and deploy integrations. More about [cloud-native Karavan](karavan-builder/README.md)
+
+![karavan-ipaas-1](images/karavan-ipaas-1.png)
+
+
+## Karavan VS Code extension
+Install Karavan VS Code extension from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan)
+
+More about [Karavan VS Code Extension](karavan-vscode/README.md)
+
+![karavan-vscode](images/karavan-vscode.png)
+
 
 ## Features
 ### Mode
@@ -39,19 +69,6 @@ Build-in catalogues:
 * Enterprise Integration Patterns
 * Kamelets
 * Components
-
-## Karavan cloud-native integration toolkit
-Karavan cloud-native integration toolkit is a user application to manage projects, design and monitor integrations, Tekton pipeline to build and deploy integrations. More about [cloud-native Karavan](karavan-builder/README.md)
-
-![karavan-ipaas-1](images/karavan-ipaas-1.png)
-
-
-## Karavan VS Code extension
-Install Karavan VS Code extension from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan)
-
-More about [Karavan VS Code Extension](karavan-vscode/README.md)
-
-![karavan-vscode](images/karavan-vscode.png)
 
 ## Development
 How to build [Karavan](DEV.md)
