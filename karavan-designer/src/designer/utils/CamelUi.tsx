@@ -170,6 +170,7 @@ export class CamelUi {
                         title: k.title(),
                         description: k.title(),
                         version: k.version(),
+                        supportLevel: k.metadata.annotations["camel.apache.org/kamelet.support.level"],
                     })
             );
     }

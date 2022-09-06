@@ -868,10 +868,16 @@
 }
 
 .dsl-modal .version {
-    text-align: right;
     opacity: 0.5;
     white-space: nowrap;
     margin-left: auto;
+}
+
+.dsl-modal .support-level {
+    position: absolute;
+    right: 6px;
+    top: 6px;
+    white-space: nowrap;
 }
 
 .dsl-modal .labels {

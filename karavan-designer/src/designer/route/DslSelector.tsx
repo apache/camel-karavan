@@ -100,6 +100,7 @@ export class DslSelector extends React.Component<Props, State> {
                 <CardHeader>
                     {CamelUi.getIconForDsl(dsl)}
                     <Text>{dsl.title}</Text>
+                    {dsl.supportLevel && dsl.supportLevel === 'Preview' && <Badge isRead className="support-level">{dsl.supportLevel}</Badge>}
                 </CardHeader>
                 <CardBody>
                     <Text>{dsl.description}</Text>

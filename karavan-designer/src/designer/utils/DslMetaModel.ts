@@ -24,6 +24,7 @@ export class DslMetaModel {
     labels: string = ''
     navigation: string = ''
     version: string = ''
+    supportLevel: string = ''
     properties: any;
 
     public constructor(init?: Partial<DslMetaModel>) {

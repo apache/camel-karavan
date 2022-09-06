@@ -94,7 +94,8 @@ class App extends React.Component<Props, State> {
     };
 
     componentDidMount() {
-        ["http-secured-sink.kamelet.yaml",
+        ["aws-eventbridge-sink.kamelet.yaml",
+            "http-secured-sink.kamelet.yaml",
             "timer-source.kamelet.yaml",
             "http-secured-source.kamelet.yaml",
             "http-sink.kamelet.yaml",
@@ -138,7 +139,7 @@ class App extends React.Component<Props, State> {
 
     save(filename: string, yaml: string, propertyOnly: boolean) {
         // console.log(filename);
-        console.log(yaml);
+        // console.log(yaml);
         // console.log(propertyOnly);
     }
 
