@@ -20,8 +20,8 @@ kind: Kamelet
 metadata:
   name: aws-ec2-sink
   annotations:
-    camel.apache.org/kamelet.support.level: "Preview"
-    camel.apache.org/catalog.version: "0.8.1"
+    camel.apache.org/kamelet.support.level: "Stable"
+    camel.apache.org/catalog.version: "0.9.0"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjA2NSIgaGVpZ2h0PSIyNTAwIiB2aWV3Qm94PSIwIDAgMjU2IDMxMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCI+PHBhdGggZD0iTTQyLjc1NCAyNDQuNDk1bC0yOS45MTggNi44MjZWNTcuNTY1bDI5LjkxOCA2LjgzOXYxODAuMDkxIiBmaWxsPSIjRjY4NTM2Ii8+PHBhdGggZD0iTTgwLjA4MiAyNTUuOTMxbC0zNy4zMjggMTAuNjA4VjQyLjYxMmwzNy4zMjggMTAuNTk1djIwMi43MjRNMTI3Ljk2NiAyNjcuNjgxbC00Ny44ODQgMTcuNTI0VjIzLjk0Nmw0Ny44ODQgMTcuNTE2djIyNi4yMTlNMjU2IDI0NS4wNzlsLTEyOC4wMzQgNjQuMDE3VjBMMjU2IDY0LjAxN3YxODEuMDYyIiBmaWxsPSIjRjY4NTM2Ii8+PHBhdGggZD0iTTEwMi40NDQgMTIuNzYzTDEyNy45NjYgMHYzMDkuMDk2bC0yNS41MjItMTIuNzU5VjEyLjc2M002MC4zMjUgMzMuODJsMTkuNzU3LTkuODc4djI2MS4yMTJsLTE5Ljc1Ny05Ljg3OFYzMy44Mk0yNy4wMTYgNTAuNDc3bDE1LjczOC03Ljg2OXYyMjMuODhsLTE1LjczOC03Ljg3NFY1MC40NzdNMTIuODM2IDU3LjU2NUwwIDYzLjk4M3YxODEuMTM0bDEyLjgzNiA2LjQxNFY1Ny41NjUiIGZpbGw9IiM5RDUwMjUiLz48L3N2Zz4="
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "AWS EC2"
@@ -33,7 +33,7 @@ spec:
     description: |-
       Check the status of EC2 instances
 
-      Access Key/Secret Key are the basic method for authenticating to the AWS EC2 Service. These parameters are optional, because the Kamelet provide also the 'useDefaultCredentialsProvider'.
+      Access Key/Secret Key are the basic method for authenticating to the AWS EC2 Service. These parameters are optional because the Kamelet provides the 'useDefaultCredentialsProvider'.
       
       When using a default Credentials Provider the EC2 client will load the credentials through this provider and won't use the static credential. This is reason for not having the access key and secret key as mandatory parameter for this Kamelet.
 
@@ -46,7 +46,7 @@ spec:
     properties:
       accessKey:
         title: Access Key
-        description: The access key obtained from AWS
+        description: The access key obtained from AWS.
         type: string
         format: password
         x-descriptors:
@@ -54,7 +54,7 @@ spec:
         - urn:camel:group:credentials
       secretKey:
         title: Secret Key
-        description: The secret key obtained from AWS
+        description: The secret key obtained from AWS.
         type: string
         format: password
         x-descriptors:
@@ -62,23 +62,23 @@ spec:
         - urn:camel:group:credentials
       region:
         title: AWS Region
-        description: The AWS region to connect to
+        description: The AWS region to access.
         type: string
-        example: eu-west-1
+        enum: ["af-south-1", "ap-east-1", "ap-northeast-1", "ap-northeast-2", "ap-northeast-3", "ap-south-1", "ap-southeast-1", "ap-southeast-2", "ap-southeast-3", "ca-central-1", "eu-central-1", "eu-north-1", "eu-south-1", "eu-west-1", "eu-west-2", "eu-west-3", "fips-us-east-1", "fips-us-east-2", "fips-us-west-1", "fips-us-west-2", "me-south-1", "sa-east-1", "us-east-1", "us-east-2", "us-west-1", "us-west-2", "cn-north-1", "cn-northwest-1", "us-gov-east-1", "us-gov-west-1", "us-iso-east-1", "us-iso-west-1", "us-isob-east-1"]
       useDefaultCredentialsProvider:
         title: Default Credentials Provider
-        description: Set whether the EC2 client should expect to load credentials through a default credentials provider or to expect static credentials to be passed in.
+        description: If true, the CloudWatch client loads credentials through a default credentials provider. If false, it uses the basic authentication method (access key and secret key).
         type: boolean
         x-descriptors:
         - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
         default: false
       uriEndpointOverride:
         title: Overwrite Endpoint URI
-        description: Set the overriding endpoint URI. This option needs to be used in combination with overrideEndpoint option.
+        description: The overriding endpoint URI. To use this option, you must also select the `overrideEndpoint` option.
         type: string
       overrideEndpoint:
         title: Endpoint Overwrite
-        description: Set the need for overiding the endpoint URI. This option needs to be used in combination with uriEndpointOverride setting.
+        description: Select this option to override the endpoint URI. To use this option, you must also provide a URI for the `uriEndpointOverride` option.
         type: boolean
         x-descriptors:
           - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
@@ -87,6 +87,7 @@ spec:
     - "camel:core"
     - "camel:aws2-ec2"
     - "camel:kamelet"
+    - "mvn:software.amazon.awssdk:utils:2.17.223"
   template:
     from:
       uri: kamelet:source

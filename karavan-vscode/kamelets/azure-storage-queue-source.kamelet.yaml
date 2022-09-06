@@ -20,8 +20,8 @@ kind: Kamelet
 metadata:
   name: azure-storage-queue-source
   annotations:
-    camel.apache.org/kamelet.support.level: "Preview"
-    camel.apache.org/catalog.version: "0.8.1"
+    camel.apache.org/kamelet.support.level: "Stable"
+    camel.apache.org/catalog.version: "0.9.0"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgOTEgODEiIGZpbGw9IiNmZmYiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjx1c2UgeGxpbms6aHJlZj0iI0EiIHg9Ii41IiB5PSIuNSIvPjxzeW1ib2wgaWQ9IkEiIG92ZXJmbG93PSJ2aXNpYmxlIj48cGF0aCBkPSJNNzAuMDUzIDM0LjYzNEg1MC41OGw5LjczNiA3LjgwNXptLTM5LjQyIDEwLjQ4OGMtLjIzOCAwLS40NzUgMC0uNzEzLS4yNDRsLTkuMDI0LTcuMzE3djExLjk1MWgyMC42NlYzNy4zMTdsLTkuNzM2IDcuNTYxYy0uNDc1LjI0NC0uOTUuMjQ0LTEuMTg3LjI0NHptMjkuNjgzIDBjLS4yMzggMC0uNzEzIDAtLjcxMy0uMjQ0bC05LjI2MS03LjMxN3YxMS45NTFoMjAuNjZWMzcuMzE3bC05LjczNiA3LjU2MWMtLjQ3NS4yNDQtLjcxMy4yNDQtLjk1LjI0NHpNNjcuNjc4IDBIMjIuNTU5TDAgNDBsMjIuNTU5IDQwSDY3LjQ0TDkwIDQwIDY3LjY3OCAwem03LjgzNiA1Ny4wNzNIMTQuMDExYy0xLjkgMC0zLjMyNS0xLjcwNy0zLjMyNS0zLjY1OVYyOS4yNjhjMC0xLjk1MSAxLjQyNS0zLjY1OCAzLjMyNS0zLjY1OGg2MS41MDRjLjcxMyAwIDEuOSAwIDkuOTc0IDE1LjYxbC4yMzcuNzMyLS4yMzcuNzMyYy04LjA3NCAxNC4zOS05LjI2MSAxNC4zOS05Ljk3NCAxNC4zOXpNNDAuMzcgMzQuNjM0SDIwLjY2bDkuNzM2IDcuODA1em0tMjYuMzU5LTYuMzQxYy0uNDc1IDAtLjk1LjQ4OC0uOTUuOTc2djI0LjE0NmMwIC40ODguNDc1IDEuMjIuOTUgMS4yMkg3NS4wNGMxLjE4OC0xLjIyIDQuNzQ5LTcuMDczIDcuODM3LTEyLjY4My0zLjA4Ny02LjA5OC02Ljg4Ni0xMi40MzktNy44MzctMTMuNjU5SDE0LjAxMXptMjkuOTIxIDIyLjQzOWMwIC43MzItLjcxMyAxLjQ2My0xLjY2MyAxLjQ2M0gxOC45OThjLS43MTMgMC0uOTUtLjczMi0uOTUtMS40NjNWMzIuOTI3YzAtLjczMi4yMzgtLjk3Ni45NS0uOTc2SDQyLjI3Yy43MTIgMCAxLjY2My4yNDQgMS42NjMuOTc2djE3LjgwNXptMjkuMjA5IDBjMCAuNzMyLS40NzUgMS40NjMtMS4xODggMS40NjNINDguOTE5Yy0uNzEyIDAtMS4xODctLjczMi0xLjE4Ny0xLjQ2M1YzMi45MjdjMC0uNzMyLjQ3NS0uOTc2IDEuMTg3LS45NzZoMjMuMDM0Yy43MTMgMCAxLjE4OC4yNDQgMS4xODguOTc2djE3LjgwNXoiIGZpbGw9IiMwMDc4ZDciIHN0cm9rZT0ibm9uZSIvPjwvc3ltYm9sPjwvc3ZnPg=="
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "Azure Storage Queue"
@@ -31,7 +31,7 @@ spec:
   definition:
     title: "Azure Storage Queue Source"
     description: |-
-      Receive Messages from Azure Storage queues.
+      Receive events from Azure Storage queues.
     required:
       - accountName
       - queueName
@@ -50,7 +50,7 @@ spec:
         type: string
       accessKey:
         title: Access Key
-        description: The Azure Storage Queue access Key.
+        description: The Azure Storage Queue access key.
         type: string
         format: password
         x-descriptors:
@@ -58,7 +58,7 @@ spec:
         - urn:camel:group:credentials
       maxMessages:
         title: Maximum Messages
-        description: Maximum number of messages to get, if there are less messages exist in the queue than requested all the messages will be returned. By default it will consider 1 message to be retrieved, the allowed range is 1 to 32 messages.
+        description: The maximum number of messages to get. You can specify a value between 1 and 32. The default is 1 (one message). If there are fewer than the maximum number of messages in the queue, then all the messages are returned.
         type: integer
         default: 1
   dependencies:

@@ -20,8 +20,8 @@ kind: Kamelet
 metadata:
   name: aws-cloudwatch-sink
   annotations:
-    camel.apache.org/kamelet.support.level: "Preview"
-    camel.apache.org/catalog.version: "0.8.1"
+    camel.apache.org/kamelet.support.level: "Stable"
+    camel.apache.org/catalog.version: "0.9.0"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjIwNyIgaGVpZ2h0PSIyNTAwIiB2aWV3Qm94PSIwIDAgMjU2IDI5MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCI+PHBhdGggZD0iTTI1NiAxOTkuMzA1bC0xMjcuOTU3LTE4Ljc5N0wwIDE5OS4zMjlsMTI4LjAxIDQ3LjQzOUwyNTYgMTk5LjMwNSIgZmlsbD0iI0I3Q0E5RCIvPjxwYXRoIGQ9Ik0yNS42MjEgMTk3LjExM2wyMS42MyA2Ljc2MSAxLjk3MS0yLjIzOFY1MC4yODRsLTEuOTcxLTIuNTg1LTIxLjYzIDguMjc0djE0MS4xNCIgZmlsbD0iIzRCNjEyQyIvPjxwYXRoIGQ9Ik0xMjMuODMyIDE5MC40MjNsLTc2LjU4MSAxMy40NTFWNDcuNzAzbDc2LjU4MSAxNy4yMjJ2MTI1LjQ5OCIgZmlsbD0iIzc1OUMzRSIvPjxwYXRoIGQ9Ik04OS42ODYgMjE2Ljg4OWwtMjkuODQ4LTkuMjAxVjE0LjkyOEw4OS42ODYuMDA0bDIuNjEyIDIuODQ1djIxMC44NThsLTIuNjEyIDMuMTgyIiBmaWxsPSIjNEI2MTJDIi8+PHBhdGggZD0iTTE5MS45NjcgMTkyLjg5NEw4OS42ODYgMjE2Ljg4OVYwbDEwMi4yODEgMzkuODY2djE1My4wMjgiIGZpbGw9IiM3NTlDM0UiLz48cGF0aCBkPSJNMTI3Ljk2NSAyNDQuNzE0TDAgMTk5LjMyOXYyNi4zMjRsMTI3Ljk2NSA2My45ODN2LTQ0LjkyMiIgZmlsbD0iIzRCNjEyQyIvPjxwYXRoIGQ9Ik0yNTYgMjI1LjYyMmwtMTI4LjAzNSA2NC4wMTR2LTQ0LjkyMkwyNTYgMTk5LjMwNXYyNi4zMTciIGZpbGw9IiM3NTlDM0UiLz48cGF0aCBkPSJNMjIwLjAzOSAxNTUuNjkyaC0zMS4wMjZsLTg4LjQ0NSA2LjAyNkwxMjggMTY2Ljc3NWw5Mi4wMzktMTEuMDgzIiBmaWxsPSIjQjdDQTlEIi8+PHBhdGggZD0iTTEwMC41NjggMjE5LjkwNmwyNy40MiA4LjIyNi43ODktLjg0OS0uMDIzLTYxLjg0OS0uNzg5LS43NTgtMjcuMzk3LTIuOTU4djU4LjE4OCIgZmlsbD0iIzRCNjEyQyIvPjxwYXRoIGQ9Ik0yMjAuMDM5IDE1NS42OTJsLTkyLjA3NCA4Ljk4LjAyMyA2My40NiA5Mi4wNTEtMjcuNzExdi00NC43MjkiIGZpbGw9IiM3NTlDM0UiLz48L3N2Zz4K"
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "AWS Cloudwatch"
@@ -31,16 +31,13 @@ spec:
   definition:
     title: "AWS CloudWatch Metrics Sink"
     description: |-
-      Send messages to AWS CloudWatch metrics.
+      Send data to Amazon CloudWatch metrics.
 
-      Access Key/Secret Key are the basic method for authenticating to the AWS CloudWatch Service. These parameters are optional, because the Kamelet provide also the 'useDefaultCredentialsProvider'.
+      The basic authentication method for the AWS CloudWatch metrics service is to specify an access key and a secret key. These parameters are optional because the Kamelet provides a default credentials provider.
       
-      When using a default Credentials Provider the CloudWatch client will load the credentials through this provider and won't use the static credential. This is reason for not having the access key and secret key as mandatory parameter for this Kamelet.
-
-      The Kamelet expects the following headers to be set:
-
-
-      There are several properties you can set in the headers, such as:
+      If you use the default credentials provider, the CloudWatch client loads the credentials through this provider and doesn't use the basic authentication method.
+      
+      You can set the following properties in the header:
 
       `metric-name` / `ce-metricname` for the metric name.
       `metric-value` / `ce-metricvalue` for the metric value.
@@ -55,7 +52,7 @@ spec:
     properties:
       cwNamespace:
         title: Cloud Watch Namespace
-        description: The cloud watch metric namespace.
+        description: The CloudWatch metric namespace.
         type: string
       accessKey:
         title: Access Key
@@ -75,23 +72,23 @@ spec:
         - urn:camel:group:credentials
       region:
         title: AWS Region
-        description: The AWS region to connect to.
+        description: The AWS region to access.
         type: string
-        example: eu-west-1
+        enum: ["af-south-1", "ap-east-1", "ap-northeast-1", "ap-northeast-2", "ap-northeast-3", "ap-south-1", "ap-southeast-1", "ap-southeast-2", "ap-southeast-3", "ca-central-1", "eu-central-1", "eu-north-1", "eu-south-1", "eu-west-1", "eu-west-2", "eu-west-3", "fips-us-east-1", "fips-us-east-2", "fips-us-west-1", "fips-us-west-2", "me-south-1", "sa-east-1", "us-east-1", "us-east-2", "us-west-1", "us-west-2", "cn-north-1", "cn-northwest-1", "us-gov-east-1", "us-gov-west-1", "us-iso-east-1", "us-iso-west-1", "us-isob-east-1"]
       useDefaultCredentialsProvider:
         title: Default Credentials Provider
-        description: Set whether the CloudWatch client should expect to load credentials through a default credentials provider or to expect static credentials to be passed in.
+        description: If true, the CloudWatch client loads credentials through a default credentials provider. If false, it uses the basic authentication method (access key and secret key).
         type: boolean
         x-descriptors:
         - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
         default: false
       uriEndpointOverride:
         title: Overwrite Endpoint URI
-        description: Set the overriding endpoint URI. This option needs to be used in combination with overrideEndpoint option.
+        description: The overriding endpoint URI. To use this option, you must also select the `overrideEndpoint` option.
         type: string
       overrideEndpoint:
         title: Endpoint Overwrite
-        description: Set the need for overiding the endpoint URI. This option needs to be used in combination with uriEndpointOverride setting.
+        description: Select this option to override the endpoint URI. To use this option, you must also provide a URI for the `uriEndpointOverride` option.
         type: boolean
         x-descriptors:
           - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
@@ -100,6 +97,7 @@ spec:
     - "camel:core"
     - "camel:aws2-cw"
     - "camel:kamelet"
+    - "mvn:software.amazon.awssdk:utils:2.17.223"
   template:
     from:
       uri: kamelet:source

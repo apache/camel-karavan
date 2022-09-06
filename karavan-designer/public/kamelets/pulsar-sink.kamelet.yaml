@@ -19,8 +19,8 @@ kind: Kamelet
 metadata:
   name: pulsar-sink
   annotations:
-    camel.apache.org/kamelet.support.level: "Preview"
-    camel.apache.org/catalog.version: "0.8.1"
+    camel.apache.org/kamelet.support.level: "Stable"
+    camel.apache.org/catalog.version: "0.9.0"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgdmlld0JveD0iMCAwIDYwLjk3Mzk5OSA0My4wOSIKICAgdmVyc2lvbj0iMS4xIgogICBpZD0ic3ZnMjQiCiAgIHNvZGlwb2RpOmRvY25hbWU9InB1bHNhci1sb2dvLnN2ZyIKICAgd2lkdGg9IjYwLjk3Mzk5OSIKICAgaGVpZ2h0PSI0My4wOSIKICAgaW5rc2NhcGU6dmVyc2lvbj0iMS4xLjEgKDNiZjVhZTBkMjUsIDIwMjEtMDktMjApIgogICB4bWxuczppbmtzY2FwZT0iaHR0cDovL3d3dy5pbmtzY2FwZS5vcmcvbmFtZXNwYWNlcy9pbmtzY2FwZSIKICAgeG1sbnM6c29kaXBvZGk9Imh0dHA6Ly9zb2RpcG9kaS5zb3VyY2Vmb3JnZS5uZXQvRFREL3NvZGlwb2RpLTAuZHRkIgogICB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyIKICAgeG1sbnM6Y2M9Imh0dHA6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL25zIyIKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIj4KICA8c29kaXBvZGk6bmFtZWR2aWV3CiAgICAgaWQ9Im5hbWVkdmlldzI2IgogICAgIHBhZ2Vjb2xvcj0iI2ZmZmZmZiIKICAgICBib3JkZXJjb2xvcj0iIzY2NjY2NiIKICAgICBib3JkZXJvcGFjaXR5PSIxLjAiCiAgICAgaW5rc2NhcGU6cGFnZXNoYWRvdz0iMiIKICAgICBpbmtzY2FwZTpwYWdlb3BhY2l0eT0iMC4wIgogICAgIGlua3NjYXBlOnBhZ2VjaGVja2VyYm9hcmQ9IjAiCiAgICAgc2hvd2dyaWQ9ImZhbHNlIgogICAgIHVuaXRzPSJweCIKICAgICBpbmtzY2FwZTp6b29tPSIzLjAwNDM2NjIiCiAgICAgaW5rc2NhcGU6Y3g9IjMxLjQ1NDIyMSIKICAgICBpbmtzY2FwZTpjeT0iNDMuNDM2NzgyIgogICAgIGlua3NjYXBlOndpbmRvdy13aWR0aD0iMTkyMCIKICAgICBpbmtzY2FwZTp3aW5kb3ctaGVpZ2h0PSIxMDgwIgogICAgIGlua3NjYXBlOndpbmRvdy14PSIwIgogICAgIGlua3NjYXBlOndpbmRvdy15PSIwIgogICAgIGlua3NjYXBlOndpbmRvdy1tYXhpbWl6ZWQ9IjEiCiAgICAgaW5rc2NhcGU6Y3VycmVudC1sYXllcj0ic3ZnMjQiIC8+CiAgPGRlZnMKICAgICBpZD0iZGVmczQiPgogICAgPHN0eWxlCiAgICAgICBpZD0ic3R5bGUyIj4uY2xzLTF7ZmlsbDojMTg4ZmZmO30uY2xzLTJ7ZmlsbDojNDY0ZTU2O308L3N0eWxlPgogICAgPGNsaXBQYXRoCiAgICAgICBjbGlwUGF0aFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIKICAgICAgIGlkPSJjbGlwUGF0aDMxNiI+CiAgICAgIDxyZWN0CiAgICAgICAgIGlkPSJyZWN0MzE4IgogICAgICAgICB3aWR0aD0iNjAuOTczOTQ2IgogICAgICAgICBoZWlnaHQ9IjQzLjUxMzExMSIKICAgICAgICAgeD0iNC4wOTY2MDMzZS0xMCIKICAgICAgICAgeT0iLTAuNDIzMTExMTEiIC8+CiAgICA8L2NsaXBQYXRoPgogIDwvZGVmcz4KICA8dGl0bGUKICAgICBpZD0idGl0bGU2Ij5Bc3NldCAyPC90aXRsZT4KICA8ZwogICAgIGlkPSJMYXllcl8yIgogICAgIGRhdGEtbmFtZT0iTGF5ZXIgMiIKICAgICB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLjI5NzE0NDIsMC4wNjg0ODA4NSkiCiAgICAgY2xpcC1wYXRoPSJ1cmwoI2NsaXBQYXRoMzE2KSI+CiAgICA8ZwogICAgICAgaWQ9IkxheWVyXzEtMiIKICAgICAgIGRhdGEtbmFtZT0iTGF5ZXIgMSI+CiAgICAgIDxwYXRoCiAgICAgICAgIGNsYXNzPSJjbHMtMSIKICAgICAgICAgZD0iTSA2MSwxMy43MyBIIDQ2LjA5IEMgNDIuMDYsNiAzNy44LDAgMzIsMCAyNC40NSwwIDIwLjksNi41OSAxNy40NywxMyBsIC0wLjMsMC41NiBIIDAgdiAzLjgxIGggMTAgYyAzLjUzLDAgNC4yNSwxLjE5IDQuMjUsMS4xOSAtMi43Nyw0LjMgLTYuMSw4LjU1IC0xMS42NSw4LjU1IEggMCB2IDQgaCAyLjYyIGMgMTAuNzYsMCAxNS40NiwtOC43MyAxOS4yMywtMTUuNzQgQyAyNS4zMSw4LjkxIDI3LjcyLDUgMzIsNSBjIDQuNDQsMCA5LjExLDkuNjYgMTMuMjIsMTguMTkgMC42LDEuMjQgMS4yMSwyLjUxIDEuODMsMy43NyAtMTUuNzYsMC41IC0yMy4yNyw0LjE5IC0yOS4zOCw3LjIgLTQuNDcsMi4yIC04LDQuOTMgLTEzLjgxLDQuOTMgSCAwIHYgNCBoIDMuODMgYyA3LDAgMTEuMzYsLTIuMTYgMTYsLTQuNDUgNi40MywtMy4xNiAxMy43MiwtNi43NCAzMC45LC02Ljc0IGggOS45MyB2IC00IGggLTUuNjEgYSAzLDMgMCAwIDEgLTIuNDcsLTEgQyA1MS42LDI1IDUwLjY0LDIzIDQ5LjcsMjEgbCAtMS4zLC0yLjY2IGMgMCwwIDAuOTMsLTEgMy41MSwtMSBIIDYxIFoiCiAgICAgICAgIGlkPSJwYXRoOCIgLz4KICAgICAgPHBhdGgKICAgICAgICAgY2xhc3M9ImNscy0yIgogICAgICAgICBkPSJNIDc5LjgzLDEzLjcgSCA2OS40NCB2IDMuNzQgSCA3OS42IGMgNC4yLDAgNi42MSwxLjkxIDYuNjEsNS4zMyAwLDMuMjQgLTIuNjYsNS4zMyAtNi43Nyw1LjMzIGggLTEwIHYgMTMgaCA0IHYgLTkuMyBoIDUuOTMgYyA1LjQyLDAgMTAuODgsLTIuODMgMTAuODgsLTkuMjIgLTAuMDMsLTUuNCAtNC4xMSwtOC44OCAtMTAuNDIsLTguODggeiIKICAgICAgICAgaWQ9InBhdGgxMCIgLz4KICAgICAgPHBhdGgKICAgICAgICAgY2xhc3M9ImNscy0yIgogICAgICAgICBkPSJtIDExMy4zMSwyOS41NyBjIDAsNS4zMSAtMi42Niw4LjI0IC03LjQ4LDguMjQgLTQuODIsMCAtNy42LC0zLjA3IC03LjYsLTguNDMgViAxMy43IGggLTQgdiAxNS44NyBjIDAsNy4zOSA0LjQsMTIgMTEuNDksMTIgNy4wOSwwIDExLjU2LC00LjU3IDExLjU2LC0xMi4yMyBWIDEzLjcgaCAtNCB6IgogICAgICAgICBpZD0icGF0aDEyIiAvPgogICAgICA8cG9seWdvbgogICAgICAgICBjbGFzcz0iY2xzLTIiCiAgICAgICAgIHBvaW50cz0iMTQyLjIyLDQxLjE0IDE0Mi4yMiwzNy4zOSAxMjcuMzMsMzcuMzkgMTI3LjMzLDEzLjcgMTIzLjM2LDEzLjcgMTIzLjM2LDQxLjE0ICIKICAgICAgICAgaWQ9InBvbHlnb24xNCIgLz4KICAgICAgPHBhdGgKICAgICAgICAgY2xhc3M9ImNscy0yIgogICAgICAgICBkPSJNIDE1Ni42OSwyNS41IEMgMTUwLjk1LDI0LjI3IDE0OS45LDIyLjk3IDE0OS45LDIwLjc2IDE0OS45LDE4LjU1IDE1MiwxNyAxNTUsMTcgYSAxMS4xMiwxMS4xMiAwIDAgMSA3LjMyLDIuNzYgbCAwLjQsMC4zMiAyLjM2LC0zLjA4IC0wLjM3LC0wLjMgYSAxNC4yMiwxNC4yMiAwIDAgMCAtOS42MSwtMy4zNiBjIC01LjMyLDAgLTkuMTgsMy4yNCAtOS4xOCw3Ljc5IDAsNS4wNiAzLjcxLDYuOTEgOS4yNyw4LjEyIDUuNTYsMS4yMSA2LjQ5LDIuNDQgNi40OSw0LjYyIDAsMi4zNiAtMi4yMiw0IC01LjQxLDQgLTMuMzcsMCAtNS45LC0xIC04Ljc0LC0zLjYyIGwgLTAuMzgsLTAuMzQgLTIuNDksMi45NSAwLjM2LDAuMzIgYSAxNS45MSwxNS45MSAwIDAgMCAxMS4xNCw0LjM2IGMgNS42MSwwIDkuNTIsLTMuMjggOS41MiwtOCAwLjAxLC00LjI4IC0yLjY4LC02LjY3IC04Ljk5LC04LjA0IHoiCiAgICAgICAgIGlkPSJwYXRoMTYiIC8+CiAgICAgIDxwYXRoCiAgICAgICAgIGNsYXNzPSJjbHMtMiIKICAgICAgICAgZD0ibSAxODAuMTksMTMuNTEgLTEyLjUsMjcuNjMgaCA0LjE0IGwgMy4xNCwtNyBoIDEzLjc2IGwgMy4xLDcgaCA0LjI5IGwgLTEyLjUsLTI3LjYzIHogbSAtMy42MSwxNyA1LjI5LC0xMS44IDUuMjYsMTEuOCB6IgogICAgICAgICBpZD0icGF0aDE4IiAvPgogICAgICA8cGF0aAogICAgICAgICBjbGFzcz0iY2xzLTIiCiAgICAgICAgIGQ9Im0gMjE1LjE4LDMwLjE1IGMgNC4yOSwtMSA2LjgyLC00IDYuODIsLTguMTEgYSA3Ljc3LDcuNzcgMCAwIDAgLTIuMTgsLTUuNTYgMTEsMTEgMCAwIDAgLTcuODcsLTIuNzkgaCAtMTEuODcgdiAyNy40NSBoIDQgViAzMC44NSBoIDYuODIgbCA3LjY3LDEwLjI4IGggNC45IHogbSAtMTEuMTQsLTMgdiAtOS43MSBoIDcuNjcgYyA0LDAgNi4yOCwxLjcyIDYuMjgsNC44IDAsMy4wOCAtMi40OCw1IC02LjMxLDUgeiIKICAgICAgICAgaWQ9InBhdGgyMCIgLz4KICAgIDwvZz4KICA8L2c+CiAgPG1ldGFkYXRhCiAgICAgaWQ9Im1ldGFkYXRhODE5Ij4KICAgIDxyZGY6UkRGPgogICAgICA8Y2M6V29yawogICAgICAgICByZGY6YWJvdXQ9IiI+CiAgICAgICAgPGRjOnRpdGxlPkFzc2V0IDI8L2RjOnRpdGxlPgogICAgICA8L2NjOldvcms+CiAgICA8L3JkZjpSREY+CiAgPC9tZXRhZGF0YT4KPC9zdmc+Cg=="
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "Pulsar"
@@ -51,7 +51,7 @@ spec:
         type: string
       topicType:
         title: Topic Type
-        description: "The topic type. Possible values are: persistent or non-persistent"
+        description: "The topic type. Possible values are persistent or non-persistent."
         type: string  
       namespaceName:
         title: Pulsar Namespace Name
@@ -81,12 +81,12 @@ spec:
       batchingMaxMessages:
         title: Batching Maximum Messages
         description: "The maximum size to batch messages."
-        type: int
+        type: integer
         default: 1000
       batchingMaxPublishDelayMicros:
         title: Batching Maximum Publish Delay in Microsecond
         description: "The maximum time period within which the messages sent will be batched if batchingEnabled is true."
-        type: long
+        type: integer
         default: 1000
       blockIfQueueFull:
         title: Block If Queue Full
@@ -97,7 +97,7 @@ spec:
           - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
       compressionType:
         title: Compression Type
-        description: "Compression type to use. Possible values are: NONE, LZ4, ZLIB, ZSTD, SNAPPY"
+        description: "Compression type to use. Possible values are NONE, LZ4, ZLIB, ZSTD, or SNAPPY."
         type: string
         default: "NONE"
         x-descriptors:
@@ -109,7 +109,7 @@ spec:
       initialSequenceId:
         title: Initial SequenceId
         description: "The first message published will have a sequence Id of initialSequenceId 1."
-        type: long
+        type: integer
         default: -1
       lazyStartProducer:
         title: Number Of Consumer Threads
@@ -121,12 +121,12 @@ spec:
       maxPendingMessages:
         title: Maximum Pending Messages
         description: "Size of the pending massages queue. When the queue is full, by default, any further sends will fail unless blockIfQueueFull=true."
-        type: int
+        type: integer
         default: 1000
       maxPendingMessagesAcrossPartitions:
         title: Maximum Pending Messages Across Partitions
         description: "The maximum number of pending messages for partitioned topics. The maxPendingMessages value will be reduced if (number of partitions maxPendingMessages) exceeds this value. Partitioned topics have a pending message queue for each partition."
-        type: int
+        type: integer
         default: 50000
       messageRoutingMode:
         title: Message Routing Mode
@@ -144,7 +144,7 @@ spec:
       sendTimeoutMs:
         title: Send Timeout in Milliseconds
         description: "Send timeout in milliseconds."
-        type: int
+        type: integer
         default: 30000
     type: object
   template:

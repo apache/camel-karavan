@@ -20,8 +20,8 @@ kind: Kamelet
 metadata:
   name: aws-ddb-sink
   annotations:
-    camel.apache.org/kamelet.support.level: "Preview"
-    camel.apache.org/catalog.version: "0.8.1"
+    camel.apache.org/kamelet.support.level: "Stable"
+    camel.apache.org/catalog.version: "0.9.0"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMCIgd2lkdGg9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBmaWxsPSIjMkQ3MkI4IiBkPSJNNzQuMTc0IDMxLjgwN2w3LjQzNyA1LjM2N3YtNy42MDJsLTcuNDgtOC43NjV2MTAuOTU3bC4wNDMuMDE1eiIvPjxwYXRoIGZpbGw9IiM1Mjk0Q0YiIGQ9Ik01OS44MzggODUuNjY2bDE0LjI5My03LjE0NlYyMC43OTFsLTE0LjMwMy03LjEyNHoiLz48cGF0aCBmaWxsPSIjMjA1Qjk4IiBkPSJNMzkuNDk2IDg1LjY2NkwyNS4yMDMgNzguNTJWMjAuNzkxbDE0LjMwMy03LjEyNHoiLz48cGF0aCBmaWxsPSIjMkQ3MkI4IiBkPSJNMzkuNTA2IDEzLjY2N2gyMC4zMjF2NzEuOTk5SDM5LjUwNnpNNzQuMTMxIDY3LjU2NFY3OC41Mmw3LjQ4LTguNzY0di03LjYwMmwtNy40MzcgNS4zOTd6TTc0LjEzMSA2Mi45MzZsLjA0My0uMDEgNy40MzctNHYtNy42NDlsLTcuNDguNjg4ek03NC4xNzQgMzYuNDI5bC0uMDQzLS4wMVY0Ny4zNWw3LjQ4LjY5OXYtNy42NDV6Ii8+PHBhdGggZmlsbD0iIzFBNDc2RiIgZD0iTTgxLjYxMSA0OC4wNDlsLTcuNDgtLjY5OS0xNC4zMDMtLjU3MkgzOS41MDZsLTE0LjMwMy41NzJWMzYuNDQzbC0uMDE1LjAwOC4wMTUtLjAzMiAxNC4zMDMtMy4zMTRINTkuODI4bDE0LjMwMyAzLjMxNCA1LjI1OCAyLjc5NXYtMS43OTdsMi4yMjItLjI0My03LjQ4LTUuNDEtMTQuMzAzLTQuNDMySDM5LjUwNmwtMTQuMzAzIDQuNDMyVjIwLjgwN2wtNy40OCA4Ljc2M3Y3LjY1M2wuMDU4LS4wNDIgMi4xNjQuMjM2djEuODM0bC0yLjIyMiAxLjE4OXY3LjYxNWwuMDU4LS4wMDYgMi4xNjQuMDMydjMuMTk2bC0xLjg2Ny4wMjgtLjM1NS0uMDM0djcuNjE4bDIuMjIyIDEuMTk1djEuODU1bC0yLjEyOS4yMzUtLjA5My0uMDd2Ny42NTJsNy40OCA4Ljc2NFY2Ny41NjRsMTQuMzAzIDQuNDMySDU5LjgyOGwxNC4zNDUtNC40NDUgNy40MzgtNS4zNjctMi4yMjItLjI0NXYtMS44MThsLTUuMjE2IDIuODA1LTE0LjM0NSAzLjI5NXYuMDA0SDM5LjUwNnYtLjAwNGwtMTQuMzQ4LTMuMjk1LS4wMjUtLjA1MS4wNy4wMzdWNTEuOTY1bDE0LjMwMy41N3YuMDE0SDU5LjgyOHYtLjAxNGwxNC4zMDMtLjU3IDcuNDgtLjY1Ni0yLjIyMi0uMDMydi0zLjE5NnoiLz48L3N2Zz4="
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "AWS DynamoDB Streams"
@@ -31,17 +31,13 @@ spec:
   definition:
     title: "AWS DynamoDB Sink"
     description: |-
-      Send data to AWS DynamoDB service. The sent data will insert/update/delete an item on the given AWS DynamoDB table.
+      Send data to Amazon DynamoDB. The sent data inserts, updates, or deletes an item on the specified AWS DynamoDB table.
 
-      Access Key/Secret Key are the basic method for authenticating to the AWS DynamoDB service. These parameters are optional, because the Kamelet provide also the 'useDefaultCredentialsProvider'.
+      The basic authentication method for the AWS DynamoDB service is to specify an access key and a secret key. These parameters are optional because the Kamelet provides a default credentials provider.
 
-      When using a default Credentials Provider the AWS DynamoDB client will load the credentials through this provider and won't use the static credential. This is reason for not having the access key and secret key as mandatory parameter for this Kamelet.
+      If you use the default credentials provider, the DynamoDB client loads the credentials through this provider and doesn't use the basic authentication method.
 
-      This Kamelet expects a JSON as body. The mapping between the JSON fields and table attribute values is done by key, so if you have the input:
-
-      '{"username":"oscerd", "city":"Rome"}'
-
-      The Kamelet will insert/update an item in the given AWS DynamoDB table and set the attributes 'username' and 'city' respectively. Please note that the JSON object must include the primary key values that define the item.
+      This Kamelet expects a JSON-formatted body and it must include the primary key values that define the DynamoDB item. The mapping between the JSON fields and table attribute values is done by key. For example, for  '{"username":"oscerd", "city":"Rome"}' input, the Kamelet inserts or update an item in the specified AWS DynamoDB table and sets the values for the 'username' and 'city' attributes. 
     required:
       - table
       - region
@@ -49,11 +45,11 @@ spec:
     properties:
       table:
         title: Table
-        description: Name of the DynamoDB table to look at
+        description: The name of the DynamoDB table.
         type: string
       accessKey:
         title: Access Key
-        description: The access key obtained from AWS
+        description: The access key obtained from AWS.
         type: string
         format: password
         x-descriptors:
@@ -61,7 +57,7 @@ spec:
         - urn:camel:group:credentials
       secretKey:
         title: Secret Key
-        description: The secret key obtained from AWS
+        description: The secret key obtained from AWS.
         type: string
         format: password
         x-descriptors:
@@ -69,34 +65,34 @@ spec:
         - urn:camel:group:credentials
       region:
         title: AWS Region
-        description: The AWS region to connect to
+        description: The AWS region to access.
         type: string
-        example: eu-west-1
+        enum: ["af-south-1", "ap-east-1", "ap-northeast-1", "ap-northeast-2", "ap-northeast-3", "ap-south-1", "ap-southeast-1", "ap-southeast-2", "ap-southeast-3", "ca-central-1", "eu-central-1", "eu-north-1", "eu-south-1", "eu-west-1", "eu-west-2", "eu-west-3", "fips-us-east-1", "fips-us-east-2", "fips-us-west-1", "fips-us-west-2", "me-south-1", "sa-east-1", "us-east-1", "us-east-2", "us-west-1", "us-west-2", "cn-north-1", "cn-northwest-1", "us-gov-east-1", "us-gov-west-1", "us-iso-east-1", "us-iso-west-1", "us-isob-east-1"]
       operation:
         title: Operation
-        description: The operation to perform (one of PutItem, UpdateItem, DeleteItem)
+        description: "The operation to perform. The options are PutItem, UpdateItem, or DeleteItem."
         type: string
         default: PutItem
         example: PutItem
       writeCapacity:
         title: Write Capacity
-        description: The provisioned throughput to reserved for writing resources to your table
+        description: The provisioned throughput to reserve for writing resources to your table.
         type: integer
         default: 1
       useDefaultCredentialsProvider:
         title: Default Credentials Provider
-        description: Set whether the DynamoDB client should expect to load credentials through a default credentials provider or to expect static credentials to be passed in.
+        description: If true, the DynamoDB client loads credentials through a default credentials provider. If false, it uses the basic authentication method (access key and secret key).
         type: boolean
         x-descriptors:
           - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
         default: false
       uriEndpointOverride:
         title: Overwrite Endpoint URI
-        description: Set the overriding endpoint URI. This option needs to be used in combination with overrideEndpoint option.
+        description: The overriding endpoint URI. To use this option, you must also select the `overrideEndpoint` option.
         type: string
       overrideEndpoint:
         title: Endpoint Overwrite
-        description: Set the need for overiding the endpoint URI. This option needs to be used in combination with uriEndpointOverride setting.
+        description: Select this option to override the endpoint URI. To use this option, you must also provide a URI for the `uriEndpointOverride` option.
         type: boolean
         x-descriptors:
           - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
@@ -105,11 +101,12 @@ spec:
     in:
       mediaType: application/json
   dependencies:
-  - mvn:org.apache.camel.kamelets:camel-kamelets-utils:0.8.1
+  - mvn:org.apache.camel.kamelets:camel-kamelets-utils:0.9.0
   - "camel:core"
   - "camel:jackson"
   - "camel:aws2-ddb"
   - "camel:kamelet"
+  - "mvn:software.amazon.awssdk:utils:2.17.223"
   template:
     from:
       uri: "kamelet:source"

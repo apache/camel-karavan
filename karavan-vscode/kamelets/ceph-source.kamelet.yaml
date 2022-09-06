@@ -1,0 +1,130 @@
+# ---------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ---------------------------------------------------------------------------
+
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: ceph-source
+  annotations:
+    camel.apache.org/kamelet.support.level: "Stable"
+    camel.apache.org/catalog.version: "0.9.0"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4gPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNjAiIGhlaWdodD0iMTU3IiB2aWV3Qm94PSIwIDAgMTYwIDE1NyIgZmlsbD0ibm9uZSI+PGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwKSI+PHBhdGggZD0iTTc5LjgxNTIgOTYuMDczOUM4OC42ODM2IDk2LjA3MzkgOTUuNzA0NCA4OS4wNTMxIDk1LjcwNDQgODAuMTg0OEM5NS43MDQ0IDcxLjMxNjQgODguNjgzNiA2NC4yOTU2IDc5LjgxNTIgNjQuMjk1NkM3MC45NDY5IDY0LjI5NTYgNjMuOTI2MSA3MS4zMTY0IDYzLjkyNjEgODAuMTg0OEM2My45MjYxIDg4LjY4MzYgNzEuMzE2NCA5Ni4wNzM5IDc5LjgxNTIgOTYuMDczOVpNMTAxLjI0NyAxNTYuMzA1TDEwNS42ODEgMTU0LjgyN0MxMTAuMTE1IDE1My4zNDkgMTE0LjkxOSAxNTEuNTAxIDExOC45ODQgMTQ4LjkxNUMxMTEuNTk0IDE0NC44NSAxMDcuMTU5IDEzNy40NiAxMDcuMTU5IDEyOC45NjFDMTA3LjE1OSAxMjMuNDE4IDEwOS4zNzYgMTE4LjI0NSAxMTMuNDQxIDExMy4wNzJDMTEzLjQ0MSAxMTMuMDcyIDExMy40NDEgMTEzLjA3MiAxMTMuODExIDExMi43MDJMMTE0LjkxOSAxMTEuMjI0QzExNi4wMjggMTA5Ljc0NiAxMTcuMTM2IDEwOC42MzcgMTE4LjI0NSAxMDcuMTU5QzEyMS45NCAxMDEuOTg2IDEyNC44OTYgOTYuMDczOSAxMjYuMzc0IDg5Ljc5MjJDMTI3Ljg1MiA4Mi43NzE0IDEyOC4yMjIgNzUuNzUwNiAxMjYuNzQ0IDY4LjcyOThDMTI1LjI2NiA2Mi40NDggMTIyLjY3OSA1Ni4xNjYzIDExOC45ODQgNTAuOTkzMUMxMTUuMjg5IDQ1LjgxOTkgMTEwLjg1NSA0MS4zODU3IDEwNS4zMTIgMzguMDZDOTkuNzY5MSAzNC43MzQ0IDkzLjQ4NzMgMzIuMTQ3OCA4Ni44MzYgMzEuNDA4OEM4NC42MTg5IDMxLjAzOTMgODIuNDAxOSAzMS4wMzkzIDgwLjE4NDggMzEuMDM5M0g3OS40NDU3Qzc3LjIyODYgMzEuMDM5MyA3NS4wMTE2IDMxLjAzOTMgNzIuNzk0NSAzMS40MDg4QzY2LjE0MzIgMzIuNTE3MyA1OS44NjE0IDM0LjczNDQgNTQuMzE4NyAzOC4wNkM0OS4xNDU1IDQxLjM4NTcgNDQuMzQxOCA0NS44MTk5IDQwLjY0NjcgNTAuOTkzMUMzNi45NTE1IDU2LjE2NjMgMzMuOTk1NCA2Mi40NDggMzIuODg2OCA2OC43Mjk4QzMxLjQwODggNzUuNzUwNiAzMS40MDg4IDgyLjc3MTQgMzMuMjU2NCA4OS40MjI2QzM0LjczNDQgOTUuNzA0NCAzNy42OTA1IDEwMS42MTcgNDEuMzg1NyAxMDYuNzlMNDQuNzExMyAxMTAuODU1TDQ1LjgxOTkgMTEyLjMzM0M0OS44ODQ1IDExNy4xMzYgNTIuMTAxNiAxMjIuNjc5IDUyLjEwMTYgMTI4LjIyMkM1Mi4xMDE2IDEzNi43MjEgNDcuMjk3OSAxNDQuMTExIDQwLjI3NzEgMTQ4LjE3NkM0NC4zNDE4IDE1MC4zOTMgNDkuMTQ1NSAxNTIuNjEgNTMuNTc5NyAxNTQuMDg4TDU4LjM4MzQgMTU1LjU2NkM1OS4xMjI0IDE1NC44MjcgNjIuNDQ4IDE1Mi42MSA2NS40MDQyIDE0OC4xNzZDNjguMzYwMyAxNDQuMTExIDcxLjY4NTkgMTM3LjQ2IDcxLjY4NTkgMTI4LjIyMkM3MS42ODU5IDEyMi42NzkgNzAuNTc3NCAxMTcuNTA2IDY4LjM2MDMgMTEyLjMzM0M2Ni4xNDMyIDEwNy4xNTkgNjMuMTg3MSAxMDIuNzI1IDU5LjQ5MTkgOTguNjYwNUw1OC43NTI5IDk3LjU1MkM1Ny4yNzQ4IDk2LjA3MzkgNTUuNzk2OCA5NC4yMjYzIDU0LjY4ODIgOTIuMzc4OEM1My4yMTAyIDg5Ljc5MjIgNTIuMTAxNiA4Ny41NzUxIDUxLjczMjEgODQuNjE4OUM1MC42MjM2IDgwLjU1NDMgNTAuNjIzNiA3Ni40ODk2IDUxLjczMjEgNzIuNDI0OUM1Mi40NzExIDY4LjcyOTggNTMuOTQ5MiA2NS4wMzQ2IDU2LjE2NjMgNjIuMDc4NUM1OC4zODM0IDU5LjEyMjQgNjAuOTcgNTYuNTM1OCA2NC4yOTU2IDU0LjMxODdDNjcuNjIxMiA1Mi4xMDE2IDcxLjMxNjQgNTAuOTkzMSA3NS4wMTE1IDUwLjI1NEM3Ni40ODk2IDQ5Ljg4NDUgNzcuNTk4MiA0OS44ODQ1IDc5LjA3NjIgNDkuODg0NUg3OS44MTUyQzgxLjI5MzMgNDkuODg0NSA4Mi40MDE5IDQ5Ljg4NDUgODMuODc5OSA1MC4yNTRDODcuNTc1MSA1MC42MjM2IDkxLjI3MDIgNTIuMTAxNiA5NC41OTU4IDU0LjMxODdDOTcuOTIxNSA1Ni4xNjYzIDEwMC41MDggNTguNzUyOSAxMDIuNzI1IDYyLjA3ODVDMTA0Ljk0MiA2NS4wMzQ2IDEwNi40MiA2OC43Mjk4IDEwNy4xNTkgNzIuNDI0OUMxMDcuODk4IDc2LjQ4OTYgMTA3Ljg5OCA4MC41NTQzIDEwNy4xNTkgODQuNjE4OUMxMDYuNDIgODcuMjA1NSAxMDUuNjgxIDg5Ljc5MjIgMTA0LjIwMyA5Mi4zNzg4QzEwMy4wOTUgOTQuMjI2MyAxMDEuNjE3IDk2LjA3MzkgMTAwLjEzOSA5Ny41NTJMOTkuMzk5NSA5OC42NjA1Qzk1LjcwNDQgMTAyLjcyNSA5Mi43NDgzIDEwNy4xNTkgOTAuNTMxMiAxMTIuMzMzQzg4LjMxNDEgMTE3LjUwNiA4Ny4yMDU1IDEyMi42NzkgODcuMjA1NSAxMjguMjIyQzg3LjIwNTUgMTM3LjQ2IDkwLjUzMTIgMTQ0LjExMSA5My40ODczIDE0OC4xNzZDOTYuODEyOSAxNTMuMzQ5IDEwMC4xMzkgMTU1LjkzNSAxMDEuMjQ3IDE1Ni4zMDVaTTEzMC40MzkgMTQxLjUyNEMxMzkuMzA3IDEzNC4xMzQgMTQ3LjA2NyAxMjQuNTI3IDE1MS44NzEgMTE0LjU1QzE1NC40NTcgMTA5LjM3NiAxNTYuMzA1IDEwMy40NjQgMTU3Ljc4MyA5Ny45MjE1QzE1OS4yNjEgOTIuMDA5MiAxNjAgODUuNzI3NSAxNjAgNzkuODE1MkMxNjAgNjkuMDk5MyAxNTcuNzgzIDU4LjM4MzQgMTUzLjcxOCA0OC43NzZDMTQ5LjY1NCAzOS4xNjg2IDE0My43NDEgMzAuNjY5NyAxMzYuNzIxIDIzLjI3OTRDMTI5LjMzIDE1Ljg4OTEgMTIwLjgzMSAxMC4zNDY0IDExMS4yMjQgNi4yODE3NkMxMDEuMjQ3IDIuMjE3MDkgOTAuOTAwNyAwIDgwLjE4NDggMEg3OS44MTUyQzY5LjA5OTMgMCA1OC4zODM0IDIuMjE3MDkgNDguNzc2IDYuMjgxNzZDMzkuMTY4NiAxMC4zNDY0IDMwLjY2OTcgMTYuMjU4NyAyMy4yNzk0IDIzLjI3OTRDMTUuODg5MSAzMC42Njk3IDEwLjM0NjQgMzkuMTY4NiA2LjI4MTc2IDQ4Ljc3NkMyLjIxNzA5IDU4Ljc1MjkgMCA2OS4wOTkzIDAgNzkuODE1MkMwIDg2LjA5NyAwLjczOTAzIDkyLjAwOTIgMi4yMTcwOSA5Ny45MjE1QzMuNjk1MTUgMTAzLjgzNCA1LjU0MjczIDEwOS4zNzYgOC4xMjkzMyAxMTQuNTVDMTIuOTMzIDEyNC41MjcgMjAuNjkyOCAxMzQuMTM0IDI5LjU2MTIgMTQxLjUyNEMzNS40NzM0IDEzOC4xOTkgMzguNDI5NiAxMzQuODczIDM5LjE2ODYgMTMxLjE3OEMzOS45MDc2IDEyNy40ODMgMzguNDI5NiAxMjMuNzg4IDM0LjM2NDkgMTE4Ljk4NEMyNC43NTc1IDEwNy44OTggMTkuNTg0MyA5My44NTY4IDE5LjU4NDMgNzkuNDQ1N0MxOS41ODQzIDQ2LjE4OTQgNDYuNTU4OSAxOS4yMTQ4IDc5LjgxNTIgMTguODQ1M0g4MC4xODQ4SDgwLjU1NDNDMTEzLjgxMSAxOC44NDUzIDE0MC43ODUgNDUuODE5OSAxNDAuNzg1IDc5LjQ0NTdDMTQwLjc4NSA5My44NTY4IDEzNS42MTIgMTA4LjI2OCAxMjYuMDA1IDExOC45ODRDMTIxLjk0IDEyMy43ODggMTIwLjQ2MiAxMjcuNDgzIDEyMS4yMDEgMTMxLjE3OEMxMjEuNTcgMTM0Ljg3MyAxMjQuODk2IDEzOC41NjggMTMwLjQzOSAxNDEuNTI0WiIgZmlsbD0iI0VGNDI0RCI+PC9wYXRoPjwvZz48ZGVmcz48Y2xpcFBhdGggaWQ9ImNsaXAwIj48cmVjdCB3aWR0aD0iMTYwIiBoZWlnaHQ9IjE1Ni4zMDUiIGZpbGw9IndoaXRlIj48L3JlY3Q+PC9jbGlwUGF0aD48L2RlZnM+PC9zdmc+IA=="
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "Ceph"
+  labels:
+    camel.apache.org/kamelet.type: "source"
+spec:
+  definition:
+    title: "Ceph Source"
+    description: |-
+      Receive data from an Ceph Bucket, managed by a Object Storage Gateway.
+
+    required:
+      - cephUrl
+      - accessKey
+      - secretKey
+      - bucketName
+      - zoneGroup
+    type: object
+    properties:
+      bucketName:
+        title: Bucket Name
+        description: The Ceph Bucket name.
+        type: string
+      deleteAfterRead:
+        title: Auto-delete Objects
+        description: Specifies to delete objects after consuming them.
+        type: boolean
+        x-descriptors:
+        - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: true
+      accessKey:
+        title: Access Key
+        description: The access key.
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+        - urn:camel:group:credentials
+      secretKey:
+        title: Secret Key
+        description: The secret key.
+        type: string
+        format: password
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:password
+        - urn:camel:group:credentials
+      zoneGroup:
+        title: Bucket Zone Group
+        description: The bucket zone group.
+        type: string
+      autoCreateBucket:
+        title: Autocreate Bucket
+        description: Specifies to automatically create the bucket.
+        type: boolean
+        x-descriptors:
+        - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: false
+      includeBody:
+        title: Include Body
+        description: If true, the exchange is consumed and put into the body and closed. If false, the Object stream is put raw into the body and the headers are set with the object metadata.
+        type: boolean
+        x-descriptors:
+        - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: true
+      prefix:
+        title: Prefix
+        description: The bucket prefix to consider while searching.
+        type: string
+        example: 'folder/'
+      ignoreBody:
+        title: Ignore Body
+        description: If true, the Object body is ignored. Setting this to true overrides any behavior defined by the `includeBody` option. If false, the object is put in the body.
+        type: boolean
+        x-descriptors:
+        - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: false
+      cephUrl:
+        title: Ceph Url Address
+        description: Set the Ceph Object Storage Address Url.
+        type: string
+        example: "http://ceph-storage-address.com"
+      delay:
+        title: Delay
+        description: The number of milliseconds before the next poll of the selected bucket.
+        type: integer
+        default: 500
+  dependencies:
+    - "camel:aws2-s3"
+    - "camel:kamelet"
+  template:
+    from:
+      uri: "aws2-s3:{{bucketName}}"
+      parameters:
+        autoCreateBucket: "{{autoCreateBucket}}"
+        secretKey: "{{?secretKey}}"
+        accessKey: "{{?accessKey}}"
+        region: "{{zoneGroup}}"
+        includeBody: "{{includeBody}}"
+        ignoreBody: "{{ignoreBody}}"
+        deleteAfterRead: "{{deleteAfterRead}}"
+        prefix: "{{?prefix}}"
+        uriEndpointOverride: "true"
+        overrideEndpoint: "{{cephUrl}}"
+        delay: "{{delay}}"
+      steps:
+      - to: "kamelet:sink"

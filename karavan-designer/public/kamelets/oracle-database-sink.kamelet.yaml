@@ -19,8 +19,8 @@ kind: Kamelet
 metadata:
   name: oracle-database-sink
   annotations:
-    camel.apache.org/kamelet.support.level: "Preview"
-    camel.apache.org/catalog.version: "0.8.1"
+    camel.apache.org/kamelet.support.level: "Stable"
+    camel.apache.org/catalog.version: "0.9.0"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDIyLjEuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA1MTIgNTEyOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxnPgoJPHBhdGggZD0iTTI1NiwzMUMxMzEuNywzMSwzMSw2Mi41LDMxLDEwMS4zdjU2LjJjMCwzOC44LDEwMC43LDcwLjMsMjI1LDcwLjNzMjI1LTMxLjUsMjI1LTcwLjN2LTU2LjJDNDgxLDYyLjUsMzgwLjMsMzEsMjU2LDMxeiIvPgoJPHBhdGggZD0iTTI1NiwyNzAuMWMtMTI0LjMsMC0yMjUtMzEuNS0yMjUtNzAuM3Y4NC40YzAsMzguOCwxMDAuNyw3MC4zLDIyNSw3MC4zczIyNS0zMS41LDIyNS03MC4zdi04NC40CgkJQzQ4MSwyMzguNiwzODAuMywyNzAuMSwyNTYsMjcwLjF6Ii8+Cgk8cGF0aCBkPSJNMjU2LDM5Ni42Yy0xMjQuMywwLTIyNS0zMS41LTIyNS03MC4zdjg0LjRjMCwzOC44LDEwMC43LDcwLjMsMjI1LDcwLjNzMjI1LTMxLjUsMjI1LTcwLjN2LTg0LjQKCQlDNDgxLDM2NS4yLDM4MC4zLDM5Ni42LDI1NiwzOTYuNnoiLz4KPC9nPgo8L3N2Zz4K"
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "SQL"
@@ -30,17 +30,17 @@ spec:
   definition:
     title: "Oracle Database Sink"
     description: |-
-      Send data to a Oracle Database.
+      Send data to an Oracle Database.
 
-      In your KameletBinding file you'll need to explicitly declare the Oracle Database driver dependency in spec->integration->dependencies
+      In your KameletBinding file, you must explicitly declare the Oracle Database driver dependency in spec->integration->dependencies.
 
       - "mvn:com.oracle.database.jdbc:ojdbc11:<version>"
 
-      This Kamelet expects a JSON as body. The mapping between the JSON fields and parameters is done by key, so if you have the following query:
+      This Kamelet expects a JSON-formatted body. Use key:value pairs to map the JSON fields and parameters. For example, here is a query:
 
       'INSERT INTO accounts (username,city) VALUES (:#username,:#city)'
 
-      The Kamelet needs to receive as input something like:
+      Here is example input for the example query:
 
       '{ "username":"oscerd", "city":"Rome"}'
     required:
@@ -53,23 +53,23 @@ spec:
     properties:
       serverName:
         title: Server Name
-        description: Server Name for the data source
+        description: The server name for the data source.
         type: string
         example: localhost
       serverPort:
         title: Server Port
-        description: Server Port for the data source
+        description: The server port for the data source.
         type: string
         default: 1521
       username:
         title: Username
-        description: The username to use for accessing a secured Oracle Database
+        description: The username to access a secured Oracle Database.
         type: string
         x-descriptors:
         - urn:camel:group:credentials
       password:
         title: Password
-        description: The password to use for accessing a secured Oracle Database
+        description: The password to access a secured Oracle Database.
         type: string
         format: password
         x-descriptors:
@@ -77,12 +77,12 @@ spec:
         - urn:camel:group:credentials
       query:
         title: Query
-        description: The Query to execute against the Oracle Database
+        description: The query to execute against the Oracle Database.
         type: string
         example: 'INSERT INTO accounts (username,city) VALUES (:#username,:#city)'
       databaseName:
         title: Database Name
-        description: The Database Name we are pointing
+        description: The name of the Oracle Database.
         type: string
   types:
     in:

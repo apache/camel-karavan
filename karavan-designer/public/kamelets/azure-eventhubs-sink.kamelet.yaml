@@ -20,8 +20,8 @@ kind: Kamelet
 metadata:
   name: azure-eventhubs-sink
   annotations:
-    camel.apache.org/kamelet.support.level: "Preview"
-    camel.apache.org/catalog.version: "0.8.1"
+    camel.apache.org/kamelet.support.level: "Stable"
+    camel.apache.org/catalog.version: "0.9.0"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjI1MDAiIHZpZXdCb3g9Ii0uMDc1IC0uMTc0IDE1OC40IDE2My4xMDEiIHdpZHRoPSIyNDM5IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxnIGZpbGw9IiMwMDZmZDQiPjxwYXRoIGQ9Im02LjIyNS4wMjZoMTQ2LjZjMS4zIDAgMy0uMiA0LjEuNS45LjYuOCAxLjUuOCAyLjR2MzEuOGMwIC45LS4xIDEuOC0uOCAyLjQtLjguOC0xLjcuOC0yLjguOGgtMTQuMWMtMS4yIDAtMi40LS4xLTMuMi0xLS43LS44LS43LTEuOS0uNy0yLjl2LTEyLjVoLTExNHYxMi44YzAgMS0uMSAyLS44IDIuOC0uOC44LTEuOC44LTIuOC44aC0xNC44Yy0xIDAtMiAwLTIuOC0uOC0uOC0uOC0uOC0xLjctLjktMi44di0yOC44YzAtMS4xLS4xLTIuMy4xLTMuNC4yLTEgMS4xLTEuOCAyLjEtMiAxLjQtLjIgMi43LS4xIDQtLjF6Ii8+PHBhdGggZD0ibTM2LjYyNSAzNy42MjdoMTkuNGMxLjIgMCAyLjYuMSAzLjQgMS4xLjcuOC43IDEuOC43IDIuOHYxNC40YzAgMS4xIDAgMi4xLS44IDMtLjguOC0xLjkuOC0zIC44aC0xNy43Yy0xLjMgMC0yLjcuMS0zLjktLjItMS4yLS41LTEuNy0xLjYtMS43LTIuOXYtMTUuMWMwLTEuMSAwLTIuMS43LTIuOS44LS45IDEuOS0xIDIuOS0xem0zOC4yIDE3LjJoMTkuOGMxIDAgMS45IDAgMi43LjdzLjkgMS42LjkgMi42djE0LjhjMCAxLjItLjQgMi4yLTEuNSAyLjgtMS4yLjUtMi44LjMtNC4xLjNoLTE3LjRjLTEuMSAwLTIuMSAwLTIuOS0uOHMtLjgtMS45LS44LTIuOXYtMTMuN2MwLTEuMS4xLTIuMS45LTIuOS42LS44IDEuNC0uOCAyLjQtLjl6bS0zNi4xIDE2aDE3LjdjMSAwIDEuOS4xIDIuNi44LjguOC44IDEuOS44IDIuOXYxNC4xYzAgMS0uMSAxLjgtLjggMi41LS44LjgtMS44LjgtMi45LjhoLTE5LjRjLTEgMC0xLjkgMC0yLjctLjdzLS45LTEuNi0xLTIuNnYtMTQuMWMwLTEuMSAwLTIuMi45LTMgMS4xLTEgMy4zLS42IDQuOC0uN3ptNzMuOSAwaDIwLjFjMSAwIDEuOS4xIDIuNi44LjkuOC44IDEuOS44IDN2MTQuMWMwIDEtLjEgMS45LS45IDIuNi0uOC44LTEuOC44LTIuOS44aC0xNy4xYy0xLjQgMC0yLjkuMS00LjItLjItMS4yLS41LTEuNy0xLjYtMS43LTIuOHYtMTQuNGMwLTEuMSAwLTIgLjgtMi45LjctLjggMS42LTEgMi41LTF6bS0zNy44IDE2LjRoMTkuOGMxIDAgMS45IDAgMi43LjdzLjkgMS43LjkgMi43djE0LjhjMCAxLjEtLjQgMi0xLjMgMi42LTEuMi42LTIuOS40LTQuMy40aC0xNy40Yy0xLjEgMC0yLjEgMC0yLjktLjhzLS44LTEuOC0uOS0yLjl2LTEzLjdjMC0xLjEgMC0yLjIuOC0yLjkuNy0uOCAxLjYtLjggMi42LS45em0tMzYuMSAxNmgxNy44YzEgMCAxLjkuMSAyLjYuOXMuNyAxLjcuNyAyLjd2MTQuMWMwIDEgMCAxLjktLjcgMi43cy0xLjcuOS0yLjcuOWgtMTkuOGMtMS4xIDAtMi4yIDAtMi45LTEtLjctLjktLjctMS45LS43LTN2LTE0LjFjMC0xLjMuNS0yLjQgMS43LTIuOSAxLjItLjQgMi43LS4yIDQtLjN6bS0zNC41IDIxLjZoMTQuNGMxLjEgMCAyLjIuMSAzIDEgLjcuOC42IDEuNy43IDIuN3YxMi43aDExNC40di0xMi40YzAtMSAwLTIgLjgtMi44LjktLjkgMS45LS45IDMuMS0uOWgxMy40YzEgMCAyLjIgMCAzIC42LjkuNyAxLjMgMS45IDEuMyAzdjMwLjVjMCAxLjEtLjEgMi0uOSAyLjctMSAxLTIuOC42LTQuMS43aC0xNDkuM2MtLjkgMC0xLjctLjEtMi4zLS43LS44LS43LS45LTEuNy0uOS0yLjd2LTMwLjhjMC0xLjIuMi0yLjMgMS4xLTMuMS41LS41IDEuNC0uNCAyLjMtLjV6Ii8+PC9nPjwvc3ZnPg=="
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "Azure Eventhubs"
@@ -31,13 +31,11 @@ spec:
   definition:
     title: "Azure Eventhubs Sink"
     description: |-
-      Send Events to Azure Eventhubs.
+      Send events to Azure Event Hubs.
 
-      The Kamelet is able to understand the following headers to be set:
-
-      - `partition` / `ce-partition`: as the time to live of the message in the queue.
-
-      If the header won't be set then the partition will be assigned by Eventhubs
+      The Kamelet checks for the `partition` / `ce-partition` header to determine how long an event remains in the Azure Storage queue. Use `PnDTnHnMn.nS.` format. For example, `PT20.345S` parses as 20.345 seconds and `P2D` parses as 2 days.
+         
+      A header is optional. If the header is not set, the partition is assigned by Event Hubs.
     required:
       - namespaceName
       - eventhubName
@@ -47,21 +45,21 @@ spec:
     properties:
       namespaceName:
         title: Eventhubs Namespace
-        description: The eventhubs namespace
+        description: The Event Hubs namespace.
         type: string
       eventhubName:
         title: Eventhubs Name
-        description: The eventhub name
+        description: The Event Hub name.
         type: string
       sharedAccessName:
         title: Share Access Name
-        description: EventHubs SAS key name
+        description: The Event Hubs SAS key name.
         type: string
         x-descriptors:
         - urn:camel:group:credentials
       sharedAccessKey:
         title: Share Access Key
-        description: The key for EventHubs SAS key name
+        description: The key for the Event Hubs SAS key name.
         type: string
         format: password
         x-descriptors:

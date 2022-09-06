@@ -3,8 +3,8 @@ kind: Kamelet
 metadata:
   name: aws-s3-source
   annotations:
-    camel.apache.org/kamelet.support.level: "Preview"
-    camel.apache.org/catalog.version: "0.8.1"
+    camel.apache.org/kamelet.support.level: "Stable"
+    camel.apache.org/catalog.version: "0.9.0"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjAiIHk9IjAiIHZpZXdCb3g9IjAgMCAyNDguMiAzMDAiIHhtbDpzcGFjZT0icHJlc2VydmUiPjxzdHlsZT4uc3QyOHtmaWxsOiM4YzMxMjN9LnN0Mjl7ZmlsbDojZTA1MjQzfTwvc3R5bGU+PHBhdGggY2xhc3M9InN0MjgiIGQ9Ik0yMCA1Mi4xTDAgNjJ2MTc1LjVsMjAgOS45LjEtLjFWNTIuMmwtLjEtLjEiLz48cGF0aCBjbGFzcz0ic3QyOSIgZD0iTTEyNyAyMjJMMjAgMjQ3LjVWNTIuMUwxMjcgNzd2MTQ1Ii8+PHBhdGggY2xhc3M9InN0MjgiIGQ9Ik03OC43IDE4Mi4xbDQ1LjQgNS44LjMtLjcuMy03NC40LS41LS42LTQ1LjQgNS43LS4xIDY0LjIiLz48cGF0aCBjbGFzcz0ic3QyOCIgZD0iTTEyNC4xIDIyMi4zbDEwNC4xIDI1LjIuMi0uM1Y1Mi4xbC0uMi0uMi0xMDQuMSAyNS40djE0NSIvPjxwYXRoIGNsYXNzPSJzdDI5IiBkPSJNMTY5LjUgMTgyLjFsLTQ1LjQgNS44di03NS43bDQ1LjQgNS43djY0LjIiLz48cGF0aCBkPSJNMTY5LjUgODYuOWwtNDUuNCA4LjMtNDUuNC04LjNMMTI0IDc1bDQ1LjUgMTEuOSIgZmlsbD0iIzVlMWYxOCIvPjxwYXRoIGQ9Ik0xNjkuNSAyMTMuMWwtNDUuNC04LjMtNDUuNCA4LjMgNDUuMyAxMi43IDQ1LjUtMTIuNyIgZmlsbD0iI2YyYjBhOSIvPjxwYXRoIGNsYXNzPSJzdDI4IiBkPSJNNzguNyA4Ni45bDQ1LjQtMTEuMi40LS4xVi4zbC0uNC0uMy00NS40IDIyLjd2NjQuMiIvPjxwYXRoIGNsYXNzPSJzdDI5IiBkPSJNMTY5LjUgODYuOWwtNDUuNC0xMS4yVjBsNDUuNCAyMi43djY0LjIiLz48cGF0aCBjbGFzcz0ic3QyOCIgZD0iTTEyNC4xIDMwMGwtNDUuNC0yMi43di02NC4ybDQ1LjQgMTEuMi43LjgtLjIgNzMuNi0uNSAxLjMiLz48cGF0aCBjbGFzcz0ic3QyOSIgZD0iTTEyNC4xIDMwMGw0NS40LTIyLjd2LTY0LjJsLTQ1LjQgMTEuMlYzMDBNMjI4LjIgNTIuMWwyMCAxMHYxNzUuNWwtMjAgMTBWNTIuMSIvPjwvc3ZnPg=="
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "AWS S3"
@@ -14,11 +14,11 @@ spec:
   definition:
     title: "AWS S3 Source"
     description: |-
-      Receive data from AWS S3 Bucket.
+      Receive data from an Amazon S3 Bucket.
 
-      Access Key/Secret Key are the basic method for authenticating to the AWS S3 Service. These parameters are optional, because the Kamelet provide also the 'useDefaultCredentialsProvider'.
-
-      When using a default Credentials Provider the S3 client will load the credentials through this provider and won't use the static credential. This is reason for not having the access key and secret key as mandatory parameter for this Kamelet.
+      The basic authentication method for the S3 service is to specify an access key and a secret key. These parameters are optional because the Kamelet provides a default credentials provider.
+      
+      If you use the default credentials provider, the S3 client loads the credentials through this provider and doesn't use the basic authentication method.
     required:
       - bucketNameOrArn
       - region
@@ -26,18 +26,18 @@ spec:
     properties:
       bucketNameOrArn:
         title: Bucket Name
-        description: The S3 Bucket name or ARN
+        description: The S3 Bucket name or Amazon Resource Name (ARN).
         type: string
       deleteAfterRead:
         title: Auto-delete Objects
-        description: Delete objects after consuming them
+        description: Specifies to delete objects after consuming them.
         type: boolean
         x-descriptors:
         - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
         default: true
       accessKey:
         title: Access Key
-        description: The access key obtained from AWS
+        description: The access key obtained from AWS.
         type: string
         format: password
         x-descriptors:
@@ -45,7 +45,7 @@ spec:
         - urn:camel:group:credentials
       secretKey:
         title: Secret Key
-        description: The secret key obtained from AWS
+        description: The secret key obtained from AWS.
         type: string
         format: password
         x-descriptors:
@@ -53,56 +53,62 @@ spec:
         - urn:camel:group:credentials
       region:
         title: AWS Region
-        description: The AWS region to connect to
+        description: The AWS region to access.
         type: string
-        example: eu-west-1
+        enum: ["af-south-1", "ap-east-1", "ap-northeast-1", "ap-northeast-2", "ap-northeast-3", "ap-south-1", "ap-southeast-1", "ap-southeast-2", "ap-southeast-3", "ca-central-1", "eu-central-1", "eu-north-1", "eu-south-1", "eu-west-1", "eu-west-2", "eu-west-3", "fips-us-east-1", "fips-us-east-2", "fips-us-west-1", "fips-us-west-2", "me-south-1", "sa-east-1", "us-east-1", "us-east-2", "us-west-1", "us-west-2", "cn-north-1", "cn-northwest-1", "us-gov-east-1", "us-gov-west-1", "us-iso-east-1", "us-iso-west-1", "us-isob-east-1"]
       autoCreateBucket:
         title: Autocreate Bucket
-        description: Setting the autocreation of the S3 bucket bucketName.
+        description: Specifies to automatically create the S3 bucket.
         type: boolean
         x-descriptors:
         - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
         default: false
       includeBody:
         title: Include Body
-        description: If it is true, the exchange will be consumed and put into the body and closed. If false the S3Object stream will be put raw into the body and the headers will be set with the S3 object metadata.
+        description: If true, the exchange is consumed and put into the body and closed. If false, the S3Object stream is put raw into the body and the headers are set with the S3 object metadata.
         type: boolean
         x-descriptors:
         - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
         default: true
       prefix:
         title: Prefix
-        description: The AWS S3 bucket prefix to consider while searching
+        description: The AWS S3 bucket prefix to consider while searching.
         type: string
         example: 'folder/'
       ignoreBody:
         title: Ignore Body
-        description: If it is true, the S3 Object Body will be ignored completely, if it is set to false the S3 Object will be put in the body. Setting this to true, will override any behavior defined by includeBody option.
+        description: If true, the S3 Object body is ignored. Setting this to true overrides any behavior defined by the `includeBody` option. If false, the S3 object is put in the body.
         type: boolean
         x-descriptors:
         - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
         default: false
       useDefaultCredentialsProvider:
         title: Default Credentials Provider
-        description: Set whether the S3 client should expect to load credentials through a default credentials provider or to expect static credentials to be passed in.
+        description: If true, the S3 client loads credentials through a default credentials provider. If false, it uses the basic authentication method (access key and secret key).
         type: boolean
         x-descriptors:
         - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
         default: false
       uriEndpointOverride:
         title: Overwrite Endpoint URI
-        description: Set the overriding endpoint URI. This option needs to be used in combination with overrideEndpoint option.
+        description: The overriding endpoint URI. To use this option, you must also select the `overrideEndpoint` option.
         type: string
       overrideEndpoint:
         title: Endpoint Overwrite
-        description: Set the need for overiding the endpoint URI. This option needs to be used in combination with uriEndpointOverride setting.
+        description: Select this option to override the endpoint URI. To use this option, you must also provide a URI for the `uriEndpointOverride` option.
         type: boolean
         x-descriptors:
           - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
         default: false
+      delay:
+        title: Delay
+        description: The number of milliseconds before the next poll of the selected bucket.
+        type: integer
+        default: 500
   dependencies:
     - "camel:aws2-s3"
     - "camel:kamelet"
+    - "mvn:software.amazon.awssdk:utils:2.17.223"
   template:
     from:
       uri: "aws2-s3:{{bucketNameOrArn}}"
@@ -118,5 +124,6 @@ spec:
         useDefaultCredentialsProvider: "{{useDefaultCredentialsProvider}}"
         uriEndpointOverride: "{{?uriEndpointOverride}}"
         overrideEndpoint: "{{overrideEndpoint}}"
+        delay: "{{delay}}"
       steps:
       - to: "kamelet:sink"
