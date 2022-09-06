@@ -40,7 +40,7 @@ interface Props {
 
 interface State {
     tabIndex: string | number
-    filter?: string
+    filter: string;
 }
 
 export class DslSelector extends React.Component<Props, State> {
@@ -53,11 +53,10 @@ export class DslSelector extends React.Component<Props, State> {
 
     public state: State = {
         tabIndex: this.props.tabIndex ? this.props.tabIndex : this.getDefaultTabIndex(),
+        filter: ''
     }
 
-
     selectTab = (evt: React.MouseEvent<HTMLElement, MouseEvent>, eventKey: string | number) => {
-        console.log(eventKey)
         this.setState({tabIndex: eventKey})
     }
 
@@ -68,7 +67,8 @@ export class DslSelector extends React.Component<Props, State> {
     }
 
     selectDsl = (evt: React.MouseEvent, dsl: any) => {
-        evt.stopPropagation()
+        evt.stopPropagation();
+        this.setState({filter:""});
         this.props.onDslSelect.call(this, dsl, this.props.parentId, this.props.position);
     }
 
@@ -122,6 +122,11 @@ export class DslSelector extends React.Component<Props, State> {
         )
     }
 
+    close = () => {
+        this.setState({filter:""});
+        this.props.onClose?.call(this);
+    }
+
     render() {
         const parentDsl = this.props.parentDsl;
         const title = parentDsl === undefined ? "Select source/from" : "Select step";
@@ -133,7 +138,7 @@ export class DslSelector extends React.Component<Props, State> {
                 width={'90%'}
                 className='dsl-modal'
                 isOpen={this.props.isOpen}
-                onClose={this.props.onClose}
+                onClose={() => this.close()}
                 header={
                     <Flex direction={{default: "column"}}>
                         <FlexItem>
