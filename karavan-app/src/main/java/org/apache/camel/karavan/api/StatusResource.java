@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Path("/status")
+@Path("/api/status")
 public class StatusResource {
 
     private static final Logger LOGGER = Logger.getLogger(StatusResource.class.getName());

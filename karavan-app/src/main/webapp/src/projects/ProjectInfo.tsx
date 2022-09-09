@@ -11,7 +11,7 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
-import {DeploymentStatus, Project, ProjectStatus} from "../models/ProjectModels";
+import {DeploymentStatus, Project, ProjectStatus} from "./ProjectModels";
 import BuildIcon from "@patternfly/react-icons/dist/esm/icons/build-icon";
 import RolloutIcon from "@patternfly/react-icons/dist/esm/icons/process-automation-icon";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";

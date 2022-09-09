@@ -10,9 +10,10 @@ import {
     FlexItem,
     Avatar,
     Tooltip,
-    Divider
+    Divider, Spinner, Bullseye
 } from '@patternfly/react-core';
 import {KaravanApi} from "./api/KaravanApi";
+import {SsoApi} from "./api/SsoApi";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import './designer/karavan.css';
 import {ConfigurationPage} from "./config/ConfigurationPage";
@@ -23,7 +24,7 @@ import Icon from "./Logo";
 import {ComponentsPage} from "./components/ComponentsPage";
 import {EipPage} from "./eip/EipPage";
 import {ProjectsPage} from "./projects/ProjectsPage";
-import {Project} from "./models/ProjectModels";
+import {Project} from "./projects/ProjectModels";
 import {ProjectPage} from "./projects/ProjectPage";
 import UsersIcon from "@patternfly/react-icons/dist/js/icons/users-icon";
 import UserIcon from "@patternfly/react-icons/dist/js/icons/user-icon";
@@ -33,7 +34,6 @@ import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
 import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
 import ConfigurationIcon from "@patternfly/react-icons/dist/js/icons/cogs-icon";
 import {MainLogin} from "./MainLogin";
-import {AxiosResponse} from "axios";
 
 class ToastMessage {
     id: string = ''
@@ -77,7 +77,9 @@ interface State {
     request: string,
     filename: string,
     key: string,
-    isAuthorized: boolean
+    isAuthorized: boolean,
+    authType?: 'SSO' | 'Basic',
+    me: any,
 }
 
 export class Main extends React.Component<Props, State> {
@@ -93,23 +95,38 @@ export class Main extends React.Component<Props, State> {
         openapi: '',
         filename: '',
         isAuthorized: false,
-        key: ''
+        key: '',
+        me: {}
     };
 
     designer = React.createRef();
 
     componentDidMount() {
-        KaravanApi.getConfiguration((config: any) => {
-            this.setState({
-                config: config
-            })
+        KaravanApi.isSSO((sso: any) => {
+            const isSSO = (sso === 'true' || sso === true);
+            console.log("isSSO", isSSO);
+            if (isSSO) {
+                SsoApi.auth(() => {
+                    KaravanApi.getMe((user: any) => {
+                        console.log("me", user);
+                        this.setState({authType: 'SSO', me: user, isAuthorized: true});
+                        this.getData();
+                    });
+                });
+            } else {
+                this.setState({authType: 'Basic'});
+            }
         });
+        console.log("this.state.isAuthorized", this.state.isAuthorized);
         if (this.state.isAuthorized) {
             this.getData();
         }
     }
 
     getData() {
+        KaravanApi.getConfiguration((config: any) => {
+            this.setState({ config: config })
+        });
         KaravanApi.getKameletNames(names => names.forEach(name => {
             KaravanApi.getKamelet(name, yaml => KameletApi.saveKamelet(yaml))
         }));
@@ -273,11 +290,16 @@ export class Main extends React.Component<Props, State> {
     }
 
     render() {
-        const {isAuthorized} = this.state;
+        const {isAuthorized, authType} = this.state;
         return (
             <Page className="karavan">
+                {authType === undefined && <Bullseye className="loading-page">
+                    <Spinner className="progress-stepper" isSVG diameter="80px" aria-label="Loading...">
+                        {Icon()}
+                    </Spinner>
+                </Bullseye>}
                 {isAuthorized && this.getMain()}
-                {!isAuthorized && <MainLogin config={this.state.config} onLogin={this.onLogin}/>}
+                {!isAuthorized && authType === 'Basic' && <MainLogin config={this.state.config} onLogin={this.onLogin}/>}
                 {this.state.alerts.map((e: ToastMessage) => (
                     <Alert key={e.id} className="main-alert" variant={e.variant} title={e.title}
                            timeout={e.variant === "success" ? 1000 : 2000}

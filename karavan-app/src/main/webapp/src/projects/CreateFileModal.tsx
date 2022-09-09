@@ -9,7 +9,7 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
-import {Project, ProjectFile, ProjectFileTypes} from "../models/ProjectModels";
+import {Project, ProjectFile, ProjectFileTypes} from "./ProjectModels";
 import {CamelUi} from "../designer/utils/CamelUi";
 
 interface Props {

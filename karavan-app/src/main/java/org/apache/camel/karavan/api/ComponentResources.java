@@ -27,7 +27,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Path("/component")
+@Path("/api/component")
 public class ComponentResources {
 
     @GET

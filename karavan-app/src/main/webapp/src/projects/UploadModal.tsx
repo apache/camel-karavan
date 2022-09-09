@@ -5,7 +5,7 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
-import {ProjectFile} from "../models/ProjectModels";
+import {ProjectFile} from "./ProjectModels";
 
 interface Props {
     projectId: string,

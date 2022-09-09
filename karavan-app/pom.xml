@@ -31,7 +31,7 @@
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.version>2.11.2.Final</quarkus.platform.version>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-        <version.camel-kamelet>0.8.1</version.camel-kamelet>
+        <version.camel-kamelet>0.9.0</version.camel-kamelet>
         <version.camel>3.18.1</version.camel>
     </properties>
     <dependencyManagement>
@@ -86,6 +86,10 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-openshift-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-oidc</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>

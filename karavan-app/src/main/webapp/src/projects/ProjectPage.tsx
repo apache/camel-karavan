@@ -26,7 +26,7 @@ import {
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
 import {KaravanApi} from "../api/KaravanApi";
-import {Project, ProjectFile, ProjectFileTypes, ProjectStatus} from "../models/ProjectModels";
+import {Project, ProjectFile, ProjectFileTypes, ProjectStatus} from "./ProjectModels";
 import {CamelUi} from "../designer/utils/CamelUi";
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";

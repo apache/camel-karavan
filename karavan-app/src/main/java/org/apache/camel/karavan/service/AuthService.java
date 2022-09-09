@@ -25,8 +25,11 @@ import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Map;
 
 @ApplicationScoped
 public class AuthService {
@@ -57,5 +60,14 @@ public class AuthService {
         String secretToken = new String(Base64.getEncoder().encode((master.getItem1() + ":" + master.getItem2()).getBytes()));
         String auth = "Basic " + secretToken;
         return auth.equals(basicAuth);
+    }
+
+    public boolean isSSO() {
+        return ConfigProvider.getConfig().getValue("quarkus.oidc.enabled", Boolean.class);
+    }
+
+    public Map<String, String> getSsoConfig() throws MalformedURLException {
+        URL netUrl = new URL(ConfigProvider.getConfig().getValue("quarkus.oidc.auth-server-url", String.class));
+        return Map.of("url", netUrl.getProtocol() + "://" + netUrl.getAuthority() + "/");
     }
 }

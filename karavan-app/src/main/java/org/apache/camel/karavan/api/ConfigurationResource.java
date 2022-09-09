@@ -28,7 +28,7 @@ import javax.ws.rs.core.Response;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Path("/configuration")
+@Path("/api/configuration")
 public class ConfigurationResource {
 
     @ConfigProperty(name = "karavan.version")

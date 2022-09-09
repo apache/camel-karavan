@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Path("/project")
+@Path("/api/project")
 public class ProjectResource {
 
     @Inject

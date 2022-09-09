@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@Path("/kamelet")
+@Path("/api/kamelet")
 public class KameletResources {
 
     @Inject

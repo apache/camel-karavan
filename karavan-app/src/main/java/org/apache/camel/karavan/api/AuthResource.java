@@ -20,6 +20,7 @@ import org.apache.camel.karavan.service.AuthService;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -29,13 +30,14 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/auth")
+@Path("/public")
 public class AuthResource {
 
     @Inject
     AuthService authService;
 
     @POST
+    @Path("/auth")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response auth(@HeaderParam("Authorization") String basicAuth, @Context HttpHeaders headers) throws Exception {
@@ -44,5 +46,19 @@ public class AuthResource {
         } else {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
+    }
+
+    @GET
+    @Path("/sso")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response sso() throws Exception {
+        return Response.ok(authService.isSSO()).build();
+    }
+
+    @GET
+    @Path("/sso-config")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response ssoConfig() throws Exception {
+        return Response.ok(authService.getSsoConfig()).build();
     }
 }

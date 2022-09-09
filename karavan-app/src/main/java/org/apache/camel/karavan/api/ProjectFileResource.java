@@ -34,7 +34,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-@Path("/file")
+@Path("/api/file")
 public class ProjectFileResource {
 
     @Inject

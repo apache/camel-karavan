@@ -3,7 +3,7 @@ import {
     PageSection,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {ProjectFile} from "../models/ProjectModels";
+import {ProjectFile} from "./ProjectModels";
 import {PropertiesTable} from "./PropertiesTable";
 import {ProjectModel} from "karavan-core/lib/model/ProjectModel";
 import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
