@@ -36,7 +36,7 @@ spec:
 
           cd ${CHECKOUT_DIR}/$(inputs.params.project) 
 
-          entrypoint -Dcamel.jbang.version=3.18.2-SNAPSHOT camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR}
+          entrypoint -Dcamel.jbang.version=3.18.2 camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR}
 
           export LAST_COMMIT=$(git rev-parse --short HEAD)
           export DATE=$(date '+%Y%m%d%H%M%S')
