@@ -1,4 +1,4 @@
-name: Build and push Application 
+name: cloud-native app 
 
 on:
   push:
@@ -46,13 +46,35 @@ jobs:
         working-directory: ./karavan-core
         run: npm install
 
-      #  Build Karavan standalone
-      - name: Build Karavan standalone
+      #  Build Karavan cloud app with public access
+      - name: Build application public
         run: |
-          mvn package -f karavan-app -DskipTest \
+          mvn package -f karavan-app -Dquarkus.profile=public -DskipTest \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=true \
           -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}:3.18.3 \
+          -Dquarkus.container-image.username=${{ github.actor }} \
+          -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }}
+        if: ${{ github.ref == 'refs/heads/main' }}
+
+      #  Build Karavan cloud app with basic authorization
+      - name: Build application basic auth
+        run: |
+          mvn package -f karavan-app -Dquarkus.profile=basic -DskipTest \
+          -Dquarkus.container-image.build=true \
+          -Dquarkus.container-image.push=true \
+          -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}-basic:3.18.3 \
+          -Dquarkus.container-image.username=${{ github.actor }} \
+          -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }}
+        if: ${{ github.ref == 'refs/heads/main' }}
+
+      #  Build Karavan cloud app with oidc authorization
+      - name: Build application oidc
+        run: |
+          mvn package -f karavan-app -Dquarkus.profile=oidc -DskipTest \
+          -Dquarkus.container-image.build=true \
+          -Dquarkus.container-image.push=true \
+          -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}-oidc:3.18.3 \
           -Dquarkus.container-image.username=${{ github.actor }} \
           -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }}
         if: ${{ github.ref == 'refs/heads/main' }}
