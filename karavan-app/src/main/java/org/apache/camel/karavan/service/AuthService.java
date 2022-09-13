@@ -16,10 +16,7 @@
  */
 package org.apache.camel.karavan.service;
 
-import io.fabric8.kubernetes.api.model.Secret;
-import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.Vertx;
-import org.apache.camel.karavan.model.GitConfig;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.logging.Logger;
 
@@ -27,40 +24,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Map;
 
 @ApplicationScoped
 public class AuthService {
 
-    @Inject
-    Vertx vertx;
-
-    @Inject
-    KubernetesService kubernetesService;
-
     private static final Logger LOGGER = Logger.getLogger(AuthService.class.getName());
-
-    private Tuple2<String, String> getMasterConfig() {
-        if (kubernetesService.inKubernetes()){
-            Secret secret =  kubernetesService.getKaravanSecret();
-            String username = new String(Base64.getDecoder().decode(secret.getData().get("master-username").getBytes(StandardCharsets.UTF_8)));
-            String password = new String(Base64.getDecoder().decode(secret.getData().get("master-password").getBytes(StandardCharsets.UTF_8)));
-            return Tuple2.of(username, password);
-        } else {
-            String username = ConfigProvider.getConfig().getValue("karavan.master-username", String.class);
-            String password = ConfigProvider.getConfig().getValue("karavan.master-password", String.class);
-            return Tuple2.of(username, password);
-        }
-    }
-
-    public boolean login(String basicAuth) {
-        Tuple2<String, String> master = getMasterConfig();
-        String secretToken = new String(Base64.getEncoder().encode((master.getItem1() + ":" + master.getItem2()).getBytes()));
-        String auth = "Basic " + secretToken;
-        return auth.equals(basicAuth);
-    }
 
     public String authType() {
         return ConfigProvider.getConfig().getValue("karavan.auth", String.class);
