@@ -6,41 +6,77 @@ import {SsoApi} from "./SsoApi";
 axios.defaults.headers.common['Accept'] = 'application/json';
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 const instance = axios.create();
-instance.interceptors.request.use(async config => {
-        config.headers = {
-            'Authorization': 'Bearer ' + SsoApi.keycloak?.token,
-        }
-        return config;
-    },
-    error => {
-        Promise.reject(error)
-    });
-
-instance.interceptors.response.use((response) => {
-    return response
-}, async function (error) {
-    const originalRequest = error.config;
-    if ((error?.response?.status === 403 || error?.response?.status === 401) && !originalRequest._retry) {
-        console.log("error", error)
-        return SsoApi.keycloak?.updateToken(1).then(refreshed => {
-            if (refreshed) {
-                console.log('SsoApi', 'Token was successfully refreshed', SsoApi.keycloak?.token);
-            } else {
-                console.log('SsoApi', 'Token is still valid');
-            }
-            originalRequest._retry = true;
-            return instance(originalRequest);
-        }).catch(reason => {
-            console.log('SsoApi', 'Failed to refresh token: ' + reason);
-        });
-    }
-    return Promise.reject(error);
-});
 
 export class KaravanApi {
 
     static me?: any;
-    static sso: boolean = false;
+    static basicToken: string = '';
+    static authType: string = '';
+    static isAuthorized: boolean = false;
+
+    static setAuthType(authType: string) {
+        KaravanApi.authType = authType;
+        switch (authType){
+            case "public": {
+                KaravanApi.setPublicAuthentication();
+                break;
+            }
+            case "oidc": {
+                KaravanApi.setOidcAuthentication();
+                break;
+            }
+            case "basic": {
+                KaravanApi.setBasicAuthentication();
+                break;
+            }
+        }
+    }
+    static setPublicAuthentication() {
+
+    }
+    static setBasicAuthentication() {
+        instance.interceptors.request.use(async config => {
+                config.headers = {
+                    'Authorization': 'Basic ' + KaravanApi.basicToken,
+                }
+                return config;
+            },
+            error => {
+                Promise.reject(error)
+            });
+    }
+    static setOidcAuthentication() {
+        instance.interceptors.request.use(async config => {
+                config.headers = {
+                    'Authorization': 'Bearer ' + SsoApi.keycloak?.token,
+                }
+                return config;
+            },
+            error => {
+                Promise.reject(error)
+            });
+
+        instance.interceptors.response.use((response) => {
+            return response
+        }, async function (error) {
+            const originalRequest = error.config;
+            if ((error?.response?.status === 403 || error?.response?.status === 401) && !originalRequest._retry) {
+                console.log("error", error)
+                return SsoApi.keycloak?.updateToken(1).then(refreshed => {
+                    if (refreshed) {
+                        console.log('SsoApi', 'Token was successfully refreshed', SsoApi.keycloak?.token);
+                    } else {
+                        console.log('SsoApi', 'Token is still valid');
+                    }
+                    originalRequest._retry = true;
+                    return instance(originalRequest);
+                }).catch(reason => {
+                    console.log('SsoApi', 'Failed to refresh token: ' + reason);
+                });
+            }
+            return Promise.reject(error);
+        });
+    }
 
     static async getConfig(after: (config: {}) => void) {
         axios.get('/public/sso-config', {headers: {'Accept': 'application/json'}})
@@ -53,11 +89,11 @@ export class KaravanApi {
         });
     }
 
-    static async isSSO(after: (config: {}) => void) {
-        axios.get('/public/sso', {headers: {'Accept': 'text/plain'}})
+    static async getAuthType(after: (authType: string) => void) {
+        instance.get('/public/auth', {headers: {'Accept': 'text/plain'}})
             .then(res => {
                 if (res.status === 200) {
-                    KaravanApi.sso = res.data === 'true' || res.data === true
+                    KaravanApi.setAuthType(res.data);
                     after(res.data);
                 }
             }).catch(err => {
@@ -66,14 +102,15 @@ export class KaravanApi {
     }
 
     static async auth(username: string, password: string, after: (res: any) => void) {
-        const token = username + ":" + password;
-        const basicAuth = "Basic " + Buffer.from(token).toString('base64');
-        axios.post('/public/auth/', "",
-            {headers: {Accept: 'application/json', "Content-Type": 'application/json', Authorization: basicAuth}})
+        KaravanApi.basicToken = Buffer.from(username + ":" + password).toString('base64');
+        instance.get('/api/users/me')
             .then(res => {
-                after(res);
+                if (res.status === 200) {
+                    KaravanApi.isAuthorized = true;
+                    after(res);
+                }
             }).catch(err => {
-            after(err.response);
+            console.log(err);
         });
     }
 

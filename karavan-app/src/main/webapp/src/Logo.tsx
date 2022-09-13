@@ -1,6 +1,6 @@
 import React from "react";
 
-function Icon() {
+function Icon(className?: string) {
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -11,7 +11,7 @@ function Icon() {
             preserveAspectRatio="xMidYMid"
             version="1.1"
             viewBox="0 0 256 256"
-            className="logo"
+            className={className ? className : "logo"}
         >
             <defs id="defs31">
                 <linearGradient id="linearGradient1351">

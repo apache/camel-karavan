@@ -1,9 +1,6 @@
 import React from 'react';
 import {
-    Bullseye, Card, CardBody, CardFooter, CardTitle,
-    LoginForm,
-    LoginMainFooterBandItem,
-    LoginMainFooterLinksItem, Text
+    Bullseye, Card, CardBody, CardTitle, LoginForm, Text
 } from '@patternfly/react-core';
 
 interface Props {

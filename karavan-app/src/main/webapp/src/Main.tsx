@@ -77,9 +77,6 @@ interface State {
     request: string,
     filename: string,
     key: string,
-    isAuthorized: boolean,
-    authType?: 'SSO' | 'Basic',
-    me: any,
 }
 
 export class Main extends React.Component<Props, State> {
@@ -94,33 +91,39 @@ export class Main extends React.Component<Props, State> {
         request: uuidv4(),
         openapi: '',
         filename: '',
-        isAuthorized: false,
         key: '',
-        me: {}
     };
 
     designer = React.createRef();
 
     componentDidMount() {
-        KaravanApi.isSSO((sso: any) => {
-            const isSSO = (sso === 'true' || sso === true);
-            console.log("isSSO", isSSO);
-            if (isSSO) {
+        KaravanApi.getAuthType((authType: string) => {
+            console.log("authType", authType);
+            if (authType === 'oidc') {
                 SsoApi.auth(() => {
                     KaravanApi.getMe((user: any) => {
                         console.log("me", user);
-                        this.setState({authType: 'SSO', me: user, isAuthorized: true});
                         this.getData();
                     });
                 });
             } else {
-                this.setState({authType: 'Basic'});
+                this.setState({key: Math.random().toString()})
             }
         });
-        console.log("this.state.isAuthorized", this.state.isAuthorized);
-        if (this.state.isAuthorized) {
+        console.log("KaravanApi.isAuthorized", KaravanApi.isAuthorized);
+        if (KaravanApi.isAuthorized || KaravanApi.authType === 'public') {
             this.getData();
         }
+    }
+
+    onLogin = (username: string, password: string) => {
+        KaravanApi.auth(username, password, (res: any) => {
+            if (res?.status === 200) {
+                this.getData();
+            } else {
+                this.toast("Error", "Incorrect username and/or password!", "danger");
+            }
+        });
     }
 
     getData() {
@@ -236,17 +239,6 @@ export class Main extends React.Component<Props, State> {
         });
     }
 
-    onLogin = (username: string, password: string) => {
-        KaravanApi.auth(username, password, (res: any) => {
-            if (res?.status === 200) {
-                this.setState({isAuthorized: true});
-                this.getData();
-            } else {
-                this.toast("Error", "Incorrect username and/or password!", "danger");
-            }
-        });
-    }
-
     getMain() {
         return (
             <>
@@ -290,16 +282,14 @@ export class Main extends React.Component<Props, State> {
     }
 
     render() {
-        const {isAuthorized, authType} = this.state;
         return (
             <Page className="karavan">
-                {authType === undefined && <Bullseye className="loading-page">
-                    <Spinner className="progress-stepper" isSVG diameter="80px" aria-label="Loading...">
-                        {Icon()}
-                    </Spinner>
+                {KaravanApi.authType === undefined && <Bullseye className="loading-page">
+                    <Spinner className="spinner" isSVG diameter="140px" aria-label="Loading..." />
+                    <div className="logo-placeholder">{Icon()}</div>
                 </Bullseye>}
-                {isAuthorized && this.getMain()}
-                {!isAuthorized && authType === 'Basic' && <MainLogin config={this.state.config} onLogin={this.onLogin}/>}
+                {KaravanApi.isAuthorized && this.getMain()}
+                {!KaravanApi.isAuthorized && KaravanApi.authType === 'basic' && <MainLogin config={this.state.config} onLogin={this.onLogin}/>}
                 {this.state.alerts.map((e: ToastMessage) => (
                     <Alert key={e.id} className="main-alert" variant={e.variant} title={e.title}
                            timeout={e.variant === "success" ? 1000 : 2000}

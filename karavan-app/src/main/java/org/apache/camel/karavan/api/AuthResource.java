@@ -49,10 +49,10 @@ public class AuthResource {
     }
 
     @GET
-    @Path("/sso")
+    @Path("/auth")
     @Produces(MediaType.TEXT_PLAIN)
-    public Response sso() throws Exception {
-        return Response.ok(authService.isSSO()).build();
+    public Response authType() throws Exception {
+        return Response.ok(authService.authType()).build();
     }
 
     @GET

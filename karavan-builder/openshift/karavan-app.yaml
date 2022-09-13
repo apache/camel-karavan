@@ -36,10 +36,17 @@ spec:
       serviceAccountName: karavan
       containers:
         - env:
+            - name: PROFILE
+              value: basic
             - name: KUBERNETES_NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: MASTER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: master-password
+                  name: karavan
           image: ghcr.io/apache/camel-karavan:3.18.3
           imagePullPolicy: Always
           name: karavan

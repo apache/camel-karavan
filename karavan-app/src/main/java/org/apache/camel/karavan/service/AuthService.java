@@ -62,8 +62,8 @@ public class AuthService {
         return auth.equals(basicAuth);
     }
 
-    public boolean isSSO() {
-        return ConfigProvider.getConfig().getValue("quarkus.oidc.enabled", Boolean.class);
+    public String authType() {
+        return ConfigProvider.getConfig().getValue("karavan.auth", String.class);
     }
 
     public Map<String, String> getSsoConfig() throws MalformedURLException {

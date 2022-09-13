@@ -221,3 +221,15 @@
 .karavan .pf-c-code-block__code {
   overflow-wrap: anywhere;
 }
+
+.karavan .loading-page .spinner {
+  position: absolute;
+}
+.karavan .loading-page .logo-placeholder {
+  position: absolute;
+  height: 100px;
+}
+
+.karavan .loading-page .logo {
+  height: 100px;
+}
