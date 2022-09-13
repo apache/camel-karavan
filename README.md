@@ -25,13 +25,13 @@ Integration project output is a runnable uber-jar or an OCI image for local envi
 
 ## Installation
 Two types of applications are available: 
-1. [Cloud-native](karavan-builder/README.md) application deployed into Kubernetes/OpenShift 
+1. [Cloud-native](karavan-cloud/README.md) application deployed into Kubernetes/OpenShift 
 2. [VS Code extension](karavan-vscode/README.md) available on the [Marketplace](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan). 
 
 Both applications share same visual designer and work with Camel YAMl DSL.
 
 ## Karavan cloud-native application
-Karavan cloud-native integration toolkit is an application to manage projects, design and monitor integrations, Tekton pipeline to build and deploy integrations. More about [cloud-native Karavan](karavan-builder/README.md)
+Karavan cloud-native integration toolkit is an application to manage projects, design and monitor integrations, Tekton pipeline to build and deploy integrations. More about [cloud-native Karavan](karavan-cloud/README.md)
 
 ![karavan-ipaas-1](images/karavan-ipaas-1.png)
 
@@ -46,7 +46,7 @@ More about [Karavan VS Code Extension](karavan-vscode/README.md)
 
 ## Features
 ### Mode
-* [Cloud-native](karavan-builder/README.md)
+* [Cloud-native](karavan-cloud/README.md)
 * [VS Code extension](karavan-vscode/README.md)
 ### Visual Designer for Integrations
 * Enterprise Integration Patterns DSL
