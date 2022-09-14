@@ -34,6 +34,6 @@ public class AuthService {
     }
 
     public Map<String, String> getSsoConfig() throws MalformedURLException {
-        return Map.of("url", ConfigProvider.getConfig().getValue("quarkus.oidc.auth-server-url", String.class));
+        return Map.of("url", ConfigProvider.getConfig().getValue("karavan.frontend.auth-server-url", String.class));
     }
 }
