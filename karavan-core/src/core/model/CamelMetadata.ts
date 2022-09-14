@@ -771,6 +771,8 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('from', 'FromDefinition', 'From', "Act as a message source as input to a route", 'eip,routing', [
         new PropertyMeta('uri', 'Uri', "Sets the URI of the endpoint to use", 'string', '', '', true, false, false, false, ''),
+        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, ''),
+        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('parameters', 'parameters', "parameters", 'object', '', '', false, false, false, false, ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, ''),
     ]),
@@ -893,6 +895,9 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('route', 'RouteDefinition', 'Route', "A Camel route", 'configuration', [
         new PropertyMeta('group', 'Group', "The group that this route belongs to; could be the name of the RouteBuilder class or be explicitly configured in the XML. May be null.", 'string', '', '', false, false, false, false, ''),
+        new PropertyMeta('trace', 'Trace', "Whether tracing is enabled on this route.", 'boolean', '', '', false, false, false, false, ''),
+        new PropertyMeta('messageHistory', 'Message History', "Whether message history is enabled on this route.", 'boolean', '', 'true', false, false, false, false, ''),
+        new PropertyMeta('logMask', 'Log Mask', "Whether security mask for Logging is enabled on this route.", 'boolean', '', 'false', false, false, false, false, ''),
         new PropertyMeta('autoStartup', 'Auto Startup', "Whether to auto start this route", 'boolean', '', 'true', false, false, false, false, ''),
         new PropertyMeta('startupOrder', 'Startup Order', "To configure the ordering of the routes being started", 'number', '', '', false, false, false, false, ''),
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, ''),
@@ -1972,6 +1977,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('zookeeperServiceDiscovery', 'zookeeperServiceDiscovery', "zookeeperServiceDiscovery", 'ZooKeeperServiceCallServiceDiscoveryConfiguration', '', '', false, false, false, true, ''),
     ]),
     new ElementMeta('routeTemplate', 'RouteTemplateDefinition', 'Route Template', "Defines a route template (parameterized routes)", 'configuration', [
+        new PropertyMeta('route', 'Route', "To define the route in the template", 'RouteDefinition', '', '', true, false, false, true, ''),
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, ''),
         new PropertyMeta('beans', 'beans', "beans", 'NamedBeanDefinition', '', '', false, false, true, true, ''),
         new PropertyMeta('from', 'from', "from", 'FromDefinition', '', '', false, false, false, true, ''),

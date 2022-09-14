@@ -1995,6 +1995,13 @@ export class CamelDefinitionYamlStep {
     static readRouteTemplateDefinition = (element: any): RouteTemplateDefinition => {
         
         const def = element ? new RouteTemplateDefinition({...element}) : new RouteTemplateDefinition();
+        if (element?.route !== undefined) { 
+            if (Array.isArray(element.route)) { 
+               def.route = CamelDefinitionYamlStep.readRouteDefinition(element.route[0]); 
+            } else { 
+               def.route = CamelDefinitionYamlStep.readRouteDefinition(element.route); 
+            } 
+        } 
         def.beans = element && element?.beans ? element?.beans.map((x:any) => CamelDefinitionYamlStep.readNamedBeanDefinition(x)) :[]; 
         if (element?.from !== undefined) { 
             if (Array.isArray(element.from)) { 

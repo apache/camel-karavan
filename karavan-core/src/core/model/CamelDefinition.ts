@@ -106,6 +106,8 @@ export class NamedBeanDefinition extends CamelElement {
 }
 
 export class OutputAwareFromDefinition extends CamelElement {
+    description?: string;
+    id?: string;
     parameters?: any = {};
     steps: CamelElement[] = [];
     uri: string = ''
@@ -416,6 +418,8 @@ export class FinallyDefinition extends CamelElement {
 
 export class FromDefinition extends CamelElement {
     stepName?: string = 'from';
+    description?: string;
+    id?: string;
     parameters?: any = {};
     steps: CamelElement[] = [];
     uri: string = ''
@@ -1105,16 +1109,19 @@ export class RouteContextRefDefinition extends CamelElement {
 }
 
 export class RouteDefinition extends CamelElement {
-    stepName?: string = 'route';
     routeConfigurationId?: string;
     description?: string;
+    logMask?: boolean;
+    precondition?: string;
+    autoStartup?: boolean;
+    trace?: boolean;
+    stepName?: string = 'route';
+    messageHistory?: boolean;
     from: FromDefinition = new FromDefinition();
     streamCaching?: boolean;
     id?: string;
-    precondition?: string;
     startupOrder?: number;
     routePolicy?: string;
-    autoStartup?: boolean;
     group?: string
     public constructor(init?: Partial<RouteDefinition>) {
         super('RouteDefinition')
@@ -1137,9 +1144,10 @@ export class RouteTemplateBeanDefinition extends CamelElement {
 }
 
 export class RouteTemplateDefinition extends CamelElement {
+    route?: RouteDefinition;
     stepName?: string = 'routeTemplate';
     beans?: NamedBeanDefinition[] = [];
-    from: FromDefinition = new FromDefinition();
+    from?: FromDefinition;
     id: string = '';
     parameters?: RouteTemplateParameterDefinition[] = []
     public constructor(init?: Partial<RouteTemplateDefinition>) {
