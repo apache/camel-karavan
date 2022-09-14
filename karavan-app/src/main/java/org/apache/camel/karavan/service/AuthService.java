@@ -21,9 +21,7 @@ import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Map;
 
 @ApplicationScoped
@@ -36,7 +34,6 @@ public class AuthService {
     }
 
     public Map<String, String> getSsoConfig() throws MalformedURLException {
-        URL netUrl = new URL(ConfigProvider.getConfig().getValue("quarkus.oidc.auth-server-url", String.class));
-        return Map.of("url", netUrl.getProtocol() + "://" + netUrl.getAuthority() + "/");
+        return Map.of("url", ConfigProvider.getConfig().getValue("quarkus.oidc.auth-server-url", String.class));
     }
 }
