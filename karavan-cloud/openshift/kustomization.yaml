@@ -7,4 +7,4 @@ resources:
 - karavan-secret.yaml
 - karavan-quarkus-task.yaml
 - karavan-quarkus-pipeline.yaml
-- karavan-app.yaml
+- karavan-app-public.yaml

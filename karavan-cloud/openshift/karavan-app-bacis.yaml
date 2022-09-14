@@ -45,9 +45,7 @@ spec:
                 secretKeyRef:
                   key: master-password
                   name: karavan
-          image: ghcr.io/apache/camel-karavan:3.18.3
-          # image: ghcr.io/apache/camel-karavan-basic:3.18.3
-          # image: ghcr.io/apache/camel-karavan-oidc:3.18.3
+          image: ghcr.io/apache/camel-karavan-basic:3.18.3
           imagePullPolicy: Always
           name: karavan
           resources:
