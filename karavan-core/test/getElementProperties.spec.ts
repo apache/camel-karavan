@@ -27,7 +27,7 @@ describe('getElementProperties', () => {
     it('getElementProperties 1', () => {
 
         const p: PropertyMeta[] = CamelDefinitionApiExt.getElementProperties("FromDefinition");
-        expect(p.length).to.equal(2);
+        expect(p.length).to.equal(4);
 
     });
 
