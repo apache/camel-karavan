@@ -56,7 +56,7 @@ spec:
             -Dquarkus.kubernetes.deploy=true \
             -Dquarkus.container-image.group=${NAMESPACE} \
             -Dquarkus.container-image.tag=${DATE}
-      image: 'ghcr.io/apache/camel-karavan-builder:3.18.3'
+      image: ghcr.io/apache/camel-karavan-builder:3.18.4
       env:
         - name: PROJECTS_GIT_REPOSITORY
           valueFrom:

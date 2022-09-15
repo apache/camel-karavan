@@ -59,3 +59,4 @@ yarn-error.log*
 **/*.tgz
 **/*.vsix
 karavan-cloud/openshift/karavan-secret-real.yaml
+**/*.bak

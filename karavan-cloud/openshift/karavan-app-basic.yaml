@@ -45,7 +45,7 @@ spec:
                 secretKeyRef:
                   key: master-password
                   name: karavan
-          image: ghcr.io/apache/camel-karavan-basic:3.18.3
+          image: ghcr.io/apache/camel-karavan-basic:3.18.4
           imagePullPolicy: Always
           name: karavan
           resources:
@@ -57,27 +57,7 @@ spec:
           ports:
             - containerPort: 8080
               name: http
-              protocol: TCP
-          # livenessProbe:
-          #   failureThreshold: 3
-          #   httpGet:
-          #     path: /q/health/live
-          #     port: 8080
-          #     scheme: HTTP
-          #   initialDelaySeconds: 0
-          #   periodSeconds: 30
-          #   successThreshold: 1
-          #   timeoutSeconds: 10
-          # readinessProbe:
-          #   failureThreshold: 3
-          #   httpGet:
-          #     path: /q/health/ready
-          #     port: 8080
-          #     scheme: HTTP
-          #   initialDelaySeconds: 0
-          #   periodSeconds: 30
-          #   successThreshold: 1
-          #   timeoutSeconds: 10    
+              protocol: TCP   
       volumes:
         - name: karavan-data
           persistentVolumeClaim:
