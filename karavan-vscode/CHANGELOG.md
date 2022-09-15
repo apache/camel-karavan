@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.18.3
+1. Camel 3.18.2 DSL
+2. Kamelets 0.9.0
+3. SSO/Keycloak support for Karavan cloud-native application
+
+## 3.18.2
+1. Hot-fix: Incorrect YAML generated for doTry/doFinally
+
 ## 3.18.1
 1. Upgrade to Camel 3.18.1 and jbang 0.97.0
 2. DSL Elements could be moved (drag-and-drop) to Step DSL as steps
