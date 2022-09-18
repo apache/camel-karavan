@@ -84,7 +84,7 @@ export class UploadModal extends React.Component<Props, State> {
         const isDisabled = this.state.type === 'integration'
             ? fileNotUploaded
             : !(!fileNotUploaded && this.state.integrationName !== undefined && this.state.integrationName.endsWith(".yaml"));
-        const accept = this.state.type === 'integration' ? '.yaml' : '.json';
+        const accept = this.state.type === 'integration' ? '.yaml' : '.json, .yaml';
         return (
             <Modal
                 title="Upload"
@@ -101,7 +101,7 @@ export class UploadModal extends React.Component<Props, State> {
                         <Radio value="Integration" label="Integration yaml" name="Integration" id="Integration" isChecked={this.state.type === 'integration'}
                             onChange={(_, event) => this.setState({ type: _ ? 'integration': 'openapi' })}
                         />{' '}
-                        <Radio value="OpenAPI" label="OpenAPI json" name="OpenAPI" id="OpenAPI" isChecked={this.state.type === 'openapi'}
+                        <Radio value="OpenAPI" label="OpenAPI json/yaml" name="OpenAPI" id="OpenAPI" isChecked={this.state.type === 'openapi'}
                             onChange={(_, event) => this.setState({ type: _ ? 'openapi' : 'integration' })}
                         />
                     </FormGroup>

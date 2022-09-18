@@ -26,8 +26,14 @@ import org.apache.camel.impl.lw.LightweightCamelContext;
 import org.apache.camel.karavan.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.nio.file.Paths;
+import java.util.Map;
 
 @ApplicationScoped
 public class GeneratorService {
@@ -46,13 +52,24 @@ public class GeneratorService {
 
     private static final Logger LOGGER = Logger.getLogger(GeneratorService.class.getName());
 
-    public String generate(String openApi, boolean generateRoutes) throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        final JsonNode node = mapper.readTree(openApi);
+    public String generate(String fileName, String openApi, boolean generateRoutes) throws Exception {
+        final JsonNode node = fileName.endsWith("json") ? readNodeFromJson(openApi) : readNodeFromYaml(openApi);
         OasDocument document = (OasDocument) Library.readDocument(node);
         try (CamelContext context = new LightweightCamelContext()) {
             return RestDslGenerator.toYaml(document).generate(context, generateRoutes);
         }
+    }
+
+    private JsonNode readNodeFromJson(String openApi) throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        return mapper.readTree(openApi);
+    }
+
+    private JsonNode readNodeFromYaml(String openApi) throws FileNotFoundException {
+        final ObjectMapper mapper = new ObjectMapper();
+        Yaml loader = new Yaml(new SafeConstructor());
+        Map map = loader.load(openApi);
+        return mapper.convertValue(map, JsonNode.class);
     }
 
     public String getDefaultApplicationProperties(Project project){

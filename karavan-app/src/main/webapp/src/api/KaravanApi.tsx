@@ -393,7 +393,7 @@ export class KaravanApi {
     }
 
     static async postOpenApi(file: ProjectFile, generateRest: boolean, generateRoutes: boolean, integrationName: string, after: (res: AxiosResponse<any>) => void) {
-        const uri = `/file/openapi/${generateRest}/${generateRoutes}/${integrationName}`;
+        const uri = `/api/file/openapi/${generateRest}/${generateRoutes}/${integrationName}`;
         instance.post(encodeURI(uri), file)
             .then(res => {
                 after(res);

@@ -161,7 +161,6 @@ export class Main extends React.Component<Props, State> {
             new MenuItem("eip", "Enterprise Integration Patterns", <EipIcon/>),
             new MenuItem("kamelets", "Kamelets", <KameletsIcon/>),
             new MenuItem("components", "Components", <ComponentsIcon/>),
-            new MenuItem("acl", "Access Control", <UsersIcon/>),
             new MenuItem("configuration", "Configuration", <ConfigurationIcon/>)
         ]
         return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height:"100%"}} spaceItems={{default:"spaceItemsNone"}}>
@@ -183,9 +182,9 @@ export class Main extends React.Component<Props, State> {
             <FlexItem flex={{default:"flex_2"}} alignSelf={{default:"alignSelfCenter"}}>
                 <Divider/>
             </FlexItem>
-            <FlexItem alignSelf={{default:"alignSelfCenter"}}>
+            {KaravanApi.authType !== 'public' && <FlexItem alignSelf={{default:"alignSelfCenter"}}>
                 <UserIcon className="avatar"/>
-            </FlexItem>
+            </FlexItem>}
         </Flex>)
     }
 
@@ -288,7 +287,7 @@ export class Main extends React.Component<Props, State> {
                     <Spinner className="spinner" isSVG diameter="140px" aria-label="Loading..." />
                     <div className="logo-placeholder">{Icon()}</div>
                 </Bullseye>}
-                {KaravanApi.isAuthorized && this.getMain()}
+                {(KaravanApi.isAuthorized || KaravanApi.authType === 'public') && this.getMain()}
                 {!KaravanApi.isAuthorized && KaravanApi.authType === 'basic' && <MainLogin config={this.state.config} onLogin={this.onLogin}/>}
                 {this.state.alerts.map((e: ToastMessage) => (
                     <Alert key={e.id} className="main-alert" variant={e.variant} title={e.title}
