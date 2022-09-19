@@ -1,0 +1,5114 @@
+openapi: 3.0.0
+info:
+  version: '5.0.0'
+  title: FDX V5.0
+  description: Financial Data Exchange V5.0 Core API
+  contact:
+    name: Financial Data Exchange
+    url: 'https://financialdataexchange.org/'
+    email: fdxsupport@financialdataexchange.org
+servers:
+  - url: 'https://api.fi.com/fdx/v5'
+    description: Financial Data Exchange V5.0 Core API
+tags:
+  - name: Personal Information
+    description: Search and view customer or customers
+  - name: Fraud Notification
+    description: Notify of suspected fraud
+  - name: Meta
+    description: API management and metrics
+  - name: User Consent
+    description: Request a customer consent grant
+  - name: Account Information
+    description: Search and view customer accounts
+  - name: Account Statements
+    description: Search and retrieve account statements
+  - name: Account Transactions
+    description: Search and view account transactions
+  - name: Money Movement
+    description: View account money movement details
+  - name: Reward Program Categories
+    description: View categories of reward programs
+  - name: Reward Program Information
+    description: Search and view customer reward programs
+security:
+  - rhsso: []
+paths:
+
+  ############################################################
+  #
+  # Common paths
+  #
+  ############################################################
+
+  /availability:
+    get:
+      operationId: getAvailability
+      tags:
+        - Meta
+      description: Get information about this API's availability
+      summary: Get API availability
+      parameters:
+        - $ref: '#/components/parameters/OperationIdQuery'
+      responses:
+        '200':
+          description: Status and planned times of API availability
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailabilityList'
+  /capability:
+    get:
+      operationId: getCapability
+      tags:
+        - Meta
+      description: Get information about this API's capability
+      summary: Get API capability
+      parameters:
+        - $ref: '#/components/parameters/OperationIdQuery'
+        - $ref: '#/components/parameters/FdxVersionQuery'
+        - $ref: '#/components/parameters/ResultTypeQuery'
+      responses:
+        '200':
+          description: >-
+            API's capability for connections, cutoff times
+            and product types
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Capability'
+  /certification-metrics:
+    get:
+      operationId: getCertificationMetrics
+      tags:
+        - Meta
+      description: Get certification performance metrics for this implementer's APIs
+      summary: Get certification performance metrics
+      parameters:
+        - $ref: '#/components/parameters/OperationIdQuery'
+      responses:
+        '200':
+          description: Array of API's certification metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificationMetrics'
+  /consents/{consentId}:
+    get:
+      summary: Get Consent Grant
+      description: Get a Consent Grant
+      operationId: getConsentGrant
+      tags:
+        - User Consent
+      parameters:
+        - name: consentId
+          in: path
+          description: Consent Grant ID
+          required: true
+          schema:
+            $ref: '#/components/schemas/ConsentId'
+          examples:
+            ConsentId:
+              value: 9585694d3ae58863
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentGrant'
+              examples:
+                (1) Single Resource:
+                  value:
+                    id: 9585694d3ae58863
+                    status: ACTIVE
+                    parties:
+                      - name: Seedling App
+                        type: DATA_RECIPIENT
+                        homeUri: https://www.seedling.com
+                        logoUri: https://www.seedling.com/assets/seedling-logo.png
+                        registry: FDX
+                        registeredEntityName: Oak Tree Holdings, Inc
+                        registeredEntityId: 5493001052I34KDC1O18
+                      - name: Midwest Primary Bank, NA
+                        type: DATA_PROVIDER
+                        homeUri: https://www.midwest.com
+                        logoUri: https://www.midwest.com/81d88112572c.jpg
+                        registry: GLEIF
+                        registeredEntityName: Midwest Primary Bank, NA
+                        registeredEntityId: 549300ATG070THRDJ595
+                    createdTime: "2021-07-03T21:28:10.375Z"
+                    expirationTime: "2021-07-03T22:28:10.374Z"
+                    durationType: ONE_TIME
+                    lookbackPeriod: 60
+                    resources:
+                      - resourceType: ACCOUNT
+                        resourceId: b14e1e714693bc00
+                        dataClusters:
+                          - ACCOUNT_DETAILED
+                          - TRANSACTIONS
+                          - STATEMENTS
+                (2) Multiple Resources:
+                  value:
+                    id: 0e67811f9c12468f
+                    status: ACTIVE
+                    parties:
+                      - name: Seedling App
+                        type: DATA_RECIPIENT
+                        homeUri: https://www.seedling.com
+                        logoUri: https://www.seedling.com/assets/seedling-logo.png
+                        registry: GLEIF
+                        registeredEntityName: Oak Tree Holdings, Inc
+                        registeredEntityId: 5493001052I34KDC1O18
+                      - name: Midwest Primary Bank, NA
+                        type: DATA_PROVIDER
+                        homeUri: https://www.midwest.com
+                        logoUri: https://www.midwest.com/81d88112572c.jpg
+                        registry: GLEIF
+                        registeredEntityName: Midwest Primary Bank, NA
+                        registeredEntityId: 549300ATG070THRDJ595
+                    createdTime: "2021-07-03T22:08:10.375Z"
+                    expirationTime: "2022-07-03T22:08:10.374Z"
+                    durationType: TIME_BOUND
+                    durationPeriod: 365
+                    lookbackPeriod: 60
+                    resources:
+                      - resourceType: ACCOUNT
+                        resourceId: b14e1e714693bc00
+                        dataClusters:
+                          - ACCOUNT_DETAILED
+                          - TRANSACTIONS
+                          - STATEMENTS
+                      - resourceType: ACCOUNT
+                        resourceId: ad6794161f45bc96
+                        dataClusters:
+                          - ACCOUNT_DETAILED
+                          - TRANSACTIONS
+                          - STATEMENTS
+                      - resourceType: CUSTOMER
+                        resourceId: aed694b22bc3d2b3
+                        dataClusters:
+                          - CUSTOMER_CONTACT
+  /customers:
+    get:
+      operationId: getCustomers
+      tags:
+        - Personal Information
+      description: Retrieve account holders related to consented accounts
+      summary: Retrieve customers
+      parameters:
+        - $ref: '#/components/parameters/OffsetQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+      responses:
+        '200':
+          description: Customers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customers'
+  /customers/current:
+    get:
+      operationId: getCustomerInfo
+      tags:
+        - Personal Information
+      description: Get information about the customer within the authorization scope
+      summary: Get current authenticated customer information
+      responses:
+        '200':
+          description: Data describing current authenticated customer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+  /customers/{customerId}:
+    get:
+      operationId: getCustomer
+      tags:
+        - Personal Information
+      description: Retrieve customer information by customer id
+      summary: Customer by id
+      parameters:
+        - name: customerId
+          in: path
+          description: Customer Identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Customer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+  /fraud/suspected-incident:
+    post:
+      summary: Notify Data Provider of fraud
+      description: Notify Data Provider of suspected fraud
+      operationId: reportSuspectedFraudIncident
+      tags:
+        - Fraud Notification
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuspectedFraudIncident'
+      responses:
+        '200':
+          description: OK
+
+  ############################################################
+  #
+  # Core paths
+  #
+  ############################################################
+
+  /accounts:
+    get:
+      operationId: searchForAccounts
+      tags:
+        - Account Information
+      summary: Search for accounts
+      description: Query all information for a set of accounts provided in the payload
+      parameters:
+        - name: accountIds
+          in: query
+          description: Comma separated list of account ids
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: startTime
+          in: query
+          description: Start time for use in retrieval of transactions
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/DateString'
+        - name: endTime
+          in: query
+          description: End time for use in retrieval of transactions
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/DateString'
+        - $ref: '#/components/parameters/ResultTypeQuery'
+        - $ref: '#/components/parameters/OffsetQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+      responses:
+        '200':
+          description: >-
+            Array of accounts (DepositAccount, LoanAccount, LocAccount, InvestmentAccount,
+            InsuranceAccount or AnnuityAccount)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Accounts'
+              examples:
+                example1:
+                  value:
+                    {
+                      "page": {
+                        "nextOffset": "2",
+                        "total": 3
+                      },
+                      "links": {
+                        "next": {
+                          "href": "/accounts?offSet=2&limit=10"
+                        }
+                      },
+                      "accounts" : [
+                        {
+                          "depositAccount" : {
+                            "accountId" : "10001",
+                            "nickname" : "My Checking Acc XXXX3223",
+                            "status" : "OPEN",
+                            "balanceAsOf" : "2017-11-05T13:15:30.751Z",
+                            "currentBalance" : 13300.35
+                          }
+                        },
+                        {
+                          "depositAccount" : {
+                            "accountId" : "10002",
+                            "nickname" : "My Checking Acc XXXX4443",
+                            "status" : "OPEN",
+                            "balanceAsOf" : "2017-11-05T13:15:30.751Z",
+                            "currentBalance" : 332.22
+                          }
+                        },
+                        {
+                          "loanAccount" : {
+                            "accountId" : "20001",
+                            "nickname" : "My Mortgage Acc XXXX9979",
+                            "status" : "OPEN",
+                            "balanceAsOf" : "2017-11-05T13:15:30.751Z",
+                            "principalBalance" : 133000.35,
+                            "loanTerm" : 30,
+                            "nextPaymentDate" : "2017-12-01",
+                            "nextPaymentAmount" : 2333.32
+                          }
+                        }
+                      ]
+                    }
+  /accounts/{accountId}:
+    get:
+      operationId: getAccount
+      tags:
+        - Account Information
+      description: Get a specific account
+      summary: Get an account
+      parameters:
+        - $ref: '#/components/parameters/AccountIdPath'
+      responses:
+        '200':
+          description: >-
+            This can be one of LoanAccount, DepositAccount, LocAccount,
+            InvestmentAccount, InsuranceAccount or AnnuityAccount
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountWithDetails'
+              example:
+                {
+                  "loanAccount": {
+                    "accountId": "12345678",
+                    "accountType": "LOAN",
+                    "displayName": "XXXXX4567",
+                    "status": "OPEN",
+                    "description": "30 Year Mortgage",
+                    "nickname": "My Home Mortgage",
+                    "currency": {"currencyCode": "USD"},
+                    "interestRate": 4.0,
+                    "loanTerm": 0,
+                    "totalNumberOfPayments": 0
+                  }
+                }
+  /accounts/{accountId}/contact:
+    get:
+      operationId: getAccountContact
+      tags:
+        - Personal Information
+      description: Get contact information on the account
+      summary: Get an account's contact information
+      parameters:
+        - $ref: '#/components/parameters/AccountIdPath'
+      responses:
+        '200':
+          description: >-
+            Details used to verify an account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountContact'
+  /accounts/{accountId}/payment-networks:
+    get:
+      operationId: getAccountPaymentNetworks
+      tags:
+        - Money Movement
+      description: Get payment networks supported by the account
+      summary: Get payment networks supported by the account
+      parameters:
+        - $ref: '#/components/parameters/AccountIdPath'
+        - $ref: '#/components/parameters/OffsetQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+      responses:
+        '200':
+          description: Information required to execute a payment transaction against this account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountPaymentNetworkList'
+              examples:
+                Account Number:
+                  value:
+                    page:
+                      totalElements: 1
+                    paymentNetworks:
+                      - bankId: "121000358"
+                        identifier: "1234567890"
+                        identifierType: "ACCOUNT_NUMBER"
+                        type: "US_ACH"
+                        transferIn: true
+                        transferOut: true
+                Tokenized Account Number:
+                  value:
+                    page:
+                      totalElements: 1
+                    paymentNetworks:
+                      - bankId: "121000358"
+                        identifier: "987654321"
+                        identifierType: "TOKENIZED_ACCOUNT_NUMBER"
+                        type: "US_ACH"
+                        transferIn: true
+                        transferOut: true
+                Multiple Networks:
+                  value:
+                    page:
+                      totalElements: 2
+                    paymentNetworks:
+                      - bankId: "121000358"
+                        identifier: "1234567890"
+                        identifierType: "ACCOUNT_NUMBER"
+                        type: "US_ACH"
+                        transferIn: true
+                        transferOut: true
+                      - bankId: "026009593"
+                        identifier: "1234567890"
+                        identifierType: "ACCOUNT_NUMBER"
+                        type: "US_FEDWIRE" # Real-time payments
+                        transferIn: true
+                        transferOut: true
+  /accounts/{accountId}/statements:
+    get:
+      operationId: searchForAccountStatements
+      tags:
+        - Account Statements
+      description: >-
+        Get account statements. Example: GET
+        /accounts/{accountId}/statements?startTime=value1&endTime=value2
+      summary: Search for statements
+      parameters:
+        - $ref: '#/components/parameters/AccountIdPath'
+        - $ref: '#/components/parameters/StartTimeQuery'
+        - $ref: '#/components/parameters/EndTimeQuery'
+        - $ref: '#/components/parameters/OffsetQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+      responses:
+        '200':
+          description: Paginated list of available statements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Statements'
+              examples:
+                example1:
+                  value:
+                    {
+                      "page": {
+                        "nextOffset": "2",
+                        "total": 3
+                      },
+                      "links": {
+                        "next": {
+                          "href": "/accounts/1111/statements?offSet=2&limit=10"
+                        }
+                      },
+                      "statements": [
+                        {
+                          "accountId": "10001",
+                          "statementId": "20001"
+                        }
+                      ]
+                    }
+  /accounts/{accountId}/statements/{statementId}:
+    get:
+      operationId: getAccountStatement
+      tags:
+        - Account Statements
+      description: >-
+        Gets an account statement image file. Use
+        [HTTP Accept request-header](https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html)
+        to specify desired content types. See ContentTypes definition for typical values
+      summary: Get an account statement
+      parameters:
+        - $ref: '#/components/parameters/AccountIdPath'
+        - $ref: '#/components/parameters/StatementIdPath'
+      responses:
+        '200':
+          description: An image of an account statement
+          content:
+            application/pdf:
+              schema:
+                description: A pdf image of an account statement
+                type: string
+                format: binary
+            image/gif:
+              schema:
+                description: A gif image of an account statement
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                description: A jpeg image of an account statement
+                type: string
+                format: binary
+            image/tiff:
+              schema:
+                description: A tiff image of an account statement
+                type: string
+                format: binary
+            image/png:
+              schema:
+                description: A png image of an account statement
+                type: string
+                format: binary
+        '406':
+          description: Document not available for 'Accept' header's content-type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /accounts/{accountId}/transaction-images/{imageId}:
+    get:
+      operationId: getAccountTransactionImages
+      tags:
+        - Account Transactions
+      description: Get account transaction image
+      summary: Get account transaction image
+      parameters:
+        - $ref: '#/components/parameters/AccountIdPath'
+        - $ref: '#/components/parameters/ImageIdPath'
+      responses:
+        '200':
+          description: An image of transaction (such as a scanned check)
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            image/gif:
+              schema:
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/tiff:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+  /accounts/{accountId}/transactions:
+    get:
+      operationId: searchForAccountTransactions
+      tags:
+        - Account Transactions
+      description: >-
+        Search for account transactions. Example:
+        /accounts/{accountId}/transactions?startTime=value1&endTime=value2
+      summary: Search for account transactions
+      parameters:
+        - $ref: '#/components/parameters/AccountIdPath'
+        - $ref: '#/components/parameters/StartTimeQuery'
+        - $ref: '#/components/parameters/EndTimeQuery'
+        - $ref: '#/components/parameters/OffsetQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+      responses:
+        '200':
+          description: >-
+            Paginated collection of transactions, which can be one of
+            DepositTransaction, LoanTransaction, LocTransaction,
+            InvestmentTransaction or InsuranceTransaction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transactions'
+              examples:
+                Paginated Transactions:
+                  value: {
+                    "page": {
+                      "nextOffset": "2",
+                      "total": 3
+                    },
+                    "links": {
+                      "next": {
+                        "href": "/accounts/33333/transactions?offSet=2&limit=10"
+                      }
+                    },
+                    "transactions": [
+                      {"depositTransaction":{
+                        "accountId": "10001",
+                        "transactionId": "20001",
+                        "transactionCategory": "DEPOSIT_ACCOUNT_TRANSACTION",
+                        "postedTimestamp": "2017-11-05T13:15:30.751Z",
+                        "description": "Direct deposit from XYZ",
+                        "debitCreditMemo": "CREDIT",
+                        "amount": 1200.42
+                      }},
+                      {"depositTransaction":{
+                        "accountId": "10001",
+                        "transactionId": "20001",
+                        "transactionCategory": "DEPOSIT_ACCOUNT_TRANSACTION",
+                        "postedTimestamp": "2017-11-05T13:15:31.751Z",
+                        "description": "Withdrawal from ATM",
+                        "debitCreditMemo": "DEBIT",
+                        "amount": 1200.42
+                      }}
+                    ]
+                  }
+                Transaction with Rewards:
+                  summary: Example of single transaction with associated reward
+                  value: {
+                    "transactions": [
+                      {
+                        "locTransaction":
+                          {
+                            "accountId": "10001",
+                            "transactionId": "20001",
+                            "transactionCategory": "HOTEL",
+                            "postedTimestamp": "2017-11-05T13:15:30.751Z",
+                            "description": "Hotel Stay",
+                            "debitCreditMemo": "DEBIT",
+                            "amount": 236,
+                            "reward": {
+                              "accrued": 472,
+                              "adjusted": 0,
+                              "categoryId": "293"
+                            }
+                          }
+                      }
+                    ]
+                  }
+  /reward-programs:
+    get:
+      operationId: searchRewardPrograms
+      tags:
+        - Reward Program Information
+      description: Query all reward programs
+      summary: Search reward programs
+      responses:
+        '200':
+          description: Data describing reward programs associated with accounts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RewardPrograms'
+              examples:
+                Multiple Reward Programs:
+                  summary: Example showing multiple reward programs
+                  value: {
+                    "rewardPrograms": [
+                      {
+                        "programName": "Marriott Bonvoy",
+                        "programId": "4FRCCQvGW0GZEMtsOQWlkQ",
+                        "programUrl": "https://www.marriott.com/loyalty.mi",
+                        "memberships": [
+                          {
+                            "accountIds": [
+                              "af0f8e58-9649-4c29-bab2-0295d522cd6f",
+                              "e75e31eb-bf04-4d87-9f20-4554f63a639e"
+                            ],
+                            "businessOrConsumer": "CONSUMER",
+                            "customerId": "kBA5C3d7cBK9DuRngsQRwt6Ydo80bjYDR7n4O5yCKshizuS7hOZJ4cAevBne",
+                            "memberId": "5ee28848b4f242a6b7a41e0daa03a824",
+                            "memberNumber": "1783949940",
+                            "memberTier": "Gold",
+                            "balances": [
+                              {
+                                "name": "Points",
+                                "type": "POINTS",
+                                "balance": 900,
+                                "accruedYtd": 1000,
+                                "redeemedYtd": 200,
+                                "qualifying": false
+                              },
+                              {
+                                "name": "Promotional",
+                                "type": "POINTS",
+                                "balance": 900,
+                                "accrued": 1000,
+                                "redeemed": 200,
+                                "qualifying": false
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "programName": "United MileagePlus®",
+                        "programId": "GY4cHWCPxkqgkY61h4BKdQ",
+                        "programUrl": "https://www.united.com/en/us/fly/mileageplus.html",
+                        "memberships": [
+                          {
+                            "accountIds": [
+                              "b4ef4572-452d-41bd-9d2d-1b29dafe63f0"
+                            ],
+                            "businessOrConsumer": "BUSINESS",
+                            "customerId": "kBA5C3d7cBK9DuRngsQRwt6Ydo80bjYDR7n4O5yCKshizuS7hOZJ4cAevBne",
+                            "memberId": "b6b319dd3e2c4592847ad6ee32d518bc",
+                            "memberNumber": "9394970669",
+                            "balances": [
+                              {
+                                "name": "Miles",
+                                "type": "MILES",
+                                "balance": 900,
+                                "accrued": 1000,
+                                "redeemed": 200,
+                                "qualifying": false
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "programName": "Starbucks Rewards",
+                        "programId": "iqOtPUEYb0Go6SCL8As4fQ",
+                        "programUrl": "https://www.starbucks.com/rewards",
+                        "memberships": [
+                          {
+                            "accountIds": [
+                              "89cf3262-ff38-4f6a-afbc-aafc50cac751"
+                            ],
+                            "businessOrConsumer": "CONSUMER",
+                            "customerId": "kBA5C3d7cBK9DuRngsQRwt6Ydo80bjYDR7n4O5yCKshizuS7hOZJ4cAevBne",
+                            "memberId": "95c1aeacd85e4783950a9c2d6e76efa9",
+                            "memberNumber": "7417973194",
+                            "balances": [
+                              {
+                                "name": "Stars",
+                                "type": "POINTS",
+                                "balance": 900,
+                                "accrued": 1000,
+                                "redeemed": 200,
+                                "qualifying": false
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+  /reward-programs/{rewardProgramId}:
+    get:
+      operationId: getRewardProgram
+      tags:
+        - Reward Program Information
+      description: Get a specific reward program
+      summary: Get reward program
+      parameters:
+        - $ref: '#/components/parameters/RewardProgramIdPath'
+      responses:
+        '200':
+          description: Data describing reward programs associated with accounts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RewardProgram'
+              examples:
+                Single Reward Program:
+                  value: {
+                    "programName": "Discover Cashback Bonus",
+                    "programId": "ywX9ME0FXUa6Mtj0xkOgtA",
+                    "programUrl": "https://www.discover.com/credit-cards/cashback-bonus/",
+                    "memberships": [
+                      {
+                        "accountIds": [
+                          "af0f8e58-9649-4c29-bab2-0295d522cd6f",
+                          "e75e31eb-bf04-4d87-9f20-4554f63a639e"
+                        ],
+                        "businessOrConsumer": "CONSUMER",
+                        "customerId": "kBA5C3d7cBK9DuRngsQRwt6Ydo80bjYDR7n4O5yCKshizuS7hOZJ4cAevBne",
+                        "memberId": "b0a853a278804e1694d3104709cbfb58",
+                        "memberNumber": "6137299224",
+                        "memberTier": "Gold",
+                        "balances": [
+                          {
+                            "name": "Cashback",
+                            "type": "CASHBACK",
+                            "balance": 101.95,
+                            "accruedYtd": 4500.10,
+                            "redeemedYtd": 234.45,
+                            "qualifying": false
+                          },
+                          {
+                            "name": "Cashback Match",
+                            "type": "CASHBACK",
+                            "balance": 401.95,
+                            "accruedYtd": 500.10,
+                            "redeemedYtd": 134.45,
+                            "qualifying": false
+                          }
+                        ]
+                      }
+                    ]
+                  }
+  /reward-programs/{rewardProgramId}/categories:
+    get:
+      operationId: getRewardProgramCategories
+      tags:
+        - Reward Program Categories
+      description: Get reward categories
+      summary: Get reward categories
+      parameters:
+        - $ref: '#/components/parameters/RewardProgramIdPath'
+        - $ref: '#/components/parameters/OffsetQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+      responses:
+        '200':
+          description: Data describing a reward program's categories
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RewardCategories'
+              examples:
+                Multiple Reward Categories:
+                  summary: Example response with multiple reward categories
+                  value:
+                    categories:
+                      - categoryName: Amusement Park
+                        categoryId: 100
+                        multiplier: 1
+                        description: >-
+                          The Amusement Park category, including zoos, circuses and aquariums, covers
+                          establishments that operate parks or carnivals and offer mechanical rides
+                          and games and/or live animal shows.
+                      - categoryName: Dining/Restaurant
+                        categoryId: 101
+                        multiplier: 2
+                        description: >-
+                          Merchants in the Dining/Restaurant category range from fast food restaurants
+                          to fine dining establishments. They fall into the Dining category if they
+                          primarily prepare food and drinks for immediate consumption on the premises
+                          or for take-out. Dining merchants include bars, cocktail lounges, nightclubs,
+                          taverns and fast-food restaurants. Some merchants that sell food and drinks
+                          are located within larger establishments that sell other goods and services
+                          and may not be not included in this category. For example a department store
+                          or hotel restaurant, theme park cafes or discount store food counter would
+                          not be categorized under Dining.
+                      - categoryName: Entertainment
+                        categoryId: 102
+                        multiplier: 2
+                        description: >-
+                          Entertainment includes purchases made at sports promoters, movie theaters,
+                          theatrical promoters, amusement parks, tourist attractions, record stores
+                          and video rentals.
+                      - categoryName: Hotels
+                        categoryId: 103
+                        multiplier: 5
+                        description: >-
+                          Hotels include businesses that provide sleeping or meeting room accommodations.
+                          Some goods and services that appear on a hotel bill are included. Often
+                          restaurants in hotels are categorized as a hotel purchase.
+
+components:
+
+  securitySchemes:
+      rhsso:
+          flows:
+              authorizationCode:
+                  authorizationUrl: 'https://keycloak-sso.apps.home.myocp.net/auth/realms/apps/protocol/openid-connect/auth'
+                  tokenUrl: >-
+                      https://keycloak-sso.apps.home.myocp.net/auth/realms/apps/protocol/openid-connect/token
+                  refreshUrl: >-
+                      https://keycloak-sso.apps.home.myocp.net/auth/realms/apps/protocol/openid-connect/token
+          type: oauth2
+  parameters:
+
+    ############################################################
+    #
+    # Shared request parameters (usable by core and all extensions)
+    #
+    ############################################################
+
+    LimitQuery:
+      name: limit
+      in: query
+      description: >-
+        Number of elements that the consumer wishes to receive.
+        Providers should implement reasonable default and maximum values
+      schema:
+        type: integer
+
+    OffsetQuery:
+      name: offset
+      in: query
+      description: >-
+        Opaque cursor used by the provider to send the next set of records
+      schema:
+        type: string
+
+    ResultTypeQuery:
+      name: resultType
+      in: query
+      description: >-
+        Flag to indicate if you want a lightweight array of metadata (AccountDescriptor
+        or Tax or Operations) or full item details (Account or a Tax subclass or
+        Availability details). If set to 'lightweight', should only return the
+        fields associated with the metadata entity.
+        This field is not required, defaults to lightweight
+      required: false
+      schema:
+        $ref: '#/components/schemas/ResultType'
+
+    ############################################################
+    #
+    # Common request parameters
+    #
+    ############################################################
+
+    FdxVersionQuery:
+      name: fdxVersion
+      in: query
+      description: Specific FDX version for which to get the capability. Optional
+      required: false
+      schema:
+        $ref: '#/components/schemas/FdxVersion'
+
+    OperationIdQuery:
+      name: operationId
+      in: query
+      description: Specific operationId for which to get the metrics. Optional
+      required: false
+      schema:
+        $ref: '#/components/schemas/OperationId'
+
+    ############################################################
+    #
+    # Core request parameters
+    #
+    ############################################################
+
+    AccountIdPath:
+      name: accountId
+      in: path
+      description: Account Identifier
+      required: true
+      schema:
+        type: string
+
+    EndTimeQuery:
+      name: endTime
+      in: query
+      description: End time for use in retrieval of elements (ISO 8601)
+      schema:
+        $ref: '#/components/schemas/DateString'
+
+    ImageIdPath:
+      name: imageId
+      in: path
+      description: Image Identifier
+      required: true
+      schema:
+        type: string
+
+    RewardProgramIdPath:
+      name: rewardProgramId
+      in: path
+      description: Reward Program Identifier
+      required: true
+      schema:
+        type: string
+
+    StartTimeQuery:
+      name: startTime
+      in: query
+      description: Start time for use in retrieval of elements (ISO 8601)
+      schema:
+        $ref: '#/components/schemas/DateString'
+
+    StatementIdPath:
+      name: statementId
+      in: path
+      description: Statement Identifier
+      required: true
+      schema:
+        type: string
+
+  schemas:
+
+    ############################################################
+    #
+    # Shared data entities (usable by core and all extensions)
+    #
+    ############################################################
+
+    Address:
+      title: Address
+      description: Postal address
+      type: object
+      properties:
+        line1:
+          $ref: '#/components/schemas/String64'
+          description: Address line 1
+        line2:
+          $ref: '#/components/schemas/String64'
+          description: Address line 2
+        line3:
+          $ref: '#/components/schemas/String64'
+          description: Address line 3
+        city:
+          $ref: '#/components/schemas/String64'
+          description: City
+        state:
+          allOf:
+            - $ref: '#/components/schemas/String64'
+          description: State or province. Deprecated, will remove in FDX V6.0
+          deprecated: true
+        region:
+          $ref: '#/components/schemas/String64'
+          description: State or province or territory. Replaces "state" property
+        postalCode:
+          type: string
+          maxLength: 16
+          description: Postal code
+        country:
+          $ref: '#/components/schemas/Iso3166CountryCode'
+          description: Country code
+
+    Customer:
+      title: Customer entity
+      description: Represents a customer
+      type: object
+      properties:
+        customerId:
+          $ref: '#/components/schemas/Identifier'
+          description: >-
+            Long-term persistent identity of the customer.
+            This identity must be unique to the owning institution
+        name:
+          $ref: '#/components/schemas/CustomerName'
+          description: The customer's name
+        dateOfBirth:
+          $ref: '#/components/schemas/DateString'
+          description: The customer's date of birth
+        taxId:
+          type: string
+          description: Country specific Tax Id associated with this customer (SIN or NAS in Canada, SSN or TIN in US, etc.)
+        taxIdCountry:
+          $ref: '#/components/schemas/Iso3166CountryCode'
+          description: Country originating the Customer’s taxId element
+        governmentId:
+          type: string
+          description: >-
+            A federal (such as passport) or state (such as driver's license)
+            issued identifier
+        email:
+          type: array
+          items:
+            type: string
+          description: >-
+            An array of the customer's electronic mail addresses
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryAddress'
+          description: >-
+            An array of the customer's physical mail addresses
+        telephones:
+          type: array
+          items:
+            $ref: '#/components/schemas/TelephoneNumber'
+          description: An array of the customer's telephone numbers
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomerToAccountRelationship'
+          description: List of accounts related to this customer
+
+    CustomerName:
+      title: Customer Name entity
+      description: The name of an individual in their role as a customer
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/IndividualName'
+        - type: object
+          properties:
+            prefix:
+              description: Name prefix, e.g. Mr.
+              type: string
+            company:
+              type: string
+              description: Company name
+
+    CustomerToAccountRelationship:
+      title: Customer to Account Relationship entity
+      description: Describes an account related to a customer
+      type: object
+      properties:
+        accountId:
+          $ref: '#/components/schemas/Identifier'
+          description: Account ID of the related account
+        links:
+          $ref: '#/components/schemas/HateoasLinks'
+          description: Links to the account, or to invoke other APIs
+        relationship:
+          $ref: '#/components/schemas/AccountHolderRelationship'
+          description: Type of relationship to the account
+
+    DeliveryAddress:
+      title: Delivery Address
+      description: A delivery address and its location type
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Address'
+        - type: object
+          properties:
+            type:
+              $ref: '#/components/schemas/DeliveryAddressType'
+              description: Type of address location. One of BUSINESS, HOME, MAILING
+
+    Error:
+      title: Error
+      description: >-
+        An error entity which can be used at the API level for error responses
+        or at the account level to indicate a problem specific to a particular
+        account
+      type: object
+      properties:
+        code:
+          type: string
+          description: >-
+            Long term persistent identifier which can be used to trace error
+            condition back to log information
+        message:
+          type: string
+          description: >-
+            End user displayable information which might help the customer
+            diagnose an error
+
+    FiAttribute:
+      title: FI Attribute entity
+      description: Financial Institution provider-specific attribute
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of attribute
+        value:
+          type: string
+          description: Value of attribute
+
+    HateoasLink:
+      title: HATEOAS Link
+      description: REST application constraint (Hypermedia As The Engine Of Application State)
+      required: [href]
+      type: object
+      properties:
+        href:
+          type: string
+          format: uri-reference
+          description: URL to invoke the action on the resource
+          example: "https://api.fi.com/fdx/v4/accounts/12345"
+        action:
+          type: string
+          enum: [GET, POST, PATCH, DELETE, PUT]
+          description: HTTP Method to use for the request
+        rel:
+          description: >-
+            Relation of this link to its containing entity, as defined by and with many
+            example relation values at [IETF RFC5988](https://datatracker.ietf.org/doc/html/rfc5988)
+          type: string
+        types:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentTypes'
+          description: Content-types that can be used in the Accept header
+
+    IndividualName:
+      title: Individual name
+      description: First name, middle initial, last name, suffix fields
+      type: object
+      properties:
+        first:
+          description: First name
+          type: string
+        middle:
+          description: Middle initial
+          type: string
+        last:
+          description: Last name
+          type: string
+        suffix:
+          description: Generational or academic suffix
+          type: string
+
+    NameAddress:
+      title: Name and Address
+      description: Individual or business name with address
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Address'
+        - type: object
+          properties:
+            name1:
+              $ref: '#/components/schemas/String64'
+              description: Name line 1
+            name2:
+              $ref: '#/components/schemas/String64'
+              description: Name line 2
+
+    NameAddressPhone:
+      title: Name, Address and Phone
+      description: Contact phone number with name and address
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/NameAddress'
+        - type: object
+          properties:
+            phone:
+              $ref: '#/components/schemas/TelephoneNumberPlusExtension'
+              description: Phone number
+
+    PageMetadata:
+      title: Page Metadata
+      description: Offset IDs for paginated result sets
+      type: object
+      properties:
+        nextOffset:
+          type: string
+          example: "2"
+          description: Opaque identifier. Does not need to be numeric or have any specific pattern.
+            Implementation specific
+        prevOffset:
+          type: string
+          example: "1"
+          description: Opaque identifier. Does not need to be numeric or have any specific pattern.
+            Implementation specific
+        totalElements:
+          type: integer
+          example: 3
+          description: Total number of elements
+
+    PageMetadataLinks:
+      title: Page Metadata Links
+      description: Resource URLs for retrieving next or previous datasets
+      type: object
+      properties:
+        next:
+          $ref: '#/components/schemas/HateoasLink'
+          description: Resource URL for retrieving next dataset
+        prev:
+          $ref: '#/components/schemas/HateoasLink'
+          description: Resource URL for retrieving previous dataset
+
+    PaginatedArray:
+      title: Paginated Array
+      description: Base class for results that may be paginated
+      type: object
+      properties:
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+          description: Offset IDs for navigating result sets
+        links:
+          $ref: '#/components/schemas/PageMetadataLinks'
+          description: Resource URLs for navigating result sets
+
+    Party:
+      title: Party entity
+      description: FDX Participant - an entity or person that is a part of a FDX API transaction
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        name:
+          description: Human recognizable common name
+          type: string
+        type:
+          description: Extensible string enum identifying the type of the party
+          $ref: '#/components/schemas/PartyType'
+        homeUri:
+          description: >-
+            URI for party, where an end user could learn more about the company
+            or application involved in the data sharing chain
+          type: string
+          format: uri
+        logoUri:
+          description: URI for a logo asset to be displayed to the end user
+          type: string
+          format: uri
+        registry:
+          description: >-
+            The registry containing the party’s registration with name and id:
+            FDX, GLEIF, ICANN, PRIVATE
+          $ref: '#/components/schemas/PartyRegistry'
+        registeredEntityName:
+          description: Registered name of party
+          type: string
+        registeredEntityId:
+          description: Registered id of party
+          type: string
+
+    PaymentDetails:
+      title: Payment Details entity
+      description: Details of this payment
+      type: object
+      properties:
+        principalAmount:
+          type: number
+          description: The amount of payment applied to principal
+        interestAmount:
+          type: number
+          description: The amount of payment applied to interest
+        insuranceAmount:
+          type: number
+          description: The amount of payment applied to life/health/accident insurance on the loan
+        escrowAmount:
+          type: number
+          description: The amount of payment applied to escrow
+        pmiAmount:
+          type: number
+          description: The amount of payment applied to PMI
+        feesAmount:
+          type: number
+          description: The amount of payment applied to fees
+
+    TelephoneNumber:
+      title: Telephone Number
+      description: Standard for international phone numbers
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/TelephoneNumberType'
+          description: 'Type of phone number: HOME, BUSINESS, CELL, FAX'
+        country:
+          type: string
+          maxLength: 3
+          description: Country calling codes defined by ITU-T recommendations E.123 and E.164
+        number:
+          type: string
+          maxLength: 15
+          pattern: '\d+'
+          description: Telephone subscriber number defined by ITU-T recommendation E.164
+
+    TelephoneNumberPlusExtension:
+      title: Telephone Number Plus Extension
+      description: A telephone number that can contain optional text for an arbitrary length
+        telephone extension number
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TelephoneNumber'
+        - type: object
+          properties:
+            extension:
+              description: An arbitrary length telephone number extension
+              type: string
+
+    ############################################################
+    #
+    # Common data entities
+    #
+    ############################################################
+
+    Availability:
+      title: Availability entity
+      description: Response object for /availability API
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/AvailabilityStatus'
+          description: Status of API availability
+        description:
+          type: string
+          description: Description of availability status
+        operationId:
+          description: Operation ID (e.g. name) for this Availability
+          $ref: '#/components/schemas/OperationId'
+        plannedAvailability:
+          type: array
+          description: Provider's plan for API availability
+          items:
+            $ref: '#/components/schemas/PlannedAvailability'
+
+    AvailabilityList:
+      title: Availability List entity
+      description: Response object for /availability API
+      type: object
+      properties:
+        availability:
+          description: Zero or more API availability metrics
+          type: array
+          items:
+            $ref: '#/components/schemas/Availability'
+
+    Capability:
+      title: Capability entity
+      description: The response object for the API /capability request
+      type: object
+      properties:
+        fdxVersions:
+          type: array
+          description: The FDX schema versions supported by one or more operations
+          items:
+            $ref: '#/components/schemas/FdxVersion'
+        allowedConnections:
+          type: integer
+          description: The number of concurrent connections allowed for this client
+        activeConnections:
+          type: integer
+          description: The current number of active connections for this client
+        messageFormat:
+          $ref: '#/components/schemas/MessageFormat'
+          description: Defaults to JSON
+        operations:
+          type: array
+          description: The FDX API endpoints supported
+          items:
+            $ref: '#/components/schemas/Operation'
+        jwksUrl:
+          description: >-
+            The URL to retrieve the JWKS public keys from the data provider,
+            needed to enable payload level encryption above the TLS layer
+          $ref: '#/components/schemas/HateoasLink'
+
+    CertificationMetric:
+      title: Certification Metric entity
+      description: A single certification performance metric
+      type: object
+      properties:
+        reportStartTimestamp:
+          $ref: '#/components/schemas/Timestamp'
+          description: When the reported metrics period began
+        reportEndTimestamp:
+          $ref: '#/components/schemas/Timestamp'
+          description: When the reported metrics period ended
+        metricsName:
+          type: string
+          description: >-
+            Any provider descriptive name for the measurement.
+            Optional, can be omitted if operationIds are returned
+        operationIds:
+          description: >-
+            One or more Operation IDs for which these metrics apply.
+            Optional, can be omitted if metricsName is returned
+          type: array
+          items:
+            $ref: '#/components/schemas/OperationId'
+        responseTimeAverage:
+          type: number
+          description: The self-reported average response time in milliseconds for all combined data responses
+        averageUpTime:
+          type: number
+          description: >-
+            See the Certification Performance section that describes how this measurement
+            will be calculated, defines the % of availability during the measurement
+        reportTimestamp:
+          $ref: '#/components/schemas/Timestamp'
+          description: Time when these performance and availability metrics were created
+
+    CertificationMetrics:
+      title: Certification Metrics entity
+      description: Response object for /certification-metrics API
+      type: object
+      properties:
+        metrics:
+          description: Zero or more certification performance metrics
+          type: array
+          items:
+            $ref: '#/components/schemas/CertificationMetric'
+
+    ConsentGrant:
+      title: Consent Grant entity
+      description: Record of user consent
+      type: object
+      properties:
+        id:
+          description: The persistent identifier of the consent
+          $ref: '#/components/schemas/Identifier'
+        status:
+          description: The current status of the consent
+          $ref: '#/components/schemas/ConsentGrantStatus'
+        parties:
+          description: The non-end user parties participating in the Consent Grant
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsentGrantParty'
+        createdTime:
+          description: When the consent was initially granted
+          $ref: '#/components/schemas/Timestamp'
+        expirationTime:
+          description: When the consent grant will become expired
+          $ref: '#/components/schemas/Timestamp'
+        durationType:
+          description: The type of duration of the consent
+          $ref: '#/components/schemas/ConsentDurationType'
+        durationPeriod:
+          description: The consent duration in days from day of original grant
+          $ref: '#/components/schemas/ConsentDurationPeriod'
+        lookbackPeriod:
+          description: >-
+            Period, in days, for which historical data may be requested;
+            measured from request time, not grant time
+          $ref: '#/components/schemas/LookbackPeriod'
+        resources:
+          description: The permissioned resource entities
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsentGrantResource'
+
+    ConsentGrantParty:
+      title: Consent Grant Party entity
+      description: >-
+        Details on the non-end user parties in the Consent Grant. Includes the
+        legal entity operating branded products or services in the data sharing chain.
+        Descriptive information is collected during Data Recipient registration at
+        Data Provider, and populated during issuance by Data Provider from its registry
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Party'
+      required:
+        - homeUri
+        - registry
+        - registeredEntityName
+        - registeredEntityId
+
+    ConsentGrantResource:
+      title: Consent Grant Resource entity
+      description: Entity of permissioned resources
+      type: object
+      properties:
+        resourceType:
+          description: Type of resource to be permissioned
+          $ref: '#/components/schemas/ConsentResourceType'
+        resourceId:
+          description: Identifier of resource to be permissioned
+          $ref: '#/components/schemas/Identifier'
+        dataClusters:
+          description: Names of clusters of data elements permissioned
+          type: array
+          items:
+            $ref: '#/components/schemas/DataCluster'
+          minItems: 1
+      required:
+        - resourceType
+        - resourceId
+        - dataClusters
+
+    ConsentRequest:
+      title: Consent request entity
+      description: >-
+        Details of request to create new consent grant.
+        This schema is to be used in POST request to Data Provider’s
+        'POST /par' endpoint using the Pushed Authorization Request (PAR) method
+      type: object
+      properties:
+        durationType:
+          description: The type of duration of the consent
+          $ref: '#/components/schemas/ConsentDurationType'
+        durationPeriod:
+          description: The consent duration in days from day of original grant
+          $ref: '#/components/schemas/ConsentDurationPeriod'
+        lookbackPeriod:
+          description: >-
+            Period, in days, for which historical data may be requested;
+            measured from request time, not grant time
+          $ref: '#/components/schemas/LookbackPeriod'
+        resources:
+          description: The requested resource entities
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsentRequestedResource'
+
+    ConsentRequestedResource:
+      title: Consent Requested Resource entity
+      description: Details of requested resource and data clusters
+      type: object
+      properties:
+        resourceType:
+          description: Type of resource permission requested
+          $ref: '#/components/schemas/ConsentResourceType'
+        dataClusters:
+          description: Names of clusters of data elements requested
+          type: array
+          items:
+            $ref: '#/components/schemas/DataCluster'
+          minItems: 1
+      required:
+        - resourceType
+        - dataClusters
+
+    Customers:
+      title: Customers Entity
+      description: List of customers
+      type: object
+      properties:
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+          description: Information required to paginate results
+        links:
+          $ref: '#/components/schemas/PageMetadataLinks'
+          description: Links used to paginate results
+        customers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Customer'
+          description: Array of customers
+
+    Operation:
+      title: Operation entity
+      description: Definition of a supported API for the /capability response object
+      type: object
+      properties:
+        id:
+          description: Operation ID (e.g. name) of this API
+          $ref: '#/components/schemas/OperationId'
+        availability:
+          description: Whether and how this API is currently supported
+          $ref: '#/components/schemas/Availability'
+        alsoSupported:
+          description: >-
+            Additional FDX API endpoints supported at this API, e.g. Transactions
+            within Accounts, or TxImages within Transactions
+          type: array
+          items:
+            $ref: '#/components/schemas/OperationId'
+        version:
+          description: >-
+            Data provider's implementation version number for this operation,
+            which is unrelated to the FDX API version
+          type: string
+        fdxVersions:
+          description: FDX schema versions supported at this endpoint
+          type: array
+          items:
+            $ref: '#/components/schemas/FdxVersion'
+        cutOffTime:
+          description: >-
+            Cut off time for same-day execution of activity request submitted to this API.
+            Alternatively, the as-of time when EOD account balances are typically set
+          $ref: '#/components/schemas/Timestamp'
+        link:
+          description: >-
+            General HATEOAS link for this API, specifying supported action (GET, POST, etc) and
+            contentTypes (application/json, image/png, etc), but without any path parameter values
+          $ref: '#/components/schemas/HateoasLink'
+
+    PlannedAvailability:
+      title: Planned Availability entity
+      description: Provider's plan for API availability
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/AvailabilityStatus'
+          description: API availability status for this time period
+        description:
+          type: string
+          description: Description of API availability status
+        startTime:
+          $ref: '#/components/schemas/Timestamp'
+          description: Start time for this status period
+        endTime:
+          $ref: '#/components/schemas/Timestamp'
+          description: End time for this status period
+
+    SuspectedFraudIncident:
+      title: Suspected Fraud Incident entity
+      description: Notification of suspected fraud
+      type: object
+      properties:
+        type:
+          description: >-
+            Extensible string enum identifying the type of suspected fraud.
+            Initially this will always be set to "ACCOUNT_TAKEOVER". Additional
+            values may be defined in the future.
+          type: string
+          minLength: 1
+          maxLength: 256
+          example: "ACCOUNT_TAKEOVER"
+        incidentId:
+          description: Unique identifier for the fraud incident.
+          type: string
+          minLength: 1
+          maxLength: 256
+          example: "0a318518-ca16-4e66-be76-865a632ea771"
+        reason:
+          description: Free text justification for suspected fraud
+          type: string
+          minLength: 1
+          maxLength: 256
+          example: User submitted identity data did not match account
+        fiAttributes:
+          type: array
+          description: >-
+            Array of financial institution-specific attributes. Can be used to
+            provide additional structured context on the suspected fraud for the
+            FI to use in determining a resolution.
+          items:
+            $ref: '#/components/schemas/FiAttribute'
+        reporter:
+          description: >-
+            Identity of the party responsible for identifying and reporting the
+            suspected fraud. This might be the DP, DAP, a vendor, a payment
+            network, or other entity.
+          $ref: '#/components/schemas/Party'
+
+    ############################################################
+    #
+    # Core data entities
+    #
+    ############################################################
+
+    Account:
+      title: Account entity
+      description: An abstract account entity that concrete account entities extend
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AccountDescriptor'
+        - type: object
+          properties:
+            parentAccountId:
+              description: >-
+                Long-term persistent identity of the parent account. This is
+                used to group accounts
+              $ref: '#/components/schemas/Identifier'
+            lineOfBusiness:
+              description: >-
+                The line of business, such as consumer, consumer joint, small
+                business, corporate, etc.
+              type: string
+            routingTransitNumber:
+              type: string
+              description: >-
+                Routing transit number (RTN) associated with
+                account number at owning institution
+            balanceType:
+              $ref: '#/components/schemas/BalanceType'
+              description: >-
+                ASSET (positive transaction amount increases balance), LIABILITY
+                (positive transaction amount decreases balance)
+            contact:
+              $ref: '#/components/schemas/AccountContact'
+              description: Contact information associated with this account
+            interestRate:
+              type: number
+              description: Interest Rate of Account
+            interestRateType:
+              $ref: '#/components/schemas/InterestRateType'
+              description: FIXED or VARIABLE
+            interestRateAsOf:
+              $ref: '#/components/schemas/Timestamp'
+              description: Date of account's interest rate
+            priorInterestRate:
+              type: number
+              description: Previous Interest Rate of Account
+            transferIn:
+              type: boolean
+              description: Account is eligible for incoming transfers
+            transferOut:
+              type: boolean
+              description: Account is eligible for outgoing transfers
+            billPayStatus:
+              $ref: '#/components/schemas/AccountBillPayStatus'
+              description: Defines account's ability to participate in bill payments
+            micrNumber:
+              $ref: '#/components/schemas/String64'
+              description: MICR Number
+            lastActivityDate:
+              $ref: '#/components/schemas/DateString'
+              description: Date that last transaction occurred on account
+            rewardProgramId:
+              $ref: '#/components/schemas/Identifier'
+              description: Long-term persistent identity of rewards program associated with this account
+            transactionsIncluded:
+              type: boolean
+              description: >-
+                Default is false. If present and true, a call to retrieve
+                transactions will not return any further details about this
+                account. This is an optimization that allows an FDX API server
+                to return transactions and account details in a single call
+
+    AccountContact:
+      title: Account Contact entity
+      description: Contact information for the account
+      type: object
+      properties:
+        holders:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountHolder'
+          description: Owners of the account
+        emails:
+          type: array
+          items:
+            type: string
+          description: Email addresses associated with the account
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryAddress'
+          description: Physical mail addresses associated with the account
+        telephones:
+          type: array
+          items:
+            $ref: '#/components/schemas/TelephoneNumber'
+          description: Telephone numbers associated with the account
+
+    AccountDescriptor:
+      title: Account Descriptor entity
+      description: This descriptor provides minimal information about the account for use in lightweight arrays
+      type: object
+      properties:
+        accountId:
+          description: >-
+            Long-term persistent identity of the account, though not an account number.
+            This identity must be unique to the owning institution
+          $ref: '#/components/schemas/Identifier'
+        error:
+          description: Present if an error was encountered while retrieving this account
+          $ref: '#/components/schemas/Error'
+        accountType:
+          $ref: '#/components/schemas/AccountType'
+          description: Account type
+        accountNumber:
+          description: >-
+            Full account number for the end user's handle for
+            the account at the owning institution
+          type: string
+        accountNumberDisplay:
+          description: >-
+            Account display number for the end user's handle at the owning
+            institution. This is to be displayed by the Interface Provider
+          type: string
+        productName:
+          type: string
+          description: Marketed product name for this account. Used in UIs to assist in account selection
+        nickname:
+          description: Name given by the user. Used in UIs to assist in account selection
+          type: string
+        status:
+          description: >-
+            Account status. Suggested values are: OPEN, CLOSED, PENDINGOPEN, PENDINGCLOSE,
+            PAID, DELINQUENT, NEGATIVECURRENTBALANCE, RESTRICTED
+          $ref: '#/components/schemas/AccountStatus'
+        description:
+          type: string
+          description: Description of account
+        currency:
+          $ref: '#/components/schemas/Currency'
+          description: Account currency
+        fiAttributes:
+          type: array
+          description: Array of Financial institution-specific attributes
+          items:
+            $ref: '#/components/schemas/FiAttribute'
+
+    AccountHolder:
+      title: Account Holder entity
+      description: >-
+        Extends `Customer` and adds a `relationship` field to define the customer's
+        relationship with an account
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Customer'
+        - type: object
+          properties:
+            relationship:
+              $ref: '#/components/schemas/AccountHolderRelationship'
+              description: "Customer's relationship to the account"
+
+    AccountPaymentNetwork:
+      title: Payment Network Supported by Account
+      description: This provides details required to execute a transaction against the account
+        within the payment network
+      type: object
+      properties:
+        bankId:
+          type: string
+          description: Bank identifier used by the payment network ie. Routing Number
+        identifier:
+          type: string
+          description: >-
+            The number used to identify the account within the payment network.
+            If identifierType is ACCOUNT_NUMBER, this is the account number;
+            if identifierType is TOKENIZED_ACCOUNT_NUMBER, this is a tokenized account number
+        identifierType:
+          $ref: '#/components/schemas/PaymentNetworkIdentifierType'
+          description: Type of identifier
+        type:
+          $ref: '#/components/schemas/PaymentNetworkType'
+          description: Type of payment network
+        transferIn:
+          type: boolean
+          description: Can transfer funds to the account using this information
+        transferOut:
+          type: boolean
+          description: Can transfer funds from the account using this information
+
+    AccountPaymentNetworkList:
+      title: Array of account payment networks
+      description: An optionally paginated array of payment networks supported by the account
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedArray'
+        - type: object
+          properties:
+            paymentNetworks:
+              type: array
+              items:
+                $ref: '#/components/schemas/AccountPaymentNetwork'
+              description: Array of payment networks
+
+    AccountWithDetails:
+      title: Account With Details entity
+      description: This provides an instance of an account with full details
+      type: object
+      oneOf:
+        - type: object
+          properties:
+            depositAccount:
+              $ref: '#/components/schemas/DepositAccount'
+              description: A deposit account
+        - type: object
+          properties:
+            loanAccount:
+              $ref: '#/components/schemas/LoanAccount'
+              description: A loan account
+        - type: object
+          properties:
+            locAccount:
+              $ref: '#/components/schemas/LocAccount'
+              description: A line-of-credit account
+        - type: object
+          properties:
+            investmentAccount:
+              $ref: '#/components/schemas/InvestmentAccount'
+              description: An investment account
+        - type: object
+          properties:
+            insuranceAccount:
+              $ref: '#/components/schemas/InsuranceAccount'
+              description: An insurance account
+        - type: object
+          properties:
+            annuityAccount:
+              $ref: '#/components/schemas/AnnuityAccount'
+              description: An annuity account
+
+    Accounts:
+      title: Accounts entity
+      description: An optionally paginated array of accounts
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedArray'
+        - type: object
+          properties:
+            accounts:
+              type: array
+              description: >-
+                An array of accounts with entity types dependent on the
+                account type (deposit, investment, loan, line of credit,
+                annuity or insurance)
+              items:
+                $ref: '#/components/schemas/AccountWithDetails'
+
+    AnnuityAccount:
+      title: Annuity Account entity
+      description: An annuity account type
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Account'
+        - type: object
+          properties:
+            annuityProductType:
+              allOf:
+                - $ref: '#/components/schemas/AnnuityProductType'
+              description: CURRENCY, SHARES. Deprecated, will be removed in v6.0
+              deprecated: true
+            annuityValueBasis:
+              allOf:
+                - $ref: '#/components/schemas/AnnuityValueBasis'
+              description: FIXED, VARIABLE. Deprecated, will be removed in v6.0
+              deprecated: true
+            paymentAmount:
+              type: number
+              description: Amount of the recurring payment. Deprecated, will be removed in v6.0
+              deprecated: true
+            paymentFrequency:
+              allOf:
+                - $ref: '#/components/schemas/PaymentFrequency'
+              description: >-
+                ANNUALLY, BIWEEKLY, DAILY, MONTHLY, SEMIANNUALLY, SEMIMONTHLY, WEEKLY. Deprecated, will be removed in v6.0
+              deprecated: true
+            paymentStartDate:
+              allOf:
+                - $ref: '#/components/schemas/Timestamp'
+              description: Date of first payment; could be a future date. Deprecated, will be removed in v6.0
+              deprecated: true
+            paymentEndDate:
+              allOf:
+                - $ref: '#/components/schemas/Timestamp'
+              description: Date last payment will be made. Deprecated, will be removed in v6.0
+              deprecated: true
+            totalPaymentCount:
+              type: number
+              description: Total number of payments that will be produced by the annuity. Deprecated, will be removed in v6.0
+              deprecated: true
+            netPresentValue:
+              type: number
+              description: Surrender or cash balance value. Deprecated, will be removed in v6.0
+              deprecated: true
+            annualIncrease:
+              type: number
+              description: Percent or dollar amount of annual payment increase. Deprecated, will be removed in v6.0
+              deprecated: true
+            annualIncreaseType:
+              allOf:
+                - $ref: '#/components/schemas/AnnualIncreaseType'
+              description: FIXED, PERCENT, DOLLAR. Deprecated, will be removed in v6.0
+              deprecated: true
+            periodCertainGuarantee:
+              allOf:
+                - $ref: '#/components/schemas/PeriodCertainGuarantee'
+              description: NONE, 5-YEAR, 10-YEAR, 20-YEAR, 30-YEAR. Deprecated, will be removed in v6.0
+              deprecated: true
+            payoutType:
+              $ref: '#/components/schemas/PayoutType'
+              description: Indicates type of payout such as immediate or deferred
+            policyProductType:
+              $ref: '#/components/schemas/PolicyProductType'
+              description: The type of annuity product, e.g. Fixed or Variable
+            payoutAmount:
+              type: number
+              description: Amount paid out, based on mode frequency
+            payoutMode:
+              $ref: '#/components/schemas/PayoutMode'
+              description: Frequency of annuity payments
+            payoutStartDate:
+              $ref: '#/components/schemas/DateString'
+              description: Date the payout starts
+            payoutEndDate:
+              $ref: '#/components/schemas/DateString'
+              description: Date the payout ends
+            numberModalPayouts:
+              type: integer
+              description: Total number of payouts
+            surrenderValue:
+              type: number
+              description: Cash surrender value (net) available if contract is surrendered
+            payoutChangePercentage:
+              type: number
+              description: Percentage of the accumulated value to be paid to the payee each year; used exclusive of payoutChangeAmount
+            payoutChangeAmount:
+              type: number
+              description: Incremental modal amount (positive or negative) by which the payout amount will be changed; used exclusive of payoutPercentage
+            periodCertainType:
+              $ref: '#/components/schemas/PeriodCertainType'
+              description: The number of modal periods comprising the duration of the certain period of an annuity payout
+
+    Bills:
+      title: Bills entity
+      description: The payments due on an account
+      type: object
+      properties:
+        totalPaymentDue:
+          type: number
+          description: >-
+            Total payment due or next payment due.  Monthly payment due for loans
+        minimumPaymentDue:
+          type: number
+          description: The minimum amount which is due
+        dueDate:
+          $ref: '#/components/schemas/DateString'
+          description: The date that the payment is due
+        autoPayEnabled:
+          type: boolean
+          description: Whether the user's bill is paid automatically
+        autoPayAmount:
+          type: number
+          description: The amount of money the user has set to autopay this bill
+        autoPayDate:
+          $ref: '#/components/schemas/DateString'
+          description: The date the autopayment is set to trigger for this bill
+        pastDueAmount:
+          type: number
+          description: >-
+            The amount that the user should have already paid. The value is negative if
+            user owes money
+        lastPaymentAmount:
+          type: number
+          description: The amount of the most recent payment
+        lastPaymentDate:
+          $ref: '#/components/schemas/DateString'
+          description: The date of most recent payment
+        statementBalance:
+          type: number
+          description: >-
+            The amount of the last statement.  The value is negative if the user owes money
+        statementDate:
+          $ref: '#/components/schemas/DateString'
+          description: The date the statement was issued
+
+    CardArt:
+      title: Card Art entity
+      description: Art associated with the card
+      type: object
+      properties:
+        label:
+          type: string
+          description: Display label for the specific image
+        imageUri:
+          type: string
+          format: uri
+          description: >-
+            The [URI](https://datatracker.ietf.org/doc/html/rfc2397) link
+            of a PNG, JPG or GIF image with proportions defined by
+            [ISO 8710 ID-1](https://en.wikipedia.org/wiki/ISO/IEC_7810) with 340x210 ratio and
+            width no greater than 512 pixels. The image at this URI must be accessible at all
+            times, with no additional authentication headers. Typically this is an image resource
+            located in the data provider's public web site or Content Delivery Network
+
+    Contribution:
+      title: Contribution entity
+      description: Contribution information to an investment account
+      type: object
+      properties:
+        securityId:
+          type: string
+          description: Unique identifier of security
+        securityIdType:
+          $ref: '#/components/schemas/SecurityIdType'
+          description: CUSIP, ISIN, SEDOL, SICC, VALOR, WKN
+        employerMatchPercentage:
+          type: number
+          description: Employer contribution match percentage
+        employerMatchAmount:
+          type: number
+          description: Employer contribution match amount
+        employeePreTaxAmount:
+          type: number
+          description: Employee pre-tax contribution amount
+        employeePreTaxPercentage:
+          type: number
+          description: Employee pre-tax contribution percentage
+        employeeAfterTaxAmount:
+          type: number
+          description: Employee after tax contribution amount
+        employeeAfterTaxPercentage:
+          type: number
+          description: Employee after tax contribution percentage
+        employeeDeferPreTaxAmount:
+          type: number
+          description: Employee defer pre-tax contribution match amount
+        employeeDeferPreTaxPercentage:
+          type: number
+          description: Employee defer pre-tax contribution match percentage
+        employeeYearToDate:
+          type: number
+          description: Employee total year to date contribution
+        employerYearToDate:
+          type: number
+          description: Employer total year to date contribution
+        rolloverContributionPercentage:
+          type: number
+          description: Rollover contribution percentage
+        rolloverContributionAmount:
+          type: number
+          description: Rollover contribution Amount
+
+    Currency:
+      title: Currency entity
+      description: Represents an international currency
+      type: object
+      properties:
+        currencyRate:
+          type: number
+          description: Currency rate between original and converted currency
+        currencyCode:
+          $ref: '#/components/schemas/Iso4217Code'
+          description: ISO 4217 currency code
+        originalCurrencyCode:
+          $ref: '#/components/schemas/Iso4217Code'
+          description: Original ISO 4217 currency code
+
+    DebtSecurity:
+      title: Debt Security entity
+      description: An investment in a debt security
+      type: object
+      properties:
+        parValue:
+          type: number
+          description: Par value amount
+        debtType:
+          $ref: '#/components/schemas/DebtType'
+          description: Debt type. One of COUPON, ZERO
+        debtClass:
+          $ref: '#/components/schemas/DebtClass'
+          description: Classification of debt. One of TREASURY, MUNICIPAL, CORPORATE, OTHER
+        couponRate:
+          type: number
+          description: Bond coupon rate for next closest call date
+        couponDate:
+          $ref: '#/components/schemas/DateString'
+          description: Maturity date for next coupon
+        couponMatureFrequency:
+          $ref: '#/components/schemas/CouponMatureFrequency'
+          description: When coupons mature. One of MONTHLY, QUARTERLY,  SEMIANNUAL, ANNUAL, OTHER
+        callPrice:
+          type: number
+          description: Bond call price
+        yieldToCall:
+          type: number
+          description: Yield to next call
+        callDate:
+          $ref: '#/components/schemas/DateString'
+          description: Next call date
+        callType:
+          $ref: '#/components/schemas/CallType'
+          description: Type of next call. One of CALL, PUT, PREFUND, MATURITY
+        yieldToMaturity:
+          type: number
+          description: Yield to maturity
+        bondMaturityDate:
+          $ref: '#/components/schemas/DateString'
+          description: Bond maturity date
+
+    DepositAccount:
+      title: Deposit Account entity
+      description: Information for a deposit account type
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Account'
+        - type: object
+          properties:
+            balanceAsOf:
+              description: As-of date of balances
+              $ref: '#/components/schemas/Timestamp'
+            currentBalance:
+              type: number
+              description: Balance of funds in account
+            openingDayBalance:
+              type: number
+              description: Day's opening fund balance
+            availableBalance:
+              type: number
+              description: Balance of funds available for use
+            annualPercentageYield:
+              type: number
+              description: Annual Percentage Yield
+            interestYtd:
+              type: number
+              description: YTD Interest
+            term:
+              type: integer
+              description: Term of CD in months
+            maturityDate:
+              description: Maturity date for CDs
+              $ref: '#/components/schemas/DateString'
+            transactions:
+              type: array
+              description: Transactions on the deposit account
+              items:
+                $ref: '#/components/schemas/DepositTransaction'
+
+    DepositTransaction:
+      title: Deposit Transaction entity
+      description: A transaction on a deposit account type
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Transaction'
+        - type: object
+          properties:
+            transactionType:
+              $ref: '#/components/schemas/DepositTransactionType'
+              description: >-
+                CHECK, WITHDRAWAL, TRANSFER, POSDEBIT, ATMWITHDRAWAL,
+                BILLPAYMENT, FEE, DEPOSIT, ADJUSTMENT, INTEREST,
+                DIVIDEND, DIRECTDEPOSIT, ATMDEPOSIT, POSCREDIT
+            payee:
+              $ref: '#/components/schemas/String255'
+              description: Payee name
+            checkNumber:
+              type: integer
+              description: Check number
+
+    FiPortion:
+      title: FI Portion entity
+      description: Financial Institution-specific asset allocation
+      type: object
+      properties:
+        assetClass:
+          type: string
+          description: Financial Institution-specific asset class
+        percent:
+          type: number
+          description: Percentage of asset class that falls under this asset
+
+    Holding:
+      title: Holding entity
+      description: A holding in an investment account
+      type: object
+      allOf:
+        - type: object
+          properties:
+            holdingId:
+              $ref: '#/components/schemas/Identifier'
+              description: Long term persistent identity of the holding
+            securityId:
+              description: Unique identifier of security
+              type: string
+            securityIdType:
+              $ref: '#/components/schemas/SecurityIdType'
+              description: CUSIP, ISIN, SEDOL, SICC, VALOR, WKN
+            holdingName:
+              type: string
+              description: Holding name or security name
+            holdingType:
+              $ref: '#/components/schemas/HoldingType'
+              description: STOCK, BOND, MUTUALFUND, CD, ANNUITY, OPTION, OTHER
+            holdingSubType:
+              $ref: '#/components/schemas/HoldingSubType'
+              description: MONEYMARKET, CASH
+            positionType:
+              $ref: '#/components/schemas/PositionType'
+              description: LONG, SHORT
+            heldInAccount:
+              $ref: '#/components/schemas/HeldInAccount'
+              description: Sub-account CASH, MARGIN, SHORT, OTHER
+            description:
+              type: string
+              description: The description of the holding
+            symbol:
+              type: string
+              description: Ticker / Market symbol
+            originalPurchaseDate:
+              $ref: '#/components/schemas/DateString'
+              description: Date of original purchase
+            purchasedPrice:
+              type: number
+              description: Price of holding at the time of purchase
+            currentUnitPrice:
+              type: number
+              description: Current unit price
+            changeInPrice:
+              type: number
+              description: Change in current price compared to previous day's close
+            currentUnitPriceDate:
+              $ref: '#/components/schemas/DateString'
+              description: Current unit price as of date
+            units:
+              type: number
+              description: Required for stock, mutual funds. Number of shares (with decimals)
+            marketValue:
+              type: number
+              description: Market value at the time of data retrieved
+            faceValue:
+              type: number
+              description: Required for bonds. Face value at the time of data retrieved
+            averageCost:
+              type: boolean
+              description: Cost is average of all purchases for holding
+            cashAccount:
+              type: boolean
+              description: >-
+                If true, indicates that this holding is used to maintain proceeds
+                from sales, dividends, and other cash postings to the investment account
+            rate:
+              type: number
+              description: For CDs, bonds, and other rate based holdings
+            expirationDate:
+              $ref: '#/components/schemas/DateString'
+              description: For CDs, bonds, and other time-based holdings
+            inv401kSource:
+              $ref: '#/components/schemas/Inv401kSourceType'
+              description: >-
+                Source for money for this security. One of PRETAX, AFTERTAX, MATCH,
+                PROFITSHARING, ROLLOVER, OTHERVEST, OTHERNONVEST
+            currency:
+              $ref: '#/components/schemas/Currency'
+              description: Currency information if it is different from Account entity
+            assetClasses:
+              type: array
+              description: Percent breakdown by asset class
+              items:
+                $ref: '#/components/schemas/Portion'
+            fiAssetClasses:
+              type: array
+              description: Percent breakdown by FI-specific asset class percentage breakdown
+              items:
+                $ref: '#/components/schemas/FiPortion'
+            fiAttributes:
+              type: array
+              description: Array of FI-specific attributes
+              items:
+                $ref: '#/components/schemas/FiAttribute'
+            taxLots:
+              type: array
+              description: Breakdown by tax lot
+              items:
+                $ref: '#/components/schemas/TaxLot'
+        - oneOf:
+            - type: object
+              properties:
+                mutualFundSecurity:
+                  $ref: '#/components/schemas/MutualFundSecurity'
+                  description: A mutual fund security
+            - type: object
+              properties:
+                optionSecurity:
+                  $ref: '#/components/schemas/OptionSecurity'
+                  description: An option security
+            - type: object
+              properties:
+                otherSecurity:
+                  $ref: '#/components/schemas/OtherSecurity'
+                  description: Another type of security
+            - type: object
+              properties:
+                stockSecurity:
+                  $ref: '#/components/schemas/StockSecurity'
+                  description: A stock security
+            - type: object
+              properties:
+                sweepSecurity:
+                  $ref: '#/components/schemas/SweepSecurity'
+                  description: A sweep security
+            - type: object
+              properties:
+                debtSecurity:
+                  $ref: '#/components/schemas/DebtSecurity'
+                  description: A debt security
+
+    InsuranceAccount:
+      title: Insurance Account entity
+      description: An insurance account type and properties such as category, premium,
+        and payment term information
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Account'
+        - type: object
+          properties:
+            accountCategory:
+              type: string
+              description: Category of account
+              enum:
+                - DEPOSIT_ACCOUNT
+                - INVESTMENT_ACCOUNT
+                - LOAN_ACCOUNT
+                - LOC_ACCOUNT
+                - INSURANCE_ACCOUNT
+            policyPremium:
+              type: number
+              description: The amount of the user's premium
+            policyPremiumTerm:
+              type: string
+              description: The payment term for the premium
+              enum:
+                - MONTHLY
+                - ANNUAL
+            policyStartDate:
+              $ref: '#/components/schemas/DateString'
+              description: The premium start date
+            policyStatus:
+              $ref: '#/components/schemas/PolicyStatus'
+              description: The status of an insurance policy account
+            policyEndDate:
+              $ref: '#/components/schemas/DateString'
+              description: The premium end date
+            policyCoverageAmount:
+              type: number
+              description: Total amount of money the user is insured for
+            transactions:
+              type: array
+              description: Transactions on the insurance account
+              items:
+                $ref: '#/components/schemas/InsuranceTransaction'
+            bills:
+              type: array
+              description: Payments due on the insurance account
+              items:
+                $ref: '#/components/schemas/Bills'
+
+    InsuranceTransaction:
+      title: Insurance Transaction entity
+      description: An insurance transaction type
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Transaction'
+        - type: object
+          properties:
+            transactionType:
+              type: string
+              description: Type of insurance transaction
+              enum:
+                - PAYMENT
+                - FEE
+                - ADJUSTMENT
+                - INTEREST
+
+    InvestmentAccount:
+      title: Investment Account entity
+      description: An investment account type and information such as balances, transactions,
+        holdings and privileges
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Account'
+        - type: object
+          properties:
+            balanceAsOf:
+              description: As-of date for balances
+              $ref: '#/components/schemas/Timestamp'
+            allowedCheckWriting:
+              type: boolean
+              description: Check writing privileges
+            allowedOptionTrade:
+              type: boolean
+              description: Allowed to trade options
+            currentValue:
+              type: number
+              description: Total current value of all investments
+            holdings:
+              type: array
+              description: Holdings in the investment account
+              items:
+                $ref: '#/components/schemas/Holding'
+            openOrders:
+              type: array
+              description: Open orders in the investment account
+              items:
+                $ref: '#/components/schemas/OpenOrder'
+            contribution:
+              type: array
+              description: >-
+                Describes how new contributions are distributed among the
+                available securities
+              items:
+                $ref: '#/components/schemas/Contribution'
+            vesting:
+              type: array
+              description: >-
+                Provides the past, present, and future vesting schedule and percentages
+              items:
+                $ref: '#/components/schemas/Vesting'
+            investmentLoans:
+              type: array
+              description: Investment loans in the account
+              items:
+                $ref: '#/components/schemas/InvestmentLoan'
+            availableCashBalance:
+              description: >-
+                Cash balance across all sub-accounts. Should include sweep funds
+              type: number
+            margin:
+              type: boolean
+              description: Margin trading is allowed
+            marginBalance:
+              type: number
+              description: Margin balance
+            shortBalance:
+              type: number
+              description: Short balance
+            rolloverAmount:
+              type: number
+              description: Rollover amount
+            employerName:
+              type: string
+              description: Name of the employer in investment 401k Plan
+            brokerId:
+              type: string
+              description: Unique identifier FI
+            planId:
+              type: string
+              description: Plan number for Investment 401k plan
+            calendaryearFor401K:
+              $ref: '#/components/schemas/Timestamp'
+              description: >-
+                Date for this calendar year for 401k account. Deprecated, renamed to
+                calendarYearFor401K, will be removed in FDX v6.0
+              deprecated: true
+            calendarYearFor401K:
+              type: integer
+              description: The calendar year for this 401k account
+            balanceList:
+              type: array
+              description: List of balances. Aggregate of name value pairs
+              items:
+                $ref: '#/components/schemas/InvestmentBalance'
+            dailyChange:
+              type: number
+              description: Daily change
+            percentageChange:
+              type: number
+              description: Percentage change
+            transactions:
+              type: array
+              description: Transactions on the investment account
+              items:
+                $ref: '#/components/schemas/InvestmentTransaction'
+            pensionSource:
+              type: array
+              description: Pension sources in the investment account
+              items:
+                $ref: '#/components/schemas/PensionSource'
+
+    InvestmentBalance:
+      title: Investment Balance entity
+      description: A point-in-time balance of the investment account
+      type: object
+      properties:
+        balanceName:
+          type: string
+          description: Name of the balance
+        balanceDescription:
+          type: string
+          description: Description of balance
+        balanceType:
+          $ref: '#/components/schemas/InvestmentBalanceType'
+          description: AMOUNT, PERCENTAGE
+        balanceValue:
+          type: number
+          description: Value of named balance
+        balanceDate:
+          $ref: '#/components/schemas/DateString'
+          description: Date as of this balance
+        currency:
+          $ref: '#/components/schemas/Currency'
+          description: Currency if different from that of account
+
+    InvestmentLoan:
+      title: Investment Loan entity
+      description: Any loan information against an investment account
+      type: object
+      properties:
+        loanId:
+          type: string
+          description: Unique identifier for this loan
+        loanDescription:
+          type: string
+          description: Description of loan
+        initialLoanBalance:
+          type: number
+          description: Initial loan balance amount
+        loanStartDate:
+          $ref: '#/components/schemas/DateString'
+          description: Start date of the loan
+        currentLoanBalance:
+          type: number
+          description: Current loan principal balance amount
+        dateAsOf:
+          $ref: '#/components/schemas/Timestamp'
+          description: Date and time of current loan balance
+        loanRate:
+          type: number
+          description: Loan annual interest rate for the loan
+        loanPaymentAmount:
+          type: number
+          description: Loan payment amount
+        loanPaymentFrequency:
+          $ref: '#/components/schemas/LoanPaymentFrequency'
+          description: >-
+            WEEKLY, BIWEEKLY, TWICEMONTHLY, MONTHLY, FOURWEEKS, BIMONTHLY,
+            QUARTERLY, SEMIANNUALLY, ANNUALLY, OTHER
+        loanPaymentInitial:
+          type: number
+          description: Initial number of loan payments
+        loanPaymentsRemaining:
+          type: integer
+          description: Remaining number of loan payments
+        loanMaturityDate:
+          $ref: '#/components/schemas/DateString'
+          description: Expected loan end date
+        loanInterestToDate:
+          type: number
+          description: Total interest paid to date on this loan
+        loanTotalProjectedInterest:
+          type: number
+          description: Total projected interest to be paid on this loan
+        loanNextPaymentDate:
+          $ref: '#/components/schemas/DateString'
+          description: The next payment date for the loan
+
+    InvestmentTransaction:
+      title: Investment Transaction entity
+      description: Specific transaction information
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Transaction'
+        - type: object
+          properties:
+            transactionType:
+              $ref: '#/components/schemas/InvestmentTransactionType'
+              description: >-
+                PURCHASED, SOLD, PURCHASEDTOCOVER, ADJUSTMENT, PURCHASETOOPEN, PURCHASETOCLOSE,
+                SOLDTOOPEN, SOLDTOCLOSE, INTEREST, MARGININTEREST, REINVESTOFINCOME, RETURNOFCAPITAL,
+                TRANSFER, CONTRIBUTION, FEE, OPTIONEXERCISE, OPTIONEXPIRATION, DIVIDEND, DIVIDENDREINVEST,
+                SPLIT, CLOSURE, INCOME, EXPENSE, CLOSUREOPT, INVEXPENSE, JRNLSEC, JRNLFUND, OTHER, DIV,
+                SRVCHG, DEP, DEPOSIT, ATM, POS, XFER, CHECK, PAYMENT, CASH, DIRECTDEP, DIRECTDEBIT, REPEATPMT
+            shares:
+              type: number
+              description: >-
+                Required for stock, mutual funds. Number of shares (with decimals).
+                Negative numbers indicate securities are being removed from the account
+            faceValue:
+              type: number
+              description: Cash value for bonds
+            price:
+              type: number
+              description: Unit purchase price
+            securityId:
+              type: string
+              description: Unique identifier of security
+            securityIdType:
+              $ref: '#/components/schemas/SecurityIdType'
+              description: CUSIP, ISIN, SEDOL, SICC, VALOR, WKN
+            securityType:
+              $ref: '#/components/schemas/SecurityType'
+              description: STOCK, MUTUALFUND, DEBT, OPTION, SWEEP, OTHER, BOND
+            symbol:
+              type: string
+              description: Ticker symbol
+            markup:
+              type: number
+              description: Portion of unit price that is attributed to the dealer markup
+            commission:
+              type: number
+              description: Transaction commission
+            taxes:
+              type: number
+              description: Taxes on the trade
+            fees:
+              type: number
+              description: Fees applied to the trade
+            load:
+              type: number
+              description: Load on the transaction
+            inv401kSource:
+              $ref: '#/components/schemas/Inv401kSourceType'
+              description: >-
+                Source of money. One of PRETAX, AFTERTAX, MATCH, PROFITSHARING, ROLLOVER,
+                OTHERVEST, OTHERNONVEST
+            confirmationNumber:
+              type: string
+              description: Confirmation number of the transaction
+            fractionalCash:
+              type: number
+              description: Cash for fractional units (used for stock splits)
+            incomeType:
+              $ref: '#/components/schemas/IncomeType'
+              description: >-
+                Type of investment income. One of CGLONG (capital gains-long term),
+                CGSHORT (capital gains-short term), MISC
+            oldUnits:
+              type: number
+              description: Number of shares before split
+            splitRatioNumerator:
+              type: number
+              description: Split ratio numerator
+            splitRatioDenominator:
+              type: number
+              description: Split ratio denominator
+            newUnits:
+              type: number
+              description: Number of shares after split
+            subAccountSec:
+              $ref: '#/components/schemas/SubAccountType'
+              description: Sub-account security Type. One of CASH, MARGIN, SHORT, OTHERS
+            subAccountFund:
+              $ref: '#/components/schemas/SubAccountType'
+              description: From which account money came in. One of CASH, MARGIN, SHORT, OTHERS
+            loanId:
+              type: string
+              description: For 401k accounts only. This indicates the transaction was due to a loan or
+                a loan repayment
+            loanPrincipal:
+              type: number
+              description: How much loan pre-payment is principal
+            loanInterest:
+              type: number
+              description: How much loan pre-payment is interest
+            payrollDate:
+              $ref: '#/components/schemas/DateString'
+              description: The date for the 401k transaction was obtained in payroll
+            priorYearContrib:
+              type: boolean
+              description: Indicates this buy was made using prior year's contribution
+            withholding:
+              type: number
+              description: Federal tax withholding
+            taxExempt:
+              type: boolean
+              description: Tax-exempt transaction
+            gain:
+              type: number
+              description: For sales
+            stateWithholding:
+              type: number
+              description: State tax withholding
+            penalty:
+              type: number
+              description: Indicates amount withheld due to a penalty
+            runningBalance:
+              type: number
+              description: Running balance of the position
+            unitPrice:
+              type: number
+              description: >-
+                Price per commonly-quoted unit. Does not include
+                markup/markdown, unitprice. Share price for stocks, mutual
+                funds, and others. Percentage of par for bonds. Per share (not
+                contract) for options
+            units:
+              type: number
+              description: >-
+                For security-based actions other than stock splits, quantity.
+                Shares for stocks, mutual funds, and others. Face value for bonds.
+                Contracts for options
+            unitType:
+              $ref: '#/components/schemas/UnitType'
+              description: SHARES, CURRENCY
+            transactionReason:
+              $ref: '#/components/schemas/TransactionReason'
+              description: >-
+                Reason for this transaction; CALL (the debt was called), SELL
+                (the debt was sold), MATURITY (the debt reached maturity)
+            accruedInterest:
+              type: number
+              description: Accrued interest
+            transferAction:
+              type: string
+              description: Transfer direction
+              enum:
+                - IN
+                - OUT
+            positionType:
+              $ref: '#/components/schemas/PositionType'
+              description: LONG, SHORT
+
+    LineItem:
+      title: Line Item entity
+      description: A line item within a transaction
+      type: object
+      properties:
+        description:
+          type: string
+          description: The description of the line item
+        amount:
+          type: number
+          description: The amount of money attributable to this line item
+        checkNumber:
+          type: integer
+          description: Check number
+        memo:
+          $ref: '#/components/schemas/String255'
+          description: Secondary item description
+        reference:
+          type: string
+          description: A reference number
+        imageIds:
+          type: array
+          description: >-
+            Array of image identifiers (unique to transaction) used to retrieve
+            images of check or transaction receipt
+          items:
+            type: string
+        links:
+          $ref: '#/components/schemas/HateoasLinks'
+          description: >-
+            Links (unique to this Transaction) used to retrieve images of
+            checks or transaction receipts, or invoke other APIs
+
+    LoanAccount:
+      title: Loan Account entity
+      description: A loan account type
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Account'
+        - type: object
+          properties:
+            balanceAsOf:
+              $ref: '#/components/schemas/Timestamp'
+              description: As-of date for balances
+            principalBalance:
+              type: number
+              description: Principal balance of loan
+            escrowBalance:
+              type: number
+              description: Escrow balance of loan
+            originalPrincipal:
+              type: number
+              description: Original principal of loan
+            originatingDate:
+              $ref: '#/components/schemas/DateString'
+              description: Loan origination date
+            loanTerm:
+              type: integer
+              description: Term of loan in months
+            totalNumberOfPayments:
+              type: integer
+              description: Total number of payments
+            nextPaymentAmount:
+              type: number
+              description: Amount of next payment
+            nextPaymentDate:
+              $ref: '#/components/schemas/DateString'
+              description: Date of next payment
+            paymentFrequency:
+              $ref: '#/components/schemas/PaymentFrequency'
+              description: DAILY, WEEKLY, BIWEEKLY, SEMIMONTHLY, MONTHLY, SEMIANNUALLY, ANNUALLY
+            compoundingPeriod:
+              $ref: '#/components/schemas/CompoundingPeriod'
+              description: DAILY, WEEKLY, BIWEEKLY, SEMIMONTHLY, MONTHLY, SEMIANNUALLY, ANNUALLY
+            payOffAmount:
+              type: number
+              description: Payoff amount
+            lastPaymentAmount:
+              type: number
+              description: Last payment amount
+            lastPaymentDate:
+              $ref: '#/components/schemas/DateString'
+              description: Last payment date
+            maturityDate:
+              $ref: '#/components/schemas/DateString'
+              description: Maturity date
+            interestPaidYearToDate:
+              type: number
+              description: Interest paid year to date
+            transactions:
+              type: array
+              description: Transactions on the loan account
+              items:
+                $ref: '#/components/schemas/LoanTransaction'
+
+    LoanTransaction:
+      title: Loan Transaction entity
+      description: A transaction on a loan account
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Transaction'
+        - type: object
+          properties:
+            transactionType:
+              $ref: '#/components/schemas/LoanTransactionType'
+              description: PAYMENT, FEE, ADJUSTMENT, INTEREST
+            paymentDetails:
+              $ref: '#/components/schemas/PaymentDetails'
+              description: Breakdown of payment details
+
+    LocAccount:
+      title: Line-Of-Credit Account entity
+      description: A line-of-credit account
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Account'
+        - type: object
+          properties:
+            balanceAsOf:
+              $ref: '#/components/schemas/Timestamp'
+              description: As-of date for balances
+            creditLine:
+              type: number
+              description: Credit limit
+            availableCredit:
+              type: number
+              description: Available credit
+            nextPaymentAmount:
+              type: number
+              description: Amount of next payment
+            nextPaymentDate:
+              $ref: '#/components/schemas/DateString'
+              description: Due date of next payment
+            principalBalance:
+              type: number
+              description: Principal balance
+            currentBalance:
+              type: number
+              description: Current balance of the line of credit
+            minimumPaymentAmount:
+              type: number
+              description: Minimum payment amount
+            lastPaymentAmount:
+              type: number
+              description: Last payment amount
+            lastPaymentDate:
+              $ref: '#/components/schemas/DateString'
+              description: Last payment date
+            pastDueAmount:
+              type: number
+              description: Past Due Amount
+            lastStmtBalance:
+              type: number
+              description: Last Statement Balance
+            lastStmtDate:
+              $ref: '#/components/schemas/DateString'
+              description: Last Statement Date
+            purchasesApr:
+              type: number
+              description: Purchases APR
+            advancesApr:
+              type: number
+              description: Advances APR
+            cashAdvanceLimit:
+              type: number
+              description: Cash advance limit
+            availableCash:
+              type: number
+              description: Available cash
+            financeCharges:
+              type: number
+              description: Finance charges
+            cardNetwork:
+              type: string
+              description: Card network, e.g. "VISA", "MASTERCARD", "AMERICAN_EXPRESS", "DISCOVER", "INTERLINK", "STAR" etc.
+            cardArt:
+              $ref: '#/components/schemas/CardArt'
+              description: Any Art associated to the Card related to the account
+            transactions:
+              type: array
+              description: Transactions on the line-of-credit account
+              items:
+                $ref: '#/components/schemas/LocTransaction'
+
+    LocTransaction:
+      title: Line-Of-Credit Transaction entity
+      description: A line-of-credit transaction
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Transaction'
+        - type: object
+          properties:
+            transactionType:
+              $ref: '#/components/schemas/LocTransactionType'
+              description: CHECK, WITHDRAWAL, PAYMENT, FEE, ADJUSTMENT, INTEREST
+            checkNumber:
+              type: integer
+              description: Check number
+            paymentDetails:
+              $ref: '#/components/schemas/PaymentDetails'
+              description: Breakdown of payment details
+
+    MutualFundSecurity:
+      title: Mutual Fund Security entity
+      description: A mutual fund
+      type: object
+      properties:
+        mutualFundType:
+          $ref: '#/components/schemas/MutualFundType'
+          description: Mutual fund type. One of OPENEND, CLOSEEND, OTHER
+        unitsStreet:
+          type: number
+          description: Units in the FI's street name, positive quantity
+        unitsUser:
+          type: number
+          description: Units in user's name directly, positive  quantity
+        reinvestDividends:
+          type: boolean
+          description: Reinvest dividends
+        reinvestCapitalGains:
+          type: boolean
+          description: Reinvest capital gains
+        yield:
+          type: number
+          description: Current yield reported as portion of the fund's assets
+        yieldAsOfDate:
+          $ref: '#/components/schemas/DateString'
+          description: As-of date for yield value
+
+    OpenOrder:
+      title: Open Order entity
+      description: An open investment transaction order
+      type: object
+      properties:
+        orderId:
+          $ref: '#/components/schemas/Identifier'
+          description: Long‐term persistent identity of the order. Id for this order transaction
+        securityId:
+          type: string
+          description: Unique identifier of security
+        securityIdType:
+          $ref: '#/components/schemas/SecurityIdType'
+          description: CUSIP, ISIN, SEDOL, SICC, VALOR, WKN
+        symbol:
+          type: string
+          description: Market symbol
+        description:
+          type: string
+          description: Description of order
+        units:
+          type: number
+          description: Number of units (shares or bonds etc.)
+        orderType:
+          $ref: '#/components/schemas/OrderType'
+          description: >-
+            Type of order. One of BUY, SELL, BUYTOCOVER, BUYTOOPEN, SELLTOCOVER,
+            SELLTOOPEN,  SELLSHORT, SELLCLOSE
+        orderDate:
+          $ref: '#/components/schemas/DateString'
+          description: Order date
+        unitPrice:
+          type: number
+          description: Unit price
+        unitType:
+          $ref: '#/components/schemas/UnitType'
+          description: Type of unit. One of SHARES, CURRENCY
+        orderDuration:
+          $ref: '#/components/schemas/OrderDuration'
+          description: This order is good for DAY, GOODTILLCANCEL, IMMEDIATE
+        subAccount:
+          $ref: '#/components/schemas/SubAccountType'
+          description: CASH, MARGIN, SHORT, OTHER
+        limitPrice:
+          type: number
+          description: Limit price
+        stopPrice:
+          type: number
+          description: Stop price
+        inv401kSource:
+          $ref: '#/components/schemas/Inv401kSourceType'
+          description: >-
+            For 401(k) accounts, source of money for this order. PRETAX,
+            AFTERTAX, MATCH, PROFITSHARING, ROLLOVER, OTHERVEST, OTHERNONVEST.
+            Default if not present is OTHERNONVEST
+
+    OptionSecurity:
+      title: Option Security entity
+      description: An option
+      type: object
+      properties:
+        secured:
+          $ref: '#/components/schemas/Secured'
+          description: How the option is secured. One of NAKED, COVERED
+        optionType:
+          $ref: '#/components/schemas/OptionType'
+          description: Option type. One of PUT, CALL
+        strikePrice:
+          type: number
+          description: Strike price / Unit price
+        expireDate:
+          $ref: '#/components/schemas/DateString'
+          description: Expiration date of option
+        sharesPerContract:
+          type: number
+          description: Shares per contract
+
+    OtherSecurity:
+      title: Other Security entity
+      description: Any other kind of security
+      type: object
+      properties:
+        typeDescription:
+          type: string
+          description: Description of other security
+
+    PensionSource:
+      title: Pension Source entity
+      description: The source of pension funds
+      type: object
+      properties:
+        displayName:
+          type: string
+          description: Name of the source
+        amount:
+          type: number
+          description: Benefit Amount
+        paymentOption:
+          type: string
+          description: Form of payment
+        asOfDate:
+          $ref: '#/components/schemas/DateString'
+          description: Date benefit was calculated
+        frequency:
+          $ref: '#/components/schemas/PaymentFrequency'
+          description: ANNUALLY, BIWEEKLY, DAILY, MONTHLY, SEMIANNUALLY, SEMIMONTHLY, WEEKLY
+        startDate:
+          $ref: '#/components/schemas/DateString'
+          description: Assumed retirement date. As of date amount is payable
+
+    Portion:
+      title: Portion entity
+      description: An asset allocation with class and percentage
+      type: object
+      properties:
+        assetClass:
+          $ref: '#/components/schemas/AssetClass'
+          description: The asset class for this allocation
+        percent:
+          type: number
+          description: The percentage of this allocation
+
+    RewardBalance:
+      title: Reward Balance entity
+      description: Reward program balance
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name used to denominate the balance
+        type:
+          $ref: '#/components/schemas/RewardType'
+          description: The type of the reward balance - CASHBACK, MILES, POINTS
+        balance:
+          type: number
+          description: Total units available for redemption at time of download
+        accruedYtd:
+          type: number
+          description: Total units accrued in the current program year at time of download
+          minimum: 0
+        redeemedYtd:
+          type: number
+          description: Total units redeemed in the current program year at time of download
+          minimum: 0
+        qualifying:
+          type: boolean
+          description: Balance used for qualifying purposes
+          default: false
+        fiAttributes:
+          type: array
+          description: Array of FI-specific attributes
+          items:
+            $ref: '#/components/schemas/FiAttribute'
+
+    RewardCategory:
+      title: Reward Category entity
+      description: Reward category used to calculate rewards on a transaction
+      type: object
+      properties:
+        rewardProgramId:
+          $ref: '#/components/schemas/Identifier'
+          description: Long term persistent identity of the reward program
+        categoryName:
+          type: string
+          description: Reward category name
+        categoryId:
+          $ref: '#/components/schemas/Identifier'
+          description: Long term persistent identity of the reward category
+        multiplier:
+          type: number
+          description: Factor used to calculate rewards accrued
+          minimum: 0
+        description:
+          type: string
+          description: Description of the reward category
+        fiAttributes:
+          type: array
+          description: Array of FI-specific attributes
+          items:
+            $ref: '#/components/schemas/FiAttribute'
+
+    RewardCategories:
+      title: Reward Categories entity
+      description: An optionally paginated array of reward categories
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedArray'
+        - type: object
+          properties:
+            rewardCategories:
+              description: Array of reward categories
+              type: array
+              items:
+                $ref: '#/components/schemas/RewardCategory'
+              uniqueItems: true
+
+    RewardMembership:
+      title: Reward Program Membership entity
+      description: Details of a single membership in a reward programs
+      type: object
+      properties:
+        accountIds:
+          type: array
+          description: accountIds associated to the reward program
+          items:
+            $ref: '#/components/schemas/Identifier'
+          uniqueItems: true
+        customerId:
+          $ref: '#/components/schemas/Identifier'
+          description: Long-term persistent identity of the associated Customer
+        memberId:
+          $ref: '#/components/schemas/Identifier'
+          description: Long term persistent identity of the program member
+        memberNumber:
+          type: string
+          description: Reward program membership number
+        memberTier:
+          type: string
+          description: If the reward program is tiered, member's current tier
+        businessOrConsumer:
+          $ref: '#/components/schemas/BusinessOrConsumer'
+          description: BUSINESS or CONSUMER membership
+        balances:
+          type: array
+          description: Array of balances
+          items:
+            $ref: '#/components/schemas/RewardBalance'
+          minItems: 1
+
+    RewardProgram:
+      title: Reward Program entity
+      description: Reward program detail
+      type: object
+      properties:
+        programId:
+          $ref: '#/components/schemas/Identifier'
+          description: Long term persistent identity of the reward program
+        programName:
+          type: string
+          description: Name of reward program
+        programUrl:
+          type: string
+          description: URL of reward program
+        memberships:
+          description: Array of reward memberships
+          type: array
+          items:
+            $ref: '#/components/schemas/RewardMembership'
+        fiAttributes:
+          type: array
+          description: Array of FI-specific attributes
+          items:
+            $ref: '#/components/schemas/FiAttribute'
+
+    RewardPrograms:
+      title: Reward Programs entity
+      description: An optionally paginated array of reward programs
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedArray'
+        - type: object
+          properties:
+            rewardPrograms:
+              description: Array of reward programs
+              type: array
+              items:
+                $ref: '#/components/schemas/RewardProgram'
+
+    Statement:
+      title: Statement entity
+      description: An account statement
+      type: object
+      properties:
+        accountId:
+          $ref: '#/components/schemas/Identifier'
+          description: Corresponds to accountId in Account entity
+        statementId:
+          $ref: '#/components/schemas/Identifier'
+          description: Long-term persistent identity of the statement
+        statementDate:
+          $ref: '#/components/schemas/DateString'
+          description: Date of the statement
+        description:
+          type: string
+          description: Description of statement
+        links:
+          $ref: '#/components/schemas/HateoasLinks'
+          description: The links to retrieve this account statement, or to invoke other APIs
+
+    Statements:
+      title: An array of statements
+      description: A paginated array of account statements
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedArray'
+        - type: object
+          properties:
+            statements:
+              type: array
+              description: An array of Statement, each with its HATEOAS link to retrieve the account statement
+              items:
+                $ref: '#/components/schemas/Statement'
+
+    StockSecurity:
+      title: Stock Security entity
+      description: A stock security
+      type: object
+      properties:
+        unitsStreet:
+          type: number
+          description: The units in the FI's street name as a positive quantity
+        unitsUser:
+          type: number
+          description: The units in user's name directly as a positive quantity
+        reinvestDividends:
+          type: boolean
+          description: Selection to reinvest dividends
+        stockType:
+          $ref: '#/components/schemas/StockType'
+          description: COMMON, PREFERRED, CONVERTIBLE, OTHER
+        yield:
+          type: number
+          description: The current yield
+        yieldAsOfDate:
+          $ref: '#/components/schemas/DateString'
+          description: Yield as-of date
+
+    SweepSecurity:
+      title: Sweep Security entity
+      description: A sweep security
+      type: object
+      properties:
+        currentBalance:
+          type: number
+          description: Balance of funds in account
+        availableBalance:
+          type: number
+          description: Balance of funds available for use
+        balanceAsOf:
+          $ref: '#/components/schemas/Timestamp'
+          description: As-of date of balances
+        checks:
+          type: boolean
+          description: Whether or not checks can be written on the account
+
+    TaxLot:
+      title: Tax Lot entity
+      description: Block of securities receiving the same tax treatment
+      type: object
+      properties:
+        originalPurchaseDate:
+          $ref: '#/components/schemas/DateString'
+          description: Lot acquired date
+        quantity:
+          type: number
+          description: Lot quantity
+        purchasedPrice:
+          type: number
+          description: Original purchase price
+        costBasis:
+          type: number
+          description: >-
+            Total amount of money spent acquiring this lot including any fees or
+            commission expenses incurred
+        currentValue:
+          type: number
+          description: Lot market value
+        positionType:
+          $ref: '#/components/schemas/PositionType'
+          description: LONG, SHORT
+
+    Transaction:
+      title: Transaction
+      description: Base entity for financial transactions
+      type: object
+      properties:
+        accountId:
+          description: Corresponds to AccountId in Account
+          $ref: '#/components/schemas/Identifier'
+        transactionId:
+          description: Long term persistent identity of the transaction (unique to account)
+          $ref: '#/components/schemas/Identifier'
+        referenceTransactionId:
+          description: >-
+            For reverse postings, the identity of the transaction being
+            reversed. For the correction transaction, the identity of the
+            reversing post. For credit card posting transactions, the identity
+            of the authorization transaction
+          $ref: '#/components/schemas/Identifier'
+        postedTimestamp:
+          description: >-
+            The date and time that the transaction was posted to the account. If
+            not provided then TransactionTimestamp can be used as
+            PostedTimeStamp
+          $ref: '#/components/schemas/Timestamp'
+        transactionTimestamp:
+          description: >-
+            The date and time that the transaction was added to the server
+            backend systems
+          $ref: '#/components/schemas/Timestamp'
+        description:
+          type: string
+          description: The description of the transaction
+        memo:
+          $ref: '#/components/schemas/String255'
+          description: Secondary transaction description
+        debitCreditMemo:
+          $ref: '#/components/schemas/DebitCreditMemo'
+          description: DEBIT, CREDIT, MEMO
+        category:
+          type: string
+          description: 'Transaction category, preferably MCC or SIC.'
+        subCategory:
+          type: string
+          description: Transaction category detail
+        reference:
+          type: string
+          description: A tracking reference identifier
+        status:
+          $ref: '#/components/schemas/TransactionStatus'
+          description: PENDING, MEMO, POSTED, AUTHORIZATION
+        amount:
+          type: number
+          description: The amount of money in the account currency
+        foreignAmount:
+          type: number
+          description: The amount of money in the foreign currency
+        foreignCurrency:
+          $ref: '#/components/schemas/Iso4217Code'
+          description: The ISO 4217 code of the foreign currency
+        imageIds:
+          type: array
+          items:
+            type: string
+          description: >-
+             Array of Image Identifiers (unique to this transaction) used to retrieve Images of
+             check or transaction receipt
+        lineItem:
+          type: array
+          description: Breakdown of the transaction details
+          items:
+            $ref: '#/components/schemas/LineItem'
+        reward:
+          $ref: '#/components/schemas/TransactionReward'
+          description: Rewards earned with this transaction
+        fiAttributes:
+          type: array
+          description: Array of FI-specific attributes
+          items:
+            $ref: '#/components/schemas/FiAttribute'
+        links:
+          $ref: '#/components/schemas/HateoasLinks'
+          description: >-
+            Links (unique to this transaction) used to retrieve images of
+            checks or transaction receipts
+
+    Transactions:
+      title: Transactions entity
+      description: Optionally paginated array of transactions
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedArray'
+        - type: object
+          properties:
+            transactions:
+              description: >-
+                An array of transactions with entity type dependent on the
+                account type (deposit, loan, line of credit, investment or insurance)
+              type: array
+              items:
+                oneOf:
+                  - type: object
+                    properties:
+                      depositTransaction:
+                        $ref: '#/components/schemas/DepositTransaction'
+                        description: A deposit transaction
+                  - type: object
+                    properties:
+                      loanTransaction:
+                        $ref: '#/components/schemas/LoanTransaction'
+                        description: A loan transaction
+                  - type: object
+                    properties:
+                      locTransaction:
+                        $ref: '#/components/schemas/LocTransaction'
+                        description: A line-of-credit transaction
+                  - type: object
+                    properties:
+                      investmentTransaction:
+                        $ref: '#/components/schemas/InvestmentTransaction'
+                        description: An investment transaction
+                  - type: object
+                    properties:
+                      insuranceTransaction:
+                        $ref: '#/components/schemas/InsuranceTransaction'
+                        description: An insurance transaction
+
+    TransactionReward:
+      title: Transaction Reward entity
+      description: Rewards earned on a transaction
+      type: object
+      properties:
+        categoryId:
+          $ref: '#/components/schemas/Identifier'
+          description: >-
+            Long term persistent identity of the reward category.
+            This ID is mapped to a category definition returned by calling
+            the getRewardProgramCategories operation
+        accrued:
+          type: number
+          description: Reward units accrued on this transaction
+        adjusted:
+          type: number
+          description: Reward units adjusted on this transaction
+
+    Vesting:
+      title: Vesting entity
+      description: Represents the vesting of ownership of an investment account
+      type: object
+      properties:
+        vestingDate:
+          $ref: '#/components/schemas/DateString'
+          description: Vesting date
+        symbol:
+          type: string
+          description: Security symbol
+        strikePrice:
+          type: number
+          description: Strike price
+        vestingPercentage:
+          type: number
+          description: Vesting percentage
+        otherVestAmount:
+          type: number
+          description: Other vested amount
+        otherVestPercentage:
+          type: number
+          description: Other vested percentage
+        vestedBalance:
+          type: number
+          description: Vested balance
+        unVestedBalance:
+          type: number
+          description: Unvested balance
+        vestedQuantity:
+          type: number
+          description: Vested quantity
+        unVestedQuantity:
+          type: number
+          description: Unvested quantity
+    ############################################################
+    #
+    # Shared data types (usable by core and all extensions)
+    #
+    ############################################################
+
+    AccountHolderRelationship:
+      title: Account Holder Relationship
+      description: Types of relationships between accounts and holders. Suggested values
+      type: string
+      enum:
+        - AUTHORIZED_USER
+        - BUSINESS
+        - FOR_BENEFIT_OF
+        - FOR_BENEFIT_OF_PRIMARY
+        - FOR_BENEFIT_OF_PRIMARY_JOINT_RESTRICTED
+        - FOR_BENEFIT_OF_SECONDARY
+        - FOR_BENEFIT_OF_SECONDARY_JOINT_RESTRICTED
+        - FOR_BENEFIT_OF_SOLE_OWNER_RESTRICTED
+        - POWER_OF_ATTORNEY
+        - PRIMARY_JOINT_TENANTS
+        - PRIMARY
+        - PRIMARY_BORROWER
+        - PRIMARY_JOINT
+        - SECONDARY
+        - SECONDARY_JOINT_TENANTS
+        - SECONDARY_BORROWER
+        - SECONDARY_JOINT
+        - SOLE_OWNER
+        - TRUSTEE
+        - UNIFORM_TRANSFER_TO_MINOR
+
+    ContentTypes:
+      title: Content Types
+      description: Types of document formats. (Suggested values)
+      type: string
+      enum:
+        - application/pdf
+        - image/gif
+        - image/jpeg
+        - image/tiff
+        - image/png
+        - application/json
+
+    DateString:
+      title: Date String
+      description: >-
+        ISO 8601 full-date in format 'YYYY-MM-DD' according
+        to [IETF RFC3339](https://xml2rfc.tools.ietf.org/public/rfc/html/rfc3339.html#anchor14)
+      type: string
+      format: date
+      maxLength: 10
+      example: '2021-07-15'
+
+    DeliveryAddressType:
+      title: Delivery Address Type
+      description: The location type of an address
+      type: string
+      enum:
+        - BUSINESS
+        - HOME
+        - MAILING
+
+    FdxVersion:
+      title: FDX Version
+      description: The list of prior and current FDX major and minor versions.
+      type: string
+      enum:
+        - V1.0
+        - V2.0
+        - V2.1
+        - V3.0
+        - V4.0
+        - V4.1
+        - V4.2
+        - V4.5
+        - V4.6
+        - V5.0
+
+    HateoasLinks:
+      title: HATEOAS Links array
+      description: Links relative to this containing entity
+      type: array
+      items:
+        $ref: '#/components/schemas/HateoasLink'
+
+    Identifier:
+      title: Identifier
+      description: Value for a unique identifier
+      type: string
+      maxLength: 256
+
+    Iso3166CountryCode:
+      title: ISO 3166 Country Code
+      description: ISO 3166 Codes for the representation of names of countries and their subdivisions
+      type: string
+      enum:
+        - AD
+        - AE
+        - AF
+        - AG
+        - AI
+        - AL
+        - AM
+        - AN
+        - AO
+        - AQ
+        - AR
+        - AS
+        - AT
+        - AU
+        - AW
+        - AX
+        - AZ
+        - BA
+        - BB
+        - BD
+        - BE
+        - BF
+        - BG
+        - BH
+        - BI
+        - BJ
+        - BM
+        - BN
+        - BO
+        - BR
+        - BS
+        - BT
+        - BV
+        - BW
+        - BY
+        - BZ
+        - CA
+        - CC
+        - CD
+        - CF
+        - CG
+        - CH
+        - CI
+        - CK
+        - CL
+        - CM
+        - CN
+        - CO
+        - CR
+        - CS
+        - CU
+        - CV
+        - CX
+        - CY
+        - CZ
+        - DE
+        - DJ
+        - DK
+        - DM
+        - DO
+        - DZ
+        - EC
+        - EE
+        - EG
+        - EH
+        - ER
+        - ES
+        - ET
+        - FI
+        - FJ
+        - FK
+        - FM
+        - FO
+        - FR
+        - GA
+        - GB
+        - GD
+        - GE
+        - GF
+        - GG
+        - GH
+        - GI
+        - GL
+        - GM
+        - GN
+        - GP
+        - GQ
+        - GR
+        - GS
+        - GT
+        - GU
+        - GW
+        - GY
+        - HK
+        - HM
+        - HN
+        - HR
+        - HT
+        - HU
+        - ID
+        - IE
+        - IL
+        - IM
+        - IN
+        - IO
+        - IQ
+        - IR
+        - IS
+        - IT
+        - JE
+        - JM
+        - JO
+        - JP
+        - KE
+        - KG
+        - KH
+        - KI
+        - KM
+        - KN
+        - KP
+        - KR
+        - KW
+        - KY
+        - KZ
+        - LA
+        - LB
+        - LC
+        - LI
+        - LK
+        - LR
+        - LS
+        - LT
+        - LU
+        - LV
+        - LY
+        - MA
+        - MC
+        - MD
+        - MG
+        - MH
+        - MK
+        - ML
+        - MM
+        - MN
+        - MO
+        - MP
+        - MQ
+        - MR
+        - MS
+        - MT
+        - MU
+        - MV
+        - MW
+        - MX
+        - MY
+        - MZ
+        - NA
+        - NC
+        - NE
+        - NF
+        - NG
+        - NI
+        - NL
+        - 'NO'
+        - NP
+        - NR
+        - NU
+        - NZ
+        - OM
+        - PA
+        - PE
+        - PF
+        - PG
+        - PH
+        - PK
+        - PL
+        - PM
+        - PN
+        - PR
+        - PS
+        - PT
+        - PW
+        - PY
+        - QA
+        - RE
+        - RO
+        - RU
+        - RW
+        - SA
+        - SB
+        - SC
+        - SD
+        - SE
+        - SG
+        - SH
+        - SI
+        - SJ
+        - SK
+        - SL
+        - SM
+        - SN
+        - SO
+        - SR
+        - ST
+        - SV
+        - SY
+        - SZ
+        - TC
+        - TD
+        - TF
+        - TG
+        - TH
+        - TJ
+        - TK
+        - TL
+        - TM
+        - TN
+        - TO
+        - TR
+        - TT
+        - TV
+        - TW
+        - TZ
+        - UA
+        - UG
+        - UM
+        - US
+        - UY
+        - UZ
+        - VA
+        - VC
+        - VE
+        - VG
+        - VI
+        - VN
+        - VU
+        - WF
+        - WS
+        - YE
+        - YT
+        - ZA
+        - ZM
+        - ZW
+
+    Iso4217Code:
+      title: ISO 4217 Code
+      description: ISO 4217 Currency codes
+      type: string
+      enum:
+        - AED
+        - AFN
+        - ALL
+        - AMD
+        - ANG
+        - AOA
+        - ARS
+        - AUD
+        - AWG
+        - AZN
+        - BAM
+        - BBD
+        - BDT
+        - BGN
+        - BHD
+        - BIF
+        - BMD
+        - BND
+        - BOB
+        - BOV
+        - BRL
+        - BSD
+        - BTN
+        - BWP
+        - BYR
+        - BZD
+        - CAD
+        - CDF
+        - CHE
+        - CHF
+        - CHW
+        - CLF
+        - CLP
+        - CNY
+        - COP
+        - COU
+        - CRC
+        - CUC
+        - CUP
+        - CVE
+        - CZK
+        - DJF
+        - DKK
+        - DOP
+        - DZD
+        - EGP
+        - ERN
+        - ETB
+        - EUR
+        - FJD
+        - FKP
+        - GBP
+        - GEL
+        - GHS
+        - GIP
+        - GMD
+        - GNF
+        - GTQ
+        - GYD
+        - HKD
+        - HNL
+        - HRK
+        - HTG
+        - HUF
+        - IDR
+        - ILS
+        - INR
+        - IQD
+        - IRR
+        - ISK
+        - JMD
+        - JOD
+        - JPY
+        - KES
+        - KGS
+        - KHR
+        - KMF
+        - KPW
+        - KRW
+        - KWD
+        - KYD
+        - KZT
+        - LAK
+        - LBP
+        - LKR
+        - LRD
+        - LSL
+        - LYD
+        - MAD
+        - MDL
+        - MGA
+        - MKD
+        - MMK
+        - MNT
+        - MOP
+        - MRO
+        - MUR
+        - MVR
+        - MWK
+        - MXN
+        - MXV
+        - MYR
+        - MZN
+        - NAD
+        - NGN
+        - NIO
+        - NOK
+        - NPR
+        - NZD
+        - OMR
+        - PAB
+        - PEN
+        - PGK
+        - PHP
+        - PKR
+        - PLN
+        - PYG
+        - QAR
+        - RON
+        - RSD
+        - RUB
+        - RWF
+        - SAR
+        - SBD
+        - SCR
+        - SDG
+        - SEK
+        - SGD
+        - SHP
+        - SLL
+        - SOS
+        - SRD
+        - SSP
+        - STD
+        - SVC
+        - SYP
+        - SZL
+        - THB
+        - TJS
+        - TMT
+        - TND
+        - TOP
+        - TRY
+        - TTD
+        - TWD
+        - TZS
+        - UAH
+        - UGX
+        - USD
+        - USN
+        - UYI
+        - UYU
+        - UZS
+        - VEF
+        - VND
+        - VUV
+        - WST
+        - XAF
+        - XAG
+        - XAU
+        - XBA
+        - XBB
+        - XBC
+        - XBD
+        - XCD
+        - XDR
+        - XOF
+        - XPD
+        - XPF
+        - XPT
+        - XSU
+        - XTS
+        - XUA
+        - XXX
+        - YER
+        - ZAR
+        - ZMW
+        - ZWL
+
+    MessageFormat:
+      title: Message Format
+      description: Message format used in /capability API
+      type: string
+      enum:
+        - JSON
+
+    PartyRegistry:
+      title: Party Registry
+      description: The registry containing the party’s registration with name and id
+      type: string
+      enum:
+        - FDX
+        - GLEIF
+        - ICANN
+        - PRIVATE
+
+    PartyType:
+      title: Party Type
+      description: Identifies the type of a party
+      type: string
+      enum:
+        - DATA_ACCESS_PLATFORM
+        - DATA_PROVIDER
+        - DATA_RECIPIENT
+        - INDIVIDUAL
+        - MERCHANT
+        - VENDOR
+
+    ResultType:
+      title: Result Type
+      description: >-
+        Flag to indicate if you want a lightweight array of metadata (AccountDescriptor
+        or Tax or Operations) or full item details (Account or a Tax subclass or
+        Availability details). If set to 'lightweight', should only return the
+        fields associated with the metadata entity.
+      type: string
+      enum:
+        - lightweight
+        - details
+      default: lightweight
+
+    String255:
+      title: String 255
+      description: String of maximum length 255
+      type: string
+      maxLength: 255
+
+    String64:
+      title: String 64
+      description: String of maximum length 64
+      type: string
+      maxLength: 64
+
+    TelephoneNumberType:
+      title: Telephone Number Type
+      description: Purpose or type of telephone number
+      type: string
+      enum:
+        - HOME
+        - BUSINESS
+        - CELL
+        - FAX
+
+    Timestamp:
+      title: Timestamp
+      description: >-
+        ISO 8601 date-time in format 'YYYY-MM-DDThh:mm:ss.nnn[Z|[+|-]hh:mm]' according to
+        [IETF RFC3339](https://xml2rfc.tools.ietf.org/public/rfc/html/rfc3339.html#anchor14)
+      type: string
+      format: date-time
+      example: '2021-07-15T14:46:41.375Z'
+
+    ############################################################
+    #
+    # Common data types
+    #
+    ############################################################
+
+    AvailabilityStatus:
+      title: Availability Status
+      description: Statuses for reporting API availability
+      type: string
+      enum:
+        - ALIVE
+        - PARTIAL
+        - MAINTENANCE
+        - DOWN
+
+    ConsentDurationPeriod:
+      title: Consent Duration Period
+      description: Consent duration, in days, from day of original grant
+      type: integer
+
+    ConsentDurationType:
+      title: Consent Duration Type
+      description: Duration of the Consent Grant, per FDX UX Guidelines v1.0 (pp 18 - 20)
+      type: string
+      enum:
+        - ONE_TIME
+        - PERSISTENT
+        - TIME_BOUND
+
+    ConsentGrantStatus:
+      title: Consent Grant Status
+      description: Current status of Consent Grant
+      type: string
+      enum:
+        - ACTIVE
+        - EXPIRED
+        - REVOKED
+
+    ConsentId:
+      title: Consent Identifier
+      description: Unique ID for a consent grant
+      $ref: '#/components/schemas/Identifier'
+
+    ConsentResourceType:
+      title: Consent Resource Type
+      description: >-
+        Resource for which data may be permissioned;
+        can be extended to support additional types of resources
+      type: string
+      enum:
+        - ACCOUNT
+        - CUSTOMER
+        - DOCUMENT
+
+    DataCluster:
+      title: Data Cluster
+      description: 'Name of [cluster of data elements](https://fdx.atlassian.net/wiki/spaces/FDX/pages/872906996/v1.1+Data+Clusters) permissioned'
+      type: string
+      enum:
+        - ACCOUNT_BASIC
+        - ACCOUNT_DETAILED
+        - ACCOUNT_PAYMENTS
+        - CUSTOMER_CONTACT
+        - CUSTOMER_PERSONAL
+        - INVESTMENTS
+        - STATEMENTS
+        - TRANSACTIONS
+
+    LookbackPeriod:
+      title: Lookback Period
+      description: >-
+        Period, in days, for which historical data may be requested;
+        period is measured from request time, not grant time
+      type: integer
+
+    OperationId:
+      title: FDX Resource Operation ID
+      description: The operationIds for all FDX APIs
+      type: string
+      enum:
+        - cancelPayment
+        - cancelRecurringPayment
+        - cancelTransfer
+        - createPayee
+        - createTaxForm
+        - deletePayee
+        - getAccount
+        - getAccountContact
+        - getAccountPaymentNetworks
+        - getAccountStatement
+        - getAccountTransactionImages
+        - getAvailability
+        - getCapability
+        - getCertificationMetrics
+        - getConsentGrant
+        - getCustomer
+        - getCustomerInfo
+        - getCustomers
+        - getPayee
+        - getPayment
+        - getPaymentsForRecurringPayment
+        - getRecurringPayment
+        - getRewardProgram
+        - getRewardProgramCategories
+        - getTaxForm
+        - getTransfer
+        - getTransferStatus
+        - reportSuspectedFraudIncident
+        - requestAccountTransfer
+        - schedulePayment
+        - scheduleRecurringPayment
+        - searchForAccounts
+        - searchForAccountStatements
+        - searchForAccountTransactions
+        - searchForPayees
+        - searchForPayments
+        - searchForRecurringPayments
+        - searchForTaxForms
+        - searchForTransfers
+        - searchRewardPrograms
+        - updatePayee
+        - updatePayment
+        - updateRecurringPayment
+        - updateTaxForm
+
+    ############################################################
+    #
+    # Core data types
+    #
+    ############################################################
+
+    AccountBillPayStatus:
+      title: Account Bill Pay Status
+      description: >-
+        Indicates bill pay capabilities for an account.<br/>
+        * `ACTIVE`: Can be used for bill payment<br/>
+        * `AVAILABLE`: Account can be requested for bill payment<br/>
+        * `NOT_AVAILABLE`: Account cannot participate in bill payment<br/>
+        * `PENDING`: Account requested for bill payment, but not available yet
+      type: string
+      enum:
+        - ACTIVE
+        - AVAILABLE
+        - NOT_AVAILABLE
+        - PENDING
+
+    AccountStatus:
+      title: Account Status
+      description: The status of an account
+      type: string
+      enum:
+        - CLOSED
+        - DELINQUENT
+        - NEGATIVECURRENTBALANCE
+        - OPEN
+        - PAID
+        - PENDINGCLOSE
+        - PENDINGOPEN
+        - RESTRICTED
+
+    AccountType:
+      title: Account Type
+      description: >-
+        The type of an account.<br/>
+        <br/>
+        | Value | Description |<br/>
+        |-----|-----|<br/>
+        | 401A | An employer-sponsored money-purchase retirement plan that allows dollar or percentage-based contributions from the employer, the employee, or both |<br/>
+        | 401K | An employer-sponsored defined-contribution pension account defined in subsection 401(k) of the Internal Revenue Code |<br/>
+        | 403B | A U.S. tax-advantaged retirement savings plan available for public education organizations, some non-profit employers (only Internal Revenue Code 501(c)(3) organizations), cooperative hospital service organizations, and self-employed ministers in the United States |<br/>
+        | '529' | A tax-advantaged savings plan designed to help pay for education |<br/>
+        | ANNUITY | A form of insurance or investment entitling the investor to a series of annual sums |<br/>
+        | AUTOLOAN | A type of loan used to finance a car purchase |<br/>
+        | BROKERAGEPRODUCT | Investment management offered by a licensed brokerage firm that places trades on behalf of the customer, utilizing any number of investment options |<br/>
+        | CD | A certificate of deposit (CD) is a product offered by banks and credit unions that provides an interest rate premium in exchange for the customer agreeing to leave a lump-sum deposit untouched for a predetermined period of time |<br/>
+        | CHARGE | An account to which goods and services may be charged on credit |<br/>
+        | CHECKING | A deposit account held at a financial institution that allows withdrawals and deposits |<br/>
+        | COMMERCIALDEPOSIT | Deposit Account for Commercial Customers e.g. Business Trust Account |<br/>
+        | COMMERCIALINVESTMENT | Investment Account for Commercial Customers. e.g. Commercial Brokerage Account |<br/>
+        | COMMERCIALINEOFCREDIT | A preset borrowing limit that can be used at any time |<br/>
+        | COMMERCIALLOAN | A preset borrowing limit that can be used at any time |<br/>
+        | COVERDELL | A trust or custodial account set up in the United States solely for paying qualified education expenses for the designated beneficiary of the account |<br/>
+        | CREDITCARD | Allows cardholders to borrow funds with which to pay for goods and services with merchants that accept cards for payment |<br/>
+        | DEFINEDBENEFIT | An employer-sponsored retirement plan where employee benefits are computed using a formula that considers several factors, such as length of employment and salary history |<br/>
+        | ESCROW | A contractual arrangement in which a third party (the stakeholder or escrow agent) receives and disburses money or property for the primary transacting parties, with the disbursement dependent on conditions agreed to by the transacting parties |<br/>
+        | ESOP | An employee stock ownership plan (ESOP) is an employee benefit plan that gives workers ownership interest in the company |<br/>
+        | FIXEDANNUITY | A type of insurance contract that promises to pay the buyer a specific, guaranteed interest rate on their contributions to the account |<br/>
+        | GUARDIAN | An account of a child in the parent's name, with legal title to the assets in the account, as well as all capital gains and tax liabilities produced from the account belonging to the parent |<br/>
+        | HOMEEQUITYLOAN | A type of loan in which the borrower uses the equity of his or her home as collateral |<br/>
+        | HOMELINEOFCREDIT | A loan in which the lender agrees to lend a maximum amount within an agreed period, where the collateral is the borrower's equity in their house |<br/>
+        | INSTALLMENT | A type of agreement or contract involving a loan that is repaid over time with a set number of scheduled payments |<br/>
+        | INSTITUTIONALTRUST | |<br/>
+        | IRA | An individual retirement account (IRA) is a tax-advantaged account that individuals use to save and invest for retirement |<br/>
+        | KEOGH | A tax-deferred pension plan available to self-employed individuals or unincorporated businesses for retirement purposes |<br/>
+        | LINEOFCREDIT | A credit facility extended by a bank or other financial institution to a government, business or individual customer that enables the customer to draw on the facility when the customer needs funds |<br/>
+        | LOAN | The lending of money by one or more individuals, organizations, or other entities to other individuals, organizations etc |<br/>
+        | LONGTERMDISABILITY | Insurance that replaces a portion of the policyholder's income due to a disability for an extended period of time, usually more than a year |<br/>
+        | MILITARYLOAN | |<br/>
+        | MONEYMARKET | A deposit account that pays interest based on current interest rates in the money markets |<br/>
+        | MORTGAGE | A type of loan you can use to buy or refinance a home |<br/>
+        | NONQUALIFEDPLAN | A type of tax-deferred employer-sponsored retirement plan that falls outside of ERISA guidelines |<br/>
+        | OTHERDEPOSIT | Use when none of the listed enums apply |<br/>
+        | OTHERINVESTMENT | Use when none of the listed enums apply |<br/>
+        | PERSONALLOAN | A type of debt that is not protected by a guarantor, or collateralized by a lien on specific assets of the borrower |<br/>
+        | ROLLOVER | |<br/>
+        | ROTH | An individual retirement account that offers tax-free growth and tax-free withdrawals in retirement |<br/>
+        | SARSEP | A simplified employee pension (SEP) plan set up before 1997 that includes a salary reduction arrangement |<br/>
+        | SAVINGS | An interest-bearing deposit account held at a bank or other financial institution |<br/>
+        | SMBLOAN | |<br/>
+        | SHORTTERMDISABILITY | Insurance that replaces a portion of the policyholder's income due to a disability for a short period of time, usually less than a year |<br/>
+        | STUDENTLOAN | A type of loan designed to help students pay for post-secondary education and the associated fees, such as tuition, books and supplies, and living expenses |<br/>
+        | TAXABLE | |<br/>
+        | TDA | |<br/>
+        | TERM | Life insurance that provides coverage at a fixed rate of payments for a limited period of time |<br/>
+        | TRUST | A type of financial account that is opened by an individual and managed by a designated trustee for the benefit of a third party in accordance with agreed-upon terms |<br/>
+        | UGMA | |<br/>
+        | UNIVERSALLIFE | A type of a cash value life insurance where the excess of premium payments above the current cost of insurance is credited to the cash value of the policy, which in turn is credited each month with interest |<br/>
+        | UTMA | |<br/>
+        | VARIABLEANNUITY | A type of insurance contract that promises to pay back the buyer based on the performance of an underlying portfolio of mutual funds selected by the buyer |<br/>
+        | WHOLELIFE | Life insurance which is guaranteed to remain in force for the insured's entire lifetime, provided required premiums are paid, or to the maturity date |
+      type: string
+      enum:
+        - 401A
+        - 401K
+        - 403B
+        - '529'
+        - ANNUITY
+        - AUTOLOAN
+        - BROKERAGEPRODUCT
+        - CD
+        - CHARGE
+        - CHECKING
+        - COMMERCIALDEPOSIT
+        - COMMERCIALINVESTMENT
+        - COMMERCIALLINEOFCREDIT
+        - COMMERCIALLOAN
+        - COVERDELL
+        - CREDITCARD
+        - DEFINEDBENEFIT
+        - ESCROW
+        - ESOP
+        - FIXEDANNUITY
+        - GUARDIAN
+        - HOMEEQUITYLOAN
+        - HOMELINEOFCREDIT
+        - INSTALLMENT
+        - INSTITUTIONALTRUST
+        - IRA
+        - KEOGH
+        - LINEOFCREDIT
+        - LOAN
+        - LONGTERMDISABILITY
+        - MILITARYLOAN
+        - MONEYMARKET
+        - MORTGAGE
+        - NONQUALIFIEDPLAN
+        - OTHERDEPOSIT
+        - OTHERINVESTMENT
+        - PERSONALLOAN
+        - ROLLOVER
+        - ROTH
+        - SARSEP
+        - SAVINGS
+        - SMBLOAN
+        - SHORTTERMDISABILITY
+        - STUDENTLOAN
+        - TAXABLE
+        - TDA
+        - TERM
+        - TRUST
+        - UGMA
+        - UNIVERSALLIFE
+        - UTMA
+        - VARIABLEANNUITY
+        - WHOLELIFE
+
+    AnnualIncreaseType:
+      title: Annual Increase Type
+      description: The type of annual increase of an annuity account.  Deprecated, will be removed in v6.0
+      type: string
+      deprecated: true
+      enum:
+        - FIXED
+        - PERCENT
+        - DOLLAR
+
+    AnnuityProductType:
+      title: Annuity Product Type
+      description: The type of an annuity product. Deprecated, will be removed in v6.0
+      type: string
+      deprecated: true
+      enum:
+        - CURRENCY
+        - SHARES
+
+    AnnuityValueBasis:
+      title: Annuity Value Basis
+      description: The type of basis for an annuity account.  Deprecated, will be removed in v6.0
+      type: string
+      deprecated: true
+      enum:
+        - FIXED
+        - VARIABLE
+
+    AssetClass:
+      title: Asset Class
+      description: The class of an investment asset
+      type: string
+      enum:
+        - DOMESTICBOND
+        - INTLBOND
+        - INTLSTOCK
+        - LARGESTOCK
+        - MONEYMARKET
+        - OTHER
+        - SMALLSTOCK
+
+    BalanceType:
+      title: Balance Type
+      description: >-
+        <br/>
+        * `ASSET`: Positive transaction amount increases balance<br/>
+        * `LIABILITY`: Positive transaction amount decreases balance
+      type: string
+      enum:
+        - ASSET
+        - LIABILITY
+
+    BusinessOrConsumer:
+      title: Business or Consumer Type
+      description: Indicator if parent entity is a consumer or business
+      type: string
+      enum:
+        - BUSINESS
+        - CONSUMER
+
+    CallType:
+      title: Call Type
+      description: The call type for a stock option
+      type: string
+      enum:
+        - CALL
+        - MATURITY
+        - PREFUND
+        - PUT
+
+    CompoundingPeriod:
+      title: Compounding Period
+      description: Interest compounding Period
+      type: string
+      enum:
+        - ANNUALLY
+        - BIWEEKLY
+        - DAILY
+        - MONTHLY
+        - SEMIANNUALLY
+        - SEMIMONTHLY
+        - WEEKLY
+
+    CouponMatureFrequency:
+      title: Coupon Mature Frequency
+      description: The frequency of a bond's coupon maturity
+      type: string
+      enum:
+        - ANNUAL
+        - MONTHLY
+        - OTHER
+        - QUARTERLY
+        - SEMIANNUAL
+
+    DebitCreditMemo:
+      title: DebitCreditMemo
+      description: The posting type of a transaction
+      type: string
+      enum:
+        - CREDIT
+        - DEBIT
+        - MEMO
+
+    DebtClass:
+      title: Debt Class
+      description: The classification of a debt instrument
+      type: string
+      enum:
+        - CORPORATE
+        - MUNICIPAL
+        - OTHER
+        - TREASURY
+
+    DebtType:
+      title: Debt Type
+      description: The type of a debt instrument
+      type: string
+      enum:
+        - COUPON
+        - ZERO
+
+    DepositTransactionType:
+      title: Deposit Transaction Type
+      description: The type of a deposit transaction
+      type: string
+      enum:
+        - ADJUSTMENT
+        - ATMDEPOSIT
+        - ATMWITHDRAWAL
+        - BILLPAYMENT
+        - CHECK
+        - DEPOSIT
+        - DIRECTDEPOSIT
+        - DIVIDEND
+        - FEE
+        - INTEREST
+        - POSCREDIT
+        - POSDEBIT
+        - TRANSFER
+        - WITHDRAWAL
+
+    HeldInAccount:
+      title: Held In Account
+      description: The type of holdings of an investment account
+      type: string
+      enum:
+        - CASH
+        - MARGIN
+        - OTHER
+        - SHORT
+
+    HoldingSubType:
+      title: Holding SubType
+      description: The subtype of an investment holding
+      type: string
+      enum:
+        - CASH
+        - MONEYMARKET
+
+    HoldingType:
+      title: Holding Type
+      description: The type of an investment holding
+      type: string
+      enum:
+        - ANNUITY
+        - BOND
+        - CD
+        - MUTUALFUND
+        - OPTION
+        - OTHER
+        - STOCK
+
+    IncomeType:
+      title: Income Type
+      description: The type of income of an investment transaction
+      type: string
+      enum:
+        - CGLONG
+        - CGSHORT
+        - MISC
+
+    InterestRateType:
+      title: Interest Rate Type
+      description: The type of interest rate
+      type: string
+      enum:
+        - FIXED
+        - VARIABLE
+
+    Inv401kSourceType:
+      title: Investment 401k Source Type
+      description: The source of a 401k investment
+      type: string
+      enum:
+        - AFTERTAX
+        - MATCH
+        - OTHERNONVEST
+        - OTHERVEST
+        - PRETAX
+        - PROFITSHARING
+        - ROLLOVER
+
+    InvestmentBalanceType:
+      title: Investment Balance Type
+      description: The type of an investment balance
+      type: string
+      enum:
+        - AMOUNT
+        - PERCENTAGE
+
+    InvestmentTransactionType:
+      title: Investment Transaction Type
+      description: The type of an investment transaction
+      type: string
+      enum:
+        - ADJUSTMENT
+        - ATM
+        - CASH
+        - CHECK
+        - CLOSURE
+        - CLOSUREOPT
+        - CONTRIBUTION
+        - DEP
+        - DEPOSIT
+        - DIRECTDEBIT
+        - DIRECTDEP
+        - DIV
+        - DIVIDEND
+        - DIVIDENDREINVEST
+        - EXPENSE
+        - FEE
+        - INCOME
+        - INTEREST
+        - INVEXPENSE
+        - JRNLFUND
+        - JRNLSEC
+        - MARGININTEREST
+        - OPTIONEXERCISE
+        - OPTIONEXPIRATION
+        - OTHER
+        - PAYMENT
+        - POS
+        - PURCHASED
+        - PURCHASEDTOCOVER
+        - PURCHASETOCLOSE
+        - PURCHASETOOPEN
+        - REINVESTOFINCOME
+        - REPEATPMT
+        - RETURNOFCAPITAL
+        - SOLD
+        - SOLDTOCLOSE
+        - SOLDTOOPEN
+        - SPLIT
+        - SRVCHG
+        - TRANSFER
+        - XFER
+
+    LoanPaymentFrequency:
+      title: Loan Payment Frequency
+      description: The frequency of payments on a loan
+      type: string
+      enum:
+        - ANNUALLY
+        - BIMONTHLY
+        - BIWEEKLY
+        - FOURWEEKS
+        - MONTHLY
+        - OTHER
+        - QUARTERLY
+        - SEMIANNUALLY
+        - TWICEMONTHLY
+        - WEEKLY
+
+    LoanTransactionType:
+      title: Loan Transaction Type
+      description: >-
+        Defines the type of a loan transaction:<br/>
+        * `ADJUSTMENT`: Adjustment or correction.<br/>
+        * `FEE`: Fee charge. For example, a late payment fee.<br/>
+        * `INTEREST`: Interest charge.<br/>
+        * `PAYMENT`: Required payment that satisfies the minimum payment (e.g. principal + interest for mortgages).<br/>
+        * `LUMP_SUM_PAYMENT`: A single payment of money, as opposed to a series of payments made over time.<br/>
+        * `SKIP_PAYMENT`: Payment that satisfies deferral of a required payment.</br>
+        * `DOUBLE_UP_PAYMENT`: Additional payment beyond the required payment to reduce the principal.</br>
+        * `PAYOFF`: Payment that satisfies the terms of the mortgage loan and completely pays off the debt.
+      type: string
+      enum:
+        - ADJUSTMENT
+        - FEE
+        - INTEREST
+        - PAYMENT
+        - LUMP_SUM_PAYMENT
+        - SKIP_PAYMENT
+        - DOUBLE_UP_PAYMENT
+        - PAYOFF
+
+    LocTransactionType:
+      title: Line-Of-Credit Transaction Type
+      description: The type of a line-of-credit transaction
+      type: string
+      enum:
+        - ADJUSTMENT
+        - CHECK
+        - FEE
+        - INTEREST
+        - PAYMENT
+        - WITHDRAWAL
+
+    MutualFundType:
+      title: Mutual Fund Type
+      description: The type of a mutual fund
+      type: string
+      enum:
+        - OPENEND
+        - CLOSEEND
+        - OTHER
+
+    OptionType:
+      title: Option Type
+      description: The type of a stock option
+      type: string
+      enum:
+        - CALL
+        - PUT
+
+    OrderDuration:
+      title: Order Duration
+      description: The duration of the order
+      type: string
+      enum:
+        - DAY
+        - GOODTILLCANCEL
+        - IMMEDIATE
+
+    OrderType:
+      title: Order Type
+      description: The type of the order
+      type: string
+      enum:
+        - BUY
+        - SELL
+        - BUYTOCOVER
+        - BUYTOOPEN
+        - SELLTOCOVER
+        - SELLTOOPEN
+        - SELLSHORT
+        - SELLCLOSE
+
+    PaymentFrequency:
+      title: Payment Frequency
+      description: The frequency of payments.  Deprecated, will be removed in v6.0
+      type: string
+      deprecated: true
+      enum:
+        - ANNUALLY
+        - BIWEEKLY
+        - DAILY
+        - MONTHLY
+        - SEMIANNUALLY
+        - SEMIMONTHLY
+        - WEEKLY
+
+    PaymentNetworkIdentifierType:
+      title: Payment Network Identifier Type
+      description: Suggested values for Payment Initiation Identifier Type
+      type: string
+      enum:
+        - ACCOUNT_NUMBER
+        - TOKENIZED_ACCOUNT_NUMBER
+
+    PaymentNetworkType:
+      title: Payment Network Type
+      description: >-
+        Suggested values for Payment Network Type.<br/>
+        <br/>
+        | Value | Description |<br/>
+        |-----|-----|<br/>
+        | US_ACH | Automated Clearing House |<br/>
+        | US_FEDWIRE | Fedwire Funds Service |<br/>
+        | US_CHIPS | Clearinghouse Interbank Payments System |<br/>
+        | CA_ACSS | Automated Clearing House Settlement System |<br/>
+        | CA_LVTS | Large-Value Transfer System |
+      type: string
+      enum:
+        - US_ACH
+        - US_FEDWIRE
+        - US_CHIPS
+        - CA_ACSS
+        - CA_LVTS
+
+    PayoutMode:
+      title: Payout Mode
+      description: >-
+        Frequency of annuity payments.<br/>
+        <br/>
+        | Value | Description |<br/>
+        |-----|-----|<br/>
+        | ANNUALLY | Paid Annually |<br/>
+        | BIWEEKLY | Paid Bi-weekly |<br/>
+        | DAILY | Paid Daily |<br/>
+        | MONTHLY | Paid Monthly |<br/>
+        | SEMIANNUALLY | Paid Semi-annually |<br/>
+        | SEMIMONTHLY | Paid Semi-monthly |
+      type: string
+      enum:
+        - ANNUALLY
+        - BIWEEKLY
+        - DAILY
+        - MONTHLY
+        - SEMIANNUALLY
+        - SEMIMONTHLY
+        - WEEKLY
+
+    PayoutType:
+      title: Payout Type
+      description: >-
+        Indicates a type of payout such as immediate or deferred.<br/>
+        <br/>
+        | Value | Description |<br/>
+        |-----|-----|<br/>
+        | DEFERRED | Deferred payout starts at a predetermined date in the future |<br/>
+        | IMMEDIATE | Immediate payout begins paying out shortly after the annuity is purchased |
+      type: string
+      enum:
+        - DEFERRED
+        - IMMEDIATE
+
+    PeriodCertainGuarantee:
+      title: Period Certain Guarantee
+      description: The guaranteed payment period on an annuity.  Deprecated, will be removed in v6.0
+      type: string
+      deprecated: true
+      enum:
+        - NONE
+        - 5-YEAR
+        - 10-YEAR
+        - 20-YEAR
+        - 30-YEAR
+
+    PeriodCertainType:
+      title: Period Certain Type
+      description: >-
+        The number of modal periods comprising the duration of the certain period of an annuity payout.<br/>
+        <br/>
+        | Value | Description |<br/>
+        |-----|-----|<br/>
+        | NONE | Not a Period Certain |<br/>
+        | 5_YEAR | Five year duration |<br/>
+        | 10_YEAR | Ten year duration |<br/>
+        | 20_YEAR | Twenty year duration |<br/>
+        | 30_YEAR | Thirty year duration |
+      type: string
+      enum:
+        - NONE
+        - 5_YEAR
+        - 10_YEAR
+        - 20_YEAR
+        - 30_YEAR
+
+    PolicyProductType:
+      title: Policy Product Type
+      description: >-
+        Distinguishes options in annuity payouts; values are defined by the carrier.<br/>
+        <br/>
+        |Value | Description |<br/>
+        |-----|-----|<br/>
+        | FIXED | Payout is based on a guaranteed rate of return by the carrier |<br/>
+        | VARIABLE | Payout is based on the variable performance of the investments the buyer chooses |
+      type: string
+      enum:
+        - FIXED
+        - VARIABLE
+
+    PolicyStatus:
+      title: Policy Status
+      description: >-
+        The status of an insurance policy account.<br/>
+        <br/>
+        | Value | Description |<br/>
+        |-----|-----|<br/>
+        | ACTIVE | At least one component of the insurance policy is in force |<br/>
+        | DEATH_CLAIM_PAID | Benefits for a death claim have been settled with the insured |<br/>
+        | DEATH_CLAIM_PENDING | A death claim has been submitted but not yet settled |<br/>
+        | EXPIRED | Nonpayment of premium has exhausted the policy's Grace Period |<br/>
+        | GRACE_PERIOD | A premium is due but before lapse in coverage begins |<br/>
+        | LAPSE_PENDING | After the Grace Period has been exhausted but before final expiration; during Lapse Pending, policy reinstatement may still be possible |<br/>
+        | TERMINATED | Either the insurance company or the insured cancel the coverage of a cancellable insurance policy |<br/>
+        | WAIVER | A premium payment is waived under certain conditions due to a payer benefit clause |
+      type: string
+      enum:
+        - ACTIVE
+        - DEATH_CLAIM_PAID
+        - DEATH_CLAIM_PENDING
+        - EXPIRED
+        - GRACE_PERIOD
+        - LAPSE_PENDING
+        - TERMINATED
+        - WAIVER
+
+    PositionType:
+      title: Position Type
+      description: The type of an investment position
+      type: string
+      enum:
+        - LONG
+        - SHORT
+
+    RewardType:
+      title: Reward Type
+      description: >
+        The type of the reward balance.  Example: a reward program awarding
+        "Stars" for purchases would use the `POINTS` reward type.<br/>
+        * `CASHBACK`: Rewards balances enumerated using a monetary amount<br/>
+        * `MILES`: Rewards balances enumerated using distance<br/>
+        * `POINTS`: Default when a reward balance is not of type CASHBACK or MILES
+      type: string
+      enum:
+        - CASHBACK
+        - MILES
+        - POINTS
+
+    Secured:
+      title: Secured
+      description: How the option is secured
+      type: string
+      enum:
+        - COVERED
+        - NAKED
+
+    SecurityIdType:
+      title: Security Id Type
+      description: The type of identifier for a security
+      type: string
+      enum:
+        - CUSIP
+        - ISIN
+        - SEDOL
+        - SICC
+        - VALOR
+        - WKN
+
+    SecurityType:
+      title: Security Type
+      description: The type of a security
+      type: string
+      enum:
+        - BOND
+        - DEBT
+        - MUTUALFUND
+        - OPTION
+        - OTHER
+        - STOCK
+        - SWEEP
+
+    StockType:
+      title: Stock Type
+      description: The type of a stock instrument
+      type: string
+      enum:
+        - COMMON
+        - CONVERTIBLE
+        - OTHER
+        - PREFERRED
+
+    SubAccountType:
+      title: Sub Account Type
+      description: The subtype of an account
+      type: string
+      enum:
+        - CASH
+        - MARGIN
+        - SHORT
+        - OTHER
+
+    TransactionReason:
+      title: Transaction Reason
+      description: The reason for an investment transaction
+      type: string
+      enum:
+        - CALL
+        - MATURITY
+        - SELL
+
+    TransactionStatus:
+      title: Transaction Status
+      description: The status of a transaction
+      type: string
+      enum:
+        - AUTHORIZATION
+        - MEMO
+        - PENDING
+        - POSTED
+
+    UnitType:
+      title: Unit Type
+      description: The units of an investment transaction
+      type: string
+      enum:
+        - CURRENCY

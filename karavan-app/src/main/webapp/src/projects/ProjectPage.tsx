@@ -45,6 +45,9 @@ import {KubernetesAPI} from "../designer/utils/KubernetesAPI";
 import {UploadModal} from "./UploadModal";
 import {ProjectInfo} from "./ProjectInfo";
 import {ProjectDashboard} from "./ProjectDashboard";
+import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
+import {CamelUtil} from "karavan-core/src/core/api/CamelUtil";
+import * as yaml from 'js-yaml';
 
 interface Props {
     project: Project,
@@ -201,13 +204,20 @@ export class ProjectPage extends React.Component<Props, State> {
         </Toolbar>
     }
 
-    getType = (name: string) => {
-        const extension = name.substring(name.lastIndexOf('.') + 1);
-        const type = ProjectFileTypes.filter(p => p.extension === extension).map(p => p.title)[0];
-        if (type) {
-            return type
+    getType = (file: ProjectFile) => {
+        const extension = file.name.substring(file.name.lastIndexOf('.') + 1);
+        if (extension === 'yaml') {
+            const isIntegration = CamelDefinitionYaml.yamlIsIntegration(file.code);
+            return isIntegration
+                ? ProjectFileTypes.filter(p => p.name === "INTEGRATION").map(p => p.title)[0]
+                : ProjectFileTypes.filter(p => p.name === "OPENAPI").map(p => p.title)[0];
         } else {
-            return "Unknown"
+            const type = ProjectFileTypes.filter(p => p.extension === extension).map(p => p.title)[0];
+            if (type) {
+                return type
+            } else {
+                return "Unknown"
+            }
         }
     }
 
@@ -223,7 +233,7 @@ export class ProjectPage extends React.Component<Props, State> {
                         <BreadcrumbItem to="#" onClick={event => this.setState({file: undefined})}>
                             {"Project: " + this.props.project?.projectId}
                         </BreadcrumbItem>
-                        <BreadcrumbItem to="#" isActive>{this.getType(file?.name)}</BreadcrumbItem>
+                        <BreadcrumbItem to="#" isActive>{this.getType(file)}</BreadcrumbItem>
                     </Breadcrumb>
                     <TextContent className="title">
                         <Text component="h1">{isLog ? filename : CamelUi.titleFromName(file.name)}</Text>
@@ -278,7 +288,7 @@ export class ProjectPage extends React.Component<Props, State> {
                 </Thead>
                 <Tbody>
                     {files.map(file => {
-                        const type = this.getType(file.name)
+                        const type = this.getType(file)
                         return <Tr key={file.name}>
                             <Td modifier={"fitContent"}>
                                 <Badge>{type}</Badge>
@@ -426,11 +436,12 @@ export class ProjectPage extends React.Component<Props, State> {
     render() {
         const {file, mode, tab} = this.state;
         const isYaml = file !== undefined && file.name.endsWith("yaml");
+        const isIntegration = file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
         const isProperties = file !== undefined && file.name.endsWith("properties");
         const isLog = file !== undefined && file.name.endsWith("log");
         const isCode = file !== undefined && (file.name.endsWith("java") || file.name.endsWith("groovy") || file.name.endsWith("json"));
-        const showDesigner = isYaml && mode === 'design';
-        const showEditor = isCode || (isYaml && mode === 'code');
+        const showDesigner = isYaml && isIntegration && mode === 'design';
+        const showEditor = isCode || (isYaml && !isIntegration) || (isYaml && mode === 'code');
         return (
             <PageSection className="kamelet-section project-page" padding={{default: 'noPadding'}}>
                 <PageSection className="tools-section" padding={{default: 'noPadding'}}>
