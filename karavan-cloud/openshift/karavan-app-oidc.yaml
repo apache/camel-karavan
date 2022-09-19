@@ -20,7 +20,7 @@ kind: Deployment
 metadata:
   labels:
     app: karavan
-    app.openshift.io/runtime: camel
+    app.openshift.io/runtime: quarkus
     app.kubernetes.io/part-of: karavan
   name: karavan
 spec:

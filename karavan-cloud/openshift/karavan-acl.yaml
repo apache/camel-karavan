@@ -5,7 +5,6 @@ metadata:
   name: karavan
   labels:
     app.kubernetes.io/name: karavan
-    app.openshift.io/runtime: camel
 ---
 # Role karavan-app
 apiVersion: rbac.authorization.k8s.io/v1

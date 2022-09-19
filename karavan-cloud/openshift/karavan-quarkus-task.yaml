@@ -54,6 +54,9 @@ spec:
             -Dquarkus.kubernetes-client.master-url=kubernetes.default.svc \
             -Dquarkus.kubernetes-client.token=${TOKEN} \
             -Dquarkus.kubernetes.deploy=true \
+            -Dquarkus.openshift.deployment-kind=Deployment \
+            -Dquarkus.openshift.add-version-to-label-selectors=false \
+            -Dquarkus.openshift.labels."app.openshift.io/runtime"=camel \
             -Dquarkus.container-image.group=${NAMESPACE} \
             -Dquarkus.container-image.tag=${DATE}
       image: ghcr.io/apache/camel-karavan-builder:3.18.4
@@ -98,13 +101,6 @@ spec:
             secretKeyRef:
               name: karavan
               key: kamelets-git-main      
-    - name: rollout
-      image: >-
-        image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
-      script: |
-        #!/usr/bin/env bash
-        oc rollout latest dc/$(inputs.params.project) 
-        oc label dc/$(inputs.params.project) app.openshift.io/runtime=camel --overwrite=true
   workspaces:
     - mountPath: /root/.m2
       name: m2-cache
