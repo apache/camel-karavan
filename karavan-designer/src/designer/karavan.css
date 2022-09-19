@@ -930,7 +930,7 @@
 
 .karavan .rest-page .flows {
     width: 800px;
-    margin: 0 auto;
+    margin: 0 auto 80px auto;
 }
 
 .karavan .rest-page .flows .add-flow {
@@ -948,6 +948,11 @@
     padding: 0 6px 0 6px;
     margin-bottom: 6px;
     position: relative;
+}
+
+.karavan .rest-page .method-card .rest-method-desc {
+    display: flex;
+    flex-direction: column;
 }
 
 .karavan .rest-page .rest-card-unselected,
@@ -1026,7 +1031,10 @@
 .karavan .rest-page .rest-config-card .description,
 .karavan .rest-page .method-card .description {
     margin: auto 0 auto 0;
-    width: 100%;
+    width: 670px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .karavan .rest-page .rest-config-card .delete-button,

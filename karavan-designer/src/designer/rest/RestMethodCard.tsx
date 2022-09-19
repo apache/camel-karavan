@@ -55,8 +55,10 @@ export class RestMethodCard extends React.Component<Props<any>, State<any>> {
         return (
             <div className={this.props.selectedStep?.uuid === method.uuid ? "method-card method-card-selected" : "method-card method-card-unselected"} onClick={e => this.selectElement(e)}>
                 <div className="method">{method.dslName.replace('Definition', '').toUpperCase()}</div>
-                <div className="title">{method.path}</div>
-                <div className="description">{method.description}</div>
+                <div className="rest-method-desc">
+                    <div className="title">{method.path}</div>
+                    <div className="description">{method.description}</div>
+                </div>
                 <Button variant="link" className="delete-button" onClick={e => this.delete(e)}><DeleteIcon/></Button>
             </div>
         );
