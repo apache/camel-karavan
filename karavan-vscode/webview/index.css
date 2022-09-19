@@ -172,6 +172,7 @@ body, :root, #root, .karavan {
   border: none;
   background: var(--vscode-tab-inactiveBackground);
   color: var(--vscode-input-foreground);
+  margin-bottom: 0;
 }
 
 .vscode-dark .karavan .pf-c-drawer__splitter {
@@ -266,6 +267,11 @@ body, :root, #root, .karavan {
 
 .vscode-dark .karavan .properties .pf-c-expandable-section__toggle-icon {
   color: var(--vscode-focusBorder);
+}
+
+.vscode-dark .karavan .properties .object-value {
+  --pf-c-card--BackgroundColor: transparent;
+  border-color: var(--vscode-input-foreground);
 }
 
 /* Popover */

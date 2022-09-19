@@ -1,0 +1,34 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach",
+            "port": 9229,
+            "request": "attach",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "extensionHost"
+        },
+        
+        {
+            "name": "Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+            "outFiles": ["${workspaceFolder}/out/extension.js"],
+            "stopOnEntry": true,
+            "showReturnValue": true,
+            // "preLaunchTask": "npm: watch"
+        }
+    //   {
+    //     "name": "Run Extension",
+    //     "type": "extensionHost",
+    //     "request": "launch",
+    //     "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+    //     "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+    //     "preLaunchTask": "${defaultBuildTask}"
+    //   },
+    ]
+  }
