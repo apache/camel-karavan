@@ -10,7 +10,7 @@ import {
     FlexItem,
     Avatar,
     Tooltip,
-    Divider, Spinner, Bullseye
+    Divider, Spinner, Bullseye, Popover, Badge
 } from '@patternfly/react-core';
 import {KaravanApi} from "./api/KaravanApi";
 import {SsoApi} from "./api/SsoApi";
@@ -26,7 +26,6 @@ import {EipPage} from "./eip/EipPage";
 import {ProjectsPage} from "./projects/ProjectsPage";
 import {Project} from "./projects/ProjectModels";
 import {ProjectPage} from "./projects/ProjectPage";
-import UsersIcon from "@patternfly/react-icons/dist/js/icons/users-icon";
 import UserIcon from "@patternfly/react-icons/dist/js/icons/user-icon";
 import ProjectsIcon from "@patternfly/react-icons/dist/js/icons/repository-icon";
 import KameletsIcon from "@patternfly/react-icons/dist/js/icons/registry-icon";
@@ -77,6 +76,7 @@ interface State {
     request: string,
     filename: string,
     key: string,
+    showUser?: boolean,
 }
 
 export class Main extends React.Component<Props, State> {
@@ -182,9 +182,25 @@ export class Main extends React.Component<Props, State> {
             <FlexItem flex={{default:"flex_2"}} alignSelf={{default:"alignSelfCenter"}}>
                 <Divider/>
             </FlexItem>
-            {KaravanApi.authType !== 'public' && <FlexItem alignSelf={{default:"alignSelfCenter"}}>
-                <UserIcon className="avatar"/>
-            </FlexItem>}
+            {KaravanApi.authType !== 'public' &&
+                <FlexItem alignSelf={{default:"alignSelfCenter"}}>
+                    <Popover
+                        aria-label="Current user"
+                        position={"right-end"}
+                        hideOnOutsideClick={false}
+                        isVisible={this.state.showUser === true}
+                        shouldClose={tip => this.setState({showUser: false})}
+                        shouldOpen={tip => this.setState({showUser: true})}
+                        headerContent={<div>{KaravanApi.me.userName}</div>}
+                        bodyContent={
+                            <Flex direction={{default:"row"}}>
+                                {KaravanApi.me.roles && Array.isArray(KaravanApi.me.roles) && KaravanApi.me.roles.map((role: string) => <Badge isRead>{role}</Badge>)}
+                            </Flex>
+                        }
+                    >
+                        <UserIcon className="avatar"/>
+                    </Popover>
+                </FlexItem>}
         </Flex>)
     }
 

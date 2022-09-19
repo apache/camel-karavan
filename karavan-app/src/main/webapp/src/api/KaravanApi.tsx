@@ -107,6 +107,7 @@ export class KaravanApi {
             .then(res => {
                 if (res.status === 200) {
                     KaravanApi.isAuthorized = true;
+                    KaravanApi.me = res.data;
                     after(res);
                 }
             }).catch(err => {
