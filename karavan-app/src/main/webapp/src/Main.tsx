@@ -194,7 +194,7 @@ export class Main extends React.Component<Props, State> {
                         headerContent={<div>{KaravanApi.me.userName}</div>}
                         bodyContent={
                             <Flex direction={{default:"row"}}>
-                                {KaravanApi.me.roles && Array.isArray(KaravanApi.me.roles) && KaravanApi.me.roles.map((role: string) => <Badge isRead>{role}</Badge>)}
+                                {KaravanApi.me.roles && Array.isArray(KaravanApi.me.roles) && KaravanApi.me.roles.map((role: string) => <Badge id={role} isRead>{role}</Badge>)}
                             </Flex>
                         }
                     >
