@@ -127,9 +127,6 @@ export class Main extends React.Component<Props, State> {
     }
 
     getData() {
-        KaravanApi.getConfiguration((config: any) => {
-            this.setState({ config: config })
-        });
         KaravanApi.getKameletNames(names => names.forEach(name => {
             KaravanApi.getKamelet(name, yaml => KameletApi.saveKamelet(yaml))
         }));
@@ -247,11 +244,14 @@ export class Main extends React.Component<Props, State> {
     };
 
     onGetProjects = () => {
-        KaravanApi.getProjects((projects: Project[]) => {
-            this.setState({
-                projects: projects, request: uuidv4()
-            })
+        KaravanApi.getConfiguration((config: any) => {
+            KaravanApi.getProjects((projects: Project[]) => {
+                this.setState({
+                    projects: projects, request: uuidv4(), config: config
+                })
+            });
         });
+
     }
 
     getMain() {

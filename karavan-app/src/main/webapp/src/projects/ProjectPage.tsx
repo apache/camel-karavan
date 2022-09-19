@@ -46,7 +46,6 @@ import {UploadModal} from "./UploadModal";
 import {ProjectInfo} from "./ProjectInfo";
 import {ProjectDashboard} from "./ProjectDashboard";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import {CamelUtil} from "karavan-core/src/core/api/CamelUtil";
 import * as yaml from 'js-yaml';
 
 interface Props {

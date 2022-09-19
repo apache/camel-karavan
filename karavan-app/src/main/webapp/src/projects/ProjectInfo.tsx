@@ -59,7 +59,7 @@ export class ProjectInfo extends React.Component<Props, State> {
 
     componentDidMount() {
         this.onRefresh();
-        this.interval = setInterval(() => this.onRefreshStatus(), 700);
+        this.interval = setInterval(() => this.onRefreshStatus(), 1300);
     }
 
     componentWillUnmount() {
@@ -146,16 +146,14 @@ export class ProjectInfo extends React.Component<Props, State> {
         const status = this.state.status?.statuses.find(s => s.environment === env)
         const pipelineResult = status?.lastPipelineRunResult;
         const isRunning = pipelineResult === 'Running';
-        return (<Tooltip content="Commit, push, build and deploy" position={"left"}>
+        return (<Tooltip content="Build and deploy" position={"left"}>
             <Button isLoading={isDeploying ? true : undefined}
                     isDisabled={isDeploying || isRunning || isPushing}
                     isSmall
                     variant="secondary"
                     className="project-button"
                     icon={!isDeploying ? <BuildIcon/> : <div></div>}
-                    onClick={e => {
-                        this.push(() => this.build());
-                    }}>
+                    onClick={e => this.build()}>
                 {isDeploying ? "..." : "Deploy"}
             </Button>
         </Tooltip>)
@@ -205,7 +203,7 @@ export class ProjectInfo extends React.Component<Props, State> {
     }
 
     getEnvPanel(env: string) {
-        const {status} = this.state;
+        const {status, project} = this.state;
         const deploymentStatus = status?.statuses.find(s => s.environment === env)?.deploymentStatus;
         return (
             <DescriptionList isHorizontal>

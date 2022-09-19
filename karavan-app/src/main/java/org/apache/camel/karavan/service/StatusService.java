@@ -18,6 +18,7 @@ package org.apache.camel.karavan.service;
 
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRun;
 import io.quarkus.runtime.configuration.ProfileManager;
+import io.quarkus.scheduler.Scheduled;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.tuples.Tuple4;
 import io.vertx.core.json.JsonObject;
@@ -68,6 +69,26 @@ public class StatusService {
             webClient = WebClient.create(vertx);
         }
         return webClient;
+    }
+
+    @Scheduled(every="10s")
+    void checkDeployedProjects() {
+        LOGGER.info("Check deployed projects");
+        infinispanService.getProjects().forEach(project -> {
+            Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(environment -> environment.name().equals("dev")).findFirst();
+            if (env.isPresent()) {
+                boolean hasDeployment =  kubernetesService.hasDeployment(project.getProjectId(), env.get().namespace());
+                System.out.println("Project " + project.getName() + " deployed: " + project.getDeployed() + " hasDeployment: " + hasDeployment);
+                if (!project.getDeployed() && hasDeployment) {
+                    project.setDeployed(true);
+                    infinispanService.saveProject(project);
+                } else if (project.getDeployed() && !hasDeployment) {
+                    project.setDeployed(false);
+                    infinispanService.saveProject(project);
+                    infinispanService.saveProjectStatus(new ProjectStatus(project.getProjectId(), List.of(), System.currentTimeMillis()));
+                }
+            }
+        });
     }
 
     @ConsumeEvent(value = CMD_COLLECT_STATUSES, blocking = true, ordered = true)

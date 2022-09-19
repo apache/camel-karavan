@@ -14,8 +14,6 @@ import {
     Form,
     Badge,
     Tooltip,
-    ToggleGroup,
-    ToggleGroupItem,
     Bullseye,
     EmptyState,
     EmptyStateVariant,
@@ -69,6 +67,15 @@ export class ProjectsPage extends React.Component<Props, State> {
         description: '',
         projectId: '',
     };
+    interval: any;
+
+    componentDidMount() {
+        this.interval = setInterval(() => this.props.onRefresh.call(this), 500);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.interval);
+    }
 
     tools = () => (<Toolbar id="toolbar-group-types">
         <ToolbarContent>
@@ -193,7 +200,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                                     <Td noPadding style={{width:"180px"}}>
                                         <Flex direction={{default: "row"}}>
                                             {environments.filter(e => e !== undefined)
-                                                .map(e => <FlexItem key={e}><Badge isRead>{e}</Badge></FlexItem>)}
+                                                .map(e => <FlexItem key={e}><Badge isRead={!project.deployed}>{e}</Badge></FlexItem>)}
                                         </Flex>
                                     </Td>
                                     <Td isActionCell>

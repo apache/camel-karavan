@@ -20,6 +20,7 @@ import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.LogWatch;
@@ -35,7 +36,6 @@ import io.fabric8.tekton.pipeline.v1beta1.PipelineRunBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpec;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpecBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.WorkspaceBindingBuilder;
-import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.PipelineRunLog;
@@ -166,11 +166,7 @@ public class KubernetesService {
 
     public void rolloutDeployment(String name, String namespace) {
         try {
-            if (kubernetesClient().isAdaptable(OpenShiftClient.class)) {
-                openshiftClient().deploymentConfigs().inNamespace(namespace).withName(name).deployLatest();
-            } else {
-                // TODO: Implement Deployment for Kubernetes/Minikube
-            }
+            kubernetesClient().apps().deployments().inNamespace(namespace).withName(name).rolling();
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }
@@ -178,11 +174,7 @@ public class KubernetesService {
 
     public void deleteDeployment(String name, String namespace) {
         try {
-            if (kubernetesClient().isAdaptable(OpenShiftClient.class)) {
-                openshiftClient().deploymentConfigs().inNamespace(namespace).withName(name).delete();
-            } else {
-                // TODO: Implement Deployment for Kubernetes/Minikube
-            }
+            kubernetesClient().apps().deployments().inNamespace(namespace).withName(name).delete();
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }
@@ -198,40 +190,55 @@ public class KubernetesService {
 
     public DeploymentStatus getDeploymentStatus(String name, String namespace) {
         try {
-            if (kubernetesClient().isAdaptable(OpenShiftClient.class)) {
-                DeploymentConfig dc = openshiftClient().deploymentConfigs().inNamespace(namespace).withName(name).get();
-                String dsImage = dc.getSpec().getTemplate().getSpec().getContainers().get(0).getImage();
-                String imageName = dsImage.startsWith("image-registry.openshift-image-registry.svc")
-                        ? dsImage.replace("image-registry.openshift-image-registry.svc:5000/", "")
-                        : dsImage;
+            Deployment deployment = kubernetesClient().apps().deployments().inNamespace(namespace).withName(name).get();
+            String dsImage = deployment.getSpec().getTemplate().getSpec().getContainers().get(0).getImage();
+            String imageName = dsImage.startsWith("image-registry.openshift-image-registry.svc")
+                    ? dsImage.replace("image-registry.openshift-image-registry.svc:5000/", "")
+                    : dsImage;
 
-                List<Pod> pods = openshiftClient().pods().inNamespace(namespace)
-                        .withLabel("app.kubernetes.io/name", name)
-                        .withLabel("deploymentconfig", name)
-                        .list().getItems();
+            List<Pod> pods = openshiftClient().pods().inNamespace(namespace)
+                    .withLabel("app.kubernetes.io/name", name)
+                    .withLabel("app.openshift.io/runtime", "camel")
+                    .list().getItems();
 
-                List<PodStatus> podStatuses = pods.stream().map(pod -> new PodStatus(
-                        pod.getMetadata().getName(),
-                        pod.getStatus().getContainerStatuses().get(0).getStarted(),
-                        pod.getStatus().getContainerStatuses().get(0).getReady(),
-                        getPodReason(pod),
-                        pod.getMetadata().getLabels().get("deployment")
-                        )).collect(Collectors.toList());
+            List<PodStatus> podStatuses = pods.stream().map(pod -> new PodStatus(
+                    pod.getMetadata().getName(),
+                    pod.getStatus().getContainerStatuses().get(0).getStarted(),
+                    pod.getStatus().getContainerStatuses().get(0).getReady(),
+                    getPodReason(pod),
+                    pod.getMetadata().getLabels().get("app.kubernetes.io/name")
+            )).collect(Collectors.toList());
 
-                return new DeploymentStatus(
-                        imageName,
-                        dc.getSpec().getReplicas(),
-                        dc.getStatus().getReadyReplicas(),
-                        dc.getStatus().getUnavailableReplicas(),
-                        podStatuses
-                );
-            } else {
-                // TODO: Implement Deployment for Kubernetes/Minikube
-                return new DeploymentStatus();
-            }
+            return new DeploymentStatus(
+                    imageName,
+                    deployment.getSpec().getReplicas(),
+                    deployment.getStatus().getReadyReplicas(),
+                    deployment.getStatus().getUnavailableReplicas(),
+                    podStatuses
+            );
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
             return new DeploymentStatus();
+        }
+    }
+
+    public boolean hasDeployment(String name, String namespace) {
+        try {
+            Deployment deployment = kubernetesClient().apps().deployments().inNamespace(namespace).withName(name).get();
+            return deployment != null;
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+            return false;
+        }
+    }
+
+    public List<String> getCamelDeployments(String namespace) {
+        try {
+            return kubernetesClient().apps().deployments().inNamespace(namespace).withLabel("app.openshift.io/runtime","camel").list().getItems()
+                    .stream().map(deployment -> deployment.getMetadata().getName()).collect(Collectors.toList());
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+            return List.of();
         }
     }
 

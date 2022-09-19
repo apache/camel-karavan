@@ -3,6 +3,7 @@ export class Project {
     name: string = '';
     description: string = '';
     lastCommit: string = '';
+    deployed: boolean = false;
 
     public constructor(projectId: string, name: string, description: string, lastCommit: string);
     public constructor(init?: Partial<Project>);
