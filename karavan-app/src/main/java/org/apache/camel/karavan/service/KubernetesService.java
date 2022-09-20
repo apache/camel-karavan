@@ -198,7 +198,7 @@ public class KubernetesService {
                         ? dsImage.replace("image-registry.openshift-image-registry.svc:5000/", "")
                         : dsImage;
 
-                List<Pod> pods = openshiftClient().pods().inNamespace(namespace)
+                List<Pod> pods = kubernetesClient().pods().inNamespace(namespace)
                         .withLabel("app.kubernetes.io/name", name)
                         .withLabel("app.openshift.io/runtime", "camel")
                         .list().getItems();
