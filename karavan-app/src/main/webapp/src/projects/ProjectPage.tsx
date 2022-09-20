@@ -435,7 +435,7 @@ export class ProjectPage extends React.Component<Props, State> {
     render() {
         const {file, mode, tab} = this.state;
         const isYaml = file !== undefined && file.name.endsWith("yaml");
-        const isIntegration = file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
+        const isIntegration = isYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
         const isProperties = file !== undefined && file.name.endsWith("properties");
         const isLog = file !== undefined && file.name.endsWith("log");
         const isCode = file !== undefined && (file.name.endsWith("java") || file.name.endsWith("groovy") || file.name.endsWith("json"));
