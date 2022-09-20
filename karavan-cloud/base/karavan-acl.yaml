@@ -18,8 +18,8 @@ rules:
   - apiGroups: [""]
     resources: ["persistentvolumes", "persistentvolumeclaims"]
     verbs: ["*"]
-  - apiGroups: ["", "apps.openshift.io"]
-    resources: ["deploymentconfigs", "replicationcontrollers"]
+  - apiGroups: ["", "apps", "apps.openshift.io"]
+    resources: ["deploymentconfigs", "deployments", "replicationcontrollers"]
     verbs: ["*"]
 ---
 # Role tekton run pipeline
