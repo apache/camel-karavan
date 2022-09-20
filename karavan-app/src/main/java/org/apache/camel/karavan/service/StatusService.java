@@ -91,17 +91,23 @@ public class StatusService {
         });
     }
 
-    @ConsumeEvent(value = CMD_COLLECT_STATUSES, blocking = true, ordered = true)
-    public void collectStatuses(String projectId) throws Exception {
-        if ((System.currentTimeMillis() - lastCollect) > configuration.statusThreshold()) {
-            if (infinispanService.getProject(projectId).getDeployed()) {
-                getStatuses(projectId);
-                lastCollect = System.currentTimeMillis();
-            }
-        }
+    @Scheduled(every="3s")
+    void collectStatuses() {
+        LOGGER.info("Check deployed project statuses");
+        infinispanService.getProjects().forEach(project -> {
+            collectStatusesForProject(project.getProjectId());
+        });
     }
 
-    private void getStatuses(String projectId) throws Exception {
+//    @ConsumeEvent(value = CMD_COLLECT_STATUSES, blocking = true, ordered = true)
+//    public void collectStatuses(String projectId) throws Exception {
+//        if ((System.currentTimeMillis() - lastCollect) > configuration.statusThreshold()) {
+//            collectStatusesForProject(projectId);
+//            lastCollect = System.currentTimeMillis();
+//        }
+//    }
+
+    private void collectStatusesForProject(String projectId) {
         ProjectStatus old = infinispanService.getProjectStatus(projectId);
         ProjectStatus status = new ProjectStatus();
         status.setProjectId(projectId);

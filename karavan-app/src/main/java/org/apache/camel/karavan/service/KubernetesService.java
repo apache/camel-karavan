@@ -24,7 +24,6 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.LogWatch;
-import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.tekton.client.DefaultTektonClient;
@@ -166,7 +165,7 @@ public class KubernetesService {
 
     public void rolloutDeployment(String name, String namespace) {
         try {
-            kubernetesClient().apps().deployments().inNamespace(namespace).withName(name).rolling();
+            kubernetesClient().apps().deployments().inNamespace(namespace).withName(name).rolling().restart();
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }
