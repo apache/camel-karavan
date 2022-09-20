@@ -173,6 +173,7 @@ public class KubernetesService {
 
     public void deleteDeployment(String name, String namespace) {
         try {
+            LOGGER.info("Delete deployment: " + name + " in the namespace: " + namespace);
             kubernetesClient().apps().deployments().inNamespace(namespace).withName(name).delete();
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
@@ -181,6 +182,7 @@ public class KubernetesService {
 
     public void deletePod(String name, String namespace) {
         try {
+            LOGGER.info("Delete pod: " + name + " in the namespace: " + namespace);
             kubernetesClient().pods().inNamespace(namespace).withName(name).delete();
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());

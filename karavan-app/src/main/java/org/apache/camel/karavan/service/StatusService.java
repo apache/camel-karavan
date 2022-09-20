@@ -78,7 +78,6 @@ public class StatusService {
             Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(environment -> environment.name().equals("dev")).findFirst();
             if (env.isPresent()) {
                 boolean hasDeployment =  kubernetesService.hasDeployment(project.getProjectId(), env.get().namespace());
-                System.out.println("Project " + project.getName() + " deployed: " + project.getDeployed() + " hasDeployment: " + hasDeployment);
                 if (!project.getDeployed() && hasDeployment) {
                     project.setDeployed(true);
                     infinispanService.saveProject(project);
@@ -91,21 +90,14 @@ public class StatusService {
         });
     }
 
-    @Scheduled(every="3s")
-    void collectStatuses() {
-        LOGGER.info("Check deployed project statuses");
-        infinispanService.getProjects().forEach(project -> {
-            collectStatusesForProject(project.getProjectId());
-        });
-    }
 
-//    @ConsumeEvent(value = CMD_COLLECT_STATUSES, blocking = true, ordered = true)
-//    public void collectStatuses(String projectId) throws Exception {
-//        if ((System.currentTimeMillis() - lastCollect) > configuration.statusThreshold()) {
-//            collectStatusesForProject(projectId);
-//            lastCollect = System.currentTimeMillis();
-//        }
-//    }
+    @ConsumeEvent(value = CMD_COLLECT_STATUSES, blocking = true, ordered = true)
+    public void collectStatuses(String projectId) throws Exception {
+        if ((System.currentTimeMillis() - lastCollect) > configuration.statusThreshold()) {
+            collectStatusesForProject(projectId);
+            lastCollect = System.currentTimeMillis();
+        }
+    }
 
     private void collectStatusesForProject(String projectId) {
         ProjectStatus old = infinispanService.getProjectStatus(projectId);

@@ -62,7 +62,7 @@ export class KaravanApi {
             const originalRequest = error.config;
             if ((error?.response?.status === 403 || error?.response?.status === 401) && !originalRequest._retry) {
                 console.log("error", error)
-                return SsoApi.keycloak?.updateToken(1).then(refreshed => {
+                return SsoApi.keycloak?.updateToken(30).then(refreshed => {
                     if (refreshed) {
                         console.log('SsoApi', 'Token was successfully refreshed', SsoApi.keycloak?.token);
                     } else {
