@@ -58,6 +58,13 @@
 
 4. Deploy karavan
     ```
-    kubectl apply -k minikube
+    kubectl apply -k minikube --namespace karavan
     ```
-
+5. Access Tekton Dashboard 
+    ```
+    kubectl port-forward -n tekton-pipelines service/tekton-dashboard 9097:9097
+    ```
+6. Expose karavan application service
+    ```
+    minikube service karavan --url --namespace karavan
+    ```
