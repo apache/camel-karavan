@@ -53,6 +53,8 @@ spec:
             -Dquarkus.container-image.builder=jib \
             -Dquarkus.kubernetes.deploy=true \
             -Dquarkus.kubernetes.deployment-target=kubernetes \
+            -Dquarkus.kubernetes.add-version-to-label-selectors=false \
+            -Dquarkus.kubernetes.labels.\"app.openshift.io/runtime\"=camel \
             -Dquarkus.container-image.group=${NAMESPACE} \
             -Dquarkus.container-image.tag=${DATE}
       image: ghcr.io/apache/camel-karavan-builder:3.18.4

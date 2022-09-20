@@ -53,18 +53,34 @@
     ```
     minikube addons enable registry
     ```
-3. Set git parameters
-    Edit `karavan-secret.yaml` and set git repository, username and token
+3. Get IP address of internal registry
+    ```
+    kubectl -n kube-system get svc registry -o jsonpath='{.spec.clusterIP}'
+    ```    
+4. Set git parameters
+    Edit `karavan-secret.yaml` and set git repository, username, token and Image Registry IP
+    ```
+    projects-git-repository: https://github.com/xxx
+    projects-git-password: XXXX
+    projects-git-username: XXXX
+    projects-git-main: main
+    kamelets-git-repository: https://github.com/zzz
+    kamelets-git-password: zzz
+    kamelets-git-username: zzz
+    kamelets-git-main: main
+    image-registry: X.X.X.X
+    ```
 
 4. Deploy karavan
     ```
     kubectl apply -k minikube --namespace karavan
     ```
-5. Access Tekton Dashboard 
-    ```
-    kubectl port-forward -n tekton-pipelines service/tekton-dashboard 9097:9097
-    ```
 6. Expose karavan application service
     ```
     minikube service karavan --url --namespace karavan
+    ```
+### Optional
+1.  Access Tekton Dashboard 
+    ```
+    kubectl port-forward -n tekton-pipelines service/tekton-dashboard 9097:9097
     ```
