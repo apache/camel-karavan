@@ -49,7 +49,7 @@ spec:
             -Dquarkus.container-image.insecure=true \
             -Dquarkus.container-image.username=sa \
             -Dquarkus.container-image.password=${TOKEN} \
-            -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 \
+            -Dquarkus.container-image.registry=${IMAGE_REGISTRY} \
             -Dquarkus.container-image.builder=jib \
             -Dquarkus.kubernetes-client.master-url=kubernetes.default.svc \
             -Dquarkus.kubernetes-client.token=${TOKEN} \
@@ -101,6 +101,11 @@ spec:
             secretKeyRef:
               name: karavan
               key: kamelets-git-main      
+        - name: IMAGE_REGISTRY
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: image-registry
   workspaces:
     - mountPath: /root/.m2
       name: m2-cache

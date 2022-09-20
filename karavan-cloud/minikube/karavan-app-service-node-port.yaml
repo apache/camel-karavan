@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: karavan
+    app.kubernetes.io/part-of: karavan
+  name: karavan
+spec:
+  selector:
+    app: karavan
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      nodePort: 30365
+  type: NodePort  
+  

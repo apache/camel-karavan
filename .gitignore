@@ -58,5 +58,5 @@ yarn-error.log*
 /karavan-core/lib/
 **/*.tgz
 **/*.vsix
-karavan-cloud/openshift/karavan-secret-real.yaml
+karavan-cloud/karavan-secret-real.yaml
 **/*.bak

@@ -1,0 +1,109 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: karavan-quarkus-builder
+spec:
+  params:
+    - name: project
+      type: string 
+  steps:
+    - name: karavan-build-deploy
+      script: |
+          #!/usr/bin/env bash
+          KAMELETS_DIR="/kamelets"
+          
+          if  [[ $KAMELETS_GIT_REPOSITORY == https* ]] ;
+          then
+              replacer=https://$KAMELETS_GIT_PASSWORD@
+              prefix=https://
+              url="${KAMELETS_GIT_REPOSITORY/$prefix/$replacer}"    
+              git clone --depth 1 --branch ${KAMELETS_GIT_MAIN} $url ${KAMELETS_DIR}
+          else
+              git clone --depth 1 --branch ${KAMELETS_GIT_MAIN} ${KAMELETS_GIT_REPOSITORY} ${KAMELETS_DIR}    
+          fi
+
+          CHECKOUT_DIR="/scripts"
+          
+          if  [[ $PROJECTS_GIT_REPOSITORY == https* ]] ;
+          then
+              replacer=https://$PROJECTS_GIT_PASSWORD@
+              prefix=https://
+              url="${PROJECTS_GIT_REPOSITORY/$prefix/$replacer}"    
+              git clone --depth 1 --branch ${PROJECTS_GIT_MAIN} $url ${CHECKOUT_DIR}
+          else
+              git clone --depth 1 --branch ${PROJECTS_GIT_MAIN} ${PROJECTS_GIT_REPOSITORY} ${CHECKOUT_DIR}    
+          fi
+
+          cd ${CHECKOUT_DIR}/$(inputs.params.project) 
+
+          entrypoint -Dcamel.jbang.version=3.18.2 camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR}
+
+          export LAST_COMMIT=$(git rev-parse --short HEAD)
+          export DATE=$(date '+%Y%m%d%H%M%S')
+          export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+          export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+
+          /opt/mvnd/bin/mvnd package \
+            -Dquarkus.container-image.build=true \
+            -Dquarkus.container-image.push=true \
+            -Dquarkus.container-image.insecure=true \
+            -Dquarkus.container-image.username=sa \
+            -Dquarkus.container-image.password=${TOKEN} \
+            -Dquarkus.container-image.registry=${IMAGE_REGISTRY} \
+            -Dquarkus.container-image.builder=jib \
+            -Dquarkus.kubernetes.deploy=true \
+            -Dquarkus.kubernetes.deployment-target=kubernetes \
+            -Dquarkus.container-image.group=${NAMESPACE} \
+            -Dquarkus.container-image.tag=${DATE}
+      image: ghcr.io/apache/camel-karavan-builder:3.18.4
+      env:
+        - name: PROJECTS_GIT_REPOSITORY
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: projects-git-repository
+        - name: PROJECTS_GIT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: projects-git-username
+        - name: PROJECTS_GIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: projects-git-password
+        - name: PROJECTS_GIT_MAIN
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: projects-git-main
+        - name: KAMELETS_GIT_REPOSITORY
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: kamelets-git-repository
+        - name: KAMELETS_GIT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: kamelets-git-username
+        - name: KAMELETS_GIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: kamelets-git-password
+        - name: KAMELETS_GIT_MAIN
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: kamelets-git-main      
+        - name: IMAGE_REGISTRY
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: image-registry
+  workspaces:
+    - mountPath: /root/.m2
+      name: m2-cache
+    - mountPath: /jbang/.jbang/cache
+      name: jbang-cache     
