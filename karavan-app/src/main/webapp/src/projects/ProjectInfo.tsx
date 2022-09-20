@@ -236,7 +236,7 @@ export class ProjectInfo extends React.Component<Props, State> {
 
     getReplicasPanel(deploymentStatus: DeploymentStatus, env: string) {
         const ok = (deploymentStatus && deploymentStatus?.readyReplicas > 0
-            && deploymentStatus.unavailableReplicas === 0
+            && (deploymentStatus.unavailableReplicas === 0 || deploymentStatus.unavailableReplicas === undefined)
             && deploymentStatus?.replicas === deploymentStatus?.readyReplicas)
         return (
             <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>

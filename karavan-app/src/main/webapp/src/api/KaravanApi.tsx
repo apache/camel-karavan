@@ -64,7 +64,7 @@ export class KaravanApi {
                 console.log("error", error)
                 return SsoApi.keycloak?.updateToken(30).then(refreshed => {
                     if (refreshed) {
-                        console.log('SsoApi', 'Token was successfully refreshed', SsoApi.keycloak?.token);
+                        console.log('SsoApi', 'Token was successfully refreshed');
                     } else {
                         console.log('SsoApi', 'Token is still valid');
                     }

@@ -84,7 +84,7 @@ public class StatusService {
                 } else if (project.getDeployed() && !hasDeployment) {
                     project.setDeployed(false);
                     infinispanService.saveProject(project);
-                    infinispanService.saveProjectStatus(new ProjectStatus(project.getProjectId(), List.of(), System.currentTimeMillis()));
+//                    infinispanService.saveProjectStatus(new ProjectStatus(project.getProjectId(), List.of(), System.currentTimeMillis()));
                 }
             }
         });
