@@ -22,6 +22,7 @@ nb-configuration.xml
 
 # Visual Studio Code
 .factorypath
+.vscode
 
 # Typesript
 node_modules
