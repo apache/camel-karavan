@@ -17,6 +17,7 @@
 package org.apache.camel.karavan.generator;
 
 import io.vertx.core.json.JsonObject;
+import org.apache.camel.util.SensitiveUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -134,6 +135,14 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         });
 
         camelModel.append(getMetadataCode("CamelModelMetadata", classProps, stepNames, definitions, "model"));
+
+        // add Sensitive keys
+        List<String> sk = new ArrayList(SensitiveUtils.getSensitiveKeys());
+        camelModel.append("export const SensitiveKeys: string[] = [\n");
+        for (int i = 0; i < sk.size(); i++) {
+            camelModel.append("    \"").append(sk.get(i)).append("\"").append(i < sk.size()-1 ? "," : "").append("\n");
+        }
+        camelModel.append("]");
 
         writeFileText(targetModel, camelModel.toString());
     }
