@@ -26,9 +26,9 @@
     ]
   },
   "dependencies": {
-    "@patternfly/patternfly": "4.194.4",
-    "@patternfly/react-core": "4.214.1",
-    "@patternfly/react-table": "^4.83.1",
+    "@patternfly/patternfly": "4.215.1",
+    "@patternfly/react-core": "4.239.0",
+    "@patternfly/react-table": "^4.108.0",
     "@reactour/tour": "^2.10.3",
     "@types/js-yaml": "^4.0.5",
     "@types/uuid": "8.3.4",
@@ -37,6 +37,7 @@
     "karavan-core": "file:../karavan-core",
     "react": "17.0.2",
     "react-dom": "17.0.2",
+    "@monaco-editor/react": "4.3.1",
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.0",
     "rxjs": "^7.5.2",
@@ -47,6 +48,7 @@
     "@types/dagre": "^0.7.47",
     "@types/react": "^17.0.38",
     "@types/react-dom": "^17.0.11",
-    "@types/react-router-dom": "^5.3.3"
+    "@types/react-router-dom": "^5.3.3",
+    "monaco-editor": "0.29.1"
   }
 }

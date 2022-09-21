@@ -23,7 +23,21 @@ import {
     Select,
     SelectVariant,
     SelectDirection,
-    SelectOption, ExpandableSection, TextArea, Chip, TextInputGroup, TextInputGroupMain, TextInputGroupUtilities, ChipGroup, Button, Text, Tooltip, Card, InputGroup
+    SelectOption,
+    ExpandableSection,
+    TextArea,
+    Chip,
+    TextInputGroup,
+    TextInputGroupMain,
+    TextInputGroupUtilities,
+    ChipGroup,
+    Button,
+    Text,
+    Tooltip,
+    Card,
+    InputGroup,
+    Modal,
+    ModalVariant
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -50,6 +64,8 @@ import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
 import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
 import {KubernetesSelector} from "./KubernetesSelector";
 import {KubernetesAPI} from "../../utils/KubernetesAPI";
+import Editor from "@monaco-editor/react";
+import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
 
 interface Props {
     property: PropertyMeta,
@@ -61,6 +77,7 @@ interface Props {
     element?: CamelElement
     integration: Integration,
     hideLabel?: boolean,
+    dslLanguage?: string
 }
 
 interface State {
@@ -157,7 +174,7 @@ export class DslPropertyField extends React.Component<Props, State> {
         const textVal = this.state.ref.current;
         const cursorStart = textVal.selectionStart;
         const cursorEnd = textVal.selectionEnd;
-        if (cursorStart !== cursorEnd){
+        if (cursorStart !== cursorEnd) {
             const prevValue = this.props.value;
             const selectedText = prevValue.substring(cursorStart, cursorEnd)
             value = prevValue.replace(selectedText, value);
@@ -226,15 +243,50 @@ export class DslPropertyField extends React.Component<Props, State> {
     }
 
     getTextArea = (property: PropertyMeta, value: any) => {
+        const lang = this.props.dslLanguage;
+        const showEditor = this.state.showEditor;
         return (
-            <TextArea
-                autoResize
-                className="text-field" isRequired
-                type={"text"}
-                id={property.name} name={property.name}
-                height={"100px"}
-                value={value?.toString()}
-                onChange={e => this.propertyChanged(property.name, e)}/>
+            <InputGroup>
+                <TextArea
+                    autoResize
+                    className="text-field" isRequired
+                    type={"text"}
+                    id={property.name} name={property.name}
+                    height={"100px"}
+                    value={value?.toString()}
+                    onChange={e => this.propertyChanged(property.name, e)}/>
+                <Tooltip position="bottom-end" content={"Show Editor"}>
+                    <Button variant="control" onClick={e => this.setState({showEditor: !showEditor})}>
+                        <EditorIcon/>
+                    </Button>
+                </Tooltip>
+                <Modal
+                    variant={ModalVariant.large}
+                    title="Expression"
+                    isOpen={this.state.showEditor}
+                    onClose={() => this.setState({showEditor: false})}
+                    actions={[
+                        <Button key="cancel" variant="primary" isSmall
+                                onClick={e => this.setState({showEditor: false})}>Close</Button>
+                    ]}
+                    onEscapePress={e => this.setState({showEditor: false})}>
+                    <Editor
+                        height="400px"
+                        width="100%"
+                        defaultLanguage={'java'}
+                        language={'java'}
+                        theme={'light'}
+                        options={{lineNumbers:"off", folding:false, lineNumbersMinChars:10, showUnused:false, fontSize:12, minimap:{enabled:false}}}
+                        value={value?.toString()}
+                        className={'code-editor'}
+                        onChange={(value: any, ev: any) => {
+                            if (value) {
+                                this.propertyChanged(property.name, value)
+                            }
+                        }}
+                    />
+                </Modal>
+            </InputGroup>
         )
     }
 

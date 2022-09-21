@@ -21,14 +21,14 @@ import {
     Select,
     SelectVariant,
     SelectDirection,
-    SelectOption,
+    SelectOption, Text, TextContent, TextVariants,
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import {CamelMetadataApi, Languages, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import { ExpressionDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {ExpressionDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {DslPropertyField} from "./DslPropertyField";
@@ -37,7 +37,7 @@ import {CamelUi} from "../../utils/CamelUi";
 interface Props {
     property: PropertyMeta,
     value: CamelElement,
-    onExpressionChange?: (propertyName: string, exp:ExpressionDefinition) => void
+    onExpressionChange?: (propertyName: string, exp: ExpressionDefinition) => void
     integration: Integration,
 }
 
@@ -55,8 +55,8 @@ export class ExpressionField extends React.Component<Props, State> {
         this.setState({selectIsOpen: isExpanded});
     }
 
-    expressionChanged = (language: string, value:CamelElement) => {
-        if (language !== (value as any).expressionName){
+    expressionChanged = (language: string, value: CamelElement) => {
+        if (language !== (value as any).expressionName) {
             const className = CamelMetadataApi.getCamelLanguageMetadataByName(language)?.className;
             value = CamelDefinitionApi.createExpression(className || '', {expression: (value as any).expression}); // perhaps copy other similar fields later
         }
@@ -108,22 +108,26 @@ export class ExpressionField extends React.Component<Props, State> {
         })
         return (
             <div>
-                <FormGroup label={"Language"} key={this.getValueLanguage() + "-" + property.name} fieldId={property.name}>
-                    <Select
-                        variant={SelectVariant.typeahead}
-                        aria-label={property.name}
-                        onToggle={isExpanded => {
-                            this.openSelect(isExpanded)
-                        }}
-                        onSelect={(e, lang, isPlaceholder) => this.expressionChanged(lang.toString(), value)}
-                        selections={dslLanguage}
-                        isOpen={this.state.selectIsOpen}
-                        aria-labelledby={property.name}
-                        direction={SelectDirection.down}
-                    >
-                        {selectOptions}
-                    </Select>
-                </FormGroup>
+                <label className="pf-c-form__label" htmlFor="expression">
+                    <span className="pf-c-form__label-text">Language</span>
+                    <span className="pf-c-form__label-required" aria-hidden="true"> *</span>
+                </label>
+                <Select
+                    variant={SelectVariant.typeahead}
+                    aria-label={property.name}
+                    onToggle={isExpanded => {
+                        this.openSelect(isExpanded)
+                    }}
+                    onSelect={(e, lang, isPlaceholder) => {
+                        this.expressionChanged(lang.toString(), value);
+                    }}
+                    selections={dslLanguage}
+                    isOpen={this.state.selectIsOpen}
+                    aria-labelledby={property.name}
+                    direction={SelectDirection.down}
+                >
+                    {selectOptions}
+                </Select>
                 <FormGroup
                     key={property.name}
                     fieldId={property.name}
@@ -149,7 +153,8 @@ export class ExpressionField extends React.Component<Props, State> {
                                           onExpressionChange={exp => {}}
                                           onParameterChange={parameter => {console.log(parameter)}}
                                           onDataFormatChange={dataFormat => {console.log(dataFormat)}}
-                                          onChange={this.propertyChanged} />
+                                          onChange={this.propertyChanged}
+                                          dslLanguage={dslLanguage?.[0]}/>
                     )}
                 </FormGroup>
             </div>
