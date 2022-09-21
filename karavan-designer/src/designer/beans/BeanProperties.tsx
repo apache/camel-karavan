@@ -27,6 +27,7 @@ import {
 } from "karavan-core/lib/model/CamelDefinition";
 import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
+import {SensitiveKeys} from "karavan-core/lib/model/CamelMetadata";
 import {v4 as uuidv4} from "uuid";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
@@ -36,6 +37,8 @@ import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import {KubernetesSelector} from "../route/property/KubernetesSelector";
 import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
 import {KubernetesAPI} from "../utils/KubernetesAPI";
+import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
+import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 
 
 interface Props {
@@ -48,7 +51,7 @@ interface Props {
 
 interface State {
     bean?: NamedBeanDefinition
-    properties: Map<string, [string, string]>
+    properties: Map<string, [string, string, boolean]>
     key: string,
     showKubernetesSelector: boolean
     kubernetesSelectorUuid?: string
@@ -57,9 +60,9 @@ interface State {
 
 export class BeanProperties extends React.Component<Props, State> {
 
-    preparePropertiesMap = (properties: any): Map<string, [string, string]> => {
-        const result = new Map<string, [string, string]>();
-        Object.keys(properties).forEach((k, i, a) => result.set(uuidv4(), [k, properties[k]]));
+    preparePropertiesMap = (properties: any): Map<string, [string, string, boolean]> => {
+        const result = new Map<string, [string, string, boolean]>();
+        Object.keys(properties).forEach((k, i, a) => result.set(uuidv4(), [k, properties[k], false]));
         return result;
     }
 
@@ -67,7 +70,7 @@ export class BeanProperties extends React.Component<Props, State> {
         bean: this.props.bean,
         key: '',
         showKubernetesSelector: false,
-        properties: this.props.bean?.properties ? this.preparePropertiesMap(this.props.bean?.properties) : new Map<string, [string, string]>()
+        properties: this.props.bean?.properties ? this.preparePropertiesMap(this.props.bean?.properties) : new Map<string, [string, string, boolean]>()
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
@@ -87,7 +90,7 @@ export class BeanProperties extends React.Component<Props, State> {
     setBean = (bean?: NamedBeanDefinition) => {
         this.setState({
             bean: bean,
-            properties: bean?.properties ? this.preparePropertiesMap(bean.properties) : new Map<string, [string, string]>()
+            properties: bean?.properties ? this.preparePropertiesMap(bean.properties) : new Map<string, [string, string, false]>()
         });
     }
 
@@ -100,9 +103,9 @@ export class BeanProperties extends React.Component<Props, State> {
         }
     }
 
-    propertyChanged = (uuid: string, key: string, value: string) => {
+    propertyChanged = (uuid: string, key: string, value: string, showPassword: boolean) => {
         this.setState(state => {
-            state.properties.set(uuid, [key, value]);
+            state.properties.set(uuid, [key, value, showPassword]);
             return {properties: state.properties, key: Math.random().toString()};
         })
     }
@@ -119,7 +122,7 @@ export class BeanProperties extends React.Component<Props, State> {
         const uuid = this.state.kubernetesSelectorUuid;
         if (propertyId && uuid){
             if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
-            this.propertyChanged(uuid, propertyId, value);
+            this.propertyChanged(uuid, propertyId, value, false);
             this.setState({showKubernetesSelector: false, kubernetesSelectorProperty: undefined})
         }
     }
@@ -194,9 +197,12 @@ export class BeanProperties extends React.Component<Props, State> {
                         const i = v[0];
                         const key = v[1][0];
                         const value = v[1][1];
+                        const showPassword = v[1][2];
+                        const isSecret = key != undefined && SensitiveKeys.includes(key.toLowerCase());
                         return (
                             <div key={"key-" + i} className="bean-property">
-                                <TextInput placeholder="Bean Field Name" className="text-field" isRequired type="text" id="key" name="key" value={key} onChange={e => this.propertyChanged(i, e, value)}/>
+                                <TextInput placeholder="Bean Field Name" className="text-field" isRequired type="text" id="key" name="key" value={key}
+                                           onChange={e => this.propertyChanged(i, e, value, showPassword)}/>
                                 <InputGroup>
                                     {KubernetesAPI.inKubernetes &&
                                         <Tooltip position="bottom-end" content="Select value from Kubernetes">
@@ -204,13 +210,27 @@ export class BeanProperties extends React.Component<Props, State> {
                                             <KubernetesIcon/>
                                         </Button>
                                     </Tooltip>}
-                                    <TextInput placeholder="Bean Field Value" className="text-field" isRequired type="text" id="value" name="value" value={value} onChange={e => this.propertyChanged(i, key, e)}/>
+                                    <TextInput
+                                        placeholder="Bean Field Value"
+                                        type={isSecret && !showPassword ? "password" : "text"}
+                                        className="text-field"
+                                        isRequired
+                                        id="value"
+                                        name="value"
+                                        value={value}
+                                        onChange={e => this.propertyChanged(i, key, e, showPassword)}/>
+                                    {isSecret && <Tooltip position="bottom-end" content={showPassword ? "Hide" : "Show"}>
+                                        <Button variant="control" onClick={e => this.propertyChanged(i, key, value, !showPassword)}>
+                                            {showPassword ? <ShowIcon/> : <HideIcon/>}
+                                        </Button>
+                                    </Tooltip>}
                                 </InputGroup>
                                 <Button variant="link" className="delete-button" onClick={e => this.propertyDeleted(i)}><DeleteIcon/></Button>
                             </div>
                         )
                     })}
-                    <Button variant="link" className="add-button" onClick={e => this.propertyChanged(uuidv4(), '', '')}><AddIcon/>Add property</Button>
+                    <Button variant="link" className="add-button" onClick={e => this.propertyChanged(uuidv4(), '', '', false)}>
+                        <AddIcon/>Add property</Button>
                 </FormGroup>
             </>
         )
