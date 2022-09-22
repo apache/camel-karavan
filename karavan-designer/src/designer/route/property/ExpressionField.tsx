@@ -156,7 +156,7 @@ export class ExpressionField extends React.Component<Props, State> {
                                           onDataFormatChange={dataFormat => {console.log(dataFormat)}}
                                           onChange={this.propertyChanged}
                                           dark={this.props.dark}
-                                          dslLanguage={dslLanguage?.[0]}/>
+                                          dslLanguage={dslLanguage}/>
                     )}
                 </FormGroup>
             </div>

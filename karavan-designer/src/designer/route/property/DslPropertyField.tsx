@@ -37,14 +37,14 @@ import {
     Card,
     InputGroup,
     Modal,
-    ModalVariant
+    ModalVariant, Title, TitleSizes
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
+import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {ExpressionField} from "./ExpressionField";
 import {CamelUi, RouteToCreate} from "../../utils/CamelUi";
@@ -77,7 +77,7 @@ interface Props {
     element?: CamelElement
     integration: Integration,
     hideLabel?: boolean,
-    dslLanguage?: string,
+    dslLanguage?: [string, string, string],
     dark: boolean
 }
 
@@ -263,7 +263,12 @@ export class DslPropertyField extends React.Component<Props, State> {
                 </Tooltip>
                 <Modal
                     variant={ModalVariant.large}
-                    title="Expression"
+                    header={<React.Fragment>
+                        <Title id="modal-custom-header-label" headingLevel="h1" size={TitleSizes['2xl']}>
+                            {`Expression (${dslLanguage?.[0]})`}
+                        </Title>
+                        <p className="pf-u-pt-sm">{dslLanguage?.[2]}</p>
+                    </React.Fragment>}
                     isOpen={this.state.showEditor}
                     onClose={() => this.setState({showEditor: false})}
                     actions={[
