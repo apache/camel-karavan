@@ -32,6 +32,7 @@ interface Props {
     onPropertyUpdate?: (fieldId: string, value: CamelElement) => void
     integration: Integration,
     hideLabel?: boolean
+    dark: boolean
 }
 
 interface State {
@@ -84,7 +85,8 @@ export class ObjectField extends React.Component<Props, State> {
                                           onExpressionChange={this.expressionChanged}
                                           onParameterChange={(parameter, value) => this.propertyChanged(property.name, value)}
                                           onDataFormatChange={value1 => {}}
-                                          onChange={(fieldId, value) => this.propertyChanged(property.name, value)} />
+                                          onChange={(fieldId, value) => this.propertyChanged(property.name, value)}
+                                          dark={this.props.dark}/>
                     )}
                 </div>
         )

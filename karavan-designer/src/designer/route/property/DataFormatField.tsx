@@ -37,6 +37,7 @@ interface Props {
     value: CamelElement,
     onDataFormatChange?: (value: DataFormatDefinition) => void
     integration: Integration,
+    dark: boolean,
 }
 
 interface State {
@@ -109,6 +110,7 @@ export class DataFormatField extends React.Component<Props, State> {
                                   onDataFormatChange={dataFormat => {
                                       console.log(dataFormat)
                                   }}
+                                  dark={this.props.dark}
                                   onChange={this.propertyChanged}/>
             )}
         </>)

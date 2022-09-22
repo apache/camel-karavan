@@ -77,7 +77,8 @@ interface Props {
     element?: CamelElement
     integration: Integration,
     hideLabel?: boolean,
-    dslLanguage?: string
+    dslLanguage?: string,
+    dark: boolean
 }
 
 interface State {
@@ -243,7 +244,7 @@ export class DslPropertyField extends React.Component<Props, State> {
     }
 
     getTextArea = (property: PropertyMeta, value: any) => {
-        const lang = this.props.dslLanguage;
+        const {dslLanguage, dark} = this.props;
         const showEditor = this.state.showEditor;
         return (
             <InputGroup>
@@ -275,7 +276,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                         width="100%"
                         defaultLanguage={'java'}
                         language={'java'}
-                        theme={'light'}
+                        theme={dark ? 'vs-dark' : 'light'}
                         options={{lineNumbers:"off", folding:false, lineNumbersMinChars:10, showUnused:false, fontSize:12, minimap:{enabled:false}}}
                         value={value?.toString()}
                         className={'code-editor'}
@@ -293,7 +294,11 @@ export class DslPropertyField extends React.Component<Props, State> {
     getExpressionField = (property: PropertyMeta, value: any) => {
         return (
             <div className="expression">
-                <ExpressionField property={property} value={value} onExpressionChange={this.props.onExpressionChange} integration={this.props.integration}/>
+                <ExpressionField property={property}
+                                 value={value}
+                                 onExpressionChange={this.props.onExpressionChange}
+                                 integration={this.props.integration}
+                                 dark={this.props.dark}/>
             </div>
         )
     }
@@ -301,7 +306,11 @@ export class DslPropertyField extends React.Component<Props, State> {
     getObjectField = (property: PropertyMeta, value: any) => {
         return (
             <div className="object">
-                {value && <ObjectField property={property} value={value} onPropertyUpdate={this.props.onChange} integration={this.props.integration}/>}
+                {value && <ObjectField property={property}
+                                       value={value}
+                                       onPropertyUpdate={this.props.onChange}
+                                       integration={this.props.integration}
+                                       dark={this.props.dark}/>}
             </div>
         )
     }
@@ -471,7 +480,8 @@ export class DslPropertyField extends React.Component<Props, State> {
                                        hideLabel={hideLabel}
                                        value={v}
                                        onPropertyUpdate={(f, v) => this.onMultiValueObjectUpdate(index, f, v)}
-                                       integration={this.props.integration}/>}
+                                       integration={this.props.integration}
+                                       dark={this.props.dark}/>}
             </div>
             <Button variant="link" className="delete-button" onClick={e => {
                 const v = Array.from(value);

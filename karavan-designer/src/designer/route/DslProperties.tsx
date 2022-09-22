@@ -49,6 +49,7 @@ interface Props {
     onSaveClipboardStep?: (element?: CamelElement) => void
     onClone?: (element: CamelElement) => void
     isRouteDesigner: boolean
+    dark: boolean
 }
 
 interface State {
@@ -193,7 +194,8 @@ export class DslProperties extends React.Component<Props, State> {
                                   onExpressionChange={this.expressionChanged}
                                   onParameterChange={this.parametersChanged}
                                   onDataFormatChange={this.dataFormatChanged}
-                                  onChange={this.propertyChanged}/>
+                                  onChange={this.propertyChanged}
+                                  dark={this.props.dark}/>
             )}
         </>)
     }
@@ -224,7 +226,8 @@ export class DslProperties extends React.Component<Props, State> {
                             integration={this.props.integration}
                             dslName={this.state.step.dslName}
                             value={this.state.step}
-                            onDataFormatChange={this.dataFormatChanged}/>
+                            onDataFormatChange={this.dataFormatChanged}
+                            dark={this.props.dark}/>
                     }
                 </Form>
             </div>

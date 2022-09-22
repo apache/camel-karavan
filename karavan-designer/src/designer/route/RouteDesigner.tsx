@@ -356,7 +356,7 @@ export class RouteDesigner extends React.Component<Props, State> {
                                clipboardStep={this.state.clipboardStep}
                                isRouteDesigner={true}
                                onSaveClipboardStep={this.saveToClipboard}
-                />
+                               dark={this.props.dark}/>
             </DrawerPanelContent>
         )
     }

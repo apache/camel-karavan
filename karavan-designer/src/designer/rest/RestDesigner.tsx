@@ -243,7 +243,7 @@ export class RestDesigner extends React.Component<Props, State> {
                     clipboardStep={undefined}
                     isRouteDesigner={false}
                     onClone={this.cloneRest}
-                />
+                    dark={this.props.dark}/>
             </DrawerPanelContent>
         )
     }

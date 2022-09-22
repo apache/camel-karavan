@@ -39,6 +39,7 @@ interface Props {
     value: CamelElement,
     onExpressionChange?: (propertyName: string, exp: ExpressionDefinition) => void
     integration: Integration,
+    dark: boolean,
 }
 
 interface State {
@@ -154,6 +155,7 @@ export class ExpressionField extends React.Component<Props, State> {
                                           onParameterChange={parameter => {console.log(parameter)}}
                                           onDataFormatChange={dataFormat => {console.log(dataFormat)}}
                                           onChange={this.propertyChanged}
+                                          dark={this.props.dark}
                                           dslLanguage={dslLanguage?.[0]}/>
                     )}
                 </FormGroup>
