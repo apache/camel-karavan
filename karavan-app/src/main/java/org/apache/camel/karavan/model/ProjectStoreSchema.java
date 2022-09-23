@@ -5,7 +5,7 @@ import org.infinispan.protostream.annotations.AutoProtoSchemaBuilder;
 
 @AutoProtoSchemaBuilder(
         includeClasses = {
-                GroupedKey.class, Project.class, ProjectFile.class, PipelineStatus.class, ProjectEnvStatus.class, DeploymentStatus.class,
+                GroupedKey.class, Project.class, ProjectFile.class, PipelineStatus.class, CamelStatus.class, DeploymentStatus.class,
                 PodStatus.class
         },
         schemaPackageName = "karavan")

@@ -18,6 +18,7 @@ package org.apache.camel.karavan.service;
 
 import io.quarkus.runtime.configuration.ProfileManager;
 import io.vertx.core.eventbus.EventBus;
+import org.apache.camel.karavan.model.CamelStatus;
 import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.GroupedKey;
 import org.apache.camel.karavan.model.Kamelet;
@@ -56,6 +57,8 @@ public class InfinispanService {
     BasicCache<GroupedKey, PipelineStatus> pipelineStatuses;
 
     BasicCache<GroupedKey, DeploymentStatus> deploymentStatus;
+
+    BasicCache<GroupedKey, CamelStatus> camelStatus;
 
     BasicCache<String, String> kamelets;
 
@@ -96,6 +99,7 @@ public class InfinispanService {
             files = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ProjectFile.CACHE, builder.build());
             pipelineStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(PipelineStatus.CACHE, builder.build());
             deploymentStatus = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(DeploymentStatus.CACHE, builder.build());
+            camelStatus = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(CamelStatus.CACHE, builder.build());
             kamelets = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Kamelet.CACHE, builder.build());
         } else {
             LOGGER.info("InfinispanService is starting in remote mode");
@@ -103,6 +107,7 @@ public class InfinispanService {
             files = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, ProjectFile.CACHE)));
             pipelineStatuses = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, PipelineStatus.CACHE)));
             deploymentStatus = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, DeploymentStatus.CACHE)));
+            camelStatus = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, CamelStatus.CACHE)));
             kamelets = cacheManager.administration().getOrCreateCache(Kamelet.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, Kamelet.CACHE)));
         }
         if (getProjects().isEmpty()) {
@@ -111,10 +116,6 @@ public class InfinispanService {
         }
 
         bus.publish(KaravanService.LOAD_CUSTOM_KAMELETS, "");
-
-        if (ProfileManager.getLaunchMode().isDevOrTest() && getProjects().isEmpty()){
-//            generateDevProjects();
-        }
     }
 
     public List<Project> getProjects() {
@@ -180,6 +181,14 @@ public class InfinispanService {
 
     public void saveDeploymentStatus(DeploymentStatus status) {
         deploymentStatus.put(GroupedKey.create(status.getProjectId(), status.getProjectId()), status);
+    }
+
+    public CamelStatus getCamelStatus(String projectId) {
+        return camelStatus.get(GroupedKey.create(projectId, projectId));
+    }
+
+    public void saveCamelStatus(CamelStatus status) {
+        camelStatus.put(GroupedKey.create(status.getProjectId(), status.getProjectId()), status);
     }
 
     public List<String> getKameletNames() {

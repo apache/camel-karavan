@@ -1,5 +1,5 @@
 import axios, {AxiosResponse} from "axios";
-import {DeploymentStatus, PipelineStatus, Project, ProjectFile} from "../projects/ProjectModels";
+import {CamelStatus, DeploymentStatus, PipelineStatus, Project, ProjectFile} from "../projects/ProjectModels";
 import {Buffer} from 'buffer';
 import {SsoApi} from "./SsoApi";
 
@@ -162,6 +162,17 @@ export class KaravanApi {
 
     static async getProjectDeploymentStatus(projectId: string, after: (status: DeploymentStatus) => void) {
         instance.get('/api/status/deployment/' + projectId)
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    static async getProjectCamelStatus(projectId: string, after: (status: CamelStatus) => void) {
+        instance.get('/api/status/camel/' + projectId)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);

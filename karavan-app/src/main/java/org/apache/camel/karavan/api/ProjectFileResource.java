@@ -54,7 +54,7 @@ public class ProjectFileResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ProjectFile save(@HeaderParam("username") String username, ProjectFile file) throws Exception {
+    public ProjectFile save(ProjectFile file) throws Exception {
         infinispanService.saveProjectFile(file);
         return file;
     }

@@ -17,10 +17,12 @@
 package org.apache.camel.karavan.api;
 
 import io.vertx.core.eventbus.EventBus;
+import org.apache.camel.karavan.model.CamelStatus;
 import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.KaravanConfiguration;
 import org.apache.camel.karavan.model.PipelineStatus;
 import org.apache.camel.karavan.service.InfinispanService;
+import org.apache.camel.karavan.service.StatusService;
 import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
@@ -41,15 +43,12 @@ public class StatusResource {
     InfinispanService infinispanService;
 
     @Inject
-    KaravanConfiguration configuration;
-
-    @Inject
     EventBus bus;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/pipeline/{projectId}")
-    public Response getPipelineStatus(@HeaderParam("username") String username, @PathParam("projectId") String projectId) {
+    public Response getPipelineStatus(@PathParam("projectId") String projectId) {
         PipelineStatus status = infinispanService.getPipelineStatus(projectId);
         if (status != null) {
             return Response.ok(status).build();
@@ -61,7 +60,7 @@ public class StatusResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment/{projectId}")
-    public Response getDeploymentStatus(@HeaderParam("username") String username, @PathParam("projectId") String projectId) {
+    public Response getDeploymentStatus(@PathParam("projectId") String projectId) {
         DeploymentStatus status = infinispanService.getDeploymentStatus(projectId);
         if (status != null) {
             return Response.ok(status).build();
@@ -70,29 +69,16 @@ public class StatusResource {
         }
     }
 
-//    @GET
-//    @Produces(MediaType.APPLICATION_JSON)
-//    @Path("/projects")
-//    public Map<String, Map> getSimpleStatus(@HeaderParam("username") String username) throws Exception {
-//        Map<String, Map> result = new HashMap<>();
-//        infinispanService.getProjects().forEach(project -> {
-//            ProjectStatus ps = getStatus(username, project.getProjectId());
-//            Map<String, String> statuses = new HashMap<>();
-//            ps.getStatuses().forEach(pes -> {
-//                if (pes.getLastPipelineRunResult() == null || pes.getDeploymentStatus() == null || pes.getContextStatus() == null){
-//                    statuses.put(pes.getEnvironment(), "N/A");
-//                } else {
-//                    boolean pipelineOK = pes.getLastPipelineRunResult().equals("Succeeded");
-//                    System.out.println(pes.getLastPipelineRunResult());
-//                    boolean deploymentOK = pes.getDeploymentStatus().getReadyReplicas() == pes.getDeploymentStatus().getReplicas() && pes.getDeploymentStatus().getUnavailableReplicas() == 0;
-//                    boolean camelOK = pes.getContextStatus().equals(ProjectEnvStatus.Status.UP) && pes.getConsumerStatus().equals(ProjectEnvStatus.Status.UP) && pes.getRoutesStatus().equals(ProjectEnvStatus.Status.UP);
-//                    String status = (pipelineOK && deploymentOK && camelOK) ? "UP" : "DOWN";
-//                    statuses.put(pes.getEnvironment(), status);
-//                }
-//            });
-//            result.put(project.getProjectId(), statuses);
-//        });
-//
-//        return result;
-//    }
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/camel/{projectId}")
+    public Response getCamelStatus(@PathParam("projectId") String projectId) {
+        bus.publish(StatusService.CMD_COLLECT_STATUSES, projectId);
+        CamelStatus status = infinispanService.getCamelStatus(projectId);
+        if (status != null) {
+            return Response.ok(status).build();
+        } else {
+            return Response.noContent().build();
+        }
+    }
 }

@@ -89,6 +89,10 @@ export class ProjectInfo extends React.Component<Props, State> {
                 this.setState({key: Math.random().toString(), deploymentStatus: status});
                 // console.log(status);
             });
+            KaravanApi.getProjectCamelStatus(this.props.project.projectId, (status: CamelStatus) => {
+                this.setState({key: Math.random().toString(), camelStatus: status});
+                console.log(status);
+            });
         }
     }
 
@@ -353,7 +357,7 @@ export class ProjectInfo extends React.Component<Props, State> {
                                     {pipeline ? pipeline : "-"}
                                 </Button>
                             </Label>
-                            {showTime && <Label icon={<ClockIcon/>} color={color}>{lastPipelineRunTime + "s"}</Label>}
+                            {showTime && lastPipelineRunTime !== undefined && <Label icon={<ClockIcon/>} color={color}>{lastPipelineRunTime + "s"}</Label>}
                         </LabelGroup>
                     </Tooltip>
                 </FlexItem>
