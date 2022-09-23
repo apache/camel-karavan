@@ -91,7 +91,7 @@ export class ProjectInfo extends React.Component<Props, State> {
             });
             KaravanApi.getProjectCamelStatus(this.props.project.projectId, (status: CamelStatus) => {
                 this.setState({key: Math.random().toString(), camelStatus: status});
-                console.log(status);
+                // console.log(status);
             });
         }
     }

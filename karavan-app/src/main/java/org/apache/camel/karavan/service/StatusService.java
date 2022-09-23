@@ -84,7 +84,6 @@ public class StatusService {
 
     private CamelStatus getCamelStatus(String projectId, String url) {
         // TODO: make it reactive
-        System.out.println(url);
         try {
             HttpResponse<Buffer> result = getWebClient().getAbs(url).timeout(1000).send().subscribeAsCompletionStage().toCompletableFuture().get();
             if (result.statusCode() == 200) {
