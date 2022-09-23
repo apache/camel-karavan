@@ -124,6 +124,9 @@ export class Main extends React.Component<Props, State> {
     }
 
     getData() {
+        KaravanApi.getConfiguration((config: any) => {
+            this.setState({ config: config })
+        });
         KaravanApi.getKameletNames(names => names.forEach(name => {
             KaravanApi.getKamelet(name, yaml => KameletApi.saveKamelet(yaml))
         }));

@@ -72,6 +72,7 @@ export class ProjectsPage extends React.Component<Props, State> {
 
     componentDidMount() {
         this.interval = setInterval(() => this.onGetProjects(), 700);
+        console.log("componentDidMount", this.props.config)
     }
 
     componentWillUnmount() {
