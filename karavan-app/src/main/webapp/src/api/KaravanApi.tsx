@@ -190,7 +190,7 @@ export class KaravanApi {
     }
 
     static async deleteProject(project: Project, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/project/' + encodeURI(project.projectId),
+        instance.delete('/api/project/' + encodeURI(project.projectId),
             {headers: {'username': 'cameleer'}})
             .then(res => {
                 after(res);

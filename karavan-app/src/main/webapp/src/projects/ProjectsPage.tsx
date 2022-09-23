@@ -35,21 +35,21 @@ import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";
 import {CamelUi} from "../designer/utils/CamelUi";
+import {KaravanApi} from "../api/KaravanApi";
 
 interface Props {
-    projects: Project[],
     config: any,
     onSelect: (project: Project) => void
-    onCreate: (project: Project) => void
-    onDelete: (project: Project) => void
-    onRefresh: any
+    toast: (title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') => void
 }
 
 interface State {
     projects: Project[],
     isCreateModalOpen: boolean,
+    isDeleteModalOpen: boolean,
     isCopy: boolean,
     projectToCopy?: Project,
+    projectToDelete?: Project,
     filter: string,
     name: string,
     description: string,
@@ -59,8 +59,9 @@ interface State {
 export class ProjectsPage extends React.Component<Props, State> {
 
     public state: State = {
-        projects: this.props.projects,
+        projects: [],
         isCreateModalOpen: false,
+        isDeleteModalOpen: false,
         isCopy: false,
         filter: '',
         name: '',
@@ -70,11 +71,49 @@ export class ProjectsPage extends React.Component<Props, State> {
     interval: any;
 
     componentDidMount() {
-        this.interval = setInterval(() => this.props.onRefresh.call(this), 500);
+        this.interval = setInterval(() => this.onGetProjects(), 700);
     }
 
     componentWillUnmount() {
         clearInterval(this.interval);
+    }
+
+    onProjectDelete = (project: Project) => {
+        this.setState({isDeleteModalOpen: true, projectToDelete: project})
+    };
+
+
+    deleteProject = () => {
+        if (this.state.projectToDelete)
+            KaravanApi.deleteProject(this.state.projectToDelete, res => {
+                if (res.status === 204) {
+                    this.props.toast?.call(this, "Success", "Project deleted", "success");
+                    this.onGetProjects();
+                } else {
+                    this.props.toast?.call(this,"Error", res.statusText, "danger");
+                }
+            });
+        this.setState({isDeleteModalOpen: false})
+    }
+
+    onProjectCreate = (project: Project) => {
+        KaravanApi.postProject(project, res => {
+            console.log(res.status)
+            if (res.status === 200 || res.status === 201) {
+                this.props.toast?.call(this,"Success", "Project created", "success");
+            } else {
+                this.props.toast?.call(this,"Error", res.status + ", " + res.statusText, "danger");
+            }
+        });
+    };
+
+    onGetProjects = () => {
+        KaravanApi.getConfiguration((config: any) => {
+            KaravanApi.getProjects((projects: Project[]) => {
+                this.setState({ projects: projects })
+            });
+        });
+
     }
 
     tools = () => (<Toolbar id="toolbar-group-types">
@@ -87,7 +126,7 @@ export class ProjectsPage extends React.Component<Props, State> {
             </ToolbarItem>
             <ToolbarItem>
                 <Button variant="secondary" icon={<RefreshIcon/>}
-                        onClick={e => this.props.onRefresh.call(this)}>Refresh</Button>
+                        onClick={e => this.onGetProjects()}>Refresh</Button>
             </ToolbarItem>
             <ToolbarItem>
                 <Button icon={<PlusIcon/>} onClick={e => this.setState({isCreateModalOpen: true, isCopy: false})}>Create</Button>
@@ -101,13 +140,13 @@ export class ProjectsPage extends React.Component<Props, State> {
 
     closeModal = () => {
         this.setState({isCreateModalOpen: false, isCopy: false, name: this.props.config.groupId, description:'', projectId: ''});
-        this.props.onRefresh.call(this);
+        this.onGetProjects();
     }
 
     saveAndCloseCreateModal = () => {
         const {name, description, projectId} = this.state;
         const p = new Project(projectId, name, description, '');
-        this.props.onCreate.call(this, p);
+        this.onProjectCreate(p);
         this.setState({isCreateModalOpen: false, isCopy: false, name: this.props.config.groupId, description: '',  projectId: ''});
     }
 
@@ -118,12 +157,12 @@ export class ProjectsPage extends React.Component<Props, State> {
     }
 
     createModalForm() {
-        const {isCopy, projectToCopy, projectId, name} = this.state;
+        const {isCopy, projectToCopy, projectId, name, isCreateModalOpen} = this.state;
         return (
             <Modal
                 title={!isCopy ? "Create new project" : "Copy project from " + projectToCopy?.projectId}
                 variant={ModalVariant.small}
-                isOpen={this.state.isCreateModalOpen}
+                isOpen={isCreateModalOpen}
                 onClose={this.closeModal}
                 onKeyDown={this.onKeyDown}
                 actions={[
@@ -149,6 +188,25 @@ export class ProjectsPage extends React.Component<Props, State> {
                                    onChange={e => this.setState({projectId: CamelUi.nameFromTitle(e)})}/>
                     </FormGroup>
                 </Form>
+            </Modal>
+        )
+    }
+
+    deleteModalForm() {
+        const {isCopy, projectToCopy, projectId, name, isCreateModalOpen} = this.state;
+        return (
+            <Modal
+                title="Confirmation"
+                variant={ModalVariant.small}
+                isOpen={this.state.isDeleteModalOpen}
+                onClose={() => this.setState({isDeleteModalOpen: false})}
+                actions={[
+                    <Button key="confirm" variant="primary" onClick={e => this.deleteProject()}>Delete</Button>,
+                    <Button key="cancel" variant="link"
+                            onClick={e => this.setState({isDeleteModalOpen: false})}>Cancel</Button>
+                ]}
+                onEscapePress={e => this.setState({isDeleteModalOpen: false})}>
+                <div>{"Are you sure you want to delete the project " + this.state.projectToDelete?.projectId + "?"}</div>
             </Modal>
         )
     }
@@ -214,7 +272,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                                                     </OverflowMenuItem>
                                                     <OverflowMenuItem>
                                                         <Tooltip content={"Delete project"} position={"bottom"}>
-                                                            <Button variant={"plain"} icon={<DeleteIcon/>} onClick={e=>this.props.onDelete?.call(this, project)}></Button>
+                                                            <Button variant={"plain"} icon={<DeleteIcon/>} onClick={e=>this.onProjectDelete(project)}></Button>
                                                         </Tooltip>
                                                     </OverflowMenuItem>
                                                 </OverflowMenuGroup>
@@ -241,6 +299,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                     </TableComposable>
                 </PageSection>
                 {this.createModalForm()}
+                {this.deleteModalForm()}
             </PageSection>
         )
     }

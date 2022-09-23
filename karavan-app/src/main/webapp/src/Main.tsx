@@ -8,7 +8,6 @@ import {
     AlertActionCloseButton,
     Flex,
     FlexItem,
-    Avatar,
     Tooltip,
     Divider, Spinner, Bullseye, Popover, Badge
 } from '@patternfly/react-core';
@@ -65,7 +64,6 @@ interface Props {
 
 interface State {
     config: any,
-    isNavOpen: boolean,
     pageId: string,
     projects: Project[],
     project?: Project,
@@ -83,7 +81,6 @@ export class Main extends React.Component<Props, State> {
 
     public state: State = {
         config: {},
-        isNavOpen: true,
         pageId: "projects",
         projects: [],
         isModalOpen: false,
@@ -133,22 +130,10 @@ export class Main extends React.Component<Props, State> {
         KaravanApi.getComponentNames(names => names.forEach(name => {
             KaravanApi.getComponent(name, json => ComponentApi.saveComponent(json))
         }));
-        this.onGetProjects();
     }
 
-    onNavToggle = () => {
-        this.setState({
-            isNavOpen: !this.state.isNavOpen
-        });
-    };
-
-    onNavSelect = (result: any) => {
-        if (result.itemId === 'integrations') {
-            this.onGetProjects();
-        }
-        this.setState({
-            pageId: result.itemId,
-        });
+    deleteErrorMessage = (id: string) => {
+        this.setState({alerts: this.state.alerts.filter(a => a.id !== id)})
     }
 
     pageNav = () => {
@@ -204,26 +189,6 @@ export class Main extends React.Component<Props, State> {
         </Flex>)
     }
 
-    onProjectDelete = (project: Project) => {
-        this.setState({isModalOpen: true, projectToDelete: project})
-    };
-
-    deleteErrorMessage = (id: string) => {
-        this.setState({alerts: this.state.alerts.filter(a => a.id !== id)})
-    }
-    deleteProject = () => {
-        if (this.state.projectToDelete)
-            KaravanApi.deleteProject(this.state.projectToDelete, res => {
-                if (res.status === 204) {
-                    this.toast("Success", "Project deleted", "success");
-                    this.onGetProjects();
-                } else {
-                    this.toast("Error", res.statusText, "danger");
-                }
-            });
-        this.setState({isModalOpen: false})
-    }
-
     toast = (title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') => {
         const mess = [];
         mess.push(...this.state.alerts, new ToastMessage(title, text, variant));
@@ -231,31 +196,8 @@ export class Main extends React.Component<Props, State> {
     }
 
     onProjectSelect = (project: Project) => {
-        this.setState({isNavOpen: true, pageId: 'project', project: project});
+        this.setState({pageId: 'project', project: project});
     };
-
-    onProjectCreate = (project: Project) => {
-        KaravanApi.postProject(project, res => {
-            console.log(res.status)
-            if (res.status === 200 || res.status === 201) {
-                this.toast("Success", "Project created", "success");
-                this.setState({isNavOpen: true, pageId: 'project', project: project});
-            } else {
-                this.toast("Error", res.status + ", " + res.statusText, "danger");
-            }
-        });
-    };
-
-    onGetProjects = () => {
-        KaravanApi.getConfiguration((config: any) => {
-            KaravanApi.getProjects((projects: Project[]) => {
-                this.setState({
-                    projects: projects, request: uuidv4(), config: config
-                })
-            });
-        });
-
-    }
 
     getMain() {
         return (
@@ -267,14 +209,9 @@ export class Main extends React.Component<Props, State> {
                     <FlexItem flex={{default:"flex_2"}} style={{height:"100%"}}>
                         {this.state.pageId === 'projects' &&
                             <ProjectsPage key={this.state.request}
-                                          projects={this.state.projects}
-                                          config={this.state.config}
-                                          onDelete={this.onProjectDelete}
                                           onSelect={this.onProjectSelect}
-                                          onRefresh={() => {
-                                              this.onGetProjects();
-                                          }}
-                                          onCreate={this.onProjectCreate}/>}
+                                          toast={this.toast}
+                                          config={this.state.config}/>}
                         {this.state.pageId === 'project' && this.state.project && <ProjectPage project={this.state.project} config={this.state.config}/>}
                         {this.state.pageId === 'configuration' && <ConfigurationPage/>}
                         {this.state.pageId === 'kamelets' && <KameletsPage dark={false}/>}
@@ -282,19 +219,6 @@ export class Main extends React.Component<Props, State> {
                         {this.state.pageId === 'eip' && <EipPage dark={false}/>}
                     </FlexItem>
                 </Flex>
-                <Modal
-                    title="Confirmation"
-                    variant={ModalVariant.small}
-                    isOpen={this.state.isModalOpen}
-                    onClose={() => this.setState({isModalOpen: false})}
-                    actions={[
-                        <Button key="confirm" variant="primary" onClick={e => this.deleteProject()}>Delete</Button>,
-                        <Button key="cancel" variant="link"
-                                onClick={e => this.setState({isModalOpen: false})}>Cancel</Button>
-                    ]}
-                    onEscapePress={e => this.setState({isModalOpen: false})}>
-                    <div>{"Are you sure you want to delete the project " + this.state.projectToDelete?.projectId + "?"}</div>
-                </Modal>
             </>
         )
     }
