@@ -27,6 +27,8 @@ public class ProjectEnvStatus {
     Long lastPipelineRunTime;
     @ProtoField(number = 11)
     DeploymentStatus deploymentStatus;
+    @ProtoField(number = 12)
+    String lastPipelineRunStartTime;
 
     public enum Status {
         @ProtoEnumValue(number = 0, name = "DOWN")
@@ -38,7 +40,8 @@ public class ProjectEnvStatus {
     }
 
     @ProtoFactory
-    public ProjectEnvStatus(String environment, Status status, Status contextStatus, Status consumerStatus, Status routesStatus, Status registryStatus, String contextVersion, String lastPipelineRun, String lastPipelineRunResult, Long lastPipelineRunTime, DeploymentStatus deploymentStatus) {
+    public ProjectEnvStatus(String environment, Status status, Status contextStatus, Status consumerStatus, Status routesStatus, Status registryStatus, String contextVersion,
+                            String lastPipelineRun, String lastPipelineRunResult, Long lastPipelineRunTime, DeploymentStatus deploymentStatus, String lastPipelineRunStartTime) {
         this.environment = environment;
         this.status = status;
         this.contextStatus = contextStatus;
@@ -50,6 +53,7 @@ public class ProjectEnvStatus {
         this.lastPipelineRunResult = lastPipelineRunResult;
         this.lastPipelineRunTime = lastPipelineRunTime;
         this.deploymentStatus = deploymentStatus;
+        this.lastPipelineRunStartTime = lastPipelineRunStartTime;
     }
 
     public ProjectEnvStatus(String environment) {
@@ -142,5 +146,13 @@ public class ProjectEnvStatus {
 
     public void setLastPipelineRunTime(Long lastPipelineRunTime) {
         this.lastPipelineRunTime = lastPipelineRunTime;
+    }
+
+    public String getLastPipelineRunStartTime() {
+        return lastPipelineRunStartTime;
+    }
+
+    public void setLastPipelineRunStartTime(String lastPipelineRunStartTime) {
+        this.lastPipelineRunStartTime = lastPipelineRunStartTime;
     }
 }

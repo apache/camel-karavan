@@ -45,6 +45,9 @@ public class KaravanService {
     InfinispanService infinispanService;
 
     @Inject
+    KubernetesService kubernetesService;
+
+    @Inject
     GitService gitService;
 
     @ConfigProperty(name = "karavan.config.runtime")
@@ -54,6 +57,8 @@ public class KaravanService {
     KaravanConfiguration configuration;
 
     void onStart(@Observes StartupEvent ev) {
+        infinispanService.start();
+        kubernetesService.start();
     }
 
     @ConsumeEvent(value = IMPORT_PROJECTS, blocking = true)

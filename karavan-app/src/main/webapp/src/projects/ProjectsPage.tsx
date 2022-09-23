@@ -194,7 +194,6 @@ export class ProjectsPage extends React.Component<Props, State> {
     }
 
     deleteModalForm() {
-        const {isCopy, projectToCopy, projectId, name, isCreateModalOpen} = this.state;
         return (
             <Modal
                 title="Confirmation"
@@ -258,8 +257,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                                     </Td>
                                     <Td noPadding style={{width:"180px"}}>
                                         <Flex direction={{default: "row"}}>
-                                            {environments.filter(e => e !== undefined)
-                                                .map(e => <FlexItem key={e}><Badge isRead={!project.deployed}>{e}</Badge></FlexItem>)}
+                                            <FlexItem key={"dev"}><Badge isRead={!project.deployed}>{"dev"}</Badge></FlexItem>
                                         </Flex>
                                     </Td>
                                     <Td isActionCell>

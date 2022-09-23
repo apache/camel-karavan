@@ -7,19 +7,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DeploymentStatus {
+    public static final String CACHE = "deployment_statuses";
     @ProtoField(number = 1)
-    String image;
+    String projectId;
     @ProtoField(number = 2)
-    Integer replicas;
+    String image;
     @ProtoField(number = 3)
-    Integer readyReplicas;
+    Integer replicas;
     @ProtoField(number = 4)
+    Integer readyReplicas;
+    @ProtoField(number = 5)
     Integer unavailableReplicas;
-    @ProtoField(number = 5, collectionImplementation = ArrayList.class)
+    @ProtoField(number = 6, collectionImplementation = ArrayList.class)
     List<PodStatus> podStatuses;
 
 
-    public DeploymentStatus() {
+    public DeploymentStatus(String projectId) {
+        this.projectId = projectId;
         this.image = "";
         this.replicas = 0;
         this.readyReplicas = 0;
@@ -28,12 +32,21 @@ public class DeploymentStatus {
     }
 
     @ProtoFactory
-    public DeploymentStatus(String image, Integer replicas, Integer readyReplicas, Integer unavailableReplicas, List<PodStatus> podStatuses) {
+    public DeploymentStatus(String projectId, String image, Integer replicas, Integer readyReplicas, Integer unavailableReplicas, List<PodStatus> podStatuses) {
+        this.projectId = projectId;
         this.image = image;
         this.replicas = replicas;
         this.readyReplicas = readyReplicas;
         this.unavailableReplicas = unavailableReplicas;
         this.podStatuses = podStatuses;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 
     public String getImage() {

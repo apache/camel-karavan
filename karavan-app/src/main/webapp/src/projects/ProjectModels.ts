@@ -8,7 +8,7 @@ export class Project {
     public constructor(projectId: string, name: string, description: string, lastCommit: string);
     public constructor(init?: Partial<Project>);
     public constructor(...args: any[]) {
-        if (args.length === 1){
+        if (args.length === 1) {
             Object.assign(this, args[0]);
             return;
         } else {
@@ -21,21 +21,8 @@ export class Project {
     }
 }
 
-export class ProjectEnvStatus {
-    environment: string = '';
-    status: string = '';
-    contextStatus: string = '';
-    consumerStatus: string = '';
-    routesStatus: string = '';
-    registryStatus: string = '';
-    contextVersion: string = '';
-    lastPipelineRun: string = '';
-    lastPipelineRunResult: string = '';
-    lastPipelineRunTime: number = 0;
-    deploymentStatus: DeploymentStatus = new DeploymentStatus();
-}
-
 export class DeploymentStatus {
+    projectId: string = '';
     image: string = '';
     replicas: number = 0;
     readyReplicas: number = 0;
@@ -51,10 +38,21 @@ export class PodStatus {
     deployment: string = '';
 }
 
-export class ProjectStatus {
+export class CamelStatus {
     projectId: string = '';
-    lastUpdate: number = 0;
-    statuses: ProjectEnvStatus[] = [];
+    registryStatus: string = '';
+    routesStatus: string = '';
+    consumerStatus: string = '';
+    contextStatus: string = '';
+    contextVersion: string = '';
+}
+
+export class PipelineStatus {
+    projectId: string = '';
+    pipelineName: string = '';
+    result: string = '';
+    startTime: string = '';
+    completionTime: string = '';
 }
 
 export class ProjectFile {

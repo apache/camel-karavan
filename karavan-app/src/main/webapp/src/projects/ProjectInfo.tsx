@@ -11,7 +11,7 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
-import {DeploymentStatus, Project, ProjectStatus} from "./ProjectModels";
+import {DeploymentStatus, Project, PipelineStatus, CamelStatus} from "./ProjectModels";
 import BuildIcon from "@patternfly/react-icons/dist/esm/icons/build-icon";
 import RolloutIcon from "@patternfly/react-icons/dist/esm/icons/process-automation-icon";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
@@ -29,7 +29,9 @@ interface Props {
 
 interface State {
     project?: Project,
-    status?: ProjectStatus,
+    pipelineStatus?: PipelineStatus,
+    deploymentStatus?: DeploymentStatus,
+    camelStatus?: CamelStatus,
     isPushing: boolean,
     isBuilding: boolean,
     isRolling: boolean,
@@ -77,12 +79,14 @@ export class ProjectInfo extends React.Component<Props, State> {
     }
 
     onRefreshStatus = () => {
+        // console.log("onRefreshStatus", this.props.project)
         if (this.props.project) {
-            KaravanApi.getProjectStatus(this.props.project.projectId, (status: ProjectStatus) => {
-                this.setState({
-                    key: Math.random().toString(),
-                    status: status
-                });
+            KaravanApi.getProjectPipelineStatus(this.props.project.projectId, (status: PipelineStatus) => {
+                this.setState({key: Math.random().toString(), pipelineStatus: status});
+                // console.log(status);
+            });
+            KaravanApi.getProjectDeploymentStatus(this.props.project.projectId, (status: DeploymentStatus) => {
+                this.setState({key: Math.random().toString(), deploymentStatus: status});
                 // console.log(status);
             });
         }
@@ -141,20 +145,17 @@ export class ProjectInfo extends React.Component<Props, State> {
     }
 
     buildButton = (env: string) => {
-        const isDeploying = this.state.isBuilding;
-        const isPushing = this.state.isPushing;
-        const status = this.state.status?.statuses.find(s => s.environment === env)
-        const pipelineResult = status?.lastPipelineRunResult;
-        const isRunning = pipelineResult === 'Running';
+        const {isBuilding, isPushing, pipelineStatus} = this.state;
+        const isRunning = pipelineStatus?.result === 'Running';
         return (<Tooltip content="Build and deploy" position={"left"}>
-            <Button isLoading={isDeploying ? true : undefined}
-                    isDisabled={isDeploying || isRunning || isPushing}
+            <Button isLoading={isBuilding ? true : undefined}
+                    isDisabled={isBuilding || isRunning || isPushing}
                     isSmall
                     variant="secondary"
                     className="project-button"
-                    icon={!isDeploying ? <BuildIcon/> : <div></div>}
+                    icon={!isBuilding ? <BuildIcon/> : <div></div>}
                     onClick={e => this.build()}>
-                {isDeploying ? "..." : "Deploy"}
+                {isBuilding ? "..." : "Deploy"}
             </Button>
         </Tooltip>)
     }
@@ -203,8 +204,7 @@ export class ProjectInfo extends React.Component<Props, State> {
     }
 
     getEnvPanel(env: string) {
-        const {status, project} = this.state;
-        const deploymentStatus = status?.statuses.find(s => s.environment === env)?.deploymentStatus;
+        const {deploymentStatus} = this.state;
         return (
             <DescriptionList isHorizontal>
                 <DescriptionListGroup>
@@ -305,7 +305,7 @@ export class ProjectInfo extends React.Component<Props, State> {
     }
 
     getHealthPanel(env: string) {
-        const status = this.state.status?.statuses.find(s => s.environment === env)
+        const status = this.state.camelStatus;
         const registryStatus = status?.registryStatus;
         const routesStatus = status?.routesStatus;
         const consumersStatus = status?.consumerStatus;
@@ -325,10 +325,16 @@ export class ProjectInfo extends React.Component<Props, State> {
     }
 
     getPipelineState(env: string) {
-        const status = this.state.status?.statuses.find(s => s.environment === env)
-        const pipeline = status?.lastPipelineRun;
-        const pipelineResult = status?.lastPipelineRunResult;
-        const lastPipelineRunTime = status?.lastPipelineRunTime;
+        // console.log(this.state.pipelineStatus)
+        const status = this.state.pipelineStatus;
+        const pipeline = status?.pipelineName;
+        const pipelineResult = status?.result;
+        let lastPipelineRunTime = 0;
+        if (status?.startTime){
+            const start:Date = new Date(status.startTime);
+            const finish:Date = status.completionTime != undefined && status.completionTime != null ? new Date(status.completionTime) : new Date();
+            lastPipelineRunTime =Math.round( (finish.getTime() - start.getTime()) / 1000 );
+        }
         const showTime = lastPipelineRunTime && lastPipelineRunTime > 0;
         const isRunning = pipelineResult === 'Running';
         const isFailed = pipelineResult === 'Failed';

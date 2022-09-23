@@ -26,7 +26,7 @@ import {
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
 import {KaravanApi} from "../api/KaravanApi";
-import {Project, ProjectFile, ProjectFileTypes, ProjectStatus} from "./ProjectModels";
+import {Project, ProjectFile, ProjectFileTypes} from "./ProjectModels";
 import {CamelUi} from "../designer/utils/CamelUi";
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
@@ -55,7 +55,6 @@ interface Props {
 
 interface State {
     project?: Project,
-    status?: ProjectStatus,
     file?: ProjectFile,
     files: ProjectFile[],
     isUploadModalOpen: boolean,

@@ -1,5 +1,5 @@
 import axios, {AxiosResponse} from "axios";
-import {Project, ProjectFile, ProjectStatus} from "../projects/ProjectModels";
+import {DeploymentStatus, PipelineStatus, Project, ProjectFile} from "../projects/ProjectModels";
 import {Buffer} from 'buffer';
 import {SsoApi} from "./SsoApi";
 
@@ -149,8 +149,19 @@ export class KaravanApi {
         });
     }
 
-    static async getProjectStatus(projectId: string, after: (status: ProjectStatus) => void) {
-        instance.get('/api/status/project/' + projectId)
+    static async getProjectPipelineStatus(projectId: string, after: (status: PipelineStatus) => void) {
+        instance.get('/api/status/pipeline/' + projectId)
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    static async getProjectDeploymentStatus(projectId: string, after: (status: DeploymentStatus) => void) {
+        instance.get('/api/status/deployment/' + projectId)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);

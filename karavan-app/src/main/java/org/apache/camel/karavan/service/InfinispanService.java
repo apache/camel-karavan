@@ -16,14 +16,14 @@
  */
 package org.apache.camel.karavan.service;
 
-import io.quarkus.runtime.StartupEvent;
 import io.quarkus.runtime.configuration.ProfileManager;
 import io.vertx.core.eventbus.EventBus;
+import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.GroupedKey;
 import org.apache.camel.karavan.model.Kamelet;
+import org.apache.camel.karavan.model.PipelineStatus;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
-import org.apache.camel.karavan.model.ProjectStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.infinispan.Cache;
 import org.infinispan.client.hotrod.RemoteCache;
@@ -35,14 +35,12 @@ import org.infinispan.commons.configuration.XMLStringConfiguration;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.cache.SingleFileStoreConfigurationBuilder;
-import org.infinispan.configuration.cache.StorageType;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.query.dsl.QueryFactory;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +53,9 @@ public class InfinispanService {
 
     BasicCache<GroupedKey, ProjectFile> files;
 
-    BasicCache<GroupedKey, ProjectStatus> statuses;
+    BasicCache<GroupedKey, PipelineStatus> pipelineStatuses;
+
+    BasicCache<GroupedKey, DeploymentStatus> deploymentStatus;
 
     BasicCache<String, String> kamelets;
 
@@ -78,7 +78,7 @@ public class InfinispanService {
 
     private static final Logger LOGGER = Logger.getLogger(KaravanService.class.getName());
 
-    void onStart(@Observes StartupEvent ev) {
+    void start() {
         if (cacheManager == null) {
             LOGGER.info("InfinispanService is starting in local mode");
             GlobalConfigurationBuilder global = GlobalConfigurationBuilder.defaultClusteredBuilder();
@@ -94,13 +94,15 @@ public class InfinispanService {
                     .fetchPersistentState(true);
             projects = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Project.CACHE, builder.build());
             files = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ProjectFile.CACHE, builder.build());
-            statuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ProjectStatus.CACHE, builder.build());
+            pipelineStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(PipelineStatus.CACHE, builder.build());
+            deploymentStatus = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(DeploymentStatus.CACHE, builder.build());
             kamelets = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Kamelet.CACHE, builder.build());
         } else {
             LOGGER.info("InfinispanService is starting in remote mode");
             projects = cacheManager.administration().getOrCreateCache(Project.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, Project.CACHE)));
             files = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, ProjectFile.CACHE)));
-            statuses = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, ProjectStatus.CACHE)));
+            pipelineStatuses = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, PipelineStatus.CACHE)));
+            deploymentStatus = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, DeploymentStatus.CACHE)));
             kamelets = cacheManager.administration().getOrCreateCache(Kamelet.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, Kamelet.CACHE)));
         }
         if (getProjects().isEmpty()) {
@@ -164,12 +166,20 @@ public class InfinispanService {
         return projects.get(GroupedKey.create(project, project));
     }
 
-    public ProjectStatus getProjectStatus(String projectId) {
-        return statuses.get(GroupedKey.create(projectId, projectId));
+    public PipelineStatus getPipelineStatus(String projectId) {
+        return pipelineStatuses.get(GroupedKey.create(projectId, projectId));
     }
 
-    public void saveProjectStatus(ProjectStatus status) {
-        statuses.put(GroupedKey.create(status.getProjectId(), status.getProjectId()), status);
+    public void savePipelineStatus(PipelineStatus status) {
+        pipelineStatuses.put(GroupedKey.create(status.getProjectId(), status.getProjectId()), status);
+    }
+
+    public DeploymentStatus getDeploymentStatus(String projectId) {
+        return deploymentStatus.get(GroupedKey.create(projectId, projectId));
+    }
+
+    public void saveDeploymentStatus(DeploymentStatus status) {
+        deploymentStatus.put(GroupedKey.create(status.getProjectId(), status.getProjectId()), status);
     }
 
     public List<String> getKameletNames() {

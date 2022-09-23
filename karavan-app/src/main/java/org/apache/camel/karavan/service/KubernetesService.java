@@ -23,6 +23,7 @@ import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.dsl.LogWatch;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.client.OpenShiftClient;
@@ -35,24 +36,33 @@ import io.fabric8.tekton.pipeline.v1beta1.PipelineRunBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpec;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpecBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.WorkspaceBindingBuilder;
+import io.quarkus.runtime.ShutdownEvent;
+import io.quarkus.runtime.StartupEvent;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.model.DeploymentStatus;
+import org.apache.camel.karavan.model.KaravanConfiguration;
 import org.apache.camel.karavan.model.PipelineRunLog;
 import org.apache.camel.karavan.model.PodStatus;
 import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.watcher.DeploymentWatcher;
+import org.apache.camel.karavan.watcher.PipelineRunWatcher;
+import org.apache.camel.karavan.watcher.PodWatcher;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.Pipe;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -63,6 +73,12 @@ public class KubernetesService {
 
     @ConfigProperty(name = "kubernetes.namespace", defaultValue = "localhost")
     String currentNamespace;
+
+    @Inject
+    KaravanConfiguration config;
+
+    @Inject
+    InfinispanService infinispanService;
 
     @Produces
     public KubernetesClient kubernetesClient() {
@@ -80,6 +96,29 @@ public class KubernetesService {
     }
 
     private static final Logger LOGGER = Logger.getLogger(KubernetesService.class.getName());
+
+    private List<Watch> watches = new ArrayList<>();
+
+    void start() {
+        LOGGER.info("Start KubernetesService");
+        Optional<KaravanConfiguration.Environment> env = config.environments().stream()
+                .filter(environment -> environment.name().equals("dev")).findFirst();
+        if (env.isPresent()) {
+            watches.add(kubernetesClient().apps().deployments().inNamespace(env.get().namespace())
+                    .watch(new DeploymentWatcher(infinispanService, this)));
+
+            watches.add(kubernetesClient().pods().inNamespace(env.get().namespace()).withLabel("app.openshift.io/runtime", "camel")
+                    .watch(new PodWatcher(infinispanService, this)));
+
+            watches.add(tektonClient().v1beta1().pipelineRuns().inNamespace(env.get().namespace())
+                    .watch(new PipelineRunWatcher(infinispanService)));
+        }
+    }
+
+    void onStop(@Observes ShutdownEvent ev) {
+        LOGGER.info("Stop KubernetesService");
+        watches.forEach(watch -> watch.close());
+    }
 
     public String createPipelineRun(Project project, String pipelineName, String namespace) throws Exception {
         LOGGER.info("Pipeline is creating for " + project.getProjectId());
@@ -189,41 +228,55 @@ public class KubernetesService {
         }
     }
 
-    public DeploymentStatus getDeploymentStatus(String name, String namespace) {
+    public DeploymentStatus getDeploymentStatus(String name, Deployment deployment) {
         try {
-            Deployment deployment = kubernetesClient().apps().deployments().inNamespace(namespace).withName(name).get();
-            if (deployment != null) {
-                String dsImage = deployment.getSpec().getTemplate().getSpec().getContainers().get(0).getImage();
-                String imageName = dsImage.startsWith("image-registry.openshift-image-registry.svc")
-                        ? dsImage.replace("image-registry.openshift-image-registry.svc:5000/", "")
-                        : dsImage;
+            String dsImage = deployment.getSpec().getTemplate().getSpec().getContainers().get(0).getImage();
+            String imageName = dsImage.startsWith("image-registry.openshift-image-registry.svc")
+                    ? dsImage.replace("image-registry.openshift-image-registry.svc:5000/", "")
+                    : dsImage;
 
-                List<Pod> pods = kubernetesClient().pods().inNamespace(namespace)
-                        .withLabel("app.kubernetes.io/name", name)
-                        .withLabel("app.openshift.io/runtime", "camel")
-                        .list().getItems();
+            List<PodStatus> podStatuses = getDeploymentPodsStatuses(name, deployment.getMetadata().getNamespace());
 
-                List<PodStatus> podStatuses = pods.stream().map(pod -> new PodStatus(
-                        pod.getMetadata().getName(),
-                        pod.getStatus().getContainerStatuses().get(0).getStarted(),
-                        pod.getStatus().getContainerStatuses().get(0).getReady(),
-                        getPodReason(pod),
-                        pod.getMetadata().getLabels().get("app.kubernetes.io/name")
-                )).collect(Collectors.toList());
-
-                return new DeploymentStatus(
-                        imageName,
-                        deployment.getSpec().getReplicas(),
-                        deployment.getStatus().getReadyReplicas(),
-                        deployment.getStatus().getUnavailableReplicas(),
-                        podStatuses
-                );
-            } else {
-                return new DeploymentStatus("", 0, 0, 0, List.of());
-            }
+            return new DeploymentStatus(
+                    name,
+                    imageName,
+                    deployment.getSpec().getReplicas(),
+                    deployment.getStatus().getReadyReplicas(),
+                    deployment.getStatus().getUnavailableReplicas(),
+                    podStatuses
+            );
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
-            return new DeploymentStatus();
+            return new DeploymentStatus(name);
+        }
+    }
+
+    public List<PodStatus> getDeploymentPodsStatuses(String name, String namespace) {
+        try {
+            List<Pod> pods = kubernetesClient().pods().inNamespace(namespace)
+                    .withLabel("app.kubernetes.io/name", name)
+                    .withLabel("app.openshift.io/runtime", "camel")
+                    .list().getItems();
+
+            return pods.stream().map(pod -> new PodStatus(
+                    pod.getMetadata().getName(),
+                    pod.getStatus().getContainerStatuses().get(0).getStarted(),
+                    pod.getStatus().getContainerStatuses().get(0).getReady(),
+                    getPodReason(pod),
+                    pod.getMetadata().getLabels().get("app.kubernetes.io/name")
+            )).collect(Collectors.toList());
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+            return List.of();
+        }
+    }
+
+    public Deployment getDeployment(String name, String namespace) {
+        try {
+            return kubernetesClient().apps().deployments().inNamespace(namespace).withName(name).get();
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+            return null;
         }
     }
 
