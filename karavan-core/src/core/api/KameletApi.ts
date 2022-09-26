@@ -16,6 +16,8 @@
  */
 import {KameletModel, Property} from "../model/KameletModels";
 import * as yaml from 'js-yaml';
+import {Component} from "../model/ComponentModels";
+import {Components} from "./ComponentApi";
 
 export const Kamelets: KameletModel[] = [];
 
@@ -89,6 +91,8 @@ export const KameletApi = {
 
     saveKamelet: (yaml: string) => {
         const kamelet:KameletModel = KameletApi.yamlToKamelet(yaml);
-        Kamelets.push(kamelet);
+        if (Kamelets.findIndex((k:KameletModel) => k.metadata.name === kamelet.metadata.name) === -1) {
+            Kamelets.push(kamelet);
+        }
     }
 }

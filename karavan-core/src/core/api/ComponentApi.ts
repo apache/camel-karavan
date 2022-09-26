@@ -34,7 +34,9 @@ export const ComponentApi = {
 
     saveComponent: (json: string) => {
         const component: Component = ComponentApi.jsonToComponent(json);
-        Components.push(component);
+        if (Components.findIndex((c:Component) => c.component.name === component.component.name) === -1) {
+            Components.push(component);
+        }
     },
 
     getComponents: (): Component[] => {

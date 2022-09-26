@@ -783,12 +783,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('header', 'Header', "Adds a response header", 'ResponseHeaderDefinition', '', '', false, false, true, true, ''),
         new PropertyMeta('examples', 'Examples', "Examples of response messages", 'RestPropertyDefinition', '', '', false, false, true, true, ''),
     ]),
-    new ElementMeta('errorHandler', 'ErrorHandlerBuilderDeserializer', 'Error Handler', "Camel error handling.", 'configuration,error', [
-        new PropertyMeta('deadLetterChannel', 'deadLetterChannel', "deadLetterChannel", 'DeadLetterChannelDefinition', '', '', false, false, false, true, ''),
-        new PropertyMeta('log', 'log', "log", 'DefaultErrorHandlerDefinition', '', '', false, false, false, true, ''),
-        new PropertyMeta('none', 'none', "none", 'NoErrorHandlerDefinition', '', '', false, false, false, true, ''),
-        new PropertyMeta('ref', 'ref', "ref", 'string', '', '', false, false, false, false, ''),
-    ]),
     new ElementMeta('filter', 'FilterDefinition', 'Filter', "Filter out messages based using a predicate", 'eip,routing', [
         new PropertyMeta('expression', 'Expression', "Expression to determine if the message should be filtered or not. If the expression returns an empty value or false then the message is filtered (dropped), otherwise the message is continued being routed.", 'ExpressionDefinition', '', '', true, false, false, true, ''),
         new PropertyMeta('statusPropertyName', 'Status Property Name', "Name of exchange property to use for storing the status of the filtering. Setting this allows to know if the filter predicate evaluated as true or false.", 'string', '', '', false, false, false, false, 'advanced'),

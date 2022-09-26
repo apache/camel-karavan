@@ -41,7 +41,6 @@ public class KameletGenerator extends AbstractGenerator {
     }
 
     public void createKamelets(String folder, boolean addList) {
-        System.out.println("Creating default Kamelets");
         clearDirectory(Paths.get(folder).toFile());
         KameletsCatalog catalog = new KameletsCatalog();
         StringBuilder list = new StringBuilder();
@@ -52,7 +51,6 @@ public class KameletGenerator extends AbstractGenerator {
                     list.append(name).append("\n");
                 });
         saveFile(folder, "kamelets.properties", list.toString());
-        System.out.println("Created default Kamelets");
     }
 
     public void saveKamelet(String folder, String name) {

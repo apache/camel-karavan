@@ -179,6 +179,9 @@ public class AbstractGenerator {
             ref = ref.equals("#/items/definitions/org.apache.camel.dsl.yaml.deserializers.RouteFromDefinitionDeserializer")
                     ? "#/items/definitions/org.apache.camel.model.FromDefinition"
                     : ref;
+            ref = ref.equals("#/items/definitions/org.apache.camel.dsl.yaml.deserializers.ErrorHandlerBuilderDeserializer")
+                    ? "#/items/definitions/org.apache.camel.model.ErrorHandlerDefinition"
+                    : ref;
             String className = classSimple(ref);
             result.put(className, className.equals("ToDynamicDefinition") ? "toD" : name);
         });
