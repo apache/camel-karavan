@@ -7,7 +7,7 @@
 
 1. [VSCode](https://code.visualstudio.com/download)  installed
 2. Apache Camel [Karavan](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan) extension installed
-3. [Jbang](https://www.jbang.dev/download/) installed
+3. [JBang](https://www.jbang.dev/download/) installed
 4. Docker and Docker compose installed
 5. Build Apache Artemis Docker Image
 ```

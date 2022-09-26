@@ -40,7 +40,7 @@ Usability improvements
 5. Copy/paste EIP DSL element 
 6. Security and Scheduler parameters are hidden by default for Components (Expandable Section)
 7. Advanced parameters are hidden by default for EIP (Expandable Section)
-8. Open Integration, open yaml, run with Jbang context menu in Karavan view in VS Code
+8. Open Integration, open yaml, run with JBang context menu in Karavan view in VS Code
 9. Build-in route creation Tour
 
 ## 0.0.13
@@ -61,7 +61,7 @@ Requires Camel 3.16.0 and later
 7. New Karavan views in VS Code
 
 ## 0.0.11
-1. Hot fix: Set Camel Jbang alias as `camel@apache/camel`
+1. Hot fix: Set Camel JBang alias as `camel@apache/camel`
 2. Hot fix: Read Implicit Expressions from YAML
 
 ## 0.0.10
@@ -74,7 +74,7 @@ Requires Camel 3.16.0 and later
 1. Support Marshal and Unmarshal elements with configurable DataFormats (`any23`, `asn1`, `avro`, `barcode`, `base64`, `beanio`, `bindy`, `cbor`, `crypto`, `csv`, `custom`, `fhirJson`, `fhirXml`, `flatpack`, `grok`, `gzip`, `hl7`, `ical`, `jacksonxml`, `jaxb`, `json`, `jsonApi`, `lzf`, `mimeMultipart`, `pgp`, `protobuf`, `rss`, `secureXML`, `soapjaxb`, `syslog`, `tarfile`, `thrift`, `tidyMarkup`, `univocity-csv`, `univocity-fixed`, `univocity-tsv`, `xmlrpc`, `xstream`, `yaml`, `zip`, `zipfile`).
 2. Support of implicit dsl parameters configured as String, ex. `log: '${body}'` [#141](https://github.com/apache/camel-karavan/issues/141)
 3. Configurable JBang parameters: `Dcamel.jbang.version`, `max-messages`, `reload`, `logging-level`
-4. Fixed `Jbang Run` broken after upgrade VSCode to 1.63 [#148](https://github.com/apache/camel-karavan/issues/148)
+4. Fixed `jbang run` broken after upgrade VSCode to 1.63 [#148](https://github.com/apache/camel-karavan/issues/148)
 
 ## 0.0.8
 1. Custom Kamelets to use in Karavan [#114](https://github.com/apache/camel-karavan/issues/114)
