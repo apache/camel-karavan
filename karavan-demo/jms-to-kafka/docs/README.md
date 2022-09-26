@@ -29,7 +29,7 @@ docker-compose up
 jbang -Dcamel.jbang.version=3.18.2 camel@apache/camel run *
 ```
 
-### Publish payment
+### Publish payment to JMS
 
 Open AMQ7 Broker Management [Console](http://localhost:8161)
 
@@ -41,4 +41,18 @@ Send message to `payments` queue
   <amount>777</amount>
   <status>confirmed</status>  
 </root>
+```
+
+### Browse payments from Kafka
+
+The [kcat](https://github.com/edenhill/kcat) tool can be used to browse messages in Kafka:
+
+```
+kcat -b localhost -t payments
+```
+
+Which should output the payment that has been transformed to JSon.
+
+```
+{"id":"1","amount":"777","status":"confirmed"}
 ```
