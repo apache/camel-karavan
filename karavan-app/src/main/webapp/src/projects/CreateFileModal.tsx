@@ -11,6 +11,8 @@ import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
 import {Project, ProjectFile, ProjectFileTypes} from "./ProjectModels";
 import {CamelUi} from "../designer/utils/CamelUi";
+import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
+import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 
 interface Props {
     isOpen: boolean,
@@ -20,14 +22,14 @@ interface Props {
 
 interface State {
     name: string
-    extension: string
+    fileType: string
 }
 
 export class CreateFileModal extends React.Component<Props, State> {
 
     public state: State = {
         name: '',
-        extension: 'yaml',
+        fileType: 'INTEGRATION',
     };
 
     closeModal = () => {
@@ -35,10 +37,14 @@ export class CreateFileModal extends React.Component<Props, State> {
     }
 
     saveAndCloseModal = () => {
-        const {name, extension} = this.state;
-        const filename = (extension !== 'java') ? CamelUi.nameFromTitle(name) : CamelUi.javaNameFromTitle(name)
+        const {name, fileType} = this.state;
+        const extension = ProjectFileTypes.filter(value => value.name === fileType)[0].extension;
+        const filename = (extension !== 'java') ? CamelUi.nameFromTitle(name) : CamelUi.javaNameFromTitle(name);
+        const code = fileType === 'INTEGRATION'
+            ? CamelDefinitionYaml.integrationToYaml(Integration.createNew(name))
+            : '';
         if (filename && extension){
-            const file = new ProjectFile(filename + '.' + extension, this.props.project.projectId, '');
+            const file = new ProjectFile(filename + '.' + extension, this.props.project.projectId, code);
             KaravanApi.postProjectFile(file, res => {
                 if (res.status === 200) {
                     // console.log(res) //TODO show notification
@@ -52,7 +58,9 @@ export class CreateFileModal extends React.Component<Props, State> {
     }
 
     render() {
-        const filename = (this.state.extension !== 'java')
+        const {fileType} = this.state;
+        const extension = ProjectFileTypes.filter(value => value.name === fileType)[0].extension;
+        const filename = (extension !== 'java')
             ? CamelUi.nameFromTitle(this.state.name)
             : CamelUi.javaNameFromTitle(this.state.name)
         return (
@@ -68,12 +76,12 @@ export class CreateFileModal extends React.Component<Props, State> {
             >
                 <Form autoComplete="off" isHorizontal className="create-file-form">
                     <FormGroup label="Type" fieldId="type" isRequired>
-                        <ToggleGroup aria-label="Type">
+                        <ToggleGroup aria-label="Type" isCompact>
                             {ProjectFileTypes.filter(p => !['PROPERTIES', 'LOG'].includes(p.name)).map(p => {
-                                const title = p.title + (p.name === 'CODE' ? ' (' + p.extension + ')' : '');
+                                const title = p.title + ' (' + p.extension + ')';
                                 return <ToggleGroupItem key={title} text={title} buttonId={p.name}
-                                                        isSelected={this.state.extension === p.extension}
-                                                        onChange={selected => this.setState({extension: p.extension})} />
+                                                        isSelected={fileType === p.name}
+                                                        onChange={selected => this.setState({fileType: p.name})} />
                             })}
                         </ToggleGroup>
                     </FormGroup>
@@ -81,10 +89,9 @@ export class CreateFileModal extends React.Component<Props, State> {
                         <TextInputGroup className="input-group">
                             <TextInputGroupMain value={this.state.name} onChange={value => this.setState({name: value})} />
                             <TextInputGroupUtilities>
-                                <Text>{filename + '.' + this.state.extension}</Text>
+                                <Text>{filename + '.' + extension}</Text>
                             </TextInputGroupUtilities>
                         </TextInputGroup>
-
                     </FormGroup>
                 </Form>
             </Modal>
