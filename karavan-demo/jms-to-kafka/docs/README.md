@@ -1,6 +1,6 @@
 # Demo: JMS to Kafka
 
-![Demo](jms2kafka.png)
+![Demo](payment.png)
 
 ## Localhost
 ### Prerequisites
