@@ -17,7 +17,7 @@ Integrations could be created using visual designer that includes Enterprise Int
 
 Karavan uses YAML (Integration CRD or plain) to read/write integrations.
 
-Integrations could be run directly from Karavan UI using Camel Jbang. Also they could exported in Maven project with preconfigured Camel Quarkus, Camel Spring-Boot or Camel Main runtime.
+Integrations could be run directly from Karavan UI using Camel JBang. Also they could exported in Maven project with preconfigured Camel Quarkus, Camel Spring-Boot or Camel Main runtime.
 
 ![karavan-about](images/karavan-about.png)
 
