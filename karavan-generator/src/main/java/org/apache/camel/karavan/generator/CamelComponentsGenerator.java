@@ -41,26 +41,37 @@ public final class CamelComponentsGenerator extends AbstractGenerator {
 
     public static void generate() throws Exception {
         CamelComponentsGenerator g = new CamelComponentsGenerator();
-        g.createCreateComponents("karavan-app/src/main/resources/components");
-        g.createCreateComponents("karavan-designer/public/components");
-        g.createCreateComponents("karavan-vscode/components");
+        g.createCreateComponents("karavan-app/src/main/resources/components", false);
+        g.createCreateComponents("karavan-designer/public/components", false);
+        g.createCreateComponents("karavan-vscode/components", true);
     }
 
-    private void createCreateComponents(String path) {
+    private void createCreateComponents(String path, boolean singleFile) {
         clearDirectory(Paths.get(path).toFile());
         List<String> components = getComponents();
         StringBuilder list = new StringBuilder();
-        components.forEach(name -> {
+        StringBuilder sources = new StringBuilder("[\n");
+
+        for (int i = 0; i < components.size(); i++) {
+            String name = components.get(i);
             String json = getComponent(name);
             JsonObject obj = new JsonObject(json);
             obj.remove("componentProperties");
             if (!obj.getJsonObject("component").getBoolean("deprecated")
-            && !obj.getJsonObject("component").getString("name").equals("kamelet")){
-                saveFile(path, name + ".json", obj.toString());
+                    && !obj.getJsonObject("component").getString("name").equals("kamelet")) {
+                if (singleFile) {
+                    sources.append(obj).append( i != components.size() - 1 ? "\n,\n" : "\n");
+                } else {
+                    saveFile(path, name + ".json", obj.toString());
+                }
                 list.append(name).append("\n");
             }
-        });
+        }
         saveFile(path, "components.properties", list.toString());
+        if (singleFile) {
+            sources.append("]");
+            saveFile(path, "components.json", sources.toString());
+        }
     }
 
     public List<String> getComponents() {

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { workspace, Uri, window, commands, WebviewPanel, ExtensionContext, ViewColumn, WebviewPanelOnDidChangeViewStateEvent } from "vscode";
+import { workspace, Uri, window, commands, WebviewPanel, ExtensionContext, ViewColumn, WebviewPanelOnDidChangeViewStateEvent, FileType } from "vscode";
 import * as path from "path";
 import * as utils from "./utils";
 import * as jbang from "./jbang";
@@ -181,7 +181,7 @@ export class DesignerView {
             const showStartHelp = workspace.getConfiguration().get("Karavan.showStartHelp");
             panel.webview.postMessage({ command: 'showStartHelp', showStartHelp: showStartHelp });
             // Send integration
-            this.sendIntegrationData(panel, filename, relativePath, fullPath, reread, yaml, tab)
+            this.sendIntegrationData(panel, filename, relativePath, fullPath, reread, yaml, tab);
         })
     }
 

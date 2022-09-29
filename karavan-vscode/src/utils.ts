@@ -45,8 +45,7 @@ export function getRalativePath(fullPath: string): string {
 }
 
 export async function readKamelets(context: ExtensionContext) {
-    const dir = path.join(context.extensionPath, 'kamelets');
-    const yamls: string[] = await readFilesInDirByExtension(dir, "yaml");
+    const yamls: string[] = await readBuildInKamelets(context);
     const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
     if (kameletsPath && kameletsPath.trim().length > 0) {
         const kameletsDir = path.isAbsolute(kameletsPath) ? kameletsPath : path.resolve(kameletsPath);
@@ -54,6 +53,16 @@ export async function readKamelets(context: ExtensionContext) {
         if (customKamelets && customKamelets.length > 0) yamls.push(...customKamelets);
     }
     return yamls;
+}
+
+async function readBuildInKamelets(context: ExtensionContext) {
+    const kameletsPath = path.join(context.extensionPath, 'kamelets', "kamelets.yaml");
+    const result: string[] = [];
+    const file = await readFile(kameletsPath);
+    const code = Buffer.from(file).toString('utf8');
+    code.split("\n---\n").map(c => c.trim())
+        .filter(x => x !== undefined && x.length > 100).forEach(z => result.push(z));
+    return result;
 }
 
 async function readFilesInDirByExtension(dir: string, extension: string) {
@@ -71,8 +80,12 @@ async function readFilesInDirByExtension(dir: string, extension: string) {
 }
 
 export async function readComponents(context: ExtensionContext) {
-    const dir = path.join(context.extensionPath, 'components');
-    const jsons: string[] = await readFilesInDirByExtension(dir, "json");
+    const componentsPath = path.join(context.extensionPath, 'components', 'components.json');
+    const file = await readFile(componentsPath);
+    const code = Buffer.from(file).toString('utf8');
+    const components: [] = JSON.parse(code);
+    const jsons: string[] = [];
+    components.forEach(c => jsons.push(JSON.stringify(c)));
     return jsons;
 }
 
