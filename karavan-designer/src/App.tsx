@@ -51,24 +51,25 @@ class App extends React.Component<Props, State> {
             '  flows:\n' +
             '    - route:\n' +
             '        from:\n' +
-            '          uri: timer:demo\n' +
+            '          uri: kamelet:timer-source\n' +
             '          steps:\n' +
-            '            - doTry:\n' +
-            '                steps:\n' +
-            '                  - setBody:\n' +
-            '                      expression:\n' +
-            '                        groovy:\n' +
-            '                          expression: 1000 / 0\n' +
-            '                doCatch:\n' +
-            '                  - steps:\n' +
-            '                      - log:\n' +
-            '                          message: Exception\n' +
-            '                    exception:\n' +
-            '                      - java.lang.ArithmeticException\n' +
-            '                doFinally:\n' +
-            '                  steps:\n' +
-            '                    - log:\n' +
-            '                        message: ${body}\n' +
+            '             - marshal: {}\n' +
+            // '            - doTry:\n' +
+            // '                steps:\n' +
+            // '                  - setBody:\n' +
+            // '                      expression:\n' +
+            // '                        groovy:\n' +
+            // '                          expression: 1000 / 0\n' +
+            // '                doCatch:\n' +
+            // '                  - steps:\n' +
+            // '                      - log:\n' +
+            // '                          message: Exception\n' +
+            // '                    exception:\n' +
+            // '                      - java.lang.ArithmeticException\n' +
+            // '                doFinally:\n' +
+            // '                  steps:\n' +
+            // '                    - log:\n' +
+            // '                        message: ${body}\n' +
             // '            - aggregate: {}\n' +
             // '            - choice: {}\n' +
             // '            - split:\n' +
@@ -81,16 +82,16 @@ class App extends React.Component<Props, State> {
             // '                parameters:\n' +
             // '                  sObjectId: xxx\n' +
             // '                  sObjectClass: Account\n' +
-            // '          parameters:\n' +
-            // '            period: 2000\n' +
-            // '            message: Hello World\n' +
-            '    - route:\n' +
-            '        from:\n' +
-            '          uri: direct:hello-world\n' +
-            '        id: hello-world\n' +
-            '    - beans:\n' +
-            '        - name: FFF\n' +
-            '          type: GGGG\n'
+            '          parameters:\n' +
+            '            period: 2000\n' +
+            '            message: Hello World\n'
+            // '    - route:\n' +
+            // '        from:\n' +
+            // '          uri: direct:hello-world\n' +
+            // '        id: hello-world\n' +
+            // '    - beans:\n' +
+            // '        - name: FFF\n' +
+            // '          type: GGGG\n'
     };
 
     componentDidMount() {
@@ -139,7 +140,7 @@ class App extends React.Component<Props, State> {
 
     save(filename: string, yaml: string, propertyOnly: boolean) {
         // console.log(filename);
-        // console.log(yaml);
+        console.log(yaml);
         // console.log(propertyOnly);
     }
 

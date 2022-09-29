@@ -16,7 +16,6 @@
  */
 import React from 'react';
 import {
-    FormGroup,
     Select,
     SelectVariant,
     SelectDirection,
@@ -52,6 +51,12 @@ export class DataFormatField extends React.Component<Props, State> {
         selectIsOpen: false,
         dataFormat: CamelDefinitionApiExt.getDataFormat(this.props.value)?.name || "json",
         isShowAdvanced: false
+    }
+
+    componentDidMount() {
+        if (CamelDefinitionApiExt.getDataFormat(this.props.value)?.name === undefined) {
+            this.dataFormatChanged("json", CamelDefinitionApi.createDataFormat('JsonDataFormat', {}));
+        }
     }
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
@@ -98,7 +103,7 @@ export class DataFormatField extends React.Component<Props, State> {
     getPropertyFields = (value: any, properties: PropertyMeta[]) => {
         return (<>
             {value && properties?.map((property: PropertyMeta) =>
-                <DslPropertyField property={property}
+                <DslPropertyField key={property.name} property={property}
                                   integration={this.props.integration}
                                   element={value}
                                   value={value ? (value as any)[property.name] : undefined}
@@ -129,7 +134,11 @@ export class DataFormatField extends React.Component<Props, State> {
         })
         return (
             <div>
-                <FormGroup label={"Data Format"} key={"dataFormat"} fieldId={"dataFormat"}>
+                <div>
+                    <label className="pf-c-form__label" htmlFor="expression">
+                        <span className="pf-c-form__label-text">{"Data Format"}</span>
+                        <span className="pf-c-form__label-required" aria-hidden="true"> *</span>
+                    </label>
                     <Select
                         variant={SelectVariant.typeahead}
                         aria-label={"dataFormat"}
@@ -144,11 +153,9 @@ export class DataFormatField extends React.Component<Props, State> {
                     >
                         {selectOptions}
                     </Select>
-                </FormGroup>
+                </div>
                 <div className="object">
-                    <FormGroup
-                        key={"properties"}
-                        fieldId={"properties"}>
+                    <div>
                         {this.getPropertyFields(value, propertiesMain)}
                         {propertiesAdvanced.length > 0 &&
                             <ExpandableSection
@@ -157,7 +164,7 @@ export class DataFormatField extends React.Component<Props, State> {
                                 isExpanded={this.state.isShowAdvanced}>
                                 {this.getPropertyFields(value, propertiesAdvanced)}
                             </ExpandableSection>}
-                    </FormGroup>
+                    </div>
 
                 </div>
             </div>
