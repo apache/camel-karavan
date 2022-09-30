@@ -94,7 +94,7 @@ const baseConfig = (webpackEnv) => {
 const extensionConfig = (webpackEnv) => {
     return {
         ...baseConfig(webpackEnv),
-        target: "node",
+        target:  "node",
         entry: "./src/extension.ts",
         output: {
             path: path.resolve(__dirname, "dist"),

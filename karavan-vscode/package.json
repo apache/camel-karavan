@@ -55,6 +55,7 @@
     "onView:integrations"
   ],
   "main": "./dist/extension.js",
+  "browser": "./dist/extension.js",
   "contributes": {
     "configuration": {
       "title": "Karavan",
@@ -396,7 +397,8 @@
     "pretest": "npm run copy-karavan && npm run test-compile && npm run lint",
     "lint": "eslint src webview --ext .ts,.tsx",
     "lint:fix": "eslint --fix src webview --ext .ts,.tsx",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. ../karavan-demo/hello-world/"
   },
   "devDependencies": {
     "@svgr/webpack": "6.2.1",
@@ -409,10 +411,11 @@
     "@types/vscode": "^1.56.0",
     "@typescript-eslint/eslint-plugin": "^4.14.1",
     "@typescript-eslint/parser": "^4.14.1",
+    "@vscode/test-web": "0.0.30",
     "chai": "^4.3.4",
-    "copy-webpack-plugin": "^9.0.1",
+    "copy-webpack-plugin": "11.0.0",
     "cross-env": "^7.0.3",
-    "css-loader": "^5.2.4",
+    "css-loader": "6.7.1",
     "eslint": "^7.19.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
@@ -429,10 +432,10 @@
     "url-loader": "^4.1.1",
     "vscode-test": "^1.5.0",
     "webpack": "5.74.0",
-    "webpack-cli": "^4.4.0",
-    "monaco-editor": "0.29.1"
+    "webpack-cli": "4.10.0"
   },
   "dependencies": {
+    "@monaco-editor/react": "4.3.1",
     "@patternfly/patternfly": "4.215.1",
     "@patternfly/react-core": "4.239.0",
     "@patternfly/react-table": "4.108.0",
@@ -445,7 +448,6 @@
     "react-dom": "^17.0.2",
     "rxjs": "7.5.2",
     "shelljs": "^0.8.5",
-    "uuid": "8.3.2",
-    "@monaco-editor/react": "4.3.1"
+    "uuid": "8.3.2"
   }
 }
