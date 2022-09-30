@@ -13,7 +13,7 @@ import {
 } from '@patternfly/react-core';
 import {KaravanApi} from "./api/KaravanApi";
 import {SsoApi} from "./api/SsoApi";
-import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import {KameletApi, Kamelets} from "karavan-core/lib/api/KameletApi";
 import './designer/karavan.css';
 import {ConfigurationPage} from "./config/ConfigurationPage";
 import {KameletsPage} from "./kamelets/KameletsPage";
@@ -106,11 +106,10 @@ export class Main extends React.Component<Props, State> {
             } else {
                 this.setState({key: Math.random().toString()})
             }
+            if (KaravanApi.isAuthorized || KaravanApi.authType === 'public') {
+                this.getData();
+            }
         });
-        console.log("KaravanApi.isAuthorized", KaravanApi.isAuthorized);
-        if (KaravanApi.isAuthorized || KaravanApi.authType === 'public') {
-            this.getData();
-        }
     }
 
     onLogin = (username: string, password: string) => {

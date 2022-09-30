@@ -272,7 +272,7 @@ export class ProjectInfo extends React.Component<Props, State> {
                         {podStatuses.map(pod => {
                                 const running = pod.started && pod.ready;
                                 return (
-                                    <Tooltip content={running ? "Running" : pod.reason}>
+                                    <Tooltip key={pod.name} content={running ? "Running" : pod.reason}>
                                         <Label icon={running ? <UpIcon/> : <DownIcon/>} color={running ? "green" : "red"}>
                                             <Button variant="link"
                                                     onClick={e => this.props.showLog?.call(this, 'container', pod.name, env)}>

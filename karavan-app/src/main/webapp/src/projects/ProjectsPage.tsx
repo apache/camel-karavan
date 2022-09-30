@@ -119,14 +119,13 @@ export class ProjectsPage extends React.Component<Props, State> {
     tools = () => (<Toolbar id="toolbar-group-types">
         <ToolbarContent>
             <ToolbarItem>
+                <Button variant="link" icon={<RefreshIcon/>} onClick={e => this.onGetProjects()}/>
+            </ToolbarItem>
+            <ToolbarItem>
                 <TextInput className="text-field" type="search" id="search" name="search"
                            autoComplete="off" placeholder="Search by name"
                            value={this.state.filter}
                            onChange={e => this.setState({filter: e})}/>
-            </ToolbarItem>
-            <ToolbarItem>
-                <Button variant="secondary" icon={<RefreshIcon/>}
-                        onClick={e => this.onGetProjects()}>Refresh</Button>
             </ToolbarItem>
             <ToolbarItem>
                 <Button icon={<PlusIcon/>} onClick={e => this.setState({isCreateModalOpen: true, isCopy: false})}>Create</Button>
@@ -212,7 +211,7 @@ export class ProjectsPage extends React.Component<Props, State> {
 
     render() {
         const runtime = this.props.config?.runtime ? this.props.config.runtime : "QUARKUS";
-        const projects = this.state.projects.filter(p => p.name.includes(this.state.filter) || p.description.includes(this.state.filter));
+        const projects = this.state.projects.filter(p => p.name.toLowerCase().includes(this.state.filter) || p.description.toLowerCase().includes(this.state.filter));
         const environments: string[] = this.props.config.environments && Array.isArray(this.props.config.environments)
             ? Array.from(this.props.config.environments)
             : [];
