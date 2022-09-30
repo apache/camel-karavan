@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.19.0
+1. Camel 3.19.0 DSL
+2. Support minikube for cloud app
+3. Quarkus 2.13.0.Final 
+
+## 3.18.4
+1. Support minikube for cloud app
+2. OpenAPI YAML import in cloud app
+
 ## 3.18.3
 1. Camel 3.18.2 DSL
 2. Kamelets 0.9.0
