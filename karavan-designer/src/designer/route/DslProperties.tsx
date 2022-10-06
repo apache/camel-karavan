@@ -56,6 +56,7 @@ interface State {
     step?: CamelElement,
     selectStatus: Map<string, boolean>
     isShowAdvanced: boolean
+    isDescriptionExpanded?: boolean
 }
 
 export class DslProperties extends React.Component<Props, State> {
@@ -135,8 +136,10 @@ export class DslProperties extends React.Component<Props, State> {
     }
 
     getRouteHeader= (): JSX.Element => {
+        const isDescriptionExpanded = this.state.isDescriptionExpanded;
         const title = this.state.step && CamelUi.getTitle(this.state.step)
         const description =  this.state.step &&  CamelUi.getDescription(this.state.step);
+        const descriptionLines: string [] = description ? description?.split("\n") : [""];
         return (
             <div className="headers">
                 <div className="top">
@@ -148,14 +151,21 @@ export class DslProperties extends React.Component<Props, State> {
                         <Button variant="link" onClick={() => this.pasteClipboardStep()} icon={<PasteIcon/>}/>
                     </Tooltip>
                 </div>
-                <Text component={TextVariants.p}>{description}</Text>
+                <Text component={TextVariants.p}>{descriptionLines.at(0)}</Text>
+                {descriptionLines.length > 1 && <ExpandableSection toggleText={isDescriptionExpanded ? 'Show less' : 'Show more'}
+                                                                   onToggle={isExpanded => this.setState({isDescriptionExpanded: !isDescriptionExpanded})}
+                                                                   isExpanded={isDescriptionExpanded}>
+                    {descriptionLines.filter((value, index) => index > 0)
+                        .map((desc, index, array) => <Text key={index} component={TextVariants.p}>{desc}</Text>)}
+                </ExpandableSection>}
             </div>
         )
     }
 
     getClonableElementHeader = (): JSX.Element => {
-        const title = this.state.step && CamelUi.getTitle(this.state.step)
+        const title = this.state.step && CamelUi.getTitle(this.state.step);
         const description = this.state.step?.dslName ? CamelMetadataApi.getCamelModelMetadataByClassName(this.state.step?.dslName)?.description : title;
+        const descriptionLines: string [] = description ? description?.split("\n") : [""];
         return (
             <div className="headers">
                 <div className="top">
@@ -164,7 +174,7 @@ export class DslProperties extends React.Component<Props, State> {
                         <Button variant="link" onClick={() => this.cloneElement()} icon={<CloneIcon/>}/>
                     </Tooltip>
                 </div>
-                <Text component={TextVariants.p}>{description}</Text>
+                {descriptionLines.map((desc, index, array) => <Text key={index} component={TextVariants.p}>{desc}</Text>)}
             </div>
         )
     }

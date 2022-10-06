@@ -475,6 +475,19 @@
     margin-right: 6px;
 }
 
+.karavan .properties .pf-c-expandable-section__toggle {
+    margin: 0;
+    padding: 0;
+}
+
+.karavan .properties .pf-c-expandable-section__content {
+    margin: 0;
+}
+
+.karavan .properties .pf-c-expandable-section__content p {
+    min-height: 6px;
+}
+
 
 /*Graph*/
 .karavan .dsl-page .graph {
