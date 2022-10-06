@@ -165,7 +165,6 @@ export class DslSelector extends React.Component<Props, State> {
                 }
                 actions={{}}>
                 <PageSection variant={this.props.dark ? "darker" : "light"}>
-
                     <Gallery key={"gallery-" + labelText} hasGutter className="dsl-gallery">
                         {CamelUi.getSelectorModelsForParentFiltered(parentDsl, labelText, this.props.showSteps)
                             .filter((dsl: DslMetaModel) => this.checkFilter(dsl))

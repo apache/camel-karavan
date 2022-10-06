@@ -101,6 +101,10 @@ export class KameletModel {
     return this.spec.definition.title;
   }
 
+  description(): string {
+    return this.spec.definition.description;
+  }
+
   properties(): any {
     return this.spec.definition.properties;
   }

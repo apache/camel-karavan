@@ -159,20 +159,22 @@ export class CamelUi {
 
     static getKameletDslMetaModel = (type: 'source' | "sink" | "action"): DslMetaModel[] => {
         return KameletApi.getKamelets().filter((k) => k.metadata.labels["camel.apache.org/kamelet.type"] === type)
-            .map((k) =>
-                    new DslMetaModel({
-                        dsl: type === 'source' ? "FromDefinition" : "ToDefinition",
-                        uri: "kamelet:" + k.metadata.name,
-                        labels: k.type(),
-                        navigation: "kamelet",
-                        type: k.type(),
-                        name: k.metadata.name,
-                        title: k.title(),
-                        description: k.title(),
-                        version: k.version(),
-                        supportLevel: k.metadata.annotations["camel.apache.org/kamelet.support.level"],
-                    })
-            );
+            .map((k) => {
+                const descriptionLines = k.description().split("\n");
+                const description = descriptionLines.at(0);
+                return new DslMetaModel({
+                    dsl: type === 'source' ? "FromDefinition" : "ToDefinition",
+                    uri: "kamelet:" + k.metadata.name,
+                    labels: k.type(),
+                    navigation: "kamelet",
+                    type: k.type(),
+                    name: k.metadata.name,
+                    title: k.title(),
+                    description: description,
+                    version: k.version(),
+                    supportLevel: k.metadata.annotations["camel.apache.org/kamelet.support.level"],
+                })
+            });
     }
 
     static nameFromTitle = (title: string): string => {
