@@ -32,17 +32,8 @@ public class ComponentResources {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> getList() {
-        String list = getResourceFile("components.properties");
-        return List.of(list.split(System.getProperty("line.separator"))).stream()
-                .map(s -> s + ".json").collect(Collectors.toList());
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{name}")
-    public String getJson(@PathParam("name") String name) {
-        return getResourceFile(name);
+    public String getJson() {
+        return getResourceFile("components.json");
     }
 
     private String getResourceFile(String path) {

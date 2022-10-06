@@ -16253,4 +16253,3 @@ spec:
       - set-header:
           name: "Content-Type"
           constant: "application/json"
----

@@ -16,24 +16,17 @@
  */
 package org.apache.camel.karavan.api;
 
-import io.vertx.core.Vertx;
 import org.apache.camel.karavan.service.InfinispanService;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Path("/api/kamelet")
@@ -42,21 +35,18 @@ public class KameletResources {
     @Inject
     InfinispanService infinispanService;
 
-    @Inject
-    Vertx vertx;
-
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<String> getList() throws Exception {
-        List<String> kameletList = getBuildInKameletsList();
-        kameletList.addAll(infinispanService.getKameletNames());
-        return kameletList;
-    }
-
-    private List<String> getBuildInKameletsList() {
-        String list = getResourceFile("kamelets.properties");
-        return List.of(list.split(System.getProperty("line.separator"))).stream()
-                .map(s -> s + ".kamelet.yaml").collect(Collectors.toList());
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getCustomYamls() {
+        StringBuilder kamelets = new StringBuilder(getResourceFile("kamelets.yaml"));
+        List<String> customKameletNames = infinispanService.getKameletNames();
+        if (customKameletNames.size() > 0) {
+            kamelets.append("\n---\n");
+            kamelets.append(infinispanService.getKameletNames().stream()
+                    .map(name -> infinispanService.getKameletYaml(name))
+                    .collect(Collectors.joining("\n---\n")));
+        }
+        return kamelets.toString();
     }
 
     private String getResourceFile(String path) {
@@ -67,18 +57,6 @@ public class KameletResources {
             return data;
         } catch (Exception e) {
             return null;
-        }
-    }
-
-
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @Path("/{name}")
-    public String getYaml(@PathParam("name") String name) {
-        if (infinispanService.getKameletNames().contains(name)) {
-            return infinispanService.getKameletYaml(name);
-        } else {
-            return getResourceFile(name);
         }
     }
 }

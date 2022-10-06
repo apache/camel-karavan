@@ -351,8 +351,8 @@ export class KaravanApi {
     }
 
 
-    static async getKameletNames(after: (names: []) => void) {
-        instance.get('/api/kamelet')
+    static async getKamelets(after: (yaml: string) => void) {
+        instance.get('/api/kamelet', {headers: {'Accept': 'text/plain'}})
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -362,30 +362,8 @@ export class KaravanApi {
         });
     }
 
-    static async getKamelet(name: string, after: (yaml: string) => void) {
-        instance.get('/api/kamelet/' + name, {headers: {'Accept': 'text/plain'}})
-            .then(res => {
-                if (res.status === 200) {
-                    after(res.data);
-                }
-            }).catch(err => {
-            console.log(err);
-        });
-    }
-
-    static async getComponentNames(after: (names: []) => void) {
+    static async getComponents(after: (json: string) => void) {
         instance.get('/api/component')
-            .then(res => {
-                if (res.status === 200) {
-                    after(res.data);
-                }
-            }).catch(err => {
-            console.log(err);
-        });
-    }
-
-    static async getComponent(name: string, after: (json: string) => void) {
-        instance.get('/api/component/' + name)
             .then(res => {
                 if (res.status === 200) {
                     after(JSON.stringify(res.data));

@@ -126,12 +126,17 @@ export class Main extends React.Component<Props, State> {
         KaravanApi.getConfiguration((config: any) => {
             this.setState({ config: config })
         });
-        KaravanApi.getKameletNames(names => names.forEach(name => {
-            KaravanApi.getKamelet(name, yaml => KameletApi.saveKamelet(yaml))
-        }));
-        KaravanApi.getComponentNames(names => names.forEach(name => {
-            KaravanApi.getComponent(name, json => ComponentApi.saveComponent(json))
-        }));
+        KaravanApi.getKamelets(yamls => {
+            const kamelets: string[] = [];
+            yamls.split("\n---\n").map(c => c.trim()).forEach(z => kamelets.push(z));
+            KameletApi.saveKamelets(kamelets, true);
+        })
+        KaravanApi.getComponents(code => {
+            const components: [] = JSON.parse(code);
+            const jsons: string[] = [];
+            components.forEach(c => jsons.push(JSON.stringify(c)));
+            ComponentApi.saveComponents(jsons, true);
+        })
     }
 
     deleteErrorMessage = (id: string) => {

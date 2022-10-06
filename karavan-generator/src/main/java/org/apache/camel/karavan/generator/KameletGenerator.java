@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.generator;
 
+import io.fabric8.camelk.v1alpha1.Kamelet;
 import io.vertx.core.Vertx;
 import org.apache.camel.kamelets.catalog.KameletsCatalog;
 import org.jboss.logging.Logger;
@@ -26,10 +27,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class KameletGenerator extends AbstractGenerator {
@@ -39,7 +45,7 @@ public class KameletGenerator extends AbstractGenerator {
 
     public static void generate() throws Exception {
         KameletGenerator g = new KameletGenerator();
-        g.createKamelets("karavan-app/src/main/resources/kamelets", false);
+        g.createKamelets("karavan-app/src/main/resources/kamelets", true);
         g.createKamelets("karavan-designer/public/kamelets", false);
         g.createKamelets("karavan-vscode/kamelets", true);
     }
@@ -49,16 +55,18 @@ public class KameletGenerator extends AbstractGenerator {
         KameletsCatalog catalog = new KameletsCatalog();
         StringBuilder list = new StringBuilder();
         StringBuilder sources = new StringBuilder();
-        catalog.getKamelets().entrySet().stream()
-                .map(k -> k.getValue().getMetadata().getName())
-                .forEach(name -> {
-                    list.append(name).append("\n");
-                    if (singleFile) {
-                        sources.append(readKamelet(name)).append("\n---\n");
-                    } else {
-                        saveKamelet(folder, name);
-                    }
-                });
+
+        List<Map.Entry<String, Kamelet>> kamelets = new ArrayList<>(catalog.getKamelets().entrySet());
+        for (int i = 0; i < kamelets.size() ; i++) {
+            Map.Entry<String, Kamelet> k = kamelets.get(i);
+            String name = k.getValue().getMetadata().getName();
+            list.append(name).append("\n");
+            if (singleFile) {
+                sources.append(readKamelet(name)).append(i != kamelets.size() - 1 ? "\n---\n": "\n");
+            } else {
+                saveKamelet(folder, name);
+            }
+        }
         saveFile(folder, "kamelets.properties", list.toString());
         if (singleFile) {
             saveFile(folder, "kamelets.yaml", sources.toString());

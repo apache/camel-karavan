@@ -60,8 +60,7 @@ async function readBuildInKamelets(context: ExtensionContext) {
     const result: string[] = [];
     const file = await readFile(kameletsPath);
     const code = Buffer.from(file).toString('utf8');
-    code.split("\n---\n").map(c => c.trim())
-        .filter(x => x !== undefined && x.length > 100).forEach(z => result.push(z));
+    code.split("\n---\n").map(c => c.trim()).forEach(z => result.push(z));
     return result;
 }
 

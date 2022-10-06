@@ -41,7 +41,7 @@ public final class CamelComponentsGenerator extends AbstractGenerator {
 
     public static void generate() throws Exception {
         CamelComponentsGenerator g = new CamelComponentsGenerator();
-        g.createCreateComponents("karavan-app/src/main/resources/components", false);
+        g.createCreateComponents("karavan-app/src/main/resources/components", true);
         g.createCreateComponents("karavan-designer/public/components", false);
         g.createCreateComponents("karavan-vscode/components", true);
     }
