@@ -9,8 +9,7 @@ Visual debugging process will be implemented, so users will be able stopping/ste
 ## Monitoring and dashboards
 We are planning to create a Dashboard page in the Karavan cloud application.
 
-Dashboard should show all Deployments, Pods, Pipelines and camel-context health-check information associated with Camel projects. 
-Camel projects are projects labeled with `app.openshift.io/runtime=camel` or `app.openshift.io/runtime=camel` and not limited to Karavan-created projects.
+Dashboard should show all Deployments, Pods, Pipelines and camel-context health-check information associated with Camel projects. Projects should not be limited to Karavan-created projects.
 
 ## Camel Error Handler
 ErrorHandler YAML DSL is different from canonical Java/XML DSL.
