@@ -3,7 +3,7 @@
   "publisher": "camel-karavan",
   "displayName": "Karavan",
   "icon": "icons/karavan.png",
-  "description": "Apache Camel Mastering Tool",
+  "description": "Integration Toolkit for Apache Camel",
   "version": "3.18.4",
   "license": "Apache-2.0",
   "preview": true,
