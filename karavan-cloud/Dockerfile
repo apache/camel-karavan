@@ -9,7 +9,7 @@ ADD https://dist.apache.org/repos/dist/release/maven/mvnd/0.8.2/maven-mvnd-0.8.2
 RUN mkdir /opt/mvnd && \        
     apt-get update -y && apt-get install unzip git -y && apt-get clean && \                                
     unzip maven-mvnd-0.8.2-linux-amd64.zip && \                       
-    mv mvnd-0.8.2-linux-amd64/* /opt/mvnd  
+    mv maven-mvnd-0.8.2-linux-amd64/* /opt/mvnd  
 
 WORKDIR /scripts
 ENTRYPOINT ["entrypoint", "-Dcamel.jbang.version=3.18.2", "camel@apache/camel"]
