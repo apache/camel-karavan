@@ -1,8 +1,5 @@
 # Changelog
 
-## 3.19.0
-1. Camel 3.19.0 DSL
-
 ## 3.18.4
 1. Support minikube for cloud app
 2. OpenAPI YAML import in cloud app
