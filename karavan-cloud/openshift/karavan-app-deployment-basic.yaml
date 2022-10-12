@@ -28,7 +28,7 @@ spec:
                 secretKeyRef:
                   key: master-password
                   name: karavan
-          image: ghcr.io/apache/camel-karavan-basic:3.18.4
+          image: ghcr.io/apache/camel-karavan-basic:3.18.5
           imagePullPolicy: Always
           name: karavan
           resources:

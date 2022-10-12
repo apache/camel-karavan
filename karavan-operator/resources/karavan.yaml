@@ -4,7 +4,7 @@ metadata:
   name: karavan
   annotations:
     camel.apache.org/support.level: Preview
-    camel.apache.org/version: 3.18.4
+    camel.apache.org/version: 3.18.5
     camel.apache.org/provider: Apache Software Foundation
 spec:
   instances: 1

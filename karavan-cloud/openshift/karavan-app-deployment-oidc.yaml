@@ -38,7 +38,7 @@ spec:
                 secretKeyRef:
                   key: oidc-secret
                   name: karavan
-          image: ghcr.io/apache/camel-karavan-oidc:3.18.4
+          image: ghcr.io/apache/camel-karavan-oidc:3.18.5
           imagePullPolicy: Always
           name: karavan
           resources:

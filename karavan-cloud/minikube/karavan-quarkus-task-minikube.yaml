@@ -57,7 +57,7 @@ spec:
             -Dquarkus.kubernetes.labels.\"app.openshift.io/runtime\"=camel \
             -Dquarkus.container-image.group=${NAMESPACE} \
             -Dquarkus.container-image.tag=${DATE}
-      image: ghcr.io/apache/camel-karavan-builder:3.18.4
+      image: ghcr.io/apache/camel-karavan-builder:3.18.5
       env:
         - name: PROJECTS_GIT_REPOSITORY
           valueFrom:

@@ -26,7 +26,7 @@ Integration project output is a runnable uber-jar or an OCI image for local envi
 ## Installation
 Two types of applications are available: 
 1. [Cloud-native](karavan-cloud/README.md) application deployed into Kubernetes/OpenShift 
-2. [VS Code extension](karavan-vscode/README.md) available on the [Marketplace](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan). 
+2. [VS Code extension](karavan-vscode/README.md) available on the [Marketplace](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan). Extensions for VS Code Compatible Editors available on [Open VSX Registry](https://open-vsx.org/extension/camel-karavan/karavan)
 
 Both applications share same visual designer and work with Camel YAMl DSL.
 
@@ -37,7 +37,7 @@ Karavan cloud-native integration toolkit is an application to manage projects, d
 
 
 ## Karavan VS Code extension
-Install Karavan VS Code extension from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan)
+Install Karavan VS Code extension from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan) or from [Open VSX Registry](https://open-vsx.org/extension/camel-karavan/karavan)
 
 More about [Karavan VS Code Extension](karavan-vscode/README.md)
 
