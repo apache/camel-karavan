@@ -60,14 +60,14 @@ public class KaravanTektonPipeline extends CRUDKubernetesDependentResource<Pipel
                                 .withParams(new ParamBuilder().withName("project").withNewValue("$(params.PROJECT_ID)").build())
                                 .withTaskRef(new TaskRefBuilder().withKind("Task").withName(Constants.TASK_BUILD_QUARKUS).build())
                                 .withWorkspaces(
-                                        new WorkspacePipelineTaskBinding("m2-cache", "", "m2-cache"),
-                                        new WorkspacePipelineTaskBinding("jbang-cache", "", "jbang-cache")
+                                        new WorkspacePipelineTaskBinding(Constants.PVC_M2_CACHE, "", Constants.PVC_M2_CACHE),
+                                        new WorkspacePipelineTaskBinding(Constants.PVC_JBANG, "", Constants.PVC_JBANG)
                                 )
                                 .build()
                 )
                 .withWorkspaces(
-                        new PipelineWorkspaceDeclaration("Maven Cache", "m2-cache", false),
-                        new PipelineWorkspaceDeclaration("JBang Cache", "jbang-cache", false)
+                        new PipelineWorkspaceDeclaration("Maven Cache", Constants.PVC_M2_CACHE, false),
+                        new PipelineWorkspaceDeclaration("JBang Cache", Constants.PVC_JBANG, false)
                 )
                 .endSpec()
                 .build();

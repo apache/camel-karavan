@@ -2,6 +2,9 @@ package org.apache.camel.karavan;
 
 import io.fabric8.kubernetes.api.model.EnvVarBuilder;
 import io.fabric8.kubernetes.api.model.EnvVarSourceBuilder;
+import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.tekton.pipeline.v1beta1.ArrayOrString;
 import io.fabric8.tekton.pipeline.v1beta1.ParamSpec;
 import io.fabric8.tekton.pipeline.v1beta1.ParamSpecBuilder;
@@ -39,7 +42,7 @@ public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Kar
     @Override
     @SuppressWarnings("unchecked")
     public Task desired(Karavan karavan, Context<Karavan> context) {
-        String script = getScript();
+        String script = getScript(karavan);
         return new TaskBuilder()
                 .withNewMetadata()
                 .withName(Constants.TASK_BUILD_QUARKUS)
@@ -70,26 +73,44 @@ public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Kar
                                         new EnvVarBuilder().withName("KAMELETS_GIT_MAIN").withValueFrom(
                                                 new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("kamelets-git-main").and().build()).build(),
                                         new EnvVarBuilder().withName("IMAGE_REGISTRY").withValueFrom(
-                                                new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("image-registry").and().build()).build()
+                                                new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("image-registry").withOptional(true).and().build()).build()
                                 )
                                 .build()
                 )
                 .withWorkspaces(
-                        new WorkspaceDeclaration("Maven Cache", "/root/.m2", "m2-cache", false, false),
-                        new WorkspaceDeclaration("JBang Cache", "/jbang/.jbang/cache", "jbang-cache", false, false)
+                        new WorkspaceDeclaration("Maven Cache", "/root/.m2", Constants.PVC_M2_CACHE, false, false),
+                        new WorkspaceDeclaration("JBang Cache", "/jbang/.jbang/cache", Constants.PVC_JBANG, false, false)
                 )
                 .endSpec()
                 .build();
     }
 
-    protected String getScript() {
+    protected String getScript(Karavan karavan) {
+        boolean removeImageRegistry = !secretHasImageRegistry(karavan);
         try {
             InputStream inputStream = KaravanTektonTask.class.getResourceAsStream("/karavan-quarkus-builder-script.sh");
             String data = new BufferedReader(new InputStreamReader(inputStream))
-                    .lines().collect(Collectors.joining(System.getProperty("line.separator")));
+                    .lines()
+                    .filter(s -> !(removeImageRegistry && s.contains("Dquarkus.container-image.registry=${IMAGE_REGISTRY}")))
+                    .collect(Collectors.joining(System.getProperty("line.separator")));
             return data;
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    protected boolean secretHasImageRegistry(Karavan karavan) {
+        try {
+            KubernetesClient kubernetesClient = new DefaultKubernetesClient();
+            Secret secret = kubernetesClient.secrets().inNamespace(karavan.getMetadata().getNamespace()).withName(Constants.NAME).get();
+            if (secret != null) {
+                String imageRegistry = secret.getStringData().get("image-registry");
+                System.out.println("imageRegistry = " +imageRegistry);
+                return imageRegistry != null;
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
         }
     }
 }
