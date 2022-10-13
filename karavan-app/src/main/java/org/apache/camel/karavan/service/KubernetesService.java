@@ -134,7 +134,7 @@ public class KubernetesService {
                 .withNamespace(namespace)
                 .build();
 
-        PipelineRef ref = new PipelineRefBuilder().withName("karavan-quarkus").build();
+        PipelineRef ref = new PipelineRefBuilder().withName("karavan-pipeline-build-quarkus").build();
 
         PipelineRunSpec spec = new PipelineRunSpecBuilder()
                 .withPipelineRef(ref)

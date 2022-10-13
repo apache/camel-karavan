@@ -10,14 +10,5 @@ import io.fabric8.kubernetes.model.annotation.*;
 @Plural(Constants.PLURAL_NAME)
 public class Karavan extends CustomResource<KaravanSpec, KaravanStatus> implements Namespaced {
 
-    @Override
-    protected KaravanSpec initSpec() {
-        return new KaravanSpec();
-    }
-
-    @Override
-    protected KaravanStatus initStatus() {
-        return new KaravanStatus();
-    }
 }
 
