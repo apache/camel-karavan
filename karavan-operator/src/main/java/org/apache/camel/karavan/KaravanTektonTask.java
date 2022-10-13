@@ -3,16 +3,18 @@ package org.apache.camel.karavan;
 import io.fabric8.kubernetes.api.model.EnvVarBuilder;
 import io.fabric8.kubernetes.api.model.EnvVarSourceBuilder;
 import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.api.model.rbac.Role;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.tekton.pipeline.v1beta1.ArrayOrString;
-import io.fabric8.tekton.pipeline.v1beta1.ParamSpec;
+import io.fabric8.openshift.client.OpenShiftClient;
+import io.fabric8.tekton.client.DefaultTektonClient;
 import io.fabric8.tekton.pipeline.v1beta1.ParamSpecBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.StepBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.Task;
 import io.fabric8.tekton.pipeline.v1beta1.TaskBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.WorkspaceDeclaration;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
+import io.javaoperatorsdk.operator.api.reconciler.dependent.ReconcileResult;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -22,7 +24,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 
 public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Karavan> {
 
@@ -79,19 +80,37 @@ public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Kar
                 )
                 .withWorkspaces(
                         new WorkspaceDeclaration("Maven Cache", "/root/.m2", Constants.PVC_M2_CACHE, false, false),
-                        new WorkspaceDeclaration("JBang Cache", "/jbang/.jbang/cache", Constants.PVC_JBANG, false, false)
+                        new WorkspaceDeclaration("JBang Cache", "/jbang/.jbang/cache", Constants.PVC_JBANG_CACHE, false, false)
                 )
                 .endSpec()
                 .build();
     }
 
+    @Override
+    public ReconcileResult<Task> reconcile(Karavan karavan, Context<Karavan> context) {
+        Task task = new DefaultTektonClient(getKubernetesClient()).v1beta1().tasks().inNamespace(karavan.getMetadata().getNamespace()).withName(Constants.TASK_BUILD_QUARKUS).get();
+        if (task == null) {
+            var desired = desired(karavan, context);
+            var createdResource = handleCreate(desired, karavan, context);
+            return ReconcileResult.resourceCreated(createdResource);
+        } else {
+            return ReconcileResult.noOperation(task);
+        }
+    }
+
     protected String getScript(Karavan karavan) {
-        boolean removeImageRegistry = !secretHasImageRegistry(karavan);
+        String imageRegistry = getImageRegistry(karavan);
         try {
             InputStream inputStream = KaravanTektonTask.class.getResourceAsStream("/karavan-quarkus-builder-script.sh");
             String data = new BufferedReader(new InputStreamReader(inputStream))
                     .lines()
-                    .filter(s -> !(removeImageRegistry && s.contains("Dquarkus.container-image.registry=${IMAGE_REGISTRY}")))
+                    .map(s -> {
+                        if (s.contains("quarkus.container-image.registry")) {
+                            return s.replace("${IMAGE_REGISTRY}", imageRegistry);
+                        } else {
+                            return s;
+                        }
+                    })
                     .collect(Collectors.joining(System.getProperty("line.separator")));
             return data;
         } catch (Exception e) {
@@ -99,18 +118,22 @@ public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Kar
         }
     }
 
-    protected boolean secretHasImageRegistry(Karavan karavan) {
+    protected String getImageRegistry(Karavan karavan) {
+        String defaultValue = "${IMAGE_REGISTRY}";
+        String key = "image-registry";
         try {
             KubernetesClient kubernetesClient = new DefaultKubernetesClient();
+            boolean isOpenshift = kubernetesClient.isAdaptable(OpenShiftClient.class);
             Secret secret = kubernetesClient.secrets().inNamespace(karavan.getMetadata().getNamespace()).withName(Constants.NAME).get();
-            if (secret != null) {
-                String imageRegistry = secret.getStringData().get("image-registry");
-                System.out.println("imageRegistry = " +imageRegistry);
-                return imageRegistry != null;
+            if (secret != null && secret.getData().containsKey(key)) {
+                return defaultValue;
+            } else if (isOpenshift) {
+                return "image-registry.openshift-image-registry.svc:5000";
+            } else {
+                return defaultValue;
             }
-            return false;
         } catch (Exception e) {
-            return false;
+            return defaultValue;
         }
     }
 }

@@ -1,32 +1,22 @@
 package org.apache.camel.karavan;
 
-import io.fabric8.kubernetes.api.model.EnvVarBuilder;
-import io.fabric8.kubernetes.api.model.EnvVarSourceBuilder;
-import io.fabric8.tekton.pipeline.v1beta1.Param;
+import io.fabric8.tekton.client.DefaultTektonClient;
 import io.fabric8.tekton.pipeline.v1beta1.ParamBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.ParamSpecBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.Pipeline;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineBuilder;
-import io.fabric8.tekton.pipeline.v1beta1.PipelineTask;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineTaskBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineWorkspaceDeclaration;
-import io.fabric8.tekton.pipeline.v1beta1.StepBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.Task;
-import io.fabric8.tekton.pipeline.v1beta1.TaskBuilder;
-import io.fabric8.tekton.pipeline.v1beta1.TaskRef;
 import io.fabric8.tekton.pipeline.v1beta1.TaskRefBuilder;
-import io.fabric8.tekton.pipeline.v1beta1.WorkspaceDeclaration;
 import io.fabric8.tekton.pipeline.v1beta1.WorkspacePipelineTaskBinding;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
+import io.javaoperatorsdk.operator.api.reconciler.dependent.ReconcileResult;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.inject.Inject;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 
 public class KaravanTektonPipeline extends CRUDKubernetesDependentResource<Pipeline, Karavan> {
@@ -61,15 +51,27 @@ public class KaravanTektonPipeline extends CRUDKubernetesDependentResource<Pipel
                                 .withTaskRef(new TaskRefBuilder().withKind("Task").withName(Constants.TASK_BUILD_QUARKUS).build())
                                 .withWorkspaces(
                                         new WorkspacePipelineTaskBinding(Constants.PVC_M2_CACHE, "", Constants.PVC_M2_CACHE),
-                                        new WorkspacePipelineTaskBinding(Constants.PVC_JBANG, "", Constants.PVC_JBANG)
+                                        new WorkspacePipelineTaskBinding(Constants.PVC_JBANG_CACHE, "", Constants.PVC_JBANG_CACHE)
                                 )
                                 .build()
                 )
                 .withWorkspaces(
                         new PipelineWorkspaceDeclaration("Maven Cache", Constants.PVC_M2_CACHE, false),
-                        new PipelineWorkspaceDeclaration("JBang Cache", Constants.PVC_JBANG, false)
+                        new PipelineWorkspaceDeclaration("JBang Cache", Constants.PVC_JBANG_CACHE, false)
                 )
                 .endSpec()
                 .build();
+    }
+
+    @Override
+    public ReconcileResult<Pipeline> reconcile(Karavan karavan, Context<Karavan> context) {
+        Pipeline pipeline = new DefaultTektonClient(getKubernetesClient()).v1beta1().pipelines().inNamespace(karavan.getMetadata().getNamespace()).withName(Constants.PIPELINE_BUILD_QUARKUS).get();
+        if (pipeline == null) {
+            var desired = desired(karavan, context);
+            var createdResource = handleCreate(desired, karavan, context);
+            return ReconcileResult.resourceCreated(createdResource);
+        } else {
+            return ReconcileResult.noOperation(pipeline);
+        }
     }
 }

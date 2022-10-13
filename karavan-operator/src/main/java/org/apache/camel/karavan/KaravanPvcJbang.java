@@ -26,9 +26,9 @@ public class KaravanPvcJbang extends CRUDKubernetesDependentResource<PersistentV
     public PersistentVolumeClaim desired(Karavan karavan, Context<Karavan> context) {
         return new PersistentVolumeClaimBuilder()
                 .withNewMetadata()
-                .withName(Constants.PVC_JBANG)
+                .withName(Constants.PVC_JBANG_CACHE)
                 .withNamespace(karavan.getMetadata().getNamespace())
-                .withLabels(karavanReconciler.getLabels(Constants.PVC_JBANG, Map.of()))
+                .withLabels(karavanReconciler.getLabels(Constants.PVC_JBANG_CACHE, Map.of()))
                 .endMetadata()
                 .withNewSpec()
                 .withResources(new ResourceRequirementsBuilder().withRequests(Map.of("storage", new Quantity("2Gi"))).build())
@@ -39,7 +39,7 @@ public class KaravanPvcJbang extends CRUDKubernetesDependentResource<PersistentV
     }
 
     public ReconcileResult<PersistentVolumeClaim> reconcile(Karavan karavan, Context<Karavan> context) {
-        PersistentVolumeClaim pvc = getKubernetesClient().persistentVolumeClaims().inNamespace(karavan.getMetadata().getNamespace()).withName(Constants.PVC_JBANG).get();
+        PersistentVolumeClaim pvc = getKubernetesClient().persistentVolumeClaims().inNamespace(karavan.getMetadata().getNamespace()).withName(Constants.PVC_JBANG_CACHE).get();
         if (pvc == null) {
             var desired = desired(karavan, context);
             var createdResource = handleCreate(desired, karavan, context);
