@@ -2,6 +2,7 @@ apiVersion: camel.apache.org/v1
 kind: Karavan
 metadata:
   name: karavan
+  namespace: karavan
   annotations:
     camel.apache.org/support.level: Preview
     camel.apache.org/version: 3.18.5
@@ -9,3 +10,4 @@ metadata:
 spec:
   instances: 1
   auth: public
+  nodePort: 30666

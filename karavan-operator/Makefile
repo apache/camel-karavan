@@ -1,4 +1,36 @@
 
+VERSION ?= 3.18.5
+
+# CHANNELS define the bundle channels used in the bundle.
+# Add a new line here if you would like to change its default config. (E.g CHANNELS = "candidate,fast,stable")
+# To re-generate a bundle for other specific channels without changing the standard setup, you can:
+# - use the CHANNELS as arg of the bundle target (e.g make bundle CHANNELS=candidate,fast,stable)
+# - use environment variables to overwrite this value (e.g export CHANNELS="candidate,fast,stable")
+ifneq ($(origin CHANNELS), undefined)
+BUNDLE_CHANNELS := --channels=$(CHANNELS)
+endif
+
+# DEFAULT_CHANNEL defines the default channel used in the bundle.
+# Add a new line here if you would like to change its default config. (E.g DEFAULT_CHANNEL = "stable")
+# To re-generate a bundle for any other default channel without changing the default setup, you can:
+# - use the DEFAULT_CHANNEL as arg of the bundle target (e.g make bundle DEFAULT_CHANNEL=stable)
+# - use environment variables to overwrite this value (e.g export DEFAULT_CHANNEL="stable")
+ifneq ($(origin DEFAULT_CHANNEL), undefined)
+BUNDLE_DEFAULT_CHANNEL := --default-channel=$(DEFAULT_CHANNEL)
+endif
+BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
+
+# IMAGE_TAG_BASE defines the docker.io namespace and part of the image name for remote images.
+# This variable is used to construct full image tags for bundle and catalog images.
+#
+# For example, running 'make bundle-build bundle-push catalog-build catalog-push' will build and push both
+# karavan.camel.apache.org/operator-test-bundle:$VERSION and karavan.camel.apache.org/operator-test-catalog:$VERSION.
+IMAGE_TAG_BASE ?= ghcr.io/apache/camel-karavan-operator
+
+# BUNDLE_IMG defines the image:tag used for the bundle.
+# You can use it as an arg. (E.g make bundle-build BUNDLE_IMG=<some-registry>/<project-name-bundle>:<tag>)
+BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-bundle:v$(VERSION)
+
 # Image URL to use all building/pushing image targets
 IMG ?= controller:latest
 
@@ -41,3 +73,18 @@ deploy: ## Deploy controller to the K8s cluster specified in ~/.kube/config.
 
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
 	kubectl delete -f target/kubernetes/kubernetes.yml
+
+##@Bundle
+.PHONY: bundle
+bundle:  ## Generate bundle manifests and metadata, then validate generated files.
+## marker
+	cat target/kubernetes/karavans.app.karavan.camel.apache.org-v1.yml target/kubernetes/kubernetes.yml | operator-sdk generate bundle -q --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
+	operator-sdk bundle validate ./bundle
+
+.PHONY: bundle-build
+bundle-build: ## Build the bundle image.
+	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
+
+.PHONY: bundle-push
+bundle-push: ## Push the bundle image.
+	docker push $(BUNDLE_IMG)

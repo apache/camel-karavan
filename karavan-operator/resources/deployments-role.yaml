@@ -1,33 +1,28 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: karavancontroller-deployment-role
+  name: karavan-operator-role
 rules:
-  - apiGroups:
-      - apps
-      - extensions
-    resources:
-      - deployments
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - delete
-      - patch
-      - update
+  - apiGroups: [ "apps", "extensions" ]
+    resources: [ "serviceaccounts", "deployments", "services", "routes", "persistentvolumes", "persistentvolumeclaims"]
+    verbs: [ "*" ]
+  - apiGroups: [ "tekton.dev" ]
+    resources: [ "pipelinetasks", "pipelines" ]
+    verbs: [ "*" ]
+  - apiGroups: [ "rbac.authorization.k8s.io" ]
+    resources: [ "roles", "rolebindings" ]
+    verbs: [ "*" ]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   labels:
     app.kubernetes.io/name: karavan-operator
-    app.kubernetes.io/version: 0.0.11
-  name: karavan-operator-deployment-controller
+  name: karavan-operator
 roleRef:
   kind: Role
   apiGroup: rbac.authorization.k8s.io
-  name: karavancontroller-deployment-role
+  name: karavan-operator-role
 subjects:
   - kind: ServiceAccount
     name: karavan-operator

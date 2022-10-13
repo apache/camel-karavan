@@ -15,7 +15,7 @@
     ```
 2. Create namespace
     ```
-    oc apply -f openshift/karavan-namespace.yaml
+    oc apply -f karavan-namespace.yaml
     oc project karavan
     ```
 
@@ -47,7 +47,7 @@
     ```
 2. Create namespace
     ```
-    kubectl apply -f base/karavan-namespace.yaml
+    kubectl apply -f karavan-namespace.yaml
     ```
 3. Enable Registry
     ```

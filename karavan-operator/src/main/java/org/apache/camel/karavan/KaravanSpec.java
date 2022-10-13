@@ -3,7 +3,8 @@ package org.apache.camel.karavan;
 public class KaravanSpec {
 
     private int instances;
-    private String mode;
+    private String auth;
+    private int nodePort;
 
     public int getInstances() {
         return instances;
@@ -13,11 +14,19 @@ public class KaravanSpec {
         this.instances = instances;
     }
 
-    public String getMode() {
-        return mode;
+    public String getAuth() {
+        return auth;
     }
 
-    public void setMode(String mode) {
-        this.mode = mode;
+    public void setAuth(String auth) {
+        this.auth = auth;
+    }
+
+    public int getNodePort() {
+        return nodePort;
+    }
+
+    public void setNodePort(int nodePort) {
+        this.nodePort = nodePort;
     }
 }

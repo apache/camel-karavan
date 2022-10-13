@@ -12,6 +12,19 @@ public class KaravanStatus {
     private boolean error;
     private String message;
 
+    public KaravanStatus() {
+    }
+
+    public KaravanStatus(State state) {
+        this.state = state;
+    }
+
+    public KaravanStatus(State state, boolean error, String message) {
+        this.state = state;
+        this.error = error;
+        this.message = message;
+    }
+
     public State getState() {
         return state;
     }

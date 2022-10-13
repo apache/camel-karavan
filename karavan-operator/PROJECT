@@ -1,13 +1,10 @@
-domain: karavan.camel.apache.org
+domain: apache.org
 layout:
 - quarkus.javaoperatorsdk.io/v1-alpha
-projectName: karavan-operator
+projectName: camel-karavan-operator
 resources:
 - api:
-    crdVersion: v1
-    namespaced: true
-  domain: karavan.camel.apache.org
-  group: app
+  group: camel
   kind: Karavan
   version: v1
 version: "3"
