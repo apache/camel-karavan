@@ -32,6 +32,7 @@ import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
 import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
 import ConfigurationIcon from "@patternfly/react-icons/dist/js/icons/cogs-icon";
 import {MainLogin} from "./MainLogin";
+import {Thenable} from "monaco-editor";
 
 class ToastMessage {
     id: string = ''
@@ -126,17 +127,29 @@ export class Main extends React.Component<Props, State> {
         KaravanApi.getConfiguration((config: any) => {
             this.setState({ config: config })
         });
-        KaravanApi.getKamelets(yamls => {
-            const kamelets: string[] = [];
-            yamls.split("\n---\n").map(c => c.trim()).forEach(z => kamelets.push(z));
-            KameletApi.saveKamelets(kamelets, true);
-        })
-        KaravanApi.getComponents(code => {
-            const components: [] = JSON.parse(code);
-            const jsons: string[] = [];
-            components.forEach(c => jsons.push(JSON.stringify(c)));
-            ComponentApi.saveComponents(jsons, true);
-        })
+        this.updateKamelets();
+        this.updateComponents();
+    }
+
+    updateKamelets: () => Promise<void> = async () => {
+        await new Promise(resolve => {
+            KaravanApi.getKamelets(yamls => {
+                const kamelets: string[] = [];
+                yamls.split("\n---\n").map(c => c.trim()).forEach(z => kamelets.push(z));
+                KameletApi.saveKamelets(kamelets, true);
+            })
+        });
+    }
+
+    updateComponents: () => Promise<void> = async () => {
+        await new Promise(resolve => {
+            KaravanApi.getComponents(code => {
+                const components: [] = JSON.parse(code);
+                const jsons: string[] = [];
+                components.forEach(c => jsons.push(JSON.stringify(c)));
+                ComponentApi.saveComponents(jsons, true);
+            })
+        });
     }
 
     deleteErrorMessage = (id: string) => {
@@ -221,8 +234,8 @@ export class Main extends React.Component<Props, State> {
                                           config={this.state.config}/>}
                         {this.state.pageId === 'project' && this.state.project && <ProjectPage project={this.state.project} config={this.state.config}/>}
                         {this.state.pageId === 'configuration' && <ConfigurationPage/>}
-                        {this.state.pageId === 'kamelets' && <KameletsPage dark={false}/>}
-                        {this.state.pageId === 'components' && <ComponentsPage dark={false}/>}
+                        {this.state.pageId === 'kamelets' && <KameletsPage dark={false} onRefresh={this.updateKamelets}/>}
+                        {this.state.pageId === 'components' && <ComponentsPage dark={false} onRefresh={this.updateComponents}/>}
                         {this.state.pageId === 'eip' && <EipPage dark={false}/>}
                     </FlexItem>
                 </Flex>

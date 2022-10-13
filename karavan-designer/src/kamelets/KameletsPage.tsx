@@ -21,16 +21,18 @@ import {
     Gallery,
     ToolbarItem,
     TextInput,
-    PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem, Badge
+    PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem, Badge, Button
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KameletCard} from "./KameletCard";
 import {KameletModel} from "karavan-core/lib/model/KameletModels";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {KameletModal} from "./KameletModal";
+import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 
 interface Props {
-    dark: boolean
+    dark: boolean,
+    onRefresh?: () => Promise<void>
 }
 
 interface State {
@@ -56,11 +58,11 @@ export class KameletsPage extends React.Component<Props, State> {
         this.setState({kamelets: KameletApi.getKamelets()})
     }
 
-    select = (k: KameletModel)=> {
+    select = (k: KameletModel) => {
         this.setState({kamelet: k, isModalOpen: true})
     }
 
-    search(filter: string){
+    search(filter: string) {
         this.setState({
             filter: filter,
             isModalOpen: false,
@@ -70,10 +72,12 @@ export class KameletsPage extends React.Component<Props, State> {
 
     render() {
         return (
-            <PageSection variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light} padding={{ default: 'noPadding' }} className="kamelet-section">
+            <PageSection variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}
+                         padding={{default: 'noPadding'}} className="kamelet-section">
                 <KameletModal key={this.state.kamelet?.metadata.name + this.state.isModalOpen.toString()}
                               isOpen={this.state.isModalOpen} kamelet={this.state.kamelet}/>
-                <PageSection  className="tools-section" variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
+                <PageSection className="tools-section"
+                             variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
                     <Flex className="tools" justifyContent={{default: 'justifyContentSpaceBetween'}}>
                         <FlexItem>
                             <TextContent className="header">
@@ -84,6 +88,14 @@ export class KameletsPage extends React.Component<Props, State> {
                         <FlexItem>
                             <Toolbar id="toolbar-group-types">
                                 <ToolbarContent>
+                                    <ToolbarItem>
+                                        <Button icon={<RefreshIcon/>} variant="link"
+                                                onClick={e => {
+                                                    this.props.onRefresh?.call(this).then(value => {
+                                                        this.setState({kamelets: KameletApi.getKamelets()});
+                                                    })
+                                                }}/>
+                                    </ToolbarItem>
                                     <ToolbarItem>
                                         <TextInput className="text-field" type="search" id="search" name="search"
                                                    value={this.state.filter}
@@ -96,7 +108,8 @@ export class KameletsPage extends React.Component<Props, State> {
                         </FlexItem>
                     </Flex>
                 </PageSection>
-                <PageSection isFilled className="kamelets-page" variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
+                <PageSection isFilled className="kamelets-page"
+                             variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
                     <Gallery hasGutter>
                         {this.state.kamelets.map(k => (
                             <KameletCard key={k.metadata.name} kamelet={k} onClickCard={this.select}/>

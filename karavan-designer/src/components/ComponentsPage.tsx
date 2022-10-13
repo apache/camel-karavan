@@ -21,16 +21,18 @@ import {
     Gallery,
     ToolbarItem,
     TextInput,
-    PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem, Badge
+    PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem, Badge, Button
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {ComponentCard} from "./ComponentCard";
 import {ComponentModal} from "./ComponentModal";
 import {Component} from "karavan-core/lib/model/ComponentModels";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
+import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 
 interface Props {
-    dark: boolean
+    dark: boolean,
+    onRefresh?: () => Promise<void>
 }
 
 interface State {
@@ -86,6 +88,14 @@ export class ComponentsPage extends React.Component<Props, State> {
                         <FlexItem>
                             <Toolbar id="toolbar-group-types">
                                 <ToolbarContent>
+                                    <ToolbarItem>
+                                        <Button icon={<RefreshIcon/>} variant="link"
+                                                onClick={e => {
+                                                    this.props.onRefresh?.call(this).then(value => {
+                                                        this.setState({components: ComponentApi.getComponents()});
+                                                    })
+                                                }}/>
+                                    </ToolbarItem>
                                     <ToolbarItem>
                                         <TextInput className="text-field" type="search" id="search" name="search"
                                                    value={this.state.filter}
