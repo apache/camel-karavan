@@ -139,7 +139,7 @@ public class KubernetesService {
         PipelineRunSpec spec = new PipelineRunSpecBuilder()
                 .withPipelineRef(ref)
                 .withServiceAccountName("pipeline")
-                .withParams(new ParamBuilder().withName("PROJECT_NAME").withNewValue(project.getProjectId()).build())
+                .withParams(new ParamBuilder().withName("PROJECT_ID").withNewValue(project.getProjectId()).build())
                 .withWorkspaces(
                         new WorkspaceBindingBuilder().withName("m2-cache").withNewPersistentVolumeClaim("karavan-m2-cache", false).build(),
                         new WorkspaceBindingBuilder().withName("jbang-cache").withNewPersistentVolumeClaim("karavan-jbang-cache", false).build())
