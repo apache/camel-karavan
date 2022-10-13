@@ -74,22 +74,22 @@ public class GitService {
 
     private GitConfig getGitConfig(String name) {
         String propertiesPrefix = "karavan." + name + "-";
-        String mainBranch = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-main", String.class);
+        String branch = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-branch", String.class);
         if (kubernetesService.inKubernetes()){
             String kubernetesPrefix = name + "-";
             Secret secret =  kubernetesService.getKaravanSecret();
             String uri = new String(Base64.getDecoder().decode(secret.getData().get(kubernetesPrefix + "git-repository").getBytes(StandardCharsets.UTF_8)));
             String username = new String(Base64.getDecoder().decode(secret.getData().get(kubernetesPrefix + "git-username").getBytes(StandardCharsets.UTF_8)));
             String password = new String(Base64.getDecoder().decode(secret.getData().get(kubernetesPrefix + "git-password").getBytes(StandardCharsets.UTF_8)));
-            if (secret.getData().containsKey(kubernetesPrefix + "git-main")){
-                mainBranch = new String(Base64.getDecoder().decode(secret.getData().get(kubernetesPrefix + "git-main").getBytes(StandardCharsets.UTF_8)));
+            if (secret.getData().containsKey(kubernetesPrefix + "git-branch")){
+                branch = new String(Base64.getDecoder().decode(secret.getData().get(kubernetesPrefix + "git-branch").getBytes(StandardCharsets.UTF_8)));
             }
-            return new GitConfig(uri, username, password, mainBranch);
+            return new GitConfig(uri, username, password, branch);
         } else {
             String uri = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-repository", String.class);
             String username = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-username", String.class);
             String password = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-password", String.class);
-            return new GitConfig(uri, username, password, mainBranch);
+            return new GitConfig(uri, username, password, branch);
         }
     }
 
@@ -102,17 +102,17 @@ public class GitService {
         LOGGER.infof("Temp folder created: {}", folder);
         Git git = null;
         try {
-            git = clone(folder, gitConfig.getUri(), gitConfig.getMainBranch(), cred);
-            checkout(git, false, null, null, gitConfig.getMainBranch());
+            git = clone(folder, gitConfig.getUri(), gitConfig.getBranch(), cred);
+            checkout(git, false, null, null, gitConfig.getBranch());
         } catch (RefNotFoundException e) {
             LOGGER.error("New repository");
-            git = init(folder, gitConfig.getUri(), gitConfig.getMainBranch());
+            git = init(folder, gitConfig.getUri(), gitConfig.getBranch());
         } catch (Exception e) {
             LOGGER.error("Error", e);
         }
         writeProjectToFolder(folder, project, files);
         addDeletedFilesToIndex(git, folder, project, files);
-        return commitAddedAndPush(git, gitConfig.getMainBranch(), cred).getId().getName();
+        return commitAddedAndPush(git, gitConfig.getBranch(), cred).getId().getName();
     }
 
     public List<Tuple2<String, String>> readKameletsFromRepository() {
@@ -123,8 +123,8 @@ public class GitService {
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
         LOGGER.infof("Temp folder created: %s", folder);
         try {
-            Git git = clone(folder, gitConfig.getUri(), gitConfig.getMainBranch(), cred);
-            checkout(git, false, null, null, gitConfig.getMainBranch());
+            Git git = clone(folder, gitConfig.getUri(), gitConfig.getBranch(), cred);
+            checkout(git, false, null, null, gitConfig.getBranch());
             return readKameletsFromFolder(folder);
         } catch (RefNotFoundException e) {
             LOGGER.error("New repository");
@@ -145,8 +145,8 @@ public class GitService {
         List<Tuple2<String, Map<String, String>>> result = new ArrayList<>();
         Git git = null;
         try {
-            git = clone(folder, gitConfig.getUri(), gitConfig.getMainBranch(), cred);
-            checkout(git, false, null, null, gitConfig.getMainBranch());
+            git = clone(folder, gitConfig.getUri(), gitConfig.getBranch(), cred);
+            checkout(git, false, null, null, gitConfig.getBranch());
             List<String> projects = readProjectsFromFolder(folder);
             projects.forEach(project -> {
                 Map<String, String> files = readProjectFilesFromFolder(folder, project);

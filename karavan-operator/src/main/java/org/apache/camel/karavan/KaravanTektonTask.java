@@ -63,16 +63,16 @@ public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Kar
                                                 new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("projects-git-username").and().build()).build(),
                                         new EnvVarBuilder().withName("PROJECTS_GIT_PASSWORD").withValueFrom(
                                                 new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("projects-git-password").and().build()).build(),
-                                        new EnvVarBuilder().withName("PROJECTS_GIT_MAIN").withValueFrom(
-                                                new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("projects-git-main").and().build()).build(),
+                                        new EnvVarBuilder().withName("PROJECTS_GIT_BRANCH").withValueFrom(
+                                                new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("projects-git-branch").and().build()).build(),
                                         new EnvVarBuilder().withName("KAMELETS_GIT_REPOSITORY").withValueFrom(
                                                 new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("kamelets-git-repository").and().build()).build(),
                                         new EnvVarBuilder().withName("KAMELETS_GIT_USERNAME").withValueFrom(
                                                 new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("kamelets-git-username").and().build()).build(),
                                         new EnvVarBuilder().withName("KAMELETS_GIT_PASSWORD").withValueFrom(
                                                 new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("kamelets-git-password").and().build()).build(),
-                                        new EnvVarBuilder().withName("KAMELETS_GIT_MAIN").withValueFrom(
-                                                new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("kamelets-git-main").and().build()).build(),
+                                        new EnvVarBuilder().withName("KAMELETS_GIT_BRANCH").withValueFrom(
+                                                new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("kamelets-git-branch").and().build()).build(),
                                         new EnvVarBuilder().withName("IMAGE_REGISTRY").withValueFrom(
                                                 new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("image-registry").withOptional(true).and().build()).build()
                                 )

@@ -6,9 +6,9 @@ then
     replacer=https://$KAMELETS_GIT_PASSWORD@
     prefix=https://
     url="${KAMELETS_GIT_REPOSITORY/$prefix/$replacer}"
-    git clone --depth 1 --branch ${KAMELETS_GIT_MAIN} $url ${KAMELETS_DIR}
+    git clone --depth 1 --branch ${KAMELETS_GIT_BRANCH} $url ${KAMELETS_DIR}
 else
-    git clone --depth 1 --branch ${KAMELETS_GIT_MAIN} ${KAMELETS_GIT_REPOSITORY} ${KAMELETS_DIR}
+    git clone --depth 1 --branch ${KAMELETS_GIT_BRANCH} ${KAMELETS_GIT_REPOSITORY} ${KAMELETS_DIR}
 fi
 
 CHECKOUT_DIR="/scripts"
@@ -18,9 +18,9 @@ then
     replacer=https://$PROJECTS_GIT_PASSWORD@
     prefix=https://
     url="${PROJECTS_GIT_REPOSITORY/$prefix/$replacer}"
-    git clone --depth 1 --branch ${PROJECTS_GIT_MAIN} $url ${CHECKOUT_DIR}
+    git clone --depth 1 --branch ${PROJECTS_GIT_BRANCH} $url ${CHECKOUT_DIR}
 else
-    git clone --depth 1 --branch ${PROJECTS_GIT_MAIN} ${PROJECTS_GIT_REPOSITORY} ${CHECKOUT_DIR}
+    git clone --depth 1 --branch ${PROJECTS_GIT_BRANCH} ${PROJECTS_GIT_REPOSITORY} ${CHECKOUT_DIR}
 fi
 
 cd ${CHECKOUT_DIR}/$(inputs.params.project)

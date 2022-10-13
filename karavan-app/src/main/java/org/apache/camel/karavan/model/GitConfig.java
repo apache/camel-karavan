@@ -4,13 +4,13 @@ public class GitConfig {
     private String uri;
     private String username;
     private String password;
-    private String mainBranch;
+    private String branch;
 
-    public GitConfig(String uri, String username, String password, String mainBranch) {
+    public GitConfig(String uri, String username, String password, String branch) {
         this.uri = uri;
         this.username = username;
         this.password = password;
-        this.mainBranch = mainBranch;
+        this.branch = branch;
     }
 
     public String getUri() {
@@ -37,11 +37,11 @@ public class GitConfig {
         this.password = password;
     }
 
-    public String getMainBranch() {
-        return mainBranch;
+    public String getBranch() {
+        return branch;
     }
 
-    public void setMainBranch(String mainBranch) {
-        this.mainBranch = mainBranch;
+    public void setBranch(String branch) {
+        this.branch = branch;
     }
 }
