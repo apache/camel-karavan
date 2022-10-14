@@ -8,6 +8,9 @@ on:
     branches: [ main ]
 
 env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}-operator
+  IMAGE_NAME_BUNDLE: ${{ github.repository }}-bundle
   TAG: 3.18.5
 
 jobs:
@@ -40,7 +43,7 @@ jobs:
           mvn package -f karavan-operator -DskipTest \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=true \
-          -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}-operator:${{ env.TAG }} \
+          -Dquarkus.container-image.image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }} \
           -Dquarkus.container-image.username=${{ github.actor }} \
           -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }}
         if: ${{ github.ref == 'refs/heads/main' }}
@@ -48,8 +51,8 @@ jobs:
       #  Build the Operator Bundle image
       - name: Build operator Bundle image
         run: |
-          MY_BUNDLE_IMAGE=ghcr.io/${GITHUB_REPOSITORY}-bundle:${{ env.TAG }}
-          docker login -u=${{ github.actor }} -p=${{ secrets.GITHUB_TOKEN }}
+          MY_BUNDLE_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BUNDLE }}:${{ env.TAG }}
+          docker login -u=${{ github.actor }} -p=${{ secrets.GITHUB_TOKEN }} ${{ env.REGISTRY }}
           docker build -t $MY_BUNDLE_IMAGE -f target/bundle/bundle.Dockerfile target/bundle
           docker push $MY_BUNDLE_IMAGE
         if: ${{ github.ref == 'refs/heads/main' }}
