@@ -1,4 +1,4 @@
-name: cloud-native app 
+name: operator 
 
 on:
   push:
