@@ -6,7 +6,7 @@ metadata:
     camel.apache.org/kamelet.type: "source"
   annotations:
     camel.apache.org/kamelet.support.level: "Stable"
-    camel.apache.org/catalog.version: "0.9.0"
+    camel.apache.org/catalog.version: "0.9.1"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUwMCIgaGVpZ2h0PSIxODg1IiB2aWV3Qm94PSIwIDAgMjU2IDE5MyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCI+PHBhdGggZD0iTTE5Mi40NCAxNDQuNjQ1aDMxLjc4VjY4LjMzOWwtMzUuODA1LTM1LjgwNC0yMi40NzIgMjIuNDcyIDI2LjQ5NyAyNi40OTd2NjMuMTR6bTMxLjg2NCAxNS45MzFIMTEzLjQ1Mkw4Ni45NTQgMTM0LjA4bDExLjIzNy0xMS4yMzYgMjEuODg1IDIxLjg4NWg0NS4wMjhsLTQ0LjM1Ny00NC40NDEgMTEuMzItMTEuMzIgNDQuMzU3IDQ0LjM1OFY4OC4yOTZsLTIxLjgwMS0yMS44MDEgMTEuMTUyLTExLjE1M0wxMTAuNjg1IDBIMGwzMS42OTYgMzEuNjk2di4wODRIOTcuNDM2bDIzLjIyNyAyMy4yMjctMzMuOTYgMzMuOTZMNjMuNDc2IDY1Ljc0VjQ3LjcxMmgtMzEuNzh2MzEuMTkzbDU1LjAwNyA1NS4wMDdMNjQuMzE0IDE1Ni4zbDM1LjgwNSAzNS44MDVIMjU2bC0zMS42OTYtMzEuNTI5eiIgZmlsbD0iIzIzMUYyMCIvPjwvc3ZnPg=="
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "Websocket"

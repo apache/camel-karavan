@@ -21,7 +21,7 @@ metadata:
   name: aws-s3-sink
   annotations:
     camel.apache.org/kamelet.support.level: "Stable"
-    camel.apache.org/catalog.version: "0.9.0"
+    camel.apache.org/catalog.version: "0.9.1"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjAiIHk9IjAiIHZpZXdCb3g9IjAgMCAyNDguMiAzMDAiIHhtbDpzcGFjZT0icHJlc2VydmUiPjxzdHlsZT4uc3QyOHtmaWxsOiM4YzMxMjN9LnN0Mjl7ZmlsbDojZTA1MjQzfTwvc3R5bGU+PHBhdGggY2xhc3M9InN0MjgiIGQ9Ik0yMCA1Mi4xTDAgNjJ2MTc1LjVsMjAgOS45LjEtLjFWNTIuMmwtLjEtLjEiLz48cGF0aCBjbGFzcz0ic3QyOSIgZD0iTTEyNyAyMjJMMjAgMjQ3LjVWNTIuMUwxMjcgNzd2MTQ1Ii8+PHBhdGggY2xhc3M9InN0MjgiIGQ9Ik03OC43IDE4Mi4xbDQ1LjQgNS44LjMtLjcuMy03NC40LS41LS42LTQ1LjQgNS43LS4xIDY0LjIiLz48cGF0aCBjbGFzcz0ic3QyOCIgZD0iTTEyNC4xIDIyMi4zbDEwNC4xIDI1LjIuMi0uM1Y1Mi4xbC0uMi0uMi0xMDQuMSAyNS40djE0NSIvPjxwYXRoIGNsYXNzPSJzdDI5IiBkPSJNMTY5LjUgMTgyLjFsLTQ1LjQgNS44di03NS43bDQ1LjQgNS43djY0LjIiLz48cGF0aCBkPSJNMTY5LjUgODYuOWwtNDUuNCA4LjMtNDUuNC04LjNMMTI0IDc1bDQ1LjUgMTEuOSIgZmlsbD0iIzVlMWYxOCIvPjxwYXRoIGQ9Ik0xNjkuNSAyMTMuMWwtNDUuNC04LjMtNDUuNCA4LjMgNDUuMyAxMi43IDQ1LjUtMTIuNyIgZmlsbD0iI2YyYjBhOSIvPjxwYXRoIGNsYXNzPSJzdDI4IiBkPSJNNzguNyA4Ni45bDQ1LjQtMTEuMi40LS4xVi4zbC0uNC0uMy00NS40IDIyLjd2NjQuMiIvPjxwYXRoIGNsYXNzPSJzdDI5IiBkPSJNMTY5LjUgODYuOWwtNDUuNC0xMS4yVjBsNDUuNCAyMi43djY0LjIiLz48cGF0aCBjbGFzcz0ic3QyOCIgZD0iTTEyNC4xIDMwMGwtNDUuNC0yMi43di02NC4ybDQ1LjQgMTEuMi43LjgtLjIgNzMuNi0uNSAxLjMiLz48cGF0aCBjbGFzcz0ic3QyOSIgZD0iTTEyNC4xIDMwMGw0NS40LTIyLjd2LTY0LjJsLTQ1LjQgMTEuMlYzMDBNMjI4LjIgNTIuMWwyMCAxMHYxNzUuNWwtMjAgMTBWNTIuMSIvPjwvc3ZnPg=="
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "AWS S3"
@@ -69,7 +69,7 @@ spec:
         title: AWS Region
         description: The AWS region to access.
         type: string
-        enum: ["af-south-1", "ap-east-1", "ap-northeast-1", "ap-northeast-2", "ap-northeast-3", "ap-south-1", "ap-southeast-1", "ap-southeast-2", "ap-southeast-3", "ca-central-1", "eu-central-1", "eu-north-1", "eu-south-1", "eu-west-1", "eu-west-2", "eu-west-3", "fips-us-east-1", "fips-us-east-2", "fips-us-west-1", "fips-us-west-2", "me-south-1", "sa-east-1", "us-east-1", "us-east-2", "us-west-1", "us-west-2", "cn-north-1", "cn-northwest-1", "us-gov-east-1", "us-gov-west-1", "us-iso-east-1", "us-iso-west-1", "us-isob-east-1"]
+        enum: ["ap-south-1", "eu-south-1", "us-gov-east-1", "me-central-1", "ca-central-1", "eu-central-1", "us-iso-west-1", "us-west-1", "us-west-2", "af-south-1", "eu-north-1", "eu-west-3", "eu-west-2", "eu-west-1", "ap-northeast-3", "ap-northeast-2", "ap-northeast-1", "me-south-1", "sa-east-1", "ap-east-1", "cn-north-1", "us-gov-west-1", "ap-southeast-1", "ap-southeast-2", "us-iso-east-1", "ap-southeast-3", "us-east-1", "us-east-2", "cn-northwest-1", "us-isob-east-1", "aws-global", "aws-cn-global", "aws-us-gov-global", "aws-iso-global", "aws-iso-b-global"]
       autoCreateBucket:
         title: Autocreate Bucket
         description: Specifies to automatically create the S3 bucket.

@@ -20,7 +20,7 @@ metadata:
   name: google-bigquery-sink
   annotations:
     camel.apache.org/kamelet.support.level: "Stable"
-    camel.apache.org/catalog.version: "0.9.0"
+    camel.apache.org/catalog.version: "0.9.1"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjI1MDAiIHdpZHRoPSIyNTAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgICAgdmlld0JveD0iLTEuNjMzMjM1NDMzMzI4MjU2IDcuMDMyNjA5MzMwMzE1NjU2NSAxMzEuMjY1NzQ2ODI0MTY4NzYgMTE0LjYzNDM5MDY2OTY4NDM1IiB2ZXJzaW9uPSIxLjAiPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJhIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjY0IiB4Mj0iNjQiIHkxPSI3LjAzNCIgeTI9IjEyMC43ODkiPgogICAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzQzODdmZCIvPgogICAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzQ2ODNlYSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxwYXRoIGQ9Ik0yNy43OSAxMTUuMjE3TDEuNTQgNjkuNzQ5YTExLjQ5OSAxMS40OTkgMCAwIDEgMC0xMS40OTlsMjYuMjUtNDUuNDY3YTExLjUgMTEuNSAwIDAgMSA5Ljk2LTUuNzVoNTIuNWExMS41IDExLjUgMCAwIDEgOS45NTkgNS43NWwyNi4yNSA0NS40NjdhMTEuNDk5IDExLjQ5OSAwIDAgMSAwIDExLjVsLTI2LjI1IDQ1LjQ2N2ExMS41IDExLjUgMCAwIDEtOS45NTkgNS43NDloLTUyLjVhMTEuNDk5IDExLjQ5OSAwIDAgMS05Ljk2LTUuNzV6IgogICAgICAgICAgZmlsbD0idXJsKCNhKSIvPgogICAgPHBhdGgKICAgICAgICAgIGQ9Ik0xMTkuMjI5IDg2LjQ4TDgwLjYyNSA0Ny44NzQgNjQgNDMuNDI1bC0xNC45MzMgNS41NUw0My4zIDY0bDQuNjM3IDE2LjcyOSA0MC45MzggNDAuOTM4IDguNjg3LS4zODZ6IgogICAgICAgICAgb3BhY2l0eT0iLjA3Ii8+CiAgICA8ZyBmaWxsPSIjZmZmIj4KICAgICAgICA8cGF0aCBkPSJNNjQgNDAuODA0Yy0xMi44MSAwLTIzLjE5NSAxMC4zODUtMjMuMTk1IDIzLjE5NiAwIDEyLjgxIDEwLjM4NSAyMy4xOTUgMjMuMTk1IDIzLjE5NVM4Ny4xOTQgNzYuODEgODcuMTk0IDY0YzAtMTIuODExLTEwLjM4NS0yMy4xOTYtMjMuMTk0LTIzLjE5Nm0wIDQwLjc5NWMtOS43MiAwLTE3LjYtNy44OC0xNy42LTE3LjZTNTQuMjggNDYuNCA2NCA0Ni40IDgxLjYgNTQuMjggODEuNiA2NCA3My43MiA4MS42IDY0IDgxLjYiLz4KICAgICAgICA8cGF0aCBkPSJNNTIuOTkgNjMuMTA0djcuMjFhMTIuNzk0IDEyLjc5NCAwIDAgMCA0LjM4IDQuNDc1VjYzLjEwNHpNNjEuNjc1IDU3LjAyNnYxOS40MTFjLjc0NS4xMzcgMS41MDcuMjIgMi4yOS4yMi43MTQgMCAxLjQxLS4wNzUgMi4wOTMtLjE4OVY1Ny4wMjZ6TTcwLjc2NiA2Ni4xdjguNTYyYTEyLjc4NiAxMi43ODYgMCAwIDAgNC4zODItNC43di0zLjg2MXpNODAuNjkxIDc4LjI4N2wtMi40MDMgMi40MDVhMS4wODggMS4wODggMCAwIDAgMCAxLjUzN2w5LjExNSA5LjExMmExLjA4OCAxLjA4OCAwIDAgMCAxLjUzNyAwbDIuNDAzLTIuNDAyYTEuMDkyIDEuMDkyIDAgMCAwIDAtMS41MzZsLTkuMTE2LTkuMTE2YTEuMDkgMS4wOSAwIDAgMC0xLjUzNiAwIi8+CiAgICA8L2c+Cjwvc3ZnPg=="
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "Google Big Query"
@@ -37,7 +37,7 @@ spec:
       - projectId
       - dataset
       - table
-      - credentialsFileLocation
+      - serviceAccountKey
     type: object
     properties:
       projectId:
@@ -52,12 +52,12 @@ spec:
         title: Big Query Table Id
         description: The Big Query Table ID.
         type: string
-      credentialsFileLocation:
-        title: Google Cloud Platform Credential File
-        description: The credential for accessing Google Cloud Platform API services. This value must be a path to a service account key file.
-        type: string
+      serviceAccountKey:
+        title: Service Account Key
+        description: The service account key to use as credentials for the BigQuery Service. You must encode this value in base64.
+        type: binary
         x-descriptors:
-          - urn:camel:group:credentials
+        - urn:camel:group:credentials
   types:
     in:
       mediaType: application/json
@@ -67,12 +67,6 @@ spec:
     - "camel:google-bigquery"
     - "camel:jackson"
   template:
-    beans:
-      - name: connectionFactoryBean
-        type: "#class:org.apache.camel.component.google.bigquery.GoogleBigQueryConnectionFactory"
-        property:
-          - key: credentialsFileLocation
-            value: '{{credentialsFileLocation}}'
     from:
       uri: "kamelet:source"
       steps:
@@ -82,4 +76,4 @@ spec:
       - to:
           uri: "google-bigquery:{{projectId}}:{{dataset}}:{{table}}"
           parameters:
-            connectionFactory: "#bean:{{connectionFactoryBean}}"
+            serviceAccountKey: "base64:{{serviceAccountKey}}"

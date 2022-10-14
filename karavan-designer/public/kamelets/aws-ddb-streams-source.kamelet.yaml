@@ -21,7 +21,7 @@ metadata:
   name: aws-ddb-streams-source
   annotations:
     camel.apache.org/kamelet.support.level: "Stable"
-    camel.apache.org/catalog.version: "0.9.0"
+    camel.apache.org/catalog.version: "0.9.1"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMCIgd2lkdGg9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBmaWxsPSIjMkQ3MkI4IiBkPSJNNzQuMTc0IDMxLjgwN2w3LjQzNyA1LjM2N3YtNy42MDJsLTcuNDgtOC43NjV2MTAuOTU3bC4wNDMuMDE1eiIvPjxwYXRoIGZpbGw9IiM1Mjk0Q0YiIGQ9Ik01OS44MzggODUuNjY2bDE0LjI5My03LjE0NlYyMC43OTFsLTE0LjMwMy03LjEyNHoiLz48cGF0aCBmaWxsPSIjMjA1Qjk4IiBkPSJNMzkuNDk2IDg1LjY2NkwyNS4yMDMgNzguNTJWMjAuNzkxbDE0LjMwMy03LjEyNHoiLz48cGF0aCBmaWxsPSIjMkQ3MkI4IiBkPSJNMzkuNTA2IDEzLjY2N2gyMC4zMjF2NzEuOTk5SDM5LjUwNnpNNzQuMTMxIDY3LjU2NFY3OC41Mmw3LjQ4LTguNzY0di03LjYwMmwtNy40MzcgNS4zOTd6TTc0LjEzMSA2Mi45MzZsLjA0My0uMDEgNy40MzctNHYtNy42NDlsLTcuNDguNjg4ek03NC4xNzQgMzYuNDI5bC0uMDQzLS4wMVY0Ny4zNWw3LjQ4LjY5OXYtNy42NDV6Ii8+PHBhdGggZmlsbD0iIzFBNDc2RiIgZD0iTTgxLjYxMSA0OC4wNDlsLTcuNDgtLjY5OS0xNC4zMDMtLjU3MkgzOS41MDZsLTE0LjMwMy41NzJWMzYuNDQzbC0uMDE1LjAwOC4wMTUtLjAzMiAxNC4zMDMtMy4zMTRINTkuODI4bDE0LjMwMyAzLjMxNCA1LjI1OCAyLjc5NXYtMS43OTdsMi4yMjItLjI0My03LjQ4LTUuNDEtMTQuMzAzLTQuNDMySDM5LjUwNmwtMTQuMzAzIDQuNDMyVjIwLjgwN2wtNy40OCA4Ljc2M3Y3LjY1M2wuMDU4LS4wNDIgMi4xNjQuMjM2djEuODM0bC0yLjIyMiAxLjE4OXY3LjYxNWwuMDU4LS4wMDYgMi4xNjQuMDMydjMuMTk2bC0xLjg2Ny4wMjgtLjM1NS0uMDM0djcuNjE4bDIuMjIyIDEuMTk1djEuODU1bC0yLjEyOS4yMzUtLjA5My0uMDd2Ny42NTJsNy40OCA4Ljc2NFY2Ny41NjRsMTQuMzAzIDQuNDMySDU5LjgyOGwxNC4zNDUtNC40NDUgNy40MzgtNS4zNjctMi4yMjItLjI0NXYtMS44MThsLTUuMjE2IDIuODA1LTE0LjM0NSAzLjI5NXYuMDA0SDM5LjUwNnYtLjAwNGwtMTQuMzQ4LTMuMjk1LS4wMjUtLjA1MS4wNy4wMzdWNTEuOTY1bDE0LjMwMy41N3YuMDE0SDU5LjgyOHYtLjAxNGwxNC4zMDMtLjU3IDcuNDgtLjY1Ni0yLjIyMi0uMDMydi0zLjE5NnoiLz48L3N2Zz4="
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "AWS DynamoDB Streams"
@@ -65,7 +65,7 @@ spec:
         title: AWS Region
         description: The AWS region to access.
         type: string
-        enum: ["af-south-1", "ap-east-1", "ap-northeast-1", "ap-northeast-2", "ap-northeast-3", "ap-south-1", "ap-southeast-1", "ap-southeast-2", "ap-southeast-3", "ca-central-1", "eu-central-1", "eu-north-1", "eu-south-1", "eu-west-1", "eu-west-2", "eu-west-3", "fips-us-east-1", "fips-us-east-2", "fips-us-west-1", "fips-us-west-2", "me-south-1", "sa-east-1", "us-east-1", "us-east-2", "us-west-1", "us-west-2", "cn-north-1", "cn-northwest-1", "us-gov-east-1", "us-gov-west-1", "us-iso-east-1", "us-iso-west-1", "us-isob-east-1"]
+        enum: ["ap-south-1", "eu-south-1", "us-gov-east-1", "me-central-1", "ca-central-1", "eu-central-1", "us-iso-west-1", "us-west-1", "us-west-2", "af-south-1", "eu-north-1", "eu-west-3", "eu-west-2", "eu-west-1", "ap-northeast-3", "ap-northeast-2", "ap-northeast-1", "me-south-1", "sa-east-1", "ap-east-1", "cn-north-1", "us-gov-west-1", "ap-southeast-1", "ap-southeast-2", "us-iso-east-1", "ap-southeast-3", "us-east-1", "us-east-2", "cn-northwest-1", "us-isob-east-1", "aws-global", "aws-cn-global", "aws-us-gov-global", "aws-iso-global", "aws-iso-b-global"]
       streamIteratorType:
         title: Stream Iterator Type
         description: Defines where in the DynamoDB stream to start getting records. There are two enums and the value can be one of FROM_LATEST and FROM_START. Note that using FROM_START can cause a significant delay before the stream has caught up to real-time. 

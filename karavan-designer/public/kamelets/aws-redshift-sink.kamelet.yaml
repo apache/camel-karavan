@@ -20,7 +20,7 @@ metadata:
   name: aws-redshift-sink
   annotations:
     camel.apache.org/kamelet.support.level: "Stable"
-    camel.apache.org/catalog.version: "0.9.0"
+    camel.apache.org/catalog.version: "0.9.1"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxNjE1IDE3ODMuNyIgdmlld0JveD0iMCAwIDE2MTUgMTc4My43IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Im04MDcuNSAxMzYzLjggNjc4LjMgMTYxLjV2LTEyNzAuNWwtNjc4LjMgMTYxLjV6IiBmaWxsPSIjMjA1Yjk3Ii8+PHBhdGggZD0ibTE0ODUuOCAyNTQuOCAxMjkuMiA2NC42djExNDEuM2wtMTI5LjIgNjQuNnptLTY3OC4zIDExMDktNjc4LjMgMTYxLjV2LTEyNzAuNWw2NzguMyAxNjEuNXoiIGZpbGw9IiM1MTkzY2UiLz48cGF0aCBkPSJtMTI5LjIgMjU0LjgtMTI5LjIgNjQuNnYxMTQxLjNsMTI5LjIgNjQuNnoiIGZpbGw9IiMyMDViOTciLz48cGF0aCBkPSJtOTc5LjggMTc4My43IDI1OC40LTEyOS4ydi0xNTI1LjNsLTI1OC40LTEyOS4yLTc5IDg0N3oiIGZpbGw9IiM1MTkzY2UiLz48cGF0aCBkPSJtNjM1LjIgMTc4My43LTI1OC40LTEyOS4ydi0xNTI1LjNsMjU4LjQtMTI5LjIgNzkgODQ3eiIgZmlsbD0iIzIwNWI5NyIvPjxwYXRoIGQ9Im02MzUuMiAwaDM0OC4xdjE3ODAuMWgtMzQ4LjF6IiBmaWxsPSIjMmU3M2I3Ii8+PC9zdmc+"
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "AWS Redshift"

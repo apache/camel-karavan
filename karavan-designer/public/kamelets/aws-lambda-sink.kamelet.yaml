@@ -21,7 +21,7 @@ metadata:
   name: aws-lambda-sink
   annotations:
     camel.apache.org/kamelet.support.level: "Stable"
-    camel.apache.org/catalog.version: "0.9.0"
+    camel.apache.org/catalog.version: "0.9.1"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjA2NSIgaGVpZ2h0PSIyNTAwIiB2aWV3Qm94PSIwIDAgMjU2IDMxMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCI+PHBhdGggZD0iTTAgMjQ1LjI2MmwxNi4zMjIgOC4xNjFMMTkgMjQ4LjY2OFY1OS4zMzNsLTIuNjc4LTMuNDk0TDAgNjR2MTgxLjI2MiIgZmlsbD0iIzlENTAyNSIvPjxwYXRoIGQ9Ik00Ny42NzggNjMuNTdsLTMxLjM1Ni03LjczMXYxOTcuNTg0bDMxLjM1Ni03LjMwMlY2My41NyIgZmlsbD0iI0Y2ODUzNiIvPjxwYXRoIGQ9Ik0xNDMuODkzIDc4LjYwNGwyMi4zMzUtMTEuNTk3IDc0LjMwOSAyOC43NzgtMTkuNzU4IDIuNTc3LTc2Ljg4Ni0xOS43NTgiIGZpbGw9IiM2QjNBMTkiLz48cGF0aCBkPSJNMTQ0Ljc1MiAyMzAuNjU4bDIxLjkwNiAxMS41OTcgNzQuMzA4LTI4Ljc3OC0xOS43NTgtMi41NzgtNzYuNDU2IDE5Ljc1OSIgZmlsbD0iI0ZCQkY5MyIvPjxwYXRoIGQ9Ik0xNTAuMzM2IDE5OC44NzJsMzkuMDg3IDUuMTU1IDIuMjQ0LTQuMDI3di05MGwtMi4yNDQtNC43NjUtMzkuMDg3IDUuMTU0djg4LjQ4M00zNS42NTEgNDUuOTZsMjQuMDU0LTEyLjAyN0w2Mi4zMzMgMzl2MjMxbC0yLjYyOCA1LjMyOS0yNC4wNTQtMTIuMDI3VjQ1Ljk2IiBmaWxsPSIjOUQ1MDI1Ii8+PHBhdGggZD0iTTEwOC42NzEgMjU5LjAwN2wtNDguOTY2IDE1Ljg5MlYzMy45MzNsNDguOTY2IDE1Ljg5M3YyMDkuMTgxIiBmaWxsPSIjRjY4NTM2Ii8+PHBhdGggZD0iTTg5Ljc3MiAyODkuOTMzTDEyOCAzMDkuMjYybDQtNC41OTV2LTI5OUwxMjggMCA4OS43NzIgMTkuMzI5djI3MC42MDRNMjE5LjkxOSA5OC4zNjJsMTkuNzU5LTIuNTc3IDEuNjk3IDIuNDY1VjIxMWwtMS42OTcgMi45MDYtMTkuNzU5LTIuNTc3Vjk4LjM2MiIgZmlsbD0iIzlENTAyNSIvPjxwYXRoIGQ9Ik0xODkuNDIzIDEwNS4yMzV2OTkuMjIxbDQwLjgwNS00OS44MjUtNDAuODA1LTQ5LjM5NiIgZmlsbD0iI0Y2ODUzNiIvPjxwYXRoIGQ9Ik0yMzkuNjc4IDU1LjgzOUwxMjggMHYzMDkuMjYybDEyOC02NFY2NGwtMTYuMzIyLTguMTYxem0wIDE1OC4yMTdsLTczLjQ1IDIxLjkzNlY3My4yN2w3My40NSAyMS45MzZ2MTE4Ljg1eiIgZmlsbD0iI0Y2ODUzNiIvPjwvc3ZnPg=="
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "AWS Lambda"
@@ -65,7 +65,7 @@ spec:
         title: AWS Region
         description: The AWS region to access.
         type: string
-        enum: ["af-south-1", "ap-east-1", "ap-northeast-1", "ap-northeast-2", "ap-northeast-3", "ap-south-1", "ap-southeast-1", "ap-southeast-2", "ap-southeast-3", "ca-central-1", "eu-central-1", "eu-north-1", "eu-south-1", "eu-west-1", "eu-west-2", "eu-west-3", "fips-us-east-1", "fips-us-east-2", "fips-us-west-1", "fips-us-west-2", "me-south-1", "sa-east-1", "us-east-1", "us-east-2", "us-west-1", "us-west-2", "cn-north-1", "cn-northwest-1", "us-gov-east-1", "us-gov-west-1", "us-iso-east-1", "us-iso-west-1", "us-isob-east-1"]
+        enum: ["ap-south-1", "eu-south-1", "us-gov-east-1", "me-central-1", "ca-central-1", "eu-central-1", "us-iso-west-1", "us-west-1", "us-west-2", "af-south-1", "eu-north-1", "eu-west-3", "eu-west-2", "eu-west-1", "ap-northeast-3", "ap-northeast-2", "ap-northeast-1", "me-south-1", "sa-east-1", "ap-east-1", "cn-north-1", "us-gov-west-1", "ap-southeast-1", "ap-southeast-2", "us-iso-east-1", "ap-southeast-3", "us-east-1", "us-east-2", "cn-northwest-1", "us-isob-east-1", "aws-global", "aws-cn-global", "aws-us-gov-global", "aws-iso-global", "aws-iso-b-global"]
       useDefaultCredentialsProvider:
         title: Default Credentials Provider
         description: If true, the Lambda client loads credentials through a default credentials provider. If false, it uses the basic authentication method (access key and secret key).

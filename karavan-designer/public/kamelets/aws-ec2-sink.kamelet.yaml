@@ -21,7 +21,7 @@ metadata:
   name: aws-ec2-sink
   annotations:
     camel.apache.org/kamelet.support.level: "Stable"
-    camel.apache.org/catalog.version: "0.9.0"
+    camel.apache.org/catalog.version: "0.9.1"
     camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjA2NSIgaGVpZ2h0PSIyNTAwIiB2aWV3Qm94PSIwIDAgMjU2IDMxMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCI+PHBhdGggZD0iTTQyLjc1NCAyNDQuNDk1bC0yOS45MTggNi44MjZWNTcuNTY1bDI5LjkxOCA2LjgzOXYxODAuMDkxIiBmaWxsPSIjRjY4NTM2Ii8+PHBhdGggZD0iTTgwLjA4MiAyNTUuOTMxbC0zNy4zMjggMTAuNjA4VjQyLjYxMmwzNy4zMjggMTAuNTk1djIwMi43MjRNMTI3Ljk2NiAyNjcuNjgxbC00Ny44ODQgMTcuNTI0VjIzLjk0Nmw0Ny44ODQgMTcuNTE2djIyNi4yMTlNMjU2IDI0NS4wNzlsLTEyOC4wMzQgNjQuMDE3VjBMMjU2IDY0LjAxN3YxODEuMDYyIiBmaWxsPSIjRjY4NTM2Ii8+PHBhdGggZD0iTTEwMi40NDQgMTIuNzYzTDEyNy45NjYgMHYzMDkuMDk2bC0yNS41MjItMTIuNzU5VjEyLjc2M002MC4zMjUgMzMuODJsMTkuNzU3LTkuODc4djI2MS4yMTJsLTE5Ljc1Ny05Ljg3OFYzMy44Mk0yNy4wMTYgNTAuNDc3bDE1LjczOC03Ljg2OXYyMjMuODhsLTE1LjczOC03Ljg3NFY1MC40NzdNMTIuODM2IDU3LjU2NUwwIDYzLjk4M3YxODEuMTM0bDEyLjgzNiA2LjQxNFY1Ny41NjUiIGZpbGw9IiM5RDUwMjUiLz48L3N2Zz4="
     camel.apache.org/provider: "Apache Software Foundation"
     camel.apache.org/kamelet.group: "AWS EC2"
@@ -64,7 +64,7 @@ spec:
         title: AWS Region
         description: The AWS region to access.
         type: string
-        enum: ["af-south-1", "ap-east-1", "ap-northeast-1", "ap-northeast-2", "ap-northeast-3", "ap-south-1", "ap-southeast-1", "ap-southeast-2", "ap-southeast-3", "ca-central-1", "eu-central-1", "eu-north-1", "eu-south-1", "eu-west-1", "eu-west-2", "eu-west-3", "fips-us-east-1", "fips-us-east-2", "fips-us-west-1", "fips-us-west-2", "me-south-1", "sa-east-1", "us-east-1", "us-east-2", "us-west-1", "us-west-2", "cn-north-1", "cn-northwest-1", "us-gov-east-1", "us-gov-west-1", "us-iso-east-1", "us-iso-west-1", "us-isob-east-1"]
+        enum: ["ap-south-1", "eu-south-1", "us-gov-east-1", "me-central-1", "ca-central-1", "eu-central-1", "us-iso-west-1", "us-west-1", "us-west-2", "af-south-1", "eu-north-1", "eu-west-3", "eu-west-2", "eu-west-1", "ap-northeast-3", "ap-northeast-2", "ap-northeast-1", "me-south-1", "sa-east-1", "ap-east-1", "cn-north-1", "us-gov-west-1", "ap-southeast-1", "ap-southeast-2", "us-iso-east-1", "ap-southeast-3", "us-east-1", "us-east-2", "cn-northwest-1", "us-isob-east-1", "aws-global", "aws-cn-global", "aws-us-gov-global", "aws-iso-global", "aws-iso-b-global"]
       useDefaultCredentialsProvider:
         title: Default Credentials Provider
         description: If true, the CloudWatch client loads credentials through a default credentials provider. If false, it uses the basic authentication method (access key and secret key).
