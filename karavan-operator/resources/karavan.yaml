@@ -3,10 +3,6 @@ kind: Karavan
 metadata:
   name: karavan
   namespace: karavan
-  annotations:
-    camel.apache.org/support.level: Preview
-    camel.apache.org/version: 3.18.5
-    camel.apache.org/provider: Apache Software Foundation
 spec:
   instances: 1
   auth: public

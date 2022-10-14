@@ -1,4 +1,4 @@
-package org.apache.camel.karavan;
+package org.apache.camel.karavan.operator;
 
 public final class Constants {
     public static final String CRD_GROUP = "camel.apache.org";

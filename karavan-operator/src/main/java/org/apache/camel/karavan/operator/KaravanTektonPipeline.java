@@ -1,4 +1,4 @@
-package org.apache.camel.karavan;
+package org.apache.camel.karavan.operator;
 
 import io.fabric8.tekton.client.DefaultTektonClient;
 import io.fabric8.tekton.pipeline.v1beta1.ParamBuilder;
@@ -7,7 +7,6 @@ import io.fabric8.tekton.pipeline.v1beta1.Pipeline;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineTaskBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineWorkspaceDeclaration;
-import io.fabric8.tekton.pipeline.v1beta1.Task;
 import io.fabric8.tekton.pipeline.v1beta1.TaskRefBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.WorkspacePipelineTaskBinding;
 import io.javaoperatorsdk.operator.api.reconciler.Context;

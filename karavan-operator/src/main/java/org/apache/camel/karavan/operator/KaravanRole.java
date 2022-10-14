@@ -1,4 +1,4 @@
-package org.apache.camel.karavan;
+package org.apache.camel.karavan.operator;
 
 import io.fabric8.kubernetes.api.model.rbac.PolicyRuleBuilder;
 import io.fabric8.kubernetes.api.model.rbac.Role;
@@ -8,7 +8,6 @@ import io.javaoperatorsdk.operator.api.reconciler.dependent.ReconcileResult;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
 
 import javax.inject.Inject;
-import java.util.List;
 import java.util.Map;
 
 

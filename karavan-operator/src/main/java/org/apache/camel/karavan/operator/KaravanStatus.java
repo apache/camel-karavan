@@ -1,4 +1,4 @@
-package org.apache.camel.karavan;
+package org.apache.camel.karavan.operator;
 
 public class KaravanStatus {
 

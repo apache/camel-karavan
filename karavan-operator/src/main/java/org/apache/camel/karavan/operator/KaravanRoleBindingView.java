@@ -1,4 +1,4 @@
-package org.apache.camel.karavan;
+package org.apache.camel.karavan.operator;
 
 import io.fabric8.kubernetes.api.model.rbac.RoleBinding;
 import io.fabric8.kubernetes.api.model.rbac.RoleBindingBuilder;
