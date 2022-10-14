@@ -53,6 +53,6 @@ jobs:
         run: |
           MY_BUNDLE_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BUNDLE }}:${{ env.TAG }}
           docker login -u=${{ github.actor }} -p=${{ secrets.GITHUB_TOKEN }} ${{ env.REGISTRY }}
-          docker build -t $MY_BUNDLE_IMAGE -f target/bundle/bundle.Dockerfile target/bundle
+          docker build -t $MY_BUNDLE_IMAGE -f karavan-operator/target/bundle/bundle.Dockerfile karavan-operator/target/bundle
           docker push $MY_BUNDLE_IMAGE
         if: ${{ github.ref == 'refs/heads/main' }}
