@@ -4,6 +4,7 @@ public class KaravanSpec {
 
     private int instances;
     private String auth;
+    private String type;
     private int nodePort;
 
     public int getInstances() {
@@ -28,5 +29,13 @@ public class KaravanSpec {
 
     public void setNodePort(int nodePort) {
         this.nodePort = nodePort;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
