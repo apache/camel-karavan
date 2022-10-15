@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.operator;
+package org.apache.camel.karavan.operator.resource;
 
 import io.fabric8.kubernetes.api.model.rbac.RoleBinding;
 import io.fabric8.kubernetes.api.model.rbac.RoleBindingBuilder;
@@ -6,15 +6,13 @@ import io.fabric8.kubernetes.api.model.rbac.Subject;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.dependent.ReconcileResult;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
+import org.apache.camel.karavan.operator.Constants;
+import org.apache.camel.karavan.operator.spec.Karavan;
+import org.apache.camel.karavan.operator.Utils;
 
-import javax.inject.Inject;
 import java.util.Map;
 
-
 public class KaravanRoleBindingView extends CRUDKubernetesDependentResource<RoleBinding, Karavan> {
-
-    @Inject
-    KaravanReconciler karavanReconciler;
 
     public KaravanRoleBindingView() {
         super(RoleBinding.class);
@@ -27,7 +25,7 @@ public class KaravanRoleBindingView extends CRUDKubernetesDependentResource<Role
                 .withNewMetadata()
                 .withName(Constants.ROLEBINDING_KARAVAN_VIEW)
                 .withNamespace(karavan.getMetadata().getNamespace())
-                .withLabels(karavanReconciler.getLabels(Constants.ROLEBINDING_KARAVAN_VIEW, Map.of()))
+                .withLabels(Utils.getLabels(Constants.ROLEBINDING_KARAVAN_VIEW, Map.of()))
                 .endMetadata()
                 .withNewRoleRef("rbac.authorization.k8s.io", "ClusterRole", "view")
                 .withSubjects(new Subject("", "ServiceAccount", Constants.SERVICEACCOUNT_KARAVAN, karavan.getMetadata().getNamespace()))

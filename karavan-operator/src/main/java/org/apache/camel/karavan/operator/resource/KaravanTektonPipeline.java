@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.operator;
+package org.apache.camel.karavan.operator.resource;
 
 import io.fabric8.tekton.client.DefaultTektonClient;
 import io.fabric8.tekton.pipeline.v1beta1.ParamBuilder;
@@ -12,22 +12,14 @@ import io.fabric8.tekton.pipeline.v1beta1.WorkspacePipelineTaskBinding;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.dependent.ReconcileResult;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import io.javaoperatorsdk.operator.processing.dependent.workflow.Condition;
+import org.apache.camel.karavan.operator.Constants;
+import org.apache.camel.karavan.operator.spec.Karavan;
+import org.apache.camel.karavan.operator.Utils;
 
-import javax.inject.Inject;
 import java.util.Map;
 
-
-public class KaravanTektonPipeline extends CRUDKubernetesDependentResource<Pipeline, Karavan> {
-
-    @Inject
-    KaravanReconciler karavanReconciler;
-
-    @ConfigProperty(name = "karavan.version")
-    String version;
-
-    @ConfigProperty(name = "karavan.quarkus-build-image")
-    String image;
+public class KaravanTektonPipeline extends CRUDKubernetesDependentResource<Pipeline, Karavan>  implements Condition<Pipeline, Karavan> {
 
     public KaravanTektonPipeline() {
         super(Pipeline.class);
@@ -40,7 +32,7 @@ public class KaravanTektonPipeline extends CRUDKubernetesDependentResource<Pipel
                 .withNewMetadata()
                 .withName(Constants.PIPELINE_BUILD_QUARKUS)
                 .withNamespace(karavan.getMetadata().getNamespace())
-                .withLabels(karavanReconciler.getLabels(Constants.PIPELINE_BUILD_QUARKUS, Map.of()))
+                .withLabels(Utils.getLabels(Constants.PIPELINE_BUILD_QUARKUS, Map.of()))
                 .endMetadata()
                 .withNewSpec()
                 .withParams(new ParamSpecBuilder().withName("PROJECT_ID").withType("string").withDescription("ProjectId").build())
@@ -72,5 +64,10 @@ public class KaravanTektonPipeline extends CRUDKubernetesDependentResource<Pipel
         } else {
             return ReconcileResult.noOperation(pipeline);
         }
+    }
+
+    @Override
+    public boolean isMet(Karavan karavan, Pipeline pipeline, Context<Karavan> context) {
+        return false;
     }
 }

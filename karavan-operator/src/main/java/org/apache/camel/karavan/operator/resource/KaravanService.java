@@ -1,19 +1,17 @@
-package org.apache.camel.karavan.operator;
+package org.apache.camel.karavan.operator.resource;
 
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
+import org.apache.camel.karavan.operator.Constants;
+import org.apache.camel.karavan.operator.spec.Karavan;
+import org.apache.camel.karavan.operator.Utils;
 
-import javax.inject.Inject;
 import java.util.Map;
 
-
 public class KaravanService extends CRUDKubernetesDependentResource<Service, Karavan> {
-
-    @Inject
-    KaravanReconciler karavanReconciler;
 
     public KaravanService() {
         super(Service.class);
@@ -26,7 +24,7 @@ public class KaravanService extends CRUDKubernetesDependentResource<Service, Kar
                 .withNewMetadata()
                 .withName(Constants.NAME)
                 .withNamespace(karavan.getMetadata().getNamespace())
-                .withLabels(karavanReconciler.getLabels(Constants.NAME, Map.of()))
+                .withLabels(Utils.getLabels(Constants.NAME, Map.of()))
                 .endMetadata()
                 .withNewSpec()
                 .withType("NodePort")

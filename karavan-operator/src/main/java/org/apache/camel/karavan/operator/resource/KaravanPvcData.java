@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.operator;
+package org.apache.camel.karavan.operator.resource;
 
 import io.fabric8.kubernetes.api.model.PersistentVolumeClaim;
 import io.fabric8.kubernetes.api.model.PersistentVolumeClaimBuilder;
@@ -7,15 +7,13 @@ import io.fabric8.kubernetes.api.model.ResourceRequirementsBuilder;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.dependent.ReconcileResult;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
+import org.apache.camel.karavan.operator.Constants;
+import org.apache.camel.karavan.operator.spec.Karavan;
+import org.apache.camel.karavan.operator.Utils;
 
-import javax.inject.Inject;
 import java.util.Map;
 
-
 public class KaravanPvcData extends CRUDKubernetesDependentResource<PersistentVolumeClaim, Karavan> {
-
-    @Inject
-    KaravanReconciler karavanReconciler;
 
     public KaravanPvcData() {
         super(PersistentVolumeClaim.class);
@@ -28,7 +26,7 @@ public class KaravanPvcData extends CRUDKubernetesDependentResource<PersistentVo
                 .withNewMetadata()
                 .withName(Constants.PVC_DATA)
                 .withNamespace(karavan.getMetadata().getNamespace())
-                .withLabels(karavanReconciler.getLabels(Constants.PVC_DATA, Map.of()))
+                .withLabels(Utils.getLabels(Constants.PVC_DATA, Map.of()))
                 .endMetadata()
                 .withNewSpec()
                 .withResources(new ResourceRequirementsBuilder().withRequests(Map.of("storage", new Quantity("10Gi"))).build())

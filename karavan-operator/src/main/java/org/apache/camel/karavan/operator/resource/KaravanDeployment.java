@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.operator;
+package org.apache.camel.karavan.operator.resource;
 
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.EnvVarSourceBuilder;
@@ -15,9 +15,11 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
+import org.apache.camel.karavan.operator.Constants;
+import org.apache.camel.karavan.operator.spec.Karavan;
+import org.apache.camel.karavan.operator.Utils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +31,6 @@ public class KaravanDeployment extends CRUDKubernetesDependentResource<Deploymen
 
     @ConfigProperty(name = "karavan.image")
     String baseImage;
-
-    @Inject
-    KaravanReconciler karavanReconciler;
 
     public KaravanDeployment() {
         super(Deployment.class);
@@ -69,7 +68,7 @@ public class KaravanDeployment extends CRUDKubernetesDependentResource<Deploymen
                 .withNewMetadata()
                 .withName(Constants.NAME)
                 .withNamespace(karavan.getMetadata().getNamespace())
-                .withLabels(karavanReconciler.getLabels(Constants.NAME, Map.of("app.kubernetes.io/runtime", "quarkus")))
+                .withLabels(Utils.getLabels(Constants.NAME, Map.of("app.kubernetes.io/runtime", "quarkus")))
                 .withOwnerReferences(this.createOwnerReference(karavan))
                 .endMetadata()
 

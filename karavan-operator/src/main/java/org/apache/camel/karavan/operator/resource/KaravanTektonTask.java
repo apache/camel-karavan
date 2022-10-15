@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.operator;
+package org.apache.camel.karavan.operator.resource;
 
 import io.fabric8.kubernetes.api.model.EnvVarBuilder;
 import io.fabric8.kubernetes.api.model.EnvVarSourceBuilder;
@@ -15,19 +15,19 @@ import io.fabric8.tekton.pipeline.v1beta1.WorkspaceDeclaration;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.dependent.ReconcileResult;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
+import io.javaoperatorsdk.operator.processing.dependent.workflow.Condition;
+import org.apache.camel.karavan.operator.Constants;
+import org.apache.camel.karavan.operator.spec.Karavan;
+import org.apache.camel.karavan.operator.Utils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Karavan> {
-
-    @Inject
-    KaravanReconciler karavanReconciler;
+public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Karavan>  implements Condition<Task, Karavan>  {
 
     @ConfigProperty(name = "karavan.version")
     String version;
@@ -47,7 +47,7 @@ public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Kar
                 .withNewMetadata()
                 .withName(Constants.TASK_BUILD_QUARKUS)
                 .withNamespace(karavan.getMetadata().getNamespace())
-                .withLabels(karavanReconciler.getLabels(Constants.TASK_BUILD_QUARKUS, Map.of()))
+                .withLabels(Utils.getLabels(Constants.TASK_BUILD_QUARKUS, Map.of()))
                 .endMetadata()
                 .withNewSpec()
                 .withParams(new ParamSpecBuilder().withName("project").withType("string").withDescription("ProjectId").build())
@@ -134,5 +134,10 @@ public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Kar
         } catch (Exception e) {
             return defaultValue;
         }
+    }
+
+    @Override
+    public boolean isMet(Karavan karavan, Task task, Context<Karavan> context) {
+        return false;
     }
 }

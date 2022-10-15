@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.operator;
+package org.apache.camel.karavan.operator.resource;
 
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -11,14 +11,13 @@ import io.fabric8.openshift.client.OpenShiftClient;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
 import io.javaoperatorsdk.operator.processing.dependent.workflow.Condition;
+import org.apache.camel.karavan.operator.Constants;
+import org.apache.camel.karavan.operator.spec.Karavan;
+import org.apache.camel.karavan.operator.Utils;
 
-import javax.inject.Inject;
 import java.util.Map;
 
 public class KaravanRoute extends CRUDKubernetesDependentResource<Route, Karavan> implements Condition<Route, Karavan> {
-
-    @Inject
-    KaravanReconciler karavanReconciler;
 
     public KaravanRoute() {
         super(Route.class);
@@ -31,7 +30,7 @@ public class KaravanRoute extends CRUDKubernetesDependentResource<Route, Karavan
                 .withNewMetadata()
                 .withName(Constants.NAME)
                 .withNamespace(karavan.getMetadata().getNamespace())
-                .withLabels(karavanReconciler.getLabels(Constants.NAME, Map.of()))
+                .withLabels(Utils.getLabels(Constants.NAME, Map.of()))
                 .endMetadata()
                 .withNewSpec()
                 .withPort(new RoutePort(new IntOrString(8080)))

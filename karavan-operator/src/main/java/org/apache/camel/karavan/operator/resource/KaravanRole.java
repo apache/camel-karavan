@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.operator;
+package org.apache.camel.karavan.operator.resource;
 
 import io.fabric8.kubernetes.api.model.rbac.PolicyRuleBuilder;
 import io.fabric8.kubernetes.api.model.rbac.Role;
@@ -6,15 +6,13 @@ import io.fabric8.kubernetes.api.model.rbac.RoleBuilder;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.dependent.ReconcileResult;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
+import org.apache.camel.karavan.operator.Constants;
+import org.apache.camel.karavan.operator.spec.Karavan;
+import org.apache.camel.karavan.operator.Utils;
 
-import javax.inject.Inject;
 import java.util.Map;
 
-
 public class KaravanRole extends CRUDKubernetesDependentResource<Role, Karavan> {
-
-    @Inject
-    KaravanReconciler karavanReconciler;
 
     public KaravanRole() {
         super(Role.class);
@@ -27,7 +25,7 @@ public class KaravanRole extends CRUDKubernetesDependentResource<Role, Karavan> 
                 .withNewMetadata()
                 .withName(Constants.ROLE_KARAVAN)
                 .withNamespace(karavan.getMetadata().getNamespace())
-                .withLabels(karavanReconciler.getLabels(Constants.ROLE_KARAVAN, Map.of()))
+                .withLabels(Utils.getLabels(Constants.ROLE_KARAVAN, Map.of()))
                 .endMetadata()
                 .withRules(
                         new PolicyRuleBuilder().withApiGroups("").withResources("secrets", "configmaps").withVerbs("get", "list").build(),

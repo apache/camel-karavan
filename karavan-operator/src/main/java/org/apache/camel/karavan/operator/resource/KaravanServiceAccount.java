@@ -1,18 +1,17 @@
-package org.apache.camel.karavan.operator;
+package org.apache.camel.karavan.operator.resource;
 
 import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.api.reconciler.dependent.ReconcileResult;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
+import org.apache.camel.karavan.operator.Constants;
+import org.apache.camel.karavan.operator.spec.Karavan;
+import org.apache.camel.karavan.operator.Utils;
 
-import javax.inject.Inject;
 import java.util.Map;
 
 public class KaravanServiceAccount extends CRUDKubernetesDependentResource<ServiceAccount, Karavan> {
-
-    @Inject
-    KaravanReconciler karavanReconciler;
 
     public KaravanServiceAccount() {
         super(ServiceAccount.class);
@@ -25,7 +24,7 @@ public class KaravanServiceAccount extends CRUDKubernetesDependentResource<Servi
                 .withNewMetadata()
                 .withName(Constants.SERVICEACCOUNT_KARAVAN)
                 .withNamespace(karavan.getMetadata().getNamespace())
-                .withLabels(karavanReconciler.getLabels(Constants.SERVICEACCOUNT_KARAVAN, Map.of()))
+                .withLabels(Utils.getLabels(Constants.SERVICEACCOUNT_KARAVAN, Map.of()))
                 .endMetadata()
                 .build();
     }

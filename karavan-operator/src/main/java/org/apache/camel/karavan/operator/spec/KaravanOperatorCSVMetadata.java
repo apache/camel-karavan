@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.operator;
+package org.apache.camel.karavan.operator.spec;
 
 import io.quarkiverse.operatorsdk.bundle.runtime.CSVMetadata;
 import io.quarkiverse.operatorsdk.bundle.runtime.SharedCSVMetadata;
