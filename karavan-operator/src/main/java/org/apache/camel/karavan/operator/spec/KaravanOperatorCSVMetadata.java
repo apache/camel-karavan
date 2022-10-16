@@ -73,6 +73,7 @@ import io.quarkiverse.operatorsdk.bundle.runtime.SharedCSVMetadata;
                 @CSVMetadata.PermissionRule(apiGroups = {""}, resources = {"serviceaccounts", "secrets", "configmaps"}),
                 @CSVMetadata.PermissionRule(apiGroups = {"tekton.dev"}, resources = {"pipelinetasks", "pipelines"}),
                 @CSVMetadata.PermissionRule(apiGroups = {"networking.k8s.io"}, resources = {"ingresses"}),
+                @CSVMetadata.PermissionRule(apiGroups = {"operators.coreos.com/v1alpha1"}, resources = {"catalogsources"}),
         },
         keywords = {"apache", "camel", "karavan", "integration", "microservices", "low-code"},
         version = "3.18.5",

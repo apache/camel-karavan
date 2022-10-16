@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.18.5
+1. Karavan Operator 
+2. Kamelets 0.9.1
+
 ## 3.18.4
 1. Support minikube for cloud app
 2. OpenAPI YAML import in cloud app
