@@ -62,7 +62,7 @@
       "properties": {
         "camel.version": {
           "type": "string",
-          "default": "3.18.1",
+          "default": "3.18.2",
           "description": "Camel version",
           "scope": "machine",
           "order": 10
@@ -81,7 +81,7 @@
         },
         "camel.quarkus-version": {
           "type": "string",
-          "default": "2.13.0.Final",
+          "default": "2.13.2.Final",
           "description": "Camel-quarkus version",
           "scope": "machine",
           "order": 21
