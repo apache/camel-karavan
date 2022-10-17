@@ -25,6 +25,9 @@ Karavan cloud-native integration toolkit demo on OpenShift with Gitea repository
     ```
     oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/karavan-operator.yaml
     ```
+    Wait until operators are ready
+
+    ![operators-ready](../images/operators-ready.png)
 
 #### Install applications
 1. Create namespace
@@ -35,11 +38,23 @@ Karavan cloud-native integration toolkit demo on OpenShift with Gitea repository
     ```
     oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/gitea.yaml
     ```
+
+    Wait until Gitea is ready
+
+    ![gitea-ready](../images/gitea-ready.png)
+
 3. Create Karavan Secret
     ```
     oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/karavan-secret.yaml
     ```
 4. Create Karavan Instance
+
+    If cluster has LimitRange for karavan namespace, remove LimitRange for the namespace
     ```
     oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/karavan.yaml
+    ```
+
+    Wait until karavan Karavan is ready and open Karavan
+    ```
+    open http://karavan-karavan.$(oc get ingresses.config.openshift.io cluster  -o template --template '{{.spec.domain}}') 
     ```
