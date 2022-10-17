@@ -7,6 +7,8 @@ Karavan cloud-native integration toolkit demo on OpenShift with Gitea repository
 2. OpenShift 4.10+ CLI installed
 
 ### Installation
+
+#### Install Operators
 1. Install the Red Hat GPTE CatalogSource into your cluster (required for Gitea Operator)
     ```
     oc apply -f https://raw.githubusercontent.com/redhat-gpte-devopsautomation/gitea-operator/master/catalog_source.yaml
@@ -23,19 +25,21 @@ Karavan cloud-native integration toolkit demo on OpenShift with Gitea repository
     ```
     oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/karavan-operator.yaml
     ```
-5. Create namespace
+
+#### Install applications
+1. Create namespace
     ```
     oc new-project karavan
     ```
-6. Create Gitea instance
+2. Create Gitea instance
     ```
-    oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/gitea-instance.yaml
+    oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/gitea.yaml
     ```
-7. Create Karavan Secret
+3. Create Karavan Secret
     ```
     oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/karavan-secret.yaml
     ```
-8. Create Karavan Instance
+4. Create Karavan Instance
     ```
     oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/karavan.yaml
     ```
