@@ -24,9 +24,6 @@ import io.javaoperatorsdk.operator.api.reconciler.dependent.ReconcileResult;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
 import org.apache.camel.karavan.operator.Constants;
 import org.apache.camel.karavan.operator.spec.Karavan;
-import org.apache.camel.karavan.operator.Utils;
-
-import java.util.Map;
 
 public class KaravanRoleBinding extends CRUDKubernetesDependentResource<RoleBinding, Karavan> {
 
@@ -41,7 +38,6 @@ public class KaravanRoleBinding extends CRUDKubernetesDependentResource<RoleBind
                 .withNewMetadata()
                 .withName(Constants.ROLEBINDING_KARAVAN)
                 .withNamespace(karavan.getMetadata().getNamespace())
-                .withLabels(Utils.getLabels(Constants.ROLEBINDING_KARAVAN, Map.of()))
                 .endMetadata()
                 .withNewRoleRef("rbac.authorization.k8s.io", "Role", Constants.ROLE_KARAVAN)
                 .withSubjects(new Subject("", "ServiceAccount", Constants.SERVICEACCOUNT_KARAVAN, karavan.getMetadata().getNamespace()))

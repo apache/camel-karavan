@@ -24,9 +24,6 @@ import io.javaoperatorsdk.operator.api.reconciler.dependent.ReconcileResult;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
 import org.apache.camel.karavan.operator.Constants;
 import org.apache.camel.karavan.operator.spec.Karavan;
-import org.apache.camel.karavan.operator.Utils;
-
-import java.util.Map;
 
 public class KaravanRole extends CRUDKubernetesDependentResource<Role, Karavan> {
 
@@ -41,7 +38,6 @@ public class KaravanRole extends CRUDKubernetesDependentResource<Role, Karavan> 
                 .withNewMetadata()
                 .withName(Constants.ROLE_KARAVAN)
                 .withNamespace(karavan.getMetadata().getNamespace())
-                .withLabels(Utils.getLabels(Constants.ROLE_KARAVAN, Map.of()))
                 .endMetadata()
                 .withRules(
                         new PolicyRuleBuilder().withApiGroups("").withResources("secrets", "configmaps").withVerbs("get", "list").build(),
