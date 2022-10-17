@@ -1,0 +1,21 @@
+apiVersion: gpte.opentlc.com/v1
+kind: Gitea
+metadata:
+  name: karavan-repo
+spec:
+  giteaImageTag: latest
+  giteaSsl: true
+  giteaAdminUser: karavan
+  giteaAdminPassword: karavan
+  giteaCreateUsers: true
+  giteaGenerateUserFormat: "karavan%d"
+  giteaUserNumber: 2
+  giteaUserPassword: karavan
+  giteaMigrateRepositories: true
+  giteaRepositoriesList:
+  - repo: https://github.com/mgubaidullin/karavan-demo-projects.git
+    name: projects
+    private: false
+  - repo: https://github.com/mgubaidullin/karavan-demo-kamelets.git
+    name: kamelets
+    private: false

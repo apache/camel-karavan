@@ -1,0 +1,11 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: camel-karavan-operator
+  namespace: openshift-operators
+spec:
+  channel: alpha
+  installPlanApproval: Automatic
+  name: camel-karavan-operator
+  source: community-operators
+  sourceNamespace: openshift-marketplace

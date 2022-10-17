@@ -1,0 +1,9 @@
+apiVersion: camel.apache.org/v1
+kind: Karavan
+metadata:
+  name: karavan
+  namespace: karavan
+spec:
+  instances: 1
+  auth: public
+  type: dev
