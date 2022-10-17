@@ -1,15 +1,15 @@
 apiVersion: gpte.opentlc.com/v1
 kind: Gitea
 metadata:
-  name: karavan-repo
+  name: gitea
 spec:
   giteaImageTag: latest
-  giteaSsl: true
-  giteaAdminUser: karavan
-  giteaAdminPassword: karavan
+  giteaSsl: false
+  giteaAdminUser: administrator
+  giteaAdminPassword: administrator
   giteaCreateUsers: true
-  giteaGenerateUserFormat: "karavan%d"
-  giteaUserNumber: 2
+  giteaGenerateUserFormat: karavan
+  giteaUserNumber: 1
   giteaUserPassword: karavan
   giteaMigrateRepositories: true
   giteaRepositoriesList:
