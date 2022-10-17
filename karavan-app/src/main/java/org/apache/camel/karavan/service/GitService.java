@@ -76,6 +76,7 @@ public class GitService {
         String propertiesPrefix = "karavan." + name + "-";
         String branch = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-branch", String.class);
         if (kubernetesService.inKubernetes()){
+            LOGGER.info("inKubernetes " + kubernetesService.currentNamespace);
             String kubernetesPrefix = name + "-";
             Secret secret =  kubernetesService.getKaravanSecret();
             String uri = new String(Base64.getDecoder().decode(secret.getData().get(kubernetesPrefix + "git-repository").getBytes(StandardCharsets.UTF_8)));
@@ -118,6 +119,7 @@ public class GitService {
     public List<Tuple2<String, String>> readKameletsFromRepository() {
         LOGGER.info("Read kamelets from repository");
         GitConfig gitConfig = getGitConfig(KAMELETS);
+        LOGGER.info("gitConfig " + gitConfig);
         CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
@@ -138,6 +140,7 @@ public class GitService {
     public List<Tuple2<String, Map<String, String>>> readProjectsFromRepository() {
         LOGGER.info("Read projects from repository");
         GitConfig gitConfig = getGitConfig(PROJECTS);
+        LOGGER.info("gitConfig " + gitConfig);
         CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
