@@ -32,9 +32,12 @@ import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
 import org.apache.camel.karavan.operator.Constants;
+import org.apache.camel.karavan.operator.KaravanReconciler;
 import org.apache.camel.karavan.operator.spec.Karavan;
 import org.apache.camel.karavan.operator.Utils;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.config.ConfigProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,11 +45,7 @@ import java.util.Map;
 
 public class KaravanDeployment extends CRUDKubernetesDependentResource<Deployment, Karavan> {
 
-    @ConfigProperty(name = "karavan.version")
-    String version;
-
-    @ConfigProperty(name = "karavan.image")
-    String baseImage;
+    static final Logger log = LoggerFactory.getLogger(KaravanReconciler.class);
 
     public KaravanDeployment() {
         super(Deployment.class);
@@ -55,6 +54,9 @@ public class KaravanDeployment extends CRUDKubernetesDependentResource<Deploymen
     @Override
     @SuppressWarnings("unchecked")
     public Deployment desired(Karavan karavan, Context<Karavan> context) {
+
+        String baseImage = ConfigProvider.getConfig().getValue("karavan.image", String.class);
+        String version = ConfigProvider.getConfig().getValue("karavan.version", String.class);
 
         String image = baseImage + ":" + version;
         List<EnvVar> envVarList = new ArrayList<>();
@@ -79,6 +81,8 @@ public class KaravanDeployment extends CRUDKubernetesDependentResource<Deploymen
                     new EnvVar("OIDC_SECRET", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("oidc-secret","karavan", false)).build())
             );
         }
+
+        log.info("Deployment image: " + image);
 
         return new DeploymentBuilder()
                 .withNewMetadata()
