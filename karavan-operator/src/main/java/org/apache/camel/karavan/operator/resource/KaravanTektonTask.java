@@ -35,7 +35,7 @@ import io.javaoperatorsdk.operator.processing.dependent.workflow.Condition;
 import org.apache.camel.karavan.operator.Constants;
 import org.apache.camel.karavan.operator.spec.Karavan;
 import org.apache.camel.karavan.operator.Utils;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.config.ConfigProvider;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -45,12 +45,6 @@ import java.util.stream.Collectors;
 
 public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Karavan>  implements Condition<Task, Karavan>  {
 
-    @ConfigProperty(name = "karavan.version")
-    String version;
-
-    @ConfigProperty(name = "karavan.quarkus-build-image")
-    String image;
-
     public KaravanTektonTask() {
         super(Task.class);
     }
@@ -58,7 +52,10 @@ public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Kar
     @Override
     @SuppressWarnings("unchecked")
     public Task desired(Karavan karavan, Context<Karavan> context) {
+        String image = ConfigProvider.getConfig().getValue("karavan.quarkus-build-image", String.class);
+        String version = ConfigProvider.getConfig().getValue("karavan.version", String.class);
         String script = getScript(karavan);
+
         return new TaskBuilder()
                 .withNewMetadata()
                 .withName(Constants.TASK_BUILD_QUARKUS)
