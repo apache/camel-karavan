@@ -75,7 +75,7 @@ Build-in catalogues:
     jbang -Dcamel.jbang.version=3.18.2 camel@apache/camel run $INTEGRATION.yaml --max-messages=10 --logging-level=info
     ```
 
-## Expost integration to Maven project
+## Export integration to Maven project
 
 * Export using context menu
 ![export](images/export.png)
