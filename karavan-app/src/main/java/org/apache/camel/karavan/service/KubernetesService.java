@@ -104,13 +104,13 @@ public class KubernetesService {
         Optional<KaravanConfiguration.Environment> env = config.environments().stream()
                 .filter(environment -> environment.name().equals("dev")).findFirst();
         if (env.isPresent()) {
-            watches.add(kubernetesClient().apps().deployments().inNamespace(env.get().namespace())
+            watches.add(kubernetesClient().apps().deployments().inNamespace(currentNamespace)
                     .watch(new DeploymentWatcher(infinispanService, this)));
 
-            watches.add(kubernetesClient().pods().inNamespace(env.get().namespace()).withLabel("app.openshift.io/runtime", "camel")
+            watches.add(kubernetesClient().pods().inNamespace(currentNamespace).withLabel("app.openshift.io/runtime", "camel")
                     .watch(new PodWatcher(infinispanService, this)));
 
-            watches.add(tektonClient().v1beta1().pipelineRuns().inNamespace(env.get().namespace())
+            watches.add(tektonClient().v1beta1().pipelineRuns().inNamespace(currentNamespace)
                     .watch(new PipelineRunWatcher(infinispanService)));
         }
     }
