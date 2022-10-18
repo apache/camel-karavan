@@ -45,13 +45,4 @@ public class GitConfig {
         this.branch = branch;
     }
 
-    @Override
-    public String toString() {
-        return "GitConfig{" +
-                "uri='" + uri + '\'' +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", branch='" + branch + '\'' +
-                '}';
-    }
 }

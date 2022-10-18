@@ -117,9 +117,9 @@ public class GitService {
     }
 
     public List<Tuple2<String, String>> readKameletsFromRepository() {
-        LOGGER.info("Read kamelets from repository");
+        LOGGER.info("Read kamelets...");
         GitConfig gitConfig = getGitConfig(KAMELETS);
-        LOGGER.info("gitConfig " + gitConfig);
+        LOGGER.info("Read kamelets from repository " + gitConfig.getUri());
         CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
@@ -138,9 +138,9 @@ public class GitService {
     }
 
     public List<Tuple2<String, Map<String, String>>> readProjectsFromRepository() {
-        LOGGER.info("Read projects from repository");
+        LOGGER.info("Read projects...");
         GitConfig gitConfig = getGitConfig(PROJECTS);
-        LOGGER.info("gitConfig " + gitConfig);
+        LOGGER.info("Read projects from repository " + gitConfig.getUri());
         CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
