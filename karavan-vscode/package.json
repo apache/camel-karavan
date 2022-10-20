@@ -210,11 +210,11 @@
           },
           "default": [
             "quarkus.kubernetes.deploy=true",
-            "quarkus.kubernetes.labels.\"app.openshift.io/runtime\"=camel",
             "quarkus.kubernetes-client.trust-certs=true",
             "quarkus.kubernetes-client.master-url=kubernetes.default.svc",
             "quarkus.kubernetes-client.namespace=${NAMESPACE}",
             "quarkus.kubernetes-client.token=${TOKEN}",
+            "quarkus.openshift.labels.\"app.openshift.io/runtime\"=camel",
             "quarkus.openshift.deployment-kind=Deployment",
             "quarkus.openshift.add-version-to-label-selectors=false",
             "quarkus.openshift.route.expose=false",
