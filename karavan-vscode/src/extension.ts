@@ -22,7 +22,6 @@ import { selectFileName, inputFileName, OpenApiView, OpenApiItem } from "./opena
 import * as path from "path";
 import * as jbang from "./jbang";
 import * as utils from "./utils";
-import * as fs from "fs";
 
 const KARAVAN_LOADED = "karavan:loaded";
 

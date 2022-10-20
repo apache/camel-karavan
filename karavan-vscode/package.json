@@ -194,7 +194,7 @@
             "quarkus.container-image.push=true",
             "quarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000",
             "quarkus.container-image.insecure=true",
-            "quarkus.container-image.username=sa",
+            "quarkus.container-image.username=${USER}",
             "quarkus.container-image.password=${TOKEN}",
             "quarkus.container-image.tag=${DATE}"
           ],

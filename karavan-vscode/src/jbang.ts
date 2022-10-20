@@ -19,6 +19,7 @@ import * as path from "path";
 import * as shell from 'shelljs';
 import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
 import * as utils from "./utils";
+import * as kubernetes from "./kubernetes";
 
 const TERMINALS: Map<string, Terminal> = new Map<string, Terminal>();
 
@@ -113,22 +114,25 @@ export function createExportCommand(directory: string) {
 
 export function camelDeploy(directory: string) {
     const command = createExportCommand(directory).concat(" && ").concat(createPackageCommand(directory));
+    const user = kubernetes.getOcUser();
+    console.log("user", user);
+    
 
-    utils.readFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
-        .then((readData: Uint8Array) => {
-            const namespace = Buffer.from(readData).toString('utf8');
-            utils.readFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
-                .then((readData: Uint8Array) => {
-                    const token = Buffer.from(readData).toString('utf8');
-                    const env = { "TOKEN":token, "NAMESPACE": namespace, "DATE":  Date.now().toString() };
-                    camelRunDeploy(command, env);
+    // utils.readFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+    //     .then((readData: Uint8Array) => {
+    //         const namespace = Buffer.from(readData).toString('utf8');
+    //         utils.readFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
+    //             .then((readData: Uint8Array) => {
+    //                 const token = Buffer.from(readData).toString('utf8');
+    //                 const env = { "TOKEN":token, "NAMESPACE": namespace, "DATE":  Date.now().toString() };
+    //                 camelRunDeploy(command, env);
                     
-                }).catch((reason: any) => {
-                    window.showErrorMessage("Token file not found. Set TOKEN environment variable!\n" + reason.message);
-                });
-        }).catch((reason: any) => {
-            window.showErrorMessage("Namespace file not found. Set NAMESPACE environment variable!\n" + reason.message);
-        });
+    //             }).catch((reason: any) => {
+    //                 window.showErrorMessage("Token file not found. Set TOKEN environment variable!\n" + reason.message);
+    //             });
+    //     }).catch((reason: any) => {
+    //         window.showErrorMessage("Namespace file not found. Set NAMESPACE environment variable!\n" + reason.message);
+    //     });
 }
 
 export function camelRunDeploy(command: string, env?: { [key: string]: string | null | undefined }) {
