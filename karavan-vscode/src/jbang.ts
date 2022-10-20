@@ -123,7 +123,6 @@ export function camelDeploy(directory: string) {
         if (val[0].result) env.USER = val[0].value;
         if (val[1].result) env.TOKEN = val[1].value;
         if (val[2].result) env.NAMESPACE = val[2].value;
-        console.log("env", env);
         camelRunDeploy(command, env);
     }).catch((reason: any) => {
         window.showErrorMessage("Error: \n" + reason.message);
