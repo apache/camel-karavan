@@ -221,7 +221,7 @@ export async function createApplicationproperties(runtime: string, gav: string, 
         const runtimeDefaults: [] = (runtime === 'quarkus') 
             ? workspace.getConfiguration().get("Karavan.quarkusApplicationProperties") || []
             : [];
-        const text = props.concat(runtimeDefaults).concat(imageBuildProps).concat(targetProps).map(v => {
+        const text = props.concat(runtimeDefaults).concat("\n").concat(imageBuildProps).concat("\n").concat(targetProps).map(v => {
             if (v.includes('$NAME')) return v.replace('$NAME', name)
             else if (v.includes('$GAV')) return v.replace('$GAV', gav)
             else if (v.includes('$RUNTIME_VERSION')) return v.replace('$RUNTIME_VERSION', runtimeVersion) // $RUNTIME_VERSION should be before $RUNTIME

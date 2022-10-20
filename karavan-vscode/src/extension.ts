@@ -145,6 +145,12 @@ export function activate(context: ExtensionContext) {
     });
     context.subscriptions.push(exportCommand);
 
+    // Deploy project
+    const deployCommand = commands.registerCommand("karavan.deploy", (...args: any[]) => {
+        jbang.camelDeploy(rootPath + path.sep + ".export");
+    });
+    context.subscriptions.push(deployCommand);
+
     // Run Integration in designer command
     const run = commands.registerCommand("karavan.jbang-run-file", (...args: any[]) => designer.jbangRun(args[0].fsPath));
     context.subscriptions.push(run);
@@ -155,7 +161,7 @@ export function activate(context: ExtensionContext) {
     });
     context.subscriptions.push(runProjectCommand);
 
-    // Generate RST API from OpenAPI specification command
+    // Generate REST API from OpenAPI specification command
     const generateOptions = ["Create new CRD", "Create new YAML", "Add to existing file"];
     const generateRest = commands.registerCommand('karavan.generate-rest', async (...args: any[]) => {
         const openApi: OpenApiItem = args[0];

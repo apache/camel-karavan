@@ -42,6 +42,7 @@
     "onCommand:karavan.create-crd",
     "onCommand:karavan.create-yaml",
     "onCommand:karavan.create-application",
+    "onCommand:karavan.deploy",
     "onCommand:karavan.open",
     "onCommand:karavan.open-file",
     "onCommand:karavan.jbang-run-file",
@@ -186,7 +187,7 @@
             "type": "string"
           },
           "default": [
-            "quarkus.container-image.group=${KUBERNETES_NAMESPACE}",
+            "quarkus.container-image.group=${NAMESPACE}",
             "quarkus.container-image.name=$NAME",
             "quarkus.container-image.builder=jib",
             "quarkus.container-image.build=true",
@@ -212,7 +213,7 @@
             "quarkus.kubernetes.labels.\"app.openshift.io/runtime\"=camel",
             "quarkus.kubernetes-client.trust-certs=true",
             "quarkus.kubernetes-client.master-url=kubernetes.default.svc",
-            "quarkus.kubernetes-client.namespace=${KUBERNETES_NAMESPACE}",
+            "quarkus.kubernetes-client.namespace=${NAMESPACE}",
             "quarkus.kubernetes-client.token=${TOKEN}",
             "quarkus.openshift.deployment-kind=Deployment",
             "quarkus.openshift.add-version-to-label-selectors=false",
@@ -269,6 +270,11 @@
         "icon": "$(export)"
       },
       {
+        "command": "karavan.deploy",
+        "title": "Karavan: Deploy",
+        "icon": "$(layers)"
+      },
+      {
         "command": "karavan.generate-rest",
         "title": "Karavan: Generate REST API"
       },
@@ -303,35 +309,48 @@
       "explorer/context": [
         {
           "command": "karavan.create-crd",
-          "when": "explorerResourceIsFolder || explorerResourceIsRoot"
+          "when": "explorerResourceIsFolder || explorerResourceIsRoot",
+          "group": "karavan@1"
         },
         {
           "command": "karavan.create-yaml",
-          "when": "explorerResourceIsFolder || explorerResourceIsRoot"
+          "when": "explorerResourceIsFolder || explorerResourceIsRoot",
+          "group": "karavan@2"
         },
         {
           "command": "karavan.create-application",
-          "when": "explorerResourceIsFolder || explorerResourceIsRoot"
+          "when": "explorerResourceIsFolder || explorerResourceIsRoot",
+          "group": "karavan@3"
         },
         {
           "command": "karavan.open",
-          "when": "resourceExtname == .yaml"
+          "when": "resourceExtname == .yaml",
+          "group": "karavan@4"
         },
         {
           "command": "karavan.jbang-run-file",
-          "when": "resourceExtname == .yaml"
+          "when": "resourceExtname == .yaml",
+          "group": "karavan@5"
         },
         {
           "command": "karavan.jbang-run-project",
-          "when": "explorerResourceIsFolder || explorerResourceIsRoot"
+          "when": "explorerResourceIsFolder || explorerResourceIsRoot",
+          "group": "karavan@6"
         },
         {
           "command": "karavan.jbang-export",
-          "when": "explorerResourceIsFolder || explorerResourceIsRoot"
+          "when": "explorerResourceIsFolder || explorerResourceIsRoot",
+          "group": "karavan@7"
+        },
+        {
+          "command": "karavan.deploy",
+          "when": "explorerResourceIsFolder || explorerResourceIsRoot",
+          "group": "karavan@8"
         },
         {
           "command": "karavan.generate-rest",
-          "when": "resourceExtname == .json"
+          "when": "resourceExtname == .json",
+          "group": "karavan@9"
         }
       ],
       "editor/title": [
@@ -348,24 +367,29 @@
       ],
       "view/title": [
         {
-          "command": "integrations.refresh",
-          "when": "view == integrations",
-          "group": "navigation@4"
-        },
-        {
           "command": "karavan.jbang-run-project",
           "when": "view == integrations",
           "group": "navigation@1"
         },
         {
-          "command": "karavan.create-crd",
+          "command": "karavan.deploy",
           "when": "view == integrations",
-          "group": "navigation@3"
+          "group": "navigation@2"
         },
         {
           "command": "karavan.jbang-export",
           "when": "view == integrations",
-          "group": "navigation@2"
+          "group": "navigation@3"
+        },
+        {
+          "command": "karavan.create-crd",
+          "when": "view == integrations",
+          "group": "navigation@4"
+        },
+        {
+          "command": "integrations.refresh",
+          "when": "view == integrations",
+          "group": "navigation@5"
         },
         {
           "command": "openapi.refresh",

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { workspace, window, Terminal } from "vscode";
+import { workspace, window, Terminal, ThemeIcon } from "vscode";
 import * as path from "path";
 import * as shell from 'shelljs';
 import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
@@ -23,7 +23,7 @@ import * as utils from "./utils";
 const TERMINALS: Map<string, Terminal> = new Map<string, Terminal>();
 
 export async function camelJbangGenerate(rootPath: string, openApiFullPath: string, fullPath: string, add: boolean, crd?: boolean, generateRoutes?: boolean) {
-    let command = prepareCommand("generate rest -i " + openApiFullPath); 
+    let command = prepareCommand("generate rest -i " + openApiFullPath);
     if (generateRoutes === true) command = command + " --routes";
     executeJbangCommand(rootPath, command, (code, stdout, stderr) => {
         console.log('Exit code:', code);
@@ -80,7 +80,7 @@ export function camelJbangRun(filename?: string) {
     const maxMessages: number = workspace.getConfiguration().get("camel.maxMessages") || -1;
     const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
     const dev: boolean = workspace.getConfiguration().get("camel.dev") || false;
-    const cmd = (filename ? "run " + filename : "run * ") 
+    const cmd = (filename ? "run " + filename : "run * ")
         + (maxMessages > -1 ? " --max-messages=" + maxMessages : "")
         + (kameletsPath && kameletsPath.trim().length > 0 ? " --local-kamelet-dir=" + kameletsPath : "");
     const command = prepareCommand(cmd) + (dev === true ? " --dev" : "");
@@ -94,17 +94,55 @@ export function camelJbangRun(filename?: string) {
 }
 
 export function camelJbangExport(directory: string) {
-    const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
-    const cmd = "export  --directory=" + directory
-        + (kameletsPath && kameletsPath.trim().length >0 ? " --local-kamelet-dir=" + kameletsPath : "");
-    const command = prepareCommand(cmd);
+    const command = createExportCommand(directory);
     const terminalId = "export";
     const existTerminal = TERMINALS.get(terminalId);
     if (existTerminal) existTerminal.dispose();
-    const terminal = window.createTerminal('Camel export');
+    const terminal = window.createTerminal('export');
     TERMINALS.set(terminalId, terminal);
     terminal.show();
     terminal.sendText(command);
+}
+
+export function createExportCommand(directory: string) {
+    const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
+    const cmd = "export --directory=" + directory
+        + (kameletsPath && kameletsPath.trim().length > 0 ? " --local-kamelet-dir=" + kameletsPath : "");
+    return prepareCommand(cmd);
+}
+
+export function camelDeploy(directory: string) {
+    const command = createExportCommand(directory).concat(" && ").concat(createPackageCommand(directory));
+
+    utils.readFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+        .then((readData: Uint8Array) => {
+            const namespace = Buffer.from(readData).toString('utf8');
+            utils.readFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
+                .then((readData: Uint8Array) => {
+                    const token = Buffer.from(readData).toString('utf8');
+                    const env = { "TOKEN":token, "NAMESPACE": namespace, "DATE":  Date.now().toString() };
+                    camelRunDeploy(command, env);
+                    
+                }).catch((reason: any) => {
+                    window.showErrorMessage("Token file not found. Set TOKEN environment variable!\n" + reason.message);
+                });
+        }).catch((reason: any) => {
+            window.showErrorMessage("Namespace file not found. Set NAMESPACE environment variable!\n" + reason.message);
+        });
+}
+
+export function camelRunDeploy(command: string, env?: { [key: string]: string | null | undefined }) {
+    const terminalId = "deploy";
+    const existTerminal = TERMINALS.get(terminalId);
+    if (existTerminal) existTerminal.dispose();
+    const terminal = window.createTerminal({ name: terminalId, env: env, iconPath: new ThemeIcon("layers") });
+    TERMINALS.set(terminalId, terminal);
+    terminal.show();
+    terminal.sendText(command);
+}
+
+export function createPackageCommand(directory: string) {
+    return "mvn clean package -f " + directory;
 }
 
 function executeJbangCommand(rootPath: string, command: string, callback: (code: number, stdout: any, stderr: any) => any) {
