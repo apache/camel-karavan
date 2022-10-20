@@ -206,7 +206,7 @@ export async function write(fullPath: string, code: string) {
     );
 }
 
-export async function crateApplicationproperties(runtime: string, gav: string, ) {
+export async function createApplicationproperties(runtime: string, gav: string, deployTarget: string ) {
     if (workspace.workspaceFolders) {
         const uriFolder: Uri = workspace.workspaceFolders[0].uri;
         const parts = uriFolder.fsPath.split(path.sep);
@@ -214,10 +214,14 @@ export async function crateApplicationproperties(runtime: string, gav: string, )
 
         const runtimeVersion: string = workspace.getConfiguration().get("camel." + runtime + "-version") || '';
         const props: string [] = workspace.getConfiguration().get("Karavan.applicationProperties") || [];
+        const imageBuildProps: string [] = workspace.getConfiguration().get("Karavan.imageBuildProperties") || [];
+        const targetProps: string [] = 
+                deployTarget === 'openshift' ? (workspace.getConfiguration().get("Karavan.openshiftProperties") || [])
+                : [];
         const runtimeDefaults: [] = (runtime === 'quarkus') 
             ? workspace.getConfiguration().get("Karavan.quarkusApplicationProperties") || []
             : [];
-        const text = props.concat(runtimeDefaults).map(v => {
+        const text = props.concat(runtimeDefaults).concat(imageBuildProps).concat(targetProps).map(v => {
             if (v.includes('$NAME')) return v.replace('$NAME', name)
             else if (v.includes('$GAV')) return v.replace('$GAV', gav)
             else if (v.includes('$RUNTIME_VERSION')) return v.replace('$RUNTIME_VERSION', runtimeVersion) // $RUNTIME_VERSION should be before $RUNTIME

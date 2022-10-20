@@ -79,6 +79,18 @@
           "scope": "machine",
           "order": 20
         },
+        "camel.deployTarget": {
+          "type": "string",
+          "default": "openshift",
+          "enum": [
+            "kubernetes",
+            "openshift",
+            "none"
+          ],
+          "description": "Deploy Target",
+          "scope": "machine",
+          "order": 22
+        },
         "camel.quarkus-version": {
           "type": "string",
           "default": "2.13.2.Final",
@@ -88,7 +100,7 @@
         },
         "camel.maxMessages": {
           "type": "integer",
-          "default": 10,
+          "default": 0,
           "description": "Maximum number of messages to process before stopping",
           "scope": "machine",
           "order": 30
@@ -152,7 +164,7 @@
           ],
           "description": "Default application.properties template",
           "scope": "machine",
-          "order": 99
+          "order": 90
         },
         "Karavan.quarkusApplicationProperties": {
           "type": "array",
@@ -161,18 +173,56 @@
             "type": "string"
           },
           "default": [
-            "camel.jbang.quarkusVersion=$RUNTIME_VERSION",
-            "quarkus.kubernetes-client.trust-certs=true",
-            "quarkus.container-image.builder=jib",
-            "quarkus.container-image.group=karavan",
+            "camel.jbang.quarkusVersion=$RUNTIME_VERSION"
+          ],
+          "description": "Default application.properties template for Quarkus Runtime",
+          "scope": "machine",
+          "order": 95
+        },
+        "Karavan.imageBuildProperties": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "quarkus.container-image.group=${KUBERNETES_NAMESPACE}",
             "quarkus.container-image.name=$NAME",
+            "quarkus.container-image.builder=jib",
+            "quarkus.container-image.build=true",
+            "quarkus.container-image.push=true",
+            "quarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000",
+            "quarkus.container-image.insecure=true",
+            "quarkus.container-image.username=sa",
+            "quarkus.container-image.password=${TOKEN}",
+            "quarkus.container-image.tag=${DATE}"
+          ],
+          "description": "Default application.properties template for image build",
+          "scope": "machine",
+          "order": 96
+        },
+        "Karavan.openshiftProperties": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "quarkus.kubernetes.deploy=true",
+            "quarkus.kubernetes.labels.\"app.openshift.io/runtime\"=camel",
+            "quarkus.kubernetes-client.trust-certs=true",
+            "quarkus.kubernetes-client.master-url=kubernetes.default.svc",
+            "quarkus.kubernetes-client.namespace=${KUBERNETES_NAMESPACE}",
+            "quarkus.kubernetes-client.token=${TOKEN}",
+            "quarkus.openshift.deployment-kind=Deployment",
+            "quarkus.openshift.add-version-to-label-selectors=false",
             "quarkus.openshift.route.expose=false",
             "quarkus.openshift.part-of=$NAME",
             "quarkus.openshift.replicas=1"
           ],
-          "description": "Default application.properties template for Quarkus Runtime",
+          "description": "Default application.properties template for Openshift",
           "scope": "machine",
-          "order": 100
+          "order": 97
         }
       }
     },

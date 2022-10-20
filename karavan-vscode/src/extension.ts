@@ -113,17 +113,25 @@ export function activate(context: ExtensionContext) {
     const applicationCommand = commands.registerCommand("karavan.create-application", (...args: any[]) => {
         if (rootPath){
             const defaultRuntime: string = workspace.getConfiguration().get("camel.runtimes") || '';
+            const deployTarget: string = workspace.getConfiguration().get("camel.deployTarget") || 'openshift';
             const runtimeOptions: QuickPickItem [] = [
                 {label: "quarkus", picked: "quarkus" === defaultRuntime},
                 {label: "spring-boot", picked: "spring-boot" === defaultRuntime},
                 {label: "camel-main", picked: "camel-main" === defaultRuntime}
             ];
+            const deployOptions: QuickPickItem [] = [
+                {label: "kubernetes", picked: "kubernetes" === deployTarget},
+                {label: "openshift", picked: "openshift" === deployTarget},
+                {label: "none", picked: "none" === deployTarget}
+            ];
             utils.hasApplicationProperties(rootPath).then(hasAP => {
                 if (hasAP){
                     window.showInformationMessage("Folder already contains application.properties");
                 } else {
-                    window.showQuickPick(runtimeOptions, { title: "Select Runtime", canPickMany: false }).then((value) => {
-                        if (value) inputExportGav(value.label) 
+                    window.showQuickPick(runtimeOptions, { title: "Select Runtime", canPickMany: false }).then((runtime) => {
+                        window.showQuickPick(deployOptions, { title: "Select Deploy Target", canPickMany: false }).then((target) => {
+                            if (runtime && target) inputExportGav(runtime.label, target.label) 
+                        })
                     })
                 }
             })
@@ -194,7 +202,7 @@ export async function inputExportFolder(rootPath?: string) {
 /**
  * export with gav
  */
-export async function inputExportGav(runtime: string) {
+export async function inputExportGav(runtime: string, target: string) {
     window.showInputBox({
         title: "Export project with " + runtime,
         ignoreFocusOut: true,
@@ -208,7 +216,7 @@ export async function inputExportGav(runtime: string) {
         }
     }).then(gav => {
         if (gav) {
-            utils.crateApplicationproperties(runtime, gav)
+            utils.createApplicationproperties(runtime, gav, target)
         }
     });
 }
