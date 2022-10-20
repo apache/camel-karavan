@@ -14,10 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { workspace, window, Terminal, ThemeIcon } from "vscode";
-import * as path from "path";
 import * as shell from 'shelljs';
-import * as utils from "./utils";
 
 export interface Result {
     result: boolean
@@ -25,26 +22,9 @@ export interface Result {
     error: string
 }
 
-export function hasOcClient(): boolean {
-    const oc = shell.which('oc');
-    return oc !== undefined;
-}
-
-export function getOcUser(): Result {
-    const oc = shell.which('oc');
-    if (oc) {
-        shell.config.execPath = String(oc);
-
-        shell.exec('oc whoami', {silent:true}, function(code, stdout, stderr) {
-            console.log('Exit code:', code);
-            console.log('Program output:', stdout);
-            console.log('Program stderr:', stderr);
-          });
-
-          const { stdout, stderr, code } = shell.exec("oc whoami",  {silent:true});
-        console.log(stdout, stderr, code);
-        return {result: code === 0, value: stdout, error: stderr};
-    } else {
-        return {result: false, value: undefined, error: "Openshift client not found!"}
-    }
+export function execCommand(cmd: string, execPath?: string): Promise<Result> {
+    return new Promise<Result>((resolve) => {
+        if (execPath) shell.cd(execPath);
+        shell.exec(cmd, (code, stdout, stderr) => resolve({ result: code === 0, value: stdout, error: stderr }));
+    });
 }

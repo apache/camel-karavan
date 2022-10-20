@@ -19,7 +19,7 @@ import * as path from "path";
 import * as shell from 'shelljs';
 import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
 import * as utils from "./utils";
-import * as kubernetes from "./kubernetes";
+import * as exec from "./exec";
 
 const TERMINALS: Map<string, Terminal> = new Map<string, Terminal>();
 
@@ -114,25 +114,20 @@ export function createExportCommand(directory: string) {
 
 export function camelDeploy(directory: string) {
     const command = createExportCommand(directory).concat(" && ").concat(createPackageCommand(directory));
-    const user = kubernetes.getOcUser();
-    console.log("user", user);
-    
-
-    // utils.readFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
-    //     .then((readData: Uint8Array) => {
-    //         const namespace = Buffer.from(readData).toString('utf8');
-    //         utils.readFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
-    //             .then((readData: Uint8Array) => {
-    //                 const token = Buffer.from(readData).toString('utf8');
-    //                 const env = { "TOKEN":token, "NAMESPACE": namespace, "DATE":  Date.now().toString() };
-    //                 camelRunDeploy(command, env);
-                    
-    //             }).catch((reason: any) => {
-    //                 window.showErrorMessage("Token file not found. Set TOKEN environment variable!\n" + reason.message);
-    //             });
-    //     }).catch((reason: any) => {
-    //         window.showErrorMessage("Namespace file not found. Set NAMESPACE environment variable!\n" + reason.message);
-    //     });
+    Promise.all([
+        exec.execCommand("oc whoami"), // get user
+        exec.execCommand("oc whoami --show-token"), // get token
+        exec.execCommand("oc project -q") // get namespace 
+    ]).then(val => {
+        let env: any = { "DATE": Date.now().toString() };
+        if (val[0].result) env.USER = val[0].value;
+        if (val[1].result) env.TOKEN = val[1].value;
+        if (val[2].result) env.NAMESPACE = val[2].value;
+        console.log("env", env);
+        camelRunDeploy(command, env);
+    }).catch((reason: any) => {
+        window.showErrorMessage("Error: \n" + reason.message);
+    });
 }
 
 export function camelRunDeploy(command: string, env?: { [key: string]: string | null | undefined }) {
@@ -150,22 +145,18 @@ export function createPackageCommand(directory: string) {
 }
 
 function executeJbangCommand(rootPath: string, command: string, callback: (code: number, stdout: any, stderr: any) => any) {
-    console.log("excute command", command)
+    console.log("excute command", command);
     const jbang = shell.which('jbang');
     if (jbang) {
-        shell.config.execPath = String(jbang);
-        shell.cd(rootPath);
-        shell.exec(command, { async: false }, (code, stdout, stderr) => {
-            if (code === 0) {
-                // vscode.window.showInformationMessage(stdout);
-            } else {
-                window.showErrorMessage(stderr);
-            }
-            callback(code, stdout, stderr);
+        exec.execCommand(command, rootPath).then(res => {
+            if (res.result) callback(0, res.value, res.error)
+            else window.showErrorMessage(res.error);
+        }).catch(error => {
+            window.showErrorMessage(error);
         });
     } else {
         window.showErrorMessage("JBang not found!");
-    }
+    }    
 }
 
 function setMinikubeEnvVariables(env: string): Map<string, string> {
