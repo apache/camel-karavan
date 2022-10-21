@@ -84,8 +84,8 @@
           "type": "string",
           "default": "openshift",
           "enum": [
-            "kubernetes",
             "openshift",
+            "kubernetes",
             "none"
           ],
           "description": "Deploy Target",
@@ -94,7 +94,7 @@
         },
         "camel.quarkus-version": {
           "type": "string",
-          "default": "2.13.2.Final",
+          "default": "2.13.3.Final",
           "description": "Camel-quarkus version",
           "scope": "machine",
           "order": 21
@@ -190,12 +190,10 @@
             "quarkus.container-image.group=${NAMESPACE}",
             "quarkus.container-image.name=$NAME",
             "quarkus.container-image.builder=jib",
-            "quarkus.container-image.build=true",
-            "quarkus.container-image.push=true",
-            "quarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000",
+            "quarkus.container-image.registry=${IMAGE_REGISTRY}",
             "quarkus.container-image.insecure=true",
-            "quarkus.container-image.username=${USER}",
-            "quarkus.container-image.password=${TOKEN}",
+            "quarkus.container-image.username=${KUBERNETES_USER}",
+            "quarkus.container-image.password=${KUBERNETES_TOKEN}",
             "quarkus.container-image.tag=${DATE}"
           ],
           "description": "Default application.properties template for image build",
@@ -209,11 +207,10 @@
             "type": "string"
           },
           "default": [
-            "quarkus.kubernetes.deploy=true",
             "quarkus.kubernetes-client.trust-certs=true",
-            "quarkus.kubernetes-client.master-url=kubernetes.default.svc",
+            "quarkus.kubernetes-client.master-url=${KUBERNETES_SERVER}",
             "quarkus.kubernetes-client.namespace=${NAMESPACE}",
-            "quarkus.kubernetes-client.token=${TOKEN}",
+            "quarkus.kubernetes-client.token=${KUBERNETES_TOKEN}",
             "quarkus.openshift.labels.\"app.openshift.io/runtime\"=camel",
             "quarkus.openshift.deployment-kind=Deployment",
             "quarkus.openshift.add-version-to-label-selectors=false",

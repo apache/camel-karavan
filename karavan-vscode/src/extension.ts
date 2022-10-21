@@ -119,8 +119,8 @@ export function activate(context: ExtensionContext) {
                 {label: "camel-main", picked: "camel-main" === defaultRuntime}
             ];
             const deployOptions: QuickPickItem [] = [
-                {label: "kubernetes", picked: "kubernetes" === deployTarget},
                 {label: "openshift", picked: "openshift" === deployTarget},
+                {label: "kubernetes", picked: "kubernetes" === deployTarget},
                 {label: "none", picked: "none" === deployTarget}
             ];
             utils.hasApplicationProperties(rootPath).then(hasAP => {

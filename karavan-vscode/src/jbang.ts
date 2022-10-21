@@ -113,16 +113,28 @@ export function createExportCommand(directory: string) {
 }
 
 export function camelDeploy(directory: string) {
-    const command = createExportCommand(directory).concat(" && ").concat(createPackageCommand(directory));
+    const command = createExportCommand(directory).concat(" && ")
+        .concat(createPackageAndPushImageCommand(directory)).concat(" && ")
+        .concat(createPackageAndDeployCommand(directory));
     Promise.all([
         exec.execCommand("oc whoami"), // get user
         exec.execCommand("oc whoami --show-token"), // get token
-        exec.execCommand("oc project -q") // get namespace 
+        exec.execCommand("oc project -q"), // get namespace 
+        exec.execCommand("oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}'"), // get image-registry 
+        exec.execCommand("oc whoami --show-server") // get server
     ]).then(val => {
         let env: any = { "DATE": Date.now().toString() };
-        if (val[0].result) env.USER = val[0].value;
-        if (val[1].result) env.TOKEN = val[1].value;
-        if (val[2].result) env.NAMESPACE = val[2].value;
+        if (val[0].result) env.KUBERNETES_USER = val[0].value.trim();
+        if (val[1].result) env.KUBERNETES_TOKEN = val[1].value.trim();
+        if (val[2].result) env.NAMESPACE = val[2].value.trim();
+        if (val[3].result) env.IMAGE_REGISTRY = val[3].value.trim() 
+            else env.IMAGE_REGISTRY = "image-registry.openshift-image-registry.svc:5000";
+        if (val[4].result) env.KUBERNETES_SERVER = val[4].value.trim() 
+            else env.KUBERNETES_SERVER = "kubernetes.default.svc";
+
+        if (val[0].result && val[1].result && !val[2].result) {
+            window.showErrorMessage("Namespace not set \n" + val[2].error);
+        }
         camelRunDeploy(command, env);
     }).catch((reason: any) => {
         window.showErrorMessage("Error: \n" + reason.message);
@@ -139,8 +151,16 @@ export function camelRunDeploy(command: string, env?: { [key: string]: string | 
     terminal.sendText(command);
 }
 
-export function createPackageCommand(directory: string) {
-    return "mvn clean package -f " + directory;
+export function createPackageAndPushImageCommand(directory: string) {
+    return "mvn clean package -f " + directory
+        +  " -Dquarkus.kubernetes.deploy=false"
+        +  " -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true"
+}
+
+export function createPackageAndDeployCommand(directory: string) {
+    return "mvn clean package -f " + directory
+        +  " -Dquarkus.kubernetes.deploy=true -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000"
+        +  " -Dquarkus.container-image.build=false -Dquarkus.container-image.push=false"
 }
 
 function executeJbangCommand(rootPath: string, command: string, callback: (code: number, stdout: any, stderr: any) => any) {
