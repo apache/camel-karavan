@@ -42,56 +42,21 @@ class App extends React.Component<Props, State> {
     public state: State = {
         name: 'demo.yaml',
         key: '',
-        yaml:
-            'apiVersion: camel.apache.org/v1\n' +
-            'kind: Integration\n' +
-            'metadata:\n' +
-            '  name: postman.yaml\n' +
-            'spec:\n' +
-            '  flows:\n' +
-            '    - route:\n' +
-            '        from:\n' +
-            '          uri: kamelet:timer-source\n' +
-            '          steps:\n' +
-            '             - marshal: {}\n' +
-            // '            - doTry:\n' +
-            // '                steps:\n' +
-            // '                  - setBody:\n' +
-            // '                      expression:\n' +
-            // '                        groovy:\n' +
-            // '                          expression: 1000 / 0\n' +
-            // '                doCatch:\n' +
-            // '                  - steps:\n' +
-            // '                      - log:\n' +
-            // '                          message: Exception\n' +
-            // '                    exception:\n' +
-            // '                      - java.lang.ArithmeticException\n' +
-            // '                doFinally:\n' +
-            // '                  steps:\n' +
-            // '                    - log:\n' +
-            // '                        message: ${body}\n' +
-            // '            - aggregate: {}\n' +
-            // '            - choice: {}\n' +
-            // '            - split:\n' +
-            // '                expression: {}\n' +
-            // '            - saga: {}\n' +
-            // '            - to:\n' +
-            // '                uri: direct:hello-world\n' +
-            // '            - to:\n' +
-            // '                uri: salesforce:getSObject\n' +
-            // '                parameters:\n' +
-            // '                  sObjectId: xxx\n' +
-            // '                  sObjectClass: Account\n' +
-            '          parameters:\n' +
-            '            period: 2000\n' +
-            '            message: Hello World\n'
-            // '    - route:\n' +
-            // '        from:\n' +
-            // '          uri: direct:hello-world\n' +
-            // '        id: hello-world\n' +
-            // '    - beans:\n' +
-            // '        - name: FFF\n' +
-            // '          type: GGGG\n'
+        yaml: ''
+        //     'apiVersion: camel.apache.org/v1\n' +
+        //     'kind: Integration\n' +
+        //     'metadata:\n' +
+        //     '  name: postman.yaml\n' +
+        //     'spec:\n' +
+        //     '  flows:\n' +
+        //     '    - route:\n' +
+        //     '        from:\n' +
+        //     '          uri: kamelet:timer-source\n' +
+        //     '          steps:\n' +
+        //     '             - marshal: {}\n' +
+        //     '          parameters:\n' +
+        //     '            period: 2000\n' +
+        //     '            message: Hello World\n'
     };
 
     componentDidMount() {
@@ -149,8 +114,7 @@ class App extends React.Component<Props, State> {
             <Page className="karavan">
                 {this.props.page === "designer" && <KaravanDesigner key={this.state.key} filename={this.state.name} yaml={this.state.yaml}
                                                                     onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}
-                                                                    dark={document.body.className.includes('vscode-dark')}
-                                                                    showStartHelp={true}/>}
+                                                                    dark={document.body.className.includes('vscode-dark')}/>}
                 {this.props.page === "kamelets" && <KameletsPage dark={document.body.className.includes('vscode-dark')} />}
                 {this.props.page === "components" && <ComponentsPage dark={document.body.className.includes('vscode-dark')} />}
                 {this.props.page === "eip" && <EipPage dark={document.body.className.includes('vscode-dark')} />}

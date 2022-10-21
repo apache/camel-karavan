@@ -653,7 +653,6 @@ export class DslPropertyField extends React.Component<Props, State> {
         return (
             <div>
                 <FormGroup
-                    data-tour={property.name}
                     label={this.props.hideLabel ? undefined : this.getLabel(property, value)}
                     isRequired={property.required}
                     fieldId={property.name}

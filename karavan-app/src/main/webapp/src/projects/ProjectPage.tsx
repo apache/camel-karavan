@@ -331,7 +331,6 @@ export class ProjectPage extends React.Component<Props, State> {
         return (
             file !== undefined &&
             <KaravanDesigner
-                showStartHelp={false}
                 dark={false}
                 key={"key"}
                 filename={file.name}

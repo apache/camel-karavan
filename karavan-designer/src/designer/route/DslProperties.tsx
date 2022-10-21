@@ -216,7 +216,6 @@ export class DslProperties extends React.Component<Props, State> {
         const propertiesAdvanced = properties.filter(p => p.label.includes("advanced"));
         return (
             <div key={this.state.step ? this.state.step.uuid : 'integration'}
-                 data-tour="properties"
                  className='properties'>
                 <Form autoComplete="off" onSubmit={event => event.preventDefault()}>
                     {this.state.step === undefined && <IntegrationHeader integration={this.props.integration}/>}

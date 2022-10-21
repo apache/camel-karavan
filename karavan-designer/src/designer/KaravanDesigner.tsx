@@ -16,8 +16,8 @@
  */
 import React from 'react';
 import {
-    Badge, Button, Checkbox, Modal, ModalVariant,
-    PageSection, PageSectionVariants, Tab, Tabs, TabTitleIcon, TabTitleText, Title, Tooltip,
+    Badge,
+    PageSection, PageSectionVariants, Tab, Tabs, TabTitleIcon, TabTitleText, Tooltip,
 } from '@patternfly/react-core';
 import './karavan.css';
 import {RouteDesigner} from "./route/RouteDesigner";
@@ -29,8 +29,6 @@ import {BeansDesigner} from "./beans/BeansDesigner";
 import {RestDesigner} from "./rest/RestDesigner";
 import {ErrorDesigner} from "./error/ErrorDesigner";
 import {ExceptionDesigner} from "./exception/ExceptionDesigner";
-import KaravanTour from "./KaravanTour";
-import WandIcon from "@patternfly/react-icons/dist/js/icons/magic-icon";
 import {getDesignerIcon} from "./utils/KaravanIcons";
 
 interface Props {
@@ -39,7 +37,6 @@ interface Props {
     filename: string
     yaml: string
     dark: boolean
-    showStartHelp: boolean
     tab?: string
 }
 
@@ -48,9 +45,6 @@ interface State {
     integration: Integration
     key: string
     propertyOnly: boolean
-    showTour: boolean
-    showStartHelp: boolean
-    cancelTour: boolean
 }
 
 export class KaravanDesigner extends React.Component<Props, State> {
@@ -62,9 +56,6 @@ export class KaravanDesigner extends React.Component<Props, State> {
             : Integration.createNew(this.props.filename),
         key: "",
         propertyOnly: false,
-        showTour: false,
-        showStartHelp: this.props.showStartHelp,
-        cancelTour: false,
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
@@ -99,49 +90,18 @@ export class KaravanDesigner extends React.Component<Props, State> {
         )
     }
 
-    closeHelpWindow(showTour: boolean){
-        this.setState({showStartHelp: false, showTour: showTour});
-        if (this.state.cancelTour) this.props.onDisableHelp?.call(this);
-    }
-
-    getHelpWindow() {
-        const show = this.state.showStartHelp && this.state.integration.spec.flows?.filter(f => f.dslName === 'RouteDefinition').length === 0;
-        return (<Modal
-            aria-label="Welcome"
-            className="modal-help"
-            title="Welcome to Karavan!"
-            header={<div  style={{display:"flex"}}><WandIcon style={{marginTop:"auto", marginBottom:"auto", marginRight:"10px"}}/><Title headingLevel={"h2"}>Welcome to Karavan!</Title></div>}
-            variant={ModalVariant.small}
-            isOpen={show}
-            onClose={() => this.closeHelpWindow(false)}
-            actions={[
-                <Checkbox key="check" className="dont-show" label="Don't show again" isChecked={this.state.cancelTour} onChange={checked => this.setState({cancelTour: checked})} aria-label="Don't show again" id="dont-show"/>,
-                <Button key="skip" variant={"secondary"} isSmall onClick={e => this.closeHelpWindow(false)}>Skip tour</Button>,
-                <Button key="tour" autoFocus={true} variant={"primary"} isSmall onClick={e => this.closeHelpWindow(true)}>Get started</Button>
-            ]}
-            onEscapePress={e =>  this.closeHelpWindow(false)}>
-                Get started with a tour of the key areas that can help you complete integration and be more productive.
-        </Modal>)
-    }
-
     render() {
         const tab = this.state.tab;
         return (
             <PageSection variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light} className="page" isFilled padding={{default: 'noPadding'}}>
-                {this.state.showTour && <KaravanTour tab="routes"
-                                                     integration={this.state.integration}
-                                                     onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
-                                                     showTour={this.state.showTour}
-                                                     onClose={() => this.setState({showTour: false})} />}
                 <Tabs className="main-tabs" activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex.toString()})} style={{width: "100%"}}>
-                    <Tab data-tour="routes" eventKey='routes' title={this.getTab("Routes", "Integration flows", "routes")}></Tab>
+                    <Tab eventKey='routes' title={this.getTab("Routes", "Integration flows", "routes")}></Tab>
                     <Tab eventKey='rest' title={this.getTab("REST", "REST services", "rest")}></Tab>
                     <Tab eventKey='beans' title={this.getTab("Beans", "Beans Configuration", "beans")}></Tab>
                     <Tab eventKey='error' title={this.getTab("Error", "Error Handler", "error")}></Tab>
                     <Tab eventKey='exception' title={this.getTab("Exceptions", "Exception Clauses per type", "exception")}></Tab>
                 </Tabs>
                 {tab === 'routes' && <RouteDesigner integration={this.state.integration}
-                                                    showTour={this.state.showTour}
                                                     onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                     dark={this.props.dark}/>}
                 {tab === 'rest' && <RestDesigner integration={this.state.integration}
@@ -156,7 +116,6 @@ export class KaravanDesigner extends React.Component<Props, State> {
                 {tab === 'exception' && <ExceptionDesigner integration={this.state.integration}
                                                            onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                            dark={this.props.dark}/>}
-                {this.getHelpWindow()}
             </PageSection>
         )
     }

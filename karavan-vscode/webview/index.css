@@ -303,27 +303,11 @@ body, :root, #root, .karavan {
   color:  var(--vscode-input-foreground);
 }
 
-/* Tour */
-.vscode-dark .reactour__popover {
-  color: var(--vscode-editor-foreground);
-  background-color: var(--vscode-tab-inactiveBackground);
-}
-
-.vscode-dark .reactour__popover [class$="-DefaultArrow"] {
-  color: var(--vscode-editor-foreground);
-}
-
 /* Help */
 .vscode-light .dont-show, 
 .vscode-dark .dont-show {
   margin-right: auto;
 }
-
-/* Tour */
-.vscode-dark .reactour__mask {
-  color: var(--vscode-input-placeholderForeground);
-}
-
 
 /* Kamelets page */
 

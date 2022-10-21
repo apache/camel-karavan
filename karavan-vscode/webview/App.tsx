@@ -39,7 +39,6 @@ interface State {
   interval?: NodeJS.Timer
   scheduledYaml: string
   hasChanges: boolean
-  showStartHelp: boolean
   page: "designer" | "kamelets" | "components" | "eip" | "builder"
   active: boolean
   tab?: string
@@ -56,7 +55,6 @@ class App extends React.Component<Props, State> {
     loaded: false,
     scheduledYaml: '',
     hasChanges: false,
-    showStartHelp: false,
     page: "designer",
     active: false,
     files: '',
@@ -89,9 +87,6 @@ class App extends React.Component<Props, State> {
         break;
       case 'components':
         ComponentApi.saveComponents(message.components, true);
-        break;
-      case 'showStartHelp':
-        this.setState({ showStartHelp: message.showStartHelp });
         break;
       case 'open':
         if (this.state.filename === '' && this.state.key === '') {
@@ -130,10 +125,6 @@ class App extends React.Component<Props, State> {
     }
   }
 
-  disableStartHelp() {
-    vscode.postMessage({ command: 'disableStartHelp' });
-  }
-
   public render() {
     return (
       <Page className="karavan">
@@ -144,12 +135,10 @@ class App extends React.Component<Props, State> {
         }
         {this.state.loaded && this.state.page === "designer" &&
           <KaravanDesigner
-            showStartHelp={this.state.showStartHelp}
             key={this.state.key}
             filename={this.state.filename}
             yaml={this.state.yaml}
             onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}
-            onDisableHelp={this.disableStartHelp}
             tab={this.state.tab}
             dark={this.props.dark} />
         }

@@ -32,7 +32,6 @@
     "@patternfly/react-charts": "^6.92.0",
     "@patternfly/react-core": "4.239.0",
     "@patternfly/react-table": "^4.108.0",
-    "@reactour/tour": "^2.10.2",
     "@types/js-yaml": "^4.0.5",
     "@types/uuid": "^8.3.4",
     "axios": "^0.25.0",

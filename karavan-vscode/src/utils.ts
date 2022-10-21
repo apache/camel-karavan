@@ -97,11 +97,6 @@ export function parceYaml(filename: string, yaml: string): [boolean, string?] {
     }
 }
 
-export function disableStartHelp() {
-    const config = workspace.getConfiguration();
-    config.update("Karavan.showStartHelp", false);
-}
-
 export function toCliFilename(filename: string): string {
     return (/\s/).test(filename)
         ? '"' + filename + '"'

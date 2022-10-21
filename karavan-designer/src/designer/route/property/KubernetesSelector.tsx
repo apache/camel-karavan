@@ -222,7 +222,7 @@ export class KubernetesSelector extends React.Component<Props, State> {
                             {this.searchInput()}
                         </FlexItem>
                         <FlexItem>
-                            <Tabs data-tour="selector-tabs" style={{overflow: 'hidden'}} activeKey={this.state.tabIndex} onSelect={this.selectTab}>
+                            <Tabs style={{overflow: 'hidden'}} activeKey={this.state.tabIndex} onSelect={this.selectTab}>
                                 <Tab eventKey={"configMap"} key={"configMap"} title={<TabTitleText>ConfigMaps</TabTitleText>} />
                                 <Tab eventKey={"secret"} key={"secret"} title={<TabTitleText>Secrets</TabTitleText>} />
                                 <Tab eventKey={"service"} key={"service"} title={<TabTitleText>Services</TabTitleText>} />

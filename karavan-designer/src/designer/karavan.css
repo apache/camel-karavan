@@ -1142,16 +1142,6 @@
     margin-right: auto;
 }
 
-/*Tour*/
-
-reactour-portal .reactour__popover button {
-    top: 1px;
-    right: 7px;
-}
-reactour-portal .reactour__popover button:focus-visible {
-    outline: none;
-}
-
 /*Catalogues*/
 .karavan .kamelets-page .kamelet-card .pf-c-card__footer {
     display: flex;

@@ -95,7 +95,7 @@ export class DslSelector extends React.Component<Props, State> {
 
     getCard(dsl: DslMetaModel, index: number) {
         return (
-            <Card data-tour={dsl.name} key={dsl.dsl + index} isHoverable isCompact className="dsl-card"
+            <Card key={dsl.dsl + index} isHoverable isCompact className="dsl-card"
                   onClick={event => this.selectDsl(event, dsl)}>
                 <CardHeader>
                     {CamelUi.getIconForDsl(dsl)}
@@ -135,7 +135,6 @@ export class DslSelector extends React.Component<Props, State> {
         return (
             <Modal
                 aria-label={title}
-                data-tour="selector"
                 width={'90%'}
                 className='dsl-modal'
                 isOpen={this.props.isOpen}
@@ -147,7 +146,7 @@ export class DslSelector extends React.Component<Props, State> {
                             {this.searchInput()}
                         </FlexItem>
                         <FlexItem>
-                            <Tabs data-tour="selector-tabs" style={{overflow: 'hidden'}} activeKey={this.state.tabIndex}
+                            <Tabs style={{overflow: 'hidden'}} activeKey={this.state.tabIndex}
                                   onSelect={this.selectTab}>
                                 {CamelUi.getSelectorModelTypes(parentDsl, this.props.showSteps).map((label: [string, number], index: number) => {
                                     const labelText = label[0];

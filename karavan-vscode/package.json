@@ -140,13 +140,6 @@
           "scope": "machine",
           "order": 65
         },
-        "Karavan.showStartHelp": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show Karavan help tour",
-          "scope": "machine",
-          "order": 70
-        },
         "Karavan.applicationProperties": {
           "type": "array",
           "uniqueItems": true,
@@ -511,7 +504,6 @@
     "@patternfly/patternfly": "4.215.1",
     "@patternfly/react-core": "4.239.0",
     "@patternfly/react-table": "4.108.0",
-    "@reactour/tour": "^2.10.2",
     "@types/js-yaml": "^4.0.5",
     "@types/uuid": "8.3.4",
     "js-yaml": "^4.1.0",

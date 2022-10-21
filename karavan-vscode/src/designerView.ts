@@ -134,9 +134,6 @@ export class DesignerView {
                         case 'getData':
                             this.sendData(panel, filename, relativePath, fullPath, message.reread === true, yaml, tab);
                             break;
-                        case 'disableStartHelp':
-                            utils.disableStartHelp();
-                            break;
                     }
                 },
                 undefined,
@@ -177,9 +174,6 @@ export class DesignerView {
             panel.webview.postMessage({ command: 'kamelets', kamelets: results[0] });
             // Send components
             panel.webview.postMessage({ command: 'components', components: results[1] });
-            // Send showStartHelp
-            const showStartHelp = workspace.getConfiguration().get("Karavan.showStartHelp");
-            panel.webview.postMessage({ command: 'showStartHelp', showStartHelp: showStartHelp });
             // Send integration
             this.sendIntegrationData(panel, filename, relativePath, fullPath, reread, yaml, tab);
         })
