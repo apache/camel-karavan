@@ -91,6 +91,7 @@ public class KaravanService {
         } catch (Exception e) {
             LOGGER.error("Error during project import", e);
         }
+        loadCustomKamelets("");
     }
 
     @ConsumeEvent(value = LOAD_CUSTOM_KAMELETS, blocking = true)
