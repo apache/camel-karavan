@@ -148,6 +148,13 @@ public class GitService {
         List<Tuple2<String, Map<String, String>>> result = new ArrayList<>();
         Git git = null;
         try {
+            System.out.println("---------");
+            System.out.println(folder);
+            System.out.println(gitConfig.getUri());
+            System.out.println(gitConfig.getUsername());
+            System.out.println(gitConfig.getPassword());
+            System.out.println(gitConfig.getBranch());
+            System.out.println("---------");
             git = clone(folder, gitConfig.getUri(), gitConfig.getBranch(), cred);
             checkout(git, false, null, null, gitConfig.getBranch());
             List<String> projects = readProjectsFromFolder(folder);
