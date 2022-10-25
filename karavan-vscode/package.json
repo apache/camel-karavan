@@ -339,7 +339,7 @@
         },
         {
           "command": "karavan.generate-rest",
-          "when": "resourceExtname == .json",
+          "when": "resourceExtname == .json || resourceExtname == .yaml",
           "group": "karavan@9"
         }
       ],

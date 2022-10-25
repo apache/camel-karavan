@@ -18,6 +18,7 @@ import { Command, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, Tree
 import * as path from "path";
 import * as utils from "./utils";
 import * as jbang from "./jbang";
+import * as yaml from 'js-yaml';
 import { ThemeIcon } from "vscode";
 import { DesignerView } from "./designerView";
 
@@ -48,6 +49,17 @@ export class OpenApiView implements TreeDataProvider<OpenApiItem> {
 			const readData = await utils.readFile(path.resolve(filename));
 			const json = Buffer.from(readData).toString('utf8');
 			const api = JSON.parse(json);
+			if (api.openapi) {
+				const basename = path.basename(filename);
+				result.push(new OpenApiItem(basename, filename, api?.info?.title, { command: 'karavan.open-file', title: 'Open file', arguments: [{ fsPath: filename }] }));
+			}
+		}
+		const yfiles = await utils.getYamlFiles(dir);
+		for (let x in yfiles){
+			const filename = yfiles[x];
+			const readData = await utils.readFile(path.resolve(filename));
+			const text = Buffer.from(readData).toString('utf8');
+			const api: any = yaml.load(text);
 			if (api.openapi) {
 				const basename = path.basename(filename);
 				result.push(new OpenApiItem(basename, filename, api?.info?.title, { command: 'karavan.open-file', title: 'Open file', arguments: [{ fsPath: filename }] }));
