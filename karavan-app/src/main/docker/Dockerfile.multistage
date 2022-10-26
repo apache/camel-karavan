@@ -14,7 +14,7 @@
 #  limitations under the License.
 
 ## Stage 1 : build with maven builder image with native capabilities
-FROM quay.io/quarkus/ubi-quarkus-native-image:21.3.0-java11 AS build-gen
+FROM quay.io/quarkus/ubi-quarkus-native-image:22.3.0-java11 AS build-gen
 
 ## rsync required for npm to build frontend
 USER root
@@ -54,10 +54,10 @@ RUN npm run build
 FROM build-gen as build-app
 COPY --chown=quarkus:quarkus --from=build-node /code/karavan-core/lib/ /code/karavan-core/lib/
 COPY --chown=quarkus:quarkus --from=build-node /code/karavan-core/node_modules/ /code/karavan-core/node_modules/
-RUN ./mvnw clean package -Pnative -f karavan-app
+RUN ./mvnw clean package -Pnative -f karavan-app -Dquarkus.profile=public
 
 ## Stage 4 : create the docker final image
-FROM quay.io/quarkus/quarkus-distroless-image:1.0
+FROM quay.io/quarkus/quarkus-distroless-image:2.0
 COPY --chown=nonroot --from=build-app /code/karavan-app/target/*-runner /deployments/application
 
 EXPOSE 8080
