@@ -19,6 +19,7 @@ package org.apache.camel.karavan.service;
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.tuples.Tuple2;
+import io.vertx.core.eventbus.EventBus;
 import org.apache.camel.karavan.model.KaravanConfiguration;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
@@ -38,14 +39,12 @@ import java.util.stream.Collectors;
 public class KaravanService {
 
     private static final Logger LOGGER = Logger.getLogger(KaravanService.class.getName());
+    public static final String START_WATCHERS = "start-watchers";
     public static final String IMPORT_PROJECTS = "import-projects";
     public static final String LOAD_CUSTOM_KAMELETS = "load-custom-kamelets";
 
     @Inject
     InfinispanService infinispanService;
-
-    @Inject
-    KubernetesService kubernetesService;
 
     @Inject
     GitService gitService;
@@ -58,7 +57,6 @@ public class KaravanService {
 
     void onStart(@Observes StartupEvent ev) {
         infinispanService.start();
-        kubernetesService.start();
     }
 
     @ConsumeEvent(value = IMPORT_PROJECTS, blocking = true)

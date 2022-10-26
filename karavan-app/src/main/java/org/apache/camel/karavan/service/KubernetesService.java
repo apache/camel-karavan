@@ -38,6 +38,7 @@ import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpecBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.WorkspaceBindingBuilder;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
+import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.KaravanConfiguration;
@@ -64,6 +65,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.apache.camel.karavan.service.KaravanService.START_WATCHERS;
 
 @ApplicationScoped
 public class KubernetesService {
@@ -99,19 +102,31 @@ public class KubernetesService {
 
     private List<Watch> watches = new ArrayList<>();
 
-    void start() {
+    @ConsumeEvent(value = START_WATCHERS, blocking = true)
+    void start(String data) {
         LOGGER.info("Start KubernetesService");
         Optional<KaravanConfiguration.Environment> env = config.environments().stream()
                 .filter(environment -> environment.name().equals("dev")).findFirst();
         if (env.isPresent()) {
-            watches.add(kubernetesClient().apps().deployments().inNamespace(currentNamespace)
-                    .watch(new DeploymentWatcher(infinispanService, this)));
+            try {
+                watches.add(kubernetesClient().apps().deployments().inNamespace(currentNamespace).withLabel("app.openshift.io/runtime", "camel")
+                        .watch(new DeploymentWatcher(infinispanService, this)));
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage());
+            }
+            try {
+                watches.add(kubernetesClient().pods().inNamespace(currentNamespace).withLabel("app.openshift.io/runtime", "camel")
+                        .watch(new PodWatcher(infinispanService, this)));
+            } catch (Exception e){
+                LOGGER.error(e.getMessage());
+            }
+            try {
+                watches.add(tektonClient().v1beta1().pipelineRuns().inNamespace(currentNamespace)
+                        .watch(new PipelineRunWatcher(infinispanService)));
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage());
+            }
 
-            watches.add(kubernetesClient().pods().inNamespace(currentNamespace).withLabel("app.openshift.io/runtime", "camel")
-                    .watch(new PodWatcher(infinispanService, this)));
-
-            watches.add(tektonClient().v1beta1().pipelineRuns().inNamespace(currentNamespace)
-                    .watch(new PipelineRunWatcher(infinispanService)));
         }
     }
 

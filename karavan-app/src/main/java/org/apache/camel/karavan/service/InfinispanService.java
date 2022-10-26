@@ -114,6 +114,7 @@ public class InfinispanService {
             LOGGER.info("No projects found in the Data Grid");
             bus.publish(KaravanService.IMPORT_PROJECTS, "");
         }
+        bus.publish(KaravanService.START_WATCHERS, "");
     }
 
     public List<Project> getProjects() {
