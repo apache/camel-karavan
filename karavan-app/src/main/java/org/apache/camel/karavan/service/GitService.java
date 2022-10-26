@@ -143,19 +143,11 @@ public class GitService {
         LOGGER.info("Read projects from repository " + gitConfig.getUri());
         CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
         String uuid = UUID.randomUUID().toString();
-        String folder = "/opt/git";
-        vertx.fileSystem().mkdirBlocking(folder);
+        String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
         LOGGER.infof("Temp folder created: %s", folder);
         List<Tuple2<String, Map<String, String>>> result = new ArrayList<>();
         Git git = null;
         try {
-            System.out.println("---------");
-            System.out.println(folder);
-            System.out.println(gitConfig.getUri());
-            System.out.println(gitConfig.getUsername());
-            System.out.println(gitConfig.getPassword());
-            System.out.println(gitConfig.getBranch());
-            System.out.println("---------");
             git = clone(folder, gitConfig.getUri(), gitConfig.getBranch(), cred);
             checkout(git, false, null, null, gitConfig.getBranch());
             List<String> projects = readProjectsFromFolder(folder);
