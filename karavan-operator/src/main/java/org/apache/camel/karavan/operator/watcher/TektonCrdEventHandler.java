@@ -17,31 +17,33 @@
 package org.apache.camel.karavan.operator.watcher;
 
 import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition;
-import io.fabric8.kubernetes.client.Watcher;
-import io.fabric8.kubernetes.client.WatcherException;
+import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import org.apache.camel.karavan.operator.KaravanReconciler;
 
-import java.util.List;
-
-public class TektonCrdWatcher implements Watcher<CustomResourceDefinition> {
+public class TektonCrdEventHandler implements ResourceEventHandler<CustomResourceDefinition> {
 
     private KaravanReconciler karavanReconciler;
 
-    public TektonCrdWatcher(KaravanReconciler karavanReconciler) {
+    public TektonCrdEventHandler(KaravanReconciler karavanReconciler) {
         this.karavanReconciler = karavanReconciler;
     }
 
     @Override
-    public void eventReceived(Action action, CustomResourceDefinition resource) {
-        if (List.of("MODIFIED", "ADDED").contains(action.name())) {
-            if (List.of("ADDED").contains(action.name()) && resource.getMetadata().getName().contains("pipelines.tekton.dev")) {
-                karavanReconciler.addTektonResources();
-            }
+    public void onAdd(CustomResourceDefinition crd) {
+        if (crd.getMetadata().getName().contains("pipelines.tekton.dev")) {
+            karavanReconciler.addTektonResources();
         }
     }
 
     @Override
-    public void onClose(WatcherException cause) {
+    public void onUpdate(CustomResourceDefinition crd1, CustomResourceDefinition crd2) {
+        if (crd2.getMetadata().getName().contains("pipelines.tekton.dev")) {
+            karavanReconciler.addTektonResources();
+        }
+    }
+
+    @Override
+    public void onDelete(CustomResourceDefinition obj, boolean deletedFinalStateUnknown) {
 
     }
 }

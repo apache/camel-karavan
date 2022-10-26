@@ -16,45 +16,44 @@
  */
 package org.apache.camel.karavan.operator.resource;
 
-import io.fabric8.kubernetes.api.model.IntOrString;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceBuilder;
-import io.fabric8.kubernetes.api.model.ServicePortBuilder;
+import io.fabric8.kubernetes.api.model.ServiceAccount;
+import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
+import io.javaoperatorsdk.operator.api.reconciler.dependent.ReconcileResult;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
 import org.apache.camel.karavan.operator.Constants;
-import org.apache.camel.karavan.operator.spec.Karavan;
 import org.apache.camel.karavan.operator.Utils;
+import org.apache.camel.karavan.operator.spec.Karavan;
 
 import java.util.Map;
 
-public class KaravanService extends CRUDKubernetesDependentResource<Service, Karavan> {
+public class PipelineServiceAccount extends CRUDKubernetesDependentResource<ServiceAccount, Karavan> {
 
-    public KaravanService() {
-        super(Service.class);
+    public PipelineServiceAccount() {
+        super(ServiceAccount.class);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Service desired(Karavan karavan, Context<Karavan> context) {
-
-        ServicePortBuilder portBuilder = new ServicePortBuilder()
-                .withName("http").withPort(80).withProtocol("TCP").withTargetPort(new IntOrString(8080));
-        if (karavan.getSpec().getNodePort() > 0) {
-            portBuilder.withNodePort(karavan.getSpec().getNodePort());
-        }
-
-        return new ServiceBuilder()
+    public ServiceAccount desired(Karavan karavan, Context<Karavan> context) {
+        return new ServiceAccountBuilder()
                 .withNewMetadata()
-                .withName(Constants.NAME)
+                .withName(Constants.SERVICEACCOUNT_PIPELINE)
                 .withNamespace(karavan.getMetadata().getNamespace())
-                .withLabels(Utils.getLabels(Constants.NAME, Map.of()))
+                .withLabels(Utils.getLabels(Constants.SERVICEACCOUNT_PIPELINE, Map.of()))
                 .endMetadata()
-                .withNewSpec()
-                .withType(karavan.getSpec().getNodePort() > 0 ? "NodePort" : "ClusterIP")
-                .withPorts(portBuilder.build())
-                .withSelector(Map.of("app", Constants.NAME))
-                .endSpec()
                 .build();
+    }
+
+    @Override
+    public ReconcileResult<ServiceAccount> reconcile(Karavan karavan, Context<Karavan> context) {
+        ServiceAccount sa = getKubernetesClient().serviceAccounts().inNamespace(karavan.getMetadata().getNamespace()).withName(Constants.SERVICEACCOUNT_PIPELINE).get();
+        if (sa == null) {
+            var desired = desired(karavan, context);
+            var createdResource = handleCreate(desired, karavan, context);
+            return ReconcileResult.resourceCreated(createdResource);
+        } else {
+            return ReconcileResult.noOperation(sa);
+        }
     }
 }

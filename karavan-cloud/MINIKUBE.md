@@ -16,40 +16,47 @@
     ```
     kubectl edit configmap feature-flags -n tekton-pipelines
     ```
-2. Create namespace
+2. Install Operator Lifecycle Management
     ```
-    kubectl apply -f karavan-namespace.yaml
+    curl -sL https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.22.0/install.sh | bash -s v0.22.0
     ```
-3. Enable Registry
+    or
+    ```
+    operator-sdk olm install latest
+    ```
+3. Install karavan operator
+    ```
+    kubectl create -f https://operatorhub.io/install/camel-karavan-operator.yaml
+    ```
+    Check operator installation status (PHASE=Succeeded)
+    ```
+    kubectl get csv -n operators
+    ```
+4. Enable Registry addons
     ```
     minikube addons enable registry
     ```
-3. Get IP address of internal registry
+5. Create namespace
+    ```
+    kubectl create namespace karavan
+    ```
+6. Get IP address of internal registry
     ```
     kubectl -n kube-system get svc registry -o jsonpath='{.spec.clusterIP}'
     ```    
-4. Set git parameters
-    Edit `karavan-secret.yaml` and set git repository, username, token and Image Registry IP
+7. Edit Karavan Secret `minikube/karavan-secret.yaml` according to enviroment and apply
     ```
-    projects-git-repository: https://github.com/xxx
-    projects-git-password: XXXX
-    projects-git-username: XXXX
-    projects-git-main: main
-    kamelets-git-repository: https://github.com/zzz
-    kamelets-git-password: zzz
-    kamelets-git-username: zzz
-    kamelets-git-main: main
-    image-registry: X.X.X.X
+    kubectl apply -f minikube/karavan-secret.yaml -n karavan
     ```
-
-4. Deploy karavan
+8. Create Karavan Instance and apply
     ```
-    kubectl apply -k minikube --namespace karavan
+    kubectl apply -f minikube/karavan.yaml -n karavan
     ```
-6. Expose karavan application service
+9. Expose karavan application service
     ```
     minikube service karavan --url --namespace karavan
     ```
+
 ### Optional
 1.  Access Tekton Dashboard 
     ```

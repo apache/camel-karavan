@@ -16,9 +16,14 @@
  */
 package org.apache.camel.karavan.operator;
 
+import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition;
+import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinitionList;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.openshift.client.OpenShiftClient;
 import org.eclipse.microprofile.config.ConfigProvider;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Utils {
@@ -32,5 +37,32 @@ public class Utils {
         ));
         result.putAll(labels);
         return result;
+    }
+
+    public static boolean isTektonInstalled(KubernetesClient client) {
+        CustomResourceDefinitionList list = client.apiextensions().v1().customResourceDefinitions().list();
+        if (list != null) {
+            List<CustomResourceDefinition> items = list.getItems();
+            long crds = items.stream().filter(crd -> crd.getMetadata().getName().equalsIgnoreCase("pipelines.tekton.dev")
+                    || crd.getMetadata().getName().equalsIgnoreCase("tasks.tekton.dev")
+            ).count();
+            if (crds == 2) {
+                if (isOpenShift(client)) {
+                    long oper = client.adapt(OpenShiftClient.class).operatorHub().subscriptions().list().getItems().stream()
+                            .filter(sub -> sub.getMetadata().getName().contains("openshift-pipelines-operator")).count();
+                    return oper > 0;
+                } else {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean isOpenShift(KubernetesClient client) {
+        if (client.isAdaptable(OpenShiftClient.class)) {
+            return true;
+        }
+        return false;
     }
 }

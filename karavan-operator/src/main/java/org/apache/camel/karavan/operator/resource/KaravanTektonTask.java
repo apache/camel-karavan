@@ -45,8 +45,11 @@ import java.util.stream.Collectors;
 
 public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Karavan>  implements Condition<Task, Karavan>  {
 
-    public KaravanTektonTask() {
+    private final boolean isOpenShift;
+
+    public KaravanTektonTask(boolean isOpenShift) {
         super(Task.class);
+        this.isOpenShift = isOpenShift;
     }
 
     @Override
@@ -113,7 +116,9 @@ public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Kar
     protected String getScript(Karavan karavan) {
         String imageRegistry = getImageRegistry(karavan);
         try {
-            InputStream inputStream = KaravanTektonTask.class.getResourceAsStream("/karavan-quarkus-builder-script.sh");
+            InputStream inputStream = isOpenShift
+                ? KaravanTektonTask.class.getResourceAsStream("/quarkus-builder-script-openshift.sh")
+                : KaravanTektonTask.class.getResourceAsStream("/quarkus-builder-script-kubernetes.sh");
             String data = new BufferedReader(new InputStreamReader(inputStream))
                     .lines()
                     .map(s -> {

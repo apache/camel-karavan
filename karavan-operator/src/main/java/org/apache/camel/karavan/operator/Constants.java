@@ -33,4 +33,9 @@ public final class Constants {
 
     public static final String PIPELINE_BUILD_QUARKUS = "karavan-pipeline-build-quarkus";
     public static final String TASK_BUILD_QUARKUS = "karavan-task-build-quarkus";
+
+
+    public static final String ROLE_PIPELINE_DEPLOYER = "deployer";
+    public static final String SERVICEACCOUNT_PIPELINE = "pipeline";
+    public static final String ROLEBINDING_PIPELINE_DEPLOYER = "pipeline-deployer";
 }
