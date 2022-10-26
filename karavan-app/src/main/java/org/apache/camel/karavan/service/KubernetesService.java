@@ -37,7 +37,6 @@ import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpec;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpecBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.WorkspaceBindingBuilder;
 import io.quarkus.runtime.ShutdownEvent;
-import io.quarkus.runtime.StartupEvent;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.model.DeploymentStatus;
@@ -57,7 +56,6 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.channels.Pipe;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -108,7 +106,7 @@ public class KubernetesService {
         Optional<KaravanConfiguration.Environment> env = config.environments().stream()
                 .filter(environment -> environment.name().equals("dev")).findFirst();
         if (env.isPresent()) {
-            String labelName = isOpenshift() ? "app.openshift.io/runtime" : "app.kubernetes.io/runtime";
+            String labelName = getRuntimeLabel();
             try {
                 watches.add(kubernetesClient().apps().deployments().inNamespace(currentNamespace).withLabel(labelName, "camel")
                         .watch(new DeploymentWatcher(infinispanService, this)));
@@ -269,9 +267,10 @@ public class KubernetesService {
 
     public List<PodStatus> getDeploymentPodsStatuses(String name, String namespace) {
         try {
+            String labelName = getRuntimeLabel();
             List<Pod> pods = kubernetesClient().pods().inNamespace(namespace)
                     .withLabel("app.kubernetes.io/name", name)
-                    .withLabel("app.openshift.io/runtime", "camel")
+                    .withLabel(labelName, "camel")
                     .list().getItems();
 
             return pods.stream().map(pod -> new PodStatus(
@@ -308,7 +307,8 @@ public class KubernetesService {
 
     public List<String> getCamelDeployments(String namespace) {
         try {
-            return kubernetesClient().apps().deployments().inNamespace(namespace).withLabel("app.openshift.io/runtime", "camel").list().getItems()
+            String labelName = getRuntimeLabel();
+            return kubernetesClient().apps().deployments().inNamespace(namespace).withLabel(labelName, "camel").list().getItems()
                     .stream().map(deployment -> deployment.getMetadata().getName()).collect(Collectors.toList());
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
@@ -371,6 +371,10 @@ public class KubernetesService {
 
     public Secret getKaravanSecret() {
         return kubernetesClient().secrets().inNamespace(currentNamespace).withName("karavan").get();
+    }
+
+    public String getRuntimeLabel() {
+        return isOpenshift() ? "app.openshift.io/runtime" : "app.kubernetes.io/runtime";
     }
 
     public boolean isOpenshift() {

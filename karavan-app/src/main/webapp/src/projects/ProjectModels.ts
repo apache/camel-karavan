@@ -83,7 +83,6 @@ export class ProjectFileType {
 export const ProjectFileTypes: ProjectFileType[] = [
     new ProjectFileType("INTEGRATION", "Integration", "yaml"),
     new ProjectFileType("CODE", "Code", "java"),
-    new ProjectFileType("CODE", "Code", "groovy"),
     new ProjectFileType("PROPERTIES", "Properties", "properties"),
     new ProjectFileType("OPENAPI", "OpenAPI", "json"),
     new ProjectFileType("OPENAPI", "OpenAPI", "yaml"),

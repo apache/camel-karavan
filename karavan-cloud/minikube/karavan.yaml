@@ -7,4 +7,4 @@ spec:
   instances: 1
   auth: public
   type: dev
-  nodePort: 37777
+  nodePort: 30777
