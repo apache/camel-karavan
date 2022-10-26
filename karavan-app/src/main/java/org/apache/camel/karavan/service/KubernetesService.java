@@ -108,14 +108,15 @@ public class KubernetesService {
         Optional<KaravanConfiguration.Environment> env = config.environments().stream()
                 .filter(environment -> environment.name().equals("dev")).findFirst();
         if (env.isPresent()) {
+            String labelName = isOpenshift() ? "app.openshift.io/runtime" : "app.kubernetes.io/runtime";
             try {
-                watches.add(kubernetesClient().apps().deployments().inNamespace(currentNamespace).withLabel("app.openshift.io/runtime", "camel")
+                watches.add(kubernetesClient().apps().deployments().inNamespace(currentNamespace).withLabel(labelName, "camel")
                         .watch(new DeploymentWatcher(infinispanService, this)));
             } catch (Exception e) {
                 LOGGER.error(e.getMessage());
             }
             try {
-                watches.add(kubernetesClient().pods().inNamespace(currentNamespace).withLabel("app.openshift.io/runtime", "camel")
+                watches.add(kubernetesClient().pods().inNamespace(currentNamespace).withLabel(labelName, "camel")
                         .watch(new PodWatcher(infinispanService, this)));
             } catch (Exception e){
                 LOGGER.error(e.getMessage());
@@ -354,7 +355,7 @@ public class KubernetesService {
     public List<String> getProjectImageTags(String projectId, String namespace) {
         List<String> result = new ArrayList<>();
         try {
-            if (kubernetesClient().isAdaptable(OpenShiftClient.class)) {
+            if (isOpenshift()) {
                 ImageStream is = openshiftClient().imageStreams().inNamespace(namespace).withName(projectId).get();
                 if (is != null) {
                     result.addAll(is.getSpec().getTags().stream().map(t -> t.getName()).sorted(Comparator.reverseOrder()).collect(Collectors.toList()));
@@ -370,6 +371,10 @@ public class KubernetesService {
 
     public Secret getKaravanSecret() {
         return kubernetesClient().secrets().inNamespace(currentNamespace).withName("karavan").get();
+    }
+
+    public boolean isOpenshift() {
+        return kubernetesClient().isAdaptable(OpenShiftClient.class);
     }
 
     public boolean inKubernetes() {
