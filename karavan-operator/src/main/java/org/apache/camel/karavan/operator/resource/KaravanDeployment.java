@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.operator.resource;
 
+import io.fabric8.kubernetes.api.model.EmptyDirVolumeSource;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.EnvVarSourceBuilder;
 import io.fabric8.kubernetes.api.model.ObjectFieldSelector;
@@ -114,10 +115,16 @@ public class KaravanDeployment extends CRUDKubernetesDependentResource<Deploymen
                             .withName(Constants.NAME)
                         .endPort()
                         .withResources(new ResourceRequirementsBuilder().withRequests(Map.of("memory", new Quantity("2048Mi"))).build())
-                        .withVolumeMounts(new VolumeMountBuilder().withName("karavan-data").withMountPath("/deployments/karavan-data").build())
+                        .withVolumeMounts(
+                                new VolumeMountBuilder().withName("karavan-data").withMountPath("/deployments/karavan-data").build(),
+                                new VolumeMountBuilder().withName("ephemeral").withMountPath("/tmp").build()
+                        )
                     .endContainer()
                 .withServiceAccount(Constants.NAME)
-                .withVolumes(new VolumeBuilder().withName("karavan-data").withPersistentVolumeClaim(new PersistentVolumeClaimVolumeSource("karavan-data", false)).build())
+                .withVolumes(
+                        new VolumeBuilder().withName("karavan-data").withPersistentVolumeClaim(new PersistentVolumeClaimVolumeSource("karavan-data", false)).build(),
+                        new VolumeBuilder().withName("ephemeral").withEmptyDir(new EmptyDirVolumeSource()).build()
+                )
                 .endSpec()
                 .endTemplate()
                 .endSpec()
