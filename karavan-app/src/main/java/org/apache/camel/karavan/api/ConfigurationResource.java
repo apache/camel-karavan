@@ -16,7 +16,7 @@
  */
 package org.apache.camel.karavan.api;
 
-import org.apache.camel.karavan.model.KaravanConfiguration;
+import org.apache.camel.karavan.service.InfinispanService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.inject.Inject;
@@ -34,8 +34,14 @@ public class ConfigurationResource {
     @ConfigProperty(name = "karavan.version")
     String version;
 
+    @ConfigProperty(name = "karavan.environment")
+    String environment;
+
+    @ConfigProperty(name = "karavan.config.runtime")
+    String runtime;
+
     @Inject
-    KaravanConfiguration configuration;
+    InfinispanService infinispanService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -43,10 +49,9 @@ public class ConfigurationResource {
         return Response.ok(
                 Map.of(
                         "version", version,
-                        "environments", configuration.environments().stream()
-                                        .filter(e -> e.active())
-                                .map(e -> e.name()).collect(Collectors.toList()),
-                        "runtime", configuration.runtime()
+                        "environment", environment,
+                        "environments", infinispanService.getEnvironments().stream().map(e -> e.getName()).collect(Collectors.toList()),
+                        "runtime", runtime
                 )
         ).build();
     }

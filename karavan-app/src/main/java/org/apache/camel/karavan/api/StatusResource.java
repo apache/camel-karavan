@@ -19,7 +19,6 @@ package org.apache.camel.karavan.api;
 import io.vertx.core.eventbus.EventBus;
 import org.apache.camel.karavan.model.CamelStatus;
 import org.apache.camel.karavan.model.DeploymentStatus;
-import org.apache.camel.karavan.model.KaravanConfiguration;
 import org.apache.camel.karavan.model.PipelineStatus;
 import org.apache.camel.karavan.service.InfinispanService;
 import org.apache.camel.karavan.service.StatusService;
@@ -27,7 +26,6 @@ import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -59,9 +57,9 @@ public class StatusResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/deployment/{projectId}")
-    public Response getDeploymentStatus(@PathParam("projectId") String projectId) {
-        DeploymentStatus status = infinispanService.getDeploymentStatus(projectId);
+    @Path("/deployment/{name}/{env}")
+    public Response getDeploymentStatus(@PathParam("name") String name, @PathParam("env") String env) {
+        DeploymentStatus status = infinispanService.getDeploymentStatus(name, env);
         if (status != null) {
             return Response.ok(status).build();
         } else {

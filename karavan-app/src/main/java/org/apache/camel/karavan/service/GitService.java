@@ -76,7 +76,7 @@ public class GitService {
         String propertiesPrefix = "karavan." + name + "-";
         String branch = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-branch", String.class);
         if (kubernetesService.inKubernetes()){
-            LOGGER.info("inKubernetes " + kubernetesService.currentNamespace);
+            LOGGER.info("inKubernetes " + kubernetesService.getNamespace());
             String kubernetesPrefix = name + "-";
             Secret secret =  kubernetesService.getKaravanSecret();
             String uri = new String(Base64.getDecoder().decode(secret.getData().get(kubernetesPrefix + "git-repository").getBytes(StandardCharsets.UTF_8)));

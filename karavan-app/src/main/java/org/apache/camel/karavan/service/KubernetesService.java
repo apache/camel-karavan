@@ -40,9 +40,7 @@ import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.model.DeploymentStatus;
-import org.apache.camel.karavan.model.KaravanConfiguration;
 import org.apache.camel.karavan.model.PipelineRunLog;
-import org.apache.camel.karavan.model.PodStatus;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.watcher.DeploymentWatcher;
 import org.apache.camel.karavan.watcher.PipelineRunWatcher;
@@ -61,22 +59,17 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.service.KaravanService.START_WATCHERS;
 
 @ApplicationScoped
 public class KubernetesService {
 
+    private static final Logger LOGGER = Logger.getLogger(KubernetesService.class.getName());
+    public static final String START_WATCHERS = "start-watchers";
+
     @Inject
     EventBus eventBus;
-
-    @ConfigProperty(name = "kubernetes.namespace", defaultValue = "localhost")
-    String currentNamespace;
-
-    @Inject
-    KaravanConfiguration config;
 
     @Inject
     InfinispanService infinispanService;
@@ -96,36 +89,33 @@ public class KubernetesService {
         return kubernetesClient().adapt(OpenShiftClient.class);
     }
 
-    private static final Logger LOGGER = Logger.getLogger(KubernetesService.class.getName());
+    @ConfigProperty(name = "karavan.environment")
+    public
+    String environment;
 
     private List<Watch> watches = new ArrayList<>();
 
     @ConsumeEvent(value = START_WATCHERS, blocking = true)
     void start(String data) {
         LOGGER.info("Start KubernetesService");
-        Optional<KaravanConfiguration.Environment> env = config.environments().stream()
-                .filter(environment -> environment.name().equals("dev")).findFirst();
-        if (env.isPresent()) {
-            String labelName = getRuntimeLabel();
-            try {
-                watches.add(kubernetesClient().apps().deployments().inNamespace(currentNamespace).withLabel(labelName, "camel")
-                        .watch(new DeploymentWatcher(infinispanService, this)));
-            } catch (Exception e) {
-                LOGGER.error(e.getMessage());
-            }
-            try {
-                watches.add(kubernetesClient().pods().inNamespace(currentNamespace).withLabel(labelName, "camel")
-                        .watch(new PodWatcher(infinispanService, this)));
-            } catch (Exception e){
-                LOGGER.error(e.getMessage());
-            }
-            try {
-                watches.add(tektonClient().v1beta1().pipelineRuns().inNamespace(currentNamespace)
-                        .watch(new PipelineRunWatcher(infinispanService)));
-            } catch (Exception e) {
-                LOGGER.error(e.getMessage());
-            }
-
+        String labelName = getRuntimeLabel();
+        try {
+            watches.add(kubernetesClient().apps().deployments().inNamespace(getNamespace()).withLabel(labelName, "camel")
+                    .watch(new DeploymentWatcher(infinispanService, this)));
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+        try {
+            watches.add(kubernetesClient().pods().inNamespace(getNamespace()).withLabel(labelName, "camel")
+                    .watch(new PodWatcher(infinispanService, this)));
+        } catch (Exception e){
+            LOGGER.error(e.getMessage());
+        }
+        try {
+            watches.add(tektonClient().v1beta1().pipelineRuns().inNamespace(getNamespace())
+                    .watch(new PipelineRunWatcher(infinispanService, this)));
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -242,49 +232,27 @@ public class KubernetesService {
         }
     }
 
-    public DeploymentStatus getDeploymentStatus(String name, Deployment deployment) {
-        try {
-            String dsImage = deployment.getSpec().getTemplate().getSpec().getContainers().get(0).getImage();
-            String imageName = dsImage.startsWith("image-registry.openshift-image-registry.svc")
-                    ? dsImage.replace("image-registry.openshift-image-registry.svc:5000/", "")
-                    : dsImage;
 
-            List<PodStatus> podStatuses = getDeploymentPodsStatuses(name, deployment.getMetadata().getNamespace());
-
-            return new DeploymentStatus(
-                    name,
-                    imageName,
-                    deployment.getSpec().getReplicas(),
-                    deployment.getStatus().getReadyReplicas(),
-                    deployment.getStatus().getUnavailableReplicas(),
-                    podStatuses
-            );
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage());
-            return new DeploymentStatus(name);
-        }
-    }
-
-    public List<PodStatus> getDeploymentPodsStatuses(String name, String namespace) {
-        try {
-            String labelName = getRuntimeLabel();
-            List<Pod> pods = kubernetesClient().pods().inNamespace(namespace)
-                    .withLabel("app.kubernetes.io/name", name)
-                    .withLabel(labelName, "camel")
-                    .list().getItems();
-
-            return pods.stream().map(pod -> new PodStatus(
-                    pod.getMetadata().getName(),
-                    pod.getStatus().getContainerStatuses().get(0).getStarted(),
-                    pod.getStatus().getContainerStatuses().get(0).getReady(),
-                    getPodReason(pod),
-                    pod.getMetadata().getLabels().get("app.kubernetes.io/name")
-            )).collect(Collectors.toList());
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage());
-            return List.of();
-        }
-    }
+//    public List<PodStatus> getDeploymentPodsStatuses(String name, String namespace) {
+//        try {
+//            String labelName = getRuntimeLabel();
+//            List<Pod> pods = kubernetesClient().pods().inNamespace(namespace)
+//                    .withLabel("app.kubernetes.io/name", name)
+//                    .withLabel(labelName, "camel")
+//                    .list().getItems();
+//
+//            return pods.stream().map(pod -> new PodStatus(
+//                    pod.getMetadata().getName(),
+//                    pod.getStatus().getContainerStatuses().get(0).getStarted(),
+//                    pod.getStatus().getContainerStatuses().get(0).getReady(),
+//                    getPodReason(pod),
+//                    pod.getMetadata().getLabels().get("app.kubernetes.io/name")
+//            )).collect(Collectors.toList());
+//        } catch (Exception ex) {
+//            LOGGER.error(ex.getMessage());
+//            return List.of();
+//        }
+//    }
 
     public Deployment getDeployment(String name, String namespace) {
         try {
@@ -370,7 +338,7 @@ public class KubernetesService {
     }
 
     public Secret getKaravanSecret() {
-        return kubernetesClient().secrets().inNamespace(currentNamespace).withName("karavan").get();
+        return kubernetesClient().secrets().inNamespace(getNamespace()).withName("karavan").get();
     }
 
     public String getRuntimeLabel() {
@@ -381,7 +349,14 @@ public class KubernetesService {
         return kubernetesClient().isAdaptable(OpenShiftClient.class);
     }
 
+    public String getCluster() {
+        return kubernetesClient().getMasterUrl().getHost();
+    }
+    public String getNamespace() {
+        return kubernetesClient().getNamespace();
+    }
+
     public boolean inKubernetes() {
-        return !Objects.equals(currentNamespace, "localhost");
+        return !Objects.equals(getNamespace(), "localhost");
     }
 }

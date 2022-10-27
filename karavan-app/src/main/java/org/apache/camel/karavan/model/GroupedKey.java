@@ -3,8 +3,6 @@ package org.apache.camel.karavan.model;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
-import java.util.Objects;
-
 public class GroupedKey {
 
 

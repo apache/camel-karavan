@@ -17,8 +17,6 @@ public class Project {
     Project.CamelRuntime runtime;
     @ProtoField(number = 5)
     String lastCommit;
-    @ProtoField(number = 6)
-    Boolean deployed;
 
     public enum CamelRuntime {
         @ProtoEnumValue(number = 0, name = "Quarkus")
@@ -30,13 +28,12 @@ public class Project {
     }
 
     @ProtoFactory
-    public Project(String projectId, String name, String description, CamelRuntime runtime, String lastCommit, Boolean deployed) {
+    public Project(String projectId, String name, String description, CamelRuntime runtime, String lastCommit) {
         this.projectId = projectId;
         this.name = name;
         this.description = description;
         this.runtime = runtime;
         this.lastCommit = lastCommit;
-        this.deployed = deployed;
     }
 
     public Project(String projectId, String name, String description, CamelRuntime runtime) {
@@ -89,11 +86,4 @@ public class Project {
         this.lastCommit = lastCommit;
     }
 
-    public Boolean getDeployed() {
-        return deployed;
-    }
-
-    public void setDeployed(Boolean deployed) {
-        this.deployed = deployed;
-    }
 }

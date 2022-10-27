@@ -25,12 +25,12 @@ public class PodWatcher implements Watcher<Pod> {
     public void eventReceived(Action action, Pod pod) {
         LOGGER.info(action.name() + " " + pod.getMetadata().getName());
         String name = pod.getMetadata().getLabels().get("app.kubernetes.io/name");
-        Project project = infinispanService.getProject(name);
-        Deployment deployment = kubernetesService.getDeployment(name, pod.getMetadata().getNamespace());
-        if (project != null && deployment != null) {
-            DeploymentStatus s = kubernetesService.getDeploymentStatus(project.getProjectId(), deployment);
-            infinispanService.saveDeploymentStatus(s);
-        }
+//        Project project = infinispanService.getProject(name);
+//        Deployment deployment = kubernetesService.getDeployment(name, pod.getMetadata().getNamespace());
+//        if (project != null && deployment != null) {
+//            DeploymentStatus s = kubernetesService.getDeploymentStatus(project.getProjectId(), deployment);
+//            infinispanService.saveDeploymentStatus(s);
+//        }
     }
 
     @Override

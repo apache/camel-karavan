@@ -6,6 +6,7 @@ import io.fabric8.tekton.pipeline.v1beta1.PipelineRun;
 import org.apache.camel.karavan.model.PipelineStatus;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.service.InfinispanService;
+import org.apache.camel.karavan.service.KubernetesService;
 import org.jboss.logging.Logger;
 
 import java.time.Instant;
@@ -15,9 +16,11 @@ public class PipelineRunWatcher implements Watcher<PipelineRun> {
 
     private static final Logger LOGGER = Logger.getLogger(PipelineRunWatcher.class.getName());
     private InfinispanService infinispanService;
+    private KubernetesService kubernetesService;
 
-    public PipelineRunWatcher(InfinispanService infinispanService) {
+    public PipelineRunWatcher(InfinispanService infinispanService, KubernetesService kubernetesService) {
         this.infinispanService = infinispanService;
+        this.kubernetesService = kubernetesService;
     }
 
     @Override
@@ -28,7 +31,7 @@ public class PipelineRunWatcher implements Watcher<PipelineRun> {
             Project project = infinispanService.getProject(projectId);
             if (project != null && List.of("MODIFIED", "ADDED").contains(action.name())) {
                 PipelineStatus pipelineStatus = infinispanService.getPipelineStatus(projectId);
-                if (pipelineStatus == null) pipelineStatus = new PipelineStatus(project.getProjectId());
+                if (pipelineStatus == null) pipelineStatus = new PipelineStatus(project.getProjectId(), kubernetesService.environment);
 
                 if (pipelineRun.getStatus() != null) {
                     LOGGER.info(action.name()+ " " + pipelineRun.getMetadata().getName() + " " + pipelineRun.getStatus().getConditions().get(0).getReason());

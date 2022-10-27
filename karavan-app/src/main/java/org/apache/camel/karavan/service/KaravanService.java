@@ -17,119 +17,57 @@
 package org.apache.camel.karavan.service;
 
 import io.quarkus.runtime.StartupEvent;
-import io.quarkus.vertx.ConsumeEvent;
-import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.eventbus.EventBus;
-import org.apache.camel.karavan.model.KaravanConfiguration;
-import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.model.ProjectFile;
+import org.apache.camel.karavan.model.Environment;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class KaravanService {
 
     private static final Logger LOGGER = Logger.getLogger(KaravanService.class.getName());
-    public static final String START_WATCHERS = "start-watchers";
-    public static final String IMPORT_PROJECTS = "import-projects";
-    public static final String LOAD_CUSTOM_KAMELETS = "load-custom-kamelets";
 
     @Inject
     InfinispanService infinispanService;
 
     @Inject
-    GitService gitService;
-
-    @ConfigProperty(name = "karavan.config.runtime")
-    String runtime;
+    KubernetesService kubernetesService;
 
     @Inject
-    KaravanConfiguration configuration;
+    EventBus bus;
+
+    @ConfigProperty(name = "karavan.environment")
+    String environment;
+
+    @ConfigProperty(name = "karavan.pipeline")
+    String pipeline;
 
     void onStart(@Observes StartupEvent ev) {
         infinispanService.start();
+        setEnvironment();
+        initialImport();
+        startInformers();
     }
 
-    @ConsumeEvent(value = IMPORT_PROJECTS, blocking = true)
-    void importProjects(String data) {
-        LOGGER.info("Import projects from Git");
-        try {
-            List<Tuple2<String, Map<String, String>>> repo = gitService.readProjectsFromRepository();
-            repo.forEach(p -> {
-                String folderName = p.getItem1();
-                String name = Arrays.stream(folderName.split("-")).map(s -> capitalize(s)).collect(Collectors.joining(" "));
-                Project project = new Project(folderName, name, name, Project.CamelRuntime.valueOf(runtime.toUpperCase()), "", false);
-                infinispanService.saveProject(project);
+    void setEnvironment() {
+        String cluster = kubernetesService.getCluster();
+        String namespace = kubernetesService.getNamespace();
+        infinispanService.saveEnvironment(new Environment(environment, cluster, namespace, pipeline));
+    }
 
-                AtomicReference<ProjectFile> properties = new AtomicReference<>();
-                p.getItem2().forEach((key, value) -> {
-                    ProjectFile file = new ProjectFile(key, value, folderName);
-                    infinispanService.saveProjectFile(file);
-                    if (isApplicationProperties(file)) {
-                        properties.set(file);
-                    }
-                });
-                // update project
-                if (properties != null){
-                    project.setDescription(getProjectDescription(properties.get()));
-                    project.setName(getProjectName(properties.get()));
-                    infinispanService.saveProject(project);
-                }
-
-            });
-        } catch (Exception e) {
-            LOGGER.error("Error during project import", e);
+    void initialImport() {
+        if (infinispanService.getProjects().isEmpty()) {
+            LOGGER.info("No projects found in the Data Grid");
+            bus.publish(ImportService.IMPORT_PROJECTS, "");
         }
-        loadCustomKamelets("");
+        bus.publish(ImportService.IMPORT_KAMELETS, "");
     }
 
-    @ConsumeEvent(value = LOAD_CUSTOM_KAMELETS, blocking = true)
-    void loadCustomKamelets(String data) {
-        LOGGER.info("Load custom Kamelets from Git");
-        try {
-            List<Tuple2<String, String>> repo = gitService.readKameletsFromRepository();
-            repo.forEach(p -> {
-                String name = p.getItem1();
-                String yaml = p.getItem2();
-                infinispanService.saveKamelet(name, yaml);
-            });
-        } catch (Exception e) {
-            LOGGER.error("Error during project import", e);
-        }
-    }
-
-    private static String capitalize(String str) {
-        if(str == null || str.isEmpty()) {
-            return str;
-        }
-        return str.substring(0, 1).toUpperCase() + str.substring(1);
-    }
-
-    private static boolean isApplicationProperties(ProjectFile file) {
-        return file.getName().equalsIgnoreCase("application.properties");
-    }
-
-    private static String getProperty(ProjectFile file, String property) {
-        String prefix = property + "=";
-        return  Arrays.stream(file.getCode().split(System.lineSeparator())).filter(s -> s.startsWith(prefix))
-                .findFirst().orElseGet(() -> "")
-                .replace(prefix, "");
-    }
-
-    private static String getProjectDescription(ProjectFile file) {
-        return getProperty(file, "camel.jbang.project-description");
-    }
-
-    private static String getProjectName(ProjectFile file) {
-        return getProperty(file, "camel.jbang.project-name");
+    void startInformers() {
+        bus.publish(KubernetesService.START_WATCHERS, "");
     }
 }

@@ -17,27 +17,28 @@
 package org.apache.camel.karavan.api;
 
 import io.smallrye.mutiny.Multi;
-import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
-import org.apache.camel.karavan.model.KaravanConfiguration;
+import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.service.InfinispanService;
 import org.apache.camel.karavan.service.KubernetesService;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Optional;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/api/kubernetes")
 public class KubernetesResource {
@@ -51,162 +52,124 @@ public class KubernetesResource {
     @Inject
     KubernetesService kubernetesService;
 
-    @Inject
-    KaravanConfiguration configuration;
+    @ConfigProperty(name = "karavan.environment")
+    String environment;
+
+    @ConfigProperty(name = "karavan.pipeline")
+    String pipeline;
+
 
     private static final Logger LOGGER = Logger.getLogger(KubernetesResource.class.getName());
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/pipeline/{environment}")
-    public Project createPipeline(@PathParam("environment") String environment, Project project) throws Exception {
+    @Path("/pipeline/{env}")
+    public Project createPipeline(@PathParam("env") String env, Project project) throws Exception {
         Project p = infinispanService.getProject(project.getProjectId());
-        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
-        if (env.isPresent()) {
-            kubernetesService.createPipelineRun(project, env.get().pipeline(), env.get().namespace());
-            p.setDeployed(true); // TODO:  Replace this update by updating from Pipeline
-            infinispanService.saveProject(p); // TODO:  Replace this update by updating from Pipeline
-        }
+        kubernetesService.createPipelineRun(project, pipeline, kubernetesService.getNamespace());
+//            p.setDeployed(true); // TODO:  Replace this update by updating from Pipeline
+//        infinispanService.saveProject(p); // TODO:  Replace this update by updating from Pipeline
         return p;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/pipeline/{environment}/{name}")
-    public Response getPipeline(@PathParam("environment") String environment,
-                        @PathParam("name") String name) throws Exception {
-        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
-        if (env.isPresent()) {
-            return Response.ok(kubernetesService.getPipelineRun(name, env.get().namespace())).build();
-        } else {
-            return Response.noContent().build();
-        }
+    @Path("/pipeline/{env}/{name}")
+    public Response getPipeline(@PathParam("env") String env,
+                                @PathParam("name") String name) throws Exception {
+        return Response.ok(kubernetesService.getPipelineRun(name, kubernetesService.getNamespace())).build();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/pipeline/log/{environment}/{name}")
-    public Response getPipelineLog(@PathParam("environment") String environment,
-                        @PathParam("name") String name) throws Exception {
-        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
-        if (env.isPresent()) {
-            return Response.ok(kubernetesService.getPipelineRunLog(name, env.get().namespace())).build();
-        } else {
-            return Response.noContent().build();
-        }
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/container/log/{environment}/{name}")
-    public Response getContainerLog(@PathParam("environment") String environment,
+    @Path("/pipeline/log/{env}/{name}")
+    public Response getPipelineLog(@PathParam("env") String env,
                                    @PathParam("name") String name) throws Exception {
-        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
-        if (env.isPresent()) {
-            return Response.ok(kubernetesService.getContainerLog(name, env.get().namespace())).build();
-        } else {
-            return Response.noContent().build();
-        }
+        return Response.ok(kubernetesService.getPipelineRunLog(name, kubernetesService.getNamespace())).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/container/log/{env}/{name}")
+    public Response getContainerLog(@PathParam("env") String env,
+                                    @PathParam("name") String name) throws Exception {
+        return Response.ok(kubernetesService.getContainerLog(name, kubernetesService.getNamespace())).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/deployment/")
+    public List<DeploymentStatus> getAll() throws Exception {
+        return infinispanService.getDeploymentStatuses().stream()
+                .sorted(Comparator.comparing(DeploymentStatus::getName))
+                .collect(Collectors.toList());
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/deployment/rollout/{environment}/{name}")
-    public Response rollout(@PathParam("environment") String environment, @PathParam("name") String name) throws Exception {
-        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
-        if (env.isPresent()) {
-            kubernetesService.rolloutDeployment(name, env.get().namespace());
-            return Response.ok().build();
-        }
-        return Response.noContent().build();
+    @Path("/deployment/rollout/{env}/{name}")
+    public Response rollout(@PathParam("env") String env, @PathParam("name") String name) throws Exception {
+        kubernetesService.rolloutDeployment(name, kubernetesService.getNamespace());
+        return Response.ok().build();
     }
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/deployment/{environment}/{name}")
-    public Response deleteDeployment(@PathParam("environment") String environment, @PathParam("name") String name) throws Exception {
-        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
-        if (env.isPresent()) {
-            kubernetesService.deleteDeployment(name, env.get().namespace());
+    @Path("/deployment/{env}/{name}")
+    public Response deleteDeployment(@PathParam("env") String env, @PathParam("name") String name) throws Exception {
+        kubernetesService.deleteDeployment(name, kubernetesService.getNamespace());
 //            Project p = infinispanService.getProject(name); // TODO: p.setDeployed(false) than karavan keeps pod/camel statuses up forever
 //            p.setDeployed(false);
 //            infinispanService.saveProject(p);
-            return Response.ok().build();
-        }
-        return Response.noContent().build();
+        return Response.ok().build();
     }
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/pod/{environment}/{name}")
-    public Response deletePod(@PathParam("environment") String environment, @PathParam("name") String name) throws Exception {
-        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
-        if (env.isPresent()) {
-            kubernetesService.deletePod(name, env.get().namespace());
-            return Response.ok().build();
-        }
-        return Response.noContent().build();
+    @Path("/pod/{env}/{name}")
+    public Response deletePod(@PathParam("env") String env, @PathParam("name") String name) throws Exception {
+        kubernetesService.deletePod(name, kubernetesService.getNamespace());
+        return Response.ok().build();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/imagetag/{environment}/{projectId}")
-    public Response getProjectImageTags(@PathParam("environment") String environment, @PathParam("projectId") String projectId) throws Exception {
-        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
-        if (env.isPresent()) {
-            return Response.ok(kubernetesService.getProjectImageTags(projectId, env.get().namespace())).build();
-        }
-        return Response.noContent().build();
+    @Path("/imagetag/{env}/{projectId}")
+    public Response getProjectImageTags(@PathParam("env") String env, @PathParam("projectId") String projectId) throws Exception {
+        return Response.ok(kubernetesService.getProjectImageTags(projectId, kubernetesService.getNamespace())).build();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/configmap/{environment}")
-    public Response getConfigMaps(@PathParam("environment") String environment) throws Exception {
-        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
-        if (env.isPresent()) {
-            return Response.ok(kubernetesService.getConfigMaps(env.get().namespace())).build();
-        }
-        return Response.noContent().build();
+    @Path("/configmap/{env}")
+    public Response getConfigMaps(@PathParam("env") String env) throws Exception {
+        return Response.ok(kubernetesService.getConfigMaps(kubernetesService.getNamespace())).build();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/secret/{environment}")
-    public Response getSecrets(@PathParam("environment") String environment) throws Exception {
-        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
-        if (env.isPresent()) {
-            return Response.ok(kubernetesService.getSecrets(env.get().namespace())).build();
-        }
-        return Response.noContent().build();
+    @Path("/secret/{env}")
+    public Response getSecrets(@PathParam("env") String env) throws Exception {
+        return Response.ok(kubernetesService.getSecrets(kubernetesService.getNamespace())).build();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/service/{environment}")
-    public Response getServices(@PathParam("environment") String environment) throws Exception {
-        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
-        if (env.isPresent()) {
-            return Response.ok(kubernetesService.getServices(env.get().namespace())).build();
-        }
-        return Response.noContent().build();
+    @Path("/service/{env}")
+    public Response getServices(@PathParam("env") String env) throws Exception {
+        return Response.ok(kubernetesService.getServices(kubernetesService.getNamespace())).build();
     }
 
     // TODO: implement log watch
     @GET
-    @Path("/container/log/watch/{environment}/{name}")
+    @Path("/container/log/watch/{env}/{name}")
     @Produces(MediaType.SERVER_SENT_EVENTS)
-    public Multi<String> getContainerLogWatch(@PathParam("environment") String environment, @PathParam("name") String name){
+    public Multi<String> getContainerLogWatch(@PathParam("env") String env, @PathParam("name") String name) {
         LOGGER.info("Start sourcing");
-        Optional<KaravanConfiguration.Environment> env = configuration.environments().stream().filter(e -> e.name().equals(environment)).findFirst();
-        if (env.isPresent()) {
-//            eventBus.publish(podName + "-" + namespace, new String(is.readNBytes(i)));
-//            kubernetesService.startContainerLogWatch(name, env.get().namespace());
-        }
-        return eventBus.<String>consumer(name + "-" + env.get().namespace()).toMulti().map(Message::body);
+        return eventBus.<String>consumer(name + "-" + kubernetesService.getNamespace()).toMulti().map(Message::body);
     }
 }

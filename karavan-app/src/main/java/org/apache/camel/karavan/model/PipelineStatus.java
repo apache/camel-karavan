@@ -15,21 +15,22 @@ public class PipelineStatus {
     String startTime;
     @ProtoField(number = 6)
     String completionTime;
+    @ProtoField(number = 7)
+    String env;
 
     @ProtoFactory
-    public PipelineStatus(String projectId, String pipelineName, String result, String startTime, String completionTime) {
+    public PipelineStatus(String projectId, String pipelineName, String result, String startTime, String completionTime, String env) {
         this.projectId = projectId;
         this.pipelineName = pipelineName;
         this.result = result;
         this.startTime = startTime;
         this.completionTime = completionTime;
+        this.env = env;
     }
 
-    public PipelineStatus(String projectId) {
+    public PipelineStatus(String projectId, String env) {
         this.projectId = projectId;
-    }
-
-    public PipelineStatus() {
+        this.env = env;
     }
 
     public String getProjectId() {
@@ -70,5 +71,13 @@ public class PipelineStatus {
 
     public void setCompletionTime(String completionTime) {
         this.completionTime = completionTime;
+    }
+
+    public String getEnv() {
+        return env;
+    }
+
+    public void setEnv(String env) {
+        this.env = env;
     }
 }

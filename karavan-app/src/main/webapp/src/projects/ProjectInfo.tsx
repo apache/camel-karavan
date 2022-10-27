@@ -85,7 +85,7 @@ export class ProjectInfo extends React.Component<Props, State> {
                 this.setState({key: Math.random().toString(), pipelineStatus: status});
                 // console.log(status);
             });
-            KaravanApi.getProjectDeploymentStatus(this.props.project.projectId, (status: DeploymentStatus) => {
+            KaravanApi.getProjectDeploymentStatus(this.props.project.projectId, this.state.environment, (status: DeploymentStatus) => {
                 this.setState({key: Math.random().toString(), deploymentStatus: status});
                 // console.log(status);
             });

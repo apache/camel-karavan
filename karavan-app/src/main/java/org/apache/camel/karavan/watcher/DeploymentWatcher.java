@@ -26,29 +26,42 @@ public class DeploymentWatcher implements Watcher<Deployment> {
     @Override
     public void eventReceived(Watcher.Action action, Deployment deployment) {
         LOGGER.info(action.name() + " " + deployment.getMetadata().getName());
-        Project project = infinispanService.getProject(deployment.getMetadata().getName());
-        if (project != null) {
-            switch (action.name()) {
-                case "ADDED":
-                    project.setDeployed(true);
-                    infinispanService.saveProject(project);
-                    DeploymentStatus s = kubernetesService.getDeploymentStatus(project.getProjectId(), deployment);
-                    infinispanService.saveDeploymentStatus(s);
-                    break;
-                case "MODIFIED":
-                    if (!project.getDeployed()) {
-                        project.setDeployed(true);
-                        infinispanService.saveProject(project);
-                    }
-                    DeploymentStatus ds = kubernetesService.getDeploymentStatus(project.getProjectId(), deployment);
-                    infinispanService.saveDeploymentStatus(ds);
-                    break;
-                case "DELETED":
-                    project.setDeployed(false);
-                    infinispanService.saveProject(project);
-                    infinispanService.saveDeploymentStatus(new DeploymentStatus(project.getProjectId()));
-                    break;
-            }
+        DeploymentStatus ds = getDeploymentStatus(deployment);
+        switch (action.name()) {
+            case "ADDED":
+                infinispanService.saveDeploymentStatus(ds);
+                break;
+            case "MODIFIED":
+                infinispanService.saveDeploymentStatus(ds);
+                break;
+            case "DELETED":
+                infinispanService.deleteDeploymentStatus(ds);
+                break;
+        }
+    }
+
+    public DeploymentStatus getDeploymentStatus(Deployment deployment) {
+        try {
+            String dsImage = deployment.getSpec().getTemplate().getSpec().getContainers().get(0).getImage();
+            String imageName = dsImage.startsWith("image-registry.openshift-image-registry.svc")
+                    ? dsImage.replace("image-registry.openshift-image-registry.svc:5000/", "")
+                    : dsImage;
+
+            return new DeploymentStatus(
+                    deployment.getMetadata().getName(),
+                    deployment.getMetadata().getNamespace(),
+                    kubernetesService.environment,
+                    imageName,
+                    deployment.getSpec().getReplicas(),
+                    deployment.getStatus().getReadyReplicas(),
+                    deployment.getStatus().getUnavailableReplicas()
+            );
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+            return new DeploymentStatus(
+                    deployment.getMetadata().getName(),
+                    deployment.getMetadata().getNamespace(),
+                    kubernetesService.environment);
         }
     }
 

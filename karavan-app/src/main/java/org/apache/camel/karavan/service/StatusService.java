@@ -24,7 +24,7 @@ import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.apache.camel.karavan.model.CamelStatus;
-import org.apache.camel.karavan.model.KaravanConfiguration;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -45,8 +45,8 @@ public class StatusService {
     @Inject
     KubernetesService kubernetesService;
 
-    @Inject
-    KaravanConfiguration configuration;
+    @ConfigProperty(name = "karavan.camel-status-threshold")
+    int threshold;
 
     private long lastCollect = 0;
 
@@ -65,21 +65,18 @@ public class StatusService {
 
     @ConsumeEvent(value = CMD_COLLECT_STATUSES, blocking = true, ordered = true)
     public void collectStatuses(String projectId) throws Exception {
-        if ((System.currentTimeMillis() - lastCollect) > configuration.statusThreshold()) {
+        if ((System.currentTimeMillis() - lastCollect) > threshold) {
             collectStatusesForProject(projectId);
             lastCollect = System.currentTimeMillis();
         }
     }
 
     private void collectStatusesForProject(String projectId) {
-        configuration.environments().stream().filter(e -> e.active()).forEach(e -> {
-            String url = ProfileManager.getActiveProfile().equals("dev")
-                    ? String.format("http://%s-%s.%s/q/health", projectId, e.namespace(), e.cluster())
-                    : String.format("http://%s.%s.%s/q/health", projectId, e.namespace(), e.cluster());
-            CamelStatus cs = getCamelStatus(projectId, url);
-            infinispanService.saveCamelStatus(cs);
-        });
-
+        String url = ProfileManager.getActiveProfile().equals("dev")
+                ? String.format("http://%s-%s.%s/q/health", projectId, kubernetesService.getNamespace(), kubernetesService.getCluster())
+                : String.format("http://%s.%s.%s/q/health", projectId, kubernetesService.getNamespace(), kubernetesService.getCluster());
+        CamelStatus cs = getCamelStatus(projectId, url);
+        infinispanService.saveCamelStatus(cs);
     }
 
     private CamelStatus getCamelStatus(String projectId, String url) {
