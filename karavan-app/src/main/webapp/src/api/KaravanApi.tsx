@@ -1,5 +1,12 @@
 import axios, {AxiosResponse} from "axios";
-import {CamelStatus, DeploymentStatus, PipelineStatus, Project, ProjectFile} from "../projects/ProjectModels";
+import {
+    CamelStatus,
+    DeploymentStatus,
+    PipelineStatus,
+    PodStatus,
+    Project,
+    ProjectFile
+} from "../projects/ProjectModels";
 import {Buffer} from 'buffer';
 import {SsoApi} from "./SsoApi";
 
@@ -316,6 +323,17 @@ export class KaravanApi {
                 after(res);
             }).catch(err => {
             after(err);
+        });
+    }
+
+    static async getProjectPodStatuses(project: string, env: string, after: (statuses: PodStatus[]) => void) {
+        instance.get('/api/kubernetes/pod/' + project + "/" + env)
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
         });
     }
 

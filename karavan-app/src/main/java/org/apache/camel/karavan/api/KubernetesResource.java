@@ -137,6 +137,15 @@ public class KubernetesResource {
                 .collect(Collectors.toList());
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/pod/{projectId}/{env}")
+    public List<PodStatus> getPodStatusesByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) throws Exception {
+        return infinispanService.getPodStatuses(projectId, env).stream()
+                .sorted(Comparator.comparing(PodStatus::getName))
+                .collect(Collectors.toList());
+    }
+
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)

@@ -11,7 +11,7 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
-import {DeploymentStatus, Project, PipelineStatus, CamelStatus} from "./ProjectModels";
+import {DeploymentStatus, Project, PipelineStatus, CamelStatus, PodStatus} from "./ProjectModels";
 import BuildIcon from "@patternfly/react-icons/dist/esm/icons/build-icon";
 import RolloutIcon from "@patternfly/react-icons/dist/esm/icons/process-automation-icon";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
@@ -31,6 +31,7 @@ interface State {
     project?: Project,
     pipelineStatus?: PipelineStatus,
     deploymentStatus?: DeploymentStatus,
+    podStatuses: PodStatus[],
     camelStatus?: CamelStatus,
     isPushing: boolean,
     isBuilding: boolean,
@@ -48,14 +49,14 @@ export class ProjectInfo extends React.Component<Props, State> {
 
     public state: State = {
         project: this.props.project,
+        podStatuses: [],
         isPushing: false,
         isBuilding: false,
         isRolling: false,
         showDeleteConfirmation: false,
         environments: this.props.config.environments && Array.isArray(this.props.config.environments)
             ? Array.from(this.props.config.environments) : [],
-        environment: this.props.config.environments && Array.isArray(this.props.config.environments)
-            ? this.props.config.environments[0] : ''
+        environment: this.props.config.environment
     };
     interval: any;
 
@@ -87,6 +88,10 @@ export class ProjectInfo extends React.Component<Props, State> {
             });
             KaravanApi.getProjectDeploymentStatus(this.props.project.projectId, this.state.environment, (status: DeploymentStatus) => {
                 this.setState({key: Math.random().toString(), deploymentStatus: status});
+                // console.log(status);
+            });
+            KaravanApi.getProjectPodStatuses(this.props.project.projectId, this.state.environment, (statuses: PodStatus[]) => {
+                this.setState({key: Math.random().toString(), podStatuses: statuses});
                 // console.log(status);
             });
             KaravanApi.getProjectCamelStatus(this.props.project.projectId, (status: CamelStatus) => {
@@ -263,34 +268,34 @@ export class ProjectInfo extends React.Component<Props, State> {
     }
 
     getPodsPanel(deploymentStatus: DeploymentStatus, env: string) {
-        // const podStatuses = deploymentStatus.podStatuses;
+        const podStatuses = this.state.podStatuses;
         return (
             <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
                 <FlexItem>
                     <LabelGroup numLabels={3}>
-                        {/*{(podStatuses === undefined || podStatuses.length === 0) && <Label icon={<DownIcon/>} color={"grey"}>No pods</Label>}*/}
-                        {/*{podStatuses.map(pod => {*/}
-                        {/*        const running = pod.started && pod.ready;*/}
-                        {/*        return (*/}
-                        {/*            <Tooltip key={pod.name} content={running ? "Running" : pod.reason}>*/}
-                        {/*                <Label icon={running ? <UpIcon/> : <DownIcon/>} color={running ? "green" : "red"}>*/}
-                        {/*                    <Button variant="link"*/}
-                        {/*                            onClick={e => this.props.showLog?.call(this, 'container', pod.name, env)}>*/}
-                        {/*                        {pod.name}*/}
-                        {/*                    </Button>*/}
-                        {/*                    <Tooltip content={"Delete Pod"}>*/}
-                        {/*                        <Button icon={<DeleteIcon/>} variant="link" onClick={e => this.setState({*/}
-                        {/*                            showDeleteConfirmation: true,*/}
-                        {/*                            deleteEntity: "pod",*/}
-                        {/*                            deleteEntityEnv: env,*/}
-                        {/*                            deleteEntityName: pod.name*/}
-                        {/*                        })}></Button>*/}
-                        {/*                    </Tooltip>*/}
-                        {/*                </Label>*/}
-                        {/*            </Tooltip>*/}
-                        {/*        )*/}
-                        {/*    }*/}
-                        {/*)}*/}
+                        {(podStatuses === undefined || podStatuses.length === 0) && <Label icon={<DownIcon/>} color={"grey"}>No pods</Label>}
+                        {podStatuses.map(pod => {
+                                const running = pod.phase === 'Running'
+                                return (
+                                    <Tooltip key={pod.name} content={running ? "Running" : pod.phase}>
+                                        <Label icon={running ? <UpIcon/> : <DownIcon/>} color={running ? "green" : "red"}>
+                                            <Button variant="link"
+                                                    onClick={e => this.props.showLog?.call(this, 'container', pod.name, env)}>
+                                                {pod.name}
+                                            </Button>
+                                            <Tooltip content={"Delete Pod"}>
+                                                <Button icon={<DeleteIcon/>} variant="link" onClick={e => this.setState({
+                                                    showDeleteConfirmation: true,
+                                                    deleteEntity: "pod",
+                                                    deleteEntityEnv: env,
+                                                    deleteEntityName: pod.name
+                                                })}></Button>
+                                            </Tooltip>
+                                        </Label>
+                                    </Tooltip>
+                                )
+                            }
+                        )}
                     </LabelGroup>
                 </FlexItem>
                 <FlexItem>{env === "dev" && this.rolloutButton()}</FlexItem>
