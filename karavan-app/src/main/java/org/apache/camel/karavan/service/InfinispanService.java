@@ -65,7 +65,7 @@ public class InfinispanService {
     @Inject
     GeneratorService generatorService;
 
-    @ConfigProperty(name = "karavan.config.runtime")
+    @ConfigProperty(name = "karavan.default.runtime")
     String runtime;
 
     private static final String CACHE_CONFIG = "<distributed-cache name=\"%s\">"

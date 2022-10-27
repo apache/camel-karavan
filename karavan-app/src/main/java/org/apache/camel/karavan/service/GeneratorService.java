@@ -30,24 +30,22 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import javax.enterprise.context.ApplicationScoped;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.nio.file.Paths;
 import java.util.Map;
 
 @ApplicationScoped
 public class GeneratorService {
 
-    @ConfigProperty(name = "karavan.config.group-id")
+    @ConfigProperty(name = "karavan.default.group-id")
     String groupId;
 
-    @ConfigProperty(name = "karavan.config.image-group")
+    @ConfigProperty(name = "karavan.default.image-group")
     String imageGroup;
 
-    @ConfigProperty(name = "karavan.config.runtime")
+    @ConfigProperty(name = "karavan.default.runtime")
     String runtime;
 
-    @ConfigProperty(name = "karavan.config.runtime-version")
+    @ConfigProperty(name = "karavan.default.runtime-version")
     String runtimeVersion;
 
     private static final Logger LOGGER = Logger.getLogger(GeneratorService.class.getName());

@@ -44,7 +44,7 @@ public class ImportService {
     @Inject
     GitService gitService;
 
-    @ConfigProperty(name = "karavan.config.runtime")
+    @ConfigProperty(name = "karavan.default.runtime")
     String runtime;
 
     @ConsumeEvent(value = IMPORT_PROJECTS, blocking = true)

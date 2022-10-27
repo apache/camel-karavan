@@ -39,7 +39,6 @@ import io.fabric8.tekton.pipeline.v1beta1.WorkspaceBindingBuilder;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.mutiny.core.eventbus.EventBus;
-import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.PipelineRunLog;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.watcher.DeploymentWatcher;

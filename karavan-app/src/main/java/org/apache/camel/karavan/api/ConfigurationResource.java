@@ -37,7 +37,7 @@ public class ConfigurationResource {
     @ConfigProperty(name = "karavan.environment")
     String environment;
 
-    @ConfigProperty(name = "karavan.config.runtime")
+    @ConfigProperty(name = "karavan.default.runtime")
     String runtime;
 
     @Inject
