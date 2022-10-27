@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.service;
 
+import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import io.vertx.core.eventbus.EventBus;
 import org.apache.camel.karavan.model.Environment;
@@ -47,10 +48,16 @@ public class KaravanService {
     String pipeline;
 
     void onStart(@Observes StartupEvent ev) {
+        LOGGER.info("Start Karavan");
         infinispanService.start();
         setEnvironment();
         initialImport();
         startInformers();
+    }
+
+    void onStop(@Observes ShutdownEvent ev) {
+        LOGGER.info("Stop Karavan");
+        bus.publish(KubernetesService.STOP_INFORMERS, "");
     }
 
     void setEnvironment() {
@@ -68,6 +75,6 @@ public class KaravanService {
     }
 
     void startInformers() {
-        bus.publish(KubernetesService.START_WATCHERS, "");
+        bus.publish(KubernetesService.START_INFORMERS, "");
     }
 }

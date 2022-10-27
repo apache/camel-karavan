@@ -8,29 +8,33 @@ public class PodStatus {
     @ProtoField(number = 1)
     String name;
     @ProtoField(number = 2)
-    Boolean started;
+    String phase;
     @ProtoField(number = 3)
-    Boolean ready;
+    Boolean initialized;
     @ProtoField(number = 4)
-    String reason;
+    Boolean ready;
     @ProtoField(number = 5)
-    String deployment;
+    String reason;
     @ProtoField(number = 6)
+    String deployment;
+    @ProtoField(number = 7)
     String env;
 
-    public PodStatus(String env) {
-        this.name = "";
-        this.started = false;
+    public PodStatus(String name, String deployment, String env) {
+        this.name = name;
+        this.phase = "";
+        this.initialized = false;
         this.ready = false;
         this.reason = "";
-        this.deployment = "";
-        this.env = "";
+        this.deployment = deployment;
+        this.env = env;
     }
 
     @ProtoFactory
-    public PodStatus(String name, Boolean started, Boolean ready, String reason, String deployment, String env) {
+    public PodStatus(String name, String phase, Boolean initialized, Boolean ready, String reason, String deployment, String env) {
         this.name = name;
-        this.started = started;
+        this.phase = phase;
+        this.initialized = initialized;
         this.ready = ready;
         this.reason = reason;
         this.deployment = deployment;
@@ -45,12 +49,20 @@ public class PodStatus {
         this.name = name;
     }
 
-    public Boolean getStarted() {
-        return started;
+    public String getPhase() {
+        return phase;
     }
 
-    public void setStarted(Boolean started) {
-        this.started = started;
+    public void setPhase(String phase) {
+        this.phase = phase;
+    }
+
+    public Boolean getInitialized() {
+        return initialized;
+    }
+
+    public void setInitialized(Boolean initialized) {
+        this.initialized = initialized;
     }
 
     public Boolean getReady() {

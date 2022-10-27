@@ -1,7 +1,6 @@
 package org.apache.camel.karavan.watcher;
 
-import io.fabric8.kubernetes.client.Watcher;
-import io.fabric8.kubernetes.client.WatcherException;
+import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRun;
 import org.apache.camel.karavan.model.PipelineStatus;
 import org.apache.camel.karavan.model.Project;
@@ -10,31 +9,65 @@ import org.apache.camel.karavan.service.KubernetesService;
 import org.jboss.logging.Logger;
 
 import java.time.Instant;
-import java.util.List;
 
-public class PipelineRunWatcher implements Watcher<PipelineRun> {
+public class PipelineRunEventHandler implements ResourceEventHandler<PipelineRun> {
 
-    private static final Logger LOGGER = Logger.getLogger(PipelineRunWatcher.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(PipelineRunEventHandler.class.getName());
     private InfinispanService infinispanService;
     private KubernetesService kubernetesService;
 
-    public PipelineRunWatcher(InfinispanService infinispanService, KubernetesService kubernetesService) {
+    public PipelineRunEventHandler(InfinispanService infinispanService, KubernetesService kubernetesService) {
         this.infinispanService = infinispanService;
         this.kubernetesService = kubernetesService;
     }
 
     @Override
-    public void eventReceived(Action action, PipelineRun pipelineRun) {
-        LOGGER.info(action.name() + " " + pipelineRun.getMetadata().getName());
+    public void onAdd(PipelineRun pipelineRun) {
+        try {
+            LOGGER.info("onAdd " + pipelineRun.getMetadata().getName());
+            PipelineStatus ps = getPipelineStatus(pipelineRun);
+            if (ps != null) infinispanService.savePipelineStatus(ps);
+        } catch (Exception e){
+            LOGGER.error(e.getMessage());
+        }
+    }
+
+    @Override
+    public void onUpdate(PipelineRun oldPipelineRun, PipelineRun newPipelineRun) {
+        try {
+            LOGGER.info("onUpdate " + newPipelineRun.getMetadata().getName());
+            PipelineStatus ps = getPipelineStatus(newPipelineRun);
+            if (ps != null) infinispanService.savePipelineStatus(ps);
+        } catch (Exception e){
+            LOGGER.error(e.getMessage());
+        }
+    }
+
+    @Override
+    public void onDelete(PipelineRun pipelineRun, boolean deletedFinalStateUnknown) {
+        try {
+            LOGGER.info("onDelete " + pipelineRun.getMetadata().getName());
+            String projectId = pipelineRun.getMetadata().getLabels().get("karavan-project-id");
+            if (projectId != null) {
+                Project project = infinispanService.getProject(projectId);
+                if (project != null) {
+                    PipelineStatus ps = new PipelineStatus(project.getProjectId(), kubernetesService.environment);
+                    infinispanService.deletePipelineStatus(ps);
+                }
+            }
+        } catch (Exception e){
+            LOGGER.error(e.getMessage());
+        }
+    }
+
+    public PipelineStatus getPipelineStatus( PipelineRun pipelineRun) {
         String projectId = pipelineRun.getMetadata().getLabels().get("karavan-project-id");
         if (projectId != null) {
             Project project = infinispanService.getProject(projectId);
-            if (project != null && List.of("MODIFIED", "ADDED").contains(action.name())) {
-                PipelineStatus pipelineStatus = infinispanService.getPipelineStatus(projectId);
-                if (pipelineStatus == null) pipelineStatus = new PipelineStatus(project.getProjectId(), kubernetesService.environment);
+            if (project != null) {
+                PipelineStatus pipelineStatus = new PipelineStatus(project.getProjectId(), kubernetesService.environment);
 
                 if (pipelineRun.getStatus() != null) {
-                    LOGGER.info(action.name()+ " " + pipelineRun.getMetadata().getName() + " " + pipelineRun.getStatus().getConditions().get(0).getReason());
                     Instant runStartTime = Instant.parse(pipelineRun.getStatus().getStartTime());
                     Instant savedStartTime = pipelineStatus.getStartTime() != null
                             ? Instant.parse(pipelineStatus.getStartTime())
@@ -52,9 +85,10 @@ public class PipelineRunWatcher implements Watcher<PipelineRun> {
                     pipelineStatus.setStartTime(null);
                     pipelineStatus.setCompletionTime(null);
                 }
-                infinispanService.savePipelineStatus(pipelineStatus);
+                return pipelineStatus;
             }
         }
+        return null;
     }
 
     private Long getPipelineRunDuration(PipelineRun pipelineRun) {
@@ -68,10 +102,5 @@ public class PipelineRunWatcher implements Watcher<PipelineRun> {
             LOGGER.error(ex.getMessage());
             return 0L;
         }
-    }
-
-    @Override
-    public void onClose(WatcherException cause) {
-
     }
 }

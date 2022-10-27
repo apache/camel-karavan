@@ -1,42 +1,56 @@
 package org.apache.camel.karavan.watcher;
 
-import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
-import io.fabric8.kubernetes.client.WatcherException;
+import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import org.apache.camel.karavan.model.DeploymentStatus;
-import org.apache.camel.karavan.model.PodStatus;
-import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.service.InfinispanService;
 import org.apache.camel.karavan.service.KubernetesService;
 import org.jboss.logging.Logger;
 
-import java.util.List;
+public class DeploymentEventHandler implements ResourceEventHandler<Deployment> {
 
-public class DeploymentWatcher implements Watcher<Deployment> {
-
-    private static final Logger LOGGER = Logger.getLogger(DeploymentWatcher.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DeploymentEventHandler.class.getName());
     private InfinispanService infinispanService;
     private KubernetesService kubernetesService;
 
-    public DeploymentWatcher(InfinispanService infinispanService, KubernetesService kubernetesService) {
+    public DeploymentEventHandler(InfinispanService infinispanService, KubernetesService kubernetesService) {
         this.infinispanService = infinispanService;
         this.kubernetesService = kubernetesService;
     }
 
     @Override
-    public void eventReceived(Watcher.Action action, Deployment deployment) {
-        LOGGER.info(action.name() + " " + deployment.getMetadata().getName());
-        DeploymentStatus ds = getDeploymentStatus(deployment);
-        switch (action.name()) {
-            case "ADDED":
-                infinispanService.saveDeploymentStatus(ds);
-                break;
-            case "MODIFIED":
-                infinispanService.saveDeploymentStatus(ds);
-                break;
-            case "DELETED":
-                infinispanService.deleteDeploymentStatus(ds);
-                break;
+    public void onAdd(Deployment deployment) {
+        try {
+            LOGGER.info("onAdd " + deployment.getMetadata().getName());
+            DeploymentStatus ds = getDeploymentStatus(deployment);
+            infinispanService.saveDeploymentStatus(ds);
+        } catch (Exception e){
+            LOGGER.error(e.getMessage());
+        }
+    }
+
+    @Override
+    public void onUpdate(Deployment oldDeployment, Deployment newDeployment) {
+        try {
+            LOGGER.info("onUpdate " + newDeployment.getMetadata().getName());
+            DeploymentStatus ds = getDeploymentStatus(newDeployment);
+            infinispanService.saveDeploymentStatus(ds);
+        } catch (Exception e){
+            LOGGER.error(e.getMessage());
+        }
+    }
+
+    @Override
+    public void onDelete(Deployment deployment, boolean deletedFinalStateUnknown) {
+        try {
+            LOGGER.info("onDelete " + deployment.getMetadata().getName());
+            DeploymentStatus ds = new DeploymentStatus(
+                    deployment.getMetadata().getName(),
+                    deployment.getMetadata().getNamespace(),
+                    kubernetesService.environment);
+            infinispanService.deleteDeploymentStatus(ds);
+        } catch (Exception e){
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -63,10 +77,5 @@ public class DeploymentWatcher implements Watcher<Deployment> {
                     deployment.getMetadata().getNamespace(),
                     kubernetesService.environment);
         }
-    }
-
-    @Override
-    public void onClose(WatcherException cause) {
-
     }
 }

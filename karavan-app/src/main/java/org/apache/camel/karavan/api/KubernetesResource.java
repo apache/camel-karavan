@@ -20,6 +20,7 @@ import io.smallrye.mutiny.Multi;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
 import org.apache.camel.karavan.model.DeploymentStatus;
+import org.apache.camel.karavan.model.PodStatus;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.service.InfinispanService;
 import org.apache.camel.karavan.service.KubernetesService;
@@ -99,9 +100,9 @@ public class KubernetesResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/deployment/")
-    public List<DeploymentStatus> getAll() throws Exception {
-        return infinispanService.getDeploymentStatuses().stream()
+    @Path("/deployment/{env}")
+    public List<DeploymentStatus> getDeploymentStatusesByEnv(@PathParam("env") String env) throws Exception {
+        return infinispanService.getDeploymentStatuses(env).stream()
                 .sorted(Comparator.comparing(DeploymentStatus::getName))
                 .collect(Collectors.toList());
     }
@@ -125,6 +126,15 @@ public class KubernetesResource {
 //            p.setDeployed(false);
 //            infinispanService.saveProject(p);
         return Response.ok().build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/pod/{env}")
+    public List<PodStatus> getPodStatusesByEnv(@PathParam("env") String env) throws Exception {
+        return infinispanService.getPodStatuses(env).stream()
+                .sorted(Comparator.comparing(PodStatus::getName))
+                .collect(Collectors.toList());
     }
 
     @DELETE

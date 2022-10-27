@@ -97,6 +97,8 @@ public class InfinispanService {
             podStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(PodStatus.CACHE, builder.build());
             camelStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(CamelStatus.CACHE, builder.build());
             kamelets = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Kamelet.CACHE, builder.build());
+
+            cleanStatuses();
         } else {
             LOGGER.info("InfinispanService is starting in remote mode");
             environments = cacheManager.administration().getOrCreateCache(Environment.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, Environment.CACHE)));
@@ -109,6 +111,13 @@ public class InfinispanService {
             kamelets = cacheManager.administration().getOrCreateCache(Kamelet.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, Kamelet.CACHE)));
         }
     }
+
+    private void cleanStatuses() {
+        deploymentStatuses.clear();
+        podStatuses.clear();
+        pipelineStatuses.clear();
+    }
+
 
     public List<Project> getProjects() {
         return projects.values().stream().collect(Collectors.toList());
@@ -167,6 +176,10 @@ public class InfinispanService {
         pipelineStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv()), status);
     }
 
+    public void deletePipelineStatus(PipelineStatus status) {
+        pipelineStatuses.remove(GroupedKey.create(status.getProjectId(), status.getEnv()));
+    }
+
     public DeploymentStatus getDeploymentStatus(String name, String env) {
         return deploymentStatuses.get(GroupedKey.create(name, env));
     }
@@ -185,12 +198,12 @@ public class InfinispanService {
 
     public List<DeploymentStatus> getDeploymentStatuses(String env) {
         if (cacheManager == null) {
-            QueryFactory queryFactory = org.infinispan.query.Search.getQueryFactory((Cache<?, ?>) files);
+            QueryFactory queryFactory = org.infinispan.query.Search.getQueryFactory((Cache<?, ?>) deploymentStatuses);
             return queryFactory.<DeploymentStatus>create("FROM org.apache.camel.karavan.model.DeploymentStatus WHERE env = :env")
                     .setParameter("env", env)
                     .execute().list();
         } else {
-            QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) files);
+            QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) deploymentStatuses);
             return queryFactory.<DeploymentStatus>create("FROM karavan.DeploymentStatus WHERE env = :env")
                     .setParameter("env", env)
                     .execute().list();
@@ -199,15 +212,29 @@ public class InfinispanService {
 
     public List<PodStatus> getPodStatuses(String projectId, String env) {
         if (cacheManager == null) {
-            QueryFactory queryFactory = org.infinispan.query.Search.getQueryFactory((Cache<?, ?>) files);
+            QueryFactory queryFactory = org.infinispan.query.Search.getQueryFactory((Cache<?, ?>) podStatuses);
             return queryFactory.<PodStatus>create("FROM org.apache.camel.karavan.model.PodStatus WHERE deployment = :deployment AND env = :env")
                     .setParameter("deployment", projectId)
                     .setParameter("env", env)
                     .execute().list();
         } else {
-            QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) files);
+            QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) podStatuses);
             return queryFactory.<PodStatus>create("FROM karavan.PodStatus WHERE deployment = :deployment AND env = :env")
                     .setParameter("deployment", projectId)
+                    .setParameter("env", env)
+                    .execute().list();
+        }
+    }
+
+    public List<PodStatus> getPodStatuses(String env) {
+        if (cacheManager == null) {
+            QueryFactory queryFactory = org.infinispan.query.Search.getQueryFactory((Cache<?, ?>) podStatuses);
+            return queryFactory.<PodStatus>create("FROM org.apache.camel.karavan.model.PodStatus WHERE env = :env")
+                    .setParameter("env", env)
+                    .execute().list();
+        } else {
+            QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) podStatuses);
+            return queryFactory.<PodStatus>create("FROM karavan.PodStatus WHERE env = :env")
                     .setParameter("env", env)
                     .execute().list();
         }
@@ -216,6 +243,11 @@ public class InfinispanService {
     public void savePodStatus(PodStatus status) {
         podStatuses.put(GroupedKey.create(status.getDeployment(), status.getName()), status);
     }
+
+    public void deletePodStatus(PodStatus status) {
+        podStatuses.remove(GroupedKey.create(status.getDeployment(), status.getName()));
+    }
+
     public CamelStatus getCamelStatus(String projectId) {
         return camelStatuses.get(GroupedKey.create(projectId, projectId));
     }

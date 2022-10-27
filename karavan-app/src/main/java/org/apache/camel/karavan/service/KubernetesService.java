@@ -24,7 +24,11 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.Watch;
+import io.fabric8.kubernetes.client.dsl.Informable;
 import io.fabric8.kubernetes.client.dsl.LogWatch;
+import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
+import io.fabric8.kubernetes.client.informers.SharedInformerEventListener;
+import io.fabric8.kubernetes.client.informers.SharedInformerFactory;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.tekton.client.DefaultTektonClient;
@@ -41,9 +45,9 @@ import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.model.PipelineRunLog;
 import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.watcher.DeploymentWatcher;
-import org.apache.camel.karavan.watcher.PipelineRunWatcher;
-import org.apache.camel.karavan.watcher.PodWatcher;
+import org.apache.camel.karavan.watcher.DeploymentEventHandler;
+import org.apache.camel.karavan.watcher.PipelineRunEventHandler;
+import org.apache.camel.karavan.watcher.PodEventHandler;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -65,7 +69,8 @@ import java.util.stream.Collectors;
 public class KubernetesService {
 
     private static final Logger LOGGER = Logger.getLogger(KubernetesService.class.getName());
-    public static final String START_WATCHERS = "start-watchers";
+    public static final String START_INFORMERS = "start-informers";
+    public static final String STOP_INFORMERS = "stop-informers";
 
     @Inject
     EventBus eventBus;
@@ -92,35 +97,36 @@ public class KubernetesService {
     public
     String environment;
 
-    private List<Watch> watches = new ArrayList<>();
+    List<SharedIndexInformer> informers = new ArrayList<>(3);
 
-    @ConsumeEvent(value = START_WATCHERS, blocking = true)
-    void start(String data) {
-        LOGGER.info("Start KubernetesService");
-        String labelName = getRuntimeLabel();
+    @ConsumeEvent(value = START_INFORMERS, blocking = true)
+    void startInformers(String data) {
+        LOGGER.info("Start Kubernetes Informers");
         try {
-            watches.add(kubernetesClient().apps().deployments().inNamespace(getNamespace()).withLabel(labelName, "camel")
-                    .watch(new DeploymentWatcher(infinispanService, this)));
+            stopInformers(null);
+            String runtimeLabel = getRuntimeLabel();
+
+            SharedIndexInformer<Deployment> deploymentInformer = kubernetesClient().apps().deployments().inNamespace(getNamespace()).withLabel(runtimeLabel, "camel").inform();
+            deploymentInformer.addEventHandlerWithResyncPeriod(new DeploymentEventHandler(infinispanService, this),30 * 1000L);
+            informers.add(deploymentInformer);
+
+            SharedIndexInformer<PipelineRun> pipelineRunInformer = tektonClient().v1beta1().pipelineRuns().inNamespace(getNamespace()).withLabel(runtimeLabel, "camel").inform();
+            pipelineRunInformer.addEventHandlerWithResyncPeriod(new PipelineRunEventHandler(infinispanService, this),30 * 1000L);
+            informers.add(pipelineRunInformer);
+
+            SharedIndexInformer<Pod> podRunInformer = kubernetesClient().pods().inNamespace(getNamespace()).withLabel(runtimeLabel, "camel").inform();
+            podRunInformer.addEventHandlerWithResyncPeriod(new PodEventHandler(infinispanService, this),30 * 1000L);
+            informers.add(podRunInformer);
+
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
-        try {
-            watches.add(kubernetesClient().pods().inNamespace(getNamespace()).withLabel(labelName, "camel")
-                    .watch(new PodWatcher(infinispanService, this)));
-        } catch (Exception e){
-            LOGGER.error(e.getMessage());
-        }
-        try {
-            watches.add(tektonClient().v1beta1().pipelineRuns().inNamespace(getNamespace())
-                    .watch(new PipelineRunWatcher(infinispanService, this)));
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error("Error starting informers: " + e.getMessage());
         }
     }
 
-    void onStop(@Observes ShutdownEvent ev) {
-        LOGGER.info("Stop KubernetesService");
-        watches.forEach(watch -> watch.close());
+    @ConsumeEvent(value = STOP_INFORMERS, blocking = true)
+    void stopInformers(String data) {
+        LOGGER.info("Stop Kubernetes Informers");
+        informers.forEach(informer -> informer.close());
     }
 
     public String createPipelineRun(Project project, String pipelineName, String namespace) throws Exception {
@@ -128,7 +134,8 @@ public class KubernetesService {
 
         Map<String, String> labels = Map.of(
                 "karavan-project-id", project.getProjectId(),
-                "tekton.dev/pipeline", pipelineName
+                "tekton.dev/pipeline", pipelineName,
+                getRuntimeLabel(), "camel"
         );
 
         ObjectMeta meta = new ObjectMetaBuilder()
@@ -230,28 +237,6 @@ public class KubernetesService {
             LOGGER.error(ex.getMessage());
         }
     }
-
-
-//    public List<PodStatus> getDeploymentPodsStatuses(String name, String namespace) {
-//        try {
-//            String labelName = getRuntimeLabel();
-//            List<Pod> pods = kubernetesClient().pods().inNamespace(namespace)
-//                    .withLabel("app.kubernetes.io/name", name)
-//                    .withLabel(labelName, "camel")
-//                    .list().getItems();
-//
-//            return pods.stream().map(pod -> new PodStatus(
-//                    pod.getMetadata().getName(),
-//                    pod.getStatus().getContainerStatuses().get(0).getStarted(),
-//                    pod.getStatus().getContainerStatuses().get(0).getReady(),
-//                    getPodReason(pod),
-//                    pod.getMetadata().getLabels().get("app.kubernetes.io/name")
-//            )).collect(Collectors.toList());
-//        } catch (Exception ex) {
-//            LOGGER.error(ex.getMessage());
-//            return List.of();
-//        }
-//    }
 
     public Deployment getDeployment(String name, String namespace) {
         try {
