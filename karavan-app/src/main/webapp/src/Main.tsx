@@ -32,7 +32,6 @@ import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
 import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
 import ConfigurationIcon from "@patternfly/react-icons/dist/js/icons/cogs-icon";
 import {MainLogin} from "./MainLogin";
-import {Thenable} from "monaco-editor";
 
 class ToastMessage {
     id: string = ''
@@ -125,7 +124,7 @@ export class Main extends React.Component<Props, State> {
 
     getData() {
         KaravanApi.getConfiguration((config: any) => {
-            this.setState({ config: config })
+            this.setState({ config: config });
         });
         this.updateKamelets();
         this.updateComponents();

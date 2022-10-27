@@ -263,34 +263,34 @@ export class ProjectInfo extends React.Component<Props, State> {
     }
 
     getPodsPanel(deploymentStatus: DeploymentStatus, env: string) {
-        const podStatuses = deploymentStatus.podStatuses;
+        // const podStatuses = deploymentStatus.podStatuses;
         return (
             <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
                 <FlexItem>
                     <LabelGroup numLabels={3}>
-                        {(podStatuses === undefined || podStatuses.length === 0) && <Label icon={<DownIcon/>} color={"grey"}>No pods</Label>}
-                        {podStatuses.map(pod => {
-                                const running = pod.started && pod.ready;
-                                return (
-                                    <Tooltip key={pod.name} content={running ? "Running" : pod.reason}>
-                                        <Label icon={running ? <UpIcon/> : <DownIcon/>} color={running ? "green" : "red"}>
-                                            <Button variant="link"
-                                                    onClick={e => this.props.showLog?.call(this, 'container', pod.name, env)}>
-                                                {pod.name}
-                                            </Button>
-                                            <Tooltip content={"Delete Pod"}>
-                                                <Button icon={<DeleteIcon/>} variant="link" onClick={e => this.setState({
-                                                    showDeleteConfirmation: true,
-                                                    deleteEntity: "pod",
-                                                    deleteEntityEnv: env,
-                                                    deleteEntityName: pod.name
-                                                })}></Button>
-                                            </Tooltip>
-                                        </Label>
-                                    </Tooltip>
-                                )
-                            }
-                        )}
+                        {/*{(podStatuses === undefined || podStatuses.length === 0) && <Label icon={<DownIcon/>} color={"grey"}>No pods</Label>}*/}
+                        {/*{podStatuses.map(pod => {*/}
+                        {/*        const running = pod.started && pod.ready;*/}
+                        {/*        return (*/}
+                        {/*            <Tooltip key={pod.name} content={running ? "Running" : pod.reason}>*/}
+                        {/*                <Label icon={running ? <UpIcon/> : <DownIcon/>} color={running ? "green" : "red"}>*/}
+                        {/*                    <Button variant="link"*/}
+                        {/*                            onClick={e => this.props.showLog?.call(this, 'container', pod.name, env)}>*/}
+                        {/*                        {pod.name}*/}
+                        {/*                    </Button>*/}
+                        {/*                    <Tooltip content={"Delete Pod"}>*/}
+                        {/*                        <Button icon={<DeleteIcon/>} variant="link" onClick={e => this.setState({*/}
+                        {/*                            showDeleteConfirmation: true,*/}
+                        {/*                            deleteEntity: "pod",*/}
+                        {/*                            deleteEntityEnv: env,*/}
+                        {/*                            deleteEntityName: pod.name*/}
+                        {/*                        })}></Button>*/}
+                        {/*                    </Tooltip>*/}
+                        {/*                </Label>*/}
+                        {/*            </Tooltip>*/}
+                        {/*        )*/}
+                        {/*    }*/}
+                        {/*)}*/}
                     </LabelGroup>
                 </FlexItem>
                 <FlexItem>{env === "dev" && this.rolloutButton()}</FlexItem>

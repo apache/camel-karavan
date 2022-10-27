@@ -83,8 +83,7 @@ export class ProjectPage extends React.Component<Props, State> {
         tab: "details",
         environments: this.props.config.environments && Array.isArray(this.props.config.environments)
             ? Array.from(this.props.config.environments) : [],
-        environment: this.props.config.environments && Array.isArray(this.props.config.environments)
-            ? this.props.config.environments[0] : ''
+        environment: this.props.config.environment
     };
 
     componentDidMount() {

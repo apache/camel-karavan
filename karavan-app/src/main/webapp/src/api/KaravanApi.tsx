@@ -290,6 +290,17 @@ export class KaravanApi {
         });
     }
 
+    static async getDeploymentStatuses(env: string, after: (statuses: DeploymentStatus[]) => void) {
+        instance.get('/api/kubernetes/deployment/' + env)
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    }
+
     static async rolloutDeployment(name: string, environment: string, after: (res: AxiosResponse<any>) => void) {
         instance.post('/api/kubernetes/deployment/rollout/' + environment + '/' + name, "")
             .then(res => {

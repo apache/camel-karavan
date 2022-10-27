@@ -29,7 +29,7 @@ import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
-import {Project} from "./ProjectModels";
+import {DeploymentStatus, Project} from "./ProjectModels";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
@@ -45,6 +45,7 @@ interface Props {
 
 interface State {
     projects: Project[],
+    deploymentStatuses: DeploymentStatus[],
     isCreateModalOpen: boolean,
     isDeleteModalOpen: boolean,
     isCopy: boolean,
@@ -60,6 +61,7 @@ export class ProjectsPage extends React.Component<Props, State> {
 
     public state: State = {
         projects: [],
+        deploymentStatuses: [],
         isCreateModalOpen: false,
         isDeleteModalOpen: false,
         isCopy: false,
@@ -71,7 +73,7 @@ export class ProjectsPage extends React.Component<Props, State> {
     interval: any;
 
     componentDidMount() {
-        this.interval = setInterval(() => this.onGetProjects(), 700);
+        this.interval = setInterval(() => this.onGetProjects(), 1300);
     }
 
     componentWillUnmount() {
@@ -111,6 +113,9 @@ export class ProjectsPage extends React.Component<Props, State> {
         KaravanApi.getConfiguration((config: any) => {
             KaravanApi.getProjects((projects: Project[]) => {
                 this.setState({ projects: projects })
+            });
+            KaravanApi.getDeploymentStatuses(config.environment, (statuses: DeploymentStatus[]) => {
+                this.setState({ deploymentStatuses: statuses });
             });
         });
 
@@ -209,12 +214,15 @@ export class ProjectsPage extends React.Component<Props, State> {
         )
     }
 
+    isDeployed(projectId: string): boolean{
+        const ds = this.state.deploymentStatuses.find(ds => ds.name === projectId);
+        return ds ? (ds.replicas > 0 && ds.replicas === ds.readyReplicas) : false;
+    }
+
     render() {
         const runtime = this.props.config?.runtime ? this.props.config.runtime : "QUARKUS";
         const projects = this.state.projects.filter(p => p.name.toLowerCase().includes(this.state.filter) || p.description.toLowerCase().includes(this.state.filter));
-        const environments: string[] = this.props.config.environments && Array.isArray(this.props.config.environments)
-            ? Array.from(this.props.config.environments)
-            : [];
+        const environment: string = this.props.config.environment;
         return (
             <PageSection className="kamelet-section projects-page" padding={{default: 'noPadding'}}>
                 <PageSection className="tools-section" padding={{default: 'noPadding'}}>
@@ -255,7 +263,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                                     </Td>
                                     <Td noPadding style={{width:"180px"}}>
                                         <Flex direction={{default: "row"}}>
-                                            <FlexItem key={"dev"}><Badge isRead={!project.deployed}>{"dev"}</Badge></FlexItem>
+                                            <FlexItem key={"dev"}><Badge isRead={!this.isDeployed(project.projectId)}>{"dev"}</Badge></FlexItem>
                                         </Flex>
                                     </Td>
                                     <Td isActionCell>

@@ -3,7 +3,6 @@ export class Project {
     name: string = '';
     description: string = '';
     lastCommit: string = '';
-    deployed: boolean = false;
 
     public constructor(projectId: string, name: string, description: string, lastCommit: string);
     public constructor(init?: Partial<Project>);
@@ -22,16 +21,18 @@ export class Project {
 }
 
 export class DeploymentStatus {
-    projectId: string = '';
+    name: string = '';
+    env: string = '';
+    namespace: string = '';
     image: string = '';
     replicas: number = 0;
     readyReplicas: number = 0;
     unavailableReplicas: number = 0;
-    podStatuses: PodStatus[] = []
 }
 
 export class PodStatus {
     name: string = '';
+    phase: string = '';
     started: boolean = false;
     ready: boolean = false;
     reason: string = '';
