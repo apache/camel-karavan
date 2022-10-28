@@ -90,17 +90,4 @@ public class PipelineRunEventHandler implements ResourceEventHandler<PipelineRun
         }
         return null;
     }
-
-    private Long getPipelineRunDuration(PipelineRun pipelineRun) {
-        try {
-            Instant create = Instant.parse(pipelineRun.getMetadata().getCreationTimestamp());
-            Instant completion = pipelineRun.getStatus().getCompletionTime() != null
-                    ? Instant.parse(pipelineRun.getStatus().getCompletionTime())
-                    : Instant.now();
-            return completion.getEpochSecond() - create.getEpochSecond();
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage());
-            return 0L;
-        }
-    }
 }

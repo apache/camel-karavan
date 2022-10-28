@@ -77,21 +77,22 @@ export class ProjectInfo extends React.Component<Props, State> {
     }
 
     onRefreshStatus = () => {
-        // console.log("onRefreshStatus", this.props.project)
+        const projectId = this.props.project.projectId;
+        const environment = this.state.environment;
         if (this.props.project) {
-            KaravanApi.getProjectPipelineStatus(this.props.project.projectId, (status: PipelineStatus) => {
+            KaravanApi.getProjectPipelineStatus(projectId, environment, (status: PipelineStatus) => {
                 this.setState({key: Math.random().toString(), pipelineStatus: status});
                 // console.log(status);
             });
-            KaravanApi.getProjectDeploymentStatus(this.props.project.projectId, this.state.environment, (status: DeploymentStatus) => {
+            KaravanApi.getProjectDeploymentStatus(projectId, environment, (status: DeploymentStatus) => {
                 this.setState({key: Math.random().toString(), deploymentStatus: status});
                 // console.log(status);
             });
-            KaravanApi.getProjectPodStatuses(this.props.project.projectId, this.state.environment, (statuses: PodStatus[]) => {
+            KaravanApi.getProjectPodStatuses(projectId, environment, (statuses: PodStatus[]) => {
                 this.setState({key: Math.random().toString(), podStatuses: statuses});
                 // console.log(status);
             });
-            KaravanApi.getProjectCamelStatus(this.props.project.projectId, (status: CamelStatus) => {
+            KaravanApi.getProjectCamelStatus(projectId, environment, (status: CamelStatus) => {
                 this.setState({key: Math.random().toString(), camelStatus: status});
                 // console.log(status);
             });

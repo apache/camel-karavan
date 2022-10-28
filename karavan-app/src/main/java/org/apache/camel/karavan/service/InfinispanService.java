@@ -172,8 +172,8 @@ public class InfinispanService {
         return projects.get(GroupedKey.create(project, project));
     }
 
-    public PipelineStatus getPipelineStatus(String projectId) {
-        return pipelineStatuses.get(GroupedKey.create(projectId, projectId));
+    public PipelineStatus getPipelineStatus(String projectId, String environment) {
+        return pipelineStatuses.get(GroupedKey.create(projectId, environment));
     }
 
     public void savePipelineStatus(PipelineStatus status) {
@@ -265,12 +265,12 @@ public class InfinispanService {
         podStatuses.remove(GroupedKey.create(status.getDeployment(), status.getName()));
     }
 
-    public CamelStatus getCamelStatus(String projectId) {
-        return camelStatuses.get(GroupedKey.create(projectId, projectId));
+    public CamelStatus getCamelStatus(String projectId, String env) {
+        return camelStatuses.get(GroupedKey.create(projectId, env));
     }
 
     public void saveCamelStatus(CamelStatus status) {
-        camelStatuses.put(GroupedKey.create(status.getProjectId(), status.getProjectId()), status);
+        camelStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv()), status);
     }
 
     public List<String> getKameletNames() {

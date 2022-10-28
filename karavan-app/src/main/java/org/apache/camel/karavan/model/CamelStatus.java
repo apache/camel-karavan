@@ -18,6 +18,8 @@ public class CamelStatus {
     Status registryStatus;
     @ProtoField(number = 6)
     String contextVersion;
+    @ProtoField(number = 7)
+    String env;
 
     public enum Status {
         @ProtoEnumValue(number = 0, name = "DOWN")
@@ -29,17 +31,14 @@ public class CamelStatus {
     }
 
     @ProtoFactory
-    public CamelStatus(String projectId, Status contextStatus, Status consumerStatus, Status routesStatus, Status registryStatus, String contextVersion) {
+    public CamelStatus(String projectId, Status contextStatus, Status consumerStatus, Status routesStatus, Status registryStatus, String contextVersion, String env) {
         this.projectId = projectId;
         this.contextStatus = contextStatus;
         this.consumerStatus = consumerStatus;
         this.routesStatus = routesStatus;
         this.registryStatus = registryStatus;
         this.contextVersion = contextVersion;
-    }
-
-    public CamelStatus(String projectId) {
-        this.projectId = projectId;
+        this.env = env;
     }
 
     public String getProjectId() {
@@ -88,5 +87,13 @@ public class CamelStatus {
 
     public void setContextVersion(String contextVersion) {
         this.contextVersion = contextVersion;
+    }
+
+    public String getEnv() {
+        return env;
+    }
+
+    public void setEnv(String env) {
+        this.env = env;
     }
 }

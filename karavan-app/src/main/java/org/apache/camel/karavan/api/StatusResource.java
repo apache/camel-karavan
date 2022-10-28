@@ -47,9 +47,9 @@ public class StatusResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/pipeline/{projectId}")
-    public Response getPipelineStatus(@PathParam("projectId") String projectId) {
-        PipelineStatus status = infinispanService.getPipelineStatus(projectId);
+    @Path("/pipeline/{projectId}/{env}")
+    public Response getPipelineStatus(@PathParam("projectId") String projectId, @PathParam("env") String env) {
+        PipelineStatus status = infinispanService.getPipelineStatus(projectId, env);
         if (status != null) {
             return Response.ok(status).build();
         } else {
@@ -73,10 +73,10 @@ public class StatusResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/camel/{projectId}")
-    public Response getCamelStatus(@PathParam("projectId") String projectId) {
+    @Path("/camel/{projectId}/{env}")
+    public Response getCamelStatus(@PathParam("projectId") String projectId, @PathParam("env") String env) {
         bus.publish(StatusService.CMD_COLLECT_STATUSES, projectId);
-        CamelStatus status = infinispanService.getCamelStatus(projectId);
+        CamelStatus status = infinispanService.getCamelStatus(projectId, env);
         if (status != null) {
             return Response.ok(status).build();
         } else {

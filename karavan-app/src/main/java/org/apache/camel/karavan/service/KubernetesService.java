@@ -90,7 +90,6 @@ public class KubernetesService {
     }
 
     @ConfigProperty(name = "karavan.environment")
-    public
     String environment;
 
     @ConfigProperty(name = "karavan.pipeline")

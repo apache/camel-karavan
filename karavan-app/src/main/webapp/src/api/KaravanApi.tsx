@@ -156,8 +156,8 @@ export class KaravanApi {
         });
     }
 
-    static async getProjectPipelineStatus(projectId: string, after: (status: PipelineStatus) => void) {
-        instance.get('/api/status/pipeline/' + projectId)
+    static async getProjectPipelineStatus(projectId: string, env: string, after: (status: PipelineStatus) => void) {
+        instance.get('/api/status/pipeline/' + projectId + "/" + env)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -178,8 +178,8 @@ export class KaravanApi {
         });
     }
 
-    static async getProjectCamelStatus(projectId: string, after: (status: CamelStatus) => void) {
-        instance.get('/api/status/camel/' + projectId)
+    static async getProjectCamelStatus(projectId: string, env: string, after: (status: CamelStatus) => void) {
+        instance.get('/api/status/camel/' + projectId + "/" + env)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);

@@ -58,6 +58,7 @@ export class CamelStatus {
     consumerStatus: string = '';
     contextStatus: string = '';
     contextVersion: string = '';
+    env: string = '';
 }
 
 export class PipelineStatus {
