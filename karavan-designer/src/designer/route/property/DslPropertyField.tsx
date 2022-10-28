@@ -66,6 +66,8 @@ import {KubernetesSelector} from "./KubernetesSelector";
 import {KubernetesAPI} from "../../utils/KubernetesAPI";
 import Editor from "@monaco-editor/react";
 import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
+import {Property} from "../../../../../karavan-core/src/core/model/KameletModels";
+import {KameletApi} from "../../../../../karavan-core/src/core/api/KameletApi";
 
 interface Props {
     property: PropertyMeta,
@@ -540,13 +542,16 @@ export class DslPropertyField extends React.Component<Props, State> {
     }
 
     getKameletParameters = () => {
+        const element = this.props.element;
+        const requiredParameters = CamelUtil.getKameletRequiredParameters(element);
         return (
             <div className="parameters">
-                {CamelUtil.getKameletProperties(this.props.element).map(property =>
+                {CamelUtil.getKameletProperties(element).map(property =>
                     <KameletPropertyField
                         key={property.id}
                         property={property}
-                        value={CamelDefinitionApiExt.getParametersValue(this.props.element, property.id)}
+                        value={CamelDefinitionApiExt.getParametersValue(element, property.id)}
+                        required={requiredParameters.includes(property.id)}
                         onParameterChange={this.props.onParameterChange}
                     />)}
             </div>

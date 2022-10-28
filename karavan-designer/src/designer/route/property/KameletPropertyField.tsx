@@ -36,6 +36,7 @@ import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 interface Props {
     property: Property,
     value: any,
+    required: boolean,
     onParameterChange?: (parameter: string, value: string | number | boolean | any, pathParameter?: boolean) => void
 }
 
@@ -159,6 +160,7 @@ export class KameletPropertyField extends React.Component<Props, State> {
                     key={id}
                     label={property.title}
                     fieldId={id}
+                    isRequired={this.props.required}
                     labelIcon={
                         <Popover
                             position={"left"}

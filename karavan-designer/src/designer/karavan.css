@@ -1268,3 +1268,7 @@
     width: fit-content;
     margin-top: 6px;
 }
+
+.root .tooltip-required-field .pf-c-tooltip__content {
+    text-align: start;
+}

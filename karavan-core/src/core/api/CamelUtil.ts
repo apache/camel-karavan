@@ -148,6 +148,13 @@ export class CamelUtil {
             : [];
     }
 
+    static getKameletRequiredParameters = (element: any): string[] => {
+        const kamelet = CamelUtil.getKamelet(element)
+        return kamelet
+            ? kamelet.spec.definition.required
+            : [];
+    }
+
     static getComponentProperties = (element: any): ComponentProperty[] => {
         const dslName: string = (element as any).dslName;
         if (dslName === 'ToDynamicDefinition'){
@@ -174,7 +181,7 @@ export class CamelUtil {
             const value = (element as any)[p.name];
             if (p.type === 'string' && (value === undefined || value.trim().length === 0)){
                 result[0] = false;
-                result[1].push("Property " + p.displayName + " is required");
+                result[1].push(p.displayName + " is required");
             } else if (p.type === 'ExpressionDefinition'){
                 const expressionMeta =  CamelMetadataApi.getCamelModelMetadataByClassName('ExpressionDefinition');
                 let expressionCheck = false;
@@ -196,9 +203,20 @@ export class CamelUtil {
                     const value = CamelDefinitionApiExt.getParametersValue(element, p.name, p.kind === 'path');
                    if (value === undefined || value.trim().length === 0){
                        result[0] = false;
-                       result[1].push("Property " + p.displayName + " is required");
+                       result[1].push(p.displayName + " is required");
                    }
                 })
+            } else {
+                const kamelet = this.getKamelet(element);
+                let allSet = true;
+                const filledParameters = Object.keys((element as any).parameters);
+                kamelet?.spec.definition.required.forEach(name => {
+                    if (!filledParameters.includes(name)) {
+                        allSet = false;
+                        result[1].push(name + " is required");
+                    }
+                })
+                result[0] = allSet;
             }
         }
         return result;

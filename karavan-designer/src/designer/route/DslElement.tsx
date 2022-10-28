@@ -256,8 +256,8 @@ export class DslElement extends React.Component<Props, State> {
         if (!checkRequired[0]) className = className + " header-text-required";
         if (checkRequired[0]) return <Text className={className}>{title}</Text>
         else return (
-            <Tooltip position={"right"}
-                     content={checkRequired[1]}>
+            <Tooltip position={"right"} className="tooltip-required-field"
+                     content={checkRequired[1].map((text, i) =>(<div key={i}>{text}</div>))}>
                 <Text className={className}>{title}</Text>
             </Tooltip>
         )
