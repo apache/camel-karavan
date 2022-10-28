@@ -94,14 +94,15 @@ public class StatusService {
                         getStatus(checks, "camel-consumers"),
                         getStatus(checks, "camel-routes"),
                         getStatus(checks, "camel-registry"),
-                        context.getJsonObject("data").getString("context.version")
+                        context.getJsonObject("data").getString("context.version"),
+                        kubernetesService.environment
                 );
             } else {
-                return new CamelStatus(projectId);
+                return new CamelStatus(projectId, kubernetesService.environment);
             }
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
-            return new CamelStatus(projectId);
+            return new CamelStatus(projectId, kubernetesService.environment);
         }
     }
 

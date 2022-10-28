@@ -30,6 +30,11 @@ public class CamelStatus {
         NA
     }
 
+    public CamelStatus(String projectId, String env) {
+        this.projectId = projectId;
+        this.env = env;
+    }
+
     @ProtoFactory
     public CamelStatus(String projectId, Status contextStatus, Status consumerStatus, Status routesStatus, Status registryStatus, String contextVersion, String env) {
         this.projectId = projectId;
