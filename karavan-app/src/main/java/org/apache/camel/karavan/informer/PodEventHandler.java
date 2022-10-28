@@ -4,6 +4,7 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodCondition;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import org.apache.camel.karavan.model.PodStatus;
+import org.apache.camel.karavan.model.ServiceStatus;
 import org.apache.camel.karavan.service.InfinispanService;
 import org.apache.camel.karavan.service.KubernetesService;
 import org.jboss.logging.Logger;
@@ -28,8 +29,9 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             PodStatus ps = getPodStatus(pod);
             infinispanService.savePodStatus(ps);
             // TODO: Delete after UI design
-            ps.setEnv("test");
-            infinispanService.savePodStatus(ps);
+            PodStatus ds1 = getPodStatus(pod);
+            ds1.setEnv("test");
+            infinispanService.savePodStatus(ds1);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
@@ -42,8 +44,9 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             PodStatus ps = getPodStatus(newPod);
             infinispanService.savePodStatus(ps);
             // TODO: Delete after UI design
-            ps.setEnv("test");
-            infinispanService.savePodStatus(ps);
+            PodStatus ds1 = getPodStatus(newPod);
+            ds1.setEnv("test");
+            infinispanService.savePodStatus(ds1);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
