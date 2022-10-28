@@ -2,7 +2,10 @@
 
 ## 3.18.5
 1. Karavan Operator 
-2. Kamelets 0.9.1
+2. Kamelets 0.9.2
+3. Camel 3.18.3
+4. Integration Deployment in VS Code
+5. First preview of Dashboard
 
 ## 3.18.4
 1. Support minikube for cloud app
