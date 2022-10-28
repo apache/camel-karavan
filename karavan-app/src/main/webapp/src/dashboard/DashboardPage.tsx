@@ -159,11 +159,11 @@ export class DashboardPage extends React.Component<Props, State> {
     }
 
     getProject(name: string): Project | undefined {
-        return this.state.projects.filter(p => p.name === name)?.at(0);
+        return this.state.projects.filter(p => p.projectId === name)?.at(0);
     }
 
     isKaravan(name: string): boolean {
-        return this.state.projects.findIndex(p => p.projectId === name) > 0;
+        return this.state.projects.findIndex(p => p.projectId === name) > -1;
     }
 
     getReplicasPanel(deploymentStatus?: DeploymentStatus) {
