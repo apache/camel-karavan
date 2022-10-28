@@ -22,6 +22,8 @@ import org.apache.camel.karavan.operator.KaravanReconciler;
 
 public class TektonSubscriptionEventHandler implements ResourceEventHandler<Subscription> {
 
+    private static final String NAME = "openshift-pipelines-operator";
+
     private KaravanReconciler karavanReconciler;
 
     public TektonSubscriptionEventHandler(KaravanReconciler karavanReconciler) {
@@ -30,14 +32,16 @@ public class TektonSubscriptionEventHandler implements ResourceEventHandler<Subs
 
     @Override
     public void onAdd(Subscription subscription) {
-        if (subscription.getMetadata().getName().contains("openshift-pipelines-operator")) {
+        if (subscription.getMetadata().getName().contains(NAME)) {
             karavanReconciler.addTektonResources();
         }
     }
 
     @Override
-    public void onUpdate(Subscription oldObj, Subscription newObj) {
-
+    public void onUpdate(Subscription oldSubscription, Subscription newSubscription) {
+        if (newSubscription.getMetadata().getName().contains(NAME)) {
+            karavanReconciler.addTektonResources();
+        }
     }
 
     @Override

@@ -22,6 +22,8 @@ import org.apache.camel.karavan.operator.KaravanReconciler;
 
 public class TektonCrdEventHandler implements ResourceEventHandler<CustomResourceDefinition> {
 
+    private static final String NAME = "pipelines.tekton.dev";
+
     private KaravanReconciler karavanReconciler;
 
     public TektonCrdEventHandler(KaravanReconciler karavanReconciler) {
@@ -30,14 +32,14 @@ public class TektonCrdEventHandler implements ResourceEventHandler<CustomResourc
 
     @Override
     public void onAdd(CustomResourceDefinition crd) {
-        if (crd.getMetadata().getName().contains("pipelines.tekton.dev")) {
+        if (crd.getMetadata().getName().contains(NAME)) {
             karavanReconciler.addTektonResources();
         }
     }
 
     @Override
     public void onUpdate(CustomResourceDefinition crd1, CustomResourceDefinition crd2) {
-        if (crd2.getMetadata().getName().contains("pipelines.tekton.dev")) {
+        if (crd2.getMetadata().getName().contains(NAME)) {
             karavanReconciler.addTektonResources();
         }
     }

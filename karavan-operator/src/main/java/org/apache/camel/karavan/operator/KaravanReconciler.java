@@ -131,6 +131,7 @@ public class KaravanReconciler implements Reconciler<Karavan>, EventSourceInitia
     }
 
     private void initDependentResources() {
+        log.info("Init Dependent Resources");
         this.karavanServiceAccount = new KaravanServiceAccount();
         this.karavanRole = new KaravanRole();
         this.karavanRoleBinding = new KaravanRoleBinding();
@@ -146,6 +147,7 @@ public class KaravanReconciler implements Reconciler<Karavan>, EventSourceInitia
         }
 
         if (Utils.isTektonInstalled(client)) {
+            log.info("Init Tekton Dependent Resources");
             this.karavanTektonTask = new KaravanTektonTask(isOpenShift);
             this.karavanTektonPipeline = new KaravanTektonPipeline();
             this.pipelineServiceAccount = new PipelineServiceAccount();
