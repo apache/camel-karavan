@@ -66,8 +66,6 @@ import {KubernetesSelector} from "./KubernetesSelector";
 import {KubernetesAPI} from "../../utils/KubernetesAPI";
 import Editor from "@monaco-editor/react";
 import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
-import {Property} from "../../../../../karavan-core/src/core/model/KameletModels";
-import {KameletApi} from "../../../../../karavan-core/src/core/api/KameletApi";
 
 interface Props {
     property: PropertyMeta,
