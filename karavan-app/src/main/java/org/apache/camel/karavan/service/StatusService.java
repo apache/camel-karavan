@@ -74,7 +74,7 @@ public class StatusService {
     private void collectStatusesForProject(String projectId) {
         String url = ProfileManager.getActiveProfile().equals("dev")
                 ? String.format("http://%s-%s.%s/q/health", projectId, kubernetesService.getNamespace(), kubernetesService.getCluster())
-                : String.format("http://%s.%s.%s/q/health", projectId, kubernetesService.getNamespace(), kubernetesService.getCluster());
+                : String.format("http://%s.%s.%s/q/health", projectId, kubernetesService.getNamespace(), "svc.cluster.local");
         CamelStatus cs = getCamelStatus(projectId, url);
         infinispanService.saveCamelStatus(cs);
     }
