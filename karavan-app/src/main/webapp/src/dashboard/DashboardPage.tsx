@@ -7,7 +7,7 @@ import {
     PageSection,
     Text,
     TextContent,
-    TextInput,
+    TextInput, ToggleGroup, ToggleGroupItem,
     Toolbar,
     ToolbarContent,
     ToolbarItem, Tooltip
@@ -22,7 +22,6 @@ import {KaravanApi} from "../api/KaravanApi";
 import Icon from "../Logo";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
-import QuestionIcon from "@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon";
 
 interface Props {
     config: any,
@@ -43,6 +42,7 @@ interface State {
     name: string,
     description: string,
     projectId: string,
+    selectedEnv: string[]
 }
 
 export class DashboardPage extends React.Component<Props, State> {
@@ -58,6 +58,7 @@ export class DashboardPage extends React.Component<Props, State> {
         name: '',
         description: '',
         projectId: '',
+        selectedEnv: this.getEnvironments()
     };
     interval: any;
 
@@ -81,17 +82,36 @@ export class DashboardPage extends React.Component<Props, State> {
                 this.setState({serviceStatuses: statuses});
             });
         });
+    }
 
+    selectEnvironment(name: string, selected: boolean) {
+        if (selected && !this.state.selectedEnv.includes(name)) {
+            this.setState((state) => {
+                state.selectedEnv.push(name);
+                return state;
+            })
+        } else if (!selected && this.state.selectedEnv.includes(name)) {
+            this.setState((prevState) => ({
+                selectedEnv: prevState.selectedEnv.filter(e => e !== name)
+            }));
+        }
     }
 
     tools = () => (<Toolbar id="toolbar-group-types">
         <ToolbarContent>
             <ToolbarItem>
-                <Button variant="link" icon={<RefreshIcon/>} onClick={e => this.onGetProjects()}/>
+                <ToggleGroup aria-label="Default with single selectable">
+                    {this.getEnvironments().map(env => (
+                        <ToggleGroupItem text={env} buttonId={env} isSelected={this.state.selectedEnv.includes(env)} onChange={selected => this.selectEnvironment(env, selected)}/>
+                    ))}
+                </ToggleGroup>
             </ToolbarItem>
+            {/*<ToolbarItem>*/}
+            {/*    <Button variant="link" icon={<RefreshIcon/>} onClick={e => this.onGetProjects()}/>*/}
+            {/*</ToolbarItem>*/}
             <ToolbarItem>
                 <TextInput className="text-field" type="search" id="search" name="search"
-                           autoComplete="off" placeholder="Search by name"
+                           autoComplete="off" placeholder="Search deployment by name"
                            value={this.state.filter}
                            onChange={e => this.setState({filter: e})}/>
             </ToolbarItem>
@@ -102,13 +122,17 @@ export class DashboardPage extends React.Component<Props, State> {
         <Text component="h1">Dashboard</Text>
     </TextContent>);
 
-    getEnvironments(): string []{
+    getEnvironments(): string [] {
         return this.props.config.environments && Array.isArray(this.props.config.environments) ? Array.from(this.props.config.environments) : [];
+    }
+
+    getSelectedEnvironments(): string [] {
+        return this.getEnvironments().filter(e => this.state.selectedEnv.includes(e));
     }
 
     getDeploymentEnvironments(name: string): [string, boolean] [] {
         const deps = this.state.deploymentStatuses;
-        return this.getEnvironments().map(e => {
+        return this.getSelectedEnvironments().map(e => {
             const env: string = e as string;
             const dep = deps.find(d => d.name === name && d.env === env);
             const deployed: boolean = dep !== undefined && dep.replicas > 0 && dep.replicas === dep.readyReplicas;
@@ -118,7 +142,7 @@ export class DashboardPage extends React.Component<Props, State> {
 
     getDeploymentByEnvironments(name: string): [string, DeploymentStatus | undefined] [] {
         const deps = this.state.deploymentStatuses;
-        return this.getEnvironments().map(e => {
+        return this.getSelectedEnvironments().map(e => {
             const env: string = e as string;
             const dep = deps.find(d => d.name === name && d.env === env);
             return [env, dep];
@@ -127,7 +151,7 @@ export class DashboardPage extends React.Component<Props, State> {
 
     getServiceByEnvironments(name: string): [string, ServiceStatus | undefined] [] {
         const services = this.state.serviceStatuses;
-        return this.getEnvironments().map(e => {
+        return this.getSelectedEnvironments().map(e => {
             const env: string = e as string;
             const service = services.find(d => d.name === name && d.env === env);
             return [env, service];
@@ -170,7 +194,7 @@ export class DashboardPage extends React.Component<Props, State> {
                 <Tooltip content={"No information"} position={"right"}>
                     <Label color={"grey"}>???</Label>
                 </Tooltip>
-                    );
+            );
         }
     }
 
@@ -199,27 +223,27 @@ export class DashboardPage extends React.Component<Props, State> {
                         <Tbody>
                             {deployments.map(deployment => (
                                 <Tr key={deployment}>
-                                    <Td  style={{verticalAlign:"middle"}}>
+                                    <Td style={{verticalAlign: "middle"}}>
                                         {this.isKaravan(deployment) ? Icon("icon") : CamelUi.getIconFromSource(camelIcon)}
                                     </Td>
-                                    <Td  style={{ verticalAlign:"middle"}}>
+                                    <Td style={{verticalAlign: "middle"}}>
                                         <Button style={{padding: '6px'}} variant={"link"}>{deployment}</Button>
                                     </Td>
-                                    <Td  style={{verticalAlign:"middle"}}>
+                                    <Td style={{verticalAlign: "middle"}}>
                                         <HelperText>
                                             <HelperTextItem>{this.getProject(deployment)?.name || ""}</HelperTextItem>
                                             <HelperTextItem>{this.getProject(deployment)?.description || "Camel project"}</HelperTextItem>
                                         </HelperText>
                                     </Td>
-                                    <Td  >
+                                    <Td>
                                         <Flex direction={{default: "column"}}>
                                             {this.getDeploymentEnvironments(deployment).map(value => (
                                                 <FlexItem className="badge-flex-item" key={value[0]}><Badge className="badge"
-                                                    isRead={!value[1]}>{value[0]}</Badge></FlexItem>
+                                                                                                            isRead={!value[1]}>{value[0]}</Badge></FlexItem>
                                             ))}
                                         </Flex>
                                     </Td>
-                                    <Td >
+                                    <Td>
                                         <Flex direction={{default: "column"}}>
                                             {this.getDeploymentByEnvironments(deployment).map(value => (
                                                 <FlexItem className="badge-flex-item" key={value[0]}>
@@ -230,7 +254,7 @@ export class DashboardPage extends React.Component<Props, State> {
                                             ))}
                                         </Flex>
                                     </Td>
-                                    <Td >
+                                    <Td>
                                         <Flex direction={{default: "column"}}>
                                             {this.getDeploymentByEnvironments(deployment).map(value => (
                                                 <FlexItem className="badge-flex-item" key={value[0]}>{this.getReplicasPanel(value[1])}</FlexItem>

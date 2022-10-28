@@ -98,9 +98,7 @@ export class ProjectPage extends React.Component<Props, State> {
                 })
             });
             KaravanApi.getFiles(this.props.project.projectId, (files: []) => {
-                this.setState({
-                    files: files
-                })
+                this.setState({files: files})
             });
             KubernetesAPI.inKubernetes = true;
             KaravanApi.getConfigMaps(this.state.environment, (any: []) => {

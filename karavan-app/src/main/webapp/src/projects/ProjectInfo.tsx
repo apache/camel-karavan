@@ -115,7 +115,6 @@ export class ProjectInfo extends React.Component<Props, State> {
     build = () => {
         this.setState({isBuilding: true});
         KaravanApi.pipelineRun(this.props.project, this.state.environment, res => {
-            console.log(res)
             if (res.status === 200 || res.status === 201) {
                 this.setState({isBuilding: false});
                 this.onRefresh();
