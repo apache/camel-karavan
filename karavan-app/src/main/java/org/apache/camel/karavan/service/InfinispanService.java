@@ -25,6 +25,7 @@ import org.apache.camel.karavan.model.PipelineStatus;
 import org.apache.camel.karavan.model.PodStatus;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
+import org.apache.camel.karavan.model.ServiceStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.infinispan.Cache;
 import org.infinispan.client.hotrod.RemoteCache;
@@ -56,6 +57,7 @@ public class InfinispanService {
     BasicCache<GroupedKey, DeploymentStatus> deploymentStatuses;
     BasicCache<GroupedKey, PodStatus> podStatuses;
     BasicCache<GroupedKey, CamelStatus> camelStatuses;
+    BasicCache<GroupedKey, ServiceStatus> serviceStatuses;
     BasicCache<String, String> kamelets;
     BasicCache<String, Environment> environments;
 
@@ -95,6 +97,7 @@ public class InfinispanService {
             pipelineStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(PipelineStatus.CACHE, builder.build());
             deploymentStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(DeploymentStatus.CACHE, builder.build());
             podStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(PodStatus.CACHE, builder.build());
+            serviceStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ServiceStatus.CACHE, builder.build());
             camelStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(CamelStatus.CACHE, builder.build());
             kamelets = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Kamelet.CACHE, builder.build());
 
@@ -107,6 +110,7 @@ public class InfinispanService {
             pipelineStatuses = cacheManager.administration().getOrCreateCache(PipelineStatus.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, PipelineStatus.CACHE)));
             deploymentStatuses = cacheManager.administration().getOrCreateCache(DeploymentStatus.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, DeploymentStatus.CACHE)));
             podStatuses = cacheManager.administration().getOrCreateCache(PodStatus.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, PodStatus.CACHE)));
+            serviceStatuses = cacheManager.administration().getOrCreateCache(ServiceStatus.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, ServiceStatus.CACHE)));
             camelStatuses = cacheManager.administration().getOrCreateCache(CamelStatus.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, CamelStatus.CACHE)));
             kamelets = cacheManager.administration().getOrCreateCache(Kamelet.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, Kamelet.CACHE)));
         }
@@ -180,16 +184,17 @@ public class InfinispanService {
         pipelineStatuses.remove(GroupedKey.create(status.getProjectId(), status.getEnv()));
     }
 
-    public DeploymentStatus getDeploymentStatus(String name, String env) {
-        return deploymentStatuses.get(GroupedKey.create(name, env));
+    public DeploymentStatus getDeploymentStatus(String name, String namespace, String cluster) {
+        String deploymentId = name + ":" + namespace + ":" + cluster;
+        return deploymentStatuses.get(GroupedKey.create(name, deploymentId));
     }
 
     public void saveDeploymentStatus(DeploymentStatus status) {
-        deploymentStatuses.put(GroupedKey.create(status.getName(), status.getEnv()), status);
+        deploymentStatuses.put(GroupedKey.create(status.getName(), status.getId()), status);
     }
 
     public void deleteDeploymentStatus(DeploymentStatus status) {
-        deploymentStatuses.remove(GroupedKey.create(status.getName(), status.getEnv()));
+        deploymentStatuses.remove(GroupedKey.create(status.getName(), status.getId()));
     }
 
     public List<DeploymentStatus> getDeploymentStatuses() {
@@ -208,6 +213,18 @@ public class InfinispanService {
                     .setParameter("env", env)
                     .execute().list();
         }
+    }
+
+    public void saveServiceStatus(ServiceStatus status) {
+        serviceStatuses.put(GroupedKey.create(status.getName(), status.getId()), status);
+    }
+
+    public void deleteServiceStatus(ServiceStatus status) {
+        serviceStatuses.remove(GroupedKey.create(status.getName(), status.getId()));
+    }
+
+    public List<ServiceStatus> getServiceStatuses() {
+        return serviceStatuses.values().stream().collect(Collectors.toList());
     }
 
     public List<PodStatus> getPodStatuses(String projectId, String env) {

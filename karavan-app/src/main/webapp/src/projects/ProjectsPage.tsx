@@ -214,15 +214,22 @@ export class ProjectsPage extends React.Component<Props, State> {
         )
     }
 
-    isDeployed(projectId: string): boolean{
-        const ds = this.state.deploymentStatuses.find(ds => ds.name === projectId);
-        return ds ? (ds.replicas > 0 && ds.replicas === ds.readyReplicas) : false;
+    getEnvironments(): string []{
+        return this.props.config.environments && Array.isArray(this.props.config.environments) ? Array.from(this.props.config.environments) : [];
+    }
+
+    getDeploymentByEnvironments(name: string): [string, DeploymentStatus | undefined] [] {
+        const deps = this.state.deploymentStatuses;
+        return this.getEnvironments().map(e => {
+            const env: string = e as string;
+            const dep = deps.find(d => d.name === name && d.env === env);
+            return [env, dep];
+        });
     }
 
     render() {
         const runtime = this.props.config?.runtime ? this.props.config.runtime : "QUARKUS";
         const projects = this.state.projects.filter(p => p.name.toLowerCase().includes(this.state.filter) || p.description.toLowerCase().includes(this.state.filter));
-        const environment: string = this.props.config.environment;
         return (
             <PageSection className="kamelet-section projects-page" padding={{default: 'noPadding'}}>
                 <PageSection className="tools-section" padding={{default: 'noPadding'}}>
@@ -263,7 +270,11 @@ export class ProjectsPage extends React.Component<Props, State> {
                                     </Td>
                                     <Td noPadding style={{width:"180px"}}>
                                         <Flex direction={{default: "row"}}>
-                                            <FlexItem key={"dev"}><Badge isRead={!this.isDeployed(project.projectId)}>{"dev"}</Badge></FlexItem>
+                                            {this.getDeploymentByEnvironments(project.projectId).map(value => (
+                                                <FlexItem className="badge-flex-item" key={value[0]}>
+                                                    <Badge className="badge"isRead={!value[1]}>{value[0]}</Badge>
+                                                </FlexItem>
+                                            ))}
                                         </Flex>
                                     </Td>
                                     <Td isActionCell>

@@ -8,7 +8,6 @@ import {
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
 import {DeploymentStatus, Project, ProjectFileTypes} from "./ProjectModels";
-import {ChartDonutThreshold} from "@patternfly/react-charts";
 
 interface Props {
     project: Project,

@@ -1,0 +1,268 @@
+import React from 'react';
+import {
+    Badge,
+    Button,
+    Flex,
+    FlexItem, HelperText, HelperTextItem, Label, LabelGroup,
+    OverflowMenu,
+    OverflowMenuContent,
+    OverflowMenuGroup,
+    OverflowMenuItem,
+    PageSection,
+    Text,
+    TextContent,
+    TextInput,
+    Toolbar,
+    ToolbarContent,
+    ToolbarItem, Tooltip
+} from '@patternfly/react-core';
+import '../designer/karavan.css';
+import {MainToolbar} from "../MainToolbar";
+import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
+import {DeploymentStatus, Project, ServiceStatus} from "../projects/ProjectModels";
+import {TableComposable, TableVariant, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import {camelIcon, CamelUi} from "../designer/utils/CamelUi";
+import {KaravanApi} from "../api/KaravanApi";
+import Icon from "../Logo";
+import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
+import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
+
+interface Props {
+    config: any,
+    onSelect: (project: Project) => void
+    toast: (title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') => void
+}
+
+interface State {
+    projects: Project[],
+    deploymentStatuses: DeploymentStatus[],
+    serviceStatuses: ServiceStatus[],
+    isCreateModalOpen: boolean,
+    isDeleteModalOpen: boolean,
+    isCopy: boolean,
+    projectToCopy?: Project,
+    projectToDelete?: Project,
+    filter: string,
+    name: string,
+    description: string,
+    projectId: string,
+}
+
+export class DashboardPage extends React.Component<Props, State> {
+
+    public state: State = {
+        projects: [],
+        deploymentStatuses: [],
+        serviceStatuses: [],
+        isCreateModalOpen: false,
+        isDeleteModalOpen: false,
+        isCopy: false,
+        filter: '',
+        name: '',
+        description: '',
+        projectId: '',
+    };
+    interval: any;
+
+    componentDidMount() {
+        this.interval = setInterval(() => this.onGetProjects(), 1300);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.interval);
+    }
+
+    onGetProjects = () => {
+        KaravanApi.getConfiguration((config: any) => {
+            KaravanApi.getProjects((projects: Project[]) => {
+                this.setState({projects: projects})
+            });
+            KaravanApi.getAllDeploymentStatuses((statuses: DeploymentStatus[]) => {
+                this.setState({deploymentStatuses: statuses});
+            });
+            KaravanApi.getAllServiceStatuses((statuses: ServiceStatus[]) => {
+                this.setState({serviceStatuses: statuses});
+            });
+        });
+
+    }
+
+    tools = () => (<Toolbar id="toolbar-group-types">
+        <ToolbarContent>
+            <ToolbarItem>
+                <Button variant="link" icon={<RefreshIcon/>} onClick={e => this.onGetProjects()}/>
+            </ToolbarItem>
+            <ToolbarItem>
+                <TextInput className="text-field" type="search" id="search" name="search"
+                           autoComplete="off" placeholder="Search by name"
+                           value={this.state.filter}
+                           onChange={e => this.setState({filter: e})}/>
+            </ToolbarItem>
+        </ToolbarContent>
+    </Toolbar>);
+
+    title = () => (<TextContent>
+        <Text component="h1">Dashboard</Text>
+    </TextContent>);
+
+    getEnvironments(): string []{
+        return this.props.config.environments && Array.isArray(this.props.config.environments) ? Array.from(this.props.config.environments) : [];
+    }
+
+    getDeploymentEnvironments(name: string): [string, boolean] [] {
+        const deps = this.state.deploymentStatuses;
+        return this.getEnvironments().map(e => {
+            const env: string = e as string;
+            const dep = deps.find(d => d.name === name && d.env === env);
+            const deployed: boolean = dep !== undefined && dep.replicas > 0 && dep.replicas === dep.readyReplicas;
+            return [env, deployed];
+        });
+    }
+
+    getDeploymentByEnvironments(name: string): [string, DeploymentStatus | undefined] [] {
+        const deps = this.state.deploymentStatuses;
+        return this.getEnvironments().map(e => {
+            const env: string = e as string;
+            const dep = deps.find(d => d.name === name && d.env === env);
+            return [env, dep];
+        });
+    }
+
+    getServiceByEnvironments(name: string): [string, ServiceStatus | undefined] [] {
+        const services = this.state.serviceStatuses;
+        return this.getEnvironments().map(e => {
+            const env: string = e as string;
+            const service = services.find(d => d.name === name && d.env === env);
+            return [env, service];
+        });
+    }
+
+    getProject(name: string): Project | undefined {
+        return this.state.projects.filter(p => p.name === name)?.at(0);
+    }
+
+    isKaravan(name: string): boolean {
+        return this.state.projects.findIndex(p => p.projectId === name) > 0;
+    }
+
+    getReplicasPanel(deploymentStatus?: DeploymentStatus) {
+        if (deploymentStatus) {
+            const readyReplicas = deploymentStatus.readyReplicas ? deploymentStatus.readyReplicas : 0;
+            const ok = (deploymentStatus && readyReplicas > 0
+                && (deploymentStatus.unavailableReplicas === 0 || deploymentStatus.unavailableReplicas === undefined || deploymentStatus.unavailableReplicas === null)
+                && deploymentStatus?.replicas === readyReplicas);
+            return (
+                <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
+                    <FlexItem>
+                        <LabelGroup numLabels={3}>
+                            <Tooltip content={"Ready Replicas / Replicas"} position={"left"}>
+                                <Label className="table-label" icon={ok ? <UpIcon/> : <DownIcon/>}
+                                       color={ok ? "green" : "grey"}>{"Replicas: " + readyReplicas + " / " + deploymentStatus.replicas}</Label>
+                            </Tooltip>
+                            {deploymentStatus.unavailableReplicas > 0 &&
+                                <Tooltip content={"Unavailable replicas"} position={"right"}>
+                                    <Label icon={<DownIcon/>} color={"red"}>{deploymentStatus.unavailableReplicas}</Label>
+                                </Tooltip>
+                            }
+                        </LabelGroup>
+                    </FlexItem>
+                </Flex>
+            )
+        } else {
+            return (<Label icon={<DownIcon/>} color={"grey"}>n/a</Label>);
+        }
+    }
+
+    render() {
+        const deployments = Array.from(new Set(this.state.deploymentStatuses.filter(d => d.name.toLowerCase().includes(this.state.filter)).map(d => d.name)));
+        return (
+            <PageSection className="kamelet-section dashboard-page" padding={{default: 'noPadding'}}>
+                <PageSection className="tools-section" padding={{default: 'noPadding'}}>
+                    <MainToolbar title={this.title()} tools={this.tools()}/>
+                </PageSection>
+                <PageSection isFilled className="kamelets-page">
+                    <TableComposable aria-label="Projects" variant={TableVariant.compact}>
+                        <Thead>
+                            <Tr>
+                                <Th key='type'>Type</Th>
+                                <Th key='name'>Deployment</Th>
+                                <Th key='description'>Project/Description</Th>
+                                <Th key='environment'>Environment</Th>
+                                <Th key='namespace'>Namespace</Th>
+                                <Th key='replicas'>Replicas</Th>
+                                <Th key='services'>Services</Th>
+                                <Th key='camel'>Camel Health</Th>
+                                {/*<Th key='action'></Th>*/}
+                            </Tr>
+                        </Thead>
+                        <Tbody>
+                            {deployments.map(deployment => (
+                                <Tr key={deployment}>
+                                    <Td  style={{verticalAlign:"middle"}}>
+                                        {this.isKaravan(deployment) ? Icon("icon") : CamelUi.getIconFromSource(camelIcon)}
+                                    </Td>
+                                    <Td  style={{ verticalAlign:"middle"}}>
+                                        <Button style={{padding: '6px'}} variant={"link"}>{deployment}</Button>
+                                    </Td>
+                                    <Td  style={{verticalAlign:"middle"}}>
+                                        <HelperText>
+                                            <HelperTextItem>{this.getProject(deployment)?.name || ""}</HelperTextItem>
+                                            <HelperTextItem>{this.getProject(deployment)?.description || ""}</HelperTextItem>
+                                        </HelperText>
+                                    </Td>
+                                    <Td  >
+                                        <Flex direction={{default: "column"}}>
+                                            {this.getDeploymentEnvironments(deployment).map(value => (
+                                                <FlexItem className="badge-flex-item" key={value[0]}><Badge className="badge"
+                                                    isRead={!value[1]}>{value[0]}</Badge></FlexItem>
+                                            ))}
+                                        </Flex>
+                                    </Td>
+                                    <Td >
+                                        <Flex direction={{default: "column"}}>
+                                            {this.getDeploymentByEnvironments(deployment).map(value => (
+                                                <FlexItem className="badge-flex-item" key={value[0]}>
+                                                    <Label variant={"outline"}>{value[1]?.namespace || "n/a"}</Label>
+                                                </FlexItem>
+                                            ))}
+                                        </Flex>
+                                    </Td>
+                                    <Td >
+                                        <Flex direction={{default: "column"}}>
+                                            {this.getDeploymentByEnvironments(deployment).map(value => (
+                                                <FlexItem className="badge-flex-item" key={value[0]}>{this.getReplicasPanel(value[1])}</FlexItem>
+                                            ))}
+                                        </Flex>
+                                    </Td>
+                                    <Td>
+                                        <Flex direction={{default: "column"}}>
+                                            {this.getServiceByEnvironments(deployment).map(value => (
+                                                <FlexItem className="badge-flex-item" key={value[0]}>
+                                                    <Label variant={"outline"}>{value[1] ? (value[1]?.port + " -> " + value[1]?.targetPort) : "n/a"}</Label>
+                                                </FlexItem>
+                                            ))}
+                                        </Flex>
+                                    </Td>
+                                    <Td modifier={"fitContent"}>
+                                        <Flex direction={{default: "column"}}>
+                                            {this.getServiceByEnvironments(deployment).map(value => (
+                                                <FlexItem key={value[0]}>
+                                                    <LabelGroup numLabels={4} className="camel-label-group">
+                                                        <Label className="table-label" icon={false ? <UpIcon/> : <DownIcon/>}>{"Context"}</Label>
+                                                        <Label className="table-label" icon={false ? <UpIcon/> : <DownIcon/>}>{"Consumer"}</Label>
+                                                        <Label className="table-label" icon={false ? <UpIcon/> : <DownIcon/>}>{"Routes"}</Label>
+                                                        <Label className="table-label" icon={false ? <UpIcon/> : <DownIcon/>}>{"Registry"}</Label>
+                                                    </LabelGroup>
+                                                </FlexItem>
+                                            ))}
+                                        </Flex>
+                                    </Td>
+                                </Tr>
+                            ))}
+                        </Tbody>
+                    </TableComposable>
+                </PageSection>
+            </PageSection>
+        )
+    }
+}

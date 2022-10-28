@@ -1,8 +1,9 @@
-package org.apache.camel.karavan.watcher;
+package org.apache.camel.karavan.informer;
 
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import org.apache.camel.karavan.model.DeploymentStatus;
+import org.apache.camel.karavan.model.Environment;
 import org.apache.camel.karavan.service.InfinispanService;
 import org.apache.camel.karavan.service.KubernetesService;
 import org.jboss.logging.Logger;
@@ -24,6 +25,14 @@ public class DeploymentEventHandler implements ResourceEventHandler<Deployment> 
             LOGGER.info("onAdd " + deployment.getMetadata().getName());
             DeploymentStatus ds = getDeploymentStatus(deployment);
             infinispanService.saveDeploymentStatus(ds);
+            // TODO: Delete after UI design
+            infinispanService.saveEnvironment(new Environment("test", "test", "karavan-test", "test-pipeline"));
+            infinispanService.saveEnvironment(new Environment("prod", "prod", "karavan-prod", "prod-pipeline"));
+            DeploymentStatus ds1 = getDeploymentStatus(deployment);
+            ds1.setEnv("test");
+            ds1.setNamespace("karavan-test");
+            ds1.setCluster("demo.cluster");
+            infinispanService.saveDeploymentStatus(ds1);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
@@ -35,6 +44,11 @@ public class DeploymentEventHandler implements ResourceEventHandler<Deployment> 
             LOGGER.info("onUpdate " + newDeployment.getMetadata().getName());
             DeploymentStatus ds = getDeploymentStatus(newDeployment);
             infinispanService.saveDeploymentStatus(ds);
+            // TODO: Delete after UI design
+            DeploymentStatus ds1 = getDeploymentStatus(newDeployment);
+            ds1.setEnv("test");
+            ds1.setCluster("demo.cluster");
+            infinispanService.saveDeploymentStatus(ds1);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
@@ -47,6 +61,7 @@ public class DeploymentEventHandler implements ResourceEventHandler<Deployment> 
             DeploymentStatus ds = new DeploymentStatus(
                     deployment.getMetadata().getName(),
                     deployment.getMetadata().getNamespace(),
+                    kubernetesService.getCluster(),
                     kubernetesService.environment);
             infinispanService.deleteDeploymentStatus(ds);
         } catch (Exception e){
@@ -65,6 +80,7 @@ public class DeploymentEventHandler implements ResourceEventHandler<Deployment> 
                     deployment.getMetadata().getName(),
                     deployment.getMetadata().getNamespace(),
                     kubernetesService.environment,
+                    kubernetesService.getCluster(),
                     imageName,
                     deployment.getSpec().getReplicas(),
                     deployment.getStatus().getReadyReplicas(),
@@ -75,6 +91,7 @@ public class DeploymentEventHandler implements ResourceEventHandler<Deployment> 
             return new DeploymentStatus(
                     deployment.getMetadata().getName(),
                     deployment.getMetadata().getNamespace(),
+                    kubernetesService.getCluster(),
                     kubernetesService.environment);
         }
     }

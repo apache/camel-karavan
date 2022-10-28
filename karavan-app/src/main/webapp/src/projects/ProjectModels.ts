@@ -24,10 +24,22 @@ export class DeploymentStatus {
     name: string = '';
     env: string = '';
     namespace: string = '';
+    cluster: string = '';
     image: string = '';
     replicas: number = 0;
     readyReplicas: number = 0;
     unavailableReplicas: number = 0;
+}
+
+export class ServiceStatus {
+    name: string = '';
+    env: string = '';
+    namespace: string = '';
+    cluster: string = '';
+    port: string = '';
+    targetPort: string = '';
+    clusterIP: string = '';
+    type: string = '';
 }
 
 export class PodStatus {

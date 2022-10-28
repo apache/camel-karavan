@@ -5,7 +5,7 @@ import {
     PipelineStatus,
     PodStatus,
     Project,
-    ProjectFile
+    ProjectFile, ServiceStatus
 } from "../projects/ProjectModels";
 import {Buffer} from 'buffer';
 import {SsoApi} from "./SsoApi";
@@ -288,6 +288,28 @@ export class KaravanApi {
 
     static async getContainerLog(environment: string, name: string, after: (res: AxiosResponse<string>) => void) {
         instance.get('/api/kubernetes/container/log/' + environment + "/" + name)
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    static async getAllServiceStatuses(after: (statuses: ServiceStatus[]) => void) {
+        instance.get('/api/kubernetes/service')
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    static async getAllDeploymentStatuses(after: (statuses: DeploymentStatus[]) => void) {
+        instance.get('/api/kubernetes/deployment')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);

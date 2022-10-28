@@ -1,9 +1,7 @@
 import React from 'react';
 import {
     Page,
-    ModalVariant,
     Button,
-    Modal,
     Alert,
     AlertActionCloseButton,
     Flex,
@@ -13,7 +11,7 @@ import {
 } from '@patternfly/react-core';
 import {KaravanApi} from "./api/KaravanApi";
 import {SsoApi} from "./api/SsoApi";
-import {KameletApi, Kamelets} from "karavan-core/lib/api/KameletApi";
+import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import './designer/karavan.css';
 import {ConfigurationPage} from "./config/ConfigurationPage";
 import {KameletsPage} from "./kamelets/KameletsPage";
@@ -28,10 +26,12 @@ import {ProjectPage} from "./projects/ProjectPage";
 import UserIcon from "@patternfly/react-icons/dist/js/icons/user-icon";
 import ProjectsIcon from "@patternfly/react-icons/dist/js/icons/repository-icon";
 import KameletsIcon from "@patternfly/react-icons/dist/js/icons/registry-icon";
+import DashboardIcon from "@patternfly/react-icons/dist/js/icons/tachometer-alt-icon";
 import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
 import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
 import ConfigurationIcon from "@patternfly/react-icons/dist/js/icons/cogs-icon";
 import {MainLogin} from "./MainLogin";
+import {DashboardPage} from "./dashboard/DashboardPage";
 
 class ToastMessage {
     id: string = ''
@@ -124,7 +124,7 @@ export class Main extends React.Component<Props, State> {
 
     getData() {
         KaravanApi.getConfiguration((config: any) => {
-            this.setState({ config: config });
+            this.setState({config: config});
         });
         this.updateKamelets();
         this.updateComponents();
@@ -157,16 +157,18 @@ export class Main extends React.Component<Props, State> {
 
     pageNav = () => {
         const pages: MenuItem[] = [
-            // new MenuItem("dashboard", "Dashboard", <TachometerAltIcon/>),
+            new MenuItem("dashboard", "Dashboard", <DashboardIcon/>),
             new MenuItem("projects", "Projects", <ProjectsIcon/>),
             new MenuItem("eip", "Enterprise Integration Patterns", <EipIcon/>),
             new MenuItem("kamelets", "Kamelets", <KameletsIcon/>),
             new MenuItem("components", "Components", <ComponentsIcon/>),
             new MenuItem("configuration", "Configuration", <ConfigurationIcon/>)
         ]
-        return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height:"100%"}} spaceItems={{default:"spaceItemsNone"}}>
-            <FlexItem alignSelf={{default:"alignSelfCenter"}}>
-                <Tooltip className="logo-tooltip" content={"Apache Camel Karavan " + this.state.config.version} position={"right"}>
+        return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height: "100%"}}
+                      spaceItems={{default: "spaceItemsNone"}}>
+            <FlexItem alignSelf={{default: "alignSelfCenter"}}>
+                <Tooltip className="logo-tooltip" content={"Apache Camel Karavan " + this.state.config.version}
+                         position={"right"}>
                     {Icon()}
                 </Tooltip>
             </FlexItem>
@@ -180,11 +182,11 @@ export class Main extends React.Component<Props, State> {
                     </Tooltip>
                 </FlexItem>
             )}
-            <FlexItem flex={{default:"flex_2"}} alignSelf={{default:"alignSelfCenter"}}>
+            <FlexItem flex={{default: "flex_2"}} alignSelf={{default: "alignSelfCenter"}}>
                 <Divider/>
             </FlexItem>
             {KaravanApi.authType !== 'public' &&
-                <FlexItem alignSelf={{default:"alignSelfCenter"}}>
+                <FlexItem alignSelf={{default: "alignSelfCenter"}}>
                     <Popover
                         aria-label="Current user"
                         position={"right-end"}
@@ -194,7 +196,7 @@ export class Main extends React.Component<Props, State> {
                         shouldOpen={tip => this.setState({showUser: true})}
                         headerContent={<div>{KaravanApi.me.userName}</div>}
                         bodyContent={
-                            <Flex direction={{default:"row"}}>
+                            <Flex direction={{default: "row"}}>
                                 {KaravanApi.me.roles && Array.isArray(KaravanApi.me.roles)
                                     && KaravanApi.me.roles
                                         .filter((r: string) => ['administrator', 'developer', 'viewer'].includes(r))
@@ -221,20 +223,28 @@ export class Main extends React.Component<Props, State> {
     getMain() {
         return (
             <>
-                <Flex direction={{default:"row"}} style={{width: "100%", height:"100%"}} alignItems={{default:"alignItemsStretch"}} spaceItems={{ default: 'spaceItemsNone' }}>
+                <Flex direction={{default: "row"}} style={{width: "100%", height: "100%"}}
+                      alignItems={{default: "alignItemsStretch"}} spaceItems={{default: 'spaceItemsNone'}}>
                     <FlexItem>
                         {this.pageNav()}
                     </FlexItem>
-                    <FlexItem flex={{default:"flex_2"}} style={{height:"100%"}}>
+                    <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
                         {this.state.pageId === 'projects' &&
                             <ProjectsPage key={this.state.request}
                                           onSelect={this.onProjectSelect}
                                           toast={this.toast}
                                           config={this.state.config}/>}
-                        {this.state.pageId === 'project' && this.state.project && <ProjectPage project={this.state.project} config={this.state.config}/>}
+                        {this.state.pageId === 'project' && this.state.project &&
+                            <ProjectPage project={this.state.project} config={this.state.config}/>}
+                        {this.state.pageId === 'dashboard' && <DashboardPage key={this.state.request}
+                                                                             onSelect={this.onProjectSelect}
+                                                                             toast={this.toast}
+                                                                             config={this.state.config}/>}
                         {this.state.pageId === 'configuration' && <ConfigurationPage/>}
-                        {this.state.pageId === 'kamelets' && <KameletsPage dark={false} onRefresh={this.updateKamelets}/>}
-                        {this.state.pageId === 'components' && <ComponentsPage dark={false} onRefresh={this.updateComponents}/>}
+                        {this.state.pageId === 'kamelets' &&
+                            <KameletsPage dark={false} onRefresh={this.updateKamelets}/>}
+                        {this.state.pageId === 'components' &&
+                            <ComponentsPage dark={false} onRefresh={this.updateComponents}/>}
                         {this.state.pageId === 'eip' && <EipPage dark={false}/>}
                     </FlexItem>
                 </Flex>
@@ -246,11 +256,12 @@ export class Main extends React.Component<Props, State> {
         return (
             <Page className="karavan">
                 {KaravanApi.authType === undefined && <Bullseye className="loading-page">
-                    <Spinner className="spinner" isSVG diameter="140px" aria-label="Loading..." />
+                    <Spinner className="spinner" isSVG diameter="140px" aria-label="Loading..."/>
                     <div className="logo-placeholder">{Icon()}</div>
                 </Bullseye>}
                 {(KaravanApi.isAuthorized || KaravanApi.authType === 'public') && this.getMain()}
-                {!KaravanApi.isAuthorized && KaravanApi.authType === 'basic' && <MainLogin config={this.state.config} onLogin={this.onLogin}/>}
+                {!KaravanApi.isAuthorized && KaravanApi.authType === 'basic' &&
+                    <MainLogin config={this.state.config} onLogin={this.onLogin}/>}
                 {this.state.alerts.map((e: ToastMessage) => (
                     <Alert key={e.id} className="main-alert" variant={e.variant} title={e.title}
                            timeout={e.variant === "success" ? 1000 : 2000}

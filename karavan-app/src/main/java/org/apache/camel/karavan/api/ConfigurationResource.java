@@ -50,7 +50,16 @@ public class ConfigurationResource {
                 Map.of(
                         "version", version,
                         "environment", environment,
-                        "environments", infinispanService.getEnvironments().stream().map(e -> e.getName()).collect(Collectors.toList()),
+                        "environments", infinispanService.getEnvironments().stream()
+                                .map(e -> e.getName())
+                                        .sorted((o1, o2) -> {
+                                            if (o1.startsWith("dev") && o2.startsWith("test")) return -1;
+                                            if (o1.startsWith("test") && o2.startsWith("dev")) return 1;
+                                            if (o1.startsWith("test") && o2.startsWith("prod")) return -1;
+                                            if (o1.startsWith("prod") && o2.startsWith("test")) return 1;
+                                            return o1.compareTo(o2);
+                                        })
+                                .collect(Collectors.toList()),
                         "runtime", runtime
                 )
         ).build();

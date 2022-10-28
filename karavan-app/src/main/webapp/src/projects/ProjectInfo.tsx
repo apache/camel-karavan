@@ -40,7 +40,6 @@ interface State {
     deleteEntity?: 'pod' | 'deployment',
     deleteEntityName?: string,
     deleteEntityEnv?: string,
-    environments: string[],
     environment: string,
     key?: string,
 }
@@ -54,8 +53,6 @@ export class ProjectInfo extends React.Component<Props, State> {
         isBuilding: false,
         isRolling: false,
         showDeleteConfirmation: false,
-        environments: this.props.config.environments && Array.isArray(this.props.config.environments)
-            ? Array.from(this.props.config.environments) : [],
         environment: this.props.config.environment
     };
     interval: any;

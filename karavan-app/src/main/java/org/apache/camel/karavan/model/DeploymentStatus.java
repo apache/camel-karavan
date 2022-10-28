@@ -1,6 +1,5 @@
 package org.apache.camel.karavan.model;
 
-import org.infinispan.protostream.annotations.ProtoDoc;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
@@ -13,17 +12,20 @@ public class DeploymentStatus {
     @ProtoField(number = 3)
     String env;
     @ProtoField(number = 4)
-    String image;
+    String cluster;
     @ProtoField(number = 5)
-    Integer replicas;
+    String image;
     @ProtoField(number = 6)
-    Integer readyReplicas;
+    Integer replicas;
     @ProtoField(number = 7)
+    Integer readyReplicas;
+    @ProtoField(number = 8)
     Integer unavailableReplicas;
 
-    public DeploymentStatus(String name, String namespace, String env) {
+    public DeploymentStatus(String name, String namespace, String cluster, String env) {
         this.name = name;
         this.namespace = namespace;
+        this.cluster = cluster;
         this.env = env;
         this.image = "";
         this.replicas = 0;
@@ -32,14 +34,19 @@ public class DeploymentStatus {
     }
 
     @ProtoFactory
-    public DeploymentStatus(String name, String namespace, String env, String image, Integer replicas, Integer readyReplicas, Integer unavailableReplicas) {
+    public DeploymentStatus(String name, String namespace, String env, String cluster, String image, Integer replicas, Integer readyReplicas, Integer unavailableReplicas) {
         this.name = name;
-        this.env = env;
         this.namespace = namespace;
+        this.env = env;
+        this.cluster = cluster;
         this.image = image;
         this.replicas = replicas;
         this.readyReplicas = readyReplicas;
         this.unavailableReplicas = unavailableReplicas;
+    }
+
+    public String getId() {
+        return name + ":" + namespace + ":" + cluster;
     }
 
     public String getName() {
@@ -96,5 +103,13 @@ public class DeploymentStatus {
 
     public void setUnavailableReplicas(Integer unavailableReplicas) {
         this.unavailableReplicas = unavailableReplicas;
+    }
+
+    public String getCluster() {
+        return cluster;
+    }
+
+    public void setCluster(String cluster) {
+        this.cluster = cluster;
     }
 }
