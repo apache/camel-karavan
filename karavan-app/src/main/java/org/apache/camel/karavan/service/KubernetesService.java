@@ -93,6 +93,9 @@ public class KubernetesService {
     public
     String environment;
 
+    @ConfigProperty(name = "karavan.pipeline")
+    String pipeline;
+
     List<SharedIndexInformer> informers = new ArrayList<>(3);
 
     @ConsumeEvent(value = START_INFORMERS, blocking = true)
@@ -129,19 +132,19 @@ public class KubernetesService {
         informers.forEach(informer -> informer.close());
     }
 
-    public String createPipelineRun(Project project, String pipelineName, String namespace) throws Exception {
-        LOGGER.info("Pipeline is creating for " + project.getProjectId());
+    public String createPipelineRun(Project project) throws Exception {
+        LOGGER.info("Pipeline " + pipeline + " is creating for " + project.getProjectId());
 
         Map<String, String> labels = Map.of(
                 "karavan-project-id", project.getProjectId(),
-                "tekton.dev/pipeline", pipelineName,
+                "tekton.dev/pipeline", pipeline,
                 getRuntimeLabel(), "camel"
         );
 
         ObjectMeta meta = new ObjectMetaBuilder()
                 .withGenerateName("karavan-" + project.getProjectId() + "-")
                 .withLabels(labels)
-                .withNamespace(namespace)
+                .withNamespace(getNamespace())
                 .build();
 
         PipelineRef ref = new PipelineRefBuilder().withName("karavan-pipeline-build-quarkus").build();

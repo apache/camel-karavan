@@ -57,9 +57,6 @@ public class KubernetesResource {
     @ConfigProperty(name = "karavan.environment")
     String environment;
 
-    @ConfigProperty(name = "karavan.pipeline")
-    String pipeline;
-
 
     private static final Logger LOGGER = Logger.getLogger(KubernetesResource.class.getName());
 
@@ -69,9 +66,7 @@ public class KubernetesResource {
     @Path("/pipeline/{env}")
     public Project createPipeline(@PathParam("env") String env, Project project) throws Exception {
         Project p = infinispanService.getProject(project.getProjectId());
-        kubernetesService.createPipelineRun(project, pipeline, kubernetesService.getNamespace());
-//            p.setDeployed(true); // TODO:  Replace this update by updating from Pipeline
-//        infinispanService.saveProject(p); // TODO:  Replace this update by updating from Pipeline
+        kubernetesService.createPipelineRun(project);
         return p;
     }
 
@@ -132,9 +127,6 @@ public class KubernetesResource {
     @Path("/deployment/{env}/{name}")
     public Response deleteDeployment(@PathParam("env") String env, @PathParam("name") String name) throws Exception {
         kubernetesService.deleteDeployment(name, kubernetesService.getNamespace());
-//            Project p = infinispanService.getProject(name); // TODO: p.setDeployed(false) than karavan keeps pod/camel statuses up forever
-//            p.setDeployed(false);
-//            infinispanService.saveProject(p);
         return Response.ok().build();
     }
 

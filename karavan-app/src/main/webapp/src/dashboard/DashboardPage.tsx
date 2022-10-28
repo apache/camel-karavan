@@ -4,10 +4,6 @@ import {
     Button,
     Flex,
     FlexItem, HelperText, HelperTextItem, Label, LabelGroup,
-    OverflowMenu,
-    OverflowMenuContent,
-    OverflowMenuGroup,
-    OverflowMenuItem,
     PageSection,
     Text,
     TextContent,
@@ -26,6 +22,7 @@ import {KaravanApi} from "../api/KaravanApi";
 import Icon from "../Logo";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
+import QuestionIcon from "@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon";
 
 interface Props {
     config: any,
@@ -169,7 +166,11 @@ export class DashboardPage extends React.Component<Props, State> {
                 </Flex>
             )
         } else {
-            return (<Label icon={<DownIcon/>} color={"grey"}>n/a</Label>);
+            return (
+                <Tooltip content={"No information"} position={"right"}>
+                    <Label color={"grey"}>???</Label>
+                </Tooltip>
+                    );
         }
     }
 
@@ -207,7 +208,7 @@ export class DashboardPage extends React.Component<Props, State> {
                                     <Td  style={{verticalAlign:"middle"}}>
                                         <HelperText>
                                             <HelperTextItem>{this.getProject(deployment)?.name || ""}</HelperTextItem>
-                                            <HelperTextItem>{this.getProject(deployment)?.description || ""}</HelperTextItem>
+                                            <HelperTextItem>{this.getProject(deployment)?.description || "Camel project"}</HelperTextItem>
                                         </HelperText>
                                     </Td>
                                     <Td  >
@@ -222,7 +223,9 @@ export class DashboardPage extends React.Component<Props, State> {
                                         <Flex direction={{default: "column"}}>
                                             {this.getDeploymentByEnvironments(deployment).map(value => (
                                                 <FlexItem className="badge-flex-item" key={value[0]}>
-                                                    <Label variant={"outline"}>{value[1]?.namespace || "n/a"}</Label>
+                                                    <Label variant={"outline"}>
+                                                        {value[1]?.namespace || "???"}
+                                                    </Label>
                                                 </FlexItem>
                                             ))}
                                         </Flex>
@@ -238,7 +241,9 @@ export class DashboardPage extends React.Component<Props, State> {
                                         <Flex direction={{default: "column"}}>
                                             {this.getServiceByEnvironments(deployment).map(value => (
                                                 <FlexItem className="badge-flex-item" key={value[0]}>
-                                                    <Label variant={"outline"}>{value[1] ? (value[1]?.port + " -> " + value[1]?.targetPort) : "n/a"}</Label>
+                                                    <Label variant={"outline"}>
+                                                        {value[1] ? (value[1]?.port + " -> " + value[1]?.targetPort) : "???"}
+                                                    </Label>
                                                 </FlexItem>
                                             ))}
                                         </Flex>
@@ -248,10 +253,11 @@ export class DashboardPage extends React.Component<Props, State> {
                                             {this.getServiceByEnvironments(deployment).map(value => (
                                                 <FlexItem key={value[0]}>
                                                     <LabelGroup numLabels={4} className="camel-label-group">
-                                                        <Label className="table-label" icon={false ? <UpIcon/> : <DownIcon/>}>{"Context"}</Label>
-                                                        <Label className="table-label" icon={false ? <UpIcon/> : <DownIcon/>}>{"Consumer"}</Label>
-                                                        <Label className="table-label" icon={false ? <UpIcon/> : <DownIcon/>}>{"Routes"}</Label>
-                                                        <Label className="table-label" icon={false ? <UpIcon/> : <DownIcon/>}>{"Registry"}</Label>
+                                                        <Label color={false ? "green" : "red"}
+                                                               className="table-label"
+                                                               icon={false ? <UpIcon/> : <DownIcon/>}>
+                                                            {"Context"}
+                                                        </Label>
                                                     </LabelGroup>
                                                 </FlexItem>
                                             ))}

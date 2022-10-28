@@ -46,16 +46,16 @@ public class KaravanTektonPipeline extends CRUDKubernetesDependentResource<Pipel
     public Pipeline desired(Karavan karavan, Context<Karavan> context) {
         return new PipelineBuilder()
                 .withNewMetadata()
-                .withName(Constants.PIPELINE_BUILD_QUARKUS)
+                .withName(Constants.PIPELINE_DEV_QUARKUS)
                 .withNamespace(karavan.getMetadata().getNamespace())
-                .withLabels(Utils.getLabels(Constants.PIPELINE_BUILD_QUARKUS, Map.of()))
+                .withLabels(Utils.getLabels(Constants.PIPELINE_DEV_QUARKUS, Map.of()))
                 .endMetadata()
                 .withNewSpec()
                 .withParams(new ParamSpecBuilder().withName("PROJECT_ID").withType("string").withDescription("ProjectId").build())
                 .withTasks(
-                        new PipelineTaskBuilder().withName(Constants.TASK_BUILD_QUARKUS)
+                        new PipelineTaskBuilder().withName(Constants.TASK_DEV_QUARKUS)
                                 .withParams(new ParamBuilder().withName("project").withNewValue("$(params.PROJECT_ID)").build())
-                                .withTaskRef(new TaskRefBuilder().withKind("Task").withName(Constants.TASK_BUILD_QUARKUS).build())
+                                .withTaskRef(new TaskRefBuilder().withKind("Task").withName(Constants.TASK_DEV_QUARKUS).build())
                                 .withWorkspaces(
                                         new WorkspacePipelineTaskBinding(Constants.PVC_M2_CACHE, "", Constants.PVC_M2_CACHE),
                                         new WorkspacePipelineTaskBinding(Constants.PVC_JBANG_CACHE, "", Constants.PVC_JBANG_CACHE)
@@ -72,7 +72,7 @@ public class KaravanTektonPipeline extends CRUDKubernetesDependentResource<Pipel
 
     @Override
     public ReconcileResult<Pipeline> reconcile(Karavan karavan, Context<Karavan> context) {
-        Pipeline pipeline = new DefaultTektonClient(getKubernetesClient()).v1beta1().pipelines().inNamespace(karavan.getMetadata().getNamespace()).withName(Constants.PIPELINE_BUILD_QUARKUS).get();
+        Pipeline pipeline = new DefaultTektonClient(getKubernetesClient()).v1beta1().pipelines().inNamespace(karavan.getMetadata().getNamespace()).withName(Constants.PIPELINE_DEV_QUARKUS).get();
         if (pipeline == null) {
             var desired = desired(karavan, context);
             var createdResource = handleCreate(desired, karavan, context);

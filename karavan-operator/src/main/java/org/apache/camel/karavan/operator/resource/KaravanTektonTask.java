@@ -61,9 +61,9 @@ public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Kar
 
         return new TaskBuilder()
                 .withNewMetadata()
-                .withName(Constants.TASK_BUILD_QUARKUS)
+                .withName(Constants.TASK_DEV_QUARKUS)
                 .withNamespace(karavan.getMetadata().getNamespace())
-                .withLabels(Utils.getLabels(Constants.TASK_BUILD_QUARKUS, Map.of()))
+                .withLabels(Utils.getLabels(Constants.TASK_DEV_QUARKUS, Map.of()))
                 .endMetadata()
                 .withNewSpec()
                 .withParams(new ParamSpecBuilder().withName("project").withType("string").withDescription("ProjectId").build())
@@ -103,7 +103,7 @@ public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Kar
 
     @Override
     public ReconcileResult<Task> reconcile(Karavan karavan, Context<Karavan> context) {
-        Task task = new DefaultTektonClient(getKubernetesClient()).v1beta1().tasks().inNamespace(karavan.getMetadata().getNamespace()).withName(Constants.TASK_BUILD_QUARKUS).get();
+        Task task = new DefaultTektonClient(getKubernetesClient()).v1beta1().tasks().inNamespace(karavan.getMetadata().getNamespace()).withName(Constants.TASK_DEV_QUARKUS).get();
         if (task == null) {
             var desired = desired(karavan, context);
             var createdResource = handleCreate(desired, karavan, context);
