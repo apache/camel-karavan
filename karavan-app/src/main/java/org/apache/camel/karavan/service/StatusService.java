@@ -16,11 +16,13 @@
  */
 package org.apache.camel.karavan.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.runtime.configuration.ProfileManager;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.core.buffer.Buffer;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.apache.camel.karavan.model.CamelStatus;
@@ -38,6 +40,7 @@ public class StatusService {
 
     private static final Logger LOGGER = Logger.getLogger(StatusService.class.getName());
     public static final String CMD_COLLECT_STATUSES = "collect-statuses";
+    public static final String CMD_SAVE_STATUS = "save-statuses";
 
     @Inject
     InfinispanService infinispanService;
@@ -48,10 +51,16 @@ public class StatusService {
     @ConfigProperty(name = "karavan.camel-status-threshold")
     int threshold;
 
-    private long lastCollect = 0;
+    @ConfigProperty(name = "karavan.environment")
+    String environment;
 
+    private long lastCollect = 0;
+    private ObjectMapper mapper = new ObjectMapper();
     @Inject
     Vertx vertx;
+
+    @Inject
+    EventBus eventBus;
 
     WebClient webClient;
 
@@ -64,19 +73,38 @@ public class StatusService {
 
 
     @ConsumeEvent(value = CMD_COLLECT_STATUSES, blocking = true, ordered = true)
-    public void collectStatuses(String projectId) throws Exception {
+    public void collectStatuses(String projectId) {
         if ((System.currentTimeMillis() - lastCollect) > threshold) {
             collectStatusesForProject(projectId);
             lastCollect = System.currentTimeMillis();
         }
     }
 
+    @ConsumeEvent(value = CMD_SAVE_STATUS, blocking = true, ordered = true)
+    public void saveStatus(String status) {
+        try {
+            CamelStatus cs = mapper.readValue(status, CamelStatus.class);
+            infinispanService.saveCamelStatus(cs);
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+        }
+    }
+
     private void collectStatusesForProject(String projectId) {
+        LOGGER.info("Collect Camel status for project " + projectId);
         String url = ProfileManager.getActiveProfile().equals("dev")
                 ? String.format("http://%s-%s.%s/q/health", projectId, kubernetesService.getNamespace(), kubernetesService.getCluster())
                 : String.format("http://%s.%s.%s/q/health", projectId, kubernetesService.getNamespace(), "svc.cluster.local");
         CamelStatus cs = getCamelStatus(projectId, url);
-        infinispanService.saveCamelStatus(cs);
+        LOGGER.info("-----");
+        LOGGER.info(cs.toString());
+        LOGGER.info("-----");
+        try {
+            String data = mapper.writeValueAsString(cs);
+            eventBus.send(CMD_SAVE_STATUS, data);
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+        }
     }
 
     private CamelStatus getCamelStatus(String projectId, String url) {
@@ -95,14 +123,14 @@ public class StatusService {
                         getStatus(checks, "camel-routes"),
                         getStatus(checks, "camel-registry"),
                         context.getJsonObject("data").getString("context.version"),
-                        kubernetesService.environment
+                        environment
                 );
             } else {
-                return new CamelStatus(projectId, kubernetesService.environment);
+                return new CamelStatus(projectId, environment);
             }
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
-            return new CamelStatus(projectId, kubernetesService.environment);
+            return new CamelStatus(projectId, environment);
         }
     }
 

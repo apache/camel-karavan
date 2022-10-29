@@ -101,4 +101,17 @@ public class CamelStatus {
     public void setEnv(String env) {
         this.env = env;
     }
+
+    @Override
+    public String toString() {
+        return "CamelStatus{" +
+                "projectId='" + projectId + '\'' +
+                ", contextStatus=" + contextStatus +
+                ", consumerStatus=" + consumerStatus +
+                ", routesStatus=" + routesStatus +
+                ", registryStatus=" + registryStatus +
+                ", contextVersion='" + contextVersion + '\'' +
+                ", env='" + env + '\'' +
+                '}';
+    }
 }
