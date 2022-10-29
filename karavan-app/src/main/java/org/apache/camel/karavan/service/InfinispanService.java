@@ -101,7 +101,7 @@ public class InfinispanService {
             camelStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(CamelStatus.CACHE, builder.build());
             kamelets = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Kamelet.CACHE, builder.build());
 
-            cleanStatuses();
+            cleanData();
         } else {
             LOGGER.info("InfinispanService is starting in remote mode");
             environments = cacheManager.administration().getOrCreateCache(Environment.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, Environment.CACHE)));
@@ -116,7 +116,8 @@ public class InfinispanService {
         }
     }
 
-    private void cleanStatuses() {
+    private void cleanData() {
+        environments.clear();
         deploymentStatuses.clear();
         podStatuses.clear();
         pipelineStatuses.clear();

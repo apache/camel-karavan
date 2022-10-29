@@ -25,14 +25,6 @@ public class DeploymentEventHandler implements ResourceEventHandler<Deployment> 
             LOGGER.info("onAdd " + deployment.getMetadata().getName());
             DeploymentStatus ds = getDeploymentStatus(deployment);
             infinispanService.saveDeploymentStatus(ds);
-            // TODO: Delete after UI design
-            infinispanService.saveEnvironment(new Environment("test", "test", "karavan-test", "test-pipeline"));
-            infinispanService.saveEnvironment(new Environment("prod", "prod", "karavan-prod", "prod-pipeline"));
-            DeploymentStatus ds1 = getDeploymentStatus(deployment);
-            ds1.setEnv("test");
-            ds1.setNamespace("karavan-test");
-            ds1.setCluster("demo.cluster");
-            infinispanService.saveDeploymentStatus(ds1);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
@@ -44,11 +36,6 @@ public class DeploymentEventHandler implements ResourceEventHandler<Deployment> 
             LOGGER.info("onUpdate " + newDeployment.getMetadata().getName());
             DeploymentStatus ds = getDeploymentStatus(newDeployment);
             infinispanService.saveDeploymentStatus(ds);
-            // TODO: Delete after UI design
-            DeploymentStatus ds1 = getDeploymentStatus(newDeployment);
-            ds1.setEnv("test");
-            ds1.setCluster("demo.cluster");
-            infinispanService.saveDeploymentStatus(ds1);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }

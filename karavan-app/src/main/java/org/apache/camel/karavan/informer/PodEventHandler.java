@@ -4,7 +4,6 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodCondition;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import org.apache.camel.karavan.model.PodStatus;
-import org.apache.camel.karavan.model.ServiceStatus;
 import org.apache.camel.karavan.service.InfinispanService;
 import org.apache.camel.karavan.service.KubernetesService;
 import org.jboss.logging.Logger;

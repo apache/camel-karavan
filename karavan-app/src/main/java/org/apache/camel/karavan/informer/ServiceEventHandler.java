@@ -3,7 +3,6 @@ package org.apache.camel.karavan.informer;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import org.apache.camel.karavan.model.ServiceStatus;
-import org.apache.camel.karavan.model.Environment;
 import org.apache.camel.karavan.service.InfinispanService;
 import org.apache.camel.karavan.service.KubernetesService;
 import org.jboss.logging.Logger;
@@ -25,12 +24,6 @@ public class ServiceEventHandler implements ResourceEventHandler<Service> {
             LOGGER.info("onAdd " + service.getMetadata().getName());
             ServiceStatus ds = getServiceStatus(service);
             infinispanService.saveServiceStatus(ds);
-            // TODO: Delete after UI design
-            infinispanService.saveEnvironment(new Environment("test", "demo", "karavan-test", "test-pipeline"));
-            ServiceStatus ds1 = getServiceStatus(service);
-            ds1.setEnv("test");
-            ds1.setCluster("demo.cluster");
-            infinispanService.saveServiceStatus(ds1);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
@@ -42,11 +35,6 @@ public class ServiceEventHandler implements ResourceEventHandler<Service> {
             LOGGER.info("onUpdate " + newService.getMetadata().getName());
             ServiceStatus ds = getServiceStatus(newService);
             infinispanService.saveServiceStatus(ds);
-            // TODO: Delete after UI design
-            ServiceStatus ds1 = getServiceStatus(newService);
-            ds1.setEnv("test");
-            ds1.setCluster("demo.cluster");
-            infinispanService.saveServiceStatus(ds1);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
