@@ -28,10 +28,6 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             LOGGER.info("onAdd " + pod.getMetadata().getName());
             PodStatus ps = getPodStatus(pod);
             infinispanService.savePodStatus(ps);
-            // TODO: Delete after UI design
-            PodStatus ds1 = getPodStatus(pod);
-            ds1.setEnv("test");
-            infinispanService.savePodStatus(ds1);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
@@ -43,10 +39,6 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             LOGGER.info("onUpdate " + newPod.getMetadata().getName());
             PodStatus ps = getPodStatus(newPod);
             infinispanService.savePodStatus(ps);
-            // TODO: Delete after UI design
-            PodStatus ds1 = getPodStatus(newPod);
-            ds1.setEnv("test");
-            infinispanService.savePodStatus(ds1);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
