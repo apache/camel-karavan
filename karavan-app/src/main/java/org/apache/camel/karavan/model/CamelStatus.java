@@ -30,6 +30,9 @@ public class CamelStatus {
         NA
     }
 
+    public CamelStatus() {
+    }
+
     public CamelStatus(String projectId, String env) {
         this.projectId = projectId;
         this.env = env;

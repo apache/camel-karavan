@@ -120,6 +120,7 @@ public class InfinispanService {
         deploymentStatuses.clear();
         podStatuses.clear();
         pipelineStatuses.clear();
+        camelStatuses.clear();
     }
 
 
