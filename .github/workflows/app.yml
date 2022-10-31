@@ -20,7 +20,7 @@ jobs:
       - name: Checkout infinispan-quarkus repo
         uses: actions/checkout@v3
         with:
-          repository: git@github.com:infinispan/infinispan-quarkus.git
+          repository: https://github.com/infinispan/infinispan-quarkus.git
           path: infinispan-quarkus
           ref: 13.0.11.Final
 
