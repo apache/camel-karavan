@@ -121,9 +121,6 @@ export class DashboardPage extends React.Component<Props, State> {
                     ))}
                 </ToggleGroup>
             </ToolbarItem>
-            {/*<ToolbarItem>*/}
-            {/*    <Button variant="link" icon={<RefreshIcon/>} onClick={e => this.onGetProjects()}/>*/}
-            {/*</ToolbarItem>*/}
             <ToolbarItem>
                 <TextInput className="text-field" type="search" id="search" name="search"
                            autoComplete="off" placeholder="Search deployment by name"
@@ -170,6 +167,15 @@ export class DashboardPage extends React.Component<Props, State> {
             const env: string = e as string;
             const service = services.find(d => d.name === name && d.env === env);
             return [env, service];
+        });
+    }
+
+    getCamelStatusByEnvironments(name: string): [string, CamelStatus | undefined] [] {
+        const camelStatuses = this.state.camelStatuses;
+        return this.getSelectedEnvironments().map(e => {
+            const env: string = e as string;
+            const status = camelStatuses.find(d => d.projectId === name && d.env === env);
+            return [env, status];
         });
     }
 
@@ -289,13 +295,13 @@ export class DashboardPage extends React.Component<Props, State> {
                                     </Td>
                                     <Td modifier={"fitContent"}>
                                         <Flex direction={{default: "column"}}>
-                                            {this.getServiceByEnvironments(deployment).map(value => (
+                                            {this.getCamelStatusByEnvironments(deployment).map(value => (
                                                 <FlexItem key={value[0]}>
                                                     <LabelGroup numLabels={4} className="camel-label-group">
-                                                        <Label color={false ? "green" : "red"}
+                                                        <Label color={value[1]?.consumerStatus === "UP" ? "green" : "red"}
                                                                className="table-label"
-                                                               icon={false ? <UpIcon/> : <DownIcon/>}>
-                                                            {"Context"}
+                                                               icon={value[1]?.consumerStatus === "UP" ? <UpIcon/> : <DownIcon/>}>
+                                                            {value[1]?.consumerStatus}
                                                         </Label>
                                                     </LabelGroup>
                                                 </FlexItem>
