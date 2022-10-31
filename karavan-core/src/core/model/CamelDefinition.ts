@@ -1012,6 +1012,7 @@ export class Resilience4jConfigurationDefinition extends CamelElement {
     slowCallDurationThreshold?: number;
     minimumNumberOfCalls?: number;
     permittedNumberOfCallsInHalfOpenState?: number;
+    throwExceptionWhenHalfOpenOrOpenState?: boolean;
     slowCallRateThreshold?: number;
     stepName?: string = 'resilience4jConfiguration';
     writableStackTraceEnabled?: boolean;
@@ -2954,6 +2955,7 @@ export class JsonPathExpression extends CamelElement {
     headerName?: string;
     trim?: boolean;
     expressionName?: string = 'jsonpath';
+    unpackArray?: boolean;
     writeAsString?: boolean;
     id?: string;
     allowSimple?: boolean;

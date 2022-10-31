@@ -63,7 +63,7 @@
       "properties": {
         "camel.version": {
           "type": "string",
-          "default": "3.18.2",
+          "default": "3.18.3",
           "description": "Camel version",
           "scope": "machine",
           "order": 10

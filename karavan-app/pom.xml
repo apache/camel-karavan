@@ -31,7 +31,7 @@
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.version>2.11.2.Final</quarkus.platform.version>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-        <version.camel>3.18.2</version.camel>
+        <version.camel>3.18.3</version.camel>
     </properties>
     <dependencyManagement>
         <dependencies>
