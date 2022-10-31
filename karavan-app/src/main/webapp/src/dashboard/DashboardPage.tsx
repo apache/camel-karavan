@@ -21,6 +21,7 @@ import {KaravanApi} from "../api/KaravanApi";
 import Icon from "../Logo";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
+import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 
 interface Props {
     config: any,
@@ -114,6 +115,9 @@ export class DashboardPage extends React.Component<Props, State> {
 
     tools = () => (<Toolbar id="toolbar-group-types">
         <ToolbarContent>
+            <ToolbarItem>
+                <Button variant="link" icon={<RefreshIcon/>} onClick={e => this.onGetProjects()}/>
+            </ToolbarItem>
             <ToolbarItem>
                 <ToggleGroup aria-label="Default with single selectable">
                     {this.getEnvironments().map(env => (

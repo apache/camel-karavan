@@ -283,6 +283,10 @@ public class InfinispanService {
         camelStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv()), status);
     }
 
+    public void deleteCamelStatus(String name, String env) {
+        camelStatuses.remove(GroupedKey.create(name, env));
+    }
+
     public List<String> getKameletNames() {
         return kamelets.keySet().stream().collect(Collectors.toList());
     }
@@ -302,5 +306,6 @@ public class InfinispanService {
     public void saveEnvironment(Environment environment) {
         environments.put(environment.getName(), environment);
     }
+
 
 }

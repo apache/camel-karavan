@@ -41,7 +41,6 @@ interface State {
     deleteEntityName?: string,
     deleteEntityEnv?: string,
     environment: string,
-    key?: string,
 }
 
 export class ProjectInfo extends React.Component<Props, State> {
@@ -81,19 +80,19 @@ export class ProjectInfo extends React.Component<Props, State> {
         const environment = this.state.environment;
         if (this.props.project) {
             KaravanApi.getProjectPipelineStatus(projectId, environment, (status: PipelineStatus) => {
-                this.setState({key: Math.random().toString(), pipelineStatus: status});
+                this.setState({pipelineStatus: status});
                 // console.log(status);
             });
             KaravanApi.getProjectDeploymentStatus(projectId, environment, (status: DeploymentStatus) => {
-                this.setState({key: Math.random().toString(), deploymentStatus: status});
+                this.setState({ deploymentStatus: status});
                 // console.log(status);
             });
             KaravanApi.getProjectPodStatuses(projectId, environment, (statuses: PodStatus[]) => {
-                this.setState({key: Math.random().toString(), podStatuses: statuses});
+                this.setState({podStatuses: statuses});
                 // console.log(status);
             });
             KaravanApi.getProjectCamelStatus(projectId, environment, (status: CamelStatus) => {
-                this.setState({key: Math.random().toString(), camelStatus: status});
+                this.setState({camelStatus: status});
                 // console.log(status);
             });
         }

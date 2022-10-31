@@ -51,6 +51,7 @@ public class DeploymentEventHandler implements ResourceEventHandler<Deployment> 
                     kubernetesService.getCluster(),
                     kubernetesService.environment);
             infinispanService.deleteDeploymentStatus(ds);
+            infinispanService.deleteCamelStatus(ds.getName(), ds.getEnv());
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
