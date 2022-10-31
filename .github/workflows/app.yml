@@ -28,7 +28,7 @@ jobs:
       - name: Build application public
         working-directory: ./infinispan-quarkus
         run: |
-          mvn clean verify
+          mvn clean install -DskipTests --fail-never
       
       #  Checkout Karavan
       - name: Checkout
