@@ -83,7 +83,7 @@ public class StatusService {
     @ConsumeEvent(value = CMD_COLLECT_ALL_STATUSES, blocking = true, ordered = true)
     public void collectAllStatuses(String data) {
         if ((System.currentTimeMillis() - lastCollect) > threshold) {
-            infinispanService.getProjects().forEach(project -> eventBus.publish(CMD_COLLECT_PROJECT_STATUS, project.getProjectId()));
+            infinispanService.getDeploymentStatuses().forEach(d -> eventBus.publish(CMD_COLLECT_PROJECT_STATUS, d.getName()));
             lastCollect = System.currentTimeMillis();
         }
     }
