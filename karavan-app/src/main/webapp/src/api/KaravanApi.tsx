@@ -189,6 +189,17 @@ export class KaravanApi {
         });
     }
 
+    static async getAllCamelStatuses(env: string, after: (statuses: CamelStatus[]) => void) {
+        instance.get('/api/status/camel/' + env)
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    }
+
     static async getProjects(after: (projects: Project[]) => void) {
         instance.get('/api/project')
             .then(res => {

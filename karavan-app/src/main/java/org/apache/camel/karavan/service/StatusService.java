@@ -39,7 +39,8 @@ import java.util.stream.Collectors;
 public class StatusService {
 
     private static final Logger LOGGER = Logger.getLogger(StatusService.class.getName());
-    public static final String CMD_COLLECT_STATUSES = "collect-statuses";
+    public static final String CMD_COLLECT_PROJECT_STATUS = "collect-project-status";
+    public static final String CMD_COLLECT_ALL_STATUSES = "collect-all-statuses";
     public static final String CMD_SAVE_STATUS = "save-statuses";
 
     @Inject
@@ -71,11 +72,18 @@ public class StatusService {
         return webClient;
     }
 
-
-    @ConsumeEvent(value = CMD_COLLECT_STATUSES, blocking = true, ordered = true)
-    public void collectStatuses(String projectId) {
+    @ConsumeEvent(value = CMD_COLLECT_PROJECT_STATUS, blocking = true, ordered = true)
+    public void collectProjectStatus(String projectId) {
         if ((System.currentTimeMillis() - lastCollect) > threshold) {
             collectStatusesForProject(projectId);
+            lastCollect = System.currentTimeMillis();
+        }
+    }
+
+    @ConsumeEvent(value = CMD_COLLECT_ALL_STATUSES, blocking = true, ordered = true)
+    public void collectAllStatuses(String data) {
+        if ((System.currentTimeMillis() - lastCollect) > threshold) {
+            infinispanService.getProjects().forEach(project -> eventBus.publish(CMD_COLLECT_PROJECT_STATUS, project.getProjectId()));
             lastCollect = System.currentTimeMillis();
         }
     }

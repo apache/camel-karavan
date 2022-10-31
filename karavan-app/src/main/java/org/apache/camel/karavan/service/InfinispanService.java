@@ -267,6 +267,18 @@ public class InfinispanService {
         return camelStatuses.get(GroupedKey.create(projectId, env));
     }
 
+    public List<CamelStatus> getCamelStatuses(String env) {
+        if (cacheManager == null) {
+            return camelStatuses.values().stream()
+                    .filter(s -> s.getEnv().equals(env))
+                    .collect(Collectors.toList());
+        } else {
+            QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) camelStatuses);
+            return queryFactory.<CamelStatus>create("FROM karavan.CamelStatus WHERE env = :env")
+                    .setParameter("env", env)
+                    .execute().list();
+        }
+    }
     public void saveCamelStatus(CamelStatus status) {
         camelStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv()), status);
     }

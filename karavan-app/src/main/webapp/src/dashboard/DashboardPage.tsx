@@ -14,8 +14,7 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
-import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
-import {DeploymentStatus, Project, ServiceStatus} from "../projects/ProjectModels";
+import {CamelStatus, DeploymentStatus, Project, ServiceStatus} from "../projects/ProjectModels";
 import {TableComposable, TableVariant, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import {camelIcon, CamelUi} from "../designer/utils/CamelUi";
 import {KaravanApi} from "../api/KaravanApi";
@@ -33,6 +32,7 @@ interface State {
     projects: Project[],
     deploymentStatuses: DeploymentStatus[],
     serviceStatuses: ServiceStatus[],
+    camelStatuses: CamelStatus[],
     isCreateModalOpen: boolean,
     isDeleteModalOpen: boolean,
     isCopy: boolean,
@@ -51,6 +51,7 @@ export class DashboardPage extends React.Component<Props, State> {
         projects: [],
         deploymentStatuses: [],
         serviceStatuses: [],
+        camelStatuses: [],
         isCreateModalOpen: false,
         isDeleteModalOpen: false,
         isCopy: false,
@@ -81,6 +82,20 @@ export class DashboardPage extends React.Component<Props, State> {
             KaravanApi.getAllServiceStatuses((statuses: ServiceStatus[]) => {
                 this.setState({serviceStatuses: statuses});
             });
+            this.getSelectedEnvironments().forEach(env => {
+                KaravanApi.getAllCamelStatuses(env,(statuses: CamelStatus[]) => {
+                    this.setState((state) => {
+                        statuses.forEach(newStatus => {
+                            const index = state.camelStatuses.findIndex(s => s.projectId === newStatus.projectId && s.env === newStatus.env);
+                            if (index !== -1) {
+                                state.camelStatuses.splice(index, 1);
+                            }
+                            state.camelStatuses.push(newStatus);
+                        })
+                        return state;
+                    })
+                });
+            })
         });
     }
 

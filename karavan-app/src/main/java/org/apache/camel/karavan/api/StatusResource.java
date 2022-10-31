@@ -32,6 +32,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Optional;
 
 @Path("/api/status")
@@ -74,13 +75,21 @@ public class StatusResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/camel/{projectId}/{env}")
-    public Response getCamelStatus(@PathParam("projectId") String projectId, @PathParam("env") String env) {
-        bus.publish(StatusService.CMD_COLLECT_STATUSES, projectId);
+    public Response getCamelStatusByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
+        bus.publish(StatusService.CMD_COLLECT_PROJECT_STATUS, projectId);
         CamelStatus status = infinispanService.getCamelStatus(projectId, env);
         if (status != null) {
             return Response.ok(status).build();
         } else {
             return Response.noContent().build();
         }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/camel/{env}")
+    public List<CamelStatus> getCamelStatusByEnv(@PathParam("env") String env) {
+        bus.publish(StatusService.CMD_COLLECT_ALL_STATUSES, "");
+        return infinispanService.getCamelStatuses(env);
     }
 }
