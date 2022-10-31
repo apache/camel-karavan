@@ -28,7 +28,7 @@ jobs:
       - name: Build application public
         working-directory: ./infinispan-quarkus
         run: |
-          mvn clean install -DskipTests --fail-never
+          mvn -P-native -DskipIntegrationTests -DskipUnitTests -DskipTests  clean install -pl embedded -am
       
       #  Checkout Karavan
       - name: Checkout
