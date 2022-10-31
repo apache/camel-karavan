@@ -42,13 +42,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>org.infinispan</groupId>
-                <artifactId>infinispan-quarkus-bom</artifactId>
-                <version>13.0.11.Final</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -120,7 +113,8 @@
         </dependency>
         <dependency>
             <groupId>org.infinispan</groupId>
-            <artifactId>infinispan-quarkus-embedded</artifactId>
+            <artifactId>infinispan-core</artifactId>
+            <version>13.0.11.Final</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
