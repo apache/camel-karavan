@@ -29,7 +29,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <quarkus.platform.version>2.11.2.Final</quarkus.platform.version>
+        <quarkus.platform.version>2.13.3.Final</quarkus.platform.version>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
         <version.camel>3.18.3</version.camel>
     </properties>
@@ -109,17 +109,17 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>tekton-client</artifactId>
-            <version>5.12.2</version>
+            <version>5.12.4</version>
         </dependency>
         <dependency>
             <groupId>org.infinispan</groupId>
             <artifactId>infinispan-core</artifactId>
-            <version>13.0.10.Final</version>
+            <version>13.0.11.Final</version>
         </dependency>
         <dependency>
             <groupId>org.infinispan</groupId>
             <artifactId>infinispan-query</artifactId>
-            <version>13.0.10.Final</version>
+            <version>13.0.11.Final</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -175,8 +175,8 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v16.5.0</nodeVersion>
-                            <npmVersion>7.19.1</npmVersion>
+                            <nodeVersion>v18.12.0</nodeVersion>
+                            <npmVersion>8.12.2</npmVersion>
                         </configuration>
                     </execution>
                     <execution>
