@@ -23,21 +23,7 @@ jobs:
           repository: infinispan/infinispan-quarkus
           path: infinispan-quarkus
           ref: 13.0.11.Final
-
-      #  Build infinispan-quarkus
-      - name: Build application public
-        working-directory: ./infinispan-quarkus
-        run: |
-          mvn -P-native -DskipIntegrationTests -DskipUnitTests -DskipTests  clean install -pl embedded -am
-      
-      - name: Cache local Maven repository
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-          
+  
       #  Checkout Karavan
       - name: Checkout
         uses: actions/checkout@v3
@@ -59,7 +45,13 @@ jobs:
             !~/.m2/repository/org/apache/camel/karavan
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
-
+      
+      #  Build infinispan-quarkus
+      - name: Build application public
+        working-directory: ./infinispan-quarkus
+        run: |
+          mvn -P-native -DskipIntegrationTests -DskipUnitTests -DskipTests  clean install -pl embedded -am
+              
       - name: Generate Karavan UI model and API, Kamelets and Components
         working-directory: ./karavan
         run: |
