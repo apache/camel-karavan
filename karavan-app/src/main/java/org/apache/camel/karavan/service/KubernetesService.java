@@ -282,7 +282,9 @@ public class KubernetesService {
         List<String> result = new ArrayList<>();
         kubernetesClient().configMaps().inNamespace(namespace).list().getItems().forEach(configMap -> {
             String name = configMap.getMetadata().getName();
-            configMap.getData().keySet().forEach(data -> result.add(name + "/" + data));
+            if (configMap.getData() != null) {
+                configMap.getData().keySet().forEach(data -> result.add(name + "/" + data));
+            }
         });
         return result;
     }
@@ -291,7 +293,9 @@ public class KubernetesService {
         List<String> result = new ArrayList<>();
         kubernetesClient().secrets().inNamespace(namespace).list().getItems().forEach(secret -> {
             String name = secret.getMetadata().getName();
-            secret.getData().keySet().forEach(data -> result.add(name + "/" + data));
+            if (secret.getData() != null) {
+                secret.getData().keySet().forEach(data -> result.add(name + "/" + data));
+            }
         });
         return result;
     }
