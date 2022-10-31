@@ -124,6 +124,8 @@ export class CamelDefinitionYaml {
                 || dslName?.endsWith('Expression')
                 || stepName === 'otherwise'
                 || stepName === 'doFinally'
+                || stepName === 'resilience4jConfiguration'
+                || stepName === 'faultToleranceConfiguration'
                 || key === 'from') {
                 delete newValue.inArray;
                 delete newValue.inSteps;

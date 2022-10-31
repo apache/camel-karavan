@@ -1,0 +1,12 @@
+- route:
+    from:
+      uri: direct:direct1
+      steps:
+        - circuitBreaker:
+            steps:
+              - log:
+                  message: hello11
+                  logName: log11
+            resilience4jConfiguration:
+              minimumNumberOfCalls: 5
+              failureRateThreshold: 50

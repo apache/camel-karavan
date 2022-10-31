@@ -42,7 +42,18 @@ class App extends React.Component<Props, State> {
     public state: State = {
         name: 'demo.yaml',
         key: '',
-        yaml: ''
+        yaml: '- route:\n' +
+            '    from:\n' +
+            '      uri: direct:direct1\n' +
+            '      steps:\n' +
+            '        - circuitBreaker:\n' +
+            '            steps:\n' +
+            '              - log:\n' +
+            '                  message: hello11\n' +
+            '                  logName: log11\n' +
+            '            resilience4jConfiguration:\n' +
+            '              minimumNumberOfCalls: 5\n' +
+            '              failureRateThreshold: 50\n'
         //     'apiVersion: camel.apache.org/v1\n' +
         //     'kind: Integration\n' +
         //     'metadata:\n' +
