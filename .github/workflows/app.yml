@@ -16,8 +16,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      #  Checkout infinispan-quarkus
+      - name: Checkout infinispan-quarkus repo
+        uses: actions/checkout@v3
+        with:
+          repository: git@github.com:infinispan/infinispan-quarkus.git
+          path: infinispan-quarkus
+          ref: 13.0.11.Final
+
+      #  Build infinispan-quarkus
+      - name: Build application public
+        working-directory: ./infinispan-quarkus
+        run: |
+          mvn clean install -DskipTests -f embedded
+      
+      #  Checkout Karavan
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          path: karavan
 
       #  Generate Karavan UI model and API, Kamelets and Components
       - name: Set up JDK 11
@@ -36,6 +53,7 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
 
       - name: Generate Karavan UI model and API, Kamelets and Components
+        working-directory: ./karavan
         run: |
           mvn clean compile exec:java -f karavan-generator \
           -Dexec.mainClass="org.apache.camel.karavan.generator.KaravanGenerator"
@@ -47,11 +65,12 @@ jobs:
           node-version: '17'
 
       - name: Karavan Core install
-        working-directory: ./karavan-core
+        working-directory: ./karavan/karavan-core
         run: npm install
 
       #  Build Karavan cloud app with public access
       - name: Build application public
+        working-directory: ./karavan
         run: |
           mvn package -f karavan-app -Dquarkus.profile=public -DskipTest \
           -Dquarkus.container-image.build=true \
@@ -63,6 +82,7 @@ jobs:
 
       #  Build Karavan cloud app with basic authorization
       - name: Build application basic auth
+        working-directory: ./karavan
         run: |
           mvn package -f karavan-app -Dquarkus.profile=basic -DskipTest \
           -Dquarkus.container-image.build=true \
@@ -74,6 +94,7 @@ jobs:
 
       #  Build Karavan cloud app with oidc authorization
       - name: Build application oidc
+        working-directory: ./karavan
         run: |
           mvn package -f karavan-app -Dquarkus.profile=oidc -DskipTest \
           -Dquarkus.container-image.build=true \

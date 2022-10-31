@@ -114,6 +114,7 @@ public class InfinispanService {
             camelStatuses = cacheManager.administration().getOrCreateCache(CamelStatus.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, CamelStatus.CACHE)));
             kamelets = cacheManager.administration().getOrCreateCache(Kamelet.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, Kamelet.CACHE)));
         }
+//        org.hibernate.search.engine.search.loading.spi.EntityLoader
     }
 
     private void cleanData() {
@@ -143,10 +144,9 @@ public class InfinispanService {
 
     public List<ProjectFile> getProjectFiles(String projectId) {
         if (cacheManager == null) {
-            QueryFactory queryFactory = org.infinispan.query.Search.getQueryFactory((Cache<?, ?>) files);
-            return queryFactory.<ProjectFile>create("FROM org.apache.camel.karavan.model.ProjectFile WHERE projectId = :projectId")
-                    .setParameter("projectId", projectId)
-                    .execute().list();
+            return files.values().stream()
+                    .filter(f -> f.getProjectId().equals(projectId))
+                    .collect(Collectors.toList());
         } else {
             QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) files);
             return queryFactory.<ProjectFile>create("FROM karavan.ProjectFile WHERE projectId = :projectId")
@@ -205,10 +205,9 @@ public class InfinispanService {
 
     public List<DeploymentStatus> getDeploymentStatuses(String env) {
         if (cacheManager == null) {
-            QueryFactory queryFactory = org.infinispan.query.Search.getQueryFactory((Cache<?, ?>) deploymentStatuses);
-            return queryFactory.<DeploymentStatus>create("FROM org.apache.camel.karavan.model.DeploymentStatus WHERE env = :env")
-                    .setParameter("env", env)
-                    .execute().list();
+            return  deploymentStatuses.values().stream()
+                    .filter(s -> s.getEnv().equals(env))
+                    .collect(Collectors.toList());
         } else {
             QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) deploymentStatuses);
             return queryFactory.<DeploymentStatus>create("FROM karavan.DeploymentStatus WHERE env = :env")
@@ -231,11 +230,9 @@ public class InfinispanService {
 
     public List<PodStatus> getPodStatuses(String projectId, String env) {
         if (cacheManager == null) {
-            QueryFactory queryFactory = org.infinispan.query.Search.getQueryFactory((Cache<?, ?>) podStatuses);
-            return queryFactory.<PodStatus>create("FROM org.apache.camel.karavan.model.PodStatus WHERE deployment = :deployment AND env = :env")
-                    .setParameter("deployment", projectId)
-                    .setParameter("env", env)
-                    .execute().list();
+            return podStatuses.values().stream()
+                    .filter(s -> s.getEnv().equals(env) && s.getDeployment().equals(projectId))
+                    .collect(Collectors.toList());
         } else {
             QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) podStatuses);
             return queryFactory.<PodStatus>create("FROM karavan.PodStatus WHERE deployment = :deployment AND env = :env")
@@ -247,10 +244,9 @@ public class InfinispanService {
 
     public List<PodStatus> getPodStatuses(String env) {
         if (cacheManager == null) {
-            QueryFactory queryFactory = org.infinispan.query.Search.getQueryFactory((Cache<?, ?>) podStatuses);
-            return queryFactory.<PodStatus>create("FROM org.apache.camel.karavan.model.PodStatus WHERE env = :env")
-                    .setParameter("env", env)
-                    .execute().list();
+            return podStatuses.values().stream()
+                    .filter(s -> s.getEnv().equals(env))
+                    .collect(Collectors.toList());
         } else {
             QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) podStatuses);
             return queryFactory.<PodStatus>create("FROM karavan.PodStatus WHERE env = :env")
