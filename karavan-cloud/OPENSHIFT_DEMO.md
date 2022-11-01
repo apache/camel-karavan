@@ -21,11 +21,14 @@ Karavan cloud-native integration toolkit demo on OpenShift with Gitea repository
     ```
     oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/pipeline-operator.yaml
     ```
+    
+    Wait until operators are ready (Status: Succeeded)
+    
 4. Install Karavan Operator
     ```
     oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/karavan-operator.yaml
     ```
-    Wait until operators are ready
+    Wait until operator is ready (Status: Succeeded)
 
     ![operators-ready](../images/operators-ready.png)
 
