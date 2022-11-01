@@ -26,8 +26,8 @@ public class CamelStatus {
         DOWN,
         @ProtoEnumValue(number = 1, name = "UP")
         UP,
-        @ProtoEnumValue(number = 2, name = "N/A")
-        NA
+        @ProtoEnumValue(number = 2, name = "UNDEFINED")
+        UNDEFINED
     }
 
     public CamelStatus() {
@@ -36,10 +36,10 @@ public class CamelStatus {
     public CamelStatus(String projectId, String env) {
         this.projectId = projectId;
         this.env = env;
-        this.contextStatus = Status.NA;
-        this.consumerStatus = Status.NA;
-        this.routesStatus = Status.NA;
-        this.registryStatus = Status.NA;
+        this.contextStatus = Status.UNDEFINED;
+        this.consumerStatus = Status.UNDEFINED;
+        this.routesStatus = Status.UNDEFINED;
+        this.registryStatus = Status.UNDEFINED;
     }
 
     @ProtoFactory

@@ -147,7 +147,7 @@ public class StatusService {
             JsonObject res = checks.stream().filter(o -> o.getString("name").equals(name)).findFirst().get();
             return res.getString("status").equals("UP") ? CamelStatus.Status.UP : CamelStatus.Status.DOWN;
         } catch (Exception e){
-            return CamelStatus.Status.NA;
+            return CamelStatus.Status.UNDEFINED;
         }
     }
 }
