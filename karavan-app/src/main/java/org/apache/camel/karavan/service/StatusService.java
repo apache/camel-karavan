@@ -31,7 +31,9 @@ import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -55,7 +57,7 @@ public class StatusService {
     @ConfigProperty(name = "karavan.environment")
     String environment;
 
-    private long lastCollect = 0;
+    private Map<String, Long> lastCollect = new HashMap<>();
     private ObjectMapper mapper = new ObjectMapper();
     @Inject
     Vertx vertx;
@@ -74,21 +76,22 @@ public class StatusService {
 
     @ConsumeEvent(value = CMD_COLLECT_PROJECT_STATUS, blocking = true, ordered = true)
     public void collectProjectStatus(String projectId) {
-        if ((System.currentTimeMillis() - lastCollect) > threshold) {
+        if ((System.currentTimeMillis() - lastCollect.getOrDefault(projectId, 0L)) > threshold) {
             collectStatusesForProject(projectId);
-            lastCollect = System.currentTimeMillis();
+            lastCollect.put(projectId, System.currentTimeMillis());
         }
     }
 
     @ConsumeEvent(value = CMD_COLLECT_ALL_STATUSES, blocking = true, ordered = true)
     public void collectAllStatuses(String data) {
-        if ((System.currentTimeMillis() - lastCollect) > threshold) {
+        String all = "ALL_PROJECTS";
+        if ((System.currentTimeMillis() - lastCollect.getOrDefault(all, 0L)) > threshold) {
             infinispanService.getDeploymentStatuses().forEach(d -> eventBus.publish(CMD_COLLECT_PROJECT_STATUS, d.getName()));
-            lastCollect = System.currentTimeMillis();
+            lastCollect.put(all, System.currentTimeMillis());
         }
     }
 
-    @ConsumeEvent(value = CMD_SAVE_STATUS, blocking = true, ordered = true)
+    @ConsumeEvent(value = CMD_SAVE_STATUS, blocking = true)
     public void saveStatus(String status) {
         try {
             CamelStatus cs = mapper.readValue(status, CamelStatus.class);
