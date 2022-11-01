@@ -34,6 +34,7 @@
     "@types/uuid": "8.3.4",
     "axios": "^0.25.0",
     "dagre": "^0.8.5",
+	  "html-to-image": "^1.10.8",
     "karavan-core": "file:../karavan-core",
     "react": "17.0.2",
     "react-dom": "17.0.2",

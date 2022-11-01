@@ -21,7 +21,7 @@ import {
     DrawerContent,
     DrawerContentBody,
     Button, Modal,
-    PageSection
+    PageSection,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {DslSelector} from "./DslSelector";
@@ -34,12 +34,14 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {DslConnections} from "./DslConnections";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
+import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon"
 import {DslElement} from "./DslElement";
 import {EventBus} from "../utils/EventBus";
 import {CamelUi, RouteToCreate} from "../utils/CamelUi";
 import {findDOMNode} from "react-dom";
 import {Subscription} from "rxjs";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
+import {toPng} from 'html-to-image';
 
 interface Props {
     onSave?: (integration: Integration, propertyOnly: boolean) => void
@@ -65,6 +67,7 @@ interface State {
     left: number
     clipboardStep?: CamelElement
     ref?: any
+    printerRef?: any
     propertyOnly: boolean
     selectorTabIndex?: string | number
 }
@@ -85,6 +88,7 @@ export class RouteDesigner extends React.Component<Props, State> {
         top: 0,
         left: 0,
         ref: React.createRef(),
+        printerRef: React.createRef(),
         propertyOnly: false,
     };
 
@@ -327,10 +331,43 @@ export class RouteDesigner extends React.Component<Props, State> {
         )
     }
 
+    downloadIntegrationImage(dataUrl: string) {
+        const a = document.createElement('a');
+        a.setAttribute('download', 'karavan-routes.png');
+        a.setAttribute('href', dataUrl);
+        a.click();
+    }
+
+    IntegrationDownloadFilter = (node: HTMLElement) => {
+        const exclusionClasses = ['add-flow'];
+        return !exclusionClasses.some(classname => {
+            return node.classList === undefined ? false: node.classList.contains(classname);
+        });
+    }
+
+    IntegrationDownloadButton() {
+        const onClick = () => {
+            if (this.state.printerRef.current === null) {
+                return
+            }
+            toPng(this.state.printerRef.current, { style:{overflow:'hidden'}, cacheBust: true, filter: this.IntegrationDownloadFilter, 
+                  height:this.state.height,width:this.state.width,  backgroundColor: this.props.dark?"black":"white" }).then(this.downloadIntegrationImage);
+        };
+
+        return (
+            <Button variant={CamelUi.getRoutes(this.state.integration).length === 0 ? "primary" : "secondary"}
+                data-click="DOWNLOAD_INTEGRATION_IMAGE"
+                icon={<DownloadIcon/>}
+                onClick={e => onClick()}>
+                Download Image
+            </Button>
+        );
+    }
+
     getGraph() {
         const routes = CamelUi.getRoutes(this.state.integration);
         return (
-            <div className="graph">
+            <div ref={this.state.printerRef} className="graph">
                 <DslConnections height={this.state.height} width={this.state.width} top={this.state.top}
                                 left={this.state.left} integration={this.state.integration}/>
                 <div className="flows" data-click="FLOWS" onClick={event => this.unselectElement(event)}
@@ -355,6 +392,7 @@ export class RouteDesigner extends React.Component<Props, State> {
                             icon={<PlusIcon/>}
                             onClick={e => this.openSelector(undefined, undefined)}>Create new route
                         </Button>
+                        {this.IntegrationDownloadButton()}
                     </div>
                 </div>
             </div>)
