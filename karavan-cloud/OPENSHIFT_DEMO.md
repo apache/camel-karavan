@@ -37,6 +37,8 @@ Karavan cloud-native integration toolkit demo on OpenShift with Gitea repository
     ```
     oc new-project karavan
     ```
+    If cluster has LimitRange for karavan namespace, remove LimitRange for the namespace
+    
 2. Create Gitea instance
     ```
     oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/gitea.yaml
@@ -52,7 +54,6 @@ Karavan cloud-native integration toolkit demo on OpenShift with Gitea repository
     ```
 4. Create Karavan Instance
 
-    If cluster has LimitRange for karavan namespace, remove LimitRange for the namespace
     ```
     oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/karavan.yaml
     ```
