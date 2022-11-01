@@ -107,9 +107,6 @@ public class StatusService {
                 ? String.format("http://%s-%s.%s/q/health", projectId, kubernetesService.getNamespace(), kubernetesService.getCluster())
                 : String.format("http://%s.%s.%s/q/health", projectId, kubernetesService.getNamespace(), "svc.cluster.local");
         CamelStatus cs = getCamelStatus(projectId, url);
-        LOGGER.info("-----");
-        LOGGER.info(cs.toString());
-        LOGGER.info("-----");
         try {
             String data = mapper.writeValueAsString(cs);
             eventBus.send(CMD_SAVE_STATUS, data);

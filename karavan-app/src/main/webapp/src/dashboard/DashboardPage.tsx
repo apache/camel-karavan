@@ -21,6 +21,7 @@ import {KaravanApi} from "../api/KaravanApi";
 import Icon from "../Logo";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
+import QuestionIcon from "@patternfly/react-icons/dist/esm/icons/question-circle-icon";
 import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 
 interface Props {
@@ -299,17 +300,16 @@ export class DashboardPage extends React.Component<Props, State> {
                                     </Td>
                                     <Td modifier={"fitContent"}>
                                         <Flex direction={{default: "column"}}>
-                                            {this.getCamelStatusByEnvironments(deployment).map(value => (
-                                                <FlexItem key={value[0]}>
+                                            {this.getCamelStatusByEnvironments(deployment).map(value => {
+                                                const color = value[1] ? (value[1].consumerStatus === "UP" ? "green" : "red") : "grey";
+                                                const icon = value[1] ? (value[1].consumerStatus === "UP" ? <UpIcon/> : <DownIcon/>) : undefined;
+                                                const text = value[1] ? value[1]?.contextVersion : "???";
+                                                return <FlexItem key={value[0]}>
                                                     <LabelGroup numLabels={4} className="camel-label-group">
-                                                        <Label color={value[1]?.consumerStatus === "UP" ? "green" : "red"}
-                                                               className="table-label"
-                                                               icon={value[1]?.consumerStatus === "UP" ? <UpIcon/> : <DownIcon/>}>
-                                                            {value[1]?.consumerStatus}
-                                                        </Label>
+                                                        <Label color={color} className="table-label" icon={icon}>{text}</Label>
                                                     </LabelGroup>
                                                 </FlexItem>
-                                            ))}
+                                            })}
                                         </Flex>
                                     </Td>
                                 </Tr>
