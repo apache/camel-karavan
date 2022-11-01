@@ -21,7 +21,7 @@ interface State {
     key?: string,
 }
 
-export class ProjectDashboard extends React.Component<Props, State> {
+export class ProjectOperations extends React.Component<Props, State> {
 
     public state: State = {
         project: this.props.project,

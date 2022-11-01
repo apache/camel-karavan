@@ -44,7 +44,7 @@ import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
 import {KubernetesAPI} from "../designer/utils/KubernetesAPI";
 import {UploadModal} from "./UploadModal";
 import {ProjectInfo} from "./ProjectInfo";
-import {ProjectDashboard} from "./ProjectDashboard";
+import {ProjectOperations} from "./ProjectOperations";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import * as yaml from 'js-yaml';
 
@@ -80,7 +80,7 @@ export class ProjectPage extends React.Component<Props, State> {
         mode: "design",
         editAdvancedProperties: false,
         key: '',
-        tab: "details",
+        tab: "development",
         environments: this.props.config.environments && Array.isArray(this.props.config.environments)
             ? Array.from(this.props.config.environments) : [],
         environment: this.props.config.environment
@@ -447,18 +447,18 @@ export class ProjectPage extends React.Component<Props, State> {
                         <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
                             <FlexItem>
                                 <Tabs activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex})}>
-                                    <Tab eventKey="details" title="Details"/>
-                                    <Tab eventKey="dashboard" title="Dashboard"/>
+                                    <Tab eventKey="development" title="Development"/>
+                                    <Tab eventKey="operations" title="Operations"/>
                                 </Tabs>
                             </FlexItem>
                             <FlexItem>
                                 <PageSection padding={{default: "padding"}}>
-                                    {tab === 'details' && <ProjectInfo project={this.props.project} config={this.props.config} deleteEntity={this.deleteEntity} showLog={this.showLogs}/>}
-                                    {tab === 'dashboard' && <ProjectDashboard environments={this.state.environments} project={this.props.project} config={this.props.config}/>}
+                                    {tab === 'development' && <ProjectInfo project={this.props.project} config={this.props.config} deleteEntity={this.deleteEntity} showLog={this.showLogs}/>}
+                                    {tab === 'operations' && <ProjectOperations environments={this.state.environments} project={this.props.project} config={this.props.config}/>}
                                 </PageSection>
                             </FlexItem>
                         </Flex>
-                        {tab === 'details' && this.getProjectFiles()}
+                        {tab === 'development' && this.getProjectFiles()}
                     </PageSection>}
                 {showDesigner && this.getDesigner()}
                 {showEditor && this.getEditor()}
