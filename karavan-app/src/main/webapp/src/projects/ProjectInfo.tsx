@@ -302,7 +302,7 @@ export class ProjectInfo extends React.Component<Props, State> {
     getStatusColor(status?: string) {
         if (status === 'UP') return 'green';
         if (status === 'DOWN') return 'red';
-        if (status === 'NA') return 'blue';
+        if (status === 'UNDEFINED') return 'grey';
     }
 
     getStatusIcon(status?: string) {
@@ -323,7 +323,7 @@ export class ProjectInfo extends React.Component<Props, State> {
                 <Label icon={this.getStatusIcon(contextStatus)} color={this.getStatusColor(contextStatus)}>Context</Label>
                 <Label icon={this.getStatusIcon(consumersStatus)} color={this.getStatusColor(consumersStatus)}>Consumers</Label>
                 <Label icon={this.getStatusIcon(routesStatus)} color={this.getStatusColor(routesStatus)}>Routes</Label>
-                {registryStatus !== 'NA' &&
+                {registryStatus !== 'UNDEFINED' &&
                     <Label icon={this.getStatusIcon(registryStatus)} color={this.getStatusColor(registryStatus)}>Registry</Label>}
             </LabelGroup>
         )
