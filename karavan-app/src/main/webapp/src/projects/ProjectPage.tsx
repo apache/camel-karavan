@@ -21,7 +21,7 @@ import {
     ToggleGroup,
     ToggleGroupItem,
     CodeBlockCode,
-    CodeBlock, Skeleton, Checkbox, Tabs, Tab
+    CodeBlock, Skeleton, Checkbox, Tabs, Tab, Tooltip
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
@@ -33,6 +33,7 @@ import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import {KaravanDesigner} from "../designer/KaravanDesigner";
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
+import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
 import FileSaver from "file-saver";
 import Editor from "@monaco-editor/react";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
@@ -54,6 +55,7 @@ interface Props {
 }
 
 interface State {
+    karavanDesignerRef: any,
     project?: Project,
     file?: ProjectFile,
     files: ProjectFile[],
@@ -72,6 +74,7 @@ interface State {
 export class ProjectPage extends React.Component<Props, State> {
 
     public state: State = {
+        karavanDesignerRef: React.createRef(),
         project: this.props.project,
         isUploadModalOpen: false,
         isCreateModalOpen: false,
@@ -145,6 +148,12 @@ export class ProjectPage extends React.Component<Props, State> {
         }
     }
 
+    downloadImage = () => {
+        if (this.state.karavanDesignerRef) {
+            this.state.karavanDesignerRef.current.downloadImage();
+        }
+    }
+
     addProperty() {
         const file = this.state.file;
         if (file){
@@ -160,6 +169,7 @@ export class ProjectPage extends React.Component<Props, State> {
         const {file, mode} = this.state;
         const isFile = file !== undefined;
         const isYaml = file !== undefined && file.name.endsWith("yaml");
+        const isIntegration = isYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
         const isProperties = file !== undefined && file.name.endsWith("properties");
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
@@ -184,7 +194,14 @@ export class ProjectPage extends React.Component<Props, State> {
                     </FlexItem>}
 
                     {isFile && <FlexItem>
-                        <Button variant="secondary" icon={<DownloadIcon/>} onClick={e => this.download()}>Download</Button>
+                        <Tooltip content="Download source" position={"bottom-end"}>
+                            <Button variant="control" icon={<DownloadIcon/>} onClick={e => this.download()}/>
+                        </Tooltip>
+                    </FlexItem>}
+                    {isIntegration && <FlexItem>
+                        <Tooltip content="Download image" position={"bottom-end"}>
+                            <Button variant="control" icon={<DownloadImageIcon/>} onClick={e => this.downloadImage()}/>
+                        </Tooltip>
                     </FlexItem>}
                     {!isFile && <FlexItem>
                         <Button variant={"primary"} icon={<PlusIcon/>}
@@ -328,6 +345,7 @@ export class ProjectPage extends React.Component<Props, State> {
         return (
             file !== undefined &&
             <KaravanDesigner
+                ref={this.state.karavanDesignerRef}
                 dark={false}
                 key={"key"}
                 filename={file.name}

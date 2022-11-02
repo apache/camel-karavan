@@ -174,6 +174,12 @@ export function activate(context: ExtensionContext) {
     });
     context.subscriptions.push(generateRest);
 
+    // Download Image command
+    const downloadImageCommand = commands.registerCommand("karavan.download-image", (...args: any[]) => {
+        designer.downloadImage(args[0].fsPath);
+    });
+    context.subscriptions.push(downloadImageCommand);
+
     // Create issue command
     commands.registerCommand('karavan.reportIssue', () => {
         commands.executeCommand('open', Uri.parse('https://github.com/apache/camel-karavan/issues/new?title=[VS+Code]New+report&template=issue_template.md'));

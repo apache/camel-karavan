@@ -90,6 +90,11 @@ export class KaravanDesigner extends React.Component<Props, State> {
         )
     }
 
+    downloadImage(){
+        // TODO: download image
+        console.log("Download image")
+    }
+
     render() {
         const tab = this.state.tab;
         return (

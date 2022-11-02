@@ -49,6 +49,7 @@
     "onCommand:karavan.jbang-run-project",
     "onCommand:karavan.jbang-export",
     "onCommand:karavan.generate-rest",
+    "onCommand:karavan.download-image",
     "onCommand:karavan.openKamelets",
     "onCommand:karavan.openComponents",
     "onCommand:karavan.openEip",
@@ -269,6 +270,11 @@
         "title": "Karavan: Generate REST API"
       },
       {
+        "command": "karavan.download-image",
+        "title": "Download image",
+        "icon": "$(device-camera)"
+      },
+      {
         "command": "integrations.refresh",
         "title": "Refresh",
         "icon": "$(refresh)"
@@ -347,12 +353,17 @@
         {
           "command": "karavan.open",
           "when": "resourceExtname == .yaml",
-          "group": "navigation"
+          "group": "navigation@1"
         },
         {
           "command": "karavan.jbang-run-file",
           "when": "resourceExtname == .yaml || karavan:loaded",
-          "group": "navigation"
+          "group": "navigation@2"
+        },
+        {
+          "command": "karavan.download-image",
+          "when": "karavan:loaded",
+          "group": "navigation@3"
         }
       ],
       "view/title": [

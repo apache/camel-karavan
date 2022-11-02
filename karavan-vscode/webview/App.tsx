@@ -31,6 +31,7 @@ interface Props {
 }
 
 interface State {
+  karavanDesignerRef: any
   filename: string
   relativePath: string
   yaml: string
@@ -48,6 +49,7 @@ interface State {
 class App extends React.Component<Props, State> {
 
   public state: State = {
+    karavanDesignerRef: React.createRef(),
     filename: '',
     relativePath: '',
     yaml: '',
@@ -111,6 +113,11 @@ class App extends React.Component<Props, State> {
       case 'deactivate':
         this.setState({ active: false, hasChanges: false });
         break;
+      case 'downloadImage':
+        if (this.state.karavanDesignerRef) {
+          this.state.karavanDesignerRef.current.downloadImage();
+        }
+        break;
     }
   };
 
@@ -134,7 +141,7 @@ class App extends React.Component<Props, State> {
           </PageSection>
         }
         {this.state.loaded && this.state.page === "designer" &&
-          <KaravanDesigner
+          <KaravanDesigner ref={this.state.karavanDesignerRef}
             key={this.state.key}
             filename={this.state.filename}
             yaml={this.state.yaml}

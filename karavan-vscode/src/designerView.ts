@@ -194,4 +194,13 @@ export class DesignerView {
 
     }
 
+    downloadImage(fullPath: string) {
+        if (fullPath.startsWith('webview-panel/webview')) {
+            const filename = this.getFilenameFromWebView();
+            if (filename && KARAVAN_PANELS.has(filename)) {
+                const panel = KARAVAN_PANELS.get(filename);
+                panel?.webview.postMessage({ command: 'downloadImage' });
+            }
+        }
+    }
 }
