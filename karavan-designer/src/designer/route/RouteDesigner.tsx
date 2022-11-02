@@ -338,30 +338,23 @@ export class RouteDesigner extends React.Component<Props, State> {
         a.click();
     }
 
-    IntegrationDownloadFilter = (node: HTMLElement) => {
+    IntegrationImageDownloadFilter = (node: HTMLElement) => {
         const exclusionClasses = ['add-flow'];
         return !exclusionClasses.some(classname => {
             return node.classList === undefined ? false: node.classList.contains(classname);
         });
     }
 
-    IntegrationDownloadButton() {
-        const onClick = () => {
-            if (this.state.printerRef.current === null) {
-                return
-            }
-            toPng(this.state.printerRef.current, { style:{overflow:'hidden'}, cacheBust: true, filter: this.IntegrationDownloadFilter, 
-                  height:this.state.height,width:this.state.width,  backgroundColor: this.props.dark?"black":"white" }).then(this.downloadIntegrationImage);
-        };
+    IntegrationImageDownload() {
+        if (this.state.printerRef.current === null) {
+            return
+        }
+        toPng(this.state.printerRef.current, { style:{overflow:'hidden'}, cacheBust: true, filter: this.IntegrationImageDownloadFilter, 
+                height:this.state.height,width:this.state.width,  backgroundColor: this.props.dark?"black":"white" }).then(v => {
+                    toPng(this.state.printerRef.current, { style:{overflow:'hidden'}, cacheBust: true, filter: this.IntegrationImageDownloadFilter, 
+                    height:this.state.height,width:this.state.width,  backgroundColor: this.props.dark?"black":"white" }).then(this.downloadIntegrationImage);
+            })
 
-        return (
-            <Button variant={CamelUi.getRoutes(this.state.integration).length === 0 ? "primary" : "secondary"}
-                data-click="DOWNLOAD_INTEGRATION_IMAGE"
-                icon={<DownloadIcon/>}
-                onClick={e => onClick()}>
-                Download Image
-            </Button>
-        );
     }
 
     getGraph() {
@@ -392,7 +385,6 @@ export class RouteDesigner extends React.Component<Props, State> {
                             icon={<PlusIcon/>}
                             onClick={e => this.openSelector(undefined, undefined)}>Create new route
                         </Button>
-                        {this.IntegrationDownloadButton()}
                     </div>
                 </div>
             </div>)
