@@ -94,7 +94,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
 
     downloadImage(){
         if(this.state.routeDesignerRef){
-            this.state.routeDesignerRef.current.IntegrationImageDownload();
+            this.state.routeDesignerRef.current.integrationImageDownload();
          }
     }
 
@@ -111,7 +111,8 @@ export class KaravanDesigner extends React.Component<Props, State> {
                 </Tabs>
                 {tab === 'routes' && <RouteDesigner integration={this.state.integration}
                                                     onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
-                                                    dark={this.props.dark} ref={this.state.routeDesignerRef}/>}
+                                                    dark={this.props.dark}
+                                                    ref={this.state.routeDesignerRef}/>}
                 {tab === 'rest' && <RestDesigner integration={this.state.integration}
                                                  onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                  dark={this.props.dark}/>}

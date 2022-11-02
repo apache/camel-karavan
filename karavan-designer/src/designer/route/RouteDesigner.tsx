@@ -338,23 +338,22 @@ export class RouteDesigner extends React.Component<Props, State> {
         a.click();
     }
 
-    IntegrationImageDownloadFilter = (node: HTMLElement) => {
+    integrationImageDownloadFilter = (node: HTMLElement) => {
         const exclusionClasses = ['add-flow'];
         return !exclusionClasses.some(classname => {
             return node.classList === undefined ? false: node.classList.contains(classname);
         });
     }
 
-    IntegrationImageDownload() {
+    integrationImageDownload() {
         if (this.state.printerRef.current === null) {
             return
         }
-        toPng(this.state.printerRef.current, { style:{overflow:'hidden'}, cacheBust: true, filter: this.IntegrationImageDownloadFilter, 
+        toPng(this.state.printerRef.current, { style:{overflow:'hidden'}, cacheBust: true, filter: this.integrationImageDownloadFilter,
                 height:this.state.height,width:this.state.width,  backgroundColor: this.props.dark?"black":"white" }).then(v => {
-                    toPng(this.state.printerRef.current, { style:{overflow:'hidden'}, cacheBust: true, filter: this.IntegrationImageDownloadFilter, 
+                    toPng(this.state.printerRef.current, { style:{overflow:'hidden'}, cacheBust: true, filter: this.integrationImageDownloadFilter,
                     height:this.state.height,width:this.state.width,  backgroundColor: this.props.dark?"black":"white" }).then(this.downloadIntegrationImage);
             })
-
     }
 
     getGraph() {
