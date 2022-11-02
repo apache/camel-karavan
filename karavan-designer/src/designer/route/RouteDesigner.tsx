@@ -34,12 +34,10 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {DslConnections} from "./DslConnections";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
-import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon"
 import {DslElement} from "./DslElement";
 import {EventBus} from "../utils/EventBus";
 import {CamelUi, RouteToCreate} from "../utils/CamelUi";
 import {findDOMNode} from "react-dom";
-import {Subscription} from "rxjs";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {toPng} from 'html-to-image';
 

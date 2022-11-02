@@ -1,7 +1,5 @@
 import React from 'react';
 import {
-    Badge,
-    Text,
     Card,
     CardBody, Flex, FlexItem,
 } from '@patternfly/react-core';

@@ -198,7 +198,7 @@ export class BeanProperties extends React.Component<Props, State> {
                         const key = v[1][0];
                         const value = v[1][1];
                         const showPassword = v[1][2];
-                        const isSecret = key != undefined && SensitiveKeys.includes(key.toLowerCase());
+                        const isSecret = key !== undefined && SensitiveKeys.includes(key.toLowerCase());
                         return (
                             <div key={"key-" + i} className="bean-property">
                                 <TextInput placeholder="Bean Field Name" className="text-field" isRequired type="text" id="key" name="key" value={key}

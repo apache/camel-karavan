@@ -35,7 +35,7 @@ export class MainLogin extends React.Component<Props, State> {
             <Bullseye>
                 <Card isFlat isCompact>
                     <CardTitle>
-                        <img src="karavan-logo-light.png" className="login-logo"/>
+                        <img alt="karavan-logo" src="karavan-logo-light.png" className="login-logo"/>
                         <Text component="h3" style={{width:"fit-content", marginLeft:"auto"}}>{this.props.config.version}</Text>
                     </CardTitle>
                     <CardBody>

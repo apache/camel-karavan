@@ -4,7 +4,6 @@ import {
     PageSection
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {KaravanApi} from "../api/KaravanApi";
 
 interface Props {
 }

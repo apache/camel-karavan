@@ -21,7 +21,7 @@ import {
     Select,
     SelectVariant,
     SelectDirection,
-    SelectOption, Text, TextContent, TextVariants,
+    SelectOption
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";

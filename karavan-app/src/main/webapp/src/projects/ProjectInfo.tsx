@@ -337,7 +337,7 @@ export class ProjectInfo extends React.Component<Props, State> {
         let lastPipelineRunTime = 0;
         if (status?.startTime){
             const start:Date = new Date(status.startTime);
-            const finish:Date = status.completionTime != undefined && status.completionTime != null ? new Date(status.completionTime) : new Date();
+            const finish:Date = status.completionTime !== undefined && status.completionTime !== null ? new Date(status.completionTime) : new Date();
             lastPipelineRunTime =Math.round( (finish.getTime() - start.getTime()) / 1000 );
         }
         const showTime = lastPipelineRunTime && lastPipelineRunTime > 0;

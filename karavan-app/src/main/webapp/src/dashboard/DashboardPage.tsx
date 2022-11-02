@@ -21,7 +21,6 @@ import {KaravanApi} from "../api/KaravanApi";
 import Icon from "../Logo";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
-import QuestionIcon from "@patternfly/react-icons/dist/esm/icons/question-circle-icon";
 import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 
 interface Props {

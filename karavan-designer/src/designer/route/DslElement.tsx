@@ -440,7 +440,7 @@ export class DslElement extends React.Component<Props, State> {
                      borderColor: this.isSelected() ? "var(--step-border-color-selected)" : "var(--step-border-color)",
                      marginTop: this.isInStepWithChildren() ? "16px" : "8px",
                      zIndex: element.dslName === 'ToDefinition' ? 20 : 10,
-                     boxShadow: this.state.isDraggedOver ? "0px 0px 1px 2px " + "var(--step-border-color-selected)" : "none",
+                     boxShadow: this.state.isDraggedOver ? "0px 0px 1px 2px var(--step-border-color-selected)" : "none",
                  }}
                  onMouseOver={event => event.stopPropagation()}
                  onClick={event => this.selectElement(event)}

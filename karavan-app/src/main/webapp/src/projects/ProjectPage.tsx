@@ -47,7 +47,6 @@ import {UploadModal} from "./UploadModal";
 import {ProjectInfo} from "./ProjectInfo";
 import {ProjectOperations} from "./ProjectOperations";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import * as yaml from 'js-yaml';
 
 interface Props {
     project: Project,
@@ -415,7 +414,7 @@ export class ProjectPage extends React.Component<Props, State> {
                     <CodeBlock style={{width:"90%"}}>
                         <CodeBlockCode id="code-content">{file.code}</CodeBlockCode>
                     </CodeBlock>}
-                {file === undefined || file.code.length === 0 &&
+                {(file === undefined || file.code.length === 0) &&
                     <div>
                         <Skeleton width="25%" screenreaderText="Loading contents" />
                         <br />
