@@ -1,11 +1,12 @@
 # Changelog
 
 ## 3.18.5
-1. Karavan Operator 
+1. First preview of Karavan Operator 
 2. Kamelets 0.9.2
 3. Camel 3.18.3
-4. Integration Deployment in VS Code
+4. Deployment in VS Code
 5. First preview of Dashboard
+6. Export routes as PNG image
 
 ## 3.18.4
 1. Support minikube for cloud app
