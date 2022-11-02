@@ -38,6 +38,7 @@
     "buffer": "^6.0.3",
     "dagre": "^0.8.5",
     "file-saver": "^2.0.5",
+	  "html-to-image": "^1.10.8",
     "karavan-core": "file:../../../../karavan-core",
     "keycloak-js": "^19.0.1",
     "localforage": "^1.10.0",

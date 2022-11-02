@@ -45,6 +45,7 @@ interface State {
     integration: Integration
     key: string
     propertyOnly: boolean
+    routeDesignerRef?: any
 }
 
 export class KaravanDesigner extends React.Component<Props, State> {
@@ -56,6 +57,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
             : Integration.createNew(this.props.filename),
         key: "",
         propertyOnly: false,
+        routeDesignerRef: React.createRef(),
     };
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
@@ -91,8 +93,9 @@ export class KaravanDesigner extends React.Component<Props, State> {
     }
 
     downloadImage(){
-        // TODO: download image
-        console.log("Download image")
+        if(this.state.routeDesignerRef){
+            this.state.routeDesignerRef.current.IntegrationImageDownload();
+         }
     }
 
     render() {
@@ -108,7 +111,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
                 </Tabs>
                 {tab === 'routes' && <RouteDesigner integration={this.state.integration}
                                                     onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
-                                                    dark={this.props.dark}/>}
+                                                    dark={this.props.dark} ref={this.state.routeDesignerRef}/>}
                 {tab === 'rest' && <RestDesigner integration={this.state.integration}
                                                  onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                  dark={this.props.dark}/>}
