@@ -72,15 +72,6 @@ export class DslSelector extends React.Component<Props, State> {
         this.props.onDslSelect.call(this, dsl, this.props.parentId, this.props.position);
     }
 
-    checkFilter = (dsl: DslMetaModel): boolean => {
-        if (this.state.filter !== undefined) {
-            return dsl.title.toLowerCase().includes(this.state.filter.toLowerCase())
-                || dsl.description.toLowerCase().includes(this.state.filter.toLowerCase());
-        } else {
-            return true;
-        }
-    }
-
     searchInput = () => {
         return (
             <Form isHorizontal className="search" autoComplete="off">
@@ -148,7 +139,7 @@ export class DslSelector extends React.Component<Props, State> {
                         <FlexItem>
                             <Tabs style={{overflow: 'hidden'}} activeKey={this.state.tabIndex}
                                   onSelect={this.selectTab}>
-                                {CamelUi.getSelectorModelTypes(parentDsl, this.props.showSteps).map((label: [string, number], index: number) => {
+                                {CamelUi.getSelectorModelTypes(parentDsl, this.props.showSteps,this.state.filter).map((label: [string, number], index: number) => {
                                     const labelText = label[0];
                                     const count = label[1];
                                     const title = ['kamelet', 'component'].includes(labelText.toLowerCase()) ? labelText + "s (" + count + ")" : labelText;
@@ -166,7 +157,7 @@ export class DslSelector extends React.Component<Props, State> {
                 <PageSection variant={this.props.dark ? "darker" : "light"}>
                     <Gallery key={"gallery-" + labelText} hasGutter className="dsl-gallery">
                         {CamelUi.getSelectorModelsForParentFiltered(parentDsl, labelText, this.props.showSteps)
-                            .filter((dsl: DslMetaModel) => this.checkFilter(dsl))
+                            .filter((dsl: DslMetaModel) => CamelUi.checkFilter(dsl, this.state.filter))
                             .map((dsl: DslMetaModel, index: number) => this.getCard(dsl, index))}
                     </Gallery>
                 </PageSection>
