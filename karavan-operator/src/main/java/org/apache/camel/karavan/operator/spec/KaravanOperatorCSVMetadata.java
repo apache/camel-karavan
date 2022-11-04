@@ -79,7 +79,7 @@ import io.quarkiverse.operatorsdk.bundle.runtime.SharedCSVMetadata;
                 @CSVMetadata.PermissionRule(apiGroups = {"apiextensions.k8s.io"}, resources = {"customresourcedefinitions"}, verbs = {"get", "list", "watch"}),
         },
         keywords = {"apache", "camel", "karavan", "integration", "microservices", "low-code"},
-        version = "3.18.5",
+        version = "3.18.6",
         maintainers = @CSVMetadata.Maintainer(name = "The Apache Software Foundation", email = "users@camel.apache.org"),
         provider = @CSVMetadata.Provider(name = "The Apache Software Foundation"),
         maturity = "alpha",
@@ -98,9 +98,9 @@ public class KaravanOperatorCSVMetadata implements SharedCSVMetadata {
 //        import io.quarkiverse.operatorsdk.bundle.runtime.SharedCSVMetadata;
 //
 //@CSVMetadata(
-//        name = "camel-karavan-operator.v3.18.5",
+//        name = "camel-karavan-operator.v3.18.6",
 //        annotations = @CSVMetadata.Annotations(
-//                containerImage = "ghcr.io/apache/camel-karavan-operator:3.18.5",
+//                containerImage = "ghcr.io/apache/camel-karavan-operator:3.18.6",
 //                repository = "https://github.com/apache/camel-karavan",
 //                capabilities = "Basic Install",
 //                categories = "Developer Tools, Integration & Delivery",
@@ -181,7 +181,7 @@ public class KaravanOperatorCSVMetadata implements SharedCSVMetadata {
 //                @CSVMetadata.PermissionRule(apiGroups = {"apiextensions.k8s.io"}, resources = {"customresourcedefinitions"}, verbs = {"get", "list", "watch"}),
 //        },
 //        keywords = {"apache", "camel", "karavan", "integration", "microservices", "low-code"},
-//        version = "3.18.5",
+//        version = "3.18.6",
 //        maintainers = @CSVMetadata.Maintainer(name = "The Apache Software Foundation", email = "users@camel.apache.org"),
 //        provider = @CSVMetadata.Provider(name = "The Apache Software Foundation"),
 //        maturity = "alpha",
