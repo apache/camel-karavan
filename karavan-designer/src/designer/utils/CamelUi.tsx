@@ -86,14 +86,24 @@ export class RouteToCreate {
 
 export class CamelUi {
 
-    static getSelectorModelTypes = (parentDsl: string | undefined, showSteps: boolean = true): [string, number][] => {
+    static getSelectorModelTypes = (parentDsl: string | undefined, showSteps: boolean = true, filter:string|undefined = undefined): [string, number][] => {
         const navs =  CamelUi.getSelectorModelsForParent(parentDsl, showSteps).map(dsl => dsl.navigation.split(","))
             .reduce((accumulator, value) => accumulator.concat(value), [])
             .filter((nav, i, arr) => arr.findIndex(l => l === nav) === i)
             .filter((nav, i, arr) => ![ 'dataformat'].includes(nav));
         const connectorNavs = ['routing', "transformation", "error", "configuration", "endpoint", "kamelet", "component"];
         const eipLabels = connectorNavs.filter(n => navs.includes(n));
-        return eipLabels.map(label => [label, this.getSelectorModelsForParentFiltered(parentDsl, label, true).length]);
+        return eipLabels.map(label => [label, this.getSelectorModelsForParentFiltered(parentDsl, label, true)
+            .filter((dsl: DslMetaModel) => filter === undefined ? true : CamelUi.checkFilter(dsl, filter)).length]);
+    }
+
+    static checkFilter = (dsl: DslMetaModel, filter:string|undefined = undefined): boolean => {
+        if (filter !== undefined && filter !== "") {
+            return dsl.title.toLowerCase().includes(filter.toLowerCase())
+                || dsl.description.toLowerCase().includes(filter.toLowerCase());
+        } else {
+            return true;
+        }
     }
 
     static dslHasSteps = (className: string): boolean => {
@@ -108,8 +118,8 @@ export class CamelUi {
     static getSelectorModelsForParentFiltered = (parentDsl: string | undefined, navigation: string,  showSteps: boolean = true): DslMetaModel[] => {
         return CamelUi.getSelectorModelsForParent(parentDsl, showSteps)
             .filter(dsl => dsl.navigation.includes(navigation));
-    }
-
+            
+        }
     static getSelectorModelsForParent = (parentDsl: string | undefined, showSteps: boolean = true): DslMetaModel[] => {
         const result: DslMetaModel[] = [];
         if (!parentDsl){
