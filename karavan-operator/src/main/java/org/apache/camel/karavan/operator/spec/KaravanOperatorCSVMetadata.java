@@ -109,7 +109,7 @@ package org.apache.camel.karavan.operator.spec;
         maturity = "alpha",
         minKubeVersion = "1.11.0",
         icon = @CSVMetadata.Icon(
-                fileName = ""
+                fileName = "karavan.svg"
         ),
         installModes = {
                 @CSVMetadata.InstallMode(type = "AllNamespaces")
