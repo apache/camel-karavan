@@ -55,6 +55,6 @@ jobs:
           cd karavan-operator
           MY_BUNDLE_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BUNDLE }}:${{ env.TAG }}
           docker login -u=${{ github.actor }} -p=${{ secrets.GITHUB_TOKEN }} ${{ env.REGISTRY }}
-          docker build -t $MY_BUNDLE_IMAGE -f target/bundle/camel-karavan-operator/bundle.Dockerfile target/bundle/camel-karavan-operator
+          docker build -t $MY_BUNDLE_IMAGE -f target/bundle/camel-karavan-operator.v{{ env.TAG }}/bundle.Dockerfile target/bundle/camel-karavan-operator.v{{ env.TAG }}
           docker push $MY_BUNDLE_IMAGE
         if: ${{ github.ref == 'refs/heads/main' }}
