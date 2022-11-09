@@ -263,7 +263,7 @@
             "jkube.build.strategy=s2i",
             "jkube.namespace=${NAMESPACE}",
             "jkube.generator.name=$NAME:${DATE}",
-            "jkube.imagePullPolicy=Always"
+            "jkube.imagePullPolicy=IfNotPresent"
           ],
           "description": "application.properties template for camel-springboot on Kubernetes",
           "scope": "machine",
@@ -279,10 +279,10 @@
             "camel.jbang.dependencies=camel:microprofile-health",
             "# jkube properties",
             "jkube.version=1.9.1",
-            "jkube.build.strategy=jib",
-            "jkube.namespace=${NAMESPACE}",
-            "jkube.generator.name=$NAME:${DATE}",
-            "jkube.imagePullPolicy=Always",
+            "jkube.build.strategy=docker",
+            "jkube.namespace=default",
+            "jkube.generator.name=default/$NAME:${DATE}",
+            "jkube.imagePullPolicy=IfNotPresent",
             "jkube.enricher.jkube-controller.type=Deployment",
             "jkube.enricher.jkube-controller.replicaCount=1"
           ],
