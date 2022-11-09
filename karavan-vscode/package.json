@@ -261,8 +261,10 @@
             "jkube.version=1.9.1",
             "jkube.build.strategy=s2i",
             "jkube.namespace=${NAMESPACE}",
-            "jkube.generator.name=$NAME:${DATE}",
-            "jkube.imagePullPolicy=IfNotPresent"
+            "jkube.generator.name=image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/$NAME:${DATE}",
+            "jkube.imagePullPolicy=IfNotPresent",
+            "jkube.enricher.jkube-controller.type=Deployment",
+            "jkube.enricher.jkube-controller.replicaCount=1"
           ],
           "description": "application.properties template for camel-springboot on Kubernetes",
           "scope": "machine",
