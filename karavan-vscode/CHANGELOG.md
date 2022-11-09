@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.18.6
+1. Export to Quarkus and Springboot application in VS Code
+2. Deploy to Kubernetes and Openshift from VS Code
+
 ## 3.18.5
 1. First preview of Karavan Operator 
 2. Kamelets 0.9.2

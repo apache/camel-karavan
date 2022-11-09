@@ -108,8 +108,7 @@ export function activate(context: ExtensionContext) {
             const deployTarget: string = workspace.getConfiguration().get("camel.deployTarget") || 'openshift';
             const runtimeOptions: QuickPickItem [] = [
                 {label: "quarkus", picked: "quarkus" === defaultRuntime},
-                {label: "spring-boot", picked: "spring-boot" === defaultRuntime},
-                {label: "camel-main", picked: "camel-main" === defaultRuntime}
+                {label: "spring-boot", picked: "spring-boot" === defaultRuntime}
             ];
             const deployOptions: QuickPickItem [] = [
                 {label: "openshift", picked: "openshift" === deployTarget},
