@@ -94,8 +94,8 @@ export function camelJbangRun(filename?: string) {
     terminal.sendText(command);
 }
 
-export function camelJbangExport(directory: string) {
-    const command = createExportCommand(directory);
+export function camelJbangExport() {
+    const command = createExportCommand();
     const terminalId = "export";
     const existTerminal = TERMINALS.get(terminalId);
     if (existTerminal) existTerminal.dispose();
@@ -105,36 +105,30 @@ export function camelJbangExport(directory: string) {
     terminal.sendText(command);
 }
 
-export function createExportCommand(directory: string) {
+export function createExportCommand() {
     const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
-    const cmd = "export --directory=" + directory
-        + (kameletsPath && kameletsPath.trim().length > 0 ? " --local-kamelet-dir=" + kameletsPath : "");
+    const cmd = "export --fresh " + (kameletsPath && kameletsPath.trim().length > 0 ? " --local-kamelet-dir=" + kameletsPath : "");
     return prepareCommand(cmd);
 }
 
 export function camelDeploy(directory: string) {
-    const command = createExportCommand(directory).concat(" && ")
-        .concat(createPackageAndPushImageCommand(directory)).concat(" && ")
-        .concat(createPackageAndDeployCommand(directory));
     Promise.all([
-        exec.execCommand("oc whoami"), // get user
-        exec.execCommand("oc whoami --show-token"), // get token
+        utils.getRuntime(),
+        utils.getTarget(),
+        utils.getExportFolder(),
         exec.execCommand("oc project -q"), // get namespace 
-        exec.execCommand("oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}'"), // get image-registry 
-        exec.execCommand("oc whoami --show-server") // get server
     ]).then(val => {
+        const runtime = val[0] || '';
+        const target = val[1] || '';
+        const exportFolder = val[2] || '';
         let env: any = { "DATE": Date.now().toString() };
-        if (val[0].result) env.KUBERNETES_USER = val[0].value.trim();
-        if (val[1].result) env.KUBERNETES_TOKEN = val[1].value.trim();
-        if (val[2].result) env.NAMESPACE = val[2].value.trim();
-        if (val[3].result) env.IMAGE_REGISTRY = val[3].value.trim() 
-            else env.IMAGE_REGISTRY = "image-registry.openshift-image-registry.svc:5000";
-        if (val[4].result) env.KUBERNETES_SERVER = val[4].value.trim() 
-            else env.KUBERNETES_SERVER = "kubernetes.default.svc";
-
-        if (val[0].result && val[1].result && !val[2].result) {
-            window.showErrorMessage("Namespace not set \n" + val[2].error);
+        if (target === 'openshift' && val[3].result) {
+            env.NAMESPACE = val[3].value.trim();
+        } else if (target === 'openshift' && val[3].result === undefined) {
+            window.showErrorMessage("Namespace not set \n" + val[3].error);
         }
+        const deployCommand: string = workspace.getConfiguration().get("Karavan.".concat(runtime.replaceAll("-", "")).concat(utils.capitalize(target)).concat("Deploy")) || '';
+        const command = createExportCommand().concat(" && ").concat(deployCommand).concat(" -f ").concat(exportFolder);
         camelRunDeploy(command, env);
     }).catch((reason: any) => {
         window.showErrorMessage("Error: \n" + reason.message);
@@ -189,11 +183,4 @@ function setMinikubeEnvVariables(env: string): Map<string, string> {
         map.set(key, value);
     })
     return map;
-}
-
-function removeMinikubeEnvVariables() {
-    delete shell.env['DOCKER_TLS_VERIFY'];
-    delete shell.env['DOCKER_HOST'];
-    delete shell.env['DOCKER_CERT_PATH'];
-    delete shell.env['MINIKUBE_ACTIVE_DOCKERD'];
 }

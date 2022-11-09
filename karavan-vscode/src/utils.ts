@@ -168,6 +168,8 @@ export async function getIntegrationFiles(baseDir: string) {
 
 
 export async function getProperties(rootPath?: string) {
+    if (rootPath === undefined)
+        rootPath = (workspace.workspaceFolders && (workspace.workspaceFolders.length > 0)) ? workspace.workspaceFolders[0].uri.fsPath : undefined;
     if (rootPath) {
         const readData = await readFile(path.resolve(rootPath, "application.properties"));
         return Buffer.from(readData).toString('utf8');
@@ -175,6 +177,29 @@ export async function getProperties(rootPath?: string) {
         const readData = await readFile(path.resolve("application.properties"));
         return Buffer.from(readData).toString('utf8');
     }
+}
+
+export async function getProperty(name: string) {
+    const properties = await getProperties();
+    const props = properties.split("\n");
+    for (var p of props){
+        const pair = p.split("=");
+        if (pair[0] === name) {
+            return pair[1];
+        }
+    }
+}
+
+export async function getRuntime() {
+    return getProperty("camel.jbang.runtime");
+;}
+
+export async function getTarget() {
+    return getProperty('camel.karavan.target');
+}
+
+export async function getExportFolder() {
+    return getProperty('camel.jbang.exportDir');
 }
 
 export async function stat(fullPath: string) {
@@ -201,26 +226,38 @@ export async function write(fullPath: string, code: string) {
     );
 }
 
-export async function createApplicationproperties(runtime: string, gav: string, deployTarget: string ) {
+export function capitalize (text) {
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+}
+
+export function defaultGAV (): string | undefined {
+    const groupId = workspace.getConfiguration().get("Karavan.defaultGroupId");
+    const artifact = currentFolderName();
+    return groupId + ":" + artifact + ":1";
+}
+
+export function currentFolderName (): string | undefined {
     if (workspace.workspaceFolders) {
         const uriFolder: Uri = workspace.workspaceFolders[0].uri;
         const parts = uriFolder.fsPath.split(path.sep);
         const name = parts.at(parts.length -1) || '';
+        return name;
+    }
+}
 
-        const runtimeVersion: string = workspace.getConfiguration().get("camel." + runtime + "-version") || '';
+export async function createApplicationproperties(runtime: string, gav: string, target: string ) {
+    if (workspace.workspaceFolders) {
+        const uriFolder: Uri = workspace.workspaceFolders[0].uri;
+        const name = currentFolderName() || "";
+
         const props: string [] = workspace.getConfiguration().get("Karavan.applicationProperties") || [];
-        const imageBuildProps: string [] = workspace.getConfiguration().get("Karavan.imageBuildProperties") || [];
-        const targetProps: string [] = 
-                deployTarget === 'openshift' ? (workspace.getConfiguration().get("Karavan.openshiftProperties") || [])
-                : [];
-        const runtimeDefaults: [] = (runtime === 'quarkus') 
-            ? workspace.getConfiguration().get("Karavan.quarkusApplicationProperties") || []
-            : [];
-        const text = props.concat(runtimeDefaults).concat("\n").concat(imageBuildProps).concat("\n").concat(targetProps).map(v => {
+        const runtimeProps: string [] = workspace.getConfiguration().get("Karavan.".concat(runtime.replaceAll("-", "")).concat(capitalize(target)).concat("Properties")) || [];
+
+        const text = props.concat(runtimeProps).map(v => {
             if (v.includes('$NAME')) return v.replace('$NAME', name)
             else if (v.includes('$GAV')) return v.replace('$GAV', gav)
-            else if (v.includes('$RUNTIME_VERSION')) return v.replace('$RUNTIME_VERSION', runtimeVersion) // $RUNTIME_VERSION should be before $RUNTIME
             else if (v.includes('$RUNTIME')) return v.replace('$RUNTIME', runtime)
+            else if (v.includes('$TARGET')) return v.replace('$TARGET', target)
             else return v;
         }).join('\n');
         write(path.join(uriFolder.path, "application.properties"), text);

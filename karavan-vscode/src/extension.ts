@@ -140,7 +140,7 @@ export function activate(context: ExtensionContext) {
 
     // Export project
     const exportCommand = commands.registerCommand("karavan.jbang-export", (...args: any[]) => {
-        inputExportFolder(rootPath);
+        jbang.camelJbangExport();
     });
     context.subscriptions.push(exportCommand);
 
@@ -186,29 +186,6 @@ export function activate(context: ExtensionContext) {
     });
 }
 
-/**
- * export into folder
- */
-export async function inputExportFolder(rootPath?: string) {
-    window.showInputBox({
-        title: "Export project",
-        ignoreFocusOut: true,
-        prompt: "Export folder name",
-        value: "export",
-        validateInput: (text: string): string | undefined => {
-            if (!text || text.length === 0) {
-                return 'Name should not be empty';
-            } else {
-                return undefined;
-            }
-        }
-    }).then(folder => {
-        if (folder && rootPath) {
-            const fullPath = rootPath + path.sep + folder;
-            jbang.camelJbangExport(fullPath);
-        }
-    });
-}
 
 /**
  * export with gav
@@ -218,6 +195,7 @@ export async function inputExportGav(runtime: string, target: string) {
         title: "Export project with " + runtime,
         ignoreFocusOut: true,
         prompt: "groupId:artifactId:version",
+        value: utils.defaultGAV(),
         validateInput: (text: string): string | undefined => {
             if (!text || text.length === 0) {
                 return 'Name should not be empty. Format groupId:artifactId:version';
