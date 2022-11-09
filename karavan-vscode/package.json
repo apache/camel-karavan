@@ -39,7 +39,6 @@
     "Jbang"
   ],
   "activationEvents": [
-    "onCommand:karavan.create-crd",
     "onCommand:karavan.create-yaml",
     "onCommand:karavan.create-application",
     "onCommand:karavan.deploy",
@@ -294,11 +293,6 @@
     },
     "commands": [
       {
-        "command": "karavan.create-crd",
-        "title": "Karavan: Create CRD",
-        "icon": "$(add)"
-      },
-      {
         "command": "karavan.create-yaml",
         "title": "Karavan: Create Integration"
       },
@@ -378,11 +372,6 @@
     "menus": {
       "explorer/context": [
         {
-          "command": "karavan.create-crd",
-          "when": "explorerResourceIsFolder || explorerResourceIsRoot",
-          "group": "karavan@1"
-        },
-        {
           "command": "karavan.create-yaml",
           "when": "explorerResourceIsFolder || explorerResourceIsRoot",
           "group": "karavan@2"
@@ -457,11 +446,6 @@
           "group": "navigation@3"
         },
         {
-          "command": "karavan.create-crd",
-          "when": "view == integrations",
-          "group": "navigation@4"
-        },
-        {
           "command": "integrations.refresh",
           "when": "view == integrations",
           "group": "navigation@5"
@@ -526,7 +510,7 @@
     "viewsWelcome": [
       {
         "view": "integrations",
-        "contents": "No integrations found.\n [Create Integration CRD](command:karavan.create-crd)"
+        "contents": "No integrations found.\n [Create Integration](command:karavan.create-yaml)"
       }
     ]
   },

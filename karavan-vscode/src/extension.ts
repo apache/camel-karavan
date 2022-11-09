@@ -86,13 +86,6 @@ export function activate(context: ExtensionContext) {
     commands.registerCommand('karavan.openComponents', () => helpView.openKaravanWebView("components"));
     commands.registerCommand('karavan.openEip', () => helpView.openKaravanWebView("eip"));
 
-    // Create new Integration CRD command
-    const createCrd = commands.registerCommand("karavan.create-crd", (...args: any[]) => {
-        if (args.length > 0) designer.createIntegration("crd", args[0].fsPath)
-        else designer.createIntegration("crd", rootPath)
-    });
-    context.subscriptions.push(createCrd);
-
     // Create new Integration YAML command
     const createYaml = commands.registerCommand("karavan.create-yaml", (...args: any[]) => designer.createIntegration("plain", args[0]?.fsPath));
     context.subscriptions.push(createYaml);
