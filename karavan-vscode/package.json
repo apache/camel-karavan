@@ -33,7 +33,8 @@
   "homepage": "https://github.com/apache/camel-karavan/tree/main/karavan-vscode",
   "keywords": [
     "Camel",
-    "Tool",
+    "Toolkit",
+    "Low code",
     "Integration",
     "Camel Yaml",
     "Jbang"
@@ -320,7 +321,7 @@
       },
       {
         "command": "karavan.jbang-run-project",
-        "title": "Karavan: Run Project",
+        "title": "Karavan: Run",
         "icon": "$(run)"
       },
       {
