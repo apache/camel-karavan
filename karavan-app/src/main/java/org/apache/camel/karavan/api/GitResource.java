@@ -49,7 +49,7 @@ public class GitResource {
         List<ProjectFile> files = infinispanService.getProjectFiles(project.getProjectId());
         String commitId = gitService.commitAndPushProject(p, files);
         p.setLastCommit(commitId);
-        infinispanService.saveProject(p);
+        infinispanService.saveProject(p, false);
         return p;
     }
 }

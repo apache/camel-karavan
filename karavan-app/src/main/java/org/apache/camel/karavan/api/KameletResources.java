@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.api;
 
+import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.InfinispanService;
 
 import javax.inject.Inject;
@@ -23,9 +24,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,10 +33,13 @@ public class KameletResources {
     @Inject
     InfinispanService infinispanService;
 
+    @Inject
+    CodeService codeService;
+
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String getCustomYamls() {
-        StringBuilder kamelets = new StringBuilder(getResourceFile("kamelets.yaml"));
+        StringBuilder kamelets = new StringBuilder(codeService.getResourceFile("/kamelets/kamelets.yaml"));
         List<String> customKameletNames = infinispanService.getKameletNames();
         if (customKameletNames.size() > 0) {
             kamelets.append("\n---\n");
@@ -47,16 +48,5 @@ public class KameletResources {
                     .collect(Collectors.joining("\n---\n")));
         }
         return kamelets.toString();
-    }
-
-    private String getResourceFile(String path) {
-        try {
-            InputStream inputStream = KameletResources.class.getResourceAsStream("/kamelets/" + path);
-            String data = new BufferedReader(new InputStreamReader(inputStream))
-                    .lines().collect(Collectors.joining(System.getProperty("line.separator")));
-            return data;
-        } catch (Exception e) {
-            return null;
-        }
     }
 }

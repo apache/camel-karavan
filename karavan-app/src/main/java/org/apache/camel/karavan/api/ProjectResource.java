@@ -63,7 +63,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Project save(Project project) throws Exception {
-        infinispanService.saveProject(project);
+        infinispanService.saveProject(project, false);
         return project;
     }
 
@@ -85,7 +85,7 @@ public class ProjectResource {
 //        Save project
         Project s = infinispanService.getProject(sourceProject);
         project.setRuntime(s.getRuntime());
-        infinispanService.saveProject(project);
+        infinispanService.saveProject(project, false);
 
 //        Copy files
         Map<GroupedKey, ProjectFile> map = infinispanService.getProjectFiles(sourceProject).stream()

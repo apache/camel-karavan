@@ -12,15 +12,12 @@ public class Environment {
     String cluster;
     @ProtoField(number = 3)
     String namespace;
-    @ProtoField(number = 4)
-    String pipeline;
 
     @ProtoFactory
-    public Environment(String name, String cluster, String namespace, String pipeline) {
+    public Environment(String name, String cluster, String namespace) {
         this.name = name;
         this.cluster = cluster;
         this.namespace = namespace;
-        this.pipeline = pipeline;
     }
 
     public String getName() {
@@ -45,13 +42,5 @@ public class Environment {
 
     public void setNamespace(String namespace) {
         this.namespace = namespace;
-    }
-
-    public String getPipeline() {
-        return pipeline;
-    }
-
-    public void setPipeline(String pipeline) {
-        this.pipeline = pipeline;
     }
 }

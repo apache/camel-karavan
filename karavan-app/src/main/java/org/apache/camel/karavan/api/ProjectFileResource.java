@@ -17,7 +17,7 @@
 package org.apache.camel.karavan.api;
 
 import org.apache.camel.karavan.model.ProjectFile;
-import org.apache.camel.karavan.service.GeneratorService;
+import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.InfinispanService;
 
 import javax.inject.Inject;
@@ -41,7 +41,7 @@ public class ProjectFileResource {
     InfinispanService infinispanService;
 
     @Inject
-    GeneratorService generatorService;
+    CodeService codeService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -81,7 +81,7 @@ public class ProjectFileResource {
                                    @PathParam("generateRoutes") boolean generateRoutes, ProjectFile file) throws Exception {
         infinispanService.saveProjectFile(file);
         if (generateRest) {
-            String yaml = generatorService.generate(file.getName(), file.getCode(), generateRoutes);
+            String yaml = codeService.generate(file.getName(), file.getCode(), generateRoutes);
             ProjectFile integration = new ProjectFile(integrationName, yaml, file.getProjectId());
             infinispanService.saveProjectFile(integration);
             return file;

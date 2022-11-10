@@ -89,11 +89,12 @@ public class KubernetesService {
         return kubernetesClient().adapt(OpenShiftClient.class);
     }
 
+    @ConfigProperty(name = "kubernetes.namespace", defaultValue = "localhost")
+    String currentNamespace;
+
     @ConfigProperty(name = "karavan.environment")
     public String environment;
 
-    @ConfigProperty(name = "karavan.pipeline")
-    String pipeline;
 
     List<SharedIndexInformer> informers = new ArrayList<>(3);
 
@@ -131,7 +132,12 @@ public class KubernetesService {
         informers.forEach(informer -> informer.close());
     }
 
+    private String getPipelineName(Project project) {
+        return "karavan-pipeline-" + environment + "-" + project.getRuntime();
+    }
+
     public String createPipelineRun(Project project) throws Exception {
+        String pipeline  = getPipelineName(project);
         LOGGER.info("Pipeline " + pipeline + " is creating for " + project.getProjectId());
 
         Map<String, String> labels = Map.of(
@@ -280,33 +286,45 @@ public class KubernetesService {
 
     public List<String> getConfigMaps(String namespace) {
         List<String> result = new ArrayList<>();
+        try {
         kubernetesClient().configMaps().inNamespace(namespace).list().getItems().forEach(configMap -> {
             String name = configMap.getMetadata().getName();
             if (configMap.getData() != null) {
                 configMap.getData().keySet().forEach(data -> result.add(name + "/" + data));
             }
         });
+        } catch (Exception e) {
+            LOGGER.error(e);
+        }
         return result;
     }
 
     public List<String> getSecrets(String namespace) {
         List<String> result = new ArrayList<>();
-        kubernetesClient().secrets().inNamespace(namespace).list().getItems().forEach(secret -> {
-            String name = secret.getMetadata().getName();
-            if (secret.getData() != null) {
-                secret.getData().keySet().forEach(data -> result.add(name + "/" + data));
-            }
-        });
+        try {
+            kubernetesClient().secrets().inNamespace(namespace).list().getItems().forEach(secret -> {
+                String name = secret.getMetadata().getName();
+                if (secret.getData() != null) {
+                    secret.getData().keySet().forEach(data -> result.add(name + "/" + data));
+                }
+            });
+        } catch (Exception e) {
+            LOGGER.error(e);
+        }
         return result;
     }
 
     public List<String> getServices(String namespace) {
         List<String> result = new ArrayList<>();
+        try {
         kubernetesClient().services().inNamespace(namespace).list().getItems().forEach(service -> {
             String name = service.getMetadata().getName();
             String host = name + "." + namespace + ".svc.cluster.local";
             service.getSpec().getPorts().forEach(port -> result.add(name + "|" + host + ":" + port.getPort()));
         });
+        } catch (Exception e) {
+            LOGGER.error(e);
+        }
         return result;
     }
 
@@ -336,14 +354,14 @@ public class KubernetesService {
     }
 
     public boolean isOpenshift() {
-        return kubernetesClient().isAdaptable(OpenShiftClient.class);
+        return inKubernetes() ? kubernetesClient().isAdaptable(OpenShiftClient.class) : false;
     }
 
     public String getCluster() {
         return kubernetesClient().getMasterUrl().getHost();
     }
     public String getNamespace() {
-        return kubernetesClient().getNamespace();
+        return currentNamespace;
     }
 
     public boolean inKubernetes() {

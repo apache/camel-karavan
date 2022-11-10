@@ -16,34 +16,23 @@
  */
 package org.apache.camel.karavan.api;
 
+import org.apache.camel.karavan.service.CodeService;
+
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Path("/api/component")
 public class ComponentResources {
 
+    @Inject
+    CodeService codeService;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getJson() {
-        return getResourceFile("components.json");
-    }
-
-    private String getResourceFile(String path) {
-        try {
-            InputStream inputStream = KameletResources.class.getResourceAsStream("/components/" + path);
-            String data = new BufferedReader(new InputStreamReader(inputStream))
-                    .lines().collect(Collectors.joining(System.getProperty("line.separator")));
-            return data;
-        } catch (Exception e) {
-            return null;
-        }
+        return codeService.getResourceFile("/components/components.json");
     }
 }

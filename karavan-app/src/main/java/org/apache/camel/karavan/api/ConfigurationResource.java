@@ -25,6 +25,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -37,8 +38,11 @@ public class ConfigurationResource {
     @ConfigProperty(name = "karavan.environment")
     String environment;
 
-    @ConfigProperty(name = "karavan.default.runtime")
+    @ConfigProperty(name = "karavan.default-runtime")
     String runtime;
+
+    @ConfigProperty(name = "karavan.runtimes")
+    List<String> runtimes;
 
     @Inject
     InfinispanService infinispanService;
@@ -60,7 +64,8 @@ public class ConfigurationResource {
                                             return o1.compareTo(o2);
                                         })
                                 .collect(Collectors.toList()),
-                        "runtime", runtime
+                        "runtime", runtime,
+                        "runtimes", runtimes
                 )
         ).build();
     }

@@ -44,7 +44,10 @@ public class ImportService {
     @Inject
     GitService gitService;
 
-    @ConfigProperty(name = "karavan.default.runtime")
+    @Inject
+    CodeService codeService;
+
+    @ConfigProperty(name = "karavan.default-runtime")
     String runtime;
 
     @ConsumeEvent(value = IMPORT_PROJECTS, blocking = true)
@@ -54,25 +57,17 @@ public class ImportService {
             List<Tuple2<String, Map<String, String>>> repo = gitService.readProjectsFromRepository();
             repo.forEach(p -> {
                 String folderName = p.getItem1();
-                String name = Arrays.stream(folderName.split("-")).map(s -> capitalize(s)).collect(Collectors.joining(" "));
-                Project project = new Project(folderName, name, name, Project.CamelRuntime.valueOf(runtime.toUpperCase()), "");
-                infinispanService.saveProject(project);
+                String propertiesFile = getPropertiesFile(p);
+                String projectName = getProjectName(propertiesFile);
+                String projectDescription = getProjectDescription(propertiesFile);
+                String runtime = getProjectRuntime(propertiesFile);
+                Project project = new Project(folderName, projectName, projectDescription, runtime, "");
+                infinispanService.saveProject(project, true);
 
-                AtomicReference<ProjectFile> properties = new AtomicReference<>();
                 p.getItem2().forEach((key, value) -> {
                     ProjectFile file = new ProjectFile(key, value, folderName);
                     infinispanService.saveProjectFile(file);
-                    if (isApplicationProperties(file)) {
-                        properties.set(file);
-                    }
                 });
-                // update project
-                if (properties != null){
-                    project.setDescription(getProjectDescription(properties.get()));
-                    project.setName(getProjectName(properties.get()));
-                    infinispanService.saveProject(project);
-                }
-
             });
         } catch (Exception e) {
             LOGGER.error("Error during project import", e);
@@ -94,6 +89,19 @@ public class ImportService {
         }
     }
 
+    private String getPropertiesFile(Tuple2<String, Map<String, String>> p) {
+        try {
+            for (Map.Entry<String, String> e : p.getItem2().entrySet()){
+                if (e.getKey().equalsIgnoreCase("application.properties")) {
+                    return e.getValue();
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+        return null;
+    }
+
     private static String capitalize(String str) {
         if(str == null || str.isEmpty()) {
             return str;
@@ -101,22 +109,24 @@ public class ImportService {
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
-    private static boolean isApplicationProperties(ProjectFile file) {
-        return file.getName().equalsIgnoreCase("application.properties");
-    }
-
-    private static String getProperty(ProjectFile file, String property) {
+    private static String getProperty(String file, String property) {
         String prefix = property + "=";
-        return  Arrays.stream(file.getCode().split(System.lineSeparator())).filter(s -> s.startsWith(prefix))
+        return  Arrays.stream(file.split(System.lineSeparator())).filter(s -> s.startsWith(prefix))
                 .findFirst().orElseGet(() -> "")
                 .replace(prefix, "");
     }
 
-    private static String getProjectDescription(ProjectFile file) {
-        return getProperty(file, "camel.jbang.project-description");
+    private static String getProjectDescription(String file) {
+        String description = getProperty(file, "camel.jbang.project-description");
+        return description != null ? description : getProperty(file, "camel.karavan.project-description");
     }
 
-    private static String getProjectName(ProjectFile file) {
-        return getProperty(file, "camel.jbang.project-name");
+    private static String getProjectName(String file) {
+        String name = getProperty(file, "camel.jbang.project-name");
+        return name != null ? name : getProperty(file, "camel.karavan.project-name");
+    }
+
+    private static String getProjectRuntime(String file) {
+        return getProperty(file, "camel.jbang.runtime");
     }
 }

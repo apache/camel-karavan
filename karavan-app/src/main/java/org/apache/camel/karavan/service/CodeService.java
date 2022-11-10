@@ -20,35 +20,67 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.apicurio.datamodels.Library;
 import io.apicurio.datamodels.openapi.models.OasDocument;
+import io.quarkus.qute.Engine;
+import io.quarkus.qute.Template;
 import org.apache.camel.CamelContext;
 import org.apache.camel.generator.openapi.RestDslGenerator;
 import org.apache.camel.impl.lw.LightweightCamelContext;
+import org.apache.camel.karavan.api.KameletResources;
 import org.apache.camel.karavan.model.Project;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class GeneratorService {
+public class CodeService {
 
-    @ConfigProperty(name = "karavan.default.group-id")
-    String groupId;
+    private static final Logger LOGGER = Logger.getLogger(CodeService.class.getName());
 
-    @ConfigProperty(name = "karavan.default.image-group")
-    String imageGroup;
+    @Inject
+    KubernetesService kubernetesService;
 
-    @ConfigProperty(name = "karavan.default.runtime")
-    String runtime;
+    @Inject
+    Engine engine;
 
-    @ConfigProperty(name = "karavan.default.runtime-version")
-    String runtimeVersion;
+    public String getApplicationProperties(Project project) {
+        String target = kubernetesService.isOpenshift() ? "openshift" : "kubernetes";
 
-    private static final Logger LOGGER = Logger.getLogger(GeneratorService.class.getName());
+        String templatePath = "/snippets/" + project.getRuntime() + "-" + target + "-application.properties";
+        String templateText = getResourceFile(templatePath);
+        Template result = engine.parse(templateText);
+        return result
+                .data("projectId", project.getProjectId())
+                .data("projectName", project.getName())
+                .data("projectDescription", project.getDescription())
+                .data("namespace", kubernetesService.getNamespace())
+                .render();
+    }
+
+    public String getResourceFile(String path) {
+        try {
+            InputStream inputStream = KameletResources.class.getResourceAsStream(path);
+            String data = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines().collect(Collectors.joining(System.getProperty("line.separator")));
+            return data;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public String getPropertyValue(String propFileText, String key) {
+        Optional<String> data = propFileText.lines().filter(p -> p.startsWith(key)).findFirst();
+        return data.isPresent() ? data.get().split("=")[1] : null;
+    }
 
     public String generate(String fileName, String openApi, boolean generateRoutes) throws Exception {
         final JsonNode node = fileName.endsWith("json") ? readNodeFromJson(openApi) : readNodeFromYaml(openApi);
@@ -68,30 +100,5 @@ public class GeneratorService {
         Yaml loader = new Yaml(new SafeConstructor());
         Map map = loader.load(openApi);
         return mapper.convertValue(map, JsonNode.class);
-    }
-
-    public String getDefaultApplicationProperties(Project project){
-        StringBuilder s = new StringBuilder();
-        s.append("camel.jbang.project-id=").append(project.getProjectId()).append(System.lineSeparator());
-        s.append("camel.jbang.project-name=").append(project.getName()).append(System.lineSeparator());
-        s.append("camel.jbang.project-description=").append(project.getDescription()).append(System.lineSeparator());
-        s.append("camel.jbang.gav=").append(groupId).append(":").append(project.getProjectId()).append(":").append("1.0.0").append(System.lineSeparator());
-        s.append("camel.jbang.runtime=").append(runtime.toLowerCase()).append(System.lineSeparator());
-        s.append("camel.jbang.quarkusVersion=").append(runtimeVersion).append(System.lineSeparator());
-        s.append("camel.jbang.dependencies=")
-                .append("camel:microprofile-health,")
-                .append("mvn:io.quarkus:quarkus-container-image-jib,")
-                .append("mvn:io.quarkus:quarkus-openshift").append(System.lineSeparator());
-
-        s.append("camel.health.enabled=true").append(System.lineSeparator());
-        s.append("camel.health.exposure-level=full").append(System.lineSeparator());
-
-        s.append("quarkus.kubernetes-client.trust-certs=true").append(System.lineSeparator());
-        s.append("quarkus.container-image.group=").append(imageGroup).append(System.lineSeparator());
-        s.append("quarkus.container-image.name=").append(project.getProjectId()).append(System.lineSeparator());
-        s.append("quarkus.openshift.route.expose=false").append(System.lineSeparator());
-        s.append("quarkus.openshift.part-of=").append(project.getProjectId()).append(System.lineSeparator());
-        s.append("quarkus.openshift.replicas=1").append(System.lineSeparator());
-        return s.toString();
     }
 }

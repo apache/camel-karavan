@@ -44,15 +44,12 @@ public class KaravanService {
     @ConfigProperty(name = "karavan.environment")
     String environment;
 
-    @ConfigProperty(name = "karavan.pipeline")
-    String pipeline;
-
     void onStart(@Observes StartupEvent ev) {
         LOGGER.info("Start Karavan");
         infinispanService.start();
         setEnvironment();
         initialImport();
-        startInformers();
+//        startInformers();
     }
 
     void onStop(@Observes ShutdownEvent ev) {
@@ -63,7 +60,7 @@ public class KaravanService {
     void setEnvironment() {
         String cluster = kubernetesService.getCluster();
         String namespace = kubernetesService.getNamespace();
-        infinispanService.saveEnvironment(new Environment(environment, cluster, namespace, pipeline));
+        infinispanService.saveEnvironment(new Environment(environment, cluster, namespace));
     }
 
     void initialImport() {

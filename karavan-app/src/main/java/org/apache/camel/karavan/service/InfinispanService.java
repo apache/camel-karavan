@@ -27,7 +27,6 @@ import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.model.ServiceStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.infinispan.Cache;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.Search;
@@ -38,6 +37,7 @@ import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.cache.SingleFileStoreConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
+import org.infinispan.eviction.EvictionStrategy;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.query.dsl.QueryFactory;
 import org.jboss.logging.Logger;
@@ -65,10 +65,7 @@ public class InfinispanService {
     RemoteCacheManager cacheManager;
 
     @Inject
-    GeneratorService generatorService;
-
-    @ConfigProperty(name = "karavan.default.runtime")
-    String runtime;
+    CodeService codeService;
 
     private static final String CACHE_CONFIG = "<distributed-cache name=\"%s\">"
             + " <encoding media-type=\"application/x-protostream\"/>"
@@ -130,14 +127,13 @@ public class InfinispanService {
         return projects.values().stream().collect(Collectors.toList());
     }
 
-    public void saveProject(Project project) {
+    public void saveProject(Project project, boolean imported) {
         GroupedKey key = GroupedKey.create(project.getProjectId(), project.getProjectId());
         boolean isNew = !projects.containsKey(key);
-        project.setRuntime(Project.CamelRuntime.valueOf(runtime));
         projects.put(key, project);
-        if (isNew){
+        if (isNew && !imported){
             String filename = "application.properties";
-            String code = generatorService.getDefaultApplicationProperties(project);
+            String code = codeService.getApplicationProperties(project);
             files.put(new GroupedKey(project.getProjectId(), filename), new ProjectFile(filename, code, project.getProjectId()));
         }
     }
