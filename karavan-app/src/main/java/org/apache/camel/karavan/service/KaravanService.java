@@ -67,6 +67,8 @@ public class KaravanService {
         if (infinispanService.getProjects().isEmpty()) {
             LOGGER.info("No projects found in the Data Grid");
             bus.publish(ImportService.IMPORT_PROJECTS, "");
+        } else {
+            bus.publish(ImportService.IMPORT_TEMPLATES, "");
         }
         bus.publish(ImportService.IMPORT_KAMELETS, "");
     }

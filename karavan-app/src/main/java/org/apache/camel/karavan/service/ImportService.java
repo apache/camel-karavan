@@ -35,8 +35,10 @@ import java.util.stream.Collectors;
 public class ImportService {
 
     private static final Logger LOGGER = Logger.getLogger(ImportService.class.getName());
+    public static final String IMPORT_TEMPLATES = "import-templates";
     public static final String IMPORT_PROJECTS = "import-projects";
     public static final String IMPORT_KAMELETS = "import-kamelets";
+
 
     @Inject
     InfinispanService infinispanService;
@@ -69,6 +71,26 @@ public class ImportService {
                     infinispanService.saveProjectFile(file);
                 });
             });
+        } catch (Exception e) {
+            LOGGER.error("Error during project import", e);
+        }
+        addTemplates("");
+    }
+
+    @ConsumeEvent(value = IMPORT_TEMPLATES, blocking = true)
+    void addTemplates(String data) {
+        LOGGER.info("Add templates if not exists");
+        try {
+            Project templates  = infinispanService.getProject(Project.NAME_TEMPLATES);
+            if (templates == null) {
+                templates = new Project("templates", "Templates", "Templates", "quarkus", "");
+                infinispanService.saveProject(templates, true);
+
+                codeService.getApplicationPropertiesTemplates().forEach((name, value) -> {
+                    ProjectFile file = new ProjectFile(name, value, Project.NAME_TEMPLATES);
+                    infinispanService.saveProjectFile(file);
+                });
+            }
         } catch (Exception e) {
             LOGGER.error("Error during project import", e);
         }

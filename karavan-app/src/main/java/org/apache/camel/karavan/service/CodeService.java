@@ -27,6 +27,7 @@ import org.apache.camel.generator.openapi.RestDslGenerator;
 import org.apache.camel.impl.lw.LightweightCamelContext;
 import org.apache.camel.karavan.api.KameletResources;
 import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.model.ProjectFile;
 import org.jboss.logging.Logger;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
@@ -37,6 +38,8 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -50,13 +53,15 @@ public class CodeService {
     KubernetesService kubernetesService;
 
     @Inject
+    InfinispanService infinispanService;
+
+    @Inject
     Engine engine;
 
     public String getApplicationProperties(Project project) {
         String target = kubernetesService.isOpenshift() ? "openshift" : "kubernetes";
-
-        String templatePath = "/snippets/" + project.getRuntime() + "-" + target + "-application.properties";
-        String templateText = getResourceFile(templatePath);
+        String templateName = project.getRuntime() + "-" + target + "-application.properties";
+        String templateText = getTemplateText(templateName);
         Template result = engine.parse(templateText);
         return result
                 .data("projectId", project.getProjectId())
@@ -64,6 +69,30 @@ public class CodeService {
                 .data("projectDescription", project.getDescription())
                 .data("namespace", kubernetesService.getNamespace())
                 .render();
+    }
+
+    private String getTemplateText(String fileName) {
+        try {
+            List<ProjectFile> files = infinispanService.getProjectFiles(Project.NAME_TEMPLATES);
+            return files.stream().filter(f -> f.getName().equalsIgnoreCase(fileName))
+                    .map(f -> f.getCode()).findFirst().orElse(null);
+        } catch (Exception e){
+            LOGGER.error(e.getMessage());
+        }
+        return null;
+    }
+
+    public Map<String,String> getApplicationPropertiesTemplates() {
+        Map<String, String> result = new HashMap<>(4);
+        List.of("quarkus", "spring-boot").forEach(runtime -> {
+            List.of("openshift", "kubernetes").forEach(target -> {
+                String templateName = runtime + "-" + target + "-application.properties";
+                String templatePath = "/snippets/" + templateName;
+                String templateText = getResourceFile(templatePath);
+                result.put(templateName, templateText);
+            });
+        });
+        return result;
     }
 
     public String getResourceFile(String path) {

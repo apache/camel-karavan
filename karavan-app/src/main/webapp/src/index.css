@@ -273,3 +273,30 @@
 .karavan .loading-page .logo {
   height: 100px;
 }
+
+/*Modals*/
+
+.new-project .pf-c-radio,
+.new-project .runtime-radio {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.new-project .radio {
+  margin-right: 16px;
+}
+
+.new-project .pf-c-radio__body {
+  margin: 0 6px 0 6px;
+}
+
+.new-project .runtime-radio .icon {
+  width: 24px;
+  height: 24px;
+}
+
+.new-project .runtime-label {
+  font-size: 14px;
+  margin-left: 6px;
+}

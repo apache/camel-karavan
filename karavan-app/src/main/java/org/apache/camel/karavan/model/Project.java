@@ -6,6 +6,9 @@ import org.infinispan.protostream.annotations.ProtoField;
 public class Project {
     public static final String CACHE = "projects";
 
+    public static final String NAME_TEMPLATES = "templates";
+    public static final String NAME_KAMELETS = "kamelets";
+
     @ProtoField(number = 1)
     String projectId;
     @ProtoField(number = 2)

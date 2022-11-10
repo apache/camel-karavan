@@ -23,7 +23,7 @@ import {
     OverflowMenuContent,
     OverflowMenuGroup,
     OverflowMenuItem,
-    Flex, FlexItem
+    Flex, FlexItem, Radio
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
@@ -36,6 +36,8 @@ import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";
 import {CamelUi} from "../designer/utils/CamelUi";
 import {KaravanApi} from "../api/KaravanApi";
+import {QuarkusIcon, SpringIcon} from "../designer/utils/KaravanIcons";
+import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 
 interface Props {
     config: any,
@@ -55,6 +57,7 @@ interface State {
     name: string,
     description: string,
     projectId: string,
+    runtime: string,
 }
 
 export class ProjectsPage extends React.Component<Props, State> {
@@ -69,6 +72,7 @@ export class ProjectsPage extends React.Component<Props, State> {
         name: '',
         description: '',
         projectId: '',
+        runtime: this.props.config.runtime
     };
     interval: any;
 
@@ -92,7 +96,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                     this.props.toast?.call(this, "Success", "Project deleted", "success");
                     this.onGetProjects();
                 } else {
-                    this.props.toast?.call(this,"Error", res.statusText, "danger");
+                    this.props.toast?.call(this, "Error", res.statusText, "danger");
                 }
             });
         this.setState({isDeleteModalOpen: false})
@@ -102,23 +106,20 @@ export class ProjectsPage extends React.Component<Props, State> {
         KaravanApi.postProject(project, res => {
             console.log(res.status)
             if (res.status === 200 || res.status === 201) {
-                this.props.toast?.call(this,"Success", "Project created", "success");
+                this.props.toast?.call(this, "Success", "Project created", "success");
             } else {
-                this.props.toast?.call(this,"Error", res.status + ", " + res.statusText, "danger");
+                this.props.toast?.call(this, "Error", res.status + ", " + res.statusText, "danger");
             }
         });
     };
 
     onGetProjects = () => {
-        KaravanApi.getConfiguration((config: any) => {
-            KaravanApi.getProjects((projects: Project[]) => {
-                this.setState({ projects: projects })
-            });
-            KaravanApi.getDeploymentStatuses(config.environment, (statuses: DeploymentStatus[]) => {
-                this.setState({ deploymentStatuses: statuses });
-            });
+        KaravanApi.getProjects((projects: Project[]) => {
+            this.setState({projects: projects})
         });
-
+        KaravanApi.getDeploymentStatuses(this.props.config.environment, (statuses: DeploymentStatus[]) => {
+            this.setState({deploymentStatuses: statuses});
+        });
     }
 
     tools = () => (<Toolbar id="toolbar-group-types">
@@ -143,15 +144,15 @@ export class ProjectsPage extends React.Component<Props, State> {
     </TextContent>);
 
     closeModal = () => {
-        this.setState({isCreateModalOpen: false, isCopy: false, name: this.props.config.groupId, description:'', projectId: ''});
+        this.setState({isCreateModalOpen: false, isCopy: false, name: this.props.config.groupId, description: '', projectId: ''});
         this.onGetProjects();
     }
 
     saveAndCloseCreateModal = () => {
-        const {name, description, projectId} = this.state;
-        const p = new Project(projectId, name, description, '');
+        const {name, description, projectId, runtime} = this.state;
+        const p = new Project(projectId, name, description, runtime, '');
         this.onProjectCreate(p);
-        this.setState({isCreateModalOpen: false, isCopy: false, name: this.props.config.groupId, description: '',  projectId: ''});
+        this.setState({isCreateModalOpen: false, isCopy: false, name: this.props.config.groupId, description: '', projectId: ''});
     }
 
     onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
@@ -162,6 +163,7 @@ export class ProjectsPage extends React.Component<Props, State> {
 
     createModalForm() {
         const {isCopy, projectToCopy, projectId, name, isCreateModalOpen} = this.state;
+        const {runtimes} = this.props.config;
         return (
             <Modal
                 title={!isCopy ? "Create new project" : "Copy project from " + projectToCopy?.projectId}
@@ -173,6 +175,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                     <Button key="confirm" variant="primary" onClick={this.saveAndCloseCreateModal}>Save</Button>,
                     <Button key="cancel" variant="secondary" onClick={this.closeModal}>Cancel</Button>
                 ]}
+                className="new-project"
             >
                 <Form isHorizontal={true} autoComplete="off">
                     <FormGroup label="Name" fieldId="name" isRequired>
@@ -188,8 +191,23 @@ export class ProjectsPage extends React.Component<Props, State> {
                     <FormGroup label="Project ID" fieldId="projectId" isRequired helperText="Unique project name">
                         <TextInput className="text-field" type="text" id="projectId" name="projectId"
                                    value={this.state.projectId}
-                                   onFocus={e => this.setState({projectId : projectId === '' ? CamelUi.nameFromTitle(name) : projectId})}
+                                   onFocus={e => this.setState({projectId: projectId === '' ? CamelUi.nameFromTitle(name) : projectId})}
                                    onChange={e => this.setState({projectId: CamelUi.nameFromTitle(e)})}/>
+                    </FormGroup>
+                    <FormGroup label="Runtime" fieldId="runtime" isRequired>
+                        {runtimes?.map((runtime: string) => (
+                            <Radio key={runtime} id={runtime} name={runtime} className="radio"
+                                   isChecked={this.state.runtime === runtime}
+                                   onChange={checked => {
+                                       if (checked) this.setState({runtime: runtime})
+                                   }}
+                                   body={
+                                       <div className="runtime-radio">
+                                           {runtime === 'quarkus' ? QuarkusIcon() : SpringIcon()}
+                                           <div className="runtime-label">{CamelUtil.capitalizeName(runtime)}</div>
+                                       </div>}
+                            />
+                        ))}
                     </FormGroup>
                 </Form>
             </Modal>
@@ -214,7 +232,7 @@ export class ProjectsPage extends React.Component<Props, State> {
         )
     }
 
-    getEnvironments(): string []{
+    getEnvironments(): string [] {
         return this.props.config.environments && Array.isArray(this.props.config.environments) ? Array.from(this.props.config.environments) : [];
     }
 
@@ -235,7 +253,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                 <PageSection className="tools-section" padding={{default: 'noPadding'}}>
                     <MainToolbar title={this.title()} tools={this.tools()}/>
                 </PageSection>
-                <PageSection isFilled className="kamelets-page" >
+                <PageSection isFilled className="kamelets-page">
                     <TableComposable aria-label="Projects" variant={"compact"}>
                         <Thead>
                             <Tr>
@@ -253,11 +271,11 @@ export class ProjectsPage extends React.Component<Props, State> {
                                 <Tr key={project.projectId}>
                                     <Td modifier={"fitContent"}>
                                         <Tooltip content={runtime} position={"left"}>
-                                            <Badge className="runtime-badge">{runtime.substring(0,1)}</Badge>
+                                            <Badge className="runtime-badge">{runtime.substring(0, 1)}</Badge>
                                         </Tooltip>
                                     </Td>
                                     <Td>
-                                        <Button style={{padding: '6px'}} variant={"link"} onClick={e=>this.props.onSelect?.call(this, project)}>
+                                        <Button style={{padding: '6px'}} variant={"link"} onClick={e => this.props.onSelect?.call(this, project)}>
                                             {project.projectId}
                                         </Button>
                                     </Td>
@@ -268,11 +286,11 @@ export class ProjectsPage extends React.Component<Props, State> {
                                             <Badge>{project.lastCommit?.substr(0, 7)}</Badge>
                                         </Tooltip>
                                     </Td>
-                                    <Td noPadding style={{width:"180px"}}>
+                                    <Td noPadding style={{width: "180px"}}>
                                         <Flex direction={{default: "row"}}>
                                             {this.getDeploymentByEnvironments(project.projectId).map(value => (
                                                 <FlexItem className="badge-flex-item" key={value[0]}>
-                                                    <Badge className="badge"isRead={!value[1]}>{value[0]}</Badge>
+                                                    <Badge className="badge" isRead={!value[1]}>{value[0]}</Badge>
                                                 </FlexItem>
                                             ))}
                                         </Flex>
@@ -283,12 +301,13 @@ export class ProjectsPage extends React.Component<Props, State> {
                                                 <OverflowMenuGroup groupType="button">
                                                     <OverflowMenuItem>
                                                         <Tooltip content={"Copy project"} position={"bottom"}>
-                                                            <Button variant={"plain"} icon={<CopyIcon/>} onClick={e=>this.setState({isCreateModalOpen: true, isCopy: true, projectToCopy: project})}></Button>
+                                                            <Button variant={"plain"} icon={<CopyIcon/>}
+                                                                    onClick={e => this.setState({isCreateModalOpen: true, isCopy: true, projectToCopy: project})}></Button>
                                                         </Tooltip>
                                                     </OverflowMenuItem>
                                                     <OverflowMenuItem>
                                                         <Tooltip content={"Delete project"} position={"bottom"}>
-                                                            <Button variant={"plain"} icon={<DeleteIcon/>} onClick={e=>this.onProjectDelete(project)}></Button>
+                                                            <Button variant={"plain"} icon={<DeleteIcon/>} onClick={e => this.onProjectDelete(project)}></Button>
                                                         </Tooltip>
                                                     </OverflowMenuItem>
                                                 </OverflowMenuGroup>
@@ -302,7 +321,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                                     <Td colSpan={8}>
                                         <Bullseye>
                                             <EmptyState variant={EmptyStateVariant.small}>
-                                                <EmptyStateIcon icon={SearchIcon} />
+                                                <EmptyStateIcon icon={SearchIcon}/>
                                                 <Title headingLevel="h2" size="lg">
                                                     No results found
                                                 </Title>

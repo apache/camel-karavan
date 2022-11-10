@@ -2,9 +2,10 @@ export class Project {
     projectId: string = '';
     name: string = '';
     description: string = '';
+    runtime: string = '';
     lastCommit: string = '';
 
-    public constructor(projectId: string, name: string, description: string, lastCommit: string);
+    public constructor(projectId: string, name: string, description: string, runtime: string, lastCommit: string);
     public constructor(init?: Partial<Project>);
     public constructor(...args: any[]) {
         if (args.length === 1) {
@@ -14,7 +15,8 @@ export class Project {
             this.projectId = args[0];
             this.name = args[1];
             this.description = args[2];
-            this.lastCommit = args[3];
+            this.runtime = args[3];
+            this.lastCommit = args[4];
             return;
         }
     }

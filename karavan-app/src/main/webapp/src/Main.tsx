@@ -124,7 +124,7 @@ export class Main extends React.Component<Props, State> {
 
     getData() {
         KaravanApi.getConfiguration((config: any) => {
-            this.setState({config: config});
+            this.setState({config: config, request: uuidv4()});
         });
         this.updateKamelets();
         this.updateComponents();
@@ -255,10 +255,11 @@ export class Main extends React.Component<Props, State> {
     render() {
         return (
             <Page className="karavan">
-                {KaravanApi.authType === undefined && <Bullseye className="loading-page">
-                    <Spinner className="spinner" isSVG diameter="140px" aria-label="Loading..."/>
-                    <div className="logo-placeholder">{Icon()}</div>
-                </Bullseye>}
+                {KaravanApi.authType === undefined &&
+                    <Bullseye className="loading-page">
+                        <Spinner className="spinner" isSVG diameter="140px" aria-label="Loading..."/>
+                        <div className="logo-placeholder">{Icon()}</div>
+                    </Bullseye>}
                 {(KaravanApi.isAuthorized || KaravanApi.authType === 'public') && this.getMain()}
                 {!KaravanApi.isAuthorized && KaravanApi.authType === 'basic' &&
                     <MainLogin config={this.state.config} onLogin={this.onLogin}/>}
