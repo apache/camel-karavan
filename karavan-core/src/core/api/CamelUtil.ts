@@ -210,7 +210,7 @@ export class CamelUtil {
                 const kamelet = this.getKamelet(element);
                 let allSet = true;
                 const filledParameters = Object.keys((element as any).parameters);
-                kamelet?.spec.definition.required.forEach(name => {
+                kamelet?.spec.definition.required?.forEach(name => {
                     if (!filledParameters.includes(name)) {
                         allSet = false;
                         result[1].push(name + " is required");

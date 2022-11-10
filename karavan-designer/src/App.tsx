@@ -72,6 +72,7 @@ class App extends React.Component<Props, State> {
 
     componentDidMount() {
         ["aws-eventbridge-sink.kamelet.yaml",
+            "chuck-norris-source.kamelet.yaml",
             "http-secured-sink.kamelet.yaml",
             "timer-source.kamelet.yaml",
             "http-secured-source.kamelet.yaml",

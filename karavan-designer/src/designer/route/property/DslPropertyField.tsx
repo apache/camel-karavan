@@ -549,7 +549,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                         key={property.id}
                         property={property}
                         value={CamelDefinitionApiExt.getParametersValue(element, property.id)}
-                        required={requiredParameters.includes(property.id)}
+                        required={requiredParameters?.includes(property.id)}
                         onParameterChange={this.props.onParameterChange}
                     />)}
             </div>
