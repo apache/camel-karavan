@@ -144,7 +144,7 @@ export class ProjectsPage extends React.Component<Props, State> {
     </TextContent>);
 
     closeModal = () => {
-        this.setState({isCreateModalOpen: false, isCopy: false, name: this.props.config.groupId, description: '', projectId: ''});
+        this.setState({isCreateModalOpen: false, isCopy: false, name: this.props.config.groupId, description: '', projectId: '', runtime: this.props.config.runtime });
         this.onGetProjects();
     }
 
@@ -246,7 +246,6 @@ export class ProjectsPage extends React.Component<Props, State> {
     }
 
     render() {
-        const runtime = this.props.config?.runtime ? this.props.config.runtime : "QUARKUS";
         const projects = this.state.projects.filter(p => p.name.toLowerCase().includes(this.state.filter) || p.description.toLowerCase().includes(this.state.filter));
         return (
             <PageSection className="kamelet-section projects-page" padding={{default: 'noPadding'}}>
@@ -270,8 +269,8 @@ export class ProjectsPage extends React.Component<Props, State> {
                             {projects.map(project => (
                                 <Tr key={project.projectId}>
                                     <Td modifier={"fitContent"}>
-                                        <Tooltip content={runtime} position={"left"}>
-                                            <Badge className="runtime-badge">{runtime.substring(0, 1)}</Badge>
+                                        <Tooltip content={project.runtime} position={"left"}>
+                                            <Badge className="runtime-badge">{project.runtime.substring(0, 1).toUpperCase()}</Badge>
                                         </Tooltip>
                                     </Td>
                                     <Td>

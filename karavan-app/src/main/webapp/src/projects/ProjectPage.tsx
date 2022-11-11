@@ -47,8 +47,8 @@ import {UploadModal} from "./UploadModal";
 import {ProjectInfo} from "./ProjectInfo";
 import {ProjectOperations} from "./ProjectOperations";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
+import {ProjectPageToolbar} from "./ProjectPageToolbar";
 
 interface Props {
     project: Project,
@@ -168,79 +168,21 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     tools = () => {
-        const {isTemplates, project} = this.props;
-        const {file, mode} = this.state;
-        const isFile = file !== undefined;
-        const isYaml = file !== undefined && file.name.endsWith("yaml");
-        const isIntegration = isYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
-        const isProperties = file !== undefined && file.name.endsWith("properties");
-        return <Toolbar id="toolbar-group-types">
-            <ToolbarContent>
-                {isTemplates &&
-                    <ToolbarItem>
-                        <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
-                            <FlexItem>
-                                <Tooltip content={project?.lastCommit} position={"right"}>
-                                    <Badge>{project?.lastCommit ? project?.lastCommit?.substr(0, 7) : "-"}</Badge>
-                                </Tooltip>
-                            </FlexItem>
-                            <FlexItem>
-                                <Button variant="primary" icon={<PushIcon/>} onClick={e => {
-                                    KaravanApi.push(this.props.project, res => {
-                                        console.log(res)
-                                        if (res.status === 200 || res.status === 201) {
-                                            this.onRefresh();
-                                        } else {
-                                            // Todo notification
-                                        }
-                                    });
-                                }}>Commit</Button>
-                            </FlexItem>
-                        </Flex>
-                    </ToolbarItem>
-                }
-                {!isTemplates &&
-                <Flex className="toolbar" direction={{default: "row"}} alignItems={{default:"alignItemsCenter"}}>
-                    {isYaml && <FlexItem>
-                        <ToggleGroup>
-                            <ToggleGroupItem text="Design" buttonId="design" isSelected={mode === "design"} onChange={s => this.setState({mode:"design"})} />
-                            <ToggleGroupItem text="Code" buttonId="code" isSelected={mode === "code"} onChange={s => this.setState({mode:"code"})} />
-                        </ToggleGroup>
-                    </FlexItem>}
-
-                    {isProperties && <FlexItem>
-                        <Checkbox
-                            id="advanced"
-                            label="Edit advanced"
-                            isChecked={this.state.editAdvancedProperties}
-                            onChange={checked => this.setState({editAdvancedProperties: checked})}
-                        />
-                    </FlexItem>}
-                    {isProperties && <FlexItem>
-                        <Button variant="primary" icon={<PlusIcon/>} onClick={e => this.addProperty()}>Add property</Button>
-                    </FlexItem>}
-
-                    {isFile && <FlexItem>
-                        <Tooltip content="Download source" position={"bottom-end"}>
-                            <Button variant="control" icon={<DownloadIcon/>} onClick={e => this.download()}/>
-                        </Tooltip>
-                    </FlexItem>}
-                    {isIntegration && <FlexItem>
-                        <Tooltip content="Download image" position={"bottom-end"}>
-                            <Button variant="control" icon={<DownloadImageIcon/>} onClick={e => this.downloadImage()}/>
-                        </Tooltip>
-                    </FlexItem>}
-                    {!isFile && <FlexItem>
-                        <Button variant={"primary"} icon={<PlusIcon/>}
-                                onClick={e => this.setState({isCreateModalOpen: true})}>Create</Button>
-                    </FlexItem>}
-                    {!isFile && <FlexItem>
-                        <Button variant="secondary" icon={<UploadIcon/>}
-                                onClick={e => this.setState({isUploadModalOpen: true})}>Upload</Button>
-                    </FlexItem>}
-                </Flex>}
-            </ToolbarContent>
-        </Toolbar>
+        return <ProjectPageToolbar
+                project={this.props.project}
+                file={this.state.file}
+                mode={this.state.mode}
+                isTemplates={this.props.isTemplates}
+                config={this.props.config}
+                addProperty={() => this.addProperty()}
+                download={() => this.download()}
+                downloadImage={() => this.downloadImage()}
+                editAdvancedProperties={this.state.editAdvancedProperties}
+                setEditAdvancedProperties={checked => this.setState({editAdvancedProperties: checked})}
+                setMode={mode => this.setState({mode: mode})}
+                setCreateModalOpen={() => this.setState({isCreateModalOpen: true})}
+                setUploadModalOpen={() => this.setState({isUploadModalOpen: true})}
+        />
     }
 
     getType = (file: ProjectFile) => {

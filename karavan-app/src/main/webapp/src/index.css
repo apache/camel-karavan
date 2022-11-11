@@ -118,10 +118,10 @@
 }
 
 .karavan .projects-page .runtime-badge {
-  min-width: 18px;
+  min-width: 27px;
   font-size: 14px;
   font-weight: 400;
-  padding: 2px 7px 2px 7px;
+  padding: 2px 8px 2px 8px;
 }
 
 .karavan .projects-page .pf-m-link {
