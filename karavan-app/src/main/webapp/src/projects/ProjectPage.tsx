@@ -21,7 +21,7 @@ import {
     ToggleGroup,
     ToggleGroupItem,
     CodeBlockCode,
-    CodeBlock, Skeleton, Checkbox, Tabs, Tab, Tooltip
+    CodeBlock, Skeleton, Checkbox, Tabs, Tab, Tooltip, ToolbarItem
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
@@ -47,9 +47,12 @@ import {UploadModal} from "./UploadModal";
 import {ProjectInfo} from "./ProjectInfo";
 import {ProjectOperations} from "./ProjectOperations";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
+import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
+import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 
 interface Props {
     project: Project,
+    isTemplates?: boolean,
     config: any,
 }
 
@@ -165,6 +168,7 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     tools = () => {
+        const {isTemplates, project} = this.props;
         const {file, mode} = this.state;
         const isFile = file !== undefined;
         const isYaml = file !== undefined && file.name.endsWith("yaml");
@@ -172,6 +176,30 @@ export class ProjectPage extends React.Component<Props, State> {
         const isProperties = file !== undefined && file.name.endsWith("properties");
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
+                {isTemplates &&
+                    <ToolbarItem>
+                        <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
+                            <FlexItem>
+                                <Tooltip content={project?.lastCommit} position={"right"}>
+                                    <Badge>{project?.lastCommit ? project?.lastCommit?.substr(0, 7) : "-"}</Badge>
+                                </Tooltip>
+                            </FlexItem>
+                            <FlexItem>
+                                <Button variant="primary" icon={<PushIcon/>} onClick={e => {
+                                    KaravanApi.push(this.props.project, res => {
+                                        console.log(res)
+                                        if (res.status === 200 || res.status === 201) {
+                                            this.onRefresh();
+                                        } else {
+                                            // Todo notification
+                                        }
+                                    });
+                                }}>Commit</Button>
+                            </FlexItem>
+                        </Flex>
+                    </ToolbarItem>
+                }
+                {!isTemplates &&
                 <Flex className="toolbar" direction={{default: "row"}} alignItems={{default:"alignItemsCenter"}}>
                     {isYaml && <FlexItem>
                         <ToggleGroup>
@@ -210,7 +238,7 @@ export class ProjectPage extends React.Component<Props, State> {
                         <Button variant="secondary" icon={<UploadIcon/>}
                                 onClick={e => this.setState({isUploadModalOpen: true})}>Upload</Button>
                     </FlexItem>}
-                </Flex>
+                </Flex>}
             </ToolbarContent>
         </Toolbar>
     }
@@ -233,6 +261,7 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     title = () => {
+        const {project, isTemplates} = this.props;
         const file = this.state.file;
         const isFile = file !== undefined;
         const isLog = file !== undefined && file.name.endsWith("log");
@@ -242,7 +271,7 @@ export class ProjectPage extends React.Component<Props, State> {
                 <div>
                     <Breadcrumb>
                         <BreadcrumbItem to="#" onClick={event => this.setState({file: undefined})}>
-                            {"Project: " + this.props.project?.projectId}
+                            {"Project: " + project?.projectId}
                         </BreadcrumbItem>
                         <BreadcrumbItem to="#" isActive>{this.getType(file)}</BreadcrumbItem>
                     </Breadcrumb>
@@ -252,7 +281,7 @@ export class ProjectPage extends React.Component<Props, State> {
                 </div>
             }
             {!isFile && <TextContent className="title">
-                <Text component="h1">Project</Text>
+                <Text component="h2">{isTemplates ? 'Templates' : 'Project: ' + project?.projectId}</Text>
             </TextContent>}
         </div>)
     };
@@ -445,6 +474,7 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     render() {
+        const {isTemplates} = this.props;
         const {file, mode, tab} = this.state;
         const isYaml = file !== undefined && file.name.endsWith("yaml");
         const isIntegration = isYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
@@ -462,18 +492,22 @@ export class ProjectPage extends React.Component<Props, State> {
                     <PageSection isFilled className="kamelets-page project-page-section"
                                  padding={{default: file !== undefined ? 'noPadding' : 'noPadding'}}>
                         <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
-                            <FlexItem>
-                                <Tabs activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex})}>
-                                    <Tab eventKey="development" title="Development"/>
-                                    <Tab eventKey="operations" title="Operations"/>
-                                </Tabs>
-                            </FlexItem>
-                            <FlexItem>
-                                <PageSection padding={{default: "padding"}}>
-                                    {tab === 'development' && <ProjectInfo project={this.props.project} config={this.props.config} deleteEntity={this.deleteEntity} showLog={this.showLogs}/>}
-                                    {tab === 'operations' && <ProjectOperations environments={this.state.environments} project={this.props.project} config={this.props.config}/>}
-                                </PageSection>
-                            </FlexItem>
+                            {!isTemplates &&
+                                <FlexItem>
+                                    <Tabs activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex})}>
+                                        <Tab eventKey="development" title="Development"/>
+                                        <Tab eventKey="operations" title="Operations"/>
+                                    </Tabs>
+                                </FlexItem>
+                            }
+                            {!isTemplates &&
+                                <FlexItem>
+                                    <PageSection padding={{default: "padding"}}>
+                                        {tab === 'development' && <ProjectInfo project={this.props.project} config={this.props.config} deleteEntity={this.deleteEntity} showLog={this.showLogs}/>}
+                                        {tab === 'operations' && <ProjectOperations environments={this.state.environments} project={this.props.project} config={this.props.config}/>}
+                                    </PageSection>
+                                </FlexItem>
+                            }
                         </Flex>
                         {tab === 'development' && this.getProjectFiles()}
                     </PageSection>}

@@ -330,7 +330,6 @@ export class ProjectInfo extends React.Component<Props, State> {
     }
 
     getPipelineState(env: string) {
-        // console.log(this.state.pipelineStatus)
         const status = this.state.pipelineStatus;
         const pipeline = status?.pipelineName;
         const pipelineResult = status?.result;

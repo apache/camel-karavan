@@ -13,7 +13,6 @@ import {KaravanApi} from "./api/KaravanApi";
 import {SsoApi} from "./api/SsoApi";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import './designer/karavan.css';
-import {ConfigurationPage} from "./config/ConfigurationPage";
 import {KameletsPage} from "./kamelets/KameletsPage";
 import {v4 as uuidv4} from "uuid";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
@@ -29,7 +28,7 @@ import KameletsIcon from "@patternfly/react-icons/dist/js/icons/registry-icon";
 import DashboardIcon from "@patternfly/react-icons/dist/js/icons/tachometer-alt-icon";
 import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
 import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
-import ConfigurationIcon from "@patternfly/react-icons/dist/js/icons/cogs-icon";
+import TemplatesIcon from "@patternfly/react-icons/dist/js/icons/cogs-icon";
 import {MainLogin} from "./MainLogin";
 import {DashboardPage} from "./dashboard/DashboardPage";
 
@@ -67,6 +66,7 @@ interface State {
     pageId: string,
     projects: Project[],
     project?: Project,
+    templates?: Project,
     isModalOpen: boolean,
     projectToDelete?: Project,
     openapi: string,
@@ -125,6 +125,9 @@ export class Main extends React.Component<Props, State> {
     getData() {
         KaravanApi.getConfiguration((config: any) => {
             this.setState({config: config, request: uuidv4()});
+            KaravanApi.getTemplatesProject((templates: Project) => {
+                this.setState({templates: templates});
+            });
         });
         this.updateKamelets();
         this.updateComponents();
@@ -162,7 +165,7 @@ export class Main extends React.Component<Props, State> {
             new MenuItem("eip", "Enterprise Integration Patterns", <EipIcon/>),
             new MenuItem("kamelets", "Kamelets", <KameletsIcon/>),
             new MenuItem("components", "Components", <ComponentsIcon/>),
-            new MenuItem("configuration", "Configuration", <ConfigurationIcon/>)
+            new MenuItem("templates", "Templates", <TemplatesIcon/>)
         ]
         return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height: "100%"}}
                       spaceItems={{default: "spaceItemsNone"}}>
@@ -235,12 +238,13 @@ export class Main extends React.Component<Props, State> {
                                           toast={this.toast}
                                           config={this.state.config}/>}
                         {this.state.pageId === 'project' && this.state.project &&
-                            <ProjectPage project={this.state.project} config={this.state.config}/>}
+                            <ProjectPage key="projects" project={this.state.project} config={this.state.config}/>}
                         {this.state.pageId === 'dashboard' && <DashboardPage key={this.state.request}
                                                                              onSelect={this.onProjectSelect}
                                                                              toast={this.toast}
                                                                              config={this.state.config}/>}
-                        {this.state.pageId === 'configuration' && <ConfigurationPage/>}
+                        {this.state.pageId === 'templates' && this.state.templates &&
+                            <ProjectPage key="templates" project={this.state.templates} isTemplates={true} config={this.state.config}/>}
                         {this.state.pageId === 'kamelets' &&
                             <KameletsPage dark={false} onRefresh={this.updateKamelets}/>}
                         {this.state.pageId === 'components' &&

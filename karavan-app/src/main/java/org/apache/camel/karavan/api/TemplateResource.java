@@ -16,82 +16,46 @@
  */
 package org.apache.camel.karavan.api;
 
-import org.apache.camel.karavan.model.GroupedKey;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.service.InfinispanService;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-@Path("/api/project")
-public class ProjectResource {
+@Path("/api/template")
+public class TemplateResource {
 
     @Inject
     InfinispanService infinispanService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Project> getAll() throws Exception {
-        return infinispanService.getProjects().stream()
-                .filter(project -> !project.getName().equalsIgnoreCase(Project.NAME_TEMPLATES))
-                .filter(project -> !project.getName().equalsIgnoreCase(Project.NAME_KAMELETS))
-                .sorted(Comparator.comparing(Project::getProjectId))
-                .collect(Collectors.toList());
+    public Project get() throws Exception {
+        return infinispanService.getProject(Project.NAME_TEMPLATES);
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{project}")
-    public Project get(@PathParam("project") String project) throws Exception {
-        return infinispanService.getProject(project);
+    @Path("/files")
+    public List<ProjectFile> getFiles() throws Exception {
+        return infinispanService.getProjectFiles(Project.NAME_TEMPLATES);
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Project save(Project project) throws Exception {
-        infinispanService.saveProject(project, false);
-        return project;
-    }
-
-    @DELETE
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{project}")
-    public void delete(@HeaderParam("username") String username,
-                          @PathParam("project") String project) throws Exception {
-        String projectId = URLDecoder.decode(project, StandardCharsets.UTF_8.toString());
-        infinispanService.getProjectFiles(projectId).forEach(file -> infinispanService.deleteProjectFile(projectId, file.getName()));
-        infinispanService.deleteProject(projectId);
-    }
-
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/copy/{sourceProject}")
-    public Project copy(@PathParam("sourceProject") String sourceProject, Project project) throws Exception {
-//        Save project
-        Project s = infinispanService.getProject(sourceProject);
-        project.setRuntime(s.getRuntime());
-        infinispanService.saveProject(project, false);
-//        Copy files
-        Map<GroupedKey, ProjectFile> map = infinispanService.getProjectFiles(sourceProject).stream()
-                .collect(Collectors.toMap(f -> new GroupedKey(project.getProjectId(), f.getName()), f -> f));
-        infinispanService.saveProjectFiles(map);
-        return project;
+    public ProjectFile save(ProjectFile file) throws Exception {
+        if (file.getProjectId().equalsIgnoreCase(Project.NAME_TEMPLATES)){
+            infinispanService.saveProjectFile(file);
+        }
+        return file;
     }
 }

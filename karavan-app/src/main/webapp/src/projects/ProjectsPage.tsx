@@ -140,7 +140,7 @@ export class ProjectsPage extends React.Component<Props, State> {
     </Toolbar>);
 
     title = () => (<TextContent>
-        <Text component="h1">Projects</Text>
+        <Text component="h2">Projects</Text>
     </TextContent>);
 
     closeModal = () => {

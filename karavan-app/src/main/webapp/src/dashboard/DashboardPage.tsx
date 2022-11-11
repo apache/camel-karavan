@@ -135,7 +135,7 @@ export class DashboardPage extends React.Component<Props, State> {
     </Toolbar>);
 
     title = () => (<TextContent>
-        <Text component="h1">Dashboard</Text>
+        <Text component="h2">Dashboard</Text>
     </TextContent>);
 
     getEnvironments(): string [] {

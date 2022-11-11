@@ -48,6 +48,8 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<Project> getAll() throws Exception {
         return infinispanService.getProjects().stream()
+                .filter(project -> !project.getName().equalsIgnoreCase(Project.NAME_TEMPLATES))
+                .filter(project -> !project.getName().equalsIgnoreCase(Project.NAME_KAMELETS))
                 .sorted(Comparator.comparing(Project::getProjectId))
                 .collect(Collectors.toList());
     }
@@ -86,7 +88,6 @@ public class ProjectResource {
         Project s = infinispanService.getProject(sourceProject);
         project.setRuntime(s.getRuntime());
         infinispanService.saveProject(project, false);
-
 //        Copy files
         Map<GroupedKey, ProjectFile> map = infinispanService.getProjectFiles(sourceProject).stream()
                 .collect(Collectors.toMap(f -> new GroupedKey(project.getProjectId(), f.getName()), f -> f));
