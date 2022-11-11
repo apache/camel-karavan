@@ -785,6 +785,20 @@
     z-index: 100;
 }
 
+.karavan .step-element .add-ready-checkicon {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    color: green;
+}
+
+.karavan .step-element .add-ready-exclamationicon {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    color: red;
+}
+
 .karavan .dsl-page .flows .hidden-step {
     display: none;
 }

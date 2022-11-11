@@ -337,7 +337,7 @@ export class RouteDesigner extends React.Component<Props, State> {
     }
 
     integrationImageDownloadFilter = (node: HTMLElement) => {
-        const exclusionClasses = ['add-flow'];
+        const exclusionClasses = ['add-flow','add-ready-exclamationicon','add-ready-checkicon'];
         return !exclusionClasses.some(classname => {
             return node.classList === undefined ? false: node.classList.contains(classname);
         });

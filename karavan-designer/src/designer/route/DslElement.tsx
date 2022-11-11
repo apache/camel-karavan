@@ -25,6 +25,8 @@ import '../karavan.css';
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 import InsertIcon from "@patternfly/react-icons/dist/js/icons/arrow-alt-circle-right-icon";
+import CheckCircleIcon from "@patternfly/react-icons/dist/js/icons/check-circle-icon";
+import ExclamationCircleIcon from "@patternfly/react-icons/dist/js/icons/exclamation-circle-icon";
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUi} from "../utils/CamelUi";
 import {EventBus} from "../utils/EventBus";
@@ -32,6 +34,8 @@ import {ChildElement, CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDef
 import ReactDOM from "react-dom";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
+import { ComponentProperty } from 'karavan-core/lib/model/ComponentModels';
+import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 
 interface Props {
     integration: Integration,
@@ -200,7 +204,7 @@ export class DslElement extends React.Component<Props, State> {
     getHeaderStyle = () => {
         const style: CSSProperties = {
             width: this.isWide() ? "100%" : "",
-            fontWeight: this.isSelected() ? "bold" : "normal",
+            fontWeight: this.isSelected() ? "bold" : "normal"
         };
         return style;
     }
@@ -222,6 +226,41 @@ export class DslElement extends React.Component<Props, State> {
         }
     }
 
+    hasUnFilledRequiredProperties()
+    {
+        let hasUnFilledRequiredProperties: boolean  = false;
+        if(this.props.step.dslName === 'RouteDefinition')
+            return true;
+        if( CamelUtil.isKameletComponent(this.props.step)){
+            let kameletRequiredProperties : string[] = [];
+            kameletRequiredProperties = CamelUtil.getKameletRequiredParameters(this.props.step);
+            const step = this.props.step as any
+            hasUnFilledRequiredProperties = kameletRequiredProperties.every(parameterName => {
+                return step.parameters.hasOwnProperty(parameterName) && step.parameters[parameterName] !== ''? true: false;
+            })
+            return hasUnFilledRequiredProperties
+        }else if(this.props.step?.dslName === 'FromDefinition' || this.props.step?.dslName === 'ToDefinition'){
+            const componentRequiredParameters : ComponentProperty[] = CamelUtil.getComponentProperties(this.props.step).filter(property => property.required === true && property.kind==='parameter');
+            const componentRequiredPathParameters : ComponentProperty[] = CamelUtil.getComponentProperties(this.props.step).filter(property => property.required === true && property.kind==='path');
+            const step = this.props.step as any
+            hasUnFilledRequiredProperties = componentRequiredParameters.every(parameter => step.hasOwnProperty(parameter.name) ? true: false)
+            const uriParts = ComponentApi.getUriParts(step.uri);
+            return hasUnFilledRequiredProperties && (componentRequiredPathParameters.every(path => uriParts.has(path.name) && uriParts.get(path.name)!==''))
+        }
+        else{
+            const elementProperties = CamelDefinitionApiExt.getElementProperties(this.props.step?.dslName).filter(property => property.required === true).map( property => property.name);
+            hasUnFilledRequiredProperties = elementProperties.every(parameterName => {
+                if(parameterName === 'expression')
+                {
+                    return CamelDefinitionApiExt.getExpressionValue((this.props.step as any).expression) === undefined || (CamelDefinitionApiExt.getExpressionValue((this.props.step as any).expression) as any).expression === '' ? false : true;
+                }
+                else
+                    return this.props.step.hasOwnProperty(parameterName) && (this.props.step as any)[parameterName] !== '' ? true: false;
+            })
+            return hasUnFilledRequiredProperties;
+        }
+    }
+
     getHeader = () => {
         const step: CamelElement = this.props.step;
         const availableModels = CamelUi.getSelectorModelsForParent(step.dslName, false);
@@ -229,6 +268,7 @@ export class DslElement extends React.Component<Props, State> {
         const showInsertButton = !['FromDefinition', 'RouteDefinition', 'CatchDefinition', 'FinallyDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(step.dslName);
         const headerClass = step.dslName === 'RouteDefinition' ? "header-route" : "header"
         const headerClasses = this.isSelected() ? headerClass + " selected" : headerClass;
+        const isRequiredProperty = this.hasUnFilledRequiredProperties();
         return (
             <div className={headerClasses} style={this.getHeaderStyle()}>
                 {this.props.step.dslName !== 'RouteDefinition' &&
@@ -245,6 +285,7 @@ export class DslElement extends React.Component<Props, State> {
                 {showInsertButton && this.getInsertElementButton()}
                 {this.getDeleteButton()}
                 {showAddButton && this.getAddElementButton()}
+                {this.getDslElementReadyIcon(isRequiredProperty)}
             </div>
         )
     }
@@ -389,6 +430,28 @@ export class DslElement extends React.Component<Props, State> {
                     <AddIcon noVerticalAlign/>
                 </button>
             </Tooltip>
+        )
+    }
+
+    getDslElementReadyIcon(isReady:boolean) {
+        return (
+            <>
+            {
+                isReady && <Tooltip position={"right"} content={<div>{"Required setup completed for DSL element " + CamelUi.getTitle(this.props.step)}</div>}>
+                       <div className={"add-ready-checkicon"}>
+                       <CheckCircleIcon noVerticalAlign/>
+                    </div>
+                </Tooltip>
+                
+             }
+             {
+                !isReady && <Tooltip position={"right"} content={<div>{"Required properties not set for DSL element " + CamelUi.getTitle(this.props.step)}</div>}>
+                     <div className={"add-ready-exclamationicon"}>
+                        <ExclamationCircleIcon noVerticalAlign/>
+                    </div>
+                </Tooltip>
+             }
+            </> 
         )
     }
 
