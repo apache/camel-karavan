@@ -37,37 +37,43 @@ interface Props {
 
 export class ProjectPageToolbar extends React.Component<Props> {
 
-    render() {
-        const {isTemplates, project, file, mode, editAdvancedProperties} = this.props;
+    getTemplatesToolbar() {
+        const {project, file, editAdvancedProperties} = this.props;
+        const isProperties = file !== undefined && file.name.endsWith("properties");
+        return <Toolbar id="toolbar-group-types">
+            <ToolbarContent>
+                <ToolbarItem>
+                    <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
+                        {isProperties && <FlexItem>
+                            <Checkbox
+                                id="advanced"
+                                label="Edit advanced"
+                                isChecked={editAdvancedProperties}
+                                onChange={checked => this.props.setEditAdvancedProperties.call(this, checked)}
+                            />
+                        </FlexItem>}
+                        <FlexItem>
+                            <Tooltip content={project?.lastCommit} position={"right"}>
+                                <Badge>{project?.lastCommit ? project?.lastCommit?.substr(0, 7) : "-"}</Badge>
+                            </Tooltip>
+                        </FlexItem>
+                        <FlexItem>
+                            <Button variant="primary" icon={<PushIcon/>} onClick={e => {}}>Commit</Button>
+                        </FlexItem>
+                    </Flex>
+                </ToolbarItem>
+            </ToolbarContent>
+        </Toolbar>
+    }
+
+    getProjectToolbar() {
+        const {file, mode, editAdvancedProperties} = this.props;
         const isFile = file !== undefined;
         const isYaml = file !== undefined && file.name.endsWith("yaml");
         const isIntegration = isYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
         const isProperties = file !== undefined && file.name.endsWith("properties");
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
-                {isTemplates &&
-                    <ToolbarItem>
-                        <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
-                            {isProperties && <FlexItem>
-                                <Checkbox
-                                    id="advanced"
-                                    label="Edit advanced"
-                                    isChecked={editAdvancedProperties}
-                                    onChange={checked => this.props.setEditAdvancedProperties.call(this, checked)}
-                                />
-                            </FlexItem>}
-                            <FlexItem>
-                                <Tooltip content={project?.lastCommit} position={"right"}>
-                                    <Badge>{project?.lastCommit ? project?.lastCommit?.substr(0, 7) : "-"}</Badge>
-                                </Tooltip>
-                            </FlexItem>
-                            <FlexItem>
-                                <Button variant="primary" icon={<PushIcon/>} onClick={e => {}}>Commit</Button>
-                            </FlexItem>
-                        </Flex>
-                    </ToolbarItem>
-                }
-                {!isTemplates &&
                     <Flex className="toolbar" direction={{default: "row"}} alignItems={{default:"alignItemsCenter"}}>
                         {isYaml && <FlexItem>
                             <ToggleGroup>
@@ -108,8 +114,16 @@ export class ProjectPageToolbar extends React.Component<Props> {
                             <Button variant="secondary" icon={<UploadIcon/>}
                                     onClick={e => this.props.setUploadModalOpen.call(this)}>Upload</Button>
                         </FlexItem>}
-                    </Flex>}
+                    </Flex>
             </ToolbarContent>
+        </Toolbar>
+    }
+
+    render() {
+        const {isTemplates} = this.props;
+        return <Toolbar id="toolbar-group-types">
+            {isTemplates && this.getTemplatesToolbar()}
+            {!isTemplates && this.getProjectToolbar()}
         </Toolbar>
     }
 }
