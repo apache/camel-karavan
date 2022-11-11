@@ -62,3 +62,4 @@ yarn-error.log*
 **/*.vsix
 karavan-cloud/karavan-secret-real.yaml
 **/*.bak
+/karavan-app/.quinoa/
