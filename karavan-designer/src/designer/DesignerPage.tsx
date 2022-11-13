@@ -71,7 +71,8 @@ export class DesignerPage extends React.Component<Props, State> {
         const {name, yaml} = this.props;
         return (
             <PageSection className="kamelet-section designer-page" padding={{default: 'noPadding'}}>
-                <PageSection className="tools-section" padding={{default: 'padding'}} style={{backgroundColor:"transparent"}}>
+                <PageSection className="tools-section" padding={{default: 'noPadding'}}
+                             style={{backgroundColor:"transparent", paddingLeft: "var(--pf-c-page__main-section--PaddingLeft)"}}>
                     <Flex className="tools" justifyContent={{default: 'justifyContentSpaceBetween'}}>
                         <FlexItem>
                             <TextContent className="header">
