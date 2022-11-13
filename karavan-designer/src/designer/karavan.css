@@ -54,15 +54,6 @@
     padding-right: 16px;
 }
 
-.karavan .main-alert {
-    position: fixed;
-    width: 500px;
-    height: 90px;
-    left: 50%;
-    margin-top: 20px;
-    margin-left: -250px;
-}
-
 .filler {
     width: 100%;
 }
@@ -1271,4 +1262,24 @@
 
 .root .tooltip-required-field .pf-c-tooltip__content {
     text-align: start;
+}
+
+.karavan .kamelet-section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.karavan .kamelets-page {
+    overflow: auto;
+    flex-shrink: unset;
+    flex-grow: 1;
+}
+
+.karavan .designer-page {
+    background-color: white;
+}
+
+.karavan .designer-page .project-page-section {
+    background-color: white;
 }

@@ -16,122 +16,205 @@
  */
 import * as React from "react";
 import {
-    Page,
+    Alert,
+    AlertActionCloseButton, AlertGroup, Badge,
+    Bullseye, Button, Divider, Flex, FlexItem,
+    Page, PageSection, PageSectionVariants, Spinner, Text, TextContent, TextInput, Toolbar, ToolbarContent, ToolbarItem, Tooltip,
 } from "@patternfly/react-core";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
-import {KaravanDesigner} from "./designer/KaravanDesigner";
 import {KameletsPage} from "./kamelets/KameletsPage";
 import {ComponentsPage} from "./components/ComponentsPage";
 import {EipPage} from "./eip/EipPage";
-import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
+import {BlueprintIcon} from "@patternfly/react-icons";
+import KameletsIcon from "@patternfly/react-icons/dist/js/icons/registry-icon";
+import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
+import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
+import {KaravanIcon} from "./designer/utils/KaravanIcons";
+import './designer/karavan.css';
+import {DesignerPage} from "./designer/DesignerPage";
+
+class ToastMessage {
+    id: string = ''
+    text: string = ''
+    title: string = ''
+    variant?: 'success' | 'danger' | 'warning' | 'info' | 'default';
+
+    constructor(title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') {
+        this.id = Date.now().toString().concat(Math.random().toString());
+        this.title = title;
+        this.text = text;
+        this.variant = variant;
+    }
+}
+
+class MenuItem {
+    pageId: string = '';
+    tooltip: string = '';
+    icon: any;
+
+    constructor(pageId: string, tooltip: string, icon: any) {
+        this.pageId = pageId;
+        this.tooltip = tooltip;
+        this.icon = icon;
+    }
+}
 
 interface Props {
-    page: "designer" | "kamelets" | "components" | "eip" | "builder";
 }
 
 interface State {
     name: string
     yaml: string
     key: string
+    loaded?: boolean,
+    pageId: string,
+    alerts: ToastMessage[],
 }
 
 class App extends React.Component<Props, State> {
 
     public state: State = {
-        name: 'demo.yaml',
+        pageId: "designer",
+        alerts: [],
+        name: 'example.yaml',
         key: '',
-        yaml: '- route:\n' +
-            '    from:\n' +
-            '      uri: direct:direct1\n' +
-            '      steps:\n' +
-            '        - circuitBreaker:\n' +
-            '            steps:\n' +
-            '              - log:\n' +
-            '                  message: hello11\n' +
-            '                  logName: log11\n' +
-            '            resilience4jConfiguration:\n' +
-            '              minimumNumberOfCalls: 5\n' +
-            '              failureRateThreshold: 50\n'
-        //     'apiVersion: camel.apache.org/v1\n' +
-        //     'kind: Integration\n' +
-        //     'metadata:\n' +
-        //     '  name: postman.yaml\n' +
-        //     'spec:\n' +
-        //     '  flows:\n' +
-        //     '    - route:\n' +
-        //     '        from:\n' +
-        //     '          uri: kamelet:timer-source\n' +
-        //     '          steps:\n' +
-        //     '             - marshal: {}\n' +
-        //     '          parameters:\n' +
-        //     '            period: 2000\n' +
-        //     '            message: Hello World\n'
-    };
+        yaml: ''
+    }
+
+    toast = (title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') => {
+        const mess = [];
+        mess.push(...this.state.alerts, new ToastMessage(title, text, variant));
+        this.setState({alerts: mess})
+    }
+
+    deleteErrorMessage = (id: string) => {
+        this.setState({alerts: this.state.alerts.filter(a => a.id !== id)})
+    }
 
     componentDidMount() {
-        ["aws-eventbridge-sink.kamelet.yaml",
-            "chuck-norris-source.kamelet.yaml",
-            "http-secured-sink.kamelet.yaml",
-            "timer-source.kamelet.yaml",
-            "http-secured-source.kamelet.yaml",
-            "http-sink.kamelet.yaml",
-            "http-source.kamelet.yaml",
-            "mqtt-source.kamelet.yaml",
-            "insert-header-action.kamelet.yaml",
-            "kafka-not-secured-sink.kamelet.yaml",
-            "kafka-not-secured-source.kamelet.yaml",
-            "kafka-sink.kamelet.yaml",
-            "kafka-source.kamelet.yaml",
-            "postgresql-sink.kamelet.yaml",
-            "postgresql-source.kamelet.yaml"
-        ].forEach(name =>
-            fetch("kamelets/" + name)
-                .then((r) => r.text())
-                .then(value => KameletApi.saveKamelet(value)));
+        Promise.all([
+            fetch("kamelets/kamelets.yaml"),
+            fetch("components/components.json")
+        ]).then(responses =>
+            Promise.all(responses.map(response => response.text()))
+        ).then(data => {
+            const kamelets: string[] = [];
+            data[0].split("\n---\n").map(c => c.trim()).forEach(z => kamelets.push(z));
+            KameletApi.saveKamelets(kamelets, true);
+            this.toast("Success", "Loaded " + kamelets.length + " kamelets", 'success');
 
-        ["bonita.json",
-            "activemq.json",
-            "direct.json",
-            "seda.json",
-            "docker.json",
-            "netty-http.json",
-            "jms.json",
-            "sql.json",
-            "cxf.json",
-            "file.json",
-            "log.json",
-            "kafka.json",
-            "coap+tcp.json",
-            "pg-replication-slot.json",
-            "rest-api.json",
-            "rest-openapi.json",
-            "salesforce.json",
-            "kubernetes-service-accounts.json",
-            "mvel.json"].forEach(name =>
-            fetch("components/" + name)
-                .then((r) => r.text())
-                .then(value => ComponentApi.saveComponent(value)));
+            const components: [] = JSON.parse(data[1]);
+            const jsons: string[] = [];
+            components.forEach(c => jsons.push(JSON.stringify(c)));
+            ComponentApi.saveComponents(jsons, true);
+
+            this.toast("Success", "Loaded " + jsons.length + " components", 'success');
+            this.setState({loaded: true});
+        }).catch(err =>
+            this.toast("Error", err.text, 'danger')
+        );
     }
 
     save(filename: string, yaml: string, propertyOnly: boolean) {
-        // console.log(filename);
-        console.log(yaml);
-        // console.log(propertyOnly);
+        this.setState({name: filename, yaml: yaml});
+        // console.log(yaml);
+    }
+
+    getSpinner() {
+        return (
+            <Bullseye className="loading-page">
+                <Spinner className="progress-stepper" isSVG diameter="80px" aria-label="Loading..."/>
+            </Bullseye>
+        )
+    }
+
+    pageNav = () => {
+        const {pageId} = this.state;
+        const pages: MenuItem[] = [
+            new MenuItem("designer", "Designer", <BlueprintIcon/>),
+            new MenuItem("eip", "Enterprise Integration Patterns", <EipIcon/>),
+            new MenuItem("kamelets", "Kamelets", <KameletsIcon/>),
+            new MenuItem("components", "Components", <ComponentsIcon/>),
+        ]
+        return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height: "100%"}}
+                      spaceItems={{default: "spaceItemsNone"}}>
+            <FlexItem alignSelf={{default: "alignSelfCenter"}}>
+                <Tooltip className="logo-tooltip" content={"Apache Camel Karavan"}
+                         position={"right"}>
+                    {KaravanIcon()}
+                </Tooltip>
+            </FlexItem>
+            {pages.map(page =>
+                <FlexItem key={page.pageId} className={pageId === page.pageId ? "nav-button-selected" : ""}>
+                    <Tooltip content={page.tooltip} position={"right"}>
+                        <Button id={page.pageId} icon={page.icon} variant={"plain"}
+                                className={pageId === page.pageId ? "nav-button-selected" : ""}
+                                onClick={event => this.setState({pageId: page.pageId})}
+                        />
+                    </Tooltip>
+                </FlexItem>
+            )}
+            <FlexItem flex={{default: "flex_2"}} alignSelf={{default: "alignSelfCenter"}}>
+                <Divider/>
+            </FlexItem>
+        </Flex>)
+    }
+
+    getDesigner() {
+        const {key, name, yaml, pageId} = this.state;
+        const dark = document.body.className.includes('vscode-dark');
+        switch (pageId) {
+            case "designer":
+                return (
+                    <DesignerPage
+                        name={name}
+                        yaml={yaml}
+                        onSave={(filename, yaml1, propertyOnly) => this.save(filename, yaml1, propertyOnly)}
+                        dark={dark}/>
+                )
+            case "kamelets":
+                return (
+                    <KameletsPage dark={dark}/>
+                )
+            case "components":
+                return (
+                    <ComponentsPage dark={dark}/>
+                )
+            case "eip":
+                return (
+                    <EipPage dark={dark}/>
+                )
+        }
     }
 
     public render() {
+        const {loaded} = this.state;
         return (
             <Page className="karavan">
-                {this.props.page === "designer" && <KaravanDesigner key={this.state.key} filename={this.state.name} yaml={this.state.yaml}
-                                                                    onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}
-                                                                    dark={document.body.className.includes('vscode-dark')}/>}
-                {this.props.page === "kamelets" && <KameletsPage dark={document.body.className.includes('vscode-dark')} />}
-                {this.props.page === "components" && <ComponentsPage dark={document.body.className.includes('vscode-dark')} />}
-                {this.props.page === "eip" && <EipPage dark={document.body.className.includes('vscode-dark')} />}
+                <AlertGroup isToast isLiveRegion>
+                    {this.state.alerts.map((e: ToastMessage) => (
+                        <Alert key={e.id} className="main-alert" variant={e.variant} title={e.title}
+                               timeout={e.variant === "success" ? 2000 : 10000}
+                               actionClose={<AlertActionCloseButton onClose={() => this.deleteErrorMessage(e.id)}/>}>
+                            {e.text}
+                        </Alert>
+                    ))}
+                </AlertGroup>
+                <>
+                    <Flex direction={{default: "row"}} style={{width: "100%", height: "100%"}}
+                          alignItems={{default: "alignItemsStretch"}} spaceItems={{default: 'spaceItemsNone'}}>
+                        <FlexItem>
+                            {this.pageNav()}
+                        </FlexItem>
+                        <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
+                            {loaded !== true && this.getSpinner()}
+                            {loaded === true && this.getDesigner()}
+                        </FlexItem>
+                    </Flex>
+                </>
             </Page>
-        );
+        )
     }
 }
 

@@ -29,12 +29,12 @@ export class IntegrationHeader extends React.Component<Props> {
         return (
             <div className="headers">
                 <Title headingLevel="h1" size="md">Integration</Title>
-                <FormGroup label="Title" fieldId="title" isRequired>
-                    <TextInput className="text-field" type="text" id="title" name="title" isReadOnly
-                               value={
-                                   CamelUi.titleFromName(this.props.integration.metadata.name)
-                               }/>
-                </FormGroup>
+                {/*<FormGroup label="Title" fieldId="title" isRequired>*/}
+                {/*    <TextInput className="text-field" type="text" id="title" name="title" isReadOnly*/}
+                {/*               value={*/}
+                {/*                   CamelUi.titleFromName(this.props.integration.metadata.name)*/}
+                {/*               }/>*/}
+                {/*</FormGroup>*/}
                 <FormGroup label="Name" fieldId="name" isRequired>
                     <TextInput className="text-field" type="text" id="name" name="name" isReadOnly
                                value={this.props.integration.metadata.name}/>
