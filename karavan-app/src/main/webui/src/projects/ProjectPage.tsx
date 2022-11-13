@@ -196,6 +196,7 @@ export class ProjectPage extends React.Component<Props, State> {
             const type = ProjectFileTypes.filter(p => p.extension === extension).map(p => p.title)[0];
             if (type) {
                 return type
+                return type
             } else {
                 return "Unknown"
             }

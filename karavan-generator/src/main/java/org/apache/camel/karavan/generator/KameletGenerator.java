@@ -45,8 +45,8 @@ public class KameletGenerator extends AbstractGenerator {
 
     public static void generate() throws Exception {
         KameletGenerator g = new KameletGenerator();
+        g.createKamelets("karavan-designer/public/kamelets", true);
         g.createKamelets("karavan-app/src/main/resources/kamelets", true);
-        g.createKamelets("karavan-designer/public/kamelets", false);
         g.createKamelets("karavan-vscode/kamelets", true);
     }
 
