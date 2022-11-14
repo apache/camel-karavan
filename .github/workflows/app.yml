@@ -53,7 +53,7 @@ jobs:
       #  Build Karavan cloud app with public access
       - name: Build application public
         run: |
-          mvn package -f karavan-app -Dquarkus.profile=public -DskipTest \
+          mvn package -f karavan-app -Dquarkus.profile=public -DskipTest -X \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=true \
           -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}:${{ env.TAG }} \
