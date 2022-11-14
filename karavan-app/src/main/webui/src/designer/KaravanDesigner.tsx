@@ -50,15 +50,21 @@ interface State {
 
 export class KaravanDesigner extends React.Component<Props, State> {
 
+    getIntegration = (yaml: string, filename: string): Integration => {
+       if (yaml && CamelDefinitionYaml.yamlIsIntegration(yaml)) {
+           return CamelDefinitionYaml.yamlToIntegration(this.props.filename, this.props.yaml)
+       } else {
+           return Integration.createNew(filename, 'plain');
+       }
+    }
+
     public state: State = {
         tab: this.props.tab ? this.props.tab : 'routes',
-        integration: this.props.yaml && CamelDefinitionYaml.yamlIsIntegration(this.props.yaml)
-            ? CamelDefinitionYaml.yamlToIntegration(this.props.filename, this.props.yaml)
-            : Integration.createNew(this.props.filename),
+        integration: this.getIntegration(this.props.yaml, this.props.filename),
         key: "",
         propertyOnly: false,
         routeDesignerRef: React.createRef(),
-    };
+    }
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.key !== this.state.key) {
@@ -107,7 +113,6 @@ export class KaravanDesigner extends React.Component<Props, State> {
                     <Tab eventKey='rest' title={this.getTab("REST", "REST services", "rest")}></Tab>
                     <Tab eventKey='beans' title={this.getTab("Beans", "Beans Configuration", "beans")}></Tab>
                     <Tab eventKey='error' title={this.getTab("Error", "Error Handler", "error")}></Tab>
-                    <Tab eventKey='exception' title={this.getTab("Exceptions", "Exception Clauses per type", "exception")}></Tab>
                 </Tabs>
                 {tab === 'routes' && <RouteDesigner integration={this.state.integration}
                                                     onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
@@ -122,9 +127,6 @@ export class KaravanDesigner extends React.Component<Props, State> {
                 {tab === 'error' && <ErrorDesigner integration={this.state.integration}
                                                    onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                    dark={this.props.dark}/>}
-                {tab === 'exception' && <ExceptionDesigner integration={this.state.integration}
-                                                           onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
-                                                           dark={this.props.dark}/>}
             </PageSection>
         )
     }
