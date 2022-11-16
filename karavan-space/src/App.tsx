@@ -32,8 +32,11 @@ import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
 import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
 import {KaravanIcon} from "./designer/utils/KaravanIcons";
 import './designer/karavan.css';
-import {SpaceDesignerPage} from "./SpaceDesignerPage";
-import {GithubModal} from "./GithubModal";
+import {SpacePage} from "./space/SpacePage";
+import {GithubModal} from "./space/GithubModal";
+import {Subscription} from "rxjs";
+import {DslPosition, EventBus} from "./designer/utils/EventBus";
+import {AlertMessage, SpaceBus} from "./space/SpaceBus";
 
 class ToastMessage {
     id: string = ''
@@ -72,6 +75,7 @@ interface State {
     githubModalIsOpen: boolean,
     pageId: string,
     alerts: ToastMessage[],
+    sub?: Subscription
 }
 
 class App extends React.Component<Props, State> {
@@ -96,6 +100,8 @@ class App extends React.Component<Props, State> {
     }
 
     componentDidMount() {
+        const sub = SpaceBus.onAlert()?.subscribe((evt: AlertMessage) => this.toast(evt.title, evt.message, evt.variant));
+        this.setState({sub: sub});
         Promise.all([
             fetch("kamelets/kamelets.yaml"),
             fetch("components/components.json")
@@ -119,16 +125,17 @@ class App extends React.Component<Props, State> {
         );
     }
 
+    componentWillUnmount() {
+        this.state.sub?.unsubscribe();
+    }
+
     save(filename: string, yaml: string, propertyOnly: boolean) {
         this.setState({name: filename, yaml: yaml});
         // console.log(yaml);
     }
 
-    closeGithubModal(close: boolean, toast: boolean, ok: boolean, message: string) {
-        this.setState({githubModalIsOpen: !close})
-        if (toast){
-            this.toast(ok ? "Success" : "Error", message, ok?'success' : 'danger');
-        }
+    closeGithubModal() {
+        this.setState({githubModalIsOpen: false})
     }
 
     openGithubModal() {
@@ -181,7 +188,7 @@ class App extends React.Component<Props, State> {
         switch (pageId) {
             case "designer":
                 return (
-                    <SpaceDesignerPage
+                    <SpacePage
                         name={name}
                         yaml={yaml}
                         onSave={(filename, yaml1, propertyOnly) => this.save(filename, yaml1, propertyOnly)}
@@ -204,9 +211,9 @@ class App extends React.Component<Props, State> {
     }
 
     render() {
-        const {key, loaded, githubModalIsOpen, yaml, name} = this.state;
+        const {loaded, githubModalIsOpen, yaml, name} = this.state;
         return (
-            <Page key={key} className="karavan">
+            <Page className="karavan">
                 <AlertGroup isToast isLiveRegion>
                     {this.state.alerts.map((e: ToastMessage) => (
                         <Alert key={e.id} className="main-alert" variant={e.variant} title={e.title}
@@ -227,8 +234,7 @@ class App extends React.Component<Props, State> {
                             {loaded !== true && this.getSpinner()}
                             {loaded === true && this.getDesigner()}
                             {loaded === true && githubModalIsOpen &&
-                                <GithubModal yaml={yaml} filename={name} isOpen={githubModalIsOpen}
-                                             onClose={(close: boolean, t: boolean, ok, message) => this.closeGithubModal(close, t, ok, message)}/>}
+                                <GithubModal yaml={yaml} filename={name} isOpen={githubModalIsOpen} onClose={this.closeGithubModal}/>}
                         </FlexItem>
                     </Flex>
                 </>

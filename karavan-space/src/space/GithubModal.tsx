@@ -7,18 +7,19 @@ import {
     Form,
     TextInputGroupMain, TextInputGroup, Switch, FlexItem, Flex, TextInput
 } from '@patternfly/react-core';
-import './designer/karavan.css';
-import {GithubApi, GithubParams} from "./api/GithubApi";
+import '../designer/karavan.css';
+import {GithubApi, GithubParams} from "../api/GithubApi";
 import GithubImageIcon from "@patternfly/react-icons/dist/esm/icons/github-icon";
-import {StorageApi} from "./api/StorageApi";
-import {KameletApi} from "../../karavan-core/lib/api/KameletApi";
-import {ComponentApi} from "../../karavan-core/lib/api/ComponentApi";
+import {StorageApi} from "../api/StorageApi";
+import {KameletApi} from "../../../karavan-core/lib/api/KameletApi";
+import {ComponentApi} from "../../../karavan-core/lib/api/ComponentApi";
+import {SpaceBus} from "./SpaceBus";
 
 interface Props {
     yaml: string,
     filename: string,
     isOpen: boolean,
-    onClose: (close: boolean, toast: boolean, ok: boolean, message: string) => void
+    onClose: () => void
 }
 
 interface State {
@@ -77,7 +78,7 @@ export class GithubModal extends React.Component<Props, State> {
                 }
             },
             reason => {
-                this.props.onClose?.call(this, false, true, false, reason?.toString());
+                SpaceBus.sendAlert('Error', reason.toString(), 'danger');
             });
     }
 
@@ -93,12 +94,12 @@ export class GithubModal extends React.Component<Props, State> {
             const email: string = (Array.isArray(data[1]) ? Array.from(data[1]).filter(d => d.primary === true)?.at(0)?.email : '') || '';
             this.setState({token: token, name: name, email:email, owner: login})
         }).catch(err =>
-            this.props.onClose?.call(this, false, true, false, err?.toString())
+            SpaceBus.sendAlert('Error', err.toString(), 'danger')
         );
     }
 
     closeModal = () => {
-        this.props.onClose?.call(this, true, false, true, '');
+        this.props.onClose?.call(this);
     }
 
     saveAndCloseModal = () => {
@@ -122,10 +123,11 @@ export class GithubModal extends React.Component<Props, State> {
                 token, this.props.yaml,
                 result => {
                     this.setState({pushing: false});
-                    this.props.onClose?.call(this, true, true, true, 'Saved')
+                    SpaceBus.sendAlert('Success', "Saved");
+                    this.props.onClose?.call(this)
                 },
                 reason => {
-                    this.props.onClose?.call(this, false, true, false, reason.toString())
+                    SpaceBus.sendAlert('Error', reason.toString(), 'danger');
                     this.setState({pushing: false});
                 }
             )

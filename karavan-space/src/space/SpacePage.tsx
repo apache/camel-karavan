@@ -21,12 +21,14 @@ import {
     ToolbarItem,
     PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem, Badge, Button, Tooltip, ToggleGroup, ToggleGroupItem
 } from '@patternfly/react-core';
-import './designer/karavan.css';
+import '../designer/karavan.css';
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
 import GithubImageIcon from "@patternfly/react-icons/dist/esm/icons/github-icon";
-import {KaravanDesigner} from "./designer/KaravanDesigner";
+import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
+import {KaravanDesigner} from "../designer/KaravanDesigner";
 import Editor from "@monaco-editor/react";
+import {UploadModal} from "./UploadModal";
 
 interface Props {
     name: string,
@@ -37,19 +39,24 @@ interface Props {
 }
 
 interface State {
+    key: string,
     karavanDesignerRef: any,
+    showUploadModal: boolean,
     mode: "design" | "code",
 }
 
-export class SpaceDesignerPage extends React.Component<Props, State> {
+export class SpacePage extends React.Component<Props, State> {
 
     public state: State = {
+        key: Math.random().toString(),
         karavanDesignerRef: React.createRef(),
         mode: "design",
+        showUploadModal: false
     }
 
     save(filename: string, yaml: string, propertyOnly: boolean) {
         this.props.onSave?.call(this, filename, yaml, propertyOnly);
+        this.setState({key: Math.random().toString()})
     }
 
     download = () => {
@@ -72,10 +79,20 @@ export class SpaceDesignerPage extends React.Component<Props, State> {
         this.props.onPush?.call(this, 'github');
     }
 
+    openUploadModal = () => {
+        this.setState({showUploadModal: true})
+    }
+
+    addYaml = (yaml: string | undefined) => {
+        this.setState({showUploadModal: false });
+        this.save(this.props.name, this.props.yaml + "\n" + yaml, false);
+    }
+
     getDesigner = () => {
         const {name, yaml} = this.props;
         return (
             <KaravanDesigner
+                key={this.state.key}
                 dark={this.props.dark}
                 ref={this.state.karavanDesignerRef}
                 filename={name}
@@ -104,7 +121,7 @@ export class SpaceDesignerPage extends React.Component<Props, State> {
 
 
     render() {
-        const {mode} = this.state;
+        const {mode, showUploadModal} = this.state;
         return (
             <PageSection className="kamelet-section designer-page" padding={{default: 'noPadding'}}>
                 <PageSection className="tools-section" padding={{default: 'noPadding'}}
@@ -151,6 +168,13 @@ export class SpaceDesignerPage extends React.Component<Props, State> {
                                             </Button>
                                         </Tooltip>
                                     </ToolbarItem>
+                                    <ToolbarItem>
+                                        <Tooltip content="Upload OpenAPI" position={"bottom"}>
+                                            <Button variant="secondary" icon={<UploadIcon/>} onClick={e => this.openUploadModal()}>
+                                                OpenAPI
+                                            </Button>
+                                        </Tooltip>
+                                    </ToolbarItem>
                                 </ToolbarContent>
                             </Toolbar>
                         </FlexItem>
@@ -158,7 +182,7 @@ export class SpaceDesignerPage extends React.Component<Props, State> {
                 </PageSection>
                 {mode === 'design' && this.getDesigner()}
                 {mode === 'code' && this.getEditor()}
-
+                <UploadModal isOpen={showUploadModal} onClose={yaml => this.addYaml(yaml)}/>
             </PageSection>
         );
     }
