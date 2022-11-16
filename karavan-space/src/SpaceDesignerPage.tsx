@@ -21,30 +21,28 @@ import {
     ToolbarItem,
     PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem, Badge, Button, Tooltip
 } from '@patternfly/react-core';
-import '../designer/karavan.css';
+import './designer/karavan.css';
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
-import {KaravanDesigner} from "./KaravanDesigner";
+import GithubImageIcon from "@patternfly/react-icons/dist/esm/icons/github-icon";
+import {KaravanDesigner} from "./designer/KaravanDesigner";
 
 interface Props {
     name: string,
     yaml: string,
     dark: boolean,
     onSave: (filename: string, yaml: string, propertyOnly: boolean) => void
+    onPush: (type: string) => void
 }
 
 interface State {
     karavanDesignerRef: any,
 }
 
-export class DesignerPage extends React.Component<Props, State> {
+export class SpaceDesignerPage extends React.Component<Props, State> {
 
     public state: State = {
-
         karavanDesignerRef: React.createRef(),
-    };
-
-    componentDidMount() {
     }
 
     save(filename: string, yaml: string, propertyOnly: boolean) {
@@ -65,6 +63,10 @@ export class DesignerPage extends React.Component<Props, State> {
         if (this.state.karavanDesignerRef) {
             this.state.karavanDesignerRef.current.downloadImage();
         }
+    }
+
+    pushToGithub = () => {
+        this.props.onPush?.call(this, 'github');
     }
 
     render() {
@@ -93,6 +95,13 @@ export class DesignerPage extends React.Component<Props, State> {
                                         <Tooltip content="Download image" position={"bottom"}>
                                             <Button variant="secondary" icon={<DownloadImageIcon/>} onClick={e => this.downloadImage()}>
                                                 Image
+                                            </Button>
+                                        </Tooltip>
+                                    </ToolbarItem>
+                                    <ToolbarItem>
+                                        <Tooltip content="Push to Github" position={"bottom-end"}>
+                                            <Button variant="secondary" icon={<GithubImageIcon/>} onClick={e => this.pushToGithub()}>
+                                                Push
                                             </Button>
                                         </Tooltip>
                                     </ToolbarItem>

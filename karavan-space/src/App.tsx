@@ -32,7 +32,8 @@ import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
 import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
 import {KaravanIcon} from "./designer/utils/KaravanIcons";
 import './designer/karavan.css';
-import {DesignerPage} from "./designer/DesignerPage";
+import {SpaceDesignerPage} from "./SpaceDesignerPage";
+import {GithubModal} from "./GithubModal";
 
 class ToastMessage {
     id: string = ''
@@ -68,6 +69,7 @@ interface State {
     yaml: string
     key: string
     loaded?: boolean,
+    githubModalIsOpen: boolean,
     pageId: string,
     alerts: ToastMessage[],
 }
@@ -79,7 +81,8 @@ class App extends React.Component<Props, State> {
         alerts: [],
         name: 'example.yaml',
         key: '',
-        yaml: ''
+        yaml: '',
+        githubModalIsOpen: false
     }
 
     toast = (title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') => {
@@ -110,7 +113,7 @@ class App extends React.Component<Props, State> {
             ComponentApi.saveComponents(jsons, true);
 
             this.toast("Success", "Loaded " + jsons.length + " components", 'success');
-            this.setState({loaded: true});
+            this.setState({loaded: true, key: Math.random().toString()});
         }).catch(err =>
             this.toast("Error", err.text, 'danger')
         );
@@ -119,6 +122,17 @@ class App extends React.Component<Props, State> {
     save(filename: string, yaml: string, propertyOnly: boolean) {
         this.setState({name: filename, yaml: yaml});
         // console.log(yaml);
+    }
+
+    closeGithubModal(close: boolean, toast: boolean, ok: boolean, message: string) {
+        this.setState({githubModalIsOpen: !close})
+        if (toast){
+            this.toast(ok ? "Success" : "Error", message, ok?'success' : 'danger');
+        }
+    }
+
+    openGithubModal() {
+        this.setState({githubModalIsOpen: true, key: Math.random().toString()});
     }
 
     getSpinner() {
@@ -162,15 +176,16 @@ class App extends React.Component<Props, State> {
     }
 
     getDesigner() {
-        const {key, name, yaml, pageId} = this.state;
+        const {name, yaml, pageId} = this.state;
         const dark = document.body.className.includes('vscode-dark');
         switch (pageId) {
             case "designer":
                 return (
-                    <DesignerPage
+                    <SpaceDesignerPage
                         name={name}
                         yaml={yaml}
                         onSave={(filename, yaml1, propertyOnly) => this.save(filename, yaml1, propertyOnly)}
+                        onPush={type => this.openGithubModal()}
                         dark={dark}/>
                 )
             case "kamelets":
@@ -188,14 +203,15 @@ class App extends React.Component<Props, State> {
         }
     }
 
-    public render() {
-        const {loaded} = this.state;
+    render() {
+        const {key, loaded, githubModalIsOpen, yaml, name} = this.state;
         return (
-            <Page className="karavan">
+            <Page key={key} className="karavan">
                 <AlertGroup isToast isLiveRegion>
                     {this.state.alerts.map((e: ToastMessage) => (
                         <Alert key={e.id} className="main-alert" variant={e.variant} title={e.title}
-                               timeout={e.variant === "success" ? 2000 : 10000}
+                               timeout={e.variant === "success" ? 1000 : 5000}
+                               onTimeout={() => this.deleteErrorMessage(e.id)}
                                actionClose={<AlertActionCloseButton onClose={() => this.deleteErrorMessage(e.id)}/>}>
                             {e.text}
                         </Alert>
@@ -210,6 +226,9 @@ class App extends React.Component<Props, State> {
                         <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
                             {loaded !== true && this.getSpinner()}
                             {loaded === true && this.getDesigner()}
+                            {loaded === true && githubModalIsOpen &&
+                                <GithubModal yaml={yaml} filename={name} isOpen={githubModalIsOpen}
+                                             onClose={(close: boolean, t: boolean, ok, message) => this.closeGithubModal(close, t, ok, message)}/>}
                         </FlexItem>
                     </Flex>
                 </>
