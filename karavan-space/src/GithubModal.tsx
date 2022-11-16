@@ -9,6 +9,7 @@ import {
 } from '@patternfly/react-core';
 import './designer/karavan.css';
 import {GithubApi, GithubParams} from "./api/GithubApi";
+import GithubImageIcon from "@patternfly/react-icons/dist/esm/icons/github-icon";
 import {StorageApi} from "./api/StorageApi";
 
 interface Props {
@@ -50,8 +51,20 @@ export class GithubModal extends React.Component<Props, State> {
                 name: githubParams.name,
                 email: githubParams.email,
                 branch: githubParams.branch ? githubParams.branch : "main",
+                save: true
             })
         }
+        this.githubAuth();
+    }
+
+    githubAuth = () => {
+        GithubApi.auth(
+            (result: any) => {
+                this.setState({token: result.token})
+            },
+            reason => {
+                this.props.onClose?.call(this, false, true, false, reason?.toString());
+            });
     }
 
     closeModal = () => {
@@ -91,6 +104,7 @@ export class GithubModal extends React.Component<Props, State> {
 
     render() {
         const {token, owner, repo, path, name, email, message, branch, save, pushing} = this.state;
+        const pushEnabled = !pushing && token && token && owner && repo && path && name && email && message && branch;
         return (
             <Modal
                 title="Github Commit Parameters"
@@ -99,13 +113,14 @@ export class GithubModal extends React.Component<Props, State> {
                 isOpen={this.props.isOpen}
                 onClose={this.closeModal}
                 actions={[
-                    <Button isLoading={pushing} isDisabled={pushing} key="confirm" variant="primary" onClick={this.saveAndCloseModal}>Push</Button>,
-                    <Button key="cancel" variant="secondary" onClick={this.closeModal}>Cancel</Button>
+                    <Button isLoading={pushing} isDisabled={!pushEnabled} key="confirm" variant="primary" onClick={this.saveAndCloseModal}>Push</Button>,
+                    <Button key="cancel" variant="secondary" onClick={this.closeModal}>Cancel</Button>,
+                    <Button style={{marginLeft: "auto"}} key="login" variant="secondary" onClick={this.githubAuth} icon={<GithubImageIcon/>}>Login</Button>
                 ]}
             >
                 <Form autoComplete="off" isHorizontal className="create-file-form">
                     <FormGroup label="Repository" fieldId="repository" isRequired>
-                        <Flex direction={{default: "row"}} justifyContent={{default:"justifyContentSpaceBetween"}} alignItems={{default:"alignItemsStretch"}}>
+                        <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsStretch"}}>
                             <FlexItem>
                                 <TextInput id="owner" placeholder="Owner" value={owner} onChange={value => this.setState({owner: value})}/>
                             </FlexItem>
@@ -121,18 +136,18 @@ export class GithubModal extends React.Component<Props, State> {
                         </Flex>
                     </FormGroup>
                     <FormGroup label="User" fieldId="user" isRequired>
-                        <Flex direction={{default: "row"}} justifyContent={{default:"justifyContentSpaceBetween"}} alignItems={{default:"alignItemsStretch"}} >
+                        <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsStretch"}}>
                             <FlexItem>
                                 <TextInput id="username" placeholder="Username" value={name} onChange={value => this.setState({name: value})}/>
                             </FlexItem>
-                            <FlexItem flex={{default:"flex_2"}}>
+                            <FlexItem flex={{default: "flex_2"}}>
                                 <TextInput id="email" placeholder="Email" value={email} onChange={value => this.setState({email: value})}/>
                             </FlexItem>
                         </Flex>
                     </FormGroup>
                     <FormGroup label="Commit message" fieldId="commitMessage" isRequired>
                         <TextInputGroup className="input-group">
-                            <TextInputGroupMain  id="message" value={message} onChange={value => this.setState({message: value})}/>
+                            <TextInputGroupMain id="message" value={message} onChange={value => this.setState({message: value})}/>
                         </TextInputGroup>
                     </FormGroup>
                     <FormGroup label="Token" fieldId="token" isRequired>
