@@ -14,8 +14,18 @@ export interface GithubParams {
 
 export class GithubApi {
 
+    static async getUserInfo(token: string) {
+        const octokit = new Octokit({auth: token});
+        return octokit.rest.users.getAuthenticated();
+    }
+
+    static async getUserEmails(token: string) {
+        const octokit = new Octokit({auth: token});
+        return octokit.rest.users.listEmailsForAuthenticatedUser();
+    }
+
     static async getFile(octokit: Octokit, param: GithubParams) {
-        return octokit.request('GET /repos/{owner}/{repo}/contents/{path}{?ref}', {
+        return octokit.rest.repos.getContent({
             owner: param.owner,
             repo: param.repo,
             path: param.path,
@@ -57,9 +67,9 @@ export class GithubApi {
     }
 
     static auth(onSuccess: (result: {}) => void, onError: (reason: {}) => void) {
-        const authenticator = new Authenticator({});
+        const authenticator = new Authenticator({site_id: '8dacd004-90d6-441f-93cf-592efd2d4196'});
         authenticator.authenticate(
-            { provider: "github", scope: "public_repo,repo" },
+            { provider: "github", scope: "public_repo,repo,read:user,user:email" },
             async function (error, data) {
                 if (error) {
                     onError(error);

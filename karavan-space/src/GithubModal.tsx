@@ -11,6 +11,8 @@ import './designer/karavan.css';
 import {GithubApi, GithubParams} from "./api/GithubApi";
 import GithubImageIcon from "@patternfly/react-icons/dist/esm/icons/github-icon";
 import {StorageApi} from "./api/StorageApi";
+import {KameletApi} from "../../karavan-core/lib/api/KameletApi";
+import {ComponentApi} from "../../karavan-core/lib/api/ComponentApi";
 
 interface Props {
     yaml: string,
@@ -35,6 +37,13 @@ interface State {
 export class GithubModal extends React.Component<Props, State> {
 
     public state: State = {
+        token: '',
+        owner: '',
+        repo: '',
+        branch: '',
+        name: '',
+        email: '',
+        message: 'Add a new Camel integration',
         save: false,
         pushing: false,
         path: this.props.filename
@@ -60,11 +69,32 @@ export class GithubModal extends React.Component<Props, State> {
     githubAuth = () => {
         GithubApi.auth(
             (result: any) => {
-                this.setState({token: result.token})
+                const onlyToken =  StorageApi.getGithubParameters() != undefined;
+                if (onlyToken){
+                    this.setState({token: result.token})
+                } else {
+                    this.githubData(result.token);
+                }
             },
             reason => {
                 this.props.onClose?.call(this, false, true, false, reason?.toString());
             });
+    }
+
+    githubData = (token: string) => {
+        Promise.all([
+            GithubApi.getUserInfo(token),
+            GithubApi.getUserEmails(token),
+        ]).then(responses =>
+            Promise.all(responses.map(response => response.data))
+        ).then(data => {
+            const name: string =( data[0] as any).name || '';
+            const login: string =( data[0] as any).login || '';
+            const email: string = (Array.isArray(data[1]) ? Array.from(data[1]).filter(d => d.primary === true)?.at(0)?.email : '') || '';
+            this.setState({token: token, name: name, email:email, owner: login})
+        }).catch(err =>
+            this.props.onClose?.call(this, false, true, false, err?.toString())
+        );
     }
 
     closeModal = () => {
@@ -135,12 +165,12 @@ export class GithubModal extends React.Component<Props, State> {
                             </FlexItem>
                         </Flex>
                     </FormGroup>
-                    <FormGroup label="User" fieldId="user" isRequired>
+                    <FormGroup label="Commit user" fieldId="user" isRequired>
                         <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsStretch"}}>
                             <FlexItem>
                                 <TextInput id="username" placeholder="Username" value={name} onChange={value => this.setState({name: value})}/>
                             </FlexItem>
-                            <FlexItem flex={{default: "flex_2"}}>
+                            <FlexItem flex={{default: "flex_3"}}>
                                 <TextInput id="email" placeholder="Email" value={email} onChange={value => this.setState({email: value})}/>
                             </FlexItem>
                         </Flex>
