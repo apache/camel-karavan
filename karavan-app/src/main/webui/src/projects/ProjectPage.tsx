@@ -7,8 +7,6 @@ import {
     PageSection,
     Text,
     TextContent,
-    Toolbar,
-    ToolbarContent,
     Bullseye,
     EmptyState,
     EmptyStateVariant,
@@ -18,10 +16,8 @@ import {
     Modal,
     Flex,
     FlexItem,
-    ToggleGroup,
-    ToggleGroupItem,
     CodeBlockCode,
-    CodeBlock, Skeleton, Checkbox, Tabs, Tab, Tooltip, ToolbarItem
+    CodeBlock, Skeleton, Tabs, Tab
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
@@ -186,21 +182,11 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     getType = (file: ProjectFile) => {
+        if (file.name.endsWith(".camel.yaml")) return ProjectFileTypes.filter(p => p.name === "INTEGRATION").map(p => p.title)[0];
+        if (file.name.endsWith(".json")) return ProjectFileTypes.filter(p => p.name === "OPENAPI_JSON").map(p => p.title)[0];
+        if (file.name.endsWith(".yaml")) return ProjectFileTypes.filter(p => p.name === "OPENAPI_YAML").map(p => p.title)[0];
         const extension = file.name.substring(file.name.lastIndexOf('.') + 1);
-        if (extension === 'yaml') {
-            const isIntegration = CamelDefinitionYaml.yamlIsIntegration(file.code);
-            return isIntegration
-                ? ProjectFileTypes.filter(p => p.name === "INTEGRATION").map(p => p.title)[0]
-                : ProjectFileTypes.filter(p => p.name === "OPENAPI").map(p => p.title)[0];
-        } else {
-            const type = ProjectFileTypes.filter(p => p.extension === extension).map(p => p.title)[0];
-            if (type) {
-                return type
-                return type
-            } else {
-                return "Unknown"
-            }
-        }
+        return ProjectFileTypes.filter(p => p.extension === extension).map(p => p.title)[0];
     }
 
     title = () => {
@@ -219,7 +205,7 @@ export class ProjectPage extends React.Component<Props, State> {
                         <BreadcrumbItem to="#" isActive>{this.getType(file)}</BreadcrumbItem>
                     </Breadcrumb>
                     <TextContent className="title">
-                        <Text component="h1">{isLog ? filename : CamelUi.titleFromName(file.name)}</Text>
+                        <Text component="h1">{isLog ? filename : file.name}</Text>
                     </TextContent>
                 </div>
             }
@@ -263,9 +249,8 @@ export class ProjectPage extends React.Component<Props, State> {
             <TableComposable aria-label="Files" variant={"compact"} className={"table"}>
                 <Thead>
                     <Tr>
-                        <Th key='type'>Type</Th>
-                        <Th key='name'>Name</Th>
-                        <Th key='filename'>Filename</Th>
+                        <Th key='type' width={10}>Type</Th>
+                        <Th key='filename' width={50}>Filename</Th>
                         <Th key='action'></Th>
                     </Tr>
                 </Thead>
@@ -273,16 +258,15 @@ export class ProjectPage extends React.Component<Props, State> {
                     {files.map(file => {
                         const type = this.getType(file)
                         return <Tr key={file.name}>
-                            <Td modifier={"fitContent"}>
+                            <Td>
                                 <Badge>{type}</Badge>
                             </Td>
                             <Td>
                                 <Button style={{padding: '6px'}} variant={"link"}
                                         onClick={e => this.select(file)}>
-                                    {CamelUi.titleFromName(file.name)}
+                                    {file.name}
                                 </Button>
                             </Td>
-                            <Td>{file.name}</Td>
                             <Td modifier={"fitContent"}>
                                 <Button style={{padding: '0'}} variant={"plain"}
                                         isDisabled={file.name === 'application.properties'}

@@ -97,10 +97,10 @@ export class ProjectFileType {
 }
 
 export const ProjectFileTypes: ProjectFileType[] = [
-    new ProjectFileType("INTEGRATION", "Integration", "yaml"),
+    new ProjectFileType("INTEGRATION", "Integration", "camel.yaml"),
     new ProjectFileType("CODE", "Code", "java"),
     new ProjectFileType("PROPERTIES", "Properties", "properties"),
-    new ProjectFileType("OPENAPI", "OpenAPI", "json"),
-    new ProjectFileType("OPENAPI", "OpenAPI", "yaml"),
+    new ProjectFileType("OPENAPI_JSON", "OpenAPI YAML", "json"),
+    new ProjectFileType("OPENAPI_YAML", "OpenAPI JSON", "yaml"),
     new ProjectFileType("LOG", "Log", "log"),
 ];

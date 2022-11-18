@@ -121,9 +121,9 @@ export class ProjectPageToolbar extends React.Component<Props> {
 
     render() {
         const {isTemplates} = this.props;
-        return <Toolbar id="toolbar-group-types">
+        return <div>
             {isTemplates && this.getTemplatesToolbar()}
             {!isTemplates && this.getProjectToolbar()}
-        </Toolbar>
+        </div>
     }
 }

@@ -41,7 +41,7 @@ export class CreateFileModal extends React.Component<Props, State> {
         const extension = ProjectFileTypes.filter(value => value.name === fileType)[0].extension;
         const filename = (extension !== 'java') ? CamelUi.nameFromTitle(name) : CamelUi.javaNameFromTitle(name);
         const code = fileType === 'INTEGRATION'
-            ? CamelDefinitionYaml.integrationToYaml(Integration.createNew(name))
+            ? CamelDefinitionYaml.integrationToYaml(Integration.createNew(name, 'plain'))
             : '';
         if (filename && extension){
             const file = new ProjectFile(filename + '.' + extension, this.props.project.projectId, code);

@@ -51,7 +51,7 @@ export class KameletCard extends React.Component<Props, State> {
                 <CardHeader>
                     {CamelUi.getIconFromSource(kamelet.icon())}
                 </CardHeader>
-                <CardTitle>{CamelUi.titleFromName(kamelet.metadata.name)}</CardTitle>
+                <CardTitle>{kamelet.spec.definition.title}</CardTitle>
                 <CardBody>{kamelet.spec.definition.description}</CardBody>
                 <CardFooter>
                     {/*<div style={{justifyContent: "space-between"}}>*/}

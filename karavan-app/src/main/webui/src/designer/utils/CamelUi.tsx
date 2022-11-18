@@ -196,19 +196,6 @@ export class CamelUi {
         return name.split("-").map(v => CamelUtil.capitalizeName(v)).join('');
     }
 
-    static titleFromName = (name?: string) => {
-        name = name ? (name.substring(0, name.lastIndexOf('.')) || name) : undefined;
-        return name
-            ? name
-                .replace(".yaml", "")
-                .split("-")
-                .map((value) => CamelUtil.capitalizeName(value))
-                .reduce(
-                    (previousValue, currentValue) => previousValue + " " + currentValue
-                )
-            : name;
-    }
-
     static isActionKamelet = (element: CamelElement): boolean => {
         const kamelet = CamelUtil.getKamelet(element);
         if (kamelet) return kamelet.type() === 'action'

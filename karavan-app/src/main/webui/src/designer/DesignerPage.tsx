@@ -30,7 +30,7 @@ interface Props {
     name: string,
     yaml: string,
     dark: boolean,
-    onSave?: (filename: string, yaml: string, propertyOnly: boolean) => void
+    onSave: (filename: string, yaml: string, propertyOnly: boolean) => void
 }
 
 interface State {
@@ -83,16 +83,16 @@ export class DesignerPage extends React.Component<Props, State> {
                             <Toolbar id="toolbar-group-types">
                                 <ToolbarContent>
                                     <ToolbarItem>
-                                        <Tooltip content="Download source" position={"bottom-end"}>
+                                        <Tooltip content="Download YAML" position={"bottom"}>
                                             <Button variant="primary" icon={<DownloadIcon/>} onClick={e => this.download()}>
-                                                Download yaml
+                                                YAML
                                             </Button>
                                         </Tooltip>
                                     </ToolbarItem>
                                     <ToolbarItem>
-                                        <Tooltip content="Download image" position={"bottom-end"}>
+                                        <Tooltip content="Download image" position={"bottom"}>
                                             <Button variant="secondary" icon={<DownloadImageIcon/>} onClick={e => this.downloadImage()}>
-                                                Download image
+                                                Image
                                             </Button>
                                         </Tooltip>
                                     </ToolbarItem>

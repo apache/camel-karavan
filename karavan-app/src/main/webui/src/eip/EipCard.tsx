@@ -51,7 +51,7 @@ export class EipCard extends React.Component<Props, State> {
                 <CardHeader>
                     {CamelUi.getIconForDslName(component.className)}
                 </CardHeader>
-                <CardTitle>{CamelUi.titleFromName(component.title)}</CardTitle>
+                <CardTitle>{component.title}</CardTitle>
                 <CardBody>{component.description}</CardBody>
                 <CardFooter>
                         <Badge isRead className="labels">{component.labels}</Badge>
