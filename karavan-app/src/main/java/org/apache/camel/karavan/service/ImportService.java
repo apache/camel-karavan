@@ -83,7 +83,7 @@ public class ImportService {
         try {
             Project templates  = infinispanService.getProject(Project.NAME_TEMPLATES);
             if (templates == null) {
-                templates = new Project("templates", "Templates", "Templates", "quarkus", "");
+                templates = new Project(Project.NAME_TEMPLATES, "Templates", "Templates", "quarkus", "");
                 infinispanService.saveProject(templates, true);
 
                 codeService.getApplicationPropertiesTemplates().forEach((name, value) -> {
@@ -100,12 +100,19 @@ public class ImportService {
     void loadCustomKamelets(String data) {
         LOGGER.info("Load custom Kamelets from Git");
         try {
-            List<Tuple2<String, String>> repo = gitService.readKameletsFromRepository();
-            repo.forEach(p -> {
-                String name = p.getItem1();
-                String yaml = p.getItem2();
-                infinispanService.saveKamelet(name, yaml);
-            });
+            Project kamelets  = infinispanService.getProject(Project.NAME_KAMELETS);
+            if (kamelets == null) {
+                kamelets = new Project(Project.NAME_KAMELETS, "Custom Kamelets", "Custom Kamelets", "quarkus", "");
+                infinispanService.saveProject(kamelets, true);
+
+                List<Tuple2<String, String>> repo = gitService.readKameletsFromRepository();
+                repo.forEach(p -> {
+                    String name = p.getItem1();
+                    String yaml = p.getItem2();
+                    ProjectFile file = new ProjectFile(name, yaml, Project.NAME_KAMELETS);
+                    infinispanService.saveProjectFile(file);
+                });
+            }
         } catch (Exception e) {
             LOGGER.error("Error during project import", e);
         }

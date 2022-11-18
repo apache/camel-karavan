@@ -20,13 +20,11 @@ import org.apache.camel.karavan.model.CamelStatus;
 import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.Environment;
 import org.apache.camel.karavan.model.GroupedKey;
-import org.apache.camel.karavan.model.Kamelet;
 import org.apache.camel.karavan.model.PipelineStatus;
 import org.apache.camel.karavan.model.PodStatus;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.model.ServiceStatus;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.Search;
@@ -37,7 +35,6 @@ import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.cache.SingleFileStoreConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
-import org.infinispan.eviction.EvictionStrategy;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.query.dsl.QueryFactory;
 import org.jboss.logging.Logger;
@@ -58,7 +55,6 @@ public class InfinispanService {
     BasicCache<GroupedKey, PodStatus> podStatuses;
     BasicCache<GroupedKey, CamelStatus> camelStatuses;
     BasicCache<GroupedKey, ServiceStatus> serviceStatuses;
-    BasicCache<String, String> kamelets;
     BasicCache<String, Environment> environments;
 
     @Inject
@@ -96,7 +92,6 @@ public class InfinispanService {
             podStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(PodStatus.CACHE, builder.build());
             serviceStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ServiceStatus.CACHE, builder.build());
             camelStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(CamelStatus.CACHE, builder.build());
-            kamelets = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Kamelet.CACHE, builder.build());
 
             cleanData();
         } else {
@@ -109,9 +104,7 @@ public class InfinispanService {
             podStatuses = cacheManager.administration().getOrCreateCache(PodStatus.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, PodStatus.CACHE)));
             serviceStatuses = cacheManager.administration().getOrCreateCache(ServiceStatus.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, ServiceStatus.CACHE)));
             camelStatuses = cacheManager.administration().getOrCreateCache(CamelStatus.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, CamelStatus.CACHE)));
-            kamelets = cacheManager.administration().getOrCreateCache(Kamelet.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, Kamelet.CACHE)));
         }
-//        org.hibernate.search.engine.search.loading.spi.EntityLoader
     }
 
     private void cleanData() {
@@ -281,18 +274,6 @@ public class InfinispanService {
 
     public void deleteCamelStatus(String name, String env) {
         camelStatuses.remove(GroupedKey.create(name, env));
-    }
-
-    public List<String> getKameletNames() {
-        return kamelets.keySet().stream().collect(Collectors.toList());
-    }
-
-    public String getKameletYaml(String name) {
-        return kamelets.get(name);
-    }
-
-    public void saveKamelet(String name, String yaml) {
-        kamelets.put(name, yaml);
     }
 
     public List<Environment> getEnvironments() {
