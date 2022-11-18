@@ -415,7 +415,7 @@ export class ProjectInfo extends React.Component<Props, State> {
 
     render() {
         return (
-            <Card>
+            <Card className="project-info">
                 <CardBody>
                     <Flex direction={{default: "row"}}
                           style={{height: "200px"}}

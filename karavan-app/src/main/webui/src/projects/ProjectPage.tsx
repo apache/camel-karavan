@@ -94,9 +94,7 @@ export class ProjectPage extends React.Component<Props, State> {
     onRefresh = () => {
         if (this.props.project) {
             KaravanApi.getProject(this.props.project.projectId, (project: Project) => {
-                this.setState({
-                    project: project
-                })
+                this.setState({project: project})
             });
             KaravanApi.getFiles(this.props.project.projectId, (files: []) => {
                 this.setState({files: files})
@@ -154,7 +152,7 @@ export class ProjectPage extends React.Component<Props, State> {
 
     addProperty() {
         const file = this.state.file;
-        if (file){
+        if (file) {
             const project = file ? ProjectModelApi.propertiesToProject(file?.code) : ProjectModel.createNew();
             const props = project.properties;
             props.push(ProjectProperty.createNew("", ""))
@@ -165,19 +163,19 @@ export class ProjectPage extends React.Component<Props, State> {
 
     tools = () => {
         return <ProjectPageToolbar
-                project={this.props.project}
-                file={this.state.file}
-                mode={this.state.mode}
-                isTemplates={this.props.isTemplates}
-                config={this.props.config}
-                addProperty={() => this.addProperty()}
-                download={() => this.download()}
-                downloadImage={() => this.downloadImage()}
-                editAdvancedProperties={this.state.editAdvancedProperties}
-                setEditAdvancedProperties={checked => this.setState({editAdvancedProperties: checked})}
-                setMode={mode => this.setState({mode: mode})}
-                setCreateModalOpen={() => this.setState({isCreateModalOpen: true})}
-                setUploadModalOpen={() => this.setState({isUploadModalOpen: true})}
+            project={this.props.project}
+            file={this.state.file}
+            mode={this.state.mode}
+            isTemplates={this.props.isTemplates}
+            config={this.props.config}
+            addProperty={() => this.addProperty()}
+            download={() => this.download()}
+            downloadImage={() => this.downloadImage()}
+            editAdvancedProperties={this.state.editAdvancedProperties}
+            setEditAdvancedProperties={checked => this.setState({editAdvancedProperties: checked})}
+            setMode={mode => this.setState({mode: mode})}
+            setCreateModalOpen={() => this.setState({isCreateModalOpen: true})}
+            setUploadModalOpen={() => this.setState({isUploadModalOpen: true})}
         />
     }
 
@@ -334,12 +332,12 @@ export class ProjectPage extends React.Component<Props, State> {
         const filename = name + ".log";
         const code = '';
         this.setState({file: new ProjectFile(filename, this.props.project.projectId, code)});
-        if (type === 'pipeline'){
+        if (type === 'pipeline') {
             KaravanApi.getPipelineLog(environment, name, (res: any) => {
                 if (Array.isArray(res) && Array.from(res).length > 0)
                     this.setState({file: new ProjectFile(filename, this.props.project.projectId, res.at(0).log)});
             });
-        } else if (type === 'container'){
+        } else if (type === 'container') {
             KaravanApi.getContainerLog(environment, name, (res: any) => {
                 this.setState({file: new ProjectFile(filename, this.props.project.projectId, res)});
             });
@@ -349,15 +347,17 @@ export class ProjectPage extends React.Component<Props, State> {
 
     deleteEntity = (type: 'pod' | 'deployment', name: string, environment: string) => {
         switch (type) {
-            case "deployment": KaravanApi.deleteDeployment(environment, name, (res: any) => {
-                if (Array.isArray(res) && Array.from(res).length > 0)
-                    this.onRefresh();
-            });
+            case "deployment":
+                KaravanApi.deleteDeployment(environment, name, (res: any) => {
+                    if (Array.isArray(res) && Array.from(res).length > 0)
+                        this.onRefresh();
+                });
                 break;
-            case "pod": KaravanApi.deletePod(environment, name, (res: any) => {
-                if (Array.isArray(res) && Array.from(res).length > 0)
-                    this.onRefresh();
-            });
+            case "pod":
+                KaravanApi.deletePod(environment, name, (res: any) => {
+                    if (Array.isArray(res) && Array.from(res).length > 0)
+                        this.onRefresh();
+                });
                 break;
         }
     }
@@ -367,22 +367,22 @@ export class ProjectPage extends React.Component<Props, State> {
         return (
             <div style={{overflow: "auto"}}>
                 {file !== undefined && file.code.length !== 0 &&
-                    <CodeBlock style={{width:"90%"}}>
+                    <CodeBlock style={{width: "90%"}}>
                         <CodeBlockCode id="code-content">{file.code}</CodeBlockCode>
                     </CodeBlock>}
                 {(file === undefined || file.code.length === 0) &&
                     <div>
-                        <Skeleton width="25%" screenreaderText="Loading contents" />
-                        <br />
-                        <Skeleton width="33%" />
-                        <br />
-                        <Skeleton width="50%" />
-                        <br />
-                        <Skeleton width="66%" />
-                        <br />
-                        <Skeleton width="75%" />
-                        <br />
-                        <Skeleton />
+                        <Skeleton width="25%" screenreaderText="Loading contents"/>
+                        <br/>
+                        <Skeleton width="33%"/>
+                        <br/>
+                        <Skeleton width="50%"/>
+                        <br/>
+                        <Skeleton width="66%"/>
+                        <br/>
+                        <Skeleton width="75%"/>
+                        <br/>
+                        <Skeleton/>
                     </div>}
             </div>
         )
@@ -393,16 +393,44 @@ export class ProjectPage extends React.Component<Props, State> {
         return (
             file !== undefined &&
             <PropertiesEditor key={this.state.key}
-                editAdvanced={this.state.editAdvancedProperties}
-                file={file}
-                onSave={(name, code) => this.save(name, code)}
+                              editAdvanced={this.state.editAdvancedProperties}
+                              file={file}
+                              onSave={(name, code) => this.save(name, code)}
             />
         )
     }
 
-    render() {
-        const {isTemplates} = this.props;
-        const {file, mode, tab} = this.state;
+    getTemplatePanel() {
+        return (
+            <PageSection isFilled className="kamelets-page project-page-section" padding={{default: 'padding'}}>
+                {this.getProjectFiles()}
+            </PageSection>
+        )
+    }
+
+    getProjectPanel() {
+        const {tab} = this.state;
+        return (
+            <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
+                <FlexItem className="project-tabs">
+                    <Tabs activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex})}>
+                        <Tab eventKey="development" title="Development"/>
+                        <Tab eventKey="operations" title="Operations"/>
+                    </Tabs>
+                </FlexItem>
+                <FlexItem>
+                    <PageSection padding={{default: "padding"}}>
+                        {tab === 'development' && <ProjectInfo project={this.props.project} config={this.props.config} deleteEntity={this.deleteEntity} showLog={this.showLogs}/>}
+                        {tab === 'development' && this.getProjectFiles()}
+                        {tab === 'operations' && <ProjectOperations environments={this.state.environments} project={this.props.project} config={this.props.config}/>}
+                    </PageSection>
+                </FlexItem>
+            </Flex>
+        )
+    }
+
+    getFilePanel() {
+        const {file, mode} = this.state;
         const isYaml = file !== undefined && file.name.endsWith("yaml");
         const isIntegration = isYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
         const isProperties = file !== undefined && file.name.endsWith("properties");
@@ -411,37 +439,27 @@ export class ProjectPage extends React.Component<Props, State> {
         const showDesigner = isYaml && isIntegration && mode === 'design';
         const showEditor = isCode || (isYaml && !isIntegration) || (isYaml && mode === 'code');
         return (
-            <PageSection className="kamelet-section project-page" padding={{default: 'noPadding'}}>
-                <PageSection className="tools-section" padding={{default: 'noPadding'}}>
-                    <MainToolbar title={this.title()} tools={this.tools()}/>
-                </PageSection>
-                {file === undefined &&
-                    <PageSection isFilled className="kamelets-page project-page-section"
-                                 padding={{default: file !== undefined ? 'noPadding' : 'noPadding'}}>
-                        <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
-                            {!isTemplates &&
-                                <FlexItem className="project-tabs">
-                                    <Tabs activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex})}>
-                                        <Tab eventKey="development" title="Development"/>
-                                        <Tab eventKey="operations" title="Operations"/>
-                                    </Tabs>
-                                </FlexItem>
-                            }
-                            {!isTemplates &&
-                                <FlexItem>
-                                    <PageSection padding={{default: "padding"}}>
-                                        {tab === 'development' && <ProjectInfo project={this.props.project} config={this.props.config} deleteEntity={this.deleteEntity} showLog={this.showLogs}/>}
-                                        {tab === 'development' && this.getProjectFiles()}
-                                        {tab === 'operations' && <ProjectOperations environments={this.state.environments} project={this.props.project} config={this.props.config}/>}
-                                    </PageSection>
-                                </FlexItem>
-                            }
-                        </Flex>
-                    </PageSection>}
+            <>
                 {showDesigner && this.getDesigner()}
                 {showEditor && this.getEditor()}
                 {isLog && this.getLogView()}
                 {isProperties && this.getPropertiesEditor()}
+            </>
+        )
+    }
+
+    render() {
+        const {isTemplates} = this.props;
+        const {file} = this.state;
+        return (
+            <PageSection className="kamelet-section project-page" padding={{default: 'noPadding'}}>
+                <PageSection className="tools-section" padding={{default: 'noPadding'}}>
+                    <MainToolbar title={this.title()} tools={this.tools()}/>
+                </PageSection>
+                {file === undefined && isTemplates && this.getTemplatePanel()}
+                {file === undefined && !isTemplates && this.getProjectPanel()}
+                {file !== undefined && this.getFilePanel()}
+
                 <CreateFileModal project={this.props.project} isOpen={this.state.isCreateModalOpen}
                                  onClose={this.closeModal}/>
                 <Modal
