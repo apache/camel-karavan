@@ -91,7 +91,7 @@ export class DesignerView {
                     const i = Integration.createNew(name);
                     i.type = type;
                     const yaml = CamelDefinitionYaml.integrationToYaml(i);
-                    const filename = name.toLocaleLowerCase().endsWith('.yaml') ? name : name + '.yaml';
+                    const filename = name.toLocaleLowerCase().endsWith('.camel.yaml') ? name : name.split('.')[0] + '.camel.yaml';
                     const relativePath = (this.rootPath ? rootPath?.replace(this.rootPath, "") : rootPath) + path.sep + filename;
                     const fullPath = (rootPath ? rootPath : this.rootPath) + path.sep + filename;
                     utils.save(relativePath, yaml);

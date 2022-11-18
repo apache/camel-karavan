@@ -54,18 +54,18 @@ export function activate(context: ExtensionContext) {
     </body>
     
     </html>`
-            .replace(
-                "styleUri",
-                Uri.joinPath(context.extensionUri, "/dist/main.css")
-                    .with({ scheme: "vscode-resource" })
-                    .toString()
-            )
-            .replace(
-                "scriptUri",
-                Uri.joinPath(context.extensionUri, "/dist/webview.js")
-                    .with({ scheme: "vscode-resource" })
-                    .toString()
-            );
+        .replace(
+            "styleUri",
+            Uri.joinPath(context.extensionUri, "/dist/main.css")
+                .with({ scheme: "vscode-resource" })
+                .toString()
+        )
+        .replace(
+            "scriptUri",
+            Uri.joinPath(context.extensionUri, "/dist/webview.js")
+                .with({ scheme: "vscode-resource" })
+                .toString()
+        );
     const rootPath = (workspace.workspaceFolders && (workspace.workspaceFolders.length > 0))
         ? workspace.workspaceFolders[0].uri.fsPath : undefined;
 
@@ -103,36 +103,36 @@ export function activate(context: ExtensionContext) {
 
     // Create application
     const applicationCommand = commands.registerCommand("karavan.create-application", (...args: any[]) => {
-        if (rootPath){
+        if (rootPath) {
             const defaultRuntime: string = workspace.getConfiguration().get("camel.runtimes") || '';
             const deployTarget: string = workspace.getConfiguration().get("camel.deployTarget") || 'openshift';
-            const runtimeOptions: QuickPickItem [] = [
-                {label: "quarkus", picked: "quarkus" === defaultRuntime},
-                {label: "spring-boot", picked: "spring-boot" === defaultRuntime}
+            const runtimeOptions: QuickPickItem[] = [
+                { label: "quarkus", picked: "quarkus" === defaultRuntime },
+                { label: "spring-boot", picked: "spring-boot" === defaultRuntime }
             ];
-            const deployOptions: QuickPickItem [] = [
-                {label: "openshift", picked: "openshift" === deployTarget},
-                {label: "kubernetes", picked: "kubernetes" === deployTarget},
-                {label: "none", picked: "none" === deployTarget}
+            const deployOptions: QuickPickItem[] = [
+                { label: "openshift", picked: "openshift" === deployTarget },
+                { label: "kubernetes", picked: "kubernetes" === deployTarget },
+                { label: "none", picked: "none" === deployTarget }
             ];
             utils.hasApplicationProperties(rootPath).then(hasAP => {
-                if (hasAP){
+                if (hasAP) {
                     window.showInformationMessage("Folder already contains application.properties");
                 } else {
                     window.showQuickPick(runtimeOptions, { title: "Select Runtime", canPickMany: false }).then((runtime) => {
                         window.showQuickPick(deployOptions, { title: "Select Deploy Target", canPickMany: false }).then((target) => {
-                            if (runtime && target) inputExportGav(runtime.label, target.label) 
+                            if (runtime && target) inputExportGav(runtime.label, target.label)
                         })
                     })
                 }
             })
-        } 
+        }
     });
     context.subscriptions.push(applicationCommand);
 
     // Export project
     const exportCommand = commands.registerCommand("karavan.jbang-export", (...args: any[]) => {
-        jbang.camelJbangExport();
+        exportProject(rootPath);
     });
     context.subscriptions.push(exportCommand);
 
@@ -178,6 +178,38 @@ export function activate(context: ExtensionContext) {
     });
 }
 
+/**
+ * export into folder
+ */
+export async function exportProject(rootPath?: string) {
+    utils.getExportFolder()
+        .then(folder => {
+            if (folder){
+                jbang.camelJbangExport();
+            } else {
+                window.showInputBox({
+                    title: "Export project",
+                    ignoreFocusOut: true,
+                    prompt: "Export folder name",
+                    value: ".export",
+                    validateInput: (text: string): string | undefined => {
+                        if (!text || text.length === 0) {
+                            return 'Name should not be empty';
+                        } else {
+                            return undefined;
+                        }
+                    }
+                }).then(folder => {
+                    if (folder && rootPath) {
+                        const fullPath = rootPath + path.sep + folder;
+                        jbang.camelJbangExport(fullPath);
+                    }
+                });
+            }
+        }).catch(error => {
+            console.log(error);
+        })
+}
 
 /**
  * export with gav

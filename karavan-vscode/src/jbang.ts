@@ -94,8 +94,8 @@ export function camelJbangRun(filename?: string) {
     terminal.sendText(command);
 }
 
-export function camelJbangExport() {
-    const command = createExportCommand();
+export function camelJbangExport(fullPath?: string) {
+    const command = createExportCommand(fullPath);
     const terminalId = "export";
     const existTerminal = TERMINALS.get(terminalId);
     if (existTerminal) existTerminal.dispose();
@@ -105,9 +105,11 @@ export function camelJbangExport() {
     terminal.sendText(command);
 }
 
-export function createExportCommand() {
+export function createExportCommand(fullPath?: string) {
     const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
-    const cmd = "export --fresh " + (kameletsPath && kameletsPath.trim().length > 0 ? " --local-kamelet-dir=" + kameletsPath : "");
+    const cmd = "export --fresh " 
+        + (fullPath ? " --directory=" + fullPath : '')
+        + (kameletsPath && kameletsPath.trim().length > 0 ? " --local-kamelet-dir=" + kameletsPath : "");
     return prepareCommand(cmd);
 }
 
