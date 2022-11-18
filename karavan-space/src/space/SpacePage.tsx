@@ -56,7 +56,6 @@ export class SpacePage extends React.Component<Props, State> {
 
     save(filename: string, yaml: string, propertyOnly: boolean) {
         this.props.onSave?.call(this, filename, yaml, propertyOnly);
-        this.setState({key: Math.random().toString()})
     }
 
     download = () => {
@@ -84,8 +83,8 @@ export class SpacePage extends React.Component<Props, State> {
     }
 
     addYaml = (yaml: string | undefined) => {
-        this.setState({showUploadModal: false });
         this.save(this.props.name, this.props.yaml + "\n" + yaml, false);
+        this.setState({showUploadModal: false, key: Math.random().toString()})
     }
 
     getDesigner = () => {

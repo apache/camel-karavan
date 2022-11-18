@@ -51,7 +51,7 @@ export class ComponentCard extends React.Component<Props, State> {
                 <CardHeader>
                     {CamelUi.getIconFromSource(camelIcon)}
                 </CardHeader>
-                <CardTitle>{CamelUi.titleFromName(component.component.name)}</CardTitle>
+                <CardTitle>{component.component.title}</CardTitle>
                 <CardBody>{component.component.description}</CardBody>
                 <CardFooter>
                     <Badge isRead className="labels">{component.component.label}</Badge>
