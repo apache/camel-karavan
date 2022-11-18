@@ -165,8 +165,9 @@ export class ProjectsPage extends React.Component<Props, State> {
     }
 
     createModalForm() {
-        const {isCopy, projectToCopy, projectId, name, isCreateModalOpen} = this.state;
+        const {isCopy, projectToCopy, projectId, name, isCreateModalOpen, description, runtime} = this.state;
         const {runtimes} = this.props.config;
+        const isReady = projectId && name && description && !['templates', 'kamelets'].includes(projectId);
         return (
             <Modal
                 title={!isCopy ? "Create new project" : "Copy project from " + projectToCopy?.projectId}
@@ -175,7 +176,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                 onClose={this.closeModal}
                 onKeyDown={this.onKeyDown}
                 actions={[
-                    <Button key="confirm" variant="primary" onClick={this.saveAndCloseCreateModal}>Save</Button>,
+                    <Button key="confirm" variant="primary" isDisabled={!isReady} onClick={this.saveAndCloseCreateModal}>Save</Button>,
                     <Button key="cancel" variant="secondary" onClick={this.closeModal}>Cancel</Button>
                 ]}
                 className="new-project"
@@ -183,31 +184,31 @@ export class ProjectsPage extends React.Component<Props, State> {
                 <Form isHorizontal={true} autoComplete="off">
                     <FormGroup label="Name" fieldId="name" isRequired>
                         <TextInput className="text-field" type="text" id="name" name="name"
-                                   value={this.state.name}
+                                   value={name}
                                    onChange={e => this.setState({name: e})}/>
                     </FormGroup>
                     <FormGroup label="Description" fieldId="description" isRequired>
                         <TextInput className="text-field" type="text" id="description" name="description"
-                                   value={this.state.description}
+                                   value={description}
                                    onChange={e => this.setState({description: e})}/>
                     </FormGroup>
                     <FormGroup label="Project ID" fieldId="projectId" isRequired helperText="Unique project name">
                         <TextInput className="text-field" type="text" id="projectId" name="projectId"
-                                   value={this.state.projectId}
+                                   value={projectId}
                                    onFocus={e => this.setState({projectId: projectId === '' ? CamelUi.nameFromTitle(name) : projectId})}
                                    onChange={e => this.setState({projectId: CamelUi.nameFromTitle(e)})}/>
                     </FormGroup>
                     <FormGroup label="Runtime" fieldId="runtime" isRequired>
-                        {runtimes?.map((runtime: string) => (
-                            <Radio key={runtime} id={runtime} name={runtime} className="radio"
-                                   isChecked={this.state.runtime === runtime}
+                        {runtimes?.map((r: string) => (
+                            <Radio key={r} id={r} name={r} className="radio"
+                                   isChecked={r === runtime}
                                    onChange={checked => {
-                                       if (checked) this.setState({runtime: runtime})
+                                       if (checked) this.setState({runtime: r})
                                    }}
                                    body={
                                        <div className="runtime-radio">
                                            {runtime === 'quarkus' ? QuarkusIcon() : SpringIcon()}
-                                           <div className="runtime-label">{CamelUtil.capitalizeName(runtime)}</div>
+                                           <div className="runtime-label">{CamelUtil.capitalizeName(r)}</div>
                                        </div>}
                             />
                         ))}
