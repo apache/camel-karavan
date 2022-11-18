@@ -420,7 +420,7 @@ export class ProjectPage extends React.Component<Props, State> {
                                  padding={{default: file !== undefined ? 'noPadding' : 'noPadding'}}>
                         <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
                             {!isTemplates &&
-                                <FlexItem>
+                                <FlexItem className="project-tabs">
                                     <Tabs activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex})}>
                                         <Tab eventKey="development" title="Development"/>
                                         <Tab eventKey="operations" title="Operations"/>
@@ -431,12 +431,12 @@ export class ProjectPage extends React.Component<Props, State> {
                                 <FlexItem>
                                     <PageSection padding={{default: "padding"}}>
                                         {tab === 'development' && <ProjectInfo project={this.props.project} config={this.props.config} deleteEntity={this.deleteEntity} showLog={this.showLogs}/>}
+                                        {tab === 'development' && this.getProjectFiles()}
                                         {tab === 'operations' && <ProjectOperations environments={this.state.environments} project={this.props.project} config={this.props.config}/>}
                                     </PageSection>
                                 </FlexItem>
                             }
                         </Flex>
-                        {tab === 'development' && this.getProjectFiles()}
                     </PageSection>}
                 {showDesigner && this.getDesigner()}
                 {showEditor && this.getEditor()}

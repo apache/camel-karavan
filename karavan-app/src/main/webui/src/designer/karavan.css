@@ -1274,6 +1274,7 @@
     overflow: auto;
     flex-shrink: unset;
     flex-grow: 1;
+    background-color: var(--pf-global--BackgroundColor--light-300);
 }
 
 .karavan .designer-page {

@@ -1,13 +1,13 @@
 import React from 'react';
 import {
-    Badge,
-    Button,
+    Badge, Bullseye,
+    Button, EmptyState, EmptyStateIcon, EmptyStateVariant,
     Flex,
     FlexItem, HelperText, HelperTextItem, Label, LabelGroup,
-    PageSection,
+    PageSection, Spinner,
     Text,
     TextContent,
-    TextInput, ToggleGroup, ToggleGroupItem,
+    TextInput, Title, ToggleGroup, ToggleGroupItem,
     Toolbar,
     ToolbarContent,
     ToolbarItem, Tooltip
@@ -22,6 +22,7 @@ import Icon from "../Logo";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
+import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 
 interface Props {
     config: any,
@@ -37,6 +38,7 @@ interface State {
     isCreateModalOpen: boolean,
     isDeleteModalOpen: boolean,
     isCopy: boolean,
+    loading: boolean,
     projectToCopy?: Project,
     projectToDelete?: Project,
     filter: string,
@@ -56,6 +58,7 @@ export class DashboardPage extends React.Component<Props, State> {
         isCreateModalOpen: false,
         isDeleteModalOpen: false,
         isCopy: false,
+        loading: true,
         filter: '',
         name: '',
         description: '',
@@ -75,7 +78,7 @@ export class DashboardPage extends React.Component<Props, State> {
     onGetProjects = () => {
         KaravanApi.getConfiguration((config: any) => {
             KaravanApi.getProjects((projects: Project[]) => {
-                this.setState({projects: projects})
+                this.setState({projects: projects, loading: false})
             });
             KaravanApi.getAllDeploymentStatuses((statuses: DeploymentStatus[]) => {
                 this.setState({deploymentStatuses: statuses});
@@ -223,6 +226,27 @@ export class DashboardPage extends React.Component<Props, State> {
         }
     }
 
+    getEmptyState() {
+        const {loading} = this.state;
+        return (
+            <Tr>
+                <Td colSpan={8}>
+                    <Bullseye>
+                        {loading && <Spinner className="progress-stepper" isSVG diameter="80px" aria-label="Loading..."/>}
+                        {!loading &&
+                            <EmptyState variant={EmptyStateVariant.small}>
+                                <EmptyStateIcon icon={SearchIcon}/>
+                                <Title headingLevel="h2" size="lg">
+                                    No results found
+                                </Title>
+                            </EmptyState>
+                        }
+                    </Bullseye>
+                </Td>
+            </Tr>
+        )
+    }
+
     render() {
         const deployments = Array.from(new Set(this.state.deploymentStatuses.filter(d => d.name.toLowerCase().includes(this.state.filter)).map(d => d.name)));
         return (
@@ -315,6 +339,7 @@ export class DashboardPage extends React.Component<Props, State> {
                                     </Td>
                                 </Tr>
                             ))}
+                            {deployments.length === 0 && this.getEmptyState()}
                         </Tbody>
                     </TableComposable>
                 </PageSection>

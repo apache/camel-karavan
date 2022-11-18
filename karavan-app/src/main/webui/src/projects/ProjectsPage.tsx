@@ -23,7 +23,7 @@ import {
     OverflowMenuContent,
     OverflowMenuGroup,
     OverflowMenuItem,
-    Flex, FlexItem, Radio
+    Flex, FlexItem, Radio, Spinner
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
@@ -51,6 +51,7 @@ interface State {
     isCreateModalOpen: boolean,
     isDeleteModalOpen: boolean,
     isCopy: boolean,
+    loading: boolean,
     projectToCopy?: Project,
     projectToDelete?: Project,
     filter: string,
@@ -68,6 +69,7 @@ export class ProjectsPage extends React.Component<Props, State> {
         isCreateModalOpen: false,
         isDeleteModalOpen: false,
         isCopy: false,
+        loading: true,
         filter: '',
         name: '',
         description: '',
@@ -114,8 +116,9 @@ export class ProjectsPage extends React.Component<Props, State> {
     };
 
     onGetProjects = () => {
+        this.setState({loading: true});
         KaravanApi.getProjects((projects: Project[]) => {
-            this.setState({projects: projects})
+            this.setState({projects: projects, loading: false})
         });
         KaravanApi.getDeploymentStatuses(this.props.config.environment, (statuses: DeploymentStatus[]) => {
             this.setState({deploymentStatuses: statuses});
@@ -144,7 +147,7 @@ export class ProjectsPage extends React.Component<Props, State> {
     </TextContent>);
 
     closeModal = () => {
-        this.setState({isCreateModalOpen: false, isCopy: false, name: this.props.config.groupId, description: '', projectId: '', runtime: this.props.config.runtime });
+        this.setState({isCreateModalOpen: false, isCopy: false, name: this.props.config.groupId, description: '', projectId: '', runtime: this.props.config.runtime});
         this.onGetProjects();
     }
 
@@ -245,6 +248,99 @@ export class ProjectsPage extends React.Component<Props, State> {
         });
     }
 
+    getEmptyState() {
+        const {loading} = this.state;
+        return (
+            <Tr>
+                <Td colSpan={8}>
+                    <Bullseye>
+                        {loading && <Spinner className="progress-stepper" isSVG diameter="80px" aria-label="Loading..."/>}
+                        {!loading &&
+                            <EmptyState variant={EmptyStateVariant.small}>
+                                <EmptyStateIcon icon={SearchIcon}/>
+                                <Title headingLevel="h2" size="lg">
+                                    No results found
+                                </Title>
+                            </EmptyState>
+                        }
+                    </Bullseye>
+                </Td>
+            </Tr>
+        )
+    }
+
+    getProjectsTable() {
+        const {projects, filter} = this.state;
+        const projs = projects.filter(p => p.name.toLowerCase().includes(filter) || p.description.toLowerCase().includes(filter));
+        return (
+            <TableComposable aria-label="Projects" variant={"compact"}>
+                <Thead>
+                    <Tr>
+                        <Th key='type'>Runtime</Th>
+                        <Th key='projectId'>Project ID</Th>
+                        <Th key='name'>Name</Th>
+                        <Th key='description'>Description</Th>
+                        <Th key='commit'>Commit</Th>
+                        <Th key='deployment'>Environment</Th>
+                        <Th key='action'></Th>
+                    </Tr>
+                </Thead>
+                <Tbody>
+                    {projs.map(project => (
+                        <Tr key={project.projectId}>
+                            <Td modifier={"fitContent"}>
+                                <Tooltip content={project.runtime} position={"left"}>
+                                    <Badge className="runtime-badge">{project.runtime.substring(0, 1).toUpperCase()}</Badge>
+                                </Tooltip>
+                            </Td>
+                            <Td>
+                                <Button style={{padding: '6px'}} variant={"link"} onClick={e => this.props.onSelect?.call(this, project)}>
+                                    {project.projectId}
+                                </Button>
+                            </Td>
+                            <Td>{project.name}</Td>
+                            <Td>{project.description}</Td>
+                            <Td isActionCell>
+                                <Tooltip content={project.lastCommit} position={"bottom"}>
+                                    <Badge>{project.lastCommit?.substr(0, 7)}</Badge>
+                                </Tooltip>
+                            </Td>
+                            <Td noPadding style={{width: "180px"}}>
+                                <Flex direction={{default: "row"}}>
+                                    {this.getDeploymentByEnvironments(project.projectId).map(value => (
+                                        <FlexItem className="badge-flex-item" key={value[0]}>
+                                            <Badge className="badge" isRead={!value[1]}>{value[0]}</Badge>
+                                        </FlexItem>
+                                    ))}
+                                </Flex>
+                            </Td>
+                            <Td isActionCell>
+                                <OverflowMenu breakpoint="md">
+                                    <OverflowMenuContent>
+                                        <OverflowMenuGroup groupType="button">
+                                            <OverflowMenuItem>
+                                                <Tooltip content={"Copy project"} position={"bottom"}>
+                                                    <Button variant={"plain"} icon={<CopyIcon/>}
+                                                            onClick={e => this.setState({isCreateModalOpen: true, isCopy: true, projectToCopy: project})}></Button>
+                                                </Tooltip>
+                                            </OverflowMenuItem>
+                                            <OverflowMenuItem>
+                                                <Tooltip content={"Delete project"} position={"bottom"}>
+                                                    <Button variant={"plain"} icon={<DeleteIcon/>} onClick={e => this.onProjectDelete(project)}></Button>
+                                                </Tooltip>
+                                            </OverflowMenuItem>
+                                        </OverflowMenuGroup>
+                                    </OverflowMenuContent>
+                                </OverflowMenu>
+                            </Td>
+                        </Tr>
+                    ))}
+                    {projs.length === 0 && this.getEmptyState()}
+                </Tbody>
+            </TableComposable>
+        )
+    }
+
     render() {
         const projects = this.state.projects.filter(p => p.name.toLowerCase().includes(this.state.filter) || p.description.toLowerCase().includes(this.state.filter));
         return (
@@ -253,84 +349,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                     <MainToolbar title={this.title()} tools={this.tools()}/>
                 </PageSection>
                 <PageSection isFilled className="kamelets-page">
-                    <TableComposable aria-label="Projects" variant={"compact"}>
-                        <Thead>
-                            <Tr>
-                                <Th key='type'>Runtime</Th>
-                                <Th key='projectId'>Project ID</Th>
-                                <Th key='name'>Name</Th>
-                                <Th key='description'>Description</Th>
-                                <Th key='commit'>Commit</Th>
-                                <Th key='deployment'>Environment</Th>
-                                <Th key='action'></Th>
-                            </Tr>
-                        </Thead>
-                        <Tbody>
-                            {projects.map(project => (
-                                <Tr key={project.projectId}>
-                                    <Td modifier={"fitContent"}>
-                                        <Tooltip content={project.runtime} position={"left"}>
-                                            <Badge className="runtime-badge">{project.runtime.substring(0, 1).toUpperCase()}</Badge>
-                                        </Tooltip>
-                                    </Td>
-                                    <Td>
-                                        <Button style={{padding: '6px'}} variant={"link"} onClick={e => this.props.onSelect?.call(this, project)}>
-                                            {project.projectId}
-                                        </Button>
-                                    </Td>
-                                    <Td>{project.name}</Td>
-                                    <Td>{project.description}</Td>
-                                    <Td isActionCell>
-                                        <Tooltip content={project.lastCommit} position={"bottom"}>
-                                            <Badge>{project.lastCommit?.substr(0, 7)}</Badge>
-                                        </Tooltip>
-                                    </Td>
-                                    <Td noPadding style={{width: "180px"}}>
-                                        <Flex direction={{default: "row"}}>
-                                            {this.getDeploymentByEnvironments(project.projectId).map(value => (
-                                                <FlexItem className="badge-flex-item" key={value[0]}>
-                                                    <Badge className="badge" isRead={!value[1]}>{value[0]}</Badge>
-                                                </FlexItem>
-                                            ))}
-                                        </Flex>
-                                    </Td>
-                                    <Td isActionCell>
-                                        <OverflowMenu breakpoint="md">
-                                            <OverflowMenuContent>
-                                                <OverflowMenuGroup groupType="button">
-                                                    <OverflowMenuItem>
-                                                        <Tooltip content={"Copy project"} position={"bottom"}>
-                                                            <Button variant={"plain"} icon={<CopyIcon/>}
-                                                                    onClick={e => this.setState({isCreateModalOpen: true, isCopy: true, projectToCopy: project})}></Button>
-                                                        </Tooltip>
-                                                    </OverflowMenuItem>
-                                                    <OverflowMenuItem>
-                                                        <Tooltip content={"Delete project"} position={"bottom"}>
-                                                            <Button variant={"plain"} icon={<DeleteIcon/>} onClick={e => this.onProjectDelete(project)}></Button>
-                                                        </Tooltip>
-                                                    </OverflowMenuItem>
-                                                </OverflowMenuGroup>
-                                            </OverflowMenuContent>
-                                        </OverflowMenu>
-                                    </Td>
-                                </Tr>
-                            ))}
-                            {projects.length === 0 &&
-                                <Tr>
-                                    <Td colSpan={8}>
-                                        <Bullseye>
-                                            <EmptyState variant={EmptyStateVariant.small}>
-                                                <EmptyStateIcon icon={SearchIcon}/>
-                                                <Title headingLevel="h2" size="lg">
-                                                    No results found
-                                                </Title>
-                                            </EmptyState>
-                                        </Bullseye>
-                                    </Td>
-                                </Tr>
-                            }
-                        </Tbody>
-                    </TableComposable>
+                    {this.getProjectsTable()}
                 </PageSection>
                 {this.createModalForm()}
                 {this.deleteModalForm()}
