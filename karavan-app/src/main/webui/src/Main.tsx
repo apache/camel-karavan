@@ -140,6 +140,9 @@ export class Main extends React.Component<Props, State> {
                 yamls.split("\n---\n").map(c => c.trim()).forEach(z => kamelets.push(z));
                 KameletApi.saveKamelets(kamelets, true);
             })
+            KaravanApi.getCustomKameletNames(names => {
+                KameletApi.saveCustomKameletNames(names);
+            })
         });
     }
 

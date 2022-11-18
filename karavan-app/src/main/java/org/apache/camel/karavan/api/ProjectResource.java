@@ -48,8 +48,8 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<Project> getAll() throws Exception {
         return infinispanService.getProjects().stream()
-                .filter(project -> !project.getName().equalsIgnoreCase(Project.NAME_TEMPLATES))
-                .filter(project -> !project.getName().equalsIgnoreCase(Project.NAME_KAMELETS))
+                .filter(project -> !project.getProjectId().equalsIgnoreCase(Project.NAME_TEMPLATES))
+                .filter(project -> !project.getProjectId().equalsIgnoreCase(Project.NAME_KAMELETS))
                 .sorted(Comparator.comparing(Project::getProjectId))
                 .collect(Collectors.toList());
     }

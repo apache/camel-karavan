@@ -20,13 +20,16 @@ import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.InfinispanService;
+import org.yaml.snakeyaml.Yaml;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Path("/api/kamelet")
@@ -40,7 +43,7 @@ public class KameletResources {
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    public String getCustomYamls() {
+    public String getKamelets() {
         StringBuilder kamelets = new StringBuilder(codeService.getResourceFile("/kamelets/kamelets.yaml"));
         List<ProjectFile> custom = infinispanService.getProjectFiles(Project.NAME_KAMELETS);
         if (custom.size() > 0) {
@@ -50,5 +53,19 @@ public class KameletResources {
                     .collect(Collectors.joining("\n---\n")));
         }
         return kamelets.toString();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/names")
+    public List<String> getCustomNames() {
+        Yaml yaml = new Yaml();
+        return infinispanService.getProjectFiles(Project.NAME_KAMELETS).stream()
+                .map(projectFile -> {
+                    Map<String, LinkedHashMap> obj = yaml.load(projectFile.getCode());
+                    LinkedHashMap<String, Object> metadata = obj.get("metadata");
+                    return metadata.get("name").toString();
+                })
+                .collect(Collectors.toList());
     }
 }

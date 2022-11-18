@@ -20,8 +20,18 @@ import {Component} from "../model/ComponentModels";
 import {Components} from "./ComponentApi";
 
 export const Kamelets: KameletModel[] = [];
+export const CustomNames: string[] = [];
 
 export const KameletApi = {
+
+    getCustomKameletNames: (): string [] => {
+        return CustomNames;
+    },
+
+    saveCustomKameletNames: (names: string[]) => {
+        CustomNames.length = 0;
+        CustomNames.push(...names);
+    },
 
     getKameletProperties: (kameletName: string): Property[] => {
         const kamelet: KameletModel | undefined = KameletApi.findKameletByName(kameletName);

@@ -125,7 +125,11 @@
 }
 
 .kamelets-page .kamelet-card .pf-c-card__header {
-    padding-right: 6px;
+    /*padding-right: 6px;*/
+}
+
+.kamelets-page .kamelet-card .pf-c-card__header .custom {
+    margin-left: auto;
 }
 
 .kamelets-page .kamelet-card .pf-c-card__title {
@@ -149,6 +153,13 @@
     -o-user-select: none;
     user-select: none;
 }
+
+.karavan .kamelets-page .kamelet-card .pf-c-card__footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 
 /*kamelet modal*/
 .kamelet-modal-card .pf-c-card__header {
@@ -1138,12 +1149,6 @@
     margin-right: auto;
 }
 
-/*Catalogues*/
-.karavan .kamelets-page .kamelet-card .pf-c-card__footer {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
 
 .karavan .tools-section .tools .header {
     display: flex;
