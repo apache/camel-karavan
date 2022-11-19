@@ -21,7 +21,7 @@ import {
     Gallery,
     ToolbarItem,
     TextInput,
-    PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem, Badge, Button
+    PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem, Badge, Button, Switch
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KameletCard} from "./KameletCard";
@@ -41,7 +41,8 @@ interface State {
     repository: string,
     path: string,
     kamelets: KameletModel[],
-    filter: string
+    filter: string,
+    customOnly: boolean
 }
 
 export class KameletsPage extends React.Component<Props, State> {
@@ -51,7 +52,8 @@ export class KameletsPage extends React.Component<Props, State> {
         repository: '',
         path: '',
         kamelets: [],
-        filter: ''
+        filter: '',
+        customOnly: false
     };
 
     componentDidMount() {
@@ -63,26 +65,26 @@ export class KameletsPage extends React.Component<Props, State> {
     }
 
     search(filter: string) {
-        this.setState({
-            filter: filter,
-            isModalOpen: false,
-            kamelets: KameletApi.getKamelets().filter(kamelet => kamelet.spec.definition.title.toLowerCase().includes(filter.toLowerCase()))
-        })
+        this.setState({ filter: filter, isModalOpen: false})
     }
 
     render() {
+        const {dark, onRefresh} = this.props;
+        const {kamelets, kamelet, isModalOpen, customOnly, filter} = this.state;
+        let kameletList = kamelets.filter(kamelet => kamelet.spec.definition.title.toLowerCase().includes(filter.toLowerCase()));
+        if (customOnly) kameletList = kameletList.filter(k => KameletApi.getCustomKameletNames().includes(k.metadata.name));
         return (
-            <PageSection variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}
+            <PageSection variant={dark ? PageSectionVariants.darker : PageSectionVariants.light}
                          padding={{default: 'noPadding'}} className="kamelet-section">
-                <KameletModal key={this.state.kamelet?.metadata.name + this.state.isModalOpen.toString()}
-                              isOpen={this.state.isModalOpen} kamelet={this.state.kamelet}/>
+                <KameletModal key={kamelet?.metadata.name + isModalOpen.toString()}
+                              isOpen={isModalOpen} kamelet={kamelet}/>
                 <PageSection className="tools-section"
-                             variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
+                             variant={dark ? PageSectionVariants.darker : PageSectionVariants.light}>
                     <Flex className="tools" justifyContent={{default: 'justifyContentSpaceBetween'}}>
                         <FlexItem>
                             <TextContent className="header">
                                 <Text component="h2">Kamelet Catalog</Text>
-                                <Badge isRead className="labels">{this.state.kamelets.length}</Badge>
+                                <Badge isRead className="labels">{kamelets.length}</Badge>
                             </TextContent>
                         </FlexItem>
                         <FlexItem>
@@ -91,14 +93,21 @@ export class KameletsPage extends React.Component<Props, State> {
                                     <ToolbarItem>
                                         <Button icon={<RefreshIcon/>} variant="link"
                                                 onClick={e => {
-                                                    this.props.onRefresh?.call(this).then(value => {
+                                                    onRefresh?.call(this).then(value => {
                                                         this.setState({kamelets: KameletApi.getKamelets()});
                                                     })
                                                 }}/>
                                     </ToolbarItem>
                                     <ToolbarItem>
+                                        <Switch
+                                            label="Custom only"
+                                            isChecked={customOnly}
+                                            onChange={checked => this.setState({customOnly: checked})}
+                                        />
+                                    </ToolbarItem>
+                                    <ToolbarItem>
                                         <TextInput className="text-field" type="search" id="search" name="search"
-                                                   value={this.state.filter}
+                                                   value={filter}
                                                    onChange={value => this.search(value)}
                                                    autoComplete="off"
                                                    placeholder="Search by name"/>
@@ -109,9 +118,9 @@ export class KameletsPage extends React.Component<Props, State> {
                     </Flex>
                 </PageSection>
                 <PageSection isFilled className="kamelets-page"
-                             variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
+                             variant={dark ? PageSectionVariants.darker : PageSectionVariants.light}>
                     <Gallery hasGutter>
-                        {this.state.kamelets.map(k => (
+                        {kameletList.map(k => (
                             <KameletCard key={k.metadata.name} kamelet={k} onClickCard={this.select}/>
                         ))}
                     </Gallery>

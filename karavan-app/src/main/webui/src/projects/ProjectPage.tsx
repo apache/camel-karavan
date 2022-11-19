@@ -100,15 +100,17 @@ export class ProjectPage extends React.Component<Props, State> {
                 this.setState({files: files})
             });
             KubernetesAPI.inKubernetes = true;
-            KaravanApi.getConfigMaps(this.state.environment, (any: []) => {
-                KubernetesAPI.setConfigMaps(any);
-            });
-            KaravanApi.getSecrets(this.state.environment, (any: []) => {
-                KubernetesAPI.setSecrets(any);
-            });
-            KaravanApi.getServices(this.state.environment, (any: []) => {
-                KubernetesAPI.setServices(any);
-            });
+            if (!this.props.isTemplates){
+                KaravanApi.getConfigMaps(this.state.environment, (any: []) => {
+                    KubernetesAPI.setConfigMaps(any);
+                });
+                KaravanApi.getSecrets(this.state.environment, (any: []) => {
+                    KubernetesAPI.setSecrets(any);
+                });
+                KaravanApi.getServices(this.state.environment, (any: []) => {
+                    KubernetesAPI.setServices(any);
+                });
+            }
         }
     }
 
@@ -401,10 +403,21 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     getTemplatePanel() {
+        const {tab} = this.state;
         return (
-            <PageSection isFilled className="kamelets-page project-page-section" padding={{default: 'padding'}}>
-                {this.getProjectFiles()}
-            </PageSection>
+            <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
+                {/*<FlexItem className="project-tabs">*/}
+                {/*    <Tabs activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex})}>*/}
+                {/*        <Tab eventKey="templates" title="Templates"/>*/}
+                {/*        <Tab eventKey="kamelets" title="Kamelets"/>*/}
+                {/*    </Tabs>*/}
+                {/*</FlexItem>*/}
+                <FlexItem>
+                    <PageSection padding={{default: "padding"}}>
+                        {this.getProjectFiles()}
+                    </PageSection>
+                </FlexItem>
+            </Flex>
         )
     }
 
