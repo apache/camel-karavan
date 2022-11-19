@@ -43,7 +43,7 @@ export class UploadModal extends React.Component<Props, State> {
 
     saveAndCloseModal = () => {
         const state = this.state;
-        const file = new ProjectFile(state.filename, this.props.projectId, state.data);
+        const file = new ProjectFile(state.filename, this.props.projectId, state.data, Date.now());
         if (this.state.type === "integration"){
             KaravanApi.postProjectFile(file, res => {
                 if (res.status === 200) {

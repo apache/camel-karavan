@@ -60,14 +60,24 @@ export class ProjectFilesTable extends React.Component<Props, State> {
 
     public state: State = {};
 
+    getDate(lastUpdate: number):string {
+        if (lastUpdate) {
+            const date = new Date(lastUpdate);
+            return date.toDateString() + ' ' + date.toLocaleTimeString();
+        } else {
+            return "N/A"
+        }
+    }
+
     render() {
         const {files, onOpenDeleteConfirmation, onSelect} = this.props;
         return (
             <TableComposable aria-label="Files" variant={"compact"} className={"table"}>
                 <Thead>
                     <Tr>
-                        <Th key='type' width={10}>Type</Th>
-                        <Th key='filename' width={50}>Filename</Th>
+                        <Th key='type' width={20}>Type</Th>
+                        <Th key='filename' width={40}>Filename</Th>
+                        <Th key='lastUpdate' width={30}>Updated</Th>
                         <Th key='action'></Th>
                     </Tr>
                 </Thead>
@@ -83,6 +93,9 @@ export class ProjectFilesTable extends React.Component<Props, State> {
                                         onClick={e => onSelect.call(this, file)}>
                                     {file.name}
                                 </Button>
+                            </Td>
+                            <Td>
+                                {this.getDate(file.lastUpdate)}
                             </Td>
                             <Td modifier={"fitContent"}>
                                 {file.projectId !== 'templates' &&

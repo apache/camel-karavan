@@ -75,11 +75,13 @@ export class ProjectFile {
     name: string = '';
     projectId: string = '';
     code: string = '';
+    lastUpdate: number;
 
-    constructor(name: string, projectId: string, code: string) {
+    constructor(name: string, projectId: string, code: string, lastUpdate: number) {
         this.name = name;
         this.projectId = projectId;
         this.code = code;
+        this.lastUpdate = lastUpdate;
     }
 }
 

@@ -32,6 +32,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.List;
 
 @Path("/api/file")
@@ -82,7 +83,7 @@ public class ProjectFileResource {
         infinispanService.saveProjectFile(file);
         if (generateRest) {
             String yaml = codeService.generate(file.getName(), file.getCode(), generateRoutes);
-            ProjectFile integration = new ProjectFile(integrationName, yaml, file.getProjectId());
+            ProjectFile integration = new ProjectFile(integrationName, yaml, file.getProjectId(), Instant.now().toEpochMilli());
             infinispanService.saveProjectFile(integration);
             return file;
         }

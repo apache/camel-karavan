@@ -272,15 +272,15 @@ export class ProjectPage extends React.Component<Props, State> {
     showLogs = (type: 'container' | 'pipeline', name: string, environment: string) => {
         const filename = name + ".log";
         const code = '';
-        this.setState({file: new ProjectFile(filename, this.props.project.projectId, code)});
+        this.setState({file: new ProjectFile(filename, this.props.project.projectId, code, Date.now())});
         if (type === 'pipeline') {
             KaravanApi.getPipelineLog(environment, name, (res: any) => {
                 if (Array.isArray(res) && Array.from(res).length > 0)
-                    this.setState({file: new ProjectFile(filename, this.props.project.projectId, res.at(0).log)});
+                    this.setState({file: new ProjectFile(filename, this.props.project.projectId, res.at(0).log, Date.now())});
             });
         } else if (type === 'container') {
             KaravanApi.getContainerLog(environment, name, (res: any) => {
-                this.setState({file: new ProjectFile(filename, this.props.project.projectId, res)});
+                this.setState({file: new ProjectFile(filename, this.props.project.projectId, res, Date.now())});
             });
         }
 

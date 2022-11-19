@@ -7,7 +7,7 @@ import {
     DescriptionListGroup,
     DescriptionListDescription,
     Card,
-    CardBody, Spinner, Tooltip, Flex, FlexItem, Divider, LabelGroup, Label, Modal
+    CardBody, Spinner, Tooltip, Flex, FlexItem, Divider, LabelGroup, Label, Modal, GridItem, Grid
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
@@ -417,6 +417,7 @@ export class ProjectInfo extends React.Component<Props, State> {
         return (
             <Card className="project-info">
                 <CardBody>
+
                     <Flex direction={{default: "row"}}
                           style={{height: "200px"}}
                           justifyContent={{default: "justifyContentSpaceBetween"}}>
@@ -424,7 +425,7 @@ export class ProjectInfo extends React.Component<Props, State> {
                             {this.getProjectDescription()}
                         </FlexItem>
                         <Divider orientation={{default: "vertical"}}/>
-                        <FlexItem flex={{default: "flex_1"}}>
+                        <FlexItem flex={{default: "flex_2"}}>
                             {this.getEnvPanel("dev")}
                         </FlexItem>
                     </Flex>

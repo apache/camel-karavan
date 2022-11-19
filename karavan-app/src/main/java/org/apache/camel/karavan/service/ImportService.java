@@ -25,6 +25,7 @@ import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +68,7 @@ public class ImportService {
                 infinispanService.saveProject(project, true);
 
                 p.getItem2().forEach((key, value) -> {
-                    ProjectFile file = new ProjectFile(key, value, folderName);
+                    ProjectFile file = new ProjectFile(key, value, folderName, Instant.now().toEpochMilli());
                     infinispanService.saveProjectFile(file);
                 });
             });
@@ -87,7 +88,7 @@ public class ImportService {
                 infinispanService.saveProject(templates, true);
 
                 codeService.getApplicationPropertiesTemplates().forEach((name, value) -> {
-                    ProjectFile file = new ProjectFile(name, value, Project.NAME_TEMPLATES);
+                    ProjectFile file = new ProjectFile(name, value, Project.NAME_TEMPLATES, Instant.now().toEpochMilli());
                     infinispanService.saveProjectFile(file);
                 });
             }
@@ -109,7 +110,7 @@ public class ImportService {
                 repo.forEach(p -> {
                     String name = p.getItem1();
                     String yaml = p.getItem2();
-                    ProjectFile file = new ProjectFile(name, yaml, Project.NAME_KAMELETS);
+                    ProjectFile file = new ProjectFile(name, yaml, Project.NAME_KAMELETS, Instant.now().toEpochMilli());
                     infinispanService.saveProjectFile(file);
                 });
             }

@@ -45,7 +45,7 @@ export class CreateFileModal extends React.Component<Props, State> {
             ? CamelDefinitionYaml.integrationToYaml(Integration.createNew(name, 'plain'))
             : '';
         if (filename && extension){
-            const file = new ProjectFile(filename + '.' + extension, this.props.project.projectId, code);
+            const file = new ProjectFile(filename + '.' + extension, this.props.project.projectId, code, Date.now());
             KaravanApi.postProjectFile(file, res => {
                 if (res.status === 200) {
                     // console.log(res) //TODO show notification

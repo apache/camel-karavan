@@ -41,6 +41,8 @@ import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -127,7 +129,7 @@ public class InfinispanService {
         if (isNew && !imported){
             String filename = "application.properties";
             String code = codeService.getApplicationProperties(project);
-            files.put(new GroupedKey(project.getProjectId(), filename), new ProjectFile(filename, code, project.getProjectId()));
+            files.put(new GroupedKey(project.getProjectId(), filename), new ProjectFile(filename, code, project.getProjectId(), Instant.now().toEpochMilli()));
         }
     }
 
@@ -144,11 +146,16 @@ public class InfinispanService {
         }
     }
     public void saveProjectFile(ProjectFile file) {
+        file.setLastUpdate(Instant.now().toEpochMilli());
         files.put(GroupedKey.create(file.getProjectId(), file.getName()), file);
     }
 
     public void saveProjectFiles(Map<GroupedKey, ProjectFile> f) {
-        files.putAll(f);
+        Map<GroupedKey, ProjectFile> files = new HashMap<>(f.size());
+        f.forEach((groupedKey, projectFile) -> {
+            projectFile.setLastUpdate(Instant.now().toEpochMilli());
+        });
+        files.putAll(files);
     }
 
     public void deleteProject(String project) {
