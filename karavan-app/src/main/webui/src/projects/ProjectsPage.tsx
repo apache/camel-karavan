@@ -275,6 +275,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                 <Tbody>
                     {projs.map(project => (
                         <ProjectsTableRow
+                            key={project.projectId}
                             config={this.props.config}
                             onSelect={this.props.onSelect}
                             onProjectDelete={this.onProjectDelete}
