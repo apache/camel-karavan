@@ -7,7 +7,7 @@ import {
     DescriptionListGroup,
     DescriptionListDescription,
     Card,
-    CardBody, Spinner, Tooltip, Flex, FlexItem, Divider, LabelGroup, Label, Modal, GridItem, Grid
+    CardBody, Spinner, Tooltip, Flex, FlexItem, Divider, LabelGroup, Label, Modal
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
@@ -98,20 +98,6 @@ export class ProjectInfo extends React.Component<Props, State> {
         }
     }
 
-    push = (after?: () => void) => {
-        this.setState({isPushing: true});
-        KaravanApi.push(this.props.project, res => {
-            console.log(res)
-            if (res.status === 200 || res.status === 201) {
-                this.setState({isPushing: false});
-                after?.call(this);
-                this.onRefresh();
-            } else {
-                // Todo notification
-            }
-        });
-    }
-
     build = () => {
         this.setState({isBuilding: true});
         KaravanApi.pipelineRun(this.props.project, this.state.environment, res => {
@@ -135,18 +121,6 @@ export class ProjectInfo extends React.Component<Props, State> {
                 // Todo notification
             }
         });
-    }
-
-    pushButton = () => {
-        const isPushing = this.state.isPushing;
-        return (<Tooltip content="Commit and push to git" position={"left"}>
-            <Button isLoading={isPushing ? true : undefined} isSmall variant="secondary"
-                    className="project-button"
-                    icon={!isPushing ? <PushIcon/> : <div></div>}
-                    onClick={e => this.push()}>
-                {isPushing ? "..." : "Commit"}
-            </Button>
-        </Tooltip>)
     }
 
     buildButton = (env: string) => {
@@ -201,9 +175,6 @@ export class ProjectInfo extends React.Component<Props, State> {
                     <Tooltip content={project?.lastCommit} position={"right"}>
                         <Badge>{project?.lastCommit ? project?.lastCommit?.substr(0, 7) : "-"}</Badge>
                     </Tooltip>
-                </FlexItem>
-                <FlexItem>
-                    {this.pushButton()}
                 </FlexItem>
             </Flex>)
     }
@@ -323,8 +294,7 @@ export class ProjectInfo extends React.Component<Props, State> {
                 <Label icon={this.getStatusIcon(contextStatus)} color={this.getStatusColor(contextStatus)}>Context</Label>
                 <Label icon={this.getStatusIcon(consumersStatus)} color={this.getStatusColor(consumersStatus)}>Consumers</Label>
                 <Label icon={this.getStatusIcon(routesStatus)} color={this.getStatusColor(routesStatus)}>Routes</Label>
-                {registryStatus !== 'UNDEFINED' &&
-                    <Label icon={this.getStatusIcon(registryStatus)} color={this.getStatusColor(registryStatus)}>Registry</Label>}
+                <Label icon={this.getStatusIcon(registryStatus)} color={this.getStatusColor(registryStatus)}>Registry</Label>
             </LabelGroup>
         )
     }

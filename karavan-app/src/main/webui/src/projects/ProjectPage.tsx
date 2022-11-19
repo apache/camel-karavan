@@ -176,6 +176,7 @@ export class ProjectPage extends React.Component<Props, State> {
             setMode={mode => this.setState({mode: mode})}
             setCreateModalOpen={() => this.setState({isCreateModalOpen: true})}
             setUploadModalOpen={() => this.setState({isUploadModalOpen: true})}
+            onRefresh={() => this.onRefresh()}
         />
     }
     
