@@ -104,6 +104,14 @@ export class ProjectPage extends React.Component<Props, State> {
         return ['kamelets', 'templates'].includes(this.props.project.projectId);
     }
 
+    isKameletsProject():boolean {
+        return this.props.project.projectId === 'kamelets';
+    }
+
+    isTemplatesProject():boolean {
+        return this.props.project.projectId === 'templates';
+    }
+
     post = (file: ProjectFile) => {
         KaravanApi.postProjectFile(file, res => {
             if (res.status === 200) {
@@ -402,6 +410,9 @@ export class ProjectPage extends React.Component<Props, State> {
     render() {
         const {file, isDeleteModalOpen, fileToDelete, isUploadModalOpen, isCreateModalOpen} = this.state;
         const {project} = this.props;
+        const types = this.isBuildIn()
+            ? (this.isKameletsProject() ? ['KAMELET'] : ['JAVA'])
+            : ProjectFileTypes.filter(p => !['PROPERTIES', 'LOG', 'KAMELET'].includes(p.name)).map(p => p.name);
         return (
             <PageSection className="kamelet-section project-page" padding={{default: 'noPadding'}}>
                 <PageSection className="tools-section" padding={{default: 'noPadding'}}>
@@ -410,7 +421,9 @@ export class ProjectPage extends React.Component<Props, State> {
                 {file === undefined && this.getProjectPanel()}
                 {file !== undefined && this.getFilePanel()}
 
-                <CreateFileModal project={project} isOpen={isCreateModalOpen}
+                <CreateFileModal project={project}
+                                 isOpen={isCreateModalOpen}
+                                 types={types}
                                  onClose={this.closeModal}/>
                 <Modal
                     title="Confirmation"

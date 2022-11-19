@@ -17,7 +17,8 @@ import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 interface Props {
     isOpen: boolean,
     project: Project,
-    onClose: any
+    onClose: any,
+    types: string[]
 }
 
 interface State {
@@ -59,6 +60,7 @@ export class CreateFileModal extends React.Component<Props, State> {
 
     render() {
         const {fileType} = this.state;
+        const {types} = this.props;
         const extension = ProjectFileTypes.filter(value => value.name === fileType)[0].extension;
         const filename = (extension !== 'java')
             ? CamelUi.nameFromTitle(this.state.name)
@@ -77,7 +79,8 @@ export class CreateFileModal extends React.Component<Props, State> {
                 <Form autoComplete="off" isHorizontal className="create-file-form">
                     <FormGroup label="Type" fieldId="type" isRequired>
                         <ToggleGroup aria-label="Type" isCompact>
-                            {ProjectFileTypes.filter(p => !['PROPERTIES', 'LOG'].includes(p.name)).map(p => {
+                            {ProjectFileTypes.filter(p => types.includes(p.name))
+                                .map(p => {
                                 const title = p.title + ' (' + p.extension + ')';
                                 return <ToggleGroupItem key={title} text={title} buttonId={p.name}
                                                         isSelected={fileType === p.name}
