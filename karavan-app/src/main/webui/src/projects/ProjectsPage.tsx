@@ -278,6 +278,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                             config={this.props.config}
                             onSelect={this.props.onSelect}
                             onProjectDelete={this.onProjectDelete}
+                            onProjectCopy={project1 => this.setState({isCreateModalOpen: true, isCopy: true, projectToCopy: project1})}
                             project={project}
                             deploymentStatuses={this.state.deploymentStatuses}/>
                     ))}

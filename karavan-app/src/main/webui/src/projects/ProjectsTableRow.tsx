@@ -43,40 +43,18 @@ interface Props {
     config: any,
     onSelect: (project: Project) => void
     onProjectDelete: (project: Project) => void
+    onProjectCopy: (project: Project) => void
     project: Project
     deploymentStatuses: DeploymentStatus[],
 }
 
 interface State {
-    projects: Project[],
-    deploymentStatuses: DeploymentStatus[],
-    isCreateModalOpen: boolean,
-    isDeleteModalOpen: boolean,
-    isCopy: boolean,
-    loading: boolean,
-    projectToCopy?: Project,
-    projectToDelete?: Project,
-    filter: string,
-    name: string,
-    description: string,
-    projectId: string,
-    runtime: string,
+
 }
 
 export class ProjectsTableRow extends React.Component<Props, State> {
 
     public state: State = {
-        projects: [],
-        deploymentStatuses: [],
-        isCreateModalOpen: false,
-        isDeleteModalOpen: false,
-        isCopy: false,
-        loading: true,
-        filter: '',
-        name: '',
-        description: '',
-        projectId: '',
-        runtime: this.props.config.runtime
     };
 
     getEnvironments(): string [] {
@@ -84,7 +62,7 @@ export class ProjectsTableRow extends React.Component<Props, State> {
     }
 
     getDeploymentByEnvironments(name: string): [string, DeploymentStatus | undefined] [] {
-        const deps = this.state.deploymentStatuses;
+        const deps = this.props.deploymentStatuses;
         return this.getEnvironments().map(e => {
             const env: string = e as string;
             const dep = deps.find(d => d.name === name && d.env === env);
@@ -93,7 +71,7 @@ export class ProjectsTableRow extends React.Component<Props, State> {
     }
 
     render() {
-        const {project, onProjectDelete, onSelect} = this.props;
+        const {project, onProjectDelete, onSelect, onProjectCopy} = this.props;
         const isBuildIn = ['kamelets', 'templates'].includes(project.projectId);
         const badge = isBuildIn ? project.projectId.toUpperCase().charAt(0) : project.runtime.substring(0, 1).toUpperCase();
         return (
@@ -134,7 +112,7 @@ export class ProjectsTableRow extends React.Component<Props, State> {
                                     <OverflowMenuItem>
                                         <Tooltip content={"Copy project"} position={"bottom"}>
                                             <Button variant={"plain"} icon={<CopyIcon/>}
-                                                    onClick={e => this.setState({isCreateModalOpen: true, isCopy: true, projectToCopy: project})}></Button>
+                                                    onClick={e => onProjectCopy.call(this, project)}></Button>
                                         </Tooltip>
                                     </OverflowMenuItem>
                                     <OverflowMenuItem>

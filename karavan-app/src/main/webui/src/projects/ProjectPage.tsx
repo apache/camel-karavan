@@ -7,11 +7,6 @@ import {
     PageSection,
     Text,
     TextContent,
-    Bullseye,
-    EmptyState,
-    EmptyStateVariant,
-    EmptyStateIcon,
-    Title,
     ModalVariant,
     Modal,
     Flex,
@@ -22,18 +17,10 @@ import {
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
 import {KaravanApi} from "../api/KaravanApi";
-import {Project, ProjectFile, ProjectFileTypes} from "./ProjectModels";
-import {CamelUi} from "../designer/utils/CamelUi";
-import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
-import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
+import {getProjectFileType, Project, ProjectFile, ProjectFileTypes} from "./ProjectModels";
 import {KaravanDesigner} from "../designer/KaravanDesigner";
-import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
-import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
 import FileSaver from "file-saver";
 import Editor from "@monaco-editor/react";
-import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
-import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CreateFileModal} from "./CreateFileModal";
 import {PropertiesEditor} from "./PropertiesEditor";
 import {ProjectModel, ProjectProperty} from "karavan-core/lib/model/ProjectModel";
@@ -43,12 +30,11 @@ import {UploadModal} from "./UploadModal";
 import {ProjectInfo} from "./ProjectInfo";
 import {ProjectOperations} from "./ProjectOperations";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 import {ProjectPageToolbar} from "./ProjectPageToolbar";
+import {ProjectFilesTable} from "./ProjectFilesTable";
 
 interface Props {
     project: Project,
-    isTemplates?: boolean,
     config: any,
 }
 
@@ -100,7 +86,7 @@ export class ProjectPage extends React.Component<Props, State> {
                 this.setState({files: files})
             });
             KubernetesAPI.inKubernetes = true;
-            if (!this.props.isTemplates){
+            if (!this.isBuildIn()){
                 KaravanApi.getConfigMaps(this.state.environment, (any: []) => {
                     KubernetesAPI.setConfigMaps(any);
                 });
@@ -112,6 +98,10 @@ export class ProjectPage extends React.Component<Props, State> {
                 });
             }
         }
+    }
+
+    isBuildIn():boolean {
+        return ['kamelets', 'templates'].includes(this.props.project.projectId);
     }
 
     post = (file: ProjectFile) => {
@@ -168,7 +158,7 @@ export class ProjectPage extends React.Component<Props, State> {
             project={this.props.project}
             file={this.state.file}
             mode={this.state.mode}
-            isTemplates={this.props.isTemplates}
+            isTemplates={this.isBuildIn()}
             config={this.props.config}
             addProperty={() => this.addProperty()}
             download={() => this.download()}
@@ -180,17 +170,10 @@ export class ProjectPage extends React.Component<Props, State> {
             setUploadModalOpen={() => this.setState({isUploadModalOpen: true})}
         />
     }
-
-    getType = (file: ProjectFile) => {
-        if (file.name.endsWith(".camel.yaml")) return ProjectFileTypes.filter(p => p.name === "INTEGRATION").map(p => p.title)[0];
-        if (file.name.endsWith(".json")) return ProjectFileTypes.filter(p => p.name === "OPENAPI_JSON").map(p => p.title)[0];
-        if (file.name.endsWith(".yaml")) return ProjectFileTypes.filter(p => p.name === "OPENAPI_YAML").map(p => p.title)[0];
-        const extension = file.name.substring(file.name.lastIndexOf('.') + 1);
-        return ProjectFileTypes.filter(p => p.extension === extension).map(p => p.title)[0];
-    }
+    
 
     title = () => {
-        const {project, isTemplates} = this.props;
+        const {project} = this.props;
         const file = this.state.file;
         const isFile = file !== undefined;
         const isLog = file !== undefined && file.name.endsWith("log");
@@ -202,7 +185,7 @@ export class ProjectPage extends React.Component<Props, State> {
                         <BreadcrumbItem to="#" onClick={event => this.setState({file: undefined})}>
                             {"Project: " + project?.projectId}
                         </BreadcrumbItem>
-                        <BreadcrumbItem to="#" isActive>{this.getType(file)}</BreadcrumbItem>
+                        <Badge>{getProjectFileType(file)}</Badge>
                     </Breadcrumb>
                     <TextContent className="title">
                         <Text component="h1">{isLog ? filename : file.name}</Text>
@@ -210,7 +193,7 @@ export class ProjectPage extends React.Component<Props, State> {
                 </div>
             }
             {!isFile && <TextContent className="title">
-                <Text component="h2">{isTemplates ? 'Templates' : 'Project: ' + project?.projectId}</Text>
+                <Text component="h2">{project?.name}</Text>
             </TextContent>}
         </div>)
     };
@@ -241,58 +224,6 @@ export class ProjectPage extends React.Component<Props, State> {
             });
             this.setState({isDeleteModalOpen: false, fileToDelete: undefined})
         }
-    }
-
-    getProjectFiles = () => {
-        const files = this.state.files;
-        return (
-            <TableComposable aria-label="Files" variant={"compact"} className={"table"}>
-                <Thead>
-                    <Tr>
-                        <Th key='type' width={10}>Type</Th>
-                        <Th key='filename' width={50}>Filename</Th>
-                        <Th key='action'></Th>
-                    </Tr>
-                </Thead>
-                <Tbody>
-                    {files.map(file => {
-                        const type = this.getType(file)
-                        return <Tr key={file.name}>
-                            <Td>
-                                <Badge>{type}</Badge>
-                            </Td>
-                            <Td>
-                                <Button style={{padding: '6px'}} variant={"link"}
-                                        onClick={e => this.select(file)}>
-                                    {file.name}
-                                </Button>
-                            </Td>
-                            <Td modifier={"fitContent"}>
-                                <Button style={{padding: '0'}} variant={"plain"}
-                                        isDisabled={file.name === 'application.properties'}
-                                        onClick={e => this.openDeleteConfirmation(file)}>
-                                    <DeleteIcon/>
-                                </Button>
-                            </Td>
-                        </Tr>
-                    })}
-                    {files.length === 0 &&
-                        <Tr>
-                            <Td colSpan={8}>
-                                <Bullseye>
-                                    <EmptyState variant={EmptyStateVariant.small}>
-                                        <EmptyStateIcon icon={SearchIcon}/>
-                                        <Title headingLevel="h2" size="lg">
-                                            No results found
-                                        </Title>
-                                    </EmptyState>
-                                </Bullseye>
-                            </Td>
-                        </Tr>
-                    }
-                </Tbody>
-            </TableComposable>
-        )
     }
 
     getDesigner = () => {
@@ -402,43 +333,50 @@ export class ProjectPage extends React.Component<Props, State> {
         )
     }
 
-    getTemplatePanel() {
-        const {tab} = this.state;
+    getProjectPanel() {
+        const isBuildIn = this.isBuildIn();
         return (
             <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
-                {/*<FlexItem className="project-tabs">*/}
-                {/*    <Tabs activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex})}>*/}
-                {/*        <Tab eventKey="templates" title="Templates"/>*/}
-                {/*        <Tab eventKey="kamelets" title="Kamelets"/>*/}
-                {/*    </Tabs>*/}
-                {/*</FlexItem>*/}
-                <FlexItem>
-                    <PageSection padding={{default: "padding"}}>
-                        {this.getProjectFiles()}
-                    </PageSection>
-                </FlexItem>
+                {!isBuildIn && this.getProjectPanelTabs()}
+                {this.getProjectPanelFiles()}
             </Flex>
         )
     }
 
-    getProjectPanel() {
+    getProjectPanelTabs() {
         const {tab} = this.state;
         return (
-            <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
-                <FlexItem className="project-tabs">
-                    <Tabs activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex})}>
-                        <Tab eventKey="development" title="Development"/>
-                        <Tab eventKey="operations" title="Operations"/>
-                    </Tabs>
-                </FlexItem>
-                <FlexItem>
+            <FlexItem className="project-tabs">
+                <Tabs activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex})}>
+                    <Tab eventKey="development" title="Development"/>
+                    <Tab eventKey="operations" title="Operations"/>
+                </Tabs>
+            </FlexItem>
+        )
+    }
+
+    getProjectPanelFiles() {
+        const {tab, files} = this.state;
+        const isBuildIn = this.isBuildIn();
+        return (
+            <FlexItem>
+                {isBuildIn &&
+                    <PageSection padding={{default: "padding"}}>
+                        {tab === 'development' && <ProjectFilesTable files={files}
+                                                                     onOpenDeleteConfirmation={this.openDeleteConfirmation}
+                                                                     onSelect={this.select}/>}
+                    </PageSection>
+                }
+                {!isBuildIn &&
                     <PageSection padding={{default: "padding"}}>
                         {tab === 'development' && <ProjectInfo project={this.props.project} config={this.props.config} deleteEntity={this.deleteEntity} showLog={this.showLogs}/>}
-                        {tab === 'development' && this.getProjectFiles()}
+                        {tab === 'development' && <ProjectFilesTable files={files}
+                                                                     onOpenDeleteConfirmation={this.openDeleteConfirmation}
+                                                                     onSelect={this.select}/>}
                         {tab === 'operations' && <ProjectOperations environments={this.state.environments} project={this.props.project} config={this.props.config}/>}
                     </PageSection>
-                </FlexItem>
-            </Flex>
+                }
+            </FlexItem>
         )
     }
 
@@ -462,23 +400,22 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     render() {
-        const {isTemplates} = this.props;
-        const {file} = this.state;
+        const {file, isDeleteModalOpen, fileToDelete, isUploadModalOpen, isCreateModalOpen} = this.state;
+        const {project} = this.props;
         return (
             <PageSection className="kamelet-section project-page" padding={{default: 'noPadding'}}>
                 <PageSection className="tools-section" padding={{default: 'noPadding'}}>
                     <MainToolbar title={this.title()} tools={this.tools()}/>
                 </PageSection>
-                {file === undefined && isTemplates && this.getTemplatePanel()}
-                {file === undefined && !isTemplates && this.getProjectPanel()}
+                {file === undefined && this.getProjectPanel()}
                 {file !== undefined && this.getFilePanel()}
 
-                <CreateFileModal project={this.props.project} isOpen={this.state.isCreateModalOpen}
+                <CreateFileModal project={project} isOpen={isCreateModalOpen}
                                  onClose={this.closeModal}/>
                 <Modal
                     title="Confirmation"
                     variant={ModalVariant.small}
-                    isOpen={this.state.isDeleteModalOpen}
+                    isOpen={isDeleteModalOpen}
                     onClose={() => this.setState({isDeleteModalOpen: false})}
                     actions={[
                         <Button key="confirm" variant="primary" onClick={e => this.delete()}>Delete</Button>,
@@ -486,9 +423,9 @@ export class ProjectPage extends React.Component<Props, State> {
                                 onClick={e => this.setState({isDeleteModalOpen: false})}>Cancel</Button>
                     ]}
                     onEscapePress={e => this.setState({isDeleteModalOpen: false})}>
-                    <div>{"Are you sure you want to delete the file " + this.state.fileToDelete?.name + "?"}</div>
+                    <div>{"Are you sure you want to delete the file " + fileToDelete?.name + "?"}</div>
                 </Modal>
-                <UploadModal projectId={this.props.project.projectId} isOpen={this.state.isUploadModalOpen} onClose={this.closeModal}/>
+                <UploadModal projectId={project.projectId} isOpen={isUploadModalOpen} onClose={this.closeModal}/>
             </PageSection>
         )
     }

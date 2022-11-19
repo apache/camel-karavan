@@ -98,9 +98,20 @@ export class ProjectFileType {
 
 export const ProjectFileTypes: ProjectFileType[] = [
     new ProjectFileType("INTEGRATION", "Integration", "camel.yaml"),
+    new ProjectFileType("KAMELET", "Kamelet", "kamelet.yaml"),
     new ProjectFileType("CODE", "Code", "java"),
     new ProjectFileType("PROPERTIES", "Properties", "properties"),
     new ProjectFileType("OPENAPI_JSON", "OpenAPI JSON", "json"),
     new ProjectFileType("OPENAPI_YAML", "OpenAPI YAML", "yaml"),
     new ProjectFileType("LOG", "Log", "log"),
 ];
+
+
+export function getProjectFileType (file: ProjectFile) {
+    if (file.name.endsWith(".camel.yaml")) return ProjectFileTypes.filter(p => p.name === "INTEGRATION").map(p => p.title)[0];
+    if (file.name.endsWith(".kamelet.yaml")) return ProjectFileTypes.filter(p => p.name === "KAMELET").map(p => p.title)[0];
+    if (file.name.endsWith(".json")) return ProjectFileTypes.filter(p => p.name === "OPENAPI_JSON").map(p => p.title)[0];
+    if (file.name.endsWith(".yaml")) return ProjectFileTypes.filter(p => p.name === "OPENAPI_YAML").map(p => p.title)[0];
+    const extension = file.name.substring(file.name.lastIndexOf('.') + 1);
+    return ProjectFileTypes.filter(p => p.extension === extension).map(p => p.title)[0];
+}
