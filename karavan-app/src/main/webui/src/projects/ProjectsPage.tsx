@@ -12,18 +12,12 @@ import {
     FormGroup,
     ModalVariant,
     Form,
-    Badge,
-    Tooltip,
     Bullseye,
     EmptyState,
     EmptyStateVariant,
     EmptyStateIcon,
     Title,
-    OverflowMenu,
-    OverflowMenuContent,
-    OverflowMenuGroup,
-    OverflowMenuItem,
-    Flex, FlexItem, Radio, Spinner
+    Radio, Spinner
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
@@ -31,13 +25,12 @@ import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import {DeploymentStatus, Project} from "./ProjectModels";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
-import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";
 import {CamelUi} from "../designer/utils/CamelUi";
 import {KaravanApi} from "../api/KaravanApi";
 import {QuarkusIcon, SpringIcon} from "../designer/utils/KaravanIcons";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
+import {ProjectsTableRow} from "./ProjectsTableRow";
 
 interface Props {
     config: any,
@@ -240,14 +233,6 @@ export class ProjectsPage extends React.Component<Props, State> {
         return this.props.config.environments && Array.isArray(this.props.config.environments) ? Array.from(this.props.config.environments) : [];
     }
 
-    getDeploymentByEnvironments(name: string): [string, DeploymentStatus | undefined] [] {
-        const deps = this.state.deploymentStatuses;
-        return this.getEnvironments().map(e => {
-            const env: string = e as string;
-            const dep = deps.find(d => d.name === name && d.env === env);
-            return [env, dep];
-        });
-    }
 
     getEmptyState() {
         const {loading} = this.state;
@@ -270,6 +255,7 @@ export class ProjectsPage extends React.Component<Props, State> {
         )
     }
 
+
     getProjectsTable() {
         const {projects, filter} = this.state;
         const projs = projects.filter(p => p.name.toLowerCase().includes(filter) || p.description.toLowerCase().includes(filter));
@@ -288,53 +274,12 @@ export class ProjectsPage extends React.Component<Props, State> {
                 </Thead>
                 <Tbody>
                     {projs.map(project => (
-                        <Tr key={project.projectId}>
-                            <Td modifier={"fitContent"}>
-                                <Tooltip content={project.runtime} position={"left"}>
-                                    <Badge className="runtime-badge">{project.runtime.substring(0, 1).toUpperCase()}</Badge>
-                                </Tooltip>
-                            </Td>
-                            <Td>
-                                <Button style={{padding: '6px'}} variant={"link"} onClick={e => this.props.onSelect?.call(this, project)}>
-                                    {project.projectId}
-                                </Button>
-                            </Td>
-                            <Td>{project.name}</Td>
-                            <Td>{project.description}</Td>
-                            <Td isActionCell>
-                                <Tooltip content={project.lastCommit} position={"bottom"}>
-                                    <Badge>{project.lastCommit?.substr(0, 7)}</Badge>
-                                </Tooltip>
-                            </Td>
-                            <Td noPadding style={{width: "180px"}}>
-                                <Flex direction={{default: "row"}}>
-                                    {this.getDeploymentByEnvironments(project.projectId).map(value => (
-                                        <FlexItem className="badge-flex-item" key={value[0]}>
-                                            <Badge className="badge" isRead={!value[1]}>{value[0]}</Badge>
-                                        </FlexItem>
-                                    ))}
-                                </Flex>
-                            </Td>
-                            <Td isActionCell>
-                                <OverflowMenu breakpoint="md">
-                                    <OverflowMenuContent>
-                                        <OverflowMenuGroup groupType="button">
-                                            <OverflowMenuItem>
-                                                <Tooltip content={"Copy project"} position={"bottom"}>
-                                                    <Button variant={"plain"} icon={<CopyIcon/>}
-                                                            onClick={e => this.setState({isCreateModalOpen: true, isCopy: true, projectToCopy: project})}></Button>
-                                                </Tooltip>
-                                            </OverflowMenuItem>
-                                            <OverflowMenuItem>
-                                                <Tooltip content={"Delete project"} position={"bottom"}>
-                                                    <Button variant={"plain"} icon={<DeleteIcon/>} onClick={e => this.onProjectDelete(project)}></Button>
-                                                </Tooltip>
-                                            </OverflowMenuItem>
-                                        </OverflowMenuGroup>
-                                    </OverflowMenuContent>
-                                </OverflowMenu>
-                            </Td>
-                        </Tr>
+                        <ProjectsTableRow
+                            config={this.props.config}
+                            onSelect={this.props.onSelect}
+                            onProjectDelete={this.onProjectDelete}
+                            project={project}
+                            deploymentStatuses={this.state.deploymentStatuses}/>
                     ))}
                     {projs.length === 0 && this.getEmptyState()}
                 </Tbody>
@@ -343,7 +288,6 @@ export class ProjectsPage extends React.Component<Props, State> {
     }
 
     render() {
-        const projects = this.state.projects.filter(p => p.name.toLowerCase().includes(this.state.filter) || p.description.toLowerCase().includes(this.state.filter));
         return (
             <PageSection className="kamelet-section projects-page" padding={{default: 'noPadding'}}>
                 <PageSection className="tools-section" padding={{default: 'noPadding'}}>

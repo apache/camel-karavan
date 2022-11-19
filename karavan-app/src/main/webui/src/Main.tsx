@@ -66,7 +66,6 @@ interface State {
     pageId: string,
     projects: Project[],
     project?: Project,
-    templates?: Project,
     isModalOpen: boolean,
     projectToDelete?: Project,
     openapi: string,
@@ -125,9 +124,6 @@ export class Main extends React.Component<Props, State> {
     getData() {
         KaravanApi.getConfiguration((config: any) => {
             this.setState({config: config, request: uuidv4()});
-            KaravanApi.getTemplatesProject((templates: Project) => {
-                this.setState({templates: templates});
-            });
         });
         this.updateKamelets();
         this.updateComponents();
@@ -167,8 +163,7 @@ export class Main extends React.Component<Props, State> {
             new MenuItem("projects", "Projects", <ProjectsIcon/>),
             new MenuItem("eip", "Enterprise Integration Patterns", <EipIcon/>),
             new MenuItem("kamelets", "Kamelets", <KameletsIcon/>),
-            new MenuItem("components", "Components", <ComponentsIcon/>),
-            new MenuItem("templates", "Templates", <PficonTemplateIcon/>)
+            new MenuItem("components", "Components", <ComponentsIcon/>)
         ]
         return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height: "100%"}}
                       spaceItems={{default: "spaceItemsNone"}}>
@@ -246,8 +241,6 @@ export class Main extends React.Component<Props, State> {
                                                                              onSelect={this.onProjectSelect}
                                                                              toast={this.toast}
                                                                              config={this.state.config}/>}
-                        {this.state.pageId === 'templates' && this.state.templates &&
-                            <ProjectPage key="templates" project={this.state.templates} isTemplates={true} config={this.state.config}/>}
                         {this.state.pageId === 'kamelets' &&
                             <KameletsPage dark={false} onRefresh={this.updateKamelets}/>}
                         {this.state.pageId === 'components' &&

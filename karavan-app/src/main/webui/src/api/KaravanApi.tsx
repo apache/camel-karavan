@@ -277,17 +277,6 @@ export class KaravanApi {
         });
     }
 
-    static async getTemplatesProject( after: (project: Project) => void) {
-        instance.get('/api/template')
-            .then(res => {
-                if (res.status === 200) {
-                    after(res.data);
-                }
-            }).catch(err => {
-            console.log(err);
-        });
-    }
-
     static async getTemplatesFiles( after: (files: []) => void) {
         instance.get('/api/template/files')
             .then(res => {
