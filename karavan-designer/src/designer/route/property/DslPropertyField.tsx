@@ -148,13 +148,14 @@ export class DslPropertyField extends React.Component<Props, State> {
     getLabel = (property: PropertyMeta, value: any) => {
         if (!this.isMultiValueField(property) && property.isObject && !property.isArray && !["ExpressionDefinition"].includes(property.type)) {
             const tooltip = value ? "Delete " + property.name : "Add " + property.name;
+            const className = value ? "change-button delete-button" : "change-button add-button";
             const x = value ? undefined : CamelDefinitionApi.createStep(property.type, {});
             const icon = value ? (<DeleteIcon noVerticalAlign/>) : (<AddIcon noVerticalAlign/>);
             return (
                 <div style={{display: "flex"}}>
                     <Text>{property.displayName} </Text>
-                    <Tooltip position={"bottom"} content={<div>{tooltip}</div>}>
-                        <button className="add-button" onClick={e => this.props.onChange?.call(this, property.name, x)} aria-label="Add element">
+                    <Tooltip position={"top"} content={<div>{tooltip}</div>}>
+                        <button className={className} onClick={e => this.props.onChange?.call(this, property.name, x)} aria-label="Add element">
                             {icon}
                         </button>
                     </Tooltip>

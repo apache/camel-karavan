@@ -19,7 +19,7 @@ import {ComponentApi} from "./ComponentApi";
 import {CamelUtil} from "./CamelUtil";
 import {
     NamedBeanDefinition,
-    ExpressionDefinition, RouteDefinition, RestDefinition, RestConfigurationDefinition
+    ExpressionDefinition, RouteDefinition, RestDefinition, RestConfigurationDefinition, ErrorHandlerDefinition
 } from "../model/CamelDefinition";
 import {
     Beans,
@@ -249,6 +249,26 @@ export class CamelDefinitionApiExt {
                 flows.push(flow);
             }
         })
+        integration.spec.flows = flows;
+        return integration;
+    }
+
+    static addErrorHandlerToIntegration = (integration: Integration, errorHandler: ErrorHandlerDefinition): Integration => {
+        const flows: any[] = [];
+        if (integration.spec.flows?.filter(flow => flow.dslName === 'ErrorHandlerDefinition').length === 0) {
+            flows.push(...integration.spec.flows);
+            flows.push(errorHandler)
+        } else {
+            flows.push(...integration.spec.flows?.filter(flow => flow.dslName !== 'ErrorHandlerDefinition') || []);
+            flows.push(errorHandler)
+        }
+        integration.spec.flows = flows;
+        return integration;
+    }
+
+    static deleteErrorHandlerFromIntegration = (integration: Integration): Integration => {
+        const flows: any[] = [];
+        flows.push(...integration.spec.flows?.filter(flow => flow.dslName !== 'ErrorHandlerDefinition') || []);
         integration.spec.flows = flows;
         return integration;
     }

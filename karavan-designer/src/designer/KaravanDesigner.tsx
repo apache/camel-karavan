@@ -27,7 +27,7 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelUi} from "./utils/CamelUi";
 import {BeansDesigner} from "./beans/BeansDesigner";
 import {RestDesigner} from "./rest/RestDesigner";
-import {ErrorDesigner} from "./error/ErrorDesigner";
+import {ErrorHandlerDesigner} from "./error/ErrorHandlerDesigner";
 import {ExceptionDesigner} from "./exception/ExceptionDesigner";
 import {getDesignerIcon} from "./utils/KaravanIcons";
 
@@ -112,7 +112,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
                     <Tab eventKey='routes' title={this.getTab("Routes", "Integration flows", "routes")}></Tab>
                     <Tab eventKey='rest' title={this.getTab("REST", "REST services", "rest")}></Tab>
                     <Tab eventKey='beans' title={this.getTab("Beans", "Beans Configuration", "beans")}></Tab>
-                    <Tab eventKey='error' title={this.getTab("Error", "Error Handler", "error")}></Tab>
+                    <Tab eventKey='error' title={this.getTab("Error Handler", "Global Error Handler", "error")}></Tab>
                 </Tabs>
                 {tab === 'routes' && <RouteDesigner integration={this.state.integration}
                                                     onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
@@ -124,9 +124,9 @@ export class KaravanDesigner extends React.Component<Props, State> {
                 {tab === 'beans' && <BeansDesigner integration={this.state.integration}
                                                    onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                    dark={this.props.dark}/>}
-                {tab === 'error' && <ErrorDesigner integration={this.state.integration}
-                                                   onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
-                                                   dark={this.props.dark}/>}
+                {tab === 'error' && <ErrorHandlerDesigner integration={this.state.integration}
+                                                          onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
+                                                          dark={this.props.dark}/>}
             </PageSection>
         )
     }

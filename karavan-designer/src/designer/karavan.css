@@ -468,7 +468,7 @@
     width: 350px;
 }
 
-.karavan .properties .add-button {
+.karavan .properties .change-button {
     font-size: 15px;
     height: 15px;
     line-height: 1;
@@ -478,8 +478,16 @@
     background: transparent;
 }
 
-.karavan .properties .add-button svg {
+.karavan .properties .change-button svg {
     margin-right: 6px;
+}
+
+.karavan .properties .add-button {
+    color: var(--pf-global--active-color--100);
+}
+
+.karavan .properties .delete-button {
+    color:  #909090;
 }
 
 .karavan .properties .pf-c-expandable-section__toggle {

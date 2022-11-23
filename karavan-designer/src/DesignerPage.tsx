@@ -19,12 +19,13 @@ import {
     Toolbar,
     ToolbarContent,
     ToolbarItem,
-    PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem, Badge, Button, Tooltip
+    PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem, Badge, Button, Tooltip, ToggleGroup, ToggleGroupItem
 } from '@patternfly/react-core';
-import '../designer/karavan.css';
+import './designer/karavan.css';
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
-import {KaravanDesigner} from "./KaravanDesigner";
+import {KaravanDesigner} from "./designer/KaravanDesigner";
+import Editor from "@monaco-editor/react";
 
 interface Props {
     name: string,
@@ -35,12 +36,13 @@ interface Props {
 
 interface State {
     karavanDesignerRef: any,
+    mode: "design" | "code",
 }
 
 export class DesignerPage extends React.Component<Props, State> {
 
     public state: State = {
-
+        mode: 'design',
         karavanDesignerRef: React.createRef(),
     };
 
@@ -67,8 +69,39 @@ export class DesignerPage extends React.Component<Props, State> {
         }
     }
 
+    getDesigner = () => {
+        const {name, yaml} = this.props;
+        return (
+            <KaravanDesigner
+                dark={this.props.dark}
+                ref={this.state.karavanDesignerRef}
+                filename={name}
+                yaml={yaml}
+                onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}/>
+        )
+    }
+
+    getEditor = () => {
+        const {name, yaml} = this.props;
+        return (
+            <Editor
+                height="100vh"
+                defaultLanguage="yaml"
+                theme={'light'}
+                value={yaml}
+                className={'code-editor'}
+                onChange={(value, ev) => {
+                    if (value) {
+                        this.save(name, value, false)
+                    }
+                }}
+            />
+        )
+    }
+
     render() {
         const {name, yaml} = this.props;
+        const {mode} = this.state;
         return (
             <PageSection className="kamelet-section designer-page" padding={{default: 'noPadding'}}>
                 <PageSection className="tools-section" padding={{default: 'noPadding'}}
@@ -82,6 +115,14 @@ export class DesignerPage extends React.Component<Props, State> {
                         <FlexItem>
                             <Toolbar id="toolbar-group-types">
                                 <ToolbarContent>
+                                    <ToolbarItem>
+                                        <ToggleGroup>
+                                            <ToggleGroupItem text="Design" buttonId="design" isSelected={mode === "design"}
+                                                             onChange={s => this.setState({mode: "design"})} />
+                                            <ToggleGroupItem text="Code" buttonId="code" isSelected={mode === "code"}
+                                                             onChange={s => this.setState({mode: "code"})} />
+                                        </ToggleGroup>
+                                    </ToolbarItem>
                                     <ToolbarItem>
                                         <Tooltip content="Download YAML" position={"bottom"}>
                                             <Button variant="primary" icon={<DownloadIcon/>} onClick={e => this.download()}>
@@ -101,12 +142,8 @@ export class DesignerPage extends React.Component<Props, State> {
                         </FlexItem>
                     </Flex>
                 </PageSection>
-                <KaravanDesigner
-                    dark={this.props.dark}
-                    ref={this.state.karavanDesignerRef}
-                    filename={name}
-                    yaml={yaml}
-                    onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}/>
+                {mode === 'design' && this.getDesigner()}
+                {mode === 'code'  && this.getEditor()}
             </PageSection>
         );
     }

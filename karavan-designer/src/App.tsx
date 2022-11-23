@@ -32,7 +32,7 @@ import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
 import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
 import {KaravanIcon} from "./designer/utils/KaravanIcons";
 import './designer/karavan.css';
-import {DesignerPage} from "./designer/DesignerPage";
+import {DesignerPage} from "./DesignerPage";
 
 class ToastMessage {
     id: string = ''
@@ -161,7 +161,7 @@ class App extends React.Component<Props, State> {
         </Flex>)
     }
 
-    getDesigner() {
+    getPage() {
         const {key, name, yaml, pageId} = this.state;
         const dark = document.body.className.includes('vscode-dark');
         switch (pageId) {
@@ -209,7 +209,7 @@ class App extends React.Component<Props, State> {
                         </FlexItem>
                         <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
                             {loaded !== true && this.getSpinner()}
-                            {loaded === true && this.getDesigner()}
+                            {loaded === true && this.getPage()}
                         </FlexItem>
                     </Flex>
                 </>

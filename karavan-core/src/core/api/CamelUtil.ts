@@ -19,7 +19,7 @@ import {
     CamelElement, Beans
 } from "../model/IntegrationDefinition";
 import {CamelDefinitionApi} from "./CamelDefinitionApi";
-import {KameletDefinition, NamedBeanDefinition, ToDefinition} from "../model/CamelDefinition";
+import {ErrorHandlerDefinition, KameletDefinition, NamedBeanDefinition, ToDefinition} from "../model/CamelDefinition";
 import {KameletApi} from "./KameletApi";
 import {KameletModel, Property} from "../model/KameletModels";
 import {ComponentProperty} from "../model/ComponentModels";
@@ -41,6 +41,11 @@ export class CamelUtil {
                 (beans as Beans).beans.forEach(b => newBeans.beans.push(CamelUtil.cloneBean(b)));
                 flows.push(newBeans);
             });
+        int.spec.flows?.filter((e: any) => e.dslName === 'ErrorHandler')
+            .forEach(errorHandler => {
+                const newErrorHandler = CamelUtil.cloneErrorHandler(errorHandler);
+                flows.push(newErrorHandler);
+            });
         int.spec.flows = flows;
         return int;
     }
@@ -55,6 +60,13 @@ export class CamelUtil {
         const newBean = new NamedBeanDefinition(clone);
         newBean.uuid = bean.uuid;
         return newBean;
+    }
+
+    static cloneErrorHandler = (error: ErrorHandlerDefinition): ErrorHandlerDefinition => {
+        const clone = JSON.parse(JSON.stringify(error));
+        const newError = new ErrorHandlerDefinition(clone);
+        newError.uuid = error.uuid;
+        return newError;
     }
 
     static capitalizeName = (name: string) => {

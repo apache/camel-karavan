@@ -126,6 +126,11 @@ export class CamelDefinitionYaml {
                 || stepName === 'doFinally'
                 || stepName === 'resilience4jConfiguration'
                 || stepName === 'faultToleranceConfiguration'
+                || stepName === 'deadLetterChannel'
+                || stepName === 'defaultErrorHandler'
+                || stepName === 'jtaTransactionErrorHandler'
+                || stepName === 'noErrorHandler'
+                || stepName === 'springTransactionErrorHandler'
                 || key === 'from') {
                 delete newValue.inArray;
                 delete newValue.inSteps;
@@ -184,6 +189,8 @@ export class CamelDefinitionYaml {
             .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteDefinition(new RouteDefinition({from: f.from}))));
         flows.filter((e: any) => e.hasOwnProperty('beans'))
             .forEach((b: any) => result.push(CamelDefinitionYaml.readBeanDefinition(b)));
+        flows.filter((e: any) => e.hasOwnProperty('errorHandler'))
+            .forEach((e: any) => result.push(CamelDefinitionYamlStep.readErrorHandlerDefinition(e.errorHandler)));
         return result;
     }
 

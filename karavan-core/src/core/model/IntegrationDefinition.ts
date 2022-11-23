@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 import {v4 as uuidv4} from 'uuid';
-import {NamedBeanDefinition} from "./CamelDefinition";
+import {ErrorHandlerDefinition, NamedBeanDefinition} from "./CamelDefinition";
 
 
 export class Spec {
