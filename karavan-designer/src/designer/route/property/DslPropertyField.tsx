@@ -263,6 +263,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                     </Button>
                 </Tooltip>
                 <Modal
+                    aria-label={"expression"}
                     variant={ModalVariant.large}
                     header={<React.Fragment>
                         <Title id="modal-custom-header-label" headingLevel="h1" size={TitleSizes['2xl']}>
