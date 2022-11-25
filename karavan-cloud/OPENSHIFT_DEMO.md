@@ -17,7 +17,7 @@ Karavan cloud-native integration toolkit demo on OpenShift with Gitea repository
     ```
     oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/gitea-operator.yaml
     ```
-3. Install Tekton Operator
+3. Install Tekton Operator if it is not installed yet
     ```
     oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/pipeline-operator.yaml
     ```
