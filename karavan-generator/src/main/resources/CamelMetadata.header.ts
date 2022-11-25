@@ -32,9 +32,12 @@ export class PropertyMeta {
     isArray: boolean = false
     isObject: boolean = false
     label: string = ''
+    javaType: string = ''
 
 
-    constructor(name: string, displayName: string, description: string, type: string, enumVals: string, defaultValue: string, required: boolean, secret: boolean, isArray: boolean, isObject: boolean, label: string) {
+    constructor(name: string, displayName: string, description: string, type: string, enumVals: string,
+                defaultValue: string, required: boolean, secret: boolean, isArray: boolean, isObject: boolean,
+                label: string, javaType: string) {
         this.name = name;
         this.displayName = displayName;
         this.description = description;
@@ -46,6 +49,7 @@ export class PropertyMeta {
         this.isArray = isArray;
         this.isObject = isObject;
         this.label = label;
+        this.javaType = javaType;
     }
 }
 

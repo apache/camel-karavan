@@ -33,6 +33,7 @@ import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
 import {KaravanIcon} from "./designer/utils/KaravanIcons";
 import './designer/karavan.css';
 import {DesignerPage} from "./DesignerPage";
+import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 
 class ToastMessage {
     id: string = ''
@@ -95,7 +96,9 @@ class App extends React.Component<Props, State> {
     componentDidMount() {
         Promise.all([
             fetch("kamelets/kamelets.yaml"),
-            fetch("components/components.json")
+            fetch("components/components.json"),
+            fetch("snippets/org.apache.camel.AggregationStrategy"),
+            fetch("snippets/org.apache.camel.Processor")
         ]).then(responses =>
             Promise.all(responses.map(response => response.text()))
         ).then(data => {
@@ -108,6 +111,9 @@ class App extends React.Component<Props, State> {
             const jsons: string[] = [];
             components.forEach(c => jsons.push(JSON.stringify(c)));
             ComponentApi.saveComponents(jsons, true);
+
+            TemplateApi.saveTemplate("org.apache.camel.AggregationStrategy", data[2]);
+            TemplateApi.saveTemplate("org.apache.camel.Processor", data[3]);
 
             this.toast("Success", "Loaded " + jsons.length + " components", 'success');
             this.setState({loaded: true});

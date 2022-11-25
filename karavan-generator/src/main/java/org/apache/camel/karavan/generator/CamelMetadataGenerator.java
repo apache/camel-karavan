@@ -75,7 +75,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
             }
         });
 
-        camelModel.append(getMetadataCode("CamelDataFormatMetadata", classProps, stepNames, definitions, "dataformat"));
+        camelModel.append(getMetadataCode("CamelDataFormatMetadata", classProps, stepNames, "dataformat"));
 
 
         // Generate Languages
@@ -101,7 +101,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
             }
         });
 
-        camelModel.append(getMetadataCode("CamelLanguageMetadata", classProps, stepNames, definitions, "language"));
+        camelModel.append(getMetadataCode("CamelLanguageMetadata", classProps, stepNames, "language"));
 
         // Generate DSL Metadata
         Map<String, Object> defsMap = new HashMap<>();
@@ -135,20 +135,20 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
             }
         });
 
-        camelModel.append(getMetadataCode("CamelModelMetadata", classProps, stepNames, definitions, "model"));
+        camelModel.append(getMetadataCode("CamelModelMetadata", classProps, stepNames, "model"));
 
         // add Sensitive keys
         List<String> sk = new ArrayList(SensitiveUtils.getSensitiveKeys());
         camelModel.append("export const SensitiveKeys: string[] = [\n");
         for (int i = 0; i < sk.size(); i++) {
-            camelModel.append("    \"").append(sk.get(i)).append("\"").append(i < sk.size()-1 ? "," : "").append("\n");
+            camelModel.append("    \"").append(sk.get(i)).append("\"").append(i < sk.size() - 1 ? "," : "").append("\n");
         }
         camelModel.append("]");
 
         writeFileText(targetModel, camelModel.toString());
     }
 
-    private String getMetadataCode(String className, Map<String, JsonObject> classProps, Map<String, String> stepNames, JsonObject definitions, String folder) {
+    private String getMetadataCode(String className, Map<String, JsonObject> classProps, Map<String, String> stepNames, String folder) {
         StringBuilder code = new StringBuilder();
         code.append(String.format("export const %s: ElementMeta[] = [\n", className));
         classProps.forEach((name, properties) -> {
@@ -173,7 +173,8 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                     JsonObject p = props.getJsonObject(pname);
                     if ("inheritErrorHandler".equals(pname) && p == null) {
                     } else {
-                        PropertyMeta pm = getAttributeType(new JsonObject((Map) v), definitions);
+
+                        PropertyMeta pm = getAttributeType(new JsonObject((Map) v));
                         String displayName = p != null && p.containsKey("displayName") ? p.getString("displayName") : pname;
                         String desc = p != null && p.containsKey("description") ? p.getString("description") : pname;
                         String en = p != null && p.containsKey("enum") ? p.getString("enum").replace("[", "").replace("]", "") : "";
@@ -182,9 +183,11 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                         String defaultValue = p != null && p.containsKey("defaultValue") ? p.getString("defaultValue") : "";
                         defaultValue = defaultValue.length() == 1 && defaultValue.toCharArray()[0] == '\\' ? "\\\\" : defaultValue;
                         String labels = p != null && p.containsKey("label") ? p.getString("label") : "";
+                        String javaType = getJavaType(p);
+                        if (name.equals("ProcessDefinition") && pname.equals("ref")) javaType = "org.apache.camel.Processor"; // exception for processor
                         code.append(String.format(
-                                "        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b, '%s'),\n",
-                                pname, displayName, desc, pm.type, en, defaultValue, required, secret, pm.isArray, (pm.isArray ? pm.type : pm.isObject), labels));
+                                "        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b, '%s', '%s'),\n",
+                                pname, displayName, desc, pm.type, en, defaultValue, required, secret, pm.isArray, (pm.isArray ? pm.type : pm.isObject), labels, javaType));
                     }
                 });
                 code.append("    ]),\n");
@@ -194,7 +197,23 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         return code.toString();
     }
 
-    private PropertyMeta getAttributeType(JsonObject attribute, JsonObject definitions) {
+    private String getJavaType(JsonObject p) {
+        if (p != null
+                && p.containsKey("type")
+                && p.getString("type").equals("object")
+                && (p.getString("javaType").equals("org.apache.camel.AggregationStrategy") || p.getString("javaType").equals("org.apache.camel.Processor")) ) {
+            String javaName = p.getString("javaType");
+            try {
+                Class clazz = Class.forName(javaName);
+                if (clazz.isInterface() && clazz.getPackageName().equals("org.apache.camel")) return javaName;
+            } catch (ClassNotFoundException e) {
+               return "";
+            }
+        }
+        return "";
+    }
+
+    private PropertyMeta getAttributeType(JsonObject attribute) {
         if (attribute.containsKey("$ref")) {
             String classFullName = attribute.getString("$ref");
             String className = classSimple(classFullName);
