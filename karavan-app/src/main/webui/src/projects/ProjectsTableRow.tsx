@@ -104,25 +104,39 @@ export class ProjectsTableRow extends React.Component<Props, State> {
                         </Flex>
                     }
                 </Td>
-                <Td isActionCell>
+                <Td className="project-action-buttons">
                     {!isBuildIn &&
-                        <OverflowMenu breakpoint="md">
-                            <OverflowMenuContent>
-                                <OverflowMenuGroup groupType="button">
-                                    <OverflowMenuItem>
-                                        <Tooltip content={"Copy project"} position={"bottom"}>
-                                            <Button variant={"plain"} icon={<CopyIcon/>}
-                                                    onClick={e => onProjectCopy.call(this, project)}></Button>
-                                        </Tooltip>
-                                    </OverflowMenuItem>
-                                    <OverflowMenuItem>
-                                        <Tooltip content={"Delete project"} position={"bottom"}>
-                                            <Button variant={"plain"} icon={<DeleteIcon/>} onClick={e => onProjectDelete.call(this, project)}></Button>
-                                        </Tooltip>
-                                    </OverflowMenuItem>
-                                </OverflowMenuGroup>
-                            </OverflowMenuContent>
-                        </OverflowMenu>
+                        <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentFlexEnd"}} spaceItems={{ default: 'spaceItemsNone' }}>
+                            <FlexItem>
+                                <Tooltip content={"Copy project"} position={"bottom"}>
+                                    <Button variant={"plain"} icon={<CopyIcon/>}
+                                            onClick={e => onProjectCopy.call(this, project)}></Button>
+                                </Tooltip>
+                            </FlexItem>
+                            <FlexItem>
+                                <Tooltip content={"Delete project"} position={"bottom"}>
+                                    <Button variant={"plain"} icon={<DeleteIcon/>} onClick={e => onProjectDelete.call(this, project)}></Button>
+                                </Tooltip>
+                            </FlexItem>
+                        </Flex>
+
+                        // <OverflowMenu breakpoint="md">
+                        //     <OverflowMenuContent >
+                        //         <OverflowMenuGroup groupType="button">
+                        //             <OverflowMenuItem>
+                        //                 <Tooltip content={"Copy project"} position={"bottom"}>
+                        //                     <Button variant={"plain"} icon={<CopyIcon/>}
+                        //                             onClick={e => onProjectCopy.call(this, project)}></Button>
+                        //                 </Tooltip>
+                        //             </OverflowMenuItem>
+                        //             <OverflowMenuItem>
+                        //                 <Tooltip content={"Delete project"} position={"bottom"}>
+                        //                     <Button variant={"plain"} icon={<DeleteIcon/>} onClick={e => onProjectDelete.call(this, project)}></Button>
+                        //                 </Tooltip>
+                        //             </OverflowMenuItem>
+                        //         </OverflowMenuGroup>
+                        //     </OverflowMenuContent>
+                        // </OverflowMenu>
                     }
                 </Td>
             </Tr>

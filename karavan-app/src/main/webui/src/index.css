@@ -288,3 +288,15 @@
   font-size: 14px;
   margin-left: 6px;
 }
+
+.projects-page .project-action-buttons {
+  opacity: 0.5;
+}
+
+.projects-page tr:hover .project-action-buttons {
+  opacity: 1;
+}
+
+.projects-page .pf-c-table.pf-m-compact tr:not(.pf-c-table__expandable-row) > *:last-child {
+  --pf-c-table--cell--PaddingRight: 0;
+}
