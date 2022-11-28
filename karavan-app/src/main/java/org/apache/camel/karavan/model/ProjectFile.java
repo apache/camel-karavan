@@ -60,4 +60,14 @@ public class ProjectFile {
     public void setLastUpdate(Long lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
+
+    @Override
+    public String toString() {
+        return "ProjectFile{" +
+                "name='" + name + '\'' +
+                ", code='" + code + '\'' +
+                ", projectId='" + projectId + '\'' +
+                ", lastUpdate=" + lastUpdate +
+                '}';
+    }
 }

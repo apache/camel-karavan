@@ -273,17 +273,17 @@ export class DslPropertyField extends React.Component<Props, State> {
                     <PlusIcon/>
                 </Button>
             </Tooltip>
-                <ModalEditor property={property}
-                             value={customCode}
-                             showEditor={showEditor}
-                             dark={dark}
-                             dslLanguage={dslLanguage}
-                             title="Java Class"
-                             onSave={(fieldId, value1) => {
-                                 this.propertyChanged(fieldId, value);
-                                 KaravanInstance.getProps().onSaveCustomCode?.call(this, value, value1);
-                                 this.setState({showEditor: false});
-                             }}/>
+            <ModalEditor property={property}
+                         value={customCode}
+                         showEditor={showEditor}
+                         dark={dark}
+                         dslLanguage={dslLanguage}
+                         title="Java Class"
+                         onSave={(fieldId, value1) => {
+                             this.propertyChanged(fieldId, value);
+                             KaravanInstance.getProps().onSaveCustomCode?.call(this, value, value1);
+                             this.setState({showEditor: false});
+                         }}/>
         </InputGroup>)
     }
 

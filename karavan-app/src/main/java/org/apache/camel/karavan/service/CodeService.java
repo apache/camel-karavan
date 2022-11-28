@@ -38,6 +38,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,10 +84,18 @@ public class CodeService {
     }
 
     public Map<String,String> getApplicationPropertiesTemplates() {
-        Map<String, String> result = new HashMap<>(4);
-        List.of("quarkus", "spring-boot").forEach(runtime -> {
-            List.of("openshift", "kubernetes").forEach(target -> {
-                String templateName = runtime + "-" + target + "-application.properties";
+        Map<String, String> result = new HashMap<>();
+
+        List<String> runtimes = List.of("quarkus", "spring-boot");
+        List<String> targets = List.of("openshift", "kubernetes");
+        List<String> interfaces = List.of("org.apache.camel.AggregationStrategy.java", "org.apache.camel.Processor.java");
+
+        List<String> files = new ArrayList<>(interfaces);
+        files.addAll(targets.stream().map(target -> target + "-application.properties").collect(Collectors.toList()));
+
+        runtimes.forEach(runtime -> {
+            files.forEach(file -> {
+                String templateName = runtime + "-" + file;
                 String templatePath = "/snippets/" + templateName;
                 String templateText = getResourceFile(templatePath);
                 result.put(templateName, templateText);

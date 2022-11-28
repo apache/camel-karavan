@@ -33,7 +33,9 @@ import javax.ws.rs.core.MediaType;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/api/file")
 public class ProjectFileResource {
@@ -49,7 +51,9 @@ public class ProjectFileResource {
     @Path("/{projectId}")
     public List<ProjectFile> get(@HeaderParam("username") String username,
                                  @PathParam("projectId") String projectId) throws Exception {
-        return infinispanService.getProjectFiles(projectId);
+        return infinispanService.getProjectFiles(projectId).stream()
+                .sorted(Comparator.comparing(ProjectFile::getName))
+                .collect(Collectors.toList());
     }
 
     @POST

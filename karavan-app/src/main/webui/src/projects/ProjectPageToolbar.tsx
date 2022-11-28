@@ -62,7 +62,7 @@ export class ProjectPageToolbar extends React.Component<Props> {
     }
 
     getTemplatesToolbar() {
-        const {project, file, editAdvancedProperties} = this.props;
+        const {file, editAdvancedProperties} = this.props;
         const {isPushing} = this.state;
         const isProperties = file !== undefined && file.name.endsWith("properties");
         return <Toolbar id="toolbar-group-types">

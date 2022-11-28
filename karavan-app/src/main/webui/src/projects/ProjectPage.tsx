@@ -108,14 +108,16 @@ export class ProjectPage extends React.Component<Props, State> {
         return this.props.project.projectId === 'kamelets';
     }
 
-    isTemplatesProject():boolean {
-        return this.props.project.projectId === 'templates';
-    }
-
     post = (file: ProjectFile) => {
         KaravanApi.postProjectFile(file, res => {
             if (res.status === 200) {
-                // console.log(res) //TODO show notification
+                const newFile = res.data;
+                this.setState((state => {
+                    const index = state.files.findIndex(f => f.name === newFile.name);
+                    if (index !== -1) state.files.splice(index, 1, newFile)
+                    else state.files.push(newFile);
+                    return state
+                }))
             } else {
                 // console.log(res) //TODO show notification
             }
@@ -191,7 +193,10 @@ export class ProjectPage extends React.Component<Props, State> {
             {isFile &&
                 <div>
                     <Breadcrumb>
-                        <BreadcrumbItem to="#" onClick={event => this.setState({file: undefined})}>
+                        <BreadcrumbItem to="#" onClick={event => {
+                            this.setState({file: undefined})
+                            this.onRefresh();
+                        }}>
                             {"Project: " + project?.projectId}
                         </BreadcrumbItem>
                         <Badge>{getProjectFileType(file)}</Badge>
@@ -236,7 +241,8 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     getDesigner = () => {
-        const file = this.state.file;
+        const {file, files} = this.state;
+        const {project} = this.props;
         return (
             file !== undefined &&
             <KaravanDesigner
@@ -246,6 +252,10 @@ export class ProjectPage extends React.Component<Props, State> {
                 filename={file.name}
                 yaml={file.code}
                 onSave={(name, yaml) => this.save(name, yaml)}
+                onSaveCustomCode={(name, code) => this.post(new ProjectFile(name+".java", project.projectId, code, Date.now()))}
+                onGetCustomCode={name => {
+                    return new Promise<string | undefined>(resolve => resolve(files.filter(f => f.name === name + ".java")?.at(0)?.code))
+                }}
             />
         )
     }
