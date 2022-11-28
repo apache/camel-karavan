@@ -278,7 +278,7 @@ export class KaravanApi {
     }
 
     static async getTemplatesFiles( after: (files: []) => void) {
-        instance.get('/api/template/files')
+        instance.get('/api/file/templates')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);

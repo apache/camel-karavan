@@ -32,6 +32,7 @@ import {ProjectOperations} from "./ProjectOperations";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {ProjectPageToolbar} from "./ProjectPageToolbar";
 import {ProjectFilesTable} from "./ProjectFilesTable";
+import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 
 interface Props {
     project: Project,
@@ -80,11 +81,20 @@ export class ProjectPage extends React.Component<Props, State> {
     onRefresh = () => {
         if (this.props.project) {
             KaravanApi.getProject(this.props.project.projectId, (project: Project) => {
-                this.setState({project: project})
+                this.setState({project: project});
+                KaravanApi.getTemplatesFiles((files: ProjectFile[]) => {
+                    files.filter(f => f.name.endsWith("java"))
+                        .filter(f => f.name.startsWith(project.runtime))
+                        .forEach(f => {
+                            const name = f.name.replace(project.runtime+"-", '').replace(".java", '');
+                            TemplateApi.saveTemplate(name, f.code);
+                        })
+                });
             });
             KaravanApi.getFiles(this.props.project.projectId, (files: []) => {
                 this.setState({files: files})
             });
+
             KubernetesAPI.inKubernetes = true;
             if (!this.isBuildIn()){
                 KaravanApi.getConfigMaps(this.state.environment, (any: []) => {
@@ -253,7 +263,8 @@ export class ProjectPage extends React.Component<Props, State> {
                 yaml={file.code}
                 onSave={(name, yaml) => this.save(name, yaml)}
                 onSaveCustomCode={(name, code) => this.post(new ProjectFile(name+".java", project.projectId, code, Date.now()))}
-                onGetCustomCode={name => {
+                onGetCustomCode={(name, javaType) => {
+                    console.log(name);
                     return new Promise<string | undefined>(resolve => resolve(files.filter(f => f.name === name + ".java")?.at(0)?.code))
                 }}
             />

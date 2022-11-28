@@ -245,9 +245,9 @@ export class DslPropertyField extends React.Component<Props, State> {
         </InputGroup>)
     }
 
-    showCode = (name: string) => {
+    showCode = (name: string, javaType: string) => {
         const {property} = this.props;
-        KaravanInstance.getProps().onGetCustomCode.call(this, name).then(value => {
+        KaravanInstance.getProps().onGetCustomCode.call(this, name, property.javaType).then(value => {
             if (value === undefined) {
                 const code = TemplateApi.generateCode(property.javaType, name);
                 this.setState({customCode: code, showEditor: true})
@@ -269,21 +269,21 @@ export class DslPropertyField extends React.Component<Props, State> {
                 value={value?.toString()}
                 onChange={e => this.propertyChanged(property.name, CamelUtil.capitalizeName(e?.replace(/\s/g, '')))}/>
             <Tooltip position="bottom-end" content={"Create Java Class"}>
-                <Button variant="control" onClick={e => this.showCode(value)}>
+                <Button variant="control" onClick={e => this.showCode(value, property.javaType)}>
                     <PlusIcon/>
                 </Button>
             </Tooltip>
-                <ModalEditor property={property}
-                             value={customCode}
-                             showEditor={showEditor}
-                             dark={dark}
-                             dslLanguage={dslLanguage}
-                             title="Java Class"
-                             onSave={(fieldId, value1) => {
-                                 this.propertyChanged(fieldId, value);
-                                 KaravanInstance.getProps().onSaveCustomCode?.call(this, value, value1);
-                                 this.setState({showEditor: false});
-                             }}/>
+            <ModalEditor property={property}
+                         value={customCode}
+                         showEditor={showEditor}
+                         dark={dark}
+                         dslLanguage={dslLanguage}
+                         title="Java Class"
+                         onSave={(fieldId, value1) => {
+                             this.propertyChanged(fieldId, value);
+                             KaravanInstance.getProps().onSaveCustomCode?.call(this, value, value1);
+                             this.setState({showEditor: false});
+                         }}/>
         </InputGroup>)
     }
 

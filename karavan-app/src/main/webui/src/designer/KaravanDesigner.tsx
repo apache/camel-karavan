@@ -33,7 +33,7 @@ import {getDesignerIcon} from "./utils/KaravanIcons";
 interface Props {
     onSave: (filename: string, yaml: string, propertyOnly: boolean) => void
     onSaveCustomCode: (name: string, code: string) => void
-    onGetCustomCode: (name: string) => Promise<string | undefined>
+    onGetCustomCode: (name: string, javaType: string) => Promise<string | undefined>
     filename: string
     yaml: string
     dark: boolean

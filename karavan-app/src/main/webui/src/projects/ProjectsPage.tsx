@@ -200,7 +200,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                                    }}
                                    body={
                                        <div className="runtime-radio">
-                                           {runtime === 'quarkus' ? QuarkusIcon() : SpringIcon()}
+                                           {r === 'quarkus' ? QuarkusIcon() : SpringIcon()}
                                            <div className="runtime-label">{CamelUtil.capitalizeName(r)}</div>
                                        </div>}
                             />
