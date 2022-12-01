@@ -25,6 +25,7 @@ import { ComponentApi } from "core/api/ComponentApi";
 import { KameletsPage } from "./kamelets/KameletsPage";
 import { ComponentsPage } from "./components/ComponentsPage";
 import { EipPage } from "./eip/EipPage";
+import { TemplateApi } from "./core/api/TemplateApi";
 
 interface Props {
   dark: boolean
@@ -34,6 +35,7 @@ interface State {
   karavanDesignerRef: any
   filename: string
   relativePath: string
+  fullPath: string
   yaml: string
   key: string
   loaded: boolean
@@ -52,6 +54,7 @@ class App extends React.Component<Props, State> {
     karavanDesignerRef: React.createRef(),
     filename: '',
     relativePath: '',
+    fullPath: '',
     yaml: '',
     key: '',
     loaded: false,
@@ -90,6 +93,11 @@ class App extends React.Component<Props, State> {
       case 'components':
         ComponentApi.saveComponents(message.components, true);
         break;
+      case 'templates':
+        const templates = message.templates;
+        const map = new Map( Object.keys(templates).map(key => [key, templates[key]]));
+        TemplateApi.saveTemplates(map, true);
+        break;  
       case 'open':
         if (this.state.filename === '' && this.state.key === '') {
           if (message.page !== "designer" && this.state.interval) clearInterval(this.state.interval);
@@ -99,6 +107,7 @@ class App extends React.Component<Props, State> {
             yaml: message.yaml,
             scheduledYaml: message.yaml,
             relativePath: message.relativePath,
+            fullPath: message.fullPath,
             key: Math.random().toString(),
             loaded: true,
             active: true,
@@ -124,13 +133,18 @@ class App extends React.Component<Props, State> {
   save(filename: string, yaml: string, propertyOnly: boolean) {
     if (this.state.active) {
       if (!propertyOnly) {
-        vscode.postMessage({ command: 'save', filename: filename, relativePath: this.state.relativePath, yaml: yaml });
+        vscode.postMessage({ command: 'save', filename: filename, relativePath: this.state.relativePath, fullPath: this.state.fullPath, code: yaml });
         this.setState({ scheduledYaml: yaml, hasChanges: false });
       } else {
         this.setState({ scheduledYaml: yaml, hasChanges: true });
       }
     }
   }
+
+  saveJavCode(name: string, code: string) {
+    vscode.postMessage({ command: 'saveCode', name: name, yamlFullPath: this.state.fullPath, yamFileName: this.state.filename, code: code });
+  }
+
 
   public render() {
     return (
@@ -147,7 +161,13 @@ class App extends React.Component<Props, State> {
             yaml={this.state.yaml}
             onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}
             tab={this.state.tab}
-            dark={this.props.dark} />
+            dark={this.props.dark} 
+            onSaveCustomCode={(name, code) => this.saveJavCode(name, code)}
+            onGetCustomCode={(name, javaType) => {
+                // return new Promise<string | undefined>(resolve => resolve(files.filter(f => f.name === name + ".java")?.at(0)?.code))
+                return new Promise<string | undefined>(resolve => resolve(undefined))
+            }}
+            />
         }
         {this.state.loaded && this.state.page === "kamelets" && <KameletsPage dark={this.props.dark} />}
         {this.state.loaded && this.state.page === "components" && <ComponentsPage dark={this.props.dark} />}

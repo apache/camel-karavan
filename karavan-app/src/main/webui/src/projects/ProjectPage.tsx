@@ -264,7 +264,6 @@ export class ProjectPage extends React.Component<Props, State> {
                 onSave={(name, yaml) => this.save(name, yaml)}
                 onSaveCustomCode={(name, code) => this.post(new ProjectFile(name+".java", project.projectId, code, Date.now()))}
                 onGetCustomCode={(name, javaType) => {
-                    console.log(name);
                     return new Promise<string | undefined>(resolve => resolve(files.filter(f => f.name === name + ".java")?.at(0)?.code))
                 }}
             />

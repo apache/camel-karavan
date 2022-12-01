@@ -26,51 +26,12 @@ import * as utils from "./utils";
 const KARAVAN_LOADED = "karavan:loaded";
 
 export function activate(context: ExtensionContext) {
-    const webviewContent = `<!DOCTYPE html>
-    <html lang="en">
-    
-    <head>
-      <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <link href="styleUri" rel="stylesheet" type="text/css" />
-    </head>
-    
-    <body>
-      <noscript>You need to enable JavaScript to run this app.</noscript>
-      <div id="root">
-        <div class="pf-c-page karavan">
-          <main class="pf-c-page__main" tabindex="-1">
-            <section class="pf-c-page__main-section pf-m-dark-200 loading-page"><svg
-                class="pf-c-spinner pf-m-xl progress-stepper" role="progressbar" aria-valuetext="Loading..."
-                viewBox="0 0 100 100" style="--pf-c-spinner--diameter:80px" aria-label="Loading...">
-                <circle class="pf-c-spinner__path" cx="50" cy="50" r="45" fill="none"></circle>
-              </svg></section>
-          </main>
-        </div>
-      </div>
-      <script>
-      </script>
-      <script src="scriptUri"></script>
-    </body>
-    
-    </html>`
-        .replace(
-            "styleUri",
-            Uri.joinPath(context.extensionUri, "/dist/main.css")
-                .with({ scheme: "vscode-resource" })
-                .toString()
-        )
-        .replace(
-            "scriptUri",
-            Uri.joinPath(context.extensionUri, "/dist/webview.js")
-                .with({ scheme: "vscode-resource" })
-                .toString()
-        );
+
     const rootPath = (workspace.workspaceFolders && (workspace.workspaceFolders.length > 0))
         ? workspace.workspaceFolders[0].uri.fsPath : undefined;
 
     // Register views    
-    const designer = new DesignerView(context, webviewContent, rootPath);
+    const designer = new DesignerView(context, rootPath);
 
     const integrationView = new IntegrationView(designer, rootPath);
     window.registerTreeDataProvider('integrations', integrationView);
@@ -80,18 +41,24 @@ export function activate(context: ExtensionContext) {
     window.registerTreeDataProvider('openapi', openapiView);
     commands.registerCommand('openapi.refresh', () => openapiView.refresh());
 
-    const helpView = new HelpView(context, webviewContent);
+    const helpView = new HelpView(context);
     window.registerTreeDataProvider('help', helpView);
     commands.registerCommand('karavan.openKamelets', () => helpView.openKaravanWebView("kamelets"));
     commands.registerCommand('karavan.openComponents', () => helpView.openKaravanWebView("components"));
     commands.registerCommand('karavan.openEip', () => helpView.openKaravanWebView("eip"));
 
     // Create new Integration YAML command
-    const createYaml = commands.registerCommand("karavan.create-yaml", (...args: any[]) => designer.createIntegration("plain", args[0]?.fsPath));
+    const createYaml = commands.registerCommand("karavan.create-yaml", (...args: any[]) => {
+        console.log("args", args)
+        designer.createIntegration("plain", args[0]?.fsPath)
+    });
     context.subscriptions.push(createYaml);
 
     // Open integration in designer command
-    const open = commands.registerCommand("karavan.open", (...args: any[]) => designer.karavanOpen(args[0].fsPath, args[0].tab));
+    const open = commands.registerCommand("karavan.open", (...args: any[]) => {
+        console.log("args", args)
+        designer.karavanOpen(args[0].fsPath, args[0].tab);
+    });
     context.subscriptions.push(open);
 
     // Open integration in editor command

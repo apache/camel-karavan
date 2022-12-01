@@ -30,6 +30,13 @@ export function save(relativePath: string, text: string) {
     }
 }
 
+export function saveCode(name: string, yamlFullPath: string, yamFileName: string,  code: string) {
+    if (workspace.workspaceFolders) {
+        const folder = yamlFullPath.replace(yamFileName, '');
+        write(path.join(folder, name + ".java"), code);
+    }
+}
+
 export function deleteFile(fullPath: string) {
     if (workspace.workspaceFolders) {
         const uriFile: Uri = Uri.file(path.resolve(fullPath));
@@ -49,7 +56,8 @@ export async function readKamelets(context: ExtensionContext) {
     const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
     if (kameletsPath && kameletsPath.trim().length > 0) {
         const kameletsDir = path.isAbsolute(kameletsPath) ? kameletsPath : path.resolve(kameletsPath);
-        const customKamelets: string[] = await readFilesInDirByExtension(kameletsDir, "yaml");
+        const files = await readFilesInDirByExtension(kameletsDir, "yaml");
+        const customKamelets: string[] = Array.from(files.values());
         if (customKamelets && customKamelets.length > 0) yamls.push(...customKamelets);
     }
     return yamls;
@@ -64,15 +72,15 @@ async function readBuildInKamelets(context: ExtensionContext) {
     return result;
 }
 
-async function readFilesInDirByExtension(dir: string, extension: string) {
-    const result: string[] = [];
+async function readFilesInDirByExtension(dir: string, extension: string): Promise<Map<string, string>> {
+    const result = new Map<string, string>();
     const dirs: [string, FileType][] = await readDirectory(dir);
     for (let d in dirs) {
         const filename = dirs[d][0];
         if (filename !== undefined && filename.endsWith(extension)){
             const file = await readFile(dir + "/" + filename);
             const code = Buffer.from(file).toString('utf8');
-            result.push(code);
+            result.set(filename, code);
         }
     }
     return result;
@@ -86,6 +94,19 @@ export async function readComponents(context: ExtensionContext) {
     const jsons: string[] = [];
     components.forEach(c => jsons.push(JSON.stringify(c)));
     return jsons;
+}
+
+export async function readTemplates(context: ExtensionContext) {
+    const result = new Map<string, string>();
+    const runtime = await getRuntime();
+    const files = await readFilesInDirByExtension(path.join(context.extensionPath, 'snippets'), "java");
+    files.forEach((v, k)=>{
+        if (runtime && k.startsWith(runtime)){
+            const name = k.replace(runtime+"-", "").replace(".java", "");
+            result.set(name, v);
+        }
+    })
+    return result;
 }
 
 export function parceYaml(filename: string, yaml: string): [boolean, string?] {
