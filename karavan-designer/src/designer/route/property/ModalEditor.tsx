@@ -27,8 +27,9 @@ import Editor from "@monaco-editor/react";
 
 interface Props {
     property: PropertyMeta,
-    value: any,
-    onSave?: (fieldId: string, value: string | number | boolean | any) => void,
+    customCode: any,
+    onSave: (fieldId: string, value: string | number | boolean | any) => void,
+    onClose: () => void,
     title: string,
     dslLanguage?: [string, string, string],
     dark: boolean
@@ -36,32 +37,32 @@ interface Props {
 }
 
 interface State {
-    value: any,
+    customCode: any,
 }
 
 export class ModalEditor extends React.Component<Props, State> {
 
     public state: State = {
-        value: this.props.value,
+        customCode: this.props.customCode,
     }
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevProps.showEditor !== this.props.showEditor) {
-            this.setState({value: this.props.value})
+            this.setState({customCode: this.props.customCode})
         }
     }
 
     close(){
-        this.props.onSave?.call(this, this.props.property.name, this.props.value);
+        this.props.onClose?.call(this);
     }
 
     closeAndSave(){
-        this.props.onSave?.call(this, this.props.property.name, this.state.value);
+        this.props.onSave?.call(this, this.props.property.name, this.state.customCode);
     }
 
     render() {
         const {dark, dslLanguage, title, showEditor} = this.props;
-        const {value} = this.state;
+        const {customCode} = this.state;
         return (
             <Modal
                 aria-label={"expression"}
@@ -88,9 +89,9 @@ export class ModalEditor extends React.Component<Props, State> {
                     language={'java'}
                     theme={dark ? 'vs-dark' : 'light'}
                     options={{lineNumbers: "off", folding: false, lineNumbersMinChars: 10, showUnused: false, fontSize: 12, minimap: {enabled: false}}}
-                    value={value?.toString()}
+                    value={customCode?.toString()}
                     className={'code-editor'}
-                    onChange={(value: any, ev: any) => this.setState({value: value})}
+                    onChange={(value: any, ev: any) => this.setState({customCode: value})}
                 />
             </Modal>
         )

@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 
-export const Templates: Map<string, string> = new Map<string, string>();
+const Templates: Map<string, string> = new Map<string, string>();
+const JavaCode: Map<string, string> = new Map<string, string>();
 
 export const TemplateApi = {
 
@@ -36,4 +37,17 @@ export const TemplateApi = {
         return Templates.get(name)?.replaceAll("NAME", beanName);
     },
 
+
+    saveJavaCodes: (javaCode: Map<string, string>, clean: boolean = false) => {
+        if (clean) JavaCode.clear();
+        javaCode.forEach((value, key) => JavaCode.set(key, value));
+    },
+
+    saveJavaCode: (name: string, code: string) => {
+        JavaCode.set(name, code);
+    },
+
+    getJavaCode: (name: string): string | undefined => {
+        return JavaCode.get(name);
+    },
 }

@@ -301,6 +301,7 @@ body, :root, #root, .karavan {
   background-color:  var(--vscode-editor-background);
   border-color:  var(--vscode-input-foreground);
   color:  var(--vscode-input-foreground);
+  padding-left: 8px;
 }
 
 /* Help */

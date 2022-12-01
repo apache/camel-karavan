@@ -131,6 +131,7 @@ export class DesignerView {
                             utils.save(message.relativePath, message.code);
                             break;
                         case 'saveCode':
+                            console.log("saveCode")
                             utils.saveCode(message.name, message.yamlFullPath, message.yamFileName, message.code);
                             break;
                         case 'getData':
@@ -171,7 +172,9 @@ export class DesignerView {
             // Read components
             utils.readComponents(this.context),
             // Read templates
-            utils.readTemplates(this.context)
+            utils.readTemplates(this.context),
+            // Read java classes
+            utils.readJavaCode(fullPath)
         ]).then(results => {
             // Send Kamelets
             panel.webview.postMessage({ command: 'kamelets', kamelets: results[0] });
@@ -179,9 +182,11 @@ export class DesignerView {
             panel.webview.postMessage({ command: 'components', components: results[1] });
             // Send templates
             panel.webview.postMessage({ command: 'templates', templates: Object.fromEntries(results[2]) });
+            // Send java code
+            panel.webview.postMessage({ command: 'javaCode', templates: Object.fromEntries(results[3]) });
             // Send integration
             this.sendIntegrationData(panel, filename, relativePath, fullPath, reread, yaml, tab);
-        })
+        }).catch(err => console.log(err));
     }
 
     sendIntegrationData(panel: WebviewPanel, filename: string, relativePath: string, fullPath: string, reread: boolean, yaml?: string, tab?: string) {

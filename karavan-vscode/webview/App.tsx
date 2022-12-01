@@ -98,6 +98,11 @@ class App extends React.Component<Props, State> {
         const map = new Map( Object.keys(templates).map(key => [key, templates[key]]));
         TemplateApi.saveTemplates(map, true);
         break;  
+      case 'javaCode':
+        const javaCode = message.templates;
+        const javaCodeMap = new Map( Object.keys(javaCode).map(key => [key, javaCode[key]]));
+        TemplateApi.saveJavaCodes(javaCodeMap, true);
+        break;  
       case 'open':
         if (this.state.filename === '' && this.state.key === '') {
           if (message.page !== "designer" && this.state.interval) clearInterval(this.state.interval);
@@ -142,9 +147,9 @@ class App extends React.Component<Props, State> {
   }
 
   saveJavCode(name: string, code: string) {
+    TemplateApi.saveJavaCode(name, code);
     vscode.postMessage({ command: 'saveCode', name: name, yamlFullPath: this.state.fullPath, yamFileName: this.state.filename, code: code });
   }
-
 
   public render() {
     return (
@@ -164,8 +169,8 @@ class App extends React.Component<Props, State> {
             dark={this.props.dark} 
             onSaveCustomCode={(name, code) => this.saveJavCode(name, code)}
             onGetCustomCode={(name, javaType) => {
-                // return new Promise<string | undefined>(resolve => resolve(files.filter(f => f.name === name + ".java")?.at(0)?.code))
-                return new Promise<string | undefined>(resolve => resolve(undefined))
+                const code = TemplateApi.getJavaCode(name);
+                return new Promise<string | undefined>(resolve => resolve(code))
             }}
             />
         }

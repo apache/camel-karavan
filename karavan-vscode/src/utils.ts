@@ -109,6 +109,19 @@ export async function readTemplates(context: ExtensionContext) {
     return result;
 }
 
+export async function readJavaCode(fullPath: string) {
+    const result = new Map<string, string>();
+    const codePath = path.dirname(fullPath);
+    const javaFiles = await getJavaFiles(codePath); 
+    for (let x in javaFiles){
+        const fname = javaFiles[x];
+        const readData = await readFile(fname);
+        const code = Buffer.from(readData).toString('utf8');
+        result.set(path.basename(fname, ".java"), code);
+    }
+    return result;
+}
+
 export function parceYaml(filename: string, yaml: string): [boolean, string?] {
     const i = CamelDefinitionYaml.yamlToIntegration(filename, yaml);
     if (i.kind === 'Integration' && i.metadata.name) {
@@ -160,6 +173,14 @@ export async function hasApplicationProperties(baseDir: string) {
 export async function getPropertyFiles(baseDir: string) {
     const result: string[] = [];
     (await getAllFiles(baseDir, [])).filter(f => f.endsWith(".properties")).forEach(f => {
+        result.push(f);
+    })
+    return result;
+}
+
+export async function getJavaFiles(baseDir: string) {
+    const result: string[] = [];
+    (await getAllFiles(baseDir, [])).filter(f => f.endsWith(".java")).forEach(f => {
         result.push(f);
     })
     return result;
