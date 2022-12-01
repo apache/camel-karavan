@@ -17,12 +17,13 @@
 import * as vscode from "vscode";
 import * as utils from "./utils";
 import { ThemeIcon } from "vscode";
+import { getWebviewContent } from "./webviewContent";
 
 const KARAVAN_PANELS: Map<string, vscode.WebviewPanel> = new Map<string, vscode.WebviewPanel>();
 
 export class HelpView implements vscode.TreeDataProvider<HelpItem> {
 
-	constructor(private context: vscode.ExtensionContext, private webviewContent: string) {
+	constructor(private context: vscode.ExtensionContext) {
 
 	}
 	private _onDidChangeTreeData: vscode.EventEmitter<HelpItem | undefined | void> = new vscode.EventEmitter<HelpItem | undefined | void>();
@@ -59,7 +60,7 @@ export class HelpView implements vscode.TreeDataProvider<HelpItem> {
 					],
 				}
 			);
-			panel.webview.html = this.webviewContent;
+			panel.webview.html = getWebviewContent(this.context, panel.webview);
 			panel.iconPath = vscode.Uri.joinPath(
 				this.context.extensionUri,
 				"icons/karavan.svg"

@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { workspace, Uri, window, commands, WebviewPanel, ExtensionContext, ViewColumn, WebviewPanelOnDidChangeViewStateEvent, FileType } from "vscode";
+import {Uri, window, commands, WebviewPanel, ExtensionContext, ViewColumn, WebviewPanelOnDidChangeViewStateEvent } from "vscode";
 import * as path from "path";
 import * as utils from "./utils";
 import * as jbang from "./jbang";
 import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
 import { Integration } from "core/model/IntegrationDefinition";
+import { getWebviewContent } from "./webviewContent";
 
 const KARAVAN_LOADED = "karavan:loaded";
 const KARAVAN_PANELS: Map<string, WebviewPanel> = new Map<string, WebviewPanel>();
@@ -27,7 +28,7 @@ const extension = '.properties';
 
 export class DesignerView {
 
-    constructor(private context: ExtensionContext, private webviewContent: string, private rootPath?: string) {
+    constructor(private context: ExtensionContext, private rootPath?: string) {
 
     }
 
@@ -102,7 +103,6 @@ export class DesignerView {
     }
 
     openKaravanWebView(filename: string, relativePath: string, fullPath: string, yaml?: string, tab?: string) {
-        console.log("openKaravanWebView");
         if (!KARAVAN_PANELS.has(relativePath)) {
             // Karavan webview
             const panel = window.createWebviewPanel(
@@ -117,7 +117,7 @@ export class DesignerView {
                     ],
                 }
             );
-            panel.webview.html = this.webviewContent;
+            panel.webview.html = getWebviewContent(this.context, panel.webview);
             panel.iconPath = Uri.joinPath(
                 this.context.extensionUri,
                 "icons/karavan.svg"
@@ -128,8 +128,10 @@ export class DesignerView {
                 message => {
                     switch (message.command) {
                         case 'save':
-                            console.log("save", message);
-                            utils.save(message.relativePath, message.yaml);
+                            utils.save(message.relativePath, message.code);
+                            break;
+                        case 'saveCode':
+                            utils.saveCode(message.name, message.yamlFullPath, message.yamFileName, message.code);
                             break;
                         case 'getData':
                             this.sendData(panel, filename, relativePath, fullPath, message.reread === true, yaml, tab);
@@ -146,7 +148,6 @@ export class DesignerView {
 
             // Handle reopen
             panel.onDidChangeViewState((e: WebviewPanelOnDidChangeViewStateEvent) => {
-                console.log(e);
                 if (e.webviewPanel.active) {
                     e.webviewPanel.webview.postMessage({ command: 'activate', tab: tab });
                 } else {
@@ -168,12 +169,16 @@ export class DesignerView {
             // Read Kamelets
             utils.readKamelets(this.context),
             // Read components
-            utils.readComponents(this.context)
+            utils.readComponents(this.context),
+            // Read templates
+            utils.readTemplates(this.context)
         ]).then(results => {
             // Send Kamelets
             panel.webview.postMessage({ command: 'kamelets', kamelets: results[0] });
             // Send components
             panel.webview.postMessage({ command: 'components', components: results[1] });
+            // Send templates
+            panel.webview.postMessage({ command: 'templates', templates: Object.fromEntries(results[2]) });
             // Send integration
             this.sendIntegrationData(panel, filename, relativePath, fullPath, reread, yaml, tab);
         })
@@ -185,11 +190,11 @@ export class DesignerView {
             utils.readFile(path.resolve(fullPath)).then(readData => {
                 const yaml = Buffer.from(readData).toString('utf8');
                 // Send integration
-                panel.webview.postMessage({ command: 'open', page: "designer", filename: filename, relativePath: relativePath, yaml: yaml, tab: tab });
+                panel.webview.postMessage({ command: 'open', page: "designer", filename: filename, relativePath: relativePath, fullPath:fullPath, yaml: yaml, tab: tab });
             });
         } else {
             // Send integration
-            panel.webview.postMessage({ command: 'open', page: "designer", filename: filename, relativePath: relativePath, yaml: yaml, tab: tab });
+            panel.webview.postMessage({ command: 'open', page: "designer", filename: filename, relativePath: relativePath, fullPath:fullPath, yaml: yaml, tab: tab });
         }
 
     }
