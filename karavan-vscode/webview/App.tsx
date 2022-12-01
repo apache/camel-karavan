@@ -99,7 +99,7 @@ class App extends React.Component<Props, State> {
         TemplateApi.saveTemplates(map, true);
         break;  
       case 'javaCode':
-        const javaCode = message.templates;
+        const javaCode = message.javaCode;
         const javaCodeMap = new Map( Object.keys(javaCode).map(key => [key, javaCode[key]]));
         TemplateApi.saveJavaCodes(javaCodeMap, true);
         break;  
@@ -169,7 +169,8 @@ class App extends React.Component<Props, State> {
             dark={this.props.dark} 
             onSaveCustomCode={(name, code) => this.saveJavCode(name, code)}
             onGetCustomCode={(name, javaType) => {
-                const code = TemplateApi.getJavaCode(name);
+                let code = TemplateApi.getJavaCode(name);
+                if (code === undefined || code.length === 0) code = TemplateApi.generateCode(name, javaType);
                 return new Promise<string | undefined>(resolve => resolve(code))
             }}
             />

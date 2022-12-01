@@ -183,7 +183,7 @@ export class DesignerView {
             // Send templates
             panel.webview.postMessage({ command: 'templates', templates: Object.fromEntries(results[2]) });
             // Send java code
-            panel.webview.postMessage({ command: 'javaCode', templates: Object.fromEntries(results[3]) });
+            panel.webview.postMessage({ command: 'javaCode', javaCode: Object.fromEntries(results[3]) });
             // Send integration
             this.sendIntegrationData(panel, filename, relativePath, fullPath, reread, yaml, tab);
         }).catch(err => console.log(err));

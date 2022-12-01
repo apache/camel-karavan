@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 import * as path from "path";
-import { workspace, Uri, window, ExtensionContext, FileType} from "vscode";
+import { workspace, Uri, window, ExtensionContext, FileType } from "vscode";
 import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
 
 export function getRoot(): string | undefined {
@@ -30,7 +30,7 @@ export function save(relativePath: string, text: string) {
     }
 }
 
-export function saveCode(name: string, yamlFullPath: string, yamFileName: string,  code: string) {
+export function saveCode(name: string, yamlFullPath: string, yamFileName: string, code: string) {
     if (workspace.workspaceFolders) {
         const folder = yamlFullPath.replace(yamFileName, '');
         write(path.join(folder, name + ".java"), code);
@@ -77,7 +77,7 @@ async function readFilesInDirByExtension(dir: string, extension: string): Promis
     const dirs: [string, FileType][] = await readDirectory(dir);
     for (let d in dirs) {
         const filename = dirs[d][0];
-        if (filename !== undefined && filename.endsWith(extension)){
+        if (filename !== undefined && filename.endsWith(extension)) {
             const file = await readFile(dir + "/" + filename);
             const code = Buffer.from(file).toString('utf8');
             result.set(filename, code);
@@ -100,9 +100,9 @@ export async function readTemplates(context: ExtensionContext) {
     const result = new Map<string, string>();
     const runtime = await getRuntime();
     const files = await readFilesInDirByExtension(path.join(context.extensionPath, 'snippets'), "java");
-    files.forEach((v, k)=>{
-        if (runtime && k.startsWith(runtime)){
-            const name = k.replace(runtime+"-", "").replace(".java", "");
+    files.forEach((v, k) => {
+        if (runtime && k.startsWith(runtime)) {
+            const name = k.replace(runtime + "-", "").replace(".java", "");
             result.set(name, v);
         }
     })
@@ -112,8 +112,8 @@ export async function readTemplates(context: ExtensionContext) {
 export async function readJavaCode(fullPath: string) {
     const result = new Map<string, string>();
     const codePath = path.dirname(fullPath);
-    const javaFiles = await getJavaFiles(codePath); 
-    for (let x in javaFiles){
+    const javaFiles = await getJavaFiles(codePath);
+    for (let x in javaFiles) {
         const fname = javaFiles[x];
         const readData = await readFile(fname);
         const code = Buffer.from(readData).toString('utf8');
@@ -146,7 +146,7 @@ export async function getAllFiles(dirPath, arrayOfFiles: string[]) {
 
     arrayOfFiles = arrayOfFiles || [];
 
-    for (let x in files){
+    for (let x in files) {
         const filename = files[x][0];
         const type = files[x][1];
         if (type === FileType.Directory) {
@@ -197,11 +197,11 @@ export async function getJsonFiles(baseDir: string) {
 export async function getIntegrationFiles(baseDir: string) {
     const result: string[] = []
     const files = await getYamlFiles(baseDir);
-    for (let x in files){
+    for (let x in files) {
         const filename = files[x];
         const readData = await readFile(path.resolve(filename));
         const yaml = Buffer.from(readData).toString('utf8');
-        if (!filename.startsWith(baseDir + path.sep + "target") && CamelDefinitionYaml.yamlIsIntegration(yaml)){
+        if (!filename.startsWith(baseDir + path.sep + "target") && CamelDefinitionYaml.yamlIsIntegration(yaml)) {
             result.push(yaml);
         }
     }
@@ -210,21 +210,26 @@ export async function getIntegrationFiles(baseDir: string) {
 
 
 export async function getProperties(rootPath?: string) {
-    if (rootPath === undefined)
-        rootPath = (workspace.workspaceFolders && (workspace.workspaceFolders.length > 0)) ? workspace.workspaceFolders[0].uri.fsPath : undefined;
-    if (rootPath) {
-        const readData = await readFile(path.resolve(rootPath, "application.properties"));
-        return Buffer.from(readData).toString('utf8');
-    } else {
-        const readData = await readFile(path.resolve("application.properties"));
-        return Buffer.from(readData).toString('utf8');
+    try {
+        if (rootPath === undefined)
+            rootPath = (workspace.workspaceFolders && (workspace.workspaceFolders.length > 0)) ? workspace.workspaceFolders[0].uri.fsPath : undefined;
+        if (rootPath) {
+            const readData = await readFile(path.resolve(rootPath, "application.properties"));
+            return Buffer.from(readData).toString('utf8');
+
+        } else {
+            const readData = await readFile(path.resolve("application.properties"));
+            return Buffer.from(readData).toString('utf8');
+        }
+    } catch (err) {
+        return '';
     }
 }
 
 export async function getProperty(name: string) {
     const properties = await getProperties();
     const props = properties.split("\n");
-    for (var p of props){
+    for (var p of props) {
         const pair = p.split("=");
         if (pair[0] === name) {
             return pair[1];
@@ -233,8 +238,11 @@ export async function getProperty(name: string) {
 }
 
 export async function getRuntime() {
-    return getProperty("camel.jbang.runtime");
-;}
+    const defaultRuntime: string = workspace.getConfiguration().get("camel.runtimes") || "";
+    const runtime = await getProperty("camel.jbang.runtime");
+    const result:string = runtime !== undefined ? runtime : defaultRuntime;
+    return result;
+}
 
 export async function getTarget() {
     return getProperty('camel.karavan.target');
@@ -246,7 +254,7 @@ export async function getExportFolder() {
 
 export async function stat(fullPath: string) {
     const uriFile: Uri = Uri.file(fullPath);
-    return  workspace.fs.stat(uriFile);
+    return workspace.fs.stat(uriFile);
 }
 
 export async function readDirectory(fullPath: string) {
@@ -262,38 +270,38 @@ export async function readFile(fullPath: string) {
 export async function write(fullPath: string, code: string) {
     const uriFile: Uri = Uri.file(fullPath);
     workspace.fs.writeFile(uriFile, Buffer.from(code, 'utf8'))
-    .then(
-        value => {}, 
-        reason => window.showErrorMessage("Error: " + reason) 
-    );
+        .then(
+            value => { },
+            reason => window.showErrorMessage("Error: " + reason)
+        );
 }
 
-export function capitalize (text) {
+export function capitalize(text) {
     return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 }
 
-export function defaultGAV (): string | undefined {
+export function defaultGAV(): string | undefined {
     const groupId = workspace.getConfiguration().get("Karavan.defaultGroupId");
     const artifact = currentFolderName();
     return groupId + ":" + artifact + ":1";
 }
 
-export function currentFolderName (): string | undefined {
+export function currentFolderName(): string | undefined {
     if (workspace.workspaceFolders) {
         const uriFolder: Uri = workspace.workspaceFolders[0].uri;
         const parts = uriFolder.fsPath.split(path.sep);
-        const name = parts.at(parts.length -1) || '';
+        const name = parts.at(parts.length - 1) || '';
         return name;
     }
 }
 
-export async function createApplicationproperties(runtime: string, gav: string, target: string ) {
+export async function createApplicationproperties(runtime: string, gav: string, target: string) {
     if (workspace.workspaceFolders) {
         const uriFolder: Uri = workspace.workspaceFolders[0].uri;
         const name = currentFolderName() || "";
 
-        const props: string [] = workspace.getConfiguration().get("Karavan.applicationProperties") || [];
-        const runtimeProps: string [] = workspace.getConfiguration().get("Karavan.".concat(runtime.replaceAll("-", "")).concat(capitalize(target)).concat("Properties")) || [];
+        const props: string[] = workspace.getConfiguration().get("Karavan.applicationProperties") || [];
+        const runtimeProps: string[] = workspace.getConfiguration().get("Karavan.".concat(runtime.replaceAll("-", "")).concat(capitalize(target)).concat("Properties")) || [];
 
         const text = props.concat(runtimeProps).map(v => {
             if (v.includes('$NAME')) return v.replace('$NAME', name)
