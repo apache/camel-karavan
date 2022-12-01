@@ -115,7 +115,7 @@ export function activate(context: ExtensionContext) {
 
     // Run project
     const runProjectCommand = commands.registerCommand("karavan.jbang-run-project", (...args: any[]) => {
-        jbang.camelJbangRun();
+        exportProject(rootPath, true);
     });
     context.subscriptions.push(runProjectCommand);
 
@@ -148,11 +148,12 @@ export function activate(context: ExtensionContext) {
 /**
  * export into folder
  */
-export async function exportProject(rootPath?: string) {
+export async function exportProject(rootPath?: string, run?: boolean) {
     utils.getExportFolder()
         .then(folder => {
             if (folder){
-                jbang.camelJbangExport();
+                const fullPath = rootPath + path.sep + folder;
+                jbang.camelJbangExport(fullPath, run);
             } else {
                 window.showInputBox({
                     title: "Export project",
@@ -169,7 +170,7 @@ export async function exportProject(rootPath?: string) {
                 }).then(folder => {
                     if (folder && rootPath) {
                         const fullPath = rootPath + path.sep + folder;
-                        jbang.camelJbangExport(fullPath);
+                        jbang.camelJbangExport(fullPath, run);
                     }
                 });
             }

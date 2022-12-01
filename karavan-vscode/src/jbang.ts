@@ -94,8 +94,13 @@ export function camelJbangRun(filename?: string) {
     terminal.sendText(command);
 }
 
-export function camelJbangExport(fullPath?: string) {
-    const command = createExportCommand(fullPath);
+export async function camelJbangExport(fullPath: string, run?: boolean) {
+    let command = createExportCommand(fullPath);
+    if (run) {
+        const runtime = await utils.getRuntime();
+        const mvn = runtime === 'quarkus' ? "quarkus:dev" : "spring-boot:run";
+        command = command.concat(" && mvn clean ").concat(mvn).concat(" -f ").concat(fullPath);
+    }
     const terminalId = "export";
     const existTerminal = TERMINALS.get(terminalId);
     if (existTerminal) existTerminal.dispose();
@@ -105,7 +110,7 @@ export function camelJbangExport(fullPath?: string) {
     terminal.sendText(command);
 }
 
-export function createExportCommand(fullPath?: string) {
+export function createExportCommand(fullPath: string) {
     const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
     const cmd = "export --fresh " 
         + (fullPath ? " --directory=" + fullPath : '')
@@ -130,7 +135,7 @@ export function camelDeploy(directory: string) {
             window.showErrorMessage("Namespace not set \n" + val[3].error);
         }
         const deployCommand: string = workspace.getConfiguration().get("Karavan.".concat(runtime.replaceAll("-", "")).concat(utils.capitalize(target)).concat("Deploy")) || '';
-        const command = createExportCommand().concat(" && ").concat(deployCommand).concat(" -f ").concat(exportFolder);
+        const command = createExportCommand(directory).concat(" && ").concat(deployCommand).concat(" -f ").concat(exportFolder);
         camelRunDeploy(command, env);
     }).catch((reason: any) => {
         window.showErrorMessage("Error: \n" + reason.message);

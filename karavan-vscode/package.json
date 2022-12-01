@@ -392,12 +392,12 @@
         },
         {
           "command": "karavan.open",
-          "when": "resourceExtname == .yaml",
+          "when": "resourceFilename =~ /.camel.yaml$/",
           "group": "karavan@4"
         },
         {
           "command": "karavan.jbang-run-file",
-          "when": "resourceExtname == .yaml",
+          "when": "resourceFilename =~ /.camel.yaml$/",
           "group": "karavan@5"
         },
         {
@@ -424,12 +424,12 @@
       "editor/title": [
         {
           "command": "karavan.open",
-          "when": "resourceExtname == .yaml",
+          "when": "resourceFilename =~ /.camel.yaml$/",
           "group": "navigation@1"
         },
         {
-          "command": "karavan.jbang-run-file",
-          "when": "resourceExtname == .yaml || karavan:loaded",
+          "command": "karavan.jbang-run-project",
+          "when": "resourceFilename =~ /.camel.yaml$/ || karavan:loaded",
           "group": "navigation@2"
         },
         {
