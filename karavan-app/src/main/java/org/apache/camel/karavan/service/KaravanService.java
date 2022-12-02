@@ -70,7 +70,6 @@ public class KaravanService {
         } else {
             bus.publish(ImportService.IMPORT_TEMPLATES, "");
         }
-        bus.publish(ImportService.IMPORT_KAMELETS, "");
     }
 
     void startInformers() {

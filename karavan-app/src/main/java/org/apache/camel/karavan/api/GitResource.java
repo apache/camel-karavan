@@ -17,25 +17,19 @@
 package org.apache.camel.karavan.api;
 
 import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.service.GitService;
-import org.apache.camel.karavan.service.InfinispanService;
 import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 
 @Path("/api/git")
 public class GitResource {
 
-    @Inject
-    InfinispanService infinispanService;
     @Inject
     GitService gitService;
 
@@ -45,11 +39,6 @@ public class GitResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Project push(Project project) throws Exception {
-        Project p = infinispanService.getProject(project.getProjectId());
-        List<ProjectFile> files = infinispanService.getProjectFiles(project.getProjectId());
-        String commitId = gitService.commitAndPushProject(p, files);
-        p.setLastCommit(commitId);
-        infinispanService.saveProject(p, false);
-        return p;
+        return gitService.commitAndPushProject(project);
     }
 }

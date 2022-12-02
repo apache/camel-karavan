@@ -45,6 +45,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -56,34 +57,32 @@ import java.util.UUID;
 @ApplicationScoped
 public class GitService {
 
-    private static final String PROJECTS = "projects";
-    private static final String KAMELETS = "kamelets";
-
     @Inject
     Vertx vertx;
 
     @Inject
     KubernetesService kubernetesService;
 
+    @Inject
+    InfinispanService infinispanService;
+
     private static final Logger LOGGER = Logger.getLogger(GitService.class.getName());
 
     void onStart(@Observes StartupEvent ev) {
-        LOGGER.info("Git service for projects repo: " + getGitConfig(PROJECTS).getUri());
-        LOGGER.info("Git service for kamelets repo: " + getGitConfig(KAMELETS).getUri());
+        LOGGER.info("Git service for repo: " + getGitConfig().getUri());
     }
 
-    private GitConfig getGitConfig(String name) {
-        String propertiesPrefix = "karavan." + name + "-";
+    private GitConfig getGitConfig() {
+        String propertiesPrefix = "karavan.";
         String branch = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-branch", String.class);
         if (kubernetesService.inKubernetes()){
             LOGGER.info("inKubernetes " + kubernetesService.getNamespace());
-            String kubernetesPrefix = name + "-";
             Secret secret =  kubernetesService.getKaravanSecret();
-            String uri = new String(Base64.getDecoder().decode(secret.getData().get(kubernetesPrefix + "git-repository").getBytes(StandardCharsets.UTF_8)));
-            String username = new String(Base64.getDecoder().decode(secret.getData().get(kubernetesPrefix + "git-username").getBytes(StandardCharsets.UTF_8)));
-            String password = new String(Base64.getDecoder().decode(secret.getData().get(kubernetesPrefix + "git-password").getBytes(StandardCharsets.UTF_8)));
-            if (secret.getData().containsKey(kubernetesPrefix + "git-branch")){
-                branch = new String(Base64.getDecoder().decode(secret.getData().get(kubernetesPrefix + "git-branch").getBytes(StandardCharsets.UTF_8)));
+            String uri = new String(Base64.getDecoder().decode(secret.getData().get("git-repository").getBytes(StandardCharsets.UTF_8)));
+            String username = new String(Base64.getDecoder().decode(secret.getData().get("git-username").getBytes(StandardCharsets.UTF_8)));
+            String password = new String(Base64.getDecoder().decode(secret.getData().get("git-password").getBytes(StandardCharsets.UTF_8)));
+            if (secret.getData().containsKey("git-branch")){
+                branch = new String(Base64.getDecoder().decode(secret.getData().get("git-branch").getBytes(StandardCharsets.UTF_8)));
             }
             return new GitConfig(uri, username, password, branch);
         } else {
@@ -94,13 +93,22 @@ public class GitService {
         }
     }
 
+    public Project commitAndPushProject(Project project) throws Exception {
+        Project p = infinispanService.getProject(project.getProjectId());
+        List<ProjectFile> files = infinispanService.getProjectFiles(project.getProjectId());
+        String commitId = commitAndPushProject(p, files);
+        p.setLastCommit(commitId);
+        infinispanService.saveProject(p, false);
+        return p;
+    }
+
     public String commitAndPushProject(Project project, List<ProjectFile> files) throws GitAPIException, IOException, URISyntaxException {
         LOGGER.info("Commit and push project " + project.getProjectId());
-        GitConfig gitConfig = getGitConfig(PROJECTS);
+        GitConfig gitConfig = getGitConfig();
         CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
-        LOGGER.infof("Temp folder created: {}", folder);
+        LOGGER.info("Temp folder created " + folder);
         Git git = null;
         try {
             git = clone(folder, gitConfig.getUri(), gitConfig.getBranch(), cred);
@@ -113,33 +121,12 @@ public class GitService {
         }
         writeProjectToFolder(folder, project, files);
         addDeletedFilesToIndex(git, folder, project, files);
-        return commitAddedAndPush(git, gitConfig.getBranch(), cred).getId().getName();
-    }
-
-    public List<Tuple2<String, String>> readKameletsFromRepository() {
-        LOGGER.info("Read kamelets...");
-        GitConfig gitConfig = getGitConfig(KAMELETS);
-        LOGGER.info("Read kamelets from repository " + gitConfig.getUri());
-        CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
-        String uuid = UUID.randomUUID().toString();
-        String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
-        LOGGER.infof("Temp folder created: %s", folder);
-        try {
-            Git git = clone(folder, gitConfig.getUri(), gitConfig.getBranch(), cred);
-            checkout(git, false, null, null, gitConfig.getBranch());
-            return readKameletsFromFolder(folder);
-        } catch (RefNotFoundException e) {
-            LOGGER.error("New repository");
-            return List.of();
-        } catch (Exception e) {
-            LOGGER.error("Error", e);
-            return List.of();
-        }
+        return commitAddedAndPush(git, gitConfig.getBranch(), cred, project.getProjectId()).getId().getName();
     }
 
     public List<Tuple2<String, Map<String, String>>> readProjectsFromRepository() {
         LOGGER.info("Read projects...");
-        GitConfig gitConfig = getGitConfig(PROJECTS);
+        GitConfig gitConfig = getGitConfig();
         LOGGER.info("Read projects from repository " + gitConfig.getUri());
         CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
         String uuid = UUID.randomUUID().toString();
@@ -243,10 +230,10 @@ public class GitService {
         });
     }
 
-    public RevCommit commitAddedAndPush(Git git, String branch, CredentialsProvider cred) throws GitAPIException, IOException, URISyntaxException {
+    public RevCommit commitAddedAndPush(Git git, String branch, CredentialsProvider cred, String message) throws GitAPIException, IOException, URISyntaxException {
         LOGGER.info("Commit and push changes");
         LOGGER.info("Git add: " + git.add().addFilepattern(".").call());
-        RevCommit commit = git.commit().setMessage(LocalDate.now().toString()).call();
+        RevCommit commit = git.commit().setMessage(LocalDateTime.now() + ": " + message).call();
         LOGGER.info("Git commit: " + commit);
         Iterable<PushResult> result = git.push().add(branch).setRemote("origin").setCredentialsProvider(cred).call();
         LOGGER.info("Git push: " + result);
