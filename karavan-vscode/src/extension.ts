@@ -115,7 +115,14 @@ export function activate(context: ExtensionContext) {
 
     // Run project
     const runProjectCommand = commands.registerCommand("karavan.jbang-run-project", (...args: any[]) => {
-        exportProject(rootPath, true);
+        utils.getProperties(rootPath).then(properties => {
+            if (properties.length > 0){
+                exportProject(rootPath, true);
+            } else {
+                window.showErrorMessage("No runtime configured! Create application!")
+            }
+        })
+        
     });
     context.subscriptions.push(runProjectCommand);
 
