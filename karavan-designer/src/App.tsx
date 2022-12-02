@@ -112,11 +112,11 @@ class App extends React.Component<Props, State> {
             components.forEach(c => jsons.push(JSON.stringify(c)));
             ComponentApi.saveComponents(jsons, true);
 
-            TemplateApi.saveTemplate("org.apache.camel.AggregationStrategy", data[2]);
-            TemplateApi.saveTemplate("org.apache.camel.Processor", data[3]);
-
             this.toast("Success", "Loaded " + jsons.length + " components", 'success');
             this.setState({loaded: true});
+
+            TemplateApi.saveTemplate("org.apache.camel.AggregationStrategy", data[2]);
+            TemplateApi.saveTemplate("org.apache.camel.Processor", data[3]);
         }).catch(err =>
             this.toast("Error", err.text, 'danger')
         );

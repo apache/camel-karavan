@@ -40,6 +40,7 @@ import {CamelUi, RouteToCreate} from "../utils/CamelUi";
 import {findDOMNode} from "react-dom";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {toPng} from 'html-to-image';
+import {KaravanDesigner} from "../KaravanDesigner";
 
 interface Props {
     onSave?: (integration: Integration, propertyOnly: boolean) => void

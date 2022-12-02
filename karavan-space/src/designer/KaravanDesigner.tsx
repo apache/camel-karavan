@@ -27,13 +27,13 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelUi} from "./utils/CamelUi";
 import {BeansDesigner} from "./beans/BeansDesigner";
 import {RestDesigner} from "./rest/RestDesigner";
-import {ErrorDesigner} from "./error/ErrorDesigner";
-import {ExceptionDesigner} from "./exception/ExceptionDesigner";
+import {ErrorHandlerDesigner} from "./error/ErrorHandlerDesigner";
 import {getDesignerIcon} from "./utils/KaravanIcons";
 
 interface Props {
-    onSave?: (filename: string, yaml: string, propertyOnly: boolean) => void
-    onDisableHelp?: () => void
+    onSave: (filename: string, yaml: string, propertyOnly: boolean) => void
+    onSaveCustomCode: (name: string, code: string) => void
+    onGetCustomCode: (name: string, javaType: string) => Promise<string | undefined>
     filename: string
     yaml: string
     dark: boolean
@@ -46,6 +46,22 @@ interface State {
     key: string
     propertyOnly: boolean
     routeDesignerRef?: any
+}
+
+export class KaravanInstance {
+    static designer: KaravanDesigner;
+
+    static set(designer: KaravanDesigner): void  {
+        KaravanInstance.designer = designer;
+    }
+
+    static get(): KaravanDesigner {
+        return KaravanInstance.designer;
+    }
+
+    static getProps(): Props {
+        return KaravanInstance.designer?.props;
+    }
 }
 
 export class KaravanDesigner extends React.Component<Props, State> {
@@ -64,6 +80,10 @@ export class KaravanDesigner extends React.Component<Props, State> {
         key: "",
         propertyOnly: false,
         routeDesignerRef: React.createRef(),
+    }
+
+    componentDidMount() {
+        KaravanInstance.set(this);
     }
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
@@ -112,21 +132,21 @@ export class KaravanDesigner extends React.Component<Props, State> {
                     <Tab eventKey='routes' title={this.getTab("Routes", "Integration flows", "routes")}></Tab>
                     <Tab eventKey='rest' title={this.getTab("REST", "REST services", "rest")}></Tab>
                     <Tab eventKey='beans' title={this.getTab("Beans", "Beans Configuration", "beans")}></Tab>
-                    <Tab eventKey='error' title={this.getTab("Error", "Error Handler", "error")}></Tab>
+                    <Tab eventKey='error' title={this.getTab("Error Handler", "Global Error Handler", "error")}></Tab>
                 </Tabs>
-                {tab === 'routes' && <RouteDesigner integration={this.state.integration}
-                                                    onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
-                                                    dark={this.props.dark}
-                                                    ref={this.state.routeDesignerRef}/>}
-                {tab === 'rest' && <RestDesigner integration={this.state.integration}
-                                                 onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
-                                                 dark={this.props.dark}/>}
-                {tab === 'beans' && <BeansDesigner integration={this.state.integration}
-                                                   onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
-                                                   dark={this.props.dark}/>}
-                {tab === 'error' && <ErrorDesigner integration={this.state.integration}
-                                                   onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
-                                                   dark={this.props.dark}/>}
+                    {tab === 'routes' && <RouteDesigner integration={this.state.integration}
+                                                        onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
+                                                        dark={this.props.dark}
+                                                        ref={this.state.routeDesignerRef}/>}
+                    {tab === 'rest' && <RestDesigner integration={this.state.integration}
+                                                     onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
+                                                     dark={this.props.dark}/>}
+                    {tab === 'beans' && <BeansDesigner integration={this.state.integration}
+                                                       onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
+                                                       dark={this.props.dark}/>}
+                    {tab === 'error' && <ErrorHandlerDesigner integration={this.state.integration}
+                                                              onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
+                                                              dark={this.props.dark}/>}
             </PageSection>
         )
     }

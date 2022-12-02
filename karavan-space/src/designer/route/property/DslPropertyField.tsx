@@ -36,8 +36,6 @@ import {
     Tooltip,
     Card,
     InputGroup,
-    Modal,
-    ModalVariant, Title, TitleSizes
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -64,8 +62,10 @@ import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
 import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
 import {KubernetesSelector} from "./KubernetesSelector";
 import {KubernetesAPI} from "../../utils/KubernetesAPI";
-import Editor from "@monaco-editor/react";
 import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
+import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
+import {ModalEditor} from "./ModalEditor";
+import {KaravanInstance} from "../../KaravanDesigner";
 
 interface Props {
     property: PropertyMeta,
@@ -88,6 +88,7 @@ interface State {
     showEditor: boolean
     showKubernetesSelector: boolean
     kubernetesSelectorProperty?: string
+    customCode?: string
     ref: any
 }
 
@@ -148,13 +149,14 @@ export class DslPropertyField extends React.Component<Props, State> {
     getLabel = (property: PropertyMeta, value: any) => {
         if (!this.isMultiValueField(property) && property.isObject && !property.isArray && !["ExpressionDefinition"].includes(property.type)) {
             const tooltip = value ? "Delete " + property.name : "Add " + property.name;
+            const className = value ? "change-button delete-button" : "change-button add-button";
             const x = value ? undefined : CamelDefinitionApi.createStep(property.type, {});
             const icon = value ? (<DeleteIcon noVerticalAlign/>) : (<AddIcon noVerticalAlign/>);
             return (
                 <div style={{display: "flex"}}>
                     <Text>{property.displayName} </Text>
-                    <Tooltip position={"bottom"} content={<div>{tooltip}</div>}>
-                        <button className="add-button" onClick={e => this.props.onChange?.call(this, property.name, x)} aria-label="Add element">
+                    <Tooltip position={"top"} content={<div>{tooltip}</div>}>
+                        <button className={className} onClick={e => this.props.onChange?.call(this, property.name, x)} aria-label="Add element">
                             {icon}
                         </button>
                     </Tooltip>
@@ -243,9 +245,52 @@ export class DslPropertyField extends React.Component<Props, State> {
         </InputGroup>)
     }
 
+    showCode = (name: string, javaType: string) => {
+        const {property} = this.props;
+        KaravanInstance.getProps().onGetCustomCode.call(this, name, property.javaType).then(value => {
+            if (value === undefined) {
+                const code = TemplateApi.generateCode(property.javaType, name);
+                this.setState({customCode: code, showEditor: true})
+            } else {
+                this.setState({customCode: value, showEditor: true})
+            }
+        }).catch(reason => console.log(reason))
+    }
+
+    getJavaTypeGeneratedInput = (property: PropertyMeta, value: any) => {
+        const {dslLanguage, dark} = this.props;
+        const {showEditor, customCode} = this.state;
+        return (<InputGroup>
+            <TextInput
+                ref={this.state.ref}
+                className="text-field" isRequired isReadOnly={this.isUriReadOnly(property)}
+                type="text"
+                id={property.name} name={property.name}
+                value={value?.toString()}
+                onChange={e => this.propertyChanged(property.name, CamelUtil.capitalizeName(e?.replace(/\s/g, '')))}/>
+            <Tooltip position="bottom-end" content={"Create Java Class"}>
+                <Button variant="control" onClick={e => this.showCode(value, property.javaType)}>
+                    <PlusIcon/>
+                </Button>
+            </Tooltip>
+            <ModalEditor property={property}
+                         customCode={customCode}
+                         showEditor={showEditor}
+                         dark={dark}
+                         dslLanguage={dslLanguage}
+                         title="Java Class"
+                         onClose={() => this.setState({showEditor: false})}
+                         onSave={(fieldId, value1) => {
+                             this.propertyChanged(fieldId, value);
+                             KaravanInstance.getProps().onSaveCustomCode?.call(this, value, value1);
+                             this.setState({showEditor: false});
+                         }}/>
+        </InputGroup>)
+    }
+
     getTextArea = (property: PropertyMeta, value: any) => {
         const {dslLanguage, dark} = this.props;
-        const showEditor = this.state.showEditor;
+        const {showEditor} = this.state;
         return (
             <InputGroup>
                 <TextArea
@@ -261,37 +306,17 @@ export class DslPropertyField extends React.Component<Props, State> {
                         <EditorIcon/>
                     </Button>
                 </Tooltip>
-                <Modal
-                    variant={ModalVariant.large}
-                    header={<React.Fragment>
-                        <Title id="modal-custom-header-label" headingLevel="h1" size={TitleSizes['2xl']}>
-                            {`Expression (${dslLanguage?.[0]})`}
-                        </Title>
-                        <p className="pf-u-pt-sm">{dslLanguage?.[2]}</p>
-                    </React.Fragment>}
-                    isOpen={this.state.showEditor}
-                    onClose={() => this.setState({showEditor: false})}
-                    actions={[
-                        <Button key="cancel" variant="primary" isSmall
-                                onClick={e => this.setState({showEditor: false})}>Close</Button>
-                    ]}
-                    onEscapePress={e => this.setState({showEditor: false})}>
-                    <Editor
-                        height="400px"
-                        width="100%"
-                        defaultLanguage={'java'}
-                        language={'java'}
-                        theme={dark ? 'vs-dark' : 'light'}
-                        options={{lineNumbers:"off", folding:false, lineNumbersMinChars:10, showUnused:false, fontSize:12, minimap:{enabled:false}}}
-                        value={value?.toString()}
-                        className={'code-editor'}
-                        onChange={(value: any, ev: any) => {
-                            if (value) {
-                                this.propertyChanged(property.name, value)
-                            }
-                        }}
-                    />
-                </Modal>
+                <ModalEditor property={property}
+                             customCode={value}
+                             showEditor={showEditor}
+                             dark={dark}
+                             dslLanguage={dslLanguage}
+                             title={`Expression (${dslLanguage?.[0]})`}
+                             onClose={() => this.setState({showEditor: false})}
+                             onSave={(fieldId, value1) => {
+                                 this.propertyChanged(fieldId, value1);
+                                 this.setState({showEditor: false});
+                             }}/>
             </InputGroup>
         )
     }
@@ -431,6 +456,10 @@ export class DslPropertyField extends React.Component<Props, State> {
         } else {
             return false;
         }
+    }
+
+    javaTypeGenerated = (property: PropertyMeta): boolean => {
+        return property.javaType.length !== 0;
     }
 
     getInternalUriSelect = (property: PropertyMeta, value: any) => {
@@ -672,10 +701,13 @@ export class DslPropertyField extends React.Component<Props, State> {
                         && this.getInternalUriSelect(property, value)}
                     {this.canBeMediaType(property, this.props.element)
                         && this.getMediaTypeSelect(property, value)}
+                    {this.javaTypeGenerated(property)
+                        && this.getJavaTypeGeneratedInput(property, value)}
                     {['string', 'duration', 'integer', 'number'].includes(property.type) && property.name !== 'expression' && !property.name.endsWith("Ref")
                         && !property.isArray && !property.enumVals
                         && !this.canBeInternalUri(property, this.props.element)
                         && !this.canBeMediaType(property, this.props.element)
+                        && !this.javaTypeGenerated(property)
                         && this.getStringInput(property, value)}
                     {['string'].includes(property.type) && property.name.endsWith("Ref") && !property.isArray && !property.enumVals
                         && this.getSelectBean(property, value)}

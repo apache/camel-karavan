@@ -21,6 +21,7 @@ import {
 import '../designer/karavan.css';
 import {KameletModel} from "karavan-core/lib/model/KameletModels";
 import {CamelUi} from "../designer/utils/CamelUi";
+import {KameletApi} from "karavan-core/lib/api/KameletApi";
 
 interface Props {
     kamelet: KameletModel,
@@ -44,19 +45,21 @@ export class KameletCard extends React.Component<Props, State> {
 
     render() {
         const kamelet = this.state.kamelet;
+        const isCustom = KameletApi.getCustomKameletNames().includes(kamelet.metadata.name);
         return (
             <Card isHoverable isCompact key={kamelet.metadata.name} className="kamelet-card"
-                onClick={event => this.click(event)}
+                  onClick={event => this.click(event)}
             >
                 <CardHeader>
                     {CamelUi.getIconFromSource(kamelet.icon())}
+                    {isCustom && <Badge className="custom">custom</Badge>}
                 </CardHeader>
-                <CardTitle>{CamelUi.titleFromName(kamelet.metadata.name)}</CardTitle>
+                <CardTitle>{kamelet.spec.definition.title}</CardTitle>
                 <CardBody>{kamelet.spec.definition.description}</CardBody>
                 <CardFooter>
                     {/*<div style={{justifyContent: "space-between"}}>*/}
-                        <Badge isRead className="labels">{kamelet.metadata.labels["camel.apache.org/kamelet.type"].toLowerCase()}</Badge>
-                        <Badge isRead className="version">{kamelet.metadata.annotations["camel.apache.org/catalog.version"].toLowerCase()}</Badge>
+                    <Badge isRead className="labels">{kamelet.metadata.labels["camel.apache.org/kamelet.type"].toLowerCase()}</Badge>
+                    <Badge isRead className="version">{kamelet.metadata.annotations["camel.apache.org/catalog.version"].toLowerCase()}</Badge>
                     {/*</div>*/}
                 </CardFooter>
             </Card>

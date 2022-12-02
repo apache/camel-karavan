@@ -35,8 +35,8 @@ import './designer/karavan.css';
 import {SpacePage} from "./space/SpacePage";
 import {GithubModal} from "./space/GithubModal";
 import {Subscription} from "rxjs";
-import {DslPosition, EventBus} from "./designer/utils/EventBus";
 import {AlertMessage, SpaceBus} from "./space/SpaceBus";
+import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 
 class ToastMessage {
     id: string = ''
@@ -104,7 +104,9 @@ class App extends React.Component<Props, State> {
         this.setState({sub: sub});
         Promise.all([
             fetch("kamelets/kamelets.yaml"),
-            fetch("components/components.json")
+            fetch("components/components.json"),
+            fetch("snippets/org.apache.camel.AggregationStrategy"),
+            fetch("snippets/org.apache.camel.Processor")
         ]).then(responses =>
             Promise.all(responses.map(response => response.text()))
         ).then(data => {
@@ -120,6 +122,9 @@ class App extends React.Component<Props, State> {
 
             this.toast("Success", "Loaded " + jsons.length + " components", 'success');
             this.setState({loaded: true, key: Math.random().toString()});
+
+            TemplateApi.saveTemplate("org.apache.camel.AggregationStrategy", data[2]);
+            TemplateApi.saveTemplate("org.apache.camel.Processor", data[3]);
         }).catch(err =>
             this.toast("Error", err.text, 'danger')
         );

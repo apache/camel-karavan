@@ -19,7 +19,7 @@ import {
     Toolbar,
     ToolbarContent,
     ToolbarItem,
-    PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem, Badge, Button, Tooltip, ToggleGroup, ToggleGroupItem
+    PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem, Button, Tooltip, ToggleGroup, ToggleGroupItem
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
@@ -96,7 +96,14 @@ export class SpacePage extends React.Component<Props, State> {
                 ref={this.state.karavanDesignerRef}
                 filename={name}
                 yaml={yaml}
-                onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}/>
+                onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}
+                onGetCustomCode={name => {
+                    return new Promise<string | undefined>(resolve => resolve(undefined))
+                }}
+                onSaveCustomCode={(name1, code) => {
+                    console.log(name1, code)
+                }}
+            />
         )
     }
 
