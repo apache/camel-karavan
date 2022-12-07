@@ -159,6 +159,7 @@
                     <include>**/application.properties</include>
                     <include>components/**</include>
                     <include>kamelets/**</include>
+                    <include>snippets/**</include>
                     <include>META-INF/**</include>
                 </includes>
             </resource>
