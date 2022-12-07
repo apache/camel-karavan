@@ -1,0 +1,102 @@
+# Service account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: karavan
+  labels:
+    app.kubernetes.io/name: karavan
+---
+# Role karavan-app
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: karavan-app
+rules:
+  - apiGroups: [""]
+    resources: ["secrets", "configmaps"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["persistentvolumes", "persistentvolumeclaims"]
+    verbs: ["*"]
+  - apiGroups: ["", "apps", "apps.openshift.io"]
+    resources: ["deploymentconfigs", "deployments", "replicationcontrollers"]
+    verbs: ["*"]
+---
+# Role tekton run pipeline
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: karavan-tekton-run
+rules:
+  - verbs:
+      - get
+      - list
+      - watch
+      - create
+    apiGroups:
+      - tekton.dev
+    resources:
+      - pipelineruns
+---
+# Role bindings
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: karavan-tekton
+subjects:
+  - kind: ServiceAccount
+    name: karavan
+    namespace: karavan
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: karavan-tekton-run
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: karavan-view
+roleRef:
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+  name: view
+subjects:
+  - kind: ServiceAccount
+    name: karavan
+    namespace: karavan
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: karavan-app
+roleRef:
+  kind: Role
+  apiGroup: rbac.authorization.k8s.io
+  name: karavan-app
+subjects:
+  - kind: ServiceAccount
+    name: karavan
+    namespace: karavan
+---
+# Pipeline should have access to create rolebindings
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: karavan-pipeline-rolebindings
+rules:
+  - apiGroups: ["", "rbac.authorization.k8s.io"]
+    resources: ["rolebindings"]
+    verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: karavan-pipeline-rolebindings
+roleRef:
+  kind: Role
+  apiGroup: rbac.authorization.k8s.io
+  name: karavan-pipeline-rolebindings
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: karavan

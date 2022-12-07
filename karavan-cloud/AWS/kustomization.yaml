@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- karavan-acl.yaml
+- karavan-pv.yaml
+- karavan-pvc.yaml
+- karavan-quarkus-pipeline.yaml
+- karavan-quarkus-task-aws.yaml
+- karavan-app-deployment-public.yaml
+- karavan-app-service-node-port.yaml
+- pipeline-service-account.yaml
+- karavan-app-ingress.yaml
