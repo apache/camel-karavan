@@ -111,7 +111,7 @@ Create public subnet.
 15. Install the NGINX ingress controller
     ```
 	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.5.1/deploy/static/provider/cloud/deploy.yaml
-	kubectl port-forward --namespace=ingress-nginx service/karavan 8080:80
+	kubectl port-forward --namespace=karavan service/karavan 8080:80
 	```
 
 15. If you want to delete the deployment
