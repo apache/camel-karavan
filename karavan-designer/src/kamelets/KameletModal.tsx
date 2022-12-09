@@ -28,6 +28,7 @@ import '../designer/karavan.css';
 import {KameletModel, Property} from "karavan-core/lib/model/KameletModels";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import {CamelUi} from "../designer/utils/CamelUi";
+import DOMPurify from "dompurify";
 
 interface Props {
     kamelet?: KameletModel,
@@ -89,7 +90,7 @@ export class KameletModal extends Component<Props, State> {
                                    isRead> {this.state.kamelet?.metadata.labels["camel.apache.org/kamelet.type"].toLowerCase()}</Badge>
                         </CardActions>
                     </CardHeader>
-                    <Text className="description">{this.state.kamelet?.spec.definition.description}</Text>
+                    <div className="description" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(this.state.kamelet?.spec.definition.description || '')}} />
                     {this.state.kamelet?.spec.definition.properties && this.state.kamelet?.spec.definition.properties.length !== 0 &&
                     <div>
                         <CardTitle>Properties</CardTitle>

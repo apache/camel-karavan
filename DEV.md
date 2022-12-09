@@ -17,15 +17,23 @@ Demo of Karavan use cases
 mvn clean compile exec:java -Dexec.mainClass="org.apache.camel.karavan.generator.KaravanGenerator" -f karavan-generator
 ```
 
-2. Build VS Code extension
+2. Karavan Core install
+```
+cd ./karavan-core
+npm install
+```
+
+3. Build VS Code extension
 ```
 cd  karavan-vscode
 yarn install
 yarn run compile // dev
 yarn run package //prod
+
+vsce package
 ```
 
-3. Build Karavan app  
+4. Build Karavan app  
 - Build JVM Mode
 ```
 cd karavan-app
