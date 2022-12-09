@@ -18,7 +18,6 @@ spec:
          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
          aws configure set region $AWS_REGION
          aws configure set output $AWS_OUTPUT 
-         aws ecr get-login-password --region $AWS_REGION
          password=$(aws ecr get-login-password --region ${AWS_REGION})
          output=$(aws ecr describe-repositories --repository-names ${REPO_NAME} 2>&1)
          if [ $? -ne 0 ]; then
