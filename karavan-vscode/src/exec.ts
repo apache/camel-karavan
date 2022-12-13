@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as utils from "./utils";
+import * as jbang from "./jbang";
 import * as shell from 'shelljs';
 import { window, Terminal, ThemeIcon } from "vscode";
 
@@ -40,4 +42,14 @@ export function execTerminalCommand(terminalId: string, command: string, env?: {
     TERMINALS.set(terminalId, terminal);
     terminal.show();
     terminal.sendText(command);
+}
+
+export async function runWithRuntime(fullPath: string, run?: boolean) {
+    let command = jbang.createExportCommand(fullPath);
+    if (run) {
+        const runtime = await utils.getRuntime();
+        const mvn = runtime === 'quarkus' ? "quarkus:dev" : "spring-boot:run";
+        command = command.concat(" && mvn clean ").concat(mvn).concat(" -f ").concat(fullPath);
+    }
+    execTerminalCommand("runtime-run", command);
 }

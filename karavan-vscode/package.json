@@ -45,7 +45,8 @@
     "onCommand:karavan.deploy",
     "onCommand:karavan.open",
     "onCommand:karavan.open-file",
-    "onCommand:karavan.jbang-run-project",
+    "onCommand:karavan.run-project-jbang",
+    "onCommand:karavan.run-project-runtime",
     "onCommand:karavan.jbang-export",
     "onCommand:karavan.generate-rest",
     "onCommand:karavan.download-image",
@@ -314,8 +315,8 @@
         "command": "karavan.open",
         "title": "Karavan: Open",
         "icon": {
-          "light": "./icons/karavan.svg",
-          "dark": "./icons/karavan.svg"
+          "light": "./icons/light/wand.svg",
+          "dark": "./icons/dark/wand.svg"
         }
       },
       {
@@ -323,8 +324,16 @@
         "title": "Karavan: Open editor"
       },
       {
-        "command": "karavan.jbang-run-project",
-        "title": "Karavan: Run",
+        "command": "karavan.run-project-jbang",
+        "title": "Karavan: Jbang run",
+        "icon": {
+          "light": "./icons/light/rocket.svg",
+          "dark": "./icons/dark/rocket.svg"
+        }
+      },
+      {
+        "command": "karavan.run-project-runtime",
+        "title": "Karavan: Runtime run",
         "icon": "$(run)"
       },
       {
@@ -391,7 +400,12 @@
           "group": "karavan@4"
         },
         {
-          "command": "karavan.jbang-run-project",
+          "command": "karavan.run-project-jbang",
+          "when": "explorerResourceIsFolder || explorerResourceIsRoot",
+          "group": "karavan@5"
+        },
+        {
+          "command": "karavan.run-project-runtime",
           "when": "explorerResourceIsFolder || explorerResourceIsRoot",
           "group": "karavan@6"
         },
@@ -418,31 +432,41 @@
           "group": "navigation@1"
         },
         {
-          "command": "karavan.jbang-run-project",
+          "command": "karavan.run-project-jbang",
           "when": "resourceFilename =~ /.camel.yaml$/ || karavan:loaded",
-          "group": "navigation@2"
+          "group": "navigation@4"
+        },
+        {
+          "command": "karavan.run-project-runtime",
+          "when": "resourceFilename =~ /.camel.yaml$/ || karavan:loaded",
+          "group": "navigation@5"
         },
         {
           "command": "karavan.download-image",
           "when": "karavan:loaded",
-          "group": "navigation@3"
+          "group": "navigation@10"
         }
       ],
       "view/title": [
         {
-          "command": "karavan.jbang-run-project",
+          "command": "karavan.run-project-jbang",
           "when": "view == integrations",
           "group": "navigation@1"
         },
         {
-          "command": "karavan.deploy",
+          "command": "karavan.run-project-runtime",
           "when": "view == integrations",
           "group": "navigation@2"
         },
         {
-          "command": "karavan.jbang-export",
+          "command": "karavan.deploy",
           "when": "view == integrations",
           "group": "navigation@3"
+        },
+        {
+          "command": "karavan.jbang-export",
+          "when": "view == integrations",
+          "group": "navigation@4"
         },
         {
           "command": "integrations.refresh",

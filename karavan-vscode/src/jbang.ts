@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { workspace, window, ThemeIcon } from "vscode";
+import { workspace, window } from "vscode";
 import * as path from "path";
 import * as shell from 'shelljs';
 import * as utils from "./utils";
@@ -49,16 +49,15 @@ function prepareCommand(command: string): string {
     return "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel " + command;
 }
 
-export function camelJbangRun(filename?: string) {
+export function camelJbangRun() {
     const maxMessages: number = workspace.getConfiguration().get("camel.maxMessages") || -1;
     const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
     const dev: boolean = workspace.getConfiguration().get("camel.dev") || false;
-    const cmd = (filename ? "run " + filename : "run * ")
+    const cmd = "run * "
         + (maxMessages > -1 ? " --max-messages=" + maxMessages : "")
         + (kameletsPath && kameletsPath.trim().length > 0 ? " --local-kamelet-dir=" + kameletsPath : "");
     const command = prepareCommand(cmd) + (dev === true ? " --dev" : "");
-    const terminalId = "run_" + filename;
-    exec.execTerminalCommand(terminalId, command);
+    exec.execTerminalCommand("jbang-run", command);
 }
 
 export async function camelJbangExport(fullPath: string, run?: boolean) {

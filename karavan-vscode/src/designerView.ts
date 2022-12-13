@@ -24,14 +24,12 @@ import { getWebviewContent } from "./webviewContent";
 
 const KARAVAN_LOADED = "karavan:loaded";
 const KARAVAN_PANELS: Map<string, WebviewPanel> = new Map<string, WebviewPanel>();
-const extension = '.properties';
 
 export class DesignerView {
 
     constructor(private context: ExtensionContext, private rootPath?: string) {
 
     }
-
     karavanOpen(fullPath: string, tab?: string) {
         utils.readFile(path.resolve(fullPath)).then(readData => {
             const yaml = Buffer.from(readData).toString('utf8');
@@ -45,25 +43,6 @@ export class DesignerView {
                 window.showErrorMessage("File is not Camel Integration!")
             }
         })
-    }
-
-    jbangRun(fullPath: string) {
-        if (fullPath.startsWith('webview-panel/webview')) {
-            const filename = this.getFilenameFromWebView();
-            jbang.camelJbangRun(filename);
-        } else {
-            utils.readFile(path.resolve(fullPath)).then(readData => {
-                const yaml = Buffer.from(readData).toString('utf8');
-                const relativePath = utils.getRalativePath(fullPath);
-                const filename = path.basename(fullPath);
-                const integration = utils.parceYaml(filename, yaml);
-                if (integration[0] && utils.getRoot() !== undefined) {
-                    jbang.camelJbangRun(relativePath);
-                } else {
-                    window.showErrorMessage("File is not Camel Integration!")
-                }
-            });
-        }
     }
 
     getFilenameFromWebView() {
@@ -145,6 +124,7 @@ export class DesignerView {
             // Handle close event
             panel.onDidDispose(() => {
                 KARAVAN_PANELS.delete(relativePath);
+                commands.executeCommand("setContext", KARAVAN_LOADED, false);
             }, null, this.context.subscriptions);
 
             // Handle reopen

@@ -22,6 +22,7 @@ import { selectFileName, inputFileName, OpenApiView, OpenApiItem } from "./opena
 import * as path from "path";
 import * as jbang from "./jbang";
 import * as utils from "./utils";
+import * as exec from "./exec";
 
 const KARAVAN_LOADED = "karavan:loaded";
 
@@ -99,7 +100,7 @@ export function activate(context: ExtensionContext) {
 
     // Export project
     const exportCommand = commands.registerCommand("karavan.jbang-export", (...args: any[]) => {
-        exportProject(rootPath);
+        exportAndRunProject(rootPath);
     });
     context.subscriptions.push(exportCommand);
 
@@ -109,18 +110,24 @@ export function activate(context: ExtensionContext) {
     });
     context.subscriptions.push(deployCommand);
 
-    // Run project
-    const runProjectCommand = commands.registerCommand("karavan.jbang-run-project", (...args: any[]) => {
+    // Run project with jbang
+    const runJbang = commands.registerCommand("karavan.run-project-jbang", (...args: any[]) => {
+        jbang.camelJbangRun();        
+    });
+    context.subscriptions.push(runJbang);
+
+    // Run project with runtime
+    const runRuntime = commands.registerCommand("karavan.run-project-runtime", (...args: any[]) => {
         utils.getProperties(rootPath).then(properties => {
             if (properties.length > 0){
-                exportProject(rootPath, true);
+                exportAndRunProject(rootPath, true);
             } else {
                 window.showErrorMessage("No runtime configured! Create application!")
             }
         })
         
     });
-    context.subscriptions.push(runProjectCommand);
+    context.subscriptions.push(runRuntime);
 
     // Generate REST API from OpenAPI specification command
     const generateOptions = ["Create new CRD", "Create new YAML", "Add to existing file"];
@@ -149,14 +156,14 @@ export function activate(context: ExtensionContext) {
 }
 
 /**
- * export into folder
+ * export into folder and optionally run
  */
-export async function exportProject(rootPath?: string, run?: boolean) {
+export async function exportAndRunProject(rootPath?: string, run?: boolean) {
     utils.getExportFolder()
         .then(folder => {
             if (folder){
                 const fullPath = rootPath + path.sep + folder;
-                jbang.camelJbangExport(fullPath, run);
+                exec.runWithRuntime(fullPath, run);
             } else {
                 window.showInputBox({
                     title: "Export project",
@@ -173,7 +180,7 @@ export async function exportProject(rootPath?: string, run?: boolean) {
                 }).then(folder => {
                     if (folder && rootPath) {
                         const fullPath = rootPath + path.sep + folder;
-                        jbang.camelJbangExport(fullPath, run);
+                        exec.runWithRuntime(fullPath, run);
                     }
                 });
             }
