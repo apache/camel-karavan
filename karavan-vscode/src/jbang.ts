@@ -60,16 +60,6 @@ export function camelJbangRun() {
     exec.execTerminalCommand("jbang-run", command);
 }
 
-export async function camelJbangExport(fullPath: string, run?: boolean) {
-    let command = createExportCommand(fullPath);
-    if (run) {
-        const runtime = await utils.getRuntime();
-        const mvn = runtime === 'quarkus' ? "quarkus:dev" : "spring-boot:run";
-        command = command.concat(" && mvn clean ").concat(mvn).concat(" -f ").concat(fullPath);
-    }
-    exec.execTerminalCommand("export", command);
-}
-
 export function createExportCommand(fullPath: string) {
     const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
     const cmd = "export --fresh " 
