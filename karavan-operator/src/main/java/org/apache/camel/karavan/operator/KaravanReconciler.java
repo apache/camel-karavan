@@ -46,6 +46,7 @@ import org.apache.camel.karavan.operator.resource.KaravanTektonTask;
 import org.apache.camel.karavan.operator.resource.PipelineRoleBinding;
 import org.apache.camel.karavan.operator.resource.PipelineRoleDeployer;
 import org.apache.camel.karavan.operator.resource.PipelineServiceAccount;
+import org.apache.camel.karavan.operator.spec.CamelRuntime;
 import org.apache.camel.karavan.operator.spec.Karavan;
 import org.apache.camel.karavan.operator.spec.KaravanStatus;
 import org.apache.camel.karavan.operator.watcher.TektonCrdEventHandler;
@@ -84,7 +85,8 @@ public class KaravanReconciler implements Reconciler<Karavan>, EventSourceInitia
     private KaravanDeployment karavanDeployment;
 
     private KaravanTektonPipeline karavanTektonPipeline;
-    private KaravanTektonTask karavanTektonTask;
+    private KaravanTektonTask karavanTektonTaskQuarkus;
+    private KaravanTektonTask karavanTektonTaskSpringBoot;
     private PipelineServiceAccount pipelineServiceAccount;
     private PipelineRoleDeployer pipelineRoleDeployer;
     private PipelineRoleBinding pipelineRoleBinding;
@@ -148,7 +150,8 @@ public class KaravanReconciler implements Reconciler<Karavan>, EventSourceInitia
 
         if (Utils.isTektonInstalled(client)) {
             log.info("Init Tekton Dependent Resources");
-            this.karavanTektonTask = new KaravanTektonTask(isOpenShift);
+            this.karavanTektonTaskQuarkus = new KaravanTektonTask(isOpenShift, CamelRuntime.Type.QUARKUS);
+            this.karavanTektonTaskSpringBoot = new KaravanTektonTask(isOpenShift, CamelRuntime.Type.SPRING_BOOT);
             this.karavanTektonPipeline = new KaravanTektonPipeline();
             this.pipelineServiceAccount = new PipelineServiceAccount();
             this.pipelineRoleDeployer = new PipelineRoleDeployer();
@@ -162,10 +165,15 @@ public class KaravanReconciler implements Reconciler<Karavan>, EventSourceInitia
 
     public void addTektonResources() {
         log.info("Recreate workflow with Tekton resources");
-        if (karavanTektonTask == null) {
-            karavanTektonTask = new KaravanTektonTask(isOpenShift);
-            karavanTektonTask.setKubernetesClient(client);
-            karavanTektonTask.configureWith(new KubernetesDependentResourceConfig());
+        if (karavanTektonTaskQuarkus == null) {
+            karavanTektonTaskQuarkus = new KaravanTektonTask(isOpenShift, CamelRuntime.Type.QUARKUS);
+            karavanTektonTaskQuarkus.setKubernetesClient(client);
+            karavanTektonTaskQuarkus.configureWith(new KubernetesDependentResourceConfig());
+        }
+        if (karavanTektonTaskSpringBoot == null) {
+            karavanTektonTaskSpringBoot = new KaravanTektonTask(isOpenShift, CamelRuntime.Type.SPRING_BOOT);
+            karavanTektonTaskSpringBoot.setKubernetesClient(client);
+            karavanTektonTaskSpringBoot.configureWith(new KubernetesDependentResourceConfig());
         }
         if (karavanTektonPipeline == null) {
             karavanTektonPipeline = new KaravanTektonPipeline();
@@ -207,7 +215,8 @@ public class KaravanReconciler implements Reconciler<Karavan>, EventSourceInitia
         }
         if (Utils.isTektonInstalled(client)) {
             list.add(karavanTektonPipeline);
-            list.add(karavanTektonTask);
+            list.add(karavanTektonTaskQuarkus);
+            list.add(karavanTektonTaskSpringBoot);
             list.add(pipelineServiceAccount);
             list.add(pipelineRoleDeployer);
             list.add(pipelineRoleBinding);

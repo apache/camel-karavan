@@ -7,4 +7,5 @@ spec:
   instances: 1
   auth: public
   nodePort: 30668
-  type: demo
+  environment: demo
+  runtimes: quarkus,spring-boot

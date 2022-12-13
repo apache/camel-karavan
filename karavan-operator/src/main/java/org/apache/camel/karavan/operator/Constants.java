@@ -32,7 +32,7 @@ public final class Constants {
     public static final String PVC_JBANG_CACHE = "karavan-jbang-cache";
 
     public static final String PIPELINE_DEV_QUARKUS = "karavan-pipeline-dev-quarkus";
-    public static final String TASK_DEV_QUARKUS = "karavan-task-dev-quarkus";
+    public static final String TASK_DEV = "karavan-task-dev-";
 
     public static final String ROLE_PIPELINE_DEPLOYER = "deployer";
     public static final String SERVICEACCOUNT_PIPELINE = "pipeline";

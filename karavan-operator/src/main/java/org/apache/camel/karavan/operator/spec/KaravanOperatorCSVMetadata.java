@@ -19,6 +19,7 @@ package org.apache.camel.karavan.operator.spec;
         import io.quarkiverse.operatorsdk.bundle.runtime.CSVMetadata;
         import io.quarkiverse.operatorsdk.bundle.runtime.SharedCSVMetadata;
 
+
 @CSVMetadata(
         name = "camel-karavan-operator.v3.18.6",
         annotations = @CSVMetadata.Annotations(
@@ -40,7 +41,8 @@ package org.apache.camel.karavan.operator.spec;
                         "    \"spec\": {\n" +
                         "      \"instances\": 1,\n" +
                         "      \"auth\": \"public\",\n" +
-                        "      \"type\": \"dev\"\n" +
+                        "      \"environment\": \"dev\"\n" +
+                        "      \"runtimes\": \"quarkus,spring-boot\"\n" +
                         "    }\n" +
                         "  }\n" +
                         "]"
@@ -69,14 +71,10 @@ package org.apache.camel.karavan.operator.spec;
                 "  oidc-secret: secret\n" +
                 "  oidc-server-url: https://hostname/auth/realms/karavan\n" +
                 "  oidc-frontend-url: https://hostname/auth\n" +
-                "  projects-git-repository: https://github.com/repository/projects.git\n" +
-                "  projects-git-password: password\n" +
-                "  projects-git-username: username\n" +
-                "  projects-git-branch: main\n" +
-                "  kamelets-git-repository: https://github.com/repository/kamelets.git\n" +
-                "  kamelets-git-password: password\n" +
-                "  kamelets-git-username: username\n" +
-                "  kamelets-git-branch: main\n" +
+                "  git-repository: https://github.com/repository/projects.git\n" +
+                "  git-password: password\n" +
+                "  git-username: username\n" +
+                "  git-branch: main\n" +
                 "  image-registry: image-registry.openshift-image-registry.svc:5000\n" +
                 "```\n" +
                 "5. Create `Karavan` instance in the namespace, ex:\n" +
@@ -89,6 +87,8 @@ package org.apache.camel.karavan.operator.spec;
                 "spec:\n" +
                 "  instances: 1\n" +
                 "  auth: public\n" +
+                "  environment: demo\n" +
+                "  runtimes: quarkus,spring-boot\n" +
                 "```\n",
         permissionRules = {
                 @CSVMetadata.PermissionRule(apiGroups = "camel.apache.org", resources = {"karavans", "karavans/status", "karavans/finalizers"}),
@@ -120,4 +120,3 @@ package org.apache.camel.karavan.operator.spec;
 )
 public class KaravanOperatorCSVMetadata implements SharedCSVMetadata {
 }
-

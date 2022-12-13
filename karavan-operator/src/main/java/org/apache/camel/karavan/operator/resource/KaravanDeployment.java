@@ -63,7 +63,10 @@ public class KaravanDeployment extends CRUDKubernetesDependentResource<Deploymen
         List<EnvVar> envVarList = new ArrayList<>();
 
         envVarList.add(
-                new EnvVar("KARAVAN_ENVIRONMENT", karavan.getSpec().getType(), null)
+                new EnvVar("KARAVAN_ENVIRONMENT", karavan.getSpec().getEnvironment(), null)
+        );
+        envVarList.add(
+                new EnvVar("KARAVAN_RUNTIMES", karavan.getSpec().getRuntimes(), null)
         );
         envVarList.add(
                 new EnvVar("KUBERNETES_NAMESPACE", null, new EnvVarSourceBuilder().withFieldRef(new ObjectFieldSelector("","metadata.namespace")).build())

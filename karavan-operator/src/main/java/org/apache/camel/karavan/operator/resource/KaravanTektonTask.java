@@ -33,6 +33,7 @@ import io.javaoperatorsdk.operator.api.reconciler.dependent.ReconcileResult;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
 import io.javaoperatorsdk.operator.processing.dependent.workflow.Condition;
 import org.apache.camel.karavan.operator.Constants;
+import org.apache.camel.karavan.operator.spec.CamelRuntime;
 import org.apache.camel.karavan.operator.spec.Karavan;
 import org.apache.camel.karavan.operator.Utils;
 import org.eclipse.microprofile.config.ConfigProvider;
@@ -46,24 +47,30 @@ import java.util.stream.Collectors;
 public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Karavan>  implements Condition<Task, Karavan>  {
 
     private final boolean isOpenShift;
+    private final CamelRuntime.Type runtime;
 
-    public KaravanTektonTask(boolean isOpenShift) {
+    public KaravanTektonTask(boolean isOpenShift, CamelRuntime.Type runtime) {
         super(Task.class);
         this.isOpenShift = isOpenShift;
+        this.runtime = runtime;
+    }
+
+    private String getName(){
+        return Constants.TASK_DEV + runtime.getName();
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Task desired(Karavan karavan, Context<Karavan> context) {
-        String image = ConfigProvider.getConfig().getValue("karavan.quarkus-build-image", String.class);
+        String image = ConfigProvider.getConfig().getValue("karavan.build-image", String.class);
         String version = ConfigProvider.getConfig().getValue("karavan.version", String.class);
         String script = getScript(karavan);
 
         return new TaskBuilder()
                 .withNewMetadata()
-                .withName(Constants.TASK_DEV_QUARKUS)
+                .withName(getName())
                 .withNamespace(karavan.getMetadata().getNamespace())
-                .withLabels(Utils.getLabels(Constants.TASK_DEV_QUARKUS, Map.of()))
+                .withLabels(Utils.getLabels(getName(), Map.of()))
                 .endMetadata()
                 .withNewSpec()
                 .withParams(new ParamSpecBuilder().withName("project").withType("string").withDescription("ProjectId").build())
@@ -103,7 +110,7 @@ public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Kar
 
     @Override
     public ReconcileResult<Task> reconcile(Karavan karavan, Context<Karavan> context) {
-        Task task = new DefaultTektonClient(getKubernetesClient()).v1beta1().tasks().inNamespace(karavan.getMetadata().getNamespace()).withName(Constants.TASK_DEV_QUARKUS).get();
+        Task task = new DefaultTektonClient(getKubernetesClient()).v1beta1().tasks().inNamespace(karavan.getMetadata().getNamespace()).withName(getName()).get();
         if (task == null) {
             var desired = desired(karavan, context);
             var createdResource = handleCreate(desired, karavan, context);
@@ -115,10 +122,11 @@ public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Kar
 
     protected String getScript(Karavan karavan) {
         String imageRegistry = getImageRegistry(karavan);
+        String prefix = runtime.getName();
         try {
             InputStream inputStream = isOpenShift
-                ? KaravanTektonTask.class.getResourceAsStream("/quarkus-builder-script-openshift.sh")
-                : KaravanTektonTask.class.getResourceAsStream("/quarkus-builder-script-kubernetes.sh");
+                ? KaravanTektonTask.class.getResourceAsStream("/" + prefix + "-builder-script-openshift.sh")
+                : KaravanTektonTask.class.getResourceAsStream("/" + prefix + "-builder-script-kubernetes.sh");
             String data = new BufferedReader(new InputStreamReader(inputStream))
                     .lines()
                     .map(s -> {

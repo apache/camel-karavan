@@ -20,7 +20,8 @@ public class KaravanSpec {
 
     private int instances;
     private String auth;
-    private String type;
+    private String environment;
+    private String runtimes;
     private int nodePort;
 
     public int getInstances() {
@@ -47,11 +48,19 @@ public class KaravanSpec {
         this.nodePort = nodePort;
     }
 
-    public String getType() {
-        return type;
+    public String getEnvironment() {
+        return environment;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setEnvironment(String environment) {
+        this.environment = environment;
+    }
+
+    public String getRuntimes() {
+        return runtimes;
+    }
+
+    public void setRuntimes(String runtimes) {
+        this.runtimes = runtimes;
     }
 }
