@@ -109,10 +109,6 @@ export function activate(context: ExtensionContext) {
     });
     context.subscriptions.push(deployCommand);
 
-    // Run Integration in designer command
-    const run = commands.registerCommand("karavan.jbang-run-file", (...args: any[]) => designer.jbangRun(args[0].fsPath));
-    context.subscriptions.push(run);
-
     // Run project
     const runProjectCommand = commands.registerCommand("karavan.jbang-run-project", (...args: any[]) => {
         utils.getProperties(rootPath).then(properties => {
