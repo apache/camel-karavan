@@ -45,7 +45,6 @@
     "onCommand:karavan.deploy",
     "onCommand:karavan.open",
     "onCommand:karavan.open-file",
-    "onCommand:karavan.jbang-run-file",
     "onCommand:karavan.jbang-run-project",
     "onCommand:karavan.jbang-export",
     "onCommand:karavan.generate-rest",
@@ -324,11 +323,6 @@
         "title": "Karavan: Open editor"
       },
       {
-        "command": "karavan.jbang-run-file",
-        "title": "Karavan: Run File",
-        "icon": "$(run)"
-      },
-      {
         "command": "karavan.jbang-run-project",
         "title": "Karavan: Run",
         "icon": "$(run)"
@@ -395,11 +389,6 @@
           "command": "karavan.open",
           "when": "resourceFilename =~ /.camel.yaml$/",
           "group": "karavan@4"
-        },
-        {
-          "command": "karavan.jbang-run-file",
-          "when": "resourceFilename =~ /.camel.yaml$/",
-          "group": "karavan@5"
         },
         {
           "command": "karavan.jbang-run-project",
@@ -476,11 +465,6 @@
           "command": "karavan.open-file",
           "when": "view == integrations && viewItem == 'integration'",
           "group": "navigation_1_open@2"
-        },
-        {
-          "command": "karavan.jbang-run-file",
-          "when": "view == integrations && viewItem == 'integration'",
-          "group": "navigation_2_run@1"
         },
         {
           "command": "karavan.generate-rest",

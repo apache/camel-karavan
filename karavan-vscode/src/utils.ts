@@ -313,3 +313,32 @@ export async function createApplicationproperties(runtime: string, gav: string, 
         write(path.join(uriFolder.path, "application.properties"), text);
     }
 }
+
+export function createYaml(filename: string, restYaml: string, camelYaml?: string, crd?: boolean): string {
+    if (camelYaml) {
+        const i = CamelDefinitionYaml.yamlToIntegration(filename, camelYaml);
+        const rest = CamelDefinitionYaml.yamlToIntegration(filename, restYaml);
+        i.spec.flows = i.spec.flows?.filter(f => f.dslName !== 'RestDefinition');
+        i.spec.flows?.push(...rest.spec.flows || []);
+        return CamelDefinitionYaml.integrationToYaml(i);
+    } else if (crd === true) {
+        const i = CamelDefinitionYaml.yamlToIntegration(filename, restYaml);
+        i.type = 'crd';
+        return CamelDefinitionYaml.integrationToYaml(i);
+    } else {
+        return restYaml;
+    }
+}
+
+function setMinikubeEnvVariables(env: string): Map<string, string> {
+    const map = new Map<string, string>();
+    const linesAll = env.split(/\r?\n/);
+    const vars = linesAll.filter(l => l !== undefined && l.startsWith("export")).map(line => line.replace("export", ""));
+    vars.forEach(line => {
+        const parts = line.split("=");
+        const key = parts[0].trim();
+        const value = parts[1].replaceAll('"', '').trim();
+        map.set(key, value);
+    })
+    return map;
+}

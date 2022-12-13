@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 import * as shell from 'shelljs';
+import { window, Terminal, ThemeIcon } from "vscode";
 
 export interface Result {
     result: boolean
@@ -27,4 +28,16 @@ export function execCommand(cmd: string, execPath?: string): Promise<Result> {
         if (execPath) shell.cd(execPath);
         shell.exec(cmd, (code, stdout, stderr) => resolve({ result: code === 0, value: stdout, error: stderr }));
     });
+}
+
+const TERMINALS: Map<string, Terminal> = new Map<string, Terminal>();
+
+
+export function execTerminalCommand(terminalId: string, command: string, env?: { [key: string]: string | null | undefined }) {
+    const existTerminal = TERMINALS.get(terminalId);
+    if (existTerminal) existTerminal.dispose();
+    const terminal = window.createTerminal({ name: terminalId, env: env, iconPath: new ThemeIcon("layers") });
+    TERMINALS.set(terminalId, terminal);
+    terminal.show();
+    terminal.sendText(command);
 }
