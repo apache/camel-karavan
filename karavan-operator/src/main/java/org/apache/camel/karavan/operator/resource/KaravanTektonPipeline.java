@@ -30,6 +30,7 @@ import io.javaoperatorsdk.operator.api.reconciler.dependent.ReconcileResult;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
 import io.javaoperatorsdk.operator.processing.dependent.workflow.Condition;
 import org.apache.camel.karavan.operator.Constants;
+import org.apache.camel.karavan.operator.spec.CamelRuntime;
 import org.apache.camel.karavan.operator.spec.Karavan;
 import org.apache.camel.karavan.operator.Utils;
 
@@ -37,25 +38,34 @@ import java.util.Map;
 
 public class KaravanTektonPipeline extends CRUDKubernetesDependentResource<Pipeline, Karavan>  implements Condition<Pipeline, Karavan> {
 
-    public KaravanTektonPipeline() {
+    private final CamelRuntime.Type runtime;
+
+    public KaravanTektonPipeline(CamelRuntime.Type runtime) {
         super(Pipeline.class);
+        this.runtime = runtime;
+    }
+
+    private String getName(){
+        return Constants.PIPELINE_DEV + runtime.getName();
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Pipeline desired(Karavan karavan, Context<Karavan> context) {
+        String taskName = Constants.TASK_DEV + runtime.getName();
+
         return new PipelineBuilder()
                 .withNewMetadata()
-                .withName(Constants.PIPELINE_DEV_QUARKUS)
+                .withName(getName())
                 .withNamespace(karavan.getMetadata().getNamespace())
-                .withLabels(Utils.getLabels(Constants.PIPELINE_DEV_QUARKUS, Map.of()))
+                .withLabels(Utils.getLabels(getName(), Map.of()))
                 .endMetadata()
                 .withNewSpec()
                 .withParams(new ParamSpecBuilder().withName("PROJECT_ID").withType("string").withDescription("ProjectId").build())
                 .withTasks(
-                        new PipelineTaskBuilder().withName(Constants.TASK_DEV_QUARKUS)
+                        new PipelineTaskBuilder().withName(taskName)
                                 .withParams(new ParamBuilder().withName("project").withNewValue("$(params.PROJECT_ID)").build())
-                                .withTaskRef(new TaskRefBuilder().withKind("Task").withName(Constants.TASK_DEV_QUARKUS).build())
+                                .withTaskRef(new TaskRefBuilder().withKind("Task").withName(taskName).build())
                                 .withWorkspaces(
                                         new WorkspacePipelineTaskBinding(Constants.PVC_M2_CACHE, "", Constants.PVC_M2_CACHE),
                                         new WorkspacePipelineTaskBinding(Constants.PVC_JBANG_CACHE, "", Constants.PVC_JBANG_CACHE)
@@ -72,7 +82,7 @@ public class KaravanTektonPipeline extends CRUDKubernetesDependentResource<Pipel
 
     @Override
     public ReconcileResult<Pipeline> reconcile(Karavan karavan, Context<Karavan> context) {
-        Pipeline pipeline = new DefaultTektonClient(getKubernetesClient()).v1beta1().pipelines().inNamespace(karavan.getMetadata().getNamespace()).withName(Constants.PIPELINE_DEV_QUARKUS).get();
+        Pipeline pipeline = new DefaultTektonClient(getKubernetesClient()).v1beta1().pipelines().inNamespace(karavan.getMetadata().getNamespace()).withName(getName()).get();
         if (pipeline == null) {
             var desired = desired(karavan, context);
             var createdResource = handleCreate(desired, karavan, context);
