@@ -32,6 +32,7 @@ export DATE=$(date '+%Y%m%d%H%M%S')
 export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 
-/opt/mvnd/bin/mvnd package \
+/opt/mvnd/bin/mvnd package k8s:build k8s:resource k8s:apply \
+  -Pkubernetes \
   -Djkube.namespace=${NAMESPACE} \
   -Djkube.generator.name=image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/$NAME:${DATE} \
