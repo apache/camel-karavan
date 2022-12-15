@@ -24,4 +24,4 @@ export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 /opt/mvnd/bin/mvnd package oc:build oc:resource oc:apply \
   -Popenshift \
   -Djkube.namespace=${NAMESPACE} \
-  -Djkube.generator.name=image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/$NAME:${DATE} \
+  -Djkube.generator.name=${IMAGE_REGISTRY}/${NAMESPACE}/$NAME:${DATE} \
