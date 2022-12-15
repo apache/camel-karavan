@@ -282,7 +282,6 @@ export class ProjectInfo extends React.Component<Props, State> {
 
     getHealthPanel(env: string) {
         const status = this.state.camelStatus;
-        const registryStatus = status?.registryStatus;
         const routesStatus = status?.routesStatus;
         const consumersStatus = status?.consumerStatus;
         const contextStatus = status?.contextStatus;
@@ -294,7 +293,6 @@ export class ProjectInfo extends React.Component<Props, State> {
                 <Label icon={this.getStatusIcon(contextStatus)} color={this.getStatusColor(contextStatus)}>Context</Label>
                 <Label icon={this.getStatusIcon(consumersStatus)} color={this.getStatusColor(consumersStatus)}>Consumers</Label>
                 <Label icon={this.getStatusIcon(routesStatus)} color={this.getStatusColor(routesStatus)}>Routes</Label>
-                <Label icon={this.getStatusIcon(registryStatus)} color={this.getStatusColor(registryStatus)}>Registry</Label>
             </LabelGroup>
         )
     }
