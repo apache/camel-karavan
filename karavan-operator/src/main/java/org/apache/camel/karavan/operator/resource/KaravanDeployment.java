@@ -120,7 +120,8 @@ public class KaravanDeployment extends CRUDKubernetesDependentResource<Deploymen
                             .withContainerPort(8080)
                             .withName(Constants.NAME)
                         .endPort()
-                        .withResources(new ResourceRequirementsBuilder().withRequests(Map.of("memory", new Quantity("2048Mi"))).build())
+                        .withResources(new ResourceRequirementsBuilder().withRequests(
+                                Map.of("memory", new Quantity("512Mi"))).build())
                         .withVolumeMounts(
                                 new VolumeMountBuilder().withName("karavan-data").withMountPath("/deployments/karavan-data").build(),
                                 new VolumeMountBuilder().withName("ephemeral").withMountPath("/tmp").build()
