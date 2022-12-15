@@ -6,4 +6,5 @@ metadata:
 spec:
   instances: 1
   auth: public
-  type: dev
+  environment: dev
+  runtimes: quarkus,spring-boot
