@@ -49,7 +49,7 @@ public class KaravanService {
         infinispanService.start();
         setEnvironment();
         initialImport();
-//        startInformers();
+        startInformers();
     }
 
     void onStop(@Observes ShutdownEvent ev) {
