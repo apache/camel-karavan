@@ -1,26 +1,15 @@
 #!/usr/bin/env bash
-KAMELETS_DIR="/kamelets"
-
-if  [[ $KAMELETS_GIT_REPOSITORY == https* ]] ;
-then
-    replacer=https://$KAMELETS_GIT_PASSWORD@
-    prefix=https://
-    url="${KAMELETS_GIT_REPOSITORY/$prefix/$replacer}"
-    git clone --depth 1 --branch ${KAMELETS_GIT_BRANCH} $url ${KAMELETS_DIR}
-else
-    git clone --depth 1 --branch ${KAMELETS_GIT_BRANCH} ${KAMELETS_GIT_REPOSITORY} ${KAMELETS_DIR}
-fi
-
 CHECKOUT_DIR="/scripts"
+KAMELETS_DIR="/scripts/kamelets"
 
-if  [[ $PROJECTS_GIT_REPOSITORY == https* ]] ;
+if  [[ $GIT_REPOSITORY == https* ]] ;
 then
-    replacer=https://$PROJECTS_GIT_PASSWORD@
+    replacer=https://$GIT_PASSWORD@
     prefix=https://
-    url="${PROJECTS_GIT_REPOSITORY/$prefix/$replacer}"
-    git clone --depth 1 --branch ${PROJECTS_GIT_BRANCH} $url ${CHECKOUT_DIR}
+    url="${GIT_REPOSITORY/$prefix/$replacer}"
+    git clone --depth 1 --branch ${GIT_BRANCH} $url ${CHECKOUT_DIR}
 else
-    git clone --depth 1 --branch ${PROJECTS_GIT_BRANCH} ${PROJECTS_GIT_REPOSITORY} ${CHECKOUT_DIR}
+    git clone --depth 1 --branch ${GIT_BRANCH} ${GIT_REPOSITORY} ${CHECKOUT_DIR}
 fi
 
 cd ${CHECKOUT_DIR}/$(inputs.params.project)
