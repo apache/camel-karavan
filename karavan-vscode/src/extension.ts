@@ -106,7 +106,7 @@ export function activate(context: ExtensionContext) {
 
     // Deploy project
     const deployCommand = commands.registerCommand("karavan.deploy", (...args: any[]) => {
-        jbang.camelDeploy(rootPath + path.sep + ".export");
+        exec.camelDeploy(rootPath + path.sep + ".export");
     });
     context.subscriptions.push(deployCommand);
 

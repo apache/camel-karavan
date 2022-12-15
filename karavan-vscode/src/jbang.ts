@@ -68,29 +68,7 @@ export function createExportCommand(fullPath: string) {
     return prepareCommand(cmd);
 }
 
-export function camelDeploy(directory: string) {
-    Promise.all([
-        utils.getRuntime(),
-        utils.getTarget(),
-        utils.getExportFolder(),
-        exec.execCommand("oc project -q"), // get namespace 
-    ]).then(val => {
-        const runtime = val[0] || '';
-        const target = val[1] || '';
-        const exportFolder = val[2] || '';
-        let env: any = { "DATE": Date.now().toString() };
-        if (target === 'openshift' && val[3].result) {
-            env.NAMESPACE = val[3].value.trim();
-        } else if (target === 'openshift' && val[3].result === undefined) {
-            window.showErrorMessage("Namespace not set \n" + val[3].error);
-        }
-        const deployCommand: string = workspace.getConfiguration().get("Karavan.".concat(runtime.replaceAll("-", "")).concat(utils.capitalize(target)).concat("Deploy")) || '';
-        const command = createExportCommand(directory).concat(" && ").concat(deployCommand).concat(" -f ").concat(exportFolder);
-        exec.execTerminalCommand("deploy", command, env);
-    }).catch((reason: any) => {
-        window.showErrorMessage("Error: \n" + reason.message);
-    });
-}
+
 
 function executeJbangCommand(rootPath: string, command: string, callback: (code: number, stdout: any, stderr: any) => any) {
     console.log("excute command", command);
