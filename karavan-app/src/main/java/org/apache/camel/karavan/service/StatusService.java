@@ -106,7 +106,7 @@ public class StatusService {
         LOGGER.info("Collect Camel status for project " + projectId);
         Project project = infinispanService.getProject(projectId);
         String path = project.getRuntime().equalsIgnoreCase("quarkus") ? "/q/health" : "/actuator/health";
-        String separator = ProfileManager.getActiveProfile().equals("dev") ? "." : "-";
+        String separator = ProfileManager.getActiveProfile().equals("dev") ? "-" : ".";
         String cluster = ProfileManager.getActiveProfile().equals("dev") ? kubernetesService.getCluster() : "svc.cluster.local";
         String url = "http://" + projectId + separator + kubernetesService.getNamespace() + "." + cluster + path;
         CamelStatus cs = getCamelStatus(projectId, url);
