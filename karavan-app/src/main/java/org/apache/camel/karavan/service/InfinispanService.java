@@ -45,6 +45,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -292,4 +293,12 @@ public class InfinispanService {
     }
 
 
+    protected void clearAllStatuses() {
+        CompletableFuture.allOf(
+            deploymentStatuses.clearAsync(),
+            podStatuses.clearAsync(),
+            pipelineStatuses.clearAsync(),
+            camelStatuses.clearAsync()
+        ).join();
+    }
 }

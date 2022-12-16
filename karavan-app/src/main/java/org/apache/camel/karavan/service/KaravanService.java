@@ -47,6 +47,7 @@ public class KaravanService {
     void onStart(@Observes StartupEvent ev) {
         LOGGER.info("Start Karavan");
         infinispanService.start();
+        infinispanService.clearAllStatuses();
         setEnvironment();
         initialImport();
         startInformers();

@@ -130,6 +130,7 @@ public class KubernetesService {
     void stopInformers(String data) {
         LOGGER.info("Stop Kubernetes Informers");
         informers.forEach(informer -> informer.close());
+        informers.clear();
     }
 
     private String getPipelineName(Project project) {
