@@ -21,7 +21,8 @@ export DATE=$(date '+%Y%m%d%H%M%S')
 export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 
-/opt/mvnd/bin/mvnd package oc:build oc:resource oc:apply \
+/opt/mvnd/bin/mvnd package oc:build oc:push oc:resource oc:apply \
   -Popenshift \
   -Djkube.namespace=${NAMESPACE} \
-  -Djkube.generator.name=${IMAGE_REGISTRY}/${NAMESPACE}/$NAME:${DATE} \
+  -Djkube.docker.push.registry=${IMAGE_REGISTRY} \
+  -Djkube.generator.name=${IMAGE_REGISTRY}/${NAMESPACE}/$(inputs.params.project):${DATE}
