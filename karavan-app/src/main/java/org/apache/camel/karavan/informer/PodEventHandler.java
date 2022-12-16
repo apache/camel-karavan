@@ -47,7 +47,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
     public void onDelete(Pod pod, boolean deletedFinalStateUnknown) {
         try {
             LOGGER.info("onDelete " + pod.getMetadata().getName());
-            String deployment = pod.getMetadata().getLabels().get("app.kubernetes.io/name");
+            String deployment = pod.getMetadata().getLabels().get("app");
             PodStatus ps = new PodStatus(
                     pod.getMetadata().getName(),
                     deployment,

@@ -43,7 +43,8 @@ public class KaravanRole extends CRUDKubernetesDependentResource<Role, Karavan> 
                         new PolicyRuleBuilder().withApiGroups("").withResources("secrets", "configmaps").withVerbs("get", "list").build(),
                         new PolicyRuleBuilder().withApiGroups("").withResources("persistentvolumes", "persistentvolumeclaims").withVerbs("get", "list", "watch").build(),
                         new PolicyRuleBuilder().withApiGroups("tekton.dev").withResources("pipelineruns").withVerbs("*").build(),
-                        new PolicyRuleBuilder().withApiGroups("", "apps").withResources("deployments", "services", "routes", "replicationcontrollers").withVerbs("*").build()
+                        new PolicyRuleBuilder().withApiGroups("").withResources("pods", "services", "routes", "replicationcontrollers").withVerbs("*").build(),
+                        new PolicyRuleBuilder().withApiGroups("apps").withResources("deployments").withVerbs("*").build()
                         )
                 .build();
     }
