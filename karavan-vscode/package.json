@@ -272,7 +272,8 @@
             "jkube.generator.name=image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/$NAME:${DATE}",
             "jkube.imagePullPolicy=IfNotPresent",
             "jkube.enricher.jkube-controller.type=Deployment",
-            "jkube.enricher.jkube-controller.replicaCount=1"
+            "jkube.enricher.jkube-controller.replicaCount=1",
+            "jkube.enricher.jkube-service.port=80"
           ],
           "description": "application.properties template for camel-springboot on Kubernetes",
           "scope": "machine",
@@ -293,7 +294,8 @@
             "jkube.generator.name=default/$NAME:${DATE}",
             "jkube.imagePullPolicy=IfNotPresent",
             "jkube.enricher.jkube-controller.type=Deployment",
-            "jkube.enricher.jkube-controller.replicaCount=1"
+            "jkube.enricher.jkube-controller.replicaCount=1",
+            "jkube.enricher.jkube-service.port=80"
           ],
           "description": "application.properties template for camel-springboot on Kubernetes",
           "scope": "machine",
