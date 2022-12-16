@@ -34,6 +34,7 @@ export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
   -Dquarkus.kubernetes.deploy=true \
   -Dquarkus.openshift.deployment-kind=Deployment \
   -Dquarkus.openshift.add-version-to-label-selectors=false \
+  -Dquarkus.openshift.labels.\"app\"=$(inputs.params.project) \
   -Dquarkus.openshift.labels.\"app.openshift.io/runtime\"=camel \
   -Dquarkus.container-image.group=${NAMESPACE} \
   -Dquarkus.container-image.tag=${DATE}

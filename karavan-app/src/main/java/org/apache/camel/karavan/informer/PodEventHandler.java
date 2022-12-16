@@ -60,7 +60,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
 
 
     public PodStatus getPodStatus(Pod pod) {
-        String deployment = pod.getMetadata().getLabels().get("app.kubernetes.io/name");
+        String deployment = pod.getMetadata().getLabels().get("app");
         try {
             Optional<PodCondition> initialized = pod.getStatus().getConditions().stream().filter(c -> c.getType().equals("Initialized")).findFirst();
             Optional<PodCondition> ready = pod.getStatus().getConditions().stream().filter(c -> c.getType().equals("Initialized")).findFirst();
