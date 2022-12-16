@@ -1,6 +1,7 @@
 # Changelog
 
 ## 3.18.6
+0. Camel 3.20.0
 1. Export to Quarkus and Springboot application in VS Code
 2. Deploy to Kubernetes and Openshift from VS Code
 3. Kamelets 0.10.0

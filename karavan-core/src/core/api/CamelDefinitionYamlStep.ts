@@ -157,6 +157,8 @@ import {
     ProtobufDataFormat,
     RssDataFormat,
     SoapDataFormat,
+    SwiftMtDataFormat,
+    SwiftMxDataFormat,
     SyslogDataFormat,
     TarFileDataFormat,
     ThriftDataFormat,
@@ -173,9 +175,9 @@ import {
     ZipFileDataFormat,
     DeadLetterChannelDefinition,
     DefaultErrorHandlerDefinition,
-    ErrorHandlerRefDefinition,
     JtaTransactionErrorHandlerDefinition,
     NoErrorHandlerDefinition,
+    RefErrorHandlerDefinition,
     SpringTransactionErrorHandlerDefinition,
     CSimpleExpression,
     ConstantExpression,
@@ -185,6 +187,7 @@ import {
     GroovyExpression,
     HeaderExpression,
     Hl7TerserExpression,
+    JavaScriptExpression,
     JoorExpression,
     JqExpression,
     JsonPathExpression,
@@ -192,6 +195,7 @@ import {
     MethodCallExpression,
     MvelExpression,
     OgnlExpression,
+    PythonExpression,
     RefExpression,
     SimpleExpression,
     SpELExpression,
@@ -714,18 +718,39 @@ export class CamelDefinitionYamlStep {
                def.deadLetterChannel = CamelDefinitionYamlStep.readDeadLetterChannelDefinition(element.deadLetterChannel); 
             } 
         } 
-        if (element?.log !== undefined) { 
-            if (Array.isArray(element.log)) { 
-               def.log = CamelDefinitionYamlStep.readDefaultErrorHandlerDefinition(element.log[0]); 
+        if (element?.noErrorHandler !== undefined) { 
+            if (Array.isArray(element.noErrorHandler)) { 
+               def.noErrorHandler = CamelDefinitionYamlStep.readNoErrorHandlerDefinition(element.noErrorHandler[0]); 
             } else { 
-               def.log = CamelDefinitionYamlStep.readDefaultErrorHandlerDefinition(element.log); 
+               def.noErrorHandler = CamelDefinitionYamlStep.readNoErrorHandlerDefinition(element.noErrorHandler); 
             } 
         } 
-        if (element?.none !== undefined) { 
-            if (Array.isArray(element.none)) { 
-               def.none = CamelDefinitionYamlStep.readNoErrorHandlerDefinition(element.none[0]); 
+        if (element?.jtaTransactionErrorHandler !== undefined) { 
+            if (Array.isArray(element.jtaTransactionErrorHandler)) { 
+               def.jtaTransactionErrorHandler = CamelDefinitionYamlStep.readJtaTransactionErrorHandlerDefinition(element.jtaTransactionErrorHandler[0]); 
             } else { 
-               def.none = CamelDefinitionYamlStep.readNoErrorHandlerDefinition(element.none); 
+               def.jtaTransactionErrorHandler = CamelDefinitionYamlStep.readJtaTransactionErrorHandlerDefinition(element.jtaTransactionErrorHandler); 
+            } 
+        } 
+        if (element?.defaultErrorHandler !== undefined) { 
+            if (Array.isArray(element.defaultErrorHandler)) { 
+               def.defaultErrorHandler = CamelDefinitionYamlStep.readDefaultErrorHandlerDefinition(element.defaultErrorHandler[0]); 
+            } else { 
+               def.defaultErrorHandler = CamelDefinitionYamlStep.readDefaultErrorHandlerDefinition(element.defaultErrorHandler); 
+            } 
+        } 
+        if (element?.springTransactionErrorHandler !== undefined) { 
+            if (Array.isArray(element.springTransactionErrorHandler)) { 
+               def.springTransactionErrorHandler = CamelDefinitionYamlStep.readSpringTransactionErrorHandlerDefinition(element.springTransactionErrorHandler[0]); 
+            } else { 
+               def.springTransactionErrorHandler = CamelDefinitionYamlStep.readSpringTransactionErrorHandlerDefinition(element.springTransactionErrorHandler); 
+            } 
+        } 
+        if (element?.refErrorHandler !== undefined) { 
+            if (Array.isArray(element.refErrorHandler)) { 
+               def.refErrorHandler = CamelDefinitionYamlStep.readRefErrorHandlerDefinition(element.refErrorHandler[0]); 
+            } else { 
+               def.refErrorHandler = CamelDefinitionYamlStep.readRefErrorHandlerDefinition(element.refErrorHandler); 
             } 
         } 
 
@@ -997,6 +1022,13 @@ export class CamelDefinitionYamlStep {
                def.ognl = CamelDefinitionYamlStep.readOgnlExpression(element.ognl); 
             } 
         } 
+        if (element?.python !== undefined) { 
+            if (Array.isArray(element.python)) { 
+               def.python = CamelDefinitionYamlStep.readPythonExpression(element.python[0]); 
+            } else { 
+               def.python = CamelDefinitionYamlStep.readPythonExpression(element.python); 
+            } 
+        } 
         if (element?.constant !== undefined) { 
             if (Array.isArray(element.constant)) { 
                def.constant = CamelDefinitionYamlStep.readConstantExpression(element.constant[0]); 
@@ -1037,6 +1069,13 @@ export class CamelDefinitionYamlStep {
                def.jq = CamelDefinitionYamlStep.readJqExpression(element.jq[0]); 
             } else { 
                def.jq = CamelDefinitionYamlStep.readJqExpression(element.jq); 
+            } 
+        } 
+        if (element?.js !== undefined) { 
+            if (Array.isArray(element.js)) { 
+               def.js = CamelDefinitionYamlStep.readJavaScriptExpression(element.js[0]); 
+            } else { 
+               def.js = CamelDefinitionYamlStep.readJavaScriptExpression(element.js); 
             } 
         } 
         if (element?.language !== undefined) { 
@@ -1537,6 +1576,13 @@ export class CamelDefinitionYamlStep {
                def.flatpack = CamelDefinitionYamlStep.readFlatpackDataFormat(element.flatpack); 
             } 
         } 
+        if (element?.swiftMx !== undefined) { 
+            if (Array.isArray(element.swiftMx)) { 
+               def.swiftMx = CamelDefinitionYamlStep.readSwiftMxDataFormat(element.swiftMx[0]); 
+            } else { 
+               def.swiftMx = CamelDefinitionYamlStep.readSwiftMxDataFormat(element.swiftMx); 
+            } 
+        } 
         if (element?.cbor !== undefined) { 
             if (Array.isArray(element.cbor)) { 
                def.cbor = CamelDefinitionYamlStep.readCBORDataFormat(element.cbor[0]); 
@@ -1549,6 +1595,13 @@ export class CamelDefinitionYamlStep {
                def.crypto = CamelDefinitionYamlStep.readCryptoDataFormat(element.crypto[0]); 
             } else { 
                def.crypto = CamelDefinitionYamlStep.readCryptoDataFormat(element.crypto); 
+            } 
+        } 
+        if (element?.swiftMt !== undefined) { 
+            if (Array.isArray(element.swiftMt)) { 
+               def.swiftMt = CamelDefinitionYamlStep.readSwiftMtDataFormat(element.swiftMt[0]); 
+            } else { 
+               def.swiftMt = CamelDefinitionYamlStep.readSwiftMtDataFormat(element.swiftMt); 
             } 
         } 
         if (element?.univocityTsv !== undefined) { 
@@ -2505,6 +2558,13 @@ export class CamelDefinitionYamlStep {
                def.flatpack = CamelDefinitionYamlStep.readFlatpackDataFormat(element.flatpack); 
             } 
         } 
+        if (element?.swiftMx !== undefined) { 
+            if (Array.isArray(element.swiftMx)) { 
+               def.swiftMx = CamelDefinitionYamlStep.readSwiftMxDataFormat(element.swiftMx[0]); 
+            } else { 
+               def.swiftMx = CamelDefinitionYamlStep.readSwiftMxDataFormat(element.swiftMx); 
+            } 
+        } 
         if (element?.cbor !== undefined) { 
             if (Array.isArray(element.cbor)) { 
                def.cbor = CamelDefinitionYamlStep.readCBORDataFormat(element.cbor[0]); 
@@ -2517,6 +2577,13 @@ export class CamelDefinitionYamlStep {
                def.crypto = CamelDefinitionYamlStep.readCryptoDataFormat(element.crypto[0]); 
             } else { 
                def.crypto = CamelDefinitionYamlStep.readCryptoDataFormat(element.crypto); 
+            } 
+        } 
+        if (element?.swiftMt !== undefined) { 
+            if (Array.isArray(element.swiftMt)) { 
+               def.swiftMt = CamelDefinitionYamlStep.readSwiftMtDataFormat(element.swiftMt[0]); 
+            } else { 
+               def.swiftMt = CamelDefinitionYamlStep.readSwiftMtDataFormat(element.swiftMt); 
             } 
         } 
         if (element?.univocityTsv !== undefined) { 
@@ -3396,6 +3463,13 @@ export class CamelDefinitionYamlStep {
                def.flatpack = CamelDefinitionYamlStep.readFlatpackDataFormat(element.flatpack); 
             } 
         } 
+        if (element?.swiftMx !== undefined) { 
+            if (Array.isArray(element.swiftMx)) { 
+               def.swiftMx = CamelDefinitionYamlStep.readSwiftMxDataFormat(element.swiftMx[0]); 
+            } else { 
+               def.swiftMx = CamelDefinitionYamlStep.readSwiftMxDataFormat(element.swiftMx); 
+            } 
+        } 
         if (element?.cbor !== undefined) { 
             if (Array.isArray(element.cbor)) { 
                def.cbor = CamelDefinitionYamlStep.readCBORDataFormat(element.cbor[0]); 
@@ -3408,6 +3482,13 @@ export class CamelDefinitionYamlStep {
                def.crypto = CamelDefinitionYamlStep.readCryptoDataFormat(element.crypto[0]); 
             } else { 
                def.crypto = CamelDefinitionYamlStep.readCryptoDataFormat(element.crypto); 
+            } 
+        } 
+        if (element?.swiftMt !== undefined) { 
+            if (Array.isArray(element.swiftMt)) { 
+               def.swiftMt = CamelDefinitionYamlStep.readSwiftMtDataFormat(element.swiftMt[0]); 
+            } else { 
+               def.swiftMt = CamelDefinitionYamlStep.readSwiftMtDataFormat(element.swiftMt); 
             } 
         } 
         if (element?.univocityTsv !== undefined) { 
@@ -3610,6 +3691,20 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
+    static readSwiftMtDataFormat = (element: any): SwiftMtDataFormat => {
+        
+        const def = element ? new SwiftMtDataFormat({...element}) : new SwiftMtDataFormat();
+
+        return def;
+    }
+
+    static readSwiftMxDataFormat = (element: any): SwiftMxDataFormat => {
+        
+        const def = element ? new SwiftMxDataFormat({...element}) : new SwiftMxDataFormat();
+
+        return def;
+    }
+
     static readSyslogDataFormat = (element: any): SyslogDataFormat => {
         
         const def = element ? new SyslogDataFormat({...element}) : new SyslogDataFormat();
@@ -3744,13 +3839,6 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
-    static readErrorHandlerRefDefinition = (element: any): ErrorHandlerRefDefinition => {
-        
-        const def = element ? new ErrorHandlerRefDefinition({...element}) : new ErrorHandlerRefDefinition();
-
-        return def;
-    }
-
     static readJtaTransactionErrorHandlerDefinition = (element: any): JtaTransactionErrorHandlerDefinition => {
         
         const def = element ? new JtaTransactionErrorHandlerDefinition({...element}) : new JtaTransactionErrorHandlerDefinition();
@@ -3768,6 +3856,13 @@ export class CamelDefinitionYamlStep {
     static readNoErrorHandlerDefinition = (element: any): NoErrorHandlerDefinition => {
         
         const def = element ? new NoErrorHandlerDefinition({...element}) : new NoErrorHandlerDefinition();
+
+        return def;
+    }
+
+    static readRefErrorHandlerDefinition = (element: any): RefErrorHandlerDefinition => {
+        if (element && typeof element === 'string') element = {ref: element};
+        const def = element ? new RefErrorHandlerDefinition({...element}) : new RefErrorHandlerDefinition();
 
         return def;
     }
@@ -3824,6 +3919,13 @@ export class CamelDefinitionYamlStep {
                def.ognl = CamelDefinitionYamlStep.readOgnlExpression(element.ognl); 
             } 
         } 
+        if (element?.python !== undefined) { 
+            if (Array.isArray(element.python)) { 
+               def.python = CamelDefinitionYamlStep.readPythonExpression(element.python[0]); 
+            } else { 
+               def.python = CamelDefinitionYamlStep.readPythonExpression(element.python); 
+            } 
+        } 
         if (element?.constant !== undefined) { 
             if (Array.isArray(element.constant)) { 
                def.constant = CamelDefinitionYamlStep.readConstantExpression(element.constant[0]); 
@@ -3864,6 +3966,13 @@ export class CamelDefinitionYamlStep {
                def.jq = CamelDefinitionYamlStep.readJqExpression(element.jq[0]); 
             } else { 
                def.jq = CamelDefinitionYamlStep.readJqExpression(element.jq); 
+            } 
+        } 
+        if (element?.js !== undefined) { 
+            if (Array.isArray(element.js)) { 
+               def.js = CamelDefinitionYamlStep.readJavaScriptExpression(element.js[0]); 
+            } else { 
+               def.js = CamelDefinitionYamlStep.readJavaScriptExpression(element.js); 
             } 
         } 
         if (element?.language !== undefined) { 
@@ -3989,6 +4098,13 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
+    static readJavaScriptExpression = (element: any): JavaScriptExpression => {
+        if (element && typeof element === 'string') element = {expression: element};
+        const def = element ? new JavaScriptExpression({...element}) : new JavaScriptExpression();
+
+        return def;
+    }
+
     static readJoorExpression = (element: any): JoorExpression => {
         if (element && typeof element === 'string') element = {expression: element};
         const def = element ? new JoorExpression({...element}) : new JoorExpression();
@@ -4034,6 +4150,13 @@ export class CamelDefinitionYamlStep {
     static readOgnlExpression = (element: any): OgnlExpression => {
         if (element && typeof element === 'string') element = {expression: element};
         const def = element ? new OgnlExpression({...element}) : new OgnlExpression();
+
+        return def;
+    }
+
+    static readPythonExpression = (element: any): PythonExpression => {
+        if (element && typeof element === 'string') element = {expression: element};
+        const def = element ? new PythonExpression({...element}) : new PythonExpression();
 
         return def;
     }
@@ -4577,6 +4700,13 @@ export class CamelDefinitionYamlStep {
                def.flatpack = CamelDefinitionYamlStep.readFlatpackDataFormat(element.flatpack); 
             } 
         } 
+        if (element?.swiftMx !== undefined) { 
+            if (Array.isArray(element.swiftMx)) { 
+               def.swiftMx = CamelDefinitionYamlStep.readSwiftMxDataFormat(element.swiftMx[0]); 
+            } else { 
+               def.swiftMx = CamelDefinitionYamlStep.readSwiftMxDataFormat(element.swiftMx); 
+            } 
+        } 
         if (element?.cbor !== undefined) { 
             if (Array.isArray(element.cbor)) { 
                def.cbor = CamelDefinitionYamlStep.readCBORDataFormat(element.cbor[0]); 
@@ -4589,6 +4719,13 @@ export class CamelDefinitionYamlStep {
                def.crypto = CamelDefinitionYamlStep.readCryptoDataFormat(element.crypto[0]); 
             } else { 
                def.crypto = CamelDefinitionYamlStep.readCryptoDataFormat(element.crypto); 
+            } 
+        } 
+        if (element?.swiftMt !== undefined) { 
+            if (Array.isArray(element.swiftMt)) { 
+               def.swiftMt = CamelDefinitionYamlStep.readSwiftMtDataFormat(element.swiftMt[0]); 
+            } else { 
+               def.swiftMt = CamelDefinitionYamlStep.readSwiftMtDataFormat(element.swiftMt); 
             } 
         } 
         if (element?.univocityTsv !== undefined) { 
