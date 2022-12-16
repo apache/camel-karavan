@@ -67,8 +67,8 @@ public class DeploymentEventHandler implements ResourceEventHandler<Deployment> 
             return new DeploymentStatus(
                     deployment.getMetadata().getName(),
                     deployment.getMetadata().getNamespace(),
-                    kubernetesService.environment,
                     kubernetesService.getCluster(),
+                    kubernetesService.environment,
                     imageName,
                     deployment.getSpec().getReplicas(),
                     deployment.getStatus().getReadyReplicas(),

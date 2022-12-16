@@ -50,7 +50,6 @@ export class ProjectPageToolbar extends React.Component<Props> {
     push = (after?: () => void) => {
         this.setState({isPushing: true});
         KaravanApi.push(this.props.project, res => {
-            console.log(res)
             if (res.status === 200 || res.status === 201) {
                 this.setState({isPushing: false});
                 after?.call(this);

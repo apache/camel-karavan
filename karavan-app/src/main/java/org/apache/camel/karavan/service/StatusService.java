@@ -26,6 +26,7 @@ import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.apache.camel.karavan.model.CamelStatus;
+import org.apache.camel.karavan.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -103,9 +104,11 @@ public class StatusService {
 
     private void collectStatusesForProject(String projectId) {
         LOGGER.info("Collect Camel status for project " + projectId);
-        String url = ProfileManager.getActiveProfile().equals("dev")
-                ? String.format("http://%s-%s.%s/q/health", projectId, kubernetesService.getNamespace(), kubernetesService.getCluster())
-                : String.format("http://%s.%s.%s/q/health", projectId, kubernetesService.getNamespace(), "svc.cluster.local");
+        Project project = infinispanService.getProject(projectId);
+        String path = project.getRuntime().equalsIgnoreCase("quarkus") ? "/q/health" : "/actuator/health";
+        String separator = ProfileManager.getActiveProfile().equals("dev") ? "." : "-";
+        String cluster = ProfileManager.getActiveProfile().equals("dev") ? kubernetesService.getCluster() : "svc.cluster.local";
+        String url = "http://" + projectId + separator + kubernetesService.getNamespace() + "." + cluster + path;
         CamelStatus cs = getCamelStatus(projectId, url);
         try {
             String data = mapper.writeValueAsString(cs);

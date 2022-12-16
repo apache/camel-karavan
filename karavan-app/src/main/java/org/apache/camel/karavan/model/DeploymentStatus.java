@@ -34,7 +34,7 @@ public class DeploymentStatus {
     }
 
     @ProtoFactory
-    public DeploymentStatus(String name, String namespace, String env, String cluster, String image, Integer replicas, Integer readyReplicas, Integer unavailableReplicas) {
+    public DeploymentStatus(String name, String namespace, String cluster, String env, String image, Integer replicas, Integer readyReplicas, Integer unavailableReplicas) {
         this.name = name;
         this.namespace = namespace;
         this.env = env;
