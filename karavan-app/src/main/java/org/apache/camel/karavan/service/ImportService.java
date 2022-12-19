@@ -146,12 +146,12 @@ public class ImportService {
 
     private static String getProjectDescription(String file) {
         String description = getProperty(file, "camel.jbang.project-description");
-        return description != null ? description : getProperty(file, "camel.karavan.project-description");
+        return description != null && !description.isBlank() ? description : getProperty(file, "camel.karavan.project-description");
     }
 
     private static String getProjectName(String file) {
         String name = getProperty(file, "camel.jbang.project-name");
-        return name != null ? name : getProperty(file, "camel.karavan.project-name");
+        return name != null && !name.isBlank() ? name : getProperty(file, "camel.karavan.project-name");
     }
 
     private static String getProjectRuntime(String file) {
