@@ -114,7 +114,6 @@ public class KubernetesResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     @Path("/deployment/rollout/{env}/{name}")
     public Response rollout(@PathParam("env") String env, @PathParam("name") String name) throws Exception {
         kubernetesService.rolloutDeployment(name, kubernetesService.getNamespace());
