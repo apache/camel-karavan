@@ -168,6 +168,20 @@
           "scope": "machine",
           "order": 70
         },
+        "Karavan.applicationGitignore": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            ".export",
+            ".camel-jbang"
+          ],
+          "description": "Default .gitignore for application",
+          "scope": "machine",
+          "order": 80
+        },
         "Karavan.quarkusApplicationProperties": {
           "type": "array",
           "uniqueItems": true,

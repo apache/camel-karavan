@@ -295,7 +295,28 @@ export function currentFolderName(): string | undefined {
     }
 }
 
-export async function createApplicationproperties(runtime: string, gav: string, target: string) {
+export async function createApplication(runtime: string, target: string) {
+    window.showInputBox({
+        title: "Export project with " + runtime,
+        ignoreFocusOut: true,
+        prompt: "groupId:artifactId:version",
+        value: defaultGAV(),
+        validateInput: (text: string): string | undefined => {
+            if (!text || text.length === 0) {
+                return 'Name should not be empty. Format groupId:artifactId:version';
+            } else {
+                return undefined;
+            }
+        }
+    }).then(gav => {
+        if (gav) {
+            createApplicationProperties(runtime, gav, target);
+            createApplicationGitignore();
+        }
+    });
+}
+
+export async function createApplicationProperties(runtime: string, gav: string, target: string) {
     if (workspace.workspaceFolders) {
         const uriFolder: Uri = workspace.workspaceFolders[0].uri;
         const name = currentFolderName() || "";
@@ -315,6 +336,15 @@ export async function createApplicationproperties(runtime: string, gav: string, 
             else return v;
         }).join('\n');
         write(path.join(uriFolder.path, "application.properties"), text);
+    }
+}
+
+export async function createApplicationGitignore() {
+    if (workspace.workspaceFolders) {
+        const uriFolder: Uri = workspace.workspaceFolders[0].uri;
+        const gitignore: string[] = workspace.getConfiguration().get("Karavan.applicationGitignore") || [];
+        const text = gitignore.join('\n');
+        write(path.join(uriFolder.path, ".gitignore"), text);
     }
 }
 

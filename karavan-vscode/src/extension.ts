@@ -96,7 +96,7 @@ export function activate(context: ExtensionContext) {
             if (createApp){
                 window.showQuickPick(runtimeOptions, { title: "Select Runtime", canPickMany: false }).then((runtime) => {
                     window.showQuickPick(deployOptions, { title: "Select Deploy Target", canPickMany: false }).then((target) => {
-                        if (runtime && target) inputExportGav(runtime.label, target.label)
+                        if (runtime && target) utils.createApplication(runtime.label, target.label)
                     })
                 })
             }
@@ -193,29 +193,6 @@ export async function exportAndRunProject(rootPath?: string, run?: boolean) {
         }).catch(error => {
             console.log(error);
         })
-}
-
-/**
- * export with gav
- */
-export async function inputExportGav(runtime: string, target: string) {
-    window.showInputBox({
-        title: "Export project with " + runtime,
-        ignoreFocusOut: true,
-        prompt: "groupId:artifactId:version",
-        value: utils.defaultGAV(),
-        validateInput: (text: string): string | undefined => {
-            if (!text || text.length === 0) {
-                return 'Name should not be empty. Format groupId:artifactId:version';
-            } else {
-                return undefined;
-            }
-        }
-    }).then(gav => {
-        if (gav) {
-            utils.createApplicationproperties(runtime, gav, target)
-        }
-    });
 }
 
 export function deactivate() {
