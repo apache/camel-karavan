@@ -83,7 +83,7 @@ export class ProjectInfo extends React.Component<Props, State> {
                 this.setState({pipelineStatus: status});
                 // console.log(status);
             });
-            KaravanApi.getProjectDeploymentStatus(projectId, environment, (status: DeploymentStatus) => {
+            KaravanApi.getProjectDeploymentStatus(projectId, environment, (status?: DeploymentStatus) => {
                 this.setState({deploymentStatus: status});
                 // console.log(status);
             });
@@ -228,7 +228,7 @@ export class ProjectInfo extends React.Component<Props, State> {
                             </Tooltip>
                         }
                     </LabelGroup>}
-                    {!deploymentStatus && <Label icon={<DownIcon/>} color={"grey"}>No deployments</Label>}
+                    {deploymentStatus === undefined && <Label icon={<DownIcon/>} color={"grey"}>No deployments</Label>}
                 </FlexItem>
                 <FlexItem>{env === "dev" && this.deleteDeploymentButton(env)}</FlexItem>
             </Flex>
