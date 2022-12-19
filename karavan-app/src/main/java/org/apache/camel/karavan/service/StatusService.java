@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -105,11 +106,12 @@ public class StatusService {
     private void collectStatusesForProject(String projectId) {
         LOGGER.info("Collect Camel status for project " + projectId);
         Project project = infinispanService.getProject(projectId);
-        String path = project.getRuntime().equalsIgnoreCase("quarkus") ? "/q/health" : "/actuator/health";
+        String runtime = project.getRuntime();
+        String path = runtime.equalsIgnoreCase("quarkus") ? "/q/health" : "/actuator/health";
         String separator = ProfileManager.getActiveProfile().equals("dev") ? "-" : ".";
         String cluster = ProfileManager.getActiveProfile().equals("dev") ? kubernetesService.getCluster() : "svc.cluster.local";
         String url = "http://" + projectId + separator + kubernetesService.getNamespace() + "." + cluster + path;
-        CamelStatus cs = getCamelStatus(projectId, url);
+        CamelStatus cs = getCamelStatus(projectId, url, runtime);
         try {
             String data = mapper.writeValueAsString(cs);
             eventBus.send(CMD_SAVE_STATUS, data);
@@ -118,24 +120,40 @@ public class StatusService {
         }
     }
 
-    private CamelStatus getCamelStatus(String projectId, String url) {
+    private CamelStatus getCamelStatus(String projectId, String url, String runtime) {
         // TODO: make it reactive
         try {
             HttpResponse<Buffer> result = getWebClient().getAbs(url).timeout(1000).send().subscribeAsCompletionStage().toCompletableFuture().get();
             if (result.statusCode() == 200) {
                 JsonObject res = result.bodyAsJsonObject();
-                List<JsonObject> checks = res.getJsonArray("checks").stream().map(o -> (JsonObject)o).collect(Collectors.toList());
+                if (runtime.equalsIgnoreCase("quarkus")) {
+                    List<JsonObject> checks = res.getJsonArray("checks").stream().map(o -> (JsonObject) o).collect(Collectors.toList());
 
-                JsonObject context = checks.stream().filter(o -> Objects.equals(o.getString("name"), "context")).findFirst().get();
-                return new CamelStatus(
-                        projectId,
-                        getStatus(checks, "context"),
-                        getStatus(checks, "camel-consumers"),
-                        getStatus(checks, "camel-routes"),
-                        getStatus(checks, "camel-registry"),
-                        context.getJsonObject("data").getString("context.version"),
-                        environment
-                );
+                    JsonObject context = checks.stream().filter(o -> Objects.equals(o.getString("name"), "context")).findFirst().get();
+                    return new CamelStatus(
+                            projectId,
+                            getQuarkusStatus(checks, "context"),
+                            getQuarkusStatus(checks, "camel-consumers"),
+                            getQuarkusStatus(checks, "camel-routes"),
+                            getQuarkusStatus(checks, "camel-registry"),
+                            context.getJsonObject("data").getString("context.version"),
+                            environment
+                    );
+                } else {
+                    JsonObject components = res.getJsonObject("components");
+                    JsonObject camelHealth = components.getJsonObject("camelHealth");
+                    JsonObject details = camelHealth.getJsonObject("details");
+
+                    return new CamelStatus(
+                            projectId,
+                            getSpringStatus(details, "context"),
+                            getSpringStatus(details, "consumer"),
+                            getSpringStatus(details, "route"),
+                            CamelStatus.Status.UNDEFINED,
+                            "N/A in SpringBoot",
+                            environment
+                    );
+                }
             } else {
                 return new CamelStatus(projectId, environment);
             }
@@ -145,7 +163,22 @@ public class StatusService {
         }
     }
 
-    private CamelStatus.Status getStatus(List<JsonObject> checks, String name){
+    private CamelStatus.Status getSpringStatus(JsonObject object, String name){
+        try {
+            String res = object.getString("name");
+            if (res == null) {
+                Optional<String> fname = object.fieldNames().stream().filter(fn -> fn.startsWith(name)).findFirst();
+                if (fname.isPresent()) {
+                    res = object.getString(fname.get());
+                }
+            }
+            return res.equals("UP") ? CamelStatus.Status.UP : CamelStatus.Status.DOWN;
+        } catch (Exception e){
+            return CamelStatus.Status.UNDEFINED;
+        }
+    }
+
+    private CamelStatus.Status getQuarkusStatus(List<JsonObject> checks, String name){
         try {
             JsonObject res = checks.stream().filter(o -> o.getString("name").equals(name)).findFirst().get();
             return res.getString("status").equals("UP") ? CamelStatus.Status.UP : CamelStatus.Status.DOWN;
