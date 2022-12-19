@@ -70,7 +70,7 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(openFile);
 
     // Create application
-    const applicationCommand = commands.registerCommand("karavan.create-application", (...args: any[]) => {
+    const applicationCommand = commands.registerCommand("karavan.create-application", async (...args: any[]) => {
         if (rootPath) {
             const defaultRuntime: string = workspace.getConfiguration().get("camel.runtimes") || '';
             const deployTarget: string = workspace.getConfiguration().get("camel.deployTarget") || 'openshift';
@@ -83,17 +83,23 @@ export function activate(context: ExtensionContext) {
                 { label: "kubernetes", picked: "kubernetes" === deployTarget },
                 { label: "none", picked: "none" === deployTarget }
             ];
-            utils.hasApplicationProperties(rootPath).then(hasAP => {
-                if (hasAP) {
-                    window.showInformationMessage("Folder already contains application.properties");
-                } else {
-                    window.showQuickPick(runtimeOptions, { title: "Select Runtime", canPickMany: false }).then((runtime) => {
-                        window.showQuickPick(deployOptions, { title: "Select Deploy Target", canPickMany: false }).then((target) => {
-                            if (runtime && target) inputExportGav(runtime.label, target.label)
-                        })
+            const hasAP = await utils.hasApplicationProperties(rootPath);
+            let createApp = !hasAP;
+            if (hasAP) {
+                const replaceOptions: QuickPickItem[] = [
+                    { label: "Replace", picked: false },
+                    { label: "Cancel", picked: true }
+                ];
+                const replace = await window.showQuickPick(replaceOptions, {title: "Application already exists!", canPickMany: false });
+                createApp = replace?.label === replaceOptions.at(0)?.label;
+            }
+            if (createApp){
+                window.showQuickPick(runtimeOptions, { title: "Select Runtime", canPickMany: false }).then((runtime) => {
+                    window.showQuickPick(deployOptions, { title: "Select Deploy Target", canPickMany: false }).then((target) => {
+                        if (runtime && target) inputExportGav(runtime.label, target.label)
                     })
-                }
-            })
+                })
+            }
         }
     });
     context.subscriptions.push(applicationCommand);
