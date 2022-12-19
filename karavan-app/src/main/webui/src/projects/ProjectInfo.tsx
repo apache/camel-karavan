@@ -84,7 +84,7 @@ export class ProjectInfo extends React.Component<Props, State> {
                 // console.log(status);
             });
             KaravanApi.getProjectDeploymentStatus(projectId, environment, (status: DeploymentStatus) => {
-                this.setState({ deploymentStatus: status});
+                this.setState({deploymentStatus: status});
                 // console.log(status);
             });
             KaravanApi.getProjectPodStatuses(projectId, environment, (statuses: PodStatus[]) => {
@@ -192,13 +192,13 @@ export class ProjectInfo extends React.Component<Props, State> {
                 <DescriptionListGroup>
                     <DescriptionListTerm>Deployment</DescriptionListTerm>
                     <DescriptionListDescription>
-                        {deploymentStatus && this.getReplicasPanel(deploymentStatus, env)}
+                        {this.getReplicasPanel(env, deploymentStatus)}
                     </DescriptionListDescription>
                 </DescriptionListGroup>
                 <DescriptionListGroup>
                     <DescriptionListTerm>Pods</DescriptionListTerm>
                     <DescriptionListDescription>
-                        {deploymentStatus && this.getPodsPanel(deploymentStatus, env)}
+                        {this.getPodsPanel(env, deploymentStatus)}
                     </DescriptionListDescription>
                 </DescriptionListGroup>
                 <DescriptionListGroup>
@@ -210,31 +210,34 @@ export class ProjectInfo extends React.Component<Props, State> {
             </DescriptionList>)
     }
 
-    getReplicasPanel(deploymentStatus: DeploymentStatus, env: string) {
+    getReplicasPanel(env: string, deploymentStatus?: DeploymentStatus) {
+        console.log(deploymentStatus);
+
         const ok = (deploymentStatus && deploymentStatus?.readyReplicas > 0
             && (deploymentStatus.unavailableReplicas === 0 || deploymentStatus.unavailableReplicas === undefined || deploymentStatus.unavailableReplicas === null)
             && deploymentStatus?.replicas === deploymentStatus?.readyReplicas)
         return (
             <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
                 <FlexItem>
-            <LabelGroup numLabels={3}>
-                <Tooltip content={"Ready Replicas / Replicas"} position={"left"}>
-                    <Label icon={ok ? <UpIcon/> : <DownIcon/>}
-                           color={ok ? "green" : "grey"}>{"Replicas: " + deploymentStatus.readyReplicas + " / " + deploymentStatus.replicas}</Label>
-                </Tooltip>
-                {deploymentStatus.unavailableReplicas > 0 &&
-                    <Tooltip content={"Unavailable replicas"} position={"right"}>
-                        <Label icon={<DownIcon/>} color={"red"}>{deploymentStatus.unavailableReplicas}</Label>
-                    </Tooltip>
-                }
-            </LabelGroup>
+                    {deploymentStatus && <LabelGroup numLabels={3}>
+                        <Tooltip content={"Ready Replicas / Replicas"} position={"left"}>
+                            <Label icon={ok ? <UpIcon/> : <DownIcon/>}
+                                   color={ok ? "green" : "grey"}>{"Replicas: " + deploymentStatus.readyReplicas + " / " + deploymentStatus.replicas}</Label>
+                        </Tooltip>
+                        {deploymentStatus.unavailableReplicas > 0 &&
+                            <Tooltip content={"Unavailable replicas"} position={"right"}>
+                                <Label icon={<DownIcon/>} color={"red"}>{deploymentStatus.unavailableReplicas}</Label>
+                            </Tooltip>
+                        }
+                    </LabelGroup>}
+                    {!deploymentStatus && <Label icon={<DownIcon/>} color={"grey"}>No deployments</Label>}
                 </FlexItem>
                 <FlexItem>{env === "dev" && this.deleteDeploymentButton(env)}</FlexItem>
             </Flex>
         )
     }
 
-    getPodsPanel(deploymentStatus: DeploymentStatus, env: string) {
+    getPodsPanel(env: string, deploymentStatus?: DeploymentStatus) {
         const podStatuses = this.state.podStatuses;
         return (
             <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
@@ -280,6 +283,12 @@ export class ProjectInfo extends React.Component<Props, State> {
         return (status === 'UP' ? <UpIcon/> : <DownIcon/>)
     }
 
+    showPipelineLog(pipeline: string, env: string){
+        if (pipeline) {
+            this.props.showLog?.call(this, 'pipeline', pipeline, env);
+        }
+    }
+
     getHealthPanel(env: string) {
         const status = this.state.camelStatus;
         const routesStatus = status?.routesStatus;
@@ -302,10 +311,10 @@ export class ProjectInfo extends React.Component<Props, State> {
         const pipeline = status?.pipelineName;
         const pipelineResult = status?.result;
         let lastPipelineRunTime = 0;
-        if (status?.startTime){
-            const start:Date = new Date(status.startTime);
-            const finish:Date = status.completionTime !== undefined && status.completionTime !== null ? new Date(status.completionTime) : new Date();
-            lastPipelineRunTime =Math.round( (finish.getTime() - start.getTime()) / 1000 );
+        if (status?.startTime) {
+            const start: Date = new Date(status.startTime);
+            const finish: Date = status.completionTime !== undefined && status.completionTime !== null ? new Date(status.completionTime) : new Date();
+            lastPipelineRunTime = Math.round((finish.getTime() - start.getTime()) / 1000);
         }
         const showTime = lastPipelineRunTime && lastPipelineRunTime > 0;
         const isRunning = pipelineResult === 'Running';
@@ -319,13 +328,13 @@ export class ProjectInfo extends React.Component<Props, State> {
                     <Tooltip content={pipelineResult} position={"right"}>
                         <LabelGroup numLabels={2}>
                             <Label icon={isRunning ? <Spinner isSVG diameter="16px"/> : icon} color={color}>
-                                <Button variant="link" onClick={e => {
-                                    if (pipeline) this.props.showLog?.call(this, 'pipeline', pipeline, env);
-                                }}>
-                                    {pipeline ? pipeline : "-"}
-                                </Button>
+                                {pipeline
+                                    ? <Button variant="link" onClick={e => this.showPipelineLog(pipeline, env)}>
+                                        {pipeline}
+                                    </Button>
+                                    : "No pipeline"}
                             </Label>
-                            {showTime && lastPipelineRunTime !== undefined && <Label icon={<ClockIcon/>} color={color}>{lastPipelineRunTime + "s"}</Label>}
+                            {pipeline && showTime && lastPipelineRunTime !== undefined && <Label icon={<ClockIcon/>} color={color}>{lastPipelineRunTime + "s"}</Label>}
                         </LabelGroup>
                     </Tooltip>
                 </FlexItem>
