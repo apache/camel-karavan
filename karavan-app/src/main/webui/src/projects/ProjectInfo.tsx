@@ -287,7 +287,7 @@ export class ProjectInfo extends React.Component<Props, State> {
         const contextStatus = status?.contextStatus;
         const contextVersion = status?.contextVersion;
         return (
-            <LabelGroup numLabels={5}>
+            <LabelGroup numLabels={4}>
                 {contextVersion &&
                     <Label icon={this.getStatusIcon(contextStatus)} color={this.getStatusColor(contextStatus)}>{contextVersion}</Label>}
                 <Label icon={this.getStatusIcon(contextStatus)} color={this.getStatusColor(contextStatus)}>Context</Label>

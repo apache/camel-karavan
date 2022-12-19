@@ -150,7 +150,7 @@ public class StatusService {
                             getSpringStatus(details, "consumer"),
                             getSpringStatus(details, "route"),
                             CamelStatus.Status.UNDEFINED,
-                            "N/A in SpringBoot",
+                            null,
                             environment
                     );
                 }
@@ -162,10 +162,9 @@ public class StatusService {
             return new CamelStatus(projectId, environment);
         }
     }
-
     private CamelStatus.Status getSpringStatus(JsonObject object, String name){
         try {
-            String res = object.getString("name");
+            String res = object.getString(name);
             if (res == null) {
                 Optional<String> fname = object.fieldNames().stream().filter(fn -> fn.startsWith(name)).findFirst();
                 if (fname.isPresent()) {
@@ -177,6 +176,7 @@ public class StatusService {
             return CamelStatus.Status.UNDEFINED;
         }
     }
+
 
     private CamelStatus.Status getQuarkusStatus(List<JsonObject> checks, String name){
         try {
