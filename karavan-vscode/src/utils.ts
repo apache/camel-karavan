@@ -300,8 +300,12 @@ export async function createApplicationproperties(runtime: string, gav: string, 
         const uriFolder: Uri = workspace.workspaceFolders[0].uri;
         const name = currentFolderName() || "";
 
-        const props: string[] = workspace.getConfiguration().get("Karavan.applicationProperties") || [];
-        const runtimeProps: string[] = workspace.getConfiguration().get("Karavan.".concat(runtime.replaceAll("-", "")).concat(capitalize(target)).concat("Properties")) || [];
+        const runtimePrefix = runtime.replaceAll("-", "");
+        const appPropertyName = "Karavan.".concat(runtimePrefix).concat("ApplicationProperties");
+        const targetPropertyName = "Karavan.".concat(runtimePrefix).concat(capitalize(target)).concat("Properties");
+
+        const props: string[] = workspace.getConfiguration().get(appPropertyName) || [];
+        const runtimeProps: string[] = workspace.getConfiguration().get(targetPropertyName) || [];
 
         const text = props.concat(runtimeProps).map(v => {
             if (v.includes('$NAME')) return v.replace('$NAME', name)

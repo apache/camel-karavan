@@ -168,7 +168,7 @@
           "scope": "machine",
           "order": 70
         },
-        "Karavan.applicationProperties": {
+        "Karavan.quarkusApplicationProperties": {
           "type": "array",
           "uniqueItems": true,
           "items": {
@@ -186,9 +186,34 @@
             "camel.jbang.runtime=$RUNTIME",
             "camel.jbang.exportDir=.export"
           ],
-          "description": "application.properties template",
+          "description": "Quarkus application.properties template",
           "scope": "machine",
           "order": 90
+        },
+        "Karavan.springbootApplicationProperties": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "camel.health.enabled=true",
+            "camel.health.exposure-level=full",
+            "camel.karavan.project-id=$NAME",
+            "camel.karavan.project-name=$NAME",
+            "camel.karavan.project-description=$NAME",
+            "camel.karavan.target=$TARGET",
+            "camel.jbang.gav=$GAV",
+            "camel.jbang.quarkusVersion=2.13.5.Final",
+            "camel.jbang.runtime=$RUNTIME",
+            "camel.jbang.exportDir=.export",
+            "management.endpoints.web.exposure.include=health",
+            "management.health.probes.enabled=true",
+            "management.endpoint.health.show-details=always"
+          ],
+          "description": "Spring-boot application.properties template",
+          "scope": "machine",
+          "order": 91
         },
         "Karavan.quarkusOpenshiftProperties": {
           "type": "array",
