@@ -180,7 +180,7 @@ export class ProjectInfo extends React.Component<Props, State> {
     }
 
     getEnvPanel(env: string) {
-        const {deploymentStatus} = this.state;
+        const {deploymentStatus, podStatuses} = this.state;
         return (
             <DescriptionList isHorizontal>
                 <DescriptionListGroup>
@@ -198,7 +198,7 @@ export class ProjectInfo extends React.Component<Props, State> {
                 <DescriptionListGroup>
                     <DescriptionListTerm>Pods</DescriptionListTerm>
                     <DescriptionListDescription>
-                        {this.getPodsPanel(env, deploymentStatus)}
+                        {this.getPodsPanel(env, podStatuses)}
                     </DescriptionListDescription>
                 </DescriptionListGroup>
                 <DescriptionListGroup>
@@ -211,8 +211,6 @@ export class ProjectInfo extends React.Component<Props, State> {
     }
 
     getReplicasPanel(env: string, deploymentStatus?: DeploymentStatus) {
-        console.log(deploymentStatus);
-
         const ok = (deploymentStatus && deploymentStatus?.readyReplicas > 0
             && (deploymentStatus.unavailableReplicas === 0 || deploymentStatus.unavailableReplicas === undefined || deploymentStatus.unavailableReplicas === null)
             && deploymentStatus?.replicas === deploymentStatus?.readyReplicas)
@@ -237,13 +235,12 @@ export class ProjectInfo extends React.Component<Props, State> {
         )
     }
 
-    getPodsPanel(env: string, deploymentStatus?: DeploymentStatus) {
-        const podStatuses = this.state.podStatuses;
+    getPodsPanel(env: string, podStatuses: PodStatus[]) {
         return (
-            <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
+            <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsFlexStart"}}>
                 <FlexItem>
-                    <LabelGroup numLabels={3}>
-                        {(podStatuses === undefined || podStatuses.length === 0) && <Label icon={<DownIcon/>} color={"grey"}>No pods</Label>}
+                    {podStatuses.length === 0 && <Label icon={<DownIcon/>} color={"grey"}>No pods</Label>}
+                    <LabelGroup numLabels={2} isVertical>
                         {podStatuses.map(pod => {
                                 const running = pod.phase === 'Running'
                                 return (
@@ -396,7 +393,7 @@ export class ProjectInfo extends React.Component<Props, State> {
                 <CardBody>
 
                     <Flex direction={{default: "row"}}
-                          style={{height: "200px"}}
+                          // style={{height: "200px"}}
                           justifyContent={{default: "justifyContentSpaceBetween"}}>
                         <FlexItem flex={{default: "flex_1"}}>
                             {this.getProjectDescription()}
