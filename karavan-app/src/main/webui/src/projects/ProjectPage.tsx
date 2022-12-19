@@ -118,6 +118,10 @@ export class ProjectPage extends React.Component<Props, State> {
         return this.props.project.projectId === 'kamelets';
     }
 
+    isTemplatesProject():boolean {
+        return this.props.project.projectId === 'templates';
+    }
+
     post = (file: ProjectFile) => {
         KaravanApi.postProjectFile(file, res => {
             if (res.status === 200) {
@@ -178,7 +182,8 @@ export class ProjectPage extends React.Component<Props, State> {
             project={this.props.project}
             file={this.state.file}
             mode={this.state.mode}
-            isTemplates={this.isBuildIn()}
+            isTemplates={this.isTemplatesProject()}
+            isKamelets={this.isKameletsProject()}
             config={this.props.config}
             addProperty={() => this.addProperty()}
             download={() => this.download()}

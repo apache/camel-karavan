@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-    Badge,
     Button,
     Toolbar,
     ToolbarContent,
@@ -11,7 +10,7 @@ import {
     Checkbox, Tooltip, ToolbarItem
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {CamelStatus, DeploymentStatus, PipelineStatus, PodStatus, Project, ProjectFile} from "./ProjectModels";
+import {Project, ProjectFile} from "./ProjectModels";
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
@@ -22,7 +21,8 @@ import {KaravanApi} from "../api/KaravanApi";
 
 interface Props {
     project: Project,
-    isTemplates?: boolean,
+    isTemplates: boolean,
+    isKamelets: boolean,
     config: any,
     file?: ProjectFile,
     mode: "design" | "code",
