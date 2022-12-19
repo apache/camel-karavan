@@ -5,7 +5,7 @@ import {
     FormGroup,
     ModalVariant,
     Form,
-    ToggleGroupItem, ToggleGroup, TextInputGroupMain, TextInputGroupUtilities, TextInputGroup, Text
+    ToggleGroupItem, ToggleGroup, TextInputGroupMain, TextInputGroupUtilities, TextInputGroup, Text, FormHelperText, HelperText, HelperTextItem, TextInput
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
@@ -30,7 +30,7 @@ export class CreateFileModal extends React.Component<Props, State> {
 
     public state: State = {
         name: '',
-        fileType: 'INTEGRATION',
+        fileType: this.props.types.at(0) || 'INTEGRATION',
     };
 
     closeModal = () => {
@@ -44,7 +44,7 @@ export class CreateFileModal extends React.Component<Props, State> {
         const code = fileType === 'INTEGRATION'
             ? CamelDefinitionYaml.integrationToYaml(Integration.createNew(name, 'plain'))
             : '';
-        if (filename && extension){
+        if (filename && extension) {
             const file = new ProjectFile(filename + '.' + extension, this.props.project.projectId, code, Date.now());
             KaravanApi.postProjectFile(file, res => {
                 if (res.status === 200) {
@@ -81,20 +81,20 @@ export class CreateFileModal extends React.Component<Props, State> {
                         <ToggleGroup aria-label="Type" isCompact>
                             {ProjectFileTypes.filter(p => types.includes(p.name))
                                 .map(p => {
-                                const title = p.title + ' (' + p.extension + ')';
-                                return <ToggleGroupItem key={title} text={title} buttonId={p.name}
-                                                        isSelected={fileType === p.name}
-                                                        onChange={selected => this.setState({fileType: p.name})} />
-                            })}
+                                    const title = p.title + ' (' + p.extension + ')';
+                                    return <ToggleGroupItem key={title} text={title} buttonId={p.name}
+                                                            isSelected={fileType === p.name}
+                                                            onChange={selected => this.setState({fileType: p.name})}/>
+                                })}
                         </ToggleGroup>
                     </FormGroup>
                     <FormGroup label="Name" fieldId="name" isRequired>
-                        <TextInputGroup className="input-group">
-                            <TextInputGroupMain value={this.state.name} onChange={value => this.setState({name: value})} />
-                            <TextInputGroupUtilities>
-                                <Text>{filename + '.' + extension}</Text>
-                            </TextInputGroupUtilities>
-                        </TextInputGroup>
+                        <TextInput value={this.state.name} onChange={value => this.setState({name: value})}/>
+                        <FormHelperText isHidden={false} component="div">
+                            <HelperText id="helper-text1">
+                                <HelperTextItem variant={'default'}>{filename + '.' + extension}</HelperTextItem>
+                            </HelperText>
+                        </FormHelperText>
                     </FormGroup>
                 </Form>
             </Modal>
