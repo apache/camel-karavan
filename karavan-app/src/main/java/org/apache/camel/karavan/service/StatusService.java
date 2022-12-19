@@ -26,12 +26,15 @@ import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.apache.camel.karavan.model.CamelStatus;
+import org.apache.camel.karavan.model.DeploymentStatus;
+import org.apache.camel.karavan.model.Environment;
 import org.apache.camel.karavan.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,10 +80,18 @@ public class StatusService {
     }
 
     @ConsumeEvent(value = CMD_COLLECT_PROJECT_STATUS, blocking = true, ordered = true)
-    public void collectProjectStatus(String projectId) {
-        if ((System.currentTimeMillis() - lastCollect.getOrDefault(projectId, 0L)) > threshold) {
-            collectStatusesForProject(projectId);
-            lastCollect.put(projectId, System.currentTimeMillis());
+    public void collectProjectStatus(JsonObject data) {
+        String projectId = data.getString("projectId");
+        String env = data.getString("env");
+        Optional<Environment> environment = infinispanService.getEnvironments().stream().filter(e -> e.getName().equals(env)).findFirst();
+        if (environment.isPresent()){
+            DeploymentStatus status = infinispanService.getDeploymentStatus(projectId, environment.get().getNamespace(), environment.get().getCluster());
+            if (status != null && status.getReadyReplicas() > 0) {
+                if ((System.currentTimeMillis() - lastCollect.getOrDefault(projectId, 0L)) > threshold) {
+                    collectStatusesForProject(projectId);
+                    lastCollect.put(projectId, System.currentTimeMillis());
+                }
+            }
         }
     }
 

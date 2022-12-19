@@ -17,6 +17,7 @@
 package org.apache.camel.karavan.api;
 
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.model.CamelStatus;
 import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.Environment;
@@ -33,6 +34,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Path("/api/status")
@@ -76,7 +78,7 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/camel/{projectId}/{env}")
     public Response getCamelStatusByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
-        bus.publish(StatusService.CMD_COLLECT_PROJECT_STATUS, projectId);
+        bus.publish(StatusService.CMD_COLLECT_PROJECT_STATUS, new JsonObject(Map.of("projectId", projectId, "env", env)));
         CamelStatus status = infinispanService.getCamelStatus(projectId, env);
         if (status != null) {
             return Response.ok(status).build();
