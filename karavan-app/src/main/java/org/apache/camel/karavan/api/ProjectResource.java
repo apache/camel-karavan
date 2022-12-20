@@ -20,7 +20,7 @@ import org.apache.camel.karavan.model.GroupedKey;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.service.InfinispanService;
-
+import org.apache.camel.karavan.service.GitService;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -43,6 +43,9 @@ public class ProjectResource {
 
     @Inject
     InfinispanService infinispanService;
+
+    @Inject
+    GitService gitService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -79,6 +82,7 @@ public class ProjectResource {
     public void delete(@HeaderParam("username") String username,
                           @PathParam("project") String project) throws Exception {
         String projectId = URLDecoder.decode(project, StandardCharsets.UTF_8.toString());
+        gitService.deleteProject(projectId, infinispanService.getProjectFiles(projectId));
         infinispanService.getProjectFiles(projectId).forEach(file -> infinispanService.deleteProjectFile(projectId, file.getName()));
         infinispanService.deleteProject(projectId);
     }
