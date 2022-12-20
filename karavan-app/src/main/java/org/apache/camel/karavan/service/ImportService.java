@@ -18,6 +18,8 @@ package org.apache.camel.karavan.service;
 
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.tuples.Tuple2;
+import org.apache.camel.karavan.model.GitRepo;
+import org.apache.camel.karavan.model.GitRepoFile;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -54,25 +56,25 @@ public class ImportService {
     void importProjects(String data) {
         LOGGER.info("Import projects from Git");
         try {
-            List<Tuple2<String, Map<String, String>>> repo = gitService.readProjectsFromRepository();
-            repo.forEach(p -> {
+            List<GitRepo> repos = gitService.readProjectsFromRepository();
+            repos.forEach(repo -> {
                 Project project;
-                String folderName = p.getItem1();
+                String folderName = repo.getName();
                 if (folderName.equals(Project.NAME_TEMPLATES)) {
-                    project = new Project(Project.NAME_TEMPLATES, "Templates", "Templates", "quarkus", "");
+                    project = new Project(Project.NAME_TEMPLATES, "Templates", "Templates", "quarkus", repo.getCommitId(), repo.getLastCommitTimestamp());
                 } else if (folderName.equals(Project.NAME_KAMELETS)){
-                    project = new Project(Project.NAME_KAMELETS, "Custom Kamelets", "Custom Kamelets", "quarkus", "");
+                    project = new Project(Project.NAME_KAMELETS, "Custom Kamelets", "Custom Kamelets", "quarkus", repo.getCommitId(), repo.getLastCommitTimestamp());
                 } else {
-                    String propertiesFile = getPropertiesFile(p);
+                    String propertiesFile = getPropertiesFile(repo);
                     String projectName = getProjectName(propertiesFile);
                     String projectDescription = getProjectDescription(propertiesFile);
                     String runtime = getProjectRuntime(propertiesFile);
-                    project = new Project(folderName, projectName, projectDescription, runtime, "");
+                    project = new Project(folderName, projectName, projectDescription, runtime, repo.getCommitId(), repo.getLastCommitTimestamp());
                 }
                 infinispanService.saveProject(project, true);
 
-                p.getItem2().forEach((key, value) -> {
-                    ProjectFile file = new ProjectFile(key, value, folderName, Instant.now().toEpochMilli());
+                repo.getFiles().forEach(repoFile -> {
+                    ProjectFile file = new ProjectFile(repoFile.getName(), repoFile.getBody(), folderName, repoFile.getLastCommitTimestamp());
                     infinispanService.saveProjectFile(file);
                 });
             });
@@ -88,7 +90,7 @@ public class ImportService {
         try {
             Project kamelets  = infinispanService.getProject(Project.NAME_KAMELETS);
             if (kamelets == null) {
-                kamelets = new Project(Project.NAME_KAMELETS, "Custom Kamelets", "Custom Kamelets", "quarkus", "");
+                kamelets = new Project(Project.NAME_KAMELETS, "Custom Kamelets", "Custom Kamelets", "quarkus", "", Instant.now().toEpochMilli());
                 infinispanService.saveProject(kamelets, true);
                 gitService.commitAndPushProject(kamelets);
             }
@@ -103,7 +105,7 @@ public class ImportService {
         try {
             Project templates  = infinispanService.getProject(Project.NAME_TEMPLATES);
             if (templates == null) {
-                templates = new Project(Project.NAME_TEMPLATES, "Templates", "Templates", "quarkus", "");
+                templates = new Project(Project.NAME_TEMPLATES, "Templates", "Templates", "quarkus", "", Instant.now().toEpochMilli());
                 infinispanService.saveProject(templates, true);
 
                 codeService.getApplicationPropertiesTemplates().forEach((name, value) -> {
@@ -117,11 +119,11 @@ public class ImportService {
         }
     }
 
-    private String getPropertiesFile(Tuple2<String, Map<String, String>> p) {
+    private String getPropertiesFile(GitRepo repo) {
         try {
-            for (Map.Entry<String, String> e : p.getItem2().entrySet()){
-                if (e.getKey().equalsIgnoreCase("application.properties")) {
-                    return e.getValue();
+            for (GitRepoFile e : repo.getFiles()){
+                if (e.getName().equalsIgnoreCase("application.properties")) {
+                    return e.getBody();
                 }
             }
         } catch (Exception e) {

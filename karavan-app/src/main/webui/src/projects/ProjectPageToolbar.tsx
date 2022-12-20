@@ -76,11 +76,6 @@ export class ProjectPageToolbar extends React.Component<Props> {
                                 onChange={checked => this.props.setEditAdvancedProperties.call(this, checked)}
                             />
                         </FlexItem>}
-                        {/*<FlexItem>*/}
-                        {/*    <Tooltip content={project?.lastCommit} position={"right"}>*/}
-                        {/*        <Badge>{project?.lastCommit ? project?.lastCommit?.substr(0, 7) : "-"}</Badge>*/}
-                        {/*    </Tooltip>*/}
-                        {/*</FlexItem>*/}
                         <FlexItem>
                             <Tooltip content="Commit and push to git" position={"bottom"}>
                                 <Button isLoading={isPushing ? true : undefined} isSmall variant="secondary"

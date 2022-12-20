@@ -4,6 +4,7 @@ export class Project {
     description: string = '';
     runtime: string = '';
     lastCommit: string = '';
+    lastCommitTimestamp: number = 0;
 
     public constructor(projectId: string, name: string, description: string, runtime: string, lastCommit: string);
     public constructor(init?: Partial<Project>);
@@ -17,6 +18,7 @@ export class Project {
             this.description = args[2];
             this.runtime = args[3];
             this.lastCommit = args[4];
+            this.lastCommitTimestamp = args[5];
             return;
         }
     }

@@ -193,7 +193,7 @@ export class ProjectPage extends React.Component<Props, State> {
             setMode={mode => this.setState({mode: mode})}
             setCreateModalOpen={() => this.setState({isCreateModalOpen: true})}
             setUploadModalOpen={() => this.setState({isUploadModalOpen: true})}
-            onRefresh={() => this.onRefresh()}
+            onRefresh={this.onRefresh}
         />
     }
     
@@ -390,7 +390,7 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     getProjectPanelFiles() {
-        const {tab, files} = this.state;
+        const {tab, files, project} = this.state;
         const isBuildIn = this.isBuildIn();
         return (
             <FlexItem>
@@ -403,7 +403,11 @@ export class ProjectPage extends React.Component<Props, State> {
                 }
                 {!isBuildIn &&
                     <PageSection padding={{default: "padding"}}>
-                        {tab === 'development' && <ProjectInfo project={this.props.project} config={this.props.config} deleteEntity={this.deleteEntity} showLog={this.showLogs}/>}
+                        {tab === 'development' && project && <ProjectInfo project={project}
+                                                               files={files}
+                                                               config={this.props.config}
+                                                               deleteEntity={this.deleteEntity}
+                                                               showLog={this.showLogs}/>}
                         {tab === 'development' && <ProjectFilesTable files={files}
                                                                      onOpenDeleteConfirmation={this.openDeleteConfirmation}
                                                                      onSelect={this.select}/>}
@@ -434,13 +438,13 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     render() {
-        const {file, isDeleteModalOpen, fileToDelete, isUploadModalOpen, isCreateModalOpen} = this.state;
+        const {file, isDeleteModalOpen, fileToDelete, isUploadModalOpen, isCreateModalOpen, key} = this.state;
         const {project} = this.props;
         const types = this.isBuildIn()
             ? (this.isKameletsProject() ? ['KAMELET'] : ['JAVA'])
             : ProjectFileTypes.filter(p => !['PROPERTIES', 'LOG', 'KAMELET'].includes(p.name)).map(p => p.name);
         return (
-            <PageSection className="kamelet-section project-page" padding={{default: 'noPadding'}}>
+            <PageSection key={key} className="kamelet-section project-page" padding={{default: 'noPadding'}}>
                 <PageSection className="tools-section" padding={{default: 'noPadding'}}>
                     <MainToolbar title={this.title()} tools={this.tools()}/>
                 </PageSection>

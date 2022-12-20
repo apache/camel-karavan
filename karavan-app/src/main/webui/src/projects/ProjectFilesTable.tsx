@@ -1,50 +1,19 @@
 import React from 'react';
 import {
     Badge,
-    Breadcrumb,
-    BreadcrumbItem,
     Button,
-    PageSection,
-    Text,
-    TextContent,
     Bullseye,
     EmptyState,
     EmptyStateVariant,
     EmptyStateIcon,
     Title,
-    ModalVariant,
-    Modal,
-    Flex,
-    FlexItem,
-    CodeBlockCode,
-    CodeBlock, Skeleton, Tabs, Tab
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {MainToolbar} from "../MainToolbar";
-import {KaravanApi} from "../api/KaravanApi";
-import {getProjectFileType, Project, ProjectFile, ProjectFileTypes} from "./ProjectModels";
-import {CamelUi} from "../designer/utils/CamelUi";
-import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
+import {getProjectFileType, ProjectFile} from "./ProjectModels";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
-import {KaravanDesigner} from "../designer/KaravanDesigner";
-import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
-import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
-import FileSaver from "file-saver";
-import Editor from "@monaco-editor/react";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
-import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
-import {CreateFileModal} from "./CreateFileModal";
-import {PropertiesEditor} from "./PropertiesEditor";
-import {ProjectModel, ProjectProperty} from "karavan-core/lib/model/ProjectModel";
-import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
-import {KubernetesAPI} from "../designer/utils/KubernetesAPI";
-import {UploadModal} from "./UploadModal";
-import {ProjectInfo} from "./ProjectInfo";
-import {ProjectOperations} from "./ProjectOperations";
-import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
-import {ProjectPageToolbar} from "./ProjectPageToolbar";
+
 
 interface Props {
     files: ProjectFile[],

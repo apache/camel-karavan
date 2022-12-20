@@ -60,6 +60,7 @@ public class ProjectFileResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public ProjectFile save(ProjectFile file) throws Exception {
+        file.setLastUpdate(Instant.now().toEpochMilli());
         infinispanService.saveProjectFile(file);
         return file;
     }

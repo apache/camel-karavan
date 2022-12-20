@@ -21,6 +21,8 @@ import io.quarkus.runtime.StartupEvent;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.Vertx;
 import org.apache.camel.karavan.model.GitConfig;
+import org.apache.camel.karavan.model.GitRepo;
+import org.apache.camel.karavan.model.GitRepoFile;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
 import org.eclipse.jgit.api.*;
@@ -44,7 +46,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -96,13 +98,16 @@ public class GitService {
     public Project commitAndPushProject(Project project) throws Exception {
         Project p = infinispanService.getProject(project.getProjectId());
         List<ProjectFile> files = infinispanService.getProjectFiles(project.getProjectId());
-        String commitId = commitAndPushProject(p, files);
+        RevCommit commit = commitAndPushProject(p, files);
+        String commitId = commit.getId().getName();
+        Long lastUpdate = commit.getCommitTime() * 1000L;
         p.setLastCommit(commitId);
+        p.setLastCommitTimestamp(lastUpdate);
         infinispanService.saveProject(p, false);
         return p;
     }
 
-    public String commitAndPushProject(Project project, List<ProjectFile> files) throws GitAPIException, IOException, URISyntaxException {
+    public RevCommit commitAndPushProject(Project project, List<ProjectFile> files) throws GitAPIException, IOException, URISyntaxException {
         LOGGER.info("Commit and push project " + project.getProjectId());
         GitConfig gitConfig = getGitConfig();
         CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
@@ -121,10 +126,10 @@ public class GitService {
         }
         writeProjectToFolder(folder, project, files);
         addDeletedFilesToIndex(git, folder, project, files);
-        return commitAddedAndPush(git, gitConfig.getBranch(), cred, project.getProjectId()).getId().getName();
+        return commitAddedAndPush(git, gitConfig.getBranch(), cred, project.getProjectId());
     }
 
-    public List<Tuple2<String, Map<String, String>>> readProjectsFromRepository() {
+    public List<GitRepo> readProjectsFromRepository() {
         LOGGER.info("Read projects...");
         GitConfig gitConfig = getGitConfig();
         LOGGER.info("Read projects from repository " + gitConfig.getUri());
@@ -132,16 +137,25 @@ public class GitService {
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
         LOGGER.infof("Temp folder created: %s", folder);
-        List<Tuple2<String, Map<String, String>>> result = new ArrayList<>();
+        List<GitRepo> result = new ArrayList<>();
         Git git = null;
         try {
             git = clone(folder, gitConfig.getUri(), gitConfig.getBranch(), cred);
             checkout(git, false, null, null, gitConfig.getBranch());
             List<String> projects = readProjectsFromFolder(folder);
-            projects.forEach(project -> {
-                Map<String, String> files = readProjectFilesFromFolder(folder, project);
-                result.add(Tuple2.of(project, files));
-            });
+            for (String project : projects) {
+                Map<String, String> filesRead = readProjectFilesFromFolder(folder, project);
+                List<GitRepoFile> files = new ArrayList<>(filesRead.size());
+                for (Map.Entry<String, String> entry : filesRead.entrySet()) {
+                    String name = entry.getKey();
+                    String body = entry.getValue();
+                    Tuple2<String, Integer> fileCommit = lastCommit(git, project + File.separator + name);
+                    files.add(new GitRepoFile(name, Integer.valueOf(fileCommit.getItem2()).longValue() * 1000, body));
+                }
+                Tuple2<String, Integer> commit = lastCommit(git, project);
+                GitRepo repo = new GitRepo(project, commit.getItem1(), Integer.valueOf(commit.getItem2()).longValue() * 1000, files);
+                result.add(repo);
+            }
             return result;
         } catch (RefNotFoundException e) {
             LOGGER.error("New repository");
@@ -187,10 +201,11 @@ public class GitService {
         vertx.fileSystem().readDirBlocking(repoFolder + File.separator + projectFolder).forEach(f -> {
             String[] filenames = f.split(File.separator);
             String filename = filenames[filenames.length -1];
-            if (!filename.startsWith(".") && !Files.isDirectory(Paths.get(f))) {
+            Path path = Paths.get(f);
+            if (!filename.startsWith(".") && !Files.isDirectory(path)) {
                 LOGGER.info("Importing file " + filename);
                 try {
-                    files.put(filename, Files.readString(Paths.get(f)));
+                    files.put(filename, Files.readString(path));
                 } catch (IOException e) {
                     LOGGER.error("Error during file read", e);
                 }
@@ -276,5 +291,13 @@ public class GitService {
             checkoutCommand.addPath(path);
         }
         checkoutCommand.call();
+    }
+
+    private Tuple2<String, Integer> lastCommit(Git git, String path) throws GitAPIException {
+        Iterable<RevCommit> log = git.log().addPath(path).setMaxCount(1).call();
+        for (RevCommit commit : log) {
+            return Tuple2.of(commit.getId().getName(), commit.getCommitTime());
+        }
+        return null;
     }
 }

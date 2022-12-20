@@ -3,6 +3,8 @@ package org.apache.camel.karavan.model;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
+import java.time.Instant;
+
 public class Project {
     public static final String CACHE = "projects";
 
@@ -19,15 +21,18 @@ public class Project {
     String runtime;
     @ProtoField(number = 5)
     String lastCommit;
+    @ProtoField(number = 6)
+    Long lastCommitTimestamp;
 
 
     @ProtoFactory
-    public Project(String projectId, String name, String description, String runtime, String lastCommit) {
+    public Project(String projectId, String name, String description, String runtime, String lastCommit, Long lastCommitTimestamp) {
         this.projectId = projectId;
         this.name = name;
         this.description = description;
         this.runtime = runtime;
         this.lastCommit = lastCommit;
+        this.lastCommitTimestamp = lastCommitTimestamp;
     }
 
     public Project(String projectId, String name, String description, String runtime) {
@@ -35,6 +40,7 @@ public class Project {
         this.name = name;
         this.description = description;
         this.runtime = runtime;
+        this.lastCommitTimestamp = Instant.now().toEpochMilli();
     }
 
     public Project() {
@@ -80,4 +86,11 @@ public class Project {
         this.lastCommit = lastCommit;
     }
 
+    public Long getLastCommitTimestamp() {
+        return lastCommitTimestamp;
+    }
+
+    public void setLastCommitTimestamp(Long lastCommitTimestamp) {
+        this.lastCommitTimestamp = lastCommitTimestamp;
+    }
 }

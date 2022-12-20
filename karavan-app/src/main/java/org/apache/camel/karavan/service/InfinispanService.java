@@ -147,7 +147,6 @@ public class InfinispanService {
         }
     }
     public void saveProjectFile(ProjectFile file) {
-        file.setLastUpdate(Instant.now().toEpochMilli());
         files.put(GroupedKey.create(file.getProjectId(), file.getName()), file);
     }
 
