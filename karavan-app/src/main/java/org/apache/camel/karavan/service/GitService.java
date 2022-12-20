@@ -261,6 +261,40 @@ public class GitService {
         return git;
     }
 
+    private void addDeletedFolderToIndex(Git git, String folder, String projectId, List<ProjectFile> files) throws IOException {
+        LOGGER.infof("Add folder %s to git index.", projectId);
+        try {
+          git.rm().addFilepattern(projectId + File.separator).call();
+        } catch (GitAPIException e) {
+          throw new RuntimeException(e);
+        }
+    }
+	
+	public void deleteProject(String projectId, List<ProjectFile> files) throws GitAPIException, IOException, URISyntaxException {
+        LOGGER.info("Delete and push project " + projectId);
+        GitConfig gitConfig = getGitConfig();
+        CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
+        String uuid = UUID.randomUUID().toString();
+        String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
+        String commitMessage = "Project " + projectId + " is deleted";
+        LOGGER.infof("Temp folder %s is created for deletion of project %s", folder, projectId);
+        Git git = null;
+        try {
+            git = clone(folder, gitConfig.getUri(), gitConfig.getBranch(), cred);
+            checkout(git, false, null, null, gitConfig.getBranch());
+            addDeletedFolderToIndex(git, folder, projectId, files);
+            commitAddedAndPush(git, gitConfig.getBranch(), cred, commitMessage);
+            LOGGER.info("Delete Temp folder " + folder);
+            vertx.fileSystem().deleteRecursiveBlocking(folder, true);
+            LOGGER.infof("Project %s deleted from Git" , projectId);
+        } catch (RefNotFoundException e) {
+            LOGGER.error("Repository not found");
+        } catch (Exception e) {
+            LOGGER.error("Error", e);
+            throw new RuntimeException(e);
+        }
+    }
+
     private Git clone(String dir, String uri, String branch, CredentialsProvider cred) throws GitAPIException {
         CloneCommand cloneCommand = Git.cloneRepository();
         cloneCommand.setCloneAllBranches(false);
