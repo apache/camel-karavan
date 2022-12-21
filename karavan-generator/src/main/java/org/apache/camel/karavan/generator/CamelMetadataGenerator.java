@@ -57,12 +57,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         camelModel.append("]\n\n");
 
         // Prepare stepNames map
-        Map<String, String> stepNames = getProcessorStepName(new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("properties"));
-        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.ProcessorDefinition").getJsonObject("properties")));
-        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.language.ExpressionDefinition").getJsonObject("properties")));
-        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.language.ExpressionDefinition").getJsonObject("properties")));
-        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.dataformat.DataFormatsDefinition").getJsonObject("properties")));
-
+        Map<String, String> stepNames = getStepNames();
 
         Map<String, JsonObject> classProps = new HashMap<>();
         // Generate DataFormatMetadata

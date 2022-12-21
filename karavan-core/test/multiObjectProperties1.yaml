@@ -9,9 +9,6 @@ spec:
           uri: direct1
           steps:
             - saga:
-                steps:
-                  - to:
-                      uri: direct:direct2
                 option:
                   - key: key1
                     expression:
@@ -19,3 +16,6 @@ spec:
                   - key: key2
                     expression:
                       simple: ${headers}
+                steps:
+                  - to:
+                      uri: direct:direct2

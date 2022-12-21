@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 import {v4 as uuidv4} from 'uuid';
-import {ErrorHandlerDefinition, NamedBeanDefinition} from "./CamelDefinition";
+import {NamedBeanDefinition} from "./CamelDefinition";
 
 
 export class Spec {
@@ -58,6 +58,10 @@ export class CamelElement {
     constructor(dslName: string) {
         this.uuid = uuidv4()
         this.dslName = dslName
+    }
+
+    hasId(): boolean {
+        return this.hasOwnProperty('id');
     }
 
     hasSteps(): boolean {

@@ -45,7 +45,7 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
         JsonObject definitions = new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("definitions");
 
         // Prepare stepNames map
-        Map<String, String> stepNames  = getProcessorStepName(new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("properties"));
+        Map<String, String> stepNames = getProcessorStepName(new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("properties"));
         stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.ProcessorDefinition").getJsonObject("properties")));
         stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.language.ExpressionDefinition").getJsonObject("properties")));
         stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.dataformat.DataFormatsDefinition").getJsonObject("properties")));
@@ -61,30 +61,31 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
 
         List<String> modelList = getClasses(definitions, "org.apache.camel");
         modelList.forEach(className -> {
-            String model = generateModel(className, definitions.getJsonObject(className), definitions, stepNames);
+            String model = generateModel(className, definitions.getJsonObject(className), definitions, stepNames, getDslMetadata());
             camelModel.append(model).append(System.lineSeparator());
         });
 
         writeFileText(targetModel, camelModel.toString());
     }
 
-    private String generateModel(String classFullName, JsonObject obj, JsonObject definitions, Map<String, String> stepNames) {
+    private String generateModel(String classFullName, JsonObject obj, JsonObject definitions, Map<String, String> stepNames, Map<String, JsonObject> dslMetadata) {
         String className = classSimple(classFullName);
         JsonObject properties = obj.containsKey("oneOf")
                 ? obj.getJsonArray("oneOf").getJsonObject(1).getJsonObject("properties")
                 : obj.getJsonObject("properties");
 
         List<String> required = obj.containsKey("required") ? obj.getJsonArray("required").getList() : List.of();
-        Map<String, String> attrs = new HashMap<>();
-        if (className.endsWith("Definition") && stepNames.containsKey(className)){
-            attrs.put("stepName", "    stepName?: string = '" + stepNames.get(className) + "'");
-        } else if (className.endsWith("Expression") && stepNames.containsKey(className)){
-            attrs.put("expressionName", "    expressionName?: string = '" + stepNames.get(className) + "'");
-        } else if (className.endsWith("DataFormat") && stepNames.containsKey(className)){
-            attrs.put("dataFormatName", "    dataFormatName?: string = '" + stepNames.get(className) + "'");
+        List<String> attrs = new ArrayList<>();
+        String stepName = stepNames.get(className);
+        if (className.endsWith("Definition") && stepNames.containsKey(className)) {
+            attrs.add("    stepName?: string = '" + stepName + "'");
+        } else if (className.endsWith("Expression") && stepNames.containsKey(className)) {
+            attrs.add("    expressionName?: string = '" + stepNames.get(className) + "'");
+        } else if (className.endsWith("DataFormat") && stepNames.containsKey(className)) {
+            attrs.add("    dataFormatName?: string = '" + stepNames.get(className) + "'");
         }
         if (properties != null) {
-            properties.getMap().keySet().forEach(name -> {
+            properties.getMap().keySet().stream().sorted(getComparator(stepName)).forEach(name -> {
                 JsonObject attributeValue = properties.getJsonObject(name);
                 boolean req = required.contains(name);
                 String attributeType = getAttributeType(attributeValue, req, definitions);
@@ -92,31 +93,48 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
                 name = name.equals("constructor") ? "_constructor" : name; // exception for YAMLDataFormat
                 if (className.equals("ChoiceDefinition") && name.equals("steps")) { // exception for ChoiceDefinition
                 } else if (className.equals("SwitchDefinition") && name.equals("steps")) { // exception for SwitchDefinition
-                } else if (className.equals("KameletDefinition") && name.equals("steps")){ // exception for KameletDefinition
+                } else if (className.equals("KameletDefinition") && name.equals("steps")) { // exception for KameletDefinition
                 } else {
-                    attrs.put(name, "    " + name + r + ": " + attributeType);
+                    attrs.add("    " + name + r + ": " + attributeType);
                 }
             });
         }
-        return String.format(readFileText(modelTemplate), className, attrs.values().stream().collect(Collectors.joining(";\n")));
+        String idCode = "";
+        return String.format(readFileText(modelTemplate), className, attrs.stream().collect(Collectors.joining(";\n")), idCode);
+    }
+
+    private Comparator<String> getComparator(String stepName) {
+        String json =  getMetaModel(stepName);
+        if (json != null) {
+            JsonObject model = new JsonObject(json).getJsonObject("model");
+            JsonObject props = new JsonObject(json).getJsonObject("properties");
+            List propsLowerCase = props.getMap().keySet().stream().map(s -> s.toLowerCase()).collect(Collectors.toList());
+//            if (stepName.equals("from")) System.out.println("metadata: " + props.fieldNames());
+
+            return Comparator.comparing(e -> {
+                if (propsLowerCase.contains(e.toLowerCase())) return propsLowerCase.indexOf(e.toLowerCase());
+                else return propsLowerCase.size() + 1;
+            });
+        }
+        return Comparator.comparing(s -> 0);
     }
 
     private String getAttributeType(JsonObject attribute, boolean required, JsonObject definitions) {
         if (attribute.containsKey("$ref")) {
-            String classFullName =  attribute.getString("$ref");
+            String classFullName = attribute.getString("$ref");
             JsonObject clazz = getDefinition(definitions, classFullName);
             String oneOfString = (clazz.containsKey("oneOf") && clazz.getJsonArray("oneOf").getJsonObject(0).getString("type").equals("string")) ? " | string" : "";
-            String className =  classSimple(classFullName);
+            String className = classSimple(classFullName);
             if (className.equals("SagaActionUriDefinition")) return "string" + (required ? " = ''" : ""); // exception for SagaActionUriDefinition
             if (className.equals("ToDefinition")) return "string" + (required ? " = ''" : ""); // exception for ToDefinition (in REST Methods)
             if (className.equals("ToDynamicDefinition")) return "string" + (required ? " = ''" : ""); // exception for ToDynamicDefinition (in REST Methods)
-            return className + (required ? " = new " + className + "()": oneOfString);
+            return className + (required ? " = new " + className + "()" : oneOfString);
         } else if (attribute.containsKey("type") && attribute.getString("type").equals("array")) {
             JsonObject items = attribute.getJsonObject("items");
             if (items.containsKey("$ref") && items.getString("$ref").equals("#/items/definitions/org.apache.camel.model.ProcessorDefinition")) {
                 return "CamelElement[] = []";
             } else if (items.containsKey("$ref")) {
-                String className =  classSimple(items.getString("$ref"));
+                String className = classSimple(items.getString("$ref"));
                 return className + "[] = []";
             } else {
                 return items.getString("type") + "[] = []";

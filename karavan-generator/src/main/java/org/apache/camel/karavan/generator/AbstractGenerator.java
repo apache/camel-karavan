@@ -45,6 +45,65 @@ public class AbstractGenerator {
         return new JsonObject(buffer).getJsonObject("items").getJsonObject("definitions");
     }
 
+    protected JsonObject getDefinitions(){
+        String camelYamlDSL = getCamelYamlDSL();
+        return new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("definitions");
+    }
+
+    protected Map<String, String> getStepNames(){
+        // Prepare stepNames map
+        JsonObject definitions = getDefinitions();
+        Map<String, String> stepNames = getProcessorStepName(new JsonObject(getCamelYamlDSL()).getJsonObject("items").getJsonObject("properties"));
+        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.ProcessorDefinition").getJsonObject("properties")));
+        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.language.ExpressionDefinition").getJsonObject("properties")));
+        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.language.ExpressionDefinition").getJsonObject("properties")));
+        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.dataformat.DataFormatsDefinition").getJsonObject("properties")));
+        return stepNames;
+    }
+
+    protected Map<String, JsonObject> getDslMetadata(){
+        // Generate DSL Metadata
+        String camelYamlDSL = getCamelYamlDSL();
+        JsonObject definitions = new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("definitions");
+
+        // Prepare stepNames map
+        Map<String, String> stepNames = getStepNames();
+
+        Map<String, JsonObject> classProps = new HashMap<>();
+        Map<String, Object> defsMap = new HashMap<>();
+        defsMap.putAll(definitions.getJsonObject("org.apache.camel.model.ProcessorDefinition").getJsonObject("properties").getMap());
+        defsMap.putAll(new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("properties").getMap());
+
+        classProps.clear();
+        defsMap.forEach((s, o) -> {
+            String ref = ((Map) o).get("$ref").toString();
+            String name = classSimple(ref);
+            JsonObject obj = getDefinition(definitions, ref);
+            JsonObject props = obj.containsKey("oneOf") ? obj.getJsonArray("oneOf").getJsonObject(1).getJsonObject("properties") : obj.getJsonObject("properties");
+            classProps.put(name, props);
+        });
+
+        // add additional classes
+        getClasses(definitions, "org.apache.camel.model").forEach(s -> {
+            String className = classSimple(s);
+            if (!stepNames.containsKey(className)) {
+                String stepName = deCapitalize(className.replace("Definition", ""));
+                stepNames.put(className, stepName);
+            }
+        });
+
+        definitions.getMap().forEach((s, o) -> {
+            if (s.startsWith("org.apache.camel.model.") && s.endsWith("Definition")) {
+                String name = classSimple(s);
+                JsonObject obj = getDefinition(definitions, s);
+                JsonObject props = obj.containsKey("oneOf") ? obj.getJsonArray("oneOf").getJsonObject(1).getJsonObject("properties") : obj.getJsonObject("properties");
+                classProps.put(name, props);
+            }
+        });
+
+        return classProps;
+    }
+
     protected String getCamelYamlDSL() {
         try {
             InputStream inputStream = YamlRoutesBuilderLoader.class.getResourceAsStream("/schema/camelYamlDsl.json");

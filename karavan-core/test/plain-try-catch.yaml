@@ -3,18 +3,18 @@
       uri: timer:demo
       steps:
         - doTry:
+            doCatch:
+              - exception:
+                  - java.lang.ArithmeticException
+                steps:
+                  - log:
+                      message: Exception
+            doFinally:
+              steps:
+                - log:
+                    message: ${body}
             steps:
               - setBody:
                   expression:
                     groovy:
                       expression: 1000 / 0
-            doCatch:
-              - steps:
-                  - log:
-                      message: Exception
-                exception:
-                  - java.lang.ArithmeticException
-            doFinally:
-              steps:
-                - log:
-                    message: ${body}

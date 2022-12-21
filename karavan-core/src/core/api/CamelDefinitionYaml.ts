@@ -97,13 +97,8 @@ export class CamelDefinitionYaml {
                 noRefs: false,
                 noArrayIndent: false,
                 sortKeys: function (a: any, b: any) {
-                    if (a === 'uri') return -1
-                    else if (b === 'uri') return 1
-                    else if (a === 'expression' && b == 'steps') return -1
-                    else if (b === 'expression' && a == 'steps') return 1
-                    else if (a === 'steps' && b !== 'uri') return -1
-                    else if (b === 'steps' && a !== 'uri') return 1
-                    else if (a > b) return 1
+                    if (a === 'steps') return 1
+                    else if (b === 'steps') return -1
                     else return 0;
                 },
                 replacer: (key, value) => this.replacer(key, value)
