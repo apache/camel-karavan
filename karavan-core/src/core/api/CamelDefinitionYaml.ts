@@ -16,7 +16,7 @@
  */
 import * as yaml from 'js-yaml';
 import {Integration, CamelElement, Beans} from "../model/IntegrationDefinition";
-import {RouteDefinition, NamedBeanDefinition} from "../model/CamelDefinition";
+import {RouteDefinition, NamedBeanDefinition, RouteConfigurationDefinition} from "../model/CamelDefinition";
 import {CamelUtil} from "./CamelUtil";
 import {CamelDefinitionYamlStep} from "./CamelDefinitionYamlStep";
 
@@ -188,6 +188,10 @@ export class CamelDefinitionYaml {
             .forEach((b: any) => result.push(CamelDefinitionYaml.readBeanDefinition(b)));
         flows.filter((e: any) => e.hasOwnProperty('routeConfiguration'))
             .forEach((e: any) => result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(e.routeConfiguration)));
+        flows.filter((e: any) => e.hasOwnProperty('errorHandler'))
+            .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(new RouteConfigurationDefinition({errorHandler: f.errorHandler}))));
+        flows.filter((e: any) => e.hasOwnProperty('onException'))
+            .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(new RouteConfigurationDefinition({onException: f.onException}))));
         return result;
     }
 
