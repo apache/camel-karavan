@@ -21,7 +21,7 @@ import {
 import '../karavan.css';
 import {RouteConfigurationDefinition} from "karavan-core/lib/model/CamelDefinition";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
-import {CamelElement} from "../../../../karavan-core/src/core/model/IntegrationDefinition";
+import {CamelElement} from "karavan-core/src/core/model/IntegrationDefinition";
 
 interface Props {
     routeConfiguration: RouteConfigurationDefinition
