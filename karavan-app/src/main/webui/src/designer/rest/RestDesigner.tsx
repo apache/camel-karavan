@@ -99,7 +99,7 @@ export class RestDesigner extends React.Component<Props, State> {
             evt.stopPropagation()
             this.setState({selectedStep: undefined,})
         }
-    };
+    }
 
     addRest = (rest: RestDefinition) => {
         const clone = CamelUtil.cloneIntegration(this.state.integration);
