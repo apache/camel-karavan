@@ -58,8 +58,6 @@ describe('Plain YAML to integration', () => {
         expect(i.spec.flows?.length).to.equal(1);
         expect(i.type).to.equal('plain');
         const yaml2 = CamelDefinitionYaml.integrationToYaml(i);
-        console.log(i.spec.flows?.[0].from)
-        console.log(yaml2)
         expect(yaml).to.equal(yaml2);
     });
 

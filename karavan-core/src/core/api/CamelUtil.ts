@@ -19,7 +19,7 @@ import {
     CamelElement, Beans
 } from "../model/IntegrationDefinition";
 import {CamelDefinitionApi} from "./CamelDefinitionApi";
-import {ErrorHandlerDefinition, KameletDefinition, NamedBeanDefinition, ToDefinition} from "../model/CamelDefinition";
+import {KameletDefinition, NamedBeanDefinition, RouteConfigurationDefinition, ToDefinition} from "../model/CamelDefinition";
 import {KameletApi} from "./KameletApi";
 import {KameletModel, Property} from "../model/KameletModels";
 import {ComponentProperty} from "../model/ComponentModels";
@@ -41,10 +41,10 @@ export class CamelUtil {
                 (beans as Beans).beans.forEach(b => newBeans.beans.push(CamelUtil.cloneBean(b)));
                 flows.push(newBeans);
             });
-        int.spec.flows?.filter((e: any) => e.dslName === 'ErrorHandler')
-            .forEach(errorHandler => {
-                const newErrorHandler = CamelUtil.cloneErrorHandler(errorHandler);
-                flows.push(newErrorHandler);
+        int.spec.flows?.filter((e: any) => e.dslName === 'RouteConfiguration')
+            .forEach(routeConfiguration => {
+                const newRouteConfiguration = CamelUtil.cloneRouteConfiguration(routeConfiguration);
+                flows.push(newRouteConfiguration);
             });
         int.spec.flows = flows;
         return int;
@@ -62,11 +62,11 @@ export class CamelUtil {
         return newBean;
     }
 
-    static cloneErrorHandler = (error: ErrorHandlerDefinition): ErrorHandlerDefinition => {
-        const clone = JSON.parse(JSON.stringify(error));
-        const newError = new ErrorHandlerDefinition(clone);
-        newError.uuid = error.uuid;
-        return newError;
+    static cloneRouteConfiguration = (routeConfiguration: RouteConfigurationDefinition): RouteConfigurationDefinition => {
+        const clone = JSON.parse(JSON.stringify(routeConfiguration));
+        const RouteConfiguration = new RouteConfigurationDefinition(clone);
+        RouteConfiguration.uuid = routeConfiguration.uuid;
+        return RouteConfiguration;
     }
 
     static capitalizeName = (name: string) => {

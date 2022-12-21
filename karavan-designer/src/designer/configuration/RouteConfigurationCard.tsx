@@ -19,27 +19,37 @@ import {
     Button
 } from '@patternfly/react-core';
 import '../karavan.css';
-import {ErrorHandlerDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {RouteConfigurationDefinition} from "karavan-core/lib/model/CamelDefinition";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
+import {CamelElement} from "../../../../karavan-core/src/core/model/IntegrationDefinition";
 
 interface Props {
-    errorHandler: ErrorHandlerDefinition
-    deleteElement: (element: ErrorHandlerDefinition) => void
+    routeConfiguration: RouteConfigurationDefinition
+    selectedStep?: CamelElement
+    deleteElement: (element: RouteConfigurationDefinition) => void
+    selectElement: (element: RouteConfigurationDefinition) => void
 }
 
-export class ErrorHandlerCard extends React.Component<Props, any> {
+export class RouteConfigurationCard extends React.Component<Props, any> {
+
+    selectElement = (evt: React.MouseEvent) => {
+        evt.stopPropagation();
+        this.props.selectElement.call(this, this.props.routeConfiguration);
+    }
 
     delete = (evt: React.MouseEvent) => {
         evt.stopPropagation();
-        this.props.deleteElement.call(this, this.props.errorHandler);
+        this.props.deleteElement.call(this, this.props.routeConfiguration);
     }
 
     render() {
+        const {selectedStep, routeConfiguration} = this.props;
         return (
-            <div className="rest-card rest-card-selected">
+            <div className={selectedStep?.uuid === routeConfiguration.uuid ? "rest-card rest-card-selected" : "rest-card rest-card-unselected"}
+                 onClick={e => this.selectElement(e)}>
                 <div className="header">
-                    <div className="title">Error Handler</div>
-                    <div className="description">Global error handler for the RouteBuilder</div>
+                    <div className="title">Route Configuration</div>
+                    <div className="description">Route Configuration</div>
                     <Button variant="link" className="delete-button" onClick={e => this.delete(e)}><DeleteIcon/></Button>
                 </div>
             </div>

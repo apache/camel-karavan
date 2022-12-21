@@ -28,8 +28,10 @@ describe('Global Error Handler', () => {
         expect(i.metadata.name).to.equal('errorHandler1.yaml');
         expect(i.spec.flows?.length).to.equal(2);
         expect(i.type).to.equal('plain');
-        expect(i.spec.flows?.[1].deadLetterChannel.deadLetterUri).to.equal('log:dlq');
-        expect(i.spec.flows?.[1].deadLetterChannel.useOriginalMessage).to.equal(true);
-        expect(i.spec.flows?.[1].deadLetterChannel.level).to.equal('TRACE');
+        expect(i.spec.flows?.[1].errorHandler.deadLetterChannel.deadLetterUri).to.equal('log:dlq');
+        expect(i.spec.flows?.[1].errorHandler.deadLetterChannel.useOriginalMessage).to.equal(true);
+        expect(i.spec.flows?.[1].errorHandler.deadLetterChannel.level).to.equal('TRACE');
+        const yaml2 = CamelDefinitionYaml.integrationToYaml(i);
+        expect(yaml).to.equal(yaml2);
     });
 });

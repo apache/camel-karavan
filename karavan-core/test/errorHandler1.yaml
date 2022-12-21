@@ -1,11 +1,9 @@
-- errorHandler:
-    deadLetterChannel:
-      deadLetterUri: log:dlq
-      level: TRACE
-      useOriginalMessage: true
 - route:
     from:
       uri: kamelet:timer-source
+      parameters:
+        period: 1000
+        message: '1'
       steps:
         - setBody:
             expression:
@@ -13,6 +11,9 @@
                 expression: 1000 / 0
         - log:
             message: $[body}
-      parameters:
-        period: 1000
-        message: '1'
+- routeConfiguration:
+    errorHandler:
+      deadLetterChannel:
+        deadLetterUri: log:dlq
+        level: TRACE
+        useOriginalMessage: true

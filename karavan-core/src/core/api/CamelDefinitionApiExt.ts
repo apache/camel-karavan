@@ -19,7 +19,7 @@ import {ComponentApi} from "./ComponentApi";
 import {CamelUtil} from "./CamelUtil";
 import {
     NamedBeanDefinition,
-    ExpressionDefinition, RouteDefinition, RestDefinition, RestConfigurationDefinition, ErrorHandlerDefinition
+    ExpressionDefinition, RouteDefinition, RestDefinition, RestConfigurationDefinition, RouteConfigurationDefinition
 } from "../model/CamelDefinition";
 import {
     Beans,
@@ -253,28 +253,33 @@ export class CamelDefinitionApiExt {
         return integration;
     }
 
-    static addErrorHandlerToIntegration = (integration: Integration, errorHandler: ErrorHandlerDefinition): Integration => {
+    static addRouteConfigurationToIntegration = (integration: Integration, routeConfiguration: RouteConfigurationDefinition): Integration => {
+        integration.spec.flows?.push(routeConfiguration);
+        return integration;
+    }
+
+    static deleteRouteConfigurationFromIntegration = (integration: Integration, routeConfiguration: RouteConfigurationDefinition): Integration => {
         const flows: any[] = [];
-        if (integration.spec.flows?.filter(flow => flow.dslName === 'ErrorHandlerDefinition').length === 0) {
-            flows.push(...integration.spec.flows);
-            flows.push(errorHandler)
-        } else {
-            flows.push(...integration.spec.flows?.filter(flow => flow.dslName !== 'ErrorHandlerDefinition') || []);
-            flows.push(errorHandler)
-        }
+        flows.push(...integration.spec.flows?.filter(flow => flow.dslName !== 'RouteConfigurationDefinition') || []);
+        flows.push(...integration.spec.flows?.filter(flow => flow.dslName == 'RouteConfigurationDefinition' && flow.uuid !== routeConfiguration.uuid) || []);
         integration.spec.flows = flows;
         return integration;
     }
 
-    static deleteErrorHandlerFromIntegration = (integration: Integration): Integration => {
-        const flows: any[] = [];
-        flows.push(...integration.spec.flows?.filter(flow => flow.dslName !== 'ErrorHandlerDefinition') || []);
-        integration.spec.flows = flows;
-        return integration;
+    static updateRouteConfigurationToIntegration = (integration: Integration, e: CamelElement): Integration => {
+        const elementClone = CamelUtil.cloneStep(e);
+        const int: Integration = CamelUtil.cloneIntegration(integration);
+        const flows: CamelElement[] = [];
+        integration.spec.flows?.filter(f => f.dslName !== 'RouteConfigurationDefinition').forEach(f => flows.push(f));
+        integration.spec.flows?.filter(f => f.dslName === 'RouteConfigurationDefinition').forEach(f => {
+            const route = CamelDefinitionApiExt.updateElement(f, elementClone) as RouteConfigurationDefinition;
+            flows.push(CamelDefinitionApi.createRouteConfigurationDefinition(route));
+        })
+        int.spec.flows = flows
+        return int;
     }
 
     static addRestToIntegration = (integration: Integration, rest: RestDefinition): Integration => {
-        const flows: any[] = [];
         integration.spec.flows?.push(rest)
         return integration;
     }
@@ -351,7 +356,7 @@ export class CamelDefinitionApiExt {
 
     static deleteRestConfigurationFromIntegration = (integration: Integration): Integration => {
         const flows: any[] = [];
-        integration.spec.flows?.filter(flow => flow.dslName !== 'RestConfigurationDefinition').forEach(x => flows.push(x));
+        integration.spec.flows?.filter(flow => flow.dslName !== 'RestConfiguration').forEach(x => flows.push(x));
         integration.spec.flows = flows;
         return integration;
     }
