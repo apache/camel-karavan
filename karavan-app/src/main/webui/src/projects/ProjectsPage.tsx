@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+    Alert,
     Toolbar,
     ToolbarContent,
     ToolbarItem,
@@ -23,7 +24,7 @@ import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
-import {DeploymentStatus, Project} from "./ProjectModels";
+import {DeploymentStatus, Project, PodStatus, PipelineStatus} from "./ProjectModels";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {CamelUi} from "../designer/utils/CamelUi";
@@ -43,6 +44,7 @@ interface State {
     deploymentStatuses: DeploymentStatus[],
     isCreateModalOpen: boolean,
     isDeleteModalOpen: boolean,
+    isPodRunningModalOpen: boolean,
     isCopy: boolean,
     loading: boolean,
     projectToCopy?: Project,
@@ -61,6 +63,7 @@ export class ProjectsPage extends React.Component<Props, State> {
         deploymentStatuses: [],
         isCreateModalOpen: false,
         isDeleteModalOpen: false,
+        isPodRunningModalOpen: false,
         isCopy: false,
         loading: true,
         filter: '',
@@ -80,7 +83,23 @@ export class ProjectsPage extends React.Component<Props, State> {
     }
 
     onProjectDelete = (project: Project) => {
-        this.setState({isDeleteModalOpen: true, projectToDelete: project})
+        KaravanApi.getProjectPipelineStatus(project.projectId, this.props.config.environment, (status?: PipelineStatus) => {
+            if(status === undefined){
+                this.setState({isDeleteModalOpen: true, projectToDelete: project})
+            }else if(status?.result ==="Running"){
+                this.setState({isPodRunningModalOpen: true, projectToDelete: project})
+            }else if(status?.result ==="Succeeded"){
+                KaravanApi.getProjectPodStatuses(project.projectId, this.props.config.environment, (statuses: PodStatus[]) => {
+                    if(statuses.length === 0){
+                        this.setState({isDeleteModalOpen: true, projectToDelete: project})
+                    }
+                    else{
+                        this.setState({isPodRunningModalOpen: true, projectToDelete: project})
+                    }
+                });
+            }
+
+        });
     };
 
 
@@ -213,7 +232,8 @@ export class ProjectsPage extends React.Component<Props, State> {
 
     deleteModalForm() {
         return (
-            <Modal
+            <div>
+            { (this.state.isDeleteModalOpen === true) && <Modal
                 title="Confirmation"
                 variant={ModalVariant.small}
                 isOpen={this.state.isDeleteModalOpen}
@@ -226,6 +246,22 @@ export class ProjectsPage extends React.Component<Props, State> {
                 onEscapePress={e => this.setState({isDeleteModalOpen: false})}>
                 <div>{"Are you sure you want to delete the project " + this.state.projectToDelete?.projectId + "?"}</div>
             </Modal>
+            }
+            { (this.state.isPodRunningModalOpen === true) && <Modal
+                variant={ModalVariant.small}
+                isOpen={this.state.isPodRunningModalOpen}
+                onClose={() => this.setState({isPodRunningModalOpen: false})}
+                onEscapePress={e => this.setState({isPodRunningModalOpen: false})}>
+                <div>
+                    <Alert key={this.state.projectToDelete?.projectId} className="main-alert" variant="warning" 
+                           title={"Deployment is Running!!"} isInline={true} isPlain={true}>
+                        {"Delete the deployment (" + this.state.projectToDelete?.projectId + ")" + " first."}
+                    </Alert>
+                </div>
+            </Modal>
+            
+            }
+            </div>
         )
     }
 

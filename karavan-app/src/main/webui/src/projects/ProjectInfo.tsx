@@ -78,7 +78,7 @@ export class ProjectInfo extends React.Component<Props, State> {
         const projectId = this.props.project.projectId;
         const environment = this.state.environment;
         if (this.props.project) {
-            KaravanApi.getProjectPipelineStatus(projectId, environment, (status: PipelineStatus) => {
+            KaravanApi.getProjectPipelineStatus(projectId, environment, (status?: PipelineStatus) => {
                 this.setState({pipelineStatus: status});
                 // console.log(status);
             });
