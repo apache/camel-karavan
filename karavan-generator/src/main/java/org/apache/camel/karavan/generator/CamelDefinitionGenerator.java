@@ -99,8 +99,7 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
                 }
             });
         }
-        String idCode = "";
-        return String.format(readFileText(modelTemplate), className, attrs.stream().collect(Collectors.joining(";\n")), idCode);
+        return String.format(readFileText(modelTemplate), className, attrs.stream().collect(Collectors.joining(";\n")));
     }
 
     private Comparator<String> getComparator(String stepName) {

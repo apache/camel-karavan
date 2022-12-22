@@ -73,7 +73,6 @@ export class ProcessorDefinition extends CamelElement {
     serviceCall?: ServiceCallDefinition | string
     public constructor(init?: Partial<ProcessorDefinition>) {
         super('ProcessorDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -82,7 +81,6 @@ export class BeansDeserializer extends CamelElement {
 
     public constructor(init?: Partial<BeansDeserializer>) {
         super('BeansDeserializer')
-        
         Object.assign(this, init)
     }
 }
@@ -96,7 +94,6 @@ export class ErrorHandlerBuilderDeserializer extends CamelElement {
     springTransactionErrorHandler?: SpringTransactionErrorHandlerDefinition
     public constructor(init?: Partial<ErrorHandlerBuilderDeserializer>) {
         super('ErrorHandlerBuilderDeserializer')
-        
         Object.assign(this, init)
     }
 }
@@ -107,7 +104,6 @@ export class NamedBeanDefinition extends CamelElement {
     type: string = ''
     public constructor(init?: Partial<NamedBeanDefinition>) {
         super('NamedBeanDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -120,7 +116,6 @@ export class OutputAwareFromDefinition extends CamelElement {
     uri: string = ''
     public constructor(init?: Partial<OutputAwareFromDefinition>) {
         super('OutputAwareFromDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -161,7 +156,6 @@ export class AggregateDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<AggregateDefinition>) {
         super('AggregateDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -178,7 +172,6 @@ export class BeanDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<BeanDefinition>) {
         super('BeanDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -194,7 +187,6 @@ export class CatchDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<CatchDefinition>) {
         super('CatchDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -210,7 +202,6 @@ export class ChoiceDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ChoiceDefinition>) {
         super('ChoiceDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -228,7 +219,6 @@ export class CircuitBreakerDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<CircuitBreakerDefinition>) {
         super('CircuitBreakerDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -246,7 +236,6 @@ export class ClaimCheckDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ClaimCheckDefinition>) {
         super('ClaimCheckDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -258,7 +247,6 @@ export class ContextScanDefinition extends CamelElement {
     includes?: string[] = []
     public constructor(init?: Partial<ContextScanDefinition>) {
         super('ContextScanDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -274,7 +262,6 @@ export class ConvertBodyDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ConvertBodyDefinition>) {
         super('ConvertBodyDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -284,7 +271,6 @@ export class DataFormatDefinition extends CamelElement {
     id?: string
     public constructor(init?: Partial<DataFormatDefinition>) {
         super('DataFormatDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -301,7 +287,6 @@ export class DelayDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<DelayDefinition>) {
         super('DelayDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -312,7 +297,6 @@ export class DescriptionDefinition extends CamelElement {
     text?: string
     public constructor(init?: Partial<DescriptionDefinition>) {
         super('DescriptionDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -329,7 +313,6 @@ export class DynamicRouterDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<DynamicRouterDefinition>) {
         super('DynamicRouterDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -351,7 +334,6 @@ export class EnrichDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<EnrichDefinition>) {
         super('EnrichDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -366,7 +348,6 @@ export class ErrorHandlerDefinition extends CamelElement {
     springTransactionErrorHandler?: SpringTransactionErrorHandlerDefinition
     public constructor(init?: Partial<ErrorHandlerDefinition>) {
         super('ErrorHandlerDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -398,7 +379,6 @@ export class ExpressionSubElementDefinition extends CamelElement {
     xtokenize?: XMLTokenizerExpression | string
     public constructor(init?: Partial<ExpressionSubElementDefinition>) {
         super('ExpressionSubElementDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -421,7 +401,6 @@ export class FaultToleranceConfigurationDefinition extends CamelElement {
     id?: string
     public constructor(init?: Partial<FaultToleranceConfigurationDefinition>) {
         super('FaultToleranceConfigurationDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -437,7 +416,6 @@ export class FilterDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<FilterDefinition>) {
         super('FilterDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -451,7 +429,6 @@ export class FinallyDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<FinallyDefinition>) {
         super('FinallyDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -465,7 +442,6 @@ export class FromDefinition extends CamelElement {
     steps: CamelElement[] = []
     public constructor(init?: Partial<FromDefinition>) {
         super('FromDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -476,7 +452,6 @@ export class GlobalOptionDefinition extends CamelElement {
     value: string = ''
     public constructor(init?: Partial<GlobalOptionDefinition>) {
         super('GlobalOptionDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -486,7 +461,6 @@ export class GlobalOptionsDefinition extends CamelElement {
     globalOption?: GlobalOptionDefinition[] = []
     public constructor(init?: Partial<GlobalOptionsDefinition>) {
         super('GlobalOptionsDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -506,7 +480,6 @@ export class IdempotentConsumerDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<IdempotentConsumerDefinition>) {
         super('IdempotentConsumerDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -521,7 +494,6 @@ export class InOnlyDefinition extends CamelElement {
     parameters?: any = {}
     public constructor(init?: Partial<InOnlyDefinition>) {
         super('InOnlyDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -536,7 +508,6 @@ export class InOutDefinition extends CamelElement {
     parameters?: any = {}
     public constructor(init?: Partial<InOutDefinition>) {
         super('InOutDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -549,7 +520,6 @@ export class InputTypeDefinition extends CamelElement {
     description?: string
     public constructor(init?: Partial<InputTypeDefinition>) {
         super('InputTypeDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -563,7 +533,6 @@ export class InterceptDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<InterceptDefinition>) {
         super('InterceptDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -578,7 +547,6 @@ export class InterceptFromDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<InterceptFromDefinition>) {
         super('InterceptFromDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -595,7 +563,6 @@ export class InterceptSendToEndpointDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<InterceptSendToEndpointDefinition>) {
         super('InterceptSendToEndpointDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -607,7 +574,6 @@ export class KameletDefinition extends CamelElement {
     parameters?: any = {}
     public constructor(init?: Partial<KameletDefinition>) {
         super('KameletDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -628,7 +594,6 @@ export class LoadBalanceDefinition extends CamelElement {
     weighted?: WeightedLoadBalancerDefinition
     public constructor(init?: Partial<LoadBalanceDefinition>) {
         super('LoadBalanceDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -646,7 +611,6 @@ export class LogDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<LogDefinition>) {
         super('LogDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -664,7 +628,6 @@ export class LoopDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<LoopDefinition>) {
         super('LoopDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -718,7 +681,6 @@ export class MarshalDefinition extends CamelElement {
     zipFile?: ZipFileDataFormat
     public constructor(init?: Partial<MarshalDefinition>) {
         super('MarshalDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -743,7 +705,6 @@ export class MulticastDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<MulticastDefinition>) {
         super('MulticastDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -764,7 +725,6 @@ export class OnCompletionDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<OnCompletionDefinition>) {
         super('OnCompletionDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -789,7 +749,6 @@ export class OnExceptionDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<OnExceptionDefinition>) {
         super('OnExceptionDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -804,7 +763,6 @@ export class OnFallbackDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<OnFallbackDefinition>) {
         super('OnFallbackDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -818,7 +776,6 @@ export class OptimisticLockRetryPolicyDefinition extends CamelElement {
     randomBackOff?: boolean
     public constructor(init?: Partial<OptimisticLockRetryPolicyDefinition>) {
         super('OptimisticLockRetryPolicyDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -832,7 +789,6 @@ export class OtherwiseDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<OtherwiseDefinition>) {
         super('OtherwiseDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -846,7 +802,6 @@ export class OutputDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<OutputDefinition>) {
         super('OutputDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -859,7 +814,6 @@ export class OutputTypeDefinition extends CamelElement {
     description?: string
     public constructor(init?: Partial<OutputTypeDefinition>) {
         super('OutputTypeDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -871,7 +825,6 @@ export class PackageScanDefinition extends CamelElement {
     includes?: string[] = []
     public constructor(init?: Partial<PackageScanDefinition>) {
         super('PackageScanDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -886,7 +839,6 @@ export class PausableDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<PausableDefinition>) {
         super('PausableDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -900,7 +852,6 @@ export class PipelineDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<PipelineDefinition>) {
         super('PipelineDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -915,7 +866,6 @@ export class PolicyDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<PolicyDefinition>) {
         super('PolicyDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -936,7 +886,6 @@ export class PollEnrichDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<PollEnrichDefinition>) {
         super('PollEnrichDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -950,7 +899,6 @@ export class ProcessDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ProcessDefinition>) {
         super('ProcessDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -961,7 +909,6 @@ export class PropertyDefinition extends CamelElement {
     value: string = ''
     public constructor(init?: Partial<PropertyDefinition>) {
         super('PropertyDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -972,7 +919,6 @@ export class PropertyExpressionDefinition extends CamelElement {
     expression?: ExpressionDefinition
     public constructor(init?: Partial<PropertyExpressionDefinition>) {
         super('PropertyExpressionDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1000,7 +946,6 @@ export class RecipientListDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<RecipientListDefinition>) {
         super('RecipientListDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1034,7 +979,6 @@ export class RedeliveryPolicyDefinition extends CamelElement {
     id?: string
     public constructor(init?: Partial<RedeliveryPolicyDefinition>) {
         super('RedeliveryPolicyDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1048,7 +992,6 @@ export class RemoveHeaderDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<RemoveHeaderDefinition>) {
         super('RemoveHeaderDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1063,7 +1006,6 @@ export class RemoveHeadersDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<RemoveHeadersDefinition>) {
         super('RemoveHeadersDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1078,7 +1020,6 @@ export class RemovePropertiesDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<RemovePropertiesDefinition>) {
         super('RemovePropertiesDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1092,7 +1033,6 @@ export class RemovePropertyDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<RemovePropertyDefinition>) {
         super('RemovePropertyDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1109,7 +1049,6 @@ export class ResequenceDefinition extends CamelElement {
     streamConfig?: StreamResequencerConfig
     public constructor(init?: Partial<ResequenceDefinition>) {
         super('ResequenceDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1132,7 +1071,6 @@ export class Resilience4jConfigurationDefinition extends CamelElement {
     id?: string
     public constructor(init?: Partial<Resilience4jConfigurationDefinition>) {
         super('Resilience4jConfigurationDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1142,7 +1080,6 @@ export class RestContextRefDefinition extends CamelElement {
     ref: string = ''
     public constructor(init?: Partial<RestContextRefDefinition>) {
         super('RestContextRefDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1157,7 +1094,6 @@ export class ResumableDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ResumableDefinition>) {
         super('ResumableDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1173,7 +1109,6 @@ export class RollbackDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<RollbackDefinition>) {
         super('RollbackDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1184,7 +1119,6 @@ export class RouteBuilderDefinition extends CamelElement {
     id?: string
     public constructor(init?: Partial<RouteBuilderDefinition>) {
         super('RouteBuilderDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1194,7 +1128,6 @@ export class RouteConfigurationContextRefDefinition extends CamelElement {
     ref: string = ''
     public constructor(init?: Partial<RouteConfigurationContextRefDefinition>) {
         super('RouteConfigurationContextRefDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1211,7 +1144,6 @@ export class RouteConfigurationDefinition extends CamelElement {
     id?: string
     public constructor(init?: Partial<RouteConfigurationDefinition>) {
         super('RouteConfigurationDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1221,7 +1153,6 @@ export class RouteContextRefDefinition extends CamelElement {
     ref: string = ''
     public constructor(init?: Partial<RouteContextRefDefinition>) {
         super('RouteContextRefDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1244,7 +1175,6 @@ export class RouteDefinition extends CamelElement {
     streamCaching?: boolean
     public constructor(init?: Partial<RouteDefinition>) {
         super('RouteDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1259,7 +1189,6 @@ export class RouteTemplateBeanDefinition extends CamelElement {
     type: string = ''
     public constructor(init?: Partial<RouteTemplateBeanDefinition>) {
         super('RouteTemplateBeanDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1273,7 +1202,6 @@ export class RouteTemplateDefinition extends CamelElement {
     parameters?: RouteTemplateParameterDefinition[] = []
     public constructor(init?: Partial<RouteTemplateDefinition>) {
         super('RouteTemplateDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1286,7 +1214,6 @@ export class RouteTemplateParameterDefinition extends CamelElement {
     required?: boolean
     public constructor(init?: Partial<RouteTemplateParameterDefinition>) {
         super('RouteTemplateParameterDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1303,7 +1230,6 @@ export class RoutingSlipDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<RoutingSlipDefinition>) {
         super('RoutingSlipDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1318,7 +1244,6 @@ export class SagaActionUriDefinition extends CamelElement {
     uri: string = ''
     public constructor(init?: Partial<SagaActionUriDefinition>) {
         super('SagaActionUriDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1339,7 +1264,6 @@ export class SagaDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<SagaDefinition>) {
         super('SagaDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1354,7 +1278,6 @@ export class SamplingDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<SamplingDefinition>) {
         super('SamplingDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1368,7 +1291,6 @@ export class ScriptDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ScriptDefinition>) {
         super('ScriptDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1382,7 +1304,6 @@ export class SetBodyDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<SetBodyDefinition>) {
         super('SetBodyDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1396,7 +1317,6 @@ export class SetExchangePatternDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<SetExchangePatternDefinition>) {
         super('SetExchangePatternDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1411,7 +1331,6 @@ export class SetHeaderDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<SetHeaderDefinition>) {
         super('SetHeaderDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1426,7 +1345,6 @@ export class SetPropertyDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<SetPropertyDefinition>) {
         super('SetPropertyDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1441,7 +1359,6 @@ export class SortDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<SortDefinition>) {
         super('SortDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1468,7 +1385,6 @@ export class SplitDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<SplitDefinition>) {
         super('SplitDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1482,7 +1398,6 @@ export class StepDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<StepDefinition>) {
         super('StepDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1495,7 +1410,6 @@ export class StopDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<StopDefinition>) {
         super('StopDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1510,7 +1424,6 @@ export class TemplatedRouteBeanDefinition extends CamelElement {
     properties?: any = {}
     public constructor(init?: Partial<TemplatedRouteBeanDefinition>) {
         super('TemplatedRouteBeanDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1524,7 +1437,6 @@ export class TemplatedRouteDefinition extends CamelElement {
     parameters?: TemplatedRouteParameterDefinition[] = []
     public constructor(init?: Partial<TemplatedRouteDefinition>) {
         super('TemplatedRouteDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1535,7 +1447,6 @@ export class TemplatedRouteParameterDefinition extends CamelElement {
     value: string = ''
     public constructor(init?: Partial<TemplatedRouteParameterDefinition>) {
         super('TemplatedRouteParameterDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1554,7 +1465,6 @@ export class ThreadPoolProfileDefinition extends CamelElement {
     description?: string
     public constructor(init?: Partial<ThreadPoolProfileDefinition>) {
         super('ThreadPoolProfileDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1577,7 +1487,6 @@ export class ThreadsDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ThreadsDefinition>) {
         super('ThreadsDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1597,7 +1506,6 @@ export class ThrottleDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ThrottleDefinition>) {
         super('ThrottleDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1613,7 +1521,6 @@ export class ThrowExceptionDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ThrowExceptionDefinition>) {
         super('ThrowExceptionDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1629,7 +1536,6 @@ export class ToDefinition extends CamelElement {
     parameters?: any = {}
     public constructor(init?: Partial<ToDefinition>) {
         super('ToDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1649,7 +1555,6 @@ export class ToDynamicDefinition extends CamelElement {
     parameters?: any = {}
     public constructor(init?: Partial<ToDynamicDefinition>) {
         super('ToDynamicDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1664,7 +1569,6 @@ export class TransactedDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<TransactedDefinition>) {
         super('TransactedDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1678,7 +1582,6 @@ export class TransformDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<TransformDefinition>) {
         super('TransformDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1694,7 +1597,6 @@ export class TryDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<TryDefinition>) {
         super('TryDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1749,7 +1651,6 @@ export class UnmarshalDefinition extends CamelElement {
     zipFile?: ZipFileDataFormat
     public constructor(init?: Partial<UnmarshalDefinition>) {
         super('UnmarshalDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1764,7 +1665,6 @@ export class ValidateDefinition extends CamelElement {
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ValidateDefinition>) {
         super('ValidateDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1779,7 +1679,6 @@ export class WhenDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<WhenDefinition>) {
         super('WhenDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1794,7 +1693,6 @@ export class WhenSkipSendToEndpointDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<WhenSkipSendToEndpointDefinition>) {
         super('WhenSkipSendToEndpointDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1818,7 +1716,6 @@ export class WireTapDefinition extends CamelElement {
     parameters?: any = {}
     public constructor(init?: Partial<WireTapDefinition>) {
         super('WireTapDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -1829,7 +1726,6 @@ export class BlacklistServiceCallServiceFilterConfiguration extends CamelElement
     servers?: string[] = []
     public constructor(init?: Partial<BlacklistServiceCallServiceFilterConfiguration>) {
         super('BlacklistServiceCallServiceFilterConfiguration')
-        
         Object.assign(this, init)
     }
 }
@@ -1846,7 +1742,6 @@ export class CachingServiceCallServiceDiscoveryConfiguration extends CamelElemen
     units?: string
     public constructor(init?: Partial<CachingServiceCallServiceDiscoveryConfiguration>) {
         super('CachingServiceCallServiceDiscoveryConfiguration')
-        
         Object.assign(this, init)
     }
 }
@@ -1861,7 +1756,6 @@ export class CombinedServiceCallServiceDiscoveryConfiguration extends CamelEleme
     staticServiceDiscovery?: StaticServiceCallServiceDiscoveryConfiguration
     public constructor(init?: Partial<CombinedServiceCallServiceDiscoveryConfiguration>) {
         super('CombinedServiceCallServiceDiscoveryConfiguration')
-        
         Object.assign(this, init)
     }
 }
@@ -1875,7 +1769,6 @@ export class CombinedServiceCallServiceFilterConfiguration extends CamelElement 
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<CombinedServiceCallServiceFilterConfiguration>) {
         super('CombinedServiceCallServiceFilterConfiguration')
-        
         Object.assign(this, init)
     }
 }
@@ -1894,7 +1787,6 @@ export class ConsulServiceCallServiceDiscoveryConfiguration extends CamelElement
     writeTimeoutMillis?: number
     public constructor(init?: Partial<ConsulServiceCallServiceDiscoveryConfiguration>) {
         super('ConsulServiceCallServiceDiscoveryConfiguration')
-        
         Object.assign(this, init)
     }
 }
@@ -1905,7 +1797,6 @@ export class CustomServiceCallServiceFilterConfiguration extends CamelElement {
     ref?: string
     public constructor(init?: Partial<CustomServiceCallServiceFilterConfiguration>) {
         super('CustomServiceCallServiceFilterConfiguration')
-        
         Object.assign(this, init)
     }
 }
@@ -1915,7 +1806,6 @@ export class DefaultServiceCallServiceLoadBalancerConfiguration extends CamelEle
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<DefaultServiceCallServiceLoadBalancerConfiguration>) {
         super('DefaultServiceCallServiceLoadBalancerConfiguration')
-        
         Object.assign(this, init)
     }
 }
@@ -1927,7 +1817,6 @@ export class DnsServiceCallServiceDiscoveryConfiguration extends CamelElement {
     proto?: string
     public constructor(init?: Partial<DnsServiceCallServiceDiscoveryConfiguration>) {
         super('DnsServiceCallServiceDiscoveryConfiguration')
-        
         Object.assign(this, init)
     }
 }
@@ -1937,7 +1826,6 @@ export class HealthyServiceCallServiceFilterConfiguration extends CamelElement {
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<HealthyServiceCallServiceFilterConfiguration>) {
         super('HealthyServiceCallServiceFilterConfiguration')
-        
         Object.assign(this, init)
     }
 }
@@ -1966,7 +1854,6 @@ export class KubernetesServiceCallServiceDiscoveryConfiguration extends CamelEle
     username?: string
     public constructor(init?: Partial<KubernetesServiceCallServiceDiscoveryConfiguration>) {
         super('KubernetesServiceCallServiceDiscoveryConfiguration')
-        
         Object.assign(this, init)
     }
 }
@@ -1976,7 +1863,6 @@ export class PassThroughServiceCallServiceFilterConfiguration extends CamelEleme
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<PassThroughServiceCallServiceFilterConfiguration>) {
         super('PassThroughServiceCallServiceFilterConfiguration')
-        
         Object.assign(this, init)
     }
 }
@@ -2008,7 +1894,6 @@ export class ServiceCallConfigurationDefinition extends CamelElement {
     zookeeperServiceDiscovery?: ZooKeeperServiceCallServiceDiscoveryConfiguration
     public constructor(init?: Partial<ServiceCallConfigurationDefinition>) {
         super('ServiceCallConfigurationDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -2045,7 +1930,6 @@ export class ServiceCallDefinition extends CamelElement {
     zookeeperServiceDiscovery?: ZooKeeperServiceCallServiceDiscoveryConfiguration
     public constructor(init?: Partial<ServiceCallDefinition>) {
         super('ServiceCallDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -2058,7 +1942,6 @@ export class ServiceCallExpressionConfiguration extends CamelElement {
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<ServiceCallExpressionConfiguration>) {
         super('ServiceCallExpressionConfiguration')
-        
         Object.assign(this, init)
     }
 }
@@ -2068,7 +1951,6 @@ export class ServiceCallServiceChooserConfiguration extends CamelElement {
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<ServiceCallServiceChooserConfiguration>) {
         super('ServiceCallServiceChooserConfiguration')
-        
         Object.assign(this, init)
     }
 }
@@ -2078,7 +1960,6 @@ export class ServiceCallServiceDiscoveryConfiguration extends CamelElement {
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<ServiceCallServiceDiscoveryConfiguration>) {
         super('ServiceCallServiceDiscoveryConfiguration')
-        
         Object.assign(this, init)
     }
 }
@@ -2088,7 +1969,6 @@ export class ServiceCallServiceFilterConfiguration extends CamelElement {
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<ServiceCallServiceFilterConfiguration>) {
         super('ServiceCallServiceFilterConfiguration')
-        
         Object.assign(this, init)
     }
 }
@@ -2098,7 +1978,6 @@ export class ServiceCallServiceLoadBalancerConfiguration extends CamelElement {
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<ServiceCallServiceLoadBalancerConfiguration>) {
         super('ServiceCallServiceLoadBalancerConfiguration')
-        
         Object.assign(this, init)
     }
 }
@@ -2109,7 +1988,6 @@ export class StaticServiceCallServiceDiscoveryConfiguration extends CamelElement
     servers?: string[] = []
     public constructor(init?: Partial<StaticServiceCallServiceDiscoveryConfiguration>) {
         super('StaticServiceCallServiceDiscoveryConfiguration')
-        
         Object.assign(this, init)
     }
 }
@@ -2127,7 +2005,6 @@ export class ZooKeeperServiceCallServiceDiscoveryConfiguration extends CamelElem
     sessionTimeout?: string
     public constructor(init?: Partial<ZooKeeperServiceCallServiceDiscoveryConfiguration>) {
         super('ZooKeeperServiceCallServiceDiscoveryConfiguration')
-        
         Object.assign(this, init)
     }
 }
@@ -2140,7 +2017,6 @@ export class BatchResequencerConfig extends CamelElement {
     reverse?: boolean
     public constructor(init?: Partial<BatchResequencerConfig>) {
         super('BatchResequencerConfig')
-        
         Object.assign(this, init)
     }
 }
@@ -2154,7 +2030,6 @@ export class StreamResequencerConfig extends CamelElement {
     timeout?: string
     public constructor(init?: Partial<StreamResequencerConfig>) {
         super('StreamResequencerConfig')
-        
         Object.assign(this, init)
     }
 }
@@ -2166,7 +2041,6 @@ export class ASN1DataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<ASN1DataFormat>) {
         super('ASN1DataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2180,7 +2054,6 @@ export class Any23DataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<Any23DataFormat>) {
         super('Any23DataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2210,7 +2083,6 @@ export class AvroDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<AvroDataFormat>) {
         super('AvroDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2224,7 +2096,6 @@ export class BarcodeDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<BarcodeDataFormat>) {
         super('BarcodeDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2237,7 +2108,6 @@ export class Base64DataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<Base64DataFormat>) {
         super('Base64DataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2252,7 +2122,6 @@ export class BindyDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<BindyDataFormat>) {
         super('BindyDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2272,7 +2141,6 @@ export class CBORDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<CBORDataFormat>) {
         super('CBORDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2291,7 +2159,6 @@ export class CryptoDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<CryptoDataFormat>) {
         super('CryptoDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2330,7 +2197,6 @@ export class CsvDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<CsvDataFormat>) {
         super('CsvDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2341,7 +2207,6 @@ export class CustomDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<CustomDataFormat>) {
         super('CustomDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2391,7 +2256,6 @@ export class DataFormatsDefinition extends CamelElement {
     zipFile?: ZipFileDataFormat
     public constructor(init?: Partial<DataFormatsDefinition>) {
         super('DataFormatsDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -2414,7 +2278,6 @@ export class FhirJsonDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<FhirJsonDataFormat>) {
         super('FhirJsonDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2437,7 +2300,6 @@ export class FhirXmlDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<FhirXmlDataFormat>) {
         super('FhirXmlDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2455,7 +2317,6 @@ export class FlatpackDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<FlatpackDataFormat>) {
         super('FlatpackDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2469,7 +2330,6 @@ export class GrokDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<GrokDataFormat>) {
         super('GrokDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2479,7 +2339,6 @@ export class GzipDeflaterDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<GzipDeflaterDataFormat>) {
         super('GzipDeflaterDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2490,7 +2349,6 @@ export class HL7DataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<HL7DataFormat>) {
         super('HL7DataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2501,7 +2359,6 @@ export class IcalDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<IcalDataFormat>) {
         super('IcalDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2527,7 +2384,6 @@ export class JacksonXMLDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<JacksonXMLDataFormat>) {
         super('JacksonXMLDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2556,7 +2412,6 @@ export class JaxbDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<JaxbDataFormat>) {
         super('JaxbDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2567,7 +2422,6 @@ export class JsonApiDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<JsonApiDataFormat>) {
         super('JsonApiDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2600,7 +2454,6 @@ export class JsonDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<JsonDataFormat>) {
         super('JsonDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2611,7 +2464,6 @@ export class LZFDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<LZFDataFormat>) {
         super('LZFDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2626,7 +2478,6 @@ export class MimeMultipartDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<MimeMultipartDataFormat>) {
         super('MimeMultipartDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2650,7 +2501,6 @@ export class PGPDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<PGPDataFormat>) {
         super('PGPDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2681,7 +2531,6 @@ export class ProtobufDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<ProtobufDataFormat>) {
         super('ProtobufDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2691,7 +2540,6 @@ export class RssDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<RssDataFormat>) {
         super('RssDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2707,7 +2555,6 @@ export class SoapDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<SoapDataFormat>) {
         super('SoapDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2718,7 +2565,6 @@ export class SwiftMtDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<SwiftMtDataFormat>) {
         super('SwiftMtDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2732,7 +2578,6 @@ export class SwiftMxDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<SwiftMxDataFormat>) {
         super('SwiftMxDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2742,7 +2587,6 @@ export class SyslogDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<SyslogDataFormat>) {
         super('SyslogDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2756,7 +2600,6 @@ export class TarFileDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<TarFileDataFormat>) {
         super('TarFileDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2769,7 +2612,6 @@ export class ThriftDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<ThriftDataFormat>) {
         super('ThriftDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2781,7 +2623,6 @@ export class TidyMarkupDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<TidyMarkupDataFormat>) {
         super('TidyMarkupDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2809,7 +2650,6 @@ export class UniVocityCsvDataFormat extends CamelElement {
     univocityHeader?: UniVocityHeader[] = []
     public constructor(init?: Partial<UniVocityCsvDataFormat>) {
         super('UniVocityCsvDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2836,7 +2676,6 @@ export class UniVocityFixedDataFormat extends CamelElement {
     univocityHeader?: UniVocityHeader[] = []
     public constructor(init?: Partial<UniVocityFixedDataFormat>) {
         super('UniVocityFixedDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2846,7 +2685,6 @@ export class UniVocityHeader extends CamelElement {
     name?: string
     public constructor(init?: Partial<UniVocityHeader>) {
         super('UniVocityHeader')
-        
         Object.assign(this, init)
     }
 }
@@ -2871,7 +2709,6 @@ export class UniVocityTsvDataFormat extends CamelElement {
     univocityHeader?: UniVocityHeader[] = []
     public constructor(init?: Partial<UniVocityTsvDataFormat>) {
         super('UniVocityTsvDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2893,7 +2730,6 @@ export class XMLSecurityDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<XMLSecurityDataFormat>) {
         super('XMLSecurityDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2913,7 +2749,6 @@ export class XStreamDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<XStreamDataFormat>) {
         super('XStreamDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2935,7 +2770,6 @@ export class YAMLDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<YAMLDataFormat>) {
         super('YAMLDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2946,7 +2780,6 @@ export class YAMLTypeFilterDefinition extends CamelElement {
     value?: string
     public constructor(init?: Partial<YAMLTypeFilterDefinition>) {
         super('YAMLTypeFilterDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -2957,7 +2790,6 @@ export class ZipDeflaterDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<ZipDeflaterDataFormat>) {
         super('ZipDeflaterDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2971,7 +2803,6 @@ export class ZipFileDataFormat extends CamelElement {
     id?: string
     public constructor(init?: Partial<ZipFileDataFormat>) {
         super('ZipFileDataFormat')
-        
         Object.assign(this, init)
     }
 }
@@ -2995,7 +2826,6 @@ export class DeadLetterChannelDefinition extends CamelElement {
     id?: string
     public constructor(init?: Partial<DeadLetterChannelDefinition>) {
         super('DeadLetterChannelDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3017,7 +2847,6 @@ export class DefaultErrorHandlerDefinition extends CamelElement {
     id?: string
     public constructor(init?: Partial<DefaultErrorHandlerDefinition>) {
         super('DefaultErrorHandlerDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3041,7 +2870,6 @@ export class JtaTransactionErrorHandlerDefinition extends CamelElement {
     id?: string
     public constructor(init?: Partial<JtaTransactionErrorHandlerDefinition>) {
         super('JtaTransactionErrorHandlerDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3051,7 +2879,6 @@ export class NoErrorHandlerDefinition extends CamelElement {
     id?: string
     public constructor(init?: Partial<NoErrorHandlerDefinition>) {
         super('NoErrorHandlerDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3062,7 +2889,6 @@ export class RefErrorHandlerDefinition extends CamelElement {
     id?: string
     public constructor(init?: Partial<RefErrorHandlerDefinition>) {
         super('RefErrorHandlerDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3086,7 +2912,6 @@ export class SpringTransactionErrorHandlerDefinition extends CamelElement {
     id?: string
     public constructor(init?: Partial<SpringTransactionErrorHandlerDefinition>) {
         super('SpringTransactionErrorHandlerDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3099,7 +2924,6 @@ export class CSimpleExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<CSimpleExpression>) {
         super('CSimpleExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3112,7 +2936,6 @@ export class ConstantExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<ConstantExpression>) {
         super('ConstantExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3127,7 +2950,6 @@ export class DatasonnetExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<DatasonnetExpression>) {
         super('DatasonnetExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3139,7 +2961,6 @@ export class ExchangePropertyExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<ExchangePropertyExpression>) {
         super('ExchangePropertyExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3171,7 +2992,6 @@ export class ExpressionDefinition extends CamelElement {
     xtokenize?: XMLTokenizerExpression | string
     public constructor(init?: Partial<ExpressionDefinition>) {
         super('ExpressionDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3184,7 +3004,6 @@ export class GroovyExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<GroovyExpression>) {
         super('GroovyExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3196,7 +3015,6 @@ export class HeaderExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<HeaderExpression>) {
         super('HeaderExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3211,7 +3029,6 @@ export class Hl7TerserExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<Hl7TerserExpression>) {
         super('Hl7TerserExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3224,7 +3041,6 @@ export class JavaScriptExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<JavaScriptExpression>) {
         super('JavaScriptExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3239,7 +3055,6 @@ export class JoorExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<JoorExpression>) {
         super('JoorExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3254,7 +3069,6 @@ export class JqExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<JqExpression>) {
         super('JqExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3275,7 +3089,6 @@ export class JsonPathExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<JsonPathExpression>) {
         super('JsonPathExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3288,7 +3101,6 @@ export class LanguageExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<LanguageExpression>) {
         super('LanguageExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3304,7 +3116,6 @@ export class MethodCallExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<MethodCallExpression>) {
         super('MethodCallExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3317,7 +3128,6 @@ export class MvelExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<MvelExpression>) {
         super('MvelExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3330,7 +3140,6 @@ export class OgnlExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<OgnlExpression>) {
         super('OgnlExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3343,7 +3152,6 @@ export class PythonExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<PythonExpression>) {
         super('PythonExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3356,7 +3164,6 @@ export class RefExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<RefExpression>) {
         super('RefExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3369,7 +3176,6 @@ export class SimpleExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<SimpleExpression>) {
         super('SimpleExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3382,7 +3188,6 @@ export class SpELExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<SpELExpression>) {
         super('SpELExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3404,7 +3209,6 @@ export class TokenizerExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<TokenizerExpression>) {
         super('TokenizerExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3420,7 +3224,6 @@ export class XMLTokenizerExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<XMLTokenizerExpression>) {
         super('XMLTokenizerExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3443,7 +3246,6 @@ export class XPathExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<XPathExpression>) {
         super('XPathExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3461,7 +3263,6 @@ export class XQueryExpression extends CamelElement {
     id?: string
     public constructor(init?: Partial<XQueryExpression>) {
         super('XQueryExpression')
-        
         Object.assign(this, init)
     }
 }
@@ -3472,7 +3273,6 @@ export class CustomLoadBalancerDefinition extends CamelElement {
     id?: string
     public constructor(init?: Partial<CustomLoadBalancerDefinition>) {
         super('CustomLoadBalancerDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3486,7 +3286,6 @@ export class FailoverLoadBalancerDefinition extends CamelElement {
     sticky?: string
     public constructor(init?: Partial<FailoverLoadBalancerDefinition>) {
         super('FailoverLoadBalancerDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3496,7 +3295,6 @@ export class RandomLoadBalancerDefinition extends CamelElement {
     id?: string
     public constructor(init?: Partial<RandomLoadBalancerDefinition>) {
         super('RandomLoadBalancerDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3506,7 +3304,6 @@ export class RoundRobinLoadBalancerDefinition extends CamelElement {
     id?: string
     public constructor(init?: Partial<RoundRobinLoadBalancerDefinition>) {
         super('RoundRobinLoadBalancerDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3517,7 +3314,6 @@ export class StickyLoadBalancerDefinition extends CamelElement {
     id?: string
     public constructor(init?: Partial<StickyLoadBalancerDefinition>) {
         super('StickyLoadBalancerDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3527,7 +3323,6 @@ export class TopicLoadBalancerDefinition extends CamelElement {
     id?: string
     public constructor(init?: Partial<TopicLoadBalancerDefinition>) {
         super('TopicLoadBalancerDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3540,7 +3335,6 @@ export class WeightedLoadBalancerDefinition extends CamelElement {
     roundRobin?: boolean
     public constructor(init?: Partial<WeightedLoadBalancerDefinition>) {
         super('WeightedLoadBalancerDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3555,7 +3349,6 @@ export class ApiKeyDefinition extends CamelElement {
     description?: string
     public constructor(init?: Partial<ApiKeyDefinition>) {
         super('ApiKeyDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3566,7 +3359,6 @@ export class BasicAuthDefinition extends CamelElement {
     description?: string
     public constructor(init?: Partial<BasicAuthDefinition>) {
         super('BasicAuthDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3578,7 +3370,6 @@ export class BearerTokenDefinition extends CamelElement {
     description?: string
     public constructor(init?: Partial<BearerTokenDefinition>) {
         super('BearerTokenDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3606,7 +3397,6 @@ export class DeleteDefinition extends CamelElement {
     security?: SecurityDefinition[] = []
     public constructor(init?: Partial<DeleteDefinition>) {
         super('DeleteDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3634,7 +3424,6 @@ export class GetDefinition extends CamelElement {
     security?: SecurityDefinition[] = []
     public constructor(init?: Partial<GetDefinition>) {
         super('GetDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3662,7 +3451,6 @@ export class HeadDefinition extends CamelElement {
     security?: SecurityDefinition[] = []
     public constructor(init?: Partial<HeadDefinition>) {
         super('HeadDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3673,7 +3461,6 @@ export class MutualTLSDefinition extends CamelElement {
     description?: string
     public constructor(init?: Partial<MutualTLSDefinition>) {
         super('MutualTLSDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3689,7 +3476,6 @@ export class OAuth2Definition extends CamelElement {
     tokenUrl?: string
     public constructor(init?: Partial<OAuth2Definition>) {
         super('OAuth2Definition')
-        
         Object.assign(this, init)
     }
 }
@@ -3701,7 +3487,6 @@ export class OpenIdConnectDefinition extends CamelElement {
     description?: string
     public constructor(init?: Partial<OpenIdConnectDefinition>) {
         super('OpenIdConnectDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3721,7 +3506,6 @@ export class ParamDefinition extends CamelElement {
     description?: string
     public constructor(init?: Partial<ParamDefinition>) {
         super('ParamDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3749,7 +3533,6 @@ export class PatchDefinition extends CamelElement {
     security?: SecurityDefinition[] = []
     public constructor(init?: Partial<PatchDefinition>) {
         super('PatchDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3777,7 +3560,6 @@ export class PostDefinition extends CamelElement {
     security?: SecurityDefinition[] = []
     public constructor(init?: Partial<PostDefinition>) {
         super('PostDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3805,7 +3587,6 @@ export class PutDefinition extends CamelElement {
     security?: SecurityDefinition[] = []
     public constructor(init?: Partial<PutDefinition>) {
         super('PutDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3822,7 +3603,6 @@ export class ResponseHeaderDefinition extends CamelElement {
     description?: string
     public constructor(init?: Partial<ResponseHeaderDefinition>) {
         super('ResponseHeaderDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3836,7 +3616,6 @@ export class ResponseMessageDefinition extends CamelElement {
     examples?: RestPropertyDefinition[] = []
     public constructor(init?: Partial<ResponseMessageDefinition>) {
         super('ResponseMessageDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3856,7 +3635,6 @@ export class RestBindingDefinition extends CamelElement {
     description?: string
     public constructor(init?: Partial<RestBindingDefinition>) {
         super('RestBindingDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3892,7 +3670,6 @@ export class RestConfigurationDefinition extends CamelElement {
     corsHeaders?: RestPropertyDefinition[] = []
     public constructor(init?: Partial<RestConfigurationDefinition>) {
         super('RestConfigurationDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3921,7 +3698,6 @@ export class RestDefinition extends CamelElement {
     put?: PutDefinition[] = []
     public constructor(init?: Partial<RestDefinition>) {
         super('RestDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3932,7 +3708,6 @@ export class RestPropertyDefinition extends CamelElement {
     value: string = ''
     public constructor(init?: Partial<RestPropertyDefinition>) {
         super('RestPropertyDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3947,7 +3722,6 @@ export class RestSecuritiesDefinition extends CamelElement {
     openIdConnect?: OpenIdConnectDefinition
     public constructor(init?: Partial<RestSecuritiesDefinition>) {
         super('RestSecuritiesDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3959,7 +3733,6 @@ export class RestsDefinition extends CamelElement {
     rest?: RestDefinition[] = []
     public constructor(init?: Partial<RestsDefinition>) {
         super('RestsDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3970,7 +3743,6 @@ export class SecurityDefinition extends CamelElement {
     scopes?: string
     public constructor(init?: Partial<SecurityDefinition>) {
         super('SecurityDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -3984,7 +3756,6 @@ export class CustomTransformerDefinition extends CamelElement {
     toType?: string
     public constructor(init?: Partial<CustomTransformerDefinition>) {
         super('CustomTransformerDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -4037,7 +3808,6 @@ export class DataFormatTransformerDefinition extends CamelElement {
     zipFile?: ZipFileDataFormat
     public constructor(init?: Partial<DataFormatTransformerDefinition>) {
         super('DataFormatTransformerDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -4051,7 +3821,6 @@ export class EndpointTransformerDefinition extends CamelElement {
     uri?: string
     public constructor(init?: Partial<EndpointTransformerDefinition>) {
         super('EndpointTransformerDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -4063,7 +3832,6 @@ export class TransformersDefinition extends CamelElement {
     endpointTransformer?: EndpointTransformerDefinition
     public constructor(init?: Partial<TransformersDefinition>) {
         super('TransformersDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -4075,7 +3843,6 @@ export class CustomValidatorDefinition extends CamelElement {
     type?: string
     public constructor(init?: Partial<CustomValidatorDefinition>) {
         super('CustomValidatorDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -4087,7 +3854,6 @@ export class EndpointValidatorDefinition extends CamelElement {
     uri?: string
     public constructor(init?: Partial<EndpointValidatorDefinition>) {
         super('EndpointValidatorDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -4098,7 +3864,6 @@ export class PredicateValidatorDefinition extends CamelElement {
     type?: string
     public constructor(init?: Partial<PredicateValidatorDefinition>) {
         super('PredicateValidatorDefinition')
-        
         Object.assign(this, init)
     }
 }
@@ -4110,7 +3875,6 @@ export class ValidatorsDefinition extends CamelElement {
     predicateValidator?: PredicateValidatorDefinition
     public constructor(init?: Partial<ValidatorsDefinition>) {
         super('ValidatorsDefinition')
-        
         Object.assign(this, init)
     }
 }

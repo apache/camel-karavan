@@ -132,23 +132,21 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
     private String generateModelApi(String classFullName, JsonObject obj) {
         String className = classSimple(classFullName);
 
-        String s1 = getStringToRequired(obj, className);
-
         JsonObject properties = obj.containsKey("oneOf")
                 ? obj.getJsonArray("oneOf").getJsonObject(1).getJsonObject("properties")
                 : obj.getJsonObject("properties");
 
-        Map<String, String> attrs = new HashMap<>();
+        List<String> attrs = new ArrayList<>();
         if (properties != null) {
             properties.getMap().keySet().forEach(name -> {
                 JsonObject aValue = properties.getJsonObject(name);
                 if (isAttributeRefArray(aValue) && name.equals("steps") && ! className.equals("ChoiceDefinition") && ! className.equals("SwitchDefinition") && ! className.equals("KameletDefinition")) {
-                    attrs.put(name, "        def.steps = CamelDefinitionApi.createSteps(element?.steps);\n");
+                    attrs.add("        def.steps = CamelDefinitionApi.createSteps(element?.steps);\n");
                 } else if (isAttributeRefArray(aValue) && !name.equals("steps")) {
                     String code = String.format(
                             "        def.%1$s = element && element?.%1$s ? element?.%1$s.map((x:any) => CamelDefinitionApi.create%2$s(x)) :[]; \n"
                             , name, getAttributeArrayClass(aValue));
-                    attrs.put(name, code);
+                    attrs.add(code);
                 } else if (isAttributeRef(aValue)
                         && !getAttributeClass(aValue).equals("SagaActionUriDefinition") // SagaActionUriDefinition is exception
                         && !getAttributeClass(aValue).equals("ToDefinition") // exception for ToDefinition (in REST Methods)
@@ -159,15 +157,18 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
                             ? "        def.%1$s = CamelDefinitionApi.create%2$s(element.%1$s); \n"
                             : "        if (element?.%1$s !== undefined) { \n" +
                             "            def.%1$s = CamelDefinitionApi.create%2$s(element.%1$s); \n" +
-                            "        } \n";
+                            "        }";
                     String code = String.format(template, name, getAttributeClass(aValue));
-                    attrs.put(name, code);
+                    attrs.add(code);
                 } else {
 
                 }
             });
         }
-        return String.format(readFileText(modelTemplate), className, s1, attrs.values().stream().collect(Collectors.joining("")));
+        String stringToRequired = getStringToRequired(obj, className);
+        String s2 = stringToRequired.isEmpty() ? "" : "\n" + getStringToRequired(obj, className);
+        String s3 = attrs.size() > 0 ? "\n" + attrs.stream().collect(Collectors.joining("\n")) : "";
+        return String.format(readFileText(modelTemplate), className, s2, s3);
     }
 
     private String getStringToRequired(JsonObject obj, String className) {
