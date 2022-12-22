@@ -168,7 +168,11 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
         String stringToRequired = getStringToRequired(obj, className);
         String s2 = stringToRequired.isEmpty() ? "" : "\n" + getStringToRequired(obj, className);
         String s3 = attrs.size() > 0 ? "\n" + attrs.stream().collect(Collectors.joining("\n")) : "";
-        return String.format(readFileText(modelTemplate), className, s2, s3);
+
+        System.out.println(className);
+        System.out.println(properties.getMap().keySet());
+        String s4 = "";
+        return String.format(readFileText(modelTemplate), className, s2, s3, s4);
     }
 
     private String getStringToRequired(JsonObject obj, String className) {
