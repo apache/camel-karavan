@@ -89,7 +89,7 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
             properties.getMap().keySet().stream().sorted(getComparator(stepName)).forEach(name -> {
                 JsonObject attributeValue = properties.getJsonObject(name);
                 boolean req = required.contains(name);
-                String generatedValue = ("id".equals(name) && stepName != null) ? "'" + stepName + "-' + uuidv4().substring(0,4)" : null;
+                String generatedValue = ("id".equals(name) && stepName != null && !"routeConfiguration".equals(stepName)) ? "'" + stepName + "-' + uuidv4().substring(0,4)" : null;
                 String attributeType = getAttributeType(attributeValue, req, definitions, generatedValue);
                 String r = req ? "" : "?";
                 name = name.equals("constructor") ? "_constructor" : name; // exception for YAMLDataFormat
@@ -101,7 +101,8 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
                 }
             });
         }
-        return String.format(readFileText(modelTemplate), className, attrs.stream().collect(Collectors.joining(";\n")));
+        String s2 = attrs.stream().collect(Collectors.joining(";\n")) + ((attrs.isEmpty()) ? "" : ";");
+        return String.format(readFileText(modelTemplate), className, s2);
     }
 
     private Comparator<String> getComparator(String stepName) {
