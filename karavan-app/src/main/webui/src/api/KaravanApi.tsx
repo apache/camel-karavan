@@ -161,10 +161,10 @@ export class KaravanApi {
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
-                }else if(res.status === 204){
+                } else if (res.status === 204) {
                     after(undefined);
                 }
-                
+
             }).catch(err => {
             console.log(err);
         });
