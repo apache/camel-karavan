@@ -482,7 +482,6 @@ export class CamelDefinitionApi {
         const def = element ? new OutputAwareFromDefinition({...element}) : new OutputAwareFromDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -505,7 +504,6 @@ export class CamelDefinitionApi {
             def.optimisticLockRetryPolicy = CamelDefinitionApi.createOptimisticLockRetryPolicyDefinition(element.optimisticLockRetryPolicy); 
         }
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -522,7 +520,6 @@ export class CamelDefinitionApi {
             def.onWhen = CamelDefinitionApi.createWhenDefinition(element.onWhen); 
         }
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -532,8 +529,7 @@ export class CamelDefinitionApi {
         if (element?.otherwise !== undefined) { 
             def.otherwise = CamelDefinitionApi.createOtherwiseDefinition(element.otherwise); 
         }
-        def.when = element && element?.when ? element?.when.map((x:any) => CamelDefinitionApi.createWhenDefinition(x)) :[]; 
-
+        def.when = element && element?.when ? element?.when.map((x:any) => CamelDefinitionApi.createWhenDefinition(x)) :[];
         return def;
     }
 
@@ -550,7 +546,6 @@ export class CamelDefinitionApi {
             def.resilience4jConfiguration = CamelDefinitionApi.createResilience4jConfigurationDefinition(element.resilience4jConfiguration); 
         }
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -717,7 +712,6 @@ if (element && typeof element === 'string') element = {type: element};
         def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -725,7 +719,6 @@ if (element && typeof element === 'string') element = {type: element};
         const def = element ? new FinallyDefinition({...element}) : new FinallyDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -734,7 +727,6 @@ if (element && typeof element === 'string') element = { uri: element};
         const def = element ? new FromDefinition({...element}) : new FromDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -747,8 +739,7 @@ if (element && typeof element === 'string') element = { uri: element};
     static createGlobalOptionsDefinition = (element: any): GlobalOptionsDefinition => { 
         const def = element ? new GlobalOptionsDefinition({...element}) : new GlobalOptionsDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.globalOption = element && element?.globalOption ? element?.globalOption.map((x:any) => CamelDefinitionApi.createGlobalOptionDefinition(x)) :[]; 
-
+        def.globalOption = element && element?.globalOption ? element?.globalOption.map((x:any) => CamelDefinitionApi.createGlobalOptionDefinition(x)) :[];
         return def;
     }
 
@@ -758,7 +749,6 @@ if (element && typeof element === 'string') element = { uri: element};
         def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -786,7 +776,6 @@ if (element && typeof element === 'string') element = {uri: element};
         const def = element ? new InterceptDefinition({...element}) : new InterceptDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -794,7 +783,6 @@ if (element && typeof element === 'string') element = {uri: element};
         const def = element ? new InterceptFromDefinition({...element}) : new InterceptFromDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -803,7 +791,6 @@ if (element && typeof element === 'string') element = {uri: element};
         const def = element ? new InterceptSendToEndpointDefinition({...element}) : new InterceptSendToEndpointDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -830,7 +817,6 @@ if (element && typeof element === 'string') element = {name: element};
             def.roundRobin = CamelDefinitionApi.createRoundRobinLoadBalancerDefinition(element.roundRobin); 
         }
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         if (element?.sticky !== undefined) { 
             def.sticky = CamelDefinitionApi.createStickyLoadBalancerDefinition(element.sticky); 
         }
@@ -856,7 +842,6 @@ if (element && typeof element === 'string') element = {message: element};
         def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -993,7 +978,6 @@ if (element && typeof element === 'string') element = {message: element};
         const def = element ? new MulticastDefinition({...element}) : new MulticastDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -1004,7 +988,6 @@ if (element && typeof element === 'string') element = {message: element};
             def.onWhen = CamelDefinitionApi.createWhenDefinition(element.onWhen); 
         }
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -1027,7 +1010,6 @@ if (element && typeof element === 'string') element = {message: element};
             def.retryWhile = CamelDefinitionApi.createExpressionSubElementDefinition(element.retryWhile); 
         }
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -1035,7 +1017,6 @@ if (element && typeof element === 'string') element = {message: element};
         const def = element ? new OnFallbackDefinition({...element}) : new OnFallbackDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -1049,7 +1030,6 @@ if (element && typeof element === 'string') element = {message: element};
         const def = element ? new OtherwiseDefinition({...element}) : new OtherwiseDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -1057,7 +1037,6 @@ if (element && typeof element === 'string') element = {message: element};
         const def = element ? new OutputDefinition({...element}) : new OutputDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -1083,7 +1062,6 @@ if (element && typeof element === 'string') element = {message: element};
         const def = element ? new PipelineDefinition({...element}) : new PipelineDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -1091,7 +1069,6 @@ if (element && typeof element === 'string') element = {message: element};
         const def = element ? new PolicyDefinition({...element}) : new PolicyDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -1174,7 +1151,6 @@ if (element && typeof element === 'string') element = {name: element};
         def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         if (element?.streamConfig !== undefined) { 
             def.streamConfig = CamelDefinitionApi.createStreamResequencerConfig(element.streamConfig); 
         }
@@ -1226,16 +1202,11 @@ if (element && typeof element === 'string') element = {ref: element};
         if (element?.errorHandler !== undefined) { 
             def.errorHandler = CamelDefinitionApi.createErrorHandlerDefinition(element.errorHandler); 
         }
-        def.intercept = element && element?.intercept ? element?.intercept.map((x:any) => CamelDefinitionApi.createInterceptDefinition(x)) :[]; 
-
-        def.interceptFrom = element && element?.interceptFrom ? element?.interceptFrom.map((x:any) => CamelDefinitionApi.createInterceptFromDefinition(x)) :[]; 
-
-        def.interceptSendToEndpoint = element && element?.interceptSendToEndpoint ? element?.interceptSendToEndpoint.map((x:any) => CamelDefinitionApi.createInterceptSendToEndpointDefinition(x)) :[]; 
-
-        def.onCompletion = element && element?.onCompletion ? element?.onCompletion.map((x:any) => CamelDefinitionApi.createOnCompletionDefinition(x)) :[]; 
-
-        def.onException = element && element?.onException ? element?.onException.map((x:any) => CamelDefinitionApi.createOnExceptionDefinition(x)) :[]; 
-
+        def.intercept = element && element?.intercept ? element?.intercept.map((x:any) => CamelDefinitionApi.createInterceptDefinition(x)) :[];
+        def.interceptFrom = element && element?.interceptFrom ? element?.interceptFrom.map((x:any) => CamelDefinitionApi.createInterceptFromDefinition(x)) :[];
+        def.interceptSendToEndpoint = element && element?.interceptSendToEndpoint ? element?.interceptSendToEndpoint.map((x:any) => CamelDefinitionApi.createInterceptSendToEndpointDefinition(x)) :[];
+        def.onCompletion = element && element?.onCompletion ? element?.onCompletion.map((x:any) => CamelDefinitionApi.createOnCompletionDefinition(x)) :[];
+        def.onException = element && element?.onException ? element?.onException.map((x:any) => CamelDefinitionApi.createOnExceptionDefinition(x)) :[];
         return def;
     }
 
@@ -1258,21 +1229,18 @@ if (element && typeof element === 'string') element = {ref: element};
     static createRouteTemplateBeanDefinition = (element: any): RouteTemplateBeanDefinition => { 
         const def = element ? new RouteTemplateBeanDefinition({...element}) : new RouteTemplateBeanDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.property = element && element?.property ? element?.property.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.property = element && element?.property ? element?.property.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
     static createRouteTemplateDefinition = (element: any): RouteTemplateDefinition => { 
         const def = element ? new RouteTemplateDefinition({...element}) : new RouteTemplateDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.beans = element && element?.beans ? element?.beans.map((x:any) => CamelDefinitionApi.createNamedBeanDefinition(x)) :[]; 
-
+        def.beans = element && element?.beans ? element?.beans.map((x:any) => CamelDefinitionApi.createNamedBeanDefinition(x)) :[];
         if (element?.from !== undefined) { 
             def.from = CamelDefinitionApi.createFromDefinition(element.from); 
         }
-        def.parameters = element && element?.parameters ? element?.parameters.map((x:any) => CamelDefinitionApi.createRouteTemplateParameterDefinition(x)) :[]; 
-
+        def.parameters = element && element?.parameters ? element?.parameters.map((x:any) => CamelDefinitionApi.createRouteTemplateParameterDefinition(x)) :[];
         if (element?.route !== undefined) { 
             def.route = CamelDefinitionApi.createRouteDefinition(element.route); 
         }
@@ -1303,10 +1271,8 @@ if (element && typeof element === 'string') element = {uri: element};
     static createSagaDefinition = (element: any): SagaDefinition => { 
         const def = element ? new SagaDefinition({...element}) : new SagaDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.option = element && element?.option ? element?.option.map((x:any) => CamelDefinitionApi.createPropertyExpressionDefinition(x)) :[]; 
-
+        def.option = element && element?.option ? element?.option.map((x:any) => CamelDefinitionApi.createPropertyExpressionDefinition(x)) :[];
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -1369,7 +1335,6 @@ if (element && typeof element === 'string') element = {pattern: element};
         def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -1377,7 +1342,6 @@ if (element && typeof element === 'string') element = {pattern: element};
         const def = element ? new StepDefinition({...element}) : new StepDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -1390,18 +1354,15 @@ if (element && typeof element === 'string') element = {pattern: element};
     static createTemplatedRouteBeanDefinition = (element: any): TemplatedRouteBeanDefinition => { 
         const def = element ? new TemplatedRouteBeanDefinition({...element}) : new TemplatedRouteBeanDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.property = element && element?.property ? element?.property.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.property = element && element?.property ? element?.property.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
     static createTemplatedRouteDefinition = (element: any): TemplatedRouteDefinition => { 
         const def = element ? new TemplatedRouteDefinition({...element}) : new TemplatedRouteDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.beans = element && element?.beans ? element?.beans.map((x:any) => CamelDefinitionApi.createNamedBeanDefinition(x)) :[]; 
-
-        def.parameters = element && element?.parameters ? element?.parameters.map((x:any) => CamelDefinitionApi.createTemplatedRouteParameterDefinition(x)) :[]; 
-
+        def.beans = element && element?.beans ? element?.beans.map((x:any) => CamelDefinitionApi.createNamedBeanDefinition(x)) :[];
+        def.parameters = element && element?.parameters ? element?.parameters.map((x:any) => CamelDefinitionApi.createTemplatedRouteParameterDefinition(x)) :[];
         return def;
     }
 
@@ -1458,7 +1419,6 @@ if (element && typeof element === 'string') element = {uri: element};
         const def = element ? new TransactedDefinition({...element}) : new TransactedDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -1473,13 +1433,11 @@ if (element && typeof element === 'string') element = {uri: element};
     static createTryDefinition = (element: any): TryDefinition => { 
         const def = element ? new TryDefinition({...element}) : new TryDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.doCatch = element && element?.doCatch ? element?.doCatch.map((x:any) => CamelDefinitionApi.createCatchDefinition(x)) :[]; 
-
+        def.doCatch = element && element?.doCatch ? element?.doCatch.map((x:any) => CamelDefinitionApi.createCatchDefinition(x)) :[];
         if (element?.doFinally !== undefined) { 
             def.doFinally = CamelDefinitionApi.createFinallyDefinition(element.doFinally); 
         }
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -1626,7 +1584,6 @@ if (element && typeof element === 'string') element = {uri: element};
         def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -1636,7 +1593,6 @@ if (element && typeof element === 'string') element = {uri: element};
         def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
-
         return def;
     }
 
@@ -1649,8 +1605,7 @@ if (element && typeof element === 'string') element = {uri: element};
     static createBlacklistServiceCallServiceFilterConfiguration = (element: any): BlacklistServiceCallServiceFilterConfiguration => { 
         const def = element ? new BlacklistServiceCallServiceFilterConfiguration({...element}) : new BlacklistServiceCallServiceFilterConfiguration();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
@@ -1669,8 +1624,7 @@ if (element && typeof element === 'string') element = {uri: element};
         if (element?.kubernetesServiceDiscovery !== undefined) { 
             def.kubernetesServiceDiscovery = CamelDefinitionApi.createKubernetesServiceCallServiceDiscoveryConfiguration(element.kubernetesServiceDiscovery); 
         }
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         if (element?.staticServiceDiscovery !== undefined) { 
             def.staticServiceDiscovery = CamelDefinitionApi.createStaticServiceCallServiceDiscoveryConfiguration(element.staticServiceDiscovery); 
         }
@@ -1692,8 +1646,7 @@ if (element && typeof element === 'string') element = {uri: element};
         if (element?.kubernetesServiceDiscovery !== undefined) { 
             def.kubernetesServiceDiscovery = CamelDefinitionApi.createKubernetesServiceCallServiceDiscoveryConfiguration(element.kubernetesServiceDiscovery); 
         }
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         if (element?.staticServiceDiscovery !== undefined) { 
             def.staticServiceDiscovery = CamelDefinitionApi.createStaticServiceCallServiceDiscoveryConfiguration(element.staticServiceDiscovery); 
         }
@@ -1715,64 +1668,56 @@ if (element && typeof element === 'string') element = {uri: element};
         if (element?.passThroughServiceFilter !== undefined) { 
             def.passThroughServiceFilter = CamelDefinitionApi.createPassThroughServiceCallServiceFilterConfiguration(element.passThroughServiceFilter); 
         }
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
     static createConsulServiceCallServiceDiscoveryConfiguration = (element: any): ConsulServiceCallServiceDiscoveryConfiguration => { 
         const def = element ? new ConsulServiceCallServiceDiscoveryConfiguration({...element}) : new ConsulServiceCallServiceDiscoveryConfiguration();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
     static createCustomServiceCallServiceFilterConfiguration = (element: any): CustomServiceCallServiceFilterConfiguration => { 
         const def = element ? new CustomServiceCallServiceFilterConfiguration({...element}) : new CustomServiceCallServiceFilterConfiguration();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
     static createDefaultServiceCallServiceLoadBalancerConfiguration = (element: any): DefaultServiceCallServiceLoadBalancerConfiguration => { 
         const def = element ? new DefaultServiceCallServiceLoadBalancerConfiguration({...element}) : new DefaultServiceCallServiceLoadBalancerConfiguration();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
     static createDnsServiceCallServiceDiscoveryConfiguration = (element: any): DnsServiceCallServiceDiscoveryConfiguration => { 
         const def = element ? new DnsServiceCallServiceDiscoveryConfiguration({...element}) : new DnsServiceCallServiceDiscoveryConfiguration();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
     static createHealthyServiceCallServiceFilterConfiguration = (element: any): HealthyServiceCallServiceFilterConfiguration => { 
         const def = element ? new HealthyServiceCallServiceFilterConfiguration({...element}) : new HealthyServiceCallServiceFilterConfiguration();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
     static createKubernetesServiceCallServiceDiscoveryConfiguration = (element: any): KubernetesServiceCallServiceDiscoveryConfiguration => { 
         const def = element ? new KubernetesServiceCallServiceDiscoveryConfiguration({...element}) : new KubernetesServiceCallServiceDiscoveryConfiguration();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
     static createPassThroughServiceCallServiceFilterConfiguration = (element: any): PassThroughServiceCallServiceFilterConfiguration => { 
         const def = element ? new PassThroughServiceCallServiceFilterConfiguration({...element}) : new PassThroughServiceCallServiceFilterConfiguration();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
@@ -1878,56 +1823,49 @@ if (element && typeof element === 'string') element = {name: element};
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.expressionType = CamelDefinitionApi.createExpressionDefinition(element.expressionType); 
 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
     static createServiceCallServiceChooserConfiguration = (element: any): ServiceCallServiceChooserConfiguration => { 
         const def = element ? new ServiceCallServiceChooserConfiguration({...element}) : new ServiceCallServiceChooserConfiguration();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
     static createServiceCallServiceDiscoveryConfiguration = (element: any): ServiceCallServiceDiscoveryConfiguration => { 
         const def = element ? new ServiceCallServiceDiscoveryConfiguration({...element}) : new ServiceCallServiceDiscoveryConfiguration();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
     static createServiceCallServiceFilterConfiguration = (element: any): ServiceCallServiceFilterConfiguration => { 
         const def = element ? new ServiceCallServiceFilterConfiguration({...element}) : new ServiceCallServiceFilterConfiguration();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
     static createServiceCallServiceLoadBalancerConfiguration = (element: any): ServiceCallServiceLoadBalancerConfiguration => { 
         const def = element ? new ServiceCallServiceLoadBalancerConfiguration({...element}) : new ServiceCallServiceLoadBalancerConfiguration();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
     static createStaticServiceCallServiceDiscoveryConfiguration = (element: any): StaticServiceCallServiceDiscoveryConfiguration => { 
         const def = element ? new StaticServiceCallServiceDiscoveryConfiguration({...element}) : new StaticServiceCallServiceDiscoveryConfiguration();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
     static createZooKeeperServiceCallServiceDiscoveryConfiguration = (element: any): ZooKeeperServiceCallServiceDiscoveryConfiguration => { 
         const def = element ? new ZooKeeperServiceCallServiceDiscoveryConfiguration({...element}) : new ZooKeeperServiceCallServiceDiscoveryConfiguration();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
@@ -1952,8 +1890,7 @@ if (element && typeof element === 'string') element = {name: element};
     static createAny23DataFormat = (element: any): Any23DataFormat => { 
         const def = element ? new Any23DataFormat({...element}) : new Any23DataFormat();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.configuration = element && element?.configuration ? element?.configuration.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.configuration = element && element?.configuration ? element?.configuration.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
@@ -2277,16 +2214,14 @@ if (element && typeof element === 'string') element = {contextPath: element};
     static createUniVocityCsvDataFormat = (element: any): UniVocityCsvDataFormat => { 
         const def = element ? new UniVocityCsvDataFormat({...element}) : new UniVocityCsvDataFormat();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.univocityHeader = element && element?.univocityHeader ? element?.univocityHeader.map((x:any) => CamelDefinitionApi.createUniVocityHeader(x)) :[]; 
-
+        def.univocityHeader = element && element?.univocityHeader ? element?.univocityHeader.map((x:any) => CamelDefinitionApi.createUniVocityHeader(x)) :[];
         return def;
     }
 
     static createUniVocityFixedDataFormat = (element: any): UniVocityFixedDataFormat => { 
         const def = element ? new UniVocityFixedDataFormat({...element}) : new UniVocityFixedDataFormat();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.univocityHeader = element && element?.univocityHeader ? element?.univocityHeader.map((x:any) => CamelDefinitionApi.createUniVocityHeader(x)) :[]; 
-
+        def.univocityHeader = element && element?.univocityHeader ? element?.univocityHeader.map((x:any) => CamelDefinitionApi.createUniVocityHeader(x)) :[];
         return def;
     }
 
@@ -2299,8 +2234,7 @@ if (element && typeof element === 'string') element = {contextPath: element};
     static createUniVocityTsvDataFormat = (element: any): UniVocityTsvDataFormat => { 
         const def = element ? new UniVocityTsvDataFormat({...element}) : new UniVocityTsvDataFormat();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.univocityHeader = element && element?.univocityHeader ? element?.univocityHeader.map((x:any) => CamelDefinitionApi.createUniVocityHeader(x)) :[]; 
-
+        def.univocityHeader = element && element?.univocityHeader ? element?.univocityHeader.map((x:any) => CamelDefinitionApi.createUniVocityHeader(x)) :[];
         return def;
     }
 
@@ -2313,22 +2247,17 @@ if (element && typeof element === 'string') element = {contextPath: element};
     static createXStreamDataFormat = (element: any): XStreamDataFormat => { 
         const def = element ? new XStreamDataFormat({...element}) : new XStreamDataFormat();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.aliases = element && element?.aliases ? element?.aliases.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
-        def.converters = element && element?.converters ? element?.converters.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
-        def.implicitCollections = element && element?.implicitCollections ? element?.implicitCollections.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
-        def.omitFields = element && element?.omitFields ? element?.omitFields.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.aliases = element && element?.aliases ? element?.aliases.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
+        def.converters = element && element?.converters ? element?.converters.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
+        def.implicitCollections = element && element?.implicitCollections ? element?.implicitCollections.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
+        def.omitFields = element && element?.omitFields ? element?.omitFields.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
     static createYAMLDataFormat = (element: any): YAMLDataFormat => { 
         const def = element ? new YAMLDataFormat({...element}) : new YAMLDataFormat();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.typeFilter = element && element?.typeFilter ? element?.typeFilter.map((x:any) => CamelDefinitionApi.createYAMLTypeFilterDefinition(x)) :[]; 
-
+        def.typeFilter = element && element?.typeFilter ? element?.typeFilter.map((x:any) => CamelDefinitionApi.createYAMLTypeFilterDefinition(x)) :[];
         return def;
     }
 
@@ -2615,8 +2544,7 @@ if (element && typeof element === 'string') element = {token: element};
     static createXMLTokenizerExpression = (element: any): XMLTokenizerExpression => { 
         const def = element ? new XMLTokenizerExpression({...element}) : new XMLTokenizerExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.namespace = element && element?.namespace ? element?.namespace.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.namespace = element && element?.namespace ? element?.namespace.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
@@ -2624,8 +2552,7 @@ if (element && typeof element === 'string') element = {token: element};
 if (element && typeof element === 'string') element = {expression: element};
         const def = element ? new XPathExpression({...element}) : new XPathExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.namespace = element && element?.namespace ? element?.namespace.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.namespace = element && element?.namespace ? element?.namespace.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
@@ -2633,8 +2560,7 @@ if (element && typeof element === 'string') element = {expression: element};
 if (element && typeof element === 'string') element = {expression: element};
         const def = element ? new XQueryExpression({...element}) : new XQueryExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.namespace = element && element?.namespace ? element?.namespace.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[]; 
-
+        def.namespace = element && element?.namespace ? element?.namespace.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
         return def;
     }
 
@@ -2705,36 +2631,27 @@ if (element && typeof element === 'string') element = {ref: element};
     static createDeleteDefinition = (element: any): DeleteDefinition => { 
         const def = element ? new DeleteDefinition({...element}) : new DeleteDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionApi.createParamDefinition(x)) :[]; 
-
-        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionApi.createResponseMessageDefinition(x)) :[]; 
-
-        def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[]; 
-
+        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionApi.createParamDefinition(x)) :[];
+        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionApi.createResponseMessageDefinition(x)) :[];
+        def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[];
         return def;
     }
 
     static createGetDefinition = (element: any): GetDefinition => { 
         const def = element ? new GetDefinition({...element}) : new GetDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionApi.createParamDefinition(x)) :[]; 
-
-        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionApi.createResponseMessageDefinition(x)) :[]; 
-
-        def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[]; 
-
+        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionApi.createParamDefinition(x)) :[];
+        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionApi.createResponseMessageDefinition(x)) :[];
+        def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[];
         return def;
     }
 
     static createHeadDefinition = (element: any): HeadDefinition => { 
         const def = element ? new HeadDefinition({...element}) : new HeadDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionApi.createParamDefinition(x)) :[]; 
-
-        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionApi.createResponseMessageDefinition(x)) :[]; 
-
-        def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[]; 
-
+        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionApi.createParamDefinition(x)) :[];
+        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionApi.createResponseMessageDefinition(x)) :[];
+        def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[];
         return def;
     }
 
@@ -2747,8 +2664,7 @@ if (element && typeof element === 'string') element = {ref: element};
     static createOAuth2Definition = (element: any): OAuth2Definition => { 
         const def = element ? new OAuth2Definition({...element}) : new OAuth2Definition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.scopes = element && element?.scopes ? element?.scopes.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[]; 
-
+        def.scopes = element && element?.scopes ? element?.scopes.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[];
         return def;
     }
 
@@ -2761,44 +2677,34 @@ if (element && typeof element === 'string') element = {ref: element};
     static createParamDefinition = (element: any): ParamDefinition => { 
         const def = element ? new ParamDefinition({...element}) : new ParamDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.examples = element && element?.examples ? element?.examples.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[]; 
-
+        def.examples = element && element?.examples ? element?.examples.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[];
         return def;
     }
 
     static createPatchDefinition = (element: any): PatchDefinition => { 
         const def = element ? new PatchDefinition({...element}) : new PatchDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionApi.createParamDefinition(x)) :[]; 
-
-        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionApi.createResponseMessageDefinition(x)) :[]; 
-
-        def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[]; 
-
+        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionApi.createParamDefinition(x)) :[];
+        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionApi.createResponseMessageDefinition(x)) :[];
+        def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[];
         return def;
     }
 
     static createPostDefinition = (element: any): PostDefinition => { 
         const def = element ? new PostDefinition({...element}) : new PostDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionApi.createParamDefinition(x)) :[]; 
-
-        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionApi.createResponseMessageDefinition(x)) :[]; 
-
-        def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[]; 
-
+        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionApi.createParamDefinition(x)) :[];
+        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionApi.createResponseMessageDefinition(x)) :[];
+        def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[];
         return def;
     }
 
     static createPutDefinition = (element: any): PutDefinition => { 
         const def = element ? new PutDefinition({...element}) : new PutDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionApi.createParamDefinition(x)) :[]; 
-
-        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionApi.createResponseMessageDefinition(x)) :[]; 
-
-        def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[]; 
-
+        def.param = element && element?.param ? element?.param.map((x:any) => CamelDefinitionApi.createParamDefinition(x)) :[];
+        def.responseMessage = element && element?.responseMessage ? element?.responseMessage.map((x:any) => CamelDefinitionApi.createResponseMessageDefinition(x)) :[];
+        def.security = element && element?.security ? element?.security.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[];
         return def;
     }
 
@@ -2811,10 +2717,8 @@ if (element && typeof element === 'string') element = {ref: element};
     static createResponseMessageDefinition = (element: any): ResponseMessageDefinition => { 
         const def = element ? new ResponseMessageDefinition({...element}) : new ResponseMessageDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.examples = element && element?.examples ? element?.examples.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[]; 
-
-        def.header = element && element?.header ? element?.header.map((x:any) => CamelDefinitionApi.createResponseHeaderDefinition(x)) :[]; 
-
+        def.examples = element && element?.examples ? element?.examples.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[];
+        def.header = element && element?.header ? element?.header.map((x:any) => CamelDefinitionApi.createResponseHeaderDefinition(x)) :[];
         return def;
     }
 
@@ -2827,41 +2731,28 @@ if (element && typeof element === 'string') element = {ref: element};
     static createRestConfigurationDefinition = (element: any): RestConfigurationDefinition => { 
         const def = element ? new RestConfigurationDefinition({...element}) : new RestConfigurationDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.apiProperty = element && element?.apiProperty ? element?.apiProperty.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[]; 
-
-        def.componentProperty = element && element?.componentProperty ? element?.componentProperty.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[]; 
-
-        def.consumerProperty = element && element?.consumerProperty ? element?.consumerProperty.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[]; 
-
-        def.corsHeaders = element && element?.corsHeaders ? element?.corsHeaders.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[]; 
-
-        def.dataFormatProperty = element && element?.dataFormatProperty ? element?.dataFormatProperty.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[]; 
-
-        def.endpointProperty = element && element?.endpointProperty ? element?.endpointProperty.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[]; 
-
+        def.apiProperty = element && element?.apiProperty ? element?.apiProperty.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[];
+        def.componentProperty = element && element?.componentProperty ? element?.componentProperty.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[];
+        def.consumerProperty = element && element?.consumerProperty ? element?.consumerProperty.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[];
+        def.corsHeaders = element && element?.corsHeaders ? element?.corsHeaders.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[];
+        def.dataFormatProperty = element && element?.dataFormatProperty ? element?.dataFormatProperty.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[];
+        def.endpointProperty = element && element?.endpointProperty ? element?.endpointProperty.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[];
         return def;
     }
 
     static createRestDefinition = (element: any): RestDefinition => { 
         const def = element ? new RestDefinition({...element}) : new RestDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.delete = element && element?.delete ? element?.delete.map((x:any) => CamelDefinitionApi.createDeleteDefinition(x)) :[]; 
-
-        def.get = element && element?.get ? element?.get.map((x:any) => CamelDefinitionApi.createGetDefinition(x)) :[]; 
-
-        def.head = element && element?.head ? element?.head.map((x:any) => CamelDefinitionApi.createHeadDefinition(x)) :[]; 
-
-        def.patch = element && element?.patch ? element?.patch.map((x:any) => CamelDefinitionApi.createPatchDefinition(x)) :[]; 
-
-        def.post = element && element?.post ? element?.post.map((x:any) => CamelDefinitionApi.createPostDefinition(x)) :[]; 
-
-        def.put = element && element?.put ? element?.put.map((x:any) => CamelDefinitionApi.createPutDefinition(x)) :[]; 
-
+        def.delete = element && element?.delete ? element?.delete.map((x:any) => CamelDefinitionApi.createDeleteDefinition(x)) :[];
+        def.get = element && element?.get ? element?.get.map((x:any) => CamelDefinitionApi.createGetDefinition(x)) :[];
+        def.head = element && element?.head ? element?.head.map((x:any) => CamelDefinitionApi.createHeadDefinition(x)) :[];
+        def.patch = element && element?.patch ? element?.patch.map((x:any) => CamelDefinitionApi.createPatchDefinition(x)) :[];
+        def.post = element && element?.post ? element?.post.map((x:any) => CamelDefinitionApi.createPostDefinition(x)) :[];
+        def.put = element && element?.put ? element?.put.map((x:any) => CamelDefinitionApi.createPutDefinition(x)) :[];
         if (element?.securityDefinitions !== undefined) { 
             def.securityDefinitions = CamelDefinitionApi.createRestSecuritiesDefinition(element.securityDefinitions); 
         }
-        def.securityRequirements = element && element?.securityRequirements ? element?.securityRequirements.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[]; 
-
+        def.securityRequirements = element && element?.securityRequirements ? element?.securityRequirements.map((x:any) => CamelDefinitionApi.createSecurityDefinition(x)) :[];
         return def;
     }
 
@@ -2898,8 +2789,7 @@ if (element && typeof element === 'string') element = {ref: element};
     static createRestsDefinition = (element: any): RestsDefinition => { 
         const def = element ? new RestsDefinition({...element}) : new RestsDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.rest = element && element?.rest ? element?.rest.map((x:any) => CamelDefinitionApi.createRestDefinition(x)) :[]; 
-
+        def.rest = element && element?.rest ? element?.rest.map((x:any) => CamelDefinitionApi.createRestDefinition(x)) :[];
         return def;
     }
 
