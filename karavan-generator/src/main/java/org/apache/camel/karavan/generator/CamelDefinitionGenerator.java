@@ -19,6 +19,7 @@ package org.apache.camel.karavan.generator;
 import io.vertx.core.json.JsonObject;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public final class CamelDefinitionGenerator extends AbstractGenerator {
@@ -84,8 +85,12 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
         } else if (className.endsWith("DataFormat") && stepNames.containsKey(className)) {
             attrs.add("    dataFormatName?: string = '" + stepNames.get(className) + "'");
         }
+        AtomicBoolean hasId = new AtomicBoolean(false);
         if (properties != null) {
             properties.getMap().keySet().stream().sorted(getComparator(stepName)).forEach(name -> {
+                if ("id".equals(name)) {
+                    hasId.set(true);
+                }
                 JsonObject attributeValue = properties.getJsonObject(name);
                 boolean req = required.contains(name);
                 String attributeType = getAttributeType(attributeValue, req, definitions);
@@ -99,17 +104,21 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
                 }
             });
         }
-        return String.format(readFileText(modelTemplate), className, attrs.stream().collect(Collectors.joining(";\n")));
+        String s3 = hasId.get() ? getStringForId(stepName) : "";
+        return String.format(readFileText(modelTemplate), className, attrs.stream().collect(Collectors.joining(";\n")), s3);
+    }
+
+    private String getStringForId(String stepName) {
+        return "\n        if (this.id === undefined) {\n" +
+                "            this.id = '" + stepName + "-' + uuidv4().substring(0,4);\n" +
+                "        }";
     }
 
     private Comparator<String> getComparator(String stepName) {
-        String json =  getMetaModel(stepName);
+        String json = getMetaModel(stepName);
         if (json != null) {
-            JsonObject model = new JsonObject(json).getJsonObject("model");
             JsonObject props = new JsonObject(json).getJsonObject("properties");
             List propsLowerCase = props.getMap().keySet().stream().map(s -> s.toLowerCase()).collect(Collectors.toList());
-//            if (stepName.equals("from")) System.out.println("metadata: " + props.fieldNames());
-
             return Comparator.comparing(e -> {
                 if (propsLowerCase.contains(e.toLowerCase())) return propsLowerCase.indexOf(e.toLowerCase());
                 else return propsLowerCase.size() + 1;

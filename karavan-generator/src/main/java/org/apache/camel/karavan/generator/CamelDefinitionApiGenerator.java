@@ -19,6 +19,7 @@ package org.apache.camel.karavan.generator;
 import io.vertx.core.json.JsonObject;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -137,9 +138,13 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
                 : obj.getJsonObject("properties");
 
         List<String> attrs = new ArrayList<>();
+        AtomicBoolean hasId = new AtomicBoolean(false);
         if (properties != null) {
             properties.getMap().keySet().forEach(name -> {
                 JsonObject aValue = properties.getJsonObject(name);
+                if ("id".equals(name)) {
+                    hasId.set(true);
+                }
                 if (isAttributeRefArray(aValue) && name.equals("steps") && ! className.equals("ChoiceDefinition") && ! className.equals("SwitchDefinition") && ! className.equals("KameletDefinition")) {
                     attrs.add("        def.steps = CamelDefinitionApi.createSteps(element?.steps);");
                 } else if (isAttributeRefArray(aValue) && !name.equals("steps")) {
@@ -166,13 +171,9 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
             });
         }
         String stringToRequired = getStringToRequired(obj, className);
-        String s2 = stringToRequired.isEmpty() ? "" : "\n" + getStringToRequired(obj, className);
+        String s2 = stringToRequired.isEmpty() ? "" : "\n" + stringToRequired;
         String s3 = attrs.size() > 0 ? "\n" + attrs.stream().collect(Collectors.joining("\n")) : "";
-
-        System.out.println(className);
-        System.out.println(properties.getMap().keySet());
-        String s4 = "";
-        return String.format(readFileText(modelTemplate), className, s2, s3, s4);
+        return String.format(readFileText(modelTemplate), className, s2, s3);
     }
 
     private String getStringToRequired(JsonObject obj, String className) {
