@@ -173,11 +173,15 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
 
     private String getStringToRequired(JsonObject obj, String className) {
         if (className.equals("FromDefinition")) {
-            return "if (element && typeof element === 'string') element = { uri: element};";
+            return "        if (element && typeof element === 'string') {\n" +
+                    "            element = { uri: element};\n" +
+                    "        }";
         } else if (obj.containsKey("oneOf") && obj.containsKey("required")) {
             List<String> list = obj.getJsonArray("required").getList();
             list = list.stream().filter(o -> !o.equals("steps")).collect(toList());
-            return "if (element && typeof element === 'string') element = {" + list.get(0) + ": element};";
+            return "        if (element && typeof element === 'string') {\n" +
+                    "            element = {" + list.get(0) + ": element};\n" +
+                    "        }";
         } else {
             return "";
         }

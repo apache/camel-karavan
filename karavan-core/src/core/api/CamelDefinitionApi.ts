@@ -562,7 +562,9 @@ export class CamelDefinitionApi {
     }
 
     static createConvertBodyDefinition = (element: any): ConvertBodyDefinition => { 
-if (element && typeof element === 'string') element = {type: element};
+        if (element && typeof element === 'string') {
+            element = {type: element};
+        }
         const def = element ? new ConvertBodyDefinition({...element}) : new ConvertBodyDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -723,7 +725,9 @@ if (element && typeof element === 'string') element = {type: element};
     }
 
     static createFromDefinition = (element: any): FromDefinition => { 
-if (element && typeof element === 'string') element = { uri: element};
+        if (element && typeof element === 'string') {
+            element = { uri: element};
+        }
         const def = element ? new FromDefinition({...element}) : new FromDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
@@ -753,14 +757,18 @@ if (element && typeof element === 'string') element = { uri: element};
     }
 
     static createInOnlyDefinition = (element: any): InOnlyDefinition => { 
-if (element && typeof element === 'string') element = {uri: element};
+        if (element && typeof element === 'string') {
+            element = {uri: element};
+        }
         const def = element ? new InOnlyDefinition({...element}) : new InOnlyDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createInOutDefinition = (element: any): InOutDefinition => { 
-if (element && typeof element === 'string') element = {uri: element};
+        if (element && typeof element === 'string') {
+            element = {uri: element};
+        }
         const def = element ? new InOutDefinition({...element}) : new InOutDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -787,7 +795,9 @@ if (element && typeof element === 'string') element = {uri: element};
     }
 
     static createInterceptSendToEndpointDefinition = (element: any): InterceptSendToEndpointDefinition => { 
-if (element && typeof element === 'string') element = {uri: element};
+        if (element && typeof element === 'string') {
+            element = {uri: element};
+        }
         const def = element ? new InterceptSendToEndpointDefinition({...element}) : new InterceptSendToEndpointDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
@@ -795,7 +805,9 @@ if (element && typeof element === 'string') element = {uri: element};
     }
 
     static createKameletDefinition = (element: any): KameletDefinition => { 
-if (element && typeof element === 'string') element = {name: element};
+        if (element && typeof element === 'string') {
+            element = {name: element};
+        }
         const def = element ? new KameletDefinition({...element}) : new KameletDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -830,7 +842,9 @@ if (element && typeof element === 'string') element = {name: element};
     }
 
     static createLogDefinition = (element: any): LogDefinition => { 
-if (element && typeof element === 'string') element = {message: element};
+        if (element && typeof element === 'string') {
+            element = {message: element};
+        }
         const def = element ? new LogDefinition({...element}) : new LogDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -1115,28 +1129,36 @@ if (element && typeof element === 'string') element = {message: element};
     }
 
     static createRemoveHeaderDefinition = (element: any): RemoveHeaderDefinition => { 
-if (element && typeof element === 'string') element = {name: element};
+        if (element && typeof element === 'string') {
+            element = {name: element};
+        }
         const def = element ? new RemoveHeaderDefinition({...element}) : new RemoveHeaderDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createRemoveHeadersDefinition = (element: any): RemoveHeadersDefinition => { 
-if (element && typeof element === 'string') element = {pattern: element};
+        if (element && typeof element === 'string') {
+            element = {pattern: element};
+        }
         const def = element ? new RemoveHeadersDefinition({...element}) : new RemoveHeadersDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createRemovePropertiesDefinition = (element: any): RemovePropertiesDefinition => { 
-if (element && typeof element === 'string') element = {pattern: element};
+        if (element && typeof element === 'string') {
+            element = {pattern: element};
+        }
         const def = element ? new RemovePropertiesDefinition({...element}) : new RemovePropertiesDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createRemovePropertyDefinition = (element: any): RemovePropertyDefinition => { 
-if (element && typeof element === 'string') element = {name: element};
+        if (element && typeof element === 'string') {
+            element = {name: element};
+        }
         const def = element ? new RemovePropertyDefinition({...element}) : new RemovePropertyDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -1164,7 +1186,9 @@ if (element && typeof element === 'string') element = {name: element};
     }
 
     static createRestContextRefDefinition = (element: any): RestContextRefDefinition => { 
-if (element && typeof element === 'string') element = {ref: element};
+        if (element && typeof element === 'string') {
+            element = {ref: element};
+        }
         const def = element ? new RestContextRefDefinition({...element}) : new RestContextRefDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -1183,14 +1207,18 @@ if (element && typeof element === 'string') element = {ref: element};
     }
 
     static createRouteBuilderDefinition = (element: any): RouteBuilderDefinition => { 
-if (element && typeof element === 'string') element = {ref: element};
+        if (element && typeof element === 'string') {
+            element = {ref: element};
+        }
         const def = element ? new RouteBuilderDefinition({...element}) : new RouteBuilderDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createRouteConfigurationContextRefDefinition = (element: any): RouteConfigurationContextRefDefinition => { 
-if (element && typeof element === 'string') element = {ref: element};
+        if (element && typeof element === 'string') {
+            element = {ref: element};
+        }
         const def = element ? new RouteConfigurationContextRefDefinition({...element}) : new RouteConfigurationContextRefDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -1211,7 +1239,9 @@ if (element && typeof element === 'string') element = {ref: element};
     }
 
     static createRouteContextRefDefinition = (element: any): RouteContextRefDefinition => { 
-if (element && typeof element === 'string') element = {ref: element};
+        if (element && typeof element === 'string') {
+            element = {ref: element};
+        }
         const def = element ? new RouteContextRefDefinition({...element}) : new RouteContextRefDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -1262,7 +1292,9 @@ if (element && typeof element === 'string') element = {ref: element};
     }
 
     static createSagaActionUriDefinition = (element: any): SagaActionUriDefinition => { 
-if (element && typeof element === 'string') element = {uri: element};
+        if (element && typeof element === 'string') {
+            element = {uri: element};
+        }
         const def = element ? new SagaActionUriDefinition({...element}) : new SagaActionUriDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -1299,7 +1331,9 @@ if (element && typeof element === 'string') element = {uri: element};
     }
 
     static createSetExchangePatternDefinition = (element: any): SetExchangePatternDefinition => { 
-if (element && typeof element === 'string') element = {pattern: element};
+        if (element && typeof element === 'string') {
+            element = {pattern: element};
+        }
         const def = element ? new SetExchangePatternDefinition({...element}) : new SetExchangePatternDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -1402,14 +1436,18 @@ if (element && typeof element === 'string') element = {pattern: element};
     }
 
     static createToDefinition = (element: any): ToDefinition => { 
-if (element && typeof element === 'string') element = {uri: element};
+        if (element && typeof element === 'string') {
+            element = {uri: element};
+        }
         const def = element ? new ToDefinition({...element}) : new ToDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createToDynamicDefinition = (element: any): ToDynamicDefinition => { 
-if (element && typeof element === 'string') element = {uri: element};
+        if (element && typeof element === 'string') {
+            element = {uri: element};
+        }
         const def = element ? new ToDynamicDefinition({...element}) : new ToDynamicDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -1770,7 +1808,9 @@ if (element && typeof element === 'string') element = {uri: element};
     }
 
     static createServiceCallDefinition = (element: any): ServiceCallDefinition => { 
-if (element && typeof element === 'string') element = {name: element};
+        if (element && typeof element === 'string') {
+            element = {name: element};
+        }
         const def = element ? new ServiceCallDefinition({...element}) : new ServiceCallDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         if (element?.blacklistServiceFilter !== undefined) { 
@@ -1937,7 +1977,9 @@ if (element && typeof element === 'string') element = {name: element};
     }
 
     static createCustomDataFormat = (element: any): CustomDataFormat => { 
-if (element && typeof element === 'string') element = {ref: element};
+        if (element && typeof element === 'string') {
+            element = {ref: element};
+        }
         const def = element ? new CustomDataFormat({...element}) : new CustomDataFormat();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -2169,7 +2211,9 @@ if (element && typeof element === 'string') element = {ref: element};
     }
 
     static createSoapDataFormat = (element: any): SoapDataFormat => { 
-if (element && typeof element === 'string') element = {contextPath: element};
+        if (element && typeof element === 'string') {
+            element = {contextPath: element};
+        }
         const def = element ? new SoapDataFormat({...element}) : new SoapDataFormat();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -2313,7 +2357,9 @@ if (element && typeof element === 'string') element = {contextPath: element};
     }
 
     static createRefErrorHandlerDefinition = (element: any): RefErrorHandlerDefinition => { 
-if (element && typeof element === 'string') element = {ref: element};
+        if (element && typeof element === 'string') {
+            element = {ref: element};
+        }
         const def = element ? new RefErrorHandlerDefinition({...element}) : new RefErrorHandlerDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -2329,28 +2375,36 @@ if (element && typeof element === 'string') element = {ref: element};
     }
 
     static createCSimpleExpression = (element: any): CSimpleExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new CSimpleExpression({...element}) : new CSimpleExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createConstantExpression = (element: any): ConstantExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new ConstantExpression({...element}) : new ConstantExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createDatasonnetExpression = (element: any): DatasonnetExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new DatasonnetExpression({...element}) : new DatasonnetExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createExchangePropertyExpression = (element: any): ExchangePropertyExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new ExchangePropertyExpression({...element}) : new ExchangePropertyExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -2432,49 +2486,63 @@ if (element && typeof element === 'string') element = {expression: element};
     }
 
     static createGroovyExpression = (element: any): GroovyExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new GroovyExpression({...element}) : new GroovyExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createHeaderExpression = (element: any): HeaderExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new HeaderExpression({...element}) : new HeaderExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createHl7TerserExpression = (element: any): Hl7TerserExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new Hl7TerserExpression({...element}) : new Hl7TerserExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createJavaScriptExpression = (element: any): JavaScriptExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new JavaScriptExpression({...element}) : new JavaScriptExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createJoorExpression = (element: any): JoorExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new JoorExpression({...element}) : new JoorExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createJqExpression = (element: any): JqExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new JqExpression({...element}) : new JqExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createJsonPathExpression = (element: any): JsonPathExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new JsonPathExpression({...element}) : new JsonPathExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -2493,49 +2561,63 @@ if (element && typeof element === 'string') element = {expression: element};
     }
 
     static createMvelExpression = (element: any): MvelExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new MvelExpression({...element}) : new MvelExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createOgnlExpression = (element: any): OgnlExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new OgnlExpression({...element}) : new OgnlExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createPythonExpression = (element: any): PythonExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new PythonExpression({...element}) : new PythonExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createRefExpression = (element: any): RefExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new RefExpression({...element}) : new RefExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createSimpleExpression = (element: any): SimpleExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new SimpleExpression({...element}) : new SimpleExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createSpELExpression = (element: any): SpELExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new SpELExpression({...element}) : new SpELExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
     static createTokenizerExpression = (element: any): TokenizerExpression => { 
-if (element && typeof element === 'string') element = {token: element};
+        if (element && typeof element === 'string') {
+            element = {token: element};
+        }
         const def = element ? new TokenizerExpression({...element}) : new TokenizerExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -2549,7 +2631,9 @@ if (element && typeof element === 'string') element = {token: element};
     }
 
     static createXPathExpression = (element: any): XPathExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new XPathExpression({...element}) : new XPathExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.namespace = element && element?.namespace ? element?.namespace.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
@@ -2557,7 +2641,9 @@ if (element && typeof element === 'string') element = {expression: element};
     }
 
     static createXQueryExpression = (element: any): XQueryExpression => { 
-if (element && typeof element === 'string') element = {expression: element};
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new XQueryExpression({...element}) : new XQueryExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.namespace = element && element?.namespace ? element?.namespace.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
@@ -2565,7 +2651,9 @@ if (element && typeof element === 'string') element = {expression: element};
     }
 
     static createCustomLoadBalancerDefinition = (element: any): CustomLoadBalancerDefinition => { 
-if (element && typeof element === 'string') element = {ref: element};
+        if (element && typeof element === 'string') {
+            element = {ref: element};
+        }
         const def = element ? new CustomLoadBalancerDefinition({...element}) : new CustomLoadBalancerDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
