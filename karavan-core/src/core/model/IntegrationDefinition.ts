@@ -45,7 +45,7 @@ export class Integration {
         Object.assign(this, init);
     }
 
-    static createNew(name?: string, type: 'crd' | 'plain' | 'kamelet' = 'crd'): Integration {
+    static createNew(name?: string, type: 'crd' | 'plain' | 'kamelet' = 'plain'): Integration {
         return new Integration({type: type, metadata: new Metadata({name: name}), spec: new Spec({flows: []})})
     }
 }

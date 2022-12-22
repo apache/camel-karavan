@@ -35,8 +35,6 @@ describe('Check required properties', () => {
         split.expression = new ExpressionDefinition({simple: new SimpleExpression()})
         expect(CamelUtil.checkRequired(split)[0]).to.equal(false);
         split.expression = new ExpressionDefinition({simple: new SimpleExpression({expression: "${body} !== null"})})
-        console.log((split))
-        console.log(CamelUtil.checkRequired(split))
         expect(CamelUtil.checkRequired(split)[0]).to.equal(true);
     });
 

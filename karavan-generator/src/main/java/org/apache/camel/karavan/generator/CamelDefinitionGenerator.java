@@ -85,15 +85,12 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
         } else if (className.endsWith("DataFormat") && stepNames.containsKey(className)) {
             attrs.add("    dataFormatName?: string = '" + stepNames.get(className) + "'");
         }
-        AtomicBoolean hasId = new AtomicBoolean(false);
         if (properties != null) {
             properties.getMap().keySet().stream().sorted(getComparator(stepName)).forEach(name -> {
-                if ("id".equals(name)) {
-                    hasId.set(true);
-                }
                 JsonObject attributeValue = properties.getJsonObject(name);
                 boolean req = required.contains(name);
-                String attributeType = getAttributeType(attributeValue, req, definitions);
+                String generatedValue = ("id".equals(name) && stepName != null) ? "'" + stepName + "-' + uuidv4().substring(0,4)" : null;
+                String attributeType = getAttributeType(attributeValue, req, definitions, generatedValue);
                 String r = req ? "" : "?";
                 name = name.equals("constructor") ? "_constructor" : name; // exception for YAMLDataFormat
                 if (className.equals("ChoiceDefinition") && name.equals("steps")) { // exception for ChoiceDefinition
@@ -104,14 +101,7 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
                 }
             });
         }
-        String s3 = hasId.get() ? getStringForId(stepName) : "";
-        return String.format(readFileText(modelTemplate), className, attrs.stream().collect(Collectors.joining(";\n")), s3);
-    }
-
-    private String getStringForId(String stepName) {
-        return "\n        if (this.id === undefined) {\n" +
-                "            this.id = '" + stepName + "-' + uuidv4().substring(0,4);\n" +
-                "        }";
+        return String.format(readFileText(modelTemplate), className, attrs.stream().collect(Collectors.joining(";\n")));
     }
 
     private Comparator<String> getComparator(String stepName) {
@@ -127,7 +117,7 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
         return Comparator.comparing(s -> 0);
     }
 
-    private String getAttributeType(JsonObject attribute, boolean required, JsonObject definitions) {
+    private String getAttributeType(JsonObject attribute, boolean required, JsonObject definitions, String generatedValue) {
         if (attribute.containsKey("$ref")) {
             String classFullName = attribute.getString("$ref");
             JsonObject clazz = getDefinition(definitions, classFullName);
@@ -150,7 +140,8 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
         } else if (attribute.containsKey("type") && attribute.getString("type").equals("object")) {
             return "any = {}";
         } else {
-            return attribute.getString("type") + (required ? " = ''" : "");
+            String defaultValue = generatedValue != null ? " = " + generatedValue : (required ? " = ''" : "");
+            return attribute.getString("type") + defaultValue;
         }
     }
 }

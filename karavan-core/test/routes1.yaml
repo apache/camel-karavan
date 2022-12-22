@@ -1,20 +1,29 @@
 - route:
+    id: route-ea82
     from:
       uri: timer:info
+      id: from-1
       steps:
         - choice:
             when:
-              - expression:
+              - id: when-1
+                expression:
                   simple:
                     expression: ${headers} != null
+                    id: simple-1
                 steps:
                   - log:
                       message: hello11
+                      id: log-1
                       logName: log11
-              - expression:
+              - id: when-2
+                expression:
                   simple:
                     expression: ${headers} == null
+                    id: simple-2
                 steps:
                   - log:
                       message: hello22s
+                      id: log-2
                       logName: log22
+            id: choice-1

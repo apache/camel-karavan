@@ -1,21 +1,19 @@
-apiVersion: camel.apache.org/v1
-kind: Integration
-metadata:
-  name: test
-spec:
-  flows:
-    - route:
-        from:
-          uri: direct1
-          steps:
-            - saga:
-                option:
-                  - key: key1
-                    expression:
-                      simple: ${body}
-                  - key: key2
-                    expression:
-                      simple: ${headers}
-                steps:
-                  - to:
-                      uri: direct:direct2
+- route:
+    id: route-e653
+    from:
+      uri: direct1
+      id: from-6ecf
+      steps:
+        - saga:
+            option:
+              - key: key1
+                expression:
+                  simple: ${body}
+              - key: key2
+                expression:
+                  simple: ${headers}
+            id: saga-726c
+            steps:
+              - to:
+                  uri: direct:direct2
+                  id: to-efd8

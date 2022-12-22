@@ -73,7 +73,7 @@ export class ProcessorDefinition extends CamelElement {
     serviceCall?: ServiceCallDefinition | string
     public constructor(init?: Partial<ProcessorDefinition>) {
         super('ProcessorDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -81,7 +81,7 @@ export class BeansDeserializer extends CamelElement {
 
     public constructor(init?: Partial<BeansDeserializer>) {
         super('BeansDeserializer');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -94,7 +94,7 @@ export class ErrorHandlerBuilderDeserializer extends CamelElement {
     springTransactionErrorHandler?: SpringTransactionErrorHandlerDefinition
     public constructor(init?: Partial<ErrorHandlerBuilderDeserializer>) {
         super('ErrorHandlerBuilderDeserializer');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -104,7 +104,7 @@ export class NamedBeanDefinition extends CamelElement {
     type: string = ''
     public constructor(init?: Partial<NamedBeanDefinition>) {
         super('NamedBeanDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -116,10 +116,7 @@ export class OutputAwareFromDefinition extends CamelElement {
     uri: string = ''
     public constructor(init?: Partial<OutputAwareFromDefinition>) {
         super('OutputAwareFromDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'null-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -153,16 +150,13 @@ export class AggregateDefinition extends CamelElement {
     forceCompletionOnStop?: boolean;
     completeAllOnStop?: boolean;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'aggregate-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<AggregateDefinition>) {
         super('AggregateDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'aggregate-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -173,15 +167,12 @@ export class BeanDefinition extends CamelElement {
     beanType?: string;
     scope?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'bean-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<BeanDefinition>) {
         super('BeanDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'bean-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -190,16 +181,13 @@ export class CatchDefinition extends CamelElement {
     exception?: string[] = [];
     onWhen?: WhenDefinition;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'doCatch-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<CatchDefinition>) {
         super('CatchDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'doCatch-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -209,15 +197,12 @@ export class ChoiceDefinition extends CamelElement {
     otherwise?: OtherwiseDefinition;
     precondition?: boolean;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'choice-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ChoiceDefinition>) {
         super('ChoiceDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'choice-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -227,17 +212,14 @@ export class CircuitBreakerDefinition extends CamelElement {
     faultToleranceConfiguration?: FaultToleranceConfigurationDefinition;
     configuration?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'circuitBreaker-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     onFallback?: OnFallbackDefinition;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<CircuitBreakerDefinition>) {
         super('CircuitBreakerDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'circuitBreaker-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -249,15 +231,12 @@ export class ClaimCheckDefinition extends CamelElement {
     aggregationStrategy?: string;
     aggregationStrategyMethodName?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'claimCheck-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ClaimCheckDefinition>) {
         super('ClaimCheckDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'claimCheck-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -268,7 +247,7 @@ export class ContextScanDefinition extends CamelElement {
     includes?: string[] = []
     public constructor(init?: Partial<ContextScanDefinition>) {
         super('ContextScanDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -278,27 +257,21 @@ export class ConvertBodyDefinition extends CamelElement {
     mandatory?: boolean;
     charset?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'convertBodyTo-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ConvertBodyDefinition>) {
         super('ConvertBodyDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'convertBodyTo-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class DataFormatDefinition extends CamelElement {
     stepName?: string = 'dataFormat';
-    id?: string
+    id?: string = 'dataFormat-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<DataFormatDefinition>) {
         super('DataFormatDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'dataFormat-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -309,15 +282,12 @@ export class DelayDefinition extends CamelElement {
     callerRunsWhenRejected?: boolean;
     executorService?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'delay-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<DelayDefinition>) {
         super('DelayDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'delay-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -327,7 +297,7 @@ export class DescriptionDefinition extends CamelElement {
     text?: string
     public constructor(init?: Partial<DescriptionDefinition>) {
         super('DescriptionDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -338,15 +308,12 @@ export class DynamicRouterDefinition extends CamelElement {
     ignoreInvalidEndpoints?: boolean;
     cacheSize?: number;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'dynamicRouter-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<DynamicRouterDefinition>) {
         super('DynamicRouterDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'dynamicRouter-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -362,21 +329,18 @@ export class EnrichDefinition extends CamelElement {
     ignoreInvalidEndpoint?: boolean;
     allowOptimisedComponents?: boolean;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'enrich-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<EnrichDefinition>) {
         super('EnrichDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'enrich-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class ErrorHandlerDefinition extends CamelElement {
     stepName?: string = 'errorHandler';
-    id?: string;
+    id?: string = 'errorHandler-' + uuidv4().substring(0,4);
     deadLetterChannel?: DeadLetterChannelDefinition;
     defaultErrorHandler?: DefaultErrorHandlerDefinition;
     jtaTransactionErrorHandler?: JtaTransactionErrorHandlerDefinition;
@@ -384,10 +348,7 @@ export class ErrorHandlerDefinition extends CamelElement {
     springTransactionErrorHandler?: SpringTransactionErrorHandlerDefinition
     public constructor(init?: Partial<ErrorHandlerDefinition>) {
         super('ErrorHandlerDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'errorHandler-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -418,7 +379,7 @@ export class ExpressionSubElementDefinition extends CamelElement {
     xtokenize?: XMLTokenizerExpression | string
     public constructor(init?: Partial<ExpressionSubElementDefinition>) {
         super('ExpressionSubElementDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -437,13 +398,10 @@ export class FaultToleranceConfigurationDefinition extends CamelElement {
     bulkheadMaxConcurrentCalls?: number;
     bulkheadWaitingTaskQueue?: number;
     bulkheadExecutorService?: string;
-    id?: string
+    id?: string = 'faultToleranceConfiguration-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<FaultToleranceConfigurationDefinition>) {
         super('FaultToleranceConfigurationDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'faultToleranceConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -452,48 +410,39 @@ export class FilterDefinition extends CamelElement {
     expression?: ExpressionDefinition;
     statusPropertyName?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'filter-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<FilterDefinition>) {
         super('FilterDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'filter-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class FinallyDefinition extends CamelElement {
     stepName?: string = 'doFinally';
     disabled?: boolean;
-    id?: string;
+    id?: string = 'doFinally-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<FinallyDefinition>) {
         super('FinallyDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'doFinally-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class FromDefinition extends CamelElement {
     stepName?: string = 'from';
     uri: string = '';
-    id?: string;
+    id?: string = 'from-' + uuidv4().substring(0,4);
     description?: string;
     parameters?: any = {};
     steps: CamelElement[] = []
     public constructor(init?: Partial<FromDefinition>) {
         super('FromDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'from-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -503,7 +452,7 @@ export class GlobalOptionDefinition extends CamelElement {
     value: string = ''
     public constructor(init?: Partial<GlobalOptionDefinition>) {
         super('GlobalOptionDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -512,7 +461,7 @@ export class GlobalOptionsDefinition extends CamelElement {
     globalOption?: GlobalOptionDefinition[] = []
     public constructor(init?: Partial<GlobalOptionsDefinition>) {
         super('GlobalOptionsDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -525,16 +474,13 @@ export class IdempotentConsumerDefinition extends CamelElement {
     skipDuplicate?: boolean;
     removeOnFailure?: boolean;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'idempotentConsumer-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<IdempotentConsumerDefinition>) {
         super('IdempotentConsumerDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'idempotentConsumer-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -542,16 +488,13 @@ export class InOnlyDefinition extends CamelElement {
     stepName?: string = 'inOnly';
     uri: string = '';
     disabled?: boolean;
-    id?: string;
+    id?: string = 'inOnly-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     parameters?: any = {}
     public constructor(init?: Partial<InOnlyDefinition>) {
         super('InOnlyDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'inOnly-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -559,16 +502,13 @@ export class InOutDefinition extends CamelElement {
     stepName?: string = 'inOut';
     uri: string = '';
     disabled?: boolean;
-    id?: string;
+    id?: string = 'inOut-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     parameters?: any = {}
     public constructor(init?: Partial<InOutDefinition>) {
         super('InOutDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'inOut-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -576,30 +516,24 @@ export class InputTypeDefinition extends CamelElement {
     stepName?: string = 'inputType';
     urn: string = '';
     validate?: boolean;
-    id?: string;
+    id?: string = 'inputType-' + uuidv4().substring(0,4);
     description?: string
     public constructor(init?: Partial<InputTypeDefinition>) {
         super('InputTypeDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'inputType-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class InterceptDefinition extends CamelElement {
     stepName?: string = 'intercept';
     disabled?: boolean;
-    id?: string;
+    id?: string = 'intercept-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<InterceptDefinition>) {
         super('InterceptDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'intercept-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -607,16 +541,13 @@ export class InterceptFromDefinition extends CamelElement {
     stepName?: string = 'interceptFrom';
     uri?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'interceptFrom-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<InterceptFromDefinition>) {
         super('InterceptFromDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'interceptFrom-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -626,16 +557,13 @@ export class InterceptSendToEndpointDefinition extends CamelElement {
     skipSendToOriginalEndpoint?: string;
     afterUri?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'interceptSendToEndpoint-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<InterceptSendToEndpointDefinition>) {
         super('InterceptSendToEndpointDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'interceptSendToEndpoint-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -646,7 +574,7 @@ export class KameletDefinition extends CamelElement {
     parameters?: any = {}
     public constructor(init?: Partial<KameletDefinition>) {
         super('KameletDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -654,7 +582,7 @@ export class LoadBalanceDefinition extends CamelElement {
     stepName?: string = 'loadBalance';
     disabled?: boolean;
     inheritErrorHandler?: boolean;
-    id?: string;
+    id?: string = 'loadBalance-' + uuidv4().substring(0,4);
     description?: string;
     customLoadBalancer?: CustomLoadBalancerDefinition | string;
     failover?: FailoverLoadBalancerDefinition;
@@ -666,10 +594,7 @@ export class LoadBalanceDefinition extends CamelElement {
     weighted?: WeightedLoadBalancerDefinition
     public constructor(init?: Partial<LoadBalanceDefinition>) {
         super('LoadBalanceDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'loadBalance-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -681,15 +606,12 @@ export class LogDefinition extends CamelElement {
     marker?: string;
     logger?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'log-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<LogDefinition>) {
         super('LogDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'log-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -700,23 +622,20 @@ export class LoopDefinition extends CamelElement {
     doWhile?: boolean;
     breakOnShutdown?: boolean;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'loop-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<LoopDefinition>) {
         super('LoopDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'loop-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class MarshalDefinition extends CamelElement {
     stepName?: string = 'marshal';
     disabled?: boolean;
-    id?: string;
+    id?: string = 'marshal-' + uuidv4().substring(0,4);
     description?: string;
     any23?: Any23DataFormat | string;
     asn1?: ASN1DataFormat | string;
@@ -762,10 +681,7 @@ export class MarshalDefinition extends CamelElement {
     zipFile?: ZipFileDataFormat
     public constructor(init?: Partial<MarshalDefinition>) {
         super('MarshalDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'marshal-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -783,16 +699,13 @@ export class MulticastDefinition extends CamelElement {
     onPrepare?: string;
     shareUnitOfWork?: boolean;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'multicast-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<MulticastDefinition>) {
         super('MulticastDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'multicast-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -806,16 +719,13 @@ export class OnCompletionDefinition extends CamelElement {
     useOriginalMessage?: boolean;
     onWhen?: WhenDefinition;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'onCompletion-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<OnCompletionDefinition>) {
         super('OnCompletionDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'onCompletion-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -833,16 +743,13 @@ export class OnExceptionDefinition extends CamelElement {
     useOriginalMessage?: boolean;
     useOriginalBody?: boolean;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'onException-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<OnExceptionDefinition>) {
         super('OnExceptionDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'onException-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -850,16 +757,13 @@ export class OnFallbackDefinition extends CamelElement {
     stepName?: string = 'onFallback';
     fallbackViaNetwork?: boolean;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'onFallback-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<OnFallbackDefinition>) {
         super('OnFallbackDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'onFallback-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -872,23 +776,20 @@ export class OptimisticLockRetryPolicyDefinition extends CamelElement {
     randomBackOff?: boolean
     public constructor(init?: Partial<OptimisticLockRetryPolicyDefinition>) {
         super('OptimisticLockRetryPolicyDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
 export class OtherwiseDefinition extends CamelElement {
     stepName?: string = 'otherwise';
     disabled?: boolean;
-    id?: string;
+    id?: string = 'otherwise-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<OtherwiseDefinition>) {
         super('OtherwiseDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'otherwise-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -896,15 +797,12 @@ export class OutputDefinition extends CamelElement {
     stepName?: string = 'output';
     description?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'output-' + uuidv4().substring(0,4);
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<OutputDefinition>) {
         super('OutputDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'output-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -912,14 +810,11 @@ export class OutputTypeDefinition extends CamelElement {
     stepName?: string = 'outputType';
     urn: string = '';
     validate?: boolean;
-    id?: string;
+    id?: string = 'outputType-' + uuidv4().substring(0,4);
     description?: string
     public constructor(init?: Partial<OutputTypeDefinition>) {
         super('OutputTypeDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'outputType-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -930,7 +825,7 @@ export class PackageScanDefinition extends CamelElement {
     includes?: string[] = []
     public constructor(init?: Partial<PackageScanDefinition>) {
         super('PackageScanDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -939,31 +834,25 @@ export class PausableDefinition extends CamelElement {
     consumerListener: string = '';
     untilCheck: string = '';
     disabled?: boolean;
-    id?: string;
+    id?: string = 'pausable-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<PausableDefinition>) {
         super('PausableDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'pausable-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class PipelineDefinition extends CamelElement {
     stepName?: string = 'pipeline';
     disabled?: boolean;
-    id?: string;
+    id?: string = 'pipeline-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<PipelineDefinition>) {
         super('PipelineDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'pipeline-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -971,16 +860,13 @@ export class PolicyDefinition extends CamelElement {
     stepName?: string = 'policy';
     ref: string = '';
     disabled?: boolean;
-    id?: string;
+    id?: string = 'policy-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<PolicyDefinition>) {
         super('PolicyDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'policy-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -995,15 +881,12 @@ export class PollEnrichDefinition extends CamelElement {
     cacheSize?: number;
     ignoreInvalidEndpoint?: boolean;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'pollEnrich-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<PollEnrichDefinition>) {
         super('PollEnrichDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'pollEnrich-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1011,15 +894,12 @@ export class ProcessDefinition extends CamelElement {
     stepName?: string = 'process';
     ref: string = '';
     disabled?: boolean;
-    id?: string;
+    id?: string = 'process-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ProcessDefinition>) {
         super('ProcessDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'process-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1029,7 +909,7 @@ export class PropertyDefinition extends CamelElement {
     value: string = ''
     public constructor(init?: Partial<PropertyDefinition>) {
         super('PropertyDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -1039,7 +919,7 @@ export class PropertyExpressionDefinition extends CamelElement {
     expression?: ExpressionDefinition
     public constructor(init?: Partial<PropertyExpressionDefinition>) {
         super('PropertyExpressionDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -1061,15 +941,12 @@ export class RecipientListDefinition extends CamelElement {
     cacheSize?: number;
     shareUnitOfWork?: boolean;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'recipientList-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<RecipientListDefinition>) {
         super('RecipientListDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'recipientList-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1099,13 +976,10 @@ export class RedeliveryPolicyDefinition extends CamelElement {
     delayPattern?: string;
     allowRedeliveryWhileStopping?: boolean;
     exchangeFormatterRef?: string;
-    id?: string
+    id?: string = 'redeliveryPolicy-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<RedeliveryPolicyDefinition>) {
         super('RedeliveryPolicyDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'redeliveryPolicy-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1113,15 +987,12 @@ export class RemoveHeaderDefinition extends CamelElement {
     stepName?: string = 'removeHeader';
     name: string = '';
     disabled?: boolean;
-    id?: string;
+    id?: string = 'removeHeader-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<RemoveHeaderDefinition>) {
         super('RemoveHeaderDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'removeHeader-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1130,15 +1001,12 @@ export class RemoveHeadersDefinition extends CamelElement {
     pattern: string = '';
     excludePattern?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'removeHeaders-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<RemoveHeadersDefinition>) {
         super('RemoveHeadersDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'removeHeaders-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1147,15 +1015,12 @@ export class RemovePropertiesDefinition extends CamelElement {
     pattern: string = '';
     excludePattern?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'removeProperties-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<RemovePropertiesDefinition>) {
         super('RemovePropertiesDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'removeProperties-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1163,15 +1028,12 @@ export class RemovePropertyDefinition extends CamelElement {
     stepName?: string = 'removeProperty';
     name: string = '';
     disabled?: boolean;
-    id?: string;
+    id?: string = 'removeProperty-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<RemovePropertyDefinition>) {
         super('RemovePropertyDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'removeProperty-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1179,7 +1041,7 @@ export class ResequenceDefinition extends CamelElement {
     stepName?: string = 'resequence';
     expression: ExpressionDefinition = new ExpressionDefinition();
     disabled?: boolean;
-    id?: string;
+    id?: string = 'resequence-' + uuidv4().substring(0,4);
     description?: string;
     batchConfig?: BatchResequencerConfig;
     inheritErrorHandler?: boolean;
@@ -1187,10 +1049,7 @@ export class ResequenceDefinition extends CamelElement {
     streamConfig?: StreamResequencerConfig
     public constructor(init?: Partial<ResequenceDefinition>) {
         super('ResequenceDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'resequence-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1209,13 +1068,10 @@ export class Resilience4jConfigurationDefinition extends CamelElement {
     automaticTransitionFromOpenToHalfOpenEnabled?: boolean;
     slowCallRateThreshold?: number;
     slowCallDurationThreshold?: number;
-    id?: string
+    id?: string = 'resilience4jConfiguration-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<Resilience4jConfigurationDefinition>) {
         super('Resilience4jConfigurationDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'resilience4jConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1224,7 +1080,7 @@ export class RestContextRefDefinition extends CamelElement {
     ref: string = ''
     public constructor(init?: Partial<RestContextRefDefinition>) {
         super('RestContextRefDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -1233,15 +1089,12 @@ export class ResumableDefinition extends CamelElement {
     resumeStrategy: string = '';
     intermittent?: boolean;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'resumable-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ResumableDefinition>) {
         super('ResumableDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'resumable-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1251,28 +1104,22 @@ export class RollbackDefinition extends CamelElement {
     markRollbackOnly?: boolean;
     markRollbackOnlyLast?: boolean;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'rollback-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<RollbackDefinition>) {
         super('RollbackDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'rollback-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class RouteBuilderDefinition extends CamelElement {
     stepName?: string = 'routeBuilder';
     ref: string = '';
-    id?: string
+    id?: string = 'routeBuilder-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<RouteBuilderDefinition>) {
         super('RouteBuilderDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'routeBuilder-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1281,7 +1128,7 @@ export class RouteConfigurationContextRefDefinition extends CamelElement {
     ref: string = ''
     public constructor(init?: Partial<RouteConfigurationContextRefDefinition>) {
         super('RouteConfigurationContextRefDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -1294,13 +1141,10 @@ export class RouteConfigurationDefinition extends CamelElement {
     onException?: OnExceptionDefinition[] = [];
     onCompletion?: OnCompletionDefinition[] = [];
     precondition?: string;
-    id?: string
+    id?: string = 'routeConfiguration-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<RouteConfigurationDefinition>) {
         super('RouteConfigurationDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'routeConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1309,7 +1153,7 @@ export class RouteContextRefDefinition extends CamelElement {
     ref: string = ''
     public constructor(init?: Partial<RouteContextRefDefinition>) {
         super('RouteContextRefDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -1321,7 +1165,7 @@ export class RouteDefinition extends CamelElement {
     logMask?: boolean;
     autoStartup?: boolean;
     startupOrder?: number;
-    id?: string;
+    id?: string = 'route-' + uuidv4().substring(0,4);
     description?: string;
     from: FromDefinition = new FromDefinition();
     nodePrefixId?: string;
@@ -1331,10 +1175,7 @@ export class RouteDefinition extends CamelElement {
     streamCaching?: boolean
     public constructor(init?: Partial<RouteDefinition>) {
         super('RouteDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'route-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1348,23 +1189,20 @@ export class RouteTemplateBeanDefinition extends CamelElement {
     type: string = ''
     public constructor(init?: Partial<RouteTemplateBeanDefinition>) {
         super('RouteTemplateBeanDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
 export class RouteTemplateDefinition extends CamelElement {
     stepName?: string = 'routeTemplate';
     route?: RouteDefinition;
-    id: string = '';
+    id: string = 'routeTemplate-' + uuidv4().substring(0,4);
     beans?: NamedBeanDefinition[] = [];
     from?: FromDefinition;
     parameters?: RouteTemplateParameterDefinition[] = []
     public constructor(init?: Partial<RouteTemplateDefinition>) {
         super('RouteTemplateDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'routeTemplate-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1376,7 +1214,7 @@ export class RouteTemplateParameterDefinition extends CamelElement {
     required?: boolean
     public constructor(init?: Partial<RouteTemplateParameterDefinition>) {
         super('RouteTemplateParameterDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -1387,15 +1225,12 @@ export class RoutingSlipDefinition extends CamelElement {
     ignoreInvalidEndpoints?: boolean;
     cacheSize?: number;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'routingSlip-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<RoutingSlipDefinition>) {
         super('RoutingSlipDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'routingSlip-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1403,16 +1238,13 @@ export class SagaActionUriDefinition extends CamelElement {
     stepName?: string = 'sagaActionUri';
     description?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'sagaActionUri-' + uuidv4().substring(0,4);
     inheritErrorHandler?: boolean;
     parameters?: any = {};
     uri: string = ''
     public constructor(init?: Partial<SagaActionUriDefinition>) {
         super('SagaActionUriDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'sagaActionUri-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1426,16 +1258,13 @@ export class SagaDefinition extends CamelElement {
     completion?: string;
     option?: PropertyExpressionDefinition[] = [];
     disabled?: boolean;
-    id?: string;
+    id?: string = 'saga-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<SagaDefinition>) {
         super('SagaDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'saga-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1444,15 +1273,12 @@ export class SamplingDefinition extends CamelElement {
     samplePeriod?: string;
     messageFrequency?: number;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'sample-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<SamplingDefinition>) {
         super('SamplingDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'sample-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1460,15 +1286,12 @@ export class ScriptDefinition extends CamelElement {
     stepName?: string = 'script';
     expression?: ExpressionDefinition;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'script-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ScriptDefinition>) {
         super('ScriptDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'script-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1476,15 +1299,12 @@ export class SetBodyDefinition extends CamelElement {
     stepName?: string = 'setBody';
     expression?: ExpressionDefinition;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'setBody-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<SetBodyDefinition>) {
         super('SetBodyDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'setBody-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1492,15 +1312,12 @@ export class SetExchangePatternDefinition extends CamelElement {
     stepName?: string = 'setExchangePattern';
     pattern: string = '';
     disabled?: boolean;
-    id?: string;
+    id?: string = 'setExchangePattern-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<SetExchangePatternDefinition>) {
         super('SetExchangePatternDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'setExchangePattern-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1509,15 +1326,12 @@ export class SetHeaderDefinition extends CamelElement {
     name: string = '';
     expression?: ExpressionDefinition;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'setHeader-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<SetHeaderDefinition>) {
         super('SetHeaderDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'setHeader-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1526,15 +1340,12 @@ export class SetPropertyDefinition extends CamelElement {
     name: string = '';
     expression?: ExpressionDefinition;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'setProperty-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<SetPropertyDefinition>) {
         super('SetPropertyDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'setProperty-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1543,15 +1354,12 @@ export class SortDefinition extends CamelElement {
     expression?: ExpressionDefinition;
     comparator?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'sort-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<SortDefinition>) {
         super('SortDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'sort-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1571,47 +1379,38 @@ export class SplitDefinition extends CamelElement {
     onPrepare?: string;
     shareUnitOfWork?: boolean;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'split-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<SplitDefinition>) {
         super('SplitDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'split-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class StepDefinition extends CamelElement {
     stepName?: string = 'step';
     disabled?: boolean;
-    id?: string;
+    id?: string = 'step-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<StepDefinition>) {
         super('StepDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'step-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class StopDefinition extends CamelElement {
     stepName?: string = 'stop';
     disabled?: boolean;
-    id?: string;
+    id?: string = 'stop-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<StopDefinition>) {
         super('StopDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'stop-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1625,7 +1424,7 @@ export class TemplatedRouteBeanDefinition extends CamelElement {
     properties?: any = {}
     public constructor(init?: Partial<TemplatedRouteBeanDefinition>) {
         super('TemplatedRouteBeanDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -1638,7 +1437,7 @@ export class TemplatedRouteDefinition extends CamelElement {
     parameters?: TemplatedRouteParameterDefinition[] = []
     public constructor(init?: Partial<TemplatedRouteDefinition>) {
         super('TemplatedRouteDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -1648,7 +1447,7 @@ export class TemplatedRouteParameterDefinition extends CamelElement {
     value: string = ''
     public constructor(init?: Partial<TemplatedRouteParameterDefinition>) {
         super('TemplatedRouteParameterDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -1662,14 +1461,11 @@ export class ThreadPoolProfileDefinition extends CamelElement {
     maxQueueSize?: number;
     allowCoreThreadTimeOut?: boolean;
     rejectedPolicy?: string;
-    id?: string;
+    id?: string = 'threadPoolProfile-' + uuidv4().substring(0,4);
     description?: string
     public constructor(init?: Partial<ThreadPoolProfileDefinition>) {
         super('ThreadPoolProfileDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'threadPoolProfile-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1686,15 +1482,12 @@ export class ThreadsDefinition extends CamelElement {
     rejectedPolicy?: string;
     callerRunsWhenRejected?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'threads-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ThreadsDefinition>) {
         super('ThreadsDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'threads-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1708,15 +1501,12 @@ export class ThrottleDefinition extends CamelElement {
     callerRunsWhenRejected?: boolean;
     rejectExecution?: boolean;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'throttle-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ThrottleDefinition>) {
         super('ThrottleDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'throttle-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1726,15 +1516,12 @@ export class ThrowExceptionDefinition extends CamelElement {
     exceptionType?: string;
     ref?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'throwException-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ThrowExceptionDefinition>) {
         super('ThrowExceptionDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'throwException-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1743,16 +1530,13 @@ export class ToDefinition extends CamelElement {
     uri: string = '';
     disabled?: boolean;
     pattern?: string;
-    id?: string;
+    id?: string = 'to-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     parameters?: any = {}
     public constructor(init?: Partial<ToDefinition>) {
         super('ToDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'to-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1765,16 +1549,13 @@ export class ToDynamicDefinition extends CamelElement {
     allowOptimisedComponents?: boolean;
     autoStartComponents?: boolean;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'toD-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     parameters?: any = {}
     public constructor(init?: Partial<ToDynamicDefinition>) {
         super('ToDynamicDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'toD-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1782,16 +1563,13 @@ export class TransactedDefinition extends CamelElement {
     stepName?: string = 'transacted';
     ref?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'transacted-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<TransactedDefinition>) {
         super('TransactedDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'transacted-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1799,22 +1577,19 @@ export class TransformDefinition extends CamelElement {
     stepName?: string = 'transform';
     expression?: ExpressionDefinition;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'transform-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<TransformDefinition>) {
         super('TransformDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'transform-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class TryDefinition extends CamelElement {
     stepName?: string = 'doTry';
     disabled?: boolean;
-    id?: string;
+    id?: string = 'doTry-' + uuidv4().substring(0,4);
     description?: string;
     doCatch?: CatchDefinition[] = [];
     doFinally?: FinallyDefinition;
@@ -1822,10 +1597,7 @@ export class TryDefinition extends CamelElement {
     steps?: CamelElement[] = []
     public constructor(init?: Partial<TryDefinition>) {
         super('TryDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'doTry-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1833,7 +1605,7 @@ export class UnmarshalDefinition extends CamelElement {
     stepName?: string = 'unmarshal';
     allowNullBody?: boolean;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'unmarshal-' + uuidv4().substring(0,4);
     description?: string;
     any23?: Any23DataFormat | string;
     asn1?: ASN1DataFormat | string;
@@ -1879,10 +1651,7 @@ export class UnmarshalDefinition extends CamelElement {
     zipFile?: ZipFileDataFormat
     public constructor(init?: Partial<UnmarshalDefinition>) {
         super('UnmarshalDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'unmarshal-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1891,15 +1660,12 @@ export class ValidateDefinition extends CamelElement {
     expression?: ExpressionDefinition;
     predicateExceptionFactory?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'validate-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean
     public constructor(init?: Partial<ValidateDefinition>) {
         super('ValidateDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'validate-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1907,16 +1673,13 @@ export class WhenDefinition extends CamelElement {
     stepName?: string = 'when';
     expression?: ExpressionDefinition;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'when-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<WhenDefinition>) {
         super('WhenDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'when-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1924,16 +1687,13 @@ export class WhenSkipSendToEndpointDefinition extends CamelElement {
     stepName?: string = 'whenSkipSendToEndpoint';
     expression?: ExpressionDefinition;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'whenSkipSendToEndpoint-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = []
     public constructor(init?: Partial<WhenSkipSendToEndpointDefinition>) {
         super('WhenSkipSendToEndpointDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'whenSkipSendToEndpoint-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1950,29 +1710,23 @@ export class WireTapDefinition extends CamelElement {
     allowOptimisedComponents?: boolean;
     autoStartComponents?: boolean;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'wireTap-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
     parameters?: any = {}
     public constructor(init?: Partial<WireTapDefinition>) {
         super('WireTapDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'wireTap-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class BlacklistServiceCallServiceFilterConfiguration extends CamelElement {
-    id?: string;
+    id?: string = 'blacklistServiceCallServiceFilterConfiguration-' + uuidv4().substring(0,4);
     properties?: PropertyDefinition[] = [];
     servers?: string[] = []
     public constructor(init?: Partial<BlacklistServiceCallServiceFilterConfiguration>) {
         super('BlacklistServiceCallServiceFilterConfiguration');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'blacklistServiceCallServiceFilterConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1980,7 +1734,7 @@ export class CachingServiceCallServiceDiscoveryConfiguration extends CamelElemen
     combinedServiceDiscovery?: CombinedServiceCallServiceDiscoveryConfiguration;
     consulServiceDiscovery?: ConsulServiceCallServiceDiscoveryConfiguration;
     dnsServiceDiscovery?: DnsServiceCallServiceDiscoveryConfiguration;
-    id?: string;
+    id?: string = 'cachingServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
     kubernetesServiceDiscovery?: KubernetesServiceCallServiceDiscoveryConfiguration;
     properties?: PropertyDefinition[] = [];
     staticServiceDiscovery?: StaticServiceCallServiceDiscoveryConfiguration;
@@ -1988,10 +1742,7 @@ export class CachingServiceCallServiceDiscoveryConfiguration extends CamelElemen
     units?: string
     public constructor(init?: Partial<CachingServiceCallServiceDiscoveryConfiguration>) {
         super('CachingServiceCallServiceDiscoveryConfiguration');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'cachingServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -1999,16 +1750,13 @@ export class CombinedServiceCallServiceDiscoveryConfiguration extends CamelEleme
     cachingServiceDiscovery?: CachingServiceCallServiceDiscoveryConfiguration;
     consulServiceDiscovery?: ConsulServiceCallServiceDiscoveryConfiguration;
     dnsServiceDiscovery?: DnsServiceCallServiceDiscoveryConfiguration;
-    id?: string;
+    id?: string = 'combinedServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
     kubernetesServiceDiscovery?: KubernetesServiceCallServiceDiscoveryConfiguration;
     properties?: PropertyDefinition[] = [];
     staticServiceDiscovery?: StaticServiceCallServiceDiscoveryConfiguration
     public constructor(init?: Partial<CombinedServiceCallServiceDiscoveryConfiguration>) {
         super('CombinedServiceCallServiceDiscoveryConfiguration');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'combinedServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2016,15 +1764,12 @@ export class CombinedServiceCallServiceFilterConfiguration extends CamelElement 
     blacklistServiceFilter?: BlacklistServiceCallServiceFilterConfiguration;
     customServiceFilter?: CustomServiceCallServiceFilterConfiguration;
     healthyServiceFilter?: HealthyServiceCallServiceFilterConfiguration;
-    id?: string;
+    id?: string = 'combinedServiceCallServiceFilterConfiguration-' + uuidv4().substring(0,4);
     passThroughServiceFilter?: PassThroughServiceCallServiceFilterConfiguration;
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<CombinedServiceCallServiceFilterConfiguration>) {
         super('CombinedServiceCallServiceFilterConfiguration');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'combinedServiceCallServiceFilterConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2033,7 +1778,7 @@ export class ConsulServiceCallServiceDiscoveryConfiguration extends CamelElement
     blockSeconds?: number;
     connectTimeoutMillis?: number;
     datacenter?: string;
-    id?: string;
+    id?: string = 'consulServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
     password?: string;
     properties?: PropertyDefinition[] = [];
     readTimeoutMillis?: number;
@@ -2042,61 +1787,46 @@ export class ConsulServiceCallServiceDiscoveryConfiguration extends CamelElement
     writeTimeoutMillis?: number
     public constructor(init?: Partial<ConsulServiceCallServiceDiscoveryConfiguration>) {
         super('ConsulServiceCallServiceDiscoveryConfiguration');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'consulServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class CustomServiceCallServiceFilterConfiguration extends CamelElement {
-    id?: string;
+    id?: string = 'customServiceCallServiceFilterConfiguration-' + uuidv4().substring(0,4);
     properties?: PropertyDefinition[] = [];
     ref?: string
     public constructor(init?: Partial<CustomServiceCallServiceFilterConfiguration>) {
         super('CustomServiceCallServiceFilterConfiguration');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'customServiceCallServiceFilterConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class DefaultServiceCallServiceLoadBalancerConfiguration extends CamelElement {
-    id?: string;
+    id?: string = 'defaultServiceCallServiceLoadBalancerConfiguration-' + uuidv4().substring(0,4);
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<DefaultServiceCallServiceLoadBalancerConfiguration>) {
         super('DefaultServiceCallServiceLoadBalancerConfiguration');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'defaultServiceCallServiceLoadBalancerConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class DnsServiceCallServiceDiscoveryConfiguration extends CamelElement {
     domain?: string;
-    id?: string;
+    id?: string = 'dnsServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
     properties?: PropertyDefinition[] = [];
     proto?: string
     public constructor(init?: Partial<DnsServiceCallServiceDiscoveryConfiguration>) {
         super('DnsServiceCallServiceDiscoveryConfiguration');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'dnsServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class HealthyServiceCallServiceFilterConfiguration extends CamelElement {
-    id?: string;
+    id?: string = 'healthyServiceCallServiceFilterConfiguration-' + uuidv4().substring(0,4);
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<HealthyServiceCallServiceFilterConfiguration>) {
         super('HealthyServiceCallServiceFilterConfiguration');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'healthyServiceCallServiceFilterConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2111,7 +1841,7 @@ export class KubernetesServiceCallServiceDiscoveryConfiguration extends CamelEle
     clientKeyFile?: string;
     clientKeyPassphrase?: string;
     dnsDomain?: string;
-    id?: string;
+    id?: string = 'kubernetesServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
     lookup?: string;
     masterUrl?: string;
     namespace?: string;
@@ -2124,22 +1854,16 @@ export class KubernetesServiceCallServiceDiscoveryConfiguration extends CamelEle
     username?: string
     public constructor(init?: Partial<KubernetesServiceCallServiceDiscoveryConfiguration>) {
         super('KubernetesServiceCallServiceDiscoveryConfiguration');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'kubernetesServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class PassThroughServiceCallServiceFilterConfiguration extends CamelElement {
-    id?: string;
+    id?: string = 'passThroughServiceCallServiceFilterConfiguration-' + uuidv4().substring(0,4);
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<PassThroughServiceCallServiceFilterConfiguration>) {
         super('PassThroughServiceCallServiceFilterConfiguration');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'passThroughServiceCallServiceFilterConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2154,7 +1878,7 @@ export class ServiceCallConfigurationDefinition extends CamelElement {
     serviceChooserRef?: string;
     loadBalancerRef?: string;
     expressionRef?: string;
-    id?: string;
+    id?: string = 'serviceCallConfiguration-' + uuidv4().substring(0,4);
     blacklistServiceFilter?: BlacklistServiceCallServiceFilterConfiguration;
     cachingServiceDiscovery?: CachingServiceCallServiceDiscoveryConfiguration;
     combinedServiceDiscovery?: CombinedServiceCallServiceDiscoveryConfiguration;
@@ -2170,10 +1894,7 @@ export class ServiceCallConfigurationDefinition extends CamelElement {
     zookeeperServiceDiscovery?: ZooKeeperServiceCallServiceDiscoveryConfiguration
     public constructor(init?: Partial<ServiceCallConfigurationDefinition>) {
         super('ServiceCallConfigurationDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'serviceCallConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2191,7 +1912,7 @@ export class ServiceCallDefinition extends CamelElement {
     loadBalancerRef?: string;
     expressionRef?: string;
     disabled?: boolean;
-    id?: string;
+    id?: string = 'serviceCall-' + uuidv4().substring(0,4);
     description?: string;
     blacklistServiceFilter?: BlacklistServiceCallServiceFilterConfiguration;
     cachingServiceDiscovery?: CachingServiceCallServiceDiscoveryConfiguration;
@@ -2209,93 +1930,72 @@ export class ServiceCallDefinition extends CamelElement {
     zookeeperServiceDiscovery?: ZooKeeperServiceCallServiceDiscoveryConfiguration
     public constructor(init?: Partial<ServiceCallDefinition>) {
         super('ServiceCallDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'serviceCall-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class ServiceCallExpressionConfiguration extends CamelElement {
     expressionType?: ExpressionDefinition;
     hostHeader?: string;
-    id?: string;
+    id?: string = 'serviceCallExpressionConfiguration-' + uuidv4().substring(0,4);
     portHeader?: string;
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<ServiceCallExpressionConfiguration>) {
         super('ServiceCallExpressionConfiguration');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'serviceCallExpressionConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class ServiceCallServiceChooserConfiguration extends CamelElement {
-    id?: string;
+    id?: string = 'serviceCallServiceChooserConfiguration-' + uuidv4().substring(0,4);
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<ServiceCallServiceChooserConfiguration>) {
         super('ServiceCallServiceChooserConfiguration');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'serviceCallServiceChooserConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class ServiceCallServiceDiscoveryConfiguration extends CamelElement {
-    id?: string;
+    id?: string = 'serviceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<ServiceCallServiceDiscoveryConfiguration>) {
         super('ServiceCallServiceDiscoveryConfiguration');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'serviceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class ServiceCallServiceFilterConfiguration extends CamelElement {
-    id?: string;
+    id?: string = 'serviceCallServiceFilterConfiguration-' + uuidv4().substring(0,4);
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<ServiceCallServiceFilterConfiguration>) {
         super('ServiceCallServiceFilterConfiguration');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'serviceCallServiceFilterConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class ServiceCallServiceLoadBalancerConfiguration extends CamelElement {
-    id?: string;
+    id?: string = 'serviceCallServiceLoadBalancerConfiguration-' + uuidv4().substring(0,4);
     properties?: PropertyDefinition[] = []
     public constructor(init?: Partial<ServiceCallServiceLoadBalancerConfiguration>) {
         super('ServiceCallServiceLoadBalancerConfiguration');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'serviceCallServiceLoadBalancerConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class StaticServiceCallServiceDiscoveryConfiguration extends CamelElement {
-    id?: string;
+    id?: string = 'staticServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
     properties?: PropertyDefinition[] = [];
     servers?: string[] = []
     public constructor(init?: Partial<StaticServiceCallServiceDiscoveryConfiguration>) {
         super('StaticServiceCallServiceDiscoveryConfiguration');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'staticServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class ZooKeeperServiceCallServiceDiscoveryConfiguration extends CamelElement {
     basePath: string = '';
     connectionTimeout?: string;
-    id?: string;
+    id?: string = 'zooKeeperServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
     namespace?: string;
     nodes: string = '';
     properties?: PropertyDefinition[] = [];
@@ -2305,10 +2005,7 @@ export class ZooKeeperServiceCallServiceDiscoveryConfiguration extends CamelElem
     sessionTimeout?: string
     public constructor(init?: Partial<ZooKeeperServiceCallServiceDiscoveryConfiguration>) {
         super('ZooKeeperServiceCallServiceDiscoveryConfiguration');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'zooKeeperServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2320,7 +2017,7 @@ export class BatchResequencerConfig extends CamelElement {
     reverse?: boolean
     public constructor(init?: Partial<BatchResequencerConfig>) {
         super('BatchResequencerConfig');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -2333,7 +2030,7 @@ export class StreamResequencerConfig extends CamelElement {
     timeout?: string
     public constructor(init?: Partial<StreamResequencerConfig>) {
         super('StreamResequencerConfig');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -2341,13 +2038,10 @@ export class ASN1DataFormat extends CamelElement {
     dataFormatName?: string = 'asn1';
     unmarshalType?: string;
     usingIterator?: boolean;
-    id?: string
+    id?: string = 'asn1-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<ASN1DataFormat>) {
         super('ASN1DataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'asn1-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2357,13 +2051,10 @@ export class Any23DataFormat extends CamelElement {
     baseUri?: string;
     configuration?: PropertyDefinition[] = [];
     extractors?: string[] = [];
-    id?: string
+    id?: string = 'any23-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<Any23DataFormat>) {
         super('Any23DataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'any23-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2389,13 +2080,10 @@ export class AvroDataFormat extends CamelElement {
     contentTypeHeader?: boolean;
     schemaResolver?: string;
     autoDiscoverSchemaResolver?: boolean;
-    id?: string
+    id?: string = 'avro-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<AvroDataFormat>) {
         super('AvroDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'avro-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2405,13 +2093,10 @@ export class BarcodeDataFormat extends CamelElement {
     imageType?: string;
     width?: number;
     height?: number;
-    id?: string
+    id?: string = 'barcode-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<BarcodeDataFormat>) {
         super('BarcodeDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'barcode-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2420,13 +2105,10 @@ export class Base64DataFormat extends CamelElement {
     lineLength?: number;
     lineSeparator?: string;
     urlSafe?: boolean;
-    id?: string
+    id?: string = 'base64-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<Base64DataFormat>) {
         super('Base64DataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'base64-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2437,13 +2119,10 @@ export class BindyDataFormat extends CamelElement {
     allowEmptyStream?: boolean;
     unwrapSingleInstance?: boolean;
     locale?: string;
-    id?: string
+    id?: string = 'bindy-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<BindyDataFormat>) {
         super('BindyDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'bindy-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2459,13 +2138,10 @@ export class CBORDataFormat extends CamelElement {
     allowJmsType?: boolean;
     enableFeatures?: string;
     disableFeatures?: string;
-    id?: string
+    id?: string = 'cbor-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<CBORDataFormat>) {
         super('CBORDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'cbor-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2480,13 +2156,10 @@ export class CryptoDataFormat extends CamelElement {
     macAlgorithm?: string;
     shouldAppendHmac?: boolean;
     inline?: boolean;
-    id?: string
+    id?: string = 'crypto-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<CryptoDataFormat>) {
         super('CryptoDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'crypto-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2521,26 +2194,20 @@ export class CsvDataFormat extends CamelElement {
     useOrderedMaps?: boolean;
     recordConverterRef?: string;
     captureHeaderRecord?: boolean;
-    id?: string
+    id?: string = 'csv-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<CsvDataFormat>) {
         super('CsvDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'csv-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class CustomDataFormat extends CamelElement {
     dataFormatName?: string = 'custom';
     ref: string = '';
-    id?: string
+    id?: string = 'custom-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<CustomDataFormat>) {
         super('CustomDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'custom-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2589,7 +2256,7 @@ export class DataFormatsDefinition extends CamelElement {
     zipFile?: ZipFileDataFormat
     public constructor(init?: Partial<DataFormatsDefinition>) {
         super('DataFormatsDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -2608,13 +2275,10 @@ export class FhirJsonDataFormat extends CamelElement {
     suppressNarratives?: boolean;
     dontStripVersionsFromReferencesAtPaths?: string[] = [];
     contentTypeHeader?: boolean;
-    id?: string
+    id?: string = 'fhirJson-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<FhirJsonDataFormat>) {
         super('FhirJsonDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'fhirJson-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2633,13 +2297,10 @@ export class FhirXmlDataFormat extends CamelElement {
     suppressNarratives?: boolean;
     dontStripVersionsFromReferencesAtPaths?: string[] = [];
     contentTypeHeader?: boolean;
-    id?: string
+    id?: string = 'fhirXml-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<FhirXmlDataFormat>) {
         super('FhirXmlDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'fhirXml-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2653,13 +2314,10 @@ export class FlatpackDataFormat extends CamelElement {
     ignoreExtraColumns?: boolean;
     textQualifier?: string;
     parserFactoryRef?: string;
-    id?: string
+    id?: string = 'flatpack-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<FlatpackDataFormat>) {
         super('FlatpackDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'flatpack-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2669,51 +2327,39 @@ export class GrokDataFormat extends CamelElement {
     flattened?: boolean;
     allowMultipleMatchesPerLine?: boolean;
     namedOnly?: boolean;
-    id?: string
+    id?: string = 'grok-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<GrokDataFormat>) {
         super('GrokDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'grok-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class GzipDeflaterDataFormat extends CamelElement {
     dataFormatName?: string = 'gzipDeflater';
-    id?: string
+    id?: string = 'gzipDeflater-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<GzipDeflaterDataFormat>) {
         super('GzipDeflaterDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'gzipDeflater-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class HL7DataFormat extends CamelElement {
     dataFormatName?: string = 'hl7';
     validate?: boolean;
-    id?: string
+    id?: string = 'hl7-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<HL7DataFormat>) {
         super('HL7DataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'hl7-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class IcalDataFormat extends CamelElement {
     dataFormatName?: string = 'ical';
     validating?: boolean;
-    id?: string
+    id?: string = 'ical-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<IcalDataFormat>) {
         super('IcalDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'ical-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2735,13 +2381,10 @@ export class JacksonXMLDataFormat extends CamelElement {
     enableFeatures?: string;
     disableFeatures?: string;
     contentTypeHeader?: boolean;
-    id?: string
+    id?: string = 'jacksonXml-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<JacksonXMLDataFormat>) {
         super('JacksonXMLDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'jacksonXml-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2766,26 +2409,20 @@ export class JaxbDataFormat extends CamelElement {
     noNamespaceSchemaLocation?: string;
     jaxbProviderProperties?: string;
     contentTypeHeader?: boolean;
-    id?: string
+    id?: string = 'jaxb-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<JaxbDataFormat>) {
         super('JaxbDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'jaxb-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class JsonApiDataFormat extends CamelElement {
     dataFormatName?: string = 'jsonApi';
     mainFormatType?: string;
-    id?: string
+    id?: string = 'jsonApi-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<JsonApiDataFormat>) {
         super('JsonApiDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'jsonApi-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2814,26 +2451,20 @@ export class JsonDataFormat extends CamelElement {
     autoDiscoverSchemaResolver?: boolean;
     namingStrategy?: string;
     contentTypeHeader?: boolean;
-    id?: string
+    id?: string = 'json-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<JsonDataFormat>) {
         super('JsonDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'json-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class LZFDataFormat extends CamelElement {
     dataFormatName?: string = 'lzf';
     usingParallelCompression?: boolean;
-    id?: string
+    id?: string = 'lzf-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<LZFDataFormat>) {
         super('LZFDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'lzf-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2844,13 +2475,10 @@ export class MimeMultipartDataFormat extends CamelElement {
     headersInline?: boolean;
     includeHeaders?: string;
     binaryContent?: boolean;
-    id?: string
+    id?: string = 'mimeMultipart-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<MimeMultipartDataFormat>) {
         super('MimeMultipartDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'mimeMultipart-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2870,13 +2498,10 @@ export class PGPDataFormat extends CamelElement {
     compressionAlgorithm?: number;
     hashAlgorithm?: number;
     signatureVerificationOption?: string;
-    id?: string
+    id?: string = 'pgp-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<PGPDataFormat>) {
         super('PGPDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'pgp-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2903,25 +2528,19 @@ export class ProtobufDataFormat extends CamelElement {
     autoDiscoverSchemaResolver?: boolean;
     contentTypeFormat?: string;
     contentTypeHeader?: boolean;
-    id?: string
+    id?: string = 'protobuf-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<ProtobufDataFormat>) {
         super('ProtobufDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'protobuf-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class RssDataFormat extends CamelElement {
     dataFormatName?: string = 'rss';
-    id?: string
+    id?: string = 'rss-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<RssDataFormat>) {
         super('RssDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'rss-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2933,26 +2552,20 @@ export class SoapDataFormat extends CamelElement {
     version?: string;
     namespacePrefixRef?: string;
     schema?: string;
-    id?: string
+    id?: string = 'soap-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<SoapDataFormat>) {
         super('SoapDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'soap-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class SwiftMtDataFormat extends CamelElement {
     dataFormatName?: string = 'swiftMt';
     writeInJson?: boolean;
-    id?: string
+    id?: string = 'swiftMt-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<SwiftMtDataFormat>) {
         super('SwiftMtDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'swiftMt-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2962,25 +2575,19 @@ export class SwiftMxDataFormat extends CamelElement {
     writeInJson?: boolean;
     readMessageId?: string;
     readConfigRef?: string;
-    id?: string
+    id?: string = 'swiftMx-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<SwiftMxDataFormat>) {
         super('SwiftMxDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'swiftMx-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class SyslogDataFormat extends CamelElement {
     dataFormatName?: string = 'syslog';
-    id?: string
+    id?: string = 'syslog-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<SyslogDataFormat>) {
         super('SyslogDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'syslog-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -2990,13 +2597,10 @@ export class TarFileDataFormat extends CamelElement {
     allowEmptyDirectory?: boolean;
     preservePathElements?: boolean;
     maxDecompressedSize?: number;
-    id?: string
+    id?: string = 'tarFile-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<TarFileDataFormat>) {
         super('TarFileDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'tarFile-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3005,13 +2609,10 @@ export class ThriftDataFormat extends CamelElement {
     instanceClass?: string;
     contentTypeFormat?: string;
     contentTypeHeader?: boolean;
-    id?: string
+    id?: string = 'thrift-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<ThriftDataFormat>) {
         super('ThriftDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'thrift-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3019,13 +2620,10 @@ export class TidyMarkupDataFormat extends CamelElement {
     dataFormatName?: string = 'tidyMarkup';
     dataObjectType?: string;
     omitXmlDeclaration?: boolean;
-    id?: string
+    id?: string = 'tidyMarkup-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<TidyMarkupDataFormat>) {
         super('TidyMarkupDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'tidyMarkup-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3048,14 +2646,11 @@ export class UniVocityCsvDataFormat extends CamelElement {
     comment?: string;
     lazyLoad?: boolean;
     asMap?: boolean;
-    id?: string;
+    id?: string = 'univocityCsv-' + uuidv4().substring(0,4);
     univocityHeader?: UniVocityHeader[] = []
     public constructor(init?: Partial<UniVocityCsvDataFormat>) {
         super('UniVocityCsvDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'univocityCsv-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3077,14 +2672,11 @@ export class UniVocityFixedDataFormat extends CamelElement {
     comment?: string;
     lazyLoad?: boolean;
     asMap?: boolean;
-    id?: string;
+    id?: string = 'univocityFixed-' + uuidv4().substring(0,4);
     univocityHeader?: UniVocityHeader[] = []
     public constructor(init?: Partial<UniVocityFixedDataFormat>) {
         super('UniVocityFixedDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'univocityFixed-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3093,7 +2685,7 @@ export class UniVocityHeader extends CamelElement {
     name?: string
     public constructor(init?: Partial<UniVocityHeader>) {
         super('UniVocityHeader');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -3113,14 +2705,11 @@ export class UniVocityTsvDataFormat extends CamelElement {
     comment?: string;
     lazyLoad?: boolean;
     asMap?: boolean;
-    id?: string;
+    id?: string = 'univocityTsv-' + uuidv4().substring(0,4);
     univocityHeader?: UniVocityHeader[] = []
     public constructor(init?: Partial<UniVocityTsvDataFormat>) {
         super('UniVocityTsvDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'univocityTsv-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3138,13 +2727,10 @@ export class XMLSecurityDataFormat extends CamelElement {
     digestAlgorithm?: string;
     mgfAlgorithm?: string;
     addKeyValueForEncryptedKey?: boolean;
-    id?: string
+    id?: string = 'xmlSecurity-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<XMLSecurityDataFormat>) {
         super('XMLSecurityDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'xmlSecurity-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3160,13 +2746,10 @@ export class XStreamDataFormat extends CamelElement {
     aliases?: PropertyDefinition[] = [];
     omitFields?: PropertyDefinition[] = [];
     implicitCollections?: PropertyDefinition[] = [];
-    id?: string
+    id?: string = 'xstream-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<XStreamDataFormat>) {
         super('XStreamDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'xstream-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3184,13 +2767,10 @@ export class YAMLDataFormat extends CamelElement {
     typeFilter?: YAMLTypeFilterDefinition[] = [];
     maxAliasesForCollections?: number;
     allowRecursiveKeys?: boolean;
-    id?: string
+    id?: string = 'yaml-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<YAMLDataFormat>) {
         super('YAMLDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'yaml-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3200,20 +2780,17 @@ export class YAMLTypeFilterDefinition extends CamelElement {
     value?: string
     public constructor(init?: Partial<YAMLTypeFilterDefinition>) {
         super('YAMLTypeFilterDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
 export class ZipDeflaterDataFormat extends CamelElement {
     dataFormatName?: string = 'zipDeflater';
     compressionLevel?: string;
-    id?: string
+    id?: string = 'zipDeflater-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<ZipDeflaterDataFormat>) {
         super('ZipDeflaterDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'zipDeflater-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3223,13 +2800,10 @@ export class ZipFileDataFormat extends CamelElement {
     allowEmptyDirectory?: boolean;
     preservePathElements?: boolean;
     maxDecompressedSize?: number;
-    id?: string
+    id?: string = 'zipFile-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<ZipFileDataFormat>) {
         super('ZipFileDataFormat');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'zipFile-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3249,13 +2823,10 @@ export class DeadLetterChannelDefinition extends CamelElement {
     redeliveryPolicyRef?: string;
     executorServiceRef?: string;
     redeliveryPolicy?: RedeliveryPolicyDefinition;
-    id?: string
+    id?: string = 'deadLetterChannel-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<DeadLetterChannelDefinition>) {
         super('DeadLetterChannelDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'deadLetterChannel-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3273,13 +2844,10 @@ export class DefaultErrorHandlerDefinition extends CamelElement {
     redeliveryPolicyRef?: string;
     executorServiceRef?: string;
     redeliveryPolicy?: RedeliveryPolicyDefinition;
-    id?: string
+    id?: string = 'defaultErrorHandler-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<DefaultErrorHandlerDefinition>) {
         super('DefaultErrorHandlerDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'defaultErrorHandler-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3299,38 +2867,29 @@ export class JtaTransactionErrorHandlerDefinition extends CamelElement {
     redeliveryPolicyRef?: string;
     executorServiceRef?: string;
     redeliveryPolicy?: RedeliveryPolicyDefinition;
-    id?: string
+    id?: string = 'jtaTransactionErrorHandler-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<JtaTransactionErrorHandlerDefinition>) {
         super('JtaTransactionErrorHandlerDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'jtaTransactionErrorHandler-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class NoErrorHandlerDefinition extends CamelElement {
     stepName?: string = 'noErrorHandler';
-    id?: string
+    id?: string = 'noErrorHandler-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<NoErrorHandlerDefinition>) {
         super('NoErrorHandlerDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'noErrorHandler-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class RefErrorHandlerDefinition extends CamelElement {
     stepName?: string = 'refErrorHandler';
     ref: string = '';
-    id?: string
+    id?: string = 'refErrorHandler-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<RefErrorHandlerDefinition>) {
         super('RefErrorHandlerDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'refErrorHandler-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3350,13 +2909,10 @@ export class SpringTransactionErrorHandlerDefinition extends CamelElement {
     redeliveryPolicyRef?: string;
     executorServiceRef?: string;
     redeliveryPolicy?: RedeliveryPolicyDefinition;
-    id?: string
+    id?: string = 'springTransactionErrorHandler-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<SpringTransactionErrorHandlerDefinition>) {
         super('SpringTransactionErrorHandlerDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'springTransactionErrorHandler-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3365,13 +2921,10 @@ export class CSimpleExpression extends CamelElement {
     expression: string = '';
     resultType?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'csimple-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<CSimpleExpression>) {
         super('CSimpleExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'csimple-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3380,13 +2933,10 @@ export class ConstantExpression extends CamelElement {
     expression: string = '';
     resultType?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'constant-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<ConstantExpression>) {
         super('ConstantExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'constant-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3397,13 +2947,10 @@ export class DatasonnetExpression extends CamelElement {
     outputMediaType?: string;
     resultType?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'datasonnet-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<DatasonnetExpression>) {
         super('DatasonnetExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'datasonnet-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3411,13 +2958,10 @@ export class ExchangePropertyExpression extends CamelElement {
     expressionName?: string = 'exchangeProperty';
     expression: string = '';
     trim?: boolean;
-    id?: string
+    id?: string = 'exchangeProperty-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<ExchangePropertyExpression>) {
         super('ExchangePropertyExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'exchangeProperty-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3448,7 +2992,7 @@ export class ExpressionDefinition extends CamelElement {
     xtokenize?: XMLTokenizerExpression | string
     public constructor(init?: Partial<ExpressionDefinition>) {
         super('ExpressionDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -3457,13 +3001,10 @@ export class GroovyExpression extends CamelElement {
     expression: string = '';
     resultType?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'groovy-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<GroovyExpression>) {
         super('GroovyExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'groovy-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3471,13 +3012,10 @@ export class HeaderExpression extends CamelElement {
     expressionName?: string = 'header';
     expression: string = '';
     trim?: boolean;
-    id?: string
+    id?: string = 'header-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<HeaderExpression>) {
         super('HeaderExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'header-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3488,13 +3026,10 @@ export class Hl7TerserExpression extends CamelElement {
     propertyName?: string;
     resultType?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'hl7terser-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<Hl7TerserExpression>) {
         super('Hl7TerserExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'hl7terser-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3503,13 +3038,10 @@ export class JavaScriptExpression extends CamelElement {
     expression: string = '';
     resultType?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'js-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<JavaScriptExpression>) {
         super('JavaScriptExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'js-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3520,13 +3052,10 @@ export class JoorExpression extends CamelElement {
     singleQuotes?: boolean;
     resultType?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'joor-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<JoorExpression>) {
         super('JoorExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'joor-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3537,13 +3066,10 @@ export class JqExpression extends CamelElement {
     propertyName?: string;
     resultType?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'jq-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<JqExpression>) {
         super('JqExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'jq-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3560,13 +3086,10 @@ export class JsonPathExpression extends CamelElement {
     propertyName?: string;
     resultType?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'jsonpath-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<JsonPathExpression>) {
         super('JsonPathExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'jsonpath-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3575,13 +3098,10 @@ export class LanguageExpression extends CamelElement {
     language: string = '';
     expression: string = '';
     trim?: boolean;
-    id?: string
+    id?: string = 'language-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<LanguageExpression>) {
         super('LanguageExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'language-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3593,13 +3113,10 @@ export class MethodCallExpression extends CamelElement {
     scope?: string;
     resultType?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'method-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<MethodCallExpression>) {
         super('MethodCallExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'method-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3608,13 +3125,10 @@ export class MvelExpression extends CamelElement {
     expression: string = '';
     resultType?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'mvel-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<MvelExpression>) {
         super('MvelExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'mvel-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3623,13 +3137,10 @@ export class OgnlExpression extends CamelElement {
     expression: string = '';
     resultType?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'ognl-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<OgnlExpression>) {
         super('OgnlExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'ognl-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3638,13 +3149,10 @@ export class PythonExpression extends CamelElement {
     expression: string = '';
     resultType?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'python-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<PythonExpression>) {
         super('PythonExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'python-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3653,13 +3161,10 @@ export class RefExpression extends CamelElement {
     expression: string = '';
     resultType?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'ref-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<RefExpression>) {
         super('RefExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'ref-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3668,13 +3173,10 @@ export class SimpleExpression extends CamelElement {
     expression: string = '';
     resultType?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'simple-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<SimpleExpression>) {
         super('SimpleExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'simple-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3683,13 +3185,10 @@ export class SpELExpression extends CamelElement {
     expression: string = '';
     resultType?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'spel-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<SpELExpression>) {
         super('SpELExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'spel-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3707,13 +3206,10 @@ export class TokenizerExpression extends CamelElement {
     headerName?: string;
     propertyName?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'tokenize-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<TokenizerExpression>) {
         super('TokenizerExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'tokenize-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3725,13 +3221,10 @@ export class XMLTokenizerExpression extends CamelElement {
     headerName?: string;
     propertyName?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'xtokenize-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<XMLTokenizerExpression>) {
         super('XMLTokenizerExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'xtokenize-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3750,13 +3243,10 @@ export class XPathExpression extends CamelElement {
     headerName?: string;
     propertyName?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'xpath-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<XPathExpression>) {
         super('XPathExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'xpath-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3770,91 +3260,70 @@ export class XQueryExpression extends CamelElement {
     headerName?: string;
     propertyName?: string;
     trim?: boolean;
-    id?: string
+    id?: string = 'xquery-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<XQueryExpression>) {
         super('XQueryExpression');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'xquery-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class CustomLoadBalancerDefinition extends CamelElement {
     stepName?: string = 'customLoadBalancer';
     ref: string = '';
-    id?: string
+    id?: string = 'customLoadBalancer-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<CustomLoadBalancerDefinition>) {
         super('CustomLoadBalancerDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'customLoadBalancer-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class FailoverLoadBalancerDefinition extends CamelElement {
     stepName?: string = 'failoverLoadBalancer';
     exception?: string[] = [];
-    id?: string;
+    id?: string = 'failoverLoadBalancer-' + uuidv4().substring(0,4);
     maximumFailoverAttempts?: string;
     roundRobin?: string;
     sticky?: string
     public constructor(init?: Partial<FailoverLoadBalancerDefinition>) {
         super('FailoverLoadBalancerDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'failoverLoadBalancer-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class RandomLoadBalancerDefinition extends CamelElement {
     stepName?: string = 'randomLoadBalancer';
-    id?: string
+    id?: string = 'randomLoadBalancer-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<RandomLoadBalancerDefinition>) {
         super('RandomLoadBalancerDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'randomLoadBalancer-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class RoundRobinLoadBalancerDefinition extends CamelElement {
     stepName?: string = 'roundRobinLoadBalancer';
-    id?: string
+    id?: string = 'roundRobinLoadBalancer-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<RoundRobinLoadBalancerDefinition>) {
         super('RoundRobinLoadBalancerDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'roundRobinLoadBalancer-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class StickyLoadBalancerDefinition extends CamelElement {
     stepName?: string = 'stickyLoadBalancer';
     correlationExpression?: ExpressionSubElementDefinition;
-    id?: string
+    id?: string = 'stickyLoadBalancer-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<StickyLoadBalancerDefinition>) {
         super('StickyLoadBalancerDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'stickyLoadBalancer-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
 export class TopicLoadBalancerDefinition extends CamelElement {
     stepName?: string = 'topicLoadBalancer';
-    id?: string
+    id?: string = 'topicLoadBalancer-' + uuidv4().substring(0,4)
     public constructor(init?: Partial<TopicLoadBalancerDefinition>) {
         super('TopicLoadBalancerDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'topicLoadBalancer-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3862,14 +3331,11 @@ export class WeightedLoadBalancerDefinition extends CamelElement {
     stepName?: string = 'weightedLoadBalancer';
     distributionRatio: string = '';
     distributionRatioDelimiter?: string;
-    id?: string;
+    id?: string = 'weightedLoadBalancer-' + uuidv4().substring(0,4);
     roundRobin?: boolean
     public constructor(init?: Partial<WeightedLoadBalancerDefinition>) {
         super('WeightedLoadBalancerDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'weightedLoadBalancer-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3883,7 +3349,7 @@ export class ApiKeyDefinition extends CamelElement {
     description?: string
     public constructor(init?: Partial<ApiKeyDefinition>) {
         super('ApiKeyDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -3893,7 +3359,7 @@ export class BasicAuthDefinition extends CamelElement {
     description?: string
     public constructor(init?: Partial<BasicAuthDefinition>) {
         super('BasicAuthDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -3904,7 +3370,7 @@ export class BearerTokenDefinition extends CamelElement {
     description?: string
     public constructor(init?: Partial<BearerTokenDefinition>) {
         super('BearerTokenDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -3924,17 +3390,14 @@ export class DeleteDefinition extends CamelElement {
     apiDocs?: boolean;
     deprecated?: boolean;
     routeId?: string;
-    id?: string;
+    id?: string = 'delete-' + uuidv4().substring(0,4);
     description?: string;
     param?: ParamDefinition[] = [];
     responseMessage?: ResponseMessageDefinition[] = [];
     security?: SecurityDefinition[] = []
     public constructor(init?: Partial<DeleteDefinition>) {
         super('DeleteDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'delete-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3954,17 +3417,14 @@ export class GetDefinition extends CamelElement {
     apiDocs?: boolean;
     deprecated?: boolean;
     routeId?: string;
-    id?: string;
+    id?: string = 'get-' + uuidv4().substring(0,4);
     description?: string;
     param?: ParamDefinition[] = [];
     responseMessage?: ResponseMessageDefinition[] = [];
     security?: SecurityDefinition[] = []
     public constructor(init?: Partial<GetDefinition>) {
         super('GetDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'get-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -3984,17 +3444,14 @@ export class HeadDefinition extends CamelElement {
     apiDocs?: boolean;
     deprecated?: boolean;
     routeId?: string;
-    id?: string;
+    id?: string = 'head-' + uuidv4().substring(0,4);
     description?: string;
     param?: ParamDefinition[] = [];
     responseMessage?: ResponseMessageDefinition[] = [];
     security?: SecurityDefinition[] = []
     public constructor(init?: Partial<HeadDefinition>) {
         super('HeadDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'head-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -4004,7 +3461,7 @@ export class MutualTLSDefinition extends CamelElement {
     description?: string
     public constructor(init?: Partial<MutualTLSDefinition>) {
         super('MutualTLSDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -4019,7 +3476,7 @@ export class OAuth2Definition extends CamelElement {
     tokenUrl?: string
     public constructor(init?: Partial<OAuth2Definition>) {
         super('OAuth2Definition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -4030,7 +3487,7 @@ export class OpenIdConnectDefinition extends CamelElement {
     description?: string
     public constructor(init?: Partial<OpenIdConnectDefinition>) {
         super('OpenIdConnectDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -4049,7 +3506,7 @@ export class ParamDefinition extends CamelElement {
     description?: string
     public constructor(init?: Partial<ParamDefinition>) {
         super('ParamDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -4069,17 +3526,14 @@ export class PatchDefinition extends CamelElement {
     apiDocs?: boolean;
     deprecated?: boolean;
     routeId?: string;
-    id?: string;
+    id?: string = 'patch-' + uuidv4().substring(0,4);
     description?: string;
     param?: ParamDefinition[] = [];
     responseMessage?: ResponseMessageDefinition[] = [];
     security?: SecurityDefinition[] = []
     public constructor(init?: Partial<PatchDefinition>) {
         super('PatchDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'patch-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -4099,17 +3553,14 @@ export class PostDefinition extends CamelElement {
     apiDocs?: boolean;
     deprecated?: boolean;
     routeId?: string;
-    id?: string;
+    id?: string = 'post-' + uuidv4().substring(0,4);
     description?: string;
     param?: ParamDefinition[] = [];
     responseMessage?: ResponseMessageDefinition[] = [];
     security?: SecurityDefinition[] = []
     public constructor(init?: Partial<PostDefinition>) {
         super('PostDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'post-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -4129,17 +3580,14 @@ export class PutDefinition extends CamelElement {
     apiDocs?: boolean;
     deprecated?: boolean;
     routeId?: string;
-    id?: string;
+    id?: string = 'put-' + uuidv4().substring(0,4);
     description?: string;
     param?: ParamDefinition[] = [];
     responseMessage?: ResponseMessageDefinition[] = [];
     security?: SecurityDefinition[] = []
     public constructor(init?: Partial<PutDefinition>) {
         super('PutDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'put-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -4155,7 +3603,7 @@ export class ResponseHeaderDefinition extends CamelElement {
     description?: string
     public constructor(init?: Partial<ResponseHeaderDefinition>) {
         super('ResponseHeaderDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -4168,7 +3616,7 @@ export class ResponseMessageDefinition extends CamelElement {
     examples?: RestPropertyDefinition[] = []
     public constructor(init?: Partial<ResponseMessageDefinition>) {
         super('ResponseMessageDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -4183,14 +3631,11 @@ export class RestBindingDefinition extends CamelElement {
     clientRequestValidation?: boolean;
     enableCors?: boolean;
     component?: string;
-    id?: string;
+    id?: string = 'restBinding-' + uuidv4().substring(0,4);
     description?: string
     public constructor(init?: Partial<RestBindingDefinition>) {
         super('RestBindingDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'restBinding-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -4225,7 +3670,7 @@ export class RestConfigurationDefinition extends CamelElement {
     corsHeaders?: RestPropertyDefinition[] = []
     public constructor(init?: Partial<RestConfigurationDefinition>) {
         super('RestConfigurationDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -4243,7 +3688,7 @@ export class RestDefinition extends CamelElement {
     tag?: string;
     securityDefinitions?: RestSecuritiesDefinition;
     securityRequirements?: SecurityDefinition[] = [];
-    id?: string;
+    id?: string = 'rest-' + uuidv4().substring(0,4);
     description?: string;
     delete?: DeleteDefinition[] = [];
     get?: GetDefinition[] = [];
@@ -4253,10 +3698,7 @@ export class RestDefinition extends CamelElement {
     put?: PutDefinition[] = []
     public constructor(init?: Partial<RestDefinition>) {
         super('RestDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'rest-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -4266,7 +3708,7 @@ export class RestPropertyDefinition extends CamelElement {
     value: string = ''
     public constructor(init?: Partial<RestPropertyDefinition>) {
         super('RestPropertyDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -4280,21 +3722,18 @@ export class RestSecuritiesDefinition extends CamelElement {
     openIdConnect?: OpenIdConnectDefinition
     public constructor(init?: Partial<RestSecuritiesDefinition>) {
         super('RestSecuritiesDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
 export class RestsDefinition extends CamelElement {
     stepName?: string = 'rests';
-    id?: string;
+    id?: string = 'rests-' + uuidv4().substring(0,4);
     description?: string;
     rest?: RestDefinition[] = []
     public constructor(init?: Partial<RestsDefinition>) {
         super('RestsDefinition');
-        Object.assign(this, init); 
-        if (this.id === undefined) {
-            this.id = 'rests-' + uuidv4().substring(0,4);
-        }
+        Object.assign(this, init);
     }
 }
 
@@ -4304,7 +3743,7 @@ export class SecurityDefinition extends CamelElement {
     scopes?: string
     public constructor(init?: Partial<SecurityDefinition>) {
         super('SecurityDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -4317,7 +3756,7 @@ export class CustomTransformerDefinition extends CamelElement {
     toType?: string
     public constructor(init?: Partial<CustomTransformerDefinition>) {
         super('CustomTransformerDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -4369,7 +3808,7 @@ export class DataFormatTransformerDefinition extends CamelElement {
     zipFile?: ZipFileDataFormat
     public constructor(init?: Partial<DataFormatTransformerDefinition>) {
         super('DataFormatTransformerDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -4382,7 +3821,7 @@ export class EndpointTransformerDefinition extends CamelElement {
     uri?: string
     public constructor(init?: Partial<EndpointTransformerDefinition>) {
         super('EndpointTransformerDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -4393,7 +3832,7 @@ export class TransformersDefinition extends CamelElement {
     endpointTransformer?: EndpointTransformerDefinition
     public constructor(init?: Partial<TransformersDefinition>) {
         super('TransformersDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -4404,7 +3843,7 @@ export class CustomValidatorDefinition extends CamelElement {
     type?: string
     public constructor(init?: Partial<CustomValidatorDefinition>) {
         super('CustomValidatorDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -4415,7 +3854,7 @@ export class EndpointValidatorDefinition extends CamelElement {
     uri?: string
     public constructor(init?: Partial<EndpointValidatorDefinition>) {
         super('EndpointValidatorDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -4425,7 +3864,7 @@ export class PredicateValidatorDefinition extends CamelElement {
     type?: string
     public constructor(init?: Partial<PredicateValidatorDefinition>) {
         super('PredicateValidatorDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 
@@ -4436,7 +3875,7 @@ export class ValidatorsDefinition extends CamelElement {
     predicateValidator?: PredicateValidatorDefinition
     public constructor(init?: Partial<ValidatorsDefinition>) {
         super('ValidatorsDefinition');
-        Object.assign(this, init); 
+        Object.assign(this, init);
     }
 }
 

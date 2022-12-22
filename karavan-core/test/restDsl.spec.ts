@@ -23,6 +23,7 @@ import {GetDefinition, PostDefinition, RestDefinition, RouteDefinition} from "..
 import {FromDefinition} from "../src/core/model/CamelDefinition";
 import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
 import {RestConfigurationDefinition} from "../src/core/model/CamelDefinition";
+import {SagaDefinition, ToDefinition} from "../lib/model/CamelDefinition";
 
 describe('REST DSL', () => {
 
@@ -67,11 +68,17 @@ describe('REST DSL', () => {
         i.spec.flows?.push(new RestDefinition({path:"path2", post:[new PostDefinition({to:"direct:direct2"})]}));
         i.spec.flows?.push(new RestConfigurationDefinition({port: "8080", host:"localhost"}));
 
-        const yaml1 = CamelDefinitionYaml.integrationToYaml(i);
+        const yaml = CamelDefinitionYaml.integrationToYaml(i);
+        const i2 = CamelDefinitionYaml.yamlToIntegration("test1.yaml", yaml);
+        const x: RestConfigurationDefinition = i2.spec.flows?.[0] as RestConfigurationDefinition;
+        expect(x?.port).to.equal('8080');
+        expect(x?.host).to.equal('localhost');
 
         const yaml2 = fs.readFileSync('test/restConfigDsl.yaml', {encoding: 'utf8', flag: 'r'});
-
-        expect(yaml2).to.equal(yaml1);
+        const i3 = CamelDefinitionYaml.yamlToIntegration("test1.yaml", yaml2);
+        const x3: RestConfigurationDefinition = i3.spec.flows?.[0] as RestConfigurationDefinition;
+        expect(x3?.port).to.equal('8080');
+        expect(x3?.host).to.equal('localhost');
     });
 
 });
