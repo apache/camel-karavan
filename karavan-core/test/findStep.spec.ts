@@ -97,23 +97,15 @@ describe('Find Step', () => {
         expect(log.message).to.equal(log2.message);
     });
 
-    it('Find Steps in YAML', () => {
+    it('Find Steps in YAML by Id', () => {
         const yaml = fs.readFileSync('test/findStep.yaml',{encoding:'utf8', flag:'r'});
         const i = CamelDefinitionYaml.yamlToIntegration("demo.yaml", yaml);
-        const step: StepDefinition = i.spec.flows?.[0].from.steps[0];
-        const choice: ChoiceDefinition = i.spec.flows?.[0].from.steps[0].steps[0];
-        const log: LogDefinition = i.spec.flows?.[0].from.steps[1];
+        const yaml2 = CamelDefinitionYaml.integrationToYaml(i);
+        expect(yaml2).to.equal(yaml);
 
-        // i.spec.flows?.[0].from.steps?.forEach((s:any) => console.log(s.uuid, CamelDefinitionApiExt.findElementInIntegration(i, s.uuid)?.dslName));
-
-        // console.log('----')
-        // CamelDefinitionApiExt.findElementPathUuids(i, log.uuid).forEach(u => console.log(u, CamelDefinitionApiExt.findElementInIntegration(i, u)?.dslName))
-
-        // console.log('----')
-        // CamelDefinitionApiExt.findElementPathUuids(i, step.uuid).forEach(u => console.log(u, CamelDefinitionApiExt.findElementInIntegration(i, u)?.dslName))
-
-        // console.log('----')
-        // CamelDefinitionApiExt.findElementPathUuids(i, choice.uuid).forEach(u => console.log(u, CamelDefinitionApiExt.findElementInIntegration(i, u)?.dslName))
-
+        const res1 = CamelDefinitionApiExt.hasElementWithId(i, 'to-6a8b');
+        const res2 = CamelDefinitionApiExt.hasElementWithId(i, 'to-6a81');
+        expect(res1).to.equal(true);
+        expect(res2).to.equal(false);
     });
 });

@@ -27,6 +27,7 @@ import {
     Integration
 } from "../model/IntegrationDefinition";
 import {CamelDefinitionApi} from "./CamelDefinitionApi";
+import {CamelDefinitionYaml} from "./CamelDefinitionYaml";
 
 export class ChildElement {
     name: string = ''
@@ -143,6 +144,11 @@ export class CamelDefinitionApiExt {
             }
         }
         return new CamelElementMeta(result?.step, result?.parentUuid, result?.position);
+    }
+
+    static hasElementWithId = (integration: Integration, id: string): boolean => {
+        const yaml = CamelDefinitionYaml.integrationToYaml(integration);
+        return yaml.includes("id: " + id);
     }
 
     static moveRouteElement = (integration: Integration, source: string, target: string, asChild: boolean): Integration => {

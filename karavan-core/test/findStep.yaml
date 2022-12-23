@@ -1,35 +1,60 @@
-apiVersion: camel.apache.org/v1
-kind: Integration
-metadata:
-  name: postman.yaml
-spec:
-  flows:
-    - route:
-        from:
-          uri: kamelet:timer-source
-          steps:
-            - step:
-                steps:
-                  - choice: {}
-                  - log: {}
-            - log:
-                message: ${body}
-            - aggregate: {}
-            - choice: {}
-            - split:
+- restConfiguration: {}
+- rest:
+    id: rest-6cff
+    get:
+      - id: get-ea54
+- route:
+    id: route-66bd
+    from:
+      uri: kamelet:timer-source
+      id: from-6c72
+      parameters:
+        period: 2000
+        message: Hello World
+      steps:
+        - step:
+            id: step-6889
+            steps:
+              - choice:
+                  id: choice-5cca
+              - log:
+                  id: log-7d33
+        - log:
+            message: ${body}
+            id: log-0023
+        - aggregate:
+            id: aggregate-6615
+        - choice:
+            when:
+              - id: when-2521
                 expression: {}
-            - saga: {}
-            - to:
-                uri: direct:hello-world
-            - to:
-                uri: salesforce:getSObject
-                parameters:
-                  sObjectId: xxx
-                  sObjectClass: Account
-          parameters:
-            period: 2000
-            message: Hello World
-    - route:
-        from:
-          uri: direct:hello-world
-        id: hello-world
+                steps:
+                  - log:
+                      id: log-8bc9
+            id: choice-9b86
+            otherwise:
+              id: otherwise-4843
+              steps:
+                - to:
+                    uri: arangodb
+                    id: to-3d1c
+        - split:
+            id: split-fe40
+            expression: {}
+        - saga:
+            id: saga-0075
+        - to:
+            uri: direct:hello-world
+            id: to-6a8b
+        - to:
+            uri: salesforce:getSObject
+            id: to-6f22
+            parameters:
+              sObjectId: xxx
+              sObjectClass: Account
+- route:
+    id: hello-world
+    from:
+      uri: direct:hello-world
+      id: from-5a9f
+- routeConfiguration: {}
