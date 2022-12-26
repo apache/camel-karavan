@@ -84,13 +84,11 @@ export class ProjectsPage extends React.Component<Props, State> {
 
     onProjectDelete = (project: Project) => {
         KaravanApi.getProjectPipelineStatus(project.projectId, this.props.config.environment, (status?: PipelineStatus) => {
-            if (status === undefined) {
-                this.setState({ isDeleteModalOpen: true, projectToDelete: project })
-            } else if (status?.result === "Running") {
+            if (status?.result === "Running" || status?.result === "Started") {
                 this.setState({ isPodRunningModalOpen: true, projectToDelete: project })
-            } else if (status?.result === "Succeeded") {
-                KaravanApi.getProjectPodStatuses(project.projectId, this.props.config.environment, (statuses: PodStatus[]) => {
-                    if (statuses.length === 0) {
+            } else {
+                KaravanApi.getProjectDeploymentStatus(project.projectId, this.props.config.environment, (status?: DeploymentStatus) => {
+                    if (status === undefined) {
                         this.setState({ isDeleteModalOpen: true, projectToDelete: project })
                     }
                     else {
@@ -98,7 +96,6 @@ export class ProjectsPage extends React.Component<Props, State> {
                     }
                 });
             }
-
         });
     };
 
