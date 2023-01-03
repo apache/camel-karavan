@@ -4,7 +4,7 @@
 0. Camel 3.20.0
 1. Export to Quarkus and Springboot application in VS Code
 2. Deploy to Kubernetes and Openshift from VS Code
-3. Kamelets 0.10.0
+3. Kamelets 3.20.0
 
 ## 3.18.5
 1. First preview of Karavan Operator 
