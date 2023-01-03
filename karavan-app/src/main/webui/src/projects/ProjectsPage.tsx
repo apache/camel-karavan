@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+    Alert,
     Toolbar,
     ToolbarContent,
     ToolbarItem,
@@ -23,7 +24,7 @@ import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
-import {DeploymentStatus, Project} from "./ProjectModels";
+import {DeploymentStatus, Project, PipelineStatus} from "./ProjectModels";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {CamelUi} from "../designer/utils/CamelUi";
@@ -43,6 +44,7 @@ interface State {
     deploymentStatuses: DeploymentStatus[],
     isCreateModalOpen: boolean,
     isDeleteModalOpen: boolean,
+    isProjectDeploymentModalOpen: boolean,
     isCopy: boolean,
     loading: boolean,
     projectToCopy?: Project,
@@ -61,6 +63,7 @@ export class ProjectsPage extends React.Component<Props, State> {
         deploymentStatuses: [],
         isCreateModalOpen: false,
         isDeleteModalOpen: false,
+        isProjectDeploymentModalOpen: false,
         isCopy: false,
         loading: true,
         filter: '',
@@ -80,7 +83,20 @@ export class ProjectsPage extends React.Component<Props, State> {
     }
 
     onProjectDelete = (project: Project) => {
-        this.setState({isDeleteModalOpen: true, projectToDelete: project})
+        KaravanApi.getProjectPipelineStatus(project.projectId, this.props.config.environment, (status?: PipelineStatus) => {
+            if (status?.result === "Running" || status?.result === "Started") {
+                this.setState({ isProjectDeploymentModalOpen: true, projectToDelete: project })
+            } else {
+                KaravanApi.getProjectDeploymentStatus(project.projectId, this.props.config.environment, (status?: DeploymentStatus) => {
+                    if (status === undefined) {
+                        this.setState({ isDeleteModalOpen: true, projectToDelete: project })
+                    }
+                    else {
+                        this.setState({ isProjectDeploymentModalOpen: true, projectToDelete: project })
+                    }
+                });
+            }
+        });
     };
 
 
@@ -213,19 +229,36 @@ export class ProjectsPage extends React.Component<Props, State> {
 
     deleteModalForm() {
         return (
-            <Modal
-                title="Confirmation"
-                variant={ModalVariant.small}
-                isOpen={this.state.isDeleteModalOpen}
-                onClose={() => this.setState({isDeleteModalOpen: false})}
-                actions={[
-                    <Button key="confirm" variant="primary" onClick={e => this.deleteProject()}>Delete</Button>,
-                    <Button key="cancel" variant="link"
-                            onClick={e => this.setState({isDeleteModalOpen: false})}>Cancel</Button>
-                ]}
-                onEscapePress={e => this.setState({isDeleteModalOpen: false})}>
-                <div>{"Are you sure you want to delete the project " + this.state.projectToDelete?.projectId + "?"}</div>
-            </Modal>
+            <div>
+                {(this.state.isDeleteModalOpen === true) && <Modal
+                    title="Confirmation"
+                    variant={ModalVariant.small}
+                    isOpen={this.state.isDeleteModalOpen}
+                    onClose={() => this.setState({ isDeleteModalOpen: false })}
+                    actions={[
+                        <Button key="confirm" variant="primary" onClick={e => this.deleteProject()}>Delete</Button>,
+                        <Button key="cancel" variant="link"
+                            onClick={e => this.setState({ isDeleteModalOpen: false })}>Cancel</Button>
+                    ]}
+                    onEscapePress={e => this.setState({ isDeleteModalOpen: false })}>
+                    <div>{"Are you sure you want to delete the project " + this.state.projectToDelete?.projectId + "?"}</div>
+                </Modal>
+                }
+                {(this.state.isProjectDeploymentModalOpen === true) && <Modal
+                    variant={ModalVariant.small}
+                    isOpen={this.state.isProjectDeploymentModalOpen}
+                    onClose={() => this.setState({ isProjectDeploymentModalOpen: false })}
+                    onEscapePress={e => this.setState({ isProjectDeploymentModalOpen: false })}>
+                    <div>
+                        <Alert key={this.state.projectToDelete?.projectId} className="main-alert" variant="warning"
+                            title={"Deployment is Running!!"} isInline={true} isPlain={true}>
+                            {"Delete the deployment (" + this.state.projectToDelete?.projectId + ")" + " first."}
+                        </Alert>
+                    </div>
+                </Modal>
+
+                }
+            </div>
         )
     }
 
