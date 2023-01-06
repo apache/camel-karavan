@@ -13,16 +13,9 @@ Karavan is an Integration Toolkit for Apache Camel, which makes integration easy
 
 ![karavan-clouds](images/karavan-clouds.png)
 
-Integrations could be created using visual designer that includes Enterprise Integration Patterns DSL, REST API and Beans builder, all Camel Kamelets and Components. 
+Integrations could be created using visual designer that includes Enterprise Integration Patterns DSL, REST API and Beans builder, all Camel Kamelets and Components. Karavan uses YAML to read/write integrations. Integrations could be run directly from Karavan UI using Camel JBang. Also they could exported in Maven project with preconfigured Camel Quarkus, Camel Spring-Boot or Camel Main runtime. Integration project output is a runnable uber-jar or an OCI image for local environment or a deployed application to a Kubernetes/OpenShift in any cloud provider.
 
-Karavan uses YAML to read/write integrations.
-
-Integrations could be run directly from Karavan UI using Camel JBang. Also they could exported in Maven project with preconfigured Camel Quarkus, Camel Spring-Boot or Camel Main runtime.
-
-![karavan-about](images/karavan-about.png)
-
-
-Integration project output is a runnable uber-jar or an OCI image for local environment or a deployed application to a Kubernetes/OpenShift in any cloud provider.
+https://user-images.githubusercontent.com/1379213/211049026-4496d054-d529-4917-837f-a59b6f2f84b1.mp4
 
 ## Installation
 Two types of applications are available: 
