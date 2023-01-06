@@ -25,6 +25,7 @@ import io.javaoperatorsdk.operator.api.reconciler.dependent.ReconcileResult;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
 import org.apache.camel.karavan.operator.Constants;
 import org.apache.camel.karavan.operator.spec.Karavan;
+import org.apache.camel.karavan.operator.spec.KaravanDeploymentEnvironment;
 import org.apache.camel.karavan.operator.Utils;
 
 import java.util.Map;
@@ -38,7 +39,8 @@ public class KaravanPvcJbang extends CRUDKubernetesDependentResource<PersistentV
     @Override
     @SuppressWarnings("unchecked")
     public PersistentVolumeClaim desired(Karavan karavan, Context<Karavan> context) {
-        return new PersistentVolumeClaimBuilder()
+        if( !karavan.getSpec().getDeploymentEnvironment().equals(KaravanDeploymentEnvironment.Type.AWS.getName())) {
+            return new PersistentVolumeClaimBuilder()
                 .withNewMetadata()
                 .withName(Constants.PVC_JBANG_CACHE)
                 .withNamespace(karavan.getMetadata().getNamespace())
@@ -50,6 +52,21 @@ public class KaravanPvcJbang extends CRUDKubernetesDependentResource<PersistentV
                 .withAccessModes("ReadWriteOnce")
                 .endSpec()
                 .build();
+        }
+        else {
+            return new PersistentVolumeClaimBuilder()
+                .withNewMetadata()
+                .withName(Constants.PVC_JBANG_CACHE)
+                .withNamespace(karavan.getMetadata().getNamespace())
+                .withLabels(Utils.getLabels(Constants.PVC_JBANG_CACHE, Map.of()))
+                .endMetadata()
+                .withNewSpec()
+                .withResources(new ResourceRequirementsBuilder().withRequests(Map.of("storage", new Quantity("2Gi"))).build())
+                .withAccessModes("ReadWriteMany")
+                .withStorageClassName("efs-sc")
+                .endSpec()
+                .build(); 
+        }
     }
 
     public ReconcileResult<PersistentVolumeClaim> reconcile(Karavan karavan, Context<Karavan> context) {

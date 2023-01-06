@@ -23,6 +23,7 @@ public class KaravanSpec {
     private String environment;
     private String runtimes;
     private int nodePort;
+    private String deploymentEnvironment;
 
     public int getInstances() {
         return instances;
@@ -63,4 +64,13 @@ public class KaravanSpec {
     public void setRuntimes(String runtimes) {
         this.runtimes = runtimes;
     }
+
+    public String getDeploymentEnvironment() {
+        return deploymentEnvironment;
+    }
+
+    public void setDeploymentEnvironment(String deploymentEnvironment) {
+        this.deploymentEnvironment = deploymentEnvironment;
+    }
+
 }

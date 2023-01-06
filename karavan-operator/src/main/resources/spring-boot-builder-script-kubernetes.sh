@@ -21,8 +21,24 @@ export DATE=$(date '+%Y%m%d%H%M%S')
 export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 
-/opt/mvnd/bin/mvnd package k8s:build k8s:push k8s:resource k8s:apply \
-  -Pkubernetes \
-  -Djkube.namespace=${NAMESPACE} \
-  -Djkube.docker.push.registry=${IMAGE_REGISTRY} \
-  -Djkube.generator.name=${IMAGE_REGISTRY}/${NAMESPACE}/$(inputs.params.project):${DATE}
+if   [[ $DEPLOYMENT_ENVIRONMENT == 'AWS' ]];
+then
+    echo "Deploying in AWS Kubernetes"
+    export TOKEN=$(cat /workspace/ecr_password.txt)
+    /opt/mvnd/bin/mvnd package k8s:build k8s:push k8s:resource k8s:apply \
+        -Pkubernetes \
+        -Djkube.namespace=${NAMESPACE} \
+        -Djkube.docker.push.username=AWS \
+        -Djkube.docker.push.password=${TOKEN} \
+        -Djkube.docker.skip.extendedAuth=true \
+        -Djkube.docker.push.registry=$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com \
+        -Djkube.generator.name=$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/${NAMESPACE}/$(inputs.params.project):${DATE}
+else
+    echo "Deploying in Kubernetes"
+    export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+    /opt/mvnd/bin/mvnd package k8s:build k8s:push k8s:resource k8s:apply \
+        -Pkubernetes \
+        -Djkube.namespace=${NAMESPACE} \
+        -Djkube.docker.push.registry=${IMAGE_REGISTRY} \
+        -Djkube.generator.name=${IMAGE_REGISTRY}/${NAMESPACE}/$(inputs.params.project):${DATE}
+fi

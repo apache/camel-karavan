@@ -20,6 +20,9 @@ import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition
 import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinitionList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.client.OpenShiftClient;
+
+import org.apache.camel.karavan.operator.spec.Karavan;
+import org.apache.camel.karavan.operator.spec.KaravanDeploymentEnvironment;
 import org.eclipse.microprofile.config.ConfigProvider;
 
 import java.util.HashMap;
@@ -64,5 +67,25 @@ public class Utils {
             return true;
         }
         return false;
+    }
+
+    public static String getDeploymentEnvironment(Karavan karavan, KubernetesClient client) {
+        String result = KaravanDeploymentEnvironment.Type.KUBERNETES.getName();
+        if (karavan.getSpec().getDeploymentEnvironment() != null
+                && KaravanDeploymentEnvironment.Type.AWS.getName().equals(karavan.getSpec().getDeploymentEnvironment())) {
+            result = KaravanDeploymentEnvironment.Type.AWS.getName();
+        } else if (karavan.getSpec().getDeploymentEnvironment() != null
+                && KaravanDeploymentEnvironment.Type.KUBERNETES.getName().equals(karavan.getSpec().getDeploymentEnvironment())
+                && !isOpenShift(client)) {
+            result = KaravanDeploymentEnvironment.Type.KUBERNETES.getName();
+        } else if (karavan.getSpec().getDeploymentEnvironment() != null
+                && KaravanDeploymentEnvironment.Type.OPENSHIFT.getName().equals(karavan.getSpec().getDeploymentEnvironment())
+                && isOpenShift(client)) {
+            result = KaravanDeploymentEnvironment.Type.OPENSHIFT.getName();
+        } else {
+            result = isOpenShift(client) ? KaravanDeploymentEnvironment.Type.OPENSHIFT.getName()
+                    : KaravanDeploymentEnvironment.Type.KUBERNETES.getName();
+        }
+        return result;
     }
 }

@@ -21,18 +21,42 @@ export DATE=$(date '+%Y%m%d%H%M%S')
 export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 
-/opt/mvnd/bin/mvnd package \
-  -Dquarkus.container-image.build=true \
-  -Dquarkus.container-image.push=true \
-  -Dquarkus.container-image.insecure=true \
-  -Dquarkus.container-image.username=sa \
-  -Dquarkus.container-image.password=${TOKEN} \
-  -Dquarkus.container-image.registry=${IMAGE_REGISTRY} \
-  -Dquarkus.container-image.builder=jib \
-  -Dquarkus.kubernetes.deploy=true \
-  -Dquarkus.kubernetes.deployment-target=kubernetes \
-  -Dquarkus.kubernetes.add-version-to-label-selectors=false \
-  -Dquarkus.openshift.labels.\"app\"=$(inputs.params.project) \
-  -Dquarkus.kubernetes.labels.\"app.kubernetes.io/runtime\"=camel \
-  -Dquarkus.container-image.group=${NAMESPACE} \
-  -Dquarkus.container-image.tag=${DATE}
+if   [[ $DEPLOYMENT_ENVIRONMENT == 'AWS' ]];
+then
+    echo "Deploying in AWS Kubernetes"
+    export TOKEN=$(cat /workspace/ecr_password.txt)
+    /opt/mvnd/bin/mvnd package \
+    -Dquarkus.container-image.build=true \
+    -Dquarkus.container-image.push=true \
+    -Dquarkus.container-image.insecure=false \
+    -Dquarkus.container-image.username=AWS \
+    -Dquarkus.container-image.password=${TOKEN} \
+    -Dquarkus.container-image.registry=$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com \
+    -Dquarkus.container-image.builder=jib \
+    -Dquarkus.kubernetes.deploy=true \
+    -Dquarkus.kubernetes.deployment-target=kubernetes \
+    -Dquarkus.kubernetes.add-version-to-label-selectors=false \
+    -Dquarkus.openshift.labels.\"app\"=$(inputs.params.project) \
+    -Dquarkus.kubernetes.labels.\"app.kubernetes.io/runtime\"=camel \
+    -Dquarkus.container-image.group=${NAMESPACE} \
+    -Dquarkus.container-image.tag=${DATE}
+else
+    echo "Deploying in Kubernetes"
+    export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token) 
+    /opt/mvnd/bin/mvnd package \
+    -Dquarkus.container-image.build=true \
+    -Dquarkus.container-image.push=true \
+    -Dquarkus.container-image.insecure=true \
+    -Dquarkus.container-image.username=sa \
+    -Dquarkus.container-image.password=${TOKEN} \
+    -Dquarkus.container-image.registry=${IMAGE_REGISTRY} \
+    -Dquarkus.container-image.builder=jib \
+    -Dquarkus.kubernetes.deploy=true \
+    -Dquarkus.kubernetes.deployment-target=kubernetes \
+    -Dquarkus.kubernetes.add-version-to-label-selectors=false \
+    -Dquarkus.openshift.labels.\"app\"=$(inputs.params.project) \
+    -Dquarkus.kubernetes.labels.\"app.kubernetes.io/runtime\"=camel \
+    -Dquarkus.container-image.group=${NAMESPACE} \
+    -Dquarkus.container-image.tag=${DATE}
+fi
+

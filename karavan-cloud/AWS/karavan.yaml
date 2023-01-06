@@ -1,0 +1,12 @@
+apiVersion: camel.apache.org/v1
+kind: Karavan
+metadata:
+  name: karavan
+  namespace: karavan
+spec:
+  instances: 1
+  auth: public
+  environment: dev
+  runtimes: quarkus,spring-boot
+  nodePort: 30777
+  deploymentEnvironment: AWS

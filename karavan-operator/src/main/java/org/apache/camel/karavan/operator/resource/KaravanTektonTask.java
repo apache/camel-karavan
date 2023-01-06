@@ -35,12 +35,14 @@ import io.javaoperatorsdk.operator.processing.dependent.workflow.Condition;
 import org.apache.camel.karavan.operator.Constants;
 import org.apache.camel.karavan.operator.spec.CamelRuntime;
 import org.apache.camel.karavan.operator.spec.Karavan;
+import org.apache.camel.karavan.operator.spec.KaravanDeploymentEnvironment;
 import org.apache.camel.karavan.operator.Utils;
 import org.eclipse.microprofile.config.ConfigProvider;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -65,7 +67,68 @@ public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Kar
         String image = ConfigProvider.getConfig().getValue("karavan.build-image", String.class);
         String version = ConfigProvider.getConfig().getValue("karavan.version", String.class);
         String script = getScript(karavan);
+        ArrayList<io.fabric8.tekton.pipeline.v1beta1.Step> steps = new ArrayList<>();
+        if (karavan.getSpec().getDeploymentEnvironment().equals(KaravanDeploymentEnvironment.Type.AWS.getName())) {
+            steps.add(new StepBuilder().withName("karavan-create-aws-ecr-repository")
+            .withScript(getAwsEcrCreateScriptScript())
+            .withImage("amazon/aws-cli:2.9.3@sha256:6a37d15ee2f17362cdd2807aeae6b0e38575ea417224d1c4999cbc2923d67da6")
+            .withEnv(
+                    new EnvVarBuilder().withName("AWS_SECRET_ACCESS_KEY").withValueFrom(
+                            new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("aws_secret_access_key").and().build()).build(),
+                    new EnvVarBuilder().withName("AWS_ACCESS_KEY_ID").withValueFrom(
+                            new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("aws_access_key_id").and().build()).build(),
+                    new EnvVarBuilder().withName("AWS_REGION").withValueFrom(
+                            new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("aws_region").and().build()).build(),
+                    new EnvVarBuilder().withName("AWS_ACCOUNT").withValueFrom(
+                            new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("aws_account").and().build()).build(),
+                    new EnvVarBuilder().withName("AWS_OUTPUT").withValueFrom(
+                            new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("aws_output").and().build()).build(),
+                    new EnvVarBuilder().withName("DEPLOYMENT_ENVIRONMENT").withValue(Utils.getDeploymentEnvironment(karavan, client)).build())
+            .build());
 
+            steps.add(new StepBuilder().withName("karavan-build-deploy")
+            .withScript(script)
+            .withImage(image + ":" + version)
+            .withEnv(
+                    new EnvVarBuilder().withName("AWS_SECRET_ACCESS_KEY").withValueFrom(
+                           new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("aws_secret_access_key").and().build()).build(),
+                    new EnvVarBuilder().withName("AWS_ACCESS_KEY_ID").withValueFrom(
+                           new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("aws_access_key_id").and().build()).build(),
+                    new EnvVarBuilder().withName("AWS_REGION").withValueFrom(
+                           new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("aws_region").and().build()).build(),
+                    new EnvVarBuilder().withName("AWS_ACCOUNT").withValueFrom(
+                           new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("aws_account").and().build()).build(),
+                    new EnvVarBuilder().withName("AWS_OUTPUT").withValueFrom(
+                           new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("aws_output").and().build()).build(),
+                    new EnvVarBuilder().withName("GIT_REPOSITORY").withValueFrom(
+                            new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("git-repository").and().build()).build(),
+                    new EnvVarBuilder().withName("GIT_USERNAME").withValueFrom(
+                            new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("git-username").and().build()).build(),
+                    new EnvVarBuilder().withName("GIT_PASSWORD").withValueFrom(
+                            new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("git-password").and().build()).build(),
+                    new EnvVarBuilder().withName("GIT_BRANCH").withValueFrom(
+                            new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("git-branch").and().build()).build(),
+                    new EnvVarBuilder().withName("DEPLOYMENT_ENVIRONMENT").withValue(Utils.getDeploymentEnvironment(karavan, client)).build())
+            .build());
+        }
+        else {
+            steps.add(new StepBuilder().withName("karavan-build-deploy")
+            .withScript(script)
+            .withImage(image + ":" + version)
+            .withEnv(
+                    new EnvVarBuilder().withName("GIT_REPOSITORY").withValueFrom(
+                            new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("git-repository").and().build()).build(),
+                    new EnvVarBuilder().withName("GIT_USERNAME").withValueFrom(
+                            new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("git-username").and().build()).build(),
+                    new EnvVarBuilder().withName("GIT_PASSWORD").withValueFrom(
+                            new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("git-password").and().build()).build(),
+                    new EnvVarBuilder().withName("GIT_BRANCH").withValueFrom(
+                            new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("git-branch").and().build()).build(),
+                    new EnvVarBuilder().withName("IMAGE_REGISTRY").withValueFrom(
+                            new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("image-registry").and().build()).build(),
+                    new EnvVarBuilder().withName("DEPLOYMENT_ENVIRONMENT").withValue(Utils.getDeploymentEnvironment(karavan, client)).build())
+            .build());
+        }
         return new TaskBuilder()
                 .withNewMetadata()
                 .withName(getName())
@@ -74,24 +137,7 @@ public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Kar
                 .endMetadata()
                 .withNewSpec()
                 .withParams(new ParamSpecBuilder().withName("project").withType("string").withDescription("ProjectId").build())
-                .withSteps(
-                        new StepBuilder().withName("karavan-build-deploy")
-                                .withScript(script)
-                                .withImage(image + ":" + version)
-                                .withEnv(
-                                        new EnvVarBuilder().withName("GIT_REPOSITORY").withValueFrom(
-                                                new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("git-repository").and().build()).build(),
-                                        new EnvVarBuilder().withName("GIT_USERNAME").withValueFrom(
-                                                new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("git-username").and().build()).build(),
-                                        new EnvVarBuilder().withName("GIT_PASSWORD").withValueFrom(
-                                                new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("git-password").and().build()).build(),
-                                        new EnvVarBuilder().withName("GIT_BRANCH").withValueFrom(
-                                                new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("git-branch").and().build()).build(),
-                                        new EnvVarBuilder().withName("IMAGE_REGISTRY").withValueFrom(
-                                                new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("image-registry").withOptional(true).and().build()).build()
-                                )
-                                .build()
-                )
+                .withSteps(steps)
                 .withWorkspaces(
                         new WorkspaceDeclaration("Maven Cache", "/root/.m2", Constants.PVC_M2_CACHE, false, false),
                         new WorkspaceDeclaration("JBang Cache", "/jbang/.jbang/cache", Constants.PVC_JBANG_CACHE, false, false)
@@ -128,6 +174,18 @@ public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Kar
                             return s;
                         }
                     })
+                    .collect(Collectors.joining(System.getProperty("line.separator")));
+            return data;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    protected String getAwsEcrCreateScriptScript() {
+        try {
+            InputStream inputStream = KaravanTektonTask.class.getResourceAsStream("/" + "karavan-create-aws-ecr-repository.sh");
+            String data = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines()
                     .collect(Collectors.joining(System.getProperty("line.separator")));
             return data;
         } catch (Exception e) {
