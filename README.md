@@ -21,6 +21,8 @@ Integrations could be run directly from Karavan UI using Camel JBang. Also they 
 
 ![karavan-about](images/karavan-about.png)
 
+https://www.youtube.com/watch?v=RA8sH3AH8Gg
+
 Integration project output is a runnable uber-jar or an OCI image for local environment or a deployed application to a Kubernetes/OpenShift in any cloud provider.
 
 ## Installation
