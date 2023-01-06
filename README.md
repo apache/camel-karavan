@@ -15,9 +15,13 @@ Karavan is an Integration Toolkit for Apache Camel, which makes integration easy
 
 Integrations could be created using visual designer that includes Enterprise Integration Patterns DSL, REST API and Beans builder, all Camel Kamelets and Components. Karavan uses YAML to read/write integrations. Integrations could be run directly from Karavan UI using Camel JBang. Also they could exported in Maven project with preconfigured Camel Quarkus, Camel Spring-Boot or Camel Main runtime. Integration project output is a runnable uber-jar or an OCI image for local environment or a deployed application to a Kubernetes/OpenShift in any cloud provider.
 
+## Introduction
+
 https://user-images.githubusercontent.com/1379213/211049026-4496d054-d529-4917-837f-a59b6f2f84b1.mp4
 
+
 ## Installation
+
 Two types of applications are available: 
 1. [Cloud-native](karavan-cloud/README.md) application deployed into Kubernetes/OpenShift 
 2. [VS Code extension](karavan-vscode/README.md) available on the [Marketplace](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan). Extensions for VS Code Compatible Editors available on [Open VSX Registry](https://open-vsx.org/extension/camel-karavan/karavan)
