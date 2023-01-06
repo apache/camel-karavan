@@ -68,7 +68,7 @@ public class KaravanTektonTask extends CRUDKubernetesDependentResource<Task, Kar
         String version = ConfigProvider.getConfig().getValue("karavan.version", String.class);
         String script = getScript(karavan);
         ArrayList<io.fabric8.tekton.pipeline.v1beta1.Step> steps = new ArrayList<>();
-        if (karavan.getSpec().getDeploymentEnvironment().equals(KaravanDeploymentEnvironment.Type.AWS.getName())) {
+        if (Utils.getDeploymentEnvironment(karavan, client).equals(KaravanDeploymentEnvironment.Type.AWS.getName())) {
             steps.add(new StepBuilder().withName("karavan-create-aws-ecr-repository")
             .withScript(getAwsEcrCreateScriptScript())
             .withImage("amazon/aws-cli:2.9.3@sha256:6a37d15ee2f17362cdd2807aeae6b0e38575ea417224d1c4999cbc2923d67da6")

@@ -39,7 +39,7 @@ public class KaravanPvcData extends CRUDKubernetesDependentResource<PersistentVo
     @Override
     @SuppressWarnings("unchecked")
     public PersistentVolumeClaim desired(Karavan karavan, Context<Karavan> context) {
-        if( !karavan.getSpec().getDeploymentEnvironment().equals(KaravanDeploymentEnvironment.Type.AWS.getName())) {
+        if( !Utils.getDeploymentEnvironment(karavan, client).equals(KaravanDeploymentEnvironment.Type.AWS.getName())) {
            return new PersistentVolumeClaimBuilder()
                 .withNewMetadata()
                 .withName(Constants.PVC_DATA)
