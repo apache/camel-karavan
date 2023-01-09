@@ -1160,6 +1160,9 @@ export class RouteContextRefDefinition extends CamelElement {
 export class RouteDefinition extends CamelElement {
     stepName?: string = 'route';
     group?: string;
+    nodePrefixId?: string;
+    routeConfigurationId?: string;
+    precondition?: string;
     trace?: boolean;
     messageHistory?: boolean;
     logMask?: boolean;
@@ -1168,9 +1171,6 @@ export class RouteDefinition extends CamelElement {
     id?: string = 'route-' + uuidv4().substring(0,4);
     description?: string;
     from: FromDefinition = new FromDefinition();
-    nodePrefixId?: string;
-    precondition?: string;
-    routeConfigurationId?: string;
     routePolicy?: string;
     streamCaching?: boolean;
     public constructor(init?: Partial<RouteDefinition>) {
@@ -1665,6 +1665,15 @@ export class ValidateDefinition extends CamelElement {
     inheritErrorHandler?: boolean;
     public constructor(init?: Partial<ValidateDefinition>) {
         super('ValidateDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class ValueDefinition extends CamelElement {
+    stepName?: string = 'value';
+    value?: string;
+    public constructor(init?: Partial<ValueDefinition>) {
+        super('ValueDefinition');
         Object.assign(this, init);
     }
 }
@@ -2263,17 +2272,22 @@ export class DataFormatsDefinition extends CamelElement {
 export class FhirJsonDataFormat extends CamelElement {
     dataFormatName?: string = 'fhirJson';
     fhirVersion?: string;
+    fhirContext?: string;
     prettyPrint?: boolean;
+    parserErrorHandler?: string;
+    parserOptions?: string;
+    preferTypes?: string;
+    forceResourceId?: string;
     serverBaseUrl?: string;
     omitResourceId?: boolean;
     encodeElementsAppliesToChildResourcesOnly?: boolean;
-    encodeElements?: string[] = [];
-    dontEncodeElements?: string[] = [];
+    encodeElements?: string;
+    dontEncodeElements?: string;
     stripVersionsFromReferences?: boolean;
     overrideResourceIdWithBundleEntryFullUrl?: boolean;
     summaryMode?: boolean;
     suppressNarratives?: boolean;
-    dontStripVersionsFromReferencesAtPaths?: string[] = [];
+    dontStripVersionsFromReferencesAtPaths?: string;
     contentTypeHeader?: boolean;
     id?: string = 'fhirJson-' + uuidv4().substring(0,4);
     public constructor(init?: Partial<FhirJsonDataFormat>) {
@@ -2285,17 +2299,22 @@ export class FhirJsonDataFormat extends CamelElement {
 export class FhirXmlDataFormat extends CamelElement {
     dataFormatName?: string = 'fhirXml';
     fhirVersion?: string;
+    fhirContext?: string;
     prettyPrint?: boolean;
+    parserErrorHandler?: string;
+    parserOptions?: string;
+    preferTypes?: string;
+    forceResourceId?: string;
     serverBaseUrl?: string;
     omitResourceId?: boolean;
     encodeElementsAppliesToChildResourcesOnly?: boolean;
-    encodeElements?: string[] = [];
-    dontEncodeElements?: string[] = [];
+    encodeElements?: string;
+    dontEncodeElements?: string;
     stripVersionsFromReferences?: boolean;
     overrideResourceIdWithBundleEntryFullUrl?: boolean;
     summaryMode?: boolean;
     suppressNarratives?: boolean;
-    dontStripVersionsFromReferencesAtPaths?: string[] = [];
+    dontStripVersionsFromReferencesAtPaths?: string;
     contentTypeHeader?: boolean;
     id?: string = 'fhirXml-' + uuidv4().substring(0,4);
     public constructor(init?: Partial<FhirXmlDataFormat>) {
@@ -2418,6 +2437,7 @@ export class JaxbDataFormat extends CamelElement {
 
 export class JsonApiDataFormat extends CamelElement {
     dataFormatName?: string = 'jsonApi';
+    dataFormatTypes?: string;
     mainFormatType?: string;
     id?: string = 'jsonApi-' + uuidv4().substring(0,4);
     public constructor(init?: Partial<JsonApiDataFormat>) {
@@ -3501,8 +3521,7 @@ export class ParamDefinition extends CamelElement {
     arrayType?: string;
     dataType?: string;
     dataFormat?: string;
-    value?: string[] = [];
-    examples?: RestPropertyDefinition[] = [];
+    allowableValues?: ValueDefinition[] = [];
     description?: string;
     public constructor(init?: Partial<ParamDefinition>) {
         super('ParamDefinition');
@@ -3598,7 +3617,7 @@ export class ResponseHeaderDefinition extends CamelElement {
     arrayType?: string;
     dataType?: string;
     dataFormat?: string;
-    value?: string[] = [];
+    allowableValues?: ValueDefinition[] = [];
     example?: string;
     description?: string;
     public constructor(init?: Partial<ResponseHeaderDefinition>) {

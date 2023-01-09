@@ -104,6 +104,7 @@ import {
     TryDefinition,
     UnmarshalDefinition,
     ValidateDefinition,
+    ValueDefinition,
     WhenDefinition,
     WhenSkipSendToEndpointDefinition,
     WireTapDefinition,
@@ -2685,6 +2686,13 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
+    static readValueDefinition = (element: any): ValueDefinition => {
+        
+        const def = element ? new ValueDefinition({...element}) : new ValueDefinition();
+
+        return def;
+    }
+
     static readWhenDefinition = (element: any): WhenDefinition => {
         
         const def = element ? new WhenDefinition({...element}) : new WhenDefinition();
@@ -4345,7 +4353,7 @@ export class CamelDefinitionYamlStep {
     static readParamDefinition = (element: any): ParamDefinition => {
         
         const def = element ? new ParamDefinition({...element}) : new ParamDefinition();
-        def.examples = element && element?.examples ? element?.examples.map((x:any) => CamelDefinitionYamlStep.readRestPropertyDefinition(x)) :[]; 
+        def.allowableValues = element && element?.allowableValues ? element?.allowableValues.map((x:any) => CamelDefinitionYamlStep.readValueDefinition(x)) :[]; 
 
         return def;
     }
@@ -4383,6 +4391,7 @@ export class CamelDefinitionYamlStep {
     static readResponseHeaderDefinition = (element: any): ResponseHeaderDefinition => {
         
         const def = element ? new ResponseHeaderDefinition({...element}) : new ResponseHeaderDefinition();
+        def.allowableValues = element && element?.allowableValues ? element?.allowableValues.map((x:any) => CamelDefinitionYamlStep.readValueDefinition(x)) :[]; 
 
         return def;
     }

@@ -103,6 +103,7 @@ import {
     TryDefinition,
     UnmarshalDefinition,
     ValidateDefinition,
+    ValueDefinition,
     WhenDefinition,
     WhenSkipSendToEndpointDefinition,
     WireTapDefinition,
@@ -1616,6 +1617,12 @@ export class CamelDefinitionApi {
         return def;
     }
 
+    static createValueDefinition = (element: any): ValueDefinition => { 
+        const def = element ? new ValueDefinition({...element}) : new ValueDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
     static createWhenDefinition = (element: any): WhenDefinition => { 
         const def = element ? new WhenDefinition({...element}) : new WhenDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
@@ -2765,7 +2772,7 @@ export class CamelDefinitionApi {
     static createParamDefinition = (element: any): ParamDefinition => { 
         const def = element ? new ParamDefinition({...element}) : new ParamDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.examples = element && element?.examples ? element?.examples.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[];
+        def.allowableValues = element && element?.allowableValues ? element?.allowableValues.map((x:any) => CamelDefinitionApi.createValueDefinition(x)) :[];
         return def;
     }
 
@@ -2799,6 +2806,7 @@ export class CamelDefinitionApi {
     static createResponseHeaderDefinition = (element: any): ResponseHeaderDefinition => { 
         const def = element ? new ResponseHeaderDefinition({...element}) : new ResponseHeaderDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        def.allowableValues = element && element?.allowableValues ? element?.allowableValues.map((x:any) => CamelDefinitionApi.createValueDefinition(x)) :[];
         return def;
     }
 
@@ -3181,6 +3189,7 @@ export class CamelDefinitionApi {
             case 'TryDefinition': return CamelDefinitionApi.createTryDefinition(newBody);
             case 'UnmarshalDefinition': return CamelDefinitionApi.createUnmarshalDefinition(newBody);
             case 'ValidateDefinition': return CamelDefinitionApi.createValidateDefinition(newBody);
+            case 'ValueDefinition': return CamelDefinitionApi.createValueDefinition(newBody);
             case 'WhenDefinition': return CamelDefinitionApi.createWhenDefinition(newBody);
             case 'WhenSkipSendToEndpointDefinition': return CamelDefinitionApi.createWhenSkipSendToEndpointDefinition(newBody);
             case 'WireTapDefinition': return CamelDefinitionApi.createWireTapDefinition(newBody);

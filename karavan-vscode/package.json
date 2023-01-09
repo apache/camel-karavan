@@ -64,7 +64,7 @@
       "properties": {
         "camel.version": {
           "type": "string",
-          "default": "3.20.0",
+          "default": "3.20.1",
           "description": "Camel version",
           "scope": "machine",
           "order": 10
