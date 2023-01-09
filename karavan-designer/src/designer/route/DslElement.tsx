@@ -131,15 +131,19 @@ export class DslElement extends React.Component<Props, State> {
 
     hasBorder = (): boolean => {
         return (this.props.step?.hasSteps() && !['FromDefinition'].includes(this.props.step.dslName))
-            || ['RouteDefinition', 'TryDefinition', 'ChoiceDefinition', 'SwitchDefinition'].includes(this.props.step.dslName);
+            || ['RouteConfigurationDefinition',
+                'RouteDefinition',
+                'TryDefinition',
+                'ChoiceDefinition',
+                'SwitchDefinition'].includes(this.props.step.dslName);
     }
 
     isNotDraggable = (): boolean => {
-        return ['FromDefinition', 'RouteDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(this.props.step.dslName);
+        return ['FromDefinition', 'RouteConfigurationDefinition', 'RouteDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(this.props.step.dslName);
     }
 
     isWide = (): boolean => {
-        return ['RouteDefinition', 'ChoiceDefinition', 'SwitchDefinition', 'MulticastDefinition', 'TryDefinition', 'CircuitBreakerDefinition']
+        return ['RouteConfigurationDefinition', 'RouteDefinition', 'ChoiceDefinition', 'SwitchDefinition', 'MulticastDefinition', 'TryDefinition', 'CircuitBreakerDefinition']
             .includes(this.props.step.dslName);
     }
 
@@ -153,7 +157,7 @@ export class DslElement extends React.Component<Props, State> {
     }
 
     isRoot = (): boolean => {
-        return this.props.step?.dslName?.startsWith("RouteDefinition");
+        return ['RouteConfigurationDefinition', 'RouteDefinition'].includes(this.props.step?.dslName);
     }
 
     isInStepWithChildren = () => {
@@ -226,12 +230,12 @@ export class DslElement extends React.Component<Props, State> {
         const step: CamelElement = this.props.step;
         const availableModels = CamelUi.getSelectorModelsForParent(step.dslName, false);
         const showAddButton = !['CatchDefinition', 'RouteDefinition'].includes(step.dslName) && availableModels.length > 0;
-        const showInsertButton = !['FromDefinition', 'RouteDefinition', 'CatchDefinition', 'FinallyDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(step.dslName);
-        const headerClass = step.dslName === 'RouteDefinition' ? "header-route" : "header"
+        const showInsertButton = !['FromDefinition', 'RouteConfigurationDefinition', 'RouteDefinition', 'CatchDefinition', 'FinallyDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(step.dslName);
+        const headerClass = ['RouteConfigurationDefinition', 'RouteDefinition'].includes(step.dslName) ? "header-route" : "header"
         const headerClasses = this.isSelected() ? headerClass + " selected" : headerClass;
         return (
             <div className={headerClasses} style={this.getHeaderStyle()}>
-                {this.props.step.dslName !== 'RouteDefinition' &&
+                {!['RouteConfigurationDefinition', 'RouteDefinition'].includes(this.props.step.dslName) &&
                     <div ref={el => this.sendPosition(el, this.isSelected())}
                          className={"header-icon"}
                          style={this.isWide() ? {width: ""} : {}}>
