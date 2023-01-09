@@ -100,7 +100,7 @@ export class CamelDefinitionApiExt {
 
     static findElementMetaInIntegration = (integration: Integration, uuid: string): CamelElementMeta => {
         const i = CamelUtil.cloneIntegration(integration);
-        const routes = i.spec.flows?.filter(f => f.dslName === 'RouteDefinition')
+        const routes = i.spec.flows?.filter(f => ['RouteConfigurationDefinition', 'RouteDefinition'].includes(f.dslName));
         return CamelDefinitionApiExt.findElementInElements(routes, uuid);
     }
 
@@ -177,8 +177,9 @@ export class CamelDefinitionApiExt {
 
     static deleteStepFromIntegration = (integration: Integration, uuidToDelete: string): Integration => {
         const flows: any[] = [];
-        integration.spec.flows?.filter(flow => flow.dslName !== 'RouteDefinition').forEach(x => flows.push(x));
-        const routes = CamelDefinitionApiExt.deleteStepFromSteps(integration.spec.flows?.filter(flow => flow.dslName === 'RouteDefinition'), uuidToDelete);
+        integration.spec.flows?.filter(flow => !['RouteConfigurationDefinition', 'RouteDefinition'].includes(flow.dslName))
+            .forEach(x => flows.push(x));
+        const routes = CamelDefinitionApiExt.deleteStepFromSteps(integration.spec.flows?.filter(flow => ['RouteConfigurationDefinition', 'RouteDefinition'].includes(flow.dslName)), uuidToDelete);
         flows.push(...routes);
         integration.spec.flows = flows;
         return integration;
@@ -472,11 +473,17 @@ export class CamelDefinitionApiExt {
         const elementClone = CamelUtil.cloneStep(e);
         const int: Integration = CamelUtil.cloneIntegration(integration);
         const flows: CamelElement[] = [];
-        integration.spec.flows?.filter(f => f.dslName !== 'RouteDefinition').forEach(f => flows.push(f));
+        integration.spec.flows?.filter(f => !['RouteConfigurationDefinition', 'RouteDefinition'].includes(f.dslName))
+            .forEach(f => flows.push(f));
+
+        integration.spec.flows?.filter(f => f.dslName === 'RouteConfigurationDefinition').forEach(f => {
+            const routeConfiguration = CamelDefinitionApiExt.updateElement(f, elementClone) as RouteConfigurationDefinition;
+            flows.push(CamelDefinitionApi.createRouteConfigurationDefinition(routeConfiguration));
+        });
         integration.spec.flows?.filter(f => f.dslName === 'RouteDefinition').forEach(f => {
             const route = CamelDefinitionApiExt.updateElement(f, elementClone) as RouteDefinition;
             flows.push(CamelDefinitionApi.createRouteDefinition(route));
-        })
+        });
         int.spec.flows = flows
         return int;
     }
