@@ -21,9 +21,16 @@ import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import {NamedBeanDefinition, RouteConfigurationDefinition, RouteDefinition, SagaDefinition, ToDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {
+    InterceptSendToEndpointDefinition,
+    NamedBeanDefinition,
+    RouteConfigurationDefinition,
+    RouteDefinition,
+    SagaDefinition,
+    ToDefinition
+} from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
-import {AggregateIcon, ChoiceIcon, FilterIcon, SagaIcon, SortIcon, SplitIcon} from "./KaravanIcons";
+import {AggregateIcon, ChoiceIcon, FilterIcon, Intercept, InterceptFrom, InterceptSendToEndpoint, OnCompletion, SagaIcon, SortIcon, SplitIcon} from "./KaravanIcons";
 import React from "react";
 
 const StepElements: string[] = [
@@ -489,6 +496,10 @@ export class CamelUi {
             case 'SagaDefinition' :return <SagaIcon/>;
             case 'FilterDefinition' :return <FilterIcon/>;
             case 'SortDefinition' :return <SortIcon/>;
+            case 'OnCompletionDefinition' :return <OnCompletion/>;
+            case 'InterceptDefinition' :return <Intercept/>;
+            case 'InterceptFromDefinition' :return <InterceptFrom/>;
+            case 'InterceptSendToEndpointDefinition' :return <InterceptSendToEndpoint/>;
             default: return this.getIconFromSource(CamelUi.getIconSrcForName(dslName))
         }
     }

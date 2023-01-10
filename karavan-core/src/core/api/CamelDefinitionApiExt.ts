@@ -48,9 +48,11 @@ export class CamelDefinitionApiExt {
             integration.spec.flows?.push(step as RouteDefinition);
         } else {
             const flows: any[] = [];
-            integration.spec.flows?.filter(flow => flow.dslName !== 'RouteDefinition').forEach(bean => flows.push(bean));
+            integration.spec.flows?.filter(flow => !['RouteConfigurationDefinition', 'RouteDefinition'].includes(flow.dslName)).forEach(bean => flows.push(bean));
             const routes = CamelDefinitionApiExt.addStepToSteps(integration.spec.flows?.filter(flow => flow.dslName === 'RouteDefinition') || [], step, parentId, position);
             flows.push(...routes);
+            const routeConfigurations = CamelDefinitionApiExt.addStepToSteps(integration.spec.flows?.filter(flow => flow.dslName === 'RouteConfigurationDefinition') || [], step, parentId, position);
+            flows.push(...routeConfigurations);
             integration.spec.flows = flows;
         }
         return integration;

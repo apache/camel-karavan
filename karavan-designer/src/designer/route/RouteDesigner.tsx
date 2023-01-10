@@ -259,7 +259,9 @@ export class RouteDesigner extends React.Component<Props, State> {
 
     addStep = (step: CamelElement, parentId: string, position?: number | undefined) => {
         const i = CamelDefinitionApiExt.addStepToIntegration(this.state.integration, step, parentId, position);
+        console.log(i)
         const clone = CamelUtil.cloneIntegration(i);
+        console.log(clone)
         this.setState({
             integration: clone,
             key: Math.random().toString(),

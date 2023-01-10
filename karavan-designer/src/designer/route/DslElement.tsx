@@ -228,9 +228,13 @@ export class DslElement extends React.Component<Props, State> {
 
     getHeader = () => {
         const step: CamelElement = this.props.step;
+        const parent = this.props.parent;
+        const inRouteConfiguration = parent !== undefined && parent.dslName === 'RouteConfigurationDefinition';
         const availableModels = CamelUi.getSelectorModelsForParent(step.dslName, false);
         const showAddButton = !['CatchDefinition', 'RouteDefinition'].includes(step.dslName) && availableModels.length > 0;
-        const showInsertButton = !['FromDefinition', 'RouteConfigurationDefinition', 'RouteDefinition', 'CatchDefinition', 'FinallyDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(step.dslName);
+        const showInsertButton =
+            !['FromDefinition', 'RouteConfigurationDefinition', 'RouteDefinition', 'CatchDefinition', 'FinallyDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(step.dslName)
+            && !inRouteConfiguration;
         const headerClass = ['RouteConfigurationDefinition', 'RouteDefinition'].includes(step.dslName) ? "header-route" : "header"
         const headerClasses = this.isSelected() ? headerClass + " selected" : headerClass;
         return (

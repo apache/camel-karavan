@@ -191,7 +191,7 @@ export class CamelUtil {
         if (elementMeta === undefined && className.endsWith("Expression")) elementMeta = CamelMetadataApi.getCamelLanguageMetadataByClassName(className);
         elementMeta?.properties.filter(p => p.required).forEach(p => {
             const value = (element as any)[p.name];
-            if (p.type === 'string' && (value === undefined || value.trim().length === 0)){
+            if (p.type === 'string' && !p.isArray && (value === undefined || value.trim().length === 0)) {
                 result[0] = false;
                 result[1].push(p.displayName + " is required");
             } else if (p.type === 'ExpressionDefinition'){
