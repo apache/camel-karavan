@@ -148,7 +148,7 @@ export class BeansDesigner extends React.Component<Props, State> {
                                                 variant={beans?.length === 0 ? "primary" : "secondary"}
                                                 data-click="ADD_REST"
                                                 icon={<PlusIcon/>}
-                                                onClick={e => this.createBean()}>Create new bean
+                                                onClick={e => this.createBean()}>Create bean
                                             </Button>
                                         </div>
                                     </div>

@@ -259,9 +259,7 @@ export class RouteDesigner extends React.Component<Props, State> {
 
     addStep = (step: CamelElement, parentId: string, position?: number | undefined) => {
         const i = CamelDefinitionApiExt.addStepToIntegration(this.state.integration, step, parentId, position);
-        console.log(i)
         const clone = CamelUtil.cloneIntegration(i);
-        console.log(clone)
         this.setState({
             integration: clone,
             key: Math.random().toString(),
@@ -412,12 +410,12 @@ export class RouteDesigner extends React.Component<Props, State> {
                         <Button
                             variant={routes.length === 0 ? "primary" : "secondary"}
                             icon={<PlusIcon/>}
-                            onClick={e => this.openSelector(undefined, undefined)}>Create new route
+                            onClick={e => this.openSelector(undefined, undefined)}>Create route
                         </Button>
                         <Button
                             variant="secondary"
                             icon={<PlusIcon/>}
-                            onClick={e => this.createRouteConfiguration()}>Create new configuration
+                            onClick={e => this.createRouteConfiguration()}>Create configuration
                         </Button>
                     </div>
                 </div>
