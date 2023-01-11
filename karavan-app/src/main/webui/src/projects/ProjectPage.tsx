@@ -212,9 +212,11 @@ export class ProjectPage extends React.Component<Props, State> {
                             this.setState({file: undefined})
                             this.onRefresh();
                         }}>
-                            {"Project: " + project?.projectId}
+                            <Flex direction={{default:"row"}}>
+                                <FlexItem>{"Project: " + project?.projectId}</FlexItem>
+                                <FlexItem><Badge>{getProjectFileType(file)}</Badge></FlexItem>
+                            </Flex>
                         </BreadcrumbItem>
-                        <Badge>{getProjectFileType(file)}</Badge>
                     </Breadcrumb>
                     <TextContent className="title">
                         <Text component="h1">{isLog ? filename : file.name}</Text>
