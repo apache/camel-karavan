@@ -213,7 +213,7 @@ export class CamelUtil {
             if (!isKamelet){
                 this.getComponentProperties(element).filter(p => p.required).forEach(p => {
                     const value = CamelDefinitionApiExt.getParametersValue(element, p.name, p.kind === 'path');
-                   if (value === undefined || value.trim().length === 0){
+                   if (value === undefined || (p.type === 'string' && value.trim().length === 0)){
                        result[0] = false;
                        result[1].push(p.displayName + " is required");
                    }
