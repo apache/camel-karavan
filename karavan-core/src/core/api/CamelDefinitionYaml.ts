@@ -28,11 +28,11 @@ export class CamelDefinitionYaml {
         clone.spec.flows = flows?.map((f: any) => CamelDefinitionYaml.cleanupElement(f)).filter(x => Object.keys(x).length !== 0);
         if (integration.type === 'crd') {
             delete clone.type
-            const i = JSON.parse(JSON.stringify(clone, null, 3)); // fix undefined in string attributes
+            const i = JSON.parse(JSON.stringify(clone, (key, value) => this.replacer(key, value), 3)); // fix undefined in string attributes
             const text = CamelDefinitionYaml.yamlDump(i);
             return text;
         } else {
-            const f = JSON.parse(JSON.stringify(clone.spec.flows, null, 3));
+            const f = JSON.parse(JSON.stringify(clone.spec.flows, (key, value) => this.replacer(key, value), 3));
             const text = CamelDefinitionYaml.yamlDump(f);
             return text;
         }
@@ -100,8 +100,7 @@ export class CamelDefinitionYaml {
                     if (a === 'steps') return 1
                     else if (b === 'steps') return -1
                     else return 0;
-                },
-                replacer: (key, value) => this.replacer(key, value)
+                }
             });
     }
 
