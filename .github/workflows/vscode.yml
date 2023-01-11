@@ -54,7 +54,7 @@ jobs:
 
       - name: Karavan VS Code extension (install vsce)
         working-directory: ./karavan-vscode
-        run: npm install -g vsce
+        run: npm install -g @vscode/vsce
 
       - name: Karavan VS Code extension (package)
         working-directory: ./karavan-vscode
