@@ -254,16 +254,17 @@ export function getDesignerIcon(icon: string) {
             <path d="M16,4A12,12,0,1,1,4,16,12.0136,12.0136,0,0,1,16,4m0-2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Z" transform="translate(0)"/>
             <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32" height="32"/>
         </svg>)
-    if (icon === 'template') return (
-        <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon" xmlns="http://www.w3.org/2000/svg">
+    if (icon === 'routeConfiguration') return (
+        <svg className="top-icon" width="32" height="32" viewBox="0 0 32 32">
             <defs>
                 <style>{".cls-1{fill:none;}"}</style>
             </defs>
-            <title>code</title>
-            <polygon points="31 16 24 23 22.59 21.59 28.17 16 22.59 10.41 24 9 31 16"/>
-            <polygon points="1 16 8 9 9.41 10.41 3.83 16 9.41 21.59 8 23 1 16"/>
-            <rect x="5.91" y="15" width="20.17" height="2" transform="translate(-3.6 27.31) rotate(-75)"/>
-            <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32" height="32" transform="translate(0 32) rotate(-90)"/>
+            <path d="M28.83 21.17L25 17.37l.67-.67a1 1 0 000-1.41l-6-6a1 1 0 00-1.41 0l-.79.79-6.76-6.79a1 1 0 00-1.41 0l-4 4-.12.15-4 6a1 1 0 00.12 1.26l3 3a1 1 0 001.42 0L10 13.41l2.09 2.09-4.8 4.79a1 1 0 000 1.41l2 2a1 1 0 00.71.3 1 1 0 00.52-.15l4.33-2.6 2.44 2.45a1 1 0 001.41 0l.67-.7 3.79 3.83a4 4 0 005.66-5.66zM10 10.58l-5 5-1.71-1.71 3.49-5.24L10 5.41l6.09 6.09-2.59 2.58zm8 11l-2.84-2.84-5 3-.74-.74L19 11.41 23.59 16zm9.42 3.83a2 2 0 01-2.83 0l-3.8-3.79 2.83-2.83 3.8 3.79a2 2 0 010 2.83z"></path>
+            <path
+                d="M0 0H32V32H0z"
+                className="cls-1"
+                data-name="&lt;Transparent Rectangle&gt;"
+            ></path>
         </svg>)
     if (icon === 'yaml') return (
         <svg className="top-icon" x="0px" y="0px" width="32px" height="32px"
@@ -448,6 +449,105 @@ export function SortIcon() {
         </svg>
     );
 }
+
+export function OnCompletion() {
+    return (
+        <svg
+            className="icon" width="32px" height="32px"
+            xmlns="http://www.w3.org/2000/svg"
+            id="icon"
+            fill="#000"
+            viewBox="0 0 32 32"
+        >
+            <defs>
+                <style>{".cls-1 { fill: none; }"}</style>
+            </defs>
+            <path d="M22 26.59L19.41 24 18 25.41 22 29.41 30 21.41 28.59 20 22 26.59z"></path>
+            <circle cx="16" cy="16" r="2"></circle>
+            <path d="M16 22a6 6 0 116-6 6.007 6.007 0 01-6 6zm0-10a4 4 0 104 4 4.005 4.005 0 00-4-4z"></path>
+            <path d="M28 16a12 12 0 10-12 12v-2a10 10 0 1110-10z"></path>
+            <path
+                id="_Transparent_Rectangle_"
+                d="M0 0H32V32H0z"
+                className="cls-1"
+                data-name="&lt;Transparent Rectangle&gt;"
+            ></path>
+        </svg>
+    );
+}
+
+export function Intercept() {
+    return (
+        <svg
+            className="icon" width="32px" height="32px"
+            xmlns="http://www.w3.org/2000/svg"
+            id="icon"
+            fill="#000"
+            viewBox="0 0 32 32"
+        >
+            <defs>
+                <style>{".cls-1 {    fill: none; }"}</style>
+            </defs>
+            <path d="M15 4H17V28H15z"></path>
+            <path d="M10 7v18H4V7h6m0-2H4a2 2 0 00-2 2v18a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2zM28 7v18h-6V7h6m0-2h-6a2 2 0 00-2 2v18a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2z"></path>
+            <path
+                id="_Transparent_Rectangle_"
+                d="M0 0H32V32H0z"
+                className="cls-1"
+                data-name="&lt;Transparent Rectangle&gt;"
+            ></path>
+        </svg>
+    );
+}
+
+export function InterceptFrom() {
+    return (
+        <svg
+            className="icon" width="32px" height="32px"
+            xmlns="http://www.w3.org/2000/svg"
+            id="icon"
+            fill="#000"
+            viewBox="0 0 32 32"
+        >
+            <defs>
+                <style>{".cls-1 {    fill: none; }"}</style>
+            </defs>
+            <path d="M26 30H14a2 2 0 01-2-2v-3h2v3h12V4H14v3h-2V4a2 2 0 012-2h12a2 2 0 012 2v24a2 2 0 01-2 2z"></path>
+            <path d="M14.59 20.59L18.17 17 4 17 4 15 18.17 15 14.59 11.41 16 10 22 16 16 22 14.59 20.59z"></path>
+            <path
+                id="_Transparent_Rectangle_"
+                d="M0 0H32V32H0z"
+                className="cls-1"
+                data-name="&lt;Transparent Rectangle&gt;"
+            ></path>
+        </svg>
+    );
+}
+
+export function InterceptSendToEndpoint() {
+    return (
+        <svg
+            className="icon" width="32px" height="32px"
+            xmlns="http://www.w3.org/2000/svg"
+            id="icon"
+            fill="#000"
+            viewBox="0 0 32 32"
+        >
+            <defs>
+                <style>{".cls-1 {    fill: none; }"}</style>
+            </defs>
+            <path d="M6 30h12a2.002 2.002 0 002-2v-3h-2v3H6V4h12v3h2V4a2.002 2.002 0 00-2-2H6a2.002 2.002 0 00-2 2v24a2.002 2.002 0 002 2z"></path>
+            <path d="M20.586 20.586L24.172 17 10 17 10 15 24.172 15 20.586 11.414 22 10 28 16 22 22 20.586 20.586z"></path>
+            <path
+                id="_Transparent_Rectangle_"
+                d="M0 0H32V32H0z"
+                className="cls-1"
+                data-name="&lt;Transparent Rectangle&gt;"
+            ></path>
+        </svg>
+    );
+}
+
 
 export function SpringIcon() {
     return (

@@ -21,9 +21,16 @@ import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import {ErrorHandlerDefinition, NamedBeanDefinition, RouteDefinition, SagaDefinition, ToDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {
+    InterceptSendToEndpointDefinition,
+    NamedBeanDefinition,
+    RouteConfigurationDefinition,
+    RouteDefinition,
+    SagaDefinition,
+    ToDefinition
+} from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
-import {AggregateIcon, ChoiceIcon, FilterIcon, SagaIcon, SortIcon, SplitIcon} from "./KaravanIcons";
+import {AggregateIcon, ChoiceIcon, FilterIcon, Intercept, InterceptFrom, InterceptSendToEndpoint, OnCompletion, SagaIcon, SortIcon, SplitIcon} from "./KaravanIcons";
 import React from "react";
 
 const StepElements: string[] = [
@@ -489,6 +496,10 @@ export class CamelUi {
             case 'SagaDefinition' :return <SagaIcon/>;
             case 'FilterDefinition' :return <FilterIcon/>;
             case 'SortDefinition' :return <SortIcon/>;
+            case 'OnCompletionDefinition' :return <OnCompletion/>;
+            case 'InterceptDefinition' :return <Intercept/>;
+            case 'InterceptFromDefinition' :return <InterceptFrom/>;
+            case 'InterceptSendToEndpointDefinition' :return <InterceptSendToEndpoint/>;
             default: return this.getIconFromSource(CamelUi.getIconSrcForName(dslName))
         }
     }
@@ -512,7 +523,7 @@ export class CamelUi {
         const result = new Map<string, number>();
         result.set('routes', i.spec.flows?.filter((e: any) => e.dslName === 'RouteDefinition').length || 0);
         result.set('rest', i.spec.flows?.filter((e: any) => e.dslName === 'RestDefinition').length || 0);
-        result.set('error', i.spec.flows?.filter((e: any) => e.dslName === 'ErrorHandlerDefinition').length || 0);
+        result.set('routeConfiguration', i.spec.flows?.filter((e: any) => e.dslName === 'RouteConfigurationDefinition').length || 0);
         const beans = i.spec.flows?.filter((e: any) => e.dslName === 'Beans');
         if (beans && beans.length > 0 && beans[0].beans && beans[0].beans.length > 0){
             result.set('beans', Array.from(beans[0].beans).length);
@@ -536,8 +547,10 @@ export class CamelUi {
         return result;
     }
 
-    static getErrorHandler = (integration: Integration): ErrorHandlerDefinition | undefined => {
-        const errorHandler = integration.spec.flows?.filter((e: any) => e.dslName === 'ErrorHandlerDefinition').at(0);
-        return errorHandler;
+    static getRouteConfigurations = (integration: Integration): RouteConfigurationDefinition[] | undefined => {
+        const result: CamelElement[] = [];
+        integration.spec.flows?.filter((e: any) => e.dslName === 'RouteConfigurationDefinition')
+            .forEach((f: any) => result.push(f));
+        return result;
     }
 }

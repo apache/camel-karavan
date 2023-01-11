@@ -28,7 +28,7 @@ import {DslSelector} from "./DslSelector";
 import {DslMetaModel} from "../utils/DslMetaModel";
 import {DslProperties} from "./DslProperties";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {FromDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {FromDefinition, RouteConfigurationDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
@@ -40,7 +40,6 @@ import {CamelUi, RouteToCreate} from "../utils/CamelUi";
 import {findDOMNode} from "react-dom";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {toPng} from 'html-to-image';
-import {KaravanDesigner} from "../KaravanDesigner";
 
 interface Props {
     onSave?: (integration: Integration, propertyOnly: boolean) => void
@@ -149,6 +148,7 @@ export class RouteDesigner extends React.Component<Props, State> {
     showDeleteConfirmation = (id: string) => {
         let message: string;
         let ce: CamelElement;
+        let isRouteConfiguration: boolean = false;
         ce = CamelDefinitionApiExt.findElementInIntegration(this.state.integration, id)!;
         if (ce.dslName === 'FromDefinition') { // Get the RouteDefinition for this.  Use its uuid.
             let flows = this.state.integration.spec.flows!;
@@ -164,6 +164,9 @@ export class RouteDesigner extends React.Component<Props, State> {
             message = 'Deleting the first element will delete the entire route!';
         } else if (ce.dslName === 'RouteDefinition') {
             message = 'Delete route?';
+        } else if (ce.dslName === 'RouteConfigurationDefinition') {
+            message = 'Delete route configuration?';
+            isRouteConfiguration = true;
         } else {
             message = 'Delete element from route?';
         }
@@ -239,6 +242,19 @@ export class RouteDesigner extends React.Component<Props, State> {
                 this.addStep(step, parentId, position)
                 break;
         }
+    }
+
+    createRouteConfiguration = () => {
+        const clone = CamelUtil.cloneIntegration(this.state.integration);
+        const routeConfiguration = new RouteConfigurationDefinition();
+        const i = CamelDefinitionApiExt.addRouteConfigurationToIntegration(clone, routeConfiguration);
+        this.setState({
+            integration: i,
+            propertyOnly: false,
+            key: Math.random().toString(),
+            selectedStep: routeConfiguration,
+            selectedUuid: routeConfiguration.uuid,
+        });
     }
 
     addStep = (step: CamelElement, parentId: string, position?: number | undefined) => {
@@ -356,21 +372,35 @@ export class RouteDesigner extends React.Component<Props, State> {
     }
 
     getGraph() {
-        const routes = CamelUi.getRoutes(this.state.integration);
+        const {selectedUuid, integration, key, width, height, top, left} = this.state;
+        const routes = CamelUi.getRoutes(integration);
+        const routeConfigurations = CamelUi.getRouteConfigurations(integration);
         return (
             <div ref={this.state.printerRef} className="graph">
-                <DslConnections height={this.state.height} width={this.state.width} top={this.state.top}
-                                left={this.state.left} integration={this.state.integration}/>
+                <DslConnections height={height} width={width} top={top} left={left} integration={integration}/>
                 <div className="flows" data-click="FLOWS" onClick={event => this.unselectElement(event)}
                      ref={el => this.onResizePage(el)}>
-                    {routes?.map((route: any, index: number) => (
-                        <DslElement key={route.uuid + this.state.key}
-                                    integration={this.state.integration}
+                    {routeConfigurations?.map((routeConfiguration , index: number) => (
+                        <DslElement key={routeConfiguration.uuid + key}
+                                    integration={integration}
                                     openSelector={this.openSelector}
                                     deleteElement={this.showDeleteConfirmation}
                                     selectElement={this.selectElement}
                                     moveElement={this.moveElement}
-                                    selectedUuid={this.state.selectedUuid}
+                                    selectedUuid={selectedUuid}
+                                    inSteps={false}
+                                    position={index}
+                                    step={routeConfiguration}
+                                    parent={undefined}/>
+                    ))}
+                    {routes?.map((route: any, index: number) => (
+                        <DslElement key={route.uuid + key}
+                                    integration={integration}
+                                    openSelector={this.openSelector}
+                                    deleteElement={this.showDeleteConfirmation}
+                                    selectElement={this.selectElement}
+                                    moveElement={this.moveElement}
+                                    selectedUuid={selectedUuid}
                                     inSteps={false}
                                     position={index}
                                     step={route}
@@ -379,9 +409,13 @@ export class RouteDesigner extends React.Component<Props, State> {
                     <div className="add-flow">
                         <Button
                             variant={routes.length === 0 ? "primary" : "secondary"}
-                            data-click="ADD_ROUTE"
                             icon={<PlusIcon/>}
-                            onClick={e => this.openSelector(undefined, undefined)}>Create new route
+                            onClick={e => this.openSelector(undefined, undefined)}>Create route
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            icon={<PlusIcon/>}
+                            onClick={e => this.createRouteConfiguration()}>Create configuration
                         </Button>
                     </div>
                 </div>

@@ -525,6 +525,7 @@
     margin-top: 16px;
     display: flex;
     justify-content: center;
+    gap: 6px;
 }
 
 /*connections*/

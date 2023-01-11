@@ -116,6 +116,9 @@ export class DslPropertyField extends React.Component<Props, State> {
     }
 
     propertyChanged = (fieldId: string, value: string | number | boolean | any, newRoute?: RouteToCreate) => {
+        if (fieldId === 'id' && CamelDefinitionApiExt.hasElementWithId(this.props.integration, value)) {
+            value = this.props.value;
+        }
         this.props.onChange?.call(this, fieldId, value, newRoute);
         this.setState({selectStatus: new Map<string, boolean>([[fieldId, false]])});
     }
