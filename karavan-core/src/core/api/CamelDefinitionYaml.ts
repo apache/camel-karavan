@@ -127,6 +127,7 @@ export class CamelDefinitionYaml {
                 || stepName === 'jtaTransactionErrorHandler'
                 || stepName === 'noErrorHandler'
                 || stepName === 'springTransactionErrorHandler'
+                || stepName === 'redeliveryPolicy'
                 || key === 'from') {
                 delete newValue.inArray;
                 delete newValue.inSteps;
