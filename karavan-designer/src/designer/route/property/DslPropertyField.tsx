@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {ReactElement} from 'react';
 import {
     FormGroup,
     TextInput,
@@ -410,10 +410,17 @@ export class DslPropertyField extends React.Component<Props, State> {
         )
     }
 
-    getMediaTypeSelectOptions(filter?: string) {
-        return filter
-            ? MediaTypes.filter(mt => mt.includes(filter)).map((value: string) => <SelectOption key={value} value={value.trim()}/>)
-            : MediaTypes.map((value: string) => <SelectOption key={value} value={value.trim()}/>);
+    getMediaTypeSelectOptions(filter?: string): JSX.Element [] {
+        const options: JSX.Element [] = [
+            <SelectOption key={0} value="Select Media Type" isPlaceholder />
+        ];
+        const mediaTypes: JSX.Element[] =  filter
+            ? MediaTypes.filter(mt => mt.includes(filter)).map((value: string) =>
+                <SelectOption key={value} value={value.trim()}/>)
+            : MediaTypes.map((value: string) =>
+                <SelectOption key={value} value={value.trim()}/>);
+        options.push(...mediaTypes);
+        return options;
     }
 
     getMediaTypeSelect = (property: PropertyMeta, value: any) => {
