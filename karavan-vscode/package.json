@@ -226,7 +226,7 @@
             "management.health.probes.enabled=true",
             "management.endpoint.health.show-details=always"
           ],
-          "description": "Spring-boot application.properties template",
+          "description": "Spring Boot application.properties template",
           "scope": "machine",
           "order": 91
         },
