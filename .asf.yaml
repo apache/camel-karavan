@@ -20,7 +20,7 @@ notifications:
   issues: commits@camel.apache.org
   pullrequests: commits@camel.apache.org
 github:
-  description: "Karavan the Mastering Tool for Apache Camel"
+  description: "Karavan an Integration Toolkit for Apache Camel"
   homepage: https://camel.apache.org
   labels:
     - camel
