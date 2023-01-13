@@ -1,4 +1,4 @@
-FROM jbangdev/jbang-action:0.99.1
+FROM jbangdev/jbang-action:0.101.0
 
 # Add Camel-JBang
 RUN jbang trust add -o --fresh --quiet https://github.com/apache/camel/blob/HEAD/dsl/camel-jbang/camel-jbang-main/dist/CamelJBang.java
