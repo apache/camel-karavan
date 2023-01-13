@@ -99,7 +99,9 @@ public class StatusService {
     public void collectAllStatuses(String data) {
         String all = "ALL_PROJECTS";
         if ((System.currentTimeMillis() - lastCollect.getOrDefault(all, 0L)) > threshold) {
-            infinispanService.getDeploymentStatuses().forEach(d -> eventBus.publish(CMD_COLLECT_PROJECT_STATUS, d.getName()));
+            infinispanService.getDeploymentStatuses().forEach(d -> {
+                eventBus.publish(CMD_COLLECT_PROJECT_STATUS, new JsonObject(Map.of("projectId", d.getName(), "env", d.getEnv())));
+            });
             lastCollect.put(all, System.currentTimeMillis());
         }
     }
