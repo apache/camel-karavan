@@ -443,7 +443,7 @@ export class ProjectPage extends React.Component<Props, State> {
         const {file, isDeleteModalOpen, fileToDelete, isUploadModalOpen, isCreateModalOpen, key} = this.state;
         const {project} = this.props;
         const types = this.isBuildIn()
-            ? (this.isKameletsProject() ? ['KAMELET'] : ['JAVA'])
+            ? (this.isKameletsProject() ? ['KAMELET'] : ['CODE', 'PROPERTIES'])
             : ProjectFileTypes.filter(p => !['PROPERTIES', 'LOG', 'KAMELET'].includes(p.name)).map(p => p.name);
         return (
             <PageSection key={key} className="kamelet-section project-page" padding={{default: 'noPadding'}}>

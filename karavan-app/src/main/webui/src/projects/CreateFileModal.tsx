@@ -61,6 +61,8 @@ export class CreateFileModal extends React.Component<Props, State> {
     render() {
         const {fileType} = this.state;
         const {types} = this.props;
+        console.log(fileType)
+        console.log(types)
         const extension = ProjectFileTypes.filter(value => value.name === fileType)[0].extension;
         const filename = (extension !== 'java')
             ? CamelUi.nameFromTitle(this.state.name)

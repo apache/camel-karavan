@@ -410,12 +410,12 @@ export class RouteDesigner extends React.Component<Props, State> {
                         <Button
                             variant={routes.length === 0 ? "primary" : "secondary"}
                             icon={<PlusIcon/>}
-                            onClick={e => this.openSelector(undefined, undefined)}>Create new route
+                            onClick={e => this.openSelector(undefined, undefined)}>Create route
                         </Button>
                         <Button
                             variant="secondary"
                             icon={<PlusIcon/>}
-                            onClick={e => this.createRouteConfiguration()}>Create new configuration
+                            onClick={e => this.createRouteConfiguration()}>Create configuration
                         </Button>
                     </div>
                 </div>

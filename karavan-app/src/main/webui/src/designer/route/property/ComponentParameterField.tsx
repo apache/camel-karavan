@@ -289,7 +289,6 @@ export class ComponentParameterField extends React.Component<Props, State> {
         const property: ComponentProperty = this.props.property;
         const value = this.props.value;
         const id = prefix + "-" + property.name;
-        console.log("property", property)
         return (
             <FormGroup
                 key={id}

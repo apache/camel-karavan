@@ -263,20 +263,20 @@ export class RestDesigner extends React.Component<Props, State> {
                                         {config && this.getRestConfigurationCard(config)}
                                         {data && this.getRestCards(data)}
                                         <div className="add-rest">
-                                            {config === undefined &&
-                                                <Button
-                                                    variant="primary"
-                                                    data-click="ADD_REST_REST_CONFIG"
-                                                    icon={<PlusIcon/>}
-                                                    onClick={e => this.createRestConfiguration()}>Create REST Configuration
-                                                </Button>
-                                            }
                                             <Button
                                                 variant={data?.length === 0 ? "primary" : "secondary"}
                                                 data-click="ADD_REST"
                                                 icon={<PlusIcon/>}
-                                                onClick={e => this.createRest()}>Create REST Service
+                                                onClick={e => this.createRest()}>Create service
                                             </Button>
+                                            {config === undefined &&
+                                                <Button
+                                                    variant="secondary"
+                                                    data-click="ADD_REST_REST_CONFIG"
+                                                    icon={<PlusIcon/>}
+                                                    onClick={e => this.createRestConfiguration()}>Create configuration
+                                                </Button>
+                                            }
                                         </div>
                                     </div>
                                 </div>
