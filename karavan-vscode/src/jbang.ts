@@ -20,7 +20,7 @@ import * as shell from 'shelljs';
 import * as utils from "./utils";
 import * as exec from "./exec";
 
-export async function camelJbangGenerate(rootPath: string, openApiFullPath: string, fullPath: string, add: boolean, crd?: boolean, generateRoutes?: boolean) {
+export async function camelJbangGenerate(rootPath: string, openApiFullPath: string, fullPath: string, add: boolean, generateRoutes?: boolean) {
     let command = prepareCommand("generate rest -i " + openApiFullPath);
     if (generateRoutes === true) command = command + " --routes";
     executeJbangCommand(rootPath, command, (code, stdout, stderr) => {
@@ -31,11 +31,11 @@ export async function camelJbangGenerate(rootPath: string, openApiFullPath: stri
             if (add) {
                 utils.readFile(fullPath).then(readData => {
                     const camelYaml = Buffer.from(readData).toString('utf8');
-                    yaml = utils.createYaml(filename, stdout, camelYaml, undefined);
+                    yaml = utils.createYaml(filename, stdout, camelYaml);
                     utils.write(fullPath, yaml);
                 });
             } else {
-                yaml = utils.createYaml(filename, stdout, undefined, crd);
+                yaml = utils.createYaml(filename, stdout, undefined);
                 utils.write(fullPath, yaml);
             }
         } else {

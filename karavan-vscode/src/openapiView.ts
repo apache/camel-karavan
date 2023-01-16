@@ -93,14 +93,14 @@ export class OpenApiItem extends TreeItem {
 /**
  * Select routes generation
  */
-export async function selectRouteGeneration(rootPath: string, openApiFullPath: string, fullPath: string, add: boolean, crd?: boolean) {
+export async function selectRouteGeneration(rootPath: string, openApiFullPath: string, fullPath: string, add: boolean) {
 	const options = ["Generate REST and Routes", 'Generate REST only'];
 	await window.showQuickPick(options, {
 		title: "Generate route stubs for REST API",
 		placeHolder: 'Select option',
 	}).then(option => {
 		const generateRoutes: boolean = option !== undefined && option === options[0];
-		jbang.camelJbangGenerate(rootPath, openApiFullPath, fullPath, add, crd, generateRoutes);
+		jbang.camelJbangGenerate(rootPath, openApiFullPath, fullPath, add, generateRoutes);
 	});
 }
 
@@ -109,13 +109,13 @@ export async function selectRouteGeneration(rootPath: string, openApiFullPath: s
  */
 export async function selectFileName(rootPath?: string, openApi?: OpenApiItem) {
 	if (rootPath && openApi?.fsPath) {
-		const files = utils.getIntegrationFiles(rootPath);
+		const files = utils.getCamelYamlFiles(rootPath);
 		await window.showQuickPick(files, {
 			title: "Select Integration file to add REST API",
 			placeHolder: 'Select file',
 		}).then(fullPath => {
 			if (fullPath && openApi?.fsPath) {
-				selectRouteGeneration(rootPath, openApi.fsPath, fullPath, true, undefined);
+				selectRouteGeneration(rootPath, openApi.fsPath, fullPath, true);
 			}
 		});
 	}
@@ -124,22 +124,24 @@ export async function selectFileName(rootPath?: string, openApi?: OpenApiItem) {
 /**
  * Create new file and add REST API
  */
-export async function inputFileName(crd: boolean, rootPath?: string, openApi?: OpenApiItem) {
+export async function inputFileName(rootPath?: string, openApi?: OpenApiItem) {
 	window.showInputBox({
 		title: "Generate REST API from " + openApi?.title,
 		ignoreFocusOut: true,
 		prompt: "Integration file name",
 		validateInput: (text: string): string | undefined => {
-			if (!text || text.length === 0 || !text.endsWith(".yaml")) {
-				return 'Name should not be empty. Extension should be .yaml';
+			if (!text || text.length === 0) {
+				return 'Name should not be empty';
 			} else {
 				return undefined;
 			}
 		}
-	}).then(filename => {
-		if (filename && openApi?.fsPath && rootPath) {
+	}).then(value => {
+		if (value && openApi?.fsPath && rootPath) {
+			const name = utils.nameFromTitle(value);
+			const filename = name.toLocaleLowerCase().endsWith('.camel.yaml') ? name : name.split('.')[0] + '.camel.yaml';
 			const fullPath = rootPath + path.sep + filename;
-			selectRouteGeneration(rootPath, openApi.fsPath, fullPath, false, crd);
+			selectRouteGeneration(rootPath, openApi.fsPath, fullPath, false);
 		}
 	});
 }

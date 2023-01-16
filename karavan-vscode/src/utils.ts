@@ -166,6 +166,14 @@ export async function getYamlFiles(baseDir: string) {
     return result;
 }
 
+export async function getCamelYamlFiles(baseDir: string) {
+    const result: string[] = [];
+    (await getAllFiles(baseDir, [])).filter(f => f.endsWith(".camel.yaml")).forEach(f => {
+        result.push(f);
+    })
+    return result;
+}
+
 export async function hasApplicationProperties(baseDir: string) {
     return (await getPropertyFiles(baseDir)).includes(baseDir + path.sep + 'application.properties');
 }
@@ -193,21 +201,6 @@ export async function getJsonFiles(baseDir: string) {
     })
     return result;
 }
-
-export async function getIntegrationFiles(baseDir: string) {
-    const result: string[] = []
-    const files = await getYamlFiles(baseDir);
-    for (let x in files) {
-        const filename = files[x];
-        const readData = await readFile(path.resolve(filename));
-        const yaml = Buffer.from(readData).toString('utf8');
-        if (!filename.startsWith(baseDir + path.sep + "target") && CamelDefinitionYaml.yamlIsIntegration(yaml)) {
-            result.push(yaml);
-        }
-    }
-    return result;
-}
-
 
 export async function getProperties(rootPath?: string) {
     try {
@@ -348,17 +341,17 @@ export async function createApplicationGitignore() {
     }
 }
 
-export function createYaml(filename: string, restYaml: string, camelYaml?: string, crd?: boolean): string {
+export function createYaml(filename: string, restYaml: string, camelYaml?: string): string {
     if (camelYaml) {
         const i = CamelDefinitionYaml.yamlToIntegration(filename, camelYaml);
         const rest = CamelDefinitionYaml.yamlToIntegration(filename, restYaml);
         i.spec.flows = i.spec.flows?.filter(f => f.dslName !== 'RestDefinition');
         i.spec.flows?.push(...rest.spec.flows || []);
         return CamelDefinitionYaml.integrationToYaml(i);
-    } else if (crd === true) {
-        const i = CamelDefinitionYaml.yamlToIntegration(filename, restYaml);
-        i.type = 'crd';
-        return CamelDefinitionYaml.integrationToYaml(i);
+    // } else if (crd === true) {
+        // const i = CamelDefinitionYaml.yamlToIntegration(filename, restYaml);
+        // i.type = 'crd';
+        // return CamelDefinitionYaml.integrationToYaml(i);
     } else {
         return restYaml;
     }

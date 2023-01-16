@@ -136,14 +136,13 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(runRuntime);
 
     // Generate REST API from OpenAPI specification command
-    const generateOptions = ["Create new CRD", "Create new YAML", "Add to existing file"];
+    const generateOptions = ["Create new Integration", "Add to existing Integration"];
     const generateRest = commands.registerCommand('karavan.generate-rest', async (...args: any[]) => {
         const openApi: OpenApiItem = args[0];
         window.showQuickPick(generateOptions, { title: "Select REST Generator options", canPickMany: false }).then((value) => {
             switch (value) {
-                case generateOptions[0]: inputFileName(true, rootPath, openApi); break;
-                case generateOptions[1]: inputFileName(false, rootPath, openApi); break;
-                case generateOptions[2]: selectFileName(rootPath, openApi); break;
+                case generateOptions[0]: inputFileName(rootPath, openApi); break;
+                case generateOptions[1]: selectFileName(rootPath, openApi); break;
             }
         })
     });
