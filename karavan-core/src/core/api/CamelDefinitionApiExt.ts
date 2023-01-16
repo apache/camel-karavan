@@ -367,7 +367,7 @@ export class CamelDefinitionApiExt {
 
     static deleteRestConfigurationFromIntegration = (integration: Integration): Integration => {
         const flows: any[] = [];
-        integration.spec.flows?.filter(flow => flow.dslName !== 'RestConfiguration').forEach(x => flows.push(x));
+        integration.spec.flows?.filter(flow => flow.dslName !== 'RestConfigurationDefinition').forEach(x => flows.push(x));
         integration.spec.flows = flows;
         return integration;
     }
