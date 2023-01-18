@@ -94,13 +94,16 @@ export class OpenApiItem extends TreeItem {
  * Select routes generation
  */
 export async function selectRouteGeneration(rootPath: string, openApiFullPath: string, fullPath: string, add: boolean) {
-	const options = ["Generate REST and Routes", 'Generate REST only'];
+	const options = ["Generate REST and Routes", 'Generate REST only', 'Generate Routes only'];
 	await window.showQuickPick(options, {
 		title: "Generate route stubs for REST API",
 		placeHolder: 'Select option',
 	}).then(option => {
-		const generateRoutes: boolean = option !== undefined && option === options[0];
-		jbang.camelJbangGenerate(rootPath, openApiFullPath, fullPath, add, generateRoutes);
+		switch (option) {
+			case options[0]: jbang.camelJbangGenerate(rootPath, openApiFullPath, fullPath, add, true, true); break;
+			case options[1]: jbang.camelJbangGenerate(rootPath, openApiFullPath, fullPath, add, false, true); break;
+			case options[2]: jbang.camelJbangGenerate(rootPath, openApiFullPath, fullPath, add, true, false); break;
+		}
 	});
 }
 

@@ -228,4 +228,29 @@ export class CamelDefinitionYaml {
         }
         return properties;
     }
+
+   // add generated Integration YAML into existing Integration YAML
+    static addYamlToIntegrationYaml = (filename: string, camelYaml: string | undefined, restYaml: string, addREST: boolean, addRoutes: boolean): string => {
+        const existing = camelYaml != undefined ? CamelDefinitionYaml.yamlToIntegration(filename, camelYaml) : Integration.createNew(filename);
+        const generated = CamelDefinitionYaml.yamlToIntegration(filename, restYaml);
+
+        const flows: CamelElement [] = existing.spec.flows?.filter(f => !['RouteDefinition', 'RestDefinition'].includes(f.dslName)) || [];
+
+        const restE: CamelElement [] = existing.spec.flows?.filter(f => f.dslName === 'RestDefinition') || [];
+        const restG: CamelElement []  = generated.spec.flows?.filter(f => f.dslName === 'RestDefinition') || [];
+        if (addREST) {
+            flows.push(...restG);
+        } else {
+            flows.push(...restE)
+        }
+        const routeE: CamelElement [] = existing.spec.flows?.filter(f => f.dslName === 'RouteDefinition') || [];
+        const routeG: CamelElement []  = generated.spec.flows?.filter(f => f.dslName === 'RouteDefinition') || [];
+        if (addRoutes) {
+            flows.push(...routeG);
+        } else {
+            flows.push(...routeE)
+        }
+        existing.spec.flows = flows;
+        return CamelDefinitionYaml.integrationToYaml(existing);
+    }
 }

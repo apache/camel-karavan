@@ -17,6 +17,7 @@
 import * as path from "path";
 import { workspace, Uri, window, ExtensionContext, FileType } from "vscode";
 import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
+import { Integration } from "core/model/IntegrationDefinition";
 
 export function getRoot(): string | undefined {
     return (workspace.workspaceFolders && (workspace.workspaceFolders.length > 0))
@@ -338,22 +339,6 @@ export async function createApplicationGitignore() {
         const gitignore: string[] = workspace.getConfiguration().get("Karavan.applicationGitignore") || [];
         const text = gitignore.join('\n');
         write(path.join(uriFolder.path, ".gitignore"), text);
-    }
-}
-
-export function createYaml(filename: string, restYaml: string, camelYaml?: string): string {
-    if (camelYaml) {
-        const i = CamelDefinitionYaml.yamlToIntegration(filename, camelYaml);
-        const rest = CamelDefinitionYaml.yamlToIntegration(filename, restYaml);
-        i.spec.flows = i.spec.flows?.filter(f => f.dslName !== 'RestDefinition');
-        i.spec.flows?.push(...rest.spec.flows || []);
-        return CamelDefinitionYaml.integrationToYaml(i);
-    // } else if (crd === true) {
-        // const i = CamelDefinitionYaml.yamlToIntegration(filename, restYaml);
-        // i.type = 'crd';
-        // return CamelDefinitionYaml.integrationToYaml(i);
-    } else {
-        return restYaml;
     }
 }
 

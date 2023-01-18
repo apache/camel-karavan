@@ -19,23 +19,22 @@ import * as path from "path";
 import * as shell from 'shelljs';
 import * as utils from "./utils";
 import * as exec from "./exec";
+import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
 
-export async function camelJbangGenerate(rootPath: string, openApiFullPath: string, fullPath: string, add: boolean, generateRoutes?: boolean) {
+export async function camelJbangGenerate(rootPath: string, openApiFullPath: string, fullPath: string, add: boolean, generateRoutes: boolean, generateRest: boolean) {
     let command = prepareCommand("generate rest -i " + openApiFullPath);
     if (generateRoutes === true) command = command + " --routes";
-    executeJbangCommand(rootPath, command, (code, stdout, stderr) => {
+    executeJbangCommand(rootPath, command, async (code, stdout, stderr) => {
         console.log('Exit code:', code);
         if (code === 0) {
             const filename = path.basename(fullPath);
-            let yaml;
             if (add) {
-                utils.readFile(fullPath).then(readData => {
-                    const camelYaml = Buffer.from(readData).toString('utf8');
-                    yaml = utils.createYaml(filename, stdout, camelYaml);
-                    utils.write(fullPath, yaml);
-                });
+                const readData = await utils.readFile(fullPath);
+                const sourceYaml = Buffer.from(readData).toString('utf8');
+                const yaml = CamelDefinitionYaml.addYamlToIntegrationYaml(filename, sourceYaml, stdout, generateRest, generateRoutes);
+                utils.write(fullPath, yaml);
             } else {
-                yaml = utils.createYaml(filename, stdout, undefined);
+                const yaml = CamelDefinitionYaml.addYamlToIntegrationYaml(filename, undefined, stdout, generateRest, generateRoutes);
                 utils.write(fullPath, yaml);
             }
         } else {
