@@ -85,7 +85,7 @@ spec:
         export DATE=$(date '+%Y%m%d%H%M%S')
         export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
         export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
-        
+
         echo "Deploying in AWS Kubernetes"
         export TOKEN=$(cat /workspace/ecr_password.txt)
         /opt/mvnd/bin/mvnd package \
@@ -99,7 +99,7 @@ spec:
         -Dquarkus.kubernetes.deploy=true \
         -Dquarkus.kubernetes.deployment-target=kubernetes \
         -Dquarkus.kubernetes.add-version-to-label-selectors=false \
-        -Dquarkus.openshift.labels.\"app\"=$(inputs.params.project) \
+        -Dquarkus.kubernetes.labels.\"app\"=$(inputs.params.project) \
         -Dquarkus.kubernetes.labels.\"app.kubernetes.io/runtime\"=camel \
         -Dquarkus.container-image.group=${NAMESPACE} \
         -Dquarkus.container-image.tag=${DATE}

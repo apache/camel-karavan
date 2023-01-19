@@ -50,7 +50,7 @@ Create public subnet.
     ```
      kubectl apply -f AWS/karavan-secret.yaml
     ```	 
-12. Update karavan-pv.yaml with the AWS volumeId created above. If you like to use managed infispan service, update `karavan-app-deployment-public.yaml` with below details. Username / password for the infispan service should be admin/password
+12. If you like to use managed infispan service, update `karavan-app-deployment-public.yaml` with below details.    Username / password for the infispan service should be admin/password
     ```
             - env:
             - name: KUBERNETES_NAMESPACE
@@ -66,14 +66,19 @@ Create public subnet.
     ```
     kubectl apply -k AWS --namespace karavan
     ```
-14. Install the NGINX ingress controller
+14. Open Karavan Page in browser. Karavan expose the NodePort service on node port 30365. Find out the ip addres of the cluster node and open the url
     ```
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.5.1/deploy/static/provider/cloud/deploy.yaml
-	kubectl port-forward --namespace=karavan service/karavan 8080:80
+	http://NodeIP:30365
 	```
 
 15. If you want to delete the deployment
     ```
-    kubectl delete -f AWS/karavan.yaml -n karavan
+    kubectl delete -k AWS --namespace karavan
     ```
+
+
+### Optional
+1.  Access Tekton Dashboard 
+    ```
+    kubectl port-forward -n tekton-pipelines service/tekton-dashboard 9097:9097
 
