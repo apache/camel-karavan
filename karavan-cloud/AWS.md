@@ -26,57 +26,14 @@ Create public subnet.
     ```
     kubectl config set-context --current --namespace=karavan
     ```
-8. Create a Volume in the same region as your node. Make sure volume is in same availability-zone as your Node's EC2 instance.
-    ```
-    aws ec2 create-volume --availability-zone your-availability-zone --volume-type gp2 --size 50 --tag-specifications 'ResourceType=volume,Tags=[{Key=karavan-kubernetes,Value=karavan-kubernetes}]'
-    ```
-    copy the VolumeId, it will be used later.
-9. The Amazon EBS CSI driver isn't installed when you first create a cluster. To use the driver, you must add it as an Amazon EKS add-on or as a self-managed add-on.
-    For instructions on how to add it as an Amazon EKS add-on, see [Managing the Amazon EBS CSI driver as an Amazon EKS add-on](https://docs.aws.amazon.com/eks/latest/userguide/managing-ebs-csi.html). Before moving to the next step, wait until driver status is Active.
-10. Create your Amazon EBS CSI plugin IAM role with the AWS CLI. for more details reffer [csi-iam-role](https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html)
-    ``` 
-    aws eks describe-cluster --name karavan-kubernetes-cluster  --query "cluster.identity.oidc.issuer" --output text
-    ```
-    1. Create the IAM role.Copy the following contents to a file that's named aws-ebs-csi-driver-trust-policy.json. Replace 111122223333 with your account ID, region-code with your AWS Region, and EXAMPLED539D4633E53DE1B71EXAMPLE with the value that was returned in the previous step.
-       ```
-		{
-		"Version": "2012-10-17",
-		"Statement": [
-			{
-			"Effect": "Allow",
-			"Principal": {
-				"Federated": "arn:aws:iam::111122223333:oidc-provider/oidc.eks.region-code.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE"
-			},
-			"Action": "sts:AssumeRoleWithWebIdentity",
-			"Condition": {
-				"StringEquals": {
-				"oidc.eks.region-code.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE:aud": "sts.amazonaws.com",
-				"oidc.eks.region-code.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE:sub": "system:serviceaccount:kube-system:ebs-csi-controller-sa"
-				}
-			}
-			}
-			]
-		}
-       ```
-    2. Create the role. 
-       ```
-       aws iam create-role --role-name AmazonEKS_EBS_CSI_DriverRole_karavan --assume-role-policy-document file://"aws-ebs-csi-driver-trust-policy.json"
-       ```
-    3. Attach the required AWS managed policy to the role with the following command.
-       ```
-       aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy --role-name AmazonEKS_EBS_CSI_DriverRole_karavan
-       ```
-    4. Annotate the ebs-csi-controller-sa Kubernetes service account with the ARN of the IAM role. Replace 111122223333 with your account ID
-       ```
-       kubectl annotate serviceaccount ebs-csi-controller-sa \
-       -n kube-system \
-       eks.amazonaws.com/role-arn=arn:aws:iam::111122223333:role/AmazonEKS_EBS_CSI_DriverRole_karavan --overwrite
-       ```
-    5. `kubectl rollout restart deployment ebs-csi-controller -n kube-system`
-    6. `eksctl utils associate-iam-oidc-provider --cluster karavan-kubernetes-cluster --approve`
+8. Create a [Storage Class](https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html#efs-install-driver ). To learn more about storage class in AWS you can [read](https://aws.amazon.com/blogs/storage/persistent-storage-for-kubernetes)
 
+ 9. Modify AWS/karavan-sc.yaml. Update fileSystemId with the fileSystemId created in above step.
+    ```
+	kubectl apply -f AWS/karavan-sc.yaml
+	```
 
-11. Install Tekton
+10. Install Tekton
     ```
     kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
     ```
@@ -87,12 +44,13 @@ Create public subnet.
     Set `disable-affinity-assistant` equals `true`
     ```
     kubectl edit configmap feature-flags -n tekton-pipelines
+    ```
 
-12. Modify the karavan-secret.yaml file and apply Karavan Secret.
+11. Modify the karavan-secret.yaml file and apply Karavan Secret.
     ```
      kubectl apply -f AWS/karavan-secret.yaml
     ```	 
-13. Update karavan-pv.yaml with the AWS volumeId created above. If you like to use managed infispan service, update `karavan-app-deployment-public.yaml` with below details. Username / password for the infispan service should be admin/password
+12. Update karavan-pv.yaml with the AWS volumeId created above. If you like to use managed infispan service, update `karavan-app-deployment-public.yaml` with below details. Username / password for the infispan service should be admin/password
     ```
             - env:
             - name: KUBERNETES_NAMESPACE
@@ -104,11 +62,11 @@ Create public subnet.
             - name: quarkus.infinispan-client.devservices.enabled
               value: No
     ```
-14. Create Karavan Instance and apply
+13. Create Karavan Instance and apply
     ```
     kubectl apply -k AWS --namespace karavan
     ```
-15. Install the NGINX ingress controller
+14. Install the NGINX ingress controller
     ```
 	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.5.1/deploy/static/provider/cloud/deploy.yaml
 	kubectl port-forward --namespace=karavan service/karavan 8080:80
@@ -116,6 +74,6 @@ Create public subnet.
 
 15. If you want to delete the deployment
     ```
-    kubectl delete -k AWS --namespace karavan
+    kubectl delete -f AWS/karavan.yaml -n karavan
     ```
 

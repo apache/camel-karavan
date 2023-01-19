@@ -3,10 +3,11 @@ kind: Kustomization
 
 resources:
 - karavan-acl.yaml
-- karavan-pv.yaml
 - karavan-pvc.yaml
 - karavan-quarkus-pipeline.yaml
+- karavan-spring-boot-pipeline.yaml
 - karavan-quarkus-task-aws.yaml
+- karavan-spring-boot-task-aws.yaml
 - karavan-app-deployment-public.yaml
 - karavan-app-service-node-port.yaml
 - pipeline-service-account.yaml
