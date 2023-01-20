@@ -57,10 +57,16 @@ export class DslConnections extends React.Component<Props, State> {
     }
 
     setPosition(evt: DslPosition) {
-        if (evt.command === "add") this.setState(prevState => ({steps: prevState.steps.set(evt.step.uuid, evt)}));
+        if (evt.command === "add") {
+            this.setState(prevState => ({steps: prevState.steps.set(evt.step.uuid, evt)}));
+        }
         else if (evt.command === "delete") this.setState(prevState => {
             // prevState.steps.clear();
             prevState.steps.delete(evt.step.uuid);
+            return {steps: prevState.steps};
+        });
+        else if (evt.command === "clean") this.setState(prevState => {
+            prevState.steps.clear();
             return {steps: prevState.steps};
         });
     }

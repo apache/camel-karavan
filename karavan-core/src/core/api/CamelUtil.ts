@@ -26,6 +26,7 @@ import {ComponentProperty} from "../model/ComponentModels";
 import {ComponentApi} from "./ComponentApi";
 import {CamelMetadataApi} from "../model/CamelMetadata";
 import {CamelDefinitionApiExt} from "./CamelDefinitionApiExt";
+import {v4 as uuidv4} from 'uuid';
 
 export class CamelUtil {
 
@@ -50,8 +51,14 @@ export class CamelUtil {
         return int;
     }
 
-    static cloneStep = (step: CamelElement): CamelElement => {
-        const clone = JSON.parse(JSON.stringify(step));
+    static cloneStep = (step: CamelElement, generateUuids: boolean = false): CamelElement => {
+        const clone = JSON.parse(JSON.stringify(step, (key, value) => {
+            if (generateUuids && key === 'uuid'){
+                return uuidv4();
+            } else {
+                return value;
+            }
+        }));
         return CamelDefinitionApi.createStep(step.dslName, clone, true);
     }
 

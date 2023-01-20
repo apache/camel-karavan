@@ -92,6 +92,7 @@ export class RouteDesigner extends React.Component<Props, State> {
 
     componentDidMount() {
         window.addEventListener('resize', this.handleResize);
+        window.addEventListener('keydown', this.handleKeyDown);
         const element = findDOMNode(this.state.ref.current)?.parentElement?.parentElement;
         const checkResize = (mutations: any) => {
             const el = mutations[0].target;
@@ -107,10 +108,40 @@ export class RouteDesigner extends React.Component<Props, State> {
 
     componentWillUnmount() {
         window.removeEventListener('resize', this.handleResize);
+        window.removeEventListener('keydown', this.handleKeyDown);
     }
 
     handleResize = (event: any) => {
         this.setState({key: Math.random().toString()});
+    }
+
+    handleKeyDown = (event: KeyboardEvent) => {
+        const {integration, selectedUuid, clipboardStep} = this.state;
+        if (window.document.hasFocus() && window.document.activeElement && selectedUuid && selectedUuid !== '') {
+            if (['BODY', 'MAIN'].includes(window.document.activeElement.tagName)) {
+                let charCode = String.fromCharCode(event.which).toLowerCase();
+                if ((event.ctrlKey || event.metaKey) && charCode === 'c') {
+                    const selectedElement = CamelDefinitionApiExt.findElementInIntegration(integration, selectedUuid);
+                    this.saveToClipboard(selectedElement);
+                } else if ((event.ctrlKey || event.metaKey) && charCode === 'v') {
+                    if (clipboardStep?.dslName === 'FromDefinition') {
+                        const clone = CamelUtil.cloneStep(clipboardStep, true);
+                        const route = CamelDefinitionApi.createRouteDefinition({from: clone});
+                        this.addStep(route, '', 0)
+                    } else {
+                        const meta = CamelDefinitionApiExt.findElementMetaInIntegration(integration, selectedUuid);
+                        if (clipboardStep && meta.parentUuid) {
+                            const clone = CamelUtil.cloneStep(clipboardStep, true);
+                            this.addStep(clone, meta.parentUuid, meta.position);
+                        }
+                    }
+                }
+            }
+        } else {
+            if (event.repeat) {
+                window.dispatchEvent(event);
+            }
+        }
     }
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
@@ -222,8 +253,8 @@ export class RouteDesigner extends React.Component<Props, State> {
     onDslSelect = (dsl: DslMetaModel, parentId: string, position?: number | undefined) => {
         switch (dsl.dsl) {
             case 'FromDefinition' :
-                const from = CamelDefinitionApi.createRouteDefinition({from: new FromDefinition({uri: dsl.uri})});
-                this.addStep(from, parentId, position)
+                const route = CamelDefinitionApi.createRouteDefinition({from: new FromDefinition({uri: dsl.uri})});
+                this.addStep(route, parentId, position)
                 break;
             case 'ToDefinition' :
                 const to = CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
@@ -260,6 +291,7 @@ export class RouteDesigner extends React.Component<Props, State> {
     addStep = (step: CamelElement, parentId: string, position?: number | undefined) => {
         const i = CamelDefinitionApiExt.addStepToIntegration(this.state.integration, step, parentId, position);
         const clone = CamelUtil.cloneIntegration(i);
+        EventBus.sendPosition("clean", step, undefined, new DOMRect(), new DOMRect(), 0);
         this.setState({
             integration: clone,
             key: Math.random().toString(),
@@ -338,9 +370,7 @@ export class RouteDesigner extends React.Component<Props, State> {
                                step={this.state.selectedStep}
                                onIntegrationUpdate={this.onIntegrationUpdate}
                                onPropertyUpdate={this.onPropertyUpdate}
-                               clipboardStep={this.state.clipboardStep}
                                isRouteDesigner={true}
-                               onSaveClipboardStep={this.saveToClipboard}
                                dark={this.props.dark}/>
             </DrawerPanelContent>
         )
@@ -356,7 +386,7 @@ export class RouteDesigner extends React.Component<Props, State> {
     integrationImageDownloadFilter = (node: HTMLElement) => {
         const exclusionClasses = ['add-flow'];
         return !exclusionClasses.some(classname => {
-            return node.classList === undefined ? false: node.classList.contains(classname);
+            return node.classList === undefined ? false : node.classList.contains(classname);
         });
     }
 
@@ -364,11 +394,15 @@ export class RouteDesigner extends React.Component<Props, State> {
         if (this.state.printerRef.current === null) {
             return
         }
-        toPng(this.state.printerRef.current, { style:{overflow:'hidden'}, cacheBust: true, filter: this.integrationImageDownloadFilter,
-                height:this.state.height,width:this.state.width,  backgroundColor: this.props.dark?"black":"white" }).then(v => {
-                    toPng(this.state.printerRef.current, { style:{overflow:'hidden'}, cacheBust: true, filter: this.integrationImageDownloadFilter,
-                    height:this.state.height,width:this.state.width,  backgroundColor: this.props.dark?"black":"white" }).then(this.downloadIntegrationImage);
-            })
+        toPng(this.state.printerRef.current, {
+            style: {overflow: 'hidden'}, cacheBust: true, filter: this.integrationImageDownloadFilter,
+            height: this.state.height, width: this.state.width, backgroundColor: this.props.dark ? "black" : "white"
+        }).then(v => {
+            toPng(this.state.printerRef.current, {
+                style: {overflow: 'hidden'}, cacheBust: true, filter: this.integrationImageDownloadFilter,
+                height: this.state.height, width: this.state.width, backgroundColor: this.props.dark ? "black" : "white"
+            }).then(this.downloadIntegrationImage);
+        })
     }
 
     getGraph() {
@@ -380,7 +414,7 @@ export class RouteDesigner extends React.Component<Props, State> {
                 <DslConnections height={height} width={width} top={top} left={left} integration={integration}/>
                 <div className="flows" data-click="FLOWS" onClick={event => this.unselectElement(event)}
                      ref={el => this.onResizePage(el)}>
-                    {routeConfigurations?.map((routeConfiguration , index: number) => (
+                    {routeConfigurations?.map((routeConfiguration, index: number) => (
                         <DslElement key={routeConfiguration.uuid + key}
                                     integration={integration}
                                     openSelector={this.openSelector}
