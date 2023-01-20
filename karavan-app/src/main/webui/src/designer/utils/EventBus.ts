@@ -27,9 +27,9 @@ export class DslPosition {
     position: number = 0;
     rect: DOMRect = new DOMRect();
     headerRect: DOMRect = new DOMRect();
-    command: "add" | "delete" = "add";
+    command: "add" | "delete" | "clean" = "add";
 
-    constructor(command: "add" | "delete",
+    constructor(command: "add" | "delete" | "clean",
                 step: CamelElement,
                 parent:CamelElement | undefined,
                 rect: DOMRect,
@@ -49,7 +49,7 @@ export class DslPosition {
 }
 
 export const EventBus = {
-    sendPosition: (command: "add" | "delete",
+    sendPosition: (command: "add" | "delete" | "clean",
                    step: CamelElement,
                    parent: CamelElement | undefined,
                    rect: DOMRect,

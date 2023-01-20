@@ -240,7 +240,6 @@ export class RestDesigner extends React.Component<Props, State> {
                     step={this.state.selectedStep}
                     onIntegrationUpdate={this.onIntegrationUpdate}
                     onPropertyUpdate={this.onPropertyUpdate}
-                    clipboardStep={undefined}
                     isRouteDesigner={false}
                     onClone={this.cloneRest}
                     dark={this.props.dark}/>

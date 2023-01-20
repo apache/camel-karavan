@@ -65,8 +65,21 @@ export class DslElement extends React.Component<Props, State> {
         tabIndex: 0,
         selectedUuid: this.props.selectedUuid,
         isDragging: false,
-        isDraggedOver: false
+        isDraggedOver: false,
     };
+
+    handleKeyDown = (event: React.KeyboardEvent) =>{
+        // event.preventDefault();
+        // console.log(event);
+        // let charCode = String.fromCharCode(event.which).toLowerCase();
+        // if((event.ctrlKey || event.metaKey) && charCode === 's') {
+        //     alert("CTRL+S Pressed");
+        // }else if((event.ctrlKey || event.metaKey) && charCode === 'c') {
+        //     alert("CTRL+C Pressed");
+        // }else if((event.ctrlKey || event.metaKey) && charCode === 'v') {
+        //     alert("CTRL+V Pressed");
+        // }
+    }
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.selectedUuid !== this.props.selectedUuid) {
@@ -484,6 +497,8 @@ export class DslElement extends React.Component<Props, State> {
                  }}
                  onDrop={event => this.dragElement(event, element)}
                  draggable={!this.isNotDraggable()}
+                 // tabIndex={0}
+                 onKeyDown={this.handleKeyDown}
             >
                 {this.getElementHeader()}
                 {this.getChildElements()}
