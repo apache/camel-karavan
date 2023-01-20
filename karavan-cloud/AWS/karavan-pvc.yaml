@@ -7,8 +7,8 @@ spec:
     requests:
       storage: 30Gi
   accessModes:
-    - ReadWriteOnce
-  storageClassName: ""
+    - ReadWriteMany
+  storageClassName: "efs-sc"
   
 ---
 apiVersion: v1
@@ -21,7 +21,8 @@ spec:
       storage: 20Gi
   volumeMode: Filesystem
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
+  storageClassName: "efs-sc"
 
 ---
 apiVersion: v1
@@ -34,5 +35,6 @@ spec:
       storage: 10Gi
   volumeMode: Filesystem      
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
+  storageClassName: "efs-sc"
    
