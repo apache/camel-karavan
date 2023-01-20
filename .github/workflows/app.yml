@@ -48,12 +48,13 @@ jobs:
 
       - name: Karavan Core install
         working-directory: ./karavan-core
-        run: npm install
+        run: npm ci
 
       #  Build Karavan cloud app with public access
       - name: Build application public
         run: |
           mvn package -f karavan-app -Dquarkus.profile=public -DskipTest \
+          -Dquarkus.quinoa.package-manager-install=false \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=true \
           -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}:${{ env.TAG }} \
@@ -65,6 +66,7 @@ jobs:
       - name: Build application basic auth
         run: |
           mvn package -f karavan-app -Dquarkus.profile=basic -DskipTest \
+          -Dquarkus.quinoa.package-manager-install=false \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=true \
           -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}-basic:${{ env.TAG }} \
@@ -76,6 +78,7 @@ jobs:
       - name: Build application oidc
         run: |
           mvn package -f karavan-app -Dquarkus.profile=oidc -DskipTest \
+          -Dquarkus.quinoa.package-manager-install=false \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=true \
           -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}-oidc:${{ env.TAG }} \
