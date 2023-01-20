@@ -57,13 +57,14 @@ interface State {
     parentDsl?: string
     selectedPosition?: number
     showSteps: boolean
-    selectedUuid: string
+    selectedUuids: string []
     key: string
     width: number
     height: number
     top: number
     left: number
-    clipboardStep?: CamelElement
+    clipboardSteps: CamelElement[]
+    shiftKeyPressed?: boolean
     ref?: any
     printerRef?: any
     propertyOnly: boolean
@@ -79,7 +80,8 @@ export class RouteDesigner extends React.Component<Props, State> {
         deleteMessage: '',
         parentId: '',
         showSteps: true,
-        selectedUuid: '',
+        selectedUuids: [],
+        clipboardSteps: [],
         key: "",
         width: 1000,
         height: 1000,
@@ -93,6 +95,7 @@ export class RouteDesigner extends React.Component<Props, State> {
     componentDidMount() {
         window.addEventListener('resize', this.handleResize);
         window.addEventListener('keydown', this.handleKeyDown);
+        window.addEventListener('keyup', this.handleKeyUp);
         const element = findDOMNode(this.state.ref.current)?.parentElement?.parentElement;
         const checkResize = (mutations: any) => {
             const el = mutations[0].target;
@@ -109,6 +112,7 @@ export class RouteDesigner extends React.Component<Props, State> {
     componentWillUnmount() {
         window.removeEventListener('resize', this.handleResize);
         window.removeEventListener('keydown', this.handleKeyDown);
+        window.removeEventListener('keyup', this.handleKeyUp);
     }
 
     handleResize = (event: any) => {
@@ -116,24 +120,35 @@ export class RouteDesigner extends React.Component<Props, State> {
     }
 
     handleKeyDown = (event: KeyboardEvent) => {
-        const {integration, selectedUuid, clipboardStep} = this.state;
-        if (window.document.hasFocus() && window.document.activeElement && selectedUuid && selectedUuid !== '') {
+        const {integration, selectedUuids, clipboardSteps} = this.state;
+        if ((event.shiftKey)) {
+            this.setState({shiftKeyPressed: true});
+        }
+        if (window.document.hasFocus() && window.document.activeElement) {
             if (['BODY', 'MAIN'].includes(window.document.activeElement.tagName)) {
                 let charCode = String.fromCharCode(event.which).toLowerCase();
                 if ((event.ctrlKey || event.metaKey) && charCode === 'c') {
-                    const selectedElement = CamelDefinitionApiExt.findElementInIntegration(integration, selectedUuid);
-                    this.saveToClipboard(selectedElement);
+                    const steps: CamelElement[] = []
+                    selectedUuids.forEach(selectedUuid => {
+                        const selectedElement = CamelDefinitionApiExt.findElementInIntegration(integration, selectedUuid);
+                        if (selectedElement) {
+                            steps.push(selectedElement);
+                        }
+                    })
+                    this.saveToClipboard(steps);
                 } else if ((event.ctrlKey || event.metaKey) && charCode === 'v') {
-                    if (clipboardStep?.dslName === 'FromDefinition') {
-                        const clone = CamelUtil.cloneStep(clipboardStep, true);
+                    if (clipboardSteps.length === 1 && clipboardSteps[0]?.dslName === 'FromDefinition') {
+                        const clone = CamelUtil.cloneStep(clipboardSteps[0], true);
                         const route = CamelDefinitionApi.createRouteDefinition({from: clone});
                         this.addStep(route, '', 0)
-                    } else {
-                        const meta = CamelDefinitionApiExt.findElementMetaInIntegration(integration, selectedUuid);
-                        if (clipboardStep && meta.parentUuid) {
-                            const clone = CamelUtil.cloneStep(clipboardStep, true);
-                            this.addStep(clone, meta.parentUuid, meta.position);
-                        }
+                    } else if (selectedUuids.length === 1) {
+                        const targetMeta = CamelDefinitionApiExt.findElementMetaInIntegration(integration, selectedUuids[0]);
+                        clipboardSteps.reverse().forEach(clipboardStep => {
+                            if (clipboardStep && targetMeta.parentUuid) {
+                                const clone = CamelUtil.cloneStep(clipboardStep, true);
+                                this.addStep(clone, targetMeta.parentUuid, targetMeta.position);
+                            }
+                        })
                     }
                 }
             }
@@ -144,14 +159,26 @@ export class RouteDesigner extends React.Component<Props, State> {
         }
     }
 
+    handleKeyUp = (event: KeyboardEvent) => {
+        this.setState({shiftKeyPressed: false});
+        if (event.repeat) {
+            window.dispatchEvent(event);
+        }
+    }
+
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
         if (prevState.key !== this.state.key) {
             this.props.onSave?.call(this, this.state.integration, this.state.propertyOnly);
         }
     }
 
-    saveToClipboard = (step?: CamelElement): void => {
-        this.setState({clipboardStep: step, key: Math.random().toString()});
+    saveToClipboard = (steps: CamelElement[]): void => {
+        if (steps.length >0) {
+            this.setState(prevState => ({
+                key: Math.random().toString(),
+                clipboardSteps: [...steps]
+            }));
+        }
     }
 
     onPropertyUpdate = (element: CamelElement, newRoute?: RouteToCreate) => {
@@ -161,14 +188,14 @@ export class RouteDesigner extends React.Component<Props, State> {
             const r = CamelDefinitionApi.createRouteDefinition({from: f, id: newRoute.name})
             i = CamelDefinitionApiExt.addStepToIntegration(i, r, '');
             const clone = CamelUtil.cloneIntegration(i);
-            this.setState({
+            this.setState(prevState => ({
                 integration: clone,
                 key: Math.random().toString(),
                 showSelector: false,
                 selectedStep: element,
-                selectedUuid: element.uuid,
-                propertyOnly: false
-            });
+                propertyOnly: false,
+                selectedUuids: [element.uuid]
+            }));
         } else {
             const clone = CamelUtil.cloneIntegration(this.state.integration);
             const i = CamelDefinitionApiExt.updateIntegrationRouteElement(clone, element);
@@ -201,37 +228,73 @@ export class RouteDesigner extends React.Component<Props, State> {
         } else {
             message = 'Delete element from route?';
         }
-        this.setState({selectedUuid: id, showSelector: false, showDeleteConfirmation: true, deleteMessage: message});
+        this.setState(prevState => ({
+            showSelector: false,
+            showDeleteConfirmation: true,
+            deleteMessage: message,
+            selectedUuids: [id],
+        }));
     }
 
     deleteElement = () => {
-        const id = this.state.selectedUuid;
-        const i = CamelDefinitionApiExt.deleteStepFromIntegration(this.state.integration, id);
-        this.setState({
-            integration: i,
-            showSelector: false,
-            showDeleteConfirmation: false,
-            deleteMessage: '',
-            key: Math.random().toString(),
-            selectedStep: undefined,
-            selectedUuid: '',
-            propertyOnly: false
-        });
-        const el = new CamelElement("");
-        el.uuid = id;
-        EventBus.sendPosition("delete", el, undefined, new DOMRect(), new DOMRect(), 0);
+        const id = this.state.selectedUuids.at(0);
+        if (id) {
+            const i = CamelDefinitionApiExt.deleteStepFromIntegration(this.state.integration, id);
+            this.setState(prevState => ({
+                integration: i,
+                showSelector: false,
+                showDeleteConfirmation: false,
+                deleteMessage: '',
+                key: Math.random().toString(),
+                selectedStep: undefined,
+                propertyOnly: false,
+                selectedUuids: [id],
+            }));
+            const el = new CamelElement("");
+            el.uuid = id;
+            EventBus.sendPosition("delete", el, undefined, new DOMRect(), new DOMRect(), 0);
+        }
     }
 
     selectElement = (element: CamelElement) => {
+        const {shiftKeyPressed, selectedUuids, integration} = this.state;
+        let canNotAdd: boolean = false;
+        if (shiftKeyPressed) {
+            const hasFrom = selectedUuids.map(e => CamelDefinitionApiExt.findElementInIntegration(integration, e)?.dslName === 'FromDefinition').filter(r => r).length > 0;
+            canNotAdd = hasFrom || (selectedUuids.length > 0 && element.dslName === 'FromDefinition');
+        }
+        const add = shiftKeyPressed && !selectedUuids.includes(element.uuid);
+        const remove = shiftKeyPressed && selectedUuids.includes(element.uuid);
         const i = CamelDisplayUtil.setIntegrationVisibility(this.state.integration, element.uuid);
-        this.setState({integration: i, selectedStep: element, selectedUuid: element.uuid, showSelector: false})
+        this.setState((prevState: State) => {
+            if (remove) {
+                const index = prevState.selectedUuids.indexOf(element.uuid);
+                prevState.selectedUuids.splice(index, 1);
+            } else if (add && !canNotAdd) {
+                prevState.selectedUuids.push(element.uuid);
+            }
+            const uuid: string = prevState.selectedUuids.includes(element.uuid) ? element.uuid : prevState.selectedUuids.at(0) || '';
+            const selectedElement = shiftKeyPressed ? CamelDefinitionApiExt.findElementInIntegration(integration, uuid) : element;
+            return {
+                integration: i,
+                selectedStep: selectedElement,
+                showSelector: false,
+                selectedUuids: shiftKeyPressed ? [...prevState.selectedUuids] : [element.uuid],
+            }
+        });
     }
 
     unselectElement = (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         if ((evt.target as any).dataset.click === 'FLOWS') {
             evt.stopPropagation()
             const i = CamelDisplayUtil.setIntegrationVisibility(this.state.integration, undefined);
-            this.setState({integration: i, selectedStep: undefined, selectedUuid: '', showSelector: false, selectedPosition: undefined})
+            this.setState(prevState => ({
+                integration: i,
+                selectedStep: undefined,
+                showSelector: false,
+                selectedPosition: undefined,
+                selectedUuids: [],
+            }));
         }
     }
 
@@ -279,27 +342,27 @@ export class RouteDesigner extends React.Component<Props, State> {
         const clone = CamelUtil.cloneIntegration(this.state.integration);
         const routeConfiguration = new RouteConfigurationDefinition();
         const i = CamelDefinitionApiExt.addRouteConfigurationToIntegration(clone, routeConfiguration);
-        this.setState({
+        this.setState(prevState => ({
             integration: i,
             propertyOnly: false,
             key: Math.random().toString(),
             selectedStep: routeConfiguration,
-            selectedUuid: routeConfiguration.uuid,
-        });
+            selectedUuids: [routeConfiguration.uuid],
+        }));
     }
 
     addStep = (step: CamelElement, parentId: string, position?: number | undefined) => {
         const i = CamelDefinitionApiExt.addStepToIntegration(this.state.integration, step, parentId, position);
         const clone = CamelUtil.cloneIntegration(i);
         EventBus.sendPosition("clean", step, undefined, new DOMRect(), new DOMRect(), 0);
-        this.setState({
+        this.setState(prevState => ({
             integration: clone,
             key: Math.random().toString(),
             showSelector: false,
             selectedStep: step,
-            selectedUuid: step.uuid,
-            propertyOnly: false
-        });
+            propertyOnly: false,
+            selectedUuids: [step.uuid],
+        }));
     }
 
     onIntegrationUpdate = (i: Integration) => {
@@ -310,14 +373,14 @@ export class RouteDesigner extends React.Component<Props, State> {
         const i = CamelDefinitionApiExt.moveRouteElement(this.state.integration, source, target, asChild);
         const clone = CamelUtil.cloneIntegration(i);
         const selectedStep = CamelDefinitionApiExt.findElementInIntegration(clone, source);
-        this.setState({
+        this.setState(prevState => ({
             integration: clone,
             key: Math.random().toString(),
             showSelector: false,
             selectedStep: selectedStep,
-            selectedUuid: source,
-            propertyOnly: false
-        });
+            propertyOnly: false,
+            selectedUuids: [source],
+        }));
     }
 
     onResizePage(el: HTMLDivElement | null) {
@@ -406,7 +469,7 @@ export class RouteDesigner extends React.Component<Props, State> {
     }
 
     getGraph() {
-        const {selectedUuid, integration, key, width, height, top, left} = this.state;
+        const {selectedUuids, integration, key, width, height, top, left} = this.state;
         const routes = CamelUi.getRoutes(integration);
         const routeConfigurations = CamelUi.getRouteConfigurations(integration);
         return (
@@ -421,7 +484,7 @@ export class RouteDesigner extends React.Component<Props, State> {
                                     deleteElement={this.showDeleteConfirmation}
                                     selectElement={this.selectElement}
                                     moveElement={this.moveElement}
-                                    selectedUuid={selectedUuid}
+                                    selectedUuid={selectedUuids}
                                     inSteps={false}
                                     position={index}
                                     step={routeConfiguration}
@@ -434,7 +497,7 @@ export class RouteDesigner extends React.Component<Props, State> {
                                     deleteElement={this.showDeleteConfirmation}
                                     selectElement={this.selectElement}
                                     moveElement={this.moveElement}
-                                    selectedUuid={selectedUuid}
+                                    selectedUuid={selectedUuids}
                                     inSteps={false}
                                     position={index}
                                     step={route}
