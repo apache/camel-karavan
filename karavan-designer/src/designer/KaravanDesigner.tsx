@@ -44,7 +44,6 @@ interface State {
     integration: Integration
     key: string
     propertyOnly: boolean
-    routeDesignerRef?: any
 }
 
 export class KaravanInstance {
@@ -78,7 +77,6 @@ export class KaravanDesigner extends React.Component<Props, State> {
         integration: this.getIntegration(this.props.yaml, this.props.filename),
         key: "",
         propertyOnly: false,
-        routeDesignerRef: React.createRef(),
     }
 
     componentDidMount() {
@@ -117,12 +115,6 @@ export class KaravanDesigner extends React.Component<Props, State> {
         )
     }
 
-    downloadImage(){
-        if(this.state.routeDesignerRef){
-            this.state.routeDesignerRef.current.integrationImageDownload();
-         }
-    }
-
     render() {
         const tab = this.state.tab;
         return (
@@ -134,8 +126,7 @@ export class KaravanDesigner extends React.Component<Props, State> {
                 </Tabs>
                     {tab === 'routes' && <RouteDesigner integration={this.state.integration}
                                                         onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
-                                                        dark={this.props.dark}
-                                                        ref={this.state.routeDesignerRef}/>}
+                                                        dark={this.props.dark}/>}
                     {tab === 'rest' && <RestDesigner integration={this.state.integration}
                                                      onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
                                                      dark={this.props.dark}/>}

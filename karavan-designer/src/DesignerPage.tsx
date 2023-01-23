@@ -26,6 +26,7 @@ import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
 import {KaravanDesigner} from "./designer/KaravanDesigner";
 import Editor from "@monaco-editor/react";
+import {EventBus} from "./designer/utils/EventBus";
 
 interface Props {
     name: string,
@@ -35,7 +36,6 @@ interface Props {
 }
 
 interface State {
-    karavanDesignerRef: any,
     mode: "design" | "code",
 }
 
@@ -43,7 +43,6 @@ export class DesignerPage extends React.Component<Props, State> {
 
     public state: State = {
         mode: 'design',
-        karavanDesignerRef: React.createRef(),
     };
 
     componentDidMount() {
@@ -64,9 +63,7 @@ export class DesignerPage extends React.Component<Props, State> {
     }
 
     downloadImage = () => {
-        if (this.state.karavanDesignerRef) {
-            this.state.karavanDesignerRef.current.downloadImage();
-        }
+        EventBus.sendCommand("downloadImage");
     }
 
     getDesigner = () => {
@@ -74,7 +71,6 @@ export class DesignerPage extends React.Component<Props, State> {
         return (
             <KaravanDesigner
                 dark={this.props.dark}
-                ref={this.state.karavanDesignerRef}
                 filename={name}
                 yaml={yaml}
                 onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}

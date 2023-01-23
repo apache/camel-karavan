@@ -22,16 +22,18 @@ import {FromDefinition, RouteConfigurationDefinition, RouteDefinition} from "kar
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
-import {EventBus} from "../utils/EventBus";
+import {Command, EventBus} from "../utils/EventBus";
 import {RouteToCreate} from "../utils/CamelUi";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {toPng} from 'html-to-image';
 import {RouteDesigner, RouteDesignerState} from "./RouteDesigner";
 import {findDOMNode} from "react-dom";
+import {Subscription} from "rxjs";
 
 export class RouteDesignerLogic {
 
     routeDesigner: RouteDesigner
+    commandSub?: Subscription
 
     constructor(routeDesigner: RouteDesigner) {
         this.routeDesigner = routeDesigner;
@@ -52,12 +54,14 @@ export class RouteDesignerLogic {
             const observer = new MutationObserver(checkResize);
             observer.observe(element, {attributes: true, attributeOldValue: true, attributeFilter: ['style']});
         }
+        this.commandSub = EventBus.onCommand()?.subscribe((command: Command) => this.onCommand(command));
     }
 
     componentWillUnmount() {
         window.removeEventListener('resize', this.routeDesigner.handleResize);
         window.removeEventListener('keydown', this.routeDesigner.handleKeyDown);
         window.removeEventListener('keyup', this.routeDesigner.handleKeyUp);
+        this.commandSub?.unsubscribe();
     }
 
     handleResize = (event: any) => {
@@ -123,6 +127,12 @@ export class RouteDesignerLogic {
                 key: Math.random().toString(),
                 clipboardSteps: [...steps]
             }));
+        }
+    }
+
+    onCommand = (command: Command) => {
+        switch (command.command){
+            case "downloadImage": this.integrationImageDownload()
         }
     }
 
