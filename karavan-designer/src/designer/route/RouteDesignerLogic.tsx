@@ -69,7 +69,6 @@ export class RouteDesignerLogic {
     }
 
     handleKeyDown = (event: KeyboardEvent) => {
-        const {integration, selectedUuids, clipboardSteps} = this.routeDesigner.state;
         if ((event.shiftKey)) {
             this.routeDesigner.setState({shiftKeyPressed: true});
         }
@@ -77,28 +76,9 @@ export class RouteDesignerLogic {
             if (['BODY', 'MAIN'].includes(window.document.activeElement.tagName)) {
                 let charCode = String.fromCharCode(event.which).toLowerCase();
                 if ((event.ctrlKey || event.metaKey) && charCode === 'c') {
-                    const steps: CamelElement[] = []
-                    selectedUuids.forEach(selectedUuid => {
-                        const selectedElement = CamelDefinitionApiExt.findElementInIntegration(integration, selectedUuid);
-                        if (selectedElement) {
-                            steps.push(selectedElement);
-                        }
-                    })
-                    this.saveToClipboard(steps);
+                    this.copyToClipboard();
                 } else if ((event.ctrlKey || event.metaKey) && charCode === 'v') {
-                    if (clipboardSteps.length === 1 && clipboardSteps[0]?.dslName === 'FromDefinition') {
-                        const clone = CamelUtil.cloneStep(clipboardSteps[0], true);
-                        const route = CamelDefinitionApi.createRouteDefinition({from: clone});
-                        this.addStep(route, '', 0)
-                    } else if (selectedUuids.length === 1) {
-                        const targetMeta = CamelDefinitionApiExt.findElementMetaInIntegration(integration, selectedUuids[0]);
-                        clipboardSteps.reverse().forEach(clipboardStep => {
-                            if (clipboardStep && targetMeta.parentUuid) {
-                                const clone = CamelUtil.cloneStep(clipboardStep, true);
-                                this.addStep(clone, targetMeta.parentUuid, targetMeta.position);
-                            }
-                        })
-                    }
+                    this.pasteFromClipboard();
                 }
             }
         } else {
@@ -121,12 +101,39 @@ export class RouteDesignerLogic {
         }
     }
 
-    saveToClipboard = (steps: CamelElement[]): void => {
+    copyToClipboard = (): void => {
+        const {integration, selectedUuids} = this.routeDesigner.state;
+        const steps: CamelElement[] = []
+        selectedUuids.forEach(selectedUuid => {
+            const selectedElement = CamelDefinitionApiExt.findElementInIntegration(integration, selectedUuid);
+            if (selectedElement) {
+                steps.push(selectedElement);
+            }
+        })
         if (steps.length >0) {
             this.routeDesigner.setState(prevState => ({
                 key: Math.random().toString(),
                 clipboardSteps: [...steps]
             }));
+        }
+    }
+    pasteFromClipboard = (): void => {
+        const {integration, selectedUuids, clipboardSteps} = this.routeDesigner.state;
+        if (clipboardSteps.length === 1 && clipboardSteps[0]?.dslName === 'FromDefinition') {
+            const clone = CamelUtil.cloneStep(clipboardSteps[0], true);
+            const route = CamelDefinitionApi.createRouteDefinition({from: clone});
+            this.addStep(route, '', 0)
+        } else if (clipboardSteps.length === 1 && clipboardSteps[0]?.dslName === 'RouteDefinition') {
+            const clone = CamelUtil.cloneStep(clipboardSteps[0], true);
+            this.addStep(clone, '', 0)
+        } else if (selectedUuids.length === 1) {
+            const targetMeta = CamelDefinitionApiExt.findElementMetaInIntegration(integration, selectedUuids[0]);
+            clipboardSteps.reverse().forEach(clipboardStep => {
+                if (clipboardStep && targetMeta.parentUuid) {
+                    const clone = CamelUtil.cloneStep(clipboardStep, true);
+                    this.addStep(clone, targetMeta.parentUuid, targetMeta.position);
+                }
+            })
         }
     }
 
