@@ -25,21 +25,14 @@ import {
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {DslSelector} from "./DslSelector";
-import {DslMetaModel} from "../utils/DslMetaModel";
 import {DslProperties} from "./DslProperties";
-import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {FromDefinition, RouteConfigurationDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
-import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {DslConnections} from "./DslConnections";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {DslElement} from "./DslElement";
-import {EventBus} from "../utils/EventBus";
-import {CamelUi, RouteToCreate} from "../utils/CamelUi";
-import {findDOMNode} from "react-dom";
+import {CamelUi} from "../utils/CamelUi";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
-import {toPng} from 'html-to-image';
+import {RouteDesignerLogic} from "./RouteDesignerLogic";
 
 interface Props {
     onSave?: (integration: Integration, propertyOnly: boolean) => void
@@ -47,7 +40,8 @@ interface Props {
     dark: boolean
 }
 
-interface State {
+export interface RouteDesignerState {
+    logic: RouteDesignerLogic
     integration: Integration
     selectedStep?: CamelElement
     showSelector: boolean
@@ -71,9 +65,10 @@ interface State {
     selectorTabIndex?: string | number
 }
 
-export class RouteDesigner extends React.Component<Props, State> {
+export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
 
-    public state: State = {
+    public state: RouteDesignerState = {
+        logic: new RouteDesignerLogic(this),
         integration: CamelDisplayUtil.setIntegrationVisibility(this.props.integration, undefined),
         showSelector: false,
         showDeleteConfirmation: false,
@@ -93,315 +88,41 @@ export class RouteDesigner extends React.Component<Props, State> {
     };
 
     componentDidMount() {
-        window.addEventListener('resize', this.handleResize);
-        window.addEventListener('keydown', this.handleKeyDown);
-        window.addEventListener('keyup', this.handleKeyUp);
-        const element = findDOMNode(this.state.ref.current)?.parentElement?.parentElement;
-        const checkResize = (mutations: any) => {
-            const el = mutations[0].target;
-            const w = el.clientWidth;
-            const isChange = mutations.map((m: any) => `${m.oldValue}`).some((prev: any) => prev.indexOf(`width: ${w}px`) === -1);
-            if (isChange) this.setState({key: Math.random().toString()});
-        }
-        if (element) {
-            const observer = new MutationObserver(checkResize);
-            observer.observe(element, {attributes: true, attributeOldValue: true, attributeFilter: ['style']});
-        }
+        this.state.logic.componentDidMount();
     }
 
     componentWillUnmount() {
-        window.removeEventListener('resize', this.handleResize);
-        window.removeEventListener('keydown', this.handleKeyDown);
-        window.removeEventListener('keyup', this.handleKeyUp);
+        this.state.logic.componentWillUnmount();
     }
 
     handleResize = (event: any) => {
-        this.setState({key: Math.random().toString()});
+        return this.state.logic.handleResize(event);
     }
 
     handleKeyDown = (event: KeyboardEvent) => {
-        const {integration, selectedUuids, clipboardSteps} = this.state;
-        if ((event.shiftKey)) {
-            this.setState({shiftKeyPressed: true});
-        }
-        if (window.document.hasFocus() && window.document.activeElement) {
-            if (['BODY', 'MAIN'].includes(window.document.activeElement.tagName)) {
-                let charCode = String.fromCharCode(event.which).toLowerCase();
-                if ((event.ctrlKey || event.metaKey) && charCode === 'c') {
-                    const steps: CamelElement[] = []
-                    selectedUuids.forEach(selectedUuid => {
-                        const selectedElement = CamelDefinitionApiExt.findElementInIntegration(integration, selectedUuid);
-                        if (selectedElement) {
-                            steps.push(selectedElement);
-                        }
-                    })
-                    this.saveToClipboard(steps);
-                } else if ((event.ctrlKey || event.metaKey) && charCode === 'v') {
-                    if (clipboardSteps.length === 1 && clipboardSteps[0]?.dslName === 'FromDefinition') {
-                        const clone = CamelUtil.cloneStep(clipboardSteps[0], true);
-                        const route = CamelDefinitionApi.createRouteDefinition({from: clone});
-                        this.addStep(route, '', 0)
-                    } else if (selectedUuids.length === 1) {
-                        const targetMeta = CamelDefinitionApiExt.findElementMetaInIntegration(integration, selectedUuids[0]);
-                        clipboardSteps.reverse().forEach(clipboardStep => {
-                            if (clipboardStep && targetMeta.parentUuid) {
-                                const clone = CamelUtil.cloneStep(clipboardStep, true);
-                                this.addStep(clone, targetMeta.parentUuid, targetMeta.position);
-                            }
-                        })
-                    }
-                }
-            }
-        } else {
-            if (event.repeat) {
-                window.dispatchEvent(event);
-            }
-        }
+        return this.state.logic.handleKeyDown(event);
     }
 
     handleKeyUp = (event: KeyboardEvent) => {
-        this.setState({shiftKeyPressed: false});
-        if (event.repeat) {
-            window.dispatchEvent(event);
-        }
+        return this.state.logic.handleKeyUp(event);
     }
 
-    componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        if (prevState.key !== this.state.key) {
-            this.props.onSave?.call(this, this.state.integration, this.state.propertyOnly);
-        }
-    }
-
-    saveToClipboard = (steps: CamelElement[]): void => {
-        if (steps.length >0) {
-            this.setState(prevState => ({
-                key: Math.random().toString(),
-                clipboardSteps: [...steps]
-            }));
-        }
-    }
-
-    onPropertyUpdate = (element: CamelElement, newRoute?: RouteToCreate) => {
-        if (newRoute) {
-            let i = CamelDefinitionApiExt.updateIntegrationRouteElement(this.state.integration, element);
-            const f = CamelDefinitionApi.createFromDefinition({uri: newRoute.componentName + ":" + newRoute.name})
-            const r = CamelDefinitionApi.createRouteDefinition({from: f, id: newRoute.name})
-            i = CamelDefinitionApiExt.addStepToIntegration(i, r, '');
-            const clone = CamelUtil.cloneIntegration(i);
-            this.setState(prevState => ({
-                integration: clone,
-                key: Math.random().toString(),
-                showSelector: false,
-                selectedStep: element,
-                propertyOnly: false,
-                selectedUuids: [element.uuid]
-            }));
-        } else {
-            const clone = CamelUtil.cloneIntegration(this.state.integration);
-            const i = CamelDefinitionApiExt.updateIntegrationRouteElement(clone, element);
-            this.setState({integration: i, propertyOnly: true, key: Math.random().toString()});
-        }
-    }
-
-    showDeleteConfirmation = (id: string) => {
-        let message: string;
-        let ce: CamelElement;
-        let isRouteConfiguration: boolean = false;
-        ce = CamelDefinitionApiExt.findElementInIntegration(this.state.integration, id)!;
-        if (ce.dslName === 'FromDefinition') { // Get the RouteDefinition for this.  Use its uuid.
-            let flows = this.state.integration.spec.flows!;
-            for (let i = 0; i < flows.length; i++) {
-                if (flows[i].dslName === 'RouteDefinition') {
-                    let routeDefinition: RouteDefinition = flows[i];
-                    if (routeDefinition.from.uuid === id) {
-                        id = routeDefinition.uuid;
-                        break;
-                    }
-                }
-            }
-            message = 'Deleting the first element will delete the entire route!';
-        } else if (ce.dslName === 'RouteDefinition') {
-            message = 'Delete route?';
-        } else if (ce.dslName === 'RouteConfigurationDefinition') {
-            message = 'Delete route configuration?';
-            isRouteConfiguration = true;
-        } else {
-            message = 'Delete element from route?';
-        }
-        this.setState(prevState => ({
-            showSelector: false,
-            showDeleteConfirmation: true,
-            deleteMessage: message,
-            selectedUuids: [id],
-        }));
-    }
-
-    deleteElement = () => {
-        const id = this.state.selectedUuids.at(0);
-        if (id) {
-            const i = CamelDefinitionApiExt.deleteStepFromIntegration(this.state.integration, id);
-            this.setState(prevState => ({
-                integration: i,
-                showSelector: false,
-                showDeleteConfirmation: false,
-                deleteMessage: '',
-                key: Math.random().toString(),
-                selectedStep: undefined,
-                propertyOnly: false,
-                selectedUuids: [id],
-            }));
-            const el = new CamelElement("");
-            el.uuid = id;
-            EventBus.sendPosition("delete", el, undefined, new DOMRect(), new DOMRect(), 0);
-        }
-    }
-
-    selectElement = (element: CamelElement) => {
-        const {shiftKeyPressed, selectedUuids, integration} = this.state;
-        let canNotAdd: boolean = false;
-        if (shiftKeyPressed) {
-            const hasFrom = selectedUuids.map(e => CamelDefinitionApiExt.findElementInIntegration(integration, e)?.dslName === 'FromDefinition').filter(r => r).length > 0;
-            canNotAdd = hasFrom || (selectedUuids.length > 0 && element.dslName === 'FromDefinition');
-        }
-        const add = shiftKeyPressed && !selectedUuids.includes(element.uuid);
-        const remove = shiftKeyPressed && selectedUuids.includes(element.uuid);
-        const i = CamelDisplayUtil.setIntegrationVisibility(this.state.integration, element.uuid);
-        this.setState((prevState: State) => {
-            if (remove) {
-                const index = prevState.selectedUuids.indexOf(element.uuid);
-                prevState.selectedUuids.splice(index, 1);
-            } else if (add && !canNotAdd) {
-                prevState.selectedUuids.push(element.uuid);
-            }
-            const uuid: string = prevState.selectedUuids.includes(element.uuid) ? element.uuid : prevState.selectedUuids.at(0) || '';
-            const selectedElement = shiftKeyPressed ? CamelDefinitionApiExt.findElementInIntegration(integration, uuid) : element;
-            return {
-                integration: i,
-                selectedStep: selectedElement,
-                showSelector: false,
-                selectedUuids: shiftKeyPressed ? [...prevState.selectedUuids] : [element.uuid],
-            }
-        });
-    }
-
-    unselectElement = (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        if ((evt.target as any).dataset.click === 'FLOWS') {
-            evt.stopPropagation()
-            const i = CamelDisplayUtil.setIntegrationVisibility(this.state.integration, undefined);
-            this.setState(prevState => ({
-                integration: i,
-                selectedStep: undefined,
-                showSelector: false,
-                selectedPosition: undefined,
-                selectedUuids: [],
-            }));
-        }
-    }
-
-    openSelector = (parentId: string | undefined, parentDsl: string | undefined, showSteps: boolean = true, position?: number | undefined, selectorTabIndex?: string | number) => {
-        this.setState({
-            showSelector: true,
-            parentId: parentId || '',
-            parentDsl: parentDsl,
-            showSteps: showSteps,
-            selectedPosition: position,
-            selectorTabIndex: selectorTabIndex
-        })
-    }
-
-    closeDslSelector = () => {
-        this.setState({showSelector: false})
-    }
-
-    onDslSelect = (dsl: DslMetaModel, parentId: string, position?: number | undefined) => {
-        switch (dsl.dsl) {
-            case 'FromDefinition' :
-                const route = CamelDefinitionApi.createRouteDefinition({from: new FromDefinition({uri: dsl.uri})});
-                this.addStep(route, parentId, position)
-                break;
-            case 'ToDefinition' :
-                const to = CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
-                this.addStep(to, parentId, position)
-                break;
-            case 'ToDynamicDefinition' :
-                const toD = CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
-                this.addStep(toD, parentId, position)
-                break;
-            case 'KameletDefinition' :
-                const kamelet = CamelDefinitionApi.createStep(dsl.dsl, {name: dsl.name});
-                this.addStep(kamelet, parentId, position)
-                break;
-            default:
-                const step = CamelDefinitionApi.createStep(dsl.dsl, undefined);
-                this.addStep(step, parentId, position)
-                break;
-        }
-    }
-
-    createRouteConfiguration = () => {
-        const clone = CamelUtil.cloneIntegration(this.state.integration);
-        const routeConfiguration = new RouteConfigurationDefinition();
-        const i = CamelDefinitionApiExt.addRouteConfigurationToIntegration(clone, routeConfiguration);
-        this.setState(prevState => ({
-            integration: i,
-            propertyOnly: false,
-            key: Math.random().toString(),
-            selectedStep: routeConfiguration,
-            selectedUuids: [routeConfiguration.uuid],
-        }));
-    }
-
-    addStep = (step: CamelElement, parentId: string, position?: number | undefined) => {
-        const i = CamelDefinitionApiExt.addStepToIntegration(this.state.integration, step, parentId, position);
-        const clone = CamelUtil.cloneIntegration(i);
-        EventBus.sendPosition("clean", step, undefined, new DOMRect(), new DOMRect(), 0);
-        this.setState(prevState => ({
-            integration: clone,
-            key: Math.random().toString(),
-            showSelector: false,
-            selectedStep: step,
-            propertyOnly: false,
-            selectedUuids: [step.uuid],
-        }));
-    }
-
-    onIntegrationUpdate = (i: Integration) => {
-        this.setState({integration: i, propertyOnly: false, showSelector: false, key: Math.random().toString()});
-    }
-
-    moveElement = (source: string, target: string, asChild: boolean) => {
-        const i = CamelDefinitionApiExt.moveRouteElement(this.state.integration, source, target, asChild);
-        const clone = CamelUtil.cloneIntegration(i);
-        const selectedStep = CamelDefinitionApiExt.findElementInIntegration(clone, source);
-        this.setState(prevState => ({
-            integration: clone,
-            key: Math.random().toString(),
-            showSelector: false,
-            selectedStep: selectedStep,
-            propertyOnly: false,
-            selectedUuids: [source],
-        }));
-    }
-
-    onResizePage(el: HTMLDivElement | null) {
-        const rect = el?.getBoundingClientRect();
-        if (el && rect && (el.scrollWidth !== this.state.width || el.scrollHeight !== this.state.height || rect.top !== this.state.top || rect.left !== this.state.left)) {
-            this.setState({width: el.scrollWidth, height: el.scrollHeight, top: rect.top, left: rect.left})
-        }
+    componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<RouteDesignerState>, snapshot?: any) => {
+        return this.state.logic.componentDidUpdate(prevState, snapshot);
     }
 
     getSelectorModal() {
         return (
             <DslSelector
                 isOpen={this.state.showSelector}
-                onClose={() => this.closeDslSelector()}
+                onClose={() => this.state.logic.closeDslSelector()}
                 dark={this.props.dark}
                 parentId={this.state.parentId}
                 parentDsl={this.state.parentDsl}
                 showSteps={this.state.showSteps}
                 position={this.state.selectedPosition}
                 tabIndex={this.state.selectorTabIndex}
-                onDslSelect={this.onDslSelect}/>)
+                onDslSelect={this.state.logic.onDslSelect}/>)
     }
 
     getDeleteConfirmation() {
@@ -412,7 +133,7 @@ export class RouteDesigner extends React.Component<Props, State> {
             isOpen={this.state.showDeleteConfirmation}
             onClose={() => this.setState({showDeleteConfirmation: false})}
             actions={[
-                <Button key="confirm" variant="primary" onClick={e => this.deleteElement()}>Delete</Button>,
+                <Button key="confirm" variant="primary" onClick={e => this.state.logic.deleteElement()}>Delete</Button>,
                 <Button key="cancel" variant="link"
                         onClick={e => this.setState({showDeleteConfirmation: false})}>Cancel</Button>
             ]}
@@ -431,41 +152,12 @@ export class RouteDesigner extends React.Component<Props, State> {
                 <DslProperties ref={this.state.ref}
                                integration={this.state.integration}
                                step={this.state.selectedStep}
-                               onIntegrationUpdate={this.onIntegrationUpdate}
-                               onPropertyUpdate={this.onPropertyUpdate}
+                               onIntegrationUpdate={this.state.logic.onIntegrationUpdate}
+                               onPropertyUpdate={this.state.logic.onPropertyUpdate}
                                isRouteDesigner={true}
                                dark={this.props.dark}/>
             </DrawerPanelContent>
         )
-    }
-
-    downloadIntegrationImage(dataUrl: string) {
-        const a = document.createElement('a');
-        a.setAttribute('download', 'karavan-routes.png');
-        a.setAttribute('href', dataUrl);
-        a.click();
-    }
-
-    integrationImageDownloadFilter = (node: HTMLElement) => {
-        const exclusionClasses = ['add-flow'];
-        return !exclusionClasses.some(classname => {
-            return node.classList === undefined ? false : node.classList.contains(classname);
-        });
-    }
-
-    integrationImageDownload() {
-        if (this.state.printerRef.current === null) {
-            return
-        }
-        toPng(this.state.printerRef.current, {
-            style: {overflow: 'hidden'}, cacheBust: true, filter: this.integrationImageDownloadFilter,
-            height: this.state.height, width: this.state.width, backgroundColor: this.props.dark ? "black" : "white"
-        }).then(v => {
-            toPng(this.state.printerRef.current, {
-                style: {overflow: 'hidden'}, cacheBust: true, filter: this.integrationImageDownloadFilter,
-                height: this.state.height, width: this.state.width, backgroundColor: this.props.dark ? "black" : "white"
-            }).then(this.downloadIntegrationImage);
-        })
     }
 
     getGraph() {
@@ -475,15 +167,15 @@ export class RouteDesigner extends React.Component<Props, State> {
         return (
             <div ref={this.state.printerRef} className="graph">
                 <DslConnections height={height} width={width} top={top} left={left} integration={integration}/>
-                <div className="flows" data-click="FLOWS" onClick={event => this.unselectElement(event)}
-                     ref={el => this.onResizePage(el)}>
+                <div className="flows" data-click="FLOWS" onClick={event => this.state.logic.unselectElement(event)}
+                     ref={el => this.state.logic.onResizePage(el)}>
                     {routeConfigurations?.map((routeConfiguration, index: number) => (
                         <DslElement key={routeConfiguration.uuid + key}
                                     integration={integration}
-                                    openSelector={this.openSelector}
-                                    deleteElement={this.showDeleteConfirmation}
-                                    selectElement={this.selectElement}
-                                    moveElement={this.moveElement}
+                                    openSelector={this.state.logic.openSelector}
+                                    deleteElement={this.state.logic.showDeleteConfirmation}
+                                    selectElement={this.state.logic.selectElement}
+                                    moveElement={this.state.logic.moveElement}
                                     selectedUuid={selectedUuids}
                                     inSteps={false}
                                     position={index}
@@ -493,10 +185,10 @@ export class RouteDesigner extends React.Component<Props, State> {
                     {routes?.map((route: any, index: number) => (
                         <DslElement key={route.uuid + key}
                                     integration={integration}
-                                    openSelector={this.openSelector}
-                                    deleteElement={this.showDeleteConfirmation}
-                                    selectElement={this.selectElement}
-                                    moveElement={this.moveElement}
+                                    openSelector={this.state.logic.openSelector}
+                                    deleteElement={this.state.logic.showDeleteConfirmation}
+                                    selectElement={this.state.logic.selectElement}
+                                    moveElement={this.state.logic.moveElement}
                                     selectedUuid={selectedUuids}
                                     inSteps={false}
                                     position={index}
@@ -507,12 +199,12 @@ export class RouteDesigner extends React.Component<Props, State> {
                         <Button
                             variant={routes.length === 0 ? "primary" : "secondary"}
                             icon={<PlusIcon/>}
-                            onClick={e => this.openSelector(undefined, undefined)}>Create route
+                            onClick={e => this.state.logic.openSelector(undefined, undefined)}>Create route
                         </Button>
                         <Button
                             variant="secondary"
                             icon={<PlusIcon/>}
-                            onClick={e => this.createRouteConfiguration()}>Create configuration
+                            onClick={e => this.state.logic.createRouteConfiguration()}>Create configuration
                         </Button>
                     </div>
                 </div>

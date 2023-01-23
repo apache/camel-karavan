@@ -48,6 +48,17 @@ export class DslPosition {
     }
 }
 
+const commands = new Subject<Command>();
+export class Command {
+    command: string;
+    data: any;
+
+    constructor(command: string, data: any) {
+        this.command = command;
+        this.data = data;
+    }
+}
+
 export const EventBus = {
     sendPosition: (command: "add" | "delete" | "clean",
                    step: CamelElement,
@@ -58,4 +69,7 @@ export const EventBus = {
                    inSteps: boolean = false,
                    isSelected: boolean = false) => positions.next(new DslPosition(command, step, parent, rect, headerRect, position, inSteps, isSelected)),
     onPosition: () => positions.asObservable(),
+
+    sendCommand: (command: string, data?: any) => commands.next(new Command(command, data)),
+    onCommand: () => commands.asObservable(),
 }
