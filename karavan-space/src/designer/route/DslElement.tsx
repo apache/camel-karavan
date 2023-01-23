@@ -41,7 +41,7 @@ interface Props {
     selectElement: any
     openSelector: (parentId: string | undefined, parentDsl: string | undefined, showSteps: boolean, position?: number | undefined) => void
     moveElement: (source: string, target: string, asChild: boolean) => void
-    selectedUuid: string
+    selectedUuid: string []
     inSteps: boolean
     position: number
 }
@@ -51,7 +51,6 @@ interface State {
     showMoveConfirmation: boolean
     moveElements: [string | undefined, string | undefined]
     tabIndex: string | number
-    selectedUuid: string
     isDragging: boolean
     isDraggedOver: boolean
 }
@@ -63,16 +62,16 @@ export class DslElement extends React.Component<Props, State> {
         showMoveConfirmation: false,
         moveElements: [undefined, undefined],
         tabIndex: 0,
-        selectedUuid: this.props.selectedUuid,
         isDragging: false,
-        isDraggedOver: false
+        isDraggedOver: false,
     };
 
-    componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        if (prevState.selectedUuid !== this.props.selectedUuid) {
-            this.setState({selectedUuid: this.props.selectedUuid});
-        }
-    }
+    //
+    // componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
+    //     if (prevState.selectedUuid !== this.props.selectedUuid) {
+    //         this.setState({selectedUuid: this.props.selectedUuid});
+    //     }
+    // }
 
     openSelector = (evt: React.MouseEvent, showSteps: boolean = true, isInsert: boolean = false) => {
         evt.stopPropagation();
@@ -126,7 +125,7 @@ export class DslElement extends React.Component<Props, State> {
     }
 
     isSelected = (): boolean => {
-        return this.state.selectedUuid === this.props.step.uuid
+        return this.props.selectedUuid.includes(this.props.step.uuid);
     }
 
     hasBorder = (): boolean => {
@@ -352,7 +351,7 @@ export class DslElement extends React.Component<Props, State> {
                                 deleteElement={this.props.deleteElement}
                                 selectElement={this.props.selectElement}
                                 moveElement={this.props.moveElement}
-                                selectedUuid={this.state.selectedUuid}
+                                selectedUuid={this.props.selectedUuid}
                                 inSteps={child.name === 'steps'}
                                 position={index}
                                 step={element}
@@ -373,7 +372,7 @@ export class DslElement extends React.Component<Props, State> {
 
     getAddStepButton() {
         const {integration, step, selectedUuid} = this.props;
-        const hideAddButton = step.dslName === 'StepDefinition' && !CamelDisplayUtil.isStepDefinitionExpanded(integration, step.uuid, selectedUuid);
+        const hideAddButton = step.dslName === 'StepDefinition' && !CamelDisplayUtil.isStepDefinitionExpanded(integration, step.uuid, selectedUuid.at(0));
         if (hideAddButton) return (<></>)
         else return (
             <Tooltip position={"bottom"}

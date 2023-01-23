@@ -36,8 +36,6 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelUi, RouteToCreate} from "../utils/CamelUi";
 import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {IntegrationHeader} from "../utils/KaravanComponents";
-import CopyIcon from '@patternfly/react-icons/dist/esm/icons/copy-icon'
-import PasteIcon from '@patternfly/react-icons/dist/esm/icons/paste-icon'
 import CloneIcon from "@patternfly/react-icons/dist/esm/icons/clone-icon";
 
 interface Props {
@@ -45,8 +43,6 @@ interface Props {
     step?: CamelElement,
     onIntegrationUpdate?: any,
     onPropertyUpdate?: (element: CamelElement, newRoute?: RouteToCreate) => void
-    clipboardStep?: CamelElement
-    onSaveClipboardStep?: (element?: CamelElement) => void
     onClone?: (element: CamelElement) => void
     isRouteDesigner: boolean
     dark: boolean
@@ -73,15 +69,6 @@ export class DslProperties extends React.Component<Props, State> {
             (clone as any)[fieldId] = value;
             this.setStep(clone)
             this.props.onPropertyUpdate?.call(this, clone, newRoute);
-        }
-    }
-
-    pasteClipboardStep = () => {
-        if (this.props.clipboardStep && this.state.step) {
-            const clone = CamelUtil.cloneStep(this.props.clipboardStep);
-            clone.uuid = this.state.step.uuid;
-            this.setStep(clone)
-            this.props.onPropertyUpdate?.call(this, clone);
         }
     }
 
@@ -144,12 +131,6 @@ export class DslProperties extends React.Component<Props, State> {
             <div className="headers">
                 <div className="top">
                     <Title headingLevel="h1" size="md">{title}</Title>
-                    <Tooltip content="Copy step" position="bottom">
-                        <Button variant="link" onClick={() => this.props.onSaveClipboardStep?.call(this, this.state.step)} icon={<CopyIcon/>}/>
-                    </Tooltip>
-                    <Tooltip content="Paste step" position="bottom">
-                        <Button variant="link" onClick={() => this.pasteClipboardStep()} icon={<PasteIcon/>}/>
-                    </Tooltip>
                 </div>
                 <Text component={TextVariants.p}>{descriptionLines.at(0)}</Text>
                 {descriptionLines.length > 1 && <ExpandableSection toggleText={isDescriptionExpanded ? 'Show less' : 'Show more'}
