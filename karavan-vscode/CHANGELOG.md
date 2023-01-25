@@ -7,6 +7,8 @@
 3. Quarkus and Spring Boot in cloud-native mode
 4. Kamelets 3.20.0
 5. Route Configuration DSL
+6. Quarkus 2.16.0.Final 
+7. Spring Boot 2.7.7
 
 ## 3.18.5
 1. First preview of Karavan Operator 
