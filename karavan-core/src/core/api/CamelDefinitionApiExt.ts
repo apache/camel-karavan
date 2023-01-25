@@ -149,7 +149,6 @@ export class CamelDefinitionApiExt {
 
     static hasElementWithId = (integration: Integration, id: string): boolean => {
         let hasId = false;
-        console.log(id);
         return CamelDefinitionApiExt.checkIfHasId(integration, id, hasId);
     }
 
