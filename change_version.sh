@@ -16,7 +16,7 @@ echo "Set Designer package.json version: $1";
 yarn version --new-version $1 --no-commit --no-git-tag-version --cwd karavan-designer
 
 echo "Set Application package.json extension version: $1";
-yarn version --new-version $1 --no-commit --no-git-tag-version --cwd karavan-app/src/main/webapp/
+yarn version --new-version $1 --no-commit --no-git-tag-version --cwd karavan-app/src/main/webui/
 
 echo "Set VSCode extension package.json version: $1";
 yarn version --new-version $1 --no-commit --no-git-tag-version --cwd karavan-vscode

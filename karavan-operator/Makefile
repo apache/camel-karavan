@@ -1,5 +1,5 @@
 
-VERSION ?=3.18.6
+VERSION ?=3.20.0
 
 # CHANNELS define the bundle channels used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g CHANNELS = "candidate,fast,stable")
