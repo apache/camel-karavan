@@ -158,25 +158,19 @@ export class CamelDefinitionApiExt {
         Object.keys(obj).forEach( (propName) => {
             let prop = (obj as any)[propName];
             if (hasId || (propName === 'id' && id === prop)) {
-                console.log('found!');
                 hasId = true;
                 return true;
             }
             else if (typeof prop === 'object' && prop !== null) {
                 hasId = CamelDefinitionApiExt.checkIfHasId(prop, id, hasId);
             }
-            else if (CamelDefinitionApiExt.isIterable(prop) && !(typeof prop === 'string' || prop instanceof String)) {
-                hasId = CamelDefinitionApiExt.checkIfHasId(prop, id, hasId);
+            else if (Array.isArray(prop)) {
+                prop.forEach((element) => {
+                    CamelDefinitionApiExt.checkIfHasId(element, id, hasId);
+                });
             }
         });
         return hasId;
-    }
-
-    static isIterable = (obj: Object): boolean => {
-        if (obj == null) {
-            return false;
-        }
-        return typeof (obj as any)[Symbol.iterator] === 'function';
     }
 
     static moveRouteElement = (integration: Integration, source: string, target: string, asChild: boolean): Integration => {
