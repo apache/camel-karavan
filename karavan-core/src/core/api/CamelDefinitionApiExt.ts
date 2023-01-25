@@ -27,7 +27,6 @@ import {
     Integration
 } from "../model/IntegrationDefinition";
 import {CamelDefinitionApi} from "./CamelDefinitionApi";
-import {CamelDefinitionYaml} from "./CamelDefinitionYaml";
 
 export class ChildElement {
     name: string = ''
@@ -149,8 +148,35 @@ export class CamelDefinitionApiExt {
     }
 
     static hasElementWithId = (integration: Integration, id: string): boolean => {
-        const yaml = CamelDefinitionYaml.integrationToYaml(integration);
-        return yaml.includes("id: " + id);
+        let hasId = false;
+        console.log(id);
+        return CamelDefinitionApiExt.checkIfHasId(integration, id, hasId);
+    }
+
+    static checkIfHasId = (obj: Object, id: string, hasId: boolean): boolean => {
+
+        Object.keys(obj).forEach( (propName) => {
+            let prop = (obj as any)[propName];
+            if (hasId || (propName === 'id' && id === prop)) {
+                console.log('found!');
+                hasId = true;
+                return true;
+            }
+            else if (typeof prop === 'object' && prop !== null) {
+                hasId = CamelDefinitionApiExt.checkIfHasId(prop, id, hasId);
+            }
+            else if (CamelDefinitionApiExt.isIterable(prop) && !(typeof prop === 'string' || prop instanceof String)) {
+                hasId = CamelDefinitionApiExt.checkIfHasId(prop, id, hasId);
+            }
+        });
+        return hasId;
+    }
+
+    static isIterable = (obj: Object): boolean => {
+        if (obj == null) {
+            return false;
+        }
+        return typeof (obj as any)[Symbol.iterator] === 'function';
     }
 
     static moveRouteElement = (integration: Integration, source: string, target: string, asChild: boolean): Integration => {
