@@ -89,6 +89,7 @@ export class CamelUtil {
         separator: string,
         firstSmall: boolean
     ) => {
+        if (name.length === 0) return name;
         const res = name
             .split(separator)
             .map((value) => CamelUtil.capitalizeName(value))
