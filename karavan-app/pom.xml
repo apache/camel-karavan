@@ -31,7 +31,11 @@
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.version>2.16.0.Final</quarkus.platform.version>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-        <version.camel>3.20.1</version.camel>
+        <camel.version>3.20.1</camel.version>
+        <infinispan.version>14.0.5.Final</infinispan.version>
+        <tekton.version>6.2.0</tekton.version>
+        <jgit.version>2.3.1</jgit.version>
+        <quinoa.version>1.2.4</quinoa.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -76,7 +80,7 @@
         <dependency>
             <groupId>io.quarkiverse.jgit</groupId>
             <artifactId>quarkus-jgit</artifactId>
-            <version>2.2.0</version>
+            <version>${jgit.version}</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -113,12 +117,12 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>tekton-client</artifactId>
-            <version>6.2.0</version>
+            <version>${tekton.version}</version>
         </dependency>
         <dependency>
             <groupId>org.infinispan</groupId>
-            <artifactId>infinispan-core</artifactId>
-            <version>13.0.11.Final</version>
+            <artifactId>infinispan-quarkus-embedded</artifactId>
+            <version>${infinispan.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -128,7 +132,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-openapi-rest-dsl-generator</artifactId>
-            <version>${version.camel}</version>
+            <version>${camel.version}</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -147,7 +151,7 @@
         <dependency>
             <groupId>io.quarkiverse.quinoa</groupId>
             <artifactId>quarkus-quinoa</artifactId>
-            <version>1.2.4</version>
+            <version>${quinoa.version}</version>
         </dependency>
     </dependencies>
     <build>
