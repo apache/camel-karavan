@@ -14,20 +14,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      #  Checkout Karavan
-      - name: Checkout
+      - name: Checkout Karavan
         uses: actions/checkout@v3
         with:
           path: karavan
 
-      #  Checkout Infinispan Quarkus Embedded 
+      - name: Checkout Infinispan Quarkus Embedded 
         uses: actions/checkout@v3
         with:
           repository: infinispan/infinispan-quarkus
           path: infinispan
           ref: 14.0.5.Final
 
-      #  Generate Karavan UI model and API, Kamelets and Components
       - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
@@ -42,14 +40,12 @@ jobs:
             !~/.m2/repository/org/apache/camel/karavan
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
-      #  Build Karavan cloud app with public access
       
       - name: Build Infinispan Quarkus Embedded 
         run: |
           mvn install -f infinispan -N \
           && mvn install -f infinispan/embedded -DskipTests
 
-      #  Generate Karavan    
       - name: Generate Karavan UI model and API, Kamelets and Components
         run: |
           mvn clean compile exec:java -f karavan/karavan-generator \
