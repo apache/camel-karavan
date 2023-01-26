@@ -42,12 +42,14 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
       
       - name: Build Infinispan Quarkus Embedded 
+        working-directory: ./infinispan-quarkus
         run: |
-          mvn clean install -pl poms,embedded,embedded/runtime,embedded/deployment -f infinispan-quarkus -DskipTests
+          mvn clean install -pl poms,embedded,embedded/runtime,embedded/deployment -DskipTests
 
       - name: Generate Karavan UI model and API, Kamelets and Components
+        working-directory: ./karavan
         run: |
-          mvn clean compile exec:java -f karavan/karavan-generator \
+          mvn clean compile exec:java -f karavan-generator \
           -Dexec.mainClass="org.apache.camel.karavan.generator.KaravanGenerator"
 
       #  Building Karavan Core
@@ -62,8 +64,9 @@ jobs:
 
       #  Build Karavan cloud app with public access
       - name: Build application public
+        working-directory: ./karavan
         run: |
-          mvn package -f karavan/karavan-app -Dquarkus.profile=public -DskipTest \
+          mvn package -f karavan-app -Dquarkus.profile=public -DskipTest \
           -Dquarkus.quinoa.package-manager-install=false \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=true \
@@ -74,8 +77,9 @@ jobs:
 
       #  Build Karavan cloud app with basic authorization
       - name: Build application basic auth
+        working-directory: ./karavan
         run: |
-          mvn package -f karavan/karavan-app -Dquarkus.profile=basic -DskipTest \
+          mvn package -f karavan-app -Dquarkus.profile=basic -DskipTest \
           -Dquarkus.quinoa.package-manager-install=false \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=true \
@@ -86,8 +90,9 @@ jobs:
 
       #  Build Karavan cloud app with oidc authorization
       - name: Build application oidc
+        working-directory: ./karavan
         run: |
-          mvn package -f karavan/karavan-app -Dquarkus.profile=oidc -DskipTest \
+          mvn package -f karavan-app -Dquarkus.profile=oidc -DskipTest \
           -Dquarkus.quinoa.package-manager-install=false \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=true \
