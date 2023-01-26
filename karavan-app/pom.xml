@@ -121,8 +121,12 @@
         </dependency>
         <dependency>
             <groupId>org.infinispan</groupId>
-            <artifactId>infinispan-quarkus-embedded</artifactId>
+            <artifactId>infinispan-core</artifactId>
             <version>${infinispan.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
