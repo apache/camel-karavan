@@ -105,6 +105,7 @@ describe('Find Step', () => {
 
         const res1 = CamelDefinitionApiExt.hasElementWithId(i, 'to-6a8b');
         const res2 = CamelDefinitionApiExt.hasElementWithId(i, 'to-6a81');
+
         expect(res1).to.equal(true);
         expect(res2).to.equal(false);
     });
