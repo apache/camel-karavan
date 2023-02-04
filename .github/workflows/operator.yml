@@ -11,7 +11,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}-operator
   IMAGE_NAME_BUNDLE: ${{ github.repository }}-bundle
-  TAG: 3.20.0
+  TAG: 3.20.1-SNAPSHOT
 
 jobs:
   build:

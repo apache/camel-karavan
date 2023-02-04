@@ -38,13 +38,3 @@ sed -i.bak 's/VERSION ?=.*/VERSION ?='"$1"'/g' karavan-operator/Makefile
 
 echo "Set application.properties karavan.version=$1";
 sed -i.bak 's/karavan.version.*/karavan.version='"$1"'/g' karavan-app/src/main/resources/application.properties 
-
-echo "Set Deployment manifests version $1";
-sed -i.bak 's/camel-karavan.*/camel-karavan:'"$1"'/g' karavan-cloud/minikube/karavan-app-deployment-public.yaml
-sed -i.bak 's/camel-karavan.*/camel-karavan:'"$1"'/g' karavan-cloud/openshift/karavan-app-deployment-public.yaml
-sed -i.bak 's/camel-karavan-basic.*/camel-karavan-basic:'"$1"'/g' karavan-cloud/openshift/karavan-app-deployment-basic.yaml
-sed -i.bak 's/camel-karavan-oidc.*/camel-karavan-oidc:'"$1"'/g' karavan-cloud/openshift/karavan-app-deployment-oidc.yaml
-
-echo "Set Tekton Task manifest version $1";
-sed -i.bak 's/camel-karavan-builder.*/camel-karavan-builder:'"$1"'/g' karavan-cloud/openshift/karavan-quarkus-task.yaml
-sed -i.bak 's/camel-karavan-builder.*/camel-karavan-builder:'"$1"'/g' karavan-cloud/minikube/karavan-quarkus-task-minikube.yaml

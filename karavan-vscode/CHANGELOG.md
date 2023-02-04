@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.20.1
+<!-- 0. Camel 3.20.2 -->
+
 ## 3.20.0
 0. Camel 3.20.1
 1. Export to Quarkus and Spring Boot application in VS Code

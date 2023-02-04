@@ -21,9 +21,9 @@ package org.apache.camel.karavan.operator.spec;
 
 
 @CSVMetadata(
-        name = "camel-karavan-operator.v3.20.0",
+        name = "camel-karavan-operator.v3.20.1-SNAPSHOT",
         annotations = @CSVMetadata.Annotations(
-                containerImage = "ghcr.io/apache/camel-karavan-operator:3.20.0",
+                containerImage = "ghcr.io/apache/camel-karavan-operator:3.20.1-SNAPSHOT",
                 repository = "https://github.com/apache/camel-karavan",
                 capabilities = "Basic Install",
                 categories = "Developer Tools, Integration & Delivery",
@@ -103,7 +103,7 @@ package org.apache.camel.karavan.operator.spec;
                 @CSVMetadata.PermissionRule(apiGroups = {"apiextensions.k8s.io"}, resources = {"customresourcedefinitions"}, verbs = {"get", "list", "watch"}),
         },
         keywords = {"apache", "camel", "karavan", "integration", "microservices", "low-code"},
-        version = "3.20.0",
+        version = "3.20.1-SNAPSHOT",
         maintainers = @CSVMetadata.Maintainer(name = "The Apache Software Foundation", email = "users@camel.apache.org"),
         provider = @CSVMetadata.Provider(name = "The Apache Software Foundation"),
         maturity = "alpha",
