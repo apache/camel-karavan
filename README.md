@@ -53,12 +53,11 @@ More about [Karavan VS Code Extension](karavan-vscode/README.md)
 * Beans and dependencies
 * 100+ Kamelets source/sink/action
 * 300+ Components consumer/producer
-* Read/Write Integration CRD (*.yaml with kind:Integration) and plain yaml routes
+* Read/Write yaml routes
 ### Runtimes
 * [Camel JBang](https://camel.apache.org/manual/camel-jbang.html)
 * [Camel Quarkus](https://camel.apache.org/camel-quarkus)
-* [Camel Spring-Boot](https://camel.apache.org/camel-spring-boot) (WIP)
-* [Camel Main](https://camel.apache.org/components/3.18.x/others/main.html) (WIP)
+* [Camel Spring-Boot](https://camel.apache.org/camel-spring-boot)
 ### Build and Deploy
 * Maven for local development
 * Tekton Pipelines for Kubernetes/OpenShift
