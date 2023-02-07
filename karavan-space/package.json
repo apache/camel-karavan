@@ -51,7 +51,6 @@
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.1",
     "rxjs": "^7.5.2",
-    "typescript": "^4.9.4",
     "uuid": "8.3.2"
   },
   "devDependencies": {
@@ -60,6 +59,10 @@
     "@types/react": "^17.0.38",
     "@types/react-dom": "^17.0.11",
     "@types/react-router-dom": "^5.3.3",
-    "monaco-editor": "0.29.1"
+    "@typescript-eslint/eslint-plugin": "^5.51.0",
+    "@typescript-eslint/parser": "^5.51.0",
+    "eslint": "^8.33.0",
+    "monaco-editor": "0.29.1",
+    "typescript": "^4.9.5"
   }
 }

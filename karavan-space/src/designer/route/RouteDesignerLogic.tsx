@@ -168,7 +168,6 @@ export class RouteDesignerLogic {
     showDeleteConfirmation = (id: string) => {
         let message: string;
         let ce: CamelElement;
-        let isRouteConfiguration: boolean = false;
         ce = CamelDefinitionApiExt.findElementInIntegration(this.routeDesigner.state.integration, id)!;
         if (ce.dslName === 'FromDefinition') { // Get the RouteDefinition for this.routeDesigner.  Use its uuid.
             let flows = this.routeDesigner.state.integration.spec.flows!;
@@ -186,7 +185,6 @@ export class RouteDesignerLogic {
             message = 'Delete route?';
         } else if (ce.dslName === 'RouteConfigurationDefinition') {
             message = 'Delete route configuration?';
-            isRouteConfiguration = true;
         } else {
             message = 'Delete element from route?';
         }

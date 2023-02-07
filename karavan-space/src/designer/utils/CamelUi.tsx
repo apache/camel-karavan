@@ -22,7 +22,6 @@ import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {
-    InterceptSendToEndpointDefinition,
     NamedBeanDefinition,
     RouteConfigurationDefinition,
     RouteDefinition,

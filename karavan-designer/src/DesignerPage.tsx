@@ -103,7 +103,6 @@ export class DesignerPage extends React.Component<Props, State> {
     }
 
     render() {
-        const {name, yaml} = this.props;
         const {mode} = this.state;
         return (
             <PageSection className="kamelet-section designer-page" padding={{default: 'noPadding'}}>
