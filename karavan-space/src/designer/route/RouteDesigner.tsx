@@ -221,7 +221,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                         </DrawerContent>
                     </Drawer>
                 </div>
-                {this.getSelectorModal()}
+                {this.state.showSelector === true && this.getSelectorModal()}
                 {this.getDeleteConfirmation()}
             </PageSection>
         );

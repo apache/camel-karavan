@@ -130,9 +130,9 @@ export class CamelUi {
     }
 
     static getSelectorModelsForParentFiltered = (parentDsl: string | undefined, navigation: string,  showSteps: boolean = true): DslMetaModel[] => {
-        return CamelUi.getSelectorModelsForParent(parentDsl, showSteps)
+        const models =  CamelUi.getSelectorModelsForParent(parentDsl, showSteps)
             .filter(dsl => dsl.navigation.includes(navigation));
-            
+        return models;
         }
     static getSelectorModelsForParent = (parentDsl: string | undefined, showSteps: boolean = true): DslMetaModel[] => {
         const result: DslMetaModel[] = [];

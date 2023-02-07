@@ -120,7 +120,7 @@ export class DslSelector extends React.Component<Props, State> {
     }
 
     render() {
-        const parentDsl = this.props.parentDsl;
+        const {parentDsl, isOpen} = this.props;
         const title = parentDsl === undefined ? "Select source/from" : "Select step";
         const labelText: string = this.state.tabIndex ? this.state.tabIndex.toString() : "";
         return (
@@ -156,7 +156,7 @@ export class DslSelector extends React.Component<Props, State> {
                 actions={{}}>
                 <PageSection variant={this.props.dark ? "darker" : "light"}>
                     <Gallery key={"gallery-" + labelText} hasGutter className="dsl-gallery">
-                        {CamelUi.getSelectorModelsForParentFiltered(parentDsl, labelText, this.props.showSteps)
+                        {isOpen && CamelUi.getSelectorModelsForParentFiltered(parentDsl, labelText, this.props.showSteps)
                             .filter((dsl: DslMetaModel) => CamelUi.checkFilter(dsl, this.state.filter))
                             .map((dsl: DslMetaModel, index: number) => this.getCard(dsl, index))}
                     </Gallery>
