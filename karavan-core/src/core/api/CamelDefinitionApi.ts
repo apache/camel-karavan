@@ -2773,6 +2773,7 @@ export class CamelDefinitionApi {
         const def = element ? new ParamDefinition({...element}) : new ParamDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.allowableValues = element && element?.allowableValues ? element?.allowableValues.map((x:any) => CamelDefinitionApi.createValueDefinition(x)) :[];
+        def.examples = element && element?.examples ? element?.examples.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[];
         return def;
     }
 

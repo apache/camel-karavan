@@ -4354,6 +4354,7 @@ export class CamelDefinitionYamlStep {
         
         const def = element ? new ParamDefinition({...element}) : new ParamDefinition();
         def.allowableValues = element && element?.allowableValues ? element?.allowableValues.map((x:any) => CamelDefinitionYamlStep.readValueDefinition(x)) :[]; 
+        def.examples = element && element?.examples ? element?.examples.map((x:any) => CamelDefinitionYamlStep.readRestPropertyDefinition(x)) :[]; 
 
         return def;
     }

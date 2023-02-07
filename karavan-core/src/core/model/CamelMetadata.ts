@@ -1149,6 +1149,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('dataType', 'Data Type', "Sets the parameter data type.", 'string', '', 'string', false, false, false, false, '', ''),
         new PropertyMeta('dataFormat', 'Data Format', "Sets the parameter data format.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('allowableValues', 'Allowable Values', "Sets the parameter list of allowable values (enum).", 'ValueDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('examples', 'Examples', "Sets the parameter examples.", 'RestPropertyDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('description', 'Description', "Sets the parameter description.", 'string', '', '', false, false, false, false, '', ''),
     ]),
     new ElementMeta('throttle', 'ThrottleDefinition', 'Throttle', "Controls the rate at which messages are passed to the next node in the route", 'eip,routing', [

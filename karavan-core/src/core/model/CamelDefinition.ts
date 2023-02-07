@@ -3522,6 +3522,7 @@ export class ParamDefinition extends CamelElement {
     dataType?: string;
     dataFormat?: string;
     allowableValues?: ValueDefinition[] = [];
+    examples?: RestPropertyDefinition[] = [];
     description?: string;
     public constructor(init?: Partial<ParamDefinition>) {
         super('ParamDefinition');

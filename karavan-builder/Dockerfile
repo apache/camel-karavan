@@ -12,4 +12,4 @@ RUN mkdir /opt/mvnd && \
     mv maven-mvnd-0.8.2-linux-amd64/* /opt/mvnd  
 
 WORKDIR /scripts
-ENTRYPOINT ["entrypoint", "-Dcamel.jbang.version=3.20.1", "camel@apache/camel"]
+ENTRYPOINT ["entrypoint", "-Dcamel.jbang.version=3.20.2", "camel@apache/camel"]
