@@ -367,7 +367,7 @@
       },
       {
         "command": "karavan.run-project-jbang",
-        "title": "Karavan: Jbang run",
+        "title": "Karavan: JBang run",
         "icon": {
           "light": "./icons/light/rocket.svg",
           "dark": "./icons/dark/rocket.svg"
