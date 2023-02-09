@@ -346,7 +346,8 @@
     "commands": [
       {
         "command": "karavan.create-yaml",
-        "title": "Karavan: Create Integration"
+        "title": "Karavan: Create Integration",
+        "icon": "$(add)"
       },
       {
         "command": "karavan.create-application",
@@ -490,6 +491,11 @@
         }
       ],
       "view/title": [
+        {
+          "command": "karavan.create-yaml",
+          "when": "view == integrations",
+          "group": "navigation@0"
+        },
         {
           "command": "karavan.run-project-jbang",
           "when": "view == integrations",
