@@ -37,7 +37,7 @@
     "Low code",
     "Integration",
     "Camel Yaml",
-    "Jbang"
+    "JBang"
   ],
   "activationEvents": [
     "onCommand:karavan.create-yaml",
