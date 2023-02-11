@@ -45,6 +45,6 @@ mvn quarkus:dev
 ```
 - Frontend
 ```shell script
-cd karavan-app/src/main/webapp/
+cd karavan-app/src/main/webui/
 npm start
 ```
