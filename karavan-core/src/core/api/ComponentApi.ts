@@ -14,11 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component, ComponentProperty} from "../model/ComponentModels";
+import {Component, ComponentProperty, SupportedComponent} from "../model/ComponentModels";
 
-export const Components: Component[] = [];
+const Components: Component[] = [];
+const SupportedComponents: SupportedComponent[] = [];
 
 export const ComponentApi = {
+
+    saveSupportedComponents: (jsons: string[]) => {
+        SupportedComponents.length = 0;
+        const sc: SupportedComponent[] = jsons.map(json => ComponentApi.jsonToSupportedComponent(json));
+        SupportedComponents.push(...sc);
+    },
+
+    jsonToSupportedComponent: (json: string) => {
+        const fromJson: SupportedComponent = JSON.parse(json) as SupportedComponent;
+        const k: SupportedComponent = new SupportedComponent(fromJson);
+        return k;
+    },
 
     jsonToComponent: (json: string) => {
         const fromJson: Component = JSON.parse(json) as Component;
@@ -40,7 +53,18 @@ export const ComponentApi = {
     },
 
     getComponents: (): Component[] => {
-        return Components.sort((a, b) => {
+        return Components
+            .map(comp => {
+                const sc = SupportedComponents.find(sc => sc.name === comp.component.name);
+                if (sc !== undefined) {
+                    comp.component.supportLevel = sc.level;
+                    comp.component.supportType = "supported";
+                    return comp;
+                } else {
+                    return comp;
+                }
+            })
+            .sort((a, b) => {
             if (a.component.name < b.component.name) {
                 return -1;
             }
@@ -49,7 +73,7 @@ export const ComponentApi = {
     },
 
     findByName: (name: string): Component | undefined => {
-        return Components.find((c: Component) => c.component.name === name);
+        return ComponentApi.getComponents().find((c: Component) => c.component.name === name);
     },
 
     getComponentNameFromUri: (uri: string): string | undefined => {

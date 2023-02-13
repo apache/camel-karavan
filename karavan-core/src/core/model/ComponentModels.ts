@@ -15,58 +15,69 @@
  * limitations under the License.
  */
 export class Header {
-  kind: string = '';
-  name: string = '';
-  title: string = '';
-  description: string = '';
-  deprecated: boolean = false;
-  firstVersion: string = '';
-  label: string = '';
-  javaType: string = '';
-  supportLevel: string = '';
-  groupId: string = '';
-  artifactId: string = '';
-  version: string = '';
-  scheme: string = '';
-  extendsScheme: string = '';
-  syntax: string = '';
-  async: boolean = false;
-  api: boolean = false;
-  consumerOnly: boolean = false;
-  producerOnly: boolean = false;
-  lenientProperties: boolean = false;
-  componentProperties: any;
+    kind: string = '';
+    name: string = '';
+    title: string = '';
+    description: string = '';
+    deprecated: boolean = false;
+    firstVersion: string = '';
+    label: string = '';
+    javaType: string = '';
+    supportLevel: string = '';
+    supportType: string = 'community';
+    groupId: string = '';
+    artifactId: string = '';
+    version: string = '';
+    scheme: string = '';
+    extendsScheme: string = '';
+    syntax: string = '';
+    async: boolean = false;
+    api: boolean = false;
+    consumerOnly: boolean = false;
+    producerOnly: boolean = false;
+    lenientProperties: boolean = false;
+    componentProperties: any;
 
-  public constructor(init?: Partial<Header>) {
-    Object.assign(this, init);
-  }
+    public constructor(init?: Partial<Header>) {
+        Object.assign(this, init);
+    }
 }
 
 export class Component {
-  component: Header = new Header();
-  properties: any;
+    component: Header = new Header();
+    properties: any;
 
-  public constructor(init?: Partial<Component>) {
-    Object.assign(this, init);
-  }
+    public constructor(init?: Partial<Component>) {
+        Object.assign(this, init);
+    }
 }
 
 export class ComponentProperty {
-  name: string = '';
-  deprecated: boolean = false;
-  description: string = '';
-  displayName: string = '';
-  group: string = '';
-  kind: string = '';
-  label: string = '';
-  type: string = '';
-  secret: boolean = false;
-  enum: string[] = [];
-  required: boolean = false;
-  defaultValue: string | number | boolean | any;
-  value: string | any;
+    name: string = '';
+    deprecated: boolean = false;
+    description: string = '';
+    displayName: string = '';
+    group: string = '';
+    kind: string = '';
+    label: string = '';
+    type: string = '';
+    secret: boolean = false;
+    enum: string[] = [];
+    required: boolean = false;
+    defaultValue: string | number | boolean | any;
+    value: string | any;
 
-  public constructor(init?: Partial<ComponentProperty>) {
-    Object.assign(this, init);
-  }
+    public constructor(init?: Partial<ComponentProperty>) {
+        Object.assign(this, init);
+    }
+}
+
+export class SupportedComponent {
+    name: string = '';
+    level: string = '';
+    native: boolean = false;
+
+    public constructor(init?: Partial<SupportedComponent>) {
+        Object.assign(this, init);
+    }
 }

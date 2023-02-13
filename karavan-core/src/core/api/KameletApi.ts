@@ -16,8 +16,6 @@
  */
 import {KameletModel, Property} from "../model/KameletModels";
 import * as yaml from 'js-yaml';
-import {Component} from "../model/ComponentModels";
-import {Components} from "./ComponentApi";
 
 export const Kamelets: KameletModel[] = [];
 export const CustomNames: string[] = [];
