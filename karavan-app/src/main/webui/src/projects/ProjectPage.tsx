@@ -78,25 +78,30 @@ export class ProjectPage extends React.Component<Props, State> {
         this.onRefresh();
     }
 
+    needCommit(): boolean {
+        const {project, files} = this.state;
+        return project ? files.filter(f => f.lastUpdate > project.lastCommitTimestamp).length > 0 : false;
+    }
+
     onRefresh = () => {
         if (this.props.project) {
             KaravanApi.getProject(this.props.project.projectId, (project: Project) => {
-                this.setState({project: project});
+                this.setState({project: project, key: Math.random().toString()});
                 KaravanApi.getTemplatesFiles((files: ProjectFile[]) => {
                     files.filter(f => f.name.endsWith("java"))
                         .filter(f => f.name.startsWith(project.runtime))
                         .forEach(f => {
-                            const name = f.name.replace(project.runtime+"-", '').replace(".java", '');
+                            const name = f.name.replace(project.runtime + "-", '').replace(".java", '');
                             TemplateApi.saveTemplate(name, f.code);
                         })
                 });
             });
             KaravanApi.getFiles(this.props.project.projectId, (files: []) => {
-                this.setState({files: files})
+                this.setState({files: files, key: Math.random().toString()})
             });
 
             KubernetesAPI.inKubernetes = true;
-            if (!this.isBuildIn()){
+            if (!this.isBuildIn()) {
                 KaravanApi.getConfigMaps(this.state.environment, (any: []) => {
                     KubernetesAPI.setConfigMaps(any);
                 });
@@ -110,15 +115,15 @@ export class ProjectPage extends React.Component<Props, State> {
         }
     }
 
-    isBuildIn():boolean {
+    isBuildIn(): boolean {
         return ['kamelets', 'templates'].includes(this.props.project.projectId);
     }
 
-    isKameletsProject():boolean {
+    isKameletsProject(): boolean {
         return this.props.project.projectId === 'kamelets';
     }
 
-    isTemplatesProject():boolean {
+    isTemplatesProject(): boolean {
         return this.props.project.projectId === 'templates';
     }
 
@@ -178,8 +183,9 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     tools = () => {
-        return <ProjectPageToolbar
+        return <ProjectPageToolbar key={this.state.key}
             project={this.props.project}
+            needCommit={this.needCommit()}
             file={this.state.file}
             mode={this.state.mode}
             isTemplates={this.isTemplatesProject()}
@@ -196,7 +202,7 @@ export class ProjectPage extends React.Component<Props, State> {
             onRefresh={this.onRefresh}
         />
     }
-    
+
 
     title = () => {
         const {project} = this.props;
@@ -212,7 +218,7 @@ export class ProjectPage extends React.Component<Props, State> {
                             this.setState({file: undefined})
                             this.onRefresh();
                         }}>
-                            <Flex direction={{default:"row"}}>
+                            <Flex direction={{default: "row"}}>
                                 <FlexItem>{"Project: " + project?.projectId}</FlexItem>
                                 <FlexItem><Badge>{getProjectFileType(file)}</Badge></FlexItem>
                             </Flex>
@@ -269,7 +275,7 @@ export class ProjectPage extends React.Component<Props, State> {
                 filename={file.name}
                 yaml={file.code}
                 onSave={(name, yaml) => this.save(name, yaml)}
-                onSaveCustomCode={(name, code) => this.post(new ProjectFile(name+".java", project.projectId, code, Date.now()))}
+                onSaveCustomCode={(name, code) => this.post(new ProjectFile(name + ".java", project.projectId, code, Date.now()))}
                 onGetCustomCode={(name, javaType) => {
                     return new Promise<string | undefined>(resolve => resolve(files.filter(f => f.name === name + ".java")?.at(0)?.code))
                 }}
@@ -406,10 +412,11 @@ export class ProjectPage extends React.Component<Props, State> {
                 {!isBuildIn &&
                     <PageSection padding={{default: "padding"}}>
                         {tab === 'development' && project && <ProjectInfo project={project}
-                                                               files={files}
-                                                               config={this.props.config}
-                                                               deleteEntity={this.deleteEntity}
-                                                               showLog={this.showLogs}/>}
+                                                                          needCommit={this.needCommit()}
+                                                                          files={files}
+                                                                          config={this.props.config}
+                                                                          deleteEntity={this.deleteEntity}
+                                                                          showLog={this.showLogs}/>}
                         {tab === 'development' && <ProjectFilesTable files={files}
                                                                      onOpenDeleteConfirmation={this.openDeleteConfirmation}
                                                                      onSelect={this.select}/>}

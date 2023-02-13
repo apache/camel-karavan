@@ -22,6 +22,7 @@ import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon
 interface Props {
     project: Project,
     config: any,
+    needCommit: boolean,
     files: ProjectFile[],
     showLog: (type: 'container' | 'pipeline', name: string, environment: string) => void
     deleteEntity: (type: 'pod' | 'deployment', name: string, environment: string) => void
@@ -175,14 +176,9 @@ export class ProjectInfo extends React.Component<Props, State> {
         }
     }
 
-    needCommit() :boolean {
-        const {project, files} = this.props;
-        return files.filter(f => f.lastUpdate > project.lastCommitTimestamp).length > 0;
-    }
-
     getLastUpdatePanel() {
-        const {project} = this.props;
-        const color = this.needCommit() ? "grey" : "green";
+        const {project, needCommit} = this.props;
+        const color = needCommit ? "grey" : "green";
         return (
             <Flex direction={{default:"row"}} justifyContent={{default: "justifyContentFlexStart"}}>
                 {project?.lastCommitTimestamp && project?.lastCommitTimestamp > 0 &&

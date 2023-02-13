@@ -21,6 +21,7 @@ import {KaravanApi} from "../api/KaravanApi";
 
 interface Props {
     project: Project,
+    needCommit: boolean,
     isTemplates: boolean,
     isKamelets: boolean,
     config: any,
@@ -61,7 +62,7 @@ export class ProjectPageToolbar extends React.Component<Props> {
     }
 
     getTemplatesToolbar() {
-        const {file, editAdvancedProperties} = this.props;
+        const {file, editAdvancedProperties, needCommit} = this.props;
         const {isPushing} = this.state;
         const isProperties = file !== undefined && file.name.endsWith("properties");
         return <Toolbar id="toolbar-group-types">
@@ -78,7 +79,9 @@ export class ProjectPageToolbar extends React.Component<Props> {
                         </FlexItem>}
                         <FlexItem>
                             <Tooltip content="Commit and push to git" position={"bottom"}>
-                                <Button isLoading={isPushing ? true : undefined} isSmall variant="secondary"
+                                <Button isLoading={isPushing ? true : undefined}
+                                        isSmall
+                                        variant={needCommit ? "primary" : "secondary"}
                                         className="project-button"
                                         icon={!isPushing ? <PushIcon/> : <div></div>}
                                         onClick={e => this.push()}>
@@ -94,7 +97,7 @@ export class ProjectPageToolbar extends React.Component<Props> {
 
     getProjectToolbar() {
         const {isPushing} = this.state;
-        const {file, mode, editAdvancedProperties, addProperty, setEditAdvancedProperties, download, downloadImage, setCreateModalOpen, setUploadModalOpen} = this.props;
+        const {file, needCommit, mode, editAdvancedProperties, addProperty, setEditAdvancedProperties, download, downloadImage, setCreateModalOpen, setUploadModalOpen} = this.props;
         const isFile = file !== undefined;
         const isYaml = file !== undefined && file.name.endsWith("yaml");
         const isIntegration = isYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
@@ -143,7 +146,9 @@ export class ProjectPageToolbar extends React.Component<Props> {
                         </FlexItem>}
                         {!isFile && <FlexItem>
                             <Tooltip content="Commit and push to git" position={"bottom-end"}>
-                                <Button isLoading={isPushing ? true : undefined} isSmall variant="secondary"
+                                <Button isLoading={isPushing ? true : undefined}
+                                        isSmall
+                                        variant={needCommit ? "primary" : "secondary"}
                                         className="project-button"
                                         icon={!isPushing ? <PushIcon/> : <div></div>}
                                         onClick={e => this.push()}>
