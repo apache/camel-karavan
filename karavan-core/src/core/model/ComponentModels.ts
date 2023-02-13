@@ -24,7 +24,7 @@ export class Header {
     label: string = '';
     javaType: string = '';
     supportLevel: string = '';
-    supportType: string = 'community';
+    supportType: string = '';
     groupId: string = '';
     artifactId: string = '';
     version: string = '';

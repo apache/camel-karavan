@@ -97,6 +97,7 @@ class App extends React.Component<Props, State> {
         Promise.all([
             fetch("kamelets/kamelets.yaml"),
             fetch("components/components.json"),
+            fetch("components/supported-components.json"),
             fetch("snippets/org.apache.camel.AggregationStrategy"),
             fetch("snippets/org.apache.camel.Processor")
         ]).then(responses =>
@@ -107,16 +108,19 @@ class App extends React.Component<Props, State> {
             KameletApi.saveKamelets(kamelets, true);
             this.toast("Success", "Loaded " + kamelets.length + " kamelets", 'success');
 
-            const components: [] = JSON.parse(data[1]);
             const jsons: string[] = [];
-            components.forEach(c => jsons.push(JSON.stringify(c)));
+            JSON.parse(data[1]).forEach((c: any) => jsons.push(JSON.stringify(c)));
             ComponentApi.saveComponents(jsons, true);
+
+            const scj: string[] = [];
+            JSON.parse(data[2]).forEach((c: any) => scj.push(JSON.stringify(c)));
+            ComponentApi.saveSupportedComponents(scj);
 
             this.toast("Success", "Loaded " + jsons.length + " components", 'success');
             this.setState({loaded: true});
 
-            TemplateApi.saveTemplate("org.apache.camel.AggregationStrategy", data[2]);
-            TemplateApi.saveTemplate("org.apache.camel.Processor", data[3]);
+            TemplateApi.saveTemplate("org.apache.camel.AggregationStrategy", data[3]);
+            TemplateApi.saveTemplate("org.apache.camel.Processor", data[4]);
         }).catch(err =>
             this.toast("Error", err.text, 'danger')
         );

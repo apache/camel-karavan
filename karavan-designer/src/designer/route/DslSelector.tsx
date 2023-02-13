@@ -88,28 +88,31 @@ export class DslSelector extends React.Component<Props, State> {
         return (
             <Card key={dsl.dsl + index} isHoverable isCompact className="dsl-card"
                   onClick={event => this.selectDsl(event, dsl)}>
+                <CardHeader className="header-labels">
+                    {dsl.supportType === 'Supported' && <Badge isRead className="support-type labels">{dsl.supportType}</Badge>}
+                    <Badge isRead className="support-level labels">{dsl.supportLevel}</Badge>
+                </CardHeader>
                 <CardHeader>
                     {CamelUi.getIconForDsl(dsl)}
                     <Text>{dsl.title}</Text>
-                    {dsl.supportLevel && dsl.supportLevel === 'Preview' && <Badge isRead className="support-level">{dsl.supportLevel}</Badge>}
                 </CardHeader>
                 <CardBody>
                     <Text>{dsl.description}</Text>
                 </CardBody>
-                <CardFooter>
                     {dsl.navigation.toLowerCase() === "kamelet"
-                        && <div className="footer" style={{justifyContent: "space-between"}}>
+                        && <CardFooter className="footer-labels">
                             <Badge isRead className="labels">{dsl.labels}</Badge>
-                            <Badge isRead className="version">{dsl.version}</Badge>
-                        </div>}
+                            <Badge isRead className="version labels">{dsl.version}</Badge>
+                        </CardFooter>}
                     {dsl.navigation.toLowerCase() === "component"
-                        && <div className="footer" style={{justifyContent: "flex-start"}}>
-                            {dsl.labels.split(',').map((s: string,  i: number) => <Badge key={s + i} isRead
+                        && <CardFooter className="footer-labels">
+                            <div>
+                                {dsl.labels.split(',').map((s: string,  i: number) => <Badge key={s + i} isRead
                                                                                          className="labels">{s}</Badge>)}
-                            <Badge isRead className="version">{dsl.version}</Badge>
-                        </div>
+                            </div>
+                            <Badge isRead className="version labels">{dsl.version}</Badge>
+                        </CardFooter>
                     }
-                </CardFooter>
             </Card>
         )
     }

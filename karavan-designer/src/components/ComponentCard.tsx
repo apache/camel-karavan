@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    CardHeader, Card, CardTitle, CardBody, CardFooter,Badge
+    CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Text
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {camelIcon, CamelUi} from "../designer/utils/CamelUi";
@@ -48,14 +48,18 @@ export class ComponentCard extends React.Component<Props, State> {
             <Card isHoverable isCompact key={component.component.name} className="kamelet-card"
                 onClick={event => this.click(event)}
             >
+                <CardHeader className="header-labels">
+                    {component.component.supportType === 'Supported' && <Badge isRead className="support-type labels">{component.component.supportType}</Badge>}
+                    <Badge isRead className="support-level labels">{component.component.supportLevel}</Badge>
+                </CardHeader>
                 <CardHeader>
                     {CamelUi.getIconFromSource(camelIcon)}
+                    <CardTitle>{component.component.title}</CardTitle>
                 </CardHeader>
-                <CardTitle>{component.component.title}</CardTitle>
                 <CardBody>{component.component.description}</CardBody>
-                <CardFooter>
+                <CardFooter className="footer-labels">
                     <Badge isRead className="labels">{component.component.label}</Badge>
-                    <Badge isRead className="version">{component.component.version}</Badge>
+                    <Badge isRead className="version labels">{component.component.version}</Badge>
                 </CardFooter>
             </Card>
         );

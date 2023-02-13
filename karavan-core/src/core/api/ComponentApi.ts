@@ -58,9 +58,10 @@ export const ComponentApi = {
                 const sc = SupportedComponents.find(sc => sc.name === comp.component.name);
                 if (sc !== undefined) {
                     comp.component.supportLevel = sc.level;
-                    comp.component.supportType = "supported";
+                    comp.component.supportType = "Supported";
                     return comp;
                 } else {
+                    comp.component.supportType = "Community";
                     return comp;
                 }
             })
