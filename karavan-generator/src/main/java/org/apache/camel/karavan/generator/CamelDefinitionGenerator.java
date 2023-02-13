@@ -19,7 +19,6 @@ package org.apache.camel.karavan.generator;
 import io.vertx.core.json.JsonObject;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public final class CamelDefinitionGenerator extends AbstractGenerator {

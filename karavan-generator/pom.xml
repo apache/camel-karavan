@@ -27,37 +27,21 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-        <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <quarkus.platform.version>2.16.0.Final</quarkus.platform.version>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
         <version.camel-core>3.20.2</version.camel-core>
         <version.camel-kamelet>3.20.1.1</version.camel-kamelet>
+        <version.vertx>4.3.6</version.vertx>
     </properties>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>${quarkus.platform.group-id}</groupId>
-                <artifactId>${quarkus.platform.artifact-id}</artifactId>
-                <version>${quarkus.platform.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
     <dependencies>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-arc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-vertx</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-core-model</artifactId>
             <version>${version.camel-core}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-core</artifactId>
+            <version>${version.vertx}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
@@ -74,11 +58,6 @@
             <artifactId>camel-kamelets-catalog</artifactId>
             <version>${version.camel-kamelet}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-jbang-core</artifactId>
-            <version>${version.camel-core}</version>
-        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -90,6 +69,42 @@
                 </includes>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>org.apache.camel.karavan.generator.KaravanGenerator</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
     <repositories>
         <repository>

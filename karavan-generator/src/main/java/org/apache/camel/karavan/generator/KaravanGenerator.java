@@ -19,12 +19,20 @@ package org.apache.camel.karavan.generator;
 public final class KaravanGenerator {
 
     public static void main(String[] args) throws Exception {
+        String[] paths = new String[] {
+                "karavan-designer/public",
+                "karavan-app/src/main/resources",
+                "karavan-vscode"
+        };
+        if (args.length > 0) {
+            paths = new String[] {args[0]};
+        }
         CamelDefinitionGenerator.generate();
         CamelDefinitionApiGenerator.generate();
         CamelDefinitionYamlStepGenerator.generate();
         CamelMetadataGenerator.generate();
-        KameletGenerator.generate();
-        CamelComponentsGenerator.generate();
+        KameletGenerator.generate(paths);
+        CamelComponentsGenerator.generate(paths);
         System.exit(0);
     }
 

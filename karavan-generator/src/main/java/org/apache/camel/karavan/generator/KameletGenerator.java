@@ -17,17 +17,13 @@
 package org.apache.camel.karavan.generator;
 
 import io.fabric8.camelk.v1alpha1.Kamelet;
-import io.vertx.core.Vertx;
 import org.apache.camel.kamelets.catalog.KameletsCatalog;
-import org.jboss.logging.Logger;
 
-import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -35,19 +31,15 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class KameletGenerator extends AbstractGenerator {
 
-    @Inject
-    Vertx vertx;
-
-    public static void generate() throws Exception {
+    public static void generate(String... paths) throws Exception {
         KameletGenerator g = new KameletGenerator();
-        g.createKamelets("karavan-designer/public/kamelets", true);
-        g.createKamelets("karavan-app/src/main/resources/kamelets", true);
-        g.createKamelets("karavan-vscode/kamelets", true);
+        for (String path : paths) {
+            g.createKamelets(path + "/kamelets", true);
+        }
     }
 
     public void createKamelets(String folder, boolean singleFile) {

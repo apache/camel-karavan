@@ -31,12 +31,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class AbstractGenerator {
+
+    Logger LOGGER = Logger.getLogger(AbstractGenerator.class.getName());
 
     protected Vertx vertx = Vertx.vertx();
 
@@ -121,17 +125,21 @@ public class AbstractGenerator {
     }
 
     protected void saveFile(String folder, String fileName, String text) {
-//        LOGGER.info("Creating component " + fileName);
+        Path path = Paths.get(folder);
         try {
+            if (!Files.exists(path)) {
+                Files.createDirectories(path);
+            }
             File targetFile = Paths.get(folder, fileName).toFile();
+            LOGGER.info("Saving file " + targetFile.getAbsolutePath());
             Files.copy(new ByteArrayInputStream(text.getBytes()), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    protected void writeFileText(String filePath, String data) {
-        vertx.fileSystem().writeFileBlocking(filePath, Buffer.buffer(data));
+    protected void writeFileText(String filePath, String data) throws IOException {
+        Files.writeString(Paths.get(filePath), data);
     }
 
     protected JsonObject getProperties(JsonObject definitions, String classname) {

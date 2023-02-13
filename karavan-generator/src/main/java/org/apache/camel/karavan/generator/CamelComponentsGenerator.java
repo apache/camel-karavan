@@ -16,34 +16,26 @@
  */
 package org.apache.camel.karavan.generator;
 
-import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import org.apache.camel.builder.RouteBuilder;
-import org.jboss.logging.Logger;
 
-import javax.inject.Inject;
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public final class CamelComponentsGenerator extends AbstractGenerator {
-
-    @Inject
-    Vertx vertx;
 
     public static void main(String[] args) throws Exception {
         CamelComponentsGenerator.generate();
         System.exit(0);
     }
 
-    public static void generate() throws Exception {
+    public static void generate(String... paths) throws Exception {
         CamelComponentsGenerator g = new CamelComponentsGenerator();
-        g.createCreateComponents("karavan-designer/public/components", true);
-        g.createCreateComponents("karavan-app/src/main/resources/components", true);
-        g.createCreateComponents("karavan-vscode/components", true);
+        for (String path : paths) {
+            g.createCreateComponents(path + "/components", true);
+        }
     }
 
     private void createCreateComponents(String path, boolean singleFile) {
