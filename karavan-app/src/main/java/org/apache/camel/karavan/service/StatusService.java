@@ -30,6 +30,8 @@ import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.Environment;
 import org.apache.camel.karavan.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.faulttolerance.Retry;
+import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -40,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -81,11 +84,13 @@ public class StatusService {
 
     @ConsumeEvent(value = CMD_COLLECT_PROJECT_STATUS, blocking = true, ordered = true)
     public void collectProjectStatus(JsonObject data) {
+        LOGGER.info("Testa.....");
         String projectId = data.getString("projectId");
         String env = data.getString("env");
         Optional<Environment> environment = infinispanService.getEnvironments().stream().filter(e -> e.getName().equals(env)).findFirst();
         if (environment.isPresent()){
             DeploymentStatus status = infinispanService.getDeploymentStatus(projectId, environment.get().getNamespace(), environment.get().getCluster());
+            collectStatusesForProject(projectId);
             if (status != null && status.getReadyReplicas() > 0) {
                 if ((System.currentTimeMillis() - lastCollect.getOrDefault(projectId, 0L)) > threshold) {
                     collectStatusesForProject(projectId);
@@ -133,10 +138,21 @@ public class StatusService {
         }
     }
 
+    /** In the previous code, the circuit opens if half of the requests (failureRatio = 0.5) of four consecutive invocations (requestVolumeThreshold=4) fail.
+     *  The circuit stays open for 1000 milliseconds and then it becomes half-open.
+     *  After a successful invocation, the circuit is closed again. */
+    @Retry(maxRetries = 5, maxDuration=100)
+    @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)
+    public HttpResponse<Buffer> bufferResult(String url, int timeout) throws InterruptedException, ExecutionException {
+        HttpResponse<Buffer> result = getWebClient().getAbs(url).timeout(timeout).send().subscribeAsCompletionStage().toCompletableFuture().get();
+        return result;
+    }
+
+
     private CamelStatus getCamelStatus(String projectId, String url, String runtime) {
         // TODO: make it reactive
         try {
-            HttpResponse<Buffer> result = getWebClient().getAbs(url).timeout(1000).send().subscribeAsCompletionStage().toCompletableFuture().get();
+            HttpResponse<Buffer> result = bufferResult(url, 1000);
             if (result.statusCode() == 200) {
                 JsonObject res = result.bodyAsJsonObject();
                 if (runtime.equalsIgnoreCase("quarkus")) {
