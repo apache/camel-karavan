@@ -18,8 +18,13 @@ import {Component, ComponentProperty, SupportedComponent} from "../model/Compone
 
 const Components: Component[] = [];
 const SupportedComponents: SupportedComponent[] = [];
+let SupportedOnly: boolean = false;
 
 export const ComponentApi = {
+
+    setSupportedOnly: (supportedOnly: boolean) => {
+        SupportedOnly = supportedOnly;
+    },
 
     saveSupportedComponents: (jsons: string[]) => {
         SupportedComponents.length = 0;
@@ -47,13 +52,19 @@ export const ComponentApi = {
 
     saveComponent: (json: string) => {
         const component: Component = ComponentApi.jsonToComponent(json);
-        if (Components.findIndex((c:Component) => c.component.name === component.component.name) === -1) {
+        if (Components.findIndex((c: Component) => c.component.name === component.component.name) === -1) {
             Components.push(component);
         }
     },
 
     getComponents: (): Component[] => {
-        return Components
+        const comps: Component[] = [];
+        if (SupportedOnly) {
+            comps.push(...Components.filter(comp => SupportedComponents.findIndex(sc => sc.name === comp.component.name) !== -1));
+        } else {
+            comps.push(...Components);
+        }
+        return comps
             .map(comp => {
                 const sc = SupportedComponents.find(sc => sc.name === comp.component.name);
                 if (sc !== undefined) {
@@ -66,11 +77,11 @@ export const ComponentApi = {
                 }
             })
             .sort((a, b) => {
-            if (a.component.name < b.component.name) {
-                return -1;
-            }
-            return a.component.name > b.component.name ? 1 : 0;
-        });
+                if (a.component.name < b.component.name) {
+                    return -1;
+                }
+                return a.component.name > b.component.name ? 1 : 0;
+            });
     },
 
     findByName: (name: string): Component | undefined => {
@@ -218,7 +229,7 @@ export const ComponentApi = {
                     result.push(val);
                     if (separator) result.push(separators[index]);
                 });
-                if (result.at(result.length -1) === '') return result.slice(0, -2).join(''); // remove last colon
+                if (result.at(result.length - 1) === '') return result.slice(0, -2).join(''); // remove last colon
                 return result.join('');
             }
         }
