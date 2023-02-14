@@ -115,6 +115,7 @@ class App extends React.Component<Props, State> {
             const scj: string[] = [];
             JSON.parse(data[2]).forEach((c: any) => scj.push(JSON.stringify(c)));
             ComponentApi.saveSupportedComponents(scj);
+            ComponentApi.setSupportedOnly(false);
 
             this.toast("Success", "Loaded " + jsons.length + " components", 'success');
             this.setState({loaded: true});
