@@ -136,7 +136,7 @@ public class StatusService {
         }
     }
 
-    @Retry(maxRetries = 5, maxDuration=100)
+    @Retry(maxRetries = 6, maxDuration=100)
     @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)
     public HttpResponse<Buffer> bufferResult(String url, int timeout) throws InterruptedException, ExecutionException {
         HttpResponse<Buffer> result = getWebClient().getAbs(url).timeout(timeout).send().subscribeAsCompletionStage().toCompletableFuture().get();
