@@ -154,18 +154,25 @@ export class DesignerView {
             // Read templates
             utils.readTemplates(this.context),
             // Read java classes
-            utils.readJavaCode(fullPath)
+            utils.readJavaCode(fullPath),
+            // Read supported components
+            utils.readSupportedComponents(),
+            utils.readSupportedOnlySettings()
         ]).then(results => {
             // Send Kamelets
             panel.webview.postMessage({ command: 'kamelets', kamelets: results[0] });
-            // Send components
+            // Send all components
             panel.webview.postMessage({ command: 'components', components: results[1] });
             // Send templates
             panel.webview.postMessage({ command: 'templates', templates: Object.fromEntries(results[2]) });
             // Send java code
             panel.webview.postMessage({ command: 'javaCode', javaCode: Object.fromEntries(results[3]) });
+            // Send supported components
+            if (results[4]) panel.webview.postMessage({ command: 'supportedComponents', components: results[4]});
+            if (results[5] === true) panel.webview.postMessage({ command: 'supportedOnly'});
             // Send integration
             this.sendIntegrationData(panel, filename, relativePath, fullPath, reread, yaml, tab);
+            
         }).catch(err => console.log(err));
     }
 

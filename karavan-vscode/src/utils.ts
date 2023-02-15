@@ -73,6 +73,20 @@ async function readBuildInKamelets(context: ExtensionContext) {
     return result;
 }
 
+export async function readSupportedComponents() {
+    const supportedComponentsPath: string | undefined = workspace.getConfiguration().get("Karavan.supportedComponents");
+    if (supportedComponentsPath && supportedComponentsPath.trim().length > 0) {
+        const filename = path.isAbsolute(supportedComponentsPath) ? supportedComponentsPath : path.resolve(supportedComponentsPath);
+        const file = await readFile(filename);
+        return Buffer.from(file).toString('utf8');
+    }
+    return undefined;
+}
+
+export async function readSupportedOnlySettings(): Promise<boolean> {
+    return workspace.getConfiguration().get("Karavan.supportedOnly") || false;
+}
+
 async function readFilesInDirByExtension(dir: string, extension: string): Promise<Map<string, string>> {
     const result = new Map<string, string>();
     const dirs: [string, FileType][] = await readDirectory(dir);

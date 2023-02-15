@@ -16,7 +16,7 @@
  */
 import * as React from "react";
 import {
-  Page, PageSection, Spinner,
+  Page, PageSection, Spinner, Text, TextVariants
 } from "@patternfly/react-core";
 import { KaravanDesigner } from "./designer/KaravanDesigner";
 import vscode from "./vscode";
@@ -39,6 +39,7 @@ interface State {
   yaml: string
   key: string
   loaded: boolean
+  loadingMessages: string[]
   interval?: NodeJS.Timer
   scheduledYaml: string
   hasChanges: boolean
@@ -58,6 +59,7 @@ class App extends React.Component<Props, State> {
     yaml: '',
     key: '',
     loaded: false,
+    loadingMessages: [],
     scheduledYaml: '',
     hasChanges: false,
     page: "designer",
@@ -89,14 +91,36 @@ class App extends React.Component<Props, State> {
     switch (message.command) {
       case 'kamelets':
         KameletApi.saveKamelets(message.kamelets, true);
+        this.setState((prevState: State) => {
+          prevState.loadingMessages.push("Kamelets loaded"); 
+          return {loadingMessages: prevState.loadingMessages}
+        });
         break;
       case 'components':
         ComponentApi.saveComponents(message.components, true);
+        this.setState((prevState: State) => {
+          prevState.loadingMessages.push("Components loaded"); 
+          return {loadingMessages: prevState.loadingMessages}
+        });
         break;
+      case 'supportedComponents':
+        ComponentApi.saveSupportedComponents(message.components);
+        this.setState((prevState: State) => {
+          prevState.loadingMessages.push("Supported Components loaded"); 
+          return {loadingMessages: prevState.loadingMessages}
+        });
+        break; 
+      case 'supportedOnly':
+        ComponentApi.setSupportedOnly(true);
+        break;    
       case 'templates':
         const templates = message.templates;
         const map = new Map( Object.keys(templates).map(key => [key, templates[key]]));
         TemplateApi.saveTemplates(map, true);
+        this.setState((prevState: State) => {
+          prevState.loadingMessages.push("Templates loaded"); 
+          return {loadingMessages: prevState.loadingMessages}
+        });
         break;  
       case 'javaCode':
         const javaCode = message.javaCode;
@@ -152,21 +176,25 @@ class App extends React.Component<Props, State> {
   }
 
   public render() {
+    const {loadingMessages, filename, key, yaml, karavanDesignerRef, page, loaded, tab} = this.state;
+    const {dark} = this.props;
     return (
       <Page className="karavan">
-        {!this.state.loaded &&
-          <PageSection variant={this.props.dark ? "dark" : "light"} className="loading-page">
+        {!loaded &&
+          <PageSection variant={dark ? "dark" : "light"} className="loading-page">
             <Spinner className="progress-stepper" isSVG diameter="80px" aria-label="Loading..." />
+            {loadingMessages.map(message => <Text component={TextVariants.h5}>{message}</Text>)}
+            <Text component={TextVariants.h5}>Loading...</Text>
           </PageSection>
         }
-        {this.state.loaded && this.state.page === "designer" &&
-          <KaravanDesigner ref={this.state.karavanDesignerRef}
-            key={this.state.key}
-            filename={this.state.filename}
-            yaml={this.state.yaml}
+        {loaded && page === "designer" &&
+          <KaravanDesigner ref={karavanDesignerRef}
+            key={key}
+            filename={filename}
+            yaml={yaml}
             onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}
-            tab={this.state.tab}
-            dark={this.props.dark} 
+            tab={tab}
+            dark={dark} 
             onSaveCustomCode={(name, code) => this.saveJavCode(name, code)}
             onGetCustomCode={(name, javaType) => {
                 let code = TemplateApi.getJavaCode(name);
@@ -175,9 +203,9 @@ class App extends React.Component<Props, State> {
             }}
             />
         }
-        {this.state.loaded && this.state.page === "kamelets" && <KameletsPage dark={this.props.dark} />}
-        {this.state.loaded && this.state.page === "components" && <ComponentsPage dark={this.props.dark} />}
-        {this.state.loaded && this.state.page === "eip" && <EipPage dark={this.props.dark} />}
+        {loaded && page === "kamelets" && <KameletsPage dark={dark} />}
+        {loaded && page === "components" && <ComponentsPage dark={dark} />}
+        {loaded && page === "eip" && <EipPage dark={dark} />}
       </Page>
     )
   }
