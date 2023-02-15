@@ -30,6 +30,8 @@ import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.Environment;
 import org.apache.camel.karavan.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.faulttolerance.Retry;
+import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -40,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -133,10 +136,18 @@ public class StatusService {
         }
     }
 
+    @Retry(maxRetries = 6, maxDuration=100)
+    @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)
+    public HttpResponse<Buffer> bufferResult(String url, int timeout) throws InterruptedException, ExecutionException {
+        HttpResponse<Buffer> result = getWebClient().getAbs(url).timeout(timeout).send().subscribeAsCompletionStage().toCompletableFuture().get();
+        return result;
+    }
+
+
     private CamelStatus getCamelStatus(String projectId, String url, String runtime) {
         // TODO: make it reactive
         try {
-            HttpResponse<Buffer> result = getWebClient().getAbs(url).timeout(1000).send().subscribeAsCompletionStage().toCompletableFuture().get();
+            HttpResponse<Buffer> result = bufferResult(url, 1000);
             if (result.statusCode() == 200) {
                 JsonObject res = result.bodyAsJsonObject();
                 if (runtime.equalsIgnoreCase("quarkus")) {
