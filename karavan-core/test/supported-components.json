@@ -1,0 +1,1221 @@
+[ {
+  "native" : true,
+  "name" : "activemq",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "amqp",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "arangodb",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "as2",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "asterisk",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "atlasmap",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "atmos",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "atom",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "avro",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "aws-secrets-manager",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "aws2-athena",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-cw",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-ddb",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-ddbstream",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-ec2",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-ecs",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-eks",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-eventbridge",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-iam",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-kinesis",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-kinesis-firehose",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-kms",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-lambda",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-mq",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-msk",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-s3",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-ses",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-sns",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-sqs",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-sts",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "aws2-translate",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "azure-cosmosdb",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "azure-eventhubs",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "azure-key-vault",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "azure-servicebus",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "azure-storage-blob",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "azure-storage-datalake",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "azure-storage-queue",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "bean",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "bean-validator",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "bonita",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "box",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "braintree",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "browse",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "caffeine-cache",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "caffeine-loadcache",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "chatscript",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "chunk",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "class",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "cm-sms",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "cmis",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "coap",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "coap+tcp",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "coaps",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "coaps+tcp",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "cometd",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "cometds",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "consul",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "controlbus",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "corda",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "couchbase",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "couchdb",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "cql",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "cron",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "crypto",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "cxf",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "dataformat",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "dataset",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "dataset-test",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "debezium-mongodb",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "debezium-mysql",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "debezium-postgres",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "debezium-sqlserver",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "digitalocean",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "direct",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "disruptor",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "disruptor-vm",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "djl",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "dns",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "dozer",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "drill",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "dropbox",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "ehcache",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "elasticsearch-rest",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "etcd3",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "exec",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "facebook",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "fhir",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "file",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "file-watch",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "flatpack",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "flink",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "fop",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "freemarker",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "ftp",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "ftps",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "geocoder",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "git",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "github",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "google-bigquery",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "google-bigquery-sql",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "google-calendar",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "google-calendar-stream",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "google-drive",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "google-functions",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "google-mail",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "google-mail-stream",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "google-pubsub",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "google-secret-manager",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "google-sheets",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "google-sheets-stream",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "google-storage",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "graphql",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "grpc",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "guava-eventbus",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "hashicorp-vault",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "hazelcast-atomicvalue",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "hazelcast-instance",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "hazelcast-list",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "hazelcast-map",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "hazelcast-multimap",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "hazelcast-queue",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "hazelcast-replicatedmap",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "hazelcast-ringbuffer",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "hazelcast-seda",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "hazelcast-set",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "hazelcast-topic",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "hbase",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "hdfs",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "http",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "https",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "hwcloud-smn",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "iec60870-client",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "iec60870-server",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "ignite-cache",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "ignite-compute",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "ignite-events",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "ignite-idgen",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "ignite-messaging",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "ignite-queue",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "ignite-set",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "imap",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "imaps",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "infinispan",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "influxdb",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "iota",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "irc",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "jbpm",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "jcache",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "jclouds",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "jcr",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "jdbc",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "jgroups",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "jgroups-raft",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "jira",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "jms",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "jolt",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "jooq",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "jpa",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "jslt",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "json-patch",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "json-validator",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "jsonata",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "jt400",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "kafka",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "kamelet",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "knative",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "kubernetes-config-maps",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "kubernetes-custom-resources",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "kubernetes-deployments",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "kubernetes-events",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "kubernetes-hpa",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "kubernetes-job",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "kubernetes-namespaces",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "kubernetes-nodes",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "kubernetes-persistent-volumes",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "kubernetes-persistent-volumes-claims",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "kubernetes-pods",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "kubernetes-replication-controllers",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "kubernetes-resources-quota",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "kubernetes-secrets",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "kubernetes-service-accounts",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "kubernetes-services",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "kudu",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "language",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "ldap",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "ldif",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "log",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "lpr",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "lucene",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "lumberjack",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "master",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "micrometer",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "microprofile-metrics",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "milo-browse",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "milo-client",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "milo-server",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "minio",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "mllp",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "mock",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "mongodb",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "mongodb-gridfs",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "mustache",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "mvel",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "mybatis",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "mybatis-bean",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "nats",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "netty",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "netty-http",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "nitrite",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "oaipmh",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "olingo4",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "openshift-build-configs",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "openshift-builds",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "openshift-deploymentconfigs",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "openstack-cinder",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "openstack-glance",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "openstack-keystone",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "openstack-neutron",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "openstack-nova",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "openstack-swift",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "optaplanner",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "paho",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "paho-mqtt5",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "pdf",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "pg-replication-slot",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "pgevent",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "platform-http",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "pop3",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "pop3s",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "pubnub",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "pulsar",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "quartz",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "quickfix",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "qute",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "rabbitmq",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "reactive-streams",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "ref",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "rest",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "rest-api",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "rest-openapi",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "robotframework",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "rss",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "saga",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "salesforce",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "sap-netweaver",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "scheduler",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "schematron",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "scp",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "seda",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "servicenow",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "servlet",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "sftp",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "sjms",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "sjms2",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "slack",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "smpp",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "smpps",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "smtp",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "smtps",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "snmp",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "solr",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "solrCloud",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "solrs",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "splunk",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "splunk-hec",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "spring-rabbitmq",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "sql",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "sql-stored",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "ssh",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "stax",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "stitch",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "stomp",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "stream",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "string-template",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "stub",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "telegram",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "thrift",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "tika",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "timer",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "twilio",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "twitter-directmessage",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "twitter-search",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "twitter-timeline",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "validator",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "velocity",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "vertx",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "vertx-http",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "vertx-websocket",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "vm",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "weather",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "web3j",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "wordpress",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "workday",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "xchange",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "xj",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "xmlsecurity-sign",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "xmlsecurity-verify",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "xmpp",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "xquery",
+  "level" : "Stable"
+}, {
+  "native" : true,
+  "name" : "xslt",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "xslt-saxon",
+  "level" : "Preview"
+}, {
+  "native" : true,
+  "name" : "zendesk",
+  "level" : "Stable"
+}, {
+  "native" : false,
+  "name" : "zookeeper",
+  "level" : "Preview"
+}, {
+  "native" : false,
+  "name" : "zookeeper-master",
+  "level" : "Preview"
+} ]

@@ -26,16 +26,14 @@ export const ComponentApi = {
         SupportedOnly = supportedOnly;
     },
 
-    saveSupportedComponents: (jsons: string[]) => {
+    saveSupportedComponents: (jsons: string) => {
         SupportedComponents.length = 0;
-        const sc: SupportedComponent[] = jsons.map(json => ComponentApi.jsonToSupportedComponent(json));
+        const sc: SupportedComponent[] = (JSON.parse(jsons) as []).map(json => new SupportedComponent(json));
         SupportedComponents.push(...sc);
     },
 
-    jsonToSupportedComponent: (json: string) => {
-        const fromJson: SupportedComponent = JSON.parse(json) as SupportedComponent;
-        const k: SupportedComponent = new SupportedComponent(fromJson);
-        return k;
+    getSupportedComponents: (): SupportedComponent[] => {
+        return SupportedComponents;
     },
 
     jsonToComponent: (json: string) => {

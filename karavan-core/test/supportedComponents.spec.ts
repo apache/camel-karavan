@@ -18,20 +18,17 @@ import {expect} from 'chai';
 import * as fs from 'fs';
 import 'mocha';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
+import {ComponentApi} from "../lib/api/ComponentApi";
+import {SupportedComponent} from "../src/core/model/ComponentModels";
 
 
-describe('Plain YAML with route to integration', () => {
+describe('Supported Components List', () => {
 
-    it('YAML <-> Object', () => {
-        const yaml = fs.readFileSync('test/routes1.yaml',{encoding:'utf8', flag:'r'});
-        const i = CamelDefinitionYaml.yamlToIntegration("test1.yaml", yaml);
-        expect(i.metadata.name).to.equal('test1.yaml');
-        expect(i.kind).to.equal('Integration');
-        expect(i.spec.flows?.length).to.equal(1);
-        expect(i.type).to.equal('plain');
-        if (i.spec.flows) expect(i.spec.flows[0].from.uri).to.equal('timer:info');
-        const y = CamelDefinitionYaml.integrationToYaml(i);
-        expect(y).to.equal(yaml);
+    it('Read Supported Components', () => {
+        const json = fs.readFileSync('test/supported-components.json',{encoding:'utf8', flag:'r'});
+        ComponentApi.saveSupportedComponents(json);
+        const sc = ComponentApi.getSupportedComponents();
+        expect(sc.length).to.equal(305);
     });
 
 });
