@@ -117,7 +117,7 @@ spec:
             topic: parcels,payments
             bootstrapServers: localhost:9092
             autoCommitEnable: true
-            consumerGroup: postman
+            consumerGroup: parceldemo
         id: aggregator
     - route:
         from:

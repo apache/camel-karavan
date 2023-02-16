@@ -75,9 +75,9 @@ oc apply -k instances -n karavan
 
 ### Package, build and deploy project
 1. Open Karavan Application
-2. Create project Postman
-3. Create integration postman
-4. Replace integration code with [postman.yaml](project/postman.yaml)
+2. Create project Parceldemo
+3. Create integration parceldemo
+4. Replace integration code with [parceldemo.yaml](project/parceldemo.yaml)
 5. Set Kamelets configuration according their services in Openshift
 6. Click `Run` button
 
@@ -86,12 +86,12 @@ oc apply -k instances -n karavan
 ```
 appsurl=$(oc get ingresses.config.openshift.io cluster  -o template --template '{{.spec.domain}}')
 
-curl -X POST -H "Content-Type: application/json" --data '{"id":"1","address":"666 Sin Street, Holy City"}' http://postman-karavan.$appsurl/parcels
+curl -X POST -H "Content-Type: application/json" --data '{"id":"1","address":"666 Sin Street, Holy City"}' http://parceldemo-karavan.$appsurl/parcels
 ```
 ### Publish payment
 Open AMQ7 Broker Management 
 ```
-open http://console-postman.$appsurl
+open http://console-parceldemo.$appsurl
 ```
 
 Send message to `payments` queue
@@ -104,4 +104,4 @@ Send message to `payments` queue
 </root>
 ```
 
-### Check postman logs and Database
+### Check parceldemo logs and Database

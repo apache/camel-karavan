@@ -117,7 +117,7 @@ spec:
             topic: parcels,payments
             bootstrapServers: '{{kafka-brokers}}'
             autoCommitEnable: true
-            consumerGroup: postman
+            consumerGroup: parceldemo
         id: aggregator
     - route:
         from:
