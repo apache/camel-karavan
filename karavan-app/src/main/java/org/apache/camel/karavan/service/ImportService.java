@@ -17,7 +17,6 @@
 package org.apache.camel.karavan.service;
 
 import io.quarkus.vertx.ConsumeEvent;
-import io.smallrye.mutiny.tuples.Tuple2;
 import org.apache.camel.karavan.model.GitRepo;
 import org.apache.camel.karavan.model.GitRepoFile;
 import org.apache.camel.karavan.model.Project;
@@ -30,7 +29,6 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 @ApplicationScoped
 public class ImportService {
@@ -85,6 +83,29 @@ public class ImportService {
         addTemplatesProject("");
     }
 
+    public Project importProject(String projectId) {
+        LOGGER.info("Import project from Git " + projectId);
+        try {
+            GitRepo repo = gitService.readProjectFromRepository(projectId);
+            Project project;
+            String folderName = repo.getName();
+            String propertiesFile = getPropertiesFile(repo);
+            String projectName = getProjectName(propertiesFile);
+            String projectDescription = getProjectDescription(propertiesFile);
+            String runtime = getProjectRuntime(propertiesFile);
+            project = new Project(folderName, projectName, projectDescription, runtime, repo.getCommitId(), repo.getLastCommitTimestamp());
+            infinispanService.saveProject(project, true);
+            repo.getFiles().forEach(repoFile -> {
+                ProjectFile file = new ProjectFile(repoFile.getName(), repoFile.getBody(), folderName, repoFile.getLastCommitTimestamp());
+                infinispanService.saveProjectFile(file);
+            });
+            return project;
+        } catch (Exception e) {
+            LOGGER.error("Error during project import", e);
+            return null;
+        }
+    }
+
     void addKameletsProject(String data) {
         LOGGER.info("Add custom kamelets project if not exists");
         try {
@@ -92,7 +113,7 @@ public class ImportService {
             if (kamelets == null) {
                 kamelets = new Project(Project.NAME_KAMELETS, "Custom Kamelets", "Custom Kamelets", "quarkus", "", Instant.now().toEpochMilli());
                 infinispanService.saveProject(kamelets, true);
-                gitService.commitAndPushProject(kamelets);
+                gitService.commitAndPushProject("kamelets", "Add custom kamelets");
             }
         } catch (Exception e) {
             LOGGER.error("Error during custom kamelets project creation", e);
@@ -112,7 +133,7 @@ public class ImportService {
                     ProjectFile file = new ProjectFile(name, value, Project.NAME_TEMPLATES, Instant.now().toEpochMilli());
                     infinispanService.saveProjectFile(file);
                 });
-                gitService.commitAndPushProject(templates);
+                gitService.commitAndPushProject("templates", "Add default templates");
             }
         } catch (Exception e) {
             LOGGER.error("Error during templates project creation", e);

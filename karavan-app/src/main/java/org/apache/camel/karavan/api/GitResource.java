@@ -16,23 +16,32 @@
  */
 package org.apache.camel.karavan.api;
 
+import org.apache.camel.karavan.model.GitRepo;
 import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.service.GitService;
+import org.apache.camel.karavan.service.ImportService;
 import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
+
 
 @Path("/api/git")
 public class GitResource {
 
     @Inject
     GitService gitService;
+
+    @Inject
+    ImportService importService;
 
     private static final Logger LOGGER = Logger.getLogger(GitResource.class.getName());
 
@@ -41,7 +50,14 @@ public class GitResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Project push(HashMap<String, String> params) throws Exception {
-        System.out.println(params);
         return gitService.commitAndPushProject(params.get("projectId"), params.get("message"));
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{projectId}")
+    public Project pull(@PathParam("projectId") String projectId) throws Exception {
+        return importService.importProject(projectId);
     }
 }

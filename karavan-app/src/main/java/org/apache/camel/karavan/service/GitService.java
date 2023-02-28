@@ -55,6 +55,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class GitService {
@@ -130,6 +131,14 @@ public class GitService {
     }
 
     public List<GitRepo> readProjectsFromRepository() {
+        return readProjectsFromRepository(null);
+    }
+
+    public GitRepo readProjectFromRepository(String projectId) {
+        return readProjectsFromRepository(projectId).get(0);
+    }
+
+    private List<GitRepo> readProjectsFromRepository(String filter) {
         LOGGER.info("Read projects...");
         GitConfig gitConfig = getGitConfig();
         LOGGER.info("Read projects from repository " + gitConfig.getUri());
@@ -143,6 +152,9 @@ public class GitService {
             git = clone(folder, gitConfig.getUri(), gitConfig.getBranch(), cred);
             checkout(git, false, null, null, gitConfig.getBranch());
             List<String> projects = readProjectsFromFolder(folder);
+            if (filter != null) {
+                projects = projects.stream().filter(s -> s.equals(filter)).collect(Collectors.toList());
+            }
             for (String project : projects) {
                 Map<String, String> filesRead = readProjectFilesFromFolder(folder, project);
                 List<GitRepoFile> files = new ArrayList<>(filesRead.size());
