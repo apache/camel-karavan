@@ -53,8 +53,11 @@ export class EipCard extends React.Component<Props, State> {
                 </CardHeader>
                 <CardTitle>{component.title}</CardTitle>
                 <CardBody>{component.description}</CardBody>
-                <CardFooter>
-                        <Badge isRead className="labels">{component.labels}</Badge>
+                <CardFooter className="footer-labels">
+                    <div>
+                        {component.labels.split(',').map((s: string,  i: number) => <Badge key={s + i} isRead
+                                                                                     className="labels">{s}</Badge>)}
+                    </div>
                 </CardFooter>
             </Card>
         )

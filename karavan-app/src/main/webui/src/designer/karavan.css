@@ -43,9 +43,10 @@
     justify-content: space-between;
 }
 
-.karavan .page-header .top-toolbar .pf-c-page__header-tools{
+.karavan .page-header .top-toolbar .pf-c-page__header-tools {
     margin-right: 0;
 }
+
 .karavan .page-header .top-toolbar {
     width: 100%;
 }
@@ -124,10 +125,6 @@
     height: 160px;
 }
 
-.kamelets-page .kamelet-card .pf-c-card__header {
-    /*padding-right: 6px;*/
-}
-
 .kamelets-page .kamelet-card .pf-c-card__header .custom {
     margin-left: auto;
 }
@@ -140,12 +137,14 @@
 .kamelets-page .kamelet-card .pf-c-card__body {
     overflow: hidden;
     position: relative;
+    line-height: 1.6em;
 }
 
 .kamelets-page .kamelet-card .icon {
     height: 24px;
     margin-top: auto;
     margin-bottom: auto;
+    margin-right: 3px;
     border: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -154,12 +153,33 @@
     user-select: none;
 }
 
-.karavan .kamelets-page .kamelet-card .pf-c-card__footer {
+.kamelets-page .kamelet-card .header-labels {
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+.kamelets-page .kamelet-card .footer-labels {
+    padding: 5px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
 
+.kamelets-page .kamelet-card .version,
+.kamelets-page .kamelet-card .support-type,
+.kamelets-page .kamelet-card .support-level {
+    white-space: nowrap;
+}
+
+.kamelets-page .kamelet-card .labels {
+    opacity: 0.5;
+}
+
+.kamelets-page .kamelet-card:hover .labels {
+    opacity: 1;
+}
 
 /*kamelet modal*/
 .kamelet-modal-card .pf-c-card__header {
@@ -277,7 +297,7 @@
     flex-direction: row;
 }
 
-.karavan .properties .headers .top h1{
+.karavan .properties .headers .top h1 {
     width: 100%;
     margin-top: auto;
     margin-bottom: auto;
@@ -321,16 +341,17 @@
 .karavan .properties .input-group .pf-c-chip-group .pf-c-chip-group__list,
 .karavan .properties .input-group .pf-c-chip-group .pf-c-chip-group__list .pf-c-chip-group__list-item,
 .karavan .properties .input-group .pf-c-chip-group .pf-c-chip-group__main {
-    display:block;
+    display: block;
 }
 
 .karavan .properties .input-group .pf-c-chip-group {
     margin-left: 0;
 }
 
-.karavan .properties .input-group .pf-c-chip-group .pf-c-chip .pf-c-chip__text{
+.karavan .properties .input-group .pf-c-chip-group .pf-c-chip .pf-c-chip__text {
     max-width: inherit;
 }
+
 .karavan .properties .input-group .pf-c-chip-group .pf-c-chip {
     width: 100%;
 }
@@ -340,8 +361,8 @@
     margin-top: auto;
 }
 
-.karavan .properties .chip .pf-c-button{
-    position:absolute;
+.karavan .properties .chip .pf-c-button {
+    position: absolute;
     right: 0;
 }
 
@@ -464,7 +485,7 @@
 .karavan .properties .expression .pf-c-select__menu-wrapper,
 .karavan .properties .object .pf-c-select__menu-wrapper,
 .karavan .properties .dataformat .pf-c-select__menu-wrapper,
-.karavan .properties .parameters .pf-c-select__menu-wrapper{
+.karavan .properties .parameters .pf-c-select__menu-wrapper {
     width: 350px;
 }
 
@@ -487,7 +508,7 @@
 }
 
 .karavan .properties .delete-button {
-    color:  #909090;
+    color: #909090;
 }
 
 .karavan .properties .pf-c-expandable-section__toggle {
@@ -592,7 +613,11 @@
     fill: transparent;
 }
 
-@keyframes dashdraw{0%{stroke-dashoffset:10}}
+@keyframes dashdraw {
+    0% {
+        stroke-dashoffset: 10
+    }
+}
 
 .karavan .dsl-page .flows .step-element {
     align-items: center;
@@ -617,14 +642,14 @@
 .karavan .dsl-page .flows .children {
     display: flex;
     flex-wrap: wrap;
-    flex-wrap:nowrap;
+    flex-wrap: nowrap;
     gap: 6px;
 }
 
 .karavan .dsl-page .flows .has-child {
     display: flex;
     flex-direction: column;
-    flex-wrap:nowrap;
+    flex-wrap: nowrap;
     gap: 6px;
 }
 
@@ -700,16 +725,19 @@
     display: flex;
     flex-direction: row;
 }
+
 .karavan .step-element .header .spacer {
     width: 50%
 }
+
 .karavan .step-element .header .text-bottom {
     background-color: rgba(255, 255, 255, 0.5);
 }
+
 .karavan .step-element .header .text-right {
     padding-left: 17px;
     width: 50%;
-    text-align:start;
+    text-align: start;
 }
 
 .karavan .step-element .header .header-text-required {
@@ -867,7 +895,7 @@
 }
 
 
-.dsl-modal .search .pf-c-form__group-label{
+.dsl-modal .search .pf-c-form__group-label {
     padding: 0;
     margin: auto;
 }
@@ -896,21 +924,32 @@
     flex-wrap: wrap;
 }
 
-.dsl-modal .version {
-    opacity: 0.5;
-    white-space: nowrap;
-    margin-left: auto;
+.dsl-modal .pf-c-card.pf-m-compact .header-labels {
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
 }
 
+.dsl-modal .pf-c-card.pf-m-compact .footer-labels {
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.dsl-modal .version,
+.dsl-modal .support-type,
 .dsl-modal .support-level {
-    position: absolute;
-    right: 6px;
-    top: 6px;
     white-space: nowrap;
 }
 
 .dsl-modal .labels {
     opacity: 0.5;
+}
+
+.dsl-modal .dsl-card:hover .labels {
+    opacity: 1;
 }
 
 .move-modal {
@@ -920,6 +959,7 @@
 .move-modal .pf-c-modal-box__body {
     margin-right: 0 !important;
 }
+
 .move-modal .pf-m-plain {
     display: none;
 }
@@ -1128,13 +1168,14 @@
 .karavan .yaml-page {
     height: 100px;
 }
+
 /*Exception*/
 /*Template*/
 /*Error*/
 
 .karavan .templates-page,
 .karavan .exception-page,
-.karavan .error-page{
+.karavan .error-page {
     flex: 1;
     overflow: auto;
 }
@@ -1163,6 +1204,7 @@
     display: flex;
     flex-direction: row;
 }
+
 .karavan .tools-section .tools .header .labels {
     height: fit-content;
     margin-left: 3px;
@@ -1185,8 +1227,7 @@
 
 .karavan .project-builder .pf-c-tabs__link,
 .karavan .project-builder .pf-c-card__title,
-.karavan .project-builder .profile-caption
-{
+.karavan .project-builder .profile-caption {
     font-size: 14px;
 }
 
@@ -1238,6 +1279,7 @@
     gap: 10px;
     padding: 10px;
 }
+
 .karavan .project-builder .center-column {
     width: 100%;
     display: flex;
@@ -1262,18 +1304,22 @@
     flex-direction: column;
     justify-content: space-around;
 }
+
 .karavan .project-builder .project-properties td {
     padding: 0;
     margin: 0;
 }
+
 .karavan .project-builder .project-properties td,
 .karavan .project-builder .project-properties tr {
     border: none;
 }
+
 .karavan .project-builder .project-properties .delete-button {
     padding: 0 0 0 6px;
     margin: 0;
 }
+
 .karavan .project-builder .add-button {
     width: fit-content;
     margin-top: 6px;
