@@ -95,10 +95,10 @@ public class GitService {
         }
     }
 
-    public Project commitAndPushProject(Project project) throws Exception {
-        Project p = infinispanService.getProject(project.getProjectId());
-        List<ProjectFile> files = infinispanService.getProjectFiles(project.getProjectId());
-        RevCommit commit = commitAndPushProject(p, files);
+    public Project commitAndPushProject(String projectId, String message) throws Exception {
+        Project p = infinispanService.getProject(projectId);
+        List<ProjectFile> files = infinispanService.getProjectFiles(projectId);
+        RevCommit commit = commitAndPushProject(p, files, message);
         String commitId = commit.getId().getName();
         Long lastUpdate = commit.getCommitTime() * 1000L;
         p.setLastCommit(commitId);
@@ -107,7 +107,7 @@ public class GitService {
         return p;
     }
 
-    public RevCommit commitAndPushProject(Project project, List<ProjectFile> files) throws GitAPIException, IOException, URISyntaxException {
+    public RevCommit commitAndPushProject(Project project, List<ProjectFile> files, String message) throws GitAPIException, IOException, URISyntaxException {
         LOGGER.info("Commit and push project " + project.getProjectId());
         GitConfig gitConfig = getGitConfig();
         CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
@@ -126,7 +126,7 @@ public class GitService {
         }
         writeProjectToFolder(folder, project, files);
         addDeletedFilesToIndex(git, folder, project, files);
-        return commitAddedAndPush(git, gitConfig.getBranch(), cred, project.getProjectId());
+        return commitAddedAndPush(git, gitConfig.getBranch(), cred, message);
     }
 
     public List<GitRepo> readProjectsFromRepository() {
@@ -248,7 +248,7 @@ public class GitService {
     public RevCommit commitAddedAndPush(Git git, String branch, CredentialsProvider cred, String message) throws GitAPIException, IOException, URISyntaxException {
         LOGGER.info("Commit and push changes");
         LOGGER.info("Git add: " + git.add().addFilepattern(".").call());
-        RevCommit commit = git.commit().setMessage(LocalDateTime.now() + ": " + message).call();
+        RevCommit commit = git.commit().setMessage(message).call();
         LOGGER.info("Git commit: " + commit);
         Iterable<PushResult> result = git.push().add(branch).setRemote("origin").setCredentialsProvider(cred).call();
         LOGGER.info("Git push: " + result);

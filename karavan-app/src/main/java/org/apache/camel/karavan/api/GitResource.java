@@ -26,6 +26,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.HashMap;
 
 @Path("/api/git")
 public class GitResource {
@@ -35,10 +36,12 @@ public class GitResource {
 
     private static final Logger LOGGER = Logger.getLogger(GitResource.class.getName());
 
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Project push(Project project) throws Exception {
-        return gitService.commitAndPushProject(project);
+    public Project push(HashMap<String, String> params) throws Exception {
+        System.out.println(params);
+        return gitService.commitAndPushProject(params.get("projectId"), params.get("message"));
     }
 }
