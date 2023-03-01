@@ -74,7 +74,7 @@ deploy: ## Deploy controller to the K8s cluster specified in ~/.kube/config.
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
 	kubectl delete -f target/kubernetes/kubernetes.yml
 
-##@Bundle
+##@ Bundle
 .PHONY: bundle
 bundle:  ## Generate bundle manifests and metadata, then validate generated files.
 ## marker
