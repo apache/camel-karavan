@@ -30,8 +30,9 @@
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.version>2.16.0.Final</quarkus.platform.version>
-        <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
+        <camel-quarkus.version>2.16.0</camel-quarkus.version>
         <camel.version>3.20.2</camel.version>
+        <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
         <infinispan.version>14.0.5.Final</infinispan.version>
         <tekton.version>6.2.0</tekton.version>
         <jgit.version>2.3.1</jgit.version>
@@ -115,6 +116,10 @@
             <artifactId>quarkus-qute</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-scheduler</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>tekton-client</artifactId>
             <version>${tekton.version}</version>
@@ -152,11 +157,11 @@
             <artifactId>rest-assured</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>io.quarkiverse.quinoa</groupId>
-            <artifactId>quarkus-quinoa</artifactId>
-            <version>${quinoa.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>io.quarkiverse.quinoa</groupId>-->
+<!--            <artifactId>quarkus-quinoa</artifactId>-->
+<!--            <version>${quinoa.version}</version>-->
+<!--        </dependency>-->
     </dependencies>
     <build>
         <resources>

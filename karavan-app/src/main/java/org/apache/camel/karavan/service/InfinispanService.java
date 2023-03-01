@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.service;
 
+import io.smallrye.mutiny.tuples.Tuple2;
 import org.apache.camel.karavan.model.CamelStatus;
 import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.Environment;
@@ -59,6 +60,7 @@ public class InfinispanService {
     BasicCache<GroupedKey, CamelStatus> camelStatuses;
     BasicCache<GroupedKey, ServiceStatus> serviceStatuses;
     BasicCache<String, Environment> environments;
+    BasicCache<String, String> commits;
 
     @Inject
     RemoteCacheManager cacheManager;
@@ -95,7 +97,7 @@ public class InfinispanService {
             podStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(PodStatus.CACHE, builder.build());
             serviceStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ServiceStatus.CACHE, builder.build());
             camelStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(CamelStatus.CACHE, builder.build());
-
+            commits = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache("commits", builder.build());
             cleanData();
         } else {
             LOGGER.info("InfinispanService is starting in remote mode");
@@ -107,6 +109,7 @@ public class InfinispanService {
             podStatuses = cacheManager.administration().getOrCreateCache(PodStatus.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, PodStatus.CACHE)));
             serviceStatuses = cacheManager.administration().getOrCreateCache(ServiceStatus.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, ServiceStatus.CACHE)));
             camelStatuses = cacheManager.administration().getOrCreateCache(CamelStatus.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, CamelStatus.CACHE)));
+            commits = cacheManager.administration().getOrCreateCache("commits", new XMLStringConfiguration(String.format(CACHE_CONFIG, "commits")));
         }
     }
 
@@ -291,6 +294,23 @@ public class InfinispanService {
         environments.put(environment.getName(), environment);
     }
 
+    public void saveCommit(String commitId, int time) {
+        commits.put(commitId, String.valueOf(time));
+    }
+
+    public void saveLastCommit(String commitId) {
+        commits.put("lastCommitId", commitId);
+    }
+
+    public Tuple2<String, Integer> getLastCommit() {
+        String lastCommitId = commits.get("lastCommitId");
+        String time = commits.get(lastCommitId);
+        return Tuple2.of(lastCommitId, Integer.parseInt(time));
+    }
+
+    public boolean hasCommit(String commitId) {
+        return commits.get(commitId) != null;
+    }
 
     protected void clearAllStatuses() {
         CompletableFuture.allOf(

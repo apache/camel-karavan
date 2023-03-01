@@ -137,8 +137,8 @@ public class KubernetesService {
         return "karavan-pipeline-" + environment + "-" + project.getRuntime();
     }
 
-    public String createPipelineRun(Project project) throws Exception {
-        String pipeline  = getPipelineName(project);
+    public String createPipelineRun(Project project) {
+        String pipeline = getPipelineName(project);
         LOGGER.info("Pipeline " + pipeline + " is creating for " + project.getProjectId());
 
         Map<String, String> labels = Map.of(

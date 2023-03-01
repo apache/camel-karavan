@@ -16,30 +16,35 @@
  */
 package org.apache.camel.karavan.service;
 
+import io.quarkus.scheduler.Scheduled;
 import io.quarkus.vertx.ConsumeEvent;
+import io.smallrye.mutiny.tuples.Tuple2;
 import org.apache.camel.karavan.model.GitRepo;
-import org.apache.camel.karavan.model.GitRepoFile;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @ApplicationScoped
-public class ImportService {
+public class ProjectService {
 
-    private static final Logger LOGGER = Logger.getLogger(ImportService.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ProjectService.class.getName());
     public static final String IMPORT_TEMPLATES = "import-templates";
     public static final String IMPORT_PROJECTS = "import-projects";
-
+    public static final String IMPORT_COMMITS = "import-commits";
 
     @Inject
     InfinispanService infinispanService;
+
+    @Inject
+    KubernetesService kubernetesService;
 
     @Inject
     GitService gitService;
@@ -50,8 +55,37 @@ public class ImportService {
     @ConfigProperty(name = "karavan.default-runtime")
     String runtime;
 
+    private AtomicBoolean readyToPull = new AtomicBoolean(false);
+
+    @Scheduled(every = "{karavan.git-pull-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    void pullCommits() {
+        if (readyToPull.get()) {
+            Tuple2<String, Integer> lastCommit = infinispanService.getLastCommit();
+            gitService.getCommitsAfterCommit(lastCommit.getItem2()).forEach(commitInfo -> {
+                if (!infinispanService.hasCommit(commitInfo.getCommitId())) {
+                    commitInfo.getRepos().forEach(repo -> {
+                        Project project = importProjectFromRepo(repo);
+                        kubernetesService.createPipelineRun(project);
+                    });
+                    infinispanService.saveCommit(commitInfo.getCommitId(), commitInfo.getTime());
+                }
+                infinispanService.saveLastCommit(commitInfo.getCommitId());
+            });
+        }
+    }
+
+    @ConsumeEvent(value = IMPORT_COMMITS, blocking = true)
+    void importCommits(String data) {
+        LOGGER.info("Import commits");
+        gitService.getAllCommits().forEach((commitId, time) -> {
+            infinispanService.saveCommit(commitId, time);
+            infinispanService.saveLastCommit(commitId);
+        });
+        readyToPull.set(true);
+    }
+
     @ConsumeEvent(value = IMPORT_PROJECTS, blocking = true)
-    void importProjects(String data) {
+    void importAllProjects(String data) {
         LOGGER.info("Import projects from Git");
         try {
             List<GitRepo> repos = gitService.readProjectsFromRepository();
@@ -63,11 +97,7 @@ public class ImportService {
                 } else if (folderName.equals(Project.NAME_KAMELETS)){
                     project = new Project(Project.NAME_KAMELETS, "Custom Kamelets", "Custom Kamelets", "quarkus", repo.getCommitId(), repo.getLastCommitTimestamp());
                 } else {
-                    String propertiesFile = getPropertiesFile(repo);
-                    String projectName = getProjectName(propertiesFile);
-                    String projectDescription = getProjectDescription(propertiesFile);
-                    String runtime = getProjectRuntime(propertiesFile);
-                    project = new Project(folderName, projectName, projectDescription, runtime, repo.getCommitId(), repo.getLastCommitTimestamp());
+                    project = getProjectFromRepo(repo);
                 }
                 infinispanService.saveProject(project, true);
 
@@ -87,16 +117,20 @@ public class ImportService {
         LOGGER.info("Import project from Git " + projectId);
         try {
             GitRepo repo = gitService.readProjectFromRepository(projectId);
-            Project project;
-            String folderName = repo.getName();
-            String propertiesFile = getPropertiesFile(repo);
-            String projectName = getProjectName(propertiesFile);
-            String projectDescription = getProjectDescription(propertiesFile);
-            String runtime = getProjectRuntime(propertiesFile);
-            project = new Project(folderName, projectName, projectDescription, runtime, repo.getCommitId(), repo.getLastCommitTimestamp());
+            return importProjectFromRepo(repo);
+        } catch (Exception e) {
+            LOGGER.error("Error during project import", e);
+            return null;
+        }
+    }
+
+    private Project importProjectFromRepo(GitRepo repo) {
+        LOGGER.info("Import project from GitRepo " + repo.getName());
+        try {
+            Project project = getProjectFromRepo(repo);
             infinispanService.saveProject(project, true);
             repo.getFiles().forEach(repoFile -> {
-                ProjectFile file = new ProjectFile(repoFile.getName(), repoFile.getBody(), folderName, repoFile.getLastCommitTimestamp());
+                ProjectFile file = new ProjectFile(repoFile.getName(), repoFile.getBody(), repo.getName(), repoFile.getLastCommitTimestamp());
                 infinispanService.saveProjectFile(file);
             });
             return project;
@@ -106,6 +140,28 @@ public class ImportService {
         }
     }
 
+    public Project getProjectFromRepo(GitRepo repo) {
+        String folderName = repo.getName();
+        String propertiesFile = ServiceUtil.getPropertiesFile(repo);
+        String projectName = ServiceUtil.getProjectName(propertiesFile);
+        String projectDescription = ServiceUtil.getProjectDescription(propertiesFile);
+        String runtime = ServiceUtil.getProjectRuntime(propertiesFile);
+        return new Project(folderName, projectName, projectDescription, runtime, repo.getCommitId(), repo.getLastCommitTimestamp());
+    }
+
+    public Project commitAndPushProject(String projectId, String message) throws Exception {
+        Project p = infinispanService.getProject(projectId);
+        List<ProjectFile> files = infinispanService.getProjectFiles(projectId);
+        RevCommit commit = gitService.commitAndPushProject(p, files, message);
+        String commitId = commit.getId().getName();
+        Long lastUpdate = commit.getCommitTime() * 1000L;
+        p.setLastCommit(commitId);
+        p.setLastCommitTimestamp(lastUpdate);
+        infinispanService.saveProject(p, false);
+        infinispanService.saveCommit(commitId, commit.getCommitTime());
+        return p;
+    }
+
     void addKameletsProject(String data) {
         LOGGER.info("Add custom kamelets project if not exists");
         try {
@@ -113,7 +169,7 @@ public class ImportService {
             if (kamelets == null) {
                 kamelets = new Project(Project.NAME_KAMELETS, "Custom Kamelets", "Custom Kamelets", "quarkus", "", Instant.now().toEpochMilli());
                 infinispanService.saveProject(kamelets, true);
-                gitService.commitAndPushProject("kamelets", "Add custom kamelets");
+                commitAndPushProject("kamelets", "Add custom kamelets");
             }
         } catch (Exception e) {
             LOGGER.error("Error during custom kamelets project creation", e);
@@ -133,51 +189,10 @@ public class ImportService {
                     ProjectFile file = new ProjectFile(name, value, Project.NAME_TEMPLATES, Instant.now().toEpochMilli());
                     infinispanService.saveProjectFile(file);
                 });
-                gitService.commitAndPushProject("templates", "Add default templates");
+                commitAndPushProject("templates", "Add default templates");
             }
         } catch (Exception e) {
             LOGGER.error("Error during templates project creation", e);
         }
-    }
-
-    private String getPropertiesFile(GitRepo repo) {
-        try {
-            for (GitRepoFile e : repo.getFiles()){
-                if (e.getName().equalsIgnoreCase("application.properties")) {
-                    return e.getBody();
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
-        return null;
-    }
-
-    private static String capitalize(String str) {
-        if(str == null || str.isEmpty()) {
-            return str;
-        }
-        return str.substring(0, 1).toUpperCase() + str.substring(1);
-    }
-
-    private static String getProperty(String file, String property) {
-        String prefix = property + "=";
-        return  Arrays.stream(file.split(System.lineSeparator())).filter(s -> s.startsWith(prefix))
-                .findFirst().orElseGet(() -> "")
-                .replace(prefix, "");
-    }
-
-    private static String getProjectDescription(String file) {
-        String description = getProperty(file, "camel.jbang.project-description");
-        return description != null && !description.isBlank() ? description : getProperty(file, "camel.karavan.project-description");
-    }
-
-    private static String getProjectName(String file) {
-        String name = getProperty(file, "camel.jbang.project-name");
-        return name != null && !name.isBlank() ? name : getProperty(file, "camel.karavan.project-name");
-    }
-
-    private static String getProjectRuntime(String file) {
-        return getProperty(file, "camel.jbang.runtime");
     }
 }

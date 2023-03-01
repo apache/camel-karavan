@@ -67,10 +67,11 @@ public class KaravanService {
     void initialImport() {
         if (infinispanService.getProjects().isEmpty()) {
             LOGGER.info("No projects found in the Data Grid");
-            bus.publish(ImportService.IMPORT_PROJECTS, "");
+            bus.publish(ProjectService.IMPORT_PROJECTS, "");
         } else {
-            bus.publish(ImportService.IMPORT_TEMPLATES, "");
+            bus.publish(ProjectService.IMPORT_TEMPLATES, "");
         }
+        bus.publish(ProjectService.IMPORT_COMMITS, "");
     }
 
     void startInformers() {

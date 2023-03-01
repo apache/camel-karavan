@@ -7,10 +7,10 @@ import {
     FlexItem,
     ToggleGroup,
     ToggleGroupItem,
-    Checkbox, Tooltip, ToolbarItem, Modal, ModalVariant, Form, FormGroup, TextInput, FormHelperText, HelperText, HelperTextItem
+    Checkbox, Tooltip, ToolbarItem, Modal, ModalVariant, Form, FormGroup, TextInput, FormHelperText
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {Project, ProjectFile, ProjectFileTypes} from "./ProjectModels";
+import {Project, ProjectFile} from "./ProjectModels";
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
@@ -18,7 +18,6 @@ import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 import {KaravanApi} from "../api/KaravanApi";
-import {CamelUi} from "../designer/utils/CamelUi";
 
 interface Props {
     project: Project,
@@ -164,7 +163,7 @@ export class ProjectPageToolbar extends React.Component<Props> {
                                         commitMessageIsOpen: true,
                                         commitMessage : commitMessage === '' ? new Date().toLocaleString() : commitMessage
                                     })}>
-                                {isPushing ? "..." : "Commit"}
+                                {isPushing ? "..." : "Push"}
                             </Button>
                         </Tooltip>
                     </FlexItem>}
