@@ -473,6 +473,17 @@ export class KaravanApi {
         });
     }
 
+    static async getSupportedComponents(after: (json: string) => void) {
+        instance.get('/api/supported-component')
+            .then(res => {
+                if (res.status === 200) {
+                    after(JSON.stringify(res.data));
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    }
+
     static async getOpenApis(after: (openapis: []) => void) {
         instance.get('/api/openapi')
             .then(res => {

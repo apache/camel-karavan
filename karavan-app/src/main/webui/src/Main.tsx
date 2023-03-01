@@ -28,7 +28,6 @@ import KameletsIcon from "@patternfly/react-icons/dist/js/icons/registry-icon";
 import DashboardIcon from "@patternfly/react-icons/dist/js/icons/tachometer-alt-icon";
 import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
 import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
-import { PficonTemplateIcon } from '@patternfly/react-icons';
 import {MainLogin} from "./MainLogin";
 import {DashboardPage} from "./dashboard/DashboardPage";
 
@@ -127,6 +126,7 @@ export class Main extends React.Component<Props, State> {
         });
         this.updateKamelets();
         this.updateComponents();
+        this.updateSupportedComponents();
     }
 
     updateKamelets: () => Promise<void> = async () => {
@@ -149,6 +149,14 @@ export class Main extends React.Component<Props, State> {
                 const jsons: string[] = [];
                 components.forEach(c => jsons.push(JSON.stringify(c)));
                 ComponentApi.saveComponents(jsons, true);
+            })
+        });
+    }
+
+    updateSupportedComponents: () => Promise<void> = async () => {
+        await new Promise(resolve => {
+            KaravanApi.getSupportedComponents(jsons => {
+                ComponentApi.saveSupportedComponents(jsons);
             })
         });
     }
