@@ -29,6 +29,8 @@ import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PullCommand;
+import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.RemoteAddCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
@@ -77,29 +79,29 @@ public class GitService {
     @Inject
     KubernetesService kubernetesService;
 
-    private Git git;
+    private Git gitForImport;
 
     private static final Logger LOGGER = Logger.getLogger(GitService.class.getName());
 
-    public Git getPollGit(){
-        if (git == null) {
+    public Git getGitForImport(){
+        if (gitForImport == null) {
             try {
-                git = getGit(true, vertx.fileSystem().createTempDirectoryBlocking("poll"));
+                gitForImport = getGit(true, vertx.fileSystem().createTempDirectoryBlocking("import"));
             } catch (Exception e) {
                 LOGGER.error("Error", e);
             }
         }
-        return git;
+        return gitForImport;
     }
 
-    public Map<String, Integer> getAllCommits() {
-        Map<String, Integer> result = new HashMap();
+    public List<CommitInfo> getAllCommits() {
+        List<CommitInfo> result = new ArrayList<>();
         try {
-            Git pollGit = getPollGit();
+            Git pollGit = getGitForImport();
             if (pollGit != null) {
                 StreamSupport.stream(pollGit.log().all().call().spliterator(), false)
                         .sorted(Comparator.comparingInt(RevCommit::getCommitTime))
-                        .forEach(commit -> result.put(commit.getName(), commit.getCommitTime()));
+                        .forEach(commit -> result.add(new CommitInfo(commit.getName(), commit.getCommitTime())));
             }
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
@@ -110,11 +112,11 @@ public class GitService {
     public List<CommitInfo> getCommitsAfterCommit(int commitTime) {
         List<CommitInfo> result = new ArrayList<>();
         try {
-            Git pollGit = getPollGit();
+            Git pollGit = getGitForImport();
             if (pollGit != null) {
                 GitConfig gitConfig = getGitConfig();
                 CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
-                fetch(pollGit, cred);
+                pull(pollGit, cred);
                 List<RevCommit> commits = StreamSupport.stream(pollGit.log().all().call().spliterator(), false)
                         .filter(commit -> commit.getCommitTime() > commitTime)
                         .sorted(Comparator.comparingInt(RevCommit::getCommitTime)).collect(Collectors.toList());
@@ -173,14 +175,12 @@ public class GitService {
         return commitAddedAndPush(git, gitConfig.getBranch(), cred, message);
     }
 
-    public List<GitRepo> readProjectsFromRepository() {
-        Git git = null;
-        try {
-            git = getGit(true, vertx.fileSystem().createTempDirectoryBlocking(UUID.randomUUID().toString()));
-        } catch (Exception e) {
-            LOGGER.error("Error", e);
+    public List<GitRepo> readProjectsToImport() {
+        Git importGit = getGitForImport();
+        if (importGit != null) {
+            return readProjectsFromRepository(importGit, null);
         }
-        return readProjectsFromRepository(git, null);
+        return new ArrayList<>(0);
     }
 
     public GitRepo readProjectFromRepository(String projectId) {
@@ -198,12 +198,7 @@ public class GitService {
         List<GitRepo> result = new ArrayList<>();
         try {
             String folder = git.getRepository().getDirectory().getAbsolutePath().replace("/.git", "");
-            List<String> projects = readProjectsFromFolder(folder);
-            if (filter != null) {
-                projects = projects.stream().filter(s -> Arrays.stream(filter).filter(f -> f.equals(s)).findFirst().isPresent()).collect(Collectors.toList());
-            } else {
-                projects = projects.stream().filter(s -> !s.startsWith(".")).collect(Collectors.toList()); // do not import hidden folders
-            }
+            List<String> projects = readProjectsFromFolder(folder, filter);
             for (String project : projects) {
                 Map<String, String> filesRead = readProjectFilesFromFolder(folder, project);
                 List<GitRepoFile> files = new ArrayList<>(filesRead.size());
@@ -262,15 +257,19 @@ public class GitService {
         return kamelets;
     }
 
-    private List<String> readProjectsFromFolder(String folder) {
+    private List<String> readProjectsFromFolder(String folder, String... filter) {
         LOGGER.info("Read projects from " + folder);
         List<String> files = new ArrayList<>();
-        vertx.fileSystem().readDirBlocking(folder).forEach(f -> {
-            String[] filenames = f.split(File.separator);
+        vertx.fileSystem().readDirBlocking(folder).forEach(path -> {
+            String[] filenames = path.split(File.separator);
             String folderName = filenames[filenames.length - 1];
-            if (!folderName.startsWith(".") && Files.isDirectory(Paths.get(f))) {
-                LOGGER.info("Importing project from folder " + folderName);
-                files.add(folderName);
+            if (folderName.startsWith(".")) {
+                // skip hidden
+            } else if (Files.isDirectory(Paths.get(path))) {
+                if (filter == null || Arrays.stream(filter).filter(f -> f.equals(folderName)).findFirst().isPresent()) {
+                    LOGGER.info("Importing project from folder " + folderName);
+                    files.add(folderName);
+                }
             }
         });
         return files;
@@ -403,6 +402,13 @@ public class GitService {
         FetchResult result = fetchCommand.call();
     }
 
+    private void pull(Git git, CredentialsProvider cred) throws GitAPIException {
+        // pull:
+        PullCommand pullCommand = git.pull();
+        pullCommand.setCredentialsProvider(cred);
+        PullResult result = pullCommand.call();
+    }
+
     private void checkout(Git git, boolean create, String path, String startPoint, String branch) throws GitAPIException {
         // create branch:
         CheckoutCommand checkoutCommand = git.checkout();
@@ -427,7 +433,7 @@ public class GitService {
 
     public Set<String> getChangedProjects(RevCommit commit) {
         Set<String> files = new HashSet<>();
-        Git git = getPollGit();
+        Git git = getGitForImport();
         if (git != null) {
             TreeWalk walk = new TreeWalk(git.getRepository());
             walk.setRecursive(true);

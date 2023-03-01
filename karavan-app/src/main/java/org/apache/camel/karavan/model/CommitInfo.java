@@ -7,6 +7,11 @@ public class CommitInfo {
     private Integer time;
     private List<GitRepo> repos;
 
+    public CommitInfo(String commitId, Integer time) {
+        this.commitId = commitId;
+        this.time = time;
+    }
+
     public CommitInfo(String commitId, Integer time, List<GitRepo> repos) {
         this.commitId = commitId;
         this.time = time;
@@ -35,5 +40,14 @@ public class CommitInfo {
 
     public void setRepos(List<GitRepo> repos) {
         this.repos = repos;
+    }
+
+    @Override
+    public String toString() {
+        return "CommitInfo{" +
+                "commitId='" + commitId + '\'' +
+                ", time=" + time +
+                ", repos=" + repos +
+                '}';
     }
 }

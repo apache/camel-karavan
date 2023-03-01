@@ -29,6 +29,7 @@ import org.jboss.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -36,9 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ProjectService {
 
     private static final Logger LOGGER = Logger.getLogger(ProjectService.class.getName());
-    public static final String IMPORT_TEMPLATES = "import-templates";
     public static final String IMPORT_PROJECTS = "import-projects";
-    public static final String IMPORT_COMMITS = "import-commits";
 
     @Inject
     InfinispanService infinispanService;
@@ -60,8 +59,10 @@ public class ProjectService {
     @Scheduled(every = "{karavan.git-pull-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void pullCommits() {
         if (readyToPull.get()) {
+            LOGGER.info("Pull commits...");
             Tuple2<String, Integer> lastCommit = infinispanService.getLastCommit();
             gitService.getCommitsAfterCommit(lastCommit.getItem2()).forEach(commitInfo -> {
+                System.out.println(commitInfo);
                 if (!infinispanService.hasCommit(commitInfo.getCommitId())) {
                     commitInfo.getRepos().forEach(repo -> {
                         Project project = importProjectFromRepo(repo);
@@ -74,21 +75,27 @@ public class ProjectService {
         }
     }
 
-    @ConsumeEvent(value = IMPORT_COMMITS, blocking = true)
-    void importCommits(String data) {
-        LOGGER.info("Import commits");
-        gitService.getAllCommits().forEach((commitId, time) -> {
-            infinispanService.saveCommit(commitId, time);
-            infinispanService.saveLastCommit(commitId);
+    void importCommits() {
+        LOGGER.info("Import commits...");
+        gitService.getAllCommits().forEach(commitInfo -> {
+            infinispanService.saveCommit(commitInfo.getCommitId(), commitInfo.getTime());
+            infinispanService.saveLastCommit(commitInfo.getCommitId());
         });
         readyToPull.set(true);
     }
 
     @ConsumeEvent(value = IMPORT_PROJECTS, blocking = true)
-    void importAllProjects(String data) {
+    void importProjects(String data) {
+        if (infinispanService.getProjects().isEmpty()) {
+            importAllProjects();
+        }
+        addTemplatesProject();
+        importCommits();
+    }
+    private void importAllProjects() {
         LOGGER.info("Import projects from Git");
         try {
-            List<GitRepo> repos = gitService.readProjectsFromRepository();
+            List<GitRepo> repos = gitService.readProjectsToImport();
             repos.forEach(repo -> {
                 Project project;
                 String folderName = repo.getName();
@@ -106,11 +113,10 @@ public class ProjectService {
                     infinispanService.saveProjectFile(file);
                 });
             });
-            addKameletsProject("");
+            addKameletsProject();
         } catch (Exception e) {
             LOGGER.error("Error during project import", e);
         }
-        addTemplatesProject("");
     }
 
     public Project importProject(String projectId) {
@@ -162,7 +168,7 @@ public class ProjectService {
         return p;
     }
 
-    void addKameletsProject(String data) {
+    void addKameletsProject() {
         LOGGER.info("Add custom kamelets project if not exists");
         try {
             Project kamelets  = infinispanService.getProject(Project.NAME_KAMELETS);
@@ -176,8 +182,7 @@ public class ProjectService {
         }
     }
 
-    @ConsumeEvent(value = IMPORT_TEMPLATES, blocking = true)
-    void addTemplatesProject(String data) {
+    void addTemplatesProject() {
         LOGGER.info("Add templates project if not exists");
         try {
             Project templates  = infinispanService.getProject(Project.NAME_TEMPLATES);
