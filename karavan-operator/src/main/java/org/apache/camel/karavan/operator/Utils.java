@@ -16,14 +16,14 @@
  */
 package org.apache.camel.karavan.operator;
 
-import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition;
-import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinitionList;
+import io.fabric8.kubernetes.api.model.APIResourceList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.client.OpenShiftClient;
+import io.fabric8.tekton.pipeline.v1beta1.Pipeline;
+import io.fabric8.tekton.pipeline.v1beta1.Task;
 import org.eclipse.microprofile.config.ConfigProvider;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Utils {
@@ -40,20 +40,17 @@ public class Utils {
     }
 
     public static boolean isTektonInstalled(KubernetesClient client) {
-        CustomResourceDefinitionList list = client.apiextensions().v1().customResourceDefinitions().list();
-        if (list != null) {
-            List<CustomResourceDefinition> items = list.getItems();
-            long crds = items.stream().filter(crd -> crd.getMetadata().getName().equalsIgnoreCase("pipelines.tekton.dev")
-                    || crd.getMetadata().getName().equalsIgnoreCase("tasks.tekton.dev")
-            ).count();
-            if (crds == 2) {
-                if (isOpenShift(client)) {
-                    long oper = client.adapt(OpenShiftClient.class).operatorHub().subscriptions().list().getItems().stream()
-                            .filter(sub -> sub.getMetadata().getName().contains("openshift-pipelines-operator")).count();
-                    return oper > 0;
-                } else {
-                    return true;
-                }
+        Pipeline pipeline = new Pipeline();
+        Task task = new Task();
+        APIResourceList kinds = client.getApiResources(pipeline.getApiVersion());
+        if (kinds != null && kinds.getResources().stream().filter(res -> res.getKind().equalsIgnoreCase(pipeline.getKind())).findAny().isPresent() &&
+                kinds.getResources().stream().filter(res -> res.getKind().equalsIgnoreCase(task.getKind())).findAny().isPresent()) {
+            if (isOpenShift(client)) {
+                long oper = client.adapt(OpenShiftClient.class).operatorHub().subscriptions().list().getItems().stream()
+                        .filter(sub -> sub.getMetadata().getName().contains("openshift-pipelines-operator")).count();
+                return oper > 0;
+            } else {
+                return true;
             }
         }
         return false;
