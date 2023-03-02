@@ -1,7 +1,6 @@
 import React from 'react';
 import {
-    TextInput,
-    Button, Modal, FormGroup, ModalVariant, Switch, Form, FileUpload, Radio
+    Button, Modal, FormGroup, ModalVariant, Form, FileUpload
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {GeneratorApi} from "../api/GeneratorApi";

@@ -19,9 +19,10 @@ import {
     Toolbar,
     ToolbarContent,
     ToolbarItem,
-    PageSection, TextContent, Text, PageSectionVariants, Flex, FlexItem, Button, Tooltip, ToggleGroup, ToggleGroupItem
+    PageSection, TextContent, Text, Flex, FlexItem, Button, Tooltip, ToggleGroup, ToggleGroupItem
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
+import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
 import GithubImageIcon from "@patternfly/react-icons/dist/esm/icons/github-icon";
@@ -56,6 +57,10 @@ export class SpacePage extends React.Component<Props, State> {
 
     save(filename: string, yaml: string, propertyOnly: boolean) {
         this.props.onSave?.call(this, filename, yaml, propertyOnly);
+    }
+
+    copyToClipboard = () => {
+        navigator.clipboard.writeText(this.props.yaml);
     }
 
     download = () => {
@@ -154,8 +159,15 @@ export class SpacePage extends React.Component<Props, State> {
                             <Toolbar id="toolbar-group-types">
                                 <ToolbarContent>
                                     <ToolbarItem>
+                                        <Tooltip content="Copy to Clipboard" position={"bottom"}>
+                                            <Button variant="primary" icon={<CopyIcon/>} onClick={e => this.copyToClipboard()}>
+                                                Copy
+                                            </Button>
+                                        </Tooltip>
+                                    </ToolbarItem>
+                                    <ToolbarItem>
                                         <Tooltip content="Download YAML" position={"bottom"}>
-                                            <Button variant="primary" icon={<DownloadIcon/>} onClick={e => this.download()}>
+                                            <Button variant="secondary" icon={<DownloadIcon/>} onClick={e => this.download()}>
                                                 YAML
                                             </Button>
                                         </Tooltip>

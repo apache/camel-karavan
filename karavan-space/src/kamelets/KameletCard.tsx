@@ -50,16 +50,18 @@ export class KameletCard extends React.Component<Props, State> {
             <Card isHoverable isCompact key={kamelet.metadata.name} className="kamelet-card"
                   onClick={event => this.click(event)}
             >
+                <CardHeader className="header-labels">
+                    {isCustom && <Badge className="custom">custom</Badge>}
+                    <Badge isRead className="support-level labels">{kamelet.metadata.annotations["camel.apache.org/kamelet.support.level"]}</Badge>
+                </CardHeader>
                 <CardHeader>
                     {CamelUi.getIconFromSource(kamelet.icon())}
-                    {isCustom && <Badge className="custom">custom</Badge>}
+                    <CardTitle>{kamelet.spec.definition.title}</CardTitle>
                 </CardHeader>
-                <CardTitle>{kamelet.spec.definition.title}</CardTitle>
                 <CardBody>{kamelet.spec.definition.description}</CardBody>
-                <CardFooter>
-                    {/*<div style={{justifyContent: "space-between"}}>*/}
+                <CardFooter className="footer-labels">
                     <Badge isRead className="labels">{kamelet.metadata.labels["camel.apache.org/kamelet.type"].toLowerCase()}</Badge>
-                    <Badge isRead className="version">{kamelet.metadata.annotations["camel.apache.org/catalog.version"].toLowerCase()}</Badge>
+                    <Badge isRead className="version labels">{kamelet.metadata.annotations["camel.apache.org/catalog.version"].toLowerCase()}</Badge>
                     {/*</div>*/}
                 </CardFooter>
             </Card>

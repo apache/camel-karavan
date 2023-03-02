@@ -177,6 +177,8 @@ export class CamelUi {
                     title: c.component.title,
                     description: c.component.description,
                     version: c.component.version,
+                    supportLevel: c.component.supportLevel,
+                    supportType: c.component.supportType,
                 }));
     }
 

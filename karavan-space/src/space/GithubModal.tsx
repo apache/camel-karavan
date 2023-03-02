@@ -11,8 +11,6 @@ import '../designer/karavan.css';
 import {GithubApi, GithubParams} from "../api/GithubApi";
 import GithubImageIcon from "@patternfly/react-icons/dist/esm/icons/github-icon";
 import {StorageApi} from "../api/StorageApi";
-import {KameletApi} from "../../../karavan-core/lib/api/KameletApi";
-import {ComponentApi} from "../../../karavan-core/lib/api/ComponentApi";
 import {SpaceBus} from "./SpaceBus";
 
 interface Props {
@@ -70,7 +68,7 @@ export class GithubModal extends React.Component<Props, State> {
     githubAuth = () => {
         GithubApi.auth(
             (result: any) => {
-                const onlyToken =  StorageApi.getGithubParameters() != undefined;
+                const onlyToken =  StorageApi.getGithubParameters() !== undefined;
                 if (onlyToken){
                     this.setState({token: result.token})
                 } else {
