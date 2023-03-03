@@ -23,6 +23,7 @@ public class KaravanSpec {
     private String environment;
     private String runtimes;
     private int nodePort;
+    private String gitPullInterval;
 
     public int getInstances() {
         return instances;
@@ -62,5 +63,13 @@ public class KaravanSpec {
 
     public void setRuntimes(String runtimes) {
         this.runtimes = runtimes;
+    }
+
+    public String getGitPullInterval() {
+        return gitPullInterval;
+    }
+
+    public void setGitPullInterval(String gitPullInterval) {
+        this.gitPullInterval = gitPullInterval;
     }
 }

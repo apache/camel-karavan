@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class KaravanDeployment extends CRUDKubernetesDependentResource<Deployment, Karavan> {
 
@@ -71,12 +72,13 @@ public class KaravanDeployment extends CRUDKubernetesDependentResource<Deploymen
         envVarList.add(
                 new EnvVar("KUBERNETES_NAMESPACE", null, new EnvVarSourceBuilder().withFieldRef(new ObjectFieldSelector("","metadata.namespace")).build())
         );
-        if (karavan.getSpec().getAuth() == "basic") {
+        String auth = karavan.getSpec().getAuth();
+        if (Objects.equals(auth, "basic")) {
             image = baseImage + "-basic:" + version;
             envVarList.add(
                     new EnvVar("MASTER_PASSWORD", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("master-password","karavan", false)).build())
             );
-        } else if (karavan.getSpec().getAuth() == "oidc") {
+        } else if (Objects.equals(auth,"oidc")) {
             image = baseImage + "-oidc:" + version;
             envVarList.add(
                     new EnvVar("OIDC_FRONTEND_URL", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("oidc-frontend-url","karavan", false)).build())
@@ -86,6 +88,19 @@ public class KaravanDeployment extends CRUDKubernetesDependentResource<Deploymen
             );
             envVarList.add(
                     new EnvVar("OIDC_SECRET", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("oidc-secret","karavan", false)).build())
+            );
+        }
+        String gitPullInterval = karavan.getSpec().getGitPullInterval();
+        if (Objects.isNull(gitPullInterval) || Objects.equals(gitPullInterval.trim(), "0")) {
+            envVarList.add(
+                    new EnvVar("QUARKUS_SCHEDULER_ENABLED", "false", null)
+            );
+        } else {
+            envVarList.add(
+                    new EnvVar("QUARKUS_SCHEDULER_ENABLED", "true", null)
+            );
+            envVarList.add(
+                    new EnvVar("KARAVAN_GIT_PULL_INTERVAL", gitPullInterval, null)
             );
         }
 

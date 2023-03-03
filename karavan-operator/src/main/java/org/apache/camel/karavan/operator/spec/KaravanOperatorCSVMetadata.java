@@ -43,6 +43,7 @@ package org.apache.camel.karavan.operator.spec;
                         "      \"auth\": \"public\",\n" +
                         "      \"environment\": \"dev\"\n" +
                         "      \"runtimes\": \"quarkus,spring-boot\"\n" +
+                        "      \"gitPullInterval\": \"30s\"\n" +
                         "    }\n" +
                         "  }\n" +
                         "]"
@@ -89,6 +90,7 @@ package org.apache.camel.karavan.operator.spec;
                 "  auth: public\n" +
                 "  environment: demo\n" +
                 "  runtimes: quarkus,spring-boot\n" +
+                "  gitPullInterval: 30s\n" +
                 "```\n",
         permissionRules = {
                 @CSVMetadata.PermissionRule(apiGroups = "camel.apache.org", resources = {"karavans", "karavans/status", "karavans/finalizers"}),

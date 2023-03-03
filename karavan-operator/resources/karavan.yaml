@@ -9,3 +9,4 @@ spec:
   nodePort: 30668
   environment: demo
   runtimes: quarkus,spring-boot
+  gitPullInterval: 10s
