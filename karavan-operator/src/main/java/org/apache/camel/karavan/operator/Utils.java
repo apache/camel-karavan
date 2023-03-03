@@ -43,8 +43,8 @@ public class Utils {
         Pipeline pipeline = new Pipeline();
         Task task = new Task();
         APIResourceList kinds = client.getApiResources(pipeline.getApiVersion());
-        if (kinds != null && kinds.getResources().stream().filter(res -> res.getKind().equalsIgnoreCase(pipeline.getKind())).findAny().isPresent() &&
-                kinds.getResources().stream().filter(res -> res.getKind().equalsIgnoreCase(task.getKind())).findAny().isPresent()) {
+        if (kinds != null && kinds.getResources().stream().anyMatch(res -> res.getKind().equalsIgnoreCase(pipeline.getKind())) &&
+                kinds.getResources().stream().anyMatch(res -> res.getKind().equalsIgnoreCase(task.getKind()))) {
             if (isOpenShift(client)) {
                 long oper = client.adapt(OpenShiftClient.class).operatorHub().subscriptions().list().getItems().stream()
                         .filter(sub -> sub.getMetadata().getName().contains("openshift-pipelines-operator")).count();
