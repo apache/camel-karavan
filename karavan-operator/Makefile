@@ -76,7 +76,7 @@ undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/confi
 
 ##@ Bundle
 .PHONY: bundle
-bundle:  ## Generate bundle manifests and metadata, then validate generated files.
+bundle: ## Generate bundle manifests and metadata, then validate generated files.
 ## marker
 	cat target/kubernetes/karavans.app.karavan.camel.apache.org-v1.yml target/kubernetes/kubernetes.yml | operator-sdk generate bundle -q --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
 	operator-sdk bundle validate ./bundle

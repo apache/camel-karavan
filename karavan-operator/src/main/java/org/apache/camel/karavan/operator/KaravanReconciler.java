@@ -29,8 +29,9 @@ import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernete
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.KubernetesDependentResourceConfig;
 import io.javaoperatorsdk.operator.processing.dependent.workflow.Workflow;
 import io.javaoperatorsdk.operator.processing.dependent.workflow.WorkflowReconcileResult;
-import io.javaoperatorsdk.operator.processing.dependent.workflow.builder.WorkflowBuilder;
+import io.javaoperatorsdk.operator.processing.dependent.workflow.WorkflowBuilder;
 import io.javaoperatorsdk.operator.processing.event.source.EventSource;
+import io.quarkus.runtime.Quarkus;
 import org.apache.camel.karavan.operator.resource.KaravanDeployment;
 import org.apache.camel.karavan.operator.resource.KaravanPvcData;
 import org.apache.camel.karavan.operator.resource.KaravanPvcJbang;
@@ -68,7 +69,7 @@ public class KaravanReconciler implements Reconciler<Karavan>, EventSourceInitia
 
     static final Logger log = LoggerFactory.getLogger(KaravanReconciler.class);
 
-    private boolean isOpenShift = false;
+    private boolean isOpenShift;
     private KubernetesClient client;
     private SharedIndexInformer informer;
     private Workflow<Karavan> workflow;
