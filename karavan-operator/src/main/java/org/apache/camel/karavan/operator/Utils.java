@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Utils {
+    private static final Pipeline pipeline = new Pipeline();
+    private static final Task task = new Task();
 
     public static Map<String, String> getLabels(String name, Map<String, String> labels) {
         Map<String, String> result = new HashMap<>(Map.of(
@@ -40,8 +42,6 @@ public class Utils {
     }
 
     public static boolean isTektonInstalled(KubernetesClient client) {
-        Pipeline pipeline = new Pipeline();
-        Task task = new Task();
         APIResourceList kinds = client.getApiResources(pipeline.getApiVersion());
         if (kinds != null && kinds.getResources().stream().anyMatch(res -> res.getKind().equalsIgnoreCase(pipeline.getKind())) &&
                 kinds.getResources().stream().anyMatch(res -> res.getKind().equalsIgnoreCase(task.getKind()))) {
@@ -57,9 +57,6 @@ public class Utils {
     }
 
     public static boolean isOpenShift(KubernetesClient client) {
-        if (client.isAdaptable(OpenShiftClient.class)) {
-            return true;
-        }
-        return false;
+        return client.adapt(OpenShiftClient.class).isSupported();
     }
 }
