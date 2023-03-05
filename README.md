@@ -9,7 +9,7 @@
 ![karavan-logo](images/karavan-logo-dark.png#gh-dark-mode-only)
 ![karavan-logo](images/karavan-logo-light.png#gh-light-mode-only)
 
-Karavan is an Integration Toolkit for Apache Camel, which makes integration easy and fun through the visualization of pipelines, integration with runtimes and package, image build and deploy to kubernetes out-of-the-box.
+Karavan is an Integration Platform for Apache Camel, which makes integration easy and fun through the visualization of pipelines, integration with runtimes and package, image build and deploy to kubernetes out-of-the-box.
 
 ![karavan-clouds](images/karavan-clouds.png)
 
