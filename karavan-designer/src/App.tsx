@@ -97,9 +97,9 @@ class App extends React.Component<Props, State> {
         Promise.all([
             fetch("kamelets/kamelets.yaml"),
             fetch("components/components.json"),
-            fetch("components/supported-components.json"),
             fetch("snippets/org.apache.camel.AggregationStrategy"),
             fetch("snippets/org.apache.camel.Processor")
+            // fetch("components/supported-components.json"),
         ]).then(responses =>
             Promise.all(responses.map(response => response.text()))
         ).then(data => {
@@ -112,14 +112,16 @@ class App extends React.Component<Props, State> {
             JSON.parse(data[1]).forEach((c: any) => jsons.push(JSON.stringify(c)));
             ComponentApi.saveComponents(jsons, true);
 
-            ComponentApi.saveSupportedComponents(data[2]);
-            ComponentApi.setSupportedOnly(true);
-
             this.toast("Success", "Loaded " + jsons.length + " components", 'success');
             this.setState({loaded: true});
 
-            TemplateApi.saveTemplate("org.apache.camel.AggregationStrategy", data[3]);
-            TemplateApi.saveTemplate("org.apache.camel.Processor", data[4]);
+            TemplateApi.saveTemplate("org.apache.camel.AggregationStrategy", data[2]);
+            TemplateApi.saveTemplate("org.apache.camel.Processor", data[3]);
+
+            if (data[4]) {
+                ComponentApi.saveSupportedComponents(data[4]);
+                ComponentApi.setSupportedOnly(true);
+            }
         }).catch(err =>
             this.toast("Error", err.text, 'danger')
         );
