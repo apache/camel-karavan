@@ -34,6 +34,7 @@ import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.RemoteAddCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -164,7 +165,7 @@ public class GitService {
         try {
             git = clone(folder, gitConfig.getUri(), gitConfig.getBranch(), cred);
             checkout(git, false, null, null, gitConfig.getBranch());
-        } catch (RefNotFoundException e) {
+        } catch (RefNotFoundException | TransportException e) {
             LOGGER.error("New repository");
             git = init(folder, gitConfig.getUri(), gitConfig.getBranch());
         } catch (Exception e) {
@@ -233,7 +234,7 @@ public class GitService {
             if (checkout) {
                 checkout(git, false, null, null, gitConfig.getBranch());
             }
-        } catch (RefNotFoundException e) {
+        } catch (RefNotFoundException | TransportException e) {
             LOGGER.error("New repository");
             git = init(folder, gitConfig.getUri(), gitConfig.getBranch());
         } catch (Exception e) {
@@ -337,6 +338,7 @@ public class GitService {
 
     public Git init(String dir, String uri, String branch) throws GitAPIException, IOException, URISyntaxException {
         Git git = Git.init().setInitialBranch(branch).setDirectory(Path.of(dir).toFile()).call();
+//        git.branchCreate().setName(branch).call();
         addRemote(git, uri);
         return git;
     }
