@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.service;
 
+import io.fabric8.knative.internal.pkg.apis.Condition;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -36,6 +37,8 @@ import io.fabric8.tekton.pipeline.v1beta1.PipelineRun;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpec;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpecBuilder;
+import io.fabric8.tekton.pipeline.v1beta1.PipelineRunStatus;
+import io.fabric8.tekton.pipeline.v1beta1.PipelineRunStatusBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.WorkspaceBindingBuilder;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.mutiny.core.eventbus.EventBus;
@@ -221,6 +224,22 @@ public class KubernetesService {
                 .findFirst().get();
     }
 
+    public void stopPipelineRun(String pipelineRunName, String namespace) {
+        try {
+            LOGGER.info("Stop PipelineRun: " + pipelineRunName + " in the namespace: " + namespace);
+
+            PipelineRun run = tektonClient().v1beta1().pipelineRuns().inNamespace(namespace).withName(pipelineRunName).get();
+            run.getSpec().setStatus("CancelledRunFinally");
+
+            tektonClient().v1beta1().pipelineRuns().inNamespace(namespace)
+                    .resource(run)
+                    .lockResourceVersion(run.getMetadata().getResourceVersion())
+                    .replaceStatus();
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+        }
+    }
+    
     public void rolloutDeployment(String name, String namespace) {
         try {
             kubernetesClient().apps().deployments().inNamespace(namespace).withName(name).rolling().restart();
