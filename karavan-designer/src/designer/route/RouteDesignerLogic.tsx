@@ -167,6 +167,7 @@ export class RouteDesignerLogic {
 
     showDeleteConfirmation = (id: string) => {
         let message: string;
+        const uuidsToDelete:string [] = [id];
         let ce: CamelElement;
         ce = CamelDefinitionApiExt.findElementInIntegration(this.routeDesigner.state.integration, id)!;
         if (ce.dslName === 'FromDefinition') { // Get the RouteDefinition for this.routeDesigner.  Use its uuid.
@@ -175,7 +176,7 @@ export class RouteDesignerLogic {
                 if (flows[i].dslName === 'RouteDefinition') {
                     let routeDefinition: RouteDefinition = flows[i];
                     if (routeDefinition.from.uuid === id) {
-                        id = routeDefinition.uuid;
+                        uuidsToDelete.push(routeDefinition.uuid);
                         break;
                     }
                 }
@@ -192,14 +193,13 @@ export class RouteDesignerLogic {
             showSelector: false,
             showDeleteConfirmation: true,
             deleteMessage: message,
-            selectedUuids: [id],
+            selectedUuids: uuidsToDelete,
         }));
     }
 
     deleteElement = () => {
-        const id = this.routeDesigner.state.selectedUuids.at(0);
-        if (id) {
-            const i = CamelDefinitionApiExt.deleteStepFromIntegration(this.routeDesigner.state.integration, id);
+        this.routeDesigner.state.selectedUuids.forEach(uuidToDelete => {
+            const i = CamelDefinitionApiExt.deleteStepFromIntegration(this.routeDesigner.state.integration, uuidToDelete);
             this.routeDesigner.setState(prevState => ({
                 integration: i,
                 showSelector: false,
@@ -208,12 +208,12 @@ export class RouteDesignerLogic {
                 key: Math.random().toString(),
                 selectedStep: undefined,
                 propertyOnly: false,
-                selectedUuids: [id],
+                selectedUuids: [uuidToDelete],
             }));
             const el = new CamelElement("");
-            el.uuid = id;
+            el.uuid = uuidToDelete;
             EventBus.sendPosition("delete", el, undefined, new DOMRect(), new DOMRect(), 0);
-        }
+        });
     }
 
     selectElement = (element: CamelElement) => {
