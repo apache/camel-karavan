@@ -55,7 +55,7 @@ help: ## Display this help.
 ##@ Build
 
 docker-build: ## Build docker image with the manager.
-	mvn package -Dquarkus.container-image.build=true -Dquarkus.container-image.image=${IMG}
+	mvn clean package -Dquarkus.container-image.build=true -Dquarkus.container-image.image=${IMG}
 
 docker-push: ## Push docker image with the manager.
 	mvn package -Dquarkus.container-image.push=true -Dquarkus.container-image.image=${IMG}
@@ -73,6 +73,14 @@ deploy: ## Deploy controller to the K8s cluster specified in ~/.kube/config.
 
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
 	kubectl delete -f target/kubernetes/kubernetes.yml
+
+## Test
+
+test-deploy: ## Deploy test controller to the K8s cluster specified in ~/.kube/config.
+	kubectl apply -f src/test/resources/kubernetes/kubernetes.yaml
+
+test-undeploy: ## Undeploy test controller from the K8s cluster specified in ~/.kube/config.
+	kubectl delete -f src/test/resources/kubernetes/kubernetes.yaml
 
 ##@ Bundle
 .PHONY: bundle

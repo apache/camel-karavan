@@ -6,9 +6,11 @@ on:
   workflow_dispatch:
   pull_request:
     branches: [ main ]
+    paths: ['karavan-operator/**']
 
 env:
   REGISTRY: ghcr.io
+  TEST_REGISTRY: localhost:5000
   IMAGE_NAME: ${{ github.repository }}-operator
   IMAGE_NAME_BUNDLE: ${{ github.repository }}-bundle
   TAG: 3.20.1-SNAPSHOT
@@ -37,6 +39,27 @@ jobs:
             !~/.m2/repository/org/apache/camel/karavan
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
+
+      - name: Kubernetes KinD Cluster
+        uses: container-tools/kind-action@v2
+        with:
+          version: v0.17.0
+          node_image: "kindest/node:v1.24.7"
+          registry: false
+
+      - name: Test operator
+        run: |
+          mvn test -f karavan-operator -Pintegration-tests
+
+      - name: Test operator (end-2-end)
+        run: |
+          cd karavan-operator
+          make IMG=camel-karavan-operator:latest docker-build
+          kind load docker-image camel-karavan-operator:latest
+          make install test-deploy
+          kubectl wait deployment camel-karavan-operator -n camel-karavan-operator --for condition=Available=True --timeout=120s
+          mvn test -Pend-to-end-tests
+          make uninstall test-undeploy
 
       #  Build Karavan operator
       - name: Build operator

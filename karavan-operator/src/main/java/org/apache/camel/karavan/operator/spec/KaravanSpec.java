@@ -25,6 +25,18 @@ public class KaravanSpec {
     private int nodePort;
     private String gitPullInterval;
 
+    public KaravanSpec() {
+    }
+
+    public KaravanSpec(int instances, String auth, String environment, String runtimes, int nodePort, String gitPullInterval) {
+        this.instances = instances;
+        this.auth = auth;
+        this.environment = environment;
+        this.runtimes = runtimes;
+        this.nodePort = nodePort;
+        this.gitPullInterval = gitPullInterval;
+    }
+
     public int getInstances() {
         return instances;
     }
