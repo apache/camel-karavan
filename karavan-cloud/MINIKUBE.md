@@ -10,7 +10,7 @@
     ```
     Install Tekton Dashboard (optional)
     ```
-    kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml
+    kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/release.yaml
     ```
     Set `disable-affinity-assistant` equals `true`
     ```
