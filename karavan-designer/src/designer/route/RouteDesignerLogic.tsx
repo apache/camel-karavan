@@ -18,7 +18,7 @@ import React from 'react';
 import '../karavan.css';
 import {DslMetaModel} from "../utils/DslMetaModel";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {FromDefinition, RouteConfigurationDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {ChoiceDefinition, FromDefinition, LogDefinition, RouteConfigurationDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
@@ -293,9 +293,21 @@ export class RouteDesignerLogic {
                 break;
             default:
                 const step = CamelDefinitionApi.createStep(dsl.dsl, undefined);
-                this.addStep(step, parentId, position)
+                const augmentedStep = this.setDslDefaults(step);
+                this.addStep(augmentedStep, parentId, position)
                 break;
         }
+    }
+
+    setDslDefaults(step: CamelElement): CamelElement {
+        if (step.dslName === 'LogDefinition') {
+            (step as LogDefinition).message = '${body}'
+        }
+        if (step.dslName === 'ChoiceDefinition') {
+            (step as ChoiceDefinition).when?.push(CamelDefinitionApi.createStep('WhenDefinition', undefined));
+            (step as ChoiceDefinition).otherwise = CamelDefinitionApi.createStep('OtherwiseDefinition', undefined);
+        }
+        return step;
     }
 
     createRouteConfiguration = () => {
