@@ -663,19 +663,19 @@
     "webpack-cli": "4.10.0"
   },
   "dependencies": {
-    "@monaco-editor/react": "4.3.1",
-    "@patternfly/patternfly": "4.215.1",
-    "@patternfly/react-core": "4.239.0",
-    "@patternfly/react-table": "4.108.0",
-    "@types/js-yaml": "^4.0.5",
-    "@types/uuid": "8.3.4",
-    "html-to-image": "^1.10.8",
+    "@monaco-editor/react": "4.4.6",
+    "@patternfly/patternfly": "4.224.2",
+    "@patternfly/react-core": "4.276.6",
+    "@patternfly/react-table": "4.112.39",
+    "@types/js-yaml": "4.0.5",
+    "@types/uuid": "9.0.1",
+    "html-to-image": "1.11.11",
     "js-yaml": "^4.1.0",
     "path-browserify": "^1.0.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "rxjs": "7.5.2",
+    "rxjs": "7.8.0",
     "shelljs": "^0.8.5",
-    "uuid": "8.3.2"
+    "uuid": "9.0.0"
   }
 }

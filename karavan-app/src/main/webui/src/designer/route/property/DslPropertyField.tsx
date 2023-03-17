@@ -560,7 +560,7 @@ export class DslPropertyField extends React.Component<Props, State> {
         return (
             <div>
                 <TextInputGroup className="input-group">
-                    <TextInputGroupMain value={this.state.arrayValues.get(property.name)} onChange={e => this.arrayChanged(property.name, e)} onKeyUp={e => {
+                    <TextInputGroupMain value={this.state.arrayValues.get(property.name)} onChange={(e, v) => this.arrayChanged(property.name, v)} onKeyUp={e => {
                         if (e.key === 'Enter') this.arraySave(property.name)
                     }}>
                         <ChipGroup>
