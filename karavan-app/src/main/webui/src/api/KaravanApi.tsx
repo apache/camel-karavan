@@ -1,4 +1,4 @@
-import axios, {AxiosResponse} from "axios";
+import axios, {AxiosResponse, AxiosRequestConfig, InternalAxiosRequestConfig, AxiosRequestHeaders } from "axios";
 import {
     CamelStatus,
     DeploymentStatus,
@@ -43,9 +43,7 @@ export class KaravanApi {
     }
     static setBasicAuthentication() {
         instance.interceptors.request.use(async config => {
-                config.headers = {
-                    'Authorization': 'Basic ' + KaravanApi.basicToken,
-                }
+                config.headers.Authorization = 'Basic ' + KaravanApi.basicToken;
                 return config;
             },
             error => {
@@ -54,9 +52,7 @@ export class KaravanApi {
     }
     static setOidcAuthentication() {
         instance.interceptors.request.use(async config => {
-                config.headers = {
-                    'Authorization': 'Bearer ' + SsoApi.keycloak?.token,
-                }
+                config.headers.Authorization = 'Bearer ' + SsoApi.keycloak?.token;
                 return config;
             },
             error => {
