@@ -34,6 +34,7 @@ import {KaravanIcon} from "./designer/utils/KaravanIcons";
 import './designer/karavan.css';
 import {DesignerPage} from "./DesignerPage";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
+import {DataMapper} from "./data/DataMapper";
 
 class ToastMessage {
     id: string = ''
@@ -76,7 +77,7 @@ interface State {
 class App extends React.Component<Props, State> {
 
     public state: State = {
-        pageId: "designer",
+        pageId: "datamapper",
         alerts: [],
         name: 'example.yaml',
         key: '',
@@ -106,13 +107,13 @@ class App extends React.Component<Props, State> {
             const kamelets: string[] = [];
             data[0].split("\n---\n").map(c => c.trim()).forEach(z => kamelets.push(z));
             KameletApi.saveKamelets(kamelets, true);
-            this.toast("Success", "Loaded " + kamelets.length + " kamelets", 'success');
+            // this.toast("Success", "Loaded " + kamelets.length + " kamelets", 'success');
 
             const jsons: string[] = [];
             JSON.parse(data[1]).forEach((c: any) => jsons.push(JSON.stringify(c)));
             ComponentApi.saveComponents(jsons, true);
 
-            this.toast("Success", "Loaded " + jsons.length + " components", 'success');
+            // this.toast("Success", "Loaded " + jsons.length + " components", 'success');
             this.setState({loaded: true});
 
             TemplateApi.saveTemplate("org.apache.camel.AggregationStrategy", data[2]);
@@ -147,6 +148,7 @@ class App extends React.Component<Props, State> {
             new MenuItem("eip", "Enterprise Integration Patterns", <EipIcon/>),
             new MenuItem("kamelets", "Kamelets", <KameletsIcon/>),
             new MenuItem("components", "Components", <ComponentsIcon/>),
+            new MenuItem("datamapper", "Data Mapper", <ComponentsIcon/>),
         ]
         return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height: "100%"}}
                       spaceItems={{default: "spaceItemsNone"}}>
@@ -195,6 +197,10 @@ class App extends React.Component<Props, State> {
             case "eip":
                 return (
                     <EipPage dark={dark}/>
+                )
+            case "datamapper":
+                return (
+                    <DataMapper dark={dark}/>
                 )
         }
     }

@@ -1,0 +1,118 @@
+.exchange-mapper {
+    display: flex;
+    flex-direction: row;
+    padding: 16px;
+    justify-content: space-between;
+    background-color: transparent;
+}
+
+.exchange-tree-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.exchange-tree-panel .pf-c-tree-view {
+    --pf-c-tree-view__node--indent--base: calc(var(--pf-global--spacer--md) * 2 + var(--pf-c-tree-view__node-toggle-icon--MinWidth));
+    --pf-c-tree-view__node--nested-indent--base: calc(var(--pf-c-tree-view__node--indent--base) - var(--pf-global--spacer--md));
+    --pf-c-tree-view__node--hover--BackgroundColor: transtparent;
+    --pf-c-tree-view__node--focus--BackgroundColor: transtparent;
+}
+
+.exchange-tree-panel .pf-c-tree-view__list-item .pf-c-tree-view__list-item .pf-c-tree-view__list-item {
+    /*--pf-c-tree-view__node--PaddingLeft: calc(var(--pf-c-tree-view__node--nested-indent--base) * 2 + var(--pf-c-tree-view__node--indent--base));*/
+    --pf-c-tree-view__node--PaddingLeft: calc(var(--pf-c-tree-view__node--nested-indent--base) * 2 + var(--pf-c-tree-view__node--indent--base)) ;
+}
+
+.exchange-tree-panel .pf-c-tree-view__node-count {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+.exchange-tree-panel .pf-c-tree-view__node-count .pf-c-badge {
+    font-weight: 100;
+}
+
+/* width */
+.exchange-tree-parent::-webkit-scrollbar {
+    width: 10px;
+}
+/* Track */
+.exchange-tree-parent::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+/* Handle */
+.exchange-tree-parent::-webkit-scrollbar-thumb {
+    background: #888;
+}
+/* Handle on hover */
+.exchange-tree-parent::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+.exchange-tree-parent {
+    scrollbar-color: #9aa0a6 transparent;
+    scrollbar-width: thin;
+    scroll-behavior: smooth;
+    display: flex;
+    height: 100vh;
+    overflow: auto;
+}
+
+.exchange-tree-parent .pf-c-tree-view {
+    width: 100%;
+    padding: 0;
+    border: 1px solid var(--pf-global--disabled-color--300);
+}
+
+.draggable-element {
+    visibility: hidden;
+}
+
+.pf-c-tree-view__node {
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-right: 0;
+}
+
+.exchange-item {
+    padding: 6px 6px 6px 6px;
+    border-radius: 16px;
+}
+
+.dragging-over {
+    border-radius: 16px;
+}
+
+.karavan .data-mapping-connection .path {
+    stroke: var(--pf-global--Color--200);
+    stroke-width: 1;
+    fill: transparent;
+}
+
+.source .pf-c-tree-view__content:hover .draggable-element,
+.transformation .pf-c-tree-view__content:hover .draggable-element {
+    visibility: visible;
+}
+
+.transformation .pf-c-tree-view__content .pf-c-tree-view__node-text {
+    border-color: var(--pf-global--Color--400);
+    border-radius: 16px;
+    border-width: 1px;
+    border-style: solid;
+    padding: 3px 6px 3px 6px;
+}
+
+.data-toolbar {
+    padding: 3px 6px 3px 6px;
+    display: flex;
+    justify-content: space-between;
+}
+.data-toolbar .pf-c-button {
+    padding: 0;
+}
+
+.panel-header {
+    padding-left: 6px;
+    padding-bottom: 3px;
+    font-size: 14px;
+    font-weight: bold;
+}
