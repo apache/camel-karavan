@@ -10,7 +10,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  TEST_REGISTRY: localhost:5000
   IMAGE_NAME: ${{ github.repository }}-operator
   IMAGE_NAME_BUNDLE: ${{ github.repository }}-bundle
   TAG: 3.20.1-SNAPSHOT
@@ -54,7 +53,7 @@ jobs:
       - name: Test operator (end-to-end)
         run: |
           cd karavan-operator
-          test-deploy-kind
+          make test-deploy-kind
           mvn test -Pend-to-end-tests
           make test-undeploy-kind
 
