@@ -51,15 +51,12 @@ jobs:
         run: |
           mvn test -f karavan-operator -Pintegration-tests
 
-      - name: Test operator (end-2-end)
+      - name: Test operator (end-to-end)
         run: |
           cd karavan-operator
-          make IMG=camel-karavan-operator:latest docker-build
-          kind load docker-image camel-karavan-operator:latest
-          make install test-deploy
-          kubectl wait deployment camel-karavan-operator -n camel-karavan-operator --for condition=Available=True --timeout=120s
+          test-deploy-kind
           mvn test -Pend-to-end-tests
-          make uninstall test-undeploy
+          make test-undeploy-kind
 
       #  Build Karavan operator
       - name: Build operator

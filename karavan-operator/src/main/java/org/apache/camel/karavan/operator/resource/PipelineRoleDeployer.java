@@ -42,7 +42,7 @@ public class PipelineRoleDeployer extends CRUDKubernetesDependentResource<Role, 
                 .withRules(
                         new PolicyRuleBuilder().withApiGroups("").withResources("secrets", "configmaps", "services", "persistentvolumes", "persistentvolumeclaims").withVerbs("*").build(),
                         new PolicyRuleBuilder().withApiGroups("networking.k8s.io").withResources("ingresses").withVerbs("*").build(),
-                        new PolicyRuleBuilder().withApiGroups("route.openshift.io").withResources( "routes").withResources( "routes/custom-host").withVerbs("*").build(),
+                        new PolicyRuleBuilder().withApiGroups("route.openshift.io").withResources( "routes").withVerbs("*").build(),
                         new PolicyRuleBuilder().withApiGroups("apps").withResources("deployments").withVerbs("*").build()
                         )
                 .build();

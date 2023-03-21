@@ -28,7 +28,7 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.namespace
-          image: camel-karavan-operator:latest
+          image: controller:latest
           imagePullPolicy: Never
           livenessProbe:
             failureThreshold: 3
