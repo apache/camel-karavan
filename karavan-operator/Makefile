@@ -83,7 +83,7 @@ test-deploy-kind: docker-build install ##   Build and deploy controller for test
 
 test-undeploy-kind: install ## Undeploy controller from the test default KinD cluster.
 	kubectl delete -f src/test/resources/kubernetes/kubernetes.yaml
-	docker exec -it $(shell kind get clusters | head -1)-control-plane crictl rmi ${IMG}
+	docker exec $(shell kind get clusters | head -1)-control-plane crictl rmi ${IMG}
 
 ##@ Bundle
 .PHONY: bundle
