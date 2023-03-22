@@ -70,7 +70,7 @@ public class KaravanReconciler implements Reconciler<Karavan>, EventSourceInitia
     static final Logger log = LoggerFactory.getLogger(KaravanReconciler.class);
 
     private boolean isOpenShift;
-    private boolean initTektonInstalled;
+    private final boolean initTektonInstalled;
     private KubernetesClient client;
     private Workflow<Karavan> workflow;
     private KaravanServiceAccount karavanServiceAccount;
@@ -172,7 +172,7 @@ public class KaravanReconciler implements Reconciler<Karavan>, EventSourceInitia
         return EventSourceInitializer.nameEventSources(list.toArray(new EventSource[list.size()]));
     }
 
-    private List<CRUDKubernetesDependentResource> getResources(){
+    private List<CRUDKubernetesDependentResource> getResources() {
         List<CRUDKubernetesDependentResource> list = new ArrayList<>(Arrays.asList(
                 karavanServiceAccount, karavanRole, karavanRoleBinding, karavanRoleBindingView,
                 karavanPvcData, karavanPvcM2Cache, karavanPvcJbang,

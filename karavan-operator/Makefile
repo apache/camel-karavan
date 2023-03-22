@@ -55,7 +55,7 @@ help: ## Display this help.
 ##@ Build
 
 docker-build: ## Build docker image with the manager.
-	mvn package -Dquarkus.container-image.build=true -Dquarkus.container-image.image=${IMG}
+	mvn clean package -Dquarkus.container-image.build=true -Dquarkus.container-image.image=${IMG}
 
 docker-push: ## Push docker image with the manager.
 	mvn package -Dquarkus.container-image.push=true -Dquarkus.container-image.image=${IMG}
@@ -73,6 +73,17 @@ deploy: ## Deploy controller to the K8s cluster specified in ~/.kube/config.
 
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
 	kubectl delete -f target/kubernetes/kubernetes.yml
+
+##@ Test
+
+test-deploy-kind: docker-build install ##   Build and deploy controller for tests to the default KinD cluster.
+	kind load docker-image ${IMG}
+	kubectl apply -f src/test/resources/kubernetes/kubernetes.yaml
+	kubectl wait deployment camel-karavan-operator -n camel-karavan-operator --for condition=Available=True --timeout=120s
+
+test-undeploy-kind: install ## Undeploy controller from the test default KinD cluster.
+	kubectl delete -f src/test/resources/kubernetes/kubernetes.yaml
+	docker exec $(shell kind get clusters | head -1)-control-plane crictl rmi ${IMG}
 
 ##@ Bundle
 .PHONY: bundle
