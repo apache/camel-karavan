@@ -18,7 +18,7 @@ import React from 'react';
 import '../karavan.css';
 import {DslMetaModel} from "../utils/DslMetaModel";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {FromDefinition, RouteConfigurationDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {ChoiceDefinition, FromDefinition, LogDefinition, RouteConfigurationDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
@@ -167,6 +167,7 @@ export class RouteDesignerLogic {
 
     showDeleteConfirmation = (id: string) => {
         let message: string;
+        const uuidsToDelete:string [] = [id];
         let ce: CamelElement;
         ce = CamelDefinitionApiExt.findElementInIntegration(this.routeDesigner.state.integration, id)!;
         if (ce.dslName === 'FromDefinition') { // Get the RouteDefinition for this.routeDesigner.  Use its uuid.
@@ -175,7 +176,7 @@ export class RouteDesignerLogic {
                 if (flows[i].dslName === 'RouteDefinition') {
                     let routeDefinition: RouteDefinition = flows[i];
                     if (routeDefinition.from.uuid === id) {
-                        id = routeDefinition.uuid;
+                        uuidsToDelete.push(routeDefinition.uuid);
                         break;
                     }
                 }
@@ -192,14 +193,13 @@ export class RouteDesignerLogic {
             showSelector: false,
             showDeleteConfirmation: true,
             deleteMessage: message,
-            selectedUuids: [id],
+            selectedUuids: uuidsToDelete,
         }));
     }
 
     deleteElement = () => {
-        const id = this.routeDesigner.state.selectedUuids.at(0);
-        if (id) {
-            const i = CamelDefinitionApiExt.deleteStepFromIntegration(this.routeDesigner.state.integration, id);
+        this.routeDesigner.state.selectedUuids.forEach(uuidToDelete => {
+            const i = CamelDefinitionApiExt.deleteStepFromIntegration(this.routeDesigner.state.integration, uuidToDelete);
             this.routeDesigner.setState(prevState => ({
                 integration: i,
                 showSelector: false,
@@ -208,12 +208,12 @@ export class RouteDesignerLogic {
                 key: Math.random().toString(),
                 selectedStep: undefined,
                 propertyOnly: false,
-                selectedUuids: [id],
+                selectedUuids: [uuidToDelete],
             }));
             const el = new CamelElement("");
-            el.uuid = id;
+            el.uuid = uuidToDelete;
             EventBus.sendPosition("delete", el, undefined, new DOMRect(), new DOMRect(), 0);
-        }
+        });
     }
 
     selectElement = (element: CamelElement) => {
@@ -293,9 +293,21 @@ export class RouteDesignerLogic {
                 break;
             default:
                 const step = CamelDefinitionApi.createStep(dsl.dsl, undefined);
-                this.addStep(step, parentId, position)
+                const augmentedStep = this.setDslDefaults(step);
+                this.addStep(augmentedStep, parentId, position)
                 break;
         }
+    }
+
+    setDslDefaults(step: CamelElement): CamelElement {
+        if (step.dslName === 'LogDefinition') {
+            (step as LogDefinition).message = '${body}'
+        }
+        if (step.dslName === 'ChoiceDefinition') {
+            (step as ChoiceDefinition).when?.push(CamelDefinitionApi.createStep('WhenDefinition', undefined));
+            (step as ChoiceDefinition).otherwise = CamelDefinitionApi.createStep('OtherwiseDefinition', undefined);
+        }
+        return step;
     }
 
     createRouteConfiguration = () => {
