@@ -106,10 +106,7 @@ export class DslSelector extends React.Component<Props, State> {
                         </CardFooter>}
                     {dsl.navigation.toLowerCase() === "component"
                         && <CardFooter className="footer-labels">
-                            <div>
-                                {dsl.labels.split(',').map((s: string,  i: number) => <Badge key={s + i} isRead
-                                                                                         className="labels">{s}</Badge>)}
-                            </div>
+                            <Badge isRead className="labels">{dsl.labels}</Badge>
                             <Badge isRead className="version labels">{dsl.version}</Badge>
                         </CardFooter>
                     }

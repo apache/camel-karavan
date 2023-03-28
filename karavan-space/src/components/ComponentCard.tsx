@@ -64,4 +64,4 @@ export class ComponentCard extends React.Component<Props, State> {
             </Card>
         );
     }
-};
+}

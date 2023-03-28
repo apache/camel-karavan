@@ -175,6 +175,7 @@
 
 .kamelets-page .kamelet-card .labels {
     opacity: 0.5;
+    font-weight: 200;
 }
 
 .kamelets-page .kamelet-card:hover .labels {
@@ -946,6 +947,7 @@
 
 .dsl-modal .labels {
     opacity: 0.5;
+    font-weight: 200;
 }
 
 .dsl-modal .dsl-card:hover .labels {

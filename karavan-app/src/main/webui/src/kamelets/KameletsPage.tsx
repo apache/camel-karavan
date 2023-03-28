@@ -102,7 +102,7 @@ export class KameletsPage extends React.Component<Props, State> {
                                         <Switch
                                             label="Custom only"
                                             isChecked={customOnly}
-                                            onChange={checked => this.setState({customOnly: checked})}
+                                            onChange={checked => this.setState({customOnly: checked, isModalOpen: false})}
                                         />
                                     </ToolbarItem>
                                     <ToolbarItem>
