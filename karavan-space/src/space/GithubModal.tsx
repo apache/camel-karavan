@@ -177,12 +177,12 @@ export class GithubModal extends React.Component<Props, State> {
                     </FormGroup>
                     <FormGroup label="Commit message" fieldId="commitMessage" isRequired>
                         <TextInputGroup className="input-group">
-                            <TextInputGroupMain id="message" value={message} onChange={value => this.setState({message: value})}/>
+                            <TextInputGroupMain id="message" value={message} onChange={(event, value) => this.setState({message: value})}/>
                         </TextInputGroup>
                     </FormGroup>
                     <FormGroup label="Token" fieldId="token" isRequired>
                         <TextInputGroup className="input-group">
-                            <TextInputGroupMain id="token" type="password" value={token} onChange={value => this.setState({token: value})}/>
+                            <TextInputGroupMain id="token" type="password" value={token} onChange={(event, value) => this.setState({token: value})}/>
                         </TextInputGroup>
                     </FormGroup>
                     <FormGroup label="Save" fieldId="save" isRequired>
