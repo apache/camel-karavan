@@ -3235,6 +3235,7 @@ export class TokenizerExpression extends CamelElement {
 
 export class XMLTokenizerExpression extends CamelElement {
     expressionName?: string = 'xtokenize';
+    expression: string = '';
     mode?: string;
     group?: number;
     namespace?: PropertyDefinition[] = [];

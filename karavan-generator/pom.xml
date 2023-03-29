@@ -28,7 +28,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-        <version.camel-core>3.20.2</version.camel-core>
+        <version.camel-core>3.20.3</version.camel-core>
         <version.camel-kamelet>3.20.1.1</version.camel-kamelet>
         <version.vertx>4.3.6</version.vertx>
     </properties>

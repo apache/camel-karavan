@@ -2631,6 +2631,9 @@ export class CamelDefinitionApi {
     }
 
     static createXMLTokenizerExpression = (element: any): XMLTokenizerExpression => { 
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
         const def = element ? new XMLTokenizerExpression({...element}) : new XMLTokenizerExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.namespace = element && element?.namespace ? element?.namespace.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];

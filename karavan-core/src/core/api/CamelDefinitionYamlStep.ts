@@ -4198,7 +4198,7 @@ export class CamelDefinitionYamlStep {
     }
 
     static readXMLTokenizerExpression = (element: any): XMLTokenizerExpression => {
-        
+        if (element && typeof element === 'string') element = {expression: element};
         const def = element ? new XMLTokenizerExpression({...element}) : new XMLTokenizerExpression();
         def.namespace = element && element?.namespace ? element?.namespace.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
 
