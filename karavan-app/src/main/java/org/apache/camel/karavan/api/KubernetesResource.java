@@ -57,7 +57,6 @@ public class KubernetesResource {
     @ConfigProperty(name = "karavan.environment")
     String environment;
 
-
     private static final Logger LOGGER = Logger.getLogger(KubernetesResource.class.getName());
 
     @POST
@@ -84,6 +83,15 @@ public class KubernetesResource {
     public Response getPipelineLog(@PathParam("env") String env,
                                    @PathParam("name") String name) throws Exception {
         return Response.ok(kubernetesService.getPipelineRunLog(name, kubernetesService.getNamespace())).build();
+    }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/pipelinerun/{env}/{name}")
+    public Response stopPipelineRun(@PathParam("env") String env, @PathParam("name") String name) throws Exception {
+        kubernetesService.stopPipelineRun(name, kubernetesService.getNamespace());
+        return Response.ok().build();
     }
 
     @GET

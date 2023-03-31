@@ -320,7 +320,7 @@ export class ProjectPage extends React.Component<Props, State> {
 
     }
 
-    deleteEntity = (type: 'pod' | 'deployment', name: string, environment: string) => {
+    deleteEntity = (type: 'pod' | 'deployment' | 'pipelinerun', name: string, environment: string) => {
         switch (type) {
             case "deployment":
                 KaravanApi.deleteDeployment(environment, name, (res: any) => {
@@ -330,6 +330,12 @@ export class ProjectPage extends React.Component<Props, State> {
                 break;
             case "pod":
                 KaravanApi.deletePod(environment, name, (res: any) => {
+                    if (Array.isArray(res) && Array.from(res).length > 0)
+                        this.onRefresh();
+                });
+                break;
+            case "pipelinerun":
+                KaravanApi.stopPipelineRun(environment, name, (res: any) => {
                     if (Array.isArray(res) && Array.from(res).length > 0)
                         this.onRefresh();
                 });

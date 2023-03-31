@@ -25,7 +25,7 @@ interface Props {
     needCommit: boolean,
     files: ProjectFile[],
     showLog: (type: 'container' | 'pipeline', name: string, environment: string) => void
-    deleteEntity: (type: 'pod' | 'deployment', name: string, environment: string) => void
+    deleteEntity: (type: 'pod' | 'deployment' | 'pipelinerun', name: string, environment: string) => void
 }
 
 interface State {
@@ -38,7 +38,7 @@ interface State {
     isBuilding: boolean,
     isRolling: boolean,
     showDeleteConfirmation: boolean,
-    deleteEntity?: 'pod' | 'deployment',
+    deleteEntity?: 'pod' | 'deployment' | 'pipelinerun',
     deleteEntityName?: string,
     deleteEntityEnv?: string,
     environment: string,
@@ -345,6 +345,14 @@ export class ProjectInfo extends React.Component<Props, State> {
                                         {pipeline}
                                     </Button>
                                     : "No pipeline"}
+                                {isRunning && <Tooltip content={"Stop PipelineRun"}>
+                                    <Button icon={<DeleteIcon/>} variant="link" onClick={e => this.setState({
+                                        showDeleteConfirmation: true,
+                                        deleteEntity: "pipelinerun",
+                                        deleteEntityEnv: env,
+                                        deleteEntityName: pipeline
+                                    })}></Button>
+                                </Tooltip>}
                             </Label>
                             {pipeline && showTime && lastPipelineRunTime !== undefined && <Label icon={<ClockIcon/>} color={color}>{lastPipelineRunTime + "s"}</Label>}
                         </LabelGroup>

@@ -37,8 +37,7 @@ import io.fabric8.tekton.pipeline.v1beta1.PipelineRun;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpec;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpecBuilder;
-import io.fabric8.tekton.pipeline.v1beta1.PipelineRunStatus;
-import io.fabric8.tekton.pipeline.v1beta1.PipelineRunStatusBuilder;
+import io.fabric8.tekton.pipeline.v1beta1.TaskRun;
 import io.fabric8.tekton.pipeline.v1beta1.WorkspaceBindingBuilder;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.mutiny.core.eventbus.EventBus;
@@ -79,6 +78,7 @@ public class KubernetesService {
 
     @Produces
     public KubernetesClient kubernetesClient() {
+        System.setProperty("kubeconfig", "/Users/mgubaidu/projects/oss/camel-karavan/karavan-app/karavan-kubeconfig.yaml");
         return new DefaultKubernetesClient();
     }
 
@@ -103,9 +103,9 @@ public class KubernetesService {
 
     @ConsumeEvent(value = START_INFORMERS, blocking = true)
     void startInformers(String data) {
-        LOGGER.info("Start Kubernetes Informers");
         try {
             stopInformers(null);
+            LOGGER.info("Starting Kubernetes Informers");
             String runtimeLabel = getRuntimeLabel();
 
             SharedIndexInformer<Deployment> deploymentInformer = kubernetesClient().apps().deployments().inNamespace(getNamespace()).withLabel(runtimeLabel, "camel").inform();
@@ -123,7 +123,7 @@ public class KubernetesService {
             SharedIndexInformer<Pod> podRunInformer = kubernetesClient().pods().inNamespace(getNamespace()).withLabel(runtimeLabel, "camel").inform();
             podRunInformer.addEventHandlerWithResyncPeriod(new PodEventHandler(infinispanService, this),30 * 1000L);
             informers.add(podRunInformer);
-
+            LOGGER.info("Started Kubernetes Informers");
         } catch (Exception e) {
             LOGGER.error("Error starting informers: " + e.getMessage());
         }
@@ -180,6 +180,10 @@ public class KubernetesService {
         return tektonClient().v1beta1().pipelineRuns().inNamespace(namespace).withName(pipelineRuneName).get();
     }
 
+    public List<TaskRun> getTaskRuns(String pipelineRuneName, String namespace) {
+        return tektonClient().v1beta1().taskRuns().inNamespace(namespace).withLabel("tekton.dev/pipelineRun", pipelineRuneName).list().getItems();
+    }
+
     public String getContainerLog(String podName, String namespace) {
         String logText = kubernetesClient().pods().inNamespace(namespace).withName(podName).getLog(true);
         return logText;
@@ -202,16 +206,15 @@ public class KubernetesService {
 
     public List<PipelineRunLog> getPipelineRunLog(String pipelineRuneName, String namespace) {
         List<PipelineRunLog> result = new ArrayList<>(1);
-        PipelineRun pipelineRun = getPipelineRun(pipelineRuneName, namespace);
-        pipelineRun.getStatus().getTaskRuns().forEach((s, pipelineRunTaskRunStatus) -> {
-            String podName = pipelineRunTaskRunStatus.getStatus().getPodName();
+        getTaskRuns(pipelineRuneName, namespace).forEach(taskRun -> {
+            String podName = taskRun.getStatus().getPodName();
             StringBuilder log = new StringBuilder();
-            pipelineRunTaskRunStatus.getStatus().getSteps().forEach(stepState -> {
+            taskRun.getStatus().getSteps().forEach(stepState -> {
                 String logText = kubernetesClient().pods().inNamespace(namespace).withName(podName).inContainer(stepState.getContainer()).getLog(true);
                 log.append(stepState.getContainer()).append(System.lineSeparator());
                 log.append(logText).append(System.lineSeparator());
             });
-            result.add(new PipelineRunLog(s, log.toString()));
+            result.add(new PipelineRunLog(taskRun.getMetadata().getName(), log.toString()));
         });
         return result;
     }
@@ -228,16 +231,28 @@ public class KubernetesService {
         try {
             LOGGER.info("Stop PipelineRun: " + pipelineRunName + " in the namespace: " + namespace);
 
-            PipelineRun run = tektonClient().v1beta1().pipelineRuns().inNamespace(namespace).withName(pipelineRunName).get();
-            run.getSpec().setStatus("CancelledRunFinally");
+            getTaskRuns(pipelineRunName, namespace).forEach(taskRun -> {
+                taskRun.getStatus().setConditions(getCancelConditions("TaskRunCancelled"));
+                tektonClient().v1beta1().taskRuns().inNamespace(namespace).resource(taskRun).replaceStatus();
+            });
 
-            tektonClient().v1beta1().pipelineRuns().inNamespace(namespace)
-                    .resource(run)
-                    .lockResourceVersion(run.getMetadata().getResourceVersion())
-                    .replaceStatus();
+            PipelineRun run = tektonClient().v1beta1().pipelineRuns().inNamespace(namespace).withName(pipelineRunName).get();
+            run.getStatus().setConditions(getCancelConditions("CancelledRunFinally"));
+            tektonClient().v1beta1().pipelineRuns().inNamespace(namespace).resource(run).replaceStatus();
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }
+    }
+
+    private List<Condition> getCancelConditions(String reason){
+        List<Condition> cancelConditions = new ArrayList<>();
+        Condition taskRunCancelCondition = new Condition();
+        taskRunCancelCondition.setType("Succeeded");
+        taskRunCancelCondition.setStatus("False");
+        taskRunCancelCondition.setReason(reason);
+        taskRunCancelCondition.setMessage("Cancelled successfully.");
+        cancelConditions.add(taskRunCancelCondition);
+        return cancelConditions;
     }
     
     public void rolloutDeployment(String name, String namespace) {

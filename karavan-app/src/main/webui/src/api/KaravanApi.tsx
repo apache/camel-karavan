@@ -320,6 +320,17 @@ export class KaravanApi {
         });
     }
 
+    static async stopPipelineRun(environment: string, pipelineRunName: string, after: (res: AxiosResponse<any>) => void) {
+        instance.delete('/api/kubernetes/pipelinerun/' + environment + "/" + pipelineRunName)
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    }
+
     static async getContainerLog(environment: string, name: string, after: (res: AxiosResponse<string>) => void) {
         instance.get('/api/kubernetes/container/log/' + environment + "/" + name)
             .then(res => {
