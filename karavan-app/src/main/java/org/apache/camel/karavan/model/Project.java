@@ -10,6 +10,7 @@ public class Project {
 
     public static final String NAME_TEMPLATES = "templates";
     public static final String NAME_KAMELETS = "kamelets";
+    public static final String NAME_PIPELINES = "pipelines";
 
     @ProtoField(number = 1)
     String projectId;

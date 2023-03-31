@@ -1,0 +1,27 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: karavan-pipeline-dev-spring-boot
+spec:
+  params:
+    - description: ProjectId
+      name: PROJECT_ID
+      type: string
+  tasks:
+    - name: karavan-task-dev-spring-boot
+      params:
+        - name: project
+          value: $(params.PROJECT_ID)
+      taskRef:
+        kind: Task
+        name: karavan-task-dev-spring-boot
+      workspaces:
+        - name: karavan-m2-cache
+          workspace: karavan-m2-cache
+        - name: karavan-jbang-cache
+          workspace: karavan-jbang-cache
+  workspaces:
+    - description: Maven Cache
+      name: karavan-m2-cache
+    - description: JBang Cache
+      name: karavan-jbang-cache

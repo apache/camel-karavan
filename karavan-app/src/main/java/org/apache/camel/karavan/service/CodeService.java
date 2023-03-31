@@ -59,6 +59,10 @@ public class CodeService {
     @Inject
     Engine engine;
 
+    List<String> runtimes = List.of("quarkus", "spring-boot");
+    List<String> targets = List.of("openshift", "kubernetes");
+    List<String> interfaces = List.of("org.apache.camel.AggregationStrategy.java", "org.apache.camel.Processor.java");
+
     public String getApplicationProperties(Project project) {
         String target = kubernetesService.isOpenshift() ? "openshift" : "kubernetes";
         String templateName = project.getRuntime() + "-" + target + "-application.properties";
@@ -86,10 +90,6 @@ public class CodeService {
     public Map<String,String> getApplicationPropertiesTemplates() {
         Map<String, String> result = new HashMap<>();
 
-        List<String> runtimes = List.of("quarkus", "spring-boot");
-        List<String> targets = List.of("openshift", "kubernetes");
-        List<String> interfaces = List.of("org.apache.camel.AggregationStrategy.java", "org.apache.camel.Processor.java");
-
         List<String> files = new ArrayList<>(interfaces);
         files.addAll(targets.stream().map(target -> target + "-application.properties").collect(Collectors.toList()));
 
@@ -97,6 +97,23 @@ public class CodeService {
             files.forEach(file -> {
                 String templateName = runtime + "-" + file;
                 String templatePath = "/snippets/" + templateName;
+                String templateText = getResourceFile(templatePath);
+                result.put(templateName, templateText);
+            });
+        });
+        return result;
+    }
+
+    public Map<String,String> getPipelinesTemplates() {
+        Map<String, String> result = new HashMap<>();
+
+        List<String> files = new ArrayList<>(targets);
+        files.addAll(targets.stream().map(target -> target + ".yaml").collect(Collectors.toList()));
+
+        runtimes.forEach(runtime -> {
+            files.forEach(file -> {
+                String templateName = runtime + "-" + file;
+                String templatePath = "/pipelines/" + templateName;
                 String templateText = getResourceFile(templatePath);
                 result.put(templateName, templateText);
             });

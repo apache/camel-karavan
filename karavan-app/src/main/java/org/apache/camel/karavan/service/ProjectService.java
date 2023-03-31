@@ -29,7 +29,6 @@ import org.jboss.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -100,9 +99,11 @@ public class ProjectService {
                 Project project;
                 String folderName = repo.getName();
                 if (folderName.equals(Project.NAME_TEMPLATES)) {
-                    project = new Project(Project.NAME_TEMPLATES, "Templates", "Templates", "quarkus", repo.getCommitId(), repo.getLastCommitTimestamp());
+                    project = new Project(Project.NAME_TEMPLATES, "Templates", "Templates", "", repo.getCommitId(), repo.getLastCommitTimestamp());
                 } else if (folderName.equals(Project.NAME_KAMELETS)){
-                    project = new Project(Project.NAME_KAMELETS, "Custom Kamelets", "Custom Kamelets", "quarkus", repo.getCommitId(), repo.getLastCommitTimestamp());
+                    project = new Project(Project.NAME_KAMELETS, "Custom Kamelets", "Custom Kamelets", "", repo.getCommitId(), repo.getLastCommitTimestamp());
+//                } else if (folderName.equals(Project.NAME_PIPELINES)){
+//                    project = new Project(Project.NAME_PIPELINES, "Pipelines", "CI/CD Pipelines", "", repo.getCommitId(), repo.getLastCommitTimestamp());
                 } else {
                     project = getProjectFromRepo(repo);
                 }
@@ -173,9 +174,9 @@ public class ProjectService {
         try {
             Project kamelets  = infinispanService.getProject(Project.NAME_KAMELETS);
             if (kamelets == null) {
-                kamelets = new Project(Project.NAME_KAMELETS, "Custom Kamelets", "Custom Kamelets", "quarkus", "", Instant.now().toEpochMilli());
+                kamelets = new Project(Project.NAME_KAMELETS, "Custom Kamelets", "Custom Kamelets", "", "", Instant.now().toEpochMilli());
                 infinispanService.saveProject(kamelets, true);
-                commitAndPushProject("kamelets", "Add custom kamelets");
+                commitAndPushProject(Project.NAME_KAMELETS, "Add custom kamelets");
             }
         } catch (Exception e) {
             LOGGER.error("Error during custom kamelets project creation", e);
@@ -187,17 +188,37 @@ public class ProjectService {
         try {
             Project templates  = infinispanService.getProject(Project.NAME_TEMPLATES);
             if (templates == null) {
-                templates = new Project(Project.NAME_TEMPLATES, "Templates", "Templates", "quarkus", "", Instant.now().toEpochMilli());
+                templates = new Project(Project.NAME_TEMPLATES, "Templates", "Templates", "", "", Instant.now().toEpochMilli());
                 infinispanService.saveProject(templates, true);
 
                 codeService.getApplicationPropertiesTemplates().forEach((name, value) -> {
                     ProjectFile file = new ProjectFile(name, value, Project.NAME_TEMPLATES, Instant.now().toEpochMilli());
                     infinispanService.saveProjectFile(file);
                 });
-                commitAndPushProject("templates", "Add default templates");
+                commitAndPushProject(Project.NAME_TEMPLATES, "Add default templates");
             }
         } catch (Exception e) {
             LOGGER.error("Error during templates project creation", e);
         }
     }
+
+    void addPipelinesProject() {
+        LOGGER.info("Add pipelines project if not exists");
+        try {
+            Project pipelines  = infinispanService.getProject(Project.NAME_PIPELINES);
+            if (pipelines == null) {
+                pipelines = new Project(Project.NAME_PIPELINES, "Pipelines", "CI/CD Pipelines", "", "", Instant.now().toEpochMilli());
+                infinispanService.saveProject(pipelines, true);
+
+                codeService.getApplicationPropertiesTemplates().forEach((name, value) -> {
+                    ProjectFile file = new ProjectFile(name, value, Project.NAME_PIPELINES, Instant.now().toEpochMilli());
+                    infinispanService.saveProjectFile(file);
+                });
+                commitAndPushProject(Project.NAME_PIPELINES, "Add default pipelines");
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error during pipelines project creation", e);
+        }
+    }
+
 }
