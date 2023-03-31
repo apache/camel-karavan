@@ -1,4 +1,4 @@
-FROM jbangdev/jbang-action:0.103.0
+FROM jbangdev/jbang-action:0.105.2
 
 # Add Camel-JBang
 RUN jbang trust add -o --fresh --quiet https://github.com/apache/camel/blob/HEAD/dsl/camel-jbang/camel-jbang-main/dist/CamelJBang.java
@@ -12,4 +12,4 @@ RUN mkdir /opt/mvnd && \
     mv maven-mvnd-0.9.0-linux-amd64/* /opt/mvnd  
 
 WORKDIR /scripts
-ENTRYPOINT ["entrypoint", "-Dcamel.jbang.version=3.20.2", "camel@apache/camel"]
+ENTRYPOINT ["entrypoint", "-Dcamel.jbang.version=3.20.3", "camel@apache/camel"]

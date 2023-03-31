@@ -79,7 +79,7 @@ spec:
 
           cd ${CHECKOUT_DIR}/$(inputs.params.project)
 
-          entrypoint -Dcamel.jbang.version=3.20.2 camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR}
+          entrypoint -Dcamel.jbang.version=3.20.3 camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR}
 
           export LAST_COMMIT=$(git rev-parse --short HEAD)
           export DATE=$(date '+%Y%m%d%H%M%S')
@@ -97,7 +97,7 @@ spec:
               -Djkube.docker.push.registry=$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com \
               -Djkube.generator.name=$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/${NAMESPACE}/$(inputs.params.project):${DATE}
 
-      image: ghcr.io/apache/camel-karavan-builder:3.20.1-SNAPSHOT
+      image: ghcr.io/apache/camel-karavan-builder:3.20.1
       env:
         - name: GIT_REPOSITORY
           valueFrom:

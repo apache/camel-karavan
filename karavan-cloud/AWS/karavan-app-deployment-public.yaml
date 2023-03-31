@@ -23,7 +23,7 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-          image: ghcr.io/apache/camel-karavan:3.20.1-SNAPSHOT
+          image: ghcr.io/apache/camel-karavan:3.20.1
           imagePullPolicy: Always
           name: karavan
           resources:
