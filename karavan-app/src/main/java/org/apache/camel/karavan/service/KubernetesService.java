@@ -78,7 +78,6 @@ public class KubernetesService {
 
     @Produces
     public KubernetesClient kubernetesClient() {
-        System.setProperty("KUBECONFIG", "~/.kube/config");
         return new DefaultKubernetesClient();
     }
 
