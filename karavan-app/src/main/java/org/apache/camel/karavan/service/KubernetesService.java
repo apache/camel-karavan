@@ -78,7 +78,6 @@ public class KubernetesService {
 
     @Produces
     public KubernetesClient kubernetesClient() {
-        System.setProperty("kubeconfig", "/Users/mgubaidu/projects/oss/camel-karavan/karavan-app/karavan-kubeconfig.yaml");
         return new DefaultKubernetesClient();
     }
 
