@@ -2,6 +2,12 @@
 
 ## 3.20.1
 0. Camel 3.20.3
+1. Karavan pulls changes made outside of karavan application
+2. Karavan runs pipelines for commits outside of karavan application
+3. User cand add custom Git message through karavan application UI
+4. Karavan VS Code extension could be configured to use a subset of components
+5. User can stop running pipleine thought UI
+6. UI improvements: Default `when` and `otherwise` steps for `choice`, default log message for `log`
 
 ## 3.20.0
 0. Camel 3.20.1
