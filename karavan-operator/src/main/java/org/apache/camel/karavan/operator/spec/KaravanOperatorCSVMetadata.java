@@ -21,9 +21,9 @@ package org.apache.camel.karavan.operator.spec;
 
 
 @CSVMetadata(
-        name = "camel-karavan-operator.v3.20.1",
+        name = "camel-karavan-operator.v3.20.2-SNAPSHOT",
         annotations = @CSVMetadata.Annotations(
-                containerImage = "ghcr.io/apache/camel-karavan-operator:3.20.1",
+                containerImage = "ghcr.io/apache/camel-karavan-operator:3.20.2-SNAPSHOT",
                 repository = "https://github.com/apache/camel-karavan",
                 capabilities = "Basic Install",
                 categories = "Developer Tools, Integration & Delivery",

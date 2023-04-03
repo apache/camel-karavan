@@ -6,7 +6,7 @@
     <groupId>org.apache.camel.karavan</groupId>
     <artifactId>karavan-operator</artifactId>
     <name>karavan-operator</name>
-    <version>3.20.1</version>
+    <version>3.20.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <properties>
         <compiler-plugin.version>3.8.1</compiler-plugin.version>

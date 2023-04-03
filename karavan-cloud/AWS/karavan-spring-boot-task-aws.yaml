@@ -97,7 +97,7 @@ spec:
               -Djkube.docker.push.registry=$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com \
               -Djkube.generator.name=$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/${NAMESPACE}/$(inputs.params.project):${DATE}
 
-      image: ghcr.io/apache/camel-karavan-builder:3.20.1
+      image: ghcr.io/apache/camel-karavan-builder:3.20.2-SNAPSHOT
       env:
         - name: GIT_REPOSITORY
           valueFrom:

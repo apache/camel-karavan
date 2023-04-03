@@ -1,5 +1,5 @@
 
-VERSION ?=3.20.1
+VERSION ?=3.20.2-SNAPSHOT
 
 # CHANNELS define the bundle channels used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g CHANNELS = "candidate,fast,stable")
