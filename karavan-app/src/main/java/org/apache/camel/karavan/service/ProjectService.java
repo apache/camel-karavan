@@ -24,16 +24,22 @@ import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.health.HealthCheck;
+import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.Readiness;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@Default
+@Readiness
 @ApplicationScoped
-public class ProjectService {
+public class ProjectService implements HealthCheck{
 
     private static final Logger LOGGER = Logger.getLogger(ProjectService.class.getName());
     public static final String IMPORT_PROJECTS = "import-projects";
@@ -54,6 +60,16 @@ public class ProjectService {
     String runtime;
 
     private AtomicBoolean readyToPull = new AtomicBoolean(false);
+
+    @Override
+    public HealthCheckResponse call() {
+        if(readyToPull.get()) {
+            return HealthCheckResponse.up("Git authentication is successfull.");
+        }
+        else {
+            return HealthCheckResponse.down("Git authentication is unsuccessfull. Check your git credentials.");
+        }
+    }
 
     @Scheduled(every = "{karavan.git-pull-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void pullCommits() {
@@ -220,5 +236,4 @@ public class ProjectService {
             LOGGER.error("Error during pipelines project creation", e);
         }
     }
-
 }

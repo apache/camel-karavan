@@ -16,6 +16,8 @@
  */
 package org.apache.camel.karavan.service;
 
+import io.quarkus.runtime.LaunchMode;
+import io.quarkus.runtime.configuration.ProfileManager;
 import io.smallrye.mutiny.tuples.Tuple2;
 import org.apache.camel.karavan.model.CamelStatus;
 import org.apache.camel.karavan.model.DeploymentStatus;
@@ -26,6 +28,9 @@ import org.apache.camel.karavan.model.PodStatus;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.model.ServiceStatus;
+import org.eclipse.microprofile.health.HealthCheck;
+import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.Readiness;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.Search;
@@ -41,6 +46,7 @@ import org.infinispan.query.dsl.QueryFactory;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.HashMap;
@@ -49,8 +55,10 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+@Default
+@Readiness
 @ApplicationScoped
-public class InfinispanService {
+public class InfinispanService implements HealthCheck  {
 
     BasicCache<GroupedKey, Project> projects;
     BasicCache<GroupedKey, ProjectFile> files;
@@ -111,6 +119,10 @@ public class InfinispanService {
             camelStatuses = cacheManager.administration().getOrCreateCache(CamelStatus.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, CamelStatus.CACHE)));
             commits = cacheManager.administration().getOrCreateCache("commits", new XMLStringConfiguration(String.format(CACHE_CONFIG, "commits")));
         }
+    }
+
+    public RemoteCacheManager gRemoteCacheManager() {
+        return cacheManager;
     }
 
     private void cleanData() {
@@ -310,6 +322,21 @@ public class InfinispanService {
 
     public boolean hasCommit(String commitId) {
         return commits.get(commitId) != null;
+    }
+
+    @Override
+    public HealthCheckResponse call() {
+        if(ProfileManager.getLaunchMode() != LaunchMode.NORMAL){
+            return HealthCheckResponse.up("Infinispan Service is running in local mode.");
+        }
+        else{
+            if(this.gRemoteCacheManager() != null && this.gRemoteCacheManager().isStarted()) {
+                return HealthCheckResponse.up("Infinispan Service is running in cluster mode.");
+            }
+            else {
+                return HealthCheckResponse.down("Infinispan Service is not running.");
+            }
+        }
     }
 
     protected void clearAllStatuses() {
