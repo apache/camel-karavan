@@ -48,9 +48,13 @@ import org.apache.camel.karavan.informer.DeploymentEventHandler;
 import org.apache.camel.karavan.informer.PipelineRunEventHandler;
 import org.apache.camel.karavan.informer.PodEventHandler;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.health.HealthCheck;
+import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.Readiness;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import java.io.IOException;
@@ -63,8 +67,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 
+@Default
+@Readiness
 @ApplicationScoped
-public class KubernetesService {
+public class KubernetesService implements HealthCheck{
 
     private static final Logger LOGGER = Logger.getLogger(KubernetesService.class.getName());
     public static final String START_INFORMERS = "start-informers";
@@ -125,6 +131,17 @@ public class KubernetesService {
             LOGGER.info("Started Kubernetes Informers");
         } catch (Exception e) {
             LOGGER.error("Error starting informers: " + e.getMessage());
+        }
+    }
+
+    
+    @Override
+    public HealthCheckResponse call() {
+        if(informers.size() == 4) {
+            return HealthCheckResponse.up("All Kubernetes informers are running.");
+        }
+        else {
+            return HealthCheckResponse.down("kubernetes Informers are not running.");
         }
     }
 
@@ -401,4 +418,5 @@ public class KubernetesService {
     public boolean inKubernetes() {
         return !Objects.equals(getNamespace(), "localhost");
     }
+
 }
