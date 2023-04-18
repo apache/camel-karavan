@@ -8,3 +8,4 @@ spec:
   auth: public
   environment: dev
   runtimes: quarkus,spring-boot
+  gitPullInterval: 10s
