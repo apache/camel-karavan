@@ -33,6 +33,7 @@ import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {ProjectPageToolbar} from "./ProjectPageToolbar";
 import {ProjectFilesTable} from "./ProjectFilesTable";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
+import {EventBus} from "../designer/utils/EventBus";
 
 interface Props {
     project: Project,
@@ -40,7 +41,6 @@ interface Props {
 }
 
 interface State {
-    karavanDesignerRef: any,
     project?: Project,
     file?: ProjectFile,
     files: ProjectFile[],
@@ -59,7 +59,6 @@ interface State {
 export class ProjectPage extends React.Component<Props, State> {
 
     public state: State = {
-        karavanDesignerRef: React.createRef(),
         project: this.props.project,
         isUploadModalOpen: false,
         isCreateModalOpen: false,
@@ -166,9 +165,7 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     downloadImage = () => {
-        if (this.state.karavanDesignerRef) {
-            this.state.karavanDesignerRef.current.downloadImage();
-        }
+        EventBus.sendCommand("downloadImage");
     }
 
     addProperty() {
@@ -269,7 +266,6 @@ export class ProjectPage extends React.Component<Props, State> {
         return (
             file !== undefined &&
             <KaravanDesigner
-                ref={this.state.karavanDesignerRef}
                 dark={false}
                 key={"key"}
                 filename={file.name}
