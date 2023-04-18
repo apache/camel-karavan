@@ -30,6 +30,7 @@ import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import {KaravanDesigner} from "../designer/KaravanDesigner";
 import Editor from "@monaco-editor/react";
 import {UploadModal} from "./UploadModal";
+import {EventBus} from "../designer/utils/EventBus";
 
 interface Props {
     name: string,
@@ -74,9 +75,7 @@ export class SpacePage extends React.Component<Props, State> {
     }
 
     downloadImage = () => {
-        if (this.state.karavanDesignerRef) {
-            this.state.karavanDesignerRef.current.downloadImage();
-        }
+        EventBus.sendCommand("downloadImage");
     }
 
     pushToGithub = () => {
