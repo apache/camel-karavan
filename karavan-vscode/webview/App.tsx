@@ -26,6 +26,7 @@ import { KameletsPage } from "./kamelets/KameletsPage";
 import { ComponentsPage } from "./components/ComponentsPage";
 import { EipPage } from "./eip/EipPage";
 import { TemplateApi } from "./core/api/TemplateApi";
+import {EventBus} from "./designer/utils/EventBus";
 
 interface Props {
   dark: boolean
@@ -152,9 +153,7 @@ class App extends React.Component<Props, State> {
         this.setState({ active: false, hasChanges: false });
         break;
       case 'downloadImage':
-        if (this.state.karavanDesignerRef) {
-          this.state.karavanDesignerRef.current.downloadImage();
-        }
+        EventBus.sendCommand("downloadImage");
         break;
     }
   };
