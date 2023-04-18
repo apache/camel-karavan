@@ -182,7 +182,7 @@ class App extends React.Component<Props, State> {
         {!loaded &&
           <PageSection variant={dark ? "dark" : "light"} className="loading-page">
             <Spinner className="progress-stepper" isSVG diameter="80px" aria-label="Loading..." />
-            {loadingMessages.map(message => <Text component={TextVariants.h5}>{message}</Text>)}
+            {/* {loadingMessages.map(message => <Text component={TextVariants.h5}>{message}</Text>)} */}
             <Text component={TextVariants.h5}>Loading...</Text>
           </PageSection>
         }
