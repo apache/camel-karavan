@@ -32,7 +32,6 @@ interface Props {
 
 interface State {
     integration: Integration
-    sub?: Subscription
     steps: Map<string, DslPosition>
 }
 
@@ -46,14 +45,14 @@ export class DslConnections extends React.Component<Props, State> {
         integration: this.props.integration,
         steps: new Map<string, DslPosition>(),
     };
+    sub?: Subscription;
 
     componentDidMount() {
-        const sub = EventBus.onPosition()?.subscribe((evt: DslPosition) => this.setPosition(evt));
-        this.setState({sub: sub});
+        this.sub = EventBus.onPosition()?.subscribe((evt: DslPosition) => this.setPosition(evt));
     }
 
     componentWillUnmount() {
-        this.state.sub?.unsubscribe();
+        this.sub?.unsubscribe();
     }
 
     setPosition(evt: DslPosition) {

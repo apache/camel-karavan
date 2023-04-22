@@ -39,6 +39,7 @@ import {KubernetesAPI} from "../../utils/KubernetesAPI";
 import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
 import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
+import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 
 const prefix = "parameters";
 const beanPrefix = "#bean:";
@@ -131,12 +132,17 @@ export class ComponentParameterField extends React.Component<Props, State> {
     getInternalUriSelect = (property: ComponentProperty, value: any) => {
         const selectOptions: JSX.Element[] = [];
         const componentName = this.getInternalComponentName(property);
-        const urls = CamelUi.getInternalRouteUris(this.props.integration, componentName, false);
-        if (urls && urls.length > 0) {
-            selectOptions.push(...urls.map((value: string) =>
+        const internalUris = CamelUi.getInternalRouteUris(this.props.integration, componentName, false);
+        const uris: string [] = [];
+        uris.push(...internalUris);
+        if (value.length > 0 && !uris.includes(value)) {
+            uris.unshift(value);
+        }
+        if (uris && uris.length > 0) {
+            selectOptions.push(...uris.map((value: string) =>
                 <SelectOption key={value} value={value.trim()}/>));
         }
-        return (
+        return <InputGroup>
             <Select
                 placeholderText="Select or type an URI"
                 variant={SelectVariant.typeahead}
@@ -145,19 +151,27 @@ export class ComponentParameterField extends React.Component<Props, State> {
                     this.openSelect(property.name, isExpanded)
                 }}
                 onSelect={(e, value, isPlaceholder) => {
-                    const newRoute = !urls.includes(value.toString()) ? new RouteToCreate(componentName, value.toString()) : undefined;
-                    this.parametersChanged(property.name, (!isPlaceholder ? value : undefined), property.kind === 'path', newRoute);
+                    this.parametersChanged(property.name, (!isPlaceholder ? value : undefined), property.kind === 'path', undefined);
                 }}
                 selections={value}
                 isOpen={this.isSelectOpen(property.name)}
                 isCreatable={true}
+                createText=""
                 isInputFilterPersisted={true}
                 aria-labelledby={property.name}
                 direction={SelectDirection.down}
             >
                 {selectOptions}
             </Select>
-        )
+            <Tooltip position="bottom-end" content={"Create route"}>
+                <Button variant="control" onClick={e => {
+                    const newRoute = !internalUris.includes(value.toString()) ? new RouteToCreate(componentName, value.toString()) : undefined;
+                    this.parametersChanged(property.name, value, property.kind === 'path', newRoute);
+                }}>
+                    {<PlusIcon/>}
+                </Button>
+            </Tooltip>
+        </InputGroup>
     }
 
     selectKubernetes = (value: string) => {
@@ -280,7 +294,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
                 id={id} name={id}
                 value={value?.toString()}
                 aria-label={id}
-                isChecked={value !== undefined ? Boolean(value) === true : property.defaultValue !== undefined && property.defaultValue === 'true'}
+                isChecked={value !== undefined ? Boolean(value) : property.defaultValue !== undefined && property.defaultValue === 'true'}
                 onChange={e => this.parametersChanged(property.name, !Boolean(value))}/>
         )
     }
@@ -303,7 +317,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
                         footerContent={
                             <div>
                                 {property.defaultValue !== undefined && <div>{"Default: " + property.defaultValue}</div>}
-                                {property.required === true && <div>{property.displayName + " is required"}</div>}
+                                {property.required && <div>{property.displayName + " is required"}</div>}
                             </div>
                         }>
                         <button type="button" aria-label="More info" onClick={e => e.preventDefault()}

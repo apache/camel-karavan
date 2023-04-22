@@ -173,7 +173,7 @@ class App extends React.Component<Props, State> {
     }
 
     getPage() {
-        const {key, name, yaml, pageId} = this.state;
+        const { name, yaml, pageId} = this.state;
         const dark = document.body.className.includes('vscode-dark');
         switch (pageId) {
             case "designer":
