@@ -177,7 +177,7 @@ export class CamelUtil {
 
     static getComponentProperties = (element: any): ComponentProperty[] => {
         const dslName: string = (element as any).dslName;
-        if (dslName === 'ToDynamicDefinition'){
+        if (['ToDynamicDefinition', 'ToDefinition'].includes(dslName)){
             const component = ComponentApi.findByName(dslName);
             return component ? ComponentApi.getComponentProperties(component?.component.name,'producer') : [];
         } else {
