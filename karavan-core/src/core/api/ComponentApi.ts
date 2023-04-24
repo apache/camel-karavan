@@ -87,19 +87,27 @@ export const ComponentApi = {
     },
 
     getComponentNameFromUri: (uri: string): string | undefined => {
-        return uri.split(":")[0];
+        return uri !== undefined ? uri.split(":")[0] : undefined;
     },
 
     getComponentTitleFromUri: (uri: string): string | undefined => {
-        const componentName = uri.split(":")[0];
-        const title = ComponentApi.findByName(componentName)?.component.title;
-        return title ? title : componentName;
+        if (uri !== undefined) {
+            const componentName = uri.split(":")[0];
+            const title = ComponentApi.findByName(componentName)?.component.title;
+            return title ? title : componentName;
+        } else {
+            return undefined;
+        }
     },
 
     getComponentDescriptionFromUri: (uri: string): string | undefined => {
-        const componentName = uri.split(":")[0];
-        const description = ComponentApi.findByName(componentName)?.component.description;
-        return description ? description : componentName;
+        if (uri !== undefined) {
+            const componentName = uri.split(":")[0];
+            const description = ComponentApi.findByName(componentName)?.component.description;
+            return description ? description : componentName;
+        } else {
+            return undefined;
+        }
     },
 
     getUriParts: (uri: string): Map<string, string> => {

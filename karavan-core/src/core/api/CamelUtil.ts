@@ -176,13 +176,14 @@ export class CamelUtil {
     }
 
     static getComponentProperties = (element: any): ComponentProperty[] => {
-        const dslName: string = (element as any).dslName;
-        if (['ToDynamicDefinition', 'ToDefinition'].includes(dslName)){
+            const dslName: string = (element as any).dslName;
+            const component = ComponentApi.findByName(dslName);
+            const uri: string = (element as any).uri;
+            const name = ComponentApi.getComponentNameFromUri(uri);
+        if (['ToDynamicDefinition'].includes(dslName)){
             const component = ComponentApi.findByName(dslName);
             return component ? ComponentApi.getComponentProperties(component?.component.name,'producer') : [];
         } else {
-            const uri: string = (element as any).uri;
-            const name = ComponentApi.getComponentNameFromUri(uri);
             if (name){
                 const component = ComponentApi.findByName(name);
                 return component ? ComponentApi.getComponentProperties(component?.component.name, element.dslName === 'FromDefinition' ? 'consumer' : 'producer') : [];
