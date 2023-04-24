@@ -23,6 +23,8 @@ yarn version --new-version $1 --no-commit --no-git-tag-version --cwd karavan-vsc
 
 echo "Set Github Workflow Builder TAG version: $1";
 sed -i.bak 's/TAG:.*/TAG: '"$1"'/g' .github/workflows/builder.yml 
+echo "Set Github Workflow Runner TAG version: $1";
+sed -i.bak 's/TAG:.*/TAG: '"$1"'/g' .github/workflows/runner.yml 
 
 echo "Set Github Workflow App TAG version: $1";
 sed -i.bak 's/TAG:.*/TAG: '"$1"'/g' .github/workflows/app.yml 
