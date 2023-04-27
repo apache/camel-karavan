@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.20.2
+0. Camel 3.20.4
+1. Spring Boot 2.7.11
+
 ## 3.20.1
 0. Camel 3.20.3
 1. Karavan pulls changes made outside of karavan application

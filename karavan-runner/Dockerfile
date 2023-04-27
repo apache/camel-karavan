@@ -1,6 +1,6 @@
 FROM jbangdev/jbang-action:0.106.1
 
-ENV CAMEL_VERSION=3.20.3
+ENV CAMEL_VERSION=3.20.4
 
 # Install Git and Camel-JBang
 RUN apt-get update && apt-get install -y git 
