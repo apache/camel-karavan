@@ -131,9 +131,12 @@ export class Main extends React.Component<Props, State> {
 
     updateKamelets: () => Promise<void> = async () => {
         await new Promise(resolve => {
-            KaravanApi.getKamelets(yamls => {
+            KaravanApi.getCustomKamelets(yamls => {
+                //this call gets all kamelets
+                console.log("yamls", yamls);
                 const kamelets: string[] = [];
                 yamls.split("\n---\n").map(c => c.trim()).forEach(z => kamelets.push(z));
+                // console.log("kamelets", kamelets); 
                 KameletApi.saveKamelets(kamelets, true);
             })
             KaravanApi.getCustomKameletNames(names => {
@@ -170,8 +173,10 @@ export class Main extends React.Component<Props, State> {
             new MenuItem("dashboard", "Dashboard", <DashboardIcon/>),
             new MenuItem("projects", "Projects", <ProjectsIcon/>),
             new MenuItem("eip", "Enterprise Integration Patterns", <EipIcon/>),
-            new MenuItem("kamelets", "Kamelets", <KameletsIcon/>),
-            new MenuItem("components", "Components", <ComponentsIcon/>)
+            // new MenuItem("kamelets", "Kamelets", <KameletsIcon/>),
+            new MenuItem("components", "Components", <ComponentsIcon/>),
+            new MenuItem("custom kamelets", "Custom Kamelets", <ComponentsIcon/>)
+
         ]
         return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height: "100%"}}
                       spaceItems={{default: "spaceItemsNone"}}>
@@ -186,7 +191,10 @@ export class Main extends React.Component<Props, State> {
                     <Tooltip content={page.tooltip} position={"right"}>
                         <Button id={page.pageId} icon={page.icon} variant={"plain"}
                                 className={this.state.pageId === page.pageId ? "nav-button-selected" : ""}
-                                onClick={event => this.setState({pageId: page.pageId})}
+                                onClick={event => {
+                                    this.setState({pageId: page.pageId})
+                                    console.log("pageId", page.pageId)
+                            }}
                         />
                     </Tooltip>
                 </FlexItem>
@@ -254,6 +262,10 @@ export class Main extends React.Component<Props, State> {
                         {this.state.pageId === 'components' &&
                             <ComponentsPage dark={false} onRefresh={this.updateComponents}/>}
                         {this.state.pageId === 'eip' && <EipPage dark={false}/>}
+                        {this.state.pageId === 'custom kamelets' && 
+                            // <CustomKameletsPage dark={false} onRefresh={this.updateCustomKamelets}/>
+                            <KameletsPage dark={false} onRefresh={this.updateKamelets}/>
+                        }
                     </FlexItem>
                 </Flex>
             </>

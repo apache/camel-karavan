@@ -41,10 +41,25 @@ public class KameletResources {
     @Inject
     CodeService codeService;
 
+    // @GET
+    // @Produces(MediaType.TEXT_PLAIN)
+    // public String getKamelets() {
+    //     StringBuilder kamelets = new StringBuilder(codeService.getResourceFile("/kamelets/kamelets.yaml"));
+    //     List<ProjectFile> custom = infinispanService.getProjectFiles(Project.NAME_KAMELETS);
+    //     if (custom.size() > 0) {
+    //         kamelets.append("\n---\n");
+    //         kamelets.append(custom.stream()
+    //                 .map(file -> file.getCode())
+    //                 .collect(Collectors.joining("\n---\n")));
+    //     }
+    //     return kamelets.toString();
+    // }
+
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    public String getKamelets() {
-        StringBuilder kamelets = new StringBuilder(codeService.getResourceFile("/kamelets/kamelets.yaml"));
+    public String getCustomKamelets() {
+        StringBuilder kamelets = new StringBuilder(codeService.getResourceFile("/customKamelets/customKamelets.yaml"));
+        System.out.println(Project.NAME_KAMELETS);
         List<ProjectFile> custom = infinispanService.getProjectFiles(Project.NAME_KAMELETS);
         if (custom.size() > 0) {
             kamelets.append("\n---\n");

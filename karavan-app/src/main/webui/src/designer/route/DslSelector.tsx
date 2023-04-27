@@ -67,6 +67,7 @@ export class DslSelector extends React.Component<Props, State> {
     }
 
     selectDsl = (evt: React.MouseEvent, dsl: any) => {
+        console.log("selectDsl", dsl,this);
         evt.stopPropagation();
         this.setState({filter:""});
         this.props.onDslSelect.call(this, dsl, this.props.parentId, this.props.position);
@@ -85,6 +86,8 @@ export class DslSelector extends React.Component<Props, State> {
     }
 
     getCard(dsl: DslMetaModel, index: number) {
+        console.log("getCard", dsl, index);
+        
         return (
             <Card key={dsl.dsl + index} isHoverable isCompact className="dsl-card"
                   onClick={event => this.selectDsl(event, dsl)}>
@@ -123,6 +126,8 @@ export class DslSelector extends React.Component<Props, State> {
         const {parentDsl, isOpen} = this.props;
         const title = parentDsl === undefined ? "Select source/from" : "Select step";
         const labelText: string = this.state.tabIndex ? this.state.tabIndex.toString() : "";
+        // console.log("render", this.state.tabIndex, labelText);
+        
         return (
             <Modal
                 aria-label={title}
@@ -142,7 +147,7 @@ export class DslSelector extends React.Component<Props, State> {
                                 {CamelUi.getSelectorModelTypes(parentDsl, this.props.showSteps,this.state.filter).map((label: [string, number], index: number) => {
                                     const labelText = label[0];
                                     const count = label[1];
-                                    const title = ['kamelet', 'component'].includes(labelText.toLowerCase()) ? labelText + "s (" + count + ")" : labelText;
+                                    const title = ['kamelet', 'component','custom kamelets'].includes(labelText.toLowerCase()) ? labelText + "s (" + count + ")" : labelText;
                                     return (
                                         <Tab eventKey={labelText} key={"tab-" + labelText}
                                              title={<TabTitleText>{CamelUtil.capitalizeName(title)}</TabTitleText>}>

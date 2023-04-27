@@ -84,6 +84,7 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     onRefresh = () => {
+        
         if (this.props.project) {
             KaravanApi.getProject(this.props.project.projectId, (project: Project) => {
                 this.setState({project: project, key: Math.random().toString()});
@@ -174,6 +175,7 @@ export class ProjectPage extends React.Component<Props, State> {
     addProperty() {
         const file = this.state.file;
         if (file) {
+            console.log(file, 'file.code');
             const project = file ? ProjectModelApi.propertiesToProject(file?.code) : ProjectModel.createNew();
             const props = project.properties;
             props.push(ProjectProperty.createNew("", ""))
@@ -266,6 +268,7 @@ export class ProjectPage extends React.Component<Props, State> {
     getDesigner = () => {
         const {file, files} = this.state;
         const {project} = this.props;
+        // console.log(file, 'file', files, 'files',project, 'project');
         return (
             file !== undefined &&
             <KaravanDesigner

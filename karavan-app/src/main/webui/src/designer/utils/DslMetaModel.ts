@@ -26,6 +26,7 @@ export class DslMetaModel {
     version: string = ''
     supportLevel: string = ''
     supportType: string = ''
+    yaml?: object
     properties: any;
 
     public constructor(init?: Partial<DslMetaModel>) {

@@ -280,6 +280,7 @@ export class RouteDesignerLogic {
                 this.addStep(route, parentId, position)
                 break;
             case 'ToDefinition' :
+                console.log(dsl.yaml);
                 const to = CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
                 this.addStep(to, parentId, position)
                 break;
@@ -291,6 +292,11 @@ export class RouteDesignerLogic {
                 const kamelet = CamelDefinitionApi.createStep(dsl.dsl, {name: dsl.name});
                 this.addStep(kamelet, parentId, position)
                 break;
+            // case 'CustomKameletDefinition' :
+            //     const customKamelet = CamelDefinitionApi.createStep(dsl.dsl, {name: dsl.name});
+            //     console.log(customKamelet);
+            //     this.addStep(customKamelet, parentId, position)
+            //     break;
             default:
                 const step = CamelDefinitionApi.createStep(dsl.dsl, undefined);
                 const augmentedStep = this.setDslDefaults(step);

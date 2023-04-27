@@ -245,6 +245,7 @@ export class KaravanApi {
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
+                    console.log(res.data, "files");
                 }
             }).catch(err => {
             console.log(err);
@@ -293,7 +294,7 @@ export class KaravanApi {
         instance.get('/api/file/templates')
             .then(res => {
                 if (res.status === 200) {
-                    after(res.data);
+                    after(res.data);                    
                 }
             }).catch(err => {
             console.log(err);
@@ -458,8 +459,21 @@ export class KaravanApi {
         });
     }
 
+    
+
+    static async getCustomKamelets(after: (yaml: string) => void) {
+        instance.get('/api/kamelet', {headers: {'Accept': 'text/plain'}})
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    }
+
     static async getCustomKameletNames(after: (names: []) => void) {
-        instance.get('/api/kamelet/names')
+        instance.get('/api/kamelet', {headers: {'Accept': 'text/plain'}})
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
