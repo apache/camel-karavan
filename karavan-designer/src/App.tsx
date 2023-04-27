@@ -106,13 +106,11 @@ class App extends React.Component<Props, State> {
             const kamelets: string[] = [];
             data[0].split("\n---\n").map(c => c.trim()).forEach(z => kamelets.push(z));
             KameletApi.saveKamelets(kamelets, true);
-            this.toast("Success", "Loaded " + kamelets.length + " kamelets", 'success');
 
             const jsons: string[] = [];
             JSON.parse(data[1]).forEach((c: any) => jsons.push(JSON.stringify(c)));
             ComponentApi.saveComponents(jsons, true);
 
-            this.toast("Success", "Loaded " + jsons.length + " components", 'success');
             this.setState({loaded: true});
 
             TemplateApi.saveTemplate("org.apache.camel.AggregationStrategy", data[2]);
