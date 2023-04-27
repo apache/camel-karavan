@@ -172,7 +172,7 @@ export class DslPropertyField extends React.Component<Props, State> {
 
     isUriReadOnly = (property: PropertyMeta): boolean => {
         const dslName: string = this.props.element?.dslName || '';
-        return property.name === 'uri' && !['ToDynamicDefinition', 'WireTapDefinition'].includes(dslName)
+        return property.name === 'uri' && !['ToDefinition', 'ToDynamicDefinition', 'WireTapDefinition'].includes(dslName)
     }
 
     selectKubernetes = (value: string) => {

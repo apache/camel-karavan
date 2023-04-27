@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Text
+    CardHeader, Card, CardTitle, CardBody, CardFooter, Badge
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {camelIcon, CamelUi} from "../designer/utils/CamelUi";
