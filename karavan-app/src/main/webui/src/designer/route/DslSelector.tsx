@@ -67,9 +67,9 @@ export class DslSelector extends React.Component<Props, State> {
     }
 
     selectDsl = (evt: React.MouseEvent, dsl: any) => {
-        console.log("selectDsl", dsl,this);
         evt.stopPropagation();
         this.setState({filter:""});
+        console.log(this, dsl, this.props.parentId, this.props.position);
         this.props.onDslSelect.call(this, dsl, this.props.parentId, this.props.position);
     }
 
@@ -86,8 +86,6 @@ export class DslSelector extends React.Component<Props, State> {
     }
 
     getCard(dsl: DslMetaModel, index: number) {
-        console.log("getCard", dsl, index);
-        
         return (
             <Card key={dsl.dsl + index} isHoverable isCompact className="dsl-card"
                   onClick={event => this.selectDsl(event, dsl)}>
@@ -126,8 +124,6 @@ export class DslSelector extends React.Component<Props, State> {
         const {parentDsl, isOpen} = this.props;
         const title = parentDsl === undefined ? "Select source/from" : "Select step";
         const labelText: string = this.state.tabIndex ? this.state.tabIndex.toString() : "";
-        // console.log("render", this.state.tabIndex, labelText);
-        
         return (
             <Modal
                 aria-label={title}

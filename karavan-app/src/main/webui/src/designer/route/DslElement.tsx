@@ -87,6 +87,7 @@ export class DslElement extends React.Component<Props, State> {
     }
 
     delete = (evt: React.MouseEvent) => {
+        console.log("delete");
         evt.stopPropagation();
         this.props.deleteElement.call(this, this.props.step.uuid);
     }

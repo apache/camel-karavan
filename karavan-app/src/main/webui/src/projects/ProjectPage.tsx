@@ -175,7 +175,7 @@ export class ProjectPage extends React.Component<Props, State> {
     addProperty() {
         const file = this.state.file;
         if (file) {
-            console.log(file, 'file.code');
+            // console.log(file, 'file.code');
             const project = file ? ProjectModelApi.propertiesToProject(file?.code) : ProjectModel.createNew();
             const props = project.properties;
             props.push(ProjectProperty.createNew("", ""))
@@ -269,6 +269,12 @@ export class ProjectPage extends React.Component<Props, State> {
         const {file, files} = this.state;
         const {project} = this.props;
         // console.log(file, 'file', files, 'files',project, 'project');
+        if(file?.code){
+            console.log(file.code, '\nfile.code\n');
+            const myIntegration = CamelDefinitionYaml.yamlToIntegration("myname",file.code);
+            console.log(myIntegration, '\nmyIntegration\n');
+        }
+        
         return (
             file !== undefined &&
             <KaravanDesigner

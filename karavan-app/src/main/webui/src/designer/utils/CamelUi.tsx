@@ -189,11 +189,13 @@ export class CamelUi {
             .map((k) => {
                 const descriptionLines = k.description().split("\n");
                 const description = descriptionLines.at(0);
+                const yamlTemplate = k.spec.definition.template;
                 // const x = k.spec.definition;
                 // console.log(x.template,'kkkkkkkkkkkkkkkkkkk');
                 
                 return new DslMetaModel({
                     dsl: type === 'source' ? "FromDefinition" : "ToDefinition",
+                    // dsl: "default",
                     uri: "kamelet:" + k.metadata.name,
                     labels: k.type(),
                     navigation: "kamelet",
