@@ -27,7 +27,6 @@ import {ProjectModel, ProjectProperty} from "karavan-core/lib/model/ProjectModel
 import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
 import {KubernetesAPI} from "../designer/utils/KubernetesAPI";
 import {UploadModal} from "./UploadModal";
-import {ProjectInfo} from "./ProjectInfo";
 import {ProjectOperations} from "./ProjectOperations";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {ProjectPageToolbar} from "./ProjectPageToolbar";
@@ -35,6 +34,7 @@ import {ProjectFilesTable} from "./ProjectFilesTable";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {EventBus} from "../designer/utils/EventBus";
 import {ProjectEventBus} from "./ProjectEventBus";
+import {ProjectDevelopment} from "./ProjectDevelopment";
 
 interface Props {
     project: Project,
@@ -414,16 +414,15 @@ export class ProjectPage extends React.Component<Props, State> {
                 }
                 {!isBuildIn &&
                     <PageSection padding={{default: "padding"}}>
-                        {tab === 'development' && project && <ProjectInfo project={project}
-                                                                          needCommit={this.needCommit()}
-                                                                          files={files}
-                                                                          config={this.props.config}
-                                                                          deleteEntity={this.deleteEntity}
-                                                                          showLog={this.showLogs}/>}
+                        {tab === 'development' && project && <ProjectDevelopment project={project}
+                                                                                 needCommit={this.needCommit()}
+                                                                                 config={this.props.config}/>}
                         {tab === 'development' && <ProjectFilesTable files={files}
                                                                      onOpenDeleteConfirmation={this.openDeleteConfirmation}
                                                                      onSelect={this.select}/>}
-                        {tab === 'operations' && <ProjectOperations environments={this.state.environments} project={this.props.project} config={this.props.config}/>}
+                        {tab === 'operations' && <ProjectOperations project={project}
+                                                                    needCommit={this.needCommit()}
+                                                                    config={this.props.config}/>}
                     </PageSection>
                 }
             </FlexItem>
