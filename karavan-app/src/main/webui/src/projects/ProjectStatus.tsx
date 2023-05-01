@@ -292,13 +292,13 @@ export class ProjectStatus extends React.Component<Props, State> {
         const isFailed = pipelineResult === 'Failed';
         const isSucceeded = pipelineResult === 'Succeeded';
         const color = isSucceeded ? "green" : (isFailed ? "red" : (isRunning ? "blue" : "grey"))
-        const icon = isSucceeded ? <UpIcon/> : <DownIcon/>
+        const icon = isSucceeded ? <UpIcon className="not-spinner"/> : <DownIcon className="not-spinner"/>
         return (
             <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
                 <FlexItem>
                     <Tooltip content={pipelineResult} position={"right"}>
                         <LabelGroup numLabels={2}>
-                            <Label icon={isRunning ? <Spinner isSVG diameter="16px"/> : icon} color={color}>
+                            <Label icon={isRunning ? <Spinner isSVG diameter="16px" className="spinner"/> : icon} color={color}>
                                 {pipeline
                                     ? <Button variant="link" onClick={e => this.showPipelineLog(pipeline, env)}>
                                         {pipeline}
@@ -314,7 +314,7 @@ export class ProjectStatus extends React.Component<Props, State> {
                                 </Tooltip>}
                             </Label>
                             {pipeline && showTime && lastPipelineRunTime !== undefined &&
-                                <Label icon={<ClockIcon/>} color={color}>{lastPipelineRunTime + "s"}</Label>}
+                                <Label icon={<ClockIcon className="not-spinner"/>} color={color}>{lastPipelineRunTime + "s"}</Label>}
                         </LabelGroup>
                     </Tooltip>
                 </FlexItem>

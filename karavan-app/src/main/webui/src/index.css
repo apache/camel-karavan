@@ -199,8 +199,20 @@
   margin: 0;
 }
 
-.karavan .project-page  .pf-c-label__icon {
+.karavan .project-page .pf-c-label__icon {
   height: 16px;
+}
+
+.karavan .project-page .pf-c-label__icon svg {
+  height: 16px;
+}
+
+.karavan .project-page .pf-c-label__icon, .spinner {
+  margin-bottom: -2px;
+}
+
+.karavan .project-page .pf-c-label__icon, .not-spinner {
+  margin-bottom: 3px;
 }
 
 .karavan .action-cell {
