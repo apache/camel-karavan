@@ -38,10 +38,10 @@ import {CamelUi} from "../designer/utils/CamelUi";
 import {KaravanApi} from "../api/KaravanApi";
 import {QuarkusIcon, SpringIcon} from "../designer/utils/KaravanIcons";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
+import {ProjectEventBus} from "./ProjectEventBus";
 
 interface Props {
     config: any,
-    onSelect: (project: Project) => void
     onProjectDelete: (project: Project) => void
     onProjectCopy: (project: Project) => void
     project: Project
@@ -71,7 +71,7 @@ export class ProjectsTableRow extends React.Component<Props, State> {
     }
 
     render() {
-        const {project, onProjectDelete, onSelect, onProjectCopy} = this.props;
+        const {project, onProjectDelete, onProjectCopy} = this.props;
         const isBuildIn = ['kamelets', 'templates'].includes(project.projectId);
         const badge = isBuildIn ? project.projectId.toUpperCase().charAt(0) : project.runtime.substring(0, 1).toUpperCase();
         return (
@@ -82,7 +82,7 @@ export class ProjectsTableRow extends React.Component<Props, State> {
                     </Tooltip>
                 </Td>
                 <Td>
-                    <Button style={{padding: '6px'}} variant={"link"} onClick={e => onSelect?.call(this, project)}>
+                    <Button style={{padding: '6px'}} variant={"link"} onClick={e => ProjectEventBus.selectProject(project)}>
                         {project.projectId}
                     </Button>
                 </Td>

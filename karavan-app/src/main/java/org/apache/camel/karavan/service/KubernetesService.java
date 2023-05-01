@@ -97,7 +97,7 @@ public class KubernetesService implements HealthCheck{
         return kubernetesClient().adapt(OpenShiftClient.class);
     }
 
-    @ConfigProperty(name = "kubernetes.namespace", defaultValue = "localhost")
+    @ConfigProperty(name = "kubernetes.namespace", defaultValue = "karavan")
     String currentNamespace;
 
     @ConfigProperty(name = "karavan.environment")

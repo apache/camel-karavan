@@ -34,6 +34,7 @@ import {ProjectPageToolbar} from "./ProjectPageToolbar";
 import {ProjectFilesTable} from "./ProjectFilesTable";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {EventBus} from "../designer/utils/EventBus";
+import {ProjectEventBus} from "./ProjectEventBus";
 
 interface Props {
     project: Project,
@@ -41,7 +42,6 @@ interface Props {
 }
 
 interface State {
-    project?: Project,
     file?: ProjectFile,
     files: ProjectFile[],
     isUploadModalOpen: boolean,
@@ -59,7 +59,6 @@ interface State {
 export class ProjectPage extends React.Component<Props, State> {
 
     public state: State = {
-        project: this.props.project,
         isUploadModalOpen: false,
         isCreateModalOpen: false,
         isDeleteModalOpen: false,
@@ -78,14 +77,15 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     needCommit(): boolean {
-        const {project, files} = this.state;
+        const {files} = this.state;
+        const {project} = this.props;
         return project ? files.filter(f => f.lastUpdate > project.lastCommitTimestamp).length > 0 : false;
     }
 
     onRefresh = () => {
         if (this.props.project) {
             KaravanApi.getProject(this.props.project.projectId, (project: Project) => {
-                this.setState({project: project, key: Math.random().toString()});
+                ProjectEventBus.selectProject(project);
                 KaravanApi.getTemplatesFiles((files: ProjectFile[]) => {
                     files.filter(f => f.name.endsWith("java"))
                         .filter(f => f.name.startsWith(project.runtime))
@@ -400,7 +400,8 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     getProjectPanelFiles() {
-        const {tab, files, project} = this.state;
+        const {tab, files} = this.state;
+        const {project} = this.props;
         const isBuildIn = this.isBuildIn();
         return (
             <FlexItem>

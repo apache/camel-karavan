@@ -30,6 +30,8 @@ import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
 import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
 import {MainLogin} from "./MainLogin";
 import {DashboardPage} from "./dashboard/DashboardPage";
+import {Subscription} from "rxjs";
+import {ProjectEventBus} from "./projects/ProjectEventBus";
 
 class ToastMessage {
     id: string = ''
@@ -90,8 +92,12 @@ export class Main extends React.Component<Props, State> {
     };
 
     designer = React.createRef();
+    sub?: Subscription;
 
     componentDidMount() {
+        this.sub = ProjectEventBus.onSelectProject()?.subscribe((project: Project) => {
+            this.onProjectSelect(project);
+        });
         KaravanApi.getAuthType((authType: string) => {
             console.log("authType", authType);
             if (authType === 'oidc') {
@@ -110,6 +116,10 @@ export class Main extends React.Component<Props, State> {
         });
     }
 
+    componentWillUnmount() {
+        this.sub?.unsubscribe();
+    }
+
     onLogin = (username: string, password: string) => {
         KaravanApi.auth(username, password, (res: any) => {
             if (res?.status === 200) {
@@ -126,7 +136,7 @@ export class Main extends React.Component<Props, State> {
         });
         this.updateKamelets();
         this.updateComponents();
-        this.updateSupportedComponents();
+        // this.updateSupportedComponents(); // not implemented yet
     }
 
     updateKamelets: () => Promise<void> = async () => {
@@ -240,13 +250,11 @@ export class Main extends React.Component<Props, State> {
                     <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
                         {this.state.pageId === 'projects' &&
                             <ProjectsPage key={this.state.request}
-                                          onSelect={this.onProjectSelect}
                                           toast={this.toast}
                                           config={this.state.config}/>}
                         {this.state.pageId === 'project' && this.state.project &&
                             <ProjectPage key="projects" project={this.state.project} config={this.state.config}/>}
                         {this.state.pageId === 'dashboard' && <DashboardPage key={this.state.request}
-                                                                             onSelect={this.onProjectSelect}
                                                                              toast={this.toast}
                                                                              config={this.state.config}/>}
                         {this.state.pageId === 'kamelets' &&

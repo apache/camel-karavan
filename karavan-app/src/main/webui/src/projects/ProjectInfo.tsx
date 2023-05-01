@@ -29,7 +29,6 @@ interface Props {
 }
 
 interface State {
-    project?: Project,
     pipelineStatus?: PipelineStatus,
     deploymentStatus?: DeploymentStatus,
     podStatuses: PodStatus[],
@@ -57,22 +56,11 @@ export class ProjectInfo extends React.Component<Props, State> {
     interval: any;
 
     componentDidMount() {
-        this.onRefresh();
         this.interval = setInterval(() => this.onRefreshStatus(), 700);
     }
 
     componentWillUnmount() {
         clearInterval(this.interval);
-    }
-
-    onRefresh = () => {
-        if (this.props.project) {
-            KaravanApi.getProject(this.props.project.projectId, (project: Project) => {
-                this.setState({
-                    project: project
-                })
-            });
-        }
     }
 
     onRefreshStatus = () => {
@@ -103,7 +91,6 @@ export class ProjectInfo extends React.Component<Props, State> {
         KaravanApi.pipelineRun(this.props.project, this.state.environment, res => {
             if (res.status === 200 || res.status === 201) {
                 this.setState({isBuilding: false});
-                this.onRefresh();
             } else {
                 // Todo notification
             }
@@ -116,7 +103,6 @@ export class ProjectInfo extends React.Component<Props, State> {
             console.log(res)
             if (res.status === 200 || res.status === 201) {
                 this.setState({isRolling: false});
-                this.onRefresh();
             } else {
                 // Todo notification
             }
@@ -160,7 +146,7 @@ export class ProjectInfo extends React.Component<Props, State> {
                         showDeleteConfirmation: true,
                         deleteEntity: "deployment",
                         deleteEntityEnv: env,
-                        deleteEntityName: this.state.project?.projectId
+                        deleteEntityName: this.props.project?.projectId
                     })}>
                 {"Delete"}
             </Button>
@@ -364,7 +350,7 @@ export class ProjectInfo extends React.Component<Props, State> {
     }
 
     getProjectDescription() {
-        const {project} = this.state;
+        const {project} = this.props;
         return (<DescriptionList isHorizontal>
             <DescriptionListGroup>
                 <DescriptionListTerm>Project ID</DescriptionListTerm>
@@ -414,7 +400,6 @@ export class ProjectInfo extends React.Component<Props, State> {
         return (
             <Card className="project-info">
                 <CardBody>
-
                     <Flex direction={{default: "row"}}
                           // style={{height: "200px"}}
                           justifyContent={{default: "justifyContentSpaceBetween"}}>

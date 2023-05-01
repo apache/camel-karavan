@@ -26,7 +26,6 @@ import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 
 interface Props {
     config: any,
-    onSelect: (project: Project) => void
     toast: (title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') => void
 }
 
@@ -124,7 +123,7 @@ export class DashboardPage extends React.Component<Props, State> {
             <ToolbarItem>
                 <ToggleGroup aria-label="Default with single selectable">
                     {this.getEnvironments().map(env => (
-                        <ToggleGroupItem text={env} buttonId={env} isSelected={this.state.selectedEnv.includes(env)} onChange={selected => this.selectEnvironment(env, selected)}/>
+                        <ToggleGroupItem key={env} text={env} buttonId={env} isSelected={this.state.selectedEnv.includes(env)} onChange={selected => this.selectEnvironment(env, selected)}/>
                     ))}
                 </ToggleGroup>
             </ToolbarItem>

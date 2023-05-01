@@ -35,7 +35,6 @@ import {ProjectsTableRow} from "./ProjectsTableRow";
 
 interface Props {
     config: any,
-    onSelect: (project: Project) => void
     toast: (title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') => void
 }
 
@@ -310,7 +309,6 @@ export class ProjectsPage extends React.Component<Props, State> {
                         <ProjectsTableRow
                             key={project.projectId}
                             config={this.props.config}
-                            onSelect={this.props.onSelect}
                             onProjectDelete={this.onProjectDelete}
                             onProjectCopy={project1 => this.setState({isCreateModalOpen: true, isCopy: true, projectToCopy: project1})}
                             project={project}

@@ -36,7 +36,7 @@ import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.Search;
 import org.infinispan.commons.api.BasicCache;
 import org.infinispan.commons.api.CacheContainerAdmin;
-import org.infinispan.commons.configuration.XMLStringConfiguration;
+import org.infinispan.commons.configuration.StringConfiguration;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.cache.SingleFileStoreConfigurationBuilder;
@@ -95,8 +95,7 @@ public class InfinispanService implements HealthCheck  {
                     .persistence().passivation(false)
                     .addStore(SingleFileStoreConfigurationBuilder.class)
                     .shared(false)
-                    .preload(true)
-                    .fetchPersistentState(true);
+                    .preload(true);
             environments = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Environment.CACHE, builder.build());
             projects = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Project.CACHE, builder.build());
             files = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ProjectFile.CACHE, builder.build());
@@ -109,15 +108,15 @@ public class InfinispanService implements HealthCheck  {
             cleanData();
         } else {
             LOGGER.info("InfinispanService is starting in remote mode");
-            environments = cacheManager.administration().getOrCreateCache(Environment.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, Environment.CACHE)));
-            projects = cacheManager.administration().getOrCreateCache(Project.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, Project.CACHE)));
-            files = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, ProjectFile.CACHE)));
-            pipelineStatuses = cacheManager.administration().getOrCreateCache(PipelineStatus.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, PipelineStatus.CACHE)));
-            deploymentStatuses = cacheManager.administration().getOrCreateCache(DeploymentStatus.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, DeploymentStatus.CACHE)));
-            podStatuses = cacheManager.administration().getOrCreateCache(PodStatus.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, PodStatus.CACHE)));
-            serviceStatuses = cacheManager.administration().getOrCreateCache(ServiceStatus.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, ServiceStatus.CACHE)));
-            camelStatuses = cacheManager.administration().getOrCreateCache(CamelStatus.CACHE, new XMLStringConfiguration(String.format(CACHE_CONFIG, CamelStatus.CACHE)));
-            commits = cacheManager.administration().getOrCreateCache("commits", new XMLStringConfiguration(String.format(CACHE_CONFIG, "commits")));
+            environments = cacheManager.administration().getOrCreateCache(Environment.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, Environment.CACHE)));
+            projects = cacheManager.administration().getOrCreateCache(Project.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, Project.CACHE)));
+            files = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, ProjectFile.CACHE)));
+            pipelineStatuses = cacheManager.administration().getOrCreateCache(PipelineStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, PipelineStatus.CACHE)));
+            deploymentStatuses = cacheManager.administration().getOrCreateCache(DeploymentStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, DeploymentStatus.CACHE)));
+            podStatuses = cacheManager.administration().getOrCreateCache(PodStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, PodStatus.CACHE)));
+            serviceStatuses = cacheManager.administration().getOrCreateCache(ServiceStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, ServiceStatus.CACHE)));
+            camelStatuses = cacheManager.administration().getOrCreateCache(CamelStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, CamelStatus.CACHE)));
+            commits = cacheManager.administration().getOrCreateCache("commits", new StringConfiguration(String.format(CACHE_CONFIG, "commits")));
         }
     }
 
