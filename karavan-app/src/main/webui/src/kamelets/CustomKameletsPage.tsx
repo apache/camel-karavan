@@ -26,7 +26,7 @@ import {
 import '../designer/karavan.css';
 import {KameletCard} from "./KameletCard";
 import {KameletModel} from "karavan-core/lib/model/KameletModels";
-import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import {CustomKameletApi} from "karavan-core/lib/api/CustomKameletApi";
 import {KameletModal} from "./KameletModal";
 import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 
@@ -45,7 +45,7 @@ interface State {
     customOnly: boolean
 }
 
-export class KameletsPage extends React.Component<Props, State> {
+export class CustomKameletsPage extends React.Component<Props, State> {
 
     public state: State = {
         isModalOpen: false,
@@ -57,7 +57,7 @@ export class KameletsPage extends React.Component<Props, State> {
     };
 
     componentDidMount() {
-        this.setState({kamelets: KameletApi.getKamelets()})
+        this.setState({kamelets: CustomKameletApi.getKamelets()})
     }
 
     select = (k: KameletModel) => {
@@ -71,9 +71,8 @@ export class KameletsPage extends React.Component<Props, State> {
     render() {
         const {dark, onRefresh} = this.props;
         const {kamelets, kamelet, isModalOpen, customOnly, filter} = this.state;
-        // console.log(kamelets,'kamelets');
         let kameletList = kamelets.filter(kamelet => kamelet.spec.definition.title.toLowerCase().includes(filter.toLowerCase()));
-        if (customOnly) kameletList = kameletList.filter(k => KameletApi.getCustomKameletNames().includes(k.metadata.name));
+        if (customOnly) kameletList = kameletList.filter(k => CustomKameletApi.getCustomKameletNames().includes(k.metadata.name));
         return (
             <PageSection variant={dark ? PageSectionVariants.darker : PageSectionVariants.light}
                          padding={{default: 'noPadding'}} className="kamelet-section">
@@ -84,7 +83,7 @@ export class KameletsPage extends React.Component<Props, State> {
                     <Flex className="tools" justifyContent={{default: 'justifyContentSpaceBetween'}}>
                         <FlexItem>
                             <TextContent className="header">
-                                <Text component="h2">Kamelet Catalog</Text>
+                                <Text component="h2">Custom Kamelet Catalog</Text>
                                 <Badge isRead className="labels">{kamelets.length}</Badge>
                             </TextContent>
                         </FlexItem>
@@ -95,7 +94,7 @@ export class KameletsPage extends React.Component<Props, State> {
                                         <Button icon={<RefreshIcon/>} variant="link"
                                                 onClick={e => {
                                                     onRefresh?.call(this).then(value => {
-                                                        this.setState({kamelets: KameletApi.getKamelets()});
+                                                        this.setState({kamelets: CustomKameletApi.getKamelets()});
                                                     })
                                                 }}/>
                                     </ToolbarItem>

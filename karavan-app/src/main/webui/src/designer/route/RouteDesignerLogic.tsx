@@ -282,60 +282,33 @@ export class RouteDesignerLogic {
                 this.addStep(route, parentId, position)
                 break;
             case 'ToDefinition' :
-                console.log('ToDefinition');
-                let to=CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});;
-                // if(dsl.yaml)
-                // {
-                //      to = CamelDefinitionApi.createStep('CustomKameletBinding', {uri: dsl.uri, yaml: dsl.yaml});
-                // }
-                // else{
-                //      to = CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
-                // }
-                // if(dsl.yaml)
-                // to.yaml = dsl.yaml["0"].route.from.steps;
-                console.log('after',to);
-                let augmentedStepYamli;
-                let myIntegrationi;
-                if(dsl.yaml){
-                     myIntegrationi = CamelDefinitionYaml.yamlToIntegration("myname",JSON.stringify(dsl.yaml));
-                     augmentedStepYamli = myIntegrationi.spec.flows?.[0].from.steps[0]
-                }
-                // this.addStep(to, parentId, position)
-                this.addStep(to, parentId, position,augmentedStepYamli||undefined)
+                let to=CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
+                this.addStep(to, parentId, position)
                 break;
             case 'ToDynamicDefinition' :
-                console.log('ToDynamicDefinition');
                 const toD = CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
                 this.addStep(toD, parentId, position)
                 break;
             case 'KameletDefinition' :
-                console.log('KameletDefinition');
                 const kamelet = CamelDefinitionApi.createStep(dsl.dsl, {name: dsl.name});
                 this.addStep(kamelet, parentId, position)
                 break;
-            // case 'CustomKameletDefinition' :
-            //     const customKamelet = CamelDefinitionApi.createStep(dsl.dsl, {name: dsl.name});
-            //     console.log(customKamelet);
-            //     this.addStep(customKamelet, parentId, position)
-            //     break;
-            default:
-                // console.log('\ndefault\n',dsl);
-                const step = CamelDefinitionApi.createStep(dsl.dsl, {});
-                // console.log('\nstep\n',step);
-                const augmentedStep = this.setDslDefaults(step);
-                // console.log('\naugmentedStep\n',augmentedStep);
-                // const transformed  = CamelDefinitionYaml.integrationToYaml('finally',dsl)
-                const myIntegration = CamelDefinitionYaml.yamlToIntegration("myname",JSON.stringify(dsl.yaml));
-                // console.log('\nmyIntegration\n',myIntegration);
-                
-                const augmentedStepYaml = myIntegration.spec.flows?.[0].from.steps[0]
-                this.addStep(augmentedStep, parentId, position,augmentedStepYaml)
+            case 'CustomKameletDefinition' :
+                const customKamelet=CamelDefinitionApi.createStep(dsl.kameleteDsl, {uri: dsl.uri});
+                const StepDefinition = CamelDefinitionApi.createStep('StepDefinition', {});
+                StepDefinition.steps?.push(customKamelet)
+                if(dsl.yaml){
+                    const customKameletIntegration = CamelDefinitionYaml.yamlToIntegration(dsl.name,JSON.stringify(dsl.yaml));
+                    const customKameletIntegrationSteps = customKameletIntegration.spec.flows?.[0].from.steps[0]
+                    StepDefinition.steps?.push(customKameletIntegrationSteps)
+               }
+               this.addStep(StepDefinition, parentId, position)
                 break;
-            // default:
-            //     if(dsl.yaml){
-            //         console.log('\ndefault\n',dsl.yaml[0].route.from.steps);
-                    
-            //     }
+            default:
+                const step = CamelDefinitionApi.createStep(dsl.dsl, {});
+                const augmentedStep = this.setDslDefaults(step);
+                this.addStep(augmentedStep, parentId, position)
+                break;
         }
     }
 
@@ -363,44 +336,35 @@ export class RouteDesignerLogic {
         }));
     }
 
-    addToParent = (parentId: string,integration:object, yaml:object) => {
-        console.log('\n',integration,'integration\n');
+    // addToParent = (parentId: string,integration:object, yaml:object) => {
+    //     console.log('\n',integration,'integration\n');
         
-        if(parentId===integration?.uuid){
-            integration.steps[integration.steps.length]=yaml
-            return integration;
-        }
-        if(integration.steps){
-            integration.steps.forEach((step: any) => {
-                this.addToParent(parentId,step,yaml)
-            });
-        }
-        return integration;
-    }
+    //     if(parentId===integration?.uuid){
+    //         integration.steps[integration.steps.length]=yaml
+    //         return integration;
+    //     }
+    //     if(integration.steps){
+    //         integration.steps.forEach((step: any) => {
+    //             this.addToParent(parentId,step,yaml)
+    //         });
+    //     }
+    //     return integration;
+    // }
 
 
     addStep = (step: CamelElement, parentId: string, position?: number | undefined,yaml?:object|undefined) => {
-        // console.log(this.routeDesigner.state.integration, step, parentId, position,'addStepaddStepaddStepaddStepaddStepaddStep');
-        // console.log('\n',parentId,'parentId\n');
-        // console.log('\n',yaml,'yaml\n');
-        const i = CamelDefinitionApiExt.addStepToIntegration(this.routeDesigner.state.integration, step, parentId, position);
-        // const steps = i.spec.flows[0].from.steps
-        // steps[steps.length-1]=yaml
-        // console.log('\n\n',i,'\n\n',parentId,'\n\n',yaml);
-        // console.log('\n', i.spec.flows[0].from.steps,'i\n');
-        // console.log('\n', i.spec.flows[0].steps[2].yaml=yaml,'i\n');
-        // console.log(parentId,'parentId');
-        if(yaml){
 
-            // console.log(Object.keys(i.spec.flows[0].from),'i.spec.flows[0]');
-            const lala = i.spec.flows[0].from;
-            // console.log(i,'lala');
+        const i = CamelDefinitionApiExt.addStepToIntegration(this.routeDesigner.state.integration, step, parentId, position);
+        // if(yaml){
+
+        //     // console.log(Object.keys(i.spec.flows[0].from),'i.spec.flows[0]');
+        //     const lala = i.spec.flows[0].from;
+        //     // console.log(i,'lala');
             
-            const integration = this.addToParent(parentId,lala,yaml)
-            // console.log(integration,'integration');
-        }
+        //     const integration = this.addToParent(parentId,lala,yaml)
+        //     // console.log(integration,'integration');
+        // }
         const clone = CamelUtil.cloneIntegration(i);
-        // console.log( clone.spec.flows,'\n\nclone\n\n');
         
         EventBus.sendPosition("clean", step, undefined, new DOMRect(), new DOMRect(), 0);
         this.routeDesigner.setState(prevState => ({

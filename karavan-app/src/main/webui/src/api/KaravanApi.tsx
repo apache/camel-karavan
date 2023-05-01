@@ -459,12 +459,11 @@ export class KaravanApi {
         });
     }
 
-    
 
     static async getCustomKamelets(after: (yaml: string) => void) {
-        instance.get('/api/kamelet', {headers: {'Accept': 'text/plain'}})
-            .then(res => {
-                if (res.status === 200) {
+        instance.get('/api/customKamelet', {headers: {'Accept': 'text/plain'}})
+        .then(res => {
+            if (res.status === 200) {
                     after(res.data);
                 }
             }).catch(err => {

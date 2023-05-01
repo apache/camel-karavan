@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import { CustomKameletApi } from "karavan-core/lib/api/CustomKameletApi";
 import {Definition, KameletModel} from "karavan-core/lib/model/KameletModels";
 import {DslMetaModel} from "./DslMetaModel";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
@@ -104,7 +105,7 @@ export class CamelUi {
             .reduce((accumulator, value) => accumulator.concat(value), [])
             .filter((nav, i, arr) => arr.findIndex(l => l === nav) === i)
             .filter((nav, i, arr) => ![ 'dataformat'].includes(nav));
-        const connectorNavs = ['routing', "transformation", "error", "configuration", "endpoint", "kamelet", "component"];
+        const connectorNavs = ['routing', "transformation", "error", "configuration", "endpoint", "kamelet", "custom kamelet","component"];
         const eipLabels = connectorNavs.filter(n => navs.includes(n));
         return eipLabels.map(label => [label, this.getSelectorModelsForParentFiltered(parentDsl, label, true)
             .filter((dsl: DslMetaModel) => filter === undefined ? true : CamelUi.checkFilter(dsl, filter)).length]);
@@ -138,6 +139,8 @@ export class CamelUi {
         if (!parentDsl){
             result.push(...CamelUi.getComponentsDslMetaModel("consumer"));
             result.push(...CamelUi.getKameletDslMetaModel("source"));
+            // result.push(...CamelUi.getCustomKameletDslMetaModel("action"));
+
         } else {
             if (showSteps) {
                 if (parentDsl && CamelDefinitionApiExt.getElementChildrenDefinition(parentDsl).filter(child => child.name === 'steps').length > 0) {
@@ -149,7 +152,7 @@ export class CamelUi {
                 result.push(...CamelUi.getComponentsDslMetaModel("producer"));
                 result.push(...CamelUi.getKameletDslMetaModel("action"));
                 result.push(...CamelUi.getKameletDslMetaModel("sink"));
-                // result.push(...CamelUi.getCustomkameletDslMetaModel("action"));
+                result.push(...CamelUi.getCustomKameletDslMetaModel("action"));
             } else {
                 const children = CamelDefinitionApiExt.getElementChildrenDefinition(parentDsl).filter(child => child.name !== 'steps')
                 children.filter(child => {
@@ -189,13 +192,8 @@ export class CamelUi {
             .map((k) => {
                 const descriptionLines = k.description().split("\n");
                 const description = descriptionLines.at(0);
-                const yamlTemplate = k.spec.definition.template;
-                // const x = k.spec.definition;
-                // console.log(x.template,'kkkkkkkkkkkkkkkkkkk');
-                
                 return new DslMetaModel({
                     dsl: type === 'source' ? "FromDefinition" : "ToDefinition",
-                    // dsl: "default",
                     uri: "kamelet:" + k.metadata.name,
                     labels: k.type(),
                     navigation: "kamelet",
@@ -205,31 +203,34 @@ export class CamelUi {
                     description: description,
                     version: k.version(),
                     supportLevel: k.metadata.annotations["camel.apache.org/kamelet.support.level"],
-                    yaml: k.spec.definition.template,
                 })
             });
     }
 
-    // static getCustomkameletDslMetaModel = (type: 'source' | "sink" | "action"): DslMetaModel[] => {
-    //     return KameletApi.getKamelets().filter((k) => k.metadata.labels["camel.apache.org/kamelet.type"] === type)
-    //         .map((k) => {
-    //             const descriptionLines = k.description().split("\n");
-    //             const description = descriptionLines.at(0);
-    //             return new DslMetaModel({
-    //                 // dsl: type === 'source' ? "FromDefinition" : "ToDefinition",
-    //                 dsl: "CustomKameletDefinition",
-    //                 uri: "kamelet:" + k.metadata.name,
-    //                 labels: k.type(),
-    //                 navigation: "kamelet",
-    //                 type: k.type(),
-    //                 name: k.metadata.name,
-    //                 title: k.title(),
-    //                 description: description,
-    //                 version: k.version(),
-    //                 supportLevel: k.metadata.annotations["camel.apache.org/kamelet.support.level"],
-    //             })
-    //         });
-    // }
+    static getCustomKameletDslMetaModel = (type: 'source' | "sink" | "action"): DslMetaModel[] => {
+        
+        return CustomKameletApi.getKamelets().filter((k) => k.metadata.labels["camel.apache.org/kamelet.type"] === type)
+            .map((k) => {
+                const descriptionLines = k.description().split("\n");
+                const description = descriptionLines.at(0);
+                const yamlTemplate = k.spec.definition.template;
+                return new DslMetaModel({
+                    dsl: "CustomKameletDefinition",
+                    uri: "kamelet:" + k.metadata.name,
+                    kameleteDsl:type === 'source' ? "FromDefinition" : "ToDefinition",
+                    labels: k.type(),
+                    navigation: "custom kamelet",
+                    type: k.type(),
+                    name: k.metadata.name,
+                    title: k.title(),
+                    description: description,
+                    properties: k.spec.definition.properties,
+                    version: k.version(),
+                    supportLevel: k.metadata.annotations["camel.apache.org/kamelet.support.level"],
+                    yaml: yamlTemplate,
+                })
+            });
+    }
 
     static nameFromTitle = (title: string): string => {
         return title.replace(/[^a-z0-9+]+/gi, "-").toLowerCase();

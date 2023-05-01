@@ -270,9 +270,9 @@ export class ProjectPage extends React.Component<Props, State> {
         const {project} = this.props;
         // console.log(file, 'file', files, 'files',project, 'project');
         if(file?.code){
-            console.log(file.code, '\nfile.code\n');
+            // console.log(file.code, '\nfile.code\n');
             const myIntegration = CamelDefinitionYaml.yamlToIntegration("myname",file.code);
-            console.log(myIntegration, '\nmyIntegration\n');
+            // console.log(myIntegration, '\nmyIntegration\n');
         }
         
         return (

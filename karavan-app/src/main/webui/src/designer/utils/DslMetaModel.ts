@@ -18,6 +18,7 @@ export class DslMetaModel {
     dsl: string = ''
     name: string = ''
     type: string = ''
+    kameleteDsl: string = ''
     uri?: string
     title: string = ''
     description: string = ''

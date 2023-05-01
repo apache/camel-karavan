@@ -12,8 +12,10 @@ import {
 import {KaravanApi} from "./api/KaravanApi";
 import {SsoApi} from "./api/SsoApi";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import {CustomKameletApi} from "karavan-core/lib/api/CustomKameletApi";
 import './designer/karavan.css';
 import {KameletsPage} from "./kamelets/KameletsPage";
+import { CustomKameletsPage } from './kamelets/CustomKameletsPage';
 import {v4 as uuidv4} from "uuid";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import Icon from "./Logo";
@@ -127,16 +129,28 @@ export class Main extends React.Component<Props, State> {
         this.updateKamelets();
         this.updateComponents();
         this.updateSupportedComponents();
+        this.updateCustomKamelets();
+    }
+
+    updateCustomKamelets: () => Promise<void> = async () => {
+        await new Promise(resolve => {
+            KaravanApi.getCustomKamelets(yamls => {
+                const customKamelets: string[] = [];
+                yamls.split("\n---\n").map(c => c.trim()).forEach(z => customKamelets.push(z));
+                console.log("customKamelets", customKamelets);
+                CustomKameletApi.saveCustomKamelets(customKamelets, true);
+            })
+            KaravanApi.getCustomKameletNames(names => {
+                CustomKameletApi.saveCustomKameletNames(names);
+            })
+        });
     }
 
     updateKamelets: () => Promise<void> = async () => {
         await new Promise(resolve => {
-            KaravanApi.getCustomKamelets(yamls => {
-                //this call gets all kamelets
-                console.log("yamls", yamls);
+            KaravanApi.getKamelets(yamls => {
                 const kamelets: string[] = [];
                 yamls.split("\n---\n").map(c => c.trim()).forEach(z => kamelets.push(z));
-                // console.log("kamelets", kamelets); 
                 KameletApi.saveKamelets(kamelets, true);
             })
             KaravanApi.getCustomKameletNames(names => {
@@ -173,9 +187,9 @@ export class Main extends React.Component<Props, State> {
             new MenuItem("dashboard", "Dashboard", <DashboardIcon/>),
             new MenuItem("projects", "Projects", <ProjectsIcon/>),
             new MenuItem("eip", "Enterprise Integration Patterns", <EipIcon/>),
-            // new MenuItem("kamelets", "Kamelets", <KameletsIcon/>),
+            new MenuItem("kamelets", "Kamelets", <KameletsIcon/>),
             new MenuItem("components", "Components", <ComponentsIcon/>),
-            new MenuItem("custom kamelets", "Custom Kamelets", <ComponentsIcon/>)
+            new MenuItem("custom kamelets", "Custom Kamelets", <KameletsIcon/>)
 
         ]
         return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height: "100%"}}
@@ -263,8 +277,7 @@ export class Main extends React.Component<Props, State> {
                             <ComponentsPage dark={false} onRefresh={this.updateComponents}/>}
                         {this.state.pageId === 'eip' && <EipPage dark={false}/>}
                         {this.state.pageId === 'custom kamelets' && 
-                            // <CustomKameletsPage dark={false} onRefresh={this.updateCustomKamelets}/>
-                            <KameletsPage dark={false} onRefresh={this.updateKamelets}/>
+                            <CustomKameletsPage dark={false} onRefresh={this.updateCustomKamelets}/>
                         }
                     </FlexItem>
                 </Flex>

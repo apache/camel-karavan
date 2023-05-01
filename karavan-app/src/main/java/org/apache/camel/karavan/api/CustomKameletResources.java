@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Path("/api/kamelet")
-public class KameletResources {
+@Path("/api/customKamelet")
+public class CustomKameletResources {
 
     @Inject
     InfinispanService infinispanService;
@@ -43,44 +43,30 @@ public class KameletResources {
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    public String getKamelets() {
-        StringBuilder kamelets = new StringBuilder(codeService.getResourceFile("/kamelets/kamelets.yaml"));
+    public String getCustomKamelets() {
+        StringBuilder customKamelets = new StringBuilder(codeService.getResourceFile("/customKamelets/customKamelets.yaml"));
         List<ProjectFile> custom = infinispanService.getProjectFiles(Project.NAME_KAMELETS);
+        System.out.println("customKamelets: projects" + custom);
         if (custom.size() > 0) {
-            kamelets.append("\n---\n");
-            kamelets.append(custom.stream()
+            customKamelets.append("\n---\n");
+            customKamelets.append(custom.stream()
                     .map(file -> file.getCode())
                     .collect(Collectors.joining("\n---\n")));
         }
-        return kamelets.toString();
+        return customKamelets.toString();
     }
 
     // @GET
-    // @Produces(MediaType.TEXT_PLAIN)
-    // public String getCustomKamelets() {
-    //     StringBuilder kamelets = new StringBuilder(codeService.getResourceFile("/customKamelets/customKamelets.yaml"));
-    //     System.out.println(Project.NAME_KAMELETS);
-    //     List<ProjectFile> custom = infinispanService.getProjectFiles(Project.NAME_KAMELETS);
-    //     if (custom.size() > 0) {
-    //         kamelets.append("\n---\n");
-    //         kamelets.append(custom.stream()
-    //                 .map(file -> file.getCode())
-    //                 .collect(Collectors.joining("\n---\n")));
-    //     }
-    //     return kamelets.toString();
+    // @Produces(MediaType.APPLICATION_JSON)
+    // @Path("/names")
+    // public List<String> getCustomNames() {
+    //     Yaml yaml = new Yaml();
+    //     return infinispanService.getProjectFiles(Project.NAME_KAMELETS).stream()
+    //             .map(projectFile -> {
+    //                 Map<String, LinkedHashMap> obj = yaml.load(projectFile.getCode());
+    //                 LinkedHashMap<String, Object> metadata = obj.get("metadata");
+    //                 return metadata.get("name").toString();
+    //             })
+    //             .collect(Collectors.toList());
     // }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/names")
-    public List<String> getCustomNames() {
-        Yaml yaml = new Yaml();
-        return infinispanService.getProjectFiles(Project.NAME_KAMELETS).stream()
-                .map(projectFile -> {
-                    Map<String, LinkedHashMap> obj = yaml.load(projectFile.getCode());
-                    LinkedHashMap<String, Object> metadata = obj.get("metadata");
-                    return metadata.get("name").toString();
-                })
-                .collect(Collectors.toList());
-    }
 }

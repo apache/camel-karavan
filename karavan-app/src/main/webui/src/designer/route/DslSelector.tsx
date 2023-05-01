@@ -143,7 +143,7 @@ export class DslSelector extends React.Component<Props, State> {
                                 {CamelUi.getSelectorModelTypes(parentDsl, this.props.showSteps,this.state.filter).map((label: [string, number], index: number) => {
                                     const labelText = label[0];
                                     const count = label[1];
-                                    const title = ['kamelet', 'component','custom kamelets'].includes(labelText.toLowerCase()) ? labelText + "s (" + count + ")" : labelText;
+                                    const title = ['kamelet', 'component','custom kamelet'].includes(labelText.toLowerCase()) ? labelText + "s (" + count + ")" : labelText;
                                     return (
                                         <Tab eventKey={labelText} key={"tab-" + labelText}
                                              title={<TabTitleText>{CamelUtil.capitalizeName(title)}</TabTitleText>}>
