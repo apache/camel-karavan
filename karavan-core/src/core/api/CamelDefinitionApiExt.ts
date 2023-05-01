@@ -554,7 +554,7 @@ export class CamelDefinitionApiExt {
             properties?.filter(p => p.name !== 'steps')
                 .filter(p => p.name !== 'configurationRef')
                 // .filter(p => (className === 'RouteDefinition' && p.name === 'id') || p.name !== 'id')
-                .filter(p => (className === 'ToDefinition' && p.name !== 'pattern') || className !== 'ToDefinition')
+                // .filter(p => (className === 'ToDefinition' && p.name !== 'pattern') || className !== 'ToDefinition')
                 .forEach(p => {
                     switch (p.name) {
                         case 'uri':
