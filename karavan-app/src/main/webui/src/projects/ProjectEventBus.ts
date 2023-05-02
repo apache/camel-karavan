@@ -19,7 +19,19 @@ import {Project} from "./ProjectModels";
 
 const currentProject = new Subject<Project>();
 const currentFile = new Subject<string>();
-const showLog = new Subject<string>();
+const showLog = new Subject<ShowLogCommand>();
+
+export class ShowLogCommand {
+    type: 'container' | 'pipeline'
+    name: string
+    environment: string
+
+    constructor(type: "container" | "pipeline", name: string, environment: string) {
+        this.type = type;
+        this.name = name;
+        this.environment = environment;
+    }
+}
 
 
 export const ProjectEventBus = {
@@ -30,6 +42,6 @@ export const ProjectEventBus = {
     selectProjectFile: (fileName: string) => currentFile.next(fileName),
     onSelectProjectFile: () => currentFile.asObservable(),
 
-    showLog: (type: 'container' | 'pipeline', name: string, environment: string) => showLog.next(name),
+    showLog: (type: 'container' | 'pipeline', name: string, environment: string) => showLog.next(new ShowLogCommand(type, name, environment)),
     onShowLog: () => showLog.asObservable(),
 }

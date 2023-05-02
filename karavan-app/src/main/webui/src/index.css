@@ -156,6 +156,7 @@
   bottom: 0;
   right: 0;
   width: 100%;
+  z-index: 200;
 }
 
 .karavan .project-page .project-log .buttons {
@@ -166,9 +167,21 @@
   padding-right: 6px;
 }
 
-.karavan .project-page .project-log .buttons button {
+.karavan .project-page .project-log .buttons button,
+.karavan .project-page .project-log .buttons .pf-c-check {
   padding: 8px;
 }
+
+.karavan .project-page .project-log .buttons .pf-c-check .pf-c-check__label{
+  font-size: 12px;
+  line-height: 20px;
+  padding: 0;
+}
+
+.karavan .project-page .project-log .pf-c-log-viewer__scroll-container {
+  height: 100% !important;
+}
+
 
 .karavan .project-page .project-log .pf-c-log-viewer__text {
   font-size: 11px;

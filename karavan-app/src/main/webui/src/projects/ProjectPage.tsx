@@ -435,11 +435,7 @@ export class ProjectPage extends React.Component<Props, State> {
         const {tab, files} = this.state;
         const {project} = this.props;
         const isBuildIn = this.isBuildIn();
-        return (
-            <PageSection className="project-log" padding={{default: "noPadding"}}>
-                <ProjectLog/>
-            </PageSection>
-        )
+        return (<ProjectLog/>)
     }
 
     getFilePanel() {
