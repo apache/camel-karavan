@@ -94,10 +94,10 @@ export class KaravanDesigner extends React.Component<Props, State> {
     }
 
     getCode = (integration: Integration): string => {
-        console.log("\nSaving integration: \n" ,integration);
+        // console.log("\nSaving integration: \n" ,integration);
         const clone = CamelUtil.cloneIntegration(integration);
         const transformed  = CamelDefinitionYaml.integrationToYaml(clone)
-        console.log("\nSaving transformation: \n" ,transformed);
+        // console.log("\nSaving transformation: \n" ,transformed);
         return CamelDefinitionYaml.integrationToYaml(clone);
     }
 

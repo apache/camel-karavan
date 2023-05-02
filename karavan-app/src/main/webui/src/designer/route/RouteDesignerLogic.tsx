@@ -277,7 +277,6 @@ export class RouteDesignerLogic {
     onDslSelect = (dsl: DslMetaModel, parentId: string, position?: number | undefined) => {
         switch (dsl.dsl) {
             case 'FromDefinition' :
-                console.log('FromDefinition');
                 const route = CamelDefinitionApi.createRouteDefinition({from: new FromDefinition({uri: dsl.uri})});
                 this.addStep(route, parentId, position)
                 break;
@@ -295,6 +294,7 @@ export class RouteDesignerLogic {
                 break;
             case 'CustomKameletDefinition' :
                 const customKamelet=CamelDefinitionApi.createStep(dsl.kameleteDsl, {uri: dsl.uri});
+                
                 const StepDefinition = CamelDefinitionApi.createStep('StepDefinition', {});
                 StepDefinition.steps?.push(customKamelet)
                 if(dsl.yaml){
