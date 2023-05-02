@@ -151,6 +151,29 @@
   margin-bottom: 100px;
 }
 
+.karavan .project-page .project-log {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+}
+
+.karavan .project-page .project-log .buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  border-top: 1px solid var(--pf-global--BorderColor--100);
+  padding-right: 6px;
+}
+
+.karavan .project-page .project-log .buttons button {
+  padding: 8px;
+}
+
+.karavan .project-page .project-log .pf-c-log-viewer__text {
+  font-size: 11px;
+}
+
 .karavan .project-page .project-button {
   width: 100px;
 }

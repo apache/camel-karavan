@@ -15,6 +15,7 @@ import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import ClockIcon from "@patternfly/react-icons/dist/esm/icons/clock-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
+import {ProjectEventBus} from "./ProjectEventBus";
 
 interface Props {
     project: Project,
@@ -254,6 +255,7 @@ export class ProjectStatus extends React.Component<Props, State> {
     showPipelineLog(pipeline: string, env: string) {
         if (pipeline) {
             // this.props.showLog?.call(this, 'pipeline', pipeline, env);
+            ProjectEventBus.showLog('pipeline', pipeline, env);
         }
     }
 

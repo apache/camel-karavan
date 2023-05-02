@@ -30,6 +30,7 @@
     "@patternfly/patternfly": "4.224.2",
     "@patternfly/react-charts": "6.94.18",
     "@patternfly/react-core": "4.276.6",
+    "@patternfly/react-log-viewer": "^4.87.100",
     "@patternfly/react-table": "4.112.39",
     "@types/js-yaml": "4.0.5",
     "@types/node": "18.11.18",

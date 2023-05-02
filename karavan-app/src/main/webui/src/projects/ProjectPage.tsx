@@ -35,6 +35,7 @@ import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {EventBus} from "../designer/utils/EventBus";
 import {ProjectEventBus} from "./ProjectEventBus";
 import {ProjectDevelopment} from "./ProjectDevelopment";
+import {ProjectLog} from "./ProjectLog";
 
 interface Props {
     project: Project,
@@ -69,7 +70,7 @@ export class ProjectPage extends React.Component<Props, State> {
         tab: "development",
         environments: this.props.config.environments && Array.isArray(this.props.config.environments)
             ? Array.from(this.props.config.environments) : [],
-        environment: this.props.config.environment
+        environment: this.props.config.environment,
     };
 
     componentDidMount() {
@@ -342,10 +343,10 @@ export class ProjectPage extends React.Component<Props, State> {
     getLogView = () => {
         const file = this.state.file;
         return (
-            <div style={{overflow: "auto"}}>
+            <div>
                 {file !== undefined && file.code.length !== 0 &&
-                    <CodeBlock style={{width: "90%"}}>
-                        <CodeBlockCode id="code-content">{file.code}</CodeBlockCode>
+                    <CodeBlock>
+                        <CodeBlockCode id="code-content" className="log-code">{file.code}</CodeBlockCode>
                     </CodeBlock>}
                 {(file === undefined || file.code.length === 0) &&
                     <div>
@@ -382,7 +383,7 @@ export class ProjectPage extends React.Component<Props, State> {
         return (
             <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
                 {!isBuildIn && this.getProjectPanelTabs()}
-                {this.getProjectPanelFiles()}
+                {this.getProjectPanelDetails()}
             </Flex>
         )
     }
@@ -399,7 +400,8 @@ export class ProjectPage extends React.Component<Props, State> {
         )
     }
 
-    getProjectPanelFiles() {
+
+    getProjectPanelDetails() {
         const {tab, files} = this.state;
         const {project} = this.props;
         const isBuildIn = this.isBuildIn();
@@ -426,6 +428,17 @@ export class ProjectPage extends React.Component<Props, State> {
                     </PageSection>
                 }
             </FlexItem>
+        )
+    }
+
+    getProjectPanelLogs() {
+        const {tab, files} = this.state;
+        const {project} = this.props;
+        const isBuildIn = this.isBuildIn();
+        return (
+            <PageSection className="project-log" padding={{default: "noPadding"}}>
+                <ProjectLog/>
+            </PageSection>
         )
     }
 
@@ -461,6 +474,7 @@ export class ProjectPage extends React.Component<Props, State> {
                 </PageSection>
                 {file === undefined && this.getProjectPanel()}
                 {file !== undefined && this.getFilePanel()}
+                {this.getProjectPanelLogs()}
 
                 <CreateFileModal project={project}
                                  isOpen={isCreateModalOpen}
