@@ -138,6 +138,19 @@
   margin-bottom: 16px;
 }
 
+.karavan .project-page .project-status {
+  margin-bottom: 16px;
+}
+
+.karavan .project-page .project-bottom {
+  overflow: auto;
+  max-height: 100vh;
+}
+
+.karavan .project-page .project-operations {
+  margin-bottom: 100px;
+}
+
 .karavan .project-page .project-button {
   width: 100px;
 }

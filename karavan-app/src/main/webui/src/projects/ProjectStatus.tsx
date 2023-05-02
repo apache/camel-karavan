@@ -4,7 +4,7 @@ import {
     DescriptionList,
     DescriptionListTerm,
     DescriptionListGroup,
-    DescriptionListDescription, Spinner, Tooltip, Flex, FlexItem, LabelGroup, Label, Modal, Badge
+    DescriptionListDescription, Spinner, Tooltip, Flex, FlexItem, LabelGroup, Label, Modal, Badge, CardBody, Card
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
@@ -350,41 +350,43 @@ export class ProjectStatus extends React.Component<Props, State> {
         const {deploymentStatus, podStatuses} = this.state;
         const {env} = this.props;
         return (
-            <>
-                <DescriptionList isHorizontal>
-                    <DescriptionListGroup>
-                        <DescriptionListTerm>Environment</DescriptionListTerm>
-                        <DescriptionListDescription>
-                            <Badge className="badge">{env}</Badge>
-                        </DescriptionListDescription>
-                    </DescriptionListGroup>
-                    <DescriptionListGroup>
-                        <DescriptionListTerm>Pipeline</DescriptionListTerm>
-                        <DescriptionListDescription>
-                            {this.getPipelineState(env)}
-                        </DescriptionListDescription>
-                    </DescriptionListGroup>
-                    <DescriptionListGroup>
-                        <DescriptionListTerm>Deployment</DescriptionListTerm>
-                        <DescriptionListDescription>
-                            {this.getReplicasPanel(env, deploymentStatus)}
-                        </DescriptionListDescription>
-                    </DescriptionListGroup>
-                    <DescriptionListGroup>
-                        <DescriptionListTerm>Pods</DescriptionListTerm>
-                        <DescriptionListDescription>
-                            {this.getPodsPanel(env, podStatuses)}
-                        </DescriptionListDescription>
-                    </DescriptionListGroup>
-                    <DescriptionListGroup>
-                        <DescriptionListTerm>Camel health</DescriptionListTerm>
-                        <DescriptionListDescription>
-                            {this.getHealthPanel(env)}
-                        </DescriptionListDescription>
-                    </DescriptionListGroup>
-                </DescriptionList>
+            <Card className="project-status">
+                <CardBody>
+                    <DescriptionList isHorizontal>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>Environment</DescriptionListTerm>
+                            <DescriptionListDescription>
+                                <Badge className="badge">{env}</Badge>
+                            </DescriptionListDescription>
+                        </DescriptionListGroup>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>Pipeline</DescriptionListTerm>
+                            <DescriptionListDescription>
+                                {this.getPipelineState(env)}
+                            </DescriptionListDescription>
+                        </DescriptionListGroup>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>Deployment</DescriptionListTerm>
+                            <DescriptionListDescription>
+                                {this.getReplicasPanel(env, deploymentStatus)}
+                            </DescriptionListDescription>
+                        </DescriptionListGroup>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>Pods</DescriptionListTerm>
+                            <DescriptionListDescription>
+                                {this.getPodsPanel(env, podStatuses)}
+                            </DescriptionListDescription>
+                        </DescriptionListGroup>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>Camel health</DescriptionListTerm>
+                            <DescriptionListDescription>
+                                {this.getHealthPanel(env)}
+                            </DescriptionListDescription>
+                        </DescriptionListGroup>
+                    </DescriptionList>
+                </CardBody>
                 {this.state.showDeleteConfirmation && this.getDeleteConfirmation()}
-            </>
+            </Card>
         )
     }
 }

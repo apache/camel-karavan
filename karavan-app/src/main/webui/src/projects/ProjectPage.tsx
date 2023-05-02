@@ -406,14 +406,14 @@ export class ProjectPage extends React.Component<Props, State> {
         return (
             <FlexItem>
                 {isBuildIn &&
-                    <PageSection padding={{default: "padding"}}>
+                    <PageSection className="project-tabs" padding={{default: "padding"}}>
                         {tab === 'development' && <ProjectFilesTable files={files}
                                                                      onOpenDeleteConfirmation={this.openDeleteConfirmation}
                                                                      onSelect={this.select}/>}
                     </PageSection>
                 }
                 {!isBuildIn &&
-                    <PageSection padding={{default: "padding"}}>
+                    <PageSection className="project-bottom" padding={{default: "padding"}}>
                         {tab === 'development' && project && <ProjectDevelopment project={project}
                                                                                  needCommit={this.needCommit()}
                                                                                  config={this.props.config}/>}
