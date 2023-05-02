@@ -304,7 +304,8 @@ export class RouteDesignerLogic {
                     }
                 });
                 if(!newRouteExists){this.addStep(newRoute, '', position)}
-                this.addStep(newDirect, parentId, position)
+                if(parentId){ this.addStep(newDirect, parentId, position)}
+                
                 break;
             default:
                 const step = CamelDefinitionApi.createStep(dsl.dsl, {});

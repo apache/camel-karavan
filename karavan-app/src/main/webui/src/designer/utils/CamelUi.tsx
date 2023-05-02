@@ -140,6 +140,8 @@ export class CamelUi {
             result.push(...CamelUi.getComponentsDslMetaModel("consumer"));
             result.push(...CamelUi.getKameletDslMetaModel("source"));
             result.push(...CamelUi.getCustomKameletDslMetaModel("source"));
+            result.push(...CamelUi.getCustomKameletDslMetaModel("action"));
+            result.push(...CamelUi.getCustomKameletDslMetaModel("sink"));
             // result.push(...CamelUi.getCustomKameletDslMetaModel("action"));
 
         } else {
@@ -154,6 +156,7 @@ export class CamelUi {
                 result.push(...CamelUi.getKameletDslMetaModel("action"));
                 result.push(...CamelUi.getKameletDslMetaModel("sink"));
                 result.push(...CamelUi.getCustomKameletDslMetaModel("action"));
+                result.push(...CamelUi.getCustomKameletDslMetaModel("sink"));
             } else {
                 const children = CamelDefinitionApiExt.getElementChildrenDefinition(parentDsl).filter(child => child.name !== 'steps')
                 children.filter(child => {
