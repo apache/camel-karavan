@@ -293,16 +293,18 @@ export class RouteDesignerLogic {
                 this.addStep(kamelet, parentId, position)
                 break;
             case 'CustomKameletDefinition' :
-                const customKamelet=CamelDefinitionApi.createStep(dsl.kameleteDsl, {uri: dsl.uri});
+                const customKamelet=CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
                 
-                const StepDefinition = CamelDefinitionApi.createStep('StepDefinition', {});
-                StepDefinition.steps?.push(customKamelet)
+                // const StepDefinition = CamelDefinitionApi.createStep('StepDefinition', {});
+                // customKamelet.steps?.push(customKamelet)
                 if(dsl.yaml){
                     const customKameletIntegration = CamelDefinitionYaml.yamlToIntegration(dsl.name,JSON.stringify(dsl.yaml));
                     const customKameletIntegrationSteps = customKameletIntegration.spec.flows?.[0].from.steps[0]
-                    StepDefinition.steps?.push(customKameletIntegrationSteps)
+                    customKamelet.steps?.push(customKameletIntegrationSteps)
                }
-               this.addStep(StepDefinition, parentId, position)
+               console.log("\ncustomKamelet\n",customKamelet);
+               
+               this.addStep(customKamelet, parentId, position)
                 break;
             default:
                 const step = CamelDefinitionApi.createStep(dsl.dsl, {});
