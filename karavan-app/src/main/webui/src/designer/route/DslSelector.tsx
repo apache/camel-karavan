@@ -111,6 +111,12 @@ export class DslSelector extends React.Component<Props, State> {
                             <Badge isRead className="version labels">{dsl.version}</Badge>
                         </CardFooter>
                     }
+                    {/* {dsl.navigation.toLowerCase() === "custom kamelet"
+                        && <CardFooter className="footer-labels">
+                            <Badge isRead className="labels">{dsl.labels}</Badge>
+                            <Badge isRead className="version labels">{dsl.version}</Badge>
+                        </CardFooter>
+                    } */}
             </Card>
         )
     }

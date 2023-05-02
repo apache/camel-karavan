@@ -139,6 +139,7 @@ export class CamelUi {
         if (!parentDsl){
             result.push(...CamelUi.getComponentsDslMetaModel("consumer"));
             result.push(...CamelUi.getKameletDslMetaModel("source"));
+            result.push(...CamelUi.getCustomKameletDslMetaModel("source"));
             // result.push(...CamelUi.getCustomKameletDslMetaModel("action"));
 
         } else {
@@ -215,9 +216,8 @@ export class CamelUi {
                 const description = descriptionLines.at(0);
                 const yamlTemplate = k.spec.definition.template;
                 return new DslMetaModel({
-                    dsl: "CustomKameletDefinition",
+                    dsl: type === 'source' ? "FromDefinition" : "CustomKameletDefinition",
                     uri: "kamelet:" + k.metadata.name,
-                    kameleteDsl:type === 'source' ? "FromDefinition" : "ToDefinition",
                     labels: k.type(),
                     navigation: "custom kamelet",
                     type: k.type(),

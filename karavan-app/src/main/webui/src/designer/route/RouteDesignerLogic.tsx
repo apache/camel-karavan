@@ -293,18 +293,18 @@ export class RouteDesignerLogic {
                 this.addStep(kamelet, parentId, position)
                 break;
             case 'CustomKameletDefinition' :
-                const customKamelet=CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
-                
-                // const StepDefinition = CamelDefinitionApi.createStep('StepDefinition', {});
-                // customKamelet.steps?.push(customKamelet)
-                if(dsl.yaml){
-                    const customKameletIntegration = CamelDefinitionYaml.yamlToIntegration(dsl.name,JSON.stringify(dsl.yaml));
-                    const customKameletIntegrationSteps = customKameletIntegration.spec.flows?.[0].from.steps[0]
-                    customKamelet.steps?.push(customKameletIntegrationSteps)
-               }
-               console.log("\ncustomKamelet\n",customKamelet);
-               
-               this.addStep(customKamelet, parentId, position)
+                const newRouteDefinition= CamelDefinitionYaml.yamlToIntegration(dsl.name,JSON.stringify(dsl.yaml));
+                const newRoute = newRouteDefinition.spec.flows?.[0]
+                const directUri = newRoute.from.uri;
+                const newDirect = CamelDefinitionApi.createStep('ToDefinition',{uri: directUri});
+                let newRouteExists = false;
+                this.routeDesigner.state.integration.spec?.flows?.forEach((flow, index) => {
+                    if (flow.from.id === newRoute.from.id) {
+                        newRouteExists = true;
+                    }
+                });
+                if(!newRouteExists){this.addStep(newRoute, '', position)}
+                this.addStep(newDirect, parentId, position)
                 break;
             default:
                 const step = CamelDefinitionApi.createStep(dsl.dsl, {});
@@ -338,34 +338,9 @@ export class RouteDesignerLogic {
         }));
     }
 
-    // addToParent = (parentId: string,integration:object, yaml:object) => {
-    //     console.log('\n',integration,'integration\n');
-        
-    //     if(parentId===integration?.uuid){
-    //         integration.steps[integration.steps.length]=yaml
-    //         return integration;
-    //     }
-    //     if(integration.steps){
-    //         integration.steps.forEach((step: any) => {
-    //             this.addToParent(parentId,step,yaml)
-    //         });
-    //     }
-    //     return integration;
-    // }
-
-
-    addStep = (step: CamelElement, parentId: string, position?: number | undefined,yaml?:object|undefined) => {
+    addStep = (step: CamelElement, parentId: string, position?: number | undefined) => {
 
         const i = CamelDefinitionApiExt.addStepToIntegration(this.routeDesigner.state.integration, step, parentId, position);
-        // if(yaml){
-
-        //     // console.log(Object.keys(i.spec.flows[0].from),'i.spec.flows[0]');
-        //     const lala = i.spec.flows[0].from;
-        //     // console.log(i,'lala');
-            
-        //     const integration = this.addToParent(parentId,lala,yaml)
-        //     // console.log(integration,'integration');
-        // }
         const clone = CamelUtil.cloneIntegration(i);
         
         EventBus.sendPosition("clean", step, undefined, new DOMRect(), new DOMRect(), 0);
