@@ -182,9 +182,15 @@
   height: 100% !important;
 }
 
-
 .karavan .project-page .project-log .pf-c-log-viewer__text {
-  font-size: 11px;
+  font-size: 12px;
+}
+
+.karavan .project-page .project-log .log-name {
+  --pf-c-label__content--before--BorderWidth: 0;
+  --pf-c-label--BackgroundColor: transparent;
+  margin-right: auto;
+  font-size: 12px;
 }
 
 .karavan .project-page .project-button {

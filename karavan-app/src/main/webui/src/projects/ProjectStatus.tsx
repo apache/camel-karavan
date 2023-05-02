@@ -21,7 +21,6 @@ interface Props {
     project: Project,
     config: any,
     env: string,
-    // showLog: (type: 'container' | 'pipeline', name: string, environment: string) => void
 }
 
 interface State {
@@ -218,8 +217,7 @@ export class ProjectStatus extends React.Component<Props, State> {
                                     <Tooltip key={pod.name} content={running ? "Running" : pod.phase}>
                                         <Label icon={running ? <UpIcon/> : <DownIcon/>} color={running ? "green" : "red"}>
                                             <Button variant="link"
-                                                    // onClick={e => this.props.showLog?.call(this, 'container', pod.name, env)}>
-                                                    onClick={e => {}}>
+                                                    onClick={e => ProjectEventBus.showLog('container', pod.name, env)}>
                                                 {pod.name}
                                             </Button>
                                             <Tooltip content={"Delete Pod"}>
@@ -254,7 +252,6 @@ export class ProjectStatus extends React.Component<Props, State> {
 
     showPipelineLog(pipeline: string, env: string) {
         if (pipeline) {
-            // this.props.showLog?.call(this, 'pipeline', pipeline, env);
             ProjectEventBus.showLog('pipeline', pipeline, env);
         }
     }

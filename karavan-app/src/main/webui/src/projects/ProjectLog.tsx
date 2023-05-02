@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Checkbox, PageSection, Tooltip, TooltipPosition} from '@patternfly/react-core';
+import {Button, Checkbox, Label, PageSection, Text, Tooltip, TooltipPosition} from '@patternfly/react-core';
 import '../designer/karavan.css';
 import CloseIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
 import ExpandIcon from '@patternfly/react-icons/dist/esm/icons/expand-icon';
@@ -9,16 +9,20 @@ import {LogViewer} from '@patternfly/react-log-viewer';
 import {Subscription} from "rxjs";
 import {ProjectEventBus, ShowLogCommand} from "./ProjectEventBus";
 import {findDOMNode} from "react-dom";
+import {ProjectFile} from "./ProjectModels";
+import {KaravanApi} from "../api/KaravanApi";
 
 interface Props {
 
 }
 
 interface State {
+    log?: ShowLogCommand,
     showLog: boolean,
     height?: number | string,
     logViewerRef: any,
     isTextWrapped: boolean
+    data: string[]
 }
 
 export class ProjectLog extends React.Component<Props, State> {
@@ -27,14 +31,17 @@ export class ProjectLog extends React.Component<Props, State> {
         showLog: false,
         height: "30%",
         logViewerRef: React.createRef(),
-        isTextWrapped: false
+        isTextWrapped: false,
+        data: []
     }
 
     sub?: Subscription;
 
     componentDidMount() {
         this.sub = ProjectEventBus.onShowLog()?.subscribe((log: ShowLogCommand) => {
-            this.setState({showLog: true});
+            this.setState({showLog: true, log: log});
+            console.log(log)
+            this.showLogs(log.type, log.name, log.environment);
         });
     }
 
@@ -42,91 +49,24 @@ export class ProjectLog extends React.Component<Props, State> {
         this.sub?.unsubscribe();
     }
 
-    componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        if (this.state.height === "100%" && prevState.height !== "100%") {
-            const element = findDOMNode(this.state.logViewerRef.current)
-            console.log("change", element)
-            console.log("change", this.state.logViewerRef.current)
+    showLogs = (type: 'container' | 'pipeline', name: string, environment: string) => {
+        if (type === 'pipeline') {
+            KaravanApi.getPipelineLog(environment, name, (res: any) => {
+                if (Array.isArray(res) && Array.from(res).length > 0)
+                    this.setState({data: res.at(0).log});
+            });
+        } else if (type === 'container') {
+            KaravanApi.getContainerLog(environment, name, (res: any) => {
+                this.setState({data: res});
+            });
         }
+
     }
 
-    code = "apiVersion: helm.openshift.io/v1beta1/\n" +
-        "kind: HelmChartRepository\n" +
-        "metadata:\n" +
-        "name: azure-sample-repo0oooo00ooo\n" +
-        "spec:\n" +
-        "connectionConfig:\n" +
-        "url: https://raw.githubusercontent.com/Azure-Samples/helm-charts/master/docsapiVersion: helm.openshift.io/v1beta1/\n" +
-        "kind: HelmChartRepository\n" +
-        "metadata:\n" +
-        "name: azure-sample-repo0oooo00ooo\n" +
-        "spec:\n" +
-        "connectionConfig:\n" +
-        "url: https://raw.githubusercontent.com/Azure-Samples/helm-charts/master/docsapiVersion: helm.openshift.io/v1beta1/\n" +
-        "kind: HelmChartRepository\n" +
-        "metadata:\n" +
-        "name: azure-sample-repo0oooo00ooo\n" +
-        "spec:\n" +
-        "connectionConfig:\n" +
-        "url: https://raw.githubusercontent.com/Azure-Samples/helm-charts/master/docsapiVersion: helm.openshift.io/v1beta1/\n" +
-        "kind: HelmChartRepository\n" +
-        "metadata:\n" +
-        "name: azure-sample-repo0oooo00ooo\n" +
-        "spec:\n" +
-        "connectionConfig:\n" +
-        "url: https://raw.githubusercontent.com/Azure-Samples/helm-charts/master/docsapiVersion: helm.openshift.io/v1beta1/\n" +
-        "kind: HelmChartRepository\n" +
-        "metadata:\n" +
-        "name: azure-sample-repo0oooo00ooo\n" +
-        "spec:\n" +
-        "connectionConfig:\n" +
-        "url: https://raw.githubusercontent.com/Azure-Samples/helm-charts/master/docsapiVersion: helm.openshift.io/v1beta1/\n" +
-        "kind: HelmChartRepository\n" +
-        "metadata:\n" +
-        "name: azure-sample-repo0oooo00ooo\n" +
-        "spec:\n" +
-        "connectionConfig:\n" +
-        "url: https://raw.githubusercontent.com/Azure-Samples/helm-charts/master/docsapiVersion: helm.openshift.io/v1beta1/\n" +
-        "kind: HelmChartRepository\n" +
-        "metadata:\n" +
-        "name: azure-sample-repo0oooo00ooo\n" +
-        "spec:\n" +
-        "connectionConfig:\n" +
-        "url: https://raw.githubusercontent.com/Azure-Samples/helm-charts/master/docsapiVersion: helm.openshift.io/v1beta1/\n" +
-        "kind: HelmChartRepository\n" +
-        "metadata:\n" +
-        "name: azure-sample-repo0oooo00ooo\n" +
-        "spec:\n" +
-        "connectionConfig:\n" +
-        "url: https://raw.githubusercontent.com/Azure-Samples/helm-charts/master/docsapiVersion: helm.openshift.io/v1beta1/\n" +
-        "kind: HelmChartRepository\n" +
-        "metadata:\n" +
-        "name: azure-sample-repo0oooo00ooo\n" +
-        "spec:\n" +
-        "connectionConfig:\n" +
-        "url: https://raw.githubusercontent.com/Azure-Samples/helm-charts/master/docsapiVersion: helm.openshift.io/v1beta1/\n" +
-        "kind: HelmChartRepository\n" +
-        "metadata:\n" +
-        "name: azure-sample-repo0oooo00ooo\n" +
-        "spec:\n" +
-        "connectionConfig:\n" +
-        "url: https://raw.githubusercontent.com/Azure-Samples/helm-charts/master/docsapiVersion: helm.openshift.io/v1beta1/\n" +
-        "kind: HelmChartRepository\n" +
-        "metadata:\n" +
-        "name: azure-sample-repo0oooo00ooo\n" +
-        "spec:\n" +
-        "connectionConfig:\n" +
-        "url: https://raw.githubusercontent.com/Azure-Samples/helm-charts/master/docsapiVersion: helm.openshift.io/v1beta1/\n" +
-        "kind: HelmChartRepository\n" +
-        "metadata:\n" +
-        "name: azure-sample-repo0oooo00ooo\n" +
-        "spec:\n" +
-        "connectionConfig:\n" +
-        "url: https://raw.githubusercontent.com/Azure-Samples/helm-charts/master/docs"
-
     getButtons() {
-        const {height, isTextWrapped, logViewerRef} = this.state;
+        const {height, isTextWrapped, logViewerRef, log} = this.state;
         return (<div className="buttons">
+            <Label className="log-name">{log?.type + ": " + log?.name}</Label>
             <Checkbox label="Wrap text" aria-label="wrap text checkbox" isChecked={isTextWrapped} id="wrap-text-checkbox"
                       onChange={checked => this.setState({isTextWrapped: checked})} />
             <Tooltip content={"Scroll to bottom"} position={TooltipPosition.bottom}>
@@ -143,8 +83,7 @@ export class ProjectLog extends React.Component<Props, State> {
     }
 
     render() {
-        const {showLog, height, logViewerRef, isTextWrapped} = this.state;
-        console.log(this.state)
+        const {showLog, height, logViewerRef, isTextWrapped, data} = this.state;
         return (showLog ?
             <PageSection className="project-log" padding={{default: "noPadding"}} style={{height: height}}>
                 <LogViewer
@@ -154,7 +93,7 @@ export class ProjectLog extends React.Component<Props, State> {
                     loadingContent={"Loading..."}
                     header={this.getButtons()}
                     height={"100vh"}
-                    data={this.code.concat(this.code).concat(this.code).concat(this.code)}
+                    data={data}
                     theme={'dark'}/>
             </PageSection>
             : <></>);

@@ -24,7 +24,8 @@ export class ProjectOperations extends React.Component<Props, State> {
         const {project, config,} = this.props;
         return (
             <div className="project-operations">
-                {["dev", "test", "prod"].map(env =>
+                {/*{["dev", "test", "prod"].map(env =>*/}
+                {["dev"].map(env =>
                     <ProjectStatus key={env} project={project} config={config} env={env}/>
                 )}
             </div>
