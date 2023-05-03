@@ -35,9 +35,7 @@ import javax.ws.rs.sse.SseEventSink;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Path("/api/logwatch")
 public class LogWatchResource {
@@ -50,7 +48,6 @@ public class LogWatchResource {
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
-
 
     @Inject
     ManagedExecutor managedExecutor;

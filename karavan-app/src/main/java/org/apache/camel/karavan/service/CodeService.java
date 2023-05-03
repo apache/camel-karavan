@@ -80,7 +80,7 @@ public class CodeService {
         try {
             List<ProjectFile> files = infinispanService.getProjectFiles(Project.NAME_TEMPLATES);
             return files.stream().filter(f -> f.getName().equalsIgnoreCase(fileName))
-                    .map(f -> f.getCode()).findFirst().orElse(null);
+                    .map(ProjectFile::getCode).findFirst().orElse(null);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
