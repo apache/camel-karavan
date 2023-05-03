@@ -31,7 +31,7 @@ export class ProjectLog extends React.Component<Props, State> {
         showLog: false,
         height: "30%",
         logViewerRef: React.createRef(),
-        isTextWrapped: false,
+        isTextWrapped: true,
         data: []
     }
 
@@ -40,7 +40,6 @@ export class ProjectLog extends React.Component<Props, State> {
     componentDidMount() {
         this.sub = ProjectEventBus.onShowLog()?.subscribe((log: ShowLogCommand) => {
             this.setState({showLog: true, log: log});
-            console.log(log)
             this.showLogs(log.type, log.name, log.environment);
         });
     }
@@ -52,8 +51,7 @@ export class ProjectLog extends React.Component<Props, State> {
     showLogs = (type: 'container' | 'pipeline', name: string, environment: string) => {
         if (type === 'pipeline') {
             KaravanApi.getPipelineLog(environment, name, (res: any) => {
-                if (Array.isArray(res) && Array.from(res).length > 0)
-                    this.setState({data: res.at(0).log});
+                this.setState({data: res});
             });
         } else if (type === 'container') {
             KaravanApi.getContainerLog(environment, name, (res: any) => {

@@ -17,11 +17,7 @@
 package org.apache.camel.karavan.service;
 
 import io.fabric8.knative.internal.pkg.apis.Condition;
-import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.Secret;
-import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -30,23 +26,14 @@ import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.tekton.client.DefaultTektonClient;
-import io.fabric8.tekton.pipeline.v1beta1.ParamBuilder;
-import io.fabric8.tekton.pipeline.v1beta1.PipelineRef;
-import io.fabric8.tekton.pipeline.v1beta1.PipelineRefBuilder;
-import io.fabric8.tekton.pipeline.v1beta1.PipelineRun;
-import io.fabric8.tekton.pipeline.v1beta1.PipelineRunBuilder;
-import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpec;
-import io.fabric8.tekton.pipeline.v1beta1.PipelineRunSpecBuilder;
-import io.fabric8.tekton.pipeline.v1beta1.TaskRun;
-import io.fabric8.tekton.pipeline.v1beta1.WorkspaceBindingBuilder;
+import io.fabric8.tekton.pipeline.v1beta1.*;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.mutiny.core.eventbus.EventBus;
-import org.apache.camel.karavan.informer.ServiceEventHandler;
-import org.apache.camel.karavan.model.PipelineRunLog;
-import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.informer.DeploymentEventHandler;
 import org.apache.camel.karavan.informer.PipelineRunEventHandler;
 import org.apache.camel.karavan.informer.PodEventHandler;
+import org.apache.camel.karavan.informer.ServiceEventHandler;
+import org.apache.camel.karavan.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -57,13 +44,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -103,8 +84,7 @@ public class KubernetesService implements HealthCheck{
     @ConfigProperty(name = "karavan.environment")
     public String environment;
 
-
-    List<SharedIndexInformer> informers = new ArrayList<>(3);
+    List<SharedIndexInformer> informers = new ArrayList<>(4);
 
     @ConsumeEvent(value = START_INFORMERS, blocking = true)
     void startInformers(String data) {
@@ -205,34 +185,49 @@ public class KubernetesService implements HealthCheck{
         return logText;
     }
 
-
     // TODO: implement log watch
-    public void startContainerLogWatch(String podName, String namespace) {
-        LogWatch logWatch = kubernetesClient().pods().inNamespace(namespace).withName(podName).watchLog();
-        InputStream is = logWatch.getOutput();
-        Integer i;
-        try {
-            while ((i = is.available()) != null) {
-                eventBus.publish(podName + "-" + namespace, new String(is.readNBytes(i)));
-            }
-        } catch (IOException e) {
-            LOGGER.error(e);
-        }
+    public LogWatch getLogWatch(String podName) {
+        return kubernetesClient().pods().inNamespace(getNamespace()).withName(podName).watchLog();
     }
+//    public void startContainerLogWatch(String session, String podName) {
+//        Tuple2<CompletableFuture<Void>, LogWatch> old = logWatches.get(session);
+//        if (old != null) {
+//            LOGGER.info("Closing old");
+//            old.getItem1().cancel(true);
+//            old.getItem2().close();
+//            logWatches.remove(session);
+//            LOGGER.info("Closed old");
+//        }
+//
+//        LOGGER.info("Starting startContainerLogWatch");
+//        CompletableFuture<Void> future = managedExecutor.runAsync(() -> {
+//            LogWatch logWatch =
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(logWatch.getOutput()));
+//            try {
+//                for (String line; (line = reader.readLine()) != null; ) {
+//                    eventBus.publish(session, System.lineSeparator());
+//                    eventBus.publish(session, line);
+//                    System.out.println(line);
+//                }
+//            } catch (IOException e) {
+//                LOGGER.error(e.getMessage());
+//            }
+//        });
+//        logWatches.put(session, Tuple2.of(future, logWatch));
+//        LOGGER.info("Done startContainerLogWatch");
+//    }
 
-    public List<PipelineRunLog> getPipelineRunLog(String pipelineRuneName, String namespace) {
-        List<PipelineRunLog> result = new ArrayList<>(1);
+    public String getPipelineRunLog(String pipelineRuneName, String namespace) {
+        StringBuilder result = new StringBuilder();
         getTaskRuns(pipelineRuneName, namespace).forEach(taskRun -> {
             String podName = taskRun.getStatus().getPodName();
-            StringBuilder log = new StringBuilder();
             taskRun.getStatus().getSteps().forEach(stepState -> {
                 String logText = kubernetesClient().pods().inNamespace(namespace).withName(podName).inContainer(stepState.getContainer()).getLog(true);
-                log.append(stepState.getContainer()).append(System.lineSeparator());
-                log.append(logText).append(System.lineSeparator());
+                result.append(stepState.getContainer()).append(System.lineSeparator());
+                result.append(logText).append(System.lineSeparator());
             });
-            result.add(new PipelineRunLog(taskRun.getMetadata().getName(), log.toString()));
         });
-        return result;
+        return result.toString();
     }
 
     public PipelineRun getLastPipelineRun(String projectId, String pipelineName, String namespace) {
