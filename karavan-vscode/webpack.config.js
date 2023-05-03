@@ -6,7 +6,6 @@
 const path = require("path");
 const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const StaticSiteGeneratorPlugin = require("static-site-generator-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 
 const imageInlineSizeLimit = parseInt(
@@ -136,9 +135,6 @@ const prerenderConfig = (webpackEnv) => {
         plugins: [
             new MiniCssExtractPlugin({
                 filename: "ignore.css",
-            }),
-            new StaticSiteGeneratorPlugin({
-                paths: ["/"],
             }),
             new webpack.ProvidePlugin({
                 Buffer: ["buffer", "Buffer"],
