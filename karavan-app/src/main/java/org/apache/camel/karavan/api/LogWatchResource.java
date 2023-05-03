@@ -59,26 +59,27 @@ public class LogWatchResource {
     @Produces(MediaType.SERVER_SENT_EVENTS)
     @Path("/{type}/{env}/{name}")
     public void eventSourcing(@PathParam("env") String env,
-                                       @PathParam("type") String type,
-                                       @PathParam("name") String name,
-                                       @Context SseEventSink eventSink,
-                                       @Context Sse sse
-                                       ) {
+                              @PathParam("type") String type,
+                              @PathParam("name") String name,
+                              @Context SseEventSink eventSink,
+                              @Context Sse sse
+    ) {
         managedExecutor.execute(() -> {
+            LOGGER.info("LogWatch for " + name + " starting...");
             try (SseEventSink sink = eventSink) {
-                LogWatch logWatch = kubernetesService.getLogWatch(name);
+                LogWatch logWatch = type.equals("container")
+                        ? kubernetesService.getContainerLogWatch(name)
+                        : kubernetesService.getPipelineRunLogWatch(name);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(logWatch.getOutput()));
                 try {
                     for (String line; (line = reader.readLine()) != null && !sink.isClosed(); ) {
-                        sink.send(sse.newEvent(line + System.lineSeparator()));
+                        sink.send(sse.newEvent(line));
                     }
                 } catch (IOException e) {
                     LOGGER.error(e.getMessage());
                 }
-                if (sink.isClosed()) {
-                    logWatch.close();
-                    LOGGER.info("LogWatch for " + name + " closed");
-                }
+                logWatch.close();
+                LOGGER.info("LogWatch for " + name + " closed");
             }
         });
     }

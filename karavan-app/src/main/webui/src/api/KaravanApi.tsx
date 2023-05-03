@@ -1,4 +1,4 @@
-import axios, {AxiosResponse, AxiosRequestConfig, InternalAxiosRequestConfig, AxiosRequestHeaders } from "axios";
+import axios, {AxiosResponse } from "axios";
 import {
     CamelStatus,
     DeploymentStatus,

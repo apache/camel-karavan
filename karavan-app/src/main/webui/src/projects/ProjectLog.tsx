@@ -22,7 +22,8 @@ interface State {
     height?: number | string,
     logViewerRef: any,
     isTextWrapped: boolean
-    data: string[]
+    data: string,
+    currentLine: number
 }
 
 export class ProjectLog extends React.Component<Props, State> {
@@ -32,12 +33,14 @@ export class ProjectLog extends React.Component<Props, State> {
         height: "30%",
         logViewerRef: React.createRef(),
         isTextWrapped: true,
-        data: []
+        data: '',
+        currentLine: 0
     }
-
+    eventSource?: EventSource;
     sub?: Subscription;
 
     componentDidMount() {
+        this.eventSource?.close();
         this.sub = ProjectEventBus.onShowLog()?.subscribe((log: ShowLogCommand) => {
             this.setState({showLog: true, log: log});
             this.showLogs(log.type, log.name, log.environment);
@@ -45,20 +48,20 @@ export class ProjectLog extends React.Component<Props, State> {
     }
 
     componentWillUnmount() {
+        this.eventSource?.close();
         this.sub?.unsubscribe();
     }
 
     showLogs = (type: 'container' | 'pipeline', name: string, environment: string) => {
-        if (type === 'pipeline') {
-            KaravanApi.getPipelineLog(environment, name, (res: any) => {
-                this.setState({data: res});
-            });
-        } else if (type === 'container') {
-            KaravanApi.getContainerLog(environment, name, (res: any) => {
-                this.setState({data: res});
-            });
+        this.eventSource?.close();
+        this.eventSource = new EventSource("/api/logwatch/"+type+"/"+environment+"/"+name);
+        this.eventSource.onerror = (event) => {
+            this.eventSource?.close();
         }
-
+        this.eventSource.onmessage = (event) => {
+            const data = this.state.data.concat('\n').concat(event.data)
+            this.setState({data: data, currentLine: this.state.currentLine + 1});
+        };
     }
 
     getButtons() {
@@ -76,12 +79,15 @@ export class ProjectLog extends React.Component<Props, State> {
                     this.setState({height: h, showLog: true});
                 }} icon={height === "100%" ? <CollapseIcon/> : <ExpandIcon/>}/>
             </Tooltip>
-            <Button variant="plain" onClick={() => this.setState({height: "30%", showLog: false})} icon={<CloseIcon/>}/>
+            <Button variant="plain" onClick={() => {
+                this.eventSource?.close();
+                this.setState({height: "30%", showLog: false, data: '', currentLine: 0});
+            }} icon={<CloseIcon/>}/>
         </div>);
     }
 
     render() {
-        const {showLog, height, logViewerRef, isTextWrapped, data} = this.state;
+        const {showLog, height, logViewerRef, isTextWrapped, data, currentLine} = this.state;
         return (showLog ?
             <PageSection className="project-log" padding={{default: "noPadding"}} style={{height: height}}>
                 <LogViewer
@@ -92,6 +98,8 @@ export class ProjectLog extends React.Component<Props, State> {
                     header={this.getButtons()}
                     height={"100vh"}
                     data={data}
+                    scrollToRow={currentLine}
+                    overScanCount={10}
                     theme={'dark'}/>
             </PageSection>
             : <></>);

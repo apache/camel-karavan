@@ -185,37 +185,15 @@ public class KubernetesService implements HealthCheck{
         return logText;
     }
 
-    // TODO: implement log watch
-    public LogWatch getLogWatch(String podName) {
-        return kubernetesClient().pods().inNamespace(getNamespace()).withName(podName).watchLog();
+    public LogWatch getContainerLogWatch(String podName) {
+        return kubernetesClient().pods().inNamespace(getNamespace()).withName(podName).tailingLines(100).watchLog();
     }
-//    public void startContainerLogWatch(String session, String podName) {
-//        Tuple2<CompletableFuture<Void>, LogWatch> old = logWatches.get(session);
-//        if (old != null) {
-//            LOGGER.info("Closing old");
-//            old.getItem1().cancel(true);
-//            old.getItem2().close();
-//            logWatches.remove(session);
-//            LOGGER.info("Closed old");
-//        }
-//
-//        LOGGER.info("Starting startContainerLogWatch");
-//        CompletableFuture<Void> future = managedExecutor.runAsync(() -> {
-//            LogWatch logWatch =
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(logWatch.getOutput()));
-//            try {
-//                for (String line; (line = reader.readLine()) != null; ) {
-//                    eventBus.publish(session, System.lineSeparator());
-//                    eventBus.publish(session, line);
-//                    System.out.println(line);
-//                }
-//            } catch (IOException e) {
-//                LOGGER.error(e.getMessage());
-//            }
-//        });
-//        logWatches.put(session, Tuple2.of(future, logWatch));
-//        LOGGER.info("Done startContainerLogWatch");
-//    }
+
+    public LogWatch getPipelineRunLogWatch(String pipelineRuneName) {
+        List<TaskRun> tasks = getTaskRuns(pipelineRuneName, getNamespace());
+        TaskRun taskRun = tasks.get(0);
+        return kubernetesClient().pods().inNamespace(getNamespace()).withName(taskRun.getStatus().getPodName()).tailingLines(100).watchLog();
+    }
 
     public String getPipelineRunLog(String pipelineRuneName, String namespace) {
         StringBuilder result = new StringBuilder();
