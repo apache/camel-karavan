@@ -35,7 +35,7 @@ interface State {
     commitMessage: string
 }
 
-export class ProjectInfo extends React.Component<Props, State> {
+export class ProjectRunner extends React.Component<Props, State> {
 
     public state: State = {
         environment: this.props.config.environment,
@@ -105,9 +105,7 @@ export class ProjectInfo extends React.Component<Props, State> {
                                 icon={!isPushing ? <PushIcon/> : <div></div>}
                                 onClick={() => this.setState({
                                     commitMessageIsOpen: true,
-                                    commitMessage : commitMessage === ''
-                                        ? new Date().toISOString().slice(0, 19).replace('T',' ')
-                                        : commitMessage
+                                    commitMessage : commitMessage === '' ? new Date().toLocaleString() : commitMessage
                                 })}>
                             {isPushing ? "..." : "Push"}
                         </Button>

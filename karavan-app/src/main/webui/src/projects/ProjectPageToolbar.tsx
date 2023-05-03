@@ -1,13 +1,23 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
     Button,
-    Toolbar,
-    ToolbarContent,
+    Checkbox,
     Flex,
     FlexItem,
+    Form,
+    FormGroup,
+    FormHelperText,
+    Label,
+    Modal,
+    ModalVariant,
+    TextInput,
     ToggleGroup,
     ToggleGroupItem,
-    Checkbox, Tooltip, ToolbarItem
+    Toolbar,
+    ToolbarContent,
+    ToolbarItem,
+    Tooltip,
+    TooltipPosition
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {Project, ProjectFile} from "./ProjectModels";
@@ -16,9 +26,12 @@ import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
+import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
+import {KaravanApi} from "../api/KaravanApi";
 
 interface Props {
     project: Project,
+    needCommit: boolean,
     isTemplates: boolean,
     isKamelets: boolean,
     config: any,
@@ -32,18 +45,87 @@ interface Props {
     setUploadModalOpen: () => void,
     setEditAdvancedProperties: (checked: boolean) => void,
     setMode: (mode: "design" | "code") => void,
+    onRefresh: () => void,
 }
 
 export const ProjectPageToolbar = (props: Props) => {
 
+    const [isPushing, setIsPushing] = useState(false);
+    const [commitMessageIsOpen, setCommitMessageIsOpen] = useState(false);
+    const [commitMessage, setCommitMessage] = useState('');
+
+    function push () {
+        setIsPushing(true);
+        setCommitMessageIsOpen(false);
+        const params = {
+            "projectId": props.project.projectId,
+            "message": commitMessage
+        };
+        KaravanApi.push(params, res => {
+            if (res.status === 200 || res.status === 201) {
+                setIsPushing(false);
+                props.onRefresh();
+            } else {
+                // Todo notification
+            }
+        });
+    }
+
+    function getDate(lastUpdate: number): string {
+        if (lastUpdate) {
+            const date = new Date(lastUpdate);
+            return date.toISOString().slice(0, 19).replace('T',' ');
+        } else {
+            return "N/A"
+        }
+    }
+
+    function getLastUpdatePanel() {
+        const {project, needCommit} = props;
+        const color = needCommit ? "grey" : "green";
+        const commit = project?.lastCommit;
+        return (
+            <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentFlexStart"}}>
+                {project?.lastCommitTimestamp && project?.lastCommitTimestamp > 0 &&
+                    <FlexItem>
+                        <Tooltip content="Last update" position={TooltipPosition.bottom}>
+                            <Label color={color}>{getDate(project?.lastCommitTimestamp)}</Label>
+                        </Tooltip>
+                    </FlexItem>
+                }
+                <FlexItem>
+                    <Tooltip content={commit} position={TooltipPosition.bottom}>
+                        <Label
+                            color={color}>{commit ? commit?.substring(0, 18) : "-"}</Label>
+                    </Tooltip>
+                </FlexItem>
+            </Flex>
+        )
+    }
+
     function getTemplatesToolbar() {
-        const {file, editAdvancedProperties, download, setCreateModalOpen, setUploadModalOpen} = props;
+        const {file,needCommit, editAdvancedProperties, download, setCreateModalOpen, setUploadModalOpen} = props;
         const isFile = file !== undefined;
         const isProperties = file !== undefined && file.name.endsWith("properties");
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
                 <ToolbarItem>
                     <Flex className="toolbar" direction={{default: "row"}} justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
+                        {!isFile && <FlexItem>
+                            {getLastUpdatePanel()}
+                        </FlexItem>}
+                        {!isFile && <FlexItem>
+                            <Tooltip content="Commit and push to git" position={"bottom"}>
+                                <Button isLoading={isPushing ? true : undefined}
+                                        isSmall
+                                        variant={needCommit ? "primary" : "secondary"}
+                                        className="project-button"
+                                        icon={!isPushing ? <PushIcon/> : <div></div>}
+                                        onClick={() => setCommitMessageIsOpen(true)}>
+                                    {isPushing ? "..." : "Commit"}
+                                </Button>
+                            </Tooltip>
+                        </FlexItem>}
                         {isProperties && <FlexItem>
                             <Checkbox
                                 id="advanced"
@@ -72,7 +154,7 @@ export const ProjectPageToolbar = (props: Props) => {
     }
 
     function getProjectToolbar() {
-        const {file, mode, editAdvancedProperties,
+        const {file,needCommit, mode, editAdvancedProperties,
             addProperty, setEditAdvancedProperties, download, downloadImage, setCreateModalOpen, setUploadModalOpen} = props;
         const isFile = file !== undefined;
         const isYaml = file !== undefined && file.name.endsWith("yaml");
@@ -81,6 +163,24 @@ export const ProjectPageToolbar = (props: Props) => {
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
                 <Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
+                    {!isFile && <FlexItem>
+                        {getLastUpdatePanel()}
+                    </FlexItem>}
+                    {!isFile && <FlexItem>
+                        <Tooltip content="Commit and push to git" position={"bottom-end"}>
+                            <Button isLoading={isPushing ? true : undefined}
+                                    isSmall
+                                    variant={needCommit ? "primary" : "secondary"}
+                                    className="project-button"
+                                    icon={!isPushing ? <PushIcon/> : <div></div>}
+                                    onClick={() => {
+                                        setCommitMessage(commitMessage === '' ? new Date().toLocaleString() : commitMessage);
+                                        setCommitMessageIsOpen(true);
+                                    }}>
+                                {isPushing ? "..." : "Push"}
+                            </Button>
+                        </Tooltip>
+                    </FlexItem>}
                     {isYaml && <FlexItem>
                         <ToggleGroup>
                             <ToggleGroupItem text="Design" buttonId="design" isSelected={mode === "design"}
@@ -125,11 +225,34 @@ export const ProjectPageToolbar = (props: Props) => {
         </Toolbar>
     }
 
+    function getCommitModal() {
+        return (
+            <Modal
+                title="Commit"
+                variant={ModalVariant.small}
+                isOpen={commitMessageIsOpen}
+                onClose={() => setCommitMessageIsOpen(false)}
+                actions={[
+                    <Button key="confirm" variant="primary" onClick={() => push()}>Save</Button>,
+                    <Button key="cancel" variant="secondary" onClick={() => setCommitMessageIsOpen(false)}>Cancel</Button>
+                ]}
+            >
+                <Form autoComplete="off" isHorizontal className="create-file-form">
+                    <FormGroup label="Message" fieldId="name" isRequired>
+                        <TextInput value={commitMessage} onChange={value => setCommitMessage(value)}/>
+                        <FormHelperText isHidden={false} component="div"/>
+                    </FormGroup>
+                </Form>
+            </Modal>
+        )
+    }
+
     const {isTemplates} = props;
     return  (
          <>
             {isTemplates && getTemplatesToolbar()}
             {!isTemplates && getProjectToolbar()}
+             {getCommitModal()}
         </>
     )
 }

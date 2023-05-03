@@ -182,20 +182,22 @@ export class ProjectPage extends React.Component<Props, State> {
 
     tools = () => {
         return <ProjectPageToolbar key={this.state.key}
-            project={this.props.project}
-            file={this.state.file}
-            mode={this.state.mode}
-            isTemplates={this.isTemplatesProject()}
-            isKamelets={this.isKameletsProject()}
-            config={this.props.config}
-            addProperty={() => this.addProperty()}
-            download={() => this.download()}
-            downloadImage={() => this.downloadImage()}
-            editAdvancedProperties={this.state.editAdvancedProperties}
-            setEditAdvancedProperties={checked => this.setState({editAdvancedProperties: checked})}
-            setMode={mode => this.setState({mode: mode})}
-            setCreateModalOpen={() => this.setState({isCreateModalOpen: true})}
-            setUploadModalOpen={() => this.setState({isUploadModalOpen: true})}
+                                   project={this.props.project}
+                                   file={this.state.file}
+                                   mode={this.state.mode}
+                                   isTemplates={this.isTemplatesProject()}
+                                   isKamelets={this.isKameletsProject()}
+                                   config={this.props.config}
+                                   addProperty={() => this.addProperty()}
+                                   download={() => this.download()}
+                                   downloadImage={() => this.downloadImage()}
+                                   editAdvancedProperties={this.state.editAdvancedProperties}
+                                   setEditAdvancedProperties={checked => this.setState({editAdvancedProperties: checked})}
+                                   setMode={mode => this.setState({mode: mode})}
+                                   setCreateModalOpen={() => this.setState({isCreateModalOpen: true})}
+                                   setUploadModalOpen={() => this.setState({isUploadModalOpen: true})}
+                                   needCommit={this.needCommit()}
+                                   onRefresh={this.onRefresh}
         />
     }
 
@@ -206,28 +208,43 @@ export class ProjectPage extends React.Component<Props, State> {
         const isFile = file !== undefined;
         const isLog = file !== undefined && file.name.endsWith("log");
         const filename = file ? file.name.substring(0, file.name.lastIndexOf('.')) : "";
-        return (<div className="dsl-title">
-            {isFile &&
-                <div>
+        return (<div className="dsl-title project-title">
+            {isFile && <Flex direction={{default: "column"}} >
+                <FlexItem>
                     <Breadcrumb>
                         <BreadcrumbItem to="#" onClick={event => {
                             this.setState({file: undefined})
                             this.onRefresh();
                         }}>
-                            <Flex direction={{default: "row"}}>
-                                <FlexItem>{"Project: " + project?.projectId}</FlexItem>
-                                <FlexItem><Badge>{getProjectFileType(file)}</Badge></FlexItem>
-                            </Flex>
+                            <div className={"project-breadcrumb"}>{project?.name + " (" + project?.projectId + ")"}</div>
                         </BreadcrumbItem>
                     </Breadcrumb>
+                </FlexItem>
+                <FlexItem>
+                    <Flex direction={{default: "row"}}>
+                        <FlexItem>
+                            <Badge>{getProjectFileType(file)}</Badge>
+                        </FlexItem>
+                        <FlexItem>
+                            <TextContent className="description">
+                                <Text>{isLog ? filename : file.name}</Text>
+                            </TextContent>
+                        </FlexItem>
+                    </Flex>
+                </FlexItem>
+            </Flex>}
+            {!isFile && <Flex direction={{default: "column"}} >
+                <FlexItem>
                     <TextContent className="title">
-                        <Text component="h1">{isLog ? filename : file.name}</Text>
+                        <Text component="h2">{project?.name + " (" + project?.projectId + ")"}</Text>
                     </TextContent>
-                </div>
-            }
-            {!isFile && <TextContent className="title">
-                <Text component="h2">{project?.name}</Text>
-            </TextContent>}
+                </FlexItem>
+                <FlexItem>
+                    <TextContent className="description">
+                        <Text>{project?.description}</Text>
+                    </TextContent>
+                </FlexItem>
+            </Flex>}
         </div>)
     };
 

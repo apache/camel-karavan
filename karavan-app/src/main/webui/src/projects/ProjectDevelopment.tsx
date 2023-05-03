@@ -6,6 +6,7 @@ import {
 import '../designer/karavan.css';
 import {Project} from "./ProjectModels";
 import {ProjectInfo} from "./ProjectInfo";
+import {ProjectRunner} from "./ProjectRunner";
 
 
 interface Props {
@@ -37,7 +38,7 @@ export class ProjectDevelopment extends React.Component<Props, State> {
                         </FlexItem>
                         <Divider orientation={{default: "vertical"}}/>
                         <FlexItem flex={{default: "flex_3"}}>
-                            {/*{this.getEnvPanel("dev")}*/}
+                            <ProjectRunner project={project} config={config} needCommit={needCommit} />
                         </FlexItem>
                     </Flex>
                 </CardBody>

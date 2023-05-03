@@ -117,6 +117,17 @@
   font-size: 14px;
 }
 
+.karavan .project-page .project-title .pf-l-flex.pf-m-column > * {
+  margin-bottom: 0;
+}
+
+.karavan .project-page .project-title .project-breadcrumb {
+  font-size: 20px;
+  font-weight: 400;
+  height: 30px;
+  line-height: 30px;
+}
+
 .karavan .project-page .project-tabs {
   background-color: white;
 }
