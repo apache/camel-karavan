@@ -162,7 +162,7 @@
 .karavan .project-page .project-log .buttons {
   display: flex;
   flex-direction: row;
-  justify-content: end;
+  justify-content: flex-end;
   border-top: 1px solid var(--pf-global--BorderColor--100);
   padding-right: 6px;
 }
@@ -179,7 +179,7 @@
 }
 
 .karavan .project-page .project-log .pf-c-log-viewer__scroll-container {
-  height: 100% !important;
+  /*height: 100% !important;*/
 }
 
 .karavan .project-page .project-log .pf-c-log-viewer__text {
