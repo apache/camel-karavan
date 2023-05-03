@@ -57,10 +57,9 @@ public class KubernetesResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/pipeline/{env}")
-    public Project createPipeline(@PathParam("env") String env, Project project) throws Exception {
+    public String createPipeline(@PathParam("env") String env, Project project) throws Exception {
         Project p = infinispanService.getProject(project.getProjectId());
-        kubernetesService.createPipelineRun(project);
-        return p;
+        return kubernetesService.createPipelineRun(project);
     }
 
     @GET

@@ -107,6 +107,7 @@ export class ProjectStatus extends React.Component<Props, State> {
         KaravanApi.pipelineRun(this.props.project, this.props.env, res => {
             if (res.status === 200 || res.status === 201) {
                 this.setState({isBuilding: false});
+                ProjectEventBus.showLog('pipeline', res.data, this.props.env)
             } else {
                 // Todo notification
             }

@@ -222,6 +222,7 @@ public class KubernetesService implements HealthCheck{
 
             getTaskRuns(pipelineRunName, namespace).forEach(taskRun -> {
                 taskRun.getStatus().setConditions(getCancelConditions("TaskRunCancelled"));
+                kubernetesClient().pods().inNamespace(getNamespace()).withName(taskRun.getStatus().getPodName()).delete();
                 tektonClient().v1beta1().taskRuns().inNamespace(namespace).resource(taskRun).replaceStatus();
             });
 
