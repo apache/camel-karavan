@@ -25,7 +25,6 @@ import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 interface Props {
     project: Project,
     config: any,
-    needCommit: boolean,
 }
 
 interface State {
@@ -71,8 +70,8 @@ export class ProjectRunner extends React.Component<Props, State> {
     }
 
     getLastUpdatePanel() {
-        const {project, needCommit} = this.props;
-        const color = needCommit ? "grey" : "green";
+        const {project} = this.props;
+        const color = true ? "grey" : "green";
         return (
             <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentFlexStart"}}>
                 {project?.lastCommitTimestamp && project?.lastCommitTimestamp > 0 &&
@@ -86,8 +85,8 @@ export class ProjectRunner extends React.Component<Props, State> {
 
     getCommitPanel() {
         const {isPushing, commitMessage} = this.state;
-        const {project, needCommit} = this.props;
-        const color = needCommit ? "grey" : "green";
+        const {project} = this.props;
+        const color = true ? "grey" : "green";
         return (
             <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentSpaceBetween"}}>
                 <FlexItem>
@@ -97,19 +96,7 @@ export class ProjectRunner extends React.Component<Props, State> {
                     </Tooltip>
                 </FlexItem>
                 <FlexItem>
-                    <Tooltip content="Commit and push to git" position={"bottom-end"}>
-                        <Button isLoading={isPushing ? true : undefined}
-                                isSmall
-                                variant={needCommit ? "primary" : "secondary"}
-                                className="project-button"
-                                icon={!isPushing ? <PushIcon/> : <div></div>}
-                                onClick={() => this.setState({
-                                    commitMessageIsOpen: true,
-                                    commitMessage : commitMessage === '' ? new Date().toLocaleString() : commitMessage
-                                })}>
-                            {isPushing ? "..." : "Push"}
-                        </Button>
-                    </Tooltip>
+
                 </FlexItem>
             </Flex>
         )

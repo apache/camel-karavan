@@ -384,8 +384,8 @@ public class KubernetesService implements HealthCheck{
 
     public String tryCreatePod(String projectId) {
         String name = projectId + "-" + RUNNER_SUFFIX;
-        createPVC(name + JBANG_CACHE_SUFFIX);
-        createPVC(name + M2_CACHE_SUFFIX);
+        createPVC(name + "-" + JBANG_CACHE_SUFFIX);
+        createPVC(name + "-" + M2_CACHE_SUFFIX);
         Pod old = kubernetesClient().pods().inNamespace(getNamespace()).withName(name).get();
         if (old == null) {
             createPod(name);

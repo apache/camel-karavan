@@ -5,45 +5,36 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {Project} from "./ProjectModels";
-import {ProjectInfo} from "./ProjectInfo";
+import {ProjectRunnerToolbar} from "./ProjectRunnerToolbar";
 import {ProjectRunner} from "./ProjectRunner";
 
 
 interface Props {
     project: Project,
     config: any,
-    needCommit: boolean,
 }
 
-interface State {
-    environment: string,
-}
+export const ProjectDevelopment = (props: Props) => {
 
-export class ProjectDevelopment extends React.Component<Props, State> {
-
-    public state: State = {
-        environment: this.props.config.environment
-    };
-
-    render() {
-        const {project, config, needCommit} = this.props;
-        return (
-            <Card className="project-info">
+    const {project, config} = props;
+    return (
+            <Card className="project-development">
                 <CardBody>
                     <Flex direction={{default: "row"}}
-                          // style={{height: "200px"}}
                           justifyContent={{default: "justifyContentSpaceBetween"}}>
-                        <FlexItem flex={{default: "flex_2"}}>
-                            <ProjectInfo project={project} config={config} needCommit={needCommit} />
+                        <FlexItem flex={{default: "flex_4"}}>
+                            <ProjectRunner project={project} config={config} />
                         </FlexItem>
                         <Divider orientation={{default: "vertical"}}/>
-                        <FlexItem flex={{default: "flex_3"}}>
-                            <ProjectRunner project={project} config={config} needCommit={needCommit} />
+                        <FlexItem flex={{default: "flex_4"}}>
+                            <ProjectRunner project={project} config={config} />
+                        </FlexItem>
+                        <Divider orientation={{default: "vertical"}}/>
+                        <FlexItem>
+                            <ProjectRunnerToolbar project={project} config={config} />
                         </FlexItem>
                     </Flex>
                 </CardBody>
-                {/*{this.state.showDeleteConfirmation && this.getDeleteConfirmation()}*/}
             </Card>
         )
-    }
 }

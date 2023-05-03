@@ -415,7 +415,6 @@ export class ProjectPage extends React.Component<Props, State> {
                 {!isBuildIn &&
                     <PageSection className="project-bottom" padding={{default: "padding"}}>
                         {tab === 'development' && project && <ProjectDevelopment project={project}
-                                                                                 needCommit={this.needCommit()}
                                                                                  config={this.props.config}/>}
                         {tab === 'development' && <ProjectFilesTable files={files}
                                                                      onOpenDeleteConfirmation={this.openDeleteConfirmation}

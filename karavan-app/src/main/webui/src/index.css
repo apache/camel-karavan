@@ -145,8 +145,20 @@
   font-size: 15px;
 }
 
-.karavan .project-page .project-info {
+.karavan .project-page .project-development {
   margin-bottom: 16px;
+}
+
+.karavan .project-page .project-development .runner-toolbar {
+  line-height: 24px;
+  row-gap: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.karavan .project-page .project-development .runner-toolbar .row {
+  line-height: 24px;
+  height: 30px;
 }
 
 .karavan .project-page .project-status {
