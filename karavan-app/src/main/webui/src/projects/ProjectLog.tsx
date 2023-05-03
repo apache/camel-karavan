@@ -8,9 +8,8 @@ import CollapseIcon from '@patternfly/react-icons/dist/esm/icons/compress-icon';
 import {LogViewer} from '@patternfly/react-log-viewer';
 import {Subscription} from "rxjs";
 import {ProjectEventBus, ShowLogCommand} from "./ProjectEventBus";
-import {findDOMNode} from "react-dom";
-import {ProjectFile} from "./ProjectModels";
-import {KaravanApi} from "../api/KaravanApi";
+
+const INITIAL_LOG_HEIGHT = "50%";
 
 interface Props {
 
@@ -30,7 +29,7 @@ export class ProjectLog extends React.Component<Props, State> {
 
     public state: State = {
         showLog: false,
-        height: "30%",
+        height: INITIAL_LOG_HEIGHT,
         logViewerRef: React.createRef(),
         isTextWrapped: true,
         data: '',
@@ -42,7 +41,7 @@ export class ProjectLog extends React.Component<Props, State> {
     componentDidMount() {
         this.eventSource?.close();
         this.sub = ProjectEventBus.onShowLog()?.subscribe((log: ShowLogCommand) => {
-            this.setState({showLog: true, log: log});
+            this.setState({showLog: true, log: log, data: ''});
             this.showLogs(log.type, log.name, log.environment);
         });
     }
@@ -65,7 +64,7 @@ export class ProjectLog extends React.Component<Props, State> {
     }
 
     getButtons() {
-        const {height, isTextWrapped, logViewerRef, log} = this.state;
+        const {height, isTextWrapped, logViewerRef, log, data} = this.state;
         return (<div className="buttons">
             <Label className="log-name">{log?.type + ": " + log?.name}</Label>
             <Checkbox label="Wrap text" aria-label="wrap text checkbox" isChecked={isTextWrapped} id="wrap-text-checkbox"
@@ -75,13 +74,13 @@ export class ProjectLog extends React.Component<Props, State> {
             </Tooltip>
             <Tooltip content={height === "100%" ? "Collapse": "Expand"} position={TooltipPosition.bottom}>
                 <Button variant="plain" onClick={() => {
-                    const h = height === "100%" ? "30%" : "100%";
-                    this.setState({height: h, showLog: true});
+                    const h = height === "100%" ? INITIAL_LOG_HEIGHT : "100%";
+                    this.setState({height: h, showLog: true, data: data.concat(' ')});
                 }} icon={height === "100%" ? <CollapseIcon/> : <ExpandIcon/>}/>
             </Tooltip>
             <Button variant="plain" onClick={() => {
                 this.eventSource?.close();
-                this.setState({height: "30%", showLog: false, data: '', currentLine: 0});
+                this.setState({height: INITIAL_LOG_HEIGHT, showLog: false, data: '', currentLine: 0});
             }} icon={<CloseIcon/>}/>
         </div>);
     }
