@@ -11,5 +11,8 @@ RUN jbang alias add --name camel https://github.com/apache/camel/blob/camel-$CAM
 COPY docker-entrypoint.sh /scripts/docker-entrypoint.sh
 RUN chmod +x /scripts/docker-entrypoint.sh
 
+# Add demo routes
+COPY demo.camel.yaml /scripts/code/demo1/demo.camel.yaml
+
 WORKDIR /scripts
 ENTRYPOINT ["bash", "/scripts/docker-entrypoint.sh"]

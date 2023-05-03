@@ -1,0 +1,12 @@
+- route:
+    id: route-86aa
+    from:
+      uri: kamelet:timer-source
+      id: from-a117
+      parameters:
+        period: 2000
+        message: Hello World
+      steps:
+        - log:
+            message: ${body}
+            id: log-a0c9
