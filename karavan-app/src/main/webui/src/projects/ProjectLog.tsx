@@ -41,8 +41,12 @@ export class ProjectLog extends React.Component<Props, State> {
     componentDidMount() {
         this.eventSource?.close();
         this.sub = ProjectEventBus.onShowLog()?.subscribe((log: ShowLogCommand) => {
-            this.setState({showLog: true, log: log, data: ''});
-            this.showLogs(log.type, log.name, log.environment);
+            this.setState({showLog: log.show, log: log, data: ''});
+            if (log.show) {
+                this.showLogs(log.type, log.name, log.environment);
+            } else {
+                this.eventSource?.close();
+            }
         });
     }
 

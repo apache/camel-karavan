@@ -20,19 +20,35 @@ interface Props {
 
 export const ProjectRunnerToolbar = (props: Props) => {
 
+    const [podName, setPodName] = useState('');
     const [isJbangRunning, setJbangIsRunning] = useState(false);
     const [isRunning, setIsRunning] = useState(false);
+    const [isDeletingPod, setIsDeletingPod] = useState(false);
 
     function jbangRun () {
         setJbangIsRunning(true);
         KaravanApi.runProject(props.project, res => {
             if (res.status === 200 || res.status === 201) {
                 setJbangIsRunning(false);
+                setPodName(res.data);
                 ProjectEventBus.showLog('container', res.data, props.config.environment)
             } else {
                 // Todo notification
                 setJbangIsRunning(false);
             }
+        });
+    }
+
+    function deletePod () {
+        setIsDeletingPod(true);
+        KaravanApi.deletePod(props.config.environment, podName, res => {
+            if (res.status === 202) {
+                setIsDeletingPod(false);
+            } else {
+                // Todo notification
+                setIsDeletingPod(false);
+            }
+            ProjectEventBus.showLog('container', res.data, props.config.environment, false)
         });
     }
 
@@ -54,6 +70,7 @@ export const ProjectRunnerToolbar = (props: Props) => {
                 <div className="row">
                     <Tooltip content="Runtime run" position={TooltipPosition.left}>
                         <Button isLoading={isRunning ? true : undefined}
+                                isDisabled
                                 isSmall
                                 variant={"secondary"}
                                 className="project-button"
@@ -65,14 +82,14 @@ export const ProjectRunnerToolbar = (props: Props) => {
                     </Tooltip>
                 </div>
                 <div className="row">
-                    <Tooltip content="Delete container" position={TooltipPosition.left}>
-                        <Button isSmall
+                    <Tooltip content="Delete pod" position={TooltipPosition.left}>
+                        <Button isLoading={isDeletingPod ? true : undefined}
+                                isSmall
                                 variant={"secondary"}
                                 className="project-button"
                                 icon={!isRunning ? <DeleteIcon/> : <div></div>}
-                                onClick={() => {
-                                }}>
-                            Delete
+                                onClick={() => deletePod()}>
+                            {isDeletingPod ? "..." : "Delete"}
                         </Button>
                     </Tooltip>
                 </div>

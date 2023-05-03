@@ -163,7 +163,7 @@ public class KubernetesResource {
     @Path("/pod/{env}/{name}")
     public Response deletePod(@PathParam("env") String env, @PathParam("name") String name) throws Exception {
         kubernetesService.deletePod(name, kubernetesService.getNamespace());
-        return Response.ok().build();
+        return Response.accepted().build();
     }
 
     @GET

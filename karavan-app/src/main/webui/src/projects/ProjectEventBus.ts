@@ -25,14 +25,15 @@ export class ShowLogCommand {
     type: 'container' | 'pipeline'
     name: string
     environment: string
+    show: boolean
 
-    constructor(type: "container" | "pipeline", name: string, environment: string) {
+    constructor(type: "container" | "pipeline", name: string, environment: string, show: boolean) {
         this.type = type;
         this.name = name;
         this.environment = environment;
+        this.show = show;
     }
 }
-
 
 export const ProjectEventBus = {
 
@@ -42,6 +43,7 @@ export const ProjectEventBus = {
     selectProjectFile: (fileName: string) => currentFile.next(fileName),
     onSelectProjectFile: () => currentFile.asObservable(),
 
-    showLog: (type: 'container' | 'pipeline', name: string, environment: string) => showLog.next(new ShowLogCommand(type, name, environment)),
+    showLog: (type: 'container' | 'pipeline', name: string, environment: string, show: boolean = true) =>
+        showLog.next(new ShowLogCommand(type, name, environment, show)),
     onShowLog: () => showLog.asObservable(),
 }
