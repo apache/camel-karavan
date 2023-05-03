@@ -300,6 +300,15 @@ export class KaravanApi {
         });
     }
 
+    static async runProject(project: Project, after: (res: AxiosResponse<string>) => void) {
+        instance.post('/api/runner', project)
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    }
+
     static async pipelineRun(project: Project, environment: string, after: (res: AxiosResponse<any>) => void) {
         instance.post('/api/kubernetes/pipeline/' + environment, project)
             .then(res => {

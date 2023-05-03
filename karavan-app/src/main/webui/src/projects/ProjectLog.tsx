@@ -53,7 +53,7 @@ export class ProjectLog extends React.Component<Props, State> {
 
     showLogs = (type: 'container' | 'pipeline', name: string, environment: string) => {
         this.eventSource?.close();
-        this.eventSource = new EventSource("/api/logwatch/"+type+"/"+environment+"/"+name);
+        this.eventSource = new EventSource("/api/logwatch/"+type+"/"+environment+"/"+name, { withCredentials: true });
         this.eventSource.onerror = (event) => {
             this.eventSource?.close();
         }
