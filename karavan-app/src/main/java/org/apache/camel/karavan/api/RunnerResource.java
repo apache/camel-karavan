@@ -16,19 +16,27 @@
  */
 package org.apache.camel.karavan.api;
 
+import org.apache.camel.karavan.model.PodStatus;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.service.InfinispanService;
 import org.apache.camel.karavan.service.KubernetesService;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.apache.camel.karavan.service.KubernetesService.RUNNER_SUFFIX;
 
 @Path("/api/runner")
 public class RunnerResource {
+
+    @ConfigProperty(name = "karavan.environment")
+    String environment;
 
     @Inject
     KubernetesService kubernetesService;
@@ -39,8 +47,22 @@ public class RunnerResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public String runProject(Project project) throws Exception {
+    public String runProject(Project project) {
         Project p = infinispanService.getProject(project.getProjectId());
         return kubernetesService.tryCreatePod(p.getProjectId());
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/status/{projectId}/{name}")
+    public Response getPodStatus(@PathParam("projectId") String projectId, @PathParam("name") String name) {
+        Optional<PodStatus> ps =  infinispanService.getPodStatuses(projectId, environment).stream()
+                .filter(podStatus -> podStatus.getName().equals(name))
+                .findFirst();
+        if (ps.isPresent()) {
+            return Response.ok(ps.get()).build();
+        } else {
+            return Response.noContent().build();
+        }
     }
 }

@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.informer;
+package org.apache.camel.karavan.handler;
 
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodCondition;
@@ -10,13 +10,15 @@ import org.jboss.logging.Logger;
 
 import java.util.Optional;
 
-public class RunnerPodEventHandler implements ResourceEventHandler<Pod> {
+import static org.apache.camel.karavan.service.KubernetesService.RUNNER_SUFFIX;
 
-    private static final Logger LOGGER = Logger.getLogger(RunnerPodEventHandler.class.getName());
+public class PodEventHandler implements ResourceEventHandler<Pod> {
+
+    private static final Logger LOGGER = Logger.getLogger(PodEventHandler.class.getName());
     private InfinispanService infinispanService;
     private KubernetesService kubernetesService;
 
-    public RunnerPodEventHandler(InfinispanService infinispanService, KubernetesService kubernetesService) {
+    public PodEventHandler(InfinispanService infinispanService, KubernetesService kubernetesService) {
         this.infinispanService = infinispanService;
         this.kubernetesService = kubernetesService;
     }
@@ -48,9 +50,10 @@ public class RunnerPodEventHandler implements ResourceEventHandler<Pod> {
         try {
             LOGGER.info("onDelete " + pod.getMetadata().getName());
             String deployment = pod.getMetadata().getLabels().get("app");
+            String project = deployment != null ? deployment : pod.getMetadata().getLabels().get("project");
             PodStatus ps = new PodStatus(
                     pod.getMetadata().getName(),
-                    deployment,
+                    project,
                     kubernetesService.environment);
             infinispanService.deletePodStatus(ps);
         } catch (Exception e){
@@ -61,23 +64,28 @@ public class RunnerPodEventHandler implements ResourceEventHandler<Pod> {
 
     public PodStatus getPodStatus(Pod pod) {
         String deployment = pod.getMetadata().getLabels().get("app");
+        String project = deployment != null ? deployment : pod.getMetadata().getLabels().get("project");
         try {
-            Optional<PodCondition> initialized = pod.getStatus().getConditions().stream().filter(c -> c.getType().equals("Initialized")).findFirst();
-            Optional<PodCondition> ready = pod.getStatus().getConditions().stream().filter(c -> c.getType().equals("Initialized")).findFirst();
+            boolean initialized = pod.getStatus().getConditions().stream().anyMatch(c -> c.getType().equals("Initialized"));
+            boolean ready = pod.getStatus().getConditions().stream().anyMatch(c -> c.getType().equals("Ready"));
+            boolean terminating = pod.getMetadata().getDeletionTimestamp() != null;
             return new PodStatus(
                     pod.getMetadata().getName(),
                     pod.getStatus().getPhase(),
-                    initialized.isEmpty() ? false : initialized.get().getStatus().equals("True"),
-                    ready.isEmpty() ? false : ready.get().getStatus().equals("True"),
+                    initialized,
+                    ready && !terminating,
                     pod.getStatus().getReason(),
+                    project,
                     deployment,
-                    kubernetesService.environment
+                    kubernetesService.environment,
+                    deployment == null || pod.getMetadata().getName().endsWith(RUNNER_SUFFIX)
+
             );
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
             return new PodStatus(
                     pod.getMetadata().getName(),
-                    deployment,
+                    project,
                     kubernetesService.environment);
         }
     }

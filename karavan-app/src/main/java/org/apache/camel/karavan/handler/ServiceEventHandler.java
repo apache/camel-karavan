@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.informer;
+package org.apache.camel.karavan.handler;
 
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;

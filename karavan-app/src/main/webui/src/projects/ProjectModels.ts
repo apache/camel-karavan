@@ -52,7 +52,9 @@ export class PodStatus {
     started: boolean = false;
     ready: boolean = false;
     reason: string = '';
+    project: string = '';
     deployment: string = '';
+    runner: boolean = false;
 }
 
 export class CamelStatus {

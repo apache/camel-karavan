@@ -49,6 +49,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -235,18 +236,18 @@ public class InfinispanService implements HealthCheck  {
     }
 
     public List<ServiceStatus> getServiceStatuses() {
-        return serviceStatuses.values().stream().collect(Collectors.toList());
+        return new ArrayList<>(serviceStatuses.values());
     }
 
     public List<PodStatus> getPodStatuses(String projectId, String env) {
         if (cacheManager == null) {
             return podStatuses.values().stream()
-                    .filter(s -> s.getEnv().equals(env) && s.getDeployment().equals(projectId))
+                    .filter(s -> s.getEnv().equals(env) && s.getProject().equals(projectId))
                     .collect(Collectors.toList());
         } else {
             QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) podStatuses);
-            return queryFactory.<PodStatus>create("FROM karavan.PodStatus WHERE deployment = :deployment AND env = :env")
-                    .setParameter("deployment", projectId)
+            return queryFactory.<PodStatus>create("FROM karavan.PodStatus WHERE project = :project AND env = :env")
+                    .setParameter("project", projectId)
                     .setParameter("env", env)
                     .execute().list();
         }
@@ -266,11 +267,11 @@ public class InfinispanService implements HealthCheck  {
     }
 
     public void savePodStatus(PodStatus status) {
-        podStatuses.put(GroupedKey.create(status.getDeployment(), status.getName()), status);
+        podStatuses.put(GroupedKey.create(status.getProject(), status.getName()), status);
     }
 
     public void deletePodStatus(PodStatus status) {
-        podStatuses.remove(GroupedKey.create(status.getDeployment(), status.getName()));
+        podStatuses.remove(GroupedKey.create(status.getProject(), status.getName()));
     }
 
     public CamelStatus getCamelStatus(String projectId, String env) {

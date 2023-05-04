@@ -1,9 +1,8 @@
-package org.apache.camel.karavan.informer;
+package org.apache.camel.karavan.handler;
 
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import org.apache.camel.karavan.model.DeploymentStatus;
-import org.apache.camel.karavan.model.Environment;
 import org.apache.camel.karavan.service.InfinispanService;
 import org.apache.camel.karavan.service.KubernetesService;
 import org.jboss.logging.Logger;

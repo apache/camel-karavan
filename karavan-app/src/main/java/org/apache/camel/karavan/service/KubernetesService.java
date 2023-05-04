@@ -29,7 +29,7 @@ import io.fabric8.tekton.client.DefaultTektonClient;
 import io.fabric8.tekton.pipeline.v1beta1.*;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.mutiny.core.eventbus.EventBus;
-import org.apache.camel.karavan.informer.*;
+import org.apache.camel.karavan.handler.*;
 import org.apache.camel.karavan.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheck;
@@ -53,10 +53,10 @@ public class KubernetesService implements HealthCheck{
     private static final Logger LOGGER = Logger.getLogger(KubernetesService.class.getName());
     public static final String START_INFORMERS = "start-informers";
     public static final String STOP_INFORMERS = "stop-informers";
-    public static final int INFORMERS = 5;
+    public static final int INFORMERS = 4;
     private static final String CAMEL_PREFIX = "camel";
     private static final String KARAVAN_PREFIX = "karavan";
-    private static final String RUNNER_SUFFIX = "runner";
+    public static final String RUNNER_SUFFIX = "runner";
     private static final String JBANG_CACHE_SUFFIX = "jbang-cache";
     private static final String M2_CACHE_SUFFIX = "m2-cache";
 
@@ -115,10 +115,6 @@ public class KubernetesService implements HealthCheck{
                     .withLabels(getRuntimeLabels()).inform();
             podRunInformer.addEventHandlerWithResyncPeriod(new PodEventHandler(infinispanService, this),30 * 1000L);
             informers.add(podRunInformer);
-
-            SharedIndexInformer<Pod> runnerInformer = kubernetesClient().pods().inNamespace(getNamespace()).withLabels(getKaravanTypeLabel()).inform();
-            runnerInformer.addEventHandlerWithResyncPeriod(new RunnerPodEventHandler(infinispanService, this),30 * 1000L);
-            informers.add(runnerInformer);
 
             LOGGER.info("Started Kubernetes Informers");
         } catch (Exception e) {
@@ -388,22 +384,27 @@ public class KubernetesService implements HealthCheck{
         createPVC(name + "-" + M2_CACHE_SUFFIX);
         Pod old = kubernetesClient().pods().inNamespace(getNamespace()).withName(name).get();
         if (old == null) {
-            createPod(name);
+            createPod(projectId, name);
         }
         return name;
     }
 
-    private void createPod(String name) {
-        Pod pod = getPod(name);
+    private void createPod(String projectId, String name) {
+        Pod pod = getPod(projectId, name);
         Pod result = kubernetesClient().resource(pod).create();
         LOGGER.info("Created pod " + result.getMetadata().getName());
     }
 
-    private Pod getPod(String name) {
+    private Pod getPod(String projectId, String name) {
+        Map<String,String> labels = new HashMap<>();
+        labels.putAll(getRuntimeLabels());
+        labels.putAll(getKaravanTypeLabel());
+        labels.put("project", projectId);
+
         ObjectMeta meta = new ObjectMetaBuilder()
                 .withName(name)
-                .withLabels(getKaravanTypeLabel())
-                .withNamespace("karavan")
+                .withLabels(labels)
+                .withNamespace(getNamespace())
                 .build();
 
         ContainerPort port = new ContainerPortBuilder()
@@ -422,6 +423,7 @@ public class KubernetesService implements HealthCheck{
                 .build();
 
         PodSpec spec = new PodSpecBuilder()
+                .withTerminationGracePeriodSeconds(0L)
                 .withContainers(container)
                 .withVolumes(new VolumeBuilder().withName(name + "-" + JBANG_CACHE_SUFFIX)
                         .withNewPersistentVolumeClaim(name + "-" + JBANG_CACHE_SUFFIX, false).build())
@@ -460,8 +462,12 @@ public class KubernetesService implements HealthCheck{
 
     public Map<String, String> getRuntimeLabels() {
         Map<String, String> result = new HashMap<>();
-        result.put(isOpenshift() ? "app.openshift.io/runtime" : "app.kubernetes.io/runtime", CAMEL_PREFIX);
+        result.put(getRuntimeLabelName(), CAMEL_PREFIX);
         return result;
+    }
+
+    public String getRuntimeLabelName() {
+        return isOpenshift() ? "app.openshift.io/runtime" : "app.kubernetes.io/runtime";
     }
 
     public Map<String, String> getRuntimeLabels(Map<String, String> add) {

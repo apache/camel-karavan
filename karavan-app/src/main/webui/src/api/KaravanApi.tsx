@@ -300,6 +300,15 @@ export class KaravanApi {
         });
     }
 
+    static async getRunnerPodStatus(projectId: string, name: string, after: (res: AxiosResponse<PodStatus>) => void) {
+        instance.get('/api/runner/status/' + projectId + "/" + name)
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    }
+
     static async runProject(project: Project, after: (res: AxiosResponse<string>) => void) {
         instance.post('/api/runner', project)
             .then(res => {

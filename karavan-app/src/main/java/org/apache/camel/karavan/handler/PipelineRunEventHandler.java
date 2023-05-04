@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.informer;
+package org.apache.camel.karavan.handler;
 
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRun;

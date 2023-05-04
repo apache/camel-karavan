@@ -18,27 +18,33 @@ public class PodStatus {
     @ProtoField(number = 6)
     String deployment;
     @ProtoField(number = 7)
+    String project;
+    @ProtoField(number = 8)
     String env;
+    @ProtoField(number = 9)
+    Boolean runner;
 
-    public PodStatus(String name, String deployment, String env) {
+    public PodStatus(String name, String project, String env) {
         this.name = name;
         this.phase = "";
         this.initialized = false;
         this.ready = false;
         this.reason = "";
-        this.deployment = deployment;
+        this.project = project;
         this.env = env;
     }
 
     @ProtoFactory
-    public PodStatus(String name, String phase, Boolean initialized, Boolean ready, String reason, String deployment, String env) {
+    public PodStatus(String name, String phase, Boolean initialized, Boolean ready, String reason, String project, String deployment, String env, Boolean runner) {
         this.name = name;
         this.phase = phase;
         this.initialized = initialized;
         this.ready = ready;
         this.reason = reason;
         this.deployment = deployment;
+        this.project = project;
         this.env = env;
+        this.runner = runner;
     }
 
     public String getName() {
@@ -95,5 +101,21 @@ public class PodStatus {
 
     public void setEnv(String env) {
         this.env = env;
+    }
+
+    public Boolean getRunner() {
+        return runner;
+    }
+
+    public void setRunner(Boolean runner) {
+        this.runner = runner;
+    }
+
+    public String getProject() {
+        return project;
+    }
+
+    public void setProject(String project) {
+        this.project = project;
     }
 }

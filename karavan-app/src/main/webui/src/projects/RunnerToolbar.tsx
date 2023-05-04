@@ -18,9 +18,9 @@ interface Props {
     config: any,
 }
 
-export const ProjectRunnerToolbar = (props: Props) => {
+export const RunnerToolbar = (props: Props) => {
 
-    const [podName, setPodName] = useState('');
+    const [podName, setPodName] = useState(props.project.projectId + '-runner');
     const [isJbangRunning, setJbangIsRunning] = useState(false);
     const [isRunning, setIsRunning] = useState(false);
     const [isDeletingPod, setIsDeletingPod] = useState(false);
@@ -48,7 +48,6 @@ export const ProjectRunnerToolbar = (props: Props) => {
                 // Todo notification
                 setIsDeletingPod(false);
             }
-            ProjectEventBus.showLog('container', res.data, props.config.environment, false)
         });
     }
 
