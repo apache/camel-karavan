@@ -49,7 +49,7 @@ public class RunnerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public String runProject(Project project) {
         Project p = infinispanService.getProject(project.getProjectId());
-        return kubernetesService.tryCreatePod(p.getProjectId());
+        return kubernetesService.tryCreatePod(p);
     }
 
     @GET

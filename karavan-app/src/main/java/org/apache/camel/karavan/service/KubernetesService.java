@@ -31,6 +31,7 @@ import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.handler.*;
 import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.model.ProjectFile;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -43,6 +44,8 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.apache.camel.karavan.service.ServiceUtil.APPLICATION_PROPERTIES_FILENAME;
 
 
 @Default
@@ -378,28 +381,39 @@ public class KubernetesService implements HealthCheck{
         return result;
     }
 
-    public String tryCreatePod(String projectId) {
-        String name = projectId + "-" + RUNNER_SUFFIX;
+    public String tryCreatePod(Project project) {
+        String name = project.getProjectId() + "-" + RUNNER_SUFFIX;
         createPVC(name + "-" + JBANG_CACHE_SUFFIX);
         createPVC(name + "-" + M2_CACHE_SUFFIX);
         Pod old = kubernetesClient().pods().inNamespace(getNamespace()).withName(name).get();
         if (old == null) {
-            createPod(projectId, name);
+            ProjectFile properties = infinispanService.getProjectFile(project.getProjectId(), APPLICATION_PROPERTIES_FILENAME);
+            Map<String,String> containerResources = ServiceUtil
+                    .getRunnerContainerResourcesMap(properties, isOpenshift(), project.getRuntime().equals("quarkus"));
+            System.out.println(containerResources);
+            Pod pod = getPod(project.getProjectId(), name, containerResources);
+            Pod result = kubernetesClient().resource(pod).create();
+            LOGGER.info("Created pod " + result.getMetadata().getName());
         }
         return name;
     }
 
-    private void createPod(String projectId, String name) {
-        Pod pod = getPod(projectId, name);
-        Pod result = kubernetesClient().resource(pod).create();
-        LOGGER.info("Created pod " + result.getMetadata().getName());
+    public ResourceRequirements getResourceRequirements(Map<String,String> containerResources) {
+        return new ResourceRequirementsBuilder()
+                .addToRequests("cpu", new Quantity(containerResources.get("requests.cpu")))
+                .addToRequests("memory", new Quantity(containerResources.get("requests.memory")))
+                .addToLimits("cpu", new Quantity(containerResources.get("limits.cpu")))
+                .addToLimits("memory", new Quantity(containerResources.get("limits.memory")))
+                .build();
     }
 
-    private Pod getPod(String projectId, String name) {
+    private Pod getPod(String projectId, String name, Map<String,String> containerResources) {
         Map<String,String> labels = new HashMap<>();
         labels.putAll(getRuntimeLabels());
         labels.putAll(getKaravanTypeLabel());
         labels.put("project", projectId);
+
+        ResourceRequirements resources = getResourceRequirements(containerResources);
 
         ObjectMeta meta = new ObjectMetaBuilder()
                 .withName(name)
@@ -418,6 +432,7 @@ public class KubernetesService implements HealthCheck{
                 .withImage("entropy1/camel-karavan-runner")
 //                .withImage("ghcr.io/apache/camel-karavan-runner:3.20.2-snapshot")
                 .withPorts(port)
+                .withResources(resources)
                 .withVolumeMounts(new VolumeMountBuilder().withName(name + "-" + JBANG_CACHE_SUFFIX).withMountPath("/root/.m2").build())
                 .withVolumeMounts(new VolumeMountBuilder().withName(name + "-" + M2_CACHE_SUFFIX).withMountPath("/jbang/.jbang/cache").build())
                 .build();

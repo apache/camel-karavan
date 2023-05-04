@@ -14,37 +14,56 @@ public class PodStatus {
     @ProtoField(number = 4)
     Boolean ready;
     @ProtoField(number = 5)
-    String reason;
+    Boolean terminating;
     @ProtoField(number = 6)
-    String deployment;
+    String reason;
     @ProtoField(number = 7)
-    String project;
+    String deployment;
     @ProtoField(number = 8)
-    String env;
+    String project;
     @ProtoField(number = 9)
+    String env;
+    @ProtoField(number = 10)
     Boolean runner;
+    @ProtoField(number = 11)
+    String requestMemory;
+    @ProtoField(number = 12)
+    String requestCpu;
+    @ProtoField(number = 13)
+    String limitMemory;
+    @ProtoField(number = 14)
+    String limitCpu;
+    @ProtoField(number = 15)
+    String creationTimestamp;
 
     public PodStatus(String name, String project, String env) {
         this.name = name;
         this.phase = "";
         this.initialized = false;
         this.ready = false;
+        this.terminating = false;
         this.reason = "";
         this.project = project;
         this.env = env;
     }
 
     @ProtoFactory
-    public PodStatus(String name, String phase, Boolean initialized, Boolean ready, String reason, String project, String deployment, String env, Boolean runner) {
+    public PodStatus(String name, String phase, Boolean initialized, Boolean ready, Boolean terminating, String reason, String deployment, String project, String env, Boolean runner, String requestMemory, String requestCpu, String limitMemory, String limitCpu, String creationTimestamp) {
         this.name = name;
         this.phase = phase;
         this.initialized = initialized;
         this.ready = ready;
+        this.terminating = terminating;
         this.reason = reason;
         this.deployment = deployment;
         this.project = project;
         this.env = env;
         this.runner = runner;
+        this.requestMemory = requestMemory;
+        this.requestCpu = requestCpu;
+        this.limitMemory = limitMemory;
+        this.limitCpu = limitCpu;
+        this.creationTimestamp = creationTimestamp;
     }
 
     public String getName() {
@@ -79,6 +98,14 @@ public class PodStatus {
         this.ready = ready;
     }
 
+    public Boolean getTerminating() {
+        return terminating;
+    }
+
+    public void setTerminating(Boolean terminating) {
+        this.terminating = terminating;
+    }
+
     public String getReason() {
         return reason;
     }
@@ -93,6 +120,14 @@ public class PodStatus {
 
     public void setDeployment(String deployment) {
         this.deployment = deployment;
+    }
+
+    public String getProject() {
+        return project;
+    }
+
+    public void setProject(String project) {
+        this.project = project;
     }
 
     public String getEnv() {
@@ -111,11 +146,43 @@ public class PodStatus {
         this.runner = runner;
     }
 
-    public String getProject() {
-        return project;
+    public String getRequestMemory() {
+        return requestMemory;
     }
 
-    public void setProject(String project) {
-        this.project = project;
+    public void setRequestMemory(String requestMemory) {
+        this.requestMemory = requestMemory;
+    }
+
+    public String getRequestCpu() {
+        return requestCpu;
+    }
+
+    public void setRequestCpu(String requestCpu) {
+        this.requestCpu = requestCpu;
+    }
+
+    public String getLimitMemory() {
+        return limitMemory;
+    }
+
+    public void setLimitMemory(String limitMemory) {
+        this.limitMemory = limitMemory;
+    }
+
+    public String getLimitCpu() {
+        return limitCpu;
+    }
+
+    public void setLimitCpu(String limitCpu) {
+        this.limitCpu = limitCpu;
+    }
+
+    public String getCreationTimestamp() {
+        return creationTimestamp;
+    }
+
+    public void setCreationTimestamp(String creationTimestamp) {
+        this.creationTimestamp = creationTimestamp;
     }
 }

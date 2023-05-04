@@ -10,8 +10,8 @@ import org.jboss.logging.Logger;
 public class DeploymentEventHandler implements ResourceEventHandler<Deployment> {
 
     private static final Logger LOGGER = Logger.getLogger(DeploymentEventHandler.class.getName());
-    private InfinispanService infinispanService;
-    private KubernetesService kubernetesService;
+    private final InfinispanService infinispanService;
+    private final KubernetesService kubernetesService;
 
     public DeploymentEventHandler(InfinispanService infinispanService, KubernetesService kubernetesService) {
         this.infinispanService = infinispanService;

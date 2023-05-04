@@ -18,15 +18,53 @@ package org.apache.camel.karavan.service;
 
 import org.apache.camel.karavan.model.GitRepo;
 import org.apache.camel.karavan.model.GitRepoFile;
+import org.apache.camel.karavan.model.ProjectFile;
 
-import java.util.Arrays;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ServiceUtil {
+
+    public static final String APPLICATION_PROPERTIES_FILENAME = "application.properties";
+    public static final Map<String, String> DEFAULT_CONTAINER_RESOURCES = Map.of(
+            "requests.memory", "64Mi",
+            "requests.cpu", "250m",
+            "limits.memory", "512Mi",
+            "limits.cpu", "1000m"
+    );
+
+
+    public static Map<String, String> getRunnerContainerResourcesMap(ProjectFile propertiesFile, boolean isOpenshift, boolean isQuarkus) {
+        if (!isQuarkus) {
+            return DEFAULT_CONTAINER_RESOURCES;
+        } else {
+            Map<String, String> result = new HashMap<>();
+            String patternPrefix = isOpenshift ? "quarkus.openshift.resources." : "quarkus.kubernetes.resources.";
+            String devPatternPrefix = "%dev." + patternPrefix;
+
+            List<String> lines = propertiesFile.getCode().lines().collect(Collectors.toList());
+
+            DEFAULT_CONTAINER_RESOURCES.forEach((key, value) -> {
+                Optional<String> dev = lines.stream().filter(l -> l.startsWith(devPatternPrefix + key)).findFirst();
+                if (dev.isPresent()) {
+                    result.put(key, ServiceUtil.getValueForProperty(dev.get(), devPatternPrefix + key));
+                } else {
+                    Optional<String> prod = lines.stream().filter(l -> l.startsWith(patternPrefix + key)).findFirst();
+                    if (prod.isPresent()){
+                        result.put(key, ServiceUtil.getValueForProperty(prod.get(), patternPrefix + key));
+                    } else {
+                        result.put(key, value);
+                    }
+                }
+            });
+            return result;
+        }
+    }
 
     public static String getPropertiesFile(GitRepo repo) {
         try {
             for (GitRepoFile e : repo.getFiles()){
-                if (e.getName().equalsIgnoreCase("application.properties")) {
+                if (e.getName().equalsIgnoreCase(APPLICATION_PROPERTIES_FILENAME)) {
                     return e.getBody();
                 }
             }
@@ -48,6 +86,11 @@ public class ServiceUtil {
         return  Arrays.stream(file.split(System.lineSeparator())).filter(s -> s.startsWith(prefix))
                 .findFirst().orElseGet(() -> "")
                 .replace(prefix, "");
+    }
+
+    public static String getValueForProperty(String line, String property) {
+        String prefix = property + "=";
+        return  line.replace(prefix, "");
     }
 
     public static String getProjectDescription(String file) {

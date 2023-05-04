@@ -51,10 +51,20 @@ export class PodStatus {
     phase: string = '';
     started: boolean = false;
     ready: boolean = false;
+    terminating: boolean = false;
     reason: string = '';
     project: string = '';
     deployment: string = '';
     runner: boolean = false;
+    requestMemory: string = '';
+    requestCpu: string = '';
+    limitMemory: string = '';
+    limitCpu: string = '';
+    creationTimestamp: string = '';
+
+    public constructor(init?: Partial<PodStatus>) {
+        Object.assign(this, init);
+    }
 }
 
 export class CamelStatus {

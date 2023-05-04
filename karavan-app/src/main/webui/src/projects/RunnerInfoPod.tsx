@@ -48,30 +48,71 @@ export const RunnerInfoPod = (props: Props) => {
                 setPodStatus(res.data);
             } else {
                 ProjectEventBus.showLog('container', name, props.config.environment, false);
-                setPodStatus(new PodStatus());
+                setPodStatus(new PodStatus({name: name}));
             }
         })
     }
 
     function getPodInfo() {
-        const running = podStatus.phase === 'Running' && podStatus.ready;
         const env = props.config.environment;
         return (
-            <Label icon={running ? <UpIcon/> : <DownIcon/>} color={running ? "green" : "grey"}>
-                <Button variant="link"
-                        onClick={e => ProjectEventBus.showLog('container', podStatus.name, env)}>
-                    {podStatus.name}
-                </Button>
-                {/*<Tooltip content={"Delete Pod"}>*/}
-                {/*    <Button icon={<DeleteIcon/>} variant="link" onClick={e => this.setState({*/}
-                {/*        showDeleteConfirmation: true,*/}
-                {/*        deleteEntity: "pod",*/}
-                {/*        deleteEntityEnv: env,*/}
-                {/*        deleteEntityName: podStatus.name*/}
-                {/*    })}></Button>*/}
-                {/*</Tooltip>*/}
+            <Label icon={getIcon()} color={getColor()}>
+                <Tooltip content={`Phase: ${JSON.stringify(podStatus)}`}>
+                    <Button variant="link"
+                            onClick={e => ProjectEventBus.showLog('container', podStatus.name, env)}>
+                        {podStatus.name}
+                    </Button>
+                </Tooltip>
             </Label>
         )
+    }
+
+    function getPodStatus() {
+        const status = !podStatus.terminating ? podStatus.phase : "Terminating"
+        return (
+            <Label icon={getIcon()} color={getColor()}>
+                {status !== "" ? status : "N/A"}
+            </Label>
+        )
+    }
+
+    function getPodRequests() {
+        const text = podStatus.requestCpu !== '' ? podStatus.requestCpu + " : " + podStatus.requestMemory : "N/A";
+        return (
+            <Label icon={getIcon()} color={getColor()}>
+                {text}
+            </Label>
+        )
+    }
+
+    function getPodCreation() {
+        const text = podStatus.creationTimestamp !== '' ? podStatus.creationTimestamp : "N/A";
+        return (
+            <Label icon={getIcon()} color={getColor()}>
+                {text}
+            </Label>
+        )
+    }
+
+    function getPodLimits() {
+        const text = podStatus.limitCpu !== '' ? podStatus.limitCpu + " : " + podStatus.limitMemory : "N/A";
+        return (
+            <Label icon={getIcon()} color={getColor()}>
+                {text}
+            </Label>
+        )
+    }
+
+    function getIcon() {
+        return (getRunning() ? <UpIcon/> : <DownIcon/>)
+    }
+
+    function getColor() {
+        return getRunning() ? "green" : "grey";
+    }
+
+    function getRunning(): boolean {
+        return podStatus.phase === 'Running' && !podStatus.terminating;
     }
 
     return (
@@ -83,27 +124,27 @@ export const RunnerInfoPod = (props: Props) => {
                 </DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>
-                <DescriptionListTerm>????</DescriptionListTerm>
+                <DescriptionListTerm>Status</DescriptionListTerm>
                 <DescriptionListDescription>
-                    {getPodInfo()}
+                    {getPodStatus()}
                 </DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>
-                <DescriptionListTerm>????</DescriptionListTerm>
+                <DescriptionListTerm>Requests</DescriptionListTerm>
                 <DescriptionListDescription>
-                    {getPodInfo()}
+                    {getPodRequests()}
                 </DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>
-                <DescriptionListTerm>????</DescriptionListTerm>
+                <DescriptionListTerm>Limits</DescriptionListTerm>
                 <DescriptionListDescription>
-                    {getPodInfo()}
+                    {getPodLimits()}
                 </DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>
-                <DescriptionListTerm>????</DescriptionListTerm>
+                <DescriptionListTerm>Created</DescriptionListTerm>
                 <DescriptionListDescription>
-                    {getPodInfo()}
+                    {getPodCreation()}
                 </DescriptionListDescription>
             </DescriptionListGroup>
         </DescriptionList>

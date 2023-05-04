@@ -45,6 +45,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.apache.camel.karavan.service.ServiceUtil.APPLICATION_PROPERTIES_FILENAME;
+
 @ApplicationScoped
 public class CodeService {
 
@@ -65,7 +67,7 @@ public class CodeService {
 
     public String getApplicationProperties(Project project) {
         String target = kubernetesService.isOpenshift() ? "openshift" : "kubernetes";
-        String templateName = project.getRuntime() + "-" + target + "-application.properties";
+        String templateName = project.getRuntime() + "-" + target + "-" + APPLICATION_PROPERTIES_FILENAME;
         String templateText = getTemplateText(templateName);
         Template result = engine.parse(templateText);
         return result
@@ -81,17 +83,17 @@ public class CodeService {
             List<ProjectFile> files = infinispanService.getProjectFiles(Project.NAME_TEMPLATES);
             return files.stream().filter(f -> f.getName().equalsIgnoreCase(fileName))
                     .map(ProjectFile::getCode).findFirst().orElse(null);
-        } catch (Exception e){
+        } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
         return null;
     }
 
-    public Map<String,String> getApplicationPropertiesTemplates() {
+    public Map<String, String> getApplicationPropertiesTemplates() {
         Map<String, String> result = new HashMap<>();
 
         List<String> files = new ArrayList<>(interfaces);
-        files.addAll(targets.stream().map(target -> target + "-application.properties").collect(Collectors.toList()));
+        files.addAll(targets.stream().map(target -> target + "-" + APPLICATION_PROPERTIES_FILENAME).collect(Collectors.toList()));
 
         runtimes.forEach(runtime -> {
             files.forEach(file -> {
@@ -104,7 +106,7 @@ public class CodeService {
         return result;
     }
 
-    public Map<String,String> getPipelinesTemplates() {
+    public Map<String, String> getPipelinesTemplates() {
         Map<String, String> result = new HashMap<>();
 
         List<String> files = new ArrayList<>(targets);
@@ -156,4 +158,5 @@ public class CodeService {
         Map map = loader.load(openApi);
         return mapper.convertValue(map, JsonNode.class);
     }
+
 }

@@ -1,7 +1,6 @@
 package org.apache.camel.karavan.handler;
 
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodCondition;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import org.apache.camel.karavan.model.PodStatus;
 import org.apache.camel.karavan.service.InfinispanService;
@@ -11,12 +10,13 @@ import org.jboss.logging.Logger;
 import java.util.Optional;
 
 import static org.apache.camel.karavan.service.KubernetesService.RUNNER_SUFFIX;
+import static org.apache.camel.karavan.service.ServiceUtil.DEFAULT_CONTAINER_RESOURCES;
 
 public class PodEventHandler implements ResourceEventHandler<Pod> {
 
     private static final Logger LOGGER = Logger.getLogger(PodEventHandler.class.getName());
-    private InfinispanService infinispanService;
-    private KubernetesService kubernetesService;
+    private final InfinispanService infinispanService;
+    private final KubernetesService kubernetesService;
 
     public PodEventHandler(InfinispanService infinispanService, KubernetesService kubernetesService) {
         this.infinispanService = infinispanService;
@@ -30,7 +30,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             PodStatus ps = getPodStatus(pod);
             infinispanService.savePodStatus(ps);
         } catch (Exception e){
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage(), e.getCause());
         }
     }
 
@@ -41,7 +41,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             PodStatus ps = getPodStatus(newPod);
             infinispanService.savePodStatus(ps);
         } catch (Exception e){
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage(), e.getCause());
         }
     }
 
@@ -57,7 +57,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
                     kubernetesService.environment);
             infinispanService.deletePodStatus(ps);
         } catch (Exception e){
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage(), e.getCause());
         }
     }
 
@@ -69,20 +69,35 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             boolean initialized = pod.getStatus().getConditions().stream().anyMatch(c -> c.getType().equals("Initialized"));
             boolean ready = pod.getStatus().getConditions().stream().anyMatch(c -> c.getType().equals("Ready"));
             boolean terminating = pod.getMetadata().getDeletionTimestamp() != null;
+            String creationTimestamp = pod.getMetadata().getCreationTimestamp();
+
+            ResourceRequirements defaultRR = kubernetesService.getResourceRequirements(DEFAULT_CONTAINER_RESOURCES);
+            ResourceRequirements resourceRequirements = pod.getSpec().getContainers().stream().findFirst()
+                    .orElse(new ContainerBuilder().withResources(defaultRR).build()).getResources();
+
+            String requestMemory = resourceRequirements.getRequests().getOrDefault("memory", new Quantity()).toString();
+            String requestCpu = resourceRequirements.getRequests().getOrDefault("cpu", new Quantity()).toString();
+            String limitMemory = resourceRequirements.getLimits().getOrDefault("memory", new Quantity()).toString();
+            String limitCpu = resourceRequirements.getLimits().getOrDefault("cpu", new Quantity()).toString();
             return new PodStatus(
                     pod.getMetadata().getName(),
                     pod.getStatus().getPhase(),
                     initialized,
-                    ready && !terminating,
+                    ready,
+                    terminating,
                     pod.getStatus().getReason(),
-                    project,
                     deployment,
+                    project,
                     kubernetesService.environment,
-                    deployment == null || pod.getMetadata().getName().endsWith(RUNNER_SUFFIX)
-
+                    deployment == null || pod.getMetadata().getName().endsWith(RUNNER_SUFFIX),
+                    requestMemory,
+                    requestCpu,
+                    limitMemory,
+                    limitCpu,
+                    creationTimestamp
             );
         } catch (Exception ex) {
-            LOGGER.error(ex.getMessage());
+            LOGGER.error(ex.getMessage(), ex.getCause());
             return new PodStatus(
                     pod.getMetadata().getName(),
                     project,

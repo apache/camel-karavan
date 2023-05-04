@@ -56,20 +56,22 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import static org.apache.camel.karavan.service.ServiceUtil.APPLICATION_PROPERTIES_FILENAME;
+
 @Default
 @Readiness
 @ApplicationScoped
 public class InfinispanService implements HealthCheck  {
 
-    BasicCache<GroupedKey, Project> projects;
-    BasicCache<GroupedKey, ProjectFile> files;
-    BasicCache<GroupedKey, PipelineStatus> pipelineStatuses;
-    BasicCache<GroupedKey, DeploymentStatus> deploymentStatuses;
-    BasicCache<GroupedKey, PodStatus> podStatuses;
-    BasicCache<GroupedKey, CamelStatus> camelStatuses;
-    BasicCache<GroupedKey, ServiceStatus> serviceStatuses;
-    BasicCache<String, Environment> environments;
-    BasicCache<String, String> commits;
+    private BasicCache<GroupedKey, Project> projects;
+    private BasicCache<GroupedKey, ProjectFile> files;
+    private BasicCache<GroupedKey, PipelineStatus> pipelineStatuses;
+    private BasicCache<GroupedKey, DeploymentStatus> deploymentStatuses;
+    private BasicCache<GroupedKey, PodStatus> podStatuses;
+    private BasicCache<GroupedKey, CamelStatus> camelStatuses;
+    private BasicCache<GroupedKey, ServiceStatus> serviceStatuses;
+    private BasicCache<String, Environment> environments;
+    private BasicCache<String, String> commits;
 
     @Inject
     RemoteCacheManager cacheManager;
@@ -88,15 +90,18 @@ public class InfinispanService implements HealthCheck  {
         if (cacheManager == null) {
             LOGGER.info("InfinispanService is starting in local mode");
             GlobalConfigurationBuilder global = GlobalConfigurationBuilder.defaultClusteredBuilder();
-            global.globalState().enable().persistentLocation("karavan-data");
+            // TODO: Analyse if we need persistence for local cache.
+//            global.globalState().enable().persistentLocation("karavan-data");
             DefaultCacheManager cacheManager = new DefaultCacheManager(global.build());
             ConfigurationBuilder builder = new ConfigurationBuilder();
             builder.clustering()
                     .cacheMode(CacheMode.LOCAL)
-                    .persistence().passivation(false)
-                    .addStore(SingleFileStoreConfigurationBuilder.class)
-                    .shared(false)
-                    .preload(true);
+            // TODO: Analyse if we need persistence for local cache.
+//                    .persistence().passivation(false)
+//                    .addStore(SingleFileStoreConfigurationBuilder.class)
+//                    .shared(false)
+//                    .preload(true)
+            ;
             environments = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Environment.CACHE, builder.build());
             projects = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Project.CACHE, builder.build());
             files = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ProjectFile.CACHE, builder.build());
@@ -143,7 +148,7 @@ public class InfinispanService implements HealthCheck  {
         boolean isNew = !projects.containsKey(key);
         projects.put(key, project);
         if (isNew && !imported){
-            String filename = "application.properties";
+            String filename = APPLICATION_PROPERTIES_FILENAME;
             String code = codeService.getApplicationProperties(project);
             files.put(new GroupedKey(project.getProjectId(), filename), new ProjectFile(filename, code, project.getProjectId(), Instant.now().toEpochMilli()));
         }
@@ -161,6 +166,21 @@ public class InfinispanService implements HealthCheck  {
                     .execute().list();
         }
     }
+
+    public ProjectFile getProjectFile(String projectId, String filename) {
+        if (cacheManager == null) {
+            return files.values().stream()
+                    .filter(f -> f.getProjectId().equals(projectId) && f.getName().equals(filename))
+                    .findFirst().orElse(new ProjectFile());
+        } else {
+            QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) files);
+            return queryFactory.<ProjectFile>create("FROM karavan.ProjectFile WHERE projectId = :projectId AND name = :name")
+                    .setParameter("projectId", projectId)
+                    .setParameter("name", filename)
+                    .execute().list().get(0);
+        }
+    }
+
     public void saveProjectFile(ProjectFile file) {
         files.put(GroupedKey.create(file.getProjectId(), file.getName()), file);
     }

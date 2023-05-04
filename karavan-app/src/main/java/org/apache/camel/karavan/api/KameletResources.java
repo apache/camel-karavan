@@ -49,7 +49,7 @@ public class KameletResources {
         if (custom.size() > 0) {
             kamelets.append("\n---\n");
             kamelets.append(custom.stream()
-                    .map(file -> file.getCode())
+                    .map(ProjectFile::getCode)
                     .collect(Collectors.joining("\n---\n")));
         }
         return kamelets.toString();
