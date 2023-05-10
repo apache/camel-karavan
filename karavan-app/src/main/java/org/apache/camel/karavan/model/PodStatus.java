@@ -185,4 +185,25 @@ public class PodStatus {
     public void setCreationTimestamp(String creationTimestamp) {
         this.creationTimestamp = creationTimestamp;
     }
+
+    @Override
+    public String toString() {
+        return "PodStatus{" +
+                "name='" + name + '\'' +
+                ", phase='" + phase + '\'' +
+                ", initialized=" + initialized +
+                ", ready=" + ready +
+                ", terminating=" + terminating +
+                ", reason='" + reason + '\'' +
+                ", deployment='" + deployment + '\'' +
+                ", project='" + project + '\'' +
+                ", env='" + env + '\'' +
+                ", runner=" + runner +
+                ", requestMemory='" + requestMemory + '\'' +
+                ", requestCpu='" + requestCpu + '\'' +
+                ", limitMemory='" + limitMemory + '\'' +
+                ", limitCpu='" + limitCpu + '\'' +
+                ", creationTimestamp='" + creationTimestamp + '\'' +
+                '}';
+    }
 }

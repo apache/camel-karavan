@@ -269,6 +269,7 @@ public class KubernetesService implements HealthCheck{
         try {
             LOGGER.info("Delete deployment: " + name + " in the namespace: " + namespace);
             kubernetesClient().apps().deployments().inNamespace(namespace).withName(name).delete();
+            kubernetesClient().services().inNamespace(namespace).withName(name).delete();
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }

@@ -126,9 +126,8 @@ public class CodeService {
     public String getResourceFile(String path) {
         try {
             InputStream inputStream = KameletResources.class.getResourceAsStream(path);
-            String data = new BufferedReader(new InputStreamReader(inputStream))
+            return new BufferedReader(new InputStreamReader(inputStream))
                     .lines().collect(Collectors.joining(System.getProperty("line.separator")));
-            return data;
         } catch (Exception e) {
             return null;
         }
@@ -136,7 +135,7 @@ public class CodeService {
 
     public String getPropertyValue(String propFileText, String key) {
         Optional<String> data = propFileText.lines().filter(p -> p.startsWith(key)).findFirst();
-        return data.isPresent() ? data.get().split("=")[1] : null;
+        return data.map(s -> s.split("=")[1]).orElse(null);
     }
 
     public String generate(String fileName, String openApi, boolean generateRoutes) throws Exception {

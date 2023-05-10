@@ -39,7 +39,6 @@ import org.infinispan.commons.api.CacheContainerAdmin;
 import org.infinispan.commons.configuration.StringConfiguration;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
-import org.infinispan.configuration.cache.SingleFileStoreConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.query.dsl.QueryFactory;
@@ -54,6 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.service.ServiceUtil.APPLICATION_PROPERTIES_FILENAME;
@@ -72,6 +72,7 @@ public class InfinispanService implements HealthCheck  {
     private BasicCache<GroupedKey, ServiceStatus> serviceStatuses;
     private BasicCache<String, Environment> environments;
     private BasicCache<String, String> commits;
+    private final AtomicBoolean ready = new AtomicBoolean(false);
 
     @Inject
     RemoteCacheManager cacheManager;
@@ -124,9 +125,10 @@ public class InfinispanService implements HealthCheck  {
             camelStatuses = cacheManager.administration().getOrCreateCache(CamelStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, CamelStatus.CACHE)));
             commits = cacheManager.administration().getOrCreateCache("commits", new StringConfiguration(String.format(CACHE_CONFIG, "commits")));
         }
+        ready.set(true);
     }
 
-    public RemoteCacheManager gRemoteCacheManager() {
+    public RemoteCacheManager getRemoteCacheManager() {
         return cacheManager;
     }
 
@@ -346,11 +348,11 @@ public class InfinispanService implements HealthCheck  {
 
     @Override
     public HealthCheckResponse call() {
-        if(ProfileManager.getLaunchMode() != LaunchMode.NORMAL){
+        if(ProfileManager.getLaunchMode() != LaunchMode.NORMAL && ready.get()){
             return HealthCheckResponse.up("Infinispan Service is running in local mode.");
         }
         else{
-            if(this.gRemoteCacheManager() != null && this.gRemoteCacheManager().isStarted()) {
+            if(this.getRemoteCacheManager() != null && this.getRemoteCacheManager().isStarted() && ready.get()) {
                 return HealthCheckResponse.up("Infinispan Service is running in cluster mode.");
             }
             else {
