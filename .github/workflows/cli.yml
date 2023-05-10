@@ -45,5 +45,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: karavan-cli.jar
-          path: ./karavan-cli/target/karavan-cli-${{ env.TAG }}.jar
+          path: ./karavan/karavan-cli/target/karavan-cli-${{ env.TAG }}.jar
         if: ${{ github.ref == 'refs/heads/main' }}
