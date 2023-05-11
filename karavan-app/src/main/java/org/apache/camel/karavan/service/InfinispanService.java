@@ -16,8 +16,6 @@
  */
 package org.apache.camel.karavan.service;
 
-import io.quarkus.runtime.LaunchMode;
-import io.quarkus.runtime.configuration.ProfileManager;
 import io.smallrye.mutiny.tuples.Tuple2;
 import org.apache.camel.karavan.model.CamelStatus;
 import org.apache.camel.karavan.model.DeploymentStatus;
@@ -39,6 +37,7 @@ import org.infinispan.commons.api.CacheContainerAdmin;
 import org.infinispan.commons.configuration.StringConfiguration;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.configuration.cache.SingleFileStoreConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.query.dsl.QueryFactory;
@@ -91,18 +90,15 @@ public class InfinispanService implements HealthCheck  {
         if (cacheManager == null) {
             LOGGER.info("InfinispanService is starting in local mode");
             GlobalConfigurationBuilder global = GlobalConfigurationBuilder.defaultClusteredBuilder();
-            // TODO: Analyse if we need persistence for local cache.
-//            global.globalState().enable().persistentLocation("karavan-data");
+            global.globalState().enable().persistentLocation("/deployments/karavan-data");
             DefaultCacheManager cacheManager = new DefaultCacheManager(global.build());
             ConfigurationBuilder builder = new ConfigurationBuilder();
             builder.clustering()
                     .cacheMode(CacheMode.LOCAL)
-            // TODO: Analyse if we need persistence for local cache.
-//                    .persistence().passivation(false)
-//                    .addStore(SingleFileStoreConfigurationBuilder.class)
-//                    .shared(false)
-//                    .preload(true)
-            ;
+                    .persistence().passivation(false)
+                    .addStore(SingleFileStoreConfigurationBuilder.class)
+                    .shared(false)
+                    .preload(true);
             environments = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Environment.CACHE, builder.build());
             projects = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Project.CACHE, builder.build());
             files = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ProjectFile.CACHE, builder.build());
@@ -125,6 +121,7 @@ public class InfinispanService implements HealthCheck  {
             camelStatuses = cacheManager.administration().getOrCreateCache(CamelStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, CamelStatus.CACHE)));
             commits = cacheManager.administration().getOrCreateCache("commits", new StringConfiguration(String.format(CACHE_CONFIG, "commits")));
         }
+        System.out.println("READY");
         ready.set(true);
     }
 
@@ -348,11 +345,11 @@ public class InfinispanService implements HealthCheck  {
 
     @Override
     public HealthCheckResponse call() {
-        if(ProfileManager.getLaunchMode() != LaunchMode.NORMAL && ready.get()){
+        if (cacheManager == null && ready.get()){
             return HealthCheckResponse.up("Infinispan Service is running in local mode.");
         }
-        else{
-            if(this.getRemoteCacheManager() != null && this.getRemoteCacheManager().isStarted() && ready.get()) {
+        else {
+            if (cacheManager != null && cacheManager.isStarted() && ready.get()) {
                 return HealthCheckResponse.up("Infinispan Service is running in cluster mode.");
             }
             else {

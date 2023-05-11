@@ -318,6 +318,15 @@ export class KaravanApi {
         });
     }
 
+    static async deleteRunner(name: string, after: (res: AxiosResponse<any>) => void) {
+        instance.delete('/api/runner/' +  name)
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    }
+
     static async pipelineRun(project: Project, environment: string, after: (res: AxiosResponse<any>) => void) {
         instance.post('/api/kubernetes/pipeline/' + environment, project)
             .then(res => {

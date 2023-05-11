@@ -76,8 +76,8 @@ public class RunnerStatusService {
     @ConsumeEvent(value = CMD_COLLECT_RUNNER_STATUS, blocking = true, ordered = false)
     public void collectRunnerStatuses(String podName) throws ExecutionException, InterruptedException {
         String url = "http://" + podName + "." + kubernetesService.getNamespace() + ".svc.cluster.local/q/dev";
-//        HttpResponse<Buffer> result = bufferResult(url, 100);
-//        System.out.println(result);
+        HttpResponse<Buffer> result = bufferResult(url, 100);
+        System.out.println(result);
     }
 
     @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)

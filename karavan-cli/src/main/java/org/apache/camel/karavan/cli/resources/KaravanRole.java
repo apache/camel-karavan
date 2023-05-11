@@ -29,11 +29,11 @@ public class KaravanRole {
                 .withNamespace(config.getNamespace())
                 .endMetadata()
                 .withRules(
-                        new PolicyRuleBuilder().withApiGroups("").withResources("secrets", "configmaps").withVerbs("get", "list").build(),
-                        new PolicyRuleBuilder().withApiGroups("").withResources("persistentvolumes", "persistentvolumeclaims").withVerbs("get", "list", "watch").build(),
+                        new PolicyRuleBuilder().withApiGroups("").withResources("secrets", "configmaps").withVerbs("*").build(),
+                        new PolicyRuleBuilder().withApiGroups("").withResources("persistentvolumes", "persistentvolumeclaims").withVerbs("*").build(),
                         new PolicyRuleBuilder().withApiGroups("tekton.dev").withResources("pipelineruns").withVerbs("*").build(),
                         new PolicyRuleBuilder().withApiGroups("").withResources("pods", "services", "replicationcontrollers").withVerbs("*").build(),
-                        new PolicyRuleBuilder().withApiGroups("route.openshift.io").withResources( "routes").withVerbs("*").build(),
+                        new PolicyRuleBuilder().withApiGroups("route.openshift.io").withResources("routes").withVerbs("*").build(),
                         new PolicyRuleBuilder().withApiGroups("apps").withResources("deployments").withVerbs("*").build()
                         )
                 .build();

@@ -64,7 +64,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
 
     public PodStatus getPodStatus(Pod pod) {
         String deployment = pod.getMetadata().getLabels().get("app");
-        String project = deployment != null ? deployment : pod.getMetadata().getLabels().get("project");
+        String project = deployment != null ? deployment : pod.getMetadata().getLabels().get("karavan/projectId");
         try {
             boolean initialized = pod.getStatus().getConditions().stream().anyMatch(c -> c.getType().equals("Initialized"));
             boolean ready = pod.getStatus().getConditions().stream().anyMatch(c -> c.getType().equals("Ready"));

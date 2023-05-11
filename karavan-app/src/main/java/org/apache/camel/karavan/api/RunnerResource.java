@@ -26,11 +26,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static org.apache.camel.karavan.service.KubernetesService.RUNNER_SUFFIX;
 
 @Path("/api/runner")
 public class RunnerResource {
@@ -49,7 +45,16 @@ public class RunnerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public String runProject(Project project) {
         Project p = infinispanService.getProject(project.getProjectId());
-        return kubernetesService.tryCreatePod(p);
+        return kubernetesService.tryCreateRunner(p);
+    }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{name}")
+    public Response deletePod(@PathParam("name") String name) throws Exception {
+        kubernetesService.deleteRunner(name);
+        return Response.accepted().build();
     }
 
     @GET

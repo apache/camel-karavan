@@ -39,9 +39,9 @@ export const RunnerToolbar = (props: Props) => {
         });
     }
 
-    function deletePod () {
+    function deleteRunner () {
         setIsDeletingPod(true);
-        KaravanApi.deletePod(props.config.environment, podName, res => {
+        KaravanApi.deleteRunner(podName, res => {
             if (res.status === 202) {
                 setIsDeletingPod(false);
             } else {
@@ -87,7 +87,7 @@ export const RunnerToolbar = (props: Props) => {
                                 variant={"secondary"}
                                 className="project-button"
                                 icon={!isRunning ? <DeleteIcon/> : <div></div>}
-                                onClick={() => deletePod()}>
+                                onClick={() => deleteRunner()}>
                             {isDeletingPod ? "..." : "Delete"}
                         </Button>
                     </Tooltip>

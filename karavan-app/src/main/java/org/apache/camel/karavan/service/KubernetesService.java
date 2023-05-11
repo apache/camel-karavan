@@ -139,7 +139,7 @@ public class KubernetesService implements HealthCheck{
     @ConsumeEvent(value = STOP_INFORMERS, blocking = true)
     void stopInformers(String data) {
         LOGGER.info("Stop Kubernetes Informers");
-        informers.forEach(informer -> informer.close());
+        informers.forEach(SharedIndexInformer::close);
         informers.clear();
     }
 
@@ -382,21 +382,31 @@ public class KubernetesService implements HealthCheck{
         return result;
     }
 
-    public String tryCreatePod(Project project) {
+    public String tryCreateRunner(Project project) {
         String name = project.getProjectId() + "-" + RUNNER_SUFFIX;
-        createPVC(name + "-" + JBANG_CACHE_SUFFIX);
-        createPVC(name + "-" + M2_CACHE_SUFFIX);
+        createPVC(name + "-" + JBANG_CACHE_SUFFIX, name);
+        createPVC(name + "-" + M2_CACHE_SUFFIX, name);
         Pod old = kubernetesClient().pods().inNamespace(getNamespace()).withName(name).get();
         if (old == null) {
             ProjectFile properties = infinispanService.getProjectFile(project.getProjectId(), APPLICATION_PROPERTIES_FILENAME);
             Map<String,String> containerResources = ServiceUtil
                     .getRunnerContainerResourcesMap(properties, isOpenshift(), project.getRuntime().equals("quarkus"));
-            System.out.println(containerResources);
             Pod pod = getPod(project.getProjectId(), name, containerResources);
             Pod result = kubernetesClient().resource(pod).create();
             LOGGER.info("Created pod " + result.getMetadata().getName());
         }
+        createService(name);
         return name;
+    }
+
+    public void deleteRunner(String name) {
+        try {
+            LOGGER.info("Delete runner: " + name + " in the namespace: " + getNamespace());
+            kubernetesClient().pods().inNamespace(getNamespace()).withName(name).delete();
+            kubernetesClient().services().inNamespace(getNamespace()).withName(name).delete();
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+        }
     }
 
     public ResourceRequirements getResourceRequirements(Map<String,String> containerResources) {
@@ -411,8 +421,8 @@ public class KubernetesService implements HealthCheck{
     private Pod getPod(String projectId, String name, Map<String,String> containerResources) {
         Map<String,String> labels = new HashMap<>();
         labels.putAll(getRuntimeLabels());
-        labels.putAll(getKaravanTypeLabel());
-        labels.put("project", projectId);
+        labels.putAll(getKaravanRunnerLabels(name));
+        labels.put("karavan/projectId", projectId);
 
         ResourceRequirements resources = getResourceRequirements(containerResources);
 
@@ -453,14 +463,14 @@ public class KubernetesService implements HealthCheck{
                 .build();
     }
 
-    private void createPVC(String pvcName) {
+    private void createPVC(String pvcName, String runnerName) {
         PersistentVolumeClaim old = kubernetesClient().persistentVolumeClaims().inNamespace(getNamespace()).withName(pvcName).get();
         if (old == null) {
             PersistentVolumeClaim pvc = new PersistentVolumeClaimBuilder()
                     .withNewMetadata()
                     .withName(pvcName)
                     .withNamespace(getNamespace())
-                    .withLabels(getKaravanTypeLabel())
+                    .withLabels(getKaravanRunnerLabels(runnerName))
                     .endMetadata()
                     .withNewSpec()
                     .withResources(new ResourceRequirementsBuilder().withRequests(Map.of("storage", new Quantity("2Gi"))).build())
@@ -468,8 +478,28 @@ public class KubernetesService implements HealthCheck{
                     .withAccessModes("ReadWriteOnce")
                     .endSpec()
                     .build();
-            kubernetesClient().resource(pvc).create();
+            kubernetesClient().resource(pvc).createOrReplace();
         }
+    }
+
+    private void createService(String name) {
+
+        ServicePortBuilder portBuilder = new ServicePortBuilder()
+                .withName("http").withPort(80).withProtocol("TCP").withTargetPort(new IntOrString(8080));
+
+        Service service = new ServiceBuilder()
+                .withNewMetadata()
+                .withName(name)
+                .withNamespace(getNamespace())
+                .withLabels(getKaravanRunnerLabels(name))
+                .endMetadata()
+                .withNewSpec()
+                .withType("ClusterIP")
+                .withPorts(portBuilder.build())
+                .withSelector(getKaravanRunnerLabels(name))
+                .endSpec()
+                .build();
+        kubernetesClient().resource(service).createOrReplace();
     }
 
     public Secret getKaravanSecret() {
@@ -492,8 +522,9 @@ public class KubernetesService implements HealthCheck{
         return map;
     }
 
-    public static Map<String, String> getKaravanTypeLabel() {
-        return Map.of("karavan/type" , "runner");
+    public static Map<String, String> getKaravanRunnerLabels(String name) {
+        return Map.of("karavan/type" , "runner",
+                "app.kubernetes.io/name", name);
     }
 
     public boolean isOpenshift() {
