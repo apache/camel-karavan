@@ -76,17 +76,24 @@ public class RunnerStatusService {
     @ConsumeEvent(value = CMD_COLLECT_RUNNER_STATUS, blocking = true, ordered = false)
     public void collectRunnerStatuses(String podName) throws ExecutionException, InterruptedException {
         String url = "http://" + podName + "." + kubernetesService.getNamespace() + ".svc.cluster.local/q/dev";
-        HttpResponse<Buffer> result = bufferResult(url, 100);
-        System.out.println(result);
+        String result = result(url, 100);
+        if (result != null) {
+            infinispanService.saveRunnerStatus(podName, result);
+        }
     }
 
     @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)
-    public HttpResponse<Buffer> bufferResult(String url, int timeout) throws InterruptedException, ExecutionException {
-        HttpResponse<Buffer> result = getWebClient().getAbs(url).putHeader("Accept", "application/json")
-                .timeout(timeout).send().subscribeAsCompletionStage().toCompletableFuture().get();
-        if (result.statusCode() == 200) {
-            JsonObject res = result.bodyAsJsonObject();
+    public String result(String url, int timeout) throws InterruptedException, ExecutionException {
+        try {
+            HttpResponse<Buffer> result = getWebClient().getAbs(url).putHeader("Accept", "application/json")
+                    .timeout(timeout).send().subscribeAsCompletionStage().toCompletableFuture().get();
+            if (result.statusCode() == 200) {
+                JsonObject res = result.bodyAsJsonObject();
+                return res.encodePrettily();
+            }
+        } catch (Exception e) {
+            LOGGER.info(e.getMessage());
         }
-        return result;
+        return null;
     }
 }

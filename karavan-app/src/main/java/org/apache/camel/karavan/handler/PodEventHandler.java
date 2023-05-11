@@ -50,7 +50,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
         try {
             LOGGER.info("onDelete " + pod.getMetadata().getName());
             String deployment = pod.getMetadata().getLabels().get("app");
-            String project = deployment != null ? deployment : pod.getMetadata().getLabels().get("project");
+            String project = deployment != null ? deployment : pod.getMetadata().getLabels().get("karavan/projectId");
             PodStatus ps = new PodStatus(
                     pod.getMetadata().getName(),
                     project,

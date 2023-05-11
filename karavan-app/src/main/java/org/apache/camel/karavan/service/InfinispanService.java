@@ -71,6 +71,7 @@ public class InfinispanService implements HealthCheck  {
     private BasicCache<GroupedKey, ServiceStatus> serviceStatuses;
     private BasicCache<String, Environment> environments;
     private BasicCache<String, String> commits;
+    private BasicCache<String, String> runnerStatuses;
     private final AtomicBoolean ready = new AtomicBoolean(false);
 
     @Inject
@@ -108,6 +109,7 @@ public class InfinispanService implements HealthCheck  {
             serviceStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ServiceStatus.CACHE, builder.build());
             camelStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(CamelStatus.CACHE, builder.build());
             commits = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache("commits", builder.build());
+            runnerStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache("runner_statuses", builder.build());
             cleanData();
         } else {
             LOGGER.info("InfinispanService is starting in remote mode");
@@ -120,6 +122,7 @@ public class InfinispanService implements HealthCheck  {
             serviceStatuses = cacheManager.administration().getOrCreateCache(ServiceStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, ServiceStatus.CACHE)));
             camelStatuses = cacheManager.administration().getOrCreateCache(CamelStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, CamelStatus.CACHE)));
             commits = cacheManager.administration().getOrCreateCache("commits", new StringConfiguration(String.format(CACHE_CONFIG, "commits")));
+            runnerStatuses = cacheManager.administration().getOrCreateCache("runner_statuses", new StringConfiguration(String.format(CACHE_CONFIG, "runner_statuses")));
         }
         System.out.println("READY");
         ready.set(true);
@@ -309,6 +312,7 @@ public class InfinispanService implements HealthCheck  {
                     .execute().list();
         }
     }
+
     public void saveCamelStatus(CamelStatus status) {
         camelStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv()), status);
     }
@@ -317,8 +321,20 @@ public class InfinispanService implements HealthCheck  {
         camelStatuses.remove(GroupedKey.create(name, env));
     }
 
+    public String geRunnerStatus(String podName) {
+        return runnerStatuses.get(podName);
+    }
+
+    public void saveRunnerStatus(String podName, String status) {
+        runnerStatuses.put(podName, status);
+    }
+
+    public void deleteRunnerStatus(String podName) {
+        runnerStatuses.remove(podName);
+    }
+
     public List<Environment> getEnvironments() {
-        return environments.values().stream().collect(Collectors.toList());
+        return new ArrayList<>(environments.values());
     }
 
     public void saveEnvironment(Environment environment) {
@@ -363,7 +379,8 @@ public class InfinispanService implements HealthCheck  {
             deploymentStatuses.clearAsync(),
             podStatuses.clearAsync(),
             pipelineStatuses.clearAsync(),
-            camelStatuses.clearAsync()
+            camelStatuses.clearAsync(),
+            runnerStatuses.clearAsync()
         ).join();
     }
 }

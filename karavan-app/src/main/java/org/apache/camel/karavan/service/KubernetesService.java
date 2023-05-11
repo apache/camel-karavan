@@ -451,9 +451,10 @@ public class KubernetesService implements HealthCheck{
         PodSpec spec = new PodSpecBuilder()
                 .withTerminationGracePeriodSeconds(0L)
                 .withContainers(container)
-                .withVolumes(new VolumeBuilder().withName(name + "-" + JBANG_CACHE_SUFFIX)
-                        .withNewPersistentVolumeClaim(name + "-" + JBANG_CACHE_SUFFIX, false).build())
-                .withVolumes(new VolumeBuilder().withName(name + "-" + M2_CACHE_SUFFIX)
+                .withVolumes(
+                        new VolumeBuilder().withName(name + "-" + JBANG_CACHE_SUFFIX)
+                        .withNewPersistentVolumeClaim(name + "-" + JBANG_CACHE_SUFFIX, false).build(),
+                        new VolumeBuilder().withName(name + "-" + M2_CACHE_SUFFIX)
                         .withNewPersistentVolumeClaim(name + "-" + M2_CACHE_SUFFIX, false).build())
                 .build();
 

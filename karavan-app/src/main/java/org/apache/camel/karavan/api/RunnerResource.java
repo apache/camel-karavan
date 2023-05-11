@@ -16,17 +16,23 @@
  */
 package org.apache.camel.karavan.api;
 
+import io.vertx.core.json.JsonObject;
+import org.apache.camel.karavan.model.CamelStatus;
 import org.apache.camel.karavan.model.PodStatus;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.service.InfinispanService;
 import org.apache.camel.karavan.service.KubernetesService;
+import org.apache.camel.karavan.service.StatusService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Map;
 import java.util.Optional;
+
+import static org.apache.camel.karavan.service.KubernetesService.RUNNER_SUFFIX;
 
 @Path("/api/runner")
 public class RunnerResource {
@@ -66,6 +72,19 @@ public class RunnerResource {
                 .findFirst();
         if (ps.isPresent()) {
             return Response.ok(ps.get()).build();
+        } else {
+            return Response.noContent().build();
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{projectId}")
+    public Response getCamelStatusByProjectAndEnv(@PathParam("projectId") String projectId) {
+        String name = projectId + "-" + RUNNER_SUFFIX;
+        String status = infinispanService.geRunnerStatus(name);
+        if (status != null) {
+            return Response.ok(status).build();
         } else {
             return Response.noContent().build();
         }
