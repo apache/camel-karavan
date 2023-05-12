@@ -383,8 +383,7 @@ public class KubernetesService implements HealthCheck{
 
     public String tryCreateRunner(Project project, String runnerName) {
 
-        createPVC(runnerName + "-" + JBANG_CACHE_SUFFIX, runnerName);
-        createPVC(runnerName + "-" + M2_CACHE_SUFFIX, runnerName);
+        createPVC(runnerName);
         Pod old = kubernetesClient().pods().inNamespace(getNamespace()).withName(runnerName).get();
         if (old == null) {
             ProjectFile properties = infinispanService.getProjectFile(project.getProjectId(), APPLICATION_PROPERTIES_FILENAME);
@@ -444,18 +443,14 @@ public class KubernetesService implements HealthCheck{
                 .withPorts(port)
                 .withResources(resources)
                 .withVolumeMounts(
-                        new VolumeMountBuilder().withName(name + "-" + JBANG_CACHE_SUFFIX).withMountPath("/karavan/.jbang/cache").build(),
-                        new VolumeMountBuilder().withName(name + "-" + M2_CACHE_SUFFIX).withMountPath("/karavan/.m2").build())
+                        new VolumeMountBuilder().withName(name).withMountPath("/karavan/.jbang/cache").build())
                 .build();
 
         PodSpec spec = new PodSpecBuilder()
                 .withTerminationGracePeriodSeconds(0L)
                 .withContainers(container)
                 .withVolumes(
-                        new VolumeBuilder().withName(name + "-" + JBANG_CACHE_SUFFIX)
-                        .withNewPersistentVolumeClaim(name + "-" + JBANG_CACHE_SUFFIX, false).build(),
-                        new VolumeBuilder().withName(name + "-" + M2_CACHE_SUFFIX)
-                        .withNewPersistentVolumeClaim(name + "-" + M2_CACHE_SUFFIX, false).build())
+                        new VolumeBuilder().withName(name).withNewPersistentVolumeClaim(name, false).build())
                 .build();
 
         return new PodBuilder()
@@ -464,12 +459,12 @@ public class KubernetesService implements HealthCheck{
                 .build();
     }
 
-    private void createPVC(String pvcName, String runnerName) {
-        PersistentVolumeClaim old = kubernetesClient().persistentVolumeClaims().inNamespace(getNamespace()).withName(pvcName).get();
+    private void createPVC(String runnerName) {
+        PersistentVolumeClaim old = kubernetesClient().persistentVolumeClaims().inNamespace(getNamespace()).withName(runnerName).get();
         if (old == null) {
             PersistentVolumeClaim pvc = new PersistentVolumeClaimBuilder()
                     .withNewMetadata()
-                    .withName(pvcName)
+                    .withName(runnerName)
                     .withNamespace(getNamespace())
                     .withLabels(getKaravanRunnerLabels(runnerName))
                     .endMetadata()

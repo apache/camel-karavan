@@ -2,7 +2,7 @@ FROM docker.io/jbangdev/jbang-action
 
 ENV CAMEL_VERSION=3.21.0-SNAPSHOT
 ENV KARAVAN="/karavan"
-ENV JBANG_REPO="$KARAVAN/.m2"
+ENV JBANG_REPO="$KARAVAN/.jbang/cache/.m2"
 ENV JBANG_DIR="$KARAVAN/.jbang"
 ENV KAMELETS_DIR="$KARAVAN/kamelets"
 ENV CODE_DIR="$KARAVAN/code"
