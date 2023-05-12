@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React from 'react';
 import {
     Button,
     DescriptionList,
@@ -9,49 +9,22 @@ import {
     Tooltip
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {PodStatus, Project} from "./ProjectModels";
-import {KaravanApi} from "../api/KaravanApi";
+import {PodStatus} from "./ProjectModels";
 import {ProjectEventBus} from "./ProjectEventBus";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-
+import {isRunning} from "./ProjectDevelopment";
 
 interface Props {
-    project: Project,
+    podStatus: PodStatus,
     config: any,
 }
 
 export const RunnerInfoPod = (props: Props) => {
 
-    const [podStatus, setPodStatus] = useState(new PodStatus());
-    const previousValue = useRef(new PodStatus());
-
-    useEffect(() => {
-        previousValue.current = podStatus;
-        const interval = setInterval(() => {
-            onRefreshStatus();
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [podStatus]);
-
-    function onRefreshStatus() {
-        const projectId = props.project.projectId;
-        const name = projectId + "-runner";
-        KaravanApi.getRunnerPodStatus(projectId, name, res => {
-            if (res.status === 200) {
-                setPodStatus(res.data);
-                if (isRunning(res.data) && !isRunning(previousValue.current)) {
-                    ProjectEventBus.showLog('container', res.data.name, props.config.environment);
-                }
-            } else {
-                ProjectEventBus.showLog('container', name, props.config.environment, false);
-                setPodStatus(new PodStatus({name: name}));
-            }
-        })
-    }
-
     function getPodInfo() {
         const env = props.config.environment;
+        const podStatus = props.podStatus;
         return (
             <Label icon={getIcon()} color={getColor()}>
                 <Tooltip content={`Phase: ${JSON.stringify(podStatus)}`}>
@@ -65,6 +38,7 @@ export const RunnerInfoPod = (props: Props) => {
     }
 
     function getPodStatus() {
+        const podStatus = props.podStatus;
         const status = !podStatus.terminating ? podStatus.phase : "Terminating"
         return (
             <Label icon={getIcon()} color={getColor()}>
@@ -74,6 +48,7 @@ export const RunnerInfoPod = (props: Props) => {
     }
 
     function getPodRequests() {
+        const podStatus = props.podStatus;
         const text = podStatus.requestCpu !== '' ? podStatus.requestCpu + " : " + podStatus.requestMemory : "N/A";
         return (
             <Label icon={getIcon()} color={getColor()}>
@@ -83,6 +58,7 @@ export const RunnerInfoPod = (props: Props) => {
     }
 
     function getPodCreation() {
+        const podStatus = props.podStatus;
         const text = podStatus.creationTimestamp !== '' ? podStatus.creationTimestamp : "N/A";
         return (
             <Label icon={getIcon()} color={getColor()}>
@@ -92,6 +68,7 @@ export const RunnerInfoPod = (props: Props) => {
     }
 
     function getPodLimits() {
+        const podStatus = props.podStatus;
         const text = podStatus.limitCpu !== '' ? podStatus.limitCpu + " : " + podStatus.limitMemory : "N/A";
         return (
             <Label icon={getIcon()} color={getColor()}>
@@ -109,12 +86,7 @@ export const RunnerInfoPod = (props: Props) => {
     }
 
     function getRunning(): boolean {
-        return isRunning(podStatus);
-    }
-
-
-    function isRunning(status: PodStatus): boolean {
-        return status.phase === 'Running' && !status.terminating;
+        return isRunning(props.podStatus);
     }
 
     return (
