@@ -20,6 +20,7 @@ interface Props {
     jvm: any,
     memory: any,
     config: any,
+    showConsole: boolean
 }
 
 export const RunnerInfoMemory = (props: Props) => {
@@ -122,35 +123,37 @@ export const RunnerInfoMemory = (props: Props) => {
     return (
         <DescriptionList isHorizontal>
             <DescriptionListGroup>
-                <DescriptionListTerm>JVM Memory</DescriptionListTerm>
+                <DescriptionListTerm>JVM</DescriptionListTerm>
                 <DescriptionListDescription>
                     {getJvmInfo()}
                 </DescriptionListDescription>
             </DescriptionListGroup>
-            <DescriptionListGroup>
-                <DescriptionListTerm>PID</DescriptionListTerm>
-                <DescriptionListDescription>
-                    {getPid()}
-                </DescriptionListDescription>
-            </DescriptionListGroup>
-            <DescriptionListGroup>
-                <DescriptionListTerm>Uptime</DescriptionListTerm>
-                <DescriptionListDescription>
-                    {getJvmUptime()}
-                </DescriptionListDescription>
-            </DescriptionListGroup>
-            <DescriptionListGroup>
-                <DescriptionListTerm>Heap</DescriptionListTerm>
-                <DescriptionListDescription>
-                    {getHeapInfo()}
-                </DescriptionListDescription>
-            </DescriptionListGroup>
-            <DescriptionListGroup>
-                <DescriptionListTerm>Non-Heap</DescriptionListTerm>
-                <DescriptionListDescription>
-                    {getNonHeapInfo()}
-                </DescriptionListDescription>
-            </DescriptionListGroup>
+            {props.showConsole && <>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>PID</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        {getPid()}
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>Uptime</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        {getJvmUptime()}
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>Heap</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        {getHeapInfo()}
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>Non-Heap</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        {getNonHeapInfo()}
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
+            </>}
         </DescriptionList>
     );
 }

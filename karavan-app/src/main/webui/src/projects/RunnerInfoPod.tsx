@@ -18,6 +18,7 @@ import {isRunning} from "./ProjectDevelopment";
 interface Props {
     podStatus: PodStatus,
     config: any,
+    showConsole: boolean
 }
 
 export const RunnerInfoPod = (props: Props) => {
@@ -97,30 +98,32 @@ export const RunnerInfoPod = (props: Props) => {
                     {getPodInfo()}
                 </DescriptionListDescription>
             </DescriptionListGroup>
-            <DescriptionListGroup>
-                <DescriptionListTerm>Status</DescriptionListTerm>
-                <DescriptionListDescription>
-                    {getPodStatus()}
-                </DescriptionListDescription>
-            </DescriptionListGroup>
-            <DescriptionListGroup>
-                <DescriptionListTerm>Requests</DescriptionListTerm>
-                <DescriptionListDescription>
-                    {getPodRequests()}
-                </DescriptionListDescription>
-            </DescriptionListGroup>
-            <DescriptionListGroup>
-                <DescriptionListTerm>Limits</DescriptionListTerm>
-                <DescriptionListDescription>
-                    {getPodLimits()}
-                </DescriptionListDescription>
-            </DescriptionListGroup>
-            <DescriptionListGroup>
-                <DescriptionListTerm>Created</DescriptionListTerm>
-                <DescriptionListDescription>
-                    {getPodCreation()}
-                </DescriptionListDescription>
-            </DescriptionListGroup>
+            {props.showConsole && <>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>Status</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        {getPodStatus()}
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>Requests</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        {getPodRequests()}
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>Limits</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        {getPodLimits()}
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>Created</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        {getPodCreation()}
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
+            </>}
         </DescriptionList>
     );
 }

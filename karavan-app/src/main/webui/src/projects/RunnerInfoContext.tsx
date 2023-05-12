@@ -19,6 +19,7 @@ import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 interface Props {
     context: any,
     config: any,
+    showConsole: boolean
 }
 
 export const RunnerInfoContext = (props: Props) => {
@@ -127,7 +128,7 @@ export const RunnerInfoContext = (props: Props) => {
     }
 
     function getRunning(): boolean {
-        return isRunning(props.context);
+        return props.context ? isRunning(props.context) : false;
     }
 
 
@@ -138,35 +139,37 @@ export const RunnerInfoContext = (props: Props) => {
     return (
         <DescriptionList isHorizontal>
             <DescriptionListGroup>
-                <DescriptionListTerm>Camel Context</DescriptionListTerm>
+                <DescriptionListTerm>Camel</DescriptionListTerm>
                 <DescriptionListDescription>
                     {getContextInfo()}
                 </DescriptionListDescription>
             </DescriptionListGroup>
-            <DescriptionListGroup>
-                <DescriptionListTerm>Version</DescriptionListTerm>
-                <DescriptionListDescription>
-                    {getVersionInfo()}
-                </DescriptionListDescription>
-            </DescriptionListGroup>
-            <DescriptionListGroup>
-                <DescriptionListTerm>State</DescriptionListTerm>
-                <DescriptionListDescription>
-                    {getContextState()}
-                </DescriptionListDescription>
-            </DescriptionListGroup>
-            <DescriptionListGroup>
-                <DescriptionListTerm>Exchanges:</DescriptionListTerm>
-                <DescriptionListDescription>
-                    {getExchanges()}
-                </DescriptionListDescription>
-            </DescriptionListGroup>
-            <DescriptionListGroup>
-                <DescriptionListTerm>Processing Time</DescriptionListTerm>
-                <DescriptionListDescription>
-                    {getProcessingTime()}
-                </DescriptionListDescription>
-            </DescriptionListGroup>
+            {props.showConsole && <>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>Version</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        {getVersionInfo()}
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>State</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        {getContextState()}
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>Exchanges:</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        {getExchanges()}
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>Processing Time</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        {getProcessingTime()}
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
+            </>}
         </DescriptionList>
     );
 }

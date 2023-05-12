@@ -16,6 +16,7 @@ import {ProjectEventBus} from "./ProjectEventBus";
 interface Props {
     project: Project,
     config: any,
+    showConsole: boolean
 }
 
 export const RunnerToolbar = (props: Props) => {
@@ -25,7 +26,7 @@ export const RunnerToolbar = (props: Props) => {
     const [isRunning, setIsRunning] = useState(false);
     const [isDeletingPod, setIsDeletingPod] = useState(false);
 
-    function jbangRun () {
+    function jbangRun() {
         setJbangIsRunning(true);
         KaravanApi.runProject(props.project, res => {
             if (res.status === 200 || res.status === 201) {
@@ -39,7 +40,7 @@ export const RunnerToolbar = (props: Props) => {
         });
     }
 
-    function deleteRunner () {
+    function deleteRunner() {
         setIsDeletingPod(true);
         KaravanApi.deleteRunner(podName, res => {
             if (res.status === 202) {
@@ -55,7 +56,7 @@ export const RunnerToolbar = (props: Props) => {
         <React.Fragment>
             <div className="runner-toolbar">
                 <div className="row">
-                    <Tooltip content="JBang run" position={TooltipPosition.left}>
+                    <Tooltip content="Run in development mode" position={TooltipPosition.left}>
                         <Button isLoading={isJbangRunning ? true : undefined}
                                 isSmall
                                 variant={"primary"}
@@ -66,32 +67,20 @@ export const RunnerToolbar = (props: Props) => {
                         </Button>
                     </Tooltip>
                 </div>
-                <div className="row">
-                    <Tooltip content="Runtime run" position={TooltipPosition.left}>
-                        <Button isLoading={isRunning ? true : undefined}
-                                isDisabled
-                                isSmall
-                                variant={"secondary"}
-                                className="project-button"
-                                icon={!isRunning ? <PlayIcon/> : <div></div>}
-                                onClick={() => {
-                                }}>
-                            {isRunning ? "..." : "Run"}
-                        </Button>
-                    </Tooltip>
-                </div>
-                <div className="row">
-                    <Tooltip content="Delete pod" position={TooltipPosition.left}>
-                        <Button isLoading={isDeletingPod ? true : undefined}
-                                isSmall
-                                variant={"secondary"}
-                                className="project-button"
-                                icon={!isRunning ? <DeleteIcon/> : <div></div>}
-                                onClick={() => deleteRunner()}>
-                            {isDeletingPod ? "..." : "Delete"}
-                        </Button>
-                    </Tooltip>
-                </div>
+                {props.showConsole && <>
+                    <div className="row">
+                        <Tooltip content="Delete pod" position={TooltipPosition.left}>
+                            <Button isLoading={isDeletingPod ? true : undefined}
+                                    isSmall
+                                    variant={"secondary"}
+                                    className="project-button"
+                                    icon={!isRunning ? <DeleteIcon/> : <div></div>}
+                                    onClick={() => deleteRunner()}>
+                                {isDeletingPod ? "..." : "Delete"}
+                            </Button>
+                        </Tooltip>
+                    </div>
+                </>}
             </div>
         </React.Fragment>
     );

@@ -76,6 +76,10 @@ export const ProjectDevelopment = (props: Props) => {
         })
     }
 
+    function showConsole(): boolean {
+        return podStatus.phase !== '' ;
+    }
+
     const {project, config} = props;
     return (
             <Card className="project-development">
@@ -83,19 +87,19 @@ export const ProjectDevelopment = (props: Props) => {
                     <Flex direction={{default: "row"}}
                           justifyContent={{default: "justifyContentSpaceBetween"}}>
                         <FlexItem flex={{default: "flex_1"}}>
-                            <RunnerInfoPod podStatus={podStatus} config={config} />
+                            <RunnerInfoPod podStatus={podStatus} config={config} showConsole={showConsole()} />
                         </FlexItem>
                         <Divider orientation={{default: "vertical"}}/>
                         <FlexItem flex={{default: "flex_1"}}>
-                            <RunnerInfoMemory jvm={jvm} memory={memory} config={config} />
+                            <RunnerInfoMemory jvm={jvm} memory={memory} config={config} showConsole={showConsole()} />
                         </FlexItem>
                         <Divider orientation={{default: "vertical"}}/>
                         <FlexItem flex={{default: "flex_1"}}>
-                            <RunnerInfoContext context={context} config={config} />
+                            <RunnerInfoContext context={context} config={config} showConsole={showConsole()} />
                         </FlexItem>
                         <Divider orientation={{default: "vertical"}}/>
                         <FlexItem>
-                            <RunnerToolbar project={project} config={config} />
+                            <RunnerToolbar project={project} config={config} showConsole={showConsole()} />
                         </FlexItem>
                     </Flex>
                 </CardBody>
