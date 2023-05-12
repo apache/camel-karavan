@@ -301,7 +301,16 @@ export class KaravanApi {
     }
 
     static async getRunnerPodStatus(projectId: string, name: string, after: (res: AxiosResponse<PodStatus>) => void) {
-        instance.get('/api/runner/status/' + projectId + "/" + name)
+        instance.get('/api/runner/pod/' + projectId + "/" + name)
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    }
+
+    static async getRunnerConsoleStatus(projectId: string, statusName: string, after: (res: AxiosResponse<string>) => void) {
+        instance.get('/api/runner/console/' + statusName + "/" + projectId)
             .then(res => {
                 after(res);
             }).catch(err => {

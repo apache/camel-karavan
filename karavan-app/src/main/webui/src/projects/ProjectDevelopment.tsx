@@ -7,6 +7,8 @@ import '../designer/karavan.css';
 import {Project} from "./ProjectModels";
 import {RunnerToolbar} from "./RunnerToolbar";
 import {RunnerInfoPod} from "./RunnerInfoPod";
+import {RunnerInfoContext} from "./RunnerInfoContext";
+import {RunnerInfoMemory} from "./RunnerInfoMemory";
 
 
 interface Props {
@@ -27,7 +29,11 @@ export const ProjectDevelopment = (props: Props) => {
                         </FlexItem>
                         <Divider orientation={{default: "vertical"}}/>
                         <FlexItem flex={{default: "flex_1"}}>
-                            {/*<Runner project={project} config={config} />*/}
+                            <RunnerInfoMemory project={project} config={config} />
+                        </FlexItem>
+                        <Divider orientation={{default: "vertical"}}/>
+                        <FlexItem flex={{default: "flex_1"}}>
+                            <RunnerInfoContext project={project} config={config} />
                         </FlexItem>
                         <Divider orientation={{default: "vertical"}}/>
                         <FlexItem>

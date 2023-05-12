@@ -59,7 +59,6 @@ public class KubernetesService implements HealthCheck{
     public static final int INFORMERS = 4;
     private static final String CAMEL_PREFIX = "camel";
     private static final String KARAVAN_PREFIX = "karavan";
-    public static final String RUNNER_SUFFIX = "runner";
     private static final String JBANG_CACHE_SUFFIX = "jbang-cache";
     private static final String M2_CACHE_SUFFIX = "m2-cache";
 
@@ -382,21 +381,21 @@ public class KubernetesService implements HealthCheck{
         return result;
     }
 
-    public String tryCreateRunner(Project project) {
-        String name = project.getProjectId() + "-" + RUNNER_SUFFIX;
-        createPVC(name + "-" + JBANG_CACHE_SUFFIX, name);
-        createPVC(name + "-" + M2_CACHE_SUFFIX, name);
-        Pod old = kubernetesClient().pods().inNamespace(getNamespace()).withName(name).get();
+    public String tryCreateRunner(Project project, String runnerName) {
+
+        createPVC(runnerName + "-" + JBANG_CACHE_SUFFIX, runnerName);
+        createPVC(runnerName + "-" + M2_CACHE_SUFFIX, runnerName);
+        Pod old = kubernetesClient().pods().inNamespace(getNamespace()).withName(runnerName).get();
         if (old == null) {
             ProjectFile properties = infinispanService.getProjectFile(project.getProjectId(), APPLICATION_PROPERTIES_FILENAME);
             Map<String,String> containerResources = ServiceUtil
                     .getRunnerContainerResourcesMap(properties, isOpenshift(), project.getRuntime().equals("quarkus"));
-            Pod pod = getPod(project.getProjectId(), name, containerResources);
+            Pod pod = getPod(project.getProjectId(), runnerName, containerResources);
             Pod result = kubernetesClient().resource(pod).create();
             LOGGER.info("Created pod " + result.getMetadata().getName());
         }
-        createService(name);
-        return name;
+        createService(runnerName);
+        return runnerName;
     }
 
     public void deleteRunner(String name) {

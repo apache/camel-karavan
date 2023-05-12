@@ -25,6 +25,7 @@ import org.apache.camel.karavan.model.PipelineStatus;
 import org.apache.camel.karavan.model.PodStatus;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
+import org.apache.camel.karavan.model.RunnerStatus;
 import org.apache.camel.karavan.model.ServiceStatus;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -48,6 +49,7 @@ import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +73,7 @@ public class InfinispanService implements HealthCheck  {
     private BasicCache<GroupedKey, ServiceStatus> serviceStatuses;
     private BasicCache<String, Environment> environments;
     private BasicCache<String, String> commits;
-    private BasicCache<String, String> runnerStatuses;
+    private BasicCache<GroupedKey, String> runnerStatuses;
     private final AtomicBoolean ready = new AtomicBoolean(false);
 
     @Inject
@@ -91,7 +93,7 @@ public class InfinispanService implements HealthCheck  {
         if (cacheManager == null) {
             LOGGER.info("InfinispanService is starting in local mode");
             GlobalConfigurationBuilder global = GlobalConfigurationBuilder.defaultClusteredBuilder();
-            global.globalState().enable().persistentLocation("/deployments/karavan-data");
+            global.globalState().enable().persistentLocation("karavan-data");
             DefaultCacheManager cacheManager = new DefaultCacheManager(global.build());
             ConfigurationBuilder builder = new ConfigurationBuilder();
             builder.clustering()
@@ -99,7 +101,8 @@ public class InfinispanService implements HealthCheck  {
                     .persistence().passivation(false)
                     .addStore(SingleFileStoreConfigurationBuilder.class)
                     .shared(false)
-                    .preload(true);
+                    .preload(true)
+                    .fetchPersistentState(true);
             environments = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Environment.CACHE, builder.build());
             projects = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Project.CACHE, builder.build());
             files = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ProjectFile.CACHE, builder.build());
@@ -321,16 +324,22 @@ public class InfinispanService implements HealthCheck  {
         camelStatuses.remove(GroupedKey.create(name, env));
     }
 
-    public String geRunnerStatus(String podName) {
-        return runnerStatuses.get(podName);
+    public String getRunnerStatus(String podName, RunnerStatus.NAME statusName) {
+        return runnerStatuses.get(GroupedKey.create(podName, statusName.name()));
     }
 
-    public void saveRunnerStatus(String podName, String status) {
-        runnerStatuses.put(podName, status);
+    public void saveRunnerStatus(String podName, RunnerStatus.NAME statusName, String status) {
+        runnerStatuses.put(GroupedKey.create(podName, statusName.name()), status);
     }
 
-    public void deleteRunnerStatus(String podName) {
-        runnerStatuses.remove(podName);
+    public void deleteRunnerStatus(String podName, RunnerStatus.NAME statusName) {
+        runnerStatuses.remove(GroupedKey.create(podName, statusName.name()));
+    }
+
+    public void deleteRunnerStatuses(String podName) {
+        Arrays.stream(RunnerStatus.NAME.values()).forEach(statusName -> {
+            runnerStatuses.remove(GroupedKey.create(podName, statusName.name()));
+        });
     }
 
     public List<Environment> getEnvironments() {

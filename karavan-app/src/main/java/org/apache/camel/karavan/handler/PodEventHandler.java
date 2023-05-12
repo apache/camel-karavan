@@ -1,15 +1,16 @@
 package org.apache.camel.karavan.handler;
 
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.ContainerBuilder;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.api.model.ResourceRequirements;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import org.apache.camel.karavan.model.PodStatus;
 import org.apache.camel.karavan.service.InfinispanService;
 import org.apache.camel.karavan.service.KubernetesService;
 import org.jboss.logging.Logger;
 
-import java.util.Optional;
-
-import static org.apache.camel.karavan.service.KubernetesService.RUNNER_SUFFIX;
+import static org.apache.camel.karavan.service.RunnerService.RUNNER_SUFFIX;
 import static org.apache.camel.karavan.service.ServiceUtil.DEFAULT_CONTAINER_RESOURCES;
 
 public class PodEventHandler implements ResourceEventHandler<Pod> {

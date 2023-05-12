@@ -17,28 +17,36 @@
 package org.apache.camel.karavan.api;
 
 import io.vertx.core.json.JsonObject;
-import org.apache.camel.karavan.model.CamelStatus;
 import org.apache.camel.karavan.model.PodStatus;
 import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.model.RunnerStatus;
 import org.apache.camel.karavan.service.InfinispanService;
 import org.apache.camel.karavan.service.KubernetesService;
-import org.apache.camel.karavan.service.StatusService;
+import org.apache.camel.karavan.service.RunnerService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Map;
 import java.util.Optional;
 
-import static org.apache.camel.karavan.service.KubernetesService.RUNNER_SUFFIX;
+import static org.apache.camel.karavan.service.RunnerService.RUNNER_SUFFIX;
 
 @Path("/api/runner")
 public class RunnerResource {
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
+
+    @Inject
+    RunnerService runnerServices;
 
     @Inject
     KubernetesService kubernetesService;
@@ -50,22 +58,29 @@ public class RunnerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public String runProject(Project project) {
+        String runnerName = project.getProjectId() + "-" + RUNNER_SUFFIX;
+        String status = infinispanService.getRunnerStatus(runnerName, RunnerStatus.NAME.context);
+        if (status != null) {
+            JsonObject js = new JsonObject(status);
+            System.out.println(status);
+        }
         Project p = infinispanService.getProject(project.getProjectId());
-        return kubernetesService.tryCreateRunner(p);
+        return kubernetesService.tryCreateRunner(p, runnerName);
     }
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{name}")
-    public Response deletePod(@PathParam("name") String name) throws Exception {
+    public Response deletePod(@PathParam("name") String name) {
         kubernetesService.deleteRunner(name);
+        infinispanService.deleteRunnerStatuses(name);
         return Response.accepted().build();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/status/{projectId}/{name}")
+    @Path("/pod/{projectId}/{name}")
     public Response getPodStatus(@PathParam("projectId") String projectId, @PathParam("name") String name) {
         Optional<PodStatus> ps =  infinispanService.getPodStatuses(projectId, environment).stream()
                 .filter(podStatus -> podStatus.getName().equals(name))
@@ -79,10 +94,10 @@ public class RunnerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{projectId}")
-    public Response getCamelStatusByProjectAndEnv(@PathParam("projectId") String projectId) {
+    @Path("/console/{statusName}/{projectId}")
+    public Response getCamelStatusByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("statusName") String statusName) {
         String name = projectId + "-" + RUNNER_SUFFIX;
-        String status = infinispanService.geRunnerStatus(name);
+        String status = infinispanService.getRunnerStatus(name, RunnerStatus.NAME.valueOf(statusName));
         if (status != null) {
             return Response.ok(status).build();
         } else {
