@@ -1,23 +1,15 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
-    Badge,
     Button,
     DescriptionList,
     DescriptionListDescription,
     DescriptionListGroup,
     DescriptionListTerm,
-    Flex,
-    FlexItem,
     Label,
-    LabelGroup,
-    Tooltip,
-    TooltipPosition
+    Tooltip
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {CamelStatus, DeploymentStatus, PipelineStatus, PodStatus, Project} from "./ProjectModels";
-import RocketIcon from "@patternfly/react-icons/dist/esm/icons/rocket-icon";
-import PlayIcon from "@patternfly/react-icons/dist/esm/icons/play-icon";
-import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
+import {PodStatus, Project} from "./ProjectModels";
 import {KaravanApi} from "../api/KaravanApi";
 import {ProjectEventBus} from "./ProjectEventBus";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
@@ -32,13 +24,15 @@ interface Props {
 export const RunnerInfoPod = (props: Props) => {
 
     const [podStatus, setPodStatus] = useState(new PodStatus());
+    const previousValue = useRef(new PodStatus());
 
     useEffect(() => {
+        previousValue.current = podStatus;
         const interval = setInterval(() => {
             onRefreshStatus();
         }, 1000);
         return () => clearInterval(interval);
-    }, []);
+    }, [podStatus]);
 
     function onRefreshStatus() {
         const projectId = props.project.projectId;
@@ -46,6 +40,9 @@ export const RunnerInfoPod = (props: Props) => {
         KaravanApi.getRunnerPodStatus(projectId, name, res => {
             if (res.status === 200) {
                 setPodStatus(res.data);
+                if (isRunning(res.data) && !isRunning(previousValue.current)) {
+                    ProjectEventBus.showLog('container', res.data.name, props.config.environment);
+                }
             } else {
                 ProjectEventBus.showLog('container', name, props.config.environment, false);
                 setPodStatus(new PodStatus({name: name}));
@@ -112,7 +109,12 @@ export const RunnerInfoPod = (props: Props) => {
     }
 
     function getRunning(): boolean {
-        return podStatus.phase === 'Running' && !podStatus.terminating;
+        return isRunning(podStatus);
+    }
+
+
+    function isRunning(status: PodStatus): boolean {
+        return status.phase === 'Running' && !status.terminating;
     }
 
     return (
