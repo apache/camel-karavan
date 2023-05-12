@@ -444,8 +444,9 @@ public class KubernetesService implements HealthCheck{
 //                .withImage("ghcr.io/apache/camel-karavan-runner:3.20.2-snapshot")
                 .withPorts(port)
                 .withResources(resources)
-                .withVolumeMounts(new VolumeMountBuilder().withName(name + "-" + JBANG_CACHE_SUFFIX).withMountPath("/root/.m2").build())
-                .withVolumeMounts(new VolumeMountBuilder().withName(name + "-" + M2_CACHE_SUFFIX).withMountPath("/jbang/.jbang/cache").build())
+                .withVolumeMounts(
+                        new VolumeMountBuilder().withName(name + "-" + JBANG_CACHE_SUFFIX).withMountPath("/karavan/.jbang/cache").build(),
+                        new VolumeMountBuilder().withName(name + "-" + M2_CACHE_SUFFIX).withMountPath("/karavan/.m2").build())
                 .build();
 
         PodSpec spec = new PodSpecBuilder()
