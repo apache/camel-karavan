@@ -20,6 +20,8 @@ import {Project} from "./ProjectModels";
 const currentProject = new Subject<Project>();
 const currentFile = new Subject<string>();
 const showLog = new Subject<ShowLogCommand>();
+const showTrace = new Subject<ShowTraceCommand>();
+const refreshTrace = new Subject<boolean>();
 
 export class ShowLogCommand {
     type: 'container' | 'pipeline'
@@ -35,6 +37,15 @@ export class ShowLogCommand {
     }
 }
 
+export class ShowTraceCommand {
+    name: string
+    show: boolean
+
+    constructor(name: string, show: boolean) {
+        this.name = name;
+        this.show = show;
+    }
+}
 export const ProjectEventBus = {
 
     selectProject: (project: Project) => currentProject.next(project),
@@ -46,4 +57,10 @@ export const ProjectEventBus = {
     showLog: (type: 'container' | 'pipeline', name: string, environment: string, show: boolean = true) =>
         showLog.next(new ShowLogCommand(type, name, environment, show)),
     onShowLog: () => showLog.asObservable(),
+
+    showTrace: (name: string, show: boolean = true) => showTrace.next(new ShowTraceCommand(name, show)),
+    onShowTrace: () => showTrace.asObservable(),
+
+    refreshTrace: (refresh: boolean) => refreshTrace.next(refresh),
+    onRefreshTrace: () => refreshTrace.asObservable(),
 }

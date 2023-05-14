@@ -397,11 +397,14 @@ public class KubernetesService implements HealthCheck{
         return runnerName;
     }
 
-    public void deleteRunner(String name) {
+    public void deleteRunner(String name, boolean deletePVC) {
         try {
             LOGGER.info("Delete runner: " + name + " in the namespace: " + getNamespace());
             kubernetesClient().pods().inNamespace(getNamespace()).withName(name).delete();
             kubernetesClient().services().inNamespace(getNamespace()).withName(name).delete();
+            if (deletePVC) {
+                kubernetesClient().persistentVolumeClaims().inNamespace(getNamespace()).withName(name).delete();
+            }
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }

@@ -309,6 +309,15 @@ export class KaravanApi {
         });
     }
 
+    static async getRunnerReload(projectId: string, after: (res: AxiosResponse<any>) => void) {
+        instance.get('/api/runner/reload/' + projectId)
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    }
+
     static async getRunnerConsoleStatus(projectId: string, statusName: string, after: (res: AxiosResponse<string>) => void) {
         instance.get('/api/runner/console/' + statusName + "/" + projectId)
             .then(res => {
@@ -327,8 +336,8 @@ export class KaravanApi {
         });
     }
 
-    static async deleteRunner(name: string, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/runner/' +  name)
+    static async deleteRunner(name: string, deletePVC: boolean, after: (res: AxiosResponse<any>) => void) {
+        instance.delete('/api/runner/' +  name + "/" + deletePVC)
             .then(res => {
                 after(res);
             }).catch(err => {

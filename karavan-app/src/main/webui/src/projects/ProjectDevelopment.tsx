@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {
     Card,
-    CardBody, Flex, FlexItem, Divider
+    CardBody, Flex, FlexItem, Divider, Tab, Tabs, CardFooter
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {PodStatus, Project} from "./ProjectModels";
@@ -11,6 +11,7 @@ import {RunnerInfoContext} from "./RunnerInfoContext";
 import {RunnerInfoMemory} from "./RunnerInfoMemory";
 import {KaravanApi} from "../api/KaravanApi";
 import {ProjectEventBus} from "./ProjectEventBus";
+import {RunnerInfoTrace} from "./RunnerInfoTrace";
 
 export function isRunning(status: PodStatus): boolean {
     return status.phase === 'Running' && !status.terminating;
@@ -29,14 +30,28 @@ export const ProjectDevelopment = (props: Props) => {
     const [memory, setMemory] = useState({});
     const [jvm, setJvm] = useState({});
     const [context, setContext] = useState({});
+    const [trace, setTrace] = useState({});
+    const [showTrace, setShowTrace] = useState(false);
+    const [refreshTrace, setRefreshTrace] = useState(true);
 
 
     useEffect(() => {
         previousValue.current = podStatus;
+        const sub1 = ProjectEventBus.onShowTrace()?.subscribe((result) => {
+            setShowTrace(result.show);
+        });
+        const sub2 = ProjectEventBus.onRefreshTrace()?.subscribe((result) => {
+            setRefreshTrace(result);
+        });
         const interval = setInterval(() => {
             onRefreshStatus();
         }, 1000);
-        return () => clearInterval(interval);
+        return () => {
+            sub1.unsubscribe();
+            sub2.unsubscribe();
+            clearInterval(interval)
+        };
+
     }, [podStatus]);
 
     function onRefreshStatus() {
@@ -74,35 +89,49 @@ export const ProjectDevelopment = (props: Props) => {
                 setContext({});
             }
         })
+        if (refreshTrace) {
+            KaravanApi.getRunnerConsoleStatus(projectId, "trace", res => {
+                if (res.status === 200) {
+                    setTrace(res.data);
+                } else {
+                    setTrace({});
+                }
+            })
+        }
     }
 
     function showConsole(): boolean {
-        return podStatus.phase !== '' ;
+        return podStatus.phase !== '';
     }
 
     const {project, config} = props;
     return (
-            <Card className="project-development">
-                <CardBody>
-                    <Flex direction={{default: "row"}}
-                          justifyContent={{default: "justifyContentSpaceBetween"}}>
+        <Card className="project-development">
+            <CardBody>
+                <Flex direction={{default: "row"}}
+                      justifyContent={{default: "justifyContentSpaceBetween"}}>
+                    {!showTrace && <FlexItem flex={{default: "flex_1"}}>
+                        <RunnerInfoPod podStatus={podStatus} config={config} showConsole={showConsole()}/>
+                    </FlexItem>}
+                    {showConsole() && !showTrace && <>
+                        <Divider orientation={{default: "vertical"}}/>
                         <FlexItem flex={{default: "flex_1"}}>
-                            <RunnerInfoPod podStatus={podStatus} config={config} showConsole={showConsole()} />
+                            <RunnerInfoMemory jvm={jvm} memory={memory} config={config} showConsole={showConsole()}/>
                         </FlexItem>
                         <Divider orientation={{default: "vertical"}}/>
                         <FlexItem flex={{default: "flex_1"}}>
-                            <RunnerInfoMemory jvm={jvm} memory={memory} config={config} showConsole={showConsole()} />
+                            <RunnerInfoContext context={context} config={config} showConsole={showConsole()}/>
                         </FlexItem>
-                        <Divider orientation={{default: "vertical"}}/>
-                        <FlexItem flex={{default: "flex_1"}}>
-                            <RunnerInfoContext context={context} config={config} showConsole={showConsole()} />
-                        </FlexItem>
-                        <Divider orientation={{default: "vertical"}}/>
-                        <FlexItem>
-                            <RunnerToolbar project={project} config={config} showConsole={showConsole()} />
-                        </FlexItem>
-                    </Flex>
-                </CardBody>
-            </Card>
-        )
+                    </>}
+                    {showConsole() && showTrace && <FlexItem flex={{default: "flex_1"}} style={{margin:"0"}}>
+                        <RunnerInfoTrace trace={trace} refreshTrace={refreshTrace}/>
+                    </FlexItem>}
+                    <Divider orientation={{default: "vertical"}}/>
+                    <FlexItem>
+                        <RunnerToolbar project={project} config={config} showConsole={showConsole()}/>
+                    </FlexItem>
+                </Flex>
+            </CardBody>
+        </Card>
+    )
 }

@@ -127,7 +127,6 @@ public class InfinispanService implements HealthCheck  {
             commits = cacheManager.administration().getOrCreateCache("commits", new StringConfiguration(String.format(CACHE_CONFIG, "commits")));
             runnerStatuses = cacheManager.administration().getOrCreateCache("runner_statuses", new StringConfiguration(String.format(CACHE_CONFIG, "runner_statuses")));
         }
-        System.out.println("READY");
         ready.set(true);
     }
 

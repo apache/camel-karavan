@@ -28,7 +28,7 @@ export const RunnerInfoPod = (props: Props) => {
         const podStatus = props.podStatus;
         return (
             <Label icon={getIcon()} color={getColor()}>
-                <Tooltip content={`Phase: ${JSON.stringify(podStatus)}`}>
+                <Tooltip content={"Show log"}>
                     <Button variant="link"
                             onClick={e => ProjectEventBus.showLog('container', podStatus.name, env)}>
                         {podStatus.name}

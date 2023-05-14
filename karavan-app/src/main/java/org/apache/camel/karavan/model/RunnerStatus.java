@@ -9,6 +9,7 @@ public class RunnerStatus {
         properties,
         route,
         trace,
-        jvm
+        jvm,
+        source
     }
 }

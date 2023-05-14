@@ -161,6 +161,13 @@
   height: 30px;
 }
 
+.karavan .project-page .project-development .pf-c-panel__header {
+  padding: 0;
+}
+.karavan .project-page .project-development .pf-c-panel__main {
+  max-height: 212px;
+}
+
 .karavan .project-page .project-status {
   margin-bottom: 16px;
 }

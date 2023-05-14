@@ -62,8 +62,10 @@ export class ProjectLog extends React.Component<Props, State> {
             this.eventSource?.close();
         }
         this.eventSource.onmessage = (event) => {
-            const data = this.state.data.concat('\n').concat(event.data)
-            this.setState({data: data, currentLine: this.state.currentLine + 1});
+            this.setState((state: Readonly<State>) => {
+                const data = state.data.concat('\n').concat(event.data)
+                return {data: data, currentLine: this.state.currentLine + 1}
+            });
         };
     }
 

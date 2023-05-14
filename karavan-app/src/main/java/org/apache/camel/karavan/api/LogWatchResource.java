@@ -76,6 +76,7 @@ public class LogWatchResource {
                     LOGGER.error(e.getMessage());
                 }
                 logWatch.close();
+                sink.close();
                 LOGGER.info("LogWatch for " + name + " closed");
             }
         });

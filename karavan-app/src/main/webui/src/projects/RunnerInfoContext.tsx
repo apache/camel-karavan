@@ -56,14 +56,14 @@ export const RunnerInfoContext = (props: Props) => {
                         {props.context?.context?.state}
                     </Label>
                 </Tooltip>
-                <Tooltip content="Uptime" position={"bottom"}>
-                    <Label icon={getIcon()} color={getColor()}>
-                        {props.context?.context?.uptime}
-                    </Label>
-                </Tooltip>
                 <Tooltip content="Phase" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
                         {props.context?.context?.phase}
+                    </Label>
+                </Tooltip>
+                <Tooltip content="Uptime" position={"bottom"}>
+                    <Label icon={getIcon()} color={getColor()}>
+                        {props.context?.context?.uptime}
                     </Label>
                 </Tooltip>
             </LabelGroup>
@@ -138,13 +138,12 @@ export const RunnerInfoContext = (props: Props) => {
 
     return (
         <DescriptionList isHorizontal>
-            <DescriptionListGroup>
-                <DescriptionListTerm>Camel</DescriptionListTerm>
-                <DescriptionListDescription>
-                    {getContextInfo()}
-                </DescriptionListDescription>
-            </DescriptionListGroup>
-            {props.showConsole && <>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>Camel</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        {getContextInfo()}
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
                 <DescriptionListGroup>
                     <DescriptionListTerm>Version</DescriptionListTerm>
                     <DescriptionListDescription>
@@ -169,7 +168,6 @@ export const RunnerInfoContext = (props: Props) => {
                         {getProcessingTime()}
                     </DescriptionListDescription>
                 </DescriptionListGroup>
-            </>}
         </DescriptionList>
     );
 }

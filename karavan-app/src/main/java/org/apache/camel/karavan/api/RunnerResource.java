@@ -62,18 +62,25 @@ public class RunnerResource {
         String status = infinispanService.getRunnerStatus(runnerName, RunnerStatus.NAME.context);
         if (status != null) {
             JsonObject js = new JsonObject(status);
-            System.out.println(status);
         }
         Project p = infinispanService.getProject(project.getProjectId());
         return kubernetesService.tryCreateRunner(p, runnerName);
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/reload/{projectId}")
+    public Response reload(@PathParam("projectId") String projectId) {
+        runnerServices.reload(projectId);
+        return Response.ok().build();
+    }
+
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/{name}")
-    public Response deletePod(@PathParam("name") String name) {
-        kubernetesService.deleteRunner(name);
+    @Path("/{name}/{deletePVC}")
+    public Response deleteRunner(@PathParam("name") String name, @PathParam("deletePVC") boolean deletePVC) {
+        kubernetesService.deleteRunner(name, deletePVC);
         infinispanService.deleteRunnerStatuses(name);
         return Response.accepted().build();
     }

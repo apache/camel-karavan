@@ -25,6 +25,7 @@ import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.apache.camel.karavan.model.PodStatus;
+import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.model.RunnerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
@@ -32,7 +33,9 @@ import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -67,6 +70,39 @@ public class RunnerService {
         return webClient;
     }
 
+    public void reload(String projectId) {
+        try {
+            String runnerName = projectId + "-" + RUNNER_SUFFIX;
+            infinispanService.getProjectFiles(projectId).forEach(projectFile -> putRequest(runnerName, projectFile.getName(), projectFile.getCode(), 1000));
+            reloadRequest(runnerName);
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+        }
+    }
+
+    @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)
+    public boolean putRequest(String runnerName, String fileName, String body, int timeout) {
+        try {
+            String url = "http://" + runnerName + "." + kubernetesService.getNamespace() + ".svc.cluster.local/q/upload/" + fileName;
+            HttpResponse<Buffer> result = getWebClient().putAbs(url)
+                    .timeout(timeout).sendBuffer(Buffer.buffer(body)).subscribeAsCompletionStage().toCompletableFuture().get();
+            return result.statusCode() == 200;
+        } catch (Exception e) {
+            LOGGER.info(e.getMessage());
+        }
+        return false;
+    }
+
+    public String reloadRequest(String runnerName) {
+        String url = "http://" + runnerName + "." + kubernetesService.getNamespace() + ".svc.cluster.local/q/dev/reload?reload=true";
+        try {
+            return result(url, 1000);
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.error(e.getMessage());
+        }
+        return null;
+    }
+
     @Scheduled(every = "{karavan.runner-status-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectRunnerStatus() {
         if (infinispanService.call().getStatus().name().equals("UP")) {
@@ -86,7 +122,9 @@ public class RunnerService {
                     .filter(name -> !name.equals(RunnerStatus.NAME.context))
                     .forEach(statusName -> {
                         String status = getRunnerStatus(podName, statusName);
-                        infinispanService.saveRunnerStatus(podName, statusName, status);
+                        if (status != null) {
+                            infinispanService.saveRunnerStatus(podName, statusName, status);
+                        }
                     });
             reloadCode(podName, oldContext, newContext);
         }

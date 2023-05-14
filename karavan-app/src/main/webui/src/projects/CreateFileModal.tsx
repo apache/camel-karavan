@@ -5,7 +5,7 @@ import {
     FormGroup,
     ModalVariant,
     Form,
-    ToggleGroupItem, ToggleGroup, TextInputGroupMain, TextInputGroupUtilities, TextInputGroup, Text, FormHelperText, HelperText, HelperTextItem, TextInput
+    ToggleGroupItem, ToggleGroup, FormHelperText, HelperText, HelperTextItem, TextInput
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";

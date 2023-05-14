@@ -128,7 +128,6 @@ export const RunnerInfoMemory = (props: Props) => {
                     {getJvmInfo()}
                 </DescriptionListDescription>
             </DescriptionListGroup>
-            {props.showConsole && <>
                 <DescriptionListGroup>
                     <DescriptionListTerm>PID</DescriptionListTerm>
                     <DescriptionListDescription>
@@ -153,7 +152,6 @@ export const RunnerInfoMemory = (props: Props) => {
                         {getNonHeapInfo()}
                     </DescriptionListDescription>
                 </DescriptionListGroup>
-            </>}
         </DescriptionList>
     );
 }

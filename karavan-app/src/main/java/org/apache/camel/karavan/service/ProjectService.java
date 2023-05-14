@@ -77,7 +77,6 @@ public class ProjectService implements HealthCheck{
             LOGGER.info("Pull commits...");
             Tuple2<String, Integer> lastCommit = infinispanService.getLastCommit();
             gitService.getCommitsAfterCommit(lastCommit.getItem2()).forEach(commitInfo -> {
-                System.out.println(commitInfo);
                 if (!infinispanService.hasCommit(commitInfo.getCommitId())) {
                     commitInfo.getRepos().forEach(repo -> {
                         Project project = importProjectFromRepo(repo);
