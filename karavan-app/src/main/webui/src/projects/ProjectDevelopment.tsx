@@ -101,7 +101,7 @@ export const ProjectDevelopment = (props: Props) => {
     }
 
     function showConsole(): boolean {
-        return podStatus.phase !== '';
+        return true;//podStatus.phase !== '';
     }
 
     const {project, config} = props;
