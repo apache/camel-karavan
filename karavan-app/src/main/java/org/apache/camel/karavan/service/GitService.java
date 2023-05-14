@@ -29,8 +29,6 @@ import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.MergeCommand;
-import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.PullCommand;
 import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.RemoteAddCommand;
@@ -44,14 +42,10 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.FetchResult;
-import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
-import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
@@ -59,12 +53,10 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.logging.Logger;
-import org.wildfly.common.Branch;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -186,7 +178,7 @@ public class GitService {
             }
             System.out.println("Last but one commit id " + commit.getId().getName());
         }
-        return lastButOneCommitId;
+        return "05ac2e9be9dba890799b1fbbfa1d9163fe05fd4b";
     }
 
     public RevCommit commitAndPushProject(Project project, List<ProjectFile> files, String message , String username , String accessToken , String repoUri , String branch,String file) throws GitAPIException, IOException, URISyntaxException {
@@ -202,9 +194,9 @@ public class GitService {
         try {
             git = clone(folder, uri, branch, cred);
             Repository repository = git.getRepository();
-            // testBaseId = repository.resolve("HEAD");
-            // String lastButOne = getLastButOneCommit(git);
-            // checkout(git, true, null, lastButOne, "newmain");
+            testBaseId = repository.resolve("HEAD");
+            String lastButOne = getLastButOneCommit(git);
+            checkout(git, true, null, lastButOne, "newmain");
         } catch (RefNotFoundException | TransportException e) {
             LOGGER.error("New repository");
             git = clone(folder, uri, "main", cred);
@@ -435,12 +427,39 @@ public class GitService {
     //     }
     //     }
 
+    private String getConflictFormat(String filename , String code){
+        String[] lines = code.split("\n");
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < lines.length; i++) {
+        if (lines[i].startsWith("-")) {
+            sb.append("<<<<<<< HEAD\n");
+            sb.append(lines[i].substring(1)).append("\n");
+            while (i + 1 < lines.length && lines[i + 1].startsWith("-")) {
+                sb.append(lines[++i].substring(1)).append("\n");
+            }
+            sb.append("=======\n");
+            while (i + 1 < lines.length && !lines[i + 1].startsWith("-") && lines[i + 1].startsWith("+")) {
+                sb.append(lines[++i].substring(1)).append("\n");
+            }
+            sb.append(">>>>>>> new_branch_to_merge_later\n");
+        } else if(lines[i].startsWith("+")){
+            sb.append(lines[i].substring(1)).append("\n");
+        }
+        else {
+            sb.append(lines[i]).append("\n");
+        }
+    }
+    LOGGER.info("required format Conflict format: " + sb.toString());
+    return sb.toString();
+    }
+
     private void detectMergeConflicts2(Git git, ObjectId newBranchId,List<ProjectFile> files) throws IOException, GitAPIException {
         // Get the Git repository
         Repository repository = git.getRepository();
         // Get the two different copies of the file
         // Get the two different copies of the file
     // ObjectId baseId = repository.resolve("HEAD^");
+    LOGGER.info("newBranchId id: " + newBranchId);
     ObjectId baseId = repository.resolve("HEAD");
     RevCommit baseCommit = repository.parseCommit(baseId);
     RevCommit ourCommit = repository.parseCommit(newBranchId);
@@ -466,76 +485,102 @@ public class GitService {
             .setNewTree(ourTreeIter)
             .call();
     LOGGER.info("Diff entries: " + diffEntries);
-    try (// Create a DiffFormatter to format the diff output
-    DiffFormatter diffFormatter = new DiffFormatter(System.out)) {
+    HashMap<String, String> diffMap = new HashMap<>();
+    try (
+        FileOutputStream outputStream = new FileOutputStream("diff.txt");
+        DiffFormatter diffFormatter = new DiffFormatter(outputStream)){
         diffFormatter.setRepository(repository);
-        // diffFormatter.setOldPrefix("<<<<<<< HEAD");
-        // diffFormatter.setNewPrefix(">>>>>>> test/newBranch");
-        // diffFormatter.setNewSuffix("");
-
-        // Iterate over the diff entries and print out any conflicts
         for (DiffEntry diffEntry : diffEntries) {
             // if (diffEntry.getChangeType().name().equals("CONFLICT")) {
                 // System.out.println("Conflict detected in file new " + diffEntry.getPath(DiffEntry.Side.NEW));
-                // System.out.println("Conflict detected in file old " + diffEntry.getPath(DiffEntry.Side.OLD));
                 diffFormatter.format(diffEntry);
+                String diff = new String(Files.readAllBytes(Paths.get("diff.txt")));
+                diffMap.put(diffEntry.getPath(DiffEntry.Side.OLD), diff);
+                System.out.println("Conflict detected in file old " + diffEntry.getPath(DiffEntry.Side.OLD));
+                outputStream.write(new byte[0]);
+                outputStream.close();
+                // System.out.println("Diff: " + diff);
                 //store  diffFormatter.format(diffEntry) output in some variable
-                
-
-                System.out.println("Diff: " + diffEntry.getChangeType() + ": " +
-                    (diffEntry.getOldPath().equals(diffEntry.getNewPath()) ? diffEntry.getNewPath() : diffEntry.getOldPath() + " -> " + diffEntry.getNewPath()));
-        }  
+        // }  
+    }
+    }
+    //iterate diffmap and get the file name and diff
+    for (Map.Entry<String, String> entry : diffMap.entrySet()) {
+        String[] lines =  entry.getValue().split("\\n"); 
+        int startLineIndex = 0;
+        while (!lines[startLineIndex].startsWith("@@")) {
+            startLineIndex++;
+        }
+        String changedFileContent = String.join("\n", Arrays.copyOfRange(lines, startLineIndex+1, lines.length));
+        String conflictingFileFormat = getConflictFormat(entry.getKey(), changedFileContent);
+        diffMap.put(entry.getKey(),conflictingFileFormat);
     }
 
-    getLastButOneCommit(git);
-        // Map<String, String> fileNames = new HashMap<>();
-        //    for (ProjectFile file : files) {
-        //        fileNames.put("auth/"+file.getName(), file.getCode());
+    // getLastButOneCommit(git);
+    //     // Map<String, String> fileNames = new HashMap<>();
+    //     //    for (ProjectFile file : files) {
+    //     //        fileNames.put("auth/"+file.getName(), file.getCode());
 
-        String currentBranch = git.getRepository().getBranch();
-        LOGGER.info("Current branch: " + currentBranch);
+    //     String currentBranch = git.getRepository().getBranch();
+    //     LOGGER.info("Current branch: " + currentBranch);
 
-        //    }
-           String remotePath = "newmain";
-        //    MergeResult mergeResult = git.merge()
-        //        .setStrategy(MergeStrategy.RESOLVE)
-        //        .include(git.getRepository().resolve(remotePath))
-        //        .call();
-        // MergeResult mergeResult = git.merge();
-        //         // .include(git.getRepository().findRef(remotePath))
-        //         // .include(git.getRepository().findRef("main"))
-        //         // .setStrategy(MergeStrategy.RECURSIVE)
-        //         // .setBase(base)
-        //         .call();
+    //     //    }
+    //        String remotePath = "newmain";
+    //     //    MergeResult mergeResult = git.merge()
+    //     //        .setStrategy(MergeStrategy.RESOLVE)
+    //     //        .include(git.getRepository().resolve(remotePath))
+    //     //        .call();
+    //     // MergeResult mergeResult = git.merge();
+    //     //         // .include(git.getRepository().findRef(remotePath))
+    //     //         // .include(git.getRepository().findRef("main"))
+    //     //         // .setStrategy(MergeStrategy.RECURSIVE)
+    //     //         // .setBase(base)
+    //     //         .call();
 
-         // Create a new MergeCommand object.
-         MergeCommand mergeCommand = git.merge();
+    //      // Create a new MergeCommand object.
+    //      MergeCommand mergeCommand = git.merge();
 
-         // Add the target branch to the merge command.
-         LOGGER.info("our id: " + ourCommit);
-         mergeCommand.include(ourCommit);
+    //      // Add the target branch to the merge command.
+    //      LOGGER.info("our id: " + ourCommit);
+    //      mergeCommand.include(ourCommit);
+    //      mergeCommand.setStrategy(MergeStrategy.RESOLVE);
  
-         // Call the merge command.
-         MergeResult mergeResult = mergeCommand.call();
+    //      // Call the merge command.
+    //      MergeResult mergeResult = mergeCommand.call();
          
-               Map<String,int[][]> allConflicts = mergeResult.getConflicts();
-               LOGGER.info("Conflicts: " + mergeResult.getMergeStatus());
-               if (mergeResult.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)){
-                   for (String path : allConflicts.keySet()) {
-                       int[][] c = allConflicts.get(path);
-                       System.out.println("Conflicts in file " + path);
-                       for (int i = 0; i < c.length; ++i) {
-                               System.out.println("  Conflict #" + i);
-                               for (int j = 0; j < (c[i].length) - 1; ++j) {
-                                       if (c[i][j] >= 0)
-                                               System.out.println("    Chunk for "
-                                                               + mergeResult.getMergedCommits()[j] + " starts on line #"
-                                                               + c[i][j]);
-                               }
-                       }
-                }
-               }
-        getLastButOneCommit(git);
+    //            Map<String,int[][]> allConflicts = mergeResult.getConflicts();
+    //            LOGGER.info("Conflicts: " + mergeResult.getMergeStatus());
+    //            if (mergeResult.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)){
+    //                for (String path : allConflicts.keySet()) {
+    //                    int[][] c = allConflicts.get(path);
+    //                    System.out.println("Conflicts in file " + path);
+    //                    for (int i = 0; i < c.length; ++i) {
+    //                            System.out.println("  Conflict #" + i);
+    //                            for (int j = 0; j < (c[i].length) - 1; ++j) {
+    //                                    if (c[i][j] >= 0)
+    //                                            System.out.println("    Chunk for "
+    //                                                            + mergeResult.getMergedCommits()[j] + " starts on line #"
+    //                                                            + c[i][j]);
+    //                            }
+    //                    }
+    //             }
+    //            }
+
+            //    DirCache index = DirCache.read(repository);
+
+            // Iterate over the Git index entries.
+            // for (int i = 0; i < index.getEntryCount(); i++) {
+            //     DirCacheEntry entry = index.getEntry(i);
+            //     if (entry.getStage() > 0) { 
+            //         // This is a conflicted file, handle it accordingly.
+            //         String path = entry.getPathString();
+            //         LOGGER.info("Conflicted file: path" + path);
+            //         // Use the ResolveMerger class to resolve the merge conflict.
+            //         // Display the file content to the user and allow them to resolve the conflicts.
+            //         // Write the resolved content back to the file.
+            //         // Commit the changes to complete the merge.
+            //     }
+            // }
    
             
     //     if (mergeResult.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)) {
@@ -560,16 +605,6 @@ public class GitService {
         Files.createDirectories(Paths.get(folder, project.getProjectId()));
         LOGGER.info("Write files to path " + Paths.get(folder, project.getProjectId()));
         LOGGER.info("Write files for project " + project.getProjectId());
-        // File folders = new File(folder);
-        // File[] filess = folders.listFiles();
-        // Map<String,String> fileNames = new HashMap<>();
-        // for (File file : filess) {
-        //     if (file.isFile()) {
-        //         System.out.println(file.getName());
-        //         fileNames.put(file.getName(),Files.readString(new File("file1.txt").toPath(), StandardCharsets.UTF_8));
-                
-        //     }
-        // }
         LOGGER.info("Write files for project " + fileSelected);
         if(fileSelected.equals(".")){
             for (ProjectFile file : files) {
@@ -586,13 +621,6 @@ public class GitService {
                 }
             }
         }
-        // files.forEach(file -> {
-        //     try {
-        //         Files.writeString(Paths.get(folder, project.getProjectId(), file.getName()), file.getCode());
-        //     } catch (IOException e) {
-        //         LOGGER.error("Error during file write", e);
-        //     }
-        // });
     }
 
     private void addDeletedFilesToIndex(Git git, String folder, Project project, List<ProjectFile> files) throws IOException {
@@ -692,7 +720,7 @@ public class GitService {
         getLastButOneCommit(git);
         Repository repository = git.getRepository();
         ObjectId newBranchId = repository.resolve("HEAD");
-        // checkout(git, false, null, null, branch);
+        checkout(git, false, null, null, branch);
         currentBranch = git.getRepository().getBranch();
         LOGGER.info("Current branch: " + currentBranch);
         detectMergeConflicts2(git,newBranchId,files);
