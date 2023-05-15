@@ -16,7 +16,6 @@
  */
 package org.apache.camel.karavan.api;
 
-import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.model.PodStatus;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.RunnerStatus;
@@ -38,6 +37,7 @@ import javax.ws.rs.core.Response;
 import java.util.Optional;
 
 import static org.apache.camel.karavan.service.RunnerService.RUNNER_SUFFIX;
+import static org.apache.camel.karavan.service.RunnerService.STATUS_NEED_INITIAL_LOAD;
 
 @Path("/api/runner")
 public class RunnerResource {
@@ -57,21 +57,22 @@ public class RunnerResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public String runProject(Project project) {
+    public Response runProject(Project project) {
         String runnerName = project.getProjectId() + "-" + RUNNER_SUFFIX;
         String status = infinispanService.getRunnerStatus(runnerName, RunnerStatus.NAME.context);
-        if (status != null) {
-            JsonObject js = new JsonObject(status);
+        if (status == null) {
+            Project p = infinispanService.getProject(project.getProjectId());
+            infinispanService.saveRunnerStatus(runnerName, STATUS_NEED_INITIAL_LOAD, STATUS_NEED_INITIAL_LOAD);
+            return Response.ok(kubernetesService.tryCreateRunner(p, runnerName)).build();
         }
-        Project p = infinispanService.getProject(project.getProjectId());
-        return kubernetesService.tryCreateRunner(p, runnerName);
+        return Response.notModified().build();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/reload/{projectId}")
     public Response reload(@PathParam("projectId") String projectId) {
-        runnerServices.reload(projectId);
+        runnerServices.reloadProjectCode(projectId);
         return Response.ok().build();
     }
 

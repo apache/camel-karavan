@@ -42,6 +42,7 @@ public class RunnerService {
     private static final Logger LOGGER = Logger.getLogger(RunnerService.class.getName());
     public static final String CMD_COLLECT_RUNNER_STATUS = "collect-runner-status";
     public static final String RUNNER_SUFFIX = "runner";
+    public static final String STATUS_NEED_INITIAL_LOAD = "NEED_INITIAL_LOAD";
 
     @Inject
     InfinispanService infinispanService;
@@ -67,14 +68,16 @@ public class RunnerService {
         return webClient;
     }
 
-    public void reload(String projectId) {
+    public void reloadProjectCode(String projectId) {
+        LOGGER.info("Reload project code " + projectId);
+        String runnerName = projectId + "-" + RUNNER_SUFFIX;
         try {
-            String runnerName = projectId + "-" + RUNNER_SUFFIX;
             infinispanService.getProjectFiles(projectId).forEach(projectFile -> putRequest(runnerName, projectFile.getName(), projectFile.getCode(), 1000));
             reloadRequest(runnerName);
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }
+        infinispanService.deleteRunnerStatus(runnerName, STATUS_NEED_INITIAL_LOAD);
     }
 
     @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)
@@ -114,6 +117,7 @@ public class RunnerService {
         String oldContext = infinispanService.getRunnerStatus(podName, RunnerStatus.NAME.context);
         String newContext = getRunnerStatus(podName, RunnerStatus.NAME.context);
         if (newContext != null) {
+            System.out.println(new JsonObject(newContext).encodePrettily());
             infinispanService.saveRunnerStatus(podName, RunnerStatus.NAME.context, newContext);
             Arrays.stream(RunnerStatus.NAME.values())
                     .filter(name -> !name.equals(RunnerStatus.NAME.context))
@@ -131,15 +135,9 @@ public class RunnerService {
         String projectName = podName.replace("-" + RUNNER_SUFFIX, "");
         String newState = getContextState(newContext);
         String oldState = getContextState(oldContext);
-        if (newContext != null && !Objects.equals(newState, oldState) && "Running".equals(newState)) {
-            sendCodeToRunner(projectName);
+        if (newContext != null && !Objects.equals(newState, oldState) && "Started".equals(newState)) {
+            reloadProjectCode(projectName);
         }
-    }
-
-    private void sendCodeToRunner(String projectName) {
-        infinispanService.getProjectFiles(projectName).forEach(projectFile -> {
-
-        });
     }
 
     private String getContextState(String context) {

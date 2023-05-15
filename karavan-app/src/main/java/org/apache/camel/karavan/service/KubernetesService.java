@@ -382,7 +382,6 @@ public class KubernetesService implements HealthCheck{
     }
 
     public String tryCreateRunner(Project project, String runnerName) {
-
         createPVC(runnerName);
         Pod old = kubernetesClient().pods().inNamespace(getNamespace()).withName(runnerName).get();
         if (old == null) {
@@ -390,7 +389,7 @@ public class KubernetesService implements HealthCheck{
             Map<String,String> containerResources = ServiceUtil
                     .getRunnerContainerResourcesMap(properties, isOpenshift(), project.getRuntime().equals("quarkus"));
             Pod pod = getPod(project.getProjectId(), runnerName, containerResources);
-            Pod result = kubernetesClient().resource(pod).create();
+            Pod result = kubernetesClient().resource(pod).createOrReplace();
             LOGGER.info("Created pod " + result.getMetadata().getName());
         }
         createService(runnerName);

@@ -331,8 +331,16 @@ public class InfinispanService implements HealthCheck  {
         runnerStatuses.put(GroupedKey.create(podName, statusName.name()), status);
     }
 
+    public void saveRunnerStatus(String podName, String statusName, String status) {
+        runnerStatuses.put(GroupedKey.create(podName, statusName), status);
+    }
+
     public void deleteRunnerStatus(String podName, RunnerStatus.NAME statusName) {
         runnerStatuses.remove(GroupedKey.create(podName, statusName.name()));
+    }
+
+    public void deleteRunnerStatus(String podName, String statusName) {
+        runnerStatuses.remove(GroupedKey.create(podName, statusName));
     }
 
     public void deleteRunnerStatuses(String podName) {
