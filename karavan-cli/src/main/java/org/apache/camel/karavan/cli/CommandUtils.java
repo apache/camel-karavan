@@ -20,6 +20,7 @@ import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
+import io.fabric8.openshift.api.model.operatorhub.v1.Operator;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.tekton.pipeline.v1beta1.Pipeline;
 import io.fabric8.tekton.pipeline.v1beta1.Task;
@@ -27,6 +28,7 @@ import org.apache.camel.karavan.cli.resources.*;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 
 public class CommandUtils {
     private static final Pipeline pipeline = new Pipeline();
@@ -50,6 +52,10 @@ public class CommandUtils {
         // Check and install Tekton
         if (!isTektonInstalled(client)) {
             log("Tekton is not installed");
+            if (isOpenShift(client)) {
+                logPoint("Please install Tekton Operator first");
+                System.exit(0);
+            }
             installTekton(config, client);
         }
         log("Tekton is installed");
@@ -65,7 +71,8 @@ public class CommandUtils {
 
         // Check secrets
         if (!checkKaravanSecrets(config, client)) {
-            logError("Karavan secrets  not found. Apply secrets before installation");
+            logError("Karavan secrets not found");
+            logPoint("Apply secrets before installation");
             System.exit(0);
         }
         log("Karavan secrets found");
@@ -96,14 +103,15 @@ public class CommandUtils {
             createOrReplace(KaravanService.getRoute(config), client);
         }
         log("Karavan is installed");
-
+        System.out.print("Karavan is starting ");
         while (!checkReady(config, client)) {
             try {
                 Thread.sleep(1000);
             } catch (Exception e) {
 
             }
-            System.out.print(".");
+            System.out.print("\uD83D\uDC2B ");
+
         }
         System.out.println();
         log("Karavan is ready");
@@ -130,9 +138,9 @@ public class CommandUtils {
     }
 
     private static void installTekton(KaravanConfig config, KubernetesClient client) {
-        System.out.println("⏳ Installing Tekton");
+        log("⏳ Installing Tekton");
         client.load(CommandUtils.class.getResourceAsStream("/tekton.yaml")).create().forEach(hasMetadata -> {
-            System.out.println(" - " + hasMetadata.getKind() + " " + hasMetadata.getMetadata().getName());
+            log(" - " + hasMetadata.getKind() + " " + hasMetadata.getMetadata().getName());
         });
     }
 
@@ -141,9 +149,9 @@ public class CommandUtils {
         if (kinds != null && kinds.getResources().stream().anyMatch(res -> res.getKind().equalsIgnoreCase(pipeline.getKind())) &&
                 kinds.getResources().stream().anyMatch(res -> res.getKind().equalsIgnoreCase(task.getKind()))) {
             if (isOpenShift(client)) {
-                long oper = client.adapt(OpenShiftClient.class).operatorHub().subscriptions().list().getItems().stream()
-                        .filter(sub -> sub.getMetadata().getName().contains("openshift-pipelines-operator")).count();
-                return oper > 0;
+                Optional<Operator> oper = client.adapt(OpenShiftClient.class).operatorHub().operators().list().getItems().stream()
+                        .filter(sub -> sub.getMetadata().getName().contains("openshift-pipelines-operator")).findFirst();
+                return oper.isPresent();
             } else {
                 return true;
             }
@@ -155,12 +163,20 @@ public class CommandUtils {
         System.out.println(getOkMessage(message));
     }
 
+    public static void logPoint(String message) {
+        System.out.println(getPointMessage(message));
+    }
+
     public static void logError(String message) {
         System.out.println(getErrorMessage(message));
     }
 
     private static String getOkMessage(String message) {
         return "\uD83D\uDC4D " + message;
+    }
+
+    private static String getPointMessage(String message) {
+        return "\uD83D\uDC49 " + message;
     }
 
     private static String getErrorMessage(String message) {
