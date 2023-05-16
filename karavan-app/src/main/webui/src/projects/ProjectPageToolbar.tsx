@@ -18,6 +18,7 @@ import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 import {KaravanApi} from "../api/KaravanApi";
+import {ResolveMergeConflictsModal} from "./ResolveMergeConflictsModal";
 
 interface Props {
     project: Project,
@@ -41,7 +42,14 @@ interface Props {
 interface State {
     isPushing: boolean,
     commitMessageIsOpen: boolean,
-    commitMessage: string
+    pushCommitIsOpen: boolean,
+    commitMessage: string,
+    username: string,
+    accessToken: string,
+    repoUri: string,
+    branch: string,
+    isConflictModalOpen: boolean,
+    fileDiffCodeMap : Map<string,string>,
 }
 
 export class ProjectPageToolbar extends React.Component<Props> {
@@ -49,20 +57,64 @@ export class ProjectPageToolbar extends React.Component<Props> {
     public state: State = {
         isPushing: false,
         commitMessageIsOpen: false,
-        commitMessage: ''
+        pushCommitIsOpen: false,
+        commitMessage: 'test',
+        username: 'shashwath-sk',
+        accessToken: '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',
+        repoUri: 'https://github.com/shashwath-sk/karavan-minikube-poc',
+        branch: 'main',
+        isConflictModalOpen: false,
+        fileDiffCodeMap : new Map(),
+
     };
+
+    setIsConflictModalOpen = (isOpen: boolean) => {
+        this.setState({isConflictModalOpen: isOpen});
+    }
+
+    setIsConflictPresentMap = (name:string) =>{
+        this.state.fileDiffCodeMap.delete(name);
+    }
+
+    isConflictResolved = (commitMessage: string) =>{
+        if(this.state.fileDiffCodeMap.size>0){
+            console.log("Conflict present", this.state.fileDiffCodeMap);
+            this.setState({isConflictModalOpen: true});
+        }else{
+            this.setState({
+                commitMessageIsOpen: true,
+                commitMessage : commitMessage === '' ? new Date().toLocaleString() : commitMessage
+                })}
+        }
 
     push = (after?: () => void) => {
         this.setState({isPushing: true, commitMessageIsOpen: false});
+        console.log("Pushing", this.state);
         const params = {
             "projectId": this.props.project.projectId,
-            "message": this.state.commitMessage
+            "message": this.state.commitMessage,
+            "username": this.state.username,
+            "accessToken": this.state.accessToken,
+            "repoUri": this.state.repoUri,
+            "branch": this.state.branch,
+            "file": this.props.file?.name || ".",
         };
         KaravanApi.push(params, res => {
             if (res.status === 200 || res.status === 201) {
                 this.setState({isPushing: false});
+                // need to add condition which checks weather files are conflicting or not
+                const fileDiffCodeMap = new Map();
+                Object.keys(res.data).map(file =>{
+                    fileDiffCodeMap.set(file,res.data[file]);
+                });
+                fileDiffCodeMap.delete("isConflictPresent");
+                // if(fileDiffCodeMap.get("isConflictPresent")!=null){
+                //     this.setState({isConflictModalOpen: true});
+                //     fileDiffCodeMap.delete("isConflictPresent");
+                // }
+                this.setState({isConflictModalOpen: true,fileDiffCodeMap: fileDiffCodeMap});
                 after?.call(this);
-                this.props.onRefresh.call(this);
+                // this.props.onRefresh.call(this);
             } else {
                 // Todo notification
             }
@@ -111,6 +163,13 @@ export class ProjectPageToolbar extends React.Component<Props> {
         const isIntegration = isYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
         const isProperties = file !== undefined && file.name.endsWith("properties");
         return <Toolbar id="toolbar-group-types">
+            { this.state.isConflictModalOpen && <ResolveMergeConflictsModal 
+                fileDiffCodeMap={this.state.fileDiffCodeMap}
+                isConflictModalOpen={this.state.isConflictModalOpen}
+                setIsConflictModalOpen={this.setIsConflictModalOpen}
+                projectId = {this.props.project.projectId}
+                setIsConflictPresentMap = {this.setIsConflictPresentMap}
+                  /> }
             <ToolbarContent>
                 <Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
                     {isYaml && <FlexItem>
@@ -152,28 +211,25 @@ export class ProjectPageToolbar extends React.Component<Props> {
                         <Button isSmall variant="secondary" icon={<UploadIcon/>}
                                 onClick={e => setUploadModalOpen.call(this)}>Upload</Button>
                     </FlexItem>}
-                    {!isFile && <FlexItem>
-                        <Tooltip content="Commit and push to git" position={"bottom-end"}>
-                            <Button isLoading={isPushing ? true : undefined}
-                                    isSmall
-                                    variant={needCommit ? "primary" : "secondary"}
-                                    className="project-button"
-                                    icon={!isPushing ? <PushIcon/> : <div></div>}
-                                    onClick={() => this.setState({
-                                        commitMessageIsOpen: true,
-                                        commitMessage : commitMessage === '' ? new Date().toLocaleString() : commitMessage
-                                    })}>
-                                {isPushing ? "..." : "Push"}
-                            </Button>
-                        </Tooltip>
-                    </FlexItem>}
+                   <FlexItem>
+                            <Tooltip content="Commit and push to git" position={"bottom-end"}>
+                                <Button isLoading={isPushing ? true : undefined}
+                                        isSmall
+                                        variant={needCommit ? "primary" : "secondary"}
+                                        className="project-button"
+                                        icon={!isPushing ? <PushIcon/> : <div></div>}
+                                        onClick={() => this.isConflictResolved(commitMessage)}>
+                                    {isPushing ? "..." : "Push"}
+                                </Button>
+                            </Tooltip>
+                        </FlexItem>
                 </Flex>
             </ToolbarContent>
         </Toolbar>
     }
 
     getCommitModal() {
-        let {commitMessage, commitMessageIsOpen} = this.state;
+        let {commitMessage, commitMessageIsOpen,username,accessToken,repoUri,branch} = this.state;
         return (
             <Modal
                 title="Commit"
@@ -186,14 +242,36 @@ export class ProjectPageToolbar extends React.Component<Props> {
                 ]}
             >
                 <Form autoComplete="off" isHorizontal className="create-file-form">
-                    <FormGroup label="Message" fieldId="name" isRequired>
+                    <FormGroup label="Username" fieldId="user-name" isRequired>
+                            <TextInput value={username} onChange={value => this.setState({username: value})}/>
+                            <FormHelperText isHidden={false} component="div"/>
+                    </FormGroup>
+                    <FormGroup label="Repo uri" fieldId="repo-uri" isRequired>
+                        <TextInput value={repoUri} onChange={value => this.setState({repoUri: value})}/>
+                        <FormHelperText isHidden={false} component="div"/>
+                    </FormGroup>
+                    <FormGroup label="Access Token" fieldId="access-token" isRequired>
+                        <TextInput value={accessToken} onChange={value => this.setState({accessToken: value})}/>
+                        <FormHelperText isHidden={true} component="div"/>
+                    </FormGroup>
+                    <FormGroup label="Message" fieldId="commit message" isRequired>
                         <TextInput value={commitMessage} onChange={value => this.setState({commitMessage: value})}/>
+                        <FormHelperText isHidden={false} component="div"/>
+                    </FormGroup>
+                    <FormGroup label="Branch" fieldId="branch" isRequired>
+                         <TextInput value={branch} onChange={value => this.setState({branch: value})}/>
                         <FormHelperText isHidden={false} component="div"/>
                     </FormGroup>
                 </Form>
             </Modal>
         )
     }
+
+    // getMergeResolverModal() {
+
+    // }
+
+    
 
     render() {
         const {isTemplates} = this.props;
