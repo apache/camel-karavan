@@ -16,7 +16,10 @@
  */
 package org.apache.camel.karavan.cli;
 
+import picocli.CommandLine;
+
 import java.util.Map;
+import java.util.Objects;
 
 public class KaravanConfig {
 
@@ -26,46 +29,70 @@ public class KaravanConfig {
     private String runtimes;
     private String auth;
     private int nodePort;
-    private String gitPullInterval;
     private int instances;
-    private String imageRegistry;
     private String baseImage;
     private String baseBuilderImage;
     private boolean isOpenShift;
     private Map<String,String> labels;
 
-    public static KaravanConfig getDefault(String version) {
-        return new KaravanConfig(
-                version,
-                Constants.DEFAULT_NAMESPACE,
-                Constants.DEFAULT_ENVIRONMENT,
-                Constants.DEFAULT_RUNTIMES,
-                Constants.DEFAULT_AUTH,
-                Constants.DEFAULT_NODE_PORT,
-                Constants.DEFAULT_GIT_PULL_INTERVAL,
-                Constants.DEFAULT_INSTANCES,
-                Constants.DEFAULT_IMAGE_REGISTRY,
-                Constants.KARAVAN_IMAGE,
-                Constants.DEFAULT_BUILD_IMAGE,
-                false,
-                ResourceUtils.getLabels(Constants.NAME, version, Map.of())
-        );
-    }
+    private String masterPassword;
+    private String oidcSecret;
+    private String oidcServerUrl;
+    private String oidcFrontendUrl;
+    private String gitRepository;
+    private String gitUsername;
+    private String gitPassword;
+    private String gitBranch;
+    private String gitPullInterval;
+    private String imageRegistry;
 
-    public KaravanConfig(String version, String namespace, String environment, String runtimes, String auth, int nodePort, String gitPullInterval, int instances, String imageRegistry, String baseImage, String baseBuilderImage, boolean isOpenShift, Map<String, String> labels) {
+    public KaravanConfig(String version, String namespace, String environment, String runtimes, String auth,
+                         int nodePort, int instances, String baseImage, String baseBuilderImage, boolean isOpenShift,
+                         Map<String, String> labels, String masterPassword, String oidcSecret, String oidcServerUrl,
+                         String oidcFrontendUrl, String gitRepository, String gitUsername, String gitPassword,
+                         String gitBranch, String gitPullInterval, String imageRegistry) {
         this.version = version;
         this.namespace = namespace;
         this.environment = environment;
         this.runtimes = runtimes;
         this.auth = auth;
         this.nodePort = nodePort;
-        this.gitPullInterval = gitPullInterval;
         this.instances = instances;
-        this.imageRegistry = imageRegistry;
         this.baseImage = baseImage;
         this.baseBuilderImage = baseBuilderImage;
         this.isOpenShift = isOpenShift;
         this.labels = labels;
+        this.masterPassword = masterPassword;
+        this.oidcSecret = oidcSecret;
+        this.oidcServerUrl = oidcServerUrl;
+        this.oidcFrontendUrl = oidcFrontendUrl;
+        this.gitRepository = gitRepository;
+        this.gitUsername = gitUsername;
+        this.gitPassword = gitPassword;
+        this.gitBranch = gitBranch;
+        this.gitPullInterval = gitPullInterval;
+        this.imageRegistry = imageRegistry;
+    }
+
+    public boolean gitConfigured() {
+        return gitRepository != null
+                && gitUsername != null
+                && gitPassword != null
+                && gitBranch != null;
+    }
+
+    public boolean oidcConfigured() {
+        return oidcSecret != null
+                && oidcServerUrl != null
+                && oidcFrontendUrl != null;
+    }
+
+    public boolean isAuthOidc() {
+        return Objects.equals(this.auth, "oidc");
+    }
+
+    public boolean isAuthBasic() {
+        return Objects.equals(this.auth, "basic");
     }
 
     public String getVersion() {
@@ -170,5 +197,69 @@ public class KaravanConfig {
 
     public void setLabels(Map<String, String> labels) {
         this.labels = labels;
+    }
+
+    public String getMasterPassword() {
+        return masterPassword;
+    }
+
+    public void setMasterPassword(String masterPassword) {
+        this.masterPassword = masterPassword;
+    }
+
+    public String getOidcSecret() {
+        return oidcSecret;
+    }
+
+    public void setOidcSecret(String oidcSecret) {
+        this.oidcSecret = oidcSecret;
+    }
+
+    public String getOidcServerUrl() {
+        return oidcServerUrl;
+    }
+
+    public void setOidcServerUrl(String oidcServerUrl) {
+        this.oidcServerUrl = oidcServerUrl;
+    }
+
+    public String getOidcFrontendUrl() {
+        return oidcFrontendUrl;
+    }
+
+    public void setOidcFrontendUrl(String oidcFrontendUrl) {
+        this.oidcFrontendUrl = oidcFrontendUrl;
+    }
+
+    public String getGitRepository() {
+        return gitRepository;
+    }
+
+    public void setGitRepository(String gitRepository) {
+        this.gitRepository = gitRepository;
+    }
+
+    public String getGitUsername() {
+        return gitUsername;
+    }
+
+    public void setGitUsername(String gitUsername) {
+        this.gitUsername = gitUsername;
+    }
+
+    public String getGitPassword() {
+        return gitPassword;
+    }
+
+    public void setGitPassword(String gitPassword) {
+        this.gitPassword = gitPassword;
+    }
+
+    public String getGitBranch() {
+        return gitBranch;
+    }
+
+    public void setGitBranch(String gitBranch) {
+        this.gitBranch = gitBranch;
     }
 }

@@ -18,6 +18,7 @@ package org.apache.camel.karavan.cli;
 
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.apps.DeploymentCondition;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.openshift.api.model.operatorhub.v1.Operator;
@@ -72,10 +73,17 @@ public class CommandUtils {
         // Check secrets
         if (!checkKaravanSecrets(config, client)) {
             logError("Karavan secrets not found");
-            logPoint("Apply secrets before installation");
-            System.exit(0);
+
+            // try to create secrets
+            if (!tryToCreateKaravanSecrets(config, client)) {
+                logPoint("Apply secrets before installation");
+                logPoint("Or provide Git, Auth and Image Registry options");
+                System.exit(0);
+            }
+
+        } else {
+            log("Karavan secrets found");
         }
-        log("Karavan secrets found");
 
         // Create service accounts
         createOrReplace(KaravanServiceAccount.getServiceAccount(config), client);
@@ -122,10 +130,31 @@ public class CommandUtils {
         return secret != null;
     }
 
+    public static boolean tryToCreateKaravanSecrets(KaravanConfig config, KubernetesClient client) {
+        if (config.gitConfigured()) {
+            if ((config.isAuthOidc() && config.oidcConfigured())
+                    || (config.isAuthBasic() && config.getMasterPassword() != null && config.getMasterPassword().isEmpty())
+                    || (config.getAuth().equals("public"))) {
+                Secret secret = KaravanSecret.getSecret(config);
+                client.resource(secret).createOrReplace();
+                log("\uD83D\uDD11", "Karavan secret created");
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean checkReady(KaravanConfig config, KubernetesClient client) {
         Deployment deployment = client.apps().deployments().inNamespace(config.getNamespace()).withName(Constants.NAME).get();
+        Integer replicas = deployment.getStatus().getReplicas();
+        Integer ready = deployment.getStatus().getReadyReplicas();
+        Integer available = deployment.getStatus().getAvailableReplicas();
+        Optional<DeploymentCondition> condition = deployment.getStatus().getConditions().stream()
+                .filter(c -> c.getType().equals("Available") && c.getStatus().equals("True")).findFirst();
         return deployment.getStatus() != null
-                && Objects.equals(deployment.getStatus().getReadyReplicas(), deployment.getStatus().getReplicas());
+                && Objects.equals(replicas, ready)
+                && Objects.equals(replicas, available)
+                && condition.isPresent();
     }
 
     private static <T extends HasMetadata> void createOrReplace(T is, KubernetesClient client) {
@@ -157,6 +186,10 @@ public class CommandUtils {
             }
         }
         return false;
+    }
+
+    public static void log(String emoji, String message) {
+        System.out.println(emoji + " " + message);
     }
 
     public static void log(String message) {

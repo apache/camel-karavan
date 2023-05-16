@@ -18,6 +18,9 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <kubernetes-client.version>6.3.1</kubernetes-client.version>
         <picocli.version>4.7.3</picocli.version>
+        <log4j-version>2.20.0</log4j-version>
+        <slf4j-api-version>2.0.6</slf4j-api-version>
+        <log4j2-version>2.20.0</log4j2-version>
     </properties>
 
     <dependencies>
@@ -40,6 +43,27 @@
             <groupId>io.fabric8</groupId>
             <artifactId>tekton-client</artifactId>
             <version>${kubernetes-client.version}</version>
+        </dependency>
+        <!-- logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j-api-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j2-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j2-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
+            <version>${log4j2-version}</version>
         </dependency>
     </dependencies>
 
