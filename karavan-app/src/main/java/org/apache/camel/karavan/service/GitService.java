@@ -29,10 +29,10 @@ import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.PullCommand;
 import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.RemoteAddCommand;
-import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
@@ -42,10 +42,13 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.FetchResult;
+import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
@@ -178,25 +181,21 @@ public class GitService {
             }
             System.out.println("Last but one commit id " + commit.getId().getName());
         }
-        return "05ac2e9be9dba890799b1fbbfa1d9163fe05fd4b";
+        return lastButOneCommitId;
     }
 
-    public RevCommit commitAndPushProject(Project project, List<ProjectFile> files, String message , String username , String accessToken , String repoUri , String branch,String file) throws GitAPIException, IOException, URISyntaxException {
+    public Map<String,String> commitAndPushProject(Project project, List<ProjectFile> files, String message , String username , String accessToken , String repoUri , String branch,String file) throws GitAPIException, IOException, URISyntaxException {
         LOGGER.info("Commit and push project " + project.getProjectId());
-        // GitConfig gitConfig = getGitConfig(username,accessToken,repoUri);
         CredentialsProvider cred = new UsernamePasswordCredentialsProvider(username, accessToken);
         String uri = repoUri;
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
         LOGGER.info("Temp folder created " + folder);
         Git git = null;
-        ObjectId testBaseId = null;
         try {
             git = clone(folder, uri, branch, cred);
-            Repository repository = git.getRepository();
-            testBaseId = repository.resolve("HEAD");
             String lastButOne = getLastButOneCommit(git);
-            checkout(git, true, null, lastButOne, "newmain");
+            checkout(git, true, null, null, "intermediate-merge-branch");
         } catch (RefNotFoundException | TransportException e) {
             LOGGER.error("New repository");
             git = clone(folder, uri, "main", cred);
@@ -204,53 +203,9 @@ public class GitService {
         } catch (Exception e) {
             LOGGER.error("Error", e);
         }
-        //folder contains a path ,which consists of projects present in the git repo
-        // doCommit(files,folder,git, branch, cred, message);
         writeProjectToFolder(folder, project, files,file);
         addDeletedFilesToIndex(git, folder, project, files);
-        // git.fetch().call();
-        // fetch( git,cred,branch);
-        // // Get the current branch
-        // String currentBranch = git.getRepository().getBranch();
-        // System.out.println("currentBranch"+currentBranch);
-
-        // // Pull changes from remote branch
-        // PullCommand pull = git.pull()
-        //         .setRemote("origin")
-        //         .setRemoteBranchName(branch)
-        //         .setStrategy(MergeStrategy.THEIRS);
-        // PullResult result = pull.call();       
-
-        // System.out.println("result res"+result.getMergeResult().getMergeStatus());
-        // if (!result.getMergeResult().isFastForward())) {
-        //     // Handle conflicts
-        //     // MergeResult mergeResult = result.getMergeResult();
-        //     // List<Conflict> conflicts = mergeResult.getConflicts();xw
-        //     // for (Conflict conflict : conflicts) {
-        //     //     // Resolve conflict by updating file contents
-        //     //     // ...
-                
-        //     //     // Add file to index
-        //     //     git.add().addFilepattern(conflict.getPath()).call();
-        //     System.out.println("Conflicts found: " + result.getMergeResult().getMergeStatus());
-        //     }
-        // String remotePath = "origin/" + branch;
-        // System.out.println("\n\nremotePath remotePath remotePath\n\n" + remotePath);
-        // // fetch( git,cred,branch);
-        // MergeResult result = git.merge()
-        //     // .setStrategy(MergeStrategy.RECURSIVE)
-        //     .include(git.getRepository().resolve(remotePath))
-        //     .call();
-        
-            
-        // System.out.println("\n\nConflicts found: \n\n" + result);
-    
-        // Check for conflicts
-        // if (result.getConflicts() != null && !result.getConflicts().isEmpty()) {
-        //     // Handle conflicts
-        //     System.out.println("Conflicts found: " + result.getConflicts().size());
-        // }
-        return commitAddedAndPush(testBaseId,files,folder,git, branch, cred, message,file);
+        return commitAddedAndPush(git, branch, cred, message,file,files);
     }
 
     public List<GitRepo> readProjectsToImport() {
@@ -372,65 +327,12 @@ public class GitService {
         return files;
     }
 
-    // private void detectMergeConflicts(){
-    //     Path repositoryPath = Path.of("/path/to/repository");
-    //     try (Repository repository = new Repository(repositoryPath.toFile())) {
-    //         Path filePath1 = Path.of("/path/to/file1");
-    //         Path filePath2 = Path.of("/path/to/file2");
-
-    //         // Check if the files exist
-    //         if (!Files.exists(filePath1) || !Files.exists(filePath2)) {
-    //             System.err.println("One or both files do not exist.");
-    //             return;
-    //         }
-
-    //         byte[] file1Contents;
-    //         byte[] file2Contents;
-
-    //         try {
-    //             // Read the contents of the files
-    //             file1Contents = Files.readAllBytes(filePath1);
-    //             file2Contents = Files.readAllBytes(filePath2);
-    //         } catch (IOException e) {
-    //             System.err.println("Failed to read the files: " + e.getMessage());
-    //             return;
-    //         }
-
-    //         RawText oldText = new RawText(file1Contents);
-    //         RawText newText = new RawText(file2Contents);
-    //         SequenceComparator<RawText> comparator = new SequenceComparator<>();
-    //         EditList editList = new EditList();
-    //         editList.addAll(comparator.compare(oldText, newText));
-
-    //         // Check for conflicts
-    //         if (editList.isEmpty()) {
-    //             System.out.println("No changes detected.");
-    //         } else {
-    //             ByteArrayOutputStream out = new ByteArrayOutputStream();
-    //             DiffFormatter formatter = new DiffFormatter(out);
-    //             formatter.setRepository(repository);
-
-    //             try {
-    //                 formatter.format(editList, oldText, newText);
-    //             } catch (IOException e) {
-    //                 System.err.println("Failed to format the diff: " + e.getMessage());
-    //                 return;
-    //             }
-
-    //             String diffOutput = new String(out.toByteArray(), StandardCharsets.UTF_8);
-    //             System.out.println("Conflicts detected:");
-    //             System.out.println(diffOutput);
-    //         }
-
-    //     } catch (IOException e) {
-    //         System.err.println("Failed to initialize the repository: " + e.getMessage());
-    //     }
-    //     }
-
-    private String getConflictFormat(String filename , String code){
-        String[] lines = code.split("\n");
+    private String getConflictFormat(String filename , String code ,String fileCode){
+    String[] lines = code.split("\n");
     StringBuilder sb = new StringBuilder();
+    StringBuilder diffString = new StringBuilder();
     for (int i = 0; i < lines.length; i++) {
+        
         if (lines[i].startsWith("-")) {
             sb.append("<<<<<<< HEAD\n");
             sb.append(lines[i].substring(1)).append("\n");
@@ -439,72 +341,76 @@ public class GitService {
             }
             sb.append("=======\n");
             while (i + 1 < lines.length && !lines[i + 1].startsWith("-") && lines[i + 1].startsWith("+")) {
-                sb.append(lines[++i].substring(1)).append("\n");
+                i++;
+                sb.append(lines[i].substring(1)).append("\n");
+                diffString.append(lines[i].substring(1)).append("\n");
             }
-            sb.append(">>>>>>> new_branch_to_merge_later\n");
+            sb.append(">>>>>>> intermediate-merging-branch\n");
         } else if(lines[i].startsWith("+")){
             sb.append(lines[i].substring(1)).append("\n");
+            diffString.append(lines[i].substring(1)).append("\n");
+
         }
-        else {
-            sb.append(lines[i]).append("\n");
+        if( fileCode.contains(diffString.toString())){
+            String tempFileCode = fileCode.replace(diffString.toString(),sb.toString());
+            fileCode = tempFileCode;
         }
-    }
-    LOGGER.info("required format Conflict format: " + sb.toString());
-    return sb.toString();
+        diffString.setLength(0);
+        sb.setLength(0);
     }
 
-    private void detectMergeConflicts2(Git git, ObjectId newBranchId,List<ProjectFile> files) throws IOException, GitAPIException {
+    return fileCode;
+    }
+
+    private Map<String,String> detectMergeConflicts(Git git, ObjectId newBranchId,Map<String,String> fileNameAndCode) throws IOException, GitAPIException {
         // Get the Git repository
         Repository repository = git.getRepository();
         // Get the two different copies of the file
-        // Get the two different copies of the file
-    // ObjectId baseId = repository.resolve("HEAD^");
-    LOGGER.info("newBranchId id: " + newBranchId);
-    ObjectId baseId = repository.resolve("HEAD");
-    RevCommit baseCommit = repository.parseCommit(baseId);
-    RevCommit ourCommit = repository.parseCommit(newBranchId);
-    LOGGER.info("Base id: " + baseId);
-    LOGGER.info("Our id: " + newBranchId);
+        // ObjectId baseId = repository.resolve("HEAD^");
+        LOGGER.info("newBranchId id: " + newBranchId);
+        ObjectId baseId = repository.resolve("HEAD");
+        RevCommit baseCommit = repository.parseCommit(baseId);
+        RevCommit ourCommit = repository.parseCommit(newBranchId);
+        LOGGER.info("Base id: " + baseId);
+        LOGGER.info("Our id: " + newBranchId);
 
-    // Create a tree parser for the base tree
-    CanonicalTreeParser ourTreeIter = new CanonicalTreeParser();
-    try (ObjectReader reader = repository.newObjectReader()) {
-        ourTreeIter.reset(reader, ourCommit.getTree().getId());
-    }
-    LOGGER.info("Our tree: " + ourTreeIter);
+        // Create a tree parser for the base tree
+        CanonicalTreeParser ourTreeIter = new CanonicalTreeParser();
+        try (ObjectReader reader = repository.newObjectReader()) {
+            ourTreeIter.reset(reader, ourCommit.getTree().getId());
+        }
+        LOGGER.info("Our tree: " + ourTreeIter);
 
-    CanonicalTreeParser baseTreeIter = new CanonicalTreeParser();
-    try (ObjectReader reader = repository.newObjectReader()) {
-        baseTreeIter.reset(reader, baseCommit.getTree().getId());
-    }
-    LOGGER.info("Base tree: " + baseTreeIter);
-    // Create a tree parser for our tree
-    // Get the diff between the two copies
-    List<DiffEntry> diffEntries = new Git(repository).diff()
-            .setOldTree(baseTreeIter)
-            .setNewTree(ourTreeIter)
-            .call();
-    LOGGER.info("Diff entries: " + diffEntries);
-    HashMap<String, String> diffMap = new HashMap<>();
-    try (
-        FileOutputStream outputStream = new FileOutputStream("diff.txt");
-        DiffFormatter diffFormatter = new DiffFormatter(outputStream)){
-        diffFormatter.setRepository(repository);
-        for (DiffEntry diffEntry : diffEntries) {
-            // if (diffEntry.getChangeType().name().equals("CONFLICT")) {
-                // System.out.println("Conflict detected in file new " + diffEntry.getPath(DiffEntry.Side.NEW));
-                diffFormatter.format(diffEntry);
-                String diff = new String(Files.readAllBytes(Paths.get("diff.txt")));
-                diffMap.put(diffEntry.getPath(DiffEntry.Side.OLD), diff);
-                System.out.println("Conflict detected in file old " + diffEntry.getPath(DiffEntry.Side.OLD));
-                outputStream.write(new byte[0]);
-                outputStream.close();
-                // System.out.println("Diff: " + diff);
-                //store  diffFormatter.format(diffEntry) output in some variable
-        // }  
-    }
+        CanonicalTreeParser baseTreeIter = new CanonicalTreeParser();
+        try (ObjectReader reader = repository.newObjectReader()) {
+            baseTreeIter.reset(reader, baseCommit.getTree().getId());
+        }
+        LOGGER.info("Base tree: " + baseTreeIter);
+        // Create a tree parser for our tree
+        // Get the diff between the two copies
+        List<DiffEntry> diffEntries = new Git(repository).diff()
+                .setOldTree(baseTreeIter)
+                .setNewTree(ourTreeIter)
+                .call();
+        LOGGER.info("Diff entries: " + diffEntries);
+        HashMap<String, String> diffMap = new HashMap<>();
+        try (
+            FileOutputStream outputStream = new FileOutputStream("diff.txt");
+            DiffFormatter diffFormatter = new DiffFormatter(outputStream)){
+            diffFormatter.setRepository(repository);
+            for (DiffEntry diffEntry : diffEntries) {
+                // if (diffEntry.getChangeType().name().equals("CONFLICT")) {
+                    // System.out.println("Conflict detected in file new " + diffEntry.getPath(DiffEntry.Side.NEW));
+                    diffFormatter.format(diffEntry);
+                    String diff = new String(Files.readAllBytes(Paths.get("diff.txt")));
+                    diffMap.put(diffEntry.getPath(DiffEntry.Side.OLD), diff);
+                    System.out.println("Conflict detected in file old " + diffEntry.getPath(DiffEntry.Side.OLD));
+                    outputStream.getChannel().truncate(0);
+            }
+            outputStream.close();
     }
     //iterate diffmap and get the file name and diff
+    Map<String,String> result = new HashMap<String,String>();
     for (Map.Entry<String, String> entry : diffMap.entrySet()) {
         String[] lines =  entry.getValue().split("\\n"); 
         int startLineIndex = 0;
@@ -512,92 +418,15 @@ public class GitService {
             startLineIndex++;
         }
         String changedFileContent = String.join("\n", Arrays.copyOfRange(lines, startLineIndex+1, lines.length));
-        String conflictingFileFormat = getConflictFormat(entry.getKey(), changedFileContent);
-        diffMap.put(entry.getKey(),conflictingFileFormat);
+        LOGGER.info("changedFileContent: " + changedFileContent);
+        String fileCode = fileNameAndCode.get(entry.getKey().split("/")[1]);
+        String fileCodeInConflictFormat = getConflictFormat(entry.getKey(), changedFileContent,fileCode);
+        result.put(entry.getKey().split("/")[1],fileCodeInConflictFormat);
+        if(fileCodeInConflictFormat.contains("<<<<<<< HEAD")){
+            result.put("isConflictPresent","true");
+        }
     }
-
-    // getLastButOneCommit(git);
-    //     // Map<String, String> fileNames = new HashMap<>();
-    //     //    for (ProjectFile file : files) {
-    //     //        fileNames.put("auth/"+file.getName(), file.getCode());
-
-    //     String currentBranch = git.getRepository().getBranch();
-    //     LOGGER.info("Current branch: " + currentBranch);
-
-    //     //    }
-    //        String remotePath = "newmain";
-    //     //    MergeResult mergeResult = git.merge()
-    //     //        .setStrategy(MergeStrategy.RESOLVE)
-    //     //        .include(git.getRepository().resolve(remotePath))
-    //     //        .call();
-    //     // MergeResult mergeResult = git.merge();
-    //     //         // .include(git.getRepository().findRef(remotePath))
-    //     //         // .include(git.getRepository().findRef("main"))
-    //     //         // .setStrategy(MergeStrategy.RECURSIVE)
-    //     //         // .setBase(base)
-    //     //         .call();
-
-    //      // Create a new MergeCommand object.
-    //      MergeCommand mergeCommand = git.merge();
-
-    //      // Add the target branch to the merge command.
-    //      LOGGER.info("our id: " + ourCommit);
-    //      mergeCommand.include(ourCommit);
-    //      mergeCommand.setStrategy(MergeStrategy.RESOLVE);
- 
-    //      // Call the merge command.
-    //      MergeResult mergeResult = mergeCommand.call();
-         
-    //            Map<String,int[][]> allConflicts = mergeResult.getConflicts();
-    //            LOGGER.info("Conflicts: " + mergeResult.getMergeStatus());
-    //            if (mergeResult.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)){
-    //                for (String path : allConflicts.keySet()) {
-    //                    int[][] c = allConflicts.get(path);
-    //                    System.out.println("Conflicts in file " + path);
-    //                    for (int i = 0; i < c.length; ++i) {
-    //                            System.out.println("  Conflict #" + i);
-    //                            for (int j = 0; j < (c[i].length) - 1; ++j) {
-    //                                    if (c[i][j] >= 0)
-    //                                            System.out.println("    Chunk for "
-    //                                                            + mergeResult.getMergedCommits()[j] + " starts on line #"
-    //                                                            + c[i][j]);
-    //                            }
-    //                    }
-    //             }
-    //            }
-
-            //    DirCache index = DirCache.read(repository);
-
-            // Iterate over the Git index entries.
-            // for (int i = 0; i < index.getEntryCount(); i++) {
-            //     DirCacheEntry entry = index.getEntry(i);
-            //     if (entry.getStage() > 0) { 
-            //         // This is a conflicted file, handle it accordingly.
-            //         String path = entry.getPathString();
-            //         LOGGER.info("Conflicted file: path" + path);
-            //         // Use the ResolveMerger class to resolve the merge conflict.
-            //         // Display the file content to the user and allow them to resolve the conflicts.
-            //         // Write the resolved content back to the file.
-            //         // Commit the changes to complete the merge.
-            //     }
-            // }
-   
-            
-    //     if (mergeResult.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)) {
-    //         LOGGER.error("Merge conflicts detected, merge aborted.");
-    //         Map<String, int[][]> conflicts = mergeResult.getConflicts();
-    //         for (String path : conflicts.keySet()) {
-    //             int[][] conflictA = conflicts.get(path);
-    //             LOGGER.error("Conflict in file " + path + " starting at line " + conflictA[0][0] + conflictA[0][1] + ":");
-    //             //display contents of conflictA array
-    //             for (int[] conflict : conflictA) {
-    //                 int startLine = conflict[0];
-    //                 int endLine = conflict[1];
-    //                 String[] content = readFileContents(fileNames.get(path), startLine, endLine);
-    //                 LOGGER.error("Conflicting content: " + content);
-    //             }
-    //         }
-    // }
+    return result;
 }
 
 
@@ -640,109 +469,51 @@ public class GitService {
             }
         });
     }
-    // public RevCommit doCommit( List<ProjectFile> files,String folder, Git git, String branch, CredentialsProvider cred, String message) throws GitAPIException, IOException {
-    //     //iterate files and create a map of file name and file content
-    //     // Map<String, String> fileNames = new HashMap<>();
-    //     // for (ProjectFile file : files) {
-    //     //     // System.out.println("auth/"+file.getName()+"--------->" + file.getCode());
-    //     //     fileNames.put("auth/"+file.getName(), file.getCode());
-    //     // }
-    //     LOGGER.info("Commit and push changes");
-    //     LOGGER.info("Git add: " + git.add().addFilepattern(".").call());
-    //     // git.add().addFilepattern(".").call();
-    //     RevCommit commit = git.commit().setMessage("prev"+message).call();
-    //     // fetch( git,cred,"main");
-    //     // String remotePath = "origin/" + "main";
-    //     // MergeResult mergeResult = git.merge()
-    //     //     .setStrategy(MergeStrategy.RECURSIVE)
-    //     //     .include(git.getRepository().resolve(remotePath))
-    //     //     .call();
-    //     // if (mergeResult.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)) {
-    //     //     LOGGER.error("Merge conflicts detected, merge aborted.");
-    //     //     Map<String, int[][]> conflicts = mergeResult.getConflicts();
-    //     //     for (String path : conflicts.keySet()) {
-    //     //         int[][] conflictA = conflicts.get(path);
-    //     //         LOGGER.error("Conflict in file " + path + " starting at line " + conflictA[0][0] + conflictA[0][1] + ":");
-    //     //         for (int[] conflict : conflictA) {
-    //     //             int startLine = conflict[0];
-    //     //             int endLine = conflict[1];
-    //     //             String[] content = readFileContents(fileNames.get(path), startLine, endLine);
-    //     //             LOGGER.error("Conflicting content: " + content);
-    //     //         }
-    //     //         }
-    //     //     }
-    //     LOGGER.info("Git prev commit: " + commit);
-    //     Iterable<PushResult> result = git.push().add("test-branch").setRemote("origin").setCredentialsProvider(cred).call();
-    //     LOGGER.info("Git push: " + result);
-    //     return commit;
-    // }
 
-    public RevCommit commitAddedAndPush( ObjectId baseId,List<ProjectFile> files,String folder, Git git, String branch, CredentialsProvider cred, String message,String file) throws GitAPIException, IOException {
-        //iterate files and create a map of file name and file content
-        // Map<String, String> fileNames = new HashMap<>();
-        // for (ProjectFile file : files) {
-        //     // System.out.println("auth/"+file.getName()+"--------->" + file.getCode());
-        //     fileNames.put("auth/"+file.getName(), file.getCode());
-        // }
+
+    public Map<String,String> fileNameAndCodeMap(List<ProjectFile> files){
+        Map<String,String> fileNameAndCodeMap = new HashMap<String,String>();
+        for(ProjectFile file:files){
+            fileNameAndCodeMap.put(file.getName(),file.getCode());
+        }
+        return fileNameAndCodeMap;
+    }
+
+    public Map<String,String> commitAddedAndPush(Git git, String branch, CredentialsProvider cred, String message,String file, List<ProjectFile> files) throws GitAPIException, IOException {
+       
         LOGGER.info("Commit and push changes " + file);
-        // LOGGER.info("Git add: " + git.add().addFilepattern("auth/"+file).call());
         LOGGER.info("Git add: " + git.add().addFilepattern(".").call());
-        // git.add().addFilepattern(".").call();
-        //log git status
-        Status status = git.status().call();
-        LOGGER.info("Git status after adding: " + status);
         RevCommit commit = git.commit().setMessage(message).call();
-        status = git.status().call();
-        LOGGER.info("Git status after committing: " + status);
-        // fetch( git,cred,"main");
-        // String remotePath = "origin/" + "main";
-        // MergeResult mergeResult = git.merge()
-        //     .setStrategy(MergeStrategy.RECURSIVE)
-        //     .include(git.getRepository().resolve(remotePath))
-        //     .call();
-        // if (mergeResult.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)) {
-        //     LOGGER.error("Merge conflicts detected, merge aborted.");
-        //     Map<String, int[][]> conflicts = mergeResult.getConflicts();
-        //     for (String path : conflicts.keySet()) {
-        //         int[][] conflictA = conflicts.get(path);
-        //         LOGGER.error("Conflict in file " + path + " starting at line " + conflictA[0][0] + conflictA[0][1] + ":");
-        //         for (int[] conflict : conflictA) {
-        //             int startLine = conflict[0];
-        //             int endLine = conflict[1];
-        //             String[] content = readFileContents(fileNames.get(path), startLine, endLine);
-        //             LOGGER.error("Conflicting content: " + content);
-        //         }
-        //         }
-        //     }
         LOGGER.info("Git commit: " + commit);
-        String currentBranch = git.getRepository().getBranch();
-        LOGGER.info("Current branch: " + currentBranch);
-        getLastButOneCommit(git);
         Repository repository = git.getRepository();
         ObjectId newBranchId = repository.resolve("HEAD");
         checkout(git, false, null, null, branch);
-        currentBranch = git.getRepository().getBranch();
-        LOGGER.info("Current branch: " + currentBranch);
-        detectMergeConflicts2(git,newBranchId,files);
-        // Iterable<PushResult> results = git.push().add(branch).setRemote("origin").setCredentialsProvider(cred).call();
-        // Iterable<PushResult> results = git.push().add(branch).setRemote("origin").setCredentialsProvider(cred).call();
-        // for (PushResult result : results) {
-        //     for (RemoteRefUpdate update : result.getRemoteUpdates()) {
-        //         if (update.getStatus() == RemoteRefUpdate.Status.OK) {
-        //             LOGGER.info("Push to " + update.getRemoteName() + " was successful");
-        //         } else if (update.getStatus() == RemoteRefUpdate.Status.REJECTED_NONFASTFORWARD) {
-        //             LOGGER.error("Push to " + update.getRemoteName() + " was rejected as it is not a fast-forward");
-        //         } else {
-        //             LOGGER.error("Push to " + update.getRemoteName() + " returned an unknown status");
-        //         }
-        //     }
-        
-            // if (result.getMergeResult() != null && result.getMergeResult().getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)) {
-            //     LOGGER.error("Push resulted in merge conflicts");
-            // }
-        // }
-        
-        return commit;
+        Map<String,String> fileNameAndCode = fileNameAndCodeMap(files);
+        Map<String,String> commitAndPushDetails = detectMergeConflicts(git,newBranchId,fileNameAndCode);
+        LOGGER.info("commitAndPushDetails: " + commitAndPushDetails.toString());
+        if(commitAndPushDetails.get("isConflictPresent")==null){
+            git.merge()
+            .setStrategy(MergeStrategy.RESOLVE)
+            .include(git.getRepository().resolve("intermediate-merge-branch"))
+            .call();
+            Iterable<PushResult> results = git.push().add(branch).setRemote("origin").setCredentialsProvider(cred).call();
+            for (PushResult result : results) {
+                for (RemoteRefUpdate update : result.getRemoteUpdates()) {
+                    if (update.getStatus() == RemoteRefUpdate.Status.OK) {
+                        LOGGER.info("Push to " + update.getRemoteName() + " was successful");
+                    } else if (update.getStatus() == RemoteRefUpdate.Status.REJECTED_NONFASTFORWARD) {
+                        LOGGER.error("Push to " + update.getRemoteName() + " was rejected as it is not a fast-forward");
+                    } else {
+                        LOGGER.error("Push to " + update.getRemoteName() + " returned an unknown status");
+                    }
+                }
+            }
+            commitAndPushDetails.put("commitId",commit.getId().getName());
+            commitAndPushDetails.put("lastUpdate", commit.getCommitTime() * 1000L+"");
+            commitAndPushDetails.put("commitTime",commit.getCommitTime()+"");
+        }
+        // commitAndPushDetails.remove("isConflictPresent");
+        return commitAndPushDetails;
     }
 
 

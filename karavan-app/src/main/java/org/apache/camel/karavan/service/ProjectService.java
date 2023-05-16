@@ -22,19 +22,23 @@ import io.smallrye.mutiny.tuples.Tuple2;
 import org.apache.camel.karavan.model.GitRepo;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
-import org.eclipse.jgit.revwalk.RevCommit;
+// import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Readiness;
 import org.jboss.logging.Logger;
 
+
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 
 @Default
 @Readiness
@@ -72,6 +76,7 @@ public class ProjectService implements HealthCheck{
     }
 
     @Scheduled(every = "{karavan.git-pull-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+
     void pullCommits() {
         if (readyToPull.get()) {
             LOGGER.info("Pull commits...");
@@ -172,17 +177,21 @@ public class ProjectService implements HealthCheck{
         return new Project(folderName, projectName, projectDescription, runtime, repo.getCommitId(), repo.getLastCommitTimestamp());
     }
 
-    public Project commitAndPushProject(String projectId, String message) throws Exception {
+    public Map<String,String> commitAndPushProject(String projectId, String message,String username , String accessToken , String repoUri, String branch,String file) throws Exception {
         Project p = infinispanService.getProject(projectId);
+        System.out.println("Project is " + p);
         List<ProjectFile> files = infinispanService.getProjectFiles(projectId);
-        RevCommit commit = gitService.commitAndPushProject(p, files, message);
-        String commitId = commit.getId().getName();
-        Long lastUpdate = commit.getCommitTime() * 1000L;
-        p.setLastCommit(commitId);
-        p.setLastCommitTimestamp(lastUpdate);
-        infinispanService.saveProject(p, false);
-        infinispanService.saveCommit(commitId, commit.getCommitTime());
-        return p;
+        Map<String,String> commitAndPushProjectDetails = gitService.commitAndPushProject(p, files, message,username,accessToken,repoUri,branch,file);
+        if(commitAndPushProjectDetails.get("commitId") !=null ){
+            String commitId = commitAndPushProjectDetails.get("commitId");
+            Long lastUpdate = Long.parseLong(commitAndPushProjectDetails.get("lastUpdate"));
+            int commitTime = Integer.parseInt(commitAndPushProjectDetails.get("commitTime"));
+            p.setLastCommit(commitId);
+            p.setLastCommitTimestamp(lastUpdate);
+            infinispanService.saveProject(p, false);
+            infinispanService.saveCommit(commitId, commitTime);
+        }
+        return commitAndPushProjectDetails;
     }
 
     void addKameletsProject() {
@@ -192,7 +201,7 @@ public class ProjectService implements HealthCheck{
             if (kamelets == null) {
                 kamelets = new Project(Project.NAME_KAMELETS, "Custom Kamelets", "Custom Kamelets", "", "", Instant.now().toEpochMilli());
                 infinispanService.saveProject(kamelets, true);
-                commitAndPushProject(Project.NAME_KAMELETS, "Add custom kamelets");
+                // commitAndPushProject(Project.NAME_KAMELETS, "Add custom kamelets","shash","shash","shash","shash");
             }
         } catch (Exception e) {
             LOGGER.error("Error during custom kamelets project creation", e);
@@ -211,7 +220,7 @@ public class ProjectService implements HealthCheck{
                     ProjectFile file = new ProjectFile(name, value, Project.NAME_TEMPLATES, Instant.now().toEpochMilli());
                     infinispanService.saveProjectFile(file);
                 });
-                commitAndPushProject(Project.NAME_TEMPLATES, "Add default templates");
+                // commitAndPushProject(Project.NAME_TEMPLATES, "Add default templates","shash","shash","shash","shash");
             }
         } catch (Exception e) {
             LOGGER.error("Error during templates project creation", e);
@@ -230,7 +239,7 @@ public class ProjectService implements HealthCheck{
                     ProjectFile file = new ProjectFile(name, value, Project.NAME_PIPELINES, Instant.now().toEpochMilli());
                     infinispanService.saveProjectFile(file);
                 });
-                commitAndPushProject(Project.NAME_PIPELINES, "Add default pipelines");
+                // commitAndPushProject(Project.NAME_PIPELINES, "Add default pipelines","shash","shash","shash","shash");
             }
         } catch (Exception e) {
             LOGGER.error("Error during pipelines project creation", e);

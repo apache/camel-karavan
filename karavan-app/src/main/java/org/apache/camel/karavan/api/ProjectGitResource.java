@@ -28,6 +28,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
+import java.util.Map;
 
 @Path("/api/git")
 public class ProjectGitResource {
@@ -38,8 +39,10 @@ public class ProjectGitResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Project push(HashMap<String, String> params) throws Exception {
-        return projectService.commitAndPushProject(params.get("projectId"), params.get("message"));
+    public Map<String,String> push(HashMap<String, String> params) throws Exception {
+        Map<String,String> result = projectService.commitAndPushProject(params.get("projectId"), params.get("message"),params.get("username"),params.get("accessToken"),params.get("repoUri"),params.get("branch"),params.get("file"));
+        // System.out.println("sending push request"+result.toString());
+         return result;
     }
 
     @GET
