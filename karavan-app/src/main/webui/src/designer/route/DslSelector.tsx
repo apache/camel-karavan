@@ -69,7 +69,6 @@ export class DslSelector extends React.Component<Props, State> {
     selectDsl = (evt: React.MouseEvent, dsl: any) => {
         evt.stopPropagation();
         this.setState({filter:""});
-        console.log(this, dsl, this.props.parentId, this.props.position);
         this.props.onDslSelect.call(this, dsl, this.props.parentId, this.props.position);
     }
 
@@ -111,12 +110,6 @@ export class DslSelector extends React.Component<Props, State> {
                             <Badge isRead className="version labels">{dsl.version}</Badge>
                         </CardFooter>
                     }
-                    {/* {dsl.navigation.toLowerCase() === "custom kamelet"
-                        && <CardFooter className="footer-labels">
-                            <Badge isRead className="labels">{dsl.labels}</Badge>
-                            <Badge isRead className="version labels">{dsl.version}</Badge>
-                        </CardFooter>
-                    } */}
             </Card>
         )
     }
@@ -149,7 +142,7 @@ export class DslSelector extends React.Component<Props, State> {
                                 {CamelUi.getSelectorModelTypes(parentDsl, this.props.showSteps,this.state.filter).map((label: [string, number], index: number) => {
                                     const labelText = label[0];
                                     const count = label[1];
-                                    const title = ['kamelet', 'component','custom kamelet'].includes(labelText.toLowerCase()) ? labelText + "s (" + count + ")" : labelText;
+                                    const title = ['kamelet', 'component'].includes(labelText.toLowerCase()) ? labelText + "s (" + count + ")" : labelText;
                                     return (
                                         <Tab eventKey={labelText} key={"tab-" + labelText}
                                              title={<TabTitleText>{CamelUtil.capitalizeName(title)}</TabTitleText>}>

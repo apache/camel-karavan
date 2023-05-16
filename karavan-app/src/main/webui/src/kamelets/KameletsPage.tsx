@@ -71,7 +71,6 @@ export class KameletsPage extends React.Component<Props, State> {
     render() {
         const {dark, onRefresh} = this.props;
         const {kamelets, kamelet, isModalOpen, customOnly, filter} = this.state;
-        // console.log(kamelets,'kamelets');
         let kameletList = kamelets.filter(kamelet => kamelet.spec.definition.title.toLowerCase().includes(filter.toLowerCase()));
         if (customOnly) kameletList = kameletList.filter(k => KameletApi.getCustomKameletNames().includes(k.metadata.name));
         return (

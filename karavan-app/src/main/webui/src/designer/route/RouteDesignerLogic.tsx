@@ -29,7 +29,6 @@ import {toPng} from 'html-to-image';
 import {RouteDesigner, RouteDesignerState} from "./RouteDesigner";
 import {findDOMNode} from "react-dom";
 import {Subscription} from "rxjs";
-import { CamelDefinitionYaml } from 'karavan-core/lib/api/CamelDefinitionYaml';
 
 export class RouteDesignerLogic {
 
@@ -281,7 +280,7 @@ export class RouteDesignerLogic {
                 this.addStep(route, parentId, position)
                 break;
             case 'ToDefinition' :
-                let to=CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
+                const to = CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
                 this.addStep(to, parentId, position)
                 break;
             case 'ToDynamicDefinition' :
@@ -292,23 +291,8 @@ export class RouteDesignerLogic {
                 const kamelet = CamelDefinitionApi.createStep(dsl.dsl, {name: dsl.name});
                 this.addStep(kamelet, parentId, position)
                 break;
-            case 'CustomKameletDefinition' :
-                const newRouteDefinition= CamelDefinitionYaml.yamlToIntegration(dsl.name,JSON.stringify(dsl.yaml));
-                const newRoute = newRouteDefinition.spec.flows?.[0]
-                const directUri = newRoute.from.uri;
-                const newDirect = CamelDefinitionApi.createStep('ToDefinition',{uri: directUri});
-                let newRouteExists = false;
-                this.routeDesigner.state.integration.spec?.flows?.forEach((flow, index) => {
-                    if (flow.from.id === newRoute.from.id) {
-                        newRouteExists = true;
-                    }
-                });
-                if(!newRouteExists){this.addStep(newRoute, '', position)}
-                if(parentId){ this.addStep(newDirect, parentId, position)}
-                
-                break;
             default:
-                const step = CamelDefinitionApi.createStep(dsl.dsl, {});
+                const step = CamelDefinitionApi.createStep(dsl.dsl, undefined);
                 const augmentedStep = this.setDslDefaults(step);
                 this.addStep(augmentedStep, parentId, position)
                 break;
@@ -340,10 +324,8 @@ export class RouteDesignerLogic {
     }
 
     addStep = (step: CamelElement, parentId: string, position?: number | undefined) => {
-
         const i = CamelDefinitionApiExt.addStepToIntegration(this.routeDesigner.state.integration, step, parentId, position);
         const clone = CamelUtil.cloneIntegration(i);
-        
         EventBus.sendPosition("clean", step, undefined, new DOMRect(), new DOMRect(), 0);
         this.routeDesigner.setState(prevState => ({
             integration: clone,

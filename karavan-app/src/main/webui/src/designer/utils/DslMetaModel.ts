@@ -18,7 +18,6 @@ export class DslMetaModel {
     dsl: string = ''
     name: string = ''
     type: string = ''
-    kameleteDsl: string = ''
     uri?: string
     title: string = ''
     description: string = ''
@@ -27,7 +26,6 @@ export class DslMetaModel {
     version: string = ''
     supportLevel: string = ''
     supportType: string = ''
-    yaml?: object
     properties: any;
 
     public constructor(init?: Partial<DslMetaModel>) {

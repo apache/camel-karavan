@@ -12,7 +12,6 @@ interface Props {
 export class MainToolbar extends React.PureComponent<Props> {
     render() {
         const { title, tools } = this.props;
-
         return (
             <PageSection className="tools-section" variant={PageSectionVariants.light}>
                 <Flex className="tools" justifyContent={{default: 'justifyContentSpaceBetween'}} alignItems={{default:'alignItemsCenter'}}>

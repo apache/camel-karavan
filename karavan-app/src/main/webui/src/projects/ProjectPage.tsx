@@ -80,6 +80,7 @@ export class ProjectPage extends React.Component<Props, State> {
 
     needCommit(): boolean {
         const {project, files} = this.state;
+        console.log('needCommit', project, files);
         return project ? files.filter(f => f.lastUpdate > project.lastCommitTimestamp).length > 0 : false;
     }
 
@@ -129,6 +130,7 @@ export class ProjectPage extends React.Component<Props, State> {
     }
 
     post = (file: ProjectFile) => {
+        console.log('post', file);
         KaravanApi.postProjectFile(file, res => {
             if (res.status === 200) {
                 const newFile = res.data;
