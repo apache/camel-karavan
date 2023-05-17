@@ -224,7 +224,7 @@
             "camel.karavan.project-description=$NAME",
             "camel.karavan.target=$TARGET",
             "camel.jbang.gav=$GAV",
-            "camel.jbang.quarkusVersion=2.16.6.Final",
+            "camel.jbang.quarkusVersion=2.16.7.Final",
             "camel.jbang.runtime=$RUNTIME",
             "camel.jbang.exportDir=.export"
           ],
@@ -265,7 +265,7 @@
             "type": "string"
           },
           "default": [
-            "camel.jbang.quarkusVersion=2.16.6.Final",
+            "camel.jbang.quarkusVersion=2.16.7.Final",
             "camel.jbang.dependencies=camel:microprofile-health,mvn:io.quarkus:quarkus-openshift,mvn:io.quarkus:quarkus-container-image-jib",
             "# image build properties",
             "quarkus.container-image.build=true",
@@ -303,7 +303,7 @@
             "type": "string"
           },
           "default": [
-            "camel.jbang.quarkusVersion=2.16.6.Final",
+            "camel.jbang.quarkusVersion=2.16.7.Final",
             "camel.jbang.dependencies=camel:microprofile-health,mvn:io.quarkus:quarkus-container-image-jib,mvn:io.quarkus:quarkus-kubernetes",
             "# image build properties",
             "quarkus.container-image.build=true",
