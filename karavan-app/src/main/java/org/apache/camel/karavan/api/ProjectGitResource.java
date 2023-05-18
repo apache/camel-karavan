@@ -40,7 +40,7 @@ public class ProjectGitResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Map<String,String> push(HashMap<String, String> params) throws Exception {
-        Map<String,String> result = projectService.commitAndPushProject(params.get("projectId"), params.get("message"),params.get("username"),params.get("accessToken"),params.get("repoUri"),params.get("branch"),params.get("file"));
+        Map<String,String> result = projectService.commitAndPushProject(params.get("projectId"), params.get("message"),params.get("username"),params.get("accessToken"),params.get("repoUri"),params.get("branch"),params.get("file"),params.get("isConflictResolved"));
         // System.out.println("sending push request"+result.toString());
          return result;
     }

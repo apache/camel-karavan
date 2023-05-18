@@ -82,6 +82,7 @@ public class ProjectResource {
     public void delete(@HeaderParam("username") String username,
                           @PathParam("project") String project) throws Exception {
         String projectId = URLDecoder.decode(project, StandardCharsets.UTF_8.toString());
+        System.out.println("Deleting project " + projectId);
         gitService.deleteProject(projectId, infinispanService.getProjectFiles(projectId));
         infinispanService.getProjectFiles(projectId).forEach(file -> infinispanService.deleteProjectFile(projectId, file.getName()));
         infinispanService.deleteProject(projectId);

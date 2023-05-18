@@ -177,11 +177,11 @@ public class ProjectService implements HealthCheck{
         return new Project(folderName, projectName, projectDescription, runtime, repo.getCommitId(), repo.getLastCommitTimestamp());
     }
 
-    public Map<String,String> commitAndPushProject(String projectId, String message,String username , String accessToken , String repoUri, String branch,String file) throws Exception {
+    public Map<String,String> commitAndPushProject(String projectId, String message,String username , String accessToken , String repoUri, String branch,String file,String isConflictResolved) throws Exception {
         Project p = infinispanService.getProject(projectId);
         System.out.println("Project is " + p);
         List<ProjectFile> files = infinispanService.getProjectFiles(projectId);
-        Map<String,String> commitAndPushProjectDetails = gitService.commitAndPushProject(p, files, message,username,accessToken,repoUri,branch,file);
+        Map<String,String> commitAndPushProjectDetails = gitService.commitAndPushProject(p, files, message,username,accessToken,repoUri,branch,file,isConflictResolved);
         if(commitAndPushProjectDetails.get("commitId") !=null ){
             String commitId = commitAndPushProjectDetails.get("commitId");
             Long lastUpdate = Long.parseLong(commitAndPushProjectDetails.get("lastUpdate"));

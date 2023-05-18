@@ -1,22 +1,33 @@
 import React from 'react';
-import { Modal, Button, ModalVariant, Wizard, WizardStep, WizardFooter, WizardContextConsumer, HelperText, HelperTextItem } from '@patternfly/react-core';
+import { Modal, Button, ModalVariant, Wizard, WizardStep, WizardFooter, WizardContextConsumer } from '@patternfly/react-core';
 import TextEditor from './TextEditor';
 import { ProjectFile } from './ProjectModels';
-import { KaravanApi } from '../api/KaravanApi';
 
 interface Props {
   fileDiffCodeMap: Map<string, string>;
+  // fileDiffCodeUpdate: Map<string, string>;
   isConflictModalOpen: boolean;
   setIsConflictModalOpen: (isConflictModalOpen: boolean) => void;
   projectId: string;
   setIsConflictPresentMap: (name: string) => void;
+  setIsCommitMessageOpen: (name: boolean) => void;
+  saveFile: (file: ProjectFile) => void;
+  setConflictResolvedForBranch : () => void;
 }
 
 interface State {
   editorContent: Map<string, string>,
-  isConflicting: boolean,
-  isSaveTries: boolean,
+  isConflictResolved: Map<string, boolean>,
+  childRef: React.RefObject<TextEditorChildRef>;
+  currentStep : string;
+  enablePushOperation: boolean;
 }
+interface TextEditorChildRef {
+  getFileContent: () => string;
+  getFileName: () => string;
+  updateEditorValue: (value: string) => void;
+}
+
 
 export class ResolveMergeConflictsModal extends React.Component<Props, State> {
 
@@ -24,11 +35,12 @@ export class ResolveMergeConflictsModal extends React.Component<Props, State> {
     super(props);
     this.state = {
       editorContent: this.createEditorContentFromMap(props.fileDiffCodeMap),
-      isConflicting: false,
-      isSaveTries: false,
+      isConflictResolved: new Map<string, boolean>(),
+      childRef: React.createRef(),
+      currentStep: '',
+      enablePushOperation: false,
     };
   }
-
   createEditorContentFromMap = (fileDiffCodeMap: Map<string, string>) => {
     const editorContent = new Map<string, string>();
     fileDiffCodeMap.forEach((value: string, key: string) => {
@@ -39,25 +51,25 @@ export class ResolveMergeConflictsModal extends React.Component<Props, State> {
 
   handleEditorChange = (content: string, name: string) => {
     this.setState((prevState) => ({
-      editorContent: new Map(prevState.editorContent).set(name, this.convertInputToOutput(content)),
+      editorContent: new Map(prevState.editorContent).set(name, this.convertHtmlToString(content)),
     }));
   };
 
-   convertInputToOutput(input: string) {
+   convertHtmlToString(htmlFormat: string) {
+    const regex = /<p[^>]*>(.*?)<\/p>/g;
+    const matches = htmlFormat.match(regex);
     
-    const lines = input.split('<p>');
-    let output = '';
-  
-    for (let i = 1; i < lines.length; i++) {
-      const line = lines[i].replace('</p>', '');
-      let convertedLine = line.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-      if (convertedLine.startsWith('<<<<<<<') || convertedLine.startsWith('=======') || convertedLine.startsWith('>>>>>>>')) {
-        output += convertedLine + '\n';
-      } else {
-        output += convertedLine + '\n';
-      }
+    if (matches) {
+      const stringFormat = matches.map(match => {
+        const line = match.replace(/<\/?p[^>]*>/g, '');
+        const convertedLine = line.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+        return convertedLine;
+      }).join('\n');
+      
+      return stringFormat.trim();
     }
-    return output.trim();
+    
+    return htmlFormat;
   }
 
   handleModalToggle = () => {
@@ -65,7 +77,13 @@ export class ResolveMergeConflictsModal extends React.Component<Props, State> {
   };
 
   containsGitMarkers(text:string) {
-    const gitMarkers = ['<<<<<<< HEAD', '=======', '>>>>>>> intermediate-merging-branch'];
+    const gitMarkers = [
+      /^>{4,7}/,
+      /^<{4,7}/,
+      /^={4,7}/,
+      /<<<<<<< HEAD/,
+      />>>>>>> intermediate-merging-branch/
+    ];
     for (const marker of gitMarkers) {
       if (text.match(marker)) {
         return true;
@@ -74,64 +92,70 @@ export class ResolveMergeConflictsModal extends React.Component<Props, State> {
     return false;
   }
 
-  post = (file: ProjectFile) => {
-    console.log('post', file);
-    KaravanApi.postProjectFile(file, res => {
-        if (res.status === 200) {
-            const newFile = res.data;
-            console.log('newFile', newFile);
-            // this.setState((state => {
-            //     const index = state.files.findIndex(f => f.name === newFile.name);
-            //     if (index !== -1) state.files.splice(index, 1, newFile)
-            //     else state.files.push(newFile);
-            //     return state
-            // }))
-        } else {
-            // console.log(res) //TODO show notification
-        }
-    })
-}
+ handleClick = () => {
+  if (this.state.childRef.current) {
+    const editorValue : string= this.state.childRef.current.getFileContent();
+    const transformedValue :string= this.convertHtmlToString(editorValue);
+    const fileName : string= this.state.childRef.current.getFileName();
+    const file = {
+      fileName : fileName,
+      fileContent : transformedValue,
+    }
+    return file;
+  }
+};
 
-  handleSave = (name: string) => {
-    // Handle save logic here
-    this.setState({isSaveTries: true});
-    const selectedFile  = this.state.editorContent.get(name) || "";
-    console.log('\n\nSave clicked for step:', selectedFile);
-    if(this.containsGitMarkers(selectedFile)){
+  handleSave = () => {
+    const file = this.handleClick();
+    console.log('file', file);
+    if(file && this.containsGitMarkers(file.fileContent)){
       console.log('Save clicked for step:', "contains git markers");
-        this.setState({isConflicting: true});
+      this.setState((prevState) => ({
+        isConflictResolved: new Map(prevState.isConflictResolved).set(file.fileName, false),
+      }));
+      // this.props.setIsConflictModalOpen(true);
     }
-    else{
-        console.log('Save clicked for step:', "does not contain git markers");
-        const updatedFile = new ProjectFile(name,selectedFile, this.props.projectId, Date.now())
-        this.post(updatedFile);
-        this.props.setIsConflictPresentMap(name);
-        this.props.setIsConflictModalOpen(false);
+    else if(file){
+        const updatedFile = new ProjectFile(file.fileName,this.props.projectId,file.fileContent, Date.now())
+        this.setState((prevState) => ({
+          isConflictResolved: new Map(prevState.isConflictResolved).set(file.fileName, true),
+        }));
+        this.props.setIsConflictPresentMap(file.fileName);
+        //iterate isConflictResolved map and check if all values are true
+        let isAllMergeConflictResolved = false ;
+        this.state.isConflictResolved.forEach((value: boolean, key: string) => {
+          if(value === false){
+            isAllMergeConflictResolved= false;
+            return
+          }
+          else{
+            isAllMergeConflictResolved= true;
+          }
+        });
+        this.props.setIsCommitMessageOpen(isAllMergeConflictResolved);
+        this.props.setIsConflictModalOpen(!isAllMergeConflictResolved);
+        if(isAllMergeConflictResolved){
+          this.props.setConflictResolvedForBranch();
+        }
+        this.props.saveFile(updatedFile);
+        // this.setState({enablePushOperation: isAllMergeConflictResolved});
+        // this.props.setIsConflictModalOpen(false);
         // make api request to save the file
-    }
-    // const output = this.convertInputToOutput(selectedFile);
-    // console.log('\n\nSave clicked for step:', output);
-    
-    
+    }    
   };
 
   handleReset = (name: string) => {
-    this.state.editorContent.forEach((value: string, key: string) => {
-        console.log("\nkey: \n" + key + "\n value: \n" + value);
-      });
-    this.setState((prevState) => ({
-        editorContent: new Map(prevState.editorContent).set(name, this.props.fileDiffCodeMap.get(name)||""),
-      }));
+    if(this.state.childRef.current){
+      this.state.childRef.current.updateEditorValue(this.props.fileDiffCodeMap.get(name)||"");
+    }
   };
 
   render() {
     const { isConflictModalOpen } = this.props;
-
+    // console.log("\n\n\n",this.state.editorContent);
     const steps: WizardStep[] = [];
     this.state.editorContent.forEach((value: string, key: string) => {
-        console.log("\nname: \n" + key);
-        console.log("\nvalue: \n" + value);
-      steps.push({ name: key, component: <TextEditor name={key} value={value}  onChange={this.handleEditorChange} isConflicting = {this.state.isConflicting} isSaveTries = {this.state.isSaveTries} /> });
+      steps.push({ name: key, component: <TextEditor name = {key} value={value}  onSave={this.handleSave} isConflictResolved = {this.state.isConflictResolved.get(key)} childRef={this.state.childRef}/> });
     });
 
     const CustomFooter = (
@@ -140,9 +164,18 @@ export class ResolveMergeConflictsModal extends React.Component<Props, State> {
           {({ activeStep, onClose }) => {
             const stepName :  React.ReactNode= activeStep?.name;
             let activeStepName:string = stepName?.toString() || "";
+            if(activeStepName!==this.state.currentStep){
+              const file = this.handleClick(); 
+              if(file){
+                this.setState((prevState) => ({
+                  editorContent: new Map(prevState.editorContent).set(file.fileName, file.fileContent),
+                }));
+              }
+              this.setState({currentStep:activeStepName});
+              }
             return (
               <>
-                <Button variant="primary" type="submit" onClick={() => this.handleSave(activeStepName)}>
+                <Button variant="primary" type="submit" onClick={() => this.handleSave()}>
                   Save
                 </Button>
                 <Button variant="secondary" onClick={() => this.handleReset(activeStepName)} className={activeStep?.name === 'Step 1' ? 'pf-m-disabled' : ''}>

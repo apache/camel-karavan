@@ -204,6 +204,7 @@ export class ProjectPage extends React.Component<Props, State> {
             setCreateModalOpen={() => this.setState({isCreateModalOpen: true})}
             setUploadModalOpen={() => this.setState({isUploadModalOpen: true})}
             onRefresh={this.onRefresh}
+            saveFile = {this.post}
         />
     }
 

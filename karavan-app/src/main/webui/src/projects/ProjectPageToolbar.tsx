@@ -37,6 +37,7 @@ interface Props {
     onRefresh: () => void,
     setEditAdvancedProperties: (checked: boolean) => void,
     setMode: (mode: "design" | "code") => void,
+    saveFile: (file: ProjectFile) => void,
 }
 
 interface State {
@@ -50,6 +51,7 @@ interface State {
     branch: string,
     isConflictModalOpen: boolean,
     fileDiffCodeMap : Map<string,string>,
+    conflictResolvedForBranch: string,
 }
 
 export class ProjectPageToolbar extends React.Component<Props> {
@@ -60,25 +62,34 @@ export class ProjectPageToolbar extends React.Component<Props> {
         pushCommitIsOpen: false,
         commitMessage: 'test',
         username: 'shashwath-sk',
-        accessToken: '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',
+        accessToken: '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',
         repoUri: 'https://github.com/shashwath-sk/karavan-minikube-poc',
         branch: 'main',
         isConflictModalOpen: false,
         fileDiffCodeMap : new Map(),
-
+        conflictResolvedForBranch: '',
     };
 
     setIsConflictModalOpen = (isOpen: boolean) => {
         this.setState({isConflictModalOpen: isOpen});
+        // this.props.onRefresh.call(this);
+    }
+
+    setIsCommitMessageOpen = (isOpen: boolean) => {
+        this.setState({commitMessageIsOpen: isOpen});
     }
 
     setIsConflictPresentMap = (name:string) =>{
+        console.log("setIsConflictPresentMap",name);
+        // this.setState((prevState) => ({
+        //     fileDiffCodeMap: prevState.fileDiffCodeMap.delete(name),
+        //   }));
         this.state.fileDiffCodeMap.delete(name);
     }
 
     isConflictResolved = (commitMessage: string) =>{
+        console.log("isConflictResolved",this.state.fileDiffCodeMap);
         if(this.state.fileDiffCodeMap.size>0){
-            console.log("Conflict present", this.state.fileDiffCodeMap);
             this.setState({isConflictModalOpen: true});
         }else{
             this.setState({
@@ -87,9 +98,12 @@ export class ProjectPageToolbar extends React.Component<Props> {
                 })}
         }
 
+    setConflictResolvedForBranch = () =>{
+        this.setState({conflictResolvedForBranch: this.state.branch});
+    }
+
     push = (after?: () => void) => {
         this.setState({isPushing: true, commitMessageIsOpen: false});
-        console.log("Pushing", this.state);
         const params = {
             "projectId": this.props.project.projectId,
             "message": this.state.commitMessage,
@@ -98,25 +112,29 @@ export class ProjectPageToolbar extends React.Component<Props> {
             "repoUri": this.state.repoUri,
             "branch": this.state.branch,
             "file": this.props.file?.name || ".",
+            "isConflictResolved" : this.state.conflictResolvedForBranch === this.state.branch
         };
+        console.log("Pushing", params);
         KaravanApi.push(params, res => {
             if (res.status === 200 || res.status === 201) {
                 this.setState({isPushing: false});
-                // need to add condition which checks weather files are conflicting or not
-                const fileDiffCodeMap = new Map();
-                Object.keys(res.data).map(file =>{
-                    fileDiffCodeMap.set(file,res.data[file]);
-                });
-                fileDiffCodeMap.delete("isConflictPresent");
-                // if(fileDiffCodeMap.get("isConflictPresent")!=null){
-                //     this.setState({isConflictModalOpen: true});
-                //     fileDiffCodeMap.delete("isConflictPresent");
+                if(res.data && res.data.isConflictPresent){
+                    const fileDiffCodeMap = new Map();
+                    Object.keys(res.data).map(file =>{
+                        fileDiffCodeMap.set(file,res.data[file]);
+                    });
+                    console.log("Pushed conflicts present",fileDiffCodeMap);
+                    fileDiffCodeMap.delete("isConflictPresent");
+                    this.setState({isConflictModalOpen: true,fileDiffCodeMap: fileDiffCodeMap});
+                }
+                // else{
+                //     console.log("Pushed no conflicts present");
+                //     this.props.onRefresh.call(this);
                 // }
-                this.setState({isConflictModalOpen: true,fileDiffCodeMap: fileDiffCodeMap});
                 after?.call(this);
-                // this.props.onRefresh.call(this);
             } else {
                 // Todo notification
+                //need to render to an error page
             }
         });
     }
@@ -154,7 +172,6 @@ export class ProjectPageToolbar extends React.Component<Props> {
             </ToolbarContent>
         </Toolbar>
     }
-
     getProjectToolbar() {
         const {isPushing, commitMessage} = this.state;
         const {file, needCommit, mode, editAdvancedProperties, addProperty, setEditAdvancedProperties, download, downloadImage, setCreateModalOpen, setUploadModalOpen} = this.props;
@@ -169,6 +186,9 @@ export class ProjectPageToolbar extends React.Component<Props> {
                 setIsConflictModalOpen={this.setIsConflictModalOpen}
                 projectId = {this.props.project.projectId}
                 setIsConflictPresentMap = {this.setIsConflictPresentMap}
+                setIsCommitMessageOpen = {this.setIsCommitMessageOpen}
+                saveFile = {this.props.saveFile}
+                setConflictResolvedForBranch = {this.setConflictResolvedForBranch}
                   /> }
             <ToolbarContent>
                 <Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
