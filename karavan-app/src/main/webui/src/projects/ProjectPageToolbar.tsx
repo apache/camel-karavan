@@ -62,7 +62,7 @@ export class ProjectPageToolbar extends React.Component<Props> {
         pushCommitIsOpen: false,
         commitMessage: 'test',
         username: 'shashwath-sk',
-        accessToken: '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',
+        accessToken: '',
         repoUri: 'https://github.com/shashwath-sk/karavan-minikube-poc',
         branch: 'main',
         isConflictModalOpen: false,
