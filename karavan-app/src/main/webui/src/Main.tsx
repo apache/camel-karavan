@@ -12,10 +12,8 @@ import {
 import {KaravanApi} from "./api/KaravanApi";
 import {SsoApi} from "./api/SsoApi";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
-import {CustomKameletApi} from "karavan-core/lib/api/CustomKameletApi";
 import './designer/karavan.css';
 import {KameletsPage} from "./kamelets/KameletsPage";
-import { CustomKameletsPage } from './kamelets/CustomKameletsPage';
 import {v4 as uuidv4} from "uuid";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import Icon from "./Logo";
@@ -129,22 +127,8 @@ export class Main extends React.Component<Props, State> {
         this.updateKamelets();
         this.updateComponents();
         this.updateSupportedComponents();
-        this.updateCustomKamelets();
     }
 
-    updateCustomKamelets: () => Promise<void> = async () => {
-        await new Promise(resolve => {
-            KaravanApi.getCustomKamelets(yamls => {
-                const customKamelets: string[] = [];
-                yamls.split("\n---\n").map(c => c.trim()).forEach(z => customKamelets.push(z));
-                console.log("customKamelets", customKamelets);
-                CustomKameletApi.saveCustomKamelets(customKamelets, true);
-            })
-            KaravanApi.getCustomKameletNames(names => {
-                CustomKameletApi.saveCustomKameletNames(names);
-            })
-        });
-    }
 
     updateKamelets: () => Promise<void> = async () => {
         await new Promise(resolve => {
@@ -276,9 +260,6 @@ export class Main extends React.Component<Props, State> {
                         {this.state.pageId === 'components' &&
                             <ComponentsPage dark={false} onRefresh={this.updateComponents}/>}
                         {this.state.pageId === 'eip' && <EipPage dark={false}/>}
-                        {this.state.pageId === 'custom kamelets' && 
-                            <CustomKameletsPage dark={false} onRefresh={this.updateCustomKamelets}/>
-                        }
                     </FlexItem>
                 </Flex>
             </>
