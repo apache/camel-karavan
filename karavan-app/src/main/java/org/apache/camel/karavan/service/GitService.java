@@ -546,32 +546,27 @@ public class GitService {
             }
             sb.append(">>>>>>> intermediate-merging-branch incoming\n");
         } else if(lines[i].startsWith("+")){
-            sb.append(lines[i].substring(1)).append("\n");
-            diffString.append(lines[i].substring(1)).append("\n");
-
+            sb.append("<<<<<<< HEAD current\n");
+            sb.append("=======\n");
+            while(i<lines.length && !lines[i].startsWith("-") && lines[i].startsWith("+")){
+                sb.append(lines[i].substring(1)).append("\n");
+                diffString.append(lines[i].substring(1)).append("\n");
+                i++;
+            }
+            sb.append(">>>>>>> intermediate-merging-branch incoming\n");
         }
         else{
             sb.append(lines[i].substring(1)).append("\n");
             diffString.append(lines[i].substring(1)).append("\n");
         }
         if( fileCode!=null && !diffString.toString().equals("") && fileCode.contains(diffString.toString())){
-            // if(fileCode.equalsIgnoreCase(diffString.toString())){
-            //     LOGGER.info("file code contains "+ diffString.toString());
-            //     return fileCode;
-            // }
             String tempFileCode = fileCode.replace(diffString.toString(),sb.toString());
             fileCode = tempFileCode;
-            // LOGGER.info("file code contains "+ tempFileCode);
             diffString.setLength(0);
             sb.setLength(0);
         }
-        // else{
-        //     LOGGER.info("\n\nfile code not contains \n\n"+ diffString.toString());
-        //     // fileCode = sb.toString();
-        // }
-        // LOGGER.info("file code ");
     }
-
+    LOGGER.info("file code "+ fileCode);
     return fileCode;
     }
 
