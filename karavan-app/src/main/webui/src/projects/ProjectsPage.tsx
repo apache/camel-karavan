@@ -18,7 +18,7 @@ import {
     EmptyStateVariant,
     EmptyStateIcon,
     Title,
-    Radio, Spinner
+    Radio, Spinner, Flex, FlexItem, TextInputGroup, Switch
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../MainToolbar";
@@ -32,13 +32,13 @@ import {KaravanApi} from "../api/KaravanApi";
 import {QuarkusIcon, SpringIcon} from "../designer/utils/KaravanIcons";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {ProjectsTableRow} from "./ProjectsTableRow";
+import { StorageApi } from '../api/StorageApi';
 
 interface Props {
     config: any,
     onSelect: (project: Project) => void
     toast: (title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') => void
 }
-
 interface State {
     projects: Project[],
     deploymentStatuses: DeploymentStatus[],
@@ -54,6 +54,13 @@ interface State {
     description: string,
     projectId: string,
     runtime: string,
+    accessToken: string,
+    repoUri: string,
+    branch: string,
+    repoOwner: string,
+    isUploading: boolean,
+    isUploadModalOpen: boolean,
+    saveUserDetails: boolean
 }
 
 export class ProjectsPage extends React.Component<Props, State> {
@@ -70,12 +77,28 @@ export class ProjectsPage extends React.Component<Props, State> {
         name: '',
         description: '',
         projectId: '',
-        runtime: this.props.config.runtime
+        runtime: this.props.config.runtime,
+        accessToken: '',
+        repoUri: '',
+        branch: '',
+        repoOwner: '',
+        isUploading: false,
+        isUploadModalOpen: false,
+        saveUserDetails: false
     };
     interval: any;
 
     componentDidMount() {
         this.interval = setInterval(() => this.onGetProjects(), 1300);
+        const githubParams = StorageApi.getGithubParameters();
+        if (githubParams) {
+            this.setState({
+                repoOwner: githubParams.repoOwner,
+                accessToken: githubParams.accessToken,
+                repoUri: githubParams.repoUri,
+                branch: githubParams.branch,
+            });
+        }
     }
 
     componentWillUnmount() {
@@ -147,6 +170,7 @@ export class ProjectsPage extends React.Component<Props, State> {
             </ToolbarItem>
             <ToolbarItem>
                 <Button icon={<PlusIcon/>} onClick={e => this.setState({isCreateModalOpen: true, isCopy: false})}>Create</Button>
+                <Button icon={<PlusIcon/>} onClick={e => this.setState({isUploadModalOpen: true, isCopy: false})}>Upload</Button>
             </ToolbarItem>
         </ToolbarContent>
     </Toolbar>);
@@ -171,6 +195,60 @@ export class ProjectsPage extends React.Component<Props, State> {
         if (event.key === 'Enter' && this.state.name !== undefined && this.state.description !== undefined && this.state.projectId !== undefined) {
             this.saveAndCloseCreateModal();
         }
+    }
+
+    onUpload = (after?: () => void) => {
+        this.setState({isUploading: true, isUploadModalOpen: false});
+        const {repoOwner, repoUri, branch, accessToken, saveUserDetails} = this.state;
+
+        const githubParams = {
+            "repoOwner": repoOwner,
+            "accessToken":accessToken,
+            "repoUri": repoUri,
+            "branch": branch,
+        };
+        console.log("githubParams", githubParams);
+        let projects = this.state.projects.reduce((acc, project) => {
+            return acc + project.projectId + ",";
+          }, "");
+        // const fileParams = {
+        //     "projectId": this.props.project.projectId,
+        //     "file": this.props.file?.name || ".",
+        //     "isConflictResolved" : conflictResolvedForBranch === this.state.branch
+        // };
+        // const params = {...githubParams, ...fileParams};
+        const params = {...githubParams,projects: projects};
+        console.log("params", params);
+        
+        if (saveUserDetails) {
+            StorageApi.setGithubParameters({
+                ...params, accessToken: "",
+                userName: '',
+                commitMessage: '',
+                userEmail: ''
+            })
+        }
+        KaravanApi.uploadFromGit(githubParams, res => {
+            if (res.status === 200 || res.status === 201) {
+                this.setState({isUploading: false});
+                // if(res.data && res.data.isConflictPresent){
+                //     const fileDiffCodeMap = new Map();
+                //     Object.keys(res.data).map(file =>{
+                //         fileDiffCodeMap.set(file,res.data[file]);
+                //     });
+                //     fileDiffCodeMap.delete("isConflictPresent");
+                //     this.setState({isConflictModalOpen: true,fileDiffCodeMap: fileDiffCodeMap});
+                // }
+                // else{
+                //     console.log("Pushed no conflicts present");
+                //     this.props.onRefresh.call(this);
+                // }
+                after?.call(this);
+            } else {
+                // Todo notification
+                //need to render to an error page
+            }
+        });
     }
 
     createModalForm() {
@@ -221,6 +299,48 @@ export class ProjectsPage extends React.Component<Props, State> {
                                        </div>}
                             />
                         ))}
+                    </FormGroup>
+                </Form>
+            </Modal>
+        )
+    }
+
+    uploadModalForm() {
+        const {accessToken,repoUri,branch,repoOwner,isUploading,isUploadModalOpen,saveUserDetails} = this.state;
+        const isUploadEnabled = !isUploading&&accessToken && repoUri && branch && repoOwner;
+        return (
+            <Modal
+                title="Upload project from github"
+                className="github-modal"
+                variant={ModalVariant.medium}
+                isOpen={isUploadModalOpen}
+                onClose={() => this.setState({isUploadModalOpen: false})}
+                actions={[
+                    <Button isLoading={isUploading} isDisabled={!isUploadEnabled} key="confirm" variant="primary" onClick={() => this.onUpload()} >Upload</Button>,
+                    <Button key="cancel" variant="secondary" onClick={() => this.setState({isUploadModalOpen: false,isUploading:false})}>Cancel</Button>,
+                ]}
+            >
+                <Form autoComplete="off" isHorizontal className="create-file-form">
+                    <FormGroup label="Repository" fieldId="repository" isRequired>
+                        <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsStretch"}}>
+                            <FlexItem>
+                                <TextInput id="owner" placeholder="Owner" value={repoOwner} onChange={value => this.setState({repoOwner: value})}/>
+                            </FlexItem>
+                            <FlexItem>
+                                <TextInput id="repo" placeholder="Repo" value={repoUri} onChange={value => this.setState({repoUri: value})}/>
+                            </FlexItem>
+                            <FlexItem>
+                                <TextInput id="branch" placeholder="branch" value={branch} onChange={value => this.setState({branch: value})}/>
+                            </FlexItem>
+                        </Flex>
+                    </FormGroup>
+                    <FormGroup label="Access Token" fieldId="access-token" isRequired>
+                        <TextInput value={accessToken} type="password" onChange={value => this.setState({accessToken: value})}/>
+                    </FormGroup>
+                    <FormGroup label="Save" fieldId="save" isRequired>
+                        <TextInputGroup className="input-group">
+                            <Switch label="Save parameters in browser (except token)" checked={saveUserDetails} onChange={checked => this.setState({saveUserDetails: checked})}/>
+                        </TextInputGroup>
                     </FormGroup>
                 </Form>
             </Modal>
@@ -333,6 +453,7 @@ export class ProjectsPage extends React.Component<Props, State> {
                 </PageSection>
                 {this.createModalForm()}
                 {this.deleteModalForm()}
+                {this.uploadModalForm()}
             </PageSection>
         )
     }

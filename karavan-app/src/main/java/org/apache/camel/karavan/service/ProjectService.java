@@ -177,11 +177,11 @@ public class ProjectService implements HealthCheck{
         return new Project(folderName, projectName, projectDescription, runtime, repo.getCommitId(), repo.getLastCommitTimestamp());
     }
 
-    public Map<String,String> commitAndPushProject(String projectId, String message,String username , String accessToken , String repoUri, String branch,String file,String isConflictResolved) throws Exception {
+    public Map<String,String> commitAndPushProject(String projectId, String commitMessage,String userName , String accessToken , String repoUri, String branch,String file,String isConflictResolved,String repoOwner,String userEmail) throws Exception {
         Project p = infinispanService.getProject(projectId);
         System.out.println("Project is " + p);
         List<ProjectFile> files = infinispanService.getProjectFiles(projectId);
-        Map<String,String> commitAndPushProjectDetails = gitService.commitAndPushProject(p, files, message,username,accessToken,repoUri,branch,file,isConflictResolved);
+        Map<String,String> commitAndPushProjectDetails = gitService.commitAndPushProject(p, files, commitMessage,userName,accessToken,repoUri,branch,file,isConflictResolved,repoOwner,userEmail);
         if(commitAndPushProjectDetails.get("commitId") !=null ){
             String commitId = commitAndPushProjectDetails.get("commitId");
             Long lastUpdate = Long.parseLong(commitAndPushProjectDetails.get("lastUpdate"));
@@ -192,6 +192,31 @@ public class ProjectService implements HealthCheck{
             infinispanService.saveCommit(commitId, commitTime);
         }
         return commitAndPushProjectDetails;
+    }
+
+    public Map<String,String> pullProject(String projectId,String repoOwner , String accessToken , String repoUri, String branch) throws Exception{
+        Project p = infinispanService.getProject(projectId);
+        System.out.println("Project is " + p.getName());
+        List<ProjectFile> files = infinispanService.getProjectFiles(projectId);
+        Map<String,String> pullProjectDetails = gitService.pullProject(p, files,repoOwner,accessToken,repoUri,branch);
+        if(pullProjectDetails.get("newFiles")!=null){
+            String newFiles = pullProjectDetails.get("newFiles");
+            String[] newFilesArray = newFiles.split("\n");
+            for(String newFile : newFilesArray){
+                String fileCode = pullProjectDetails.get(newFile);
+                ProjectFile file = new ProjectFile(newFile, fileCode, projectId, Instant.now().toEpochMilli());
+                infinispanService.saveProjectFile(file);
+                pullProjectDetails.remove(newFile);
+            }
+            pullProjectDetails.remove("newFiles");
+        }
+        return pullProjectDetails;
+    }
+
+    public void getProjectsFromGit(String repoOwner , String accessToken , String repoUri, String branch,String projects) throws Exception{
+        //existing branch
+        //new branch
+        gitService.getProjectsFromGit(repoOwner,accessToken,repoUri,branch,projects);
     }
 
     void addKameletsProject() {

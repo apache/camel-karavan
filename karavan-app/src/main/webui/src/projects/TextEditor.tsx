@@ -1,8 +1,8 @@
 import React, { useImperativeHandle, useState } from "react";
 import ReactQuill from "react-quill";
-import QuillEditor, { Quill } from 'quill';
+import QuillEditor from 'quill';
 import "react-quill/dist/quill.snow.css";
-import './style.css';
+import '../designer/karavan.css';
 import { HelperText, HelperTextItem } from "@patternfly/react-core";
 
 
@@ -53,7 +53,7 @@ const TextEditor: React.FC<Props> = ({name,value,onSave,isConflictResolved,child
     const diffContainer: HTMLElement = document.getElementById('diffContainer') || document.createElement('div');
     // onSave(editorValue);
     const diffParagraphs = diffContainer.getElementsByTagName('p');
-    
+    console.log(diffParagraphs);
     let flag = '';
     for (let i = 0; i < diffParagraphs.length; i++) {
       const paragraph = diffParagraphs[i];
@@ -75,6 +75,7 @@ const TextEditor: React.FC<Props> = ({name,value,onSave,isConflictResolved,child
           paragraph.classList.add('incoming-changes');
         }
       }
+      
   };
   setIsEditorReady(false);
   }

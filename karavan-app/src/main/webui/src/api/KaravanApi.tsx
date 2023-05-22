@@ -279,14 +279,26 @@ export class KaravanApi {
         });
     }
 
-    static async pull(projectId: string, after: (res: AxiosResponse<any>) => void) {
-        instance.get('/api/git/' + projectId)
-            .then(res => {
-                if (res.status === 200) {
-                    after(res.data);
-                }
+    static async pull(params: {}, after: (res: AxiosResponse<any>) => void) {
+        const queryParams = new URLSearchParams(params).toString();
+        const url = `/api/git?${queryParams}`;
+        instance.get(url)
+        .then(res => {
+            after(res);
             }).catch(err => {
+            after(err);
             console.log(err);
+        });
+    }
+
+    static async uploadFromGit(params: {}, after: (res: AxiosResponse<any>) => void) {
+        const queryParams = new URLSearchParams(params).toString();
+        const url = `/api/git/projects?${queryParams}`;
+        instance.get(url)
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
         });
     }
 

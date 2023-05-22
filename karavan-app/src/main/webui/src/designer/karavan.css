@@ -1351,3 +1351,48 @@
 .karavan .designer-page .project-page-section {
     background-color: white;
 }
+.my-editor {
+    white-space: pre-wrap;
+  }
+
+.my-editor {
+    background-color: #1e1e1e;
+    color: white;
+  }
+
+.ql-editor > p{
+font-size: medium;
+padding-top: 10px !important;
+}
+
+.disable-grammar-check {
+text-decoration: none !important;
+}  
+
+.ql-toolbar {
+display: none;
+}
+
+.ql-toolbar.ql-snow + .ql-container.ql-snow{
+border: 1px solid #ccc;
+}
+
+.conflict-start-marker {
+background-color: #337467;
+color: white;
+}
+
+.conflict-end-marker{
+background-color: #326290;
+color: white;
+}
+
+.current-changes{
+background-color: #28403b;
+color: white;
+}
+
+.incoming-changes{
+background-color: #28394c;
+color: white;
+}

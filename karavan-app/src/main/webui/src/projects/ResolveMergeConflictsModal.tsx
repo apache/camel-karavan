@@ -51,7 +51,7 @@ export class ResolveMergeConflictsModal extends React.Component<Props, State> {
 
   handleEditorChange = (content: string, name: string) => {
     this.setState((prevState) => ({
-      editorContent: new Map(prevState.editorContent).set(name, this.convertHtmlToString(content)),
+      editorContent: prevState.editorContent.set(name, this.convertHtmlToString(content)),
     }));
   };
 
@@ -109,16 +109,15 @@ export class ResolveMergeConflictsModal extends React.Component<Props, State> {
     const file = this.handleClick();
     console.log('file', file);
     if(file && this.containsGitMarkers(file.fileContent)){
-      console.log('Save clicked for step:', "contains git markers");
       this.setState((prevState) => ({
-        isConflictResolved: new Map(prevState.isConflictResolved).set(file.fileName, false),
+        isConflictResolved: prevState.isConflictResolved.set(file.fileName, false),
       }));
       // this.props.setIsConflictModalOpen(true);
     }
     else if(file){
         const updatedFile = new ProjectFile(file.fileName,this.props.projectId,file.fileContent, Date.now())
         this.setState((prevState) => ({
-          isConflictResolved: new Map(prevState.isConflictResolved).set(file.fileName, true),
+          isConflictResolved: prevState.isConflictResolved.set(file.fileName, true),
         }));
         this.props.setIsConflictPresentMap(file.fileName);
         //iterate isConflictResolved map and check if all values are true
@@ -168,7 +167,7 @@ export class ResolveMergeConflictsModal extends React.Component<Props, State> {
               const file = this.handleClick(); 
               if(file){
                 this.setState((prevState) => ({
-                  editorContent: new Map(prevState.editorContent).set(file.fileName, file.fileContent),
+                  editorContent: prevState.editorContent.set(file.fileName, file.fileContent),
                 }));
               }
               this.setState({currentStep:activeStepName});
