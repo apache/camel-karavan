@@ -55,7 +55,7 @@
         <dependency>
             <groupId>org.apache.camel.kamelets</groupId>
             <artifactId>camel-kamelets-catalog</artifactId>
-            <version>${version.camel-kamelet}</version>
+            <version>${camel-kamelet.version}</version>
         </dependency>
     </dependencies>
     <build>
