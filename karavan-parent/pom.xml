@@ -42,7 +42,7 @@
         <camel-kamelet.version>3.20.4</camel-kamelet.version>
         <camel-kamelet-jackson.version>2.15.2</camel-kamelet-jackson.version>
         <version.vertx>4.3.8</version.vertx>
-        <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
+        <surefire-plugin.version>3.1.0</surefire-plugin.version>
         <infinispan.version>14.0.9.Final</infinispan.version>
         <tekton.version>6.3.1</tekton.version>
         <jgit.version>2.3.1</jgit.version>
