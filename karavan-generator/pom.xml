@@ -35,7 +35,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-core-model</artifactId>
-            <version>${version.camel-core}</version>
+            <version>${camel.version}</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
@@ -45,12 +45,12 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-catalog</artifactId>
-            <version>${version.camel-core}</version>
+            <version>${camel.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-yaml-dsl</artifactId>
-            <version>${version.camel-core}</version>
+            <version>${camel.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel.kamelets</groupId>

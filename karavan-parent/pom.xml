@@ -38,8 +38,7 @@
         <quarkus.platform.version>2.16.7.Final</quarkus.platform.version>
         <camel-quarkus.version>2.16.0</camel-quarkus.version>
         <camel.version>3.20.4</camel.version>
-        <version.camel-core>3.20.4</version.camel-core>
-        <version.camel-kamelet>3.20.3</version.camel-kamelet>
+        <camel-kamelet.version>3.20.4</camel-kamelet.version>
         <version.vertx>4.3.6</version.vertx>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
         <infinispan.version>14.0.9.Final</infinispan.version>
