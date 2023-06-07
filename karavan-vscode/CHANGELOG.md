@@ -1,7 +1,7 @@
 # Changelog
 
 ## 3.20.2
-0. Camel 3.20.4
+0. Camel 3.20.5
 1. Spring Boot 2.7.11
 
 ## 3.20.1
