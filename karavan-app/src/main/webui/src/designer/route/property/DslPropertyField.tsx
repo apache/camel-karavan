@@ -141,7 +141,7 @@ export class DslPropertyField extends React.Component<Props, State> {
         const newValue = this.state.arrayValues.get(fieldId);
         const property: PropertyMeta = this.props.property;
         let value = this.props.value;
-        if (property.isArray && property.type === 'string') {
+        if (newValue !== undefined && newValue.length > 0 && property.isArray && property.type === 'string') {
             if (value) (value as any).push(newValue)
             else value = [newValue];
         }
