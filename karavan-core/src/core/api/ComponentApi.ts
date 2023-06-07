@@ -235,7 +235,7 @@ export const ComponentApi = {
                     result.push(val);
                     if (separator) result.push(separators[index]);
                 });
-                if (result.at(result.length - 1) === '') return result.slice(0, -2).join(''); // remove last colon
+                // if (result.at(result.length - 1) === '') return result.slice(0, -2).join(''); // remove last colon
                 return result.join('');
             }
         }
