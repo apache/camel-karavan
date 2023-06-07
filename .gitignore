@@ -72,3 +72,5 @@ yarn-error.log*
 /karavan-app/src/main/resources/kamelets/*
 
 karavan-cloud/karavan-secret-real.yaml
+
+**/dependency-reduced-pom.xml
