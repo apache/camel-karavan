@@ -1,4 +1,4 @@
-FROM docker.io/jbangdev/jbang-action
+FROM jbangdev/jbang-action:0.106.1
 
 ENV CAMEL_VERSION=3.21.0-SNAPSHOT
 ENV KARAVAN="/karavan"
