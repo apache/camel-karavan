@@ -1,5 +1,10 @@
 - from:
-    uri: netty-http:http://localhost:8080/demo
+    uri: netty-http
+    parameters:
+      protocol: http
+      host: localhost
+      port: 8080
+      path: demo
     steps:
       - convertBodyTo:
           type: String

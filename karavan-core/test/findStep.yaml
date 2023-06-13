@@ -44,17 +44,22 @@
         - saga:
             id: saga-0075
         - to:
-            uri: direct:hello-world
+            uri: direct
             id: to-6a8b
+            parameters:
+              sObjectId: hello-world
         - to:
-            uri: salesforce:getSObject
+            uri: salesforce
             id: to-6f22
             parameters:
               sObjectId: xxx
               sObjectClass: Account
+              operationName: getSObject
 - route:
     id: hello-world
     from:
-      uri: direct:hello-world
+      uri: direct
       id: from-5a9f
+      parameters:
+        name: hello-world
 - routeConfiguration: {}

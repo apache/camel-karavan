@@ -15,7 +15,7 @@ spec:
                   expression: Hello Yaml !!!
               steps:
                 - to:
-                    uri: log:info:xxx
+                    uri: log
                     parameters:
                       level: 'OFF'
                       logMask: true

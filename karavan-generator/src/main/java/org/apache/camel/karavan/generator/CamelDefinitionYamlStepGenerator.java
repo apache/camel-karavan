@@ -19,6 +19,7 @@ package org.apache.camel.karavan.generator;
 import io.vertx.core.json.JsonObject;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -54,7 +55,8 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
         });
         camelModel.append("} from '../model/CamelDefinition';\n");
         camelModel.append("import {CamelUtil} from './CamelUtil';\n");
-        camelModel.append("import {CamelMetadataApi} from '../model/CamelMetadata';\n\n");
+        camelModel.append("import {CamelMetadataApi} from '../model/CamelMetadata';\n");
+        camelModel.append("import {ComponentApi} from './ComponentApi';\n\n");
 
 
         camelModel.append("export class CamelDefinitionYamlStep { \n\n");
@@ -93,6 +95,7 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
         String className = classSimple(classFullName);
 
         String s1 = getStringToRequired(obj, className);
+        AtomicReference<String> s3 = new AtomicReference<>("");
 
         JsonObject properties = obj.containsKey("oneOf")
                 ? obj.getJsonArray("oneOf").getJsonObject(1).getJsonObject("properties")
@@ -101,6 +104,9 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
         Map<String, String> attrs = new HashMap<>();
         if (properties != null) {
             properties.getMap().keySet().forEach(aName -> {
+                if (aName.equals("uri")) {
+                    s3.set("\n        def = ComponentApi.parseElementUri(def);");
+                }
                 JsonObject aValue = properties.getJsonObject(aName);
                 if (isAttributeRefArray(aValue) && aName.equals("steps") && ! className.equals("ChoiceDefinition") && ! className.equals("SwitchDefinition") && ! className.equals("KameletDefinition")) {
                     attrs.put(aName, "        def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);\n");
@@ -144,7 +150,7 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
                 }
             });
         }
-        return String.format(readFileText(modelTemplate), className, s1, attrs.values().stream().collect(Collectors.joining("")));
+        return String.format(readFileText(modelTemplate), className, s1, s3, attrs.values().stream().collect(Collectors.joining("")));
     }
 
     private String getStringToRequired(JsonObject obj, String className) {

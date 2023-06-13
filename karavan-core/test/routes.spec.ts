@@ -29,7 +29,8 @@ describe('Plain YAML with route to integration', () => {
         expect(i.kind).to.equal('Integration');
         expect(i.spec.flows?.length).to.equal(1);
         expect(i.type).to.equal('plain');
-        if (i.spec.flows) expect(i.spec.flows[0].from.uri).to.equal('timer:info');
+        if (i.spec.flows) expect(i.spec.flows[0].from.uri).to.equal('timer');
+        if (i.spec.flows) expect(i.spec.flows[0].from.parameters.name).to.equal('info');
         const y = CamelDefinitionYaml.integrationToYaml(i);
         expect(y).to.equal(yaml);
     });

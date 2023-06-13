@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 import {Component, ComponentProperty, SupportedComponent} from "../model/ComponentModels";
+import {CamelElement} from "../model/IntegrationDefinition";
 
 const Components: Component[] = [];
 const SupportedComponents: SupportedComponent[] = [];
@@ -110,6 +111,18 @@ export const ComponentApi = {
         }
     },
 
+    parseElementUri (def: any) : any {
+        const uriParts = ComponentApi.parseUri(def.uri);
+        if (uriParts.length > 1 && !def.uri.startsWith("kamelet:")) {
+            const uriValues = ComponentApi.getUriParts(def.uri);
+            uriValues.forEach((value, key) => {
+                def.parameters[key] = value;
+            })
+            def.uri = uriParts[0];
+        }
+        return def;
+    },
+
     getUriParts: (uri: string): Map<string, string> => {
         const result: Map<string, string> = new Map<string, string>();
         const name = ComponentApi.getComponentNameFromUri(uri);
@@ -119,7 +132,7 @@ export const ComponentApi = {
             const syntaxParts = ComponentApi.parseSyntax(syntax + '');
             const syntaxSeparators = ComponentApi.getSyntaxSeparators(syntax + '');
             let newUri = uri === name ? name + syntaxSeparators.join('') : uri;
-            result.set(name, name);
+            // result.set('camelComponentName', name);
             if (name === 'salesforce') { // workaround for salesforce component
                 const parts = newUri.split(":");
                 if (parts.length === 2) result.set("operationName", parts.at(1) || '').set("topicName", '')
@@ -216,30 +229,6 @@ export const ComponentApi = {
 
     getPathParameterValue: (uri: string, pathParameter: string): string | undefined => {
         return ComponentApi.getUriParts(uri).get(pathParameter);
-    },
-
-    buildComponentUri: (uri: string, pathParameter: string, pathParameterValue: string): string | undefined => {
-        const name = ComponentApi.getComponentNameFromUri(uri);
-        if (name) {
-            if (name === 'cxf') { // workaround for CXF component start
-                if (pathParameter === 'beanId' && pathParameterValue && pathParameterValue.trim().length > 0) return "cxf:" + pathParameterValue;
-                if (pathParameter === 'address' && pathParameterValue && pathParameterValue.trim().length > 0) return "cxf:" + pathParameterValue;
-            } else { // workarounds end
-                const map = ComponentApi.getUriParts(uri);
-                map.set(pathParameter, pathParameterValue);
-                const separators = ComponentApi.getUriSeparators(uri);
-                const result: string[] = [];
-                Array.from(map.keys()).forEach((key, index) => {
-                    const val = map.get(key) || '';
-                    const separator = separators[index];
-                    result.push(val);
-                    if (separator) result.push(separators[index]);
-                });
-                // if (result.at(result.length - 1) === '') return result.slice(0, -2).join(''); // remove last colon
-                return result.join('');
-            }
-        }
-        return uri;
     },
 
     getComponentProperties: (componentName: string, type: 'consumer' | 'producer'): ComponentProperty[] => {

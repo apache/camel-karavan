@@ -36,7 +36,7 @@ describe('CRD YAML to Integration', () => {
         if (i.spec.flows){
             const f:FilterDefinition = (i.spec.flows[0] as RouteDefinition).from.steps[1];
             const t:ToDefinition = <ToDefinition> (f.steps ? f.steps[0] : undefined);
-            expect(t.uri).to.equal("log:info:xxx");
+            expect(t.uri).to.equal("log");
             expect(t.parameters.level).to.equal("OFF");
         }
     });
@@ -52,7 +52,7 @@ describe('CRD YAML to Integration', () => {
         if (i.spec.flows){
             const f:FilterDefinition = (i.spec.flows[0] as RouteDefinition).from.steps[1];
             const t:ToDefinition = <ToDefinition> (f.steps ? f.steps[0] : undefined);
-            expect(t.uri).to.equal("log:info:xxx");
+            expect(t.uri).to.equal("log");
             expect(t.parameters.level).to.equal("OFF");
         }
     });

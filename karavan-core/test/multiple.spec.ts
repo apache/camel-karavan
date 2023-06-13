@@ -30,7 +30,7 @@ describe('Plain YAML to integration', () => {
         expect(i.spec.flows?.length).to.equal(2);
         expect(i.type).to.equal('plain');
         if (i.spec.flows) {
-            expect(i.spec.flows[0].from.uri).to.equal('netty-http:http://localhost:8080/demo');
+            expect(i.spec.flows[0].from.uri).to.equal('netty-http');
             expect(i.spec.flows[1].from.uri).to.equal('kamelet:aws-kinesis-source');
         }
     });

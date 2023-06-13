@@ -1,8 +1,10 @@
 - route:
     id: route-ea82
     from:
-      uri: timer:info
+      uri: timer
       id: from-1
+      parameters:
+        name: info
       steps:
         - choice:
             when:

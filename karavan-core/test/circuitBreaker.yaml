@@ -1,7 +1,9 @@
 - route:
     id: route-1
     from:
-      uri: direct:direct1
+      uri: direct
+      parameters:
+        name: direct1
       id: from-1
       steps:
         - circuitBreaker:

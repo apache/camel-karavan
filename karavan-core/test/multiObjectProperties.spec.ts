@@ -29,7 +29,7 @@ describe('Multi object property', () => {
         const i = Integration.createNew("test")
         const option1 = new PropertyExpressionDefinition({key:"key1", expression: new ExpressionDefinition({simple:"${body}"})})
         const option2 = new PropertyExpressionDefinition({key:"key2", expression: new ExpressionDefinition({simple:"${headers}"})})
-        const saga = new SagaDefinition({steps: [new ToDefinition({uri: "direct:direct2"})], option: [option1, option2]})
+        const saga = new SagaDefinition({steps: [new ToDefinition({uri: "direct"})], option: [option1, option2]})
         const flow1 = new FromDefinition({uri: "direct1"});
         flow1.steps?.push(saga);
         i.spec.flows?.push(new RouteDefinition({from: flow1}));
@@ -40,7 +40,7 @@ describe('Multi object property', () => {
 
         const s: SagaDefinition = i2.spec.flows?.[0].from.steps[0] as SagaDefinition;
         const t: ToDefinition | undefined = s.steps?.[0] as ToDefinition;
-        expect(t?.uri).to.equal('direct:direct2');
+        expect(t?.uri).to.equal('direct');
     });
 
 });

@@ -43,7 +43,7 @@ describe('Circuit Breaker', () => {
             resilience4jConfiguration: new Resilience4jConfigurationDefinition({id: 'rc-1',minimumNumberOfCalls: 5, failureRateThreshold: 50}),
             steps: [new LogDefinition({id: 'log-1',logName: 'log11', message: "hello11"})]
         })
-        const flow1 = new FromDefinition({uri: "direct:direct1", id: 'from-1'});
+        const flow1 = new FromDefinition({uri: "direct", id: 'from-1', parameters: {name: "direct1"}});
 
         flow1.steps?.push(circuitBreaker);
         i.spec.flows?.push(new RouteDefinition({id: 'route-1', from:flow1}));
