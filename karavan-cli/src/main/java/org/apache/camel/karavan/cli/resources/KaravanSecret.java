@@ -28,7 +28,7 @@ public class KaravanSecret {
     public static Secret getSecret(KaravanConfig config) {
 
         Map<String, String> secretData = Map.of(
-                "master-password", (config.isAuthBasic() ? config.getMasterPassword() : "xxx"),
+                "master-password", (config.isAuthBasic() ? config.getMasterPassword() : "karavan"),
                 "oidc-secret", (config.isAuthOidc() ? config.getOidcSecret() : "xxx"),
                 "oidc-server-url", (config.isAuthOidc() ? config.getOidcServerUrl() :"https://localhost/auth/realms/karavan"),
                 "oidc-frontend-url", (config.isAuthOidc() ? config.getOidcFrontendUrl() : "https://localhost/auth"),

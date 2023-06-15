@@ -5,7 +5,6 @@ import picocli.CommandLine;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "karavan",
@@ -57,11 +56,15 @@ public class KaravanCli implements Callable<Integer> {
     private String gitBranch;
     @CommandLine.Option(names = {"--git-pull"}, description = "Git pull interval. Default: off", defaultValue = "off")
     private String gitPullInterval;
-    @CommandLine.Option(names = {"--registry"}, description = "Image registry", defaultValue = Constants.DEFAULT_IMAGE_REGISTRY)
+    @CommandLine.Option(names = {"--registry"}, description = "Image registry")
     private String imageRegistry;
+    @CommandLine.Option(names = {"--registry-username"}, description = "Image registry username")
+    private String imageRegistryUsername;
+    @CommandLine.Option(names = {"--registry-password"}, description = "Image registry password")
+    private String imageRegistryPassword;
 
     @CommandLine.Option(names = { "-h", "--help" }, usageHelp = true, description = "Display help")
-    private boolean helpRequested = false;
+    private boolean helpRequested;
 
     @Override
     public Integer call() throws Exception {
@@ -86,14 +89,15 @@ public class KaravanCli implements Callable<Integer> {
                 gitPassword,
                 gitBranch,
                 gitPullInterval,
-                imageRegistry
+                imageRegistry,
+                imageRegistryUsername,
+                imageRegistryPassword
         );
         if (yaml) {
             Files.writeString(Path.of(file), ResourceUtils.generateResources(config));
         } else {
             CommandUtils.installKaravan(config);
         }
-        System.out.println(masterPassword);
         return 0;
     }
 

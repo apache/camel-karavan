@@ -16,8 +16,6 @@
  */
 package org.apache.camel.karavan.cli;
 
-import picocli.CommandLine;
-
 import java.util.Map;
 import java.util.Objects;
 
@@ -45,12 +43,15 @@ public class KaravanConfig {
     private String gitBranch;
     private String gitPullInterval;
     private String imageRegistry;
+    private String imageRegistryUsername;
+    private String imageRegistryPassword;
 
     public KaravanConfig(String version, String namespace, String environment, String runtimes, String auth,
                          int nodePort, int instances, String baseImage, String baseBuilderImage, boolean isOpenShift,
                          Map<String, String> labels, String masterPassword, String oidcSecret, String oidcServerUrl,
                          String oidcFrontendUrl, String gitRepository, String gitUsername, String gitPassword,
-                         String gitBranch, String gitPullInterval, String imageRegistry) {
+                         String gitBranch, String gitPullInterval, String imageRegistry, String imageRegistryUsername,
+                         String imageRegistryPassword) {
         this.version = version;
         this.namespace = namespace;
         this.environment = environment;
@@ -72,6 +73,8 @@ public class KaravanConfig {
         this.gitBranch = gitBranch;
         this.gitPullInterval = gitPullInterval;
         this.imageRegistry = imageRegistry;
+        this.imageRegistryUsername = imageRegistryUsername;
+        this.imageRegistryPassword = imageRegistryPassword;
     }
 
     public boolean gitConfigured() {
@@ -261,5 +264,21 @@ public class KaravanConfig {
 
     public void setGitBranch(String gitBranch) {
         this.gitBranch = gitBranch;
+    }
+
+    public String getImageRegistryUsername() {
+        return imageRegistryUsername;
+    }
+
+    public void setImageRegistryUsername(String imageRegistryUsername) {
+        this.imageRegistryUsername = imageRegistryUsername;
+    }
+
+    public String getImageRegistryPassword() {
+        return imageRegistryPassword;
+    }
+
+    public void setImageRegistryPassword(String imageRegistryPassword) {
+        this.imageRegistryPassword = imageRegistryPassword;
     }
 }

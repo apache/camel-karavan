@@ -21,7 +21,7 @@ export DATE=$(date '+%Y%m%d%H%M%S')
 export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 
-/opt/mvnd/bin/mvnd package \
+mvn package \
   -Dquarkus.container-image.build=true \
   -Dquarkus.container-image.push=true \
   -Dquarkus.container-image.insecure=true \

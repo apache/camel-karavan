@@ -28,6 +28,7 @@ import io.fabric8.tekton.pipeline.v1beta1.Task;
 import org.apache.camel.karavan.cli.resources.*;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -58,6 +59,7 @@ public class CommandUtils {
                 System.exit(0);
             }
             installTekton(config, client);
+            disableAffinityAssistant(client);
         }
         log("Tekton is installed");
 
@@ -111,7 +113,7 @@ public class CommandUtils {
             createOrReplace(KaravanService.getRoute(config), client);
         }
         log("Karavan is installed");
-        System.out.print("Karavan is starting ");
+        System.out.print("\uD83D\uDC2B Karavan is starting ");
         while (!checkReady(config, client)) {
             try {
                 Thread.sleep(1000);
@@ -132,6 +134,14 @@ public class CommandUtils {
 
     public static boolean tryToCreateKaravanSecrets(KaravanConfig config, KubernetesClient client) {
         if (config.gitConfigured()) {
+            if (config.getImageRegistry() == null) {
+                if (config.isOpenShift()) {
+                    config.setImageRegistry(Constants.DEFAULT_IMAGE_REGISTRY_OPENSHIFT);
+                } else {
+                    Service registryService = client.services().inNamespace("kube-system").withName("registry").get();
+                    config.setImageRegistry(registryService.getSpec().getClusterIP());
+                }
+            }
             if ((config.isAuthOidc() && config.oidcConfigured())
                     || (config.isAuthBasic() && config.getMasterPassword() != null && config.getMasterPassword().isEmpty())
                     || (config.getAuth().equals("public"))) {
@@ -167,10 +177,24 @@ public class CommandUtils {
     }
 
     private static void installTekton(KaravanConfig config, KubernetesClient client) {
-        log("⏳ Installing Tekton");
-        client.load(CommandUtils.class.getResourceAsStream("/tekton.yaml")).create().forEach(hasMetadata -> {
-            log(" - " + hasMetadata.getKind() + " " + hasMetadata.getMetadata().getName());
+        System.out.print("⏳ Installing Tekton");
+        client.load(CommandUtils.class.getResourceAsStream("/pipelines.yaml")).create().forEach(hasMetadata -> {
+            System.out.print(".");
         });
+        client.load(CommandUtils.class.getResourceAsStream("/dashboard.yaml")).create().forEach(hasMetadata -> {
+            System.out.print(".");
+        });
+        System.out.println();
+        log("Tekton is installed");
+    }
+
+    private static void disableAffinityAssistant(KubernetesClient client) {
+        log("⏳ Set disable-affinity-assistant equals 'true'");
+        ConfigMap configMap = client.configMaps().inNamespace("tekton-pipelines").withName("feature-flags").get();
+        Map<String, String> data = configMap.getData();
+        data.put("disable-affinity-assistant", "true");
+        configMap.setData(data);
+        client.resource(configMap).createOrReplace();
     }
 
     private static boolean isTektonInstalled(KubernetesClient client) {
@@ -213,7 +237,7 @@ public class CommandUtils {
     }
 
     private static String getErrorMessage(String message) {
-        return "‼\uFE0F" + message;
+        return "‼\uFE0F " + message;
     }
 
     private static boolean isOpenShift(KubernetesClient client) {

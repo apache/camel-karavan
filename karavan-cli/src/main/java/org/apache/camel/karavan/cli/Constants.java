@@ -22,7 +22,8 @@ public final class Constants {
     public static final String DEFAULT_RUNTIMES = "quarkus,spring-boot";
     public static final String DEFAULT_AUTH = "public";
     public static final String DEFAULT_GIT_PULL_INTERVAL = "off";
-    public static final String DEFAULT_IMAGE_REGISTRY = "image-registry.openshift-image-registry.svc:5000";
+    public static final String DEFAULT_IMAGE_REGISTRY_OPENSHIFT = "image-registry.openshift-image-registry.svc:5000";
+    public static final String DEFAULT_IMAGE_REGISTRY_MINIKUBE = "registry.kube-system.svc.cluster.local";
     public static final int DEFAULT_NODE_PORT = 0;
     public static final int DEFAULT_INSTANCES = 1;
     public static final String DEFAULT_BUILD_IMAGE = "ghcr.io/apache/camel-karavan-builder";
