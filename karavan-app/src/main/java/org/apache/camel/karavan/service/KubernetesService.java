@@ -89,6 +89,9 @@ public class KubernetesService implements HealthCheck{
     @ConfigProperty(name = "karavan.environment")
     public String environment;
 
+    @ConfigProperty(name = "karavan.version")
+    String version;
+
 
     List<SharedIndexInformer> informers = new ArrayList<>(INFORMERS);
 
@@ -440,8 +443,7 @@ public class KubernetesService implements HealthCheck{
 
         Container container = new ContainerBuilder()
                 .withName(name)
-                .withImage("entropy1/camel-karavan-runner")
-//                .withImage("ghcr.io/apache/camel-karavan-runner:3.20.2-snapshot")
+                .withImage("ghcr.io/apache/camel-karavan-runner:" + version)
                 .withPorts(port)
                 .withResources(resources)
                 .withVolumeMounts(
