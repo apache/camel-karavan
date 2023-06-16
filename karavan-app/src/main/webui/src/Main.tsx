@@ -95,8 +95,8 @@ export class Main extends React.Component<Props, State> {
     sub?: Subscription;
 
     componentDidMount() {
-        this.sub = ProjectEventBus.onSelectProject()?.subscribe((project: Project) => {
-            this.onProjectSelect(project);
+        this.sub = ProjectEventBus.onSelectProject()?.subscribe((project: Project | undefined) => {
+            if (project) this.onProjectSelect(project);
         });
         KaravanApi.getAuthType((authType: string) => {
             console.log("authType", authType);

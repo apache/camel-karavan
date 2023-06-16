@@ -66,6 +66,7 @@ import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {ModalEditor} from "./ModalEditor";
 import {KaravanInstance} from "../../KaravanDesigner";
+import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 
 interface Props {
     property: PropertyMeta,
@@ -599,14 +600,13 @@ export class DslPropertyField extends React.Component<Props, State> {
         return (
             <div className="parameters">
                 {properties.map(kp => {
-                    // console.log(kp);
-                    // console.log(CamelDefinitionApiExt.getParametersValue(this.props.element, kp.name, kp.kind === 'path'));
+                    const value = CamelDefinitionApiExt.getParametersValue(this.props.element, kp.name, kp.kind === 'path');
                     return (<ComponentParameterField
                         key={kp.name}
                         property={kp}
                         element={this.props.element}
                         integration={this.props.integration}
-                        value={CamelDefinitionApiExt.getParametersValue(this.props.element, kp.name, kp.kind === 'path')}
+                        value={value}
                         onParameterChange={this.props.onParameterChange}
                     />)
                 })}

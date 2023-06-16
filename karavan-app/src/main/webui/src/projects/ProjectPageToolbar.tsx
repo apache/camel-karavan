@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Button,
     Checkbox,
@@ -28,6 +28,9 @@ import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 import {KaravanApi} from "../api/KaravanApi";
+import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
+import {RunnerToolbar} from "./RunnerToolbar";
+import {ProjectEventBus} from "./ProjectEventBus";
 
 interface Props {
     project: Project,
@@ -53,6 +56,16 @@ export const ProjectPageToolbar = (props: Props) => {
     const [isPushing, setIsPushing] = useState(false);
     const [commitMessageIsOpen, setCommitMessageIsOpen] = useState(false);
     const [commitMessage, setCommitMessage] = useState('');
+    const [currentRunner, setCurrentRunner] = useState('');
+
+    useEffect(() => {
+        const sub1 = ProjectEventBus.onCurrentRunner()?.subscribe((result) => {
+            setCurrentRunner(result || '');
+        });
+        return () => {
+            sub1.unsubscribe();
+        };
+    });
 
     function push () {
         setIsPushing(true);
@@ -154,7 +167,7 @@ export const ProjectPageToolbar = (props: Props) => {
     }
 
     function getProjectToolbar() {
-        const {file,needCommit, mode, editAdvancedProperties,
+        const {file,needCommit, mode, editAdvancedProperties, project, config,
             addProperty, setEditAdvancedProperties, download, downloadImage, setCreateModalOpen, setUploadModalOpen} = props;
         const isFile = file !== undefined;
         const isYaml = file !== undefined && file.name.endsWith("yaml");
@@ -219,6 +232,10 @@ export const ProjectPageToolbar = (props: Props) => {
                     {!isFile && <FlexItem>
                         <Button isSmall variant="secondary" icon={<UploadIcon/>}
                                 onClick={e => setUploadModalOpen()}>Upload</Button>
+                    </FlexItem>}
+
+                    {isYaml && currentRunner === project.name && <FlexItem>
+                        <RunnerToolbar project={project} config={config} showConsole={false} reloadOnly={true} />
                     </FlexItem>}
                 </Flex>
             </ToolbarContent>

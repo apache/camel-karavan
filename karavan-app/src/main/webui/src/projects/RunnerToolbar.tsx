@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Button, Label, Switch, Tab, Tabs,
     Tooltip,
@@ -17,7 +17,8 @@ import {ProjectEventBus} from "./ProjectEventBus";
 interface Props {
     project: Project,
     config: any,
-    showConsole: boolean
+    showConsole: boolean,
+    reloadOnly: boolean
 }
 
 export const RunnerToolbar = (props: Props) => {
@@ -29,16 +30,27 @@ export const RunnerToolbar = (props: Props) => {
     const [isReloadingPod, setIsReloadingPod] = useState(false);
     const [isShowingTrace, setIsShowingTrace] = useState(false);
 
+    useEffect(() => {
+        const sub1 = ProjectEventBus.onCurrentRunner()?.subscribe((result) => {
+            setJbangIsRunning(result === props.project.name);
+        });
+        return () => {
+            sub1.unsubscribe();
+        };
+    });
+
     function jbangRun() {
         setJbangIsRunning(true);
         KaravanApi.runProject(props.project, res => {
             if (res.status === 200 || res.status === 201) {
+                ProjectEventBus.setCurrentRunner(props.project.name);
                 setJbangIsRunning(false);
                 setPodName(res.data);
                 ProjectEventBus.showLog('container', res.data, props.config.environment)
             } else {
                 // Todo notification
                 setJbangIsRunning(false);
+                ProjectEventBus.setCurrentRunner(undefined);
             }
         });
     }
@@ -56,6 +68,7 @@ export const RunnerToolbar = (props: Props) => {
     }
 
     function deleteRunner() {
+        ProjectEventBus.setCurrentRunner(undefined);
         setIsDeletingPod(true);
         KaravanApi.deleteRunner(podName, false, res => {
             if (res.status === 202) {
@@ -74,7 +87,7 @@ export const RunnerToolbar = (props: Props) => {
 
     return (
             <div className="runner-toolbar">
-                {!props.showConsole &&
+                {!props.showConsole && !props.reloadOnly  &&
                     <div className="row">
                         <Tooltip content="Run in development mode" position={TooltipPosition.left}>
                             <Button isLoading={isJbangRunning ? true : undefined}
@@ -87,6 +100,20 @@ export const RunnerToolbar = (props: Props) => {
                             </Button>
                         </Tooltip>
                     </div>}
+                {props.reloadOnly &&
+                    <div className="row">
+                        <Tooltip content="Reload" position={TooltipPosition.left}>
+                            <Button isLoading={isReloadingPod ? true : undefined}
+                                    isSmall
+                                    variant={"primary"}
+                                    className="project-button"
+                                    icon={!isReloadingPod ? <ReloadIcon/> : <div></div>}
+                                    onClick={() => reloadRunner()}>
+                                {isReloadingPod ? "..." : "Reload"}
+                            </Button>
+                        </Tooltip>
+                    </div>
+                }
                 {props.showConsole && <>
                     <div className="row">
                         <Tooltip content="Reload" position={TooltipPosition.left}>
@@ -101,7 +128,7 @@ export const RunnerToolbar = (props: Props) => {
                         </Tooltip>
                     </div>
                     <div className="row">
-                        <Tooltip content="Show trace" position={TooltipPosition.left}>
+                        <Tooltip content={isShowingTrace ? "Show runtime" : "Show trace"} position={TooltipPosition.left}>
                             <Button isSmall
                                     variant={"secondary"}
                                     className="project-button"
@@ -111,14 +138,14 @@ export const RunnerToolbar = (props: Props) => {
                             </Button>
                         </Tooltip>
                     </div>
-                    <Tooltip content="Delete runner" position={TooltipPosition.left}>
+                    <Tooltip content="Stop runner" position={TooltipPosition.left}>
                         <Button isLoading={isDeletingPod ? true : undefined}
                                 isSmall
                                 variant={"secondary"}
                                 className="project-button"
                                 icon={!isRunning ? <DeleteIcon/> : <div></div>}
                                 onClick={() => deleteRunner()}>
-                            {isDeletingPod ? "..." : "Delete"}
+                            {isDeletingPod ? "..." : "Stop"}
                         </Button>
                     </Tooltip>
                 </>}

@@ -14,14 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Subject} from 'rxjs';
+import {BehaviorSubject, Subject} from 'rxjs';
 import {Project} from "./ProjectModels";
 
-const currentProject = new Subject<Project>();
-const currentFile = new Subject<string>();
-const showLog = new Subject<ShowLogCommand>();
-const showTrace = new Subject<ShowTraceCommand>();
-const refreshTrace = new Subject<boolean>();
+const currentProject = new BehaviorSubject<Project | undefined>(undefined);
+const currentRunner = new BehaviorSubject<string | undefined>(undefined);
+const currentFile = new BehaviorSubject<string | undefined>(undefined);
+const showLog = new BehaviorSubject<ShowLogCommand | undefined>(undefined);
+const showTrace = new BehaviorSubject<ShowTraceCommand | undefined>(undefined);
+const refreshTrace = new BehaviorSubject<boolean>(false);
 
 export class ShowLogCommand {
     type: 'container' | 'pipeline'
@@ -50,6 +51,9 @@ export const ProjectEventBus = {
 
     selectProject: (project: Project) => currentProject.next(project),
     onSelectProject: () => currentProject.asObservable(),
+
+    setCurrentRunner: (name: string | undefined) => currentRunner.next(name),
+    onCurrentRunner: () => currentRunner.asObservable(),
 
     selectProjectFile: (fileName: string) => currentFile.next(fileName),
     onSelectProjectFile: () => currentFile.asObservable(),

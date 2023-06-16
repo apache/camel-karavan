@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {
     Card,
-    CardBody, Flex, FlexItem, Divider, Tab, Tabs, CardFooter
+    CardBody, Flex, FlexItem, Divider
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {PodStatus, Project} from "./ProjectModels";
@@ -38,7 +38,7 @@ export const ProjectDevelopment = (props: Props) => {
     useEffect(() => {
         previousValue.current = podStatus;
         const sub1 = ProjectEventBus.onShowTrace()?.subscribe((result) => {
-            setShowTrace(result.show);
+            if (result) setShowTrace(result.show);
         });
         const sub2 = ProjectEventBus.onRefreshTrace()?.subscribe((result) => {
             setRefreshTrace(result);
@@ -128,7 +128,7 @@ export const ProjectDevelopment = (props: Props) => {
                     </FlexItem>}
                     <Divider orientation={{default: "vertical"}}/>
                     <FlexItem>
-                        <RunnerToolbar project={project} config={config} showConsole={showConsole()}/>
+                        <RunnerToolbar project={project} config={config} showConsole={showConsole()} reloadOnly={false}/>
                     </FlexItem>
                 </Flex>
             </CardBody>
