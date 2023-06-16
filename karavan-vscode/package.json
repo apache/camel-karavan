@@ -334,7 +334,7 @@
           "default": [
             "camel.jbang.dependencies=camel:microprofile-health",
             "# jkube properties",
-            "jkube.version=1.12.0",
+            "jkube.version=1.13.1",
             "jkube.build.strategy=s2i",
             "jkube.namespace=${NAMESPACE}",
             "jkube.generator.name=image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/$NAME:${DATE}",
@@ -356,7 +356,7 @@
           "default": [
             "camel.jbang.dependencies=camel:microprofile-health",
             "# jkube properties",
-            "jkube.version=1.12.0",
+            "jkube.version=1.13.1",
             "jkube.build.strategy=docker",
             "jkube.namespace=default",
             "jkube.generator.name=default/$NAME:${DATE}",
