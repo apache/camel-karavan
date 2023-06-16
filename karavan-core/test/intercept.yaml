@@ -1,0 +1,19 @@
+- routeConfiguration:
+    intercept:
+      - intercept:
+          id: intercept-9b31
+          steps:
+            - log:
+                message: Interceptor ${body}
+                id: log-c2f5
+- route:
+    id: route-ddaa
+    from:
+      uri: kamelet:timer-source
+      id: from-847d
+      parameters:
+        message: Hello
+      steps:
+        - log:
+            message: Main ${body}
+            id: log-7972

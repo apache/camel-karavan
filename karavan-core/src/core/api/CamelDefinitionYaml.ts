@@ -112,6 +112,19 @@ export class CamelDefinitionYaml {
             let newValue: any = JSON.parse(JSON.stringify(value));
             delete newValue.dslName;
             delete newValue[stepNameField];
+            // if ((value.inArray && !value.inSteps
+            //     && ["intercept",
+            //         "interceptFrom",
+            //         "interceptSendToEndpoint",
+            //         "onCompletion",
+            //         "onException"]
+            //         .includes(stepName))) {
+            //     delete newValue.inArray;
+            //     delete newValue.inSteps;
+            //     const xValue: any = {};
+            //     xValue[stepName] = newValue;
+            //     return xValue;
+            // } else
             if ((value.inArray && !value.inSteps)
                 || dslName === 'ExpressionSubElementDefinition'
                 || dslName === 'ExpressionDefinition'
@@ -192,6 +205,8 @@ export class CamelDefinitionYaml {
             .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(new RouteConfigurationDefinition({errorHandler: f.errorHandler}))));
         flows.filter((e: any) => e.hasOwnProperty('onException'))
             .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(new RouteConfigurationDefinition({onException: f.onException}))));
+        flows.filter((e: any) => e.hasOwnProperty('intercept'))
+            .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(new RouteConfigurationDefinition({intercept: f.intercept}))));
         return result;
     }
 
