@@ -58,7 +58,13 @@ public class KaravanTekton {
                                         new EnvVarBuilder().withName("GIT_BRANCH").withValueFrom(
                                                 new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("git-branch").and().build()).build(),
                                         new EnvVarBuilder().withName("IMAGE_REGISTRY").withValueFrom(
-                                                new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("image-registry").withOptional(true).and().build()).build()
+                                                new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("image-registry").withOptional(true).and().build()).build(),
+                                        new EnvVarBuilder().withName("IMAGE_GROUP").withValueFrom(
+                                                new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("image-group").withOptional(true).and().build()).build(),
+                                        new EnvVarBuilder().withName("IMAGE_REGISTRY_USERNAME").withValueFrom(
+                                                new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("image-registry-username").withOptional(true).and().build()).build(),
+                                        new EnvVarBuilder().withName("IMAGE_REGISTRY_PASSWORD").withValueFrom(
+                                                new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("image-registry-password").withOptional(true).and().build()).build()
                                 )
                                 .build()
                 )

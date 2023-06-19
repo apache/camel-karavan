@@ -25,4 +25,6 @@ mvn package k8s:build k8s:push k8s:resource k8s:apply \
   -Pkubernetes \
   -Djkube.namespace=${NAMESPACE} \
   -Djkube.docker.push.registry=${IMAGE_REGISTRY} \
-  -Djkube.generator.name=${IMAGE_REGISTRY}/${NAMESPACE}/$(inputs.params.project):${DATE}
+  -Djkube.docker.username=${IMAGE_REGISTRY_USERNAME} \
+  -Djkube.docker.password=${IMAGE_REGISTRY_PASSWORD} \
+  -Djkube.generator.name=${IMAGE_REGISTRY}/${IMAGE_GROUP}/$(inputs.params.project):${DATE}

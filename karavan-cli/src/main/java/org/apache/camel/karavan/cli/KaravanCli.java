@@ -56,11 +56,13 @@ public class KaravanCli implements Callable<Integer> {
     private String gitBranch;
     @CommandLine.Option(names = {"--git-pull"}, description = "Git pull interval. Default: off", defaultValue = "off")
     private String gitPullInterval;
-    @CommandLine.Option(names = {"--registry"}, description = "Image registry")
+    @CommandLine.Option(names = {"--image-registry"}, description = "Image registry")
     private String imageRegistry;
-    @CommandLine.Option(names = {"--registry-username"}, description = "Image registry username")
+    @CommandLine.Option(names = {"--image-group"}, description = "Image group")
+    private String imageGroup;
+    @CommandLine.Option(names = {"--image-registry-username"}, description = "Image registry username")
     private String imageRegistryUsername;
-    @CommandLine.Option(names = {"--registry-password"}, description = "Image registry password")
+    @CommandLine.Option(names = {"--image-registry-password"}, description = "Image registry password")
     private String imageRegistryPassword;
 
     @CommandLine.Option(names = { "-h", "--help" }, usageHelp = true, description = "Display help")
@@ -90,6 +92,7 @@ public class KaravanCli implements Callable<Integer> {
                 gitBranch,
                 gitPullInterval,
                 imageRegistry,
+                imageGroup,
                 imageRegistryUsername,
                 imageRegistryPassword
         );

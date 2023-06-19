@@ -21,23 +21,26 @@ import org.apache.camel.karavan.cli.Constants;
 import org.apache.camel.karavan.cli.KaravanConfig;
 import org.apache.camel.karavan.cli.ResourceUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class KaravanSecret {
 
     public static Secret getSecret(KaravanConfig config) {
 
-        Map<String, String> secretData = Map.of(
-                "master-password", (config.isAuthBasic() ? config.getMasterPassword() : "karavan"),
-                "oidc-secret", (config.isAuthOidc() ? config.getOidcSecret() : "xxx"),
-                "oidc-server-url", (config.isAuthOidc() ? config.getOidcServerUrl() :"https://localhost/auth/realms/karavan"),
-                "oidc-frontend-url", (config.isAuthOidc() ? config.getOidcFrontendUrl() : "https://localhost/auth"),
-                "git-repository", config.getGitRepository(),
-                "git-password", config.getGitPassword(),
-                "git-username", config.getGitUsername(),
-                "git-branch", config.getGitBranch(),
-                "image-registry", config.getImageRegistry()
-                );
+        Map<String, String> secretData = new HashMap<>();
+        secretData.put("master-password", (config.isAuthBasic() ? config.getMasterPassword() : "karavan"));
+        secretData.put("oidc-secret", (config.isAuthOidc() ? config.getOidcSecret() : "xxx"));
+        secretData.put("oidc-server-url", (config.isAuthOidc() ? config.getOidcServerUrl() : "https://localhost/auth/realms/karavan"));
+        secretData.put("oidc-frontend-url", (config.isAuthOidc() ? config.getOidcFrontendUrl() : "https://localhost/auth"));
+        secretData.put("git-repository", config.getGitRepository());
+        secretData.put("git-password", config.getGitPassword());
+        secretData.put("git-username", config.getGitUsername());
+        secretData.put("git-branch", config.getGitBranch());
+        secretData.put("image-registry", config.getImageRegistry());
+        secretData.put("image-group", config.getImageGroup());
+        secretData.put("image-registry-username", config.getImageRegistryUsername());
+        secretData.put("image-registry-password", config.getImageRegistryPassword());
 
         return new SecretBuilder()
                 .withNewMetadata()

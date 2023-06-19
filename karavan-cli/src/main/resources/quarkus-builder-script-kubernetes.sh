@@ -19,14 +19,14 @@ entrypoint -Dcamel.jbang.version=3.20.5 camel@apache/camel export --local-kamele
 export LAST_COMMIT=$(git rev-parse --short HEAD)
 export DATE=$(date '+%Y%m%d%H%M%S')
 export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
-export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace
 
 mvn package \
   -Dquarkus.container-image.build=true \
   -Dquarkus.container-image.push=true \
   -Dquarkus.container-image.insecure=true \
-  -Dquarkus.container-image.username=sa \
-  -Dquarkus.container-image.password=${TOKEN} \
+  -Dquarkus.container-image.username=${IMAGE_REGISTRY_USERNAME} \
+  -Dquarkus.container-image.password=${IMAGE_REGISTRY_PASSWORD} \
   -Dquarkus.container-image.registry=${IMAGE_REGISTRY} \
   -Dquarkus.container-image.builder=jib \
   -Dquarkus.kubernetes.deploy=true \
@@ -34,5 +34,5 @@ mvn package \
   -Dquarkus.kubernetes.add-version-to-label-selectors=false \
   -Dquarkus.kubernetes.labels.\"app\"=$(inputs.params.project) \
   -Dquarkus.kubernetes.labels.\"app.kubernetes.io/runtime\"=camel \
-  -Dquarkus.container-image.group=${NAMESPACE} \
+  -Dquarkus.container-image.group=${IMAGE_GROUP} \
   -Dquarkus.container-image.tag=${DATE}

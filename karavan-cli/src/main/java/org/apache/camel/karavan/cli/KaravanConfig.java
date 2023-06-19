@@ -43,6 +43,7 @@ public class KaravanConfig {
     private String gitBranch;
     private String gitPullInterval;
     private String imageRegistry;
+    private String imageGroup;
     private String imageRegistryUsername;
     private String imageRegistryPassword;
 
@@ -50,8 +51,8 @@ public class KaravanConfig {
                          int nodePort, int instances, String baseImage, String baseBuilderImage, boolean isOpenShift,
                          Map<String, String> labels, String masterPassword, String oidcSecret, String oidcServerUrl,
                          String oidcFrontendUrl, String gitRepository, String gitUsername, String gitPassword,
-                         String gitBranch, String gitPullInterval, String imageRegistry, String imageRegistryUsername,
-                         String imageRegistryPassword) {
+                         String gitBranch, String gitPullInterval, String imageRegistry, String imageGroup,
+                         String imageRegistryUsername, String imageRegistryPassword) {
         this.version = version;
         this.namespace = namespace;
         this.environment = environment;
@@ -73,6 +74,7 @@ public class KaravanConfig {
         this.gitBranch = gitBranch;
         this.gitPullInterval = gitPullInterval;
         this.imageRegistry = imageRegistry;
+        this.imageGroup = imageGroup;
         this.imageRegistryUsername = imageRegistryUsername;
         this.imageRegistryPassword = imageRegistryPassword;
     }
@@ -280,5 +282,13 @@ public class KaravanConfig {
 
     public void setImageRegistryPassword(String imageRegistryPassword) {
         this.imageRegistryPassword = imageRegistryPassword;
+    }
+
+    public String getImageGroup() {
+        return imageGroup;
+    }
+
+    public void setImageGroup(String imageGroup) {
+        this.imageGroup = imageGroup;
     }
 }
