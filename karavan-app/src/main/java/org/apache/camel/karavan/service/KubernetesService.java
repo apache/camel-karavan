@@ -446,6 +446,7 @@ public class KubernetesService implements HealthCheck{
                 .withImage("ghcr.io/apache/camel-karavan-runner:" + version)
                 .withPorts(port)
                 .withResources(resources)
+                .withImagePullPolicy("Always")
                 .withVolumeMounts(
                         new VolumeMountBuilder().withName(name).withMountPath("/karavan/.jbang/cache").build())
                 .build();
