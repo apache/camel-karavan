@@ -455,8 +455,6 @@ public class KubernetesService implements HealthCheck{
                 .withTerminationGracePeriodSeconds(0L)
                 .withContainers(container)
                 .withRestartPolicy("Never")
-                .withServiceAccount("pipeline")
-                .withServiceAccountName("pipeline")
                 .withVolumes(
                         new VolumeBuilder().withName(name).withNewPersistentVolumeClaim(name, false).build())
                 .build();
