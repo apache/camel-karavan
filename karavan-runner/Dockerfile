@@ -1,11 +1,11 @@
 FROM jbangdev/jbang-action:0.106.1
 
 ENV CAMEL_VERSION=3.20.5
-# ENV KARAVAN="/karavan"
+ENV KARAVAN="/karavan"
 # ENV JBANG_REPO="$KARAVAN/.jbang/cache/.m2"
 # ENV JBANG_DIR="$KARAVAN/.jbang"
 # ENV KAMELETS_DIR="$KARAVAN/kamelets"
-# ENV CODE_DIR="$KARAVAN/code"
+ENV CODE_DIR="$KARAVAN/code"
 # ENV CAMEL_DIR="$KARAVAN/camel"
 
 # RUN mkdir -p $KARAVAN \
@@ -22,7 +22,7 @@ RUN jbang trust add  --quiet  https://github.com/apache/camel \
     && jbang app install camel@apache/camel
 
 # EXPOSE 8080
-# WORKDIR $KARAVAN
+WORKDIR $KARAVAN
 
 # ENTRYPOINT jbang --verbose -Duser.home=$CAMEL_DIR -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --source-dir=$CODE_DIR --console --local-kamelet-dir=$KAMELETS_DIR 
-ENTRYPOINT jbang --verbose -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --console
+ENTRYPOINT jbang --verbose -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --source-dir=$CODE_DIR --console
