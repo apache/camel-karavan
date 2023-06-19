@@ -23,4 +23,5 @@ RUN jbang trust add -o --fresh --quiet https://github.com/apache/camel/blob/HEAD
 EXPOSE 8080
 WORKDIR $KARAVAN
 
-ENTRYPOINT jbang --verbose -Duser.home=$CAMEL_DIR -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --source-dir=$CODE_DIR --console --local-kamelet-dir=$KAMELETS_DIR 
+ENTRYPOINT jbang version --verbose  
+# -Duser.home=$CAMEL_DIR -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --source-dir=$CODE_DIR --console --local-kamelet-dir=$KAMELETS_DIR 
