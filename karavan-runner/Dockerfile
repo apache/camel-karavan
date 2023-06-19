@@ -18,8 +18,7 @@ RUN mkdir -p $KARAVAN \
     && chmod -R "g+rwX" $KARAVAN 
 
 USER 1001
-RUN jbang trust add https://github.com/apache/camel \
-    && jbang app install camel@apache/camel
+RUN jbang trust add -o --fresh --quiet https://github.com/apache/camel/blob/HEAD/dsl/camel-jbang/camel-jbang-main/dist/CamelJBang.java
 
 EXPOSE 8080
 WORKDIR $KARAVAN
