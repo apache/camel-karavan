@@ -58,7 +58,7 @@ public class KaravanCli implements Callable<Integer> {
     private String gitPullInterval;
     @CommandLine.Option(names = {"--image-registry"}, description = "Image registry")
     private String imageRegistry;
-    @CommandLine.Option(names = {"--image-group"}, description = "Image group")
+    @CommandLine.Option(names = {"--image-group"}, description = "Image group", defaultValue = "karavan")
     private String imageGroup;
     @CommandLine.Option(names = {"--image-registry-username"}, description = "Image registry username")
     private String imageRegistryUsername;
