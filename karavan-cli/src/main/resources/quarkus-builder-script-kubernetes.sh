@@ -19,7 +19,7 @@ entrypoint -Dcamel.jbang.version=3.20.5 camel@apache/camel export --local-kamele
 export LAST_COMMIT=$(git rev-parse --short HEAD)
 export DATE=$(date '+%Y%m%d%H%M%S')
 export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
-export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace
+export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 
 mvn package \
   -Dquarkus.container-image.build=true \
