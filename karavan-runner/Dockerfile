@@ -8,14 +8,14 @@ ENV KARAVAN="/karavan"
 ENV CODE_DIR="$KARAVAN/code"
 # ENV CAMEL_DIR="$KARAVAN/camel"
 
-# RUN mkdir -p $KARAVAN \
+RUN mkdir -p $KARAVAN \
 #     && mkdir -p $JBANG_REPO \
-#     && mkdir -p $CODE_DIR \
+    && mkdir -p $CODE_DIR \
 #     && mkdir -p $KAMELETS_DIR \
 #     && mkdir -p $CAMEL_DIR \
 #     && mkdir -p $CAMEL_DIR/.camel \
 #     && chown -R 1001 $KARAVAN \
-#     && chmod -R "g+rwX" $KARAVAN 
+    && chmod -R "g+rwX" $KARAVAN 
 
 # USER 1001
 RUN jbang trust add  --quiet  https://github.com/apache/camel \
