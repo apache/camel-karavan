@@ -18,10 +18,9 @@ RUN mkdir -p $KARAVAN \
     && chmod -R "g+rwX" $KARAVAN 
 
 USER 1001
-# RUN jbang trust add -o --fresh --quiet https://github.com/apache/camel/blob/HEAD/dsl/camel-jbang/camel-jbang-main/dist/CamelJBang.java
+RUN jbang trust add -o --fresh --quiet https://github.com/apache/camel/blob/HEAD/dsl/camel-jbang/camel-jbang-main/dist/CamelJBang.java
 
 EXPOSE 8080
 WORKDIR $KARAVAN
 
-ENTRYPOINT jbang version --verbose  
-# -Duser.home=$CAMEL_DIR -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --source-dir=$CODE_DIR --console --local-kamelet-dir=$KAMELETS_DIR 
+ENTRYPOINT jbang --verbose -Duser.home=$CAMEL_DIR -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --source-dir=$CODE_DIR --console --local-kamelet-dir=$KAMELETS_DIR 
