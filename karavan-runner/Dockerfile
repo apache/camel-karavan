@@ -6,7 +6,7 @@ ENV KARAVAN="/karavan"
 # ENV JBANG_DIR="$KARAVAN/.jbang"
 ENV KAMELETS_DIR="$KARAVAN/kamelets"
 ENV CODE_DIR="$KARAVAN/code"
-# ENV CAMEL_DIR="$KARAVAN/camel"
+ENV CAMEL_DIR="$KARAVAN/camel"
 
 RUN mkdir -p $KARAVAN \
     # && mkdir -p $JBANG_REPO \
