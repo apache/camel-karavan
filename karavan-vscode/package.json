@@ -64,7 +64,7 @@
       "properties": {
         "camel.version": {
           "type": "string",
-          "default": "3.20.5",
+          "default": "3.20.6",
           "description": "Camel version",
           "scope": "machine",
           "order": 10
@@ -246,7 +246,7 @@
             "camel.karavan.project-description=$NAME",
             "camel.karavan.target=$TARGET",
             "camel.jbang.gav=$GAV",
-            "camel.jbang.camelSpringBootVersion=3.20.5",
+            "camel.jbang.camelSpringBootVersion=3.20.6",
             "camel.jbang.springBootVersion=2.7.11",
             "camel.jbang.runtime=$RUNTIME",
             "camel.jbang.exportDir=.export",

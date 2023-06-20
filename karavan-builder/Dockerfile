@@ -7,4 +7,4 @@ RUN jbang trust add -o --fresh --quiet https://github.com/apache/camel/blob/HEAD
 RUN apt-get update -y && apt-get install maven git -y && apt-get clean                              
 
 WORKDIR /scripts
-ENTRYPOINT ["entrypoint", "-Dcamel.jbang.version=3.20.5", "camel@apache/camel"]
+ENTRYPOINT ["entrypoint", "-Dcamel.jbang.version=3.20.6", "camel@apache/camel"]
