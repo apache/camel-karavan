@@ -27,10 +27,10 @@ public class ServiceUtil {
 
     public static final String APPLICATION_PROPERTIES_FILENAME = "application.properties";
     public static final Map<String, String> DEFAULT_CONTAINER_RESOURCES = Map.of(
-            "requests.memory", "64Mi",
-            "requests.cpu", "250m",
-            "limits.memory", "512Mi",
-            "limits.cpu", "1000m"
+            "requests.memory", "512Mi",
+            "requests.cpu", "500m",
+            "limits.memory", "2048Mi",
+            "limits.cpu", "2000m"
     );
 
 
