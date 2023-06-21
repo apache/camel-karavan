@@ -41,6 +41,7 @@ public final class Constants {
     public static final String ROLEBINDING_KARAVAN = "karavan";
     public static final String ROLEBINDING_KARAVAN_VIEW = "karavan-view";
     public static final String PVC_DATA = "karavan-data";
+    public static final String PVC_MAVEN_SETTINGS = "maven-settings";
     public static final String PVC_M2_CACHE = "karavan-m2-cache";
     public static final String PVC_JBANG_CACHE = "karavan-jbang-cache";
 

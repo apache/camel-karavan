@@ -61,6 +61,7 @@ public class KubernetesService implements HealthCheck{
     private static final String KARAVAN_PREFIX = "karavan";
     private static final String JBANG_CACHE_SUFFIX = "jbang-cache";
     private static final String M2_CACHE_SUFFIX = "m2-cache";
+    public static final String PVC_MAVEN_SETTINGS = "maven-settings";
 
     @Inject
     EventBus eventBus;
@@ -171,6 +172,9 @@ public class KubernetesService implements HealthCheck{
                 .withServiceAccountName("pipeline")
                 .withParams(new ParamBuilder().withName("PROJECT_ID").withNewValue(project.getProjectId()).build())
                 .withWorkspaces(
+                        new WorkspaceBindingBuilder().withName(PVC_MAVEN_SETTINGS)
+                                .withConfigMap(new ConfigMapVolumeSourceBuilder().withName("karavan")
+                                        .withItems(new KeyToPathBuilder().withKey("maven-settings").build()).build()).build(),
                         new WorkspaceBindingBuilder().withName(KARAVAN_PREFIX + "-" + M2_CACHE_SUFFIX)
                                 .withNewPersistentVolumeClaim(KARAVAN_PREFIX + "-" + M2_CACHE_SUFFIX, false).build(),
                         new WorkspaceBindingBuilder().withName(KARAVAN_PREFIX + "-" + JBANG_CACHE_SUFFIX)
