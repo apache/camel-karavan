@@ -14,7 +14,7 @@ fi
 
 cd ${CHECKOUT_DIR}/$(inputs.params.project)
 
-entrypoint -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR} --maven-settings=$MAVEN_SETTINGS
+entrypoint -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR}
 
 export LAST_COMMIT=$(git rev-parse --short HEAD)
 export DATE=$(date '+%Y%m%d%H%M%S')
@@ -25,4 +25,5 @@ mvn package package oc:build oc:push oc:resource oc:apply \
   -Popenshift \
   -Djkube.namespace=${NAMESPACE} \
   -Djkube.docker.push.registry=${IMAGE_REGISTRY} \
-  -Djkube.generator.name=${IMAGE_REGISTRY}/${NAMESPACE}/$(inputs.params.project):${DATE}
+  -Djkube.generator.name=${IMAGE_REGISTRY}/${NAMESPACE}/$(inputs.params.project):${DATE} \
+  --settings=$MAVEN_SETTINGS

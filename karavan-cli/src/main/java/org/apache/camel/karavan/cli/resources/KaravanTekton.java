@@ -69,7 +69,7 @@ public class KaravanTekton {
                                 .build()
                 )
                 .withWorkspaces(
-                        new WorkspaceDeclaration("Maven Settings", "/karavan/maven-settings.xml", Constants.PVC_MAVEN_SETTINGS, false, false),
+                        new WorkspaceDeclaration("Maven Settings", "/karavan-config-map", Constants.PVC_MAVEN_SETTINGS, false, false),
                         new WorkspaceDeclaration("Maven Cache", "/root/.m2", Constants.PVC_M2_CACHE, false, false),
                         new WorkspaceDeclaration("JBang Cache", "/jbang/.jbang/cache", Constants.PVC_JBANG_CACHE, false, false)
                 )

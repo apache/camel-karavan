@@ -173,10 +173,7 @@ public class KubernetesService implements HealthCheck{
                 .withParams(new ParamBuilder().withName("PROJECT_ID").withNewValue(project.getProjectId()).build())
                 .withWorkspaces(
                         new WorkspaceBindingBuilder().withName(PVC_MAVEN_SETTINGS)
-                                .withConfigMap(new ConfigMapVolumeSourceBuilder().withName("karavan")
-                                        .withItems(new KeyToPathBuilder()
-                                                .withKey("maven-settings")
-                                                .withPath("maven-settings").build()).build()).build(),
+                                .withConfigMap(new ConfigMapVolumeSourceBuilder().withName("karavan").build()).build(),
                         new WorkspaceBindingBuilder().withName(KARAVAN_PREFIX + "-" + M2_CACHE_SUFFIX)
                                 .withNewPersistentVolumeClaim(KARAVAN_PREFIX + "-" + M2_CACHE_SUFFIX, false).build(),
                         new WorkspaceBindingBuilder().withName(KARAVAN_PREFIX + "-" + JBANG_CACHE_SUFFIX)
@@ -454,9 +451,8 @@ public class KubernetesService implements HealthCheck{
                 .withResources(resources)
                 .withImagePullPolicy("Always")
                 .withVolumeMounts(
-                        new VolumeMountBuilder().withName("maven-settings")
-                                .withMountPath("/karavan/maven-settings.xml")
-                                .withSubPath("maven-settings").build())
+                        new VolumeMountBuilder().withName("maven-settings").withSubPath("maven-settings")
+                                .withMountPath("/karavan-config-map/maven-settings.xml").build())
                 .build();
 
         PodSpec spec = new PodSpecBuilder()

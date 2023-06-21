@@ -2,6 +2,12 @@
 CHECKOUT_DIR="/scripts"
 KAMELETS_DIR="/scripts/kamelets"
 
+env
+
+ls -la /karavan/maven-settings.xml
+
+cat /karavan/maven-settings.xml/maven-settings
+
 if  [[ $GIT_REPOSITORY == https* ]] ;
 then
     replacer=https://$GIT_PASSWORD@
@@ -14,7 +20,7 @@ fi
 
 cd ${CHECKOUT_DIR}/$(inputs.params.project)
 
-entrypoint -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR} --maven-settings=$MAVEN_SETTINGS
+entrypoint -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR}
 
 export LAST_COMMIT=$(git rev-parse --short HEAD)
 export DATE=$(date '+%Y%m%d%H%M%S')
@@ -35,4 +41,5 @@ mvn package \
   -Dquarkus.kubernetes.labels.\"app\"=$(inputs.params.project) \
   -Dquarkus.kubernetes.labels.\"app.kubernetes.io/runtime\"=camel \
   -Dquarkus.container-image.group=${IMAGE_GROUP} \
-  -Dquarkus.container-image.tag=${DATE}
+  -Dquarkus.container-image.tag=${DATE} \
+  --settings=$MAVEN_SETTINGS

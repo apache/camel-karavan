@@ -14,7 +14,7 @@ fi
 
 cd ${CHECKOUT_DIR}/$(inputs.params.project)
 
-entrypoint -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR} --maven-settings=$MAVEN_SETTINGS
+entrypoint -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR}
 
 export LAST_COMMIT=$(git rev-parse --short HEAD)
 export DATE=$(date '+%Y%m%d%H%M%S')
@@ -37,4 +37,5 @@ mvn package \
   -Dquarkus.openshift.labels.\"app\"=$(inputs.params.project) \
   -Dquarkus.openshift.labels.\"app.openshift.io/runtime\"=camel \
   -Dquarkus.container-image.group=${NAMESPACE} \
-  -Dquarkus.container-image.tag=${DATE}
+  -Dquarkus.container-image.tag=${DATE} \
+  --settings=$MAVEN_SETTINGS
