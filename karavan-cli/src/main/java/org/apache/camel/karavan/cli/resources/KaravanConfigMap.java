@@ -53,8 +53,7 @@ public class KaravanConfigMap {
                     .lines()
                     .map(s -> {
                         if (config.isNexusProxy() && s.contains(MAVEN_URL)) {
-                            String newMavenUrl = "<url>http://nexus." + config.getNamespace() + "/</url>";
-                            return s.replace(MAVEN_URL, newMavenUrl);
+                            return s.replace("namespace", config.getNamespace());
                         } else {
                             return s;
                         }

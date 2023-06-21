@@ -2,12 +2,6 @@
 CHECKOUT_DIR="/scripts"
 KAMELETS_DIR="/scripts/kamelets"
 
-env
-
-ls -la /karavan/maven-settings.xml
-
-cat /karavan/maven-settings.xml/maven-settings
-
 if  [[ $GIT_REPOSITORY == https* ]] ;
 then
     replacer=https://$GIT_PASSWORD@
