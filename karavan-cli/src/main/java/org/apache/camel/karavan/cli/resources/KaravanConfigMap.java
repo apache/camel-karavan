@@ -52,7 +52,7 @@ public class KaravanConfigMap {
             return new BufferedReader(new InputStreamReader(inputStream))
                     .lines()
                     .map(s -> {
-                        if (config.isNexusProxy() && s.contains("<url>http://nexus.karavan/</url>")) {
+                        if (config.isNexusProxy() && s.contains(MAVEN_URL)) {
                             String newMavenUrl = "<url>http://nexus." + config.getNamespace() + "/</url>";
                             return s.replace(MAVEN_URL, newMavenUrl);
                         } else {
