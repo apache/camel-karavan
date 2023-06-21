@@ -174,7 +174,9 @@ public class KubernetesService implements HealthCheck{
                 .withWorkspaces(
                         new WorkspaceBindingBuilder().withName(PVC_MAVEN_SETTINGS)
                                 .withConfigMap(new ConfigMapVolumeSourceBuilder().withName("karavan")
-                                        .withItems(new KeyToPathBuilder().withKey("maven-settings").build()).build()).build(),
+                                        .withItems(new KeyToPathBuilder()
+                                                .withKey("maven-settings")
+                                                .withPath("maven-settings").build()).build()).build(),
                         new WorkspaceBindingBuilder().withName(KARAVAN_PREFIX + "-" + M2_CACHE_SUFFIX)
                                 .withNewPersistentVolumeClaim(KARAVAN_PREFIX + "-" + M2_CACHE_SUFFIX, false).build(),
                         new WorkspaceBindingBuilder().withName(KARAVAN_PREFIX + "-" + JBANG_CACHE_SUFFIX)
