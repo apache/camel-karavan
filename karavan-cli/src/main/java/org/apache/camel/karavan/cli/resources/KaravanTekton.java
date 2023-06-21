@@ -48,6 +48,7 @@ public class KaravanTekton {
                         new StepBuilder().withName("karavan-build-deploy")
                                 .withScript(script)
                                 .withImage(buildImage + ":" + config.getVersion())
+                                .withImagePullPolicy("Always")
                                 .withEnv(
                                         new EnvVarBuilder().withName("GIT_REPOSITORY").withValueFrom(
                                                 new EnvVarSourceBuilder().withNewSecretKeyRef().withName("karavan").withKey("git-repository").and().build()).build(),
