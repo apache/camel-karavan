@@ -42,7 +42,7 @@ public class KaravanConfigMap {
                 .withNamespace(config.getNamespace())
                 .withLabels(ResourceUtils.getLabels(Constants.NAME, config.getVersion(), Map.of()))
                 .endMetadata()
-                .withData(Map.of("maven-settings", xml))
+                .withData(Map.of("maven-settings.xml", xml))
                 .build();
     }
 

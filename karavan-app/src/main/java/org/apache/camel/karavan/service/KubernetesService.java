@@ -451,7 +451,7 @@ public class KubernetesService implements HealthCheck{
                 .withResources(resources)
                 .withImagePullPolicy("Always")
                 .withVolumeMounts(
-                        new VolumeMountBuilder().withName("maven-settings").withSubPath("maven-settings")
+                        new VolumeMountBuilder().withName("maven-settings").withSubPath("maven-settings.xml")
                                 .withMountPath("/karavan-config-map/maven-settings.xml").build())
                 .build();
 
