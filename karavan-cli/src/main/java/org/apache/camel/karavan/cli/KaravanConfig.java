@@ -46,13 +46,14 @@ public class KaravanConfig {
     private String imageGroup;
     private String imageRegistryUsername;
     private String imageRegistryPassword;
+    private boolean nexusProxy;
 
     public KaravanConfig(String version, String namespace, String environment, String runtimes, String auth,
                          int nodePort, int instances, String baseImage, String baseBuilderImage, boolean isOpenShift,
                          Map<String, String> labels, String masterPassword, String oidcSecret, String oidcServerUrl,
                          String oidcFrontendUrl, String gitRepository, String gitUsername, String gitPassword,
                          String gitBranch, String gitPullInterval, String imageRegistry, String imageGroup,
-                         String imageRegistryUsername, String imageRegistryPassword) {
+                         String imageRegistryUsername, String imageRegistryPassword, boolean nexusProxy) {
         this.version = version;
         this.namespace = namespace;
         this.environment = environment;
@@ -77,6 +78,7 @@ public class KaravanConfig {
         this.imageGroup = imageGroup;
         this.imageRegistryUsername = imageRegistryUsername;
         this.imageRegistryPassword = imageRegistryPassword;
+        this.nexusProxy = nexusProxy;
     }
 
     public boolean gitConfigured() {
@@ -290,5 +292,13 @@ public class KaravanConfig {
 
     public void setImageGroup(String imageGroup) {
         this.imageGroup = imageGroup;
+    }
+
+    public boolean isNexusProxy() {
+        return nexusProxy;
+    }
+
+    public void setNexusProxy(boolean nexusProxy) {
+        this.nexusProxy = nexusProxy;
     }
 }

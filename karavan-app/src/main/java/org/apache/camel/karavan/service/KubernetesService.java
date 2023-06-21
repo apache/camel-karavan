@@ -391,7 +391,7 @@ public class KubernetesService implements HealthCheck{
             ProjectFile properties = infinispanService.getProjectFile(project.getProjectId(), APPLICATION_PROPERTIES_FILENAME);
             Map<String,String> containerResources = ServiceUtil
                     .getRunnerContainerResourcesMap(properties, isOpenshift(), project.getRuntime().equals("quarkus"));
-            Pod pod = getPod(project.getProjectId(), runnerName, containerResources);
+            Pod pod = getRunnerPod(project.getProjectId(), runnerName, containerResources);
             Pod result = kubernetesClient().resource(pod).createOrReplace();
             LOGGER.info("Created pod " + result.getMetadata().getName());
         }
@@ -421,7 +421,7 @@ public class KubernetesService implements HealthCheck{
                 .build();
     }
 
-    private Pod getPod(String projectId, String name, Map<String,String> containerResources) {
+    private Pod getRunnerPod(String projectId, String name, Map<String,String> containerResources) {
         Map<String,String> labels = new HashMap<>();
         labels.putAll(getRuntimeLabels());
         labels.putAll(getKaravanRunnerLabels(name));
@@ -448,7 +448,9 @@ public class KubernetesService implements HealthCheck{
                 .withResources(resources)
                 .withImagePullPolicy("Always")
                 .withVolumeMounts(
-                        new VolumeMountBuilder().withName(name).withMountPath("/karavan/.jbang/cache").build())
+                        new VolumeMountBuilder().withName("maven-settings")
+                                .withMountPath("/karavan/maven-settings.xml")
+                                .withSubPath("maven-settings").build())
                 .build();
 
         PodSpec spec = new PodSpecBuilder()
@@ -456,7 +458,9 @@ public class KubernetesService implements HealthCheck{
                 .withContainers(container)
                 .withRestartPolicy("Never")
                 .withVolumes(
-                        new VolumeBuilder().withName(name).withNewPersistentVolumeClaim(name, false).build())
+                        new VolumeBuilder().withName("maven-settings")
+                                .withConfigMap(new ConfigMapVolumeSourceBuilder()
+                                        .withName("maven-settings").build()).build())
                 .build();
 
         return new PodBuilder()

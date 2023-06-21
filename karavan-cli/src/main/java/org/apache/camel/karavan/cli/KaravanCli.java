@@ -65,6 +65,9 @@ public class KaravanCli implements Callable<Integer> {
     @CommandLine.Option(names = {"--image-registry-password"}, description = "Image registry password")
     private String imageRegistryPassword;
 
+    @CommandLine.Option(names = {"--nexus-proxy"}, description = "Deploy nexus proxy")
+    private boolean nexusProxy;
+
     @CommandLine.Option(names = { "-h", "--help" }, usageHelp = true, description = "Display help")
     private boolean helpRequested;
 
@@ -94,7 +97,8 @@ public class KaravanCli implements Callable<Integer> {
                 imageRegistry,
                 imageGroup,
                 imageRegistryUsername,
-                imageRegistryPassword
+                imageRegistryPassword,
+                nexusProxy
         );
         if (yaml) {
             Files.writeString(Path.of(file), ResourceUtils.generateResources(config));

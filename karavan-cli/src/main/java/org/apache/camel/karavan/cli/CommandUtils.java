@@ -87,7 +87,14 @@ public class CommandUtils {
             log("Karavan secrets found");
         }
 
-        // Create service accounts
+        // Create Nexus Proxy
+        if (config.isNexusProxy()) {
+            createOrReplace(Nexus.getDeployment(config), client);
+            createOrReplace(Nexus.getService(config), client);
+        }
+        // Create ConfigMap
+        createOrReplace(KaravanConfigMap.getConfigMap(config), client);
+        // Create Service Accounts
         createOrReplace(KaravanServiceAccount.getServiceAccount(config), client);
         createOrReplace(KaravanServiceAccount.getServiceAccountPipeline(config), client);
         // Create Roles and role bindings
