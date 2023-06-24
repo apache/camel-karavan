@@ -66,6 +66,7 @@ import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {ModalEditor} from "./ModalEditor";
 import {KaravanInstance} from "../../KaravanDesigner";
+import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 
 interface Props {
     property: PropertyMeta,
@@ -141,7 +142,7 @@ export class DslPropertyField extends React.Component<Props, State> {
         const newValue = this.state.arrayValues.get(fieldId);
         const property: PropertyMeta = this.props.property;
         let value = this.props.value;
-        if (property.isArray && property.type === 'string') {
+        if (newValue !== undefined && newValue.length > 0 && property.isArray && property.type === 'string') {
             if (value) (value as any).push(newValue)
             else value = [newValue];
         }
@@ -300,7 +301,8 @@ export class DslPropertyField extends React.Component<Props, State> {
                     autoResize
                     className="text-field" isRequired
                     type={"text"}
-                    id={property.name} name={property.name}
+                    id={property.name}
+                    name={property.name}
                     height={"100px"}
                     value={value?.toString()}
                     onChange={e => this.propertyChanged(property.name, e)}/>
@@ -402,6 +404,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                 onSelect={(e, value, isPlaceholder) => this.propertyChanged(property.name, (!isPlaceholder ? value : undefined))}
                 selections={value}
                 isOpen={this.isSelectOpen(property.name)}
+                id={property.name}
                 aria-labelledby={property.name}
                 direction={SelectDirection.down}
             >
@@ -599,14 +602,13 @@ export class DslPropertyField extends React.Component<Props, State> {
         return (
             <div className="parameters">
                 {properties.map(kp => {
-                    // console.log(kp);
-                    // console.log(CamelDefinitionApiExt.getParametersValue(this.props.element, kp.name, kp.kind === 'path'));
+                    const value = CamelDefinitionApiExt.getParametersValue(this.props.element, kp.name, kp.kind === 'path');
                     return (<ComponentParameterField
                         key={kp.name}
                         property={kp}
                         element={this.props.element}
                         integration={this.props.integration}
-                        value={CamelDefinitionApiExt.getParametersValue(this.props.element, kp.name, kp.kind === 'path')}
+                        value={value}
                         onParameterChange={this.props.onParameterChange}
                     />)
                 })}
@@ -697,7 +699,6 @@ export class DslPropertyField extends React.Component<Props, State> {
                 <FormGroup
                     label={this.props.hideLabel ? undefined : this.getLabel(property, value)}
                     isRequired={property.required}
-                    fieldId={property.name}
                     labelIcon={this.getLabelIcon(property)}>
                     {value && ["ExpressionDefinition", "ExpressionSubElementDefinition"].includes(property.type)
                         && this.getExpressionField(property, value)}

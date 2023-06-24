@@ -89,17 +89,12 @@ export class DslProperties extends React.Component<Props, State> {
 
     parametersChanged = (parameter: string, value: string | number | boolean | any, pathParameter?: boolean, newRoute?: RouteToCreate) => {
         if (this.state.step && this.state.step) {
-            if (pathParameter) {
-                const uri = ComponentApi.buildComponentUri((this.state.step as any).uri, parameter, value);
-                this.propertyChanged("uri", uri, newRoute);
-            } else {
-                const clone = (CamelUtil.cloneStep(this.state.step));
-                const parameters: any = {...(clone as any).parameters};
-                parameters[parameter] = value;
-                (clone as any).parameters = parameters;
-                this.setStep(clone);
-                this.props.onPropertyUpdate?.call(this, clone);
-            }
+            const clone = (CamelUtil.cloneStep(this.state.step));
+            const parameters: any = {...(clone as any).parameters};
+            parameters[parameter] = value;
+            (clone as any).parameters = parameters;
+            this.setStep(clone);
+            this.props.onPropertyUpdate?.call(this, clone);
         }
     }
 
