@@ -111,9 +111,11 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
                 if (isAttributeRefArray(aValue) && aName.equals("steps") && ! className.equals("ChoiceDefinition") && ! className.equals("SwitchDefinition") && ! className.equals("KameletDefinition")) {
                     attrs.put(aName, "        def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);\n");
                 } else if (isAttributeRefArray(aValue) && !aName.equals("steps")) {
-                    String code = String.format(
-                            "        def.%1$s = element && element?.%1$s ? element?.%1$s.map((x:any) => CamelDefinitionYamlStep.read%2$s(x)) :[]; \n"
-                            , aName, getAttributeArrayClass(aValue));
+                    String format = Arrays.asList("intercept", "interceptFrom", "interceptSendToEndpoint", "onCompletion", "onException").contains(aName)
+                            ? "        def.%1$s = element && element?.%1$s ? element?.%1$s.map((x:any) => CamelDefinitionYamlStep.read%2$s(x.%1$s)) :[]; \n"
+                            : "        def.%1$s = element && element?.%1$s ? element?.%1$s.map((x:any) => CamelDefinitionYamlStep.read%2$s(x)) :[]; \n";
+
+                    String code = String.format(format, aName, getAttributeArrayClass(aValue));
                     attrs.put(aName, code);
                 } else if (isAttributeRef(aValue) && getAttributeClass(aValue).equals("ExpressionDefinition")) { // Expressions implicits
                     String code = String.format(

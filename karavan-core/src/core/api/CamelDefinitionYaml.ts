@@ -112,20 +112,19 @@ export class CamelDefinitionYaml {
             let newValue: any = JSON.parse(JSON.stringify(value));
             delete newValue.dslName;
             delete newValue[stepNameField];
-            // if ((value.inArray && !value.inSteps
-            //     && ["intercept",
-            //         "interceptFrom",
-            //         "interceptSendToEndpoint",
-            //         "onCompletion",
-            //         "onException"]
-            //         .includes(stepName))) {
-            //     delete newValue.inArray;
-            //     delete newValue.inSteps;
-            //     const xValue: any = {};
-            //     xValue[stepName] = newValue;
-            //     return xValue;
-            // } else
-            if ((value.inArray && !value.inSteps)
+            if ((value.inArray && !value.inSteps
+                && ["intercept",
+                    "interceptFrom",
+                    "interceptSendToEndpoint",
+                    "onCompletion",
+                    "onException"]
+                    .includes(stepName))) {
+                delete newValue.inArray;
+                delete newValue.inSteps;
+                const xValue: any = {};
+                xValue[stepName] = newValue;
+                return xValue;
+            } else if ((value.inArray && !value.inSteps)
                 || dslName === 'ExpressionSubElementDefinition'
                 || dslName === 'ExpressionDefinition'
                 || dslName?.endsWith('Expression')
@@ -134,7 +133,6 @@ export class CamelDefinitionYaml {
                 || stepName === 'resilience4jConfiguration'
                 || stepName === 'faultToleranceConfiguration'
                 || stepName === 'errorHandler'
-                || stepName === 'onException'
                 || stepName === 'deadLetterChannel'
                 || stepName === 'defaultErrorHandler'
                 || stepName === 'jtaTransactionErrorHandler'
@@ -207,6 +205,12 @@ export class CamelDefinitionYaml {
             .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(new RouteConfigurationDefinition({onException: f.onException}))));
         flows.filter((e: any) => e.hasOwnProperty('intercept'))
             .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(new RouteConfigurationDefinition({intercept: f.intercept}))));
+        flows.filter((e: any) => e.hasOwnProperty('interceptFrom'))
+            .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(new RouteConfigurationDefinition({interceptFrom: f.interceptFrom}))));
+        flows.filter((e: any) => e.hasOwnProperty('interceptSendToEndpoint'))
+            .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(new RouteConfigurationDefinition({interceptSendToEndpoint: f.interceptSendToEndpoint}))));
+        flows.filter((e: any) => e.hasOwnProperty('onCompletion'))
+            .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(new RouteConfigurationDefinition({onCompletion: f.onCompletion}))));
         return result;
     }
 
