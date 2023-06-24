@@ -59,6 +59,7 @@ interface State {
     showKubernetesSelector: boolean
     kubernetesSelectorProperty?: string
     ref: any
+    id: string
 }
 
 export class ComponentParameterField extends React.Component<Props, State> {
@@ -69,6 +70,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
         showPassword: false,
         showKubernetesSelector: false,
         ref: React.createRef(),
+        id: prefix + "-" + this.props.property.name
     }
 
     parametersChanged = (parameter: string, value: string | number | boolean | any, pathParameter?: boolean, newRoute?: RouteToCreate) => {
@@ -93,6 +95,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
         }
         return (
             <Select
+                id={this.state.id} name={this.state.id}
                 variant={SelectVariant.single}
                 aria-label={property.name}
                 onToggle={isExpanded => {
@@ -142,8 +145,9 @@ export class ComponentParameterField extends React.Component<Props, State> {
             selectOptions.push(...uris.map((value: string) =>
                 <SelectOption key={value} value={value.trim()}/>));
         }
-        return <InputGroup>
+        return <InputGroup id={this.state.id} name={this.state.id}>
             <Select
+                id={this.state.id} name={this.state.id}
                 placeholderText="Select or type an URI"
                 variant={SelectVariant.typeahead}
                 aria-label={property.name}
@@ -212,7 +216,6 @@ export class ComponentParameterField extends React.Component<Props, State> {
     getStringInput(property: ComponentProperty, value: any) {
         const {showEditor, showPassword} = this.state;
         const inKubernetes = KubernetesAPI.inKubernetes;
-        const id = prefix + "-" + property.name;
         const noKubeSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
         return <InputGroup>
             {inKubernetes && !showEditor && !noKubeSelectorButton &&
@@ -224,14 +227,14 @@ export class ComponentParameterField extends React.Component<Props, State> {
             {(!showEditor || property.secret) &&
                 <TextInput className="text-field" isRequired ref={this.state.ref}
                            type={property.secret && !showPassword ? "password" : "text"}
-                           id={id} name={id}
+                           id={this.state.id} name={this.state.id}
                            value={value !== undefined ? value : property.defaultValue}
                            onChange={e => this.parametersChanged(property.name, e, property.kind === 'path')}/>}
             {showEditor && !property.secret &&
                 <TextArea autoResize={true} ref={this.state.ref}
                           className="text-field" isRequired
                           type="text"
-                          id={id} name={id}
+                          id={this.state.id} name={this.state.id}
                           value={value !== undefined ? value : property.defaultValue}
                           onChange={e => this.parametersChanged(property.name, e, property.kind === 'path')}/>}
             {!property.secret &&
@@ -252,12 +255,11 @@ export class ComponentParameterField extends React.Component<Props, State> {
     }
 
     getTextInput = (property: ComponentProperty, value: any) => {
-        const id = prefix + "-" + property.name;
         return (
             <TextInput
                 className="text-field" isRequired
                 type={['integer', 'int', 'number'].includes(property.type) ? 'number' : (property.secret ? "password" : "text")}
-                id={id} name={id}
+                id={this.state.id} name={this.state.id}
                 value={value !== undefined ? value : property.defaultValue}
                 onChange={e => this.parametersChanged(property.name, ['integer', 'int', 'number'].includes(property.type) ? Number(e) : e, property.kind === 'path')}/>
         )
@@ -271,6 +273,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
         }
         return (
             <Select
+                id={this.state.id} name={this.state.id}
                 variant={SelectVariant.single}
                 aria-label={property.name}
                 onToggle={isExpanded => {
@@ -288,12 +291,11 @@ export class ComponentParameterField extends React.Component<Props, State> {
     }
 
     getSwitch = (property: ComponentProperty, value: any) => {
-        const id = prefix + "-" + property.name;
         return (
             <Switch
-                id={id} name={id}
+                id={this.state.id} name={this.state.id}
                 value={value?.toString()}
-                aria-label={id}
+                aria-label={this.state.id}
                 isChecked={value !== undefined ? Boolean(value) : property.defaultValue !== undefined && property.defaultValue === 'true'}
                 onChange={e => this.parametersChanged(property.name, !Boolean(value))}/>
         )
@@ -302,12 +304,11 @@ export class ComponentParameterField extends React.Component<Props, State> {
     render() {
         const property: ComponentProperty = this.props.property;
         const value = this.props.value;
-        const id = prefix + "-" + property.name;
+        const id = this.state.id;
         return (
             <FormGroup
                 key={id}
                 label={property.displayName}
-                fieldId={id}
                 isRequired={property.required}
                 labelIcon={
                     <Popover
