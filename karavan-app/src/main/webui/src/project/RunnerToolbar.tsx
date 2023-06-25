@@ -1,17 +1,16 @@
 import React, {useEffect, useState} from 'react';
 import {
-    Button, Label, Switch, Tab, Tabs,
+    Button,
     Tooltip,
     TooltipPosition
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {Project} from "./ProjectModels";
 import RocketIcon from "@patternfly/react-icons/dist/esm/icons/rocket-icon";
 import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
-import TraceIcon from "@patternfly/react-icons/dist/esm/icons/list-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
 import {KaravanApi} from "../api/KaravanApi";
-import {ProjectEventBus} from "./ProjectEventBus";
+import {Project} from "../api/ProjectModels";
+import {ProjectEventBus} from "../api/ProjectEventBus";
 
 
 interface Props {
@@ -28,7 +27,6 @@ export const RunnerToolbar = (props: Props) => {
     const [isRunning, setIsRunning] = useState(false);
     const [isDeletingPod, setIsDeletingPod] = useState(false);
     const [isReloadingPod, setIsReloadingPod] = useState(false);
-    const [isShowingTrace, setIsShowingTrace] = useState(false);
 
     useEffect(() => {
         const sub1 = ProjectEventBus.onCurrentRunner()?.subscribe((result) => {
@@ -80,11 +78,6 @@ export const RunnerToolbar = (props: Props) => {
         });
     }
 
-    function showTrace() {
-        ProjectEventBus.showTrace(props.project.projectId, !isShowingTrace);
-        setIsShowingTrace((prevState) => !prevState);
-    }
-
     return (
             <div className="runner-toolbar">
                 {!props.showConsole && !props.reloadOnly  &&
@@ -124,17 +117,6 @@ export const RunnerToolbar = (props: Props) => {
                                     icon={!isReloadingPod ? <ReloadIcon/> : <div></div>}
                                     onClick={() => reloadRunner()}>
                                 {isReloadingPod ? "..." : "Reload"}
-                            </Button>
-                        </Tooltip>
-                    </div>
-                    <div className="row">
-                        <Tooltip content={isShowingTrace ? "Show runtime" : "Show trace"} position={TooltipPosition.left}>
-                            <Button isSmall
-                                    variant={"secondary"}
-                                    className="project-button"
-                                    icon={ <TraceIcon/>}
-                                    onClick={() => showTrace()}>
-                                {isShowingTrace ? "Runtime" : "Trace"}
                             </Button>
                         </Tooltip>
                     </div>

@@ -1,19 +1,9 @@
 import React from 'react';
-import {
-    Badge, Bullseye, Button, EmptyState, EmptyStateIcon, EmptyStateVariant, Flex, FlexItem,
-    Gallery, OverflowMenu, OverflowMenuContent, OverflowMenuGroup, OverflowMenuItem,
-    PageSection, Tab, Tabs, TabTitleText, Text, TextContent, TextInput, Title, Toolbar, ToolbarContent, ToolbarItem, Tooltip
+import {Button, PageSection, Tab, Tabs, TabTitleText, Text, TextContent, Toolbar, ToolbarContent, ToolbarItem
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {MainToolbar} from "../MainToolbar";
-import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
-import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
-import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
+import {MainToolbar} from "../common/MainToolbar";
 import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
-import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
-import {KaravanApi} from "../api/KaravanApi";
-import {DeploymentStatus, Project} from "../projects/ProjectModels";
 
 interface Props {
 }

@@ -8,14 +8,14 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
-import {DeploymentStatus, Project, PipelineStatus, CamelStatus, PodStatus} from "./ProjectModels";
 import BuildIcon from "@patternfly/react-icons/dist/esm/icons/build-icon";
 import RolloutIcon from "@patternfly/react-icons/dist/esm/icons/process-automation-icon";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import ClockIcon from "@patternfly/react-icons/dist/esm/icons/clock-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
-import {ProjectEventBus} from "./ProjectEventBus";
+import {CamelStatus, DeploymentStatus, PipelineStatus, PodStatus, Project} from "../api/ProjectModels";
+import {ProjectEventBus} from "../api/ProjectEventBus";
 
 interface Props {
     project: Project,

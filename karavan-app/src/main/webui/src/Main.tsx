@@ -20,8 +20,6 @@ import Icon from "./Logo";
 import {ComponentsPage} from "./components/ComponentsPage";
 import {EipPage} from "./eip/EipPage";
 import {ProjectsPage} from "./projects/ProjectsPage";
-import {Project} from "./projects/ProjectModels";
-import {ProjectPage} from "./projects/ProjectPage";
 import UserIcon from "@patternfly/react-icons/dist/js/icons/user-icon";
 import ProjectsIcon from "@patternfly/react-icons/dist/js/icons/repository-icon";
 import KameletsIcon from "@patternfly/react-icons/dist/js/icons/registry-icon";
@@ -31,7 +29,9 @@ import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
 import {MainLogin} from "./MainLogin";
 import {DashboardPage} from "./dashboard/DashboardPage";
 import {Subscription} from "rxjs";
-import {ProjectEventBus} from "./projects/ProjectEventBus";
+import {ProjectEventBus} from "./api/ProjectEventBus";
+import {Project} from "./api/ProjectModels";
+import {ProjectPage} from "./project/ProjectPage";
 
 class ToastMessage {
     id: string = ''

@@ -3,39 +3,36 @@ import {
     Badge,
     Breadcrumb,
     BreadcrumbItem,
-    Button,
     PageSection,
     Text,
     TextContent,
-    ModalVariant,
-    Modal,
     Flex,
     FlexItem,
     CodeBlockCode,
     CodeBlock, Skeleton, Tabs, Tab
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {MainToolbar} from "../MainToolbar";
 import {KaravanApi} from "../api/KaravanApi";
-import {getProjectFileType, Project, ProjectFile, ProjectFileTypes} from "./ProjectModels";
 import {KaravanDesigner} from "../designer/KaravanDesigner";
 import FileSaver from "file-saver";
 import Editor from "@monaco-editor/react";
-import {CreateFileModal} from "./modal/CreateFileModal";
 import {PropertiesEditor} from "./PropertiesEditor";
 import {ProjectModel, ProjectProperty} from "karavan-core/lib/model/ProjectModel";
 import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
-import {ProjectPipelineTab} from "./tabs/ProjectPipelineTab";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import {ProjectToolbar} from "./toolbar/ProjectToolbar";
-import {ProjectFilesTab} from "./tabs/ProjectFilesTab";
+import {ProjectToolbar} from "./ProjectToolbar";
+import {FilesTab} from "./files/FilesTab";
 import {EventBus} from "../designer/utils/EventBus";
 import {ProjectLog} from "./ProjectLog";
-import {ProjectLogic} from "./ProjectLogic";
-import {useProjectStore} from "./ProjectStore";
-import {DeleteFileModal} from "./modal/DeleteFileModal";
-import {DashboardTab} from "./tabs/DashboardTab";
-import {TraceTab} from "./tabs/TraceTab";
+import {getProjectFileType, ProjectFile, ProjectFileTypes} from "../api/ProjectModels";
+import {useProjectStore} from "../api/ProjectStore";
+import {ProjectService} from "../api/ProjectService";
+import {DashboardTab} from "./dashboard/DashboardTab";
+import {TraceTab} from "./trace/TraceTab";
+import {ProjectPipelineTab} from "./pipeline/ProjectPipelineTab";
+import {MainToolbar} from "../common/MainToolbar";
+import {CreateFileModal} from "./CreateFileModal";
+import {DeleteFileModal} from "./DeleteFileModal";
 
 interface Props {
     config: any,
@@ -75,7 +72,7 @@ export const ProjectPage = (props: Props) => {
     }
 
     function onRefresh () {
-        ProjectLogic.refreshProjectData(environment);
+        ProjectService.refreshProjectData(environment);
     }
 
     function post (file: ProjectFile)  {
@@ -339,10 +336,10 @@ export const ProjectPage = (props: Props) => {
         const buildIn = isBuildIn();
         return (
             <FlexItem>
-                {buildIn && tab === 'files' && <ProjectFilesTab/>}
+                {buildIn && tab === 'files' && <FilesTab/>}
                 {!buildIn &&
                     <>
-                        {tab === 'files' && <ProjectFilesTab/>}
+                        {tab === 'files' && <FilesTab/>}
                         {tab === 'dashboard' && project && <DashboardTab config={props.config}/>}
                         {tab === 'trace' && project && <TraceTab config={props.config}/>}
                         {tab === 'pipeline' && <ProjectPipelineTab project={project}
@@ -377,7 +374,7 @@ export const ProjectPage = (props: Props) => {
     return (
         <PageSection key={key} className="kamelet-section project-page" padding={{default: 'noPadding'}}>
             <PageSection className="tools-section" padding={{default: 'noPadding'}}>
-                <MainToolbar title={title()} tools={tools()} file={file}/>
+                <MainToolbar title={title()} tools={tools()}/>
             </PageSection>
             {file === undefined && getProjectPanel()}
             {/*{file !== undefined && getFilePanel()}*/}

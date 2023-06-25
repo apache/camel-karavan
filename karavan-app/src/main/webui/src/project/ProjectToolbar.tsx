@@ -19,19 +19,19 @@ import {
     Tooltip,
     TooltipPosition
 } from '@patternfly/react-core';
-import '../../designer/karavan.css';
-import {Project, ProjectFile} from "../ProjectModels";
+import '../designer/karavan.css';
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
-import {KaravanApi} from "../../api/KaravanApi";
+import {KaravanApi} from "../api/KaravanApi";
 import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
-import {RunnerToolbar} from "../RunnerToolbar";
-import {ProjectEventBus} from "../ProjectEventBus";
-import {useFileStore, useProjectStore} from "../ProjectStore";
+import {RunnerToolbar} from "./RunnerToolbar";
+import {Project, ProjectFile} from "../api/ProjectModels";
+import {ProjectEventBus} from "../api/ProjectEventBus";
+import {useFileStore} from "../api/ProjectStore";
 
 interface Props {
     project: Project,
@@ -57,15 +57,62 @@ export const ProjectToolbar = (props: Props) => {
     const [commitMessageIsOpen, setCommitMessageIsOpen] = useState(false);
     const [commitMessage, setCommitMessage] = useState('');
     const [currentRunner, setCurrentRunner] = useState('');
+    const [podName, setPodName] = useState(props.project.projectId + '-runner');
+    const [isJbangRunning, setJbangIsRunning] = useState(false);
+    const [isRunning, setIsRunning] = useState(false);
+    const [isDeletingPod, setIsDeletingPod] = useState(false);
+    const [isReloadingPod, setIsReloadingPod] = useState(false);
 
     useEffect(() => {
         const sub1 = ProjectEventBus.onCurrentRunner()?.subscribe((result) => {
             setCurrentRunner(result || '');
+            setJbangIsRunning(result === props.project.name);
         });
         return () => {
             sub1.unsubscribe();
         };
     });
+
+    function jbangRun() {
+        setJbangIsRunning(true);
+        KaravanApi.runProject(props.project, res => {
+            if (res.status === 200 || res.status === 201) {
+                ProjectEventBus.setCurrentRunner(props.project.name);
+                setJbangIsRunning(false);
+                setPodName(res.data);
+                ProjectEventBus.showLog('container', res.data, props.config.environment)
+            } else {
+                // Todo notification
+                setJbangIsRunning(false);
+                ProjectEventBus.setCurrentRunner(undefined);
+            }
+        });
+    }
+
+    function reloadRunner() {
+        setIsReloadingPod(true);
+        KaravanApi.getRunnerReload(props.project.projectId, res => {
+            if (res.status === 200 || res.status === 201) {
+                setIsReloadingPod(false);
+            } else {
+                // Todo notification
+                setIsReloadingPod(false);
+            }
+        });
+    }
+
+    function deleteRunner() {
+        ProjectEventBus.setCurrentRunner(undefined);
+        setIsDeletingPod(true);
+        KaravanApi.deleteRunner(podName, false, res => {
+            if (res.status === 202) {
+                setIsDeletingPod(false);
+            } else {
+                // Todo notification
+                setIsDeletingPod(false);
+            }
+        });
+    }
 
     function push () {
         setIsPushing(true);

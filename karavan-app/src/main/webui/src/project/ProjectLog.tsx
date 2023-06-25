@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Checkbox, Label, PageSection, Text, Tooltip, TooltipPosition} from '@patternfly/react-core';
+import {Button, Checkbox, Label, PageSection, Tooltip, TooltipPosition} from '@patternfly/react-core';
 import '../designer/karavan.css';
 import CloseIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
 import ExpandIcon from '@patternfly/react-icons/dist/esm/icons/expand-icon';
@@ -8,7 +8,7 @@ import CollapseIcon from '@patternfly/react-icons/dist/esm/icons/compress-icon';
 import CleanIcon from '@patternfly/react-icons/dist/esm/icons/trash-alt-icon';
 import {LogViewer} from '@patternfly/react-log-viewer';
 import {Subscription} from "rxjs";
-import {ProjectEventBus, ShowLogCommand} from "./ProjectEventBus";
+import {ProjectEventBus, ShowLogCommand} from "../api/ProjectEventBus";
 
 const INITIAL_LOG_HEIGHT = "50%";
 

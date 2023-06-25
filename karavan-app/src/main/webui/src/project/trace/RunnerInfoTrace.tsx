@@ -9,11 +9,9 @@ import {
     PanelHeader,
     Text,
     Switch, TextContent, TextVariants, Title,
-    Tooltip,
-    TooltipPosition
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {ProjectEventBus} from "../ProjectEventBus";
+import {ProjectEventBus} from "../../api/ProjectEventBus";
 import {RunnerInfoTraceModal} from "./RunnerInfoTraceModal";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";

@@ -7,13 +7,13 @@ import {
     Form,
     ToggleGroupItem, ToggleGroup, FormHelperText, HelperText, HelperTextItem, TextInput
 } from '@patternfly/react-core';
-import '../../designer/karavan.css';
-import {ProjectFile, ProjectFileTypes} from "../ProjectModels";
-import {CamelUi} from "../../designer/utils/CamelUi";
+import '../designer/karavan.css';
 import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import {useFileStore, useProjectStore} from "../ProjectStore";
-import {ProjectLogic} from "../ProjectLogic";
+import {useFileStore, useProjectStore} from "../api/ProjectStore";
+import {ProjectFile, ProjectFileTypes} from "../api/ProjectModels";
+import {CamelUi} from "../designer/utils/CamelUi";
+import {ProjectService} from "../api/ProjectService";
 
 interface Props {
     types: string[]
@@ -44,7 +44,7 @@ export const CreateFileModal = (props: Props) => {
             : '';
         if (filename && extension) {
             const file = new ProjectFile(filename + '.' + extension, project.projectId, code, Date.now());
-            ProjectLogic.createFile(file);
+            ProjectService.createFile(file);
             useFileStore.setState({operation: "none"});
             cleanValues();
         }

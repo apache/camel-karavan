@@ -6,7 +6,7 @@ import {
     PodStatus,
     Project,
     ProjectFile, ServiceStatus
-} from "../projects/ProjectModels";
+} from "./ProjectModels";
 import {Buffer} from 'buffer';
 import {SsoApi} from "./SsoApi";
 

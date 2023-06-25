@@ -3,10 +3,10 @@ import {
     PageSection,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {ProjectFile} from "./ProjectModels";
 import {PropertiesTable} from "./PropertiesTable";
 import {ProjectModel} from "karavan-core/lib/model/ProjectModel";
 import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
+import {ProjectFile} from "../api/ProjectModels";
 
 interface Props {
     file: ProjectFile,

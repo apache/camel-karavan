@@ -1,8 +1,8 @@
 import React from 'react';
 import '../../designer/karavan.css';
-import {Project} from "../ProjectModels";
 import {ProjectStatus} from "../ProjectStatus";
 import {PageSection} from "@patternfly/react-core";
+import {Project} from "../../api/ProjectModels";
 
 
 interface Props {

@@ -1,10 +1,10 @@
-import {KaravanApi} from "../api/KaravanApi";
+import {KaravanApi} from "./KaravanApi";
 import {DeploymentStatus, Project, ProjectFile} from "./ProjectModels";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {KubernetesAPI} from "../designer/utils/KubernetesAPI";
 import {useDeploymentStatusesStore, useFilesStore, useProjectsStore, useProjectStore} from "./ProjectStore";
 
-export class ProjectLogic {
+export class ProjectService {
 
     public static refreshProjects() {
         KaravanApi.getProjects((projects: Project[]) => {
@@ -22,7 +22,7 @@ export class ProjectLogic {
         KaravanApi.deleteProject(project, res => {
             if (res.status === 204) {
                 // this.props.toast?.call(this, "Success", "Project deleted", "success");
-                ProjectLogic.refreshProjectData();
+                ProjectService.refreshProjectData();
             } else {
                 // this.props.toast?.call(this, "Error", res.statusText, "danger");
             }
@@ -33,7 +33,7 @@ export class ProjectLogic {
         KaravanApi.postProject(project, res => {
             console.log(res.status)
             if (res.status === 200 || res.status === 201) {
-                ProjectLogic.refreshProjectData();
+                ProjectService.refreshProjectData();
                 // this.props.toast?.call(this, "Success", "Project created", "success");
             } else {
                 // this.props.toast?.call(this, "Error", res.status + ", " + res.statusText, "danger");
@@ -45,7 +45,7 @@ export class ProjectLogic {
         KaravanApi.postProjectFile(file, res => {
             if (res.status === 200) {
                 // console.log(res) //TODO show notification
-                ProjectLogic.refreshProjectData();
+                ProjectService.refreshProjectData();
             } else {
                 // console.log(res) //TODO show notification
             }
@@ -55,7 +55,7 @@ export class ProjectLogic {
     public static deleteFile(file: ProjectFile) {
         KaravanApi.deleteProjectFile(file, res => {
             if (res.status === 204) {
-                ProjectLogic.refreshProjectData();
+                ProjectService.refreshProjectData();
             } else {
             }
         });

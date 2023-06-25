@@ -1,45 +1,17 @@
 import React from 'react';
 import {
-    Toolbar,
-    ToolbarContent,
-    ToolbarItem,
-    TextInput,
-    PageSection,
-    TextContent,
-    Text,
     Button,
-    Modal,
-    FormGroup,
-    ModalVariant,
-    Form,
     Badge,
     Tooltip,
-    Bullseye,
-    EmptyState,
-    EmptyStateVariant,
-    EmptyStateIcon,
-    Title,
-    OverflowMenu,
-    OverflowMenuContent,
-    OverflowMenuGroup,
-    OverflowMenuItem,
-    Flex, FlexItem, Radio, Spinner
+    Flex, FlexItem
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {MainToolbar} from "../MainToolbar";
-import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
-import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
-import {DeploymentStatus, Project} from "./ProjectModels";
-import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import { Td, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
-import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";
-import {CamelUi} from "../designer/utils/CamelUi";
-import {KaravanApi} from "../api/KaravanApi";
-import {QuarkusIcon, SpringIcon} from "../designer/utils/KaravanIcons";
-import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {ProjectEventBus} from "./ProjectEventBus";
-import {useDeploymentStatusesStore, useProjectsStore, useProjectStore} from "./ProjectStore";
+import {DeploymentStatus, Project} from '../api/ProjectModels';
+import {useDeploymentStatusesStore, useProjectStore} from "../api/ProjectStore";
+import {ProjectEventBus} from "../api/ProjectEventBus";
 
 interface Props {
     config: any,

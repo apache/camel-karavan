@@ -4,8 +4,8 @@ import {
     Button, Modal, FormGroup, ModalVariant, Switch, Form, FileUpload, Radio
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {KaravanApi} from "../api/KaravanApi";
-import {ProjectFile} from "./ProjectModels";
+import {ProjectFile} from "../../api/ProjectModels";
+import {KaravanApi} from "../../api/KaravanApi";
 
 interface Props {
     projectId: string,

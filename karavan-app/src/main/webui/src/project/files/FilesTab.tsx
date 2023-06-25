@@ -6,17 +6,17 @@ import {
     EmptyState,
     EmptyStateVariant,
     EmptyStateIcon,
-    Title, PageSection,
+    Title, PageSection, PanelHeader, Flex, FlexItem, Panel,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {getProjectFileType} from "../ProjectModels";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
-import {useFilesStore, useFileStore, useProjectStore} from "../ProjectStore";
+import {useFilesStore, useFileStore} from "../../api/ProjectStore";
+import {getProjectFileType} from "../../api/ProjectModels";
 
 
-export const ProjectFilesTab = () => {
+export const FilesTab = () => {
 
     const {files} = useFilesStore();
 
@@ -30,6 +30,18 @@ export const ProjectFilesTab = () => {
     }
     return (
         <PageSection className="project-bottom" padding={{default: "padding"}}>
+            <Panel>
+                <PanelHeader>
+                    <Flex direction={{default: "row"}} justifyContent={{default:"justifyContentFlexEnd"}}>
+                        <FlexItem>
+
+                        </FlexItem>
+                        <FlexItem>
+
+                        </FlexItem>
+                    </Flex>
+                </PanelHeader>
+            </Panel>
             <TableComposable aria-label="Files" variant={"compact"} className={"table"}>
                 <Thead>
                     <Tr>

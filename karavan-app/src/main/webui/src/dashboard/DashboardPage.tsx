@@ -13,8 +13,7 @@ import {
     ToolbarItem, Tooltip
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {MainToolbar} from "../MainToolbar";
-import {CamelStatus, DeploymentStatus, Project, ServiceStatus} from "../projects/ProjectModels";
+import {CamelStatus, DeploymentStatus, Project, ServiceStatus} from "../api/ProjectModels";
 import {TableComposable, TableVariant, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import {camelIcon, CamelUi} from "../designer/utils/CamelUi";
 import {KaravanApi} from "../api/KaravanApi";
@@ -23,6 +22,7 @@ import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
+import {MainToolbar} from "../common/MainToolbar";
 
 interface Props {
     config: any,

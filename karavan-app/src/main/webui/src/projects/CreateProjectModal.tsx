@@ -1,17 +1,16 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
     Button, Form, FormGroup,
     Modal,
     ModalVariant, Radio, TextInput,
 } from '@patternfly/react-core';
-import '../../designer/karavan.css';
-import {useProjectStore} from "../ProjectStore";
-import {ProjectLogic} from "../ProjectLogic";
-import {QuarkusIcon, SpringIcon} from "../../designer/utils/KaravanIcons";
+import '../designer/karavan.css';
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {CamelUi} from "../../designer/utils/CamelUi";
-import {Project} from "../ProjectModels";
-import {ProjectEventBus} from "../ProjectEventBus";
+import {useProjectStore} from "../api/ProjectStore";
+import {ProjectService} from "../api/ProjectService";
+import {Project} from "../api/ProjectModels";
+import {QuarkusIcon, SpringIcon} from "../designer/utils/KaravanIcons";
+import {CamelUi} from "../designer/utils/CamelUi";
 
 interface Props {
     config: any,
@@ -38,7 +37,7 @@ export const CreateProjectModal = (props: Props) => {
     }
 
     function confirmAndCloseModal () {
-        ProjectLogic.createProject(new Project({name: name, description: description, runtime: runtime, projectId: projectId}));
+        ProjectService.createProject(new Project({name: name, description: description, runtime: runtime, projectId: projectId}));
         useProjectStore.setState({operation: "none"});
         cleanValues();
     }

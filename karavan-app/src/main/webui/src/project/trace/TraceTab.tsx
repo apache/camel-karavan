@@ -1,14 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {
-    Card,
-    CardBody, PageSection
+import { PageSection
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {PodStatus} from "../ProjectModels";
+import {PodStatus} from "../../api/ProjectModels";
 import {KaravanApi} from "../../api/KaravanApi";
-import {ProjectEventBus} from "../ProjectEventBus";
+import {ProjectEventBus} from "../../api/ProjectEventBus";
 import {RunnerInfoTrace} from "./RunnerInfoTrace";
-import {useProjectStore} from "../ProjectStore";
+import {useProjectStore} from "../../api/ProjectStore";
 
 export function isRunning(status: PodStatus): boolean {
     return status.phase === 'Running' && !status.terminating;

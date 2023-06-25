@@ -4,13 +4,13 @@ import {
     CardBody, Flex, FlexItem, Divider, PageSection
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {PodStatus} from "../ProjectModels";
 import {RunnerInfoPod} from "./RunnerInfoPod";
 import {RunnerInfoContext} from "./RunnerInfoContext";
 import {RunnerInfoMemory} from "./RunnerInfoMemory";
 import {KaravanApi} from "../../api/KaravanApi";
-import {ProjectEventBus} from "../ProjectEventBus";
-import {useProjectStore} from "../ProjectStore";
+import {PodStatus} from "../../api/ProjectModels";
+import {useProjectStore} from "../../api/ProjectStore";
+import {ProjectEventBus} from "../../api/ProjectEventBus";
 
 export function isRunning(status: PodStatus): boolean {
     return status.phase === 'Running' && !status.terminating;

@@ -15,18 +15,17 @@ import {
     Title, Spinner
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {MainToolbar} from "../MainToolbar";
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
-import {Project} from "./ProjectModels";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {ProjectsTableRow} from "./ProjectsTableRow";
-import {useProjectStore} from "./ProjectStore";
-import {ProjectLogic} from "./ProjectLogic";
-import {useProjectsStore} from "./ProjectStore";
-import {DeleteProjectModal} from "./modal/DeleteProjectModal";
-import {CreateProjectModal} from "./modal/CreateProjectModal";
+import {DeleteProjectModal} from "./DeleteProjectModal";
+import {CreateProjectModal} from "./CreateProjectModal";
+import {useProjectsStore, useProjectStore} from "../api/ProjectStore";
+import {ProjectService} from "../api/ProjectService";
+import {MainToolbar} from "../common/MainToolbar";
+import {Project} from "../api/ProjectModels";
 
 
 interface Props {
@@ -44,7 +43,7 @@ export const ProjectsPage = (props: Props) => {
     useEffect(() => {
         const interval = setInterval(() => {
             if (projects.length === 0) setLoading(true);
-            if (!["create", "delete", "select", "copy"].includes(operation)) ProjectLogic.refreshProjects();
+            if (!["create", "delete", "select", "copy"].includes(operation)) ProjectService.refreshProjects();
         }, 1300);
         return () => {
             clearInterval(interval)
@@ -56,7 +55,7 @@ export const ProjectsPage = (props: Props) => {
             <ToolbarContent>
                 <ToolbarItem>
                     <Button variant="link" icon={<RefreshIcon/>} onClick={e =>
-                        ProjectLogic.refreshProjects()}/>
+                        ProjectService.refreshProjects()}/>
                 </ToolbarItem>
                 <ToolbarItem>
                     <TextInput className="text-field" type="search" id="search" name="search"

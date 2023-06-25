@@ -4,9 +4,9 @@ import {
     Modal,
     ModalVariant,
 } from '@patternfly/react-core';
-import '../../designer/karavan.css';
-import {useProjectStore} from "../ProjectStore";
-import {ProjectLogic} from "../ProjectLogic";
+import '../designer/karavan.css';
+import {useProjectStore} from "../api/ProjectStore";
+import {ProjectService} from "../api/ProjectService";
 
 export const DeleteProjectModal = () => {
 
@@ -17,7 +17,7 @@ export const DeleteProjectModal = () => {
     }
 
     function confirmAndCloseModal () {
-        ProjectLogic.deleteProject(project);
+        ProjectService.deleteProject(project);
         useProjectStore.setState({operation: "none"});
     }
 
