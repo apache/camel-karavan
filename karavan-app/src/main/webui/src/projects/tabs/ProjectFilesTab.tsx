@@ -6,30 +6,21 @@ import {
     EmptyState,
     EmptyStateVariant,
     EmptyStateIcon,
-    Title,
+    Title, PageSection,
 } from '@patternfly/react-core';
-import '../designer/karavan.css';
-import {getProjectFileType, ProjectFile} from "./ProjectModels";
+import '../../designer/karavan.css';
+import {getProjectFileType} from "../ProjectModels";
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
+import {useFilesStore, useFileStore, useProjectStore} from "../ProjectStore";
 
 
-interface Props {
-    files: ProjectFile[],
-    onOpenDeleteConfirmation: (file: ProjectFile) => void,
-    onSelect: (file: ProjectFile) => void,
-}
+export const ProjectFilesTab = () => {
 
-interface State {
+    const {files} = useFilesStore();
 
-}
-
-export class ProjectFilesTable extends React.Component<Props, State> {
-
-    public state: State = {};
-
-    getDate(lastUpdate: number):string {
+    function getDate(lastUpdate: number): string {
         if (lastUpdate) {
             const date = new Date(lastUpdate);
             return date.toDateString() + ' ' + date.toLocaleTimeString();
@@ -37,10 +28,8 @@ export class ProjectFilesTable extends React.Component<Props, State> {
             return "N/A"
         }
     }
-
-    render() {
-        const {files, onOpenDeleteConfirmation, onSelect} = this.props;
-        return (
+    return (
+        <PageSection className="project-bottom" padding={{default: "padding"}}>
             <TableComposable aria-label="Files" variant={"compact"} className={"table"}>
                 <Thead>
                     <Tr>
@@ -59,18 +48,22 @@ export class ProjectFilesTable extends React.Component<Props, State> {
                             </Td>
                             <Td>
                                 <Button style={{padding: '6px'}} variant={"link"}
-                                        onClick={e => onSelect.call(this, file)}>
+                                        onClick={e =>
+                                            useFileStore.setState({file: file, operation: "select"})
+                                }>
                                     {file.name}
                                 </Button>
                             </Td>
                             <Td>
-                                {this.getDate(file.lastUpdate)}
+                                {getDate(file.lastUpdate)}
                             </Td>
                             <Td modifier={"fitContent"}>
                                 {file.projectId !== 'templates' &&
                                     <Button style={{padding: '0'}} variant={"plain"}
                                             isDisabled={file.name === 'application.properties'}
-                                            onClick={e => onOpenDeleteConfirmation.call(this, file)}>
+                                            onClick={e =>
+                                                useFileStore.setState({file: file, operation: "delete"})
+                                    }>
                                         <DeleteIcon/>
                                     </Button>
                                 }
@@ -93,6 +86,6 @@ export class ProjectFilesTable extends React.Component<Props, State> {
                     }
                 </Tbody>
             </TableComposable>
-        )
-    }
+        </PageSection>
+    )
 }

@@ -1,9 +1,9 @@
 import React, {useState} from 'react';
 import {
     Flex, FlexItem,
-    Modal, ModalVariant, DescriptionListGroup, DescriptionListTerm, DescriptionList, Nav, NavList, NavItem, Menu, MenuContent, MenuList, MenuItem, MenuGroup, Button
+    Modal, ModalVariant, DescriptionListGroup, DescriptionListTerm, DescriptionList, Button
 } from '@patternfly/react-core';
-import '../designer/karavan.css';
+import '../../designer/karavan.css';
 import {RunnerInfoTraceNode} from "./RunnerInfoTraceNode";
 import ArrowRightIcon from "@patternfly/react-icons/dist/esm/icons/arrow-right-icon";
 

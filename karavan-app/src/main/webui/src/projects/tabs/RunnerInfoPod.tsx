@@ -8,17 +8,20 @@ import {
     Label,
     Tooltip
 } from '@patternfly/react-core';
-import '../designer/karavan.css';
-import {PodStatus} from "./ProjectModels";
-import {ProjectEventBus} from "./ProjectEventBus";
+import '../../designer/karavan.css';
+import {PodStatus} from "../ProjectModels";
+import {ProjectEventBus} from "../ProjectEventBus";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import {isRunning} from "./ProjectDevelopment";
+
+
+export function isRunning(status: PodStatus): boolean {
+    return status.phase === 'Running' && !status.terminating;
+}
 
 interface Props {
     podStatus: PodStatus,
     config: any,
-    showConsole: boolean
 }
 
 export const RunnerInfoPod = (props: Props) => {
@@ -98,32 +101,30 @@ export const RunnerInfoPod = (props: Props) => {
                     {getPodInfo()}
                 </DescriptionListDescription>
             </DescriptionListGroup>
-            {props.showConsole && <>
-                <DescriptionListGroup>
-                    <DescriptionListTerm>Status</DescriptionListTerm>
-                    <DescriptionListDescription>
-                        {getPodStatus()}
-                    </DescriptionListDescription>
-                </DescriptionListGroup>
-                <DescriptionListGroup>
-                    <DescriptionListTerm>Requests</DescriptionListTerm>
-                    <DescriptionListDescription>
-                        {getPodRequests()}
-                    </DescriptionListDescription>
-                </DescriptionListGroup>
-                <DescriptionListGroup>
-                    <DescriptionListTerm>Limits</DescriptionListTerm>
-                    <DescriptionListDescription>
-                        {getPodLimits()}
-                    </DescriptionListDescription>
-                </DescriptionListGroup>
-                <DescriptionListGroup>
-                    <DescriptionListTerm>Created</DescriptionListTerm>
-                    <DescriptionListDescription>
-                        {getPodCreation()}
-                    </DescriptionListDescription>
-                </DescriptionListGroup>
-            </>}
+            <DescriptionListGroup>
+                <DescriptionListTerm>Status</DescriptionListTerm>
+                <DescriptionListDescription>
+                    {getPodStatus()}
+                </DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+                <DescriptionListTerm>Requests</DescriptionListTerm>
+                <DescriptionListDescription>
+                    {getPodRequests()}
+                </DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+                <DescriptionListTerm>Limits</DescriptionListTerm>
+                <DescriptionListDescription>
+                    {getPodLimits()}
+                </DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+                <DescriptionListTerm>Created</DescriptionListTerm>
+                <DescriptionListDescription>
+                    {getPodCreation()}
+                </DescriptionListDescription>
+            </DescriptionListGroup>
         </DescriptionList>
     );
 }

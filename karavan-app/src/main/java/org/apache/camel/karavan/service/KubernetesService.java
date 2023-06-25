@@ -93,7 +93,6 @@ public class KubernetesService implements HealthCheck{
     @ConfigProperty(name = "karavan.version")
     String version;
 
-
     List<SharedIndexInformer> informers = new ArrayList<>(INFORMERS);
 
     @ConsumeEvent(value = START_INFORMERS, blocking = true)
@@ -547,7 +546,7 @@ public class KubernetesService implements HealthCheck{
     }
 
     public boolean inKubernetes() {
-        return !Objects.equals(getNamespace(), "localhost");
+        return Objects.nonNull(System.getenv("KUBERNETES_SERVICE_HOST"));
     }
 
 }

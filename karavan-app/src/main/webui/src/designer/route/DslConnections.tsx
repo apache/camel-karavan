@@ -147,7 +147,6 @@ export class DslConnections extends React.Component<Props, State> {
         while (this.hasOverlap(outs)) {
             outs = this.addGap(outs);
         }
-        // console.log(outs);
         return outs;
     }
 

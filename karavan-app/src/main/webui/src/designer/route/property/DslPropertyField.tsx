@@ -301,7 +301,8 @@ export class DslPropertyField extends React.Component<Props, State> {
                     autoResize
                     className="text-field" isRequired
                     type={"text"}
-                    id={property.name} name={property.name}
+                    id={property.name}
+                    name={property.name}
                     height={"100px"}
                     value={value?.toString()}
                     onChange={e => this.propertyChanged(property.name, e)}/>
@@ -403,6 +404,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                 onSelect={(e, value, isPlaceholder) => this.propertyChanged(property.name, (!isPlaceholder ? value : undefined))}
                 selections={value}
                 isOpen={this.isSelectOpen(property.name)}
+                id={property.name}
                 aria-labelledby={property.name}
                 direction={SelectDirection.down}
             >
@@ -697,7 +699,6 @@ export class DslPropertyField extends React.Component<Props, State> {
                 <FormGroup
                     label={this.props.hideLabel ? undefined : this.getLabel(property, value)}
                     isRequired={property.required}
-                    fieldId={property.name}
                     labelIcon={this.getLabelIcon(property)}>
                     {value && ["ExpressionDefinition", "ExpressionSubElementDefinition"].includes(property.type)
                         && this.getExpressionField(property, value)}

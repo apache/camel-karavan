@@ -248,8 +248,10 @@ export class CamelUi {
         integration.spec.flows?.filter(f => f.dslName === 'RouteDefinition')
             .filter((r: RouteDefinition) => r.from.uri.startsWith(componentName))
             .forEach((r: RouteDefinition) => {
-                if (showComponentName) result.push(r.from.uri)
-                else result.push(r.from.uri.replace(componentName+":", ""));
+                const uri = r.from.uri;
+                const name = r.from.parameters.name;
+                if (showComponentName) result.push(uri + ":" + name);
+                else result.push(name);
             });
         return result;
     }

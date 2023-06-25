@@ -1,61 +1,47 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {
     Card,
-    CardBody, Flex, FlexItem, Divider
+    CardBody, Flex, FlexItem, Divider, PageSection
 } from '@patternfly/react-core';
-import '../designer/karavan.css';
-import {PodStatus, Project} from "./ProjectModels";
-import {RunnerToolbar} from "./RunnerToolbar";
+import '../../designer/karavan.css';
+import {PodStatus} from "../ProjectModels";
 import {RunnerInfoPod} from "./RunnerInfoPod";
 import {RunnerInfoContext} from "./RunnerInfoContext";
 import {RunnerInfoMemory} from "./RunnerInfoMemory";
-import {KaravanApi} from "../api/KaravanApi";
-import {ProjectEventBus} from "./ProjectEventBus";
-import {RunnerInfoTrace} from "./RunnerInfoTrace";
+import {KaravanApi} from "../../api/KaravanApi";
+import {ProjectEventBus} from "../ProjectEventBus";
+import {useProjectStore} from "../ProjectStore";
 
 export function isRunning(status: PodStatus): boolean {
     return status.phase === 'Running' && !status.terminating;
 }
 
-
 interface Props {
-    project: Project,
     config: any,
 }
 
-export const ProjectDevelopment = (props: Props) => {
+export const DashboardTab = (props: Props) => {
 
+    const {project, setProject} = useProjectStore();
     const [podStatus, setPodStatus] = useState(new PodStatus());
     const previousValue = useRef(new PodStatus());
     const [memory, setMemory] = useState({});
     const [jvm, setJvm] = useState({});
     const [context, setContext] = useState({});
-    const [trace, setTrace] = useState({});
-    const [showTrace, setShowTrace] = useState(false);
-    const [refreshTrace, setRefreshTrace] = useState(true);
-
 
     useEffect(() => {
         previousValue.current = podStatus;
-        const sub1 = ProjectEventBus.onShowTrace()?.subscribe((result) => {
-            if (result) setShowTrace(result.show);
-        });
-        const sub2 = ProjectEventBus.onRefreshTrace()?.subscribe((result) => {
-            setRefreshTrace(result);
-        });
         const interval = setInterval(() => {
             onRefreshStatus();
         }, 1000);
         return () => {
-            sub1.unsubscribe();
-            sub2.unsubscribe();
             clearInterval(interval)
         };
 
     }, [podStatus]);
 
     function onRefreshStatus() {
-        const projectId = props.project.projectId;
+        const projectId = project.projectId;
         const name = projectId + "-runner";
         KaravanApi.getRunnerPodStatus(projectId, name, res => {
             if (res.status === 200) {
@@ -89,31 +75,22 @@ export const ProjectDevelopment = (props: Props) => {
                 setContext({});
             }
         })
-        if (refreshTrace) {
-            KaravanApi.getRunnerConsoleStatus(projectId, "trace", res => {
-                if (res.status === 200) {
-                    setTrace(res.data);
-                } else {
-                    setTrace({});
-                }
-            })
-        }
     }
 
     function showConsole(): boolean {
         return podStatus.phase !== '';
     }
 
-    const {project, config} = props;
+    const {config} = props;
     return (
-        <Card className="project-development">
-            <CardBody>
-                <Flex direction={{default: "row"}}
-                      justifyContent={{default: "justifyContentSpaceBetween"}}>
-                    {!showTrace && <FlexItem flex={{default: "flex_1"}}>
-                        <RunnerInfoPod podStatus={podStatus} config={config} showConsole={showConsole()}/>
-                    </FlexItem>}
-                    {showConsole() && !showTrace && <>
+        <PageSection className="project-bottom" padding={{default: "padding"}}>
+            <Card className="project-development">
+                <CardBody>
+                    <Flex direction={{default: "row"}}
+                          justifyContent={{default: "justifyContentSpaceBetween"}}>
+                        <FlexItem flex={{default: "flex_1"}}>
+                            <RunnerInfoPod podStatus={podStatus} config={config}/>
+                        </FlexItem>
                         <Divider orientation={{default: "vertical"}}/>
                         <FlexItem flex={{default: "flex_1"}}>
                             <RunnerInfoMemory jvm={jvm} memory={memory} config={config} showConsole={showConsole()}/>
@@ -122,16 +99,9 @@ export const ProjectDevelopment = (props: Props) => {
                         <FlexItem flex={{default: "flex_1"}}>
                             <RunnerInfoContext context={context} config={config} showConsole={showConsole()}/>
                         </FlexItem>
-                    </>}
-                    {showConsole() && showTrace && <FlexItem flex={{default: "flex_1"}} style={{margin:"0"}}>
-                        <RunnerInfoTrace trace={trace} refreshTrace={refreshTrace}/>
-                    </FlexItem>}
-                    <Divider orientation={{default: "vertical"}}/>
-                    <FlexItem>
-                        <RunnerToolbar project={project} config={config} showConsole={showConsole()} reloadOnly={false}/>
-                    </FlexItem>
-                </Flex>
-            </CardBody>
-        </Card>
+                    </Flex>
+                </CardBody>
+            </Card>
+        </PageSection>
     )
 }

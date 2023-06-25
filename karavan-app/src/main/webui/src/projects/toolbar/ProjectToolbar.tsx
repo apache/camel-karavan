@@ -19,18 +19,19 @@ import {
     Tooltip,
     TooltipPosition
 } from '@patternfly/react-core';
-import '../designer/karavan.css';
-import {Project, ProjectFile} from "./ProjectModels";
+import '../../designer/karavan.css';
+import {Project, ProjectFile} from "../ProjectModels";
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
-import {KaravanApi} from "../api/KaravanApi";
+import {KaravanApi} from "../../api/KaravanApi";
 import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
-import {RunnerToolbar} from "./RunnerToolbar";
-import {ProjectEventBus} from "./ProjectEventBus";
+import {RunnerToolbar} from "../RunnerToolbar";
+import {ProjectEventBus} from "../ProjectEventBus";
+import {useFileStore, useProjectStore} from "../ProjectStore";
 
 interface Props {
     project: Project,
@@ -44,14 +45,13 @@ interface Props {
     addProperty: () => void,
     download: () => void,
     downloadImage: () => void,
-    setCreateModalOpen: () => void,
     setUploadModalOpen: () => void,
     setEditAdvancedProperties: (checked: boolean) => void,
     setMode: (mode: "design" | "code") => void,
     onRefresh: () => void,
 }
 
-export const ProjectPageToolbar = (props: Props) => {
+export const ProjectToolbar = (props: Props) => {
 
     const [isPushing, setIsPushing] = useState(false);
     const [commitMessageIsOpen, setCommitMessageIsOpen] = useState(false);
@@ -117,7 +117,7 @@ export const ProjectPageToolbar = (props: Props) => {
     }
 
     function getTemplatesToolbar() {
-        const {file,needCommit, editAdvancedProperties, download, setCreateModalOpen, setUploadModalOpen} = props;
+        const {file,needCommit, editAdvancedProperties, download, setUploadModalOpen} = props;
         const isFile = file !== undefined;
         const isProperties = file !== undefined && file.name.endsWith("properties");
         return <Toolbar id="toolbar-group-types">
@@ -154,7 +154,7 @@ export const ProjectPageToolbar = (props: Props) => {
                         </FlexItem>}
                         {!isFile && <FlexItem>
                             <Button isSmall variant={"secondary"} icon={<PlusIcon/>}
-                                    onClick={e => setCreateModalOpen()}>Create</Button>
+                                    onClick={e => ProjectEventBus.showCreateProjectModal(true)}>Create</Button>
                         </FlexItem>}
                         {!isFile && <FlexItem>
                             <Button isSmall variant="secondary" icon={<UploadIcon/>}
@@ -168,7 +168,7 @@ export const ProjectPageToolbar = (props: Props) => {
 
     function getProjectToolbar() {
         const {file,needCommit, mode, editAdvancedProperties, project, config,
-            addProperty, setEditAdvancedProperties, download, downloadImage, setCreateModalOpen, setUploadModalOpen} = props;
+            addProperty, setEditAdvancedProperties, download, downloadImage, setUploadModalOpen} = props;
         const isFile = file !== undefined;
         const isYaml = file !== undefined && file.name.endsWith("yaml");
         const isIntegration = isYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
@@ -227,7 +227,7 @@ export const ProjectPageToolbar = (props: Props) => {
                     </FlexItem>}
                     {!isFile && <FlexItem>
                         <Button isSmall variant={"secondary"} icon={<PlusIcon/>}
-                                onClick={e => setCreateModalOpen()}>Create</Button>
+                                onClick={e => useFileStore.setState({operation:"create"})}>Create</Button>
                     </FlexItem>}
                     {!isFile && <FlexItem>
                         <Button isSmall variant="secondary" icon={<UploadIcon/>}

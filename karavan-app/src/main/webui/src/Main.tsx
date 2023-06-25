@@ -65,10 +65,7 @@ interface Props {
 interface State {
     config: any,
     pageId: string,
-    projects: Project[],
-    project?: Project,
     isModalOpen: boolean,
-    projectToDelete?: Project,
     openapi: string,
     alerts: ToastMessage[],
     request: string,
@@ -82,7 +79,6 @@ export class Main extends React.Component<Props, State> {
     public state: State = {
         config: {},
         pageId: "projects",
-        projects: [],
         isModalOpen: false,
         alerts: [],
         request: uuidv4(),
@@ -96,7 +92,7 @@ export class Main extends React.Component<Props, State> {
 
     componentDidMount() {
         this.sub = ProjectEventBus.onSelectProject()?.subscribe((project: Project | undefined) => {
-            if (project) this.onProjectSelect(project);
+            if (project) this.setState({pageId: "project"});
         });
         KaravanApi.getAuthType((authType: string) => {
             console.log("authType", authType);
@@ -235,10 +231,6 @@ export class Main extends React.Component<Props, State> {
         this.setState({alerts: mess})
     }
 
-    onProjectSelect = (project: Project) => {
-        this.setState({pageId: 'project', project: project});
-    };
-
     getMain() {
         return (
             <>
@@ -252,8 +244,8 @@ export class Main extends React.Component<Props, State> {
                             <ProjectsPage key={this.state.request}
                                           toast={this.toast}
                                           config={this.state.config}/>}
-                        {this.state.pageId === 'project' && this.state.project &&
-                            <ProjectPage key="projects" project={this.state.project} config={this.state.config}/>}
+                        {this.state.pageId === 'project' &&
+                            <ProjectPage key="projects" config={this.state.config}/>}
                         {this.state.pageId === 'dashboard' && <DashboardPage key={this.state.request}
                                                                              toast={this.toast}
                                                                              config={this.state.config}/>}

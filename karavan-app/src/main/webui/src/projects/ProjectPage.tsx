@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Badge,
     Breadcrumb,
@@ -21,121 +21,72 @@ import {getProjectFileType, Project, ProjectFile, ProjectFileTypes} from "./Proj
 import {KaravanDesigner} from "../designer/KaravanDesigner";
 import FileSaver from "file-saver";
 import Editor from "@monaco-editor/react";
-import {CreateFileModal} from "./CreateFileModal";
+import {CreateFileModal} from "./modal/CreateFileModal";
 import {PropertiesEditor} from "./PropertiesEditor";
 import {ProjectModel, ProjectProperty} from "karavan-core/lib/model/ProjectModel";
 import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
-import {KubernetesAPI} from "../designer/utils/KubernetesAPI";
-import {UploadModal} from "./UploadModal";
-import {ProjectOperations} from "./ProjectOperations";
+import {ProjectPipelineTab} from "./tabs/ProjectPipelineTab";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import {ProjectPageToolbar} from "./ProjectPageToolbar";
-import {ProjectFilesTable} from "./ProjectFilesTable";
-import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
+import {ProjectToolbar} from "./toolbar/ProjectToolbar";
+import {ProjectFilesTab} from "./tabs/ProjectFilesTab";
 import {EventBus} from "../designer/utils/EventBus";
-import {ProjectEventBus} from "./ProjectEventBus";
-import {ProjectDevelopment} from "./ProjectDevelopment";
 import {ProjectLog} from "./ProjectLog";
+import {ProjectLogic} from "./ProjectLogic";
+import {useProjectStore} from "./ProjectStore";
+import {DeleteFileModal} from "./modal/DeleteFileModal";
+import {DashboardTab} from "./tabs/DashboardTab";
+import {TraceTab} from "./tabs/TraceTab";
 
 interface Props {
-    project: Project,
     config: any,
 }
 
-interface State {
-    file?: ProjectFile,
-    files: ProjectFile[],
-    isUploadModalOpen: boolean,
-    isDeleteModalOpen: boolean,
-    isCreateModalOpen: boolean,
-    fileToDelete?: ProjectFile,
-    mode: "design" | "code",
-    editAdvancedProperties: boolean
-    key: string
-    environments: string[],
-    environment: string,
-    tab: string | number;
-}
+export const ProjectPage = (props: Props) => {
 
-export class ProjectPage extends React.Component<Props, State> {
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+    const [editAdvancedProperties, setEditAdvancedProperties] = useState<boolean>(false);
+    const [files, setFiles] = useState<ProjectFile[]>([]);
+    const [file, setFile] = useState<ProjectFile | undefined>(undefined);
+    const [fileToDelete, setFileToDelete] = useState<ProjectFile | undefined>(undefined);
+    const [mode, setMode] = useState<"design" | "code">("design");
+    const [key, setKey] = useState<string>('');
+    const [tab, setTab] = useState<string | number>('files');
+    const [environments, setEnvironments] = useState<string[]>((
+        props.config.environments && Array.isArray(props.config.environments)) ? Array.from(props.config.environments) : []
+    );
+    const [environment, setEnvironment] = useState<string>(props.config.environment);
+    const {project, setProject} = useProjectStore();
 
-    public state: State = {
-        isUploadModalOpen: false,
-        isCreateModalOpen: false,
-        isDeleteModalOpen: false,
-        files: [],
-        mode: "design",
-        editAdvancedProperties: false,
-        key: '',
-        tab: "development",
-        environments: this.props.config.environments && Array.isArray(this.props.config.environments)
-            ? Array.from(this.props.config.environments) : [],
-        environment: this.props.config.environment,
-    };
+    useEffect(() => {
+        // console.log("UseEffect ProjectPage")
 
-    componentDidMount() {
-        this.onRefresh();
-    }
+        onRefresh();
+        // const sub1 = ProjectEventBus.onCurrentRunner()?.subscribe((result) => {
+            // setCurrentRunner(result || '');
+        // });
+        // return () => {
+        //     sub1.unsubscribe();
+        // };
+    });
 
-    needCommit(): boolean {
-        const {files} = this.state;
-        const {project} = this.props;
+    function needCommit(): boolean {
         return project ? files.filter(f => f.lastUpdate > project.lastCommitTimestamp).length > 0 : false;
     }
 
-    onRefresh = () => {
-        if (this.props.project) {
-            KaravanApi.getProject(this.props.project.projectId, (project: Project) => {
-                ProjectEventBus.selectProject(project);
-                KaravanApi.getTemplatesFiles((files: ProjectFile[]) => {
-                    files.filter(f => f.name.endsWith("java"))
-                        .filter(f => f.name.startsWith(project.runtime))
-                        .forEach(f => {
-                            const name = f.name.replace(project.runtime + "-", '').replace(".java", '');
-                            TemplateApi.saveTemplate(name, f.code);
-                        })
-                });
-            });
-            KaravanApi.getFiles(this.props.project.projectId, (files: []) => {
-                this.setState({files: files, key: Math.random().toString()})
-            });
-
-            KubernetesAPI.inKubernetes = true;
-            if (!this.isBuildIn()) {
-                KaravanApi.getConfigMaps(this.state.environment, (any: []) => {
-                    KubernetesAPI.setConfigMaps(any);
-                });
-                KaravanApi.getSecrets(this.state.environment, (any: []) => {
-                    KubernetesAPI.setSecrets(any);
-                });
-                KaravanApi.getServices(this.state.environment, (any: []) => {
-                    KubernetesAPI.setServices(any);
-                });
-            }
-        }
+    function onRefresh () {
+        ProjectLogic.refreshProjectData(environment);
     }
 
-    isBuildIn(): boolean {
-        return ['kamelets', 'templates'].includes(this.props.project.projectId);
-    }
-
-    isKameletsProject(): boolean {
-        return this.props.project.projectId === 'kamelets';
-    }
-
-    isTemplatesProject(): boolean {
-        return this.props.project.projectId === 'templates';
-    }
-
-    post = (file: ProjectFile) => {
+    function post (file: ProjectFile)  {
         KaravanApi.postProjectFile(file, res => {
             if (res.status === 200) {
                 const newFile = res.data;
-                this.setState((state => {
-                    const index = state.files.findIndex(f => f.name === newFile.name);
-                    if (index !== -1) state.files.splice(index, 1, newFile)
-                    else state.files.push(newFile);
-                    return state
+                setFiles((files => {
+                    const index = files.findIndex(f => f.name === newFile.name);
+                    if (index !== -1) files.splice(index, 1, newFile)
+                    else files.push(newFile);
+                    return files
                 }))
             } else {
                 // console.log(res) //TODO show notification
@@ -143,21 +94,19 @@ export class ProjectPage extends React.Component<Props, State> {
         })
     }
 
-    copyToClipboard = (data: string) => {
+    function copyToClipboard (data: string) {
         navigator.clipboard.writeText(data);
     }
 
-    save = (name: string, code: string) => {
-        const file = this.state.file;
+    function save (name: string, code: string) {
         if (file) {
             file.code = code;
-            this.setState({file: file});
-            this.post(file);
+            setFile(file);
+            post(file);
         }
     }
 
-    download = () => {
-        const file = this.state.file;
+    function download () {
         if (file) {
             const type = file.name.endsWith("yaml") ? "application/yaml;charset=utf-8" : undefined;
             const f = new File([file.code], file.name, {type: type});
@@ -165,46 +114,42 @@ export class ProjectPage extends React.Component<Props, State> {
         }
     }
 
-    downloadImage = () => {
+    function downloadImage () {
         EventBus.sendCommand("downloadImage");
     }
 
-    addProperty() {
-        const file = this.state.file;
+    function addProperty() {
         if (file) {
             const project = file ? ProjectModelApi.propertiesToProject(file?.code) : ProjectModel.createNew();
             const props = project.properties;
             props.push(ProjectProperty.createNew("", ""))
-            this.save(file.name, ProjectModelApi.propertiesToString(props));
-            this.setState({key: Math.random().toString()});
+            save(file.name, ProjectModelApi.propertiesToString(props));
+            setKey(Math.random().toString());
         }
     }
 
-    tools = () => {
-        return <ProjectPageToolbar key={this.state.key}
-                                   project={this.props.project}
-                                   file={this.state.file}
-                                   mode={this.state.mode}
-                                   isTemplates={this.isTemplatesProject()}
-                                   isKamelets={this.isKameletsProject()}
-                                   config={this.props.config}
-                                   addProperty={() => this.addProperty()}
-                                   download={() => this.download()}
-                                   downloadImage={() => this.downloadImage()}
-                                   editAdvancedProperties={this.state.editAdvancedProperties}
-                                   setEditAdvancedProperties={checked => this.setState({editAdvancedProperties: checked})}
-                                   setMode={mode => this.setState({mode: mode})}
-                                   setCreateModalOpen={() => this.setState({isCreateModalOpen: true})}
-                                   setUploadModalOpen={() => this.setState({isUploadModalOpen: true})}
-                                   needCommit={this.needCommit()}
-                                   onRefresh={this.onRefresh}
+    function tools () {
+        return <ProjectToolbar key={key}
+                               project={project}
+                               file={file}
+                               mode={mode}
+                               isTemplates={false}
+                               isKamelets={false}
+                               config={props.config}
+                               addProperty={() => addProperty()}
+                               download={() => download()}
+                               downloadImage={() => downloadImage()}
+                               editAdvancedProperties={editAdvancedProperties}
+                               setEditAdvancedProperties={checked => setEditAdvancedProperties(checked)}
+                               setMode={mode => setMode(mode)}
+                               setUploadModalOpen={() => setIsUploadModalOpen(isUploadModalOpen)}
+                               needCommit={needCommit()}
+                               onRefresh={onRefresh}
         />
     }
 
 
-    title = () => {
-        const {project} = this.props;
-        const file = this.state.file;
+    function title ()  {
         const isFile = file !== undefined;
         const isLog = file !== undefined && file.name.endsWith("log");
         const filename = file ? file.name.substring(0, file.name.lastIndexOf('.')) : "";
@@ -213,8 +158,8 @@ export class ProjectPage extends React.Component<Props, State> {
                 <FlexItem>
                     <Breadcrumb>
                         <BreadcrumbItem to="#" onClick={event => {
-                            this.setState({file: undefined})
-                            this.onRefresh();
+                            setFile(undefined)
+                            onRefresh();
                         }}>
                             <div className={"project-breadcrumb"}>{project?.name + " (" + project?.projectId + ")"}</div>
                         </BreadcrumbItem>
@@ -248,37 +193,20 @@ export class ProjectPage extends React.Component<Props, State> {
         </div>)
     };
 
-    closeModal = (isPushing: boolean = false) => {
-        this.setState({
-            isUploadModalOpen: false,
-            isCreateModalOpen: false,
-        });
-        this.onRefresh();
+    function closeModal (isPushing: boolean = false) {
+        setIsUploadModalOpen(false);
     }
 
-    select = (file: ProjectFile) => {
-        this.setState({file: file});
+    function select (file: ProjectFile) {
+        setFile(file);
     }
 
-    openDeleteConfirmation = (file: ProjectFile) => {
-        this.setState({isDeleteModalOpen: true, fileToDelete: file})
+    function openDeleteConfirmation (file: ProjectFile) {
+        setIsDeleteModalOpen(true)
+        setFileToDelete(file);
     }
 
-    delete = () => {
-        if (this.state.fileToDelete) {
-            KaravanApi.deleteProjectFile(this.state.fileToDelete, res => {
-                if (res.status === 204) {
-                    this.onRefresh();
-                } else {
-                }
-            });
-            this.setState({isDeleteModalOpen: false, fileToDelete: undefined})
-        }
-    }
-
-    getDesigner = () => {
-        const {file, files} = this.state;
-        const {project} = this.props;
+    function getDesigner () {
         return (
             file !== undefined &&
             <KaravanDesigner
@@ -286,8 +214,8 @@ export class ProjectPage extends React.Component<Props, State> {
                 key={"key"}
                 filename={file.name}
                 yaml={file.code}
-                onSave={(name, yaml) => this.save(name, yaml)}
-                onSaveCustomCode={(name, code) => this.post(new ProjectFile(name + ".java", project.projectId, code, Date.now()))}
+                onSave={(name, yaml) => save(name, yaml)}
+                onSaveCustomCode={(name, code) => post(new ProjectFile(name + ".java", project.projectId, code, Date.now()))}
                 onGetCustomCode={(name, javaType) => {
                     return new Promise<string | undefined>(resolve => resolve(files.filter(f => f.name === name + ".java")?.at(0)?.code))
                 }}
@@ -295,8 +223,7 @@ export class ProjectPage extends React.Component<Props, State> {
         )
     }
 
-    getEditor = () => {
-        const file = this.state.file;
+    function getEditor () {
         const language = file?.name.split('.').pop();
         return (
             file !== undefined &&
@@ -308,38 +235,37 @@ export class ProjectPage extends React.Component<Props, State> {
                 className={'code-editor'}
                 onChange={(value, ev) => {
                     if (value) {
-                        this.save(file?.name, value)
+                        save(file?.name, value)
                     }
                 }}
             />
         )
     }
 
-    deleteEntity = (type: 'pod' | 'deployment' | 'pipelinerun', name: string, environment: string) => {
+    function deleteEntity  (type: 'pod' | 'deployment' | 'pipelinerun', name: string, environment: string)  {
         switch (type) {
             case "deployment":
                 KaravanApi.deleteDeployment(environment, name, (res: any) => {
                     if (Array.isArray(res) && Array.from(res).length > 0)
-                        this.onRefresh();
+                        onRefresh();
                 });
                 break;
             case "pod":
                 KaravanApi.deletePod(environment, name, (res: any) => {
                     if (Array.isArray(res) && Array.from(res).length > 0)
-                        this.onRefresh();
+                        onRefresh();
                 });
                 break;
             case "pipelinerun":
                 KaravanApi.stopPipelineRun(environment, name, (res: any) => {
                     if (Array.isArray(res) && Array.from(res).length > 0)
-                        this.onRefresh();
+                        onRefresh();
                 });
                 break;
         }
     }
 
-    getLogView = () => {
-        const file = this.state.file;
+    function getLogView ()  {
         return (
             <div>
                 {file !== undefined && file.code.length !== 0 &&
@@ -364,79 +290,71 @@ export class ProjectPage extends React.Component<Props, State> {
         )
     }
 
-    getPropertiesEditor = () => {
-        const file = this.state.file;
+    function getPropertiesEditor  ()  {
         return (
             file !== undefined &&
-            <PropertiesEditor key={this.state.key}
-                              editAdvanced={this.state.editAdvancedProperties}
+            <PropertiesEditor key={key}
+                              editAdvanced={editAdvancedProperties}
                               file={file}
-                              onSave={(name, code) => this.save(name, code)}
+                              onSave={(name, code) => save(name, code)}
             />
         )
     }
 
-    getProjectPanel() {
-        const isBuildIn = this.isBuildIn();
+    function getProjectPanel() {
         return (
             <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
-                {!isBuildIn && this.getProjectPanelTabs()}
-                {this.getProjectPanelDetails()}
+                {getProjectPanelTabs()}
+                {getProjectPanelDetails()}
             </Flex>
         )
     }
 
-    getProjectPanelTabs() {
-        const {tab} = this.state;
+    function getProjectPanelTabs() {
         return (
             <FlexItem className="project-tabs">
-                <Tabs activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex})}>
-                    <Tab eventKey="development" title="Development"/>
-                    <Tab eventKey="operations" title="Operations"/>
+                <Tabs activeKey={tab} onSelect={(event, tabIndex) => setTab(tabIndex)}>
+                    <Tab eventKey="files" title="Files"/>
+                    <Tab eventKey="dashboard" title="Dashboard"/>
+                    <Tab eventKey="trace" title="Trace"/>
+                    <Tab eventKey="pipeline" title="Pipeline"/>
                 </Tabs>
             </FlexItem>
         )
     }
 
+    function isBuildIn(): boolean {
+        return ['kamelets', 'templates'].includes(project.projectId);
+    }
 
-    getProjectPanelDetails() {
-        const {tab, files} = this.state;
-        const {project} = this.props;
-        const isBuildIn = this.isBuildIn();
+    function isKameletsProject(): boolean {
+        return project.projectId === 'kamelets';
+    }
+
+    function isTemplatesProject(): boolean {
+        return project.projectId === 'templates';
+    }
+
+    function getProjectPanelDetails() {
+        const buildIn = isBuildIn();
         return (
             <FlexItem>
-                {isBuildIn &&
-                    <PageSection className="project-tabs" padding={{default: "padding"}}>
-                        {tab === 'development' && <ProjectFilesTable files={files}
-                                                                     onOpenDeleteConfirmation={this.openDeleteConfirmation}
-                                                                     onSelect={this.select}/>}
-                    </PageSection>
-                }
-                {!isBuildIn &&
-                    <PageSection className="project-bottom" padding={{default: "padding"}}>
-                        {tab === 'development' && project && <ProjectDevelopment project={project}
-                                                                                 config={this.props.config}/>}
-                        {tab === 'development' && <ProjectFilesTable files={files}
-                                                                     onOpenDeleteConfirmation={this.openDeleteConfirmation}
-                                                                     onSelect={this.select}/>}
-                        {tab === 'operations' && <ProjectOperations project={project}
-                                                                    needCommit={this.needCommit()}
-                                                                    config={this.props.config}/>}
-                    </PageSection>
+                {buildIn && tab === 'files' && <ProjectFilesTab/>}
+                {!buildIn &&
+                    <>
+                        {tab === 'files' && <ProjectFilesTab/>}
+                        {tab === 'dashboard' && project && <DashboardTab config={props.config}/>}
+                        {tab === 'trace' && project && <TraceTab config={props.config}/>}
+                        {tab === 'pipeline' && <ProjectPipelineTab project={project}
+                                                                   needCommit={needCommit()}
+                                                                   config={props.config}/>}
+                    </>
                 }
             </FlexItem>
         )
     }
 
-    getProjectPanelLogs() {
-        const {tab, files} = this.state;
-        const {project} = this.props;
-        const isBuildIn = this.isBuildIn();
-        return (<ProjectLog/>)
-    }
-
-    getFilePanel() {
-        const {file, mode} = this.state;
+    function getFilePanel() {
         const isYaml = file !== undefined && file.name.endsWith("yaml");
         const isIntegration = isYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
         const isProperties = file !== undefined && file.name.endsWith("properties");
@@ -446,48 +364,26 @@ export class ProjectPage extends React.Component<Props, State> {
         const showEditor = isCode || (isYaml && !isIntegration) || (isYaml && mode === 'code');
         return (
             <>
-                {showDesigner && this.getDesigner()}
-                {showEditor && this.getEditor()}
-                {isLog && this.getLogView()}
-                {isProperties && this.getPropertiesEditor()}
+                {showDesigner && getDesigner()}
+                {showEditor && getEditor()}
+                {isLog && getLogView()}
+                {isProperties && getPropertiesEditor()}
             </>
         )
     }
-
-    render() {
-        const {file, isDeleteModalOpen, fileToDelete, isUploadModalOpen, isCreateModalOpen, key} = this.state;
-        const {project} = this.props;
-        const types = this.isBuildIn()
-            ? (this.isKameletsProject() ? ['KAMELET'] : ['CODE', 'PROPERTIES'])
-            : ProjectFileTypes.filter(p => !['PROPERTIES', 'LOG', 'KAMELET'].includes(p.name)).map(p => p.name);
-        return (
-            <PageSection key={key} className="kamelet-section project-page" padding={{default: 'noPadding'}}>
-                <PageSection className="tools-section" padding={{default: 'noPadding'}}>
-                    <MainToolbar title={this.title()} tools={this.tools()}/>
-                </PageSection>
-                {file === undefined && this.getProjectPanel()}
-                {file !== undefined && this.getFilePanel()}
-                {this.getProjectPanelLogs()}
-
-                <CreateFileModal project={project}
-                                 isOpen={isCreateModalOpen}
-                                 types={types}
-                                 onClose={this.closeModal}/>
-                <Modal
-                    title="Confirmation"
-                    variant={ModalVariant.small}
-                    isOpen={isDeleteModalOpen}
-                    onClose={() => this.setState({isDeleteModalOpen: false})}
-                    actions={[
-                        <Button key="confirm" variant="primary" onClick={e => this.delete()}>Delete</Button>,
-                        <Button key="cancel" variant="link"
-                                onClick={e => this.setState({isDeleteModalOpen: false})}>Cancel</Button>
-                    ]}
-                    onEscapePress={e => this.setState({isDeleteModalOpen: false})}>
-                    <div>{"Are you sure you want to delete the file " + fileToDelete?.name + "?"}</div>
-                </Modal>
-                <UploadModal projectId={project.projectId} isOpen={isUploadModalOpen} onClose={this.closeModal}/>
+    const types = isBuildIn()
+        ? (isKameletsProject() ? ['KAMELET'] : ['CODE', 'PROPERTIES'])
+        : ProjectFileTypes.filter(p => !['PROPERTIES', 'LOG', 'KAMELET'].includes(p.name)).map(p => p.name);
+    return (
+        <PageSection key={key} className="kamelet-section project-page" padding={{default: 'noPadding'}}>
+            <PageSection className="tools-section" padding={{default: 'noPadding'}}>
+                <MainToolbar title={title()} tools={tools()} file={file}/>
             </PageSection>
-        )
-    }
+            {file === undefined && getProjectPanel()}
+            {/*{file !== undefined && getFilePanel()}*/}
+            <ProjectLog/>
+            <CreateFileModal types={types}/>
+            <DeleteFileModal />
+        </PageSection>
+    )
 }

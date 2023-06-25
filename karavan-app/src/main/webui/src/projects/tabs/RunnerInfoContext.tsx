@@ -1,6 +1,5 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React from 'react';
 import {
-    Button,
     DescriptionList,
     DescriptionListDescription,
     DescriptionListGroup,
@@ -8,10 +7,7 @@ import {
     Label, LabelGroup,
     Tooltip
 } from '@patternfly/react-core';
-import '../designer/karavan.css';
-import {PodStatus, Project} from "./ProjectModels";
-import {KaravanApi} from "../api/KaravanApi";
-import {ProjectEventBus} from "./ProjectEventBus";
+import '../../designer/karavan.css';
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 

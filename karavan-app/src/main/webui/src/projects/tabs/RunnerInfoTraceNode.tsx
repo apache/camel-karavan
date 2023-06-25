@@ -6,7 +6,7 @@ import {
     DescriptionListGroup,
     DescriptionListTerm, Panel, PanelHeader, PanelMain, PanelMainBody
 } from '@patternfly/react-core';
-import '../designer/karavan.css';
+import '../../designer/karavan.css';
 
 interface Props {
     trace: any
