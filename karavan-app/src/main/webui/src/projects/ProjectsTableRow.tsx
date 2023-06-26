@@ -10,20 +10,20 @@ import { Td, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";
 import {DeploymentStatus, Project} from '../api/ProjectModels';
-import {useDeploymentStatusesStore, useProjectStore} from "../api/ProjectStore";
+import {useAppConfigStore, useDeploymentStatusesStore, useProjectStore} from "../api/ProjectStore";
 import {ProjectEventBus} from "../api/ProjectEventBus";
 
 interface Props {
-    config: any,
     project: Project
 }
 
 export const ProjectsTableRow = (props: Props) => {
 
-    const {statuses} = useDeploymentStatusesStore()
+    const {statuses} = useDeploymentStatusesStore();
+    const {config} = useAppConfigStore();
 
     function getEnvironments(): string [] {
-        return props.config.environments && Array.isArray(props.config.environments) ? Array.from(props.config.environments) : [];
+        return config.environments && Array.isArray(config.environments) ? Array.from(config.environments) : [];
     }
 
     function getDeploymentByEnvironments(name: string): [string, DeploymentStatus | undefined] [] {

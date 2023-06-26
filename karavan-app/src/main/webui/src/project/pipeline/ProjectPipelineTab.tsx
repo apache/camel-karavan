@@ -2,36 +2,22 @@ import React from 'react';
 import '../../designer/karavan.css';
 import {ProjectStatus} from "../ProjectStatus";
 import {PageSection} from "@patternfly/react-core";
-import {Project} from "../../api/ProjectModels";
+import {useAppConfigStore, useProjectStore} from "../../api/ProjectStore";
 
 
-interface Props {
-    project: Project,
-    config: any,
-    needCommit: boolean,
-}
+export const ProjectPipelineTab = () => {
 
-interface State {
-    environment: string,
-}
+    const {config} = useAppConfigStore();
+    const {project} = useProjectStore();
 
-export class ProjectPipelineTab extends React.Component<Props, State> {
-
-    public state: State = {
-        environment: this.props.config.environment
-    };
-
-    render() {
-        const {project, config,} = this.props;
-        return (
-            <PageSection className="project-bottom" padding={{default: "padding"}}>
-                <div className="project-operations">
-                    {/*{["dev", "test", "prod"].map(env =>*/}
-                    {["dev"].map(env =>
-                        <ProjectStatus key={env} project={project} config={config} env={env}/>
-                    )}
-                </div>
-            </PageSection>
-        )
-    }
+    return (
+        <PageSection className="project-tab-panel" padding={{default: "padding"}}>
+            <div className="project-operations">
+                {/*{["dev", "test", "prod"].map(env =>*/}
+                {["dev"].map(env =>
+                    <ProjectStatus key={env} project={project} config={config} env={env}/>
+                )}
+            </div>
+        </PageSection>
+    )
 }

@@ -6,14 +6,17 @@ import {
     EmptyState,
     EmptyStateVariant,
     EmptyStateIcon,
-    Title, PageSection, PanelHeader, Flex, FlexItem, Panel,
+    Title, PageSection, PanelHeader, Panel, Tooltip,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {useFilesStore, useFileStore} from "../../api/ProjectStore";
-import {getProjectFileType} from "../../api/ProjectModels";
+import {getProjectFileType, ProjectFile} from "../../api/ProjectModels";
+import {FileToolbar} from "./FilesToolbar";
+import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
+import FileSaver from "file-saver";
 
 
 export const FilesTab = () => {
@@ -28,18 +31,20 @@ export const FilesTab = () => {
             return "N/A"
         }
     }
+
+    function download (file: ProjectFile) {
+        if (file) {
+            const type = file.name.endsWith("yaml") ? "application/yaml;charset=utf-8" : undefined;
+            const f = new File([file.code], file.name, {type: type});
+            FileSaver.saveAs(f);
+        }
+    }
+
     return (
-        <PageSection className="project-bottom" padding={{default: "padding"}}>
+        <PageSection className="project-tab-panel" padding={{default: "padding"}}>
             <Panel>
                 <PanelHeader>
-                    <Flex direction={{default: "row"}} justifyContent={{default:"justifyContentFlexEnd"}}>
-                        <FlexItem>
-
-                        </FlexItem>
-                        <FlexItem>
-
-                        </FlexItem>
-                    </Flex>
+                    <FileToolbar/>
                 </PanelHeader>
             </Panel>
             <TableComposable aria-label="Files" variant={"compact"} className={"table"}>
@@ -79,6 +84,9 @@ export const FilesTab = () => {
                                         <DeleteIcon/>
                                     </Button>
                                 }
+                                <Tooltip content="Download source" position={"bottom-end"}>
+                                    <Button isSmall variant="plain" icon={<DownloadIcon/>} onClick={e => download(file)}/>
+                                </Tooltip>
                             </Td>
                         </Tr>
                     })}

@@ -15,7 +15,6 @@ import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 interface Props {
     jvm: any,
     memory: any,
-    config: any,
     showConsole: boolean
 }
 

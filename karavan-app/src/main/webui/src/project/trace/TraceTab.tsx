@@ -6,21 +6,18 @@ import {PodStatus} from "../../api/ProjectModels";
 import {KaravanApi} from "../../api/KaravanApi";
 import {ProjectEventBus} from "../../api/ProjectEventBus";
 import {RunnerInfoTrace} from "./RunnerInfoTrace";
-import {useProjectStore} from "../../api/ProjectStore";
+import {useAppConfigStore, useProjectStore} from "../../api/ProjectStore";
 
 export function isRunning(status: PodStatus): boolean {
     return status.phase === 'Running' && !status.terminating;
 }
 
-interface Props {
-    config: any,
-}
-
-export const TraceTab = (props: Props) => {
+export const TraceTab = () => {
 
     const {project, setProject} = useProjectStore();
     const [trace, setTrace] = useState({});
     const [refreshTrace, setRefreshTrace] = useState(true);
+    const {config} = useAppConfigStore();
 
     useEffect(() => {
         const sub2 = ProjectEventBus.onRefreshTrace()?.subscribe((result: boolean) => {
@@ -50,9 +47,8 @@ export const TraceTab = (props: Props) => {
         }
     }
 
-    const {config} = props;
     return (
-        <PageSection className="project-bottom" padding={{default: "padding"}}>
+        <PageSection className="project-tab-panel" padding={{default: "padding"}}>
             <RunnerInfoTrace trace={trace} refreshTrace={refreshTrace}/>
         </PageSection>
     )

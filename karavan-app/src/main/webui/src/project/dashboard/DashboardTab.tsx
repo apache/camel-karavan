@@ -9,18 +9,14 @@ import {RunnerInfoContext} from "./RunnerInfoContext";
 import {RunnerInfoMemory} from "./RunnerInfoMemory";
 import {KaravanApi} from "../../api/KaravanApi";
 import {PodStatus} from "../../api/ProjectModels";
-import {useProjectStore} from "../../api/ProjectStore";
+import {useAppConfigStore, useProjectStore} from "../../api/ProjectStore";
 import {ProjectEventBus} from "../../api/ProjectEventBus";
 
 export function isRunning(status: PodStatus): boolean {
     return status.phase === 'Running' && !status.terminating;
 }
 
-interface Props {
-    config: any,
-}
-
-export const DashboardTab = (props: Props) => {
+export const DashboardTab = () => {
 
     const {project, setProject} = useProjectStore();
     const [podStatus, setPodStatus] = useState(new PodStatus());
@@ -28,6 +24,7 @@ export const DashboardTab = (props: Props) => {
     const [memory, setMemory] = useState({});
     const [jvm, setJvm] = useState({});
     const [context, setContext] = useState({});
+    const {config} = useAppConfigStore();
 
     useEffect(() => {
         previousValue.current = podStatus;
@@ -47,10 +44,10 @@ export const DashboardTab = (props: Props) => {
             if (res.status === 200) {
                 setPodStatus(res.data);
                 if (isRunning(res.data) && !isRunning(previousValue.current)) {
-                    ProjectEventBus.showLog('container', res.data.name, props.config.environment);
+                    ProjectEventBus.showLog('container', res.data.name, config.environment);
                 }
             } else {
-                ProjectEventBus.showLog('container', name, props.config.environment, false);
+                ProjectEventBus.showLog('container', name, config.environment, false);
                 setPodStatus(new PodStatus({name: name}));
             }
         });
@@ -81,9 +78,8 @@ export const DashboardTab = (props: Props) => {
         return podStatus.phase !== '';
     }
 
-    const {config} = props;
     return (
-        <PageSection className="project-bottom" padding={{default: "padding"}}>
+        <PageSection className="project-tab-panel" padding={{default: "padding"}}>
             <Card className="project-development">
                 <CardBody>
                     <Flex direction={{default: "row"}}
@@ -93,11 +89,11 @@ export const DashboardTab = (props: Props) => {
                         </FlexItem>
                         <Divider orientation={{default: "vertical"}}/>
                         <FlexItem flex={{default: "flex_1"}}>
-                            <RunnerInfoMemory jvm={jvm} memory={memory} config={config} showConsole={showConsole()}/>
+                            <RunnerInfoMemory jvm={jvm} memory={memory} showConsole={showConsole()}/>
                         </FlexItem>
                         <Divider orientation={{default: "vertical"}}/>
                         <FlexItem flex={{default: "flex_1"}}>
-                            <RunnerInfoContext context={context} config={config} showConsole={showConsole()}/>
+                            <RunnerInfoContext context={context} showConsole={showConsole()}/>
                         </FlexItem>
                     </Flex>
                 </CardBody>

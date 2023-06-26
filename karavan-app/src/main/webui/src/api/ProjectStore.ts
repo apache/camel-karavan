@@ -16,12 +16,20 @@
  */
 
 import {create} from 'zustand'
-import {DeploymentStatus, Project, ProjectFile} from "./ProjectModels";
+import {AppConfig, DeploymentStatus, Project, ProjectFile} from "./ProjectModels";
 
-const projects: Project[] = [];
-var project: Project = new Project();
-const files: ProjectFile[] = [];
-var file: ProjectFile | undefined = undefined;
+interface AppConfigState {
+    config: AppConfig;
+    setConfig: (config: AppConfig) => void;
+}
+
+export const useAppConfigStore = create<AppConfigState>((set) => ({
+    config: new AppConfig(),
+    setConfig: (config: AppConfig)  => {
+        set({config: config})
+    },
+}))
+
 
 interface ProjectsState {
     projects: Project[];
@@ -70,14 +78,14 @@ export const useFilesStore = create<FilesState>((set) => ({
 
 interface FileState {
     file?: ProjectFile;
-    operation: "create" | "select" | "delete" | "none" | "copy";
-    setFile: (file: ProjectFile, operation:  "create" | "select" | "delete"| "none" | "copy") => void;
+    operation: "create" | "select" | "delete" | "none" | "copy" | "upload";
+    setFile: (file: ProjectFile, operation:  "create" | "select" | "delete"| "none" | "copy" | "upload") => void;
 }
 
 export const useFileStore = create<FileState>((set) => ({
     file: undefined,
     operation: "none",
-    setFile: (file: ProjectFile, operation:  "create" | "select" | "delete"| "none" | "copy") => {
+    setFile: (file: ProjectFile, operation:  "create" | "select" | "delete"| "none" | "copy" | "upload") => {
         set((state: FileState) => ({
             file: file,
             operation: operation,

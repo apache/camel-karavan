@@ -31,19 +31,17 @@ import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
 import {RunnerToolbar} from "./RunnerToolbar";
 import {Project, ProjectFile} from "../api/ProjectModels";
 import {ProjectEventBus} from "../api/ProjectEventBus";
-import {useFileStore} from "../api/ProjectStore";
+import {useAppConfigStore, useFilesStore, useFileStore, useProjectStore} from "../api/ProjectStore";
 
 interface Props {
     project: Project,
     needCommit: boolean,
     isTemplates: boolean,
     isKamelets: boolean,
-    config: any,
     file?: ProjectFile,
     mode: "design" | "code",
     editAdvancedProperties: boolean,
     addProperty: () => void,
-    download: () => void,
     downloadImage: () => void,
     setUploadModalOpen: () => void,
     setEditAdvancedProperties: (checked: boolean) => void,
@@ -62,6 +60,9 @@ export const ProjectToolbar = (props: Props) => {
     const [isRunning, setIsRunning] = useState(false);
     const [isDeletingPod, setIsDeletingPod] = useState(false);
     const [isReloadingPod, setIsReloadingPod] = useState(false);
+    const {project} = useProjectStore();
+    const {files} = useFilesStore();
+    const {config} = useAppConfigStore();
 
     useEffect(() => {
         const sub1 = ProjectEventBus.onCurrentRunner()?.subscribe((result) => {
@@ -73,6 +74,10 @@ export const ProjectToolbar = (props: Props) => {
         };
     });
 
+    function needCommit(): boolean {
+        return project ? files.filter(f => f.lastUpdate > project.lastCommitTimestamp).length > 0 : false;
+    }
+
     function jbangRun() {
         setJbangIsRunning(true);
         KaravanApi.runProject(props.project, res => {
@@ -80,7 +85,7 @@ export const ProjectToolbar = (props: Props) => {
                 ProjectEventBus.setCurrentRunner(props.project.name);
                 setJbangIsRunning(false);
                 setPodName(res.data);
-                ProjectEventBus.showLog('container', res.data, props.config.environment)
+                ProjectEventBus.showLog('container', res.data, config.environment)
             } else {
                 // Todo notification
                 setJbangIsRunning(false);
@@ -164,7 +169,7 @@ export const ProjectToolbar = (props: Props) => {
     }
 
     function getTemplatesToolbar() {
-        const {file,needCommit, editAdvancedProperties, download, setUploadModalOpen} = props;
+        const {file,needCommit, editAdvancedProperties, setUploadModalOpen} = props;
         const isFile = file !== undefined;
         const isProperties = file !== undefined && file.name.endsWith("properties");
         return <Toolbar id="toolbar-group-types">
@@ -194,11 +199,7 @@ export const ProjectToolbar = (props: Props) => {
                                 onChange={checked => props.setEditAdvancedProperties(checked)}
                             />
                         </FlexItem>}
-                        {isFile && <FlexItem>
-                            <Tooltip content="Download source" position={"bottom-end"}>
-                                <Button isSmall variant="control" icon={<DownloadIcon/>} onClick={e => download()}/>
-                            </Tooltip>
-                        </FlexItem>}
+
                         {!isFile && <FlexItem>
                             <Button isSmall variant={"secondary"} icon={<PlusIcon/>}
                                     onClick={e => ProjectEventBus.showCreateProjectModal(true)}>Create</Button>
@@ -214,8 +215,8 @@ export const ProjectToolbar = (props: Props) => {
     }
 
     function getProjectToolbar() {
-        const {file,needCommit, mode, editAdvancedProperties, project, config,
-            addProperty, setEditAdvancedProperties, download, downloadImage, setUploadModalOpen} = props;
+        const {file,needCommit, mode, editAdvancedProperties, project,
+            addProperty, setEditAdvancedProperties, downloadImage, setUploadModalOpen} = props;
         const isFile = file !== undefined;
         const isYaml = file !== undefined && file.name.endsWith("yaml");
         const isIntegration = isYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
@@ -262,27 +263,14 @@ export const ProjectToolbar = (props: Props) => {
                         <Button isSmall variant="primary" icon={<PlusIcon/>} onClick={e => addProperty()}>Add property</Button>
                     </FlexItem>}
 
-                    {isFile && <FlexItem>
-                        <Tooltip content="Download source" position={"bottom-end"}>
-                            <Button isSmall variant="control" icon={<DownloadIcon/>} onClick={e => download()}/>
-                        </Tooltip>
-                    </FlexItem>}
+
                     {isIntegration && <FlexItem>
                         <Tooltip content="Download image" position={"bottom-end"}>
                             <Button isSmall variant="control" icon={<DownloadImageIcon/>} onClick={e => downloadImage()}/>
                         </Tooltip>
                     </FlexItem>}
-                    {!isFile && <FlexItem>
-                        <Button isSmall variant={"secondary"} icon={<PlusIcon/>}
-                                onClick={e => useFileStore.setState({operation:"create"})}>Create</Button>
-                    </FlexItem>}
-                    {!isFile && <FlexItem>
-                        <Button isSmall variant="secondary" icon={<UploadIcon/>}
-                                onClick={e => setUploadModalOpen()}>Upload</Button>
-                    </FlexItem>}
-
                     {isYaml && currentRunner === project.name && <FlexItem>
-                        <RunnerToolbar project={project} config={config} showConsole={false} reloadOnly={true} />
+                        <RunnerToolbar project={project} showConsole={false} reloadOnly={true} />
                     </FlexItem>}
                 </Flex>
             </ToolbarContent>

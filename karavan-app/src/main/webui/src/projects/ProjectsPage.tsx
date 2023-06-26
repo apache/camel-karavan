@@ -22,14 +22,13 @@ import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {ProjectsTableRow} from "./ProjectsTableRow";
 import {DeleteProjectModal} from "./DeleteProjectModal";
 import {CreateProjectModal} from "./CreateProjectModal";
-import {useProjectsStore, useProjectStore} from "../api/ProjectStore";
+import {useAppConfigStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {MainToolbar} from "../common/MainToolbar";
 import {Project} from "../api/ProjectModels";
 
 
 interface Props {
-    config: any,
     toast: (title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') => void
 }
 
@@ -39,6 +38,7 @@ export const ProjectsPage = (props: Props) => {
     const {operation} = useProjectStore();
     const [filter, setFilter] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
+    const {config} = useAppConfigStore();
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -119,7 +119,6 @@ export const ProjectsPage = (props: Props) => {
                     {projs.map(project => (
                         <ProjectsTableRow
                             key={project.projectId}
-                            config={props.config}
                             project={project}/>
                     ))}
                     {projs.length === 0 && getEmptyState()}
@@ -136,7 +135,7 @@ export const ProjectsPage = (props: Props) => {
             <PageSection isFilled className="kamelets-page">
                 {getProjectsTable()}
             </PageSection>
-            {["create", "copy"].includes(operation) && <CreateProjectModal config={props.config}/>}
+            {["create", "copy"].includes(operation) && <CreateProjectModal/>}
             {["delete"].includes(operation) && <DeleteProjectModal/>}
         </PageSection>
     )

@@ -14,11 +14,12 @@ import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 
 interface Props {
     context: any,
-    config: any,
     showConsole: boolean
 }
 
 export const RunnerInfoContext = (props: Props) => {
+
+
 
     function getContextInfo() {
         return (

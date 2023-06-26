@@ -11,11 +11,11 @@ import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon
 import {KaravanApi} from "../api/KaravanApi";
 import {Project} from "../api/ProjectModels";
 import {ProjectEventBus} from "../api/ProjectEventBus";
+import {useAppConfigStore} from "../api/ProjectStore";
 
 
 interface Props {
     project: Project,
-    config: any,
     showConsole: boolean,
     reloadOnly: boolean
 }
@@ -27,6 +27,7 @@ export const RunnerToolbar = (props: Props) => {
     const [isRunning, setIsRunning] = useState(false);
     const [isDeletingPod, setIsDeletingPod] = useState(false);
     const [isReloadingPod, setIsReloadingPod] = useState(false);
+    const {config} = useAppConfigStore();
 
     useEffect(() => {
         const sub1 = ProjectEventBus.onCurrentRunner()?.subscribe((result) => {
@@ -44,7 +45,7 @@ export const RunnerToolbar = (props: Props) => {
                 ProjectEventBus.setCurrentRunner(props.project.name);
                 setJbangIsRunning(false);
                 setPodName(res.data);
-                ProjectEventBus.showLog('container', res.data, props.config.environment)
+                ProjectEventBus.showLog('container', res.data, config.environment)
             } else {
                 // Todo notification
                 setJbangIsRunning(false);

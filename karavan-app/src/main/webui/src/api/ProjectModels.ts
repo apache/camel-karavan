@@ -1,3 +1,11 @@
+export class AppConfig {
+    version: string = '';
+    environment: string = '';
+    environments: string[] = [];
+    runtime: string = '';
+    runtimes: string[] = [];
+}
+
 export class Project {
     projectId: string = '';
     name: string = '';

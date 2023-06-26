@@ -32,6 +32,7 @@ import {Subscription} from "rxjs";
 import {ProjectEventBus} from "./api/ProjectEventBus";
 import {Project} from "./api/ProjectModels";
 import {ProjectPage} from "./project/ProjectPage";
+import {useAppConfigStore} from "./api/ProjectStore";
 
 class ToastMessage {
     id: string = ''
@@ -129,6 +130,7 @@ export class Main extends React.Component<Props, State> {
     getData() {
         KaravanApi.getConfiguration((config: any) => {
             this.setState({config: config, request: uuidv4()});
+            useAppConfigStore.setState({config: config})
         });
         this.updateKamelets();
         this.updateComponents();
@@ -242,10 +244,9 @@ export class Main extends React.Component<Props, State> {
                     <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
                         {this.state.pageId === 'projects' &&
                             <ProjectsPage key={this.state.request}
-                                          toast={this.toast}
-                                          config={this.state.config}/>}
+                                          toast={this.toast}/>}
                         {this.state.pageId === 'project' &&
-                            <ProjectPage key="projects" config={this.state.config}/>}
+                            <ProjectPage key="projects"/>}
                         {this.state.pageId === 'dashboard' && <DashboardPage key={this.state.request}
                                                                              toast={this.toast}
                                                                              config={this.state.config}/>}

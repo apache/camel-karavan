@@ -1,5 +1,6 @@
 import axios, {AxiosResponse } from "axios";
 import {
+    AppConfig,
     CamelStatus,
     DeploymentStatus,
     PipelineStatus,
@@ -130,7 +131,7 @@ export class KaravanApi {
         });
     }
 
-    static async getConfiguration(after: (config: {}) => void) {
+    static async getConfiguration(after: (config: AppConfig) => void) {
         instance.get('/api/configuration')
             .then(res => {
                 if (res.status === 200) {

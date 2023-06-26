@@ -6,23 +6,21 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {useProjectStore} from "../api/ProjectStore";
+import {useAppConfigStore, useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {Project} from "../api/ProjectModels";
 import {QuarkusIcon, SpringIcon} from "../designer/utils/KaravanIcons";
 import {CamelUi} from "../designer/utils/CamelUi";
 
-interface Props {
-    config: any,
-}
 
-export const CreateProjectModal = (props: Props) => {
+export const CreateProjectModal = () => {
 
     const {project, operation} = useProjectStore();
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [runtime, setRuntime] = useState('');
     const [projectId, setProjectId] = useState('');
+    const {config} = useAppConfigStore();
 
     function cleanValues()  {
         setName("");
@@ -48,7 +46,7 @@ export const CreateProjectModal = (props: Props) => {
         }
     }
 
-    const runtimes = props.config.runtimes;
+    const runtimes = config.runtimes;
     const isReady = projectId && name && description && !['templates', 'kamelets'].includes(projectId);
     return (
         <Modal
