@@ -34,6 +34,7 @@ export const useAppConfigStore = create<AppConfigState>((set) => ({
 interface ProjectsState {
     projects: Project[];
     setProjects: (projects: Project[]) => void;
+    upsertProject: (project: Project) => void;
 }
 
 export const useProjectsStore = create<ProjectsState>((set) => ({
@@ -43,10 +44,18 @@ export const useProjectsStore = create<ProjectsState>((set) => ({
             projects: ps,
         }), true);
     },
+    upsertProject: (project: Project) => {
+        set((state: ProjectsState) => ({
+            projects: state.projects.find(f => f.projectId === project.projectId) === undefined
+                ? [...state.projects, project]
+                : [...state.projects.filter(f => f.projectId !== project.projectId), project],
+        }), true);
+    }
 }))
 
 interface ProjectState {
     project: Project;
+    isPushing: boolean,
     operation: "create" | "select" | "delete" | "none" | "copy";
     setProject: (project: Project, operation:  "create" | "select" | "delete"| "none" | "copy") => void;
 }
@@ -54,6 +63,7 @@ interface ProjectState {
 export const useProjectStore = create<ProjectState>((set) => ({
     project: new Project(),
     operation: "none",
+    isPushing: false,
     setProject: (p: Project, o: "create" | "select" | "delete"| "none" | "copy") => {
         set((state: ProjectState) => ({
             project: p,
@@ -65,6 +75,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
 interface FilesState {
     files: ProjectFile[];
     setFiles: (files: ProjectFile[]) => void;
+    upsertFile: (file: ProjectFile) => void;
 }
 
 export const useFilesStore = create<FilesState>((set) => ({
@@ -74,6 +85,13 @@ export const useFilesStore = create<FilesState>((set) => ({
             files: files,
         }), true);
     },
+    upsertFile: (file: ProjectFile) => {
+        set((state: FilesState) => ({
+            files: state.files.find(f => f.name === file.name) === undefined
+                ? [...state.files, file]
+                : [...state.files.filter(f => f.name !== file.name), file],
+        }), true);
+    }
 }))
 
 interface FileState {

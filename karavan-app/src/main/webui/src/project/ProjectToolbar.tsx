@@ -32,59 +32,70 @@ import {RunnerToolbar} from "./RunnerToolbar";
 import {Project, ProjectFile} from "../api/ProjectModels";
 import {ProjectEventBus} from "../api/ProjectEventBus";
 import {useAppConfigStore, useFilesStore, useFileStore, useProjectStore} from "../api/ProjectStore";
+import {EventBus} from "../designer/utils/EventBus";
+import {ProjectService} from "../api/ProjectService";
 
 interface Props {
-    project: Project,
-    needCommit: boolean,
-    isTemplates: boolean,
-    isKamelets: boolean,
     file?: ProjectFile,
     mode: "design" | "code",
     editAdvancedProperties: boolean,
-    addProperty: () => void,
-    downloadImage: () => void,
     setUploadModalOpen: () => void,
     setEditAdvancedProperties: (checked: boolean) => void,
     setMode: (mode: "design" | "code") => void,
-    onRefresh: () => void,
 }
 
 export const ProjectToolbar = (props: Props) => {
 
-    const [isPushing, setIsPushing] = useState(false);
     const [commitMessageIsOpen, setCommitMessageIsOpen] = useState(false);
     const [commitMessage, setCommitMessage] = useState('');
     const [currentRunner, setCurrentRunner] = useState('');
-    const [podName, setPodName] = useState(props.project.projectId + '-runner');
     const [isJbangRunning, setJbangIsRunning] = useState(false);
     const [isRunning, setIsRunning] = useState(false);
     const [isDeletingPod, setIsDeletingPod] = useState(false);
     const [isReloadingPod, setIsReloadingPod] = useState(false);
-    const {project} = useProjectStore();
+    const {project, isPushing} = useProjectStore();
     const {files} = useFilesStore();
     const {config} = useAppConfigStore();
 
     useEffect(() => {
+        console.log("ProjectToolbar useEffect", isPushing, project.lastCommitTimestamp)
         const sub1 = ProjectEventBus.onCurrentRunner()?.subscribe((result) => {
             setCurrentRunner(result || '');
-            setJbangIsRunning(result === props.project.name);
+            setJbangIsRunning(result === project.name);
         });
         return () => {
             sub1.unsubscribe();
         };
     });
 
+    function podName() {
+        return project.projectId + '-runner';
+    }
+
     function needCommit(): boolean {
         return project ? files.filter(f => f.lastUpdate > project.lastCommitTimestamp).length > 0 : false;
     }
 
+    function downloadImage () {
+        EventBus.sendCommand("downloadImage");
+    }
+
+    function addProperty() {
+        // if (file) {
+        //     const project = file ? ProjectModelApi.propertiesToProject(file?.code) : ProjectModel.createNew();
+        //     const props = project.properties;
+        //     props.push(ProjectProperty.createNew("", ""))
+        //     save(file.name, ProjectModelApi.propertiesToString(props));
+        //     setKey(Math.random().toString());
+        // }
+    }
+
     function jbangRun() {
         setJbangIsRunning(true);
-        KaravanApi.runProject(props.project, res => {
+        KaravanApi.runProject(project, res => {
             if (res.status === 200 || res.status === 201) {
-                ProjectEventBus.setCurrentRunner(props.project.name);
+                ProjectEventBus.setCurrentRunner(project.name);
                 setJbangIsRunning(false);
-                setPodName(res.data);
                 ProjectEventBus.showLog('container', res.data, config.environment)
             } else {
                 // Todo notification
@@ -96,7 +107,7 @@ export const ProjectToolbar = (props: Props) => {
 
     function reloadRunner() {
         setIsReloadingPod(true);
-        KaravanApi.getRunnerReload(props.project.projectId, res => {
+        KaravanApi.getRunnerReload(project.projectId, res => {
             if (res.status === 200 || res.status === 201) {
                 setIsReloadingPod(false);
             } else {
@@ -109,7 +120,7 @@ export const ProjectToolbar = (props: Props) => {
     function deleteRunner() {
         ProjectEventBus.setCurrentRunner(undefined);
         setIsDeletingPod(true);
-        KaravanApi.deleteRunner(podName, false, res => {
+        KaravanApi.deleteRunner(podName(), false, res => {
             if (res.status === 202) {
                 setIsDeletingPod(false);
             } else {
@@ -120,20 +131,8 @@ export const ProjectToolbar = (props: Props) => {
     }
 
     function push () {
-        setIsPushing(true);
         setCommitMessageIsOpen(false);
-        const params = {
-            "projectId": props.project.projectId,
-            "message": commitMessage
-        };
-        KaravanApi.push(params, res => {
-            if (res.status === 200 || res.status === 201) {
-                setIsPushing(false);
-                props.onRefresh();
-            } else {
-                // Todo notification
-            }
-        });
+        ProjectService.pushProject(project, commitMessage);
     }
 
     function getDate(lastUpdate: number): string {
@@ -146,8 +145,7 @@ export const ProjectToolbar = (props: Props) => {
     }
 
     function getLastUpdatePanel() {
-        const {project, needCommit} = props;
-        const color = needCommit ? "grey" : "green";
+        const color = needCommit() ? "grey" : "green";
         const commit = project?.lastCommit;
         return (
             <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentFlexStart"}}>
@@ -169,7 +167,7 @@ export const ProjectToolbar = (props: Props) => {
     }
 
     function getTemplatesToolbar() {
-        const {file,needCommit, editAdvancedProperties, setUploadModalOpen} = props;
+        const {file, editAdvancedProperties, setUploadModalOpen} = props;
         const isFile = file !== undefined;
         const isProperties = file !== undefined && file.name.endsWith("properties");
         return <Toolbar id="toolbar-group-types">
@@ -183,7 +181,7 @@ export const ProjectToolbar = (props: Props) => {
                             <Tooltip content="Commit and push to git" position={"bottom"}>
                                 <Button isLoading={isPushing ? true : undefined}
                                         isSmall
-                                        variant={needCommit ? "primary" : "secondary"}
+                                        variant={needCommit() ? "primary" : "secondary"}
                                         className="project-button"
                                         icon={!isPushing ? <PushIcon/> : <div></div>}
                                         onClick={() => setCommitMessageIsOpen(true)}>
@@ -215,8 +213,8 @@ export const ProjectToolbar = (props: Props) => {
     }
 
     function getProjectToolbar() {
-        const {file,needCommit, mode, editAdvancedProperties, project,
-            addProperty, setEditAdvancedProperties, downloadImage, setUploadModalOpen} = props;
+        const {file, mode, editAdvancedProperties,
+             setEditAdvancedProperties, setUploadModalOpen} = props;
         const isFile = file !== undefined;
         const isYaml = file !== undefined && file.name.endsWith("yaml");
         const isIntegration = isYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
@@ -231,7 +229,7 @@ export const ProjectToolbar = (props: Props) => {
                         <Tooltip content="Commit and push to git" position={"bottom-end"}>
                             <Button isLoading={isPushing ? true : undefined}
                                     isSmall
-                                    variant={needCommit ? "primary" : "secondary"}
+                                    variant={needCommit() ? "primary" : "secondary"}
                                     className="project-button"
                                     icon={!isPushing ? <PushIcon/> : <div></div>}
                                     onClick={() => {
@@ -299,7 +297,15 @@ export const ProjectToolbar = (props: Props) => {
         )
     }
 
-    const {isTemplates} = props;
+    function isKameletsProject(): boolean {
+        return project.projectId === 'kamelets';
+    }
+
+    function isTemplatesProject(): boolean {
+        return project.projectId === 'templates';
+    }
+
+    const isTemplates = isTemplatesProject();
     return  (
          <>
             {isTemplates && getTemplatesToolbar()}

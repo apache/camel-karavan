@@ -1,6 +1,6 @@
 import React from 'react';
 import '../../designer/karavan.css';
-import {ProjectStatus} from "../ProjectStatus";
+import {ProjectStatus} from "./ProjectStatus";
 import {PageSection} from "@patternfly/react-core";
 import {useAppConfigStore, useProjectStore} from "../../api/ProjectStore";
 

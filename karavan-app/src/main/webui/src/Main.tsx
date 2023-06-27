@@ -30,9 +30,9 @@ import {MainLogin} from "./MainLogin";
 import {DashboardPage} from "./dashboard/DashboardPage";
 import {Subscription} from "rxjs";
 import {ProjectEventBus} from "./api/ProjectEventBus";
-import {Project} from "./api/ProjectModels";
+import {Project, ProjectFile} from "./api/ProjectModels";
 import {ProjectPage} from "./project/ProjectPage";
-import {useAppConfigStore} from "./api/ProjectStore";
+import {useAppConfigStore, useFileStore} from "./api/ProjectStore";
 
 class ToastMessage {
     id: string = ''
@@ -194,7 +194,10 @@ export class Main extends React.Component<Props, State> {
                     <Tooltip content={page.tooltip} position={"right"}>
                         <Button id={page.pageId} icon={page.icon} variant={"plain"}
                                 className={this.state.pageId === page.pageId ? "nav-button-selected" : ""}
-                                onClick={event => this.setState({pageId: page.pageId})}
+                                onClick={event => {
+                                    useFileStore.setState({operation:'none', file: undefined})
+                                    this.setState({pageId: page.pageId});
+                                }}
                         />
                     </Tooltip>
                 </FlexItem>

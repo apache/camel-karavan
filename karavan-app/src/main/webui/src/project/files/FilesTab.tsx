@@ -6,30 +6,34 @@ import {
     EmptyState,
     EmptyStateVariant,
     EmptyStateIcon,
-    Title, PageSection, PanelHeader, Panel, Tooltip,
+    Title, PageSection, PanelHeader, Panel, Tooltip, Label,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
-import {useFilesStore, useFileStore} from "../../api/ProjectStore";
+import {useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectStore";
 import {getProjectFileType, ProjectFile} from "../../api/ProjectModels";
 import {FileToolbar} from "./FilesToolbar";
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import FileSaver from "file-saver";
 
-
 export const FilesTab = () => {
 
     const {files} = useFilesStore();
+    const {project} = useProjectStore();
 
     function getDate(lastUpdate: number): string {
         if (lastUpdate) {
             const date = new Date(lastUpdate);
-            return date.toDateString() + ' ' + date.toLocaleTimeString();
+            return date.toISOString().slice(0, 19).replace('T',' ');
         } else {
             return "N/A"
         }
+    }
+
+    function needCommit(lastUpdate: number): boolean {
+        return lastUpdate > project.lastCommitTimestamp;
     }
 
     function download (file: ProjectFile) {
@@ -72,7 +76,12 @@ export const FilesTab = () => {
                                 </Button>
                             </Td>
                             <Td>
-                                {getDate(file.lastUpdate)}
+                                {needCommit(file.lastUpdate) &&
+                                    <Tooltip content="Updated after last commit" position={"right"}>
+                                        <Label color="grey">{getDate(file.lastUpdate)}</Label>
+                                    </Tooltip>
+                                }
+                                {!needCommit(file.lastUpdate) && getDate(file.lastUpdate)}
                             </Td>
                             <Td modifier={"fitContent"}>
                                 {file.projectId !== 'templates' &&

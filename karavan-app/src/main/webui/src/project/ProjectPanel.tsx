@@ -1,19 +1,29 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Flex,
     FlexItem, Tabs, Tab
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {FilesTab} from "./files/FilesTab";
-import {useProjectStore} from "../api/ProjectStore";
+import {useAppConfigStore, useProjectStore} from "../api/ProjectStore";
 import {DashboardTab} from "./dashboard/DashboardTab";
 import {TraceTab} from "./trace/TraceTab";
 import {ProjectPipelineTab} from "./pipeline/ProjectPipelineTab";
+import {ProjectService} from "../api/ProjectService";
 
 export const ProjectPanel = () => {
 
     const [tab, setTab] = useState<string | number>('files');
     const {project} = useProjectStore();
+    const {config} = useAppConfigStore();
+
+    useEffect(() => {
+        onRefresh();
+    });
+
+    function onRefresh () {
+        ProjectService.refreshProjectData();
+    }
 
     function isBuildIn(): boolean {
         return ['kamelets', 'templates'].includes(project.projectId);

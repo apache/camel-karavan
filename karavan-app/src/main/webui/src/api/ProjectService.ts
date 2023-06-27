@@ -2,9 +2,58 @@ import {KaravanApi} from "./KaravanApi";
 import {DeploymentStatus, Project, ProjectFile} from "./ProjectModels";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {KubernetesAPI} from "../designer/utils/KubernetesAPI";
-import {useDeploymentStatusesStore, useFilesStore, useProjectsStore, useProjectStore} from "./ProjectStore";
+import { unstable_batchedUpdates } from 'react-dom'
+import {
+    useAppConfigStore,
+    useDeploymentStatusesStore,
+    useFilesStore,
+    useFileStore,
+    useProjectsStore,
+    useProjectStore
+} from "./ProjectStore";
 
 export class ProjectService {
+
+    public static pushProject (project: Project, commitMessage: string) {
+        useProjectStore.setState({isPushing: true})
+        const params = {
+            "projectId": project.projectId,
+            "message": commitMessage
+        };
+        KaravanApi.push(params, res => {
+            if (res.status === 200 || res.status === 201) {
+                useProjectStore.setState({isPushing: false})
+                ProjectService.refreshProject(project.projectId);
+                ProjectService.refreshProjectData();
+            } else {
+                // Todo notification
+            }
+        });
+    }
+
+    public static saveFile (file: ProjectFile) {
+        console.log(file)
+        KaravanApi.postProjectFile(file, res => {
+            if (res.status === 200) {
+                const newFile = res.data;
+                useFileStore.setState({file: newFile});
+                unstable_batchedUpdates(() => {
+                    useFilesStore.getState().upsertFile(newFile);
+                })
+            } else {
+                // console.log(res) //TODO show notification
+            }
+        })
+    }
+
+    public static refreshProject(projectId: string) {
+        KaravanApi.getProject(projectId , (project: Project)=> {
+            useProjectStore.setState({project: project});
+            unstable_batchedUpdates(() => {
+                useProjectsStore.getState().upsertProject(project);
+            })
+        });
+    }
 
     public static refreshProjects() {
         KaravanApi.getProjects((projects: Project[]) => {
@@ -61,9 +110,9 @@ export class ProjectService {
         });
     }
 
-
-    public static refreshProjectData(environment?: string) {
+    public static refreshProjectData() {
         const project = useProjectStore.getState().project;
+        const environment = useAppConfigStore.getState().config.environment;
         KaravanApi.getProject(project.projectId, (project: Project) => {
             // ProjectEventBus.selectProject(project);
             KaravanApi.getTemplatesFiles((files: ProjectFile[]) => {
