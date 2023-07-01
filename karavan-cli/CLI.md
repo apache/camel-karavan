@@ -22,7 +22,7 @@
     ```
 5. Install Karavan
     ```
-    java -jar target/karavan-cli-VERSION.jar --git-repository=$GIT_REPOSITORY --git-password=$GIT_TOKEN --git-username=$GIT_USERNAME  --node-port=30777
+    java -jar target/karavan-cli-VERSION.jar install --git-repository=$GIT_REPOSITORY --git-password=$GIT_TOKEN --git-username=$GIT_USERNAME  --node-port=30777
     ```
 5. Get karavan service URL
     ```

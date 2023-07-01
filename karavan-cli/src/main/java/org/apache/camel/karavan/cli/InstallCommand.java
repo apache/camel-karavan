@@ -7,11 +7,10 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 
-@CommandLine.Command(name = "karavan",
+@CommandLine.Command(name = "install",
         mixinStandardHelpOptions = true,
-        version = "Karavan 3.20.2-SNAPSHOT",
-        description = "Apache Camel Karavan CLI")
-public class KaravanCli implements Callable<Integer> {
+        description = "Install Karavan")
+public class InstallCommand implements Callable<Integer> {
 
     @CommandLine.Option(names = {"-v", "--version"}, required = true, description = "Karavan version", defaultValue = "3.20.2-SNAPSHOT")
     private String version;
@@ -106,16 +105,5 @@ public class KaravanCli implements Callable<Integer> {
             CommandUtils.installKaravan(config);
         }
         return 0;
-    }
-
-    public static void main(String... args) {
-        CommandLine commandLine = new CommandLine(new KaravanCli());
-        commandLine.parseArgs(args);
-        if (commandLine.isUsageHelpRequested()) {
-            commandLine.usage(System.out);
-            System.exit(0);
-        }
-        int exitCode = commandLine.execute(args);
-        System.exit(exitCode);
     }
 }
