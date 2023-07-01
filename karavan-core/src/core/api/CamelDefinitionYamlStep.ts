@@ -2063,7 +2063,7 @@ export class CamelDefinitionYamlStep {
                def.route = CamelDefinitionYamlStep.readRouteDefinition(element.route); 
             } 
         } 
-        def.beans = element && element?.beans ? element?.beans.map((x:any) => CamelDefinitionYamlStep.readNamedBeanDefinition(x)) :[]; 
+        def.beans = element && element?.beans ? element?.beans.map((x:any) => CamelDefinitionYamlStep.readRouteTemplateBeanDefinition(x)) :[]; 
         if (element?.from !== undefined) { 
             if (Array.isArray(element.from)) { 
                def.from = CamelDefinitionYamlStep.readFromDefinition(element.from[0]); 
@@ -2267,7 +2267,7 @@ export class CamelDefinitionYamlStep {
     static readTemplatedRouteDefinition = (element: any): TemplatedRouteDefinition => {
         
         let def = element ? new TemplatedRouteDefinition({...element}) : new TemplatedRouteDefinition();
-        def.beans = element && element?.beans ? element?.beans.map((x:any) => CamelDefinitionYamlStep.readNamedBeanDefinition(x)) :[]; 
+        def.beans = element && element?.beans ? element?.beans.map((x:any) => CamelDefinitionYamlStep.readTemplatedRouteBeanDefinition(x)) :[]; 
         def.parameters = element && element?.parameters ? element?.parameters.map((x:any) => CamelDefinitionYamlStep.readTemplatedRouteParameterDefinition(x)) :[]; 
 
         return def;

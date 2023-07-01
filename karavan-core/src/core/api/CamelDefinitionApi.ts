@@ -1267,7 +1267,7 @@ export class CamelDefinitionApi {
     static createRouteTemplateDefinition = (element: any): RouteTemplateDefinition => { 
         const def = element ? new RouteTemplateDefinition({...element}) : new RouteTemplateDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.beans = element && element?.beans ? element?.beans.map((x:any) => CamelDefinitionApi.createNamedBeanDefinition(x)) :[];
+        def.beans = element && element?.beans ? element?.beans.map((x:any) => CamelDefinitionApi.createRouteTemplateBeanDefinition(x)) :[];
         if (element?.from !== undefined) { 
             def.from = CamelDefinitionApi.createFromDefinition(element.from); 
         }
@@ -1396,7 +1396,7 @@ export class CamelDefinitionApi {
     static createTemplatedRouteDefinition = (element: any): TemplatedRouteDefinition => { 
         const def = element ? new TemplatedRouteDefinition({...element}) : new TemplatedRouteDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.beans = element && element?.beans ? element?.beans.map((x:any) => CamelDefinitionApi.createNamedBeanDefinition(x)) :[];
+        def.beans = element && element?.beans ? element?.beans.map((x:any) => CamelDefinitionApi.createTemplatedRouteBeanDefinition(x)) :[];
         def.parameters = element && element?.parameters ? element?.parameters.map((x:any) => CamelDefinitionApi.createTemplatedRouteParameterDefinition(x)) :[];
         return def;
     }

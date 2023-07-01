@@ -31,7 +31,7 @@
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.version>2.16.7.Final</quarkus.platform.version>
         <camel-quarkus.version>2.16.7</camel-quarkus.version>
-        <camel.version>3.20.6</camel.version>
+        <camel.version>3.21.0</camel.version>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
         <infinispan.version>14.0.6.Final</infinispan.version>
         <tekton.version>6.3.1</tekton.version>

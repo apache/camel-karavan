@@ -692,6 +692,7 @@ export class MulticastDefinition extends CamelElement {
     aggregationStrategyMethodAllowNull?: boolean;
     parallelAggregate?: boolean;
     parallelProcessing?: boolean;
+    synchronous?: boolean;
     streaming?: boolean;
     stopOnException?: boolean;
     timeout?: string;
@@ -932,6 +933,7 @@ export class RecipientListDefinition extends CamelElement {
     aggregationStrategyMethodAllowNull?: boolean;
     parallelAggregate?: boolean;
     parallelProcessing?: boolean;
+    synchronous?: boolean;
     timeout?: string;
     executorService?: string;
     stopOnException?: boolean;
@@ -1197,7 +1199,7 @@ export class RouteTemplateDefinition extends CamelElement {
     stepName?: string = 'routeTemplate';
     route?: RouteDefinition;
     id: string = 'routeTemplate-' + uuidv4().substring(0,4);
-    beans?: NamedBeanDefinition[] = [];
+    beans?: RouteTemplateBeanDefinition[] = [];
     from?: FromDefinition;
     parameters?: RouteTemplateParameterDefinition[] = [];
     public constructor(init?: Partial<RouteTemplateDefinition>) {
@@ -1372,6 +1374,7 @@ export class SplitDefinition extends CamelElement {
     aggregationStrategyMethodAllowNull?: boolean;
     parallelAggregate?: boolean;
     parallelProcessing?: boolean;
+    synchronous?: boolean;
     streaming?: boolean;
     stopOnException?: boolean;
     timeout?: string;
@@ -1433,7 +1436,7 @@ export class TemplatedRouteDefinition extends CamelElement {
     routeTemplateRef: string = '';
     routeId?: string;
     prefixId?: string;
-    beans?: NamedBeanDefinition[] = [];
+    beans?: TemplatedRouteBeanDefinition[] = [];
     parameters?: TemplatedRouteParameterDefinition[] = [];
     public constructor(init?: Partial<TemplatedRouteDefinition>) {
         super('TemplatedRouteDefinition');
@@ -2428,6 +2431,7 @@ export class JaxbDataFormat extends CamelElement {
     noNamespaceSchemaLocation?: string;
     jaxbProviderProperties?: string;
     contentTypeHeader?: boolean;
+    accessExternalSchemaProtocols?: string;
     id?: string = 'jaxb-' + uuidv4().substring(0,4);
     public constructor(init?: Partial<JaxbDataFormat>) {
         super('JaxbDataFormat');
@@ -2471,6 +2475,7 @@ export class JsonDataFormat extends CamelElement {
     autoDiscoverSchemaResolver?: boolean;
     namingStrategy?: string;
     contentTypeHeader?: boolean;
+    dateFormatPattern?: string;
     id?: string = 'json-' + uuidv4().substring(0,4);
     public constructor(init?: Partial<JsonDataFormat>) {
         super('JsonDataFormat');
