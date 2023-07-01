@@ -16,7 +16,7 @@
  */
 
 import {create} from 'zustand'
-import {AppConfig, DeploymentStatus, Project, ProjectFile} from "./ProjectModels";
+import {AppConfig, DeploymentStatus, PodStatus, Project, ProjectFile} from "./ProjectModels";
 
 interface AppConfigState {
     config: AppConfig;
@@ -56,6 +56,8 @@ export const useProjectsStore = create<ProjectsState>((set) => ({
 interface ProjectState {
     project: Project;
     isPushing: boolean,
+    isRunning: boolean,
+    podStatus: PodStatus,
     operation: "create" | "select" | "delete" | "none" | "copy";
     setProject: (project: Project, operation:  "create" | "select" | "delete"| "none" | "copy") => void;
 }
@@ -64,6 +66,8 @@ export const useProjectStore = create<ProjectState>((set) => ({
     project: new Project(),
     operation: "none",
     isPushing: false,
+    isRunning: false,
+    podStatus: new PodStatus(),
     setProject: (p: Project, o: "create" | "select" | "delete"| "none" | "copy") => {
         set((state: ProjectState) => ({
             project: p,

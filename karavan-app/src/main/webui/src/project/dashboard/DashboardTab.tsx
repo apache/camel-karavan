@@ -18,7 +18,7 @@ export function isRunning(status: PodStatus): boolean {
 
 export const DashboardTab = () => {
 
-    const {project, setProject} = useProjectStore();
+    const {project} = useProjectStore();
     const [podStatus, setPodStatus] = useState(new PodStatus());
     const previousValue = useRef(new PodStatus());
     const [memory, setMemory] = useState({});

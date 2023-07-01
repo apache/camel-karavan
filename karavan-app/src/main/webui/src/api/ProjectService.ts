@@ -1,5 +1,5 @@
 import {KaravanApi} from "./KaravanApi";
-import {DeploymentStatus, Project, ProjectFile} from "./ProjectModels";
+import {DeploymentStatus, PodStatus, Project, ProjectFile} from "./ProjectModels";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {KubernetesAPI} from "../designer/utils/KubernetesAPI";
 import { unstable_batchedUpdates } from 'react-dom'
@@ -13,6 +13,28 @@ import {
 } from "./ProjectStore";
 
 export class ProjectService {
+
+    public static runProject(project: Project) {
+        KaravanApi.runProject(project, res => {
+            if (res.status === 200 || res.status === 201) {
+            } else {
+                // Todo notification
+            }
+        });
+    }
+
+    public static getRunnerPodStatus(project: Project) {
+        const projectId = project.projectId;
+        const name = projectId + "-runner";
+        KaravanApi.getRunnerPodStatus(projectId, name, res => {
+            if (res.status === 200) {
+                useProjectStore.setState({podStatus: res.data});
+            } else {
+                useProjectStore.setState({podStatus: new PodStatus()});
+                // Todo notification
+            }
+        });
+    }
 
     public static pushProject (project: Project, commitMessage: string) {
         useProjectStore.setState({isPushing: true})

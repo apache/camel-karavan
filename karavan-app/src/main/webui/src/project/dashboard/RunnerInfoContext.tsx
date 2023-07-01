@@ -19,8 +19,6 @@ interface Props {
 
 export const RunnerInfoContext = (props: Props) => {
 
-
-
     function getContextInfo() {
         return (
             <LabelGroup numLabels={3}>

@@ -18,10 +18,8 @@ import {BehaviorSubject, Subject} from 'rxjs';
 import {Project} from "./ProjectModels";
 
 const selectedProject = new BehaviorSubject<Project | undefined>(undefined);
-const currentRunner = new BehaviorSubject<string | undefined>(undefined);
 const currentFile = new BehaviorSubject<string | undefined>(undefined);
 const showLog = new BehaviorSubject<ShowLogCommand | undefined>(undefined);
-const showTrace = new BehaviorSubject<ShowTraceCommand | undefined>(undefined);
 const refreshTrace = new BehaviorSubject<boolean>(false);
 const mode = new BehaviorSubject<"design" | "code">("design");
 const config = new BehaviorSubject<any>({});
@@ -55,18 +53,9 @@ export const ProjectEventBus = {
     selectProject: (project: Project) => selectedProject.next(project),
     onSelectProject: () => selectedProject.asObservable(),
 
-    setCurrentRunner: (name: string | undefined) => currentRunner.next(name),
-    onCurrentRunner: () => currentRunner.asObservable(),
-
-    selectProjectFile: (fileName: string) => currentFile.next(fileName),
-    onSelectProjectFile: () => currentFile.asObservable(),
-
     showLog: (type: 'container' | 'pipeline', name: string, environment: string, show: boolean = true) =>
         showLog.next(new ShowLogCommand(type, name, environment, show)),
     onShowLog: () => showLog.asObservable(),
-
-    showTrace: (name: string, show: boolean = true) => showTrace.next(new ShowTraceCommand(name, show)),
-    onShowTrace: () => showTrace.asObservable(),
 
     refreshTrace: (refresh: boolean) => refreshTrace.next(refresh),
     onRefreshTrace: () => refreshTrace.asObservable(),

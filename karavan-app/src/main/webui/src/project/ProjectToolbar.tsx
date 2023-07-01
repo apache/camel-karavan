@@ -48,24 +48,26 @@ export const ProjectToolbar = (props: Props) => {
 
     const [commitMessageIsOpen, setCommitMessageIsOpen] = useState(false);
     const [commitMessage, setCommitMessage] = useState('');
-    const [currentRunner, setCurrentRunner] = useState('');
-    const [isJbangRunning, setJbangIsRunning] = useState(false);
-    const [isRunning, setIsRunning] = useState(false);
-    const [isDeletingPod, setIsDeletingPod] = useState(false);
-    const [isReloadingPod, setIsReloadingPod] = useState(false);
+    const [isFile, setIsFile] = useState(false);
+    const [isYaml, setIsYaml] = useState(false);
+    const [isIntegration, setIsIntegration] = useState(false);
+    const [isProperties, setIsProperties] = useState(false);
     const {project, isPushing} = useProjectStore();
     const {files} = useFilesStore();
     const {config} = useAppConfigStore();
 
     useEffect(() => {
-        console.log("ProjectToolbar useEffect", isPushing, project.lastCommitTimestamp)
-        const sub1 = ProjectEventBus.onCurrentRunner()?.subscribe((result) => {
-            setCurrentRunner(result || '');
-            setJbangIsRunning(result === project.name);
-        });
-        return () => {
-            sub1.unsubscribe();
-        };
+        console.log("ProjectToolbar useEffect", isPushing, project.lastCommitTimestamp);
+        const {file, mode, editAdvancedProperties,
+            setEditAdvancedProperties, setUploadModalOpen} = props;
+        const isFile = file !== undefined;
+        const isYaml = file !== undefined && file.name.endsWith("yaml");
+        const isIntegration = isYaml && file?.code !== undefined && CamelDefinitionYaml.yamlIsIntegration(file.code);
+        const isProperties = file !== undefined && file.name.endsWith("properties");
+        setIsFile(isFile);
+        setIsYaml(isYaml);
+        setIsIntegration(isIntegration);
+        setIsProperties(isProperties);
     });
 
     function podName() {
@@ -88,46 +90,6 @@ export const ProjectToolbar = (props: Props) => {
         //     save(file.name, ProjectModelApi.propertiesToString(props));
         //     setKey(Math.random().toString());
         // }
-    }
-
-    function jbangRun() {
-        setJbangIsRunning(true);
-        KaravanApi.runProject(project, res => {
-            if (res.status === 200 || res.status === 201) {
-                ProjectEventBus.setCurrentRunner(project.name);
-                setJbangIsRunning(false);
-                ProjectEventBus.showLog('container', res.data, config.environment)
-            } else {
-                // Todo notification
-                setJbangIsRunning(false);
-                ProjectEventBus.setCurrentRunner(undefined);
-            }
-        });
-    }
-
-    function reloadRunner() {
-        setIsReloadingPod(true);
-        KaravanApi.getRunnerReload(project.projectId, res => {
-            if (res.status === 200 || res.status === 201) {
-                setIsReloadingPod(false);
-            } else {
-                // Todo notification
-                setIsReloadingPod(false);
-            }
-        });
-    }
-
-    function deleteRunner() {
-        ProjectEventBus.setCurrentRunner(undefined);
-        setIsDeletingPod(true);
-        KaravanApi.deleteRunner(podName(), false, res => {
-            if (res.status === 202) {
-                setIsDeletingPod(false);
-            } else {
-                // Todo notification
-                setIsDeletingPod(false);
-            }
-        });
     }
 
     function push () {
@@ -168,8 +130,6 @@ export const ProjectToolbar = (props: Props) => {
 
     function getTemplatesToolbar() {
         const {file, editAdvancedProperties, setUploadModalOpen} = props;
-        const isFile = file !== undefined;
-        const isProperties = file !== undefined && file.name.endsWith("properties");
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
                 <ToolbarItem>
@@ -212,13 +172,9 @@ export const ProjectToolbar = (props: Props) => {
         </Toolbar>
     }
 
-    function getProjectToolbar() {
+    function getFileToolbar() {
         const {file, mode, editAdvancedProperties,
-             setEditAdvancedProperties, setUploadModalOpen} = props;
-        const isFile = file !== undefined;
-        const isYaml = file !== undefined && file.name.endsWith("yaml");
-        const isIntegration = isYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
-        const isProperties = file !== undefined && file.name.endsWith("properties");
+            setEditAdvancedProperties, setUploadModalOpen} = props;
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
                 <Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
@@ -267,12 +223,38 @@ export const ProjectToolbar = (props: Props) => {
                             <Button isSmall variant="control" icon={<DownloadImageIcon/>} onClick={e => downloadImage()}/>
                         </Tooltip>
                     </FlexItem>}
-                    {isYaml && currentRunner === project.name && <FlexItem>
-                        <RunnerToolbar project={project} showConsole={false} reloadOnly={true} />
-                    </FlexItem>}
+                    {/*{isYaml && currentRunner === project.name && <FlexItem>*/}
+                    {/*    <RunnerToolbar project={project} showConsole={false} reloadOnly={true} />*/}
+                    {/*</FlexItem>}*/}
                 </Flex>
             </ToolbarContent>
         </Toolbar>
+    }
+
+    function getProjectToolbar() {
+        return (<Toolbar id="toolbar-group-types">
+            <ToolbarContent>
+                <Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
+                    <FlexItem>{getLastUpdatePanel()}</FlexItem>
+                    <FlexItem>
+                        <Tooltip content="Commit and push to git" position={"bottom-end"}>
+                            <Button isLoading={isPushing ? true : undefined}
+                                    isSmall
+                                    variant={needCommit() ? "primary" : "secondary"}
+                                    className="project-button"
+                                    icon={!isPushing ? <PushIcon/> : <div></div>}
+                                    onClick={() => {
+                                        setCommitMessage(commitMessage === '' ? new Date().toLocaleString() : commitMessage);
+                                        setCommitMessageIsOpen(true);
+                                    }}>
+                                {isPushing ? "..." : "Push"}
+                            </Button>
+                        </Tooltip>
+                    </FlexItem>
+                    {isRunnable() && <RunnerToolbar/>}
+                </Flex>
+            </ToolbarContent>
+        </Toolbar>)
     }
 
     function getCommitModal() {
@@ -305,11 +287,16 @@ export const ProjectToolbar = (props: Props) => {
         return project.projectId === 'templates';
     }
 
+    function isRunnable(): boolean {
+        return !isKameletsProject() && !isTemplatesProject();
+    }
+
     const isTemplates = isTemplatesProject();
     return  (
          <>
-            {isTemplates && getTemplatesToolbar()}
-            {!isTemplates && getProjectToolbar()}
+            {/*{isTemplates && getTemplatesToolbar()}*/}
+            {/*{!isTemplates && getProjectToolbar()}*/}
+             {!isFile && getProjectToolbar()}
              {getCommitModal()}
         </>
     )
