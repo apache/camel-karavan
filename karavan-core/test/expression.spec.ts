@@ -50,7 +50,6 @@ describe('Expression to yaml', () => {
         i1.spec.flows?.push(new RouteDefinition({from: flow1}));
 
         const yaml1 = CamelDefinitionYaml.integrationToYaml(i1);
-        // console.log(yaml1)
     });
 
 });

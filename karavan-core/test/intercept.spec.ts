@@ -55,12 +55,8 @@ describe('Intercept', () => {
         i.spec.flows?.push(routeConfiguration);
 
         const yaml = CamelDefinitionYaml.integrationToYaml(i);
-        // console.log(yaml);
 
         const i2 = CamelDefinitionYaml.yamlToIntegration("demo.yaml", yaml);
-        console.log(i.spec.flows?.[0].intercept);
-        console.log("------");
-        console.log(i2.spec.flows?.[0].intercept);
     });
 
 });
