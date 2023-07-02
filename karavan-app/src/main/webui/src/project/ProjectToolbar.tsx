@@ -26,14 +26,13 @@ import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
-import {KaravanApi} from "../api/KaravanApi";
 import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
 import {RunnerToolbar} from "./RunnerToolbar";
-import {Project, ProjectFile} from "../api/ProjectModels";
-import {ProjectEventBus} from "../api/ProjectEventBus";
-import {useAppConfigStore, useFilesStore, useFileStore, useProjectStore} from "../api/ProjectStore";
+import {ProjectFile} from "../api/ProjectModels";
+import {useFilesStore, useProjectStore, useRunnerStore} from "../api/ProjectStore";
 import {EventBus} from "../designer/utils/EventBus";
 import {ProjectService} from "../api/ProjectService";
+import {shallow} from "zustand/shallow";
 
 interface Props {
     file?: ProjectFile,
@@ -52,9 +51,8 @@ export const ProjectToolbar = (props: Props) => {
     const [isYaml, setIsYaml] = useState(false);
     const [isIntegration, setIsIntegration] = useState(false);
     const [isProperties, setIsProperties] = useState(false);
-    const {project, isPushing} = useProjectStore();
+    const [ project, isPushing] = useProjectStore((state) => [state.project, state.isPushing], shallow )
     const {files} = useFilesStore();
-    const {config} = useAppConfigStore();
 
     useEffect(() => {
         console.log("ProjectToolbar useEffect", isPushing, project.lastCommitTimestamp);
@@ -69,10 +67,6 @@ export const ProjectToolbar = (props: Props) => {
         setIsIntegration(isIntegration);
         setIsProperties(isProperties);
     });
-
-    function podName() {
-        return project.projectId + '-runner';
-    }
 
     function needCommit(): boolean {
         return project ? files.filter(f => f.lastUpdate > project.lastCommitTimestamp).length > 0 : false;
@@ -128,49 +122,6 @@ export const ProjectToolbar = (props: Props) => {
         )
     }
 
-    function getTemplatesToolbar() {
-        const {file, editAdvancedProperties, setUploadModalOpen} = props;
-        return <Toolbar id="toolbar-group-types">
-            <ToolbarContent>
-                <ToolbarItem>
-                    <Flex className="toolbar" direction={{default: "row"}} justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
-                        {!isFile && <FlexItem>
-                            {getLastUpdatePanel()}
-                        </FlexItem>}
-                        {!isFile && <FlexItem>
-                            <Tooltip content="Commit and push to git" position={"bottom"}>
-                                <Button isLoading={isPushing ? true : undefined}
-                                        isSmall
-                                        variant={needCommit() ? "primary" : "secondary"}
-                                        className="project-button"
-                                        icon={!isPushing ? <PushIcon/> : <div></div>}
-                                        onClick={() => setCommitMessageIsOpen(true)}>
-                                    {isPushing ? "..." : "Commit"}
-                                </Button>
-                            </Tooltip>
-                        </FlexItem>}
-                        {isProperties && <FlexItem>
-                            <Checkbox
-                                id="advanced"
-                                label="Edit advanced"
-                                isChecked={editAdvancedProperties}
-                                onChange={checked => props.setEditAdvancedProperties(checked)}
-                            />
-                        </FlexItem>}
-
-                        {!isFile && <FlexItem>
-                            <Button isSmall variant={"secondary"} icon={<PlusIcon/>}
-                                    onClick={e => ProjectEventBus.showCreateProjectModal(true)}>Create</Button>
-                        </FlexItem>}
-                        {!isFile && <FlexItem>
-                            <Button isSmall variant="secondary" icon={<UploadIcon/>}
-                                    onClick={e => setUploadModalOpen()}>Upload</Button>
-                        </FlexItem>}
-                    </Flex>
-                </ToolbarItem>
-            </ToolbarContent>
-        </Toolbar>
-    }
 
     function getFileToolbar() {
         const {file, mode, editAdvancedProperties,
@@ -236,6 +187,7 @@ export const ProjectToolbar = (props: Props) => {
             <ToolbarContent>
                 <Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
                     <FlexItem>{getLastUpdatePanel()}</FlexItem>
+                    {isRunnable() && <RunnerToolbar/>}
                     <FlexItem>
                         <Tooltip content="Commit and push to git" position={"bottom-end"}>
                             <Button isLoading={isPushing ? true : undefined}
@@ -251,7 +203,6 @@ export const ProjectToolbar = (props: Props) => {
                             </Button>
                         </Tooltip>
                     </FlexItem>
-                    {isRunnable() && <RunnerToolbar/>}
                 </Flex>
             </ToolbarContent>
         </Toolbar>)

@@ -10,6 +10,8 @@ import {
 } from "./ProjectModels";
 import {Buffer} from 'buffer';
 import {SsoApi} from "./SsoApi";
+import {EventStreamContentType, fetchEventSource} from "@microsoft/fetch-event-source";
+import {ProjectEventBus} from "./ProjectEventBus";
 
 axios.defaults.headers.common['Accept'] = 'application/json';
 axios.defaults.headers.common['Content-Type'] = 'application/json';
@@ -301,8 +303,8 @@ export class KaravanApi {
         });
     }
 
-    static async getRunnerPodStatus(projectId: string, name: string, after: (res: AxiosResponse<PodStatus>) => void) {
-        instance.get('/api/runner/pod/' + projectId + "/" + name)
+    static async getRunnerPodStatus(projectId: string, after: (res: AxiosResponse<PodStatus>) => void) {
+        instance.get('/api/runner/pod/' + projectId)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -320,7 +322,7 @@ export class KaravanApi {
     }
 
     static async getRunnerConsoleStatus(projectId: string, statusName: string, after: (res: AxiosResponse<string>) => void) {
-        instance.get('/api/runner/console/' + statusName + "/" + projectId)
+        instance.get('/api/runner/console/' + projectId + "/" + statusName)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -566,4 +568,38 @@ export class KaravanApi {
             after(err);
         });
     }
+
+    static async fetchData(type: 'container' | 'pipeline' | 'none', podName: string, controller: AbortController) {
+        const fetchData = async () => {
+            await fetchEventSource("/api/logwatch/" + type + "/" + podName, {
+                method: "GET",
+                headers: {
+                    Accept: "text/event-stream",
+                },
+                signal: controller.signal,
+                async onopen(response) {
+                    if (response.ok && response.headers.get('content-type') === EventStreamContentType) {
+                        return; // everything's good
+                    } else if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+                        // client-side errors are usually non-retriable:
+                        console.log("Server side error ", response);
+                    } else {
+                        console.log("Error ", response);
+                    }
+                },
+                onmessage(event) {
+                    console.log(event);
+                    ProjectEventBus.sendLog('add', event.data)
+                },
+                onclose() {
+                    console.log("Connection closed by the server");
+                },
+                onerror(err) {
+                    console.log("There was an error from server", err);
+                },
+            });
+        };
+        return fetchData();
+    }
 }
+

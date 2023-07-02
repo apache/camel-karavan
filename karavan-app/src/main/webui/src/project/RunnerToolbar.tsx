@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {
     Button, FlexItem,
     Tooltip,
@@ -8,99 +8,52 @@ import '../designer/karavan.css';
 import RocketIcon from "@patternfly/react-icons/dist/esm/icons/rocket-icon";
 import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
-import {KaravanApi} from "../api/KaravanApi";
-import {useAppConfigStore, useProjectStore} from "../api/ProjectStore";
+import { useProjectStore, useRunnerStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
-
+import {shallow} from "zustand/shallow";
 
 export const RunnerToolbar = () => {
 
-    const [isStartingPod, setIsStartingPod] = useState(false);
-    const [isDeletingPod, setIsDeletingPod] = useState(false);
-    const [isReloadingPod, setIsReloadingPod] = useState(false);
-    const {config} = useAppConfigStore();
-    const {project, podStatus} = useProjectStore();
+    const [ status] = useRunnerStore((state) => [state.status], shallow )
+    const [ project] = useProjectStore((state) => [state.project], shallow )
 
-    function isRunning() {
-        return podStatus.started;
-    }
-
-    useEffect(() => {
-        console.log("Runner toolbar", podStatus);
-        const interval = setInterval(() => {
-            if (isRunning()) {
-                ProjectService.getRunnerPodStatus(project);
-                if (isStartingPod) setIsStartingPod(false);
-            }
-        }, 1000);
-        return () => {
-            clearInterval(interval)
-        };
-
-    }, []);
-
-    function jbangRun() {
-        setIsStartingPod(true);
-        ProjectService.runProject(project);
-    }
-
-    function reloadRunner() {
-        setIsReloadingPod(true);
-        KaravanApi.getRunnerReload(project.projectId, res => {
-            if (res.status === 200 || res.status === 201) {
-                setIsReloadingPod(false);
-            } else {
-                // Todo notification
-                setIsReloadingPod(false);
-            }
-        });
-    }
-
-    function deleteRunner() {
-        setIsDeletingPod(true);
-        KaravanApi.deleteRunner(project.projectId + "-runner", false, res => {
-            if (res.status === 202) {
-                setIsDeletingPod(false);
-            } else {
-                // Todo notification
-                setIsDeletingPod(false);
-            }
-        });
-    }
-
+    const isRunning = status === "running";
+    const isStartingPod = status === "starting";
+    const isReloadingPod = status === "reloading";
+    const isDeletingPod = status === "deleting";
     return (<>
-        {!isRunning() && <FlexItem>
-            <Tooltip content="Run in development mode" position={TooltipPosition.bottomEnd}>
+        {!isRunning && !isReloadingPod && <FlexItem>
+            <Tooltip content="Run in development mode" position={TooltipPosition.bottom}>
                 <Button isLoading={isStartingPod ? true : undefined}
                         isSmall
                         variant={"primary"}
                         className="project-button"
                         icon={!isStartingPod ? <RocketIcon/> : <div></div>}
-                        onClick={() => jbangRun()}>
+                        onClick={() => ProjectService.startRunner(project)}>
                     {isStartingPod ? "..." : "Run"}
                 </Button>
             </Tooltip>
         </FlexItem>}
-        {isRunning() && <FlexItem>
-            <Tooltip content="Reload" position={TooltipPosition.bottomEnd}>
+        {(isRunning || isReloadingPod) && <FlexItem>
+            <Tooltip content="Reload" position={TooltipPosition.bottom}>
                 <Button isLoading={isReloadingPod ? true : undefined}
                         isSmall
                         variant={"primary"}
                         className="project-button"
                         icon={!isReloadingPod ? <ReloadIcon/> : <div></div>}
-                        onClick={() => reloadRunner()}>
+                        onClick={() => ProjectService.reloadRunner(project)}>
                     {isReloadingPod ? "..." : "Reload"}
                 </Button>
             </Tooltip>
         </FlexItem>}
-        {isRunning() && <FlexItem>
-        <Tooltip content="Stop runner" position={TooltipPosition.bottomEnd}>
+        {(isRunning || isDeletingPod) && !isReloadingPod && <FlexItem>
+        <Tooltip content="Stop runner" position={TooltipPosition.bottom}>
             <Button isLoading={isDeletingPod ? true : undefined}
                     isSmall
                     variant={"secondary"}
                     className="project-button"
                     icon={!isRunning ? <DeleteIcon/> : <div></div>}
-                    onClick={() => deleteRunner()}>
+                    onClick={() => ProjectService.deleteRunner(project)}>
                 {isDeletingPod ? "..." : "Stop"}
             </Button>
         </Tooltip>

@@ -15,43 +15,46 @@
  * limitations under the License.
  */
 import React, {useEffect, useState} from 'react';
-import { PageSection
+import {
+    Bullseye,
+    Button,
+    EmptyState,
+    EmptyStateIcon,
+    EmptyStateVariant, Flex, FlexItem,
+    Panel,
+    PanelHeader,
+    Text,
+    Switch, TextContent, TextVariants, Title, PageSection,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {PodStatus} from "../../api/ProjectModels";
+import {RunnerInfoTraceModal} from "./RunnerInfoTraceModal";
+import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import {KaravanApi} from "../../api/KaravanApi";
-import {ProjectEventBus} from "../../api/ProjectEventBus";
-import {RunnerInfoTrace} from "./RunnerInfoTrace";
-import {useAppConfigStore, useProjectStore} from "../../api/ProjectStore";
+import {useProjectStore} from "../../api/ProjectStore";
 
-export function isRunning(status: PodStatus): boolean {
-    return status.phase === 'Running' && !status.terminating;
-}
 
 export const TraceTab = () => {
 
-    const {project, setProject} = useProjectStore();
-    const [trace, setTrace] = useState({});
-    const [refreshTrace, setRefreshTrace] = useState(true);
-    const {config} = useAppConfigStore();
+    const {project} = useProjectStore();
+    const [trace, setTrace] = useState<any>({});
+    const [nodes, setNodes] = useState([{}]);
+    const [isOpen, setIsOpen] = useState(false);
+    const [refreshTrace, setRefreshTrace] = useState(false);
 
     useEffect(() => {
-        const sub2 = ProjectEventBus.onRefreshTrace()?.subscribe((result: boolean) => {
-            setRefreshTrace(result);
-        });
+        console.log("TraceTab useEffect", refreshTrace, project)
         const interval = setInterval(() => {
             onRefreshStatus();
         }, 1000);
         return () => {
-            sub2.unsubscribe();
             clearInterval(interval)
         };
-
     }, []);
+
 
     function onRefreshStatus() {
         const projectId = project.projectId;
-        const name = projectId + "-runner";
         if (refreshTrace) {
             KaravanApi.getRunnerConsoleStatus(projectId, "trace", res => {
                 if (res.status === 200) {
@@ -63,9 +66,95 @@ export const TraceTab = () => {
         }
     }
 
+    function closeModal() {
+        setIsOpen(false);
+    }
+
+    function getNodes(exchangeId: string): any[] {
+        const traces: any[] = trace?.trace?.traces || [];
+        return traces
+            .filter(t => t.message?.exchangeId === exchangeId)
+            .sort((a, b) => a.uid > b.uid ? 1 : -1);
+    }
+
+    function getNode(exchangeId: string): any {
+        const traces: any[] = trace?.trace?.traces || [];
+        return traces
+            .filter(t => t.message?.exchangeId === exchangeId)
+            .sort((a, b) => a.uid > b.uid ? 1 : -1)
+            .at(0);
+    }
+
+    const traces: any[] = (trace?.trace?.traces || []).sort((a: any, b: any) => b.uid > a.uid ? 1 : -1);
+    const exchanges: any[] = Array.from(new Set((traces).map((item: any) => item?.message?.exchangeId)));
     return (
         <PageSection className="project-tab-panel" padding={{default: "padding"}}>
-            <RunnerInfoTrace trace={trace} refreshTrace={refreshTrace}/>
+            {isOpen && <RunnerInfoTraceModal isOpen={isOpen} trace={trace} nodes={nodes} onClose={closeModal}/>}
+            <Panel>
+                <PanelHeader>
+                    <Flex direction={{default: "row"}} justifyContent={{default:"justifyContentFlexEnd"}}>
+                        <FlexItem>
+                            <TextContent>
+                                <Text component={TextVariants.h6}>Auto refresh</Text>
+                            </TextContent>
+                        </FlexItem>
+                        <FlexItem>
+                            <Switch aria-label="refresh"
+                                    id="refresh"
+                                    isChecked={refreshTrace}
+                                    onChange={checked => setRefreshTrace(checked)}
+                            />
+                        </FlexItem>
+                    </Flex>
+                </PanelHeader>
+            </Panel>
+            <TableComposable aria-label="Files" variant={"compact"} className={"table"}>
+                <Thead>
+                    <Tr>
+                        <Th key='uid' width={30}>Type</Th>
+                        <Th key='exchangeId' width={40}>Filename</Th>
+                        <Th key='timestamp' width={30}>Updated</Th>
+                    </Tr>
+                </Thead>
+                <Tbody>
+                    {exchanges.map(exchangeId => {
+                        const node = getNode(exchangeId);
+                        return <Tr key={node?.uid}>
+                            <Td>
+                                {node?.uid}
+                            </Td>
+                            <Td>
+                                <Button style={{padding: '0'}} variant={"link"}
+                                        onClick={e => {
+                                            setTrace(trace);
+                                            setNodes(getNodes(exchangeId));
+                                            setIsOpen(true);
+                                        }}>
+                                    {exchangeId}
+                                </Button>
+                            </Td>
+                            <Td>
+                                {node ? new Date(node?.timestamp).toISOString() : ""}
+                            </Td>
+
+                        </Tr>
+                    })}
+                    {exchanges.length === 0 &&
+                        <Tr>
+                            <Td colSpan={8}>
+                                <Bullseye>
+                                    <EmptyState variant={EmptyStateVariant.small}>
+                                        <EmptyStateIcon icon={SearchIcon}/>
+                                        <Title headingLevel="h2" size="lg">
+                                            No results found
+                                        </Title>
+                                    </EmptyState>
+                                </Bullseye>
+                            </Td>
+                        </Tr>
+                    }
+                </Tbody>
+            </TableComposable>
         </PageSection>
-    )
+    );
 }

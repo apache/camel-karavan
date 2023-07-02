@@ -153,6 +153,7 @@ public class KubernetesResource {
     @Path("/pod/{projectId}/{env}")
     public List<PodStatus> getPodStatusesByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) throws Exception {
         return infinispanService.getPodStatuses(projectId, env).stream()
+                .filter(podStatus -> !podStatus.getRunner())
                 .sorted(Comparator.comparing(PodStatus::getName))
                 .collect(Collectors.toList());
     }

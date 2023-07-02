@@ -21,7 +21,7 @@ interface Props {
 
 export const CreateFileModal = (props: Props) => {
 
-    const {file, operation} = useFileStore();
+    const {operation} = useFileStore();
     const {project, setProject} = useProjectStore();
     const [name, setName] = useState<string>( '');
     const [fileType, setFileType] = useState<string>(props.types.at(0) || 'INTEGRATION');

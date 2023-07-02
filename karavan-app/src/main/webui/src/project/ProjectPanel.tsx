@@ -5,17 +5,17 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {FilesTab} from "./files/FilesTab";
-import {useAppConfigStore, useProjectStore} from "../api/ProjectStore";
+import {useProjectStore} from "../api/ProjectStore";
 import {DashboardTab} from "./dashboard/DashboardTab";
 import {TraceTab} from "./trace/TraceTab";
 import {ProjectPipelineTab} from "./pipeline/ProjectPipelineTab";
 import {ProjectService} from "../api/ProjectService";
+import {shallow} from "zustand/shallow";
 
 export const ProjectPanel = () => {
 
     const [tab, setTab] = useState<string | number>('files');
-    const {project} = useProjectStore();
-    const {config} = useAppConfigStore();
+    const [project] = useProjectStore((state) => [state.project], shallow )
 
     useEffect(() => {
         onRefresh();

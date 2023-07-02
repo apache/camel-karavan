@@ -17,6 +17,8 @@
 
 import {create} from 'zustand'
 import {AppConfig, DeploymentStatus, PodStatus, Project, ProjectFile} from "./ProjectModels";
+import {ProjectEventBus} from "./ProjectEventBus";
+import {unstable_batchedUpdates} from "react-dom";
 
 interface AppConfigState {
     config: AppConfig;
@@ -26,7 +28,7 @@ interface AppConfigState {
 export const useAppConfigStore = create<AppConfigState>((set) => ({
     config: new AppConfig(),
     setConfig: (config: AppConfig)  => {
-        set({config: config})
+        set({config: config}, true)
     },
 }))
 
@@ -48,7 +50,7 @@ export const useProjectsStore = create<ProjectsState>((set) => ({
         set((state: ProjectsState) => ({
             projects: state.projects.find(f => f.projectId === project.projectId) === undefined
                 ? [...state.projects, project]
-                : [...state.projects.filter(f => f.projectId !== project.projectId), project],
+                : [...state.projects.filter(f => f.projectId !== project.projectId), project]
         }), true);
     }
 }))
@@ -60,6 +62,7 @@ interface ProjectState {
     podStatus: PodStatus,
     operation: "create" | "select" | "delete" | "none" | "copy";
     setProject: (project: Project, operation:  "create" | "select" | "delete"| "none" | "copy") => void;
+    setOperation: (o: "create" | "select" | "delete"| "none" | "copy") => void;
 }
 
 export const useProjectStore = create<ProjectState>((set) => ({
@@ -68,10 +71,14 @@ export const useProjectStore = create<ProjectState>((set) => ({
     isPushing: false,
     isRunning: false,
     podStatus: new PodStatus(),
-    setProject: (p: Project, o: "create" | "select" | "delete"| "none" | "copy") => {
+    setProject: (p: Project) => {
         set((state: ProjectState) => ({
-            project: p,
-            operation: o,
+            project: p
+        }), true);
+    },
+    setOperation: (o: "create" | "select" | "delete"| "none" | "copy") => {
+        set((state: ProjectState) => ({
+            operation: o
         }), true);
     },
 }))
@@ -86,14 +93,14 @@ export const useFilesStore = create<FilesState>((set) => ({
     files: [],
     setFiles: (files: ProjectFile[]) => {
         set((state: FilesState) => ({
-            files: files,
+            files: files
         }), true);
     },
     upsertFile: (file: ProjectFile) => {
         set((state: FilesState) => ({
             files: state.files.find(f => f.name === file.name) === undefined
                 ? [...state.files, file]
-                : [...state.files.filter(f => f.name !== file.name), file],
+                : [...state.files.filter(f => f.name !== file.name), file]
         }), true);
     }
 }))
@@ -110,7 +117,7 @@ export const useFileStore = create<FileState>((set) => ({
     setFile: (file: ProjectFile, operation:  "create" | "select" | "delete"| "none" | "copy" | "upload") => {
         set((state: FileState) => ({
             file: file,
-            operation: operation,
+            operation: operation
         }), true);
     },
 }))
@@ -124,7 +131,77 @@ export const useDeploymentStatusesStore = create<DeploymentStatusesState>((set) 
     statuses: [],
     setDeploymentStatuses: (statuses: DeploymentStatus[]) => {
         set((state: DeploymentStatusesState) => ({
-            statuses: statuses,
+            statuses: statuses
         }), true);
     },
 }))
+
+
+interface RunnerState {
+    podName?: string,
+    status: "none" | "starting" | "deleting"| "reloading" | "running",
+    setStatus: (status: "none" | "starting" | "deleting"| "reloading" | "running") => void,
+    type: 'container' | 'pipeline' | 'none',
+    setType: (type: 'container' | 'pipeline' | 'none') => void,
+    showLog: boolean,
+    setShowLog: (showLog: boolean) => void;
+}
+
+export const useRunnerStore = create<RunnerState>((set) => ({
+    podName: undefined,
+    status: "none",
+    setStatus: (status: "none" | "starting" | "deleting"| "reloading" | "running") =>  {
+        set((state: RunnerState) => ({
+            status: status,
+        }), true);
+    },
+    type: "none",
+    setType: (type: 'container' | 'pipeline' | 'none') =>  {
+        set((state: RunnerState) => ({type: type}), true);
+    },
+    showLog: false,
+    setShowLog: (showLog: boolean) => {
+        set(() => ({showLog: showLog}));
+    }
+}))
+
+interface LogState {
+    data: string;
+    setData: (data: string) => void;
+    addData: (data: string) => void;
+    addDataAsync: (data: string) => void;
+    currentLine: number;
+    setCurrentLine: (currentLine: number) => void;
+}
+
+export const useLogStore = create<LogState>((set) => ({
+    data: '',
+    setData: (data: string)  => {
+        set({data: data}, true)
+    },
+    addData: (data: string)  => {
+        set((state: LogState) => ({data: state.data.concat('\n').concat(data)}), true)
+    },
+    addDataAsync: async (data: string) => {
+        set((state: LogState) => ({data: state.data.concat('\n').concat(data)}), true)
+    },
+    currentLine: 0,
+    setCurrentLine: (currentLine: number)  => {
+        set((state: LogState) => ({currentLine: currentLine}), true)
+    }
+}))
+
+console.log("Start log subscriber");
+const sub = ProjectEventBus.onLog()?.subscribe((result: ["add" | "set", string]) => {
+    if (result[0] === 'add') {
+        unstable_batchedUpdates(() => {
+            useLogStore.setState((state: LogState) =>
+                ({data: state.data ? state.data.concat('\n').concat(result[1]) : result[1], currentLine: state.currentLine+1}), true)
+        })
+    }
+    else if (result[0] === 'set') {
+        unstable_batchedUpdates(() => {
+            useLogStore.setState({data: result[1], currentLine: 0});
+        })
+    }
+});

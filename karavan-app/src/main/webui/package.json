@@ -26,6 +26,7 @@
     ]
   },
   "dependencies": {
+    "@microsoft/fetch-event-source": "^2.0.1",
     "@monaco-editor/react": "4.5.0",
     "@patternfly/patternfly": "4.224.2",
     "@patternfly/react-charts": "6.94.19",

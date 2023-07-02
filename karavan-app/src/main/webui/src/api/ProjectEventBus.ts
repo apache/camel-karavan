@@ -19,11 +19,8 @@ import {Project} from "./ProjectModels";
 
 const selectedProject = new BehaviorSubject<Project | undefined>(undefined);
 const currentFile = new BehaviorSubject<string | undefined>(undefined);
-const showLog = new BehaviorSubject<ShowLogCommand | undefined>(undefined);
-const refreshTrace = new BehaviorSubject<boolean>(false);
 const mode = new BehaviorSubject<"design" | "code">("design");
-const config = new BehaviorSubject<any>({});
-const showCreateProjectModal = new Subject<boolean>();
+const log = new Subject<["add" | "set", string]>();
 
 export class ShowLogCommand {
     type: 'container' | 'pipeline'
@@ -53,19 +50,9 @@ export const ProjectEventBus = {
     selectProject: (project: Project) => selectedProject.next(project),
     onSelectProject: () => selectedProject.asObservable(),
 
-    showLog: (type: 'container' | 'pipeline', name: string, environment: string, show: boolean = true) =>
-        showLog.next(new ShowLogCommand(type, name, environment, show)),
-    onShowLog: () => showLog.asObservable(),
-
-    refreshTrace: (refresh: boolean) => refreshTrace.next(refresh),
-    onRefreshTrace: () => refreshTrace.asObservable(),
-
     setMode: (m: 'design' | 'code') =>  mode.next(m),
     onSetMode: () => mode.asObservable(),
 
-    setConfig: (c: any) =>  config.next(c),
-    onSetConfig: () => config.asObservable(),
-
-    showCreateProjectModal: (show: boolean) => showCreateProjectModal.next(show),
-    onShowCreateProjectModal: () => showCreateProjectModal.asObservable(),
+    sendLog: (type: "add" | "set", m: string) =>  log.next([type, m]),
+    onLog: () => log.asObservable(),
 }

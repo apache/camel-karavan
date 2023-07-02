@@ -6,7 +6,7 @@ import '../designer/karavan.css';
 import {KaravanApi} from "../api/KaravanApi";
 import FileSaver from "file-saver";
 import {ProjectToolbar} from "./ProjectToolbar";
-import {ProjectLog} from "./ProjectLog";
+import {ProjectLogPanel} from "./log/ProjectLogPanel";
 import {ProjectFile, ProjectFileTypes} from "../api/ProjectModels";
 import {useFileStore, useProjectStore} from "../api/ProjectStore";
 import {MainToolbar} from "../common/MainToolbar";
@@ -15,6 +15,8 @@ import {DeleteFileModal} from "./DeleteFileModal";
 import {ProjectTitle} from "./ProjectTitle";
 import {ProjectPanel} from "./ProjectPanel";
 import {FileEditor} from "./file/FileEditor";
+import {ProjectService} from "../api/ProjectService";
+import {shallow} from "zustand/shallow";
 
 export const ProjectPage = () => {
 
@@ -23,7 +25,16 @@ export const ProjectPage = () => {
     const {file, operation} = useFileStore();
     const [mode, setMode] = useState<"design" | "code">("design");
     const [key, setKey] = useState<string>('');
-    const {project} = useProjectStore();
+    const [project] = useProjectStore((state) => [state.project], shallow )
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            ProjectService.getRunnerPodStatus(project);
+        }, 1000);
+        return () => {
+            clearInterval(interval)
+        };
+    }, []);
 
     function post (file: ProjectFile)  {
         KaravanApi.postProjectFile(file, res => {
@@ -87,9 +98,9 @@ export const ProjectPage = () => {
             </PageSection>
             {file === undefined && operation !== 'select' && <ProjectPanel/>}
             {file !== undefined && operation === 'select' && <FileEditor/>}
-            <ProjectLog/>
             <CreateFileModal types={types}/>
             <DeleteFileModal />
+            <ProjectLogPanel/>
         </PageSection>
     )
 }

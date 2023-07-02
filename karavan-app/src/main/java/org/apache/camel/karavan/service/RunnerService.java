@@ -117,7 +117,6 @@ public class RunnerService {
         String oldContext = infinispanService.getRunnerStatus(podName, RunnerStatus.NAME.context);
         String newContext = getRunnerStatus(podName, RunnerStatus.NAME.context);
         if (newContext != null) {
-            System.out.println(new JsonObject(newContext).encodePrettily());
             infinispanService.saveRunnerStatus(podName, RunnerStatus.NAME.context, newContext);
             Arrays.stream(RunnerStatus.NAME.values())
                     .filter(name -> !name.equals(RunnerStatus.NAME.context))
@@ -128,6 +127,8 @@ public class RunnerService {
                         }
                     });
             reloadCode(podName, oldContext, newContext);
+        } else {
+            infinispanService.deleteRunnerStatuses(podName);
         }
     }
 

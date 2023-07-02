@@ -12,7 +12,7 @@ import '../../designer/karavan.css';
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import {PodStatus} from "../../api/ProjectModels";
-import {ProjectEventBus} from "../../api/ProjectEventBus";
+import {useRunnerStore} from "../../api/ProjectStore";
 
 
 export function isRunning(status: PodStatus): boolean {
@@ -21,19 +21,18 @@ export function isRunning(status: PodStatus): boolean {
 
 interface Props {
     podStatus: PodStatus,
-    config: any,
 }
 
 export const RunnerInfoPod = (props: Props) => {
 
     function getPodInfo() {
-        const env = props.config.environment;
         const podStatus = props.podStatus;
         return (
             <Label icon={getIcon()} color={getColor()}>
                 <Tooltip content={"Show log"}>
                     <Button variant="link"
-                            onClick={e => ProjectEventBus.showLog('container', podStatus.name, env)}>
+                            onClick={e =>
+                                useRunnerStore.setState({showLog: true, type: 'container', podName: podStatus.name})}>
                         {podStatus.name}
                     </Button>
                 </Tooltip>

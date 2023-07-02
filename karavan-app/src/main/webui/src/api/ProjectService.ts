@@ -2,41 +2,78 @@ import {KaravanApi} from "./KaravanApi";
 import {DeploymentStatus, PodStatus, Project, ProjectFile} from "./ProjectModels";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {KubernetesAPI} from "../designer/utils/KubernetesAPI";
-import { unstable_batchedUpdates } from 'react-dom'
+import {unstable_batchedUpdates} from 'react-dom'
+import {EventStreamContentType, fetchEventSource} from '@microsoft/fetch-event-source';
 import {
     useAppConfigStore,
     useDeploymentStatusesStore,
     useFilesStore,
-    useFileStore,
+    useFileStore, useLogStore,
     useProjectsStore,
-    useProjectStore
+    useProjectStore, useRunnerStore
 } from "./ProjectStore";
 
 export class ProjectService {
 
-    public static runProject(project: Project) {
+    public static startRunner(project: Project) {
+        useRunnerStore.setState({status: "starting"})
         KaravanApi.runProject(project, res => {
             if (res.status === 200 || res.status === 201) {
+                useRunnerStore.setState({showLog: true})
             } else {
                 // Todo notification
+            }
+        });
+    }
+
+    public static reloadRunner(project: Project) {
+        useRunnerStore.setState({status: "reloading"})
+        KaravanApi.getRunnerReload(project.projectId, res => {
+            if (res.status === 200 || res.status === 201) {
+                // setIsReloadingPod(false);
+            } else {
+                // Todo notification
+                // setIsReloadingPod(false);
+            }
+        });
+    }
+
+    public static deleteRunner(project: Project) {
+        useRunnerStore.setState({status: "deleting"})
+        KaravanApi.deleteRunner(project.projectId, false, res => {
+            if (res.status === 202) {
+                useRunnerStore.setState({showLog: false})
+            } else {
+                // Todo notification
+                // setIsDeletingPod(false);
             }
         });
     }
 
     public static getRunnerPodStatus(project: Project) {
         const projectId = project.projectId;
-        const name = projectId + "-runner";
-        KaravanApi.getRunnerPodStatus(projectId, name, res => {
+        KaravanApi.getRunnerPodStatus(projectId, res => {
             if (res.status === 200) {
-                useProjectStore.setState({podStatus: res.data});
+                unstable_batchedUpdates(() => {
+                    const podStatus = res.data;
+                    if (useRunnerStore.getState().podName !== podStatus.name){
+                        useRunnerStore.setState({podName: podStatus.name})
+                    }
+                    if (useRunnerStore.getState().status !== "running"){
+                        useRunnerStore.setState({status: "running"})
+                    }
+                    useProjectStore.setState({podStatus: res.data});
+                })
             } else {
-                useProjectStore.setState({podStatus: new PodStatus()});
-                // Todo notification
+                unstable_batchedUpdates(() => {
+                    useRunnerStore.setState({status: "none", podName: undefined})
+                    useProjectStore.setState({podStatus: new PodStatus()});
+                })
             }
         });
     }
 
-    public static pushProject (project: Project, commitMessage: string) {
+    public static pushProject(project: Project, commitMessage: string) {
         useProjectStore.setState({isPushing: true})
         const params = {
             "projectId": project.projectId,
@@ -53,8 +90,7 @@ export class ProjectService {
         });
     }
 
-    public static saveFile (file: ProjectFile) {
-        console.log(file)
+    public static saveFile(file: ProjectFile) {
         KaravanApi.postProjectFile(file, res => {
             if (res.status === 200) {
                 const newFile = res.data;
@@ -69,7 +105,7 @@ export class ProjectService {
     }
 
     public static refreshProject(projectId: string) {
-        KaravanApi.getProject(projectId , (project: Project)=> {
+        KaravanApi.getProject(projectId, (project: Project) => {
             useProjectStore.setState({project: project});
             unstable_batchedUpdates(() => {
                 useProjectsStore.getState().upsertProject(project);

@@ -79,19 +79,21 @@ public class RunnerResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/{name}/{deletePVC}")
-    public Response deleteRunner(@PathParam("name") String name, @PathParam("deletePVC") boolean deletePVC) {
-        kubernetesService.deleteRunner(name, deletePVC);
-        infinispanService.deleteRunnerStatuses(name);
+    @Path("/{projectId}/{deletePVC}")
+    public Response deleteRunner(@PathParam("projectId") String projectId, @PathParam("deletePVC") boolean deletePVC) {
+        String runnerName = projectId + "-" + RUNNER_SUFFIX;
+        kubernetesService.deleteRunner(runnerName, deletePVC);
+        infinispanService.deleteRunnerStatuses(runnerName);
         return Response.accepted().build();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/pod/{projectId}/{name}")
-    public Response getPodStatus(@PathParam("projectId") String projectId, @PathParam("name") String name) {
+    @Path("/pod/{projectId}")
+    public Response getPodStatus(@PathParam("projectId") String projectId) {
+        String runnerName = projectId + "-" + RUNNER_SUFFIX;
         Optional<PodStatus> ps =  infinispanService.getPodStatuses(projectId, environment).stream()
-                .filter(podStatus -> podStatus.getName().equals(name))
+                .filter(podStatus -> podStatus.getName().equals(runnerName))
                 .findFirst();
         if (ps.isPresent()) {
             return Response.ok(ps.get()).build();
@@ -102,7 +104,7 @@ public class RunnerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/console/{statusName}/{projectId}")
+    @Path("/console/{projectId}/{statusName}")
     public Response getCamelStatusByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("statusName") String statusName) {
         String name = projectId + "-" + RUNNER_SUFFIX;
         String status = infinispanService.getRunnerStatus(name, RunnerStatus.NAME.valueOf(statusName));
