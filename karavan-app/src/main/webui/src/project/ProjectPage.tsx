@@ -90,13 +90,14 @@ export const ProjectPage = () => {
     const types = isBuildIn()
         ? (isKameletsProject() ? ['KAMELET'] : ['CODE', 'PROPERTIES'])
         : ProjectFileTypes.filter(p => !['PROPERTIES', 'LOG', 'KAMELET'].includes(p.name)).map(p => p.name);
+    const showFilePanel = file !== undefined && operation === 'select';
     return (
         <PageSection key={key} className="kamelet-section project-page" padding={{default: 'noPadding'}}>
             <PageSection className="tools-section" padding={{default: 'noPadding'}}>
                 <MainToolbar title={<ProjectTitle/>} tools={tools()}/>
             </PageSection>
-            {file === undefined && operation !== 'select' && <ProjectPanel/>}
-            {file !== undefined && operation === 'select' && <FileEditor/>}
+            {showFilePanel && <FileEditor/>}
+            {!showFilePanel && <ProjectPanel/>}
             <ProjectLogPanel/>
         </PageSection>
     )

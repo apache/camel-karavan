@@ -55,7 +55,7 @@ export class UploadFileModal extends React.Component<Props, State> {
     };
 
     closeModal = () => {
-        useFileStore.setState({operation:"none", file: undefined});
+        useFileStore.setState({operation:"none"});
     }
 
     saveAndCloseModal = () => {
