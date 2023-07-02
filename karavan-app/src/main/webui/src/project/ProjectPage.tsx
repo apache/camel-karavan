@@ -28,6 +28,7 @@ export const ProjectPage = () => {
     const [project] = useProjectStore((state) => [state.project], shallow )
 
     useEffect(() => {
+        console.log("Project page")
         const interval = setInterval(() => {
             ProjectService.getRunnerPodStatus(project);
         }, 1000);

@@ -7,7 +7,7 @@ import {
     useAppConfigStore,
     useDeploymentStatusesStore,
     useFilesStore,
-    useFileStore,
+    useFileStore, useLogStore,
     useProjectsStore,
     useProjectStore, useRunnerStore
 } from "./ProjectStore";
@@ -20,7 +20,7 @@ export class ProjectService {
         KaravanApi.runProject(project, res => {
             if (res.status === 200 || res.status === 201) {
                 ProjectEventBus.sendLog("set", '');
-                useRunnerStore.setState({showLog: true})
+                useLogStore.setState({showLog: true, type: 'container', podName: res.data})
             } else {
                 // Todo notification
             }
@@ -44,7 +44,7 @@ export class ProjectService {
         ProjectEventBus.sendLog("set", '');
         KaravanApi.deleteRunner(project.projectId, false, res => {
             if (res.status === 202) {
-                useRunnerStore.setState({showLog: false, type: 'container'})
+                useLogStore.setState({showLog: false, type: 'container'})
             } else {
                 ProjectEventBus.sendAlert(new ToastMessage("Error delete runner", res.statusText, 'warning'))
             }

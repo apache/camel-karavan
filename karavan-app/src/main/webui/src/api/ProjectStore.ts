@@ -141,10 +141,6 @@ interface RunnerState {
     podName?: string,
     status: "none" | "starting" | "deleting"| "reloading" | "running",
     setStatus: (status: "none" | "starting" | "deleting"| "reloading" | "running") => void,
-    type: 'container' | 'pipeline' | 'none',
-    setType: (type: 'container' | 'pipeline' | 'none') => void,
-    showLog: boolean,
-    setShowLog: (showLog: boolean) => void;
 }
 
 export const useRunnerStore = create<RunnerState>((set) => ({
@@ -155,26 +151,24 @@ export const useRunnerStore = create<RunnerState>((set) => ({
             status: status,
         }), true);
     },
-    type: "none",
-    setType: (type: 'container' | 'pipeline' | 'none') =>  {
-        set((state: RunnerState) => ({type: type}), true);
-    },
-    showLog: false,
-    setShowLog: (showLog: boolean) => {
-        set(() => ({showLog: showLog}));
-    }
 }))
 
 interface LogState {
+    podName?: string,
     data: string;
     setData: (data: string) => void;
     addData: (data: string) => void;
     addDataAsync: (data: string) => void;
     currentLine: number;
     setCurrentLine: (currentLine: number) => void;
+    showLog: boolean,
+    setShowLog: (showLog: boolean) => void;
+    type: 'container' | 'pipeline' | 'none',
+    setType: (type: 'container' | 'pipeline' | 'none') => void,
 }
 
 export const useLogStore = create<LogState>((set) => ({
+    podName: undefined,
     data: '',
     setData: (data: string)  => {
         set({data: data}, true)
@@ -188,7 +182,15 @@ export const useLogStore = create<LogState>((set) => ({
     currentLine: 0,
     setCurrentLine: (currentLine: number)  => {
         set((state: LogState) => ({currentLine: currentLine}), true)
-    }
+    },
+    showLog: false,
+    setShowLog: (showLog: boolean) => {
+        set(() => ({showLog: showLog}), true);
+    },
+    type: "none",
+    setType: (type: 'container' | 'pipeline' | 'none') =>  {
+        set((state: LogState) => ({type: type}), true);
+    },
 }))
 
 console.log("Start log subscriber");
@@ -196,7 +198,7 @@ const sub = ProjectEventBus.onLog()?.subscribe((result: ["add" | "set", string])
     if (result[0] === 'add') {
         unstable_batchedUpdates(() => {
             useLogStore.setState((state: LogState) =>
-                ({data: state.data ? state.data.concat('\n').concat(result[1]) : result[1], currentLine: state.currentLine+1}), true)
+                ({data: state.data ? state.data.concat('\n').concat(result[1]) : result[1], currentLine: state.currentLine+1}))
         })
     }
     else if (result[0] === 'set') {

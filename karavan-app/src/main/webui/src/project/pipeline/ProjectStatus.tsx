@@ -15,7 +15,7 @@ import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon
 import ClockIcon from "@patternfly/react-icons/dist/esm/icons/clock-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
 import {CamelStatus, DeploymentStatus, PipelineStatus, PodStatus, Project} from "../../api/ProjectModels";
-import {useRunnerStore} from "../../api/ProjectStore";
+import {useLogStore, useRunnerStore} from "../../api/ProjectStore";
 
 interface Props {
     project: Project,
@@ -107,7 +107,7 @@ export class ProjectStatus extends React.Component<Props, State> {
         KaravanApi.pipelineRun(this.props.project, this.props.env, res => {
             if (res.status === 200 || res.status === 201) {
                 this.setState({isBuilding: false});
-                useRunnerStore.setState({showLog: true, type: 'pipeline', podName:  res.data})
+                useLogStore.setState({showLog: true, type: 'pipeline', podName:  res.data})
             } else {
                 // Todo notification
             }
@@ -208,8 +208,13 @@ export class ProjectStatus extends React.Component<Props, State> {
                                     <Tooltip key={pod.name} content={running ? "Running" : pod.phase}>
                                         <Label icon={running ? <UpIcon/> : <DownIcon/>} color={running ? "green" : "red"}>
                                             <Button variant="link"
-                                                    onClick={e =>
-                                                        useRunnerStore.setState({showLog: true, type: 'container', podName:  pod.name})}>
+                                                    onClick={e => {
+                                                        useLogStore.setState({
+                                                            showLog: true,
+                                                            type: 'container',
+                                                            podName: pod.name
+                                                        });
+                                                    }}>
                                                 {pod.name}
                                             </Button>
                                             <Tooltip content={"Delete Pod"}>
@@ -244,7 +249,7 @@ export class ProjectStatus extends React.Component<Props, State> {
 
     showPipelineLog(pipeline: string, env: string) {
         if (pipeline) {
-            useRunnerStore.setState({showLog: true, type: 'pipeline', podName:  pipeline})
+            useLogStore.setState({showLog: true, type: 'pipeline', podName:  pipeline})
         }
     }
 
