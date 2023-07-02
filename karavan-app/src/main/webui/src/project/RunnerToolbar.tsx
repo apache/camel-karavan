@@ -22,6 +22,18 @@ export const RunnerToolbar = () => {
     const isReloadingPod = status === "reloading";
     const isDeletingPod = status === "deleting";
     return (<>
+        {(isRunning || isDeletingPod) && !isReloadingPod && <FlexItem>
+            <Tooltip content="Stop runner" position={TooltipPosition.bottom}>
+                <Button isLoading={isDeletingPod ? true : undefined}
+                        isSmall
+                        variant={"secondary"}
+                        className="project-button"
+                        icon={!isRunning ? <DeleteIcon/> : <div></div>}
+                        onClick={() => ProjectService.deleteRunner(project)}>
+                    {isDeletingPod ? "..." : "Stop"}
+                </Button>
+            </Tooltip>
+        </FlexItem>}
         {!isRunning && !isReloadingPod && <FlexItem>
             <Tooltip content="Run in development mode" position={TooltipPosition.bottom}>
                 <Button isLoading={isStartingPod ? true : undefined}
@@ -45,18 +57,6 @@ export const RunnerToolbar = () => {
                     {isReloadingPod ? "..." : "Reload"}
                 </Button>
             </Tooltip>
-        </FlexItem>}
-        {(isRunning || isDeletingPod) && !isReloadingPod && <FlexItem>
-        <Tooltip content="Stop runner" position={TooltipPosition.bottom}>
-            <Button isLoading={isDeletingPod ? true : undefined}
-                    isSmall
-                    variant={"secondary"}
-                    className="project-button"
-                    icon={!isRunning ? <DeleteIcon/> : <div></div>}
-                    onClick={() => ProjectService.deleteRunner(project)}>
-                {isDeletingPod ? "..." : "Stop"}
-            </Button>
-        </Tooltip>
         </FlexItem>}
     </>);
 }

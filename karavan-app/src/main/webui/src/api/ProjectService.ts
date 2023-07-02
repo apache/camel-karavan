@@ -1,17 +1,17 @@
 import {KaravanApi} from "./KaravanApi";
-import {DeploymentStatus, PodStatus, Project, ProjectFile} from "./ProjectModels";
+import {DeploymentStatus, PodStatus, Project, ProjectFile, ToastMessage} from "./ProjectModels";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {KubernetesAPI} from "../designer/utils/KubernetesAPI";
 import {unstable_batchedUpdates} from 'react-dom'
-import {EventStreamContentType, fetchEventSource} from '@microsoft/fetch-event-source';
 import {
     useAppConfigStore,
     useDeploymentStatusesStore,
     useFilesStore,
-    useFileStore, useLogStore,
+    useFileStore,
     useProjectsStore,
     useProjectStore, useRunnerStore
 } from "./ProjectStore";
+import {ProjectEventBus} from "./ProjectEventBus";
 
 export class ProjectService {
 
@@ -19,6 +19,7 @@ export class ProjectService {
         useRunnerStore.setState({status: "starting"})
         KaravanApi.runProject(project, res => {
             if (res.status === 200 || res.status === 201) {
+                ProjectEventBus.sendLog("set", '');
                 useRunnerStore.setState({showLog: true})
             } else {
                 // Todo notification
@@ -40,12 +41,12 @@ export class ProjectService {
 
     public static deleteRunner(project: Project) {
         useRunnerStore.setState({status: "deleting"})
+        ProjectEventBus.sendLog("set", '');
         KaravanApi.deleteRunner(project.projectId, false, res => {
             if (res.status === 202) {
-                useRunnerStore.setState({showLog: false})
+                useRunnerStore.setState({showLog: false, type: 'container'})
             } else {
-                // Todo notification
-                // setIsDeletingPod(false);
+                ProjectEventBus.sendAlert(new ToastMessage("Error delete runner", res.statusText, 'warning'))
             }
         });
     }

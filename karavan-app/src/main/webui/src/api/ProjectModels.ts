@@ -1,3 +1,5 @@
+import {v4 as uuidv4} from "uuid";
+
 export class AppConfig {
     version: string = '';
     environment: string = '';
@@ -138,4 +140,18 @@ export function getProjectFileType (file: ProjectFile) {
     if (file.name.endsWith(".yaml")) return ProjectFileTypes.filter(p => p.name === "OPENAPI_YAML").map(p => p.title)[0];
     const extension = file.name.substring(file.name.lastIndexOf('.') + 1);
     return ProjectFileTypes.filter(p => p.extension === extension).map(p => p.title)[0];
+}
+
+export class ToastMessage {
+    id: string = ''
+    text: string = ''
+    title: string = ''
+    variant?: 'success' | 'danger' | 'warning' | 'info' | 'default';
+
+    constructor(title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') {
+        this.id = uuidv4();
+        this.title = title;
+        this.text = text;
+        this.variant = variant;
+    }
 }

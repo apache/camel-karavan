@@ -8,7 +8,7 @@ import FileSaver from "file-saver";
 import {ProjectToolbar} from "./ProjectToolbar";
 import {ProjectLogPanel} from "./log/ProjectLogPanel";
 import {ProjectFile, ProjectFileTypes} from "../api/ProjectModels";
-import {useFileStore, useProjectStore} from "../api/ProjectStore";
+import {useFileStore, useProjectStore, useRunnerStore} from "../api/ProjectStore";
 import {MainToolbar} from "../common/MainToolbar";
 import {CreateFileModal} from "./CreateFileModal";
 import {DeleteFileModal} from "./DeleteFileModal";

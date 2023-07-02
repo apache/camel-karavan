@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 import {BehaviorSubject, Subject} from 'rxjs';
-import {Project} from "./ProjectModels";
+import {Project, ToastMessage} from "./ProjectModels";
 
 const selectedProject = new BehaviorSubject<Project | undefined>(undefined);
 const currentFile = new BehaviorSubject<string | undefined>(undefined);
 const mode = new BehaviorSubject<"design" | "code">("design");
 const log = new Subject<["add" | "set", string]>();
+const alerts = new Subject<ToastMessage>();
 
 export class ShowLogCommand {
     type: 'container' | 'pipeline'
@@ -55,4 +56,7 @@ export const ProjectEventBus = {
 
     sendLog: (type: "add" | "set", m: string) =>  log.next([type, m]),
     onLog: () => log.asObservable(),
+
+    sendAlert: (alert: ToastMessage) =>  alerts.next(alert),
+    onAlert: () => alerts.asObservable(),
 }

@@ -66,7 +66,7 @@ export const ProjectToolbar = (props: Props) => {
         setIsYaml(isYaml);
         setIsIntegration(isIntegration);
         setIsProperties(isProperties);
-    });
+    }, [project]);
 
     function needCommit(): boolean {
         return project ? files.filter(f => f.lastUpdate > project.lastCommitTimestamp).length > 0 : false;

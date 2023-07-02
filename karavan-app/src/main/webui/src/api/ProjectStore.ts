@@ -16,7 +16,7 @@
  */
 
 import {create} from 'zustand'
-import {AppConfig, DeploymentStatus, PodStatus, Project, ProjectFile} from "./ProjectModels";
+import {AppConfig, DeploymentStatus, PodStatus, Project, ProjectFile, ToastMessage} from "./ProjectModels";
 import {ProjectEventBus} from "./ProjectEventBus";
 import {unstable_batchedUpdates} from "react-dom";
 

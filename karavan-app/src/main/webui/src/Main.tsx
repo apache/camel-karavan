@@ -2,8 +2,6 @@ import React from 'react';
 import {
     Page,
     Button,
-    Alert,
-    AlertActionCloseButton,
     Flex,
     FlexItem,
     Tooltip,
@@ -30,23 +28,10 @@ import {MainLogin} from "./MainLogin";
 import {DashboardPage} from "./dashboard/DashboardPage";
 import {Subscription} from "rxjs";
 import {ProjectEventBus} from "./api/ProjectEventBus";
-import {Project, ProjectFile} from "./api/ProjectModels";
+import {Project, ToastMessage} from "./api/ProjectModels";
 import {ProjectPage} from "./project/ProjectPage";
 import {useAppConfigStore, useFileStore} from "./api/ProjectStore";
-
-class ToastMessage {
-    id: string = ''
-    text: string = ''
-    title: string = ''
-    variant?: 'success' | 'danger' | 'warning' | 'info' | 'default';
-
-    constructor(title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') {
-        this.id = uuidv4();
-        this.title = title;
-        this.text = text;
-        this.variant = variant;
-    }
-}
+import {Notification} from "./Notification";
 
 class MenuItem {
     pageId: string = '';
@@ -68,7 +53,6 @@ interface State {
     pageId: string,
     isModalOpen: boolean,
     openapi: string,
-    alerts: ToastMessage[],
     request: string,
     filename: string,
     key: string,
@@ -81,7 +65,6 @@ export class Main extends React.Component<Props, State> {
         config: {},
         pageId: "projects",
         isModalOpen: false,
-        alerts: [],
         request: uuidv4(),
         openapi: '',
         filename: '',
@@ -169,10 +152,6 @@ export class Main extends React.Component<Props, State> {
         });
     }
 
-    deleteErrorMessage = (id: string) => {
-        this.setState({alerts: this.state.alerts.filter(a => a.id !== id)})
-    }
-
     pageNav = () => {
         const pages: MenuItem[] = [
             new MenuItem("dashboard", "Dashboard", <DashboardIcon/>),
@@ -231,9 +210,7 @@ export class Main extends React.Component<Props, State> {
     }
 
     toast = (title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') => {
-        const mess = [];
-        mess.push(...this.state.alerts, new ToastMessage(title, text, variant));
-        this.setState({alerts: mess})
+        ProjectEventBus.sendAlert(new ToastMessage(title, text, variant))
     }
 
     getMain() {
@@ -275,13 +252,7 @@ export class Main extends React.Component<Props, State> {
                 {(KaravanApi.isAuthorized || KaravanApi.authType === 'public') && this.getMain()}
                 {!KaravanApi.isAuthorized && KaravanApi.authType === 'basic' &&
                     <MainLogin config={this.state.config} onLogin={this.onLogin}/>}
-                {this.state.alerts.map((e: ToastMessage) => (
-                    <Alert key={e.id} className="main-alert" variant={e.variant} title={e.title}
-                           timeout={e.variant === "success" ? 1000 : 2000}
-                           actionClose={<AlertActionCloseButton onClose={() => this.deleteErrorMessage(e.id)}/>}>
-                        {e.text}
-                    </Alert>
-                ))}
+                <Notification/>
             </Page>
         )
     }

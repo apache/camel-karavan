@@ -588,7 +588,6 @@ export class KaravanApi {
                     }
                 },
                 onmessage(event) {
-                    console.log(event);
                     ProjectEventBus.sendLog('add', event.data)
                 },
                 onclose() {
