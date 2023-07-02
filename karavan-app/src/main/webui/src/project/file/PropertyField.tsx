@@ -37,7 +37,6 @@ export const PropertyField = (props: Props) => {
     const [value, setValue] = useState<string | undefined>(props.property.value);
 
     useEffect(() => {
-        console.log("PropertyField useEffect", props.property);
     }, []);
 
     return (

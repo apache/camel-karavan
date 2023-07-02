@@ -129,7 +129,7 @@ export class ProjectStatus extends React.Component<Props, State> {
     buildButton = (env: string) => {
         const {isBuilding, isPushing, pipelineStatus} = this.state;
         const isRunning = pipelineStatus?.result === 'Running';
-        return (<Tooltip content="Build and deploy" position={"left"}>
+        return (<Tooltip content="Start build pipeline" position={"left"}>
             <Button isLoading={isBuilding ? true : undefined}
                     isDisabled={isBuilding || isRunning || isPushing}
                     isSmall
@@ -137,7 +137,7 @@ export class ProjectStatus extends React.Component<Props, State> {
                     className="project-button"
                     icon={!isBuilding ? <BuildIcon/> : <div></div>}
                     onClick={e => this.build()}>
-                {isBuilding ? "..." : "Deploy"}
+                {isBuilding ? "..." : "Build"}
             </Button>
         </Tooltip>)
     }

@@ -22,23 +22,18 @@ import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {ProjectsTableRow} from "./ProjectsTableRow";
 import {DeleteProjectModal} from "./DeleteProjectModal";
 import {CreateProjectModal} from "./CreateProjectModal";
-import {useAppConfigStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
+import {useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {MainToolbar} from "../common/MainToolbar";
 import {Project} from "../api/ProjectModels";
 
 
-interface Props {
-    toast: (title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') => void
-}
-
-export const ProjectsPage = (props: Props) => {
+export const ProjectsPage = () => {
 
     const {projects, setProjects} = useProjectsStore();
     const {operation} = useProjectStore();
     const [filter, setFilter] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
-    const {config} = useAppConfigStore();
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -48,7 +43,7 @@ export const ProjectsPage = (props: Props) => {
         return () => {
             clearInterval(interval)
         };
-    });
+    }, [operation]);
 
     function getTools() {
         return <Toolbar id="toolbar-group-types">

@@ -223,8 +223,7 @@ export class Main extends React.Component<Props, State> {
                     </FlexItem>
                     <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
                         {this.state.pageId === 'projects' &&
-                            <ProjectsPage key={this.state.request}
-                                          toast={this.toast}/>}
+                            <ProjectsPage key={this.state.request}/>}
                         {this.state.pageId === 'project' &&
                             <ProjectPage key="projects"/>}
                         {this.state.pageId === 'dashboard' && <DashboardPage key={this.state.request}

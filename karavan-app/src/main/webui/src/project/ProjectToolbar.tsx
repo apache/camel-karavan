@@ -107,19 +107,19 @@ export const ProjectToolbar = (props: Props) => {
         const commit = project?.lastCommit;
         return (
             <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentFlexStart"}}>
-                {project?.lastCommitTimestamp && project?.lastCommitTimestamp > 0 &&
+                {project?.lastCommitTimestamp > 0 &&
                     <FlexItem>
                         <Tooltip content="Last update" position={TooltipPosition.bottom}>
                             <Label color={color}>{getDate(project?.lastCommitTimestamp)}</Label>
                         </Tooltip>
-                    </FlexItem>
-                }
+                    </FlexItem>}
+                {project?.lastCommitTimestamp > 0 &&
                 <FlexItem>
                     <Tooltip content={commit} position={TooltipPosition.bottom}>
                         <Label
                             color={color}>{commit ? commit?.substring(0, 18) : "-"}</Label>
                     </Tooltip>
-                </FlexItem>
+                </FlexItem>}
             </Flex>
         )
     }
