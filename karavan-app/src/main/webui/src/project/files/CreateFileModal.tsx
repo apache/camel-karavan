@@ -7,13 +7,13 @@ import {
     Form,
     ToggleGroupItem, ToggleGroup, FormHelperText, HelperText, HelperTextItem, TextInput
 } from '@patternfly/react-core';
-import '../designer/karavan.css';
+import '../../designer/karavan.css';
 import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import {useFileStore, useProjectStore} from "../api/ProjectStore";
-import {ProjectFile, ProjectFileTypes} from "../api/ProjectModels";
-import {CamelUi} from "../designer/utils/CamelUi";
-import {ProjectService} from "../api/ProjectService";
+import {useFileStore, useProjectStore} from "../../api/ProjectStore";
+import {ProjectFile, ProjectFileTypes} from "../../api/ProjectModels";
+import {CamelUi} from "../../designer/utils/CamelUi";
+import {ProjectService} from "../../api/ProjectService";
 
 interface Props {
     types: string[]

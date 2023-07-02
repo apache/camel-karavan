@@ -4,9 +4,9 @@ import {
     Modal,
     ModalVariant,
 } from '@patternfly/react-core';
-import '../designer/karavan.css';
-import {useFileStore} from "../api/ProjectStore";
-import {ProjectService} from "../api/ProjectService";
+import '../../designer/karavan.css';
+import {useFileStore} from "../../api/ProjectStore";
+import {ProjectService} from "../../api/ProjectService";
 
 export const DeleteFileModal = () => {
 

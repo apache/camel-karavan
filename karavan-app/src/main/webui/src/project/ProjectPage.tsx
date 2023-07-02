@@ -8,10 +8,8 @@ import FileSaver from "file-saver";
 import {ProjectToolbar} from "./ProjectToolbar";
 import {ProjectLogPanel} from "./log/ProjectLogPanel";
 import {ProjectFile, ProjectFileTypes} from "../api/ProjectModels";
-import {useFileStore, useProjectStore, useRunnerStore} from "../api/ProjectStore";
+import {useFileStore, useProjectStore} from "../api/ProjectStore";
 import {MainToolbar} from "../common/MainToolbar";
-import {CreateFileModal} from "./CreateFileModal";
-import {DeleteFileModal} from "./DeleteFileModal";
 import {ProjectTitle} from "./ProjectTitle";
 import {ProjectPanel} from "./ProjectPanel";
 import {FileEditor} from "./file/FileEditor";
@@ -99,8 +97,6 @@ export const ProjectPage = () => {
             </PageSection>
             {file === undefined && operation !== 'select' && <ProjectPanel/>}
             {file !== undefined && operation === 'select' && <FileEditor/>}
-            <CreateFileModal types={types}/>
-            <DeleteFileModal />
             <ProjectLogPanel/>
         </PageSection>
     )

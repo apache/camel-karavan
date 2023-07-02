@@ -19,14 +19,15 @@ import {
     TextInput,
     Button, Modal, FormGroup, ModalVariant, Switch, Form, FileUpload, Radio
 } from '@patternfly/react-core';
-import '../designer/karavan.css';
-import {ProjectFile} from "../../api/ProjectModels";
+import '../../designer/karavan.css';
+import {ProjectFile, ToastMessage} from "../../api/ProjectModels";
 import {KaravanApi} from "../../api/KaravanApi";
+import {useFileStore} from "../../api/ProjectStore";
+import {ProjectEventBus} from "../../api/ProjectEventBus";
 
 interface Props {
     projectId: string,
     isOpen: boolean,
-    onClose: any
 }
 
 interface State {
@@ -40,7 +41,7 @@ interface State {
     generateRoutes: boolean
 }
 
-export class UploadModal extends React.Component<Props, State> {
+export class UploadFileModal extends React.Component<Props, State> {
 
     public state: State = {
         type: 'integration',
@@ -54,7 +55,7 @@ export class UploadModal extends React.Component<Props, State> {
     };
 
     closeModal = () => {
-        this.props.onClose?.call(this);
+        useFileStore.setState({operation:"none", file: undefined});
     }
 
     saveAndCloseModal = () => {
@@ -64,20 +65,20 @@ export class UploadModal extends React.Component<Props, State> {
             KaravanApi.postProjectFile(file, res => {
                 if (res.status === 200) {
                     //TODO show notification
-                    this.props.onClose?.call(this);
+                    this.closeModal();
                 } else {
-                    // TODO show notification
-                    this.props.onClose?.call(this);
+                    this.closeModal();
+                    ProjectEventBus.sendAlert(new ToastMessage("Error", res.statusText, "warning"))
                 }
             })
         } else {
             KaravanApi.postOpenApi(file, state.generateRest, state.generateRoutes, state.integrationName, res => {
                 if (res.status === 200) {
                     console.log(res) //TODO show notification
-                    this.props.onClose?.call(this);
+                    this.closeModal();
                 } else {
-                    console.log(res) //TODO show notification
-                    this.props.onClose?.call(this);
+                    this.closeModal();
+                    ProjectEventBus.sendAlert(new ToastMessage("Error", res.statusText, "warning"))
                 }
             })
         }

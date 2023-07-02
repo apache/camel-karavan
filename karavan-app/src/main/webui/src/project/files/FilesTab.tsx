@@ -13,15 +13,19 @@ import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectStore";
-import {getProjectFileType, ProjectFile} from "../../api/ProjectModels";
+import {getProjectFileType, ProjectFile, ProjectFileTypes} from "../../api/ProjectModels";
 import {FileToolbar} from "./FilesToolbar";
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import FileSaver from "file-saver";
+import {CreateFileModal} from "./CreateFileModal";
+import {DeleteFileModal} from "./DeleteFileModal";
+import {UploadFileModal} from "./UploadFileModal";
 
 export const FilesTab = () => {
 
     const {files} = useFilesStore();
     const {project} = useProjectStore();
+    const {operation} = useFileStore();
 
     function getDate(lastUpdate: number): string {
         if (lastUpdate) {
@@ -43,6 +47,18 @@ export const FilesTab = () => {
             FileSaver.saveAs(f);
         }
     }
+
+    function isBuildIn(): boolean {
+        return ['kamelets', 'templates'].includes(project.projectId);
+    }
+
+    function isKameletsProject(): boolean {
+        return project.projectId === 'kamelets';
+    }
+
+    const types = isBuildIn()
+        ? (isKameletsProject() ? ['KAMELET'] : ['CODE', 'PROPERTIES'])
+        : ProjectFileTypes.filter(p => !['PROPERTIES', 'LOG', 'KAMELET'].includes(p.name)).map(p => p.name);
 
     return (
         <PageSection className="project-tab-panel" padding={{default: "padding"}}>
@@ -115,6 +131,9 @@ export const FilesTab = () => {
                     }
                 </Tbody>
             </TableComposable>
+            <CreateFileModal types={types}/>
+            <UploadFileModal projectId={project.projectId} isOpen={operation === 'upload'} />
+            <DeleteFileModal />
         </PageSection>
     )
 }
