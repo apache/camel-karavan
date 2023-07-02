@@ -15,31 +15,24 @@ import {
     ToggleGroupItem,
     Toolbar,
     ToolbarContent,
-    ToolbarItem,
     Tooltip,
     TooltipPosition
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
-import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
-import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
 import {RunnerToolbar} from "./RunnerToolbar";
-import {ProjectFile} from "../api/ProjectModels";
-import {useFilesStore, useProjectStore, useRunnerStore} from "../api/ProjectStore";
+import {useFilesStore, useFileStore, useProjectStore} from "../api/ProjectStore";
 import {EventBus} from "../designer/utils/EventBus";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
+import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
+import {ProjectModel, ProjectProperty} from "karavan-core/lib/model/ProjectModel";
 
 interface Props {
-    file?: ProjectFile,
     mode: "design" | "code",
-    editAdvancedProperties: boolean,
-    setUploadModalOpen: () => void,
-    setEditAdvancedProperties: (checked: boolean) => void,
     setMode: (mode: "design" | "code") => void,
 }
 
@@ -47,26 +40,34 @@ export const ProjectToolbar = (props: Props) => {
 
     const [commitMessageIsOpen, setCommitMessageIsOpen] = useState(false);
     const [commitMessage, setCommitMessage] = useState('');
-    const [isFile, setIsFile] = useState(false);
-    const [isYaml, setIsYaml] = useState(false);
-    const [isIntegration, setIsIntegration] = useState(false);
-    const [isProperties, setIsProperties] = useState(false);
-    const [ project, isPushing] = useProjectStore((state) => [state.project, state.isPushing], shallow )
+    const [project, isPushing] = useProjectStore((state) => [state.project, state.isPushing], shallow )
     const {files} = useFilesStore();
+    const [file, editAdvancedProperties, setEditAdvancedProperties, setAddProperty] = useFileStore((state) =>
+        [state.file, state.editAdvancedProperties, state.setEditAdvancedProperties, state.setAddProperty], shallow )
 
     useEffect(() => {
         console.log("ProjectToolbar useEffect", isPushing, project.lastCommitTimestamp);
-        const {file, mode, editAdvancedProperties,
-            setEditAdvancedProperties, setUploadModalOpen} = props;
-        const isFile = file !== undefined;
-        const isYaml = file !== undefined && file.name.endsWith("yaml");
-        const isIntegration = isYaml && file?.code !== undefined && CamelDefinitionYaml.yamlIsIntegration(file.code);
-        const isProperties = file !== undefined && file.name.endsWith("properties");
-        setIsFile(isFile);
-        setIsYaml(isYaml);
-        setIsIntegration(isIntegration);
-        setIsProperties(isProperties);
-    }, [project]);
+    }, [project, file]);
+
+    function isFile(): boolean {
+        return file !== undefined;
+    }
+
+    function isYaml(): boolean {
+        return file !== undefined && file.name.endsWith("yaml");
+    }
+
+    function isIntegration(): boolean {
+        return isYaml() && file?.code !== undefined && CamelDefinitionYaml.yamlIsIntegration(file.code);
+    }
+
+    function isProperties(): boolean {
+        return file !== undefined && file.name.endsWith("properties");
+    }
+
+    function isJava(): boolean {
+        return file !== undefined && file.name.endsWith("java");
+    }
 
     function needCommit(): boolean {
         return project ? files.filter(f => f.lastUpdate > project.lastCommitTimestamp).length > 0 : false;
@@ -77,13 +78,14 @@ export const ProjectToolbar = (props: Props) => {
     }
 
     function addProperty() {
-        // if (file) {
-        //     const project = file ? ProjectModelApi.propertiesToProject(file?.code) : ProjectModel.createNew();
-        //     const props = project.properties;
-        //     props.push(ProjectProperty.createNew("", ""))
-        //     save(file.name, ProjectModelApi.propertiesToString(props));
-        //     setKey(Math.random().toString());
-        // }
+        if (file) {
+            const project = file ? ProjectModelApi.propertiesToProject(file?.code) : ProjectModel.createNew();
+            const props = project.properties;
+            props.push(ProjectProperty.createNew("", ""));
+            file.code = ProjectModelApi.propertiesToString(props);
+            ProjectService.saveFile(file);
+            setAddProperty(Math.random().toString());
+        }
     }
 
     function push () {
@@ -124,14 +126,16 @@ export const ProjectToolbar = (props: Props) => {
 
 
     function getFileToolbar() {
-        const {file, mode, editAdvancedProperties,
-            setEditAdvancedProperties, setUploadModalOpen} = props;
+        const { mode} = props;
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
                 <Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
-                    {!isFile && <FlexItem>
-                        {getLastUpdatePanel()}
+                    {isJava() && <FlexItem>
+                        <Tooltip content="File size" position={TooltipPosition.bottom}>
+                            <Label>{file?.code?.length}</Label>
+                        </Tooltip>
                     </FlexItem>}
+                    {isRunnable() && <RunnerToolbar reloadOnly={true}/>}
                     {!isFile && <FlexItem>
                         <Tooltip content="Commit and push to git" position={"bottom-end"}>
                             <Button isLoading={isPushing ? true : undefined}
@@ -147,7 +151,7 @@ export const ProjectToolbar = (props: Props) => {
                             </Button>
                         </Tooltip>
                     </FlexItem>}
-                    {isYaml && <FlexItem>
+                    {isYaml() && <FlexItem>
                         <ToggleGroup>
                             <ToggleGroupItem text="Design" buttonId="design" isSelected={mode === "design"}
                                              onChange={s => props.setMode("design")}/>
@@ -156,7 +160,7 @@ export const ProjectToolbar = (props: Props) => {
                         </ToggleGroup>
                     </FlexItem>}
 
-                    {isProperties && <FlexItem>
+                    {isProperties() && <FlexItem>
                         <Checkbox
                             id="advanced"
                             label="Edit advanced"
@@ -164,19 +168,15 @@ export const ProjectToolbar = (props: Props) => {
                             onChange={checked => setEditAdvancedProperties(checked)}
                         />
                     </FlexItem>}
-                    {isProperties && <FlexItem>
+                    {isProperties() && <FlexItem>
                         <Button isSmall variant="primary" icon={<PlusIcon/>} onClick={e => addProperty()}>Add property</Button>
                     </FlexItem>}
 
-
-                    {isIntegration && <FlexItem>
+                    {isIntegration() && <FlexItem>
                         <Tooltip content="Download image" position={"bottom-end"}>
                             <Button isSmall variant="control" icon={<DownloadImageIcon/>} onClick={e => downloadImage()}/>
                         </Tooltip>
                     </FlexItem>}
-                    {/*{isYaml && currentRunner === project.name && <FlexItem>*/}
-                    {/*    <RunnerToolbar project={project} showConsole={false} reloadOnly={true} />*/}
-                    {/*</FlexItem>}*/}
                 </Flex>
             </ToolbarContent>
         </Toolbar>
@@ -247,7 +247,8 @@ export const ProjectToolbar = (props: Props) => {
          <>
             {/*{isTemplates && getTemplatesToolbar()}*/}
             {/*{!isTemplates && getProjectToolbar()}*/}
-             {!isFile && getProjectToolbar()}
+             {!isFile() && getProjectToolbar()}
+             {isFile() && getFileToolbar()}
              {getCommitModal()}
         </>
     )

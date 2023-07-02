@@ -14,47 +14,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Button,
     Modal,
     PageSection,
-    TextInput
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import {ProjectModel, ProjectProperty} from "karavan-core/lib/model/ProjectModel";
 import {useFileStore} from "../../api/ProjectStore";
-import {ProjectService} from "../../api/ProjectService";
 import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
+import {shallow} from "zustand/shallow"
+import {PropertyField} from "./PropertyField";
+import {ProjectService} from "../../api/ProjectService";
 
 export const PropertiesTable = () => {
 
-    const {file, operation} = useFileStore();
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
-    const [editAdvanced, setEditAdvanced] = useState<boolean>(false);
     const [deleteId, setDeleteId] = useState<string | undefined>(undefined);
+    const [key, setKey] = useState<string | undefined>(undefined);
     const [properties, setProperties] = useState<ProjectProperty[]>([]);
+    const [file, editAdvancedProperties, addProperty, setAddProperty] = useFileStore((state) =>
+        [state.file, state.editAdvancedProperties, state.addProperty, state.setAddProperty], shallow)
+
+    useEffect(() => {
+        console.log("PropertiesTable useEffect");
+        setProperties(getProjectModel().properties)
+    }, [addProperty]);
 
     function save (props: ProjectProperty[]) {
-        console.log("save")
         if (file) {
             file.code = ProjectModelApi.propertiesToString(props);
-            console.log("save", file)
             ProjectService.saveFile(file);
         }
     }
 
-    function getProjectModel (): ProjectModel {
+    function getProjectModel(): ProjectModel {
         return file ? ProjectModelApi.propertiesToProject(file?.code) : ProjectModel.createNew()
     }
 
-    function changeProperty(p: ProjectProperty, field: "key" | "value", val?: string) {
-        const key: string = field === 'key' && val !== undefined ? val : p.key;
-        const value: any = field === 'value' ? val : p.value;
-        const property: ProjectProperty = {id: p.id, key: key, value: value};
-        const properties = getProjectModel().properties;
+    function changeProperty(property: ProjectProperty) {
         const props = properties.map(prop => prop.id === property.id ? property : prop);
         save(props);
     }
@@ -67,11 +68,11 @@ export const PropertiesTable = () => {
 
     function confirmDelete() {
         console.log("confirmDelete")
-        const properties = getProjectModel().properties;
         const props = properties.filter(p => p.id !== deleteId);
         save(props);
         setShowDeleteConfirmation(false);
         setDeleteId(undefined);
+        setAddProperty(Math.random().toString());
     }
 
     function getDeleteConfirmation() {
@@ -90,12 +91,6 @@ export const PropertiesTable = () => {
         </Modal>)
     }
 
-    function getTextInputField(property: ProjectProperty, field: "key" | "value", readOnly: boolean) {
-        return (<TextInput isDisabled={readOnly} isRequired={true} className="text-field" type={"text"} id={field + "-" + property.key}
-                           value={field === "key" ? property.key : property.value}
-                           onChange={val => changeProperty(property, field, val)}/>)
-    }
-
     return (
         <PageSection isFilled className="kamelets-page" padding={{default: file !== undefined ? 'noPadding' : 'padding'}}>
             <PageSection padding={{default: "noPadding"}}>
@@ -111,16 +106,9 @@ export const PropertiesTable = () => {
                         </Thead>
                         <Tbody>
                             {properties.map((property, idx: number) => {
-                                const readOnly = (property.key.startsWith("camel.jbang") || property.key.startsWith("camel.karavan")) && !editAdvanced;
+                                const readOnly = (property.key.startsWith("camel.jbang") || property.key.startsWith("camel.karavan")) && !editAdvancedProperties;
                                 return (
-                                    <Tr key={property.id}>
-                                        <Td noPadding width={10} dataLabel="key">{getTextInputField(property, "key", readOnly)}</Td>
-                                        <Td noPadding width={20} dataLabel="value">{getTextInputField(property, "value", readOnly)}</Td>
-                                        <Td noPadding isActionCell dataLabel="delete" className="delete-cell">
-                                            {!readOnly && <Button variant={"plain"} icon={<DeleteIcon/>} className={"delete-button"}
-                                                                  onClick={event => startDelete(property.id)}/>}
-                                        </Td>
-                                    </Tr>
+                                    <PropertyField property={property} readOnly={readOnly} changeProperty={changeProperty} onDelete={startDelete}/>
                                 )})}
                         </Tbody>
                     </TableComposable>}

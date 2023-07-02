@@ -12,17 +12,22 @@ import { useProjectStore, useRunnerStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 
-export const RunnerToolbar = () => {
 
-    const [ status] = useRunnerStore((state) => [state.status], shallow )
-    const [ project] = useProjectStore((state) => [state.project], shallow )
+interface Props {
+    reloadOnly?: boolean
+}
+
+export const RunnerToolbar = (props: Props) => {
+
+    const [status] = useRunnerStore((state) => [state.status], shallow )
+    const [project] = useProjectStore((state) => [state.project], shallow )
 
     const isRunning = status === "running";
     const isStartingPod = status === "starting";
     const isReloadingPod = status === "reloading";
     const isDeletingPod = status === "deleting";
     return (<>
-        {(isRunning || isDeletingPod) && !isReloadingPod && <FlexItem>
+        {(isRunning || isDeletingPod) && !isReloadingPod && props.reloadOnly !== true && <FlexItem>
             <Tooltip content="Stop runner" position={TooltipPosition.bottom}>
                 <Button isLoading={isDeletingPod ? true : undefined}
                         isSmall
@@ -34,7 +39,7 @@ export const RunnerToolbar = () => {
                 </Button>
             </Tooltip>
         </FlexItem>}
-        {!isRunning && !isReloadingPod && <FlexItem>
+        {!isRunning && !isReloadingPod && props.reloadOnly !== true && <FlexItem>
             <Tooltip content="Run in development mode" position={TooltipPosition.bottom}>
                 <Button isLoading={isStartingPod ? true : undefined}
                         isSmall

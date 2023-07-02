@@ -84,32 +84,6 @@ export const FileEditor = () => {
         )
     }
 
-    function getLogView ()  {
-        return (
-            <div>
-                {file !== undefined && file.code.length !== 0 &&
-                    <CodeBlock>
-                        <CodeBlockCode id="code-content" className="log-code">{file.code}</CodeBlockCode>
-                    </CodeBlock>}
-                {(file === undefined || file.code.length === 0) &&
-                    <div>
-                        <Skeleton width="25%" screenreaderText="Loading contents"/>
-                        <br/>
-                        <Skeleton width="33%"/>
-                        <br/>
-                        <Skeleton width="50%"/>
-                        <br/>
-                        <Skeleton width="66%"/>
-                        <br/>
-                        <Skeleton width="75%"/>
-                        <br/>
-                        <Skeleton/>
-                    </div>}
-            </div>
-        )
-    }
-
-
     function isBuildIn(): boolean {
         return ['kamelets', 'templates'].includes(project.projectId);
     }
@@ -128,7 +102,6 @@ export const FileEditor = () => {
     const isYaml = file !== undefined && file.name.endsWith("yaml");
     const isIntegration = isYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
     const isProperties = file !== undefined && file.name.endsWith("properties");
-    const isLog = file !== undefined && file.name.endsWith("log");
     const isCode = file !== undefined && (file.name.endsWith("java") || file.name.endsWith("groovy") || file.name.endsWith("json"));
     const showDesigner = isYaml && isIntegration && mode === 'design';
     const showEditor = isCode || (isYaml && !isIntegration) || (isYaml && mode === 'code');
@@ -136,7 +109,6 @@ export const FileEditor = () => {
         <>
             {showDesigner && getDesigner()}
             {showEditor && getEditor()}
-            {isLog && getLogView()}
             {isProperties && file !== undefined && <PropertiesTable/>}
         </>
     )

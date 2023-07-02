@@ -19,14 +19,13 @@ import {shallow} from "zustand/shallow";
 export const ProjectPage = () => {
 
     const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
-    const [editAdvancedProperties, setEditAdvancedProperties] = useState<boolean>(false);
     const {file, operation} = useFileStore();
     const [mode, setMode] = useState<"design" | "code">("design");
     const [key, setKey] = useState<string>('');
     const [project] = useProjectStore((state) => [state.project], shallow )
 
     useEffect(() => {
-        console.log("Project page")
+        // TODO: make status request only when started or just opened
         const interval = setInterval(() => {
             ProjectService.getRunnerPodStatus(project);
         }, 1000);
@@ -70,12 +69,8 @@ export const ProjectPage = () => {
 
     function tools () {
         return <ProjectToolbar
-                               file={file}
                                mode={mode}
-                               editAdvancedProperties={editAdvancedProperties}
-                               setEditAdvancedProperties={checked => setEditAdvancedProperties(checked)}
                                setMode={mode => setMode(mode)}
-                               setUploadModalOpen={() => setIsUploadModalOpen(isUploadModalOpen)}
         />
     }
 

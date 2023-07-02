@@ -186,6 +186,9 @@
   right: 0;
   width: 100%;
   z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
 
 .karavan .project-page .project-log .buttons {

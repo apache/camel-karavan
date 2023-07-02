@@ -67,8 +67,10 @@ export class ProjectService {
                 })
             } else {
                 unstable_batchedUpdates(() => {
-                    useRunnerStore.setState({status: "none", podName: undefined})
-                    useProjectStore.setState({podStatus: new PodStatus()});
+                    if (useRunnerStore.getState().status !== 'none') {
+                        useRunnerStore.setState({status: "none", podName: undefined})
+                        useProjectStore.setState({podStatus: new PodStatus()});
+                    }
                 })
             }
         });
