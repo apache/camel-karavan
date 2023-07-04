@@ -50,7 +50,7 @@ export const TraceTab = () => {
         return () => {
             clearInterval(interval)
         };
-    }, []);
+    }, [refreshTrace]);
 
 
     function onRefreshStatus() {

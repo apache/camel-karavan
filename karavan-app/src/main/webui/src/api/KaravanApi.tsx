@@ -331,7 +331,7 @@ export class KaravanApi {
     }
 
     static async runProject(project: Project, verbose: boolean, after: (res: AxiosResponse<string>) => void) {
-        instance.post('/api/runner' + (verbose ? '/-verbose' : ''), project)
+        instance.post('/api/runner' + (verbose ? '/--verbose' : ''), project)
             .then(res => {
                 after(res);
             }).catch(err => {

@@ -25,7 +25,7 @@ import {RunnerInfoContext} from "./RunnerInfoContext";
 import {RunnerInfoMemory} from "./RunnerInfoMemory";
 import {KaravanApi} from "../../api/KaravanApi";
 import {PodStatus} from "../../api/ProjectModels";
-import {useAppConfigStore, useProjectStore, useRunnerStore} from "../../api/ProjectStore";
+import {useProjectStore} from "../../api/ProjectStore";
 
 export function isRunning(status: PodStatus): boolean {
     return status.phase === 'Running' && !status.terminating;
@@ -37,7 +37,6 @@ export const DashboardTab = () => {
     const [memory, setMemory] = useState({});
     const [jvm, setJvm] = useState({});
     const [context, setContext] = useState({});
-    const {config} = useAppConfigStore();
 
     useEffect(() => {
         const interval = setInterval(() => {

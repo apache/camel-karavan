@@ -8,7 +8,7 @@ import '../designer/karavan.css';
 import RocketIcon from "@patternfly/react-icons/dist/esm/icons/rocket-icon";
 import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
-import { useProjectStore, useRunnerStore} from "../api/ProjectStore";
+import {useProjectStore, useRunnerStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 
@@ -19,8 +19,8 @@ interface Props {
 
 export const RunnerToolbar = (props: Props) => {
 
-    const [status] = useRunnerStore((state) => [state.status], shallow )
-    const [project] = useProjectStore((state) => [state.project], shallow )
+    const [status] = useRunnerStore((state) => [state.status], shallow)
+    const [project] = useProjectStore((state) => [state.project], shallow)
     const [verbose, setVerbose] = useState(false);
 
     const isRunning = status === "running";
@@ -40,12 +40,14 @@ export const RunnerToolbar = (props: Props) => {
                 </Button>
             </Tooltip>
         </FlexItem>}
-        {!isRunning && !isReloadingPod && props.reloadOnly !== true && <FlexItem>
-            <Switch aria-label="refresh"
-                    id="refresh"
-                    isChecked={verbose}
-                    onChange={checked => setVerbose(checked)}
-            />
+        {!isRunning && !isReloadingPod && !isDeletingPod && props.reloadOnly !== true && <FlexItem>
+            <Tooltip content="Verbose" position={TooltipPosition.bottom}>
+                <Switch aria-label="verbose"
+                        id="verbose"
+                        isChecked={verbose}
+                        onChange={checked => setVerbose(checked)}
+                />
+            </Tooltip>
         </FlexItem>}
         {!isRunning && !isReloadingPod && props.reloadOnly !== true && <FlexItem>
             <Tooltip content="Run in development mode" position={TooltipPosition.bottom}>
