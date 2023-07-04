@@ -460,6 +460,8 @@ public class KubernetesService implements HealthCheck{
                 .withContainers(container)
                 .withRestartPolicy("Never")
                 .withVolumes(
+                        new VolumeBuilder().withName(name)
+                                .withNewPersistentVolumeClaim(name, false).build(),
                         new VolumeBuilder().withName("maven-settings")
                                 .withConfigMap(new ConfigMapVolumeSourceBuilder()
                                         .withName("karavan").build()).build())
