@@ -1,6 +1,9 @@
 FROM jbangdev/jbang-action:0.106.1
 
 ENV CAMEL_VERSION=3.21.0
+ENV KARAVAN="/karavan"
+ENV JBANG_REPO="$KARAVAN/.jbang/cache/.m2"
+ENV JBANG_DIR="$KARAVAN/.jbang"
 ENV MAVEN_SETTINGS="/karavan-config-map/maven-settings.xml"
 ENV KAMELETS_DIR="/scripts/kamelets"
 ENV CODE_DIR="/scripts/code"
