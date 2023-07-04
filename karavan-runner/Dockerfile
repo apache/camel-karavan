@@ -12,4 +12,4 @@ RUN mkdir -p $CODE_DIR \
 
 EXPOSE 8080
 
-ENTRYPOINT jbang -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --source-dir=$CODE_DIR --console --local-kamelet-dir=$KAMELETS_DIR --maven-settings=$MAVEN_SETTINGS
+ENTRYPOINT jbang --verbose -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --source-dir=$CODE_DIR --console --local-kamelet-dir=$KAMELETS_DIR --maven-settings=$MAVEN_SETTINGS
