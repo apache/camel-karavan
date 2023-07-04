@@ -15,9 +15,9 @@ import {ProjectEventBus} from "./ProjectEventBus";
 
 export class ProjectService {
 
-    public static startRunner(project: Project) {
+    public static startRunner(project: Project, verbose: boolean) {
         useRunnerStore.setState({status: "starting"})
-        KaravanApi.runProject(project, res => {
+        KaravanApi.runProject(project, verbose, res => {
             if (res.status === 200 || res.status === 201) {
                 ProjectEventBus.sendLog("set", '');
                 useLogStore.setState({showLog: true, type: 'container', podName: res.data})

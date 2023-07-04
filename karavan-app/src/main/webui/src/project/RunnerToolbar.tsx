@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
-    Button, FlexItem,
+    Button, FlexItem, Switch,
     Tooltip,
     TooltipPosition
 } from '@patternfly/react-core';
@@ -21,6 +21,7 @@ export const RunnerToolbar = (props: Props) => {
 
     const [status] = useRunnerStore((state) => [state.status], shallow )
     const [project] = useProjectStore((state) => [state.project], shallow )
+    const [verbose, setVerbose] = useState(false);
 
     const isRunning = status === "running";
     const isStartingPod = status === "starting";
@@ -40,13 +41,20 @@ export const RunnerToolbar = (props: Props) => {
             </Tooltip>
         </FlexItem>}
         {!isRunning && !isReloadingPod && props.reloadOnly !== true && <FlexItem>
+            <Switch aria-label="refresh"
+                    id="refresh"
+                    isChecked={verbose}
+                    onChange={checked => setVerbose(checked)}
+            />
+        </FlexItem>}
+        {!isRunning && !isReloadingPod && props.reloadOnly !== true && <FlexItem>
             <Tooltip content="Run in development mode" position={TooltipPosition.bottom}>
                 <Button isLoading={isStartingPod ? true : undefined}
                         isSmall
                         variant={"primary"}
                         className="project-button"
                         icon={!isStartingPod ? <RocketIcon/> : <div></div>}
-                        onClick={() => ProjectService.startRunner(project)}>
+                        onClick={() => ProjectService.startRunner(project, verbose)}>
                     {isStartingPod ? "..." : "Run"}
                 </Button>
             </Tooltip>

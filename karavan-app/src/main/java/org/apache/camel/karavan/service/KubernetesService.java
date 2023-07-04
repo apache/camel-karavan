@@ -386,14 +386,14 @@ public class KubernetesService implements HealthCheck{
         return result;
     }
 
-    public String tryCreateRunner(Project project, String runnerName) {
+    public String tryCreateRunner(Project project, String runnerName, String jBangOptions) {
         createPVC(runnerName);
         Pod old = kubernetesClient().pods().inNamespace(getNamespace()).withName(runnerName).get();
         if (old == null) {
             ProjectFile properties = infinispanService.getProjectFile(project.getProjectId(), APPLICATION_PROPERTIES_FILENAME);
             Map<String,String> containerResources = ServiceUtil
                     .getRunnerContainerResourcesMap(properties, isOpenshift(), project.getRuntime().equals("quarkus"));
-            Pod pod = getRunnerPod(project.getProjectId(), runnerName, containerResources);
+            Pod pod = getRunnerPod(project.getProjectId(), runnerName, jBangOptions, containerResources);
             Pod result = kubernetesClient().resource(pod).createOrReplace();
             LOGGER.info("Created pod " + result.getMetadata().getName());
         }
@@ -423,7 +423,7 @@ public class KubernetesService implements HealthCheck{
                 .build();
     }
 
-    private Pod getRunnerPod(String projectId, String name, Map<String,String> containerResources) {
+    private Pod getRunnerPod(String projectId, String name, String jbangOptions, Map<String,String> containerResources) {
         Map<String,String> labels = new HashMap<>();
         labels.putAll(getRuntimeLabels());
         labels.putAll(getKaravanRunnerLabels(name));
@@ -449,6 +449,7 @@ public class KubernetesService implements HealthCheck{
                 .withPorts(port)
                 .withResources(resources)
                 .withImagePullPolicy("Always")
+                .withEnv(new EnvVarBuilder().withName("JBANG_OPTIONS").withValue(jbangOptions).build())
                 .withVolumeMounts(
                         new VolumeMountBuilder().withName(name).withMountPath("/karavan/.jbang/cache").build(),
                         new VolumeMountBuilder().withName("maven-settings").withSubPath("maven-settings.xml")

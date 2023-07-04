@@ -57,15 +57,23 @@ public class RunnerResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response runProject(Project project) {
+    @Path("/{jBangOptions}")
+    public Response runProjectWithJBangOptions(Project project, @PathParam("jBangOptions") String jBangOptions) {
         String runnerName = project.getProjectId() + "-" + RUNNER_SUFFIX;
         String status = infinispanService.getRunnerStatus(runnerName, RunnerStatus.NAME.context);
         if (status == null) {
             Project p = infinispanService.getProject(project.getProjectId());
             infinispanService.saveRunnerStatus(runnerName, STATUS_NEED_INITIAL_LOAD, STATUS_NEED_INITIAL_LOAD);
-            return Response.ok(kubernetesService.tryCreateRunner(p, runnerName)).build();
+            return Response.ok(kubernetesService.tryCreateRunner(p, runnerName, jBangOptions)).build();
         }
         return Response.notModified().build();
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response runProject(Project project) {
+        return runProjectWithJBangOptions(project, "");
     }
 
     @GET
