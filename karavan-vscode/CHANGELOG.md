@@ -1,8 +1,11 @@
 # Changelog
 
-## 3.20.2
+## 3.21.0
 0. Camel 3.21.0
-1. Spring Boot 2.7.13
+1. Kamelets 3.21.0
+2. Spring Boot 2.7.13
+3. jkube 1.13.1 d
+4. Quarkus 2.16.7.Final
 
 ## 3.20.1
 0. Camel 3.20.3
