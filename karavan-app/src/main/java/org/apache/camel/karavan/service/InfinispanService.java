@@ -101,8 +101,7 @@ public class InfinispanService implements HealthCheck  {
                     .persistence().passivation(false)
                     .addStore(SingleFileStoreConfigurationBuilder.class)
                     .shared(false)
-                    .preload(true)
-                    .fetchPersistentState(true);
+                    .preload(true);
             environments = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Environment.CACHE, builder.build());
             projects = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Project.CACHE, builder.build());
             files = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ProjectFile.CACHE, builder.build());
