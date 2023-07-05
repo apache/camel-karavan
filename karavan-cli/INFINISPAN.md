@@ -1,31 +1,57 @@
-## Install Karavan with CLI
+## Install Infinispan
+
+More info: https://infinispan.org/docs/helm-chart/main/helm-chart.html
 
 ### Requirements
 1. minikube v1.30+ installed with `--driver=hyperkit`
+2. `helm` client
 
 ### Installation
-1. Start minikube
+1. Add the OpenShift Helm Charts repository
     ```
-    minikube start --driver=hyperkit
+    $ helm repo add openshift-helm-charts https://charts.openshift.io/
     ```
-2. Enable registry addon
+2. Create a secrets, ex `infinispan-secrets.yaml`:
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: karavan-infinispan
+type: Opaque
+stringData:
+  username: monitor
+  password: password
+  identities-batch: |-
+    user create admin -p karavan -g admin
+    user create monitor -p password --users-file metrics-users.properties --groups-file metrics-groups.properties
+```
+4. Apply secret
     ```
-    minikube addons enable registry
+    kubectl apply -f infinispan-secrets.yaml
     ```
-3. Start dashboard (optional)
+5. Create a values file that configures your Infinispan cluster, ex `infinispan-values.yaml`:
+   ```
+   images:
+     server: quay.io/infinispan/server:latest
+     initContainer: registry.access.redhat.com/ubi8-micro
+   deploy:
+     security:
+       authentication: true
+       secretName: karavan-infinispan
+     replicas: 1
+     container:
+       storage:
+         ephemeral: true
+     expose:
+       type: NodePort
+       nodePort: 32666
+   ```
+5. Install the Infinispan chart and specify your values file
     ```
-    minikube dashboard
+    kubectl config set-context --current --namespace=karavan
+    helm install infinispan openshift-helm-charts/infinispan-infinispan --values infinispan-values.yaml
     ```
-4. Package karavan-cli
-    ```
-    mvn clean package
-    ```
-5. Install Karavan
-    ```
-    java -jar target/karavan-cli-VERSION.jar install --git-repository=$GIT_REPOSITORY --git-password=$GIT_TOKEN --git-username=$GIT_USERNAME  --node-port=30777
-    ```
-5. Get karavan service URL
-    ```
-    minikube service karavan --url --namespace karavan
-    ```
-   Use karavan URL to connect to the application
+6. Configure hosts for `karavan-app` in `application.properties`:
+   ```
+   quarkus.infinispan-client.hosts=infinispan.karavan:11222
+   ```
