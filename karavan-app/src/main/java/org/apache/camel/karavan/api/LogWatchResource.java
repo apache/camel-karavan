@@ -30,14 +30,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.sse.Sse;
 import javax.ws.rs.sse.SseEventSink;
-import javax.xml.crypto.Data;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static org.apache.camel.karavan.service.RunnerService.RUNNER_SUFFIX;
 
 @Path("/api/logwatch")
 public class LogWatchResource {
@@ -62,14 +58,6 @@ public class LogWatchResource {
         managedExecutor.execute(() -> {
             LOGGER.info("LogWatch for " + name + " starting...");
             try (SseEventSink sink = eventSink) {
-//                    while (true) {
-//                        sink.send(sse.newEvent(new Date().toString()));
-//                        try {
-//                            Thread.sleep(2000);
-//                        } catch (InterruptedException e) {
-//                            throw new RuntimeException(e);
-//                        }
-//                    }
                 LogWatch logWatch = type.equals("container")
                         ? kubernetesService.getContainerLogWatch(name)
                         : kubernetesService.getPipelineRunLogWatch(name);

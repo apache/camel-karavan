@@ -43,7 +43,6 @@ export const TraceTab = () => {
     const [refreshTrace, setRefreshTrace] = useState(false);
 
     useEffect(() => {
-        console.log("TraceTab useEffect", refreshTrace, project)
         const interval = setInterval(() => {
             onRefreshStatus();
         }, 1000);

@@ -36,7 +36,6 @@ import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,7 +81,7 @@ public class StatusService {
         return webClient;
     }
 
-//    @ConsumeEvent(value = CMD_COLLECT_PROJECT_STATUS, blocking = true, ordered = true)
+    @ConsumeEvent(value = CMD_COLLECT_PROJECT_STATUS, blocking = true, ordered = true)
     public void collectProjectStatus(JsonObject data) {
         String projectId = data.getString("projectId");
         String env = data.getString("env");
@@ -98,7 +97,7 @@ public class StatusService {
         }
     }
 
-//    @ConsumeEvent(value = CMD_COLLECT_ALL_STATUSES, blocking = true, ordered = true)
+    @ConsumeEvent(value = CMD_COLLECT_ALL_STATUSES, blocking = true, ordered = true)
     public void collectAllStatuses(String data) {
         String all = "ALL_PROJECTS";
         if ((System.currentTimeMillis() - lastCollect.getOrDefault(all, 0L)) > threshold) {

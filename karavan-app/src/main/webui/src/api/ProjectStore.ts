@@ -72,9 +72,10 @@ export const useProjectStore = create<ProjectState>((set) => ({
     isPushing: false,
     isRunning: false,
     podStatus: new PodStatus(),
-    setProject: (p: Project) => {
+    setProject: (project: Project, operation:  "create" | "select" | "delete"| "none" | "copy") => {
         set((state: ProjectState) => ({
-            project: p
+            project: project,
+            operation: operation
         }));
     },
     setOperation: (o: "create" | "select" | "delete"| "none" | "copy") => {
@@ -168,6 +169,7 @@ export const useRunnerStore = create<RunnerState>((set) => ({
 
 interface LogState {
     podName?: string,
+    isRunning: boolean,
     data: string;
     setData: (data: string) => void;
     addData: (data: string) => void;
@@ -178,11 +180,13 @@ interface LogState {
     setShowLog: (showLog: boolean) => void;
     type: 'container' | 'pipeline' | 'none',
     setType: (type: 'container' | 'pipeline' | 'none') => void,
+    setIsRunning: (isRunning: boolean) => void;
 }
 
 export const useLogStore = create<LogState>((set) => ({
     podName: undefined,
     data: '',
+    isRunning: false,
     setData: (data: string)  => {
         set({data: data})
     },
@@ -199,6 +203,9 @@ export const useLogStore = create<LogState>((set) => ({
     showLog: false,
     setShowLog: (showLog: boolean) => {
         set(() => ({showLog: showLog}));
+    },
+    setIsRunning: (isRunning: boolean) => {
+        set(() => ({isRunning: isRunning}));
     },
     type: "none",
     setType: (type: 'container' | 'pipeline' | 'none') =>  {

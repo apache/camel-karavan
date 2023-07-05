@@ -44,7 +44,7 @@ export class ProjectService {
         ProjectEventBus.sendLog("set", '');
         KaravanApi.deleteRunner(project.projectId, false, res => {
             if (res.status === 202) {
-                useLogStore.setState({showLog: false, type: 'container'})
+                useLogStore.setState({showLog: false, type: 'container', isRunning: false})
             } else {
                 ProjectEventBus.sendAlert(new ToastMessage("Error delete runner", res.statusText, 'warning'))
             }
@@ -62,6 +62,7 @@ export class ProjectService {
                     }
                     if (useRunnerStore.getState().status !== "running"){
                         useRunnerStore.setState({status: "running"})
+                        useLogStore.setState({isRunning: true})
                     }
                     useProjectStore.setState({podStatus: res.data});
                 })

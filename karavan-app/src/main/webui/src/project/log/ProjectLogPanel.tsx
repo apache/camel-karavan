@@ -14,8 +14,8 @@ import {ProjectLog} from "./ProjectLog";
 const INITIAL_LOG_HEIGHT = "50%";
 
 export const ProjectLogPanel = () => {
-    const [showLog, type, setShowLog, podName] = useLogStore(
-        (state) => [state.showLog, state.type, state.setShowLog, state.podName], shallow)
+    const [showLog, type, setShowLog, podName, isRunning] = useLogStore(
+        (state) => [state.showLog, state.type, state.setShowLog, state.podName, state.isRunning], shallow)
 
     const [height, setHeight] = useState(INITIAL_LOG_HEIGHT);
     const [isTextWrapped, setIsTextWrapped] = useState(true);
@@ -24,9 +24,9 @@ export const ProjectLogPanel = () => {
     const [currentPodName, setCurrentPodName] = useState<string | undefined>(undefined);
 
     useEffect(() => {
-        console.log("ProjectLogPanel", showLog, type, podName);
+        console.log("ProjectLogPanel", showLog, type, podName, isRunning);
         const controller = new AbortController();
-        if (showLog && type !== 'none' && podName !== undefined) {
+        if (showLog && type !== 'none' && podName !== undefined && isRunning) {
             const f = KaravanApi.fetchData(type, podName, controller).then(value => {
                 console.log("Fetch Started for: " + podName)
             });
@@ -37,7 +37,7 @@ export const ProjectLogPanel = () => {
             console.log("end");
             controller.abort();
         };
-    }, [showLog, type, podName]);
+    }, [showLog, type, podName, isRunning]);
 
     useEffect(() => {
         if (currentPodName !== podName) {
@@ -48,18 +48,20 @@ export const ProjectLogPanel = () => {
 
     function getButtons() {
         return (<div className="buttons">
-            <Label className="log-name">{podName!== undefined ? (type + ": " + podName) : ''}</Label>
+            <Label className="log-name">{podName !== undefined ? (type + ": " + podName) : ''}</Label>
             <Tooltip content={"Clean log"} position={TooltipPosition.bottom}>
                 <Button variant="plain" onClick={() => ProjectEventBus.sendLog('set', '')} icon={<CleanIcon/>}/>
             </Tooltip>
-            <Checkbox label="Wrap text" aria-label="wrap text checkbox" isChecked={isTextWrapped} id="wrap-text-checkbox"
-                      onChange={checked => setIsTextWrapped(checked)} />
-            <Checkbox label="Autoscroll" aria-label="autoscroll checkbox" isChecked={autoScroll} id="autoscroll-checkbox"
-                      onChange={checked => setAutoScroll(checked)} />
+            <Checkbox label="Wrap text" aria-label="wrap text checkbox" isChecked={isTextWrapped}
+                      id="wrap-text-checkbox"
+                      onChange={checked => setIsTextWrapped(checked)}/>
+            <Checkbox label="Autoscroll" aria-label="autoscroll checkbox" isChecked={autoScroll}
+                      id="autoscroll-checkbox"
+                      onChange={checked => setAutoScroll(checked)}/>
             {/*<Tooltip content={"Scroll to bottom"} position={TooltipPosition.bottom}>*/}
             {/*    <Button variant="plain" onClick={() => } icon={<ScrollIcon/>}/>*/}
             {/*</Tooltip>*/}
-            <Tooltip content={height === "100%" ? "Collapse": "Expand"} position={TooltipPosition.bottom}>
+            <Tooltip content={height === "100%" ? "Collapse" : "Expand"} position={TooltipPosition.bottom}>
                 <Button variant="plain" onClick={() => {
                     const h = height === "100%" ? INITIAL_LOG_HEIGHT : "100%";
                     setHeight(h);

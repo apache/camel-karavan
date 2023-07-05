@@ -15,7 +15,7 @@ import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon
 import ClockIcon from "@patternfly/react-icons/dist/esm/icons/clock-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
 import {CamelStatus, DeploymentStatus, PipelineStatus, PodStatus, Project} from "../../api/ProjectModels";
-import {useLogStore, useRunnerStore} from "../../api/ProjectStore";
+import {useLogStore} from "../../api/ProjectStore";
 
 interface Props {
     project: Project,
@@ -62,7 +62,6 @@ export class ProjectStatus extends React.Component<Props, State> {
         if (this.props.project) {
             KaravanApi.getProjectPipelineStatus(projectId, env, (status?: PipelineStatus) => {
                 this.setState({pipelineStatus: status});
-                // console.log(status);
             });
             KaravanApi.getProjectDeploymentStatus(projectId, env, (status?: DeploymentStatus) => {
                 this.setState({deploymentStatus: status});
@@ -84,19 +83,19 @@ export class ProjectStatus extends React.Component<Props, State> {
             case "deployment":
                 KaravanApi.deleteDeployment(environment, name, (res: any) => {
                     // if (Array.isArray(res) && Array.from(res).length > 0)
-                        // this.onRefresh();
+                    // this.onRefresh();
                 });
                 break;
             case "pod":
                 KaravanApi.deletePod(environment, name, (res: any) => {
                     // if (Array.isArray(res) && Array.from(res).length > 0)
-                        // this.onRefresh();
+                    // this.onRefresh();
                 });
                 break;
             case "pipelinerun":
                 KaravanApi.stopPipelineRun(environment, name, (res: any) => {
                     // if (Array.isArray(res) && Array.from(res).length > 0)
-                        // this.onRefresh();
+                    // this.onRefresh();
                 });
                 break;
         }
@@ -107,7 +106,6 @@ export class ProjectStatus extends React.Component<Props, State> {
         KaravanApi.pipelineRun(this.props.project, this.props.env, res => {
             if (res.status === 200 || res.status === 201) {
                 this.setState({isBuilding: false});
-                useLogStore.setState({showLog: true, type: 'pipeline', podName:  res.data})
             } else {
                 // Todo notification
             }
@@ -212,7 +210,8 @@ export class ProjectStatus extends React.Component<Props, State> {
                                                         useLogStore.setState({
                                                             showLog: true,
                                                             type: 'container',
-                                                            podName: pod.name
+                                                            podName: pod.name,
+                                                            isRunning: true
                                                         });
                                                     }}>
                                                 {pod.name}
@@ -245,12 +244,6 @@ export class ProjectStatus extends React.Component<Props, State> {
 
     getStatusIcon(status?: string) {
         return (status === 'UP' ? <UpIcon/> : <DownIcon/>)
-    }
-
-    showPipelineLog(pipeline: string, env: string) {
-        if (pipeline) {
-            useLogStore.setState({showLog: true, type: 'pipeline', podName:  pipeline})
-        }
     }
 
     getHealthPanel(env: string) {
@@ -296,20 +289,24 @@ export class ProjectStatus extends React.Component<Props, State> {
                         <LabelGroup numLabels={2}>
                             <Label icon={isRunning ? <Spinner isSVG diameter="16px" className="spinner"/> : icon} color={color}>
                                 {pipeline
-                                    ? <Button variant="link" onClick={e => this.showPipelineLog(pipeline, env)}>
+                                    ? <Button variant="link" onClick={e =>
+                                        useLogStore.setState({showLog: true, type: 'pipeline', podName: pipeline, isRunning: true})
+                                    }>
                                         {pipeline}
                                     </Button>
                                     : "No pipeline"}
                                 {isRunning && <Tooltip content={"Stop PipelineRun"}>
-                                    <Button icon={<DeleteIcon/>} variant="link" onClick={e => this.setState({
-                                        showDeleteConfirmation: true,
-                                        deleteEntity: "pipelinerun",
-                                        deleteEntityEnv: env,
-                                        deleteEntityName: pipeline
-                                    })}></Button>
+                                    <Button icon={<DeleteIcon/>} variant="link" onClick={e =>
+                                        this.setState({
+                                            showDeleteConfirmation: true,
+                                            deleteEntity: "pipelinerun",
+                                            deleteEntityEnv: env,
+                                            deleteEntityName: pipeline
+                                        })
+                                    }></Button>
                                 </Tooltip>}
                             </Label>
-                            {pipeline && showTime && lastPipelineRunTime !== undefined &&
+                            {pipeline !== undefined && showTime === true && lastPipelineRunTime !== undefined &&
                                 <Label icon={<ClockIcon className="not-spinner"/>} color={color}>{lastPipelineRunTime + "s"}</Label>}
                         </LabelGroup>
                     </Tooltip>

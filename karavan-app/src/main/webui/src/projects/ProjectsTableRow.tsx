@@ -10,8 +10,14 @@ import { Td, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";
 import {DeploymentStatus, Project} from '../api/ProjectModels';
-import {useAppConfigStore, useDeploymentStatusesStore, useProjectStore} from "../api/ProjectStore";
+import {
+    useAppConfigStore,
+    useDeploymentStatusesStore,
+    useLogStore,
+    useProjectStore,
+} from "../api/ProjectStore";
 import {ProjectEventBus} from "../api/ProjectEventBus";
+import {shallow} from "zustand/shallow";
 
 interface Props {
     project: Project
@@ -21,6 +27,8 @@ export const ProjectsTableRow = (props: Props) => {
 
     const {statuses} = useDeploymentStatusesStore();
     const {config} = useAppConfigStore();
+    const [setProject] = useProjectStore((state) => [state.setProject, state.setOperation], shallow);
+    const [setShowLog] = useLogStore((state) => [state.setShowLog], shallow);
 
     function getEnvironments(): string [] {
         return config.environments && Array.isArray(config.environments) ? Array.from(config.environments) : [];
@@ -46,7 +54,8 @@ export const ProjectsTableRow = (props: Props) => {
             </Td>
             <Td>
                 <Button style={{padding: '6px'}} variant={"link"} onClick={e => {
-                    useProjectStore.setState({project: project, operation: "select"});
+                    setProject(project, "select");
+                    setShowLog(false);
                     ProjectEventBus.selectProject(project);
                 }}>
                     {project.projectId}
@@ -78,14 +87,14 @@ export const ProjectsTableRow = (props: Props) => {
                             <Tooltip content={"Copy project"} position={"bottom"}>
                                 <Button variant={"plain"} icon={<CopyIcon/>}
                                         onClick={e => {
-                                            useProjectStore.setState({project: project, operation: "copy"});
+                                            setProject(project, "copy");
                                         }}></Button>
                             </Tooltip>
                         </FlexItem>
                         <FlexItem>
                             <Tooltip content={"Delete project"} position={"bottom"}>
                                 <Button variant={"plain"} icon={<DeleteIcon/>} onClick={e => {
-                                    useProjectStore.setState({project: project, operation: "delete"});
+                                    setProject(project, "delete");
                                 }}></Button>
                             </Tooltip>
                         </FlexItem>

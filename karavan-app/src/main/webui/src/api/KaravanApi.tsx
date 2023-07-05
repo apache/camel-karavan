@@ -588,7 +588,7 @@ export class KaravanApi {
                     }
                 },
                 onmessage(event) {
-                    ProjectEventBus.sendLog('add', event.data)
+                    ProjectEventBus.sendLog('add', event.data);
                 },
                 onclose() {
                     console.log("Connection closed by the server");
