@@ -9,6 +9,9 @@ mvn versions:set -DnewVersion=$1 -f karavan-app
 echo "Set Operator pom.xml version: $1";
 mvn versions:set -DnewVersion=$1 -f karavan-operator
 
+echo "Set Operator pom.xml version: $1";
+mvn versions:set -DnewVersion=$1 -f karavan-cli
+
 echo "Set Core package.json extension version: $1";
 yarn version --new-version $1 --no-commit --no-git-tag-version --cwd karavan-core
 
@@ -21,6 +24,9 @@ yarn version --new-version $1 --no-commit --no-git-tag-version --cwd karavan-app
 echo "Set VSCode extension package.json version: $1";
 yarn version --new-version $1 --no-commit --no-git-tag-version --cwd karavan-vscode
 
+echo "Set VSCode extension package.json version: $1";
+yarn version --new-version $1 --no-commit --no-git-tag-version --cwd karavan-space
+
 echo "Set Github Workflow Builder TAG version: $1";
 sed -i.bak 's/TAG:.*/TAG: '"$1"'/g' .github/workflows/builder.yml 
 echo "Set Github Workflow Runner TAG version: $1";
@@ -32,6 +38,8 @@ sed -i.bak 's/TAG:.*/TAG: '"$1"'/g' .github/workflows/app.yml
 echo "Set Github Workflow App TAG version: $1";
 sed -i.bak 's/TAG:.*/TAG: '"$1"'/g' .github/workflows/operator.yml  
 
+echo "Set Github Workflow App TAG version: $1";
+sed -i.bak 's/TAG:.*/TAG: '"$1"'/g' .github/workflows/cli.yml
 
 echo "Set application.properties karavan.version=$1";
 sed -i.bak 's/karavan.version.*/karavan.version='"$1"'/g' karavan-operator/src/main/resources/application.properties 

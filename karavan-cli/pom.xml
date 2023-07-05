@@ -6,7 +6,7 @@
     <groupId>org.apache.camel.karavan</groupId>
     <artifactId>karavan-cli</artifactId>
     <name>karavan-cli</name>
-    <version>3.20.2-SNAPSHOT</version>
+    <version>3.21.0</version>
     <packaging>jar</packaging>
     <properties>
         <compiler-plugin.version>3.10.1</compiler-plugin.version>
