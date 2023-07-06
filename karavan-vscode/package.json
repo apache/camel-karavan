@@ -4,7 +4,7 @@
   "displayName": "Karavan",
   "icon": "icons/karavan.png",
   "description": "Integration Toolkit for Apache Camel",
-  "version": "3.21.0",
+  "version": "3.21.1-SNAPSHOT",
   "license": "Apache-2.0",
   "preview": true,
   "bugs": {
