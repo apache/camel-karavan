@@ -93,15 +93,9 @@ public class InfinispanService implements HealthCheck  {
         if (cacheManager == null) {
             LOGGER.info("InfinispanService is starting in local mode");
             GlobalConfigurationBuilder global = GlobalConfigurationBuilder.defaultClusteredBuilder();
-            global.globalState().enable().persistentLocation("karavan-data");
             DefaultCacheManager cacheManager = new DefaultCacheManager(global.build());
             ConfigurationBuilder builder = new ConfigurationBuilder();
-            builder.clustering()
-                    .cacheMode(CacheMode.LOCAL)
-                    .persistence().passivation(false)
-                    .addStore(SingleFileStoreConfigurationBuilder.class)
-                    .shared(false)
-                    .preload(true);
+            builder.clustering().cacheMode(CacheMode.LOCAL);
             environments = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Environment.CACHE, builder.build());
             projects = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Project.CACHE, builder.build());
             files = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ProjectFile.CACHE, builder.build());

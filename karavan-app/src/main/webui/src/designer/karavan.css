@@ -912,8 +912,16 @@
 
 .dsl-modal .pf-c-card__body {
     padding-bottom: 0;
+    height: 54px;
 }
 
+
+.dsl-modal .pf-c-card__body p {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
 .dsl-modal .pf-c-card__footer {
     padding-bottom: 1em;
 }

@@ -69,6 +69,10 @@ public class KaravanService {
     }
 
     void startInformers() {
-        bus.publish(KubernetesService.START_INFORMERS, "");
+        if (kubernetesService.inKubernetes()) {
+            bus.publish(KubernetesService.START_INFORMERS, "");
+        } else {
+
+        }
     }
 }
