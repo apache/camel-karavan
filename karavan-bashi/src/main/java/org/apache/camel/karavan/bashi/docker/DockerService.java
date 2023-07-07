@@ -9,21 +9,23 @@ import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
+import com.github.dockerjava.core.InvocationBuilder;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
-import org.apache.camel.karavan.bashi.HealthChecker;
-import org.apache.camel.karavan.bashi.KaravanContainers;
+import io.vertx.core.eventbus.EventBus;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.bashi.KaravanConstants.NETWORK_NAME;
+import static org.apache.camel.karavan.bashi.ConductorService.ADDRESS_INFINISPAN_HEALTH;
+import static org.apache.camel.karavan.bashi.Constants.NETWORK_NAME;
 
 @ApplicationScoped
 public class DockerService {
@@ -34,14 +36,15 @@ public class DockerService {
     DockerEventListener dockerEventListener;
 
     @Inject
-    KaravanContainers karavanContainers;
+    EventBus eventBus;
 
     public void startListeners() {
         getDockerClient().eventsCmd().exec(dockerEventListener);
     }
 
     public void createNetwork() {
-        if (!getDockerClient().listNetworksCmd().exec().stream().filter(n -> n.getName().equals(NETWORK_NAME))
+        if (!getDockerClient().listNetworksCmd().exec().stream()
+                .filter(n -> n.getName().equals(NETWORK_NAME))
                 .findFirst().isPresent()) {
             CreateNetworkResponse res = getDockerClient().createNetworkCmd().withName(NETWORK_NAME).withAttachable(true).exec();
             LOGGER.info("Network created: {}" + res);
@@ -55,7 +58,9 @@ public class DockerService {
                 .filter(c -> c.getState().equals("running"))
                 .forEach(c -> {
                     HealthState hs = getDockerClient().inspectContainerCmd(c.getId()).exec().getState().getHealth();
-                    karavanContainers.addContainer(c, hs != null ? hs.getStatus() : "unknown");
+                    if (c.getNames()[0].equals("/infinispan")) {
+                        eventBus.publish(ADDRESS_INFINISPAN_HEALTH, hs.getStatus());
+                    }
                 });
     }
 
@@ -64,7 +69,26 @@ public class DockerService {
         return containers.get(0);
     }
 
-    public void createContainer(String name, String image, List<String> env, String ports, boolean exposedPort, HealthCheck healthCheck) throws InterruptedException {
+    public List<Container> getRunnerContainer() {
+        return getDockerClient().listContainersCmd()
+                .withShowAll(true).withLabelFilter(Map.of("type", "runner")).exec();
+    }
+
+    public Statistics getContainerStats(String id) {
+        InvocationBuilder.AsyncResultCallback<Statistics> callback = new InvocationBuilder.AsyncResultCallback<>();
+        getDockerClient().statsCmd(id).withContainerId(id).exec(callback);
+        Statistics stats = null;
+        try {
+            stats = callback.awaitResult();
+            callback.close();
+        } catch (RuntimeException | IOException e) {
+            // you may want to throw an exception here
+        }
+        return stats;
+    }
+
+    public void createContainer(String name, String image, List<String> env, String ports,
+                                boolean exposedPort, HealthCheck healthCheck, Map<String, String> labels) throws InterruptedException {
         List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
         if (containers.size() == 0) {
             pullImage(image);
@@ -73,10 +97,11 @@ public class DockerService {
 
             CreateContainerResponse container = getDockerClient().createContainerCmd(image)
                     .withName(name)
+                    .withLabels(labels)
                     .withEnv(env)
                     .withExposedPorts(exposedPorts)
                     .withHostName(name)
-                    .withHostConfig(getHostConfig(ports))
+                    .withHostConfig(getHostConfig(ports, exposedPort))
                     .withHealthcheck(healthCheck)
                     .exec();
             LOGGER.info("Container created: " + container.getId());
@@ -100,7 +125,7 @@ public class DockerService {
         startContainer(name);
     }
 
-    public void stopContainer(String name) throws InterruptedException {
+    public void stopContainer(String name) {
         List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
         if (containers.size() == 1) {
             Container container = containers.get(0);
@@ -110,29 +135,42 @@ public class DockerService {
         }
     }
 
-    public void pullImage(String image) throws InterruptedException {
-        List<Image> images = getDockerClient().listImagesCmd().withShowAll(true).exec();
-        if (!images.stream().filter(i -> Arrays.asList(i.getRepoTags()).contains(image)).findFirst().isPresent()) {
-            ResultCallback.Adapter<PullResponseItem>  pull = getDockerClient().pullImageCmd(image).start().awaitCompletion();
+    public void deleteContainer(String name) {
+        List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
+        if (containers.size() == 1) {
+            Container container = containers.get(0);
+            getDockerClient().removeContainerCmd(container.getId()).exec();
         }
     }
 
-    private HostConfig getHostConfig(String ports) {
+    public void pullImage(String image) throws InterruptedException {
+        List<Image> images = getDockerClient().listImagesCmd().withShowAll(true).exec();
+        if (!images.stream().filter(i -> Arrays.asList(i.getRepoTags()).contains(image)).findFirst().isPresent()) {
+            ResultCallback.Adapter<PullResponseItem> pull = getDockerClient().pullImageCmd(image).start().awaitCompletion();
+        }
+    }
+
+    private HostConfig getHostConfig(String ports, boolean exposedPort) {
         Ports portBindings = new Ports();
         getPortsFromString(ports).forEach((hostPort, containerPort) -> {
-            portBindings.bind(ExposedPort.tcp(containerPort), Ports.Binding.bindIp("0.0.0.0").bindPort(hostPort));
+            portBindings.bind(
+                    ExposedPort.tcp(containerPort),
+                    exposedPort ? Ports.Binding.bindIp("0.0.0.0").bindPort(hostPort) : Ports.Binding.bindPort(hostPort)
+            );
         });
         return new HostConfig()
                 .withPortBindings(portBindings)
                 .withNetworkMode(NETWORK_NAME);
     }
 
-    private Map<Integer,Integer> getPortsFromString(String ports){
-        Map<Integer,Integer> p = new HashMap<>();
-        Arrays.stream(ports.split(",")).forEach(s -> {
-            String[] values = s.split(":");
-            p.put(Integer.parseInt(values[0]), Integer.parseInt(values[1]));
-        });
+    private Map<Integer, Integer> getPortsFromString(String ports) {
+        Map<Integer, Integer> p = new HashMap<>();
+        if (!ports.isEmpty()) {
+            Arrays.stream(ports.split(",")).forEach(s -> {
+                String[] values = s.split(":");
+                p.put(Integer.parseInt(values[0]), Integer.parseInt(values[1]));
+            });
+        }
         return p;
     }
 

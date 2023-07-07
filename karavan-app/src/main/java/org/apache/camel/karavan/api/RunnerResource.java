@@ -18,9 +18,9 @@ package org.apache.camel.karavan.api;
 
 import org.apache.camel.karavan.model.PodStatus;
 import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.model.RunnerCommand;
 import org.apache.camel.karavan.model.RunnerStatus;
 import org.apache.camel.karavan.service.InfinispanService;
-import org.apache.camel.karavan.service.KubernetesService;
 import org.apache.camel.karavan.service.RunnerService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -49,9 +49,6 @@ public class RunnerResource {
     RunnerService runnerServices;
 
     @Inject
-    KubernetesService kubernetesService;
-
-    @Inject
     InfinispanService infinispanService;
 
     @POST
@@ -62,9 +59,9 @@ public class RunnerResource {
         String runnerName = project.getProjectId() + "-" + RUNNER_SUFFIX;
         String status = infinispanService.getRunnerStatus(runnerName, RunnerStatus.NAME.context);
         if (status == null) {
-            Project p = infinispanService.getProject(project.getProjectId());
             infinispanService.saveRunnerStatus(runnerName, STATUS_NEED_INITIAL_LOAD, STATUS_NEED_INITIAL_LOAD);
-            return Response.ok(kubernetesService.tryCreateRunner(p, runnerName, jBangOptions)).build();
+            infinispanService.sendRunnerCommand(project.getProjectId(), RunnerCommand.NAME.run);
+            return Response.ok(runnerName).build();
         }
         return Response.notModified().build();
     }
@@ -89,9 +86,7 @@ public class RunnerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{projectId}/{deletePVC}")
     public Response deleteRunner(@PathParam("projectId") String projectId, @PathParam("deletePVC") boolean deletePVC) {
-        String runnerName = projectId + "-" + RUNNER_SUFFIX;
-        kubernetesService.deleteRunner(runnerName, deletePVC);
-        infinispanService.deleteRunnerStatuses(runnerName);
+        infinispanService.sendRunnerCommand(projectId, RunnerCommand.NAME.delete);
         return Response.accepted().build();
     }
 

@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.service;
 
+import io.fabric8.kubernetes.api.model.Pod;
 import io.quarkus.scheduler.Scheduled;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
@@ -25,6 +26,8 @@ import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.apache.camel.karavan.model.PodStatus;
+import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.model.RunnerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
@@ -33,8 +36,11 @@ import org.jboss.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+
+import static org.apache.camel.karavan.service.ServiceUtil.APPLICATION_PROPERTIES_FILENAME;
 
 @ApplicationScoped
 public class RunnerService {
@@ -83,7 +89,7 @@ public class RunnerService {
     @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)
     public boolean putRequest(String runnerName, String fileName, String body, int timeout) {
         try {
-            String url = "http://" + runnerName + "." + kubernetesService.getNamespace() + ".svc.cluster.local/q/upload/" + fileName;
+            String url = getRunnerAddress(runnerName) + "/q/upload/" + fileName;
             HttpResponse<Buffer> result = getWebClient().putAbs(url)
                     .timeout(timeout).sendBuffer(Buffer.buffer(body)).subscribeAsCompletionStage().toCompletableFuture().get();
             return result.statusCode() == 200;
@@ -94,7 +100,7 @@ public class RunnerService {
     }
 
     public String reloadRequest(String runnerName) {
-        String url = "http://" + runnerName + "." + kubernetesService.getNamespace() + ".svc.cluster.local/q/dev/reload?reload=true";
+        String url = getRunnerAddress(runnerName) + "/q/dev/reload?reload=true";
         try {
             return result(url, 1000);
         } catch (InterruptedException | ExecutionException e) {
@@ -103,8 +109,17 @@ public class RunnerService {
         return null;
     }
 
+    public String getRunnerAddress(String runnerName) {
+        if (kubernetesService.inKubernetes()) {
+            return "http://" + runnerName + "." + kubernetesService.getNamespace() + ".svc.cluster.local";
+        } else {
+            return "http://" + runnerName + ":8080";
+        }
+    }
+
     @Scheduled(every = "{karavan.runner-status-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectRunnerStatus() {
+        System.out.println("collectRunnerStatus");
         if (infinispanService.call().getStatus().name().equals("UP")) {
             infinispanService.getPodStatuses(environment).stream().filter(PodStatus::getRunner).forEach(podStatus -> {
                 eventBus.publish(CMD_COLLECT_RUNNER_STATUS, podStatus.getName());
@@ -151,8 +166,7 @@ public class RunnerService {
     }
 
     public String getRunnerStatus(String podName, RunnerStatus.NAME statusName) {
-        String url = "http://" + podName + "." + kubernetesService.getNamespace() + ".svc.cluster.local/q/dev/" + statusName.name();
-//        String url = "http://0.0.0.0:8888/q/dev/" + statusName.name();
+        String url = getRunnerAddress(podName) + "/q/dev/" + statusName.name();
         try {
             return result(url, 1000);
         } catch (InterruptedException | ExecutionException e) {

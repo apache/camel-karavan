@@ -17,16 +17,9 @@
 package org.apache.camel.karavan.service;
 
 import io.smallrye.mutiny.tuples.Tuple2;
-import org.apache.camel.karavan.model.CamelStatus;
-import org.apache.camel.karavan.model.DeploymentStatus;
-import org.apache.camel.karavan.model.Environment;
-import org.apache.camel.karavan.model.GroupedKey;
-import org.apache.camel.karavan.model.PipelineStatus;
-import org.apache.camel.karavan.model.PodStatus;
-import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.model.ProjectFile;
-import org.apache.camel.karavan.model.RunnerStatus;
-import org.apache.camel.karavan.model.ServiceStatus;
+import org.apache.camel.karavan.listener.ClientRunnerListener;
+import org.apache.camel.karavan.listener.LocalRunnerListener;
+import org.apache.camel.karavan.model.*;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Readiness;
@@ -38,7 +31,6 @@ import org.infinispan.commons.api.CacheContainerAdmin;
 import org.infinispan.commons.configuration.StringConfiguration;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
-import org.infinispan.configuration.cache.SingleFileStoreConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.query.dsl.QueryFactory;
@@ -48,11 +40,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -74,10 +62,13 @@ public class InfinispanService implements HealthCheck  {
     private BasicCache<String, Environment> environments;
     private BasicCache<String, String> commits;
     private BasicCache<GroupedKey, String> runnerStatuses;
+    private BasicCache<GroupedKey, String> runnerCommands;
     private final AtomicBoolean ready = new AtomicBoolean(false);
 
     @Inject
-    RemoteCacheManager cacheManager;
+    RemoteCacheManager remoteCacheManager;
+
+    DefaultCacheManager localCacheManager;
 
     @Inject
     CodeService codeService;
@@ -87,44 +78,54 @@ public class InfinispanService implements HealthCheck  {
             + " <groups enabled=\"true\"/>"
             + "</distributed-cache>";
 
-    private static final Logger LOGGER = Logger.getLogger(KaravanService.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(InfinispanService.class.getName());
 
     void start() {
-        if (cacheManager == null) {
+        if (remoteCacheManager == null) {
             LOGGER.info("InfinispanService is starting in local mode");
             GlobalConfigurationBuilder global = GlobalConfigurationBuilder.defaultClusteredBuilder();
-            DefaultCacheManager cacheManager = new DefaultCacheManager(global.build());
+            localCacheManager = new DefaultCacheManager(global.build());
             ConfigurationBuilder builder = new ConfigurationBuilder();
             builder.clustering().cacheMode(CacheMode.LOCAL);
-            environments = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Environment.CACHE, builder.build());
-            projects = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Project.CACHE, builder.build());
-            files = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ProjectFile.CACHE, builder.build());
-            pipelineStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(PipelineStatus.CACHE, builder.build());
-            deploymentStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(DeploymentStatus.CACHE, builder.build());
-            podStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(PodStatus.CACHE, builder.build());
-            serviceStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ServiceStatus.CACHE, builder.build());
-            camelStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(CamelStatus.CACHE, builder.build());
-            commits = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache("commits", builder.build());
-            runnerStatuses = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache("runner_statuses", builder.build());
+            environments = localCacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Environment.CACHE, builder.build());
+            projects = localCacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(Project.CACHE, builder.build());
+            files = localCacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ProjectFile.CACHE, builder.build());
+            pipelineStatuses = localCacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(PipelineStatus.CACHE, builder.build());
+            deploymentStatuses = localCacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(DeploymentStatus.CACHE, builder.build());
+            podStatuses = localCacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(PodStatus.CACHE, builder.build());
+            serviceStatuses = localCacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(ServiceStatus.CACHE, builder.build());
+            camelStatuses = localCacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(CamelStatus.CACHE, builder.build());
+            commits = localCacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache("commits", builder.build());
+            runnerStatuses = localCacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache("runner_statuses", builder.build());
+            runnerCommands = localCacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE).getOrCreateCache(RunnerCommand.CACHE, builder.build());
             cleanData();
         } else {
             LOGGER.info("InfinispanService is starting in remote mode");
-            environments = cacheManager.administration().getOrCreateCache(Environment.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, Environment.CACHE)));
-            projects = cacheManager.administration().getOrCreateCache(Project.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, Project.CACHE)));
-            files = cacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, ProjectFile.CACHE)));
-            pipelineStatuses = cacheManager.administration().getOrCreateCache(PipelineStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, PipelineStatus.CACHE)));
-            deploymentStatuses = cacheManager.administration().getOrCreateCache(DeploymentStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, DeploymentStatus.CACHE)));
-            podStatuses = cacheManager.administration().getOrCreateCache(PodStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, PodStatus.CACHE)));
-            serviceStatuses = cacheManager.administration().getOrCreateCache(ServiceStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, ServiceStatus.CACHE)));
-            camelStatuses = cacheManager.administration().getOrCreateCache(CamelStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, CamelStatus.CACHE)));
-            commits = cacheManager.administration().getOrCreateCache("commits", new StringConfiguration(String.format(CACHE_CONFIG, "commits")));
-            runnerStatuses = cacheManager.administration().getOrCreateCache("runner_statuses", new StringConfiguration(String.format(CACHE_CONFIG, "runner_statuses")));
+            environments = remoteCacheManager.administration().getOrCreateCache(Environment.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, Environment.CACHE)));
+            projects = remoteCacheManager.administration().getOrCreateCache(Project.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, Project.CACHE)));
+            files = remoteCacheManager.administration().getOrCreateCache(ProjectFile.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, ProjectFile.CACHE)));
+            pipelineStatuses = remoteCacheManager.administration().getOrCreateCache(PipelineStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, PipelineStatus.CACHE)));
+            deploymentStatuses = remoteCacheManager.administration().getOrCreateCache(DeploymentStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, DeploymentStatus.CACHE)));
+            podStatuses = remoteCacheManager.administration().getOrCreateCache(PodStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, PodStatus.CACHE)));
+            serviceStatuses = remoteCacheManager.administration().getOrCreateCache(ServiceStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, ServiceStatus.CACHE)));
+            camelStatuses = remoteCacheManager.administration().getOrCreateCache(CamelStatus.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, CamelStatus.CACHE)));
+            commits = remoteCacheManager.administration().getOrCreateCache("commits", new StringConfiguration(String.format(CACHE_CONFIG, "commits")));
+            runnerStatuses = remoteCacheManager.administration().getOrCreateCache("runner_statuses", new StringConfiguration(String.format(CACHE_CONFIG, "runner_statuses")));
+            runnerCommands = remoteCacheManager.administration().getOrCreateCache(RunnerCommand.CACHE, new StringConfiguration(String.format(CACHE_CONFIG, RunnerCommand.CACHE)));
         }
+        addListeners();
         ready.set(true);
     }
 
-    public RemoteCacheManager getRemoteCacheManager() {
-        return cacheManager;
+    @Inject
+    KubernetesService kubernetesService;
+
+    private void addListeners() {
+        if (remoteCacheManager != null) {
+            remoteCacheManager.getCache(RunnerCommand.CACHE).addClientListener(new ClientRunnerListener(this, kubernetesService));
+        } else {
+            localCacheManager.getCache(RunnerCommand.CACHE).addListener(new LocalRunnerListener(this, kubernetesService));
+        }
     }
 
     private void cleanData() {
@@ -152,7 +153,7 @@ public class InfinispanService implements HealthCheck  {
     }
 
     public List<ProjectFile> getProjectFiles(String projectId) {
-        if (cacheManager == null) {
+        if (remoteCacheManager == null) {
             return files.values().stream()
                     .filter(f -> f.getProjectId().equals(projectId))
                     .collect(Collectors.toList());
@@ -165,7 +166,7 @@ public class InfinispanService implements HealthCheck  {
     }
 
     public ProjectFile getProjectFile(String projectId, String filename) {
-        if (cacheManager == null) {
+        if (remoteCacheManager == null) {
             return files.values().stream()
                     .filter(f -> f.getProjectId().equals(projectId) && f.getName().equals(filename))
                     .findFirst().orElse(new ProjectFile());
@@ -232,7 +233,7 @@ public class InfinispanService implements HealthCheck  {
     }
 
     public List<DeploymentStatus> getDeploymentStatuses(String env) {
-        if (cacheManager == null) {
+        if (remoteCacheManager == null) {
             return  deploymentStatuses.values().stream()
                     .filter(s -> s.getEnv().equals(env))
                     .collect(Collectors.toList());
@@ -257,7 +258,7 @@ public class InfinispanService implements HealthCheck  {
     }
 
     public List<PodStatus> getPodStatuses(String projectId, String env) {
-        if (cacheManager == null) {
+        if (remoteCacheManager == null) {
             return podStatuses.values().stream()
                     .filter(s -> s.getEnv().equals(env) && s.getProject().equals(projectId))
                     .collect(Collectors.toList());
@@ -271,7 +272,7 @@ public class InfinispanService implements HealthCheck  {
     }
 
     public List<PodStatus> getPodStatuses(String env) {
-        if (cacheManager == null) {
+        if (remoteCacheManager == null) {
             return podStatuses.values().stream()
                     .filter(s -> s.getEnv().equals(env))
                     .collect(Collectors.toList());
@@ -296,7 +297,7 @@ public class InfinispanService implements HealthCheck  {
     }
 
     public List<CamelStatus> getCamelStatuses(String env) {
-        if (cacheManager == null) {
+        if (remoteCacheManager == null) {
             return camelStatuses.values().stream()
                     .filter(s -> s.getEnv().equals(env))
                     .collect(Collectors.toList());
@@ -368,13 +369,17 @@ public class InfinispanService implements HealthCheck  {
         return commits.get(commitId) != null;
     }
 
+    public void sendRunnerCommand(String projectId, RunnerCommand.NAME command) {
+        runnerCommands.put(GroupedKey.create(projectId, command.name()), UUID.randomUUID().toString());
+    }
+
     @Override
     public HealthCheckResponse call() {
-        if (cacheManager == null && ready.get()){
+        if (remoteCacheManager == null && ready.get()){
             return HealthCheckResponse.up("Infinispan Service is running in local mode.");
         }
         else {
-            if (cacheManager != null && cacheManager.isStarted() && ready.get()) {
+            if (remoteCacheManager != null && remoteCacheManager.isStarted() && ready.get()) {
                 return HealthCheckResponse.up("Infinispan Service is running in cluster mode.");
             }
             else {

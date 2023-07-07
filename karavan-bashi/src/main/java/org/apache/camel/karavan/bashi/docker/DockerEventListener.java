@@ -4,8 +4,13 @@ import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.Event;
 import com.github.dockerjava.api.model.EventType;
-import org.apache.camel.karavan.bashi.HealthChecker;
-import org.apache.camel.karavan.bashi.KaravanContainers;
+import com.github.dockerjava.api.model.Statistics;
+import io.vertx.core.eventbus.EventBus;
+import org.apache.camel.karavan.bashi.ConductorService;
+import org.apache.camel.karavan.bashi.Constants;
+import org.apache.camel.karavan.bashi.infinispan.InfinispanService;
+import org.apache.camel.karavan.bashi.infinispan.PodStatus;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -13,16 +18,23 @@ import javax.inject.Inject;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Objects;
 
 @ApplicationScoped
 public class DockerEventListener implements ResultCallback<Event> {
 
-    @Inject
-    KaravanContainers karavanContainers;
+    @ConfigProperty(name = "karavan.environment")
+    String environment;
 
     @Inject
     DockerService dockerService;
+
+    @Inject
+    EventBus eventBus;
+
+    @Inject
+    InfinispanService infinispanService;
 
     private static final Logger LOGGER = Logger.getLogger(DockerEventListener.class.getName());
 
@@ -34,16 +46,21 @@ public class DockerEventListener implements ResultCallback<Event> {
     @Override
     public void onNext(Event event) {
 //        LOGGER.info(event.getType() + " : " + event.getStatus());
-        if (Objects.equals(event.getType(), EventType.CONTAINER)){
-            Container c = dockerService.getContainer(event.getId());
-            if (Arrays.asList("stop", "die", "kill", "pause", "destroy").contains(event.getStatus())) {
-                karavanContainers.removeContainer(c.getId());
-            } else if (Arrays.asList("start", "unpause").contains(event.getStatus())) {
-                karavanContainers.addContainer(c, "unknown");
-            } else if (event.getStatus().startsWith("health_status:")) {
-                String health = event.getStatus().replace("health_status: ", "");
-                LOGGER.info(event.getType() + " : " + event.getId() + " : " + health);
-                karavanContainers.addContainer(c, health);
+        if (Objects.equals(event.getType(), EventType.CONTAINER)) {
+            Container container = dockerService.getContainer(event.getId());
+            String status = event.getStatus();
+            if (container.getNames()[0].equals("/infinispan") && status.startsWith("health_status:")) {
+                String health = status.replace("health_status: ", "");
+                LOGGER.infof("Container %s health status: %s", container.getNames()[0], health);
+                eventBus.publish(ConductorService.ADDRESS_INFINISPAN_HEALTH, health);
+            } else if (container.getNames()[0].endsWith(Constants.RUNNER_SUFFIX)) {
+                if (Arrays.asList("stop", "die", "kill", "pause", "destroy").contains(event.getStatus())) {
+                    String name = container.getNames()[0].replace("/", "");
+                    String projectId = name.replace("-" + Constants.RUNNER_SUFFIX, "");
+                    infinispanService.deletePodStatus(new PodStatus(name, projectId, environment));
+                } else if (Arrays.asList("start", "unpause").contains(event.getStatus())) {
+
+                }
             }
         }
     }
@@ -62,4 +79,6 @@ public class DockerEventListener implements ResultCallback<Event> {
     public void close() throws IOException {
         LOGGER.error("DockerEventListener close");
     }
+
+
 }

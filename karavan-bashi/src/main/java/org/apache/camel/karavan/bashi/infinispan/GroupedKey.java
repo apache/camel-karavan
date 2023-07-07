@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.model;
+package org.apache.camel.karavan.bashi.infinispan;
 
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;

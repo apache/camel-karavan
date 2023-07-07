@@ -51,7 +51,7 @@ import static org.apache.camel.karavan.service.ServiceUtil.APPLICATION_PROPERTIE
 @Default
 @Readiness
 @ApplicationScoped
-public class KubernetesService implements HealthCheck{
+public class KubernetesService implements HealthCheck {
 
     private static final Logger LOGGER = Logger.getLogger(KubernetesService.class.getName());
     public static final String START_INFORMERS = "start-informers";
@@ -103,22 +103,22 @@ public class KubernetesService implements HealthCheck{
 
             SharedIndexInformer<Deployment> deploymentInformer = kubernetesClient().apps().deployments().inNamespace(getNamespace())
                     .withLabels(getRuntimeLabels()).inform();
-            deploymentInformer.addEventHandlerWithResyncPeriod(new DeploymentEventHandler(infinispanService, this),30 * 1000L);
+            deploymentInformer.addEventHandlerWithResyncPeriod(new DeploymentEventHandler(infinispanService, this), 30 * 1000L);
             informers.add(deploymentInformer);
 
             SharedIndexInformer<Service> serviceInformer = kubernetesClient().services().inNamespace(getNamespace())
                     .withLabels(getRuntimeLabels()).inform();
-            serviceInformer.addEventHandlerWithResyncPeriod(new ServiceEventHandler(infinispanService, this),30 * 1000L);
+            serviceInformer.addEventHandlerWithResyncPeriod(new ServiceEventHandler(infinispanService, this), 30 * 1000L);
             informers.add(serviceInformer);
 
             SharedIndexInformer<PipelineRun> pipelineRunInformer = tektonClient().v1beta1().pipelineRuns().inNamespace(getNamespace())
                     .withLabels(getRuntimeLabels()).inform();
-            pipelineRunInformer.addEventHandlerWithResyncPeriod(new PipelineRunEventHandler(infinispanService, this),30 * 1000L);
+            pipelineRunInformer.addEventHandlerWithResyncPeriod(new PipelineRunEventHandler(infinispanService, this), 30 * 1000L);
             informers.add(pipelineRunInformer);
 
             SharedIndexInformer<Pod> podRunInformer = kubernetesClient().pods().inNamespace(getNamespace())
                     .withLabels(getRuntimeLabels()).inform();
-            podRunInformer.addEventHandlerWithResyncPeriod(new PodEventHandler(infinispanService, this),30 * 1000L);
+            podRunInformer.addEventHandlerWithResyncPeriod(new PodEventHandler(infinispanService, this), 30 * 1000L);
             informers.add(podRunInformer);
 
             LOGGER.info("Started Kubernetes Informers");
@@ -127,14 +127,17 @@ public class KubernetesService implements HealthCheck{
         }
     }
 
-    
+
     @Override
     public HealthCheckResponse call() {
-        if(informers.size() == INFORMERS) {
-            return HealthCheckResponse.up("All Kubernetes informers are running.");
-        }
-        else {
-            return HealthCheckResponse.down("kubernetes Informers are not running.");
+        if (inKubernetes()) {
+            if (informers.size() == INFORMERS) {
+                return HealthCheckResponse.up("All Kubernetes informers are running.");
+            } else {
+                return HealthCheckResponse.down("kubernetes Informers are not running.");
+            }
+        } else {
+            return HealthCheckResponse.up("Running Kubernetesless.");
         }
     }
 
@@ -155,7 +158,7 @@ public class KubernetesService implements HealthCheck{
 
         Map<String, String> labels = getRuntimeLabels(
                 Map.of("karavan-project-id", project.getProjectId(),
-                "tekton.dev/pipeline", pipeline)
+                        "tekton.dev/pipeline", pipeline)
         );
 
         ObjectMeta meta = new ObjectMetaBuilder()
@@ -250,7 +253,7 @@ public class KubernetesService implements HealthCheck{
         }
     }
 
-    private List<Condition> getCancelConditions(String reason){
+    private List<Condition> getCancelConditions(String reason) {
         List<Condition> cancelConditions = new ArrayList<>();
         Condition taskRunCancelCondition = new Condition();
         taskRunCancelCondition.setType("Succeeded");
@@ -260,7 +263,7 @@ public class KubernetesService implements HealthCheck{
         cancelConditions.add(taskRunCancelCondition);
         return cancelConditions;
     }
-    
+
     public void rolloutDeployment(String name, String namespace) {
         try {
             kubernetesClient().apps().deployments().inNamespace(namespace).withName(name).rolling().restart();
@@ -328,12 +331,12 @@ public class KubernetesService implements HealthCheck{
     public List<String> getConfigMaps(String namespace) {
         List<String> result = new ArrayList<>();
         try {
-        kubernetesClient().configMaps().inNamespace(namespace).list().getItems().forEach(configMap -> {
-            String name = configMap.getMetadata().getName();
-            if (configMap.getData() != null) {
-                configMap.getData().keySet().forEach(data -> result.add(name + "/" + data));
-            }
-        });
+            kubernetesClient().configMaps().inNamespace(namespace).list().getItems().forEach(configMap -> {
+                String name = configMap.getMetadata().getName();
+                if (configMap.getData() != null) {
+                    configMap.getData().keySet().forEach(data -> result.add(name + "/" + data));
+                }
+            });
         } catch (Exception e) {
             LOGGER.error(e);
         }
@@ -358,11 +361,11 @@ public class KubernetesService implements HealthCheck{
     public List<String> getServices(String namespace) {
         List<String> result = new ArrayList<>();
         try {
-        kubernetesClient().services().inNamespace(namespace).list().getItems().forEach(service -> {
-            String name = service.getMetadata().getName();
-            String host = name + "." + namespace + ".svc.cluster.local";
-            service.getSpec().getPorts().forEach(port -> result.add(name + "|" + host + ":" + port.getPort()));
-        });
+            kubernetesClient().services().inNamespace(namespace).list().getItems().forEach(service -> {
+                String name = service.getMetadata().getName();
+                String host = name + "." + namespace + ".svc.cluster.local";
+                service.getSpec().getPorts().forEach(port -> result.add(name + "|" + host + ":" + port.getPort()));
+            });
         } catch (Exception e) {
             LOGGER.error(e);
         }
@@ -391,7 +394,7 @@ public class KubernetesService implements HealthCheck{
         Pod old = kubernetesClient().pods().inNamespace(getNamespace()).withName(runnerName).get();
         if (old == null) {
             ProjectFile properties = infinispanService.getProjectFile(project.getProjectId(), APPLICATION_PROPERTIES_FILENAME);
-            Map<String,String> containerResources = ServiceUtil
+            Map<String, String> containerResources = ServiceUtil
                     .getRunnerContainerResourcesMap(properties, isOpenshift(), project.getRuntime().equals("quarkus"));
             Pod pod = getRunnerPod(project.getProjectId(), runnerName, jBangOptions, containerResources);
             Pod result = kubernetesClient().resource(pod).createOrReplace();
@@ -414,7 +417,7 @@ public class KubernetesService implements HealthCheck{
         }
     }
 
-    public ResourceRequirements getResourceRequirements(Map<String,String> containerResources) {
+    public ResourceRequirements getResourceRequirements(Map<String, String> containerResources) {
         return new ResourceRequirementsBuilder()
                 .addToRequests("cpu", new Quantity(containerResources.get("requests.cpu")))
                 .addToRequests("memory", new Quantity(containerResources.get("requests.memory")))
@@ -423,8 +426,8 @@ public class KubernetesService implements HealthCheck{
                 .build();
     }
 
-    private Pod getRunnerPod(String projectId, String name, String jbangOptions, Map<String,String> containerResources) {
-        Map<String,String> labels = new HashMap<>();
+    private Pod getRunnerPod(String projectId, String name, String jbangOptions, Map<String, String> containerResources) {
+        Map<String, String> labels = new HashMap<>();
         labels.putAll(getRuntimeLabels());
         labels.putAll(getKaravanRunnerLabels(name));
         labels.put("karavan/projectId", projectId);
@@ -534,7 +537,7 @@ public class KubernetesService implements HealthCheck{
     }
 
     public static Map<String, String> getKaravanRunnerLabels(String name) {
-        return Map.of("karavan/type" , "runner",
+        return Map.of("karavan/type", "runner",
                 "app.kubernetes.io/name", name);
     }
 
@@ -545,6 +548,7 @@ public class KubernetesService implements HealthCheck{
     public String getCluster() {
         return kubernetesClient().getMasterUrl().getHost();
     }
+
     public String getNamespace() {
         return currentNamespace;
     }

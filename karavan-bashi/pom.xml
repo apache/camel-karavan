@@ -42,6 +42,10 @@
             <artifactId>quarkus-vertx</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-infinispan-client</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.docker-java</groupId>
             <artifactId>docker-java-core</artifactId>
             <version>${docker-java.version}</version>
