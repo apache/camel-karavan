@@ -1,0 +1,69 @@
+{
+  "name": "karavan",
+  "version": "3.21.1-SNAPSHOT",
+  "private": true,
+  "scripts": {
+    "copy-designer": "cp -r ../../../../../karavan-designer/src/designer src && cp -r ../../../../../karavan-designer/src/kamelets src && cp -r ../../../../../karavan-designer/src/components src && cp -r ../../../../../karavan-designer/src/eip src",
+    "start": "npm run copy-designer && react-scripts start",
+    "build": "npm run copy-designer && DISABLE_ESLINT_PLUGIN=true react-scripts build"
+  },
+  "proxy": "http://127.0.0.1:8080/",
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@microsoft/fetch-event-source": "^2.0.1",
+    "@monaco-editor/react": "4.5.0",
+    "@patternfly/patternfly": "4.224.2",
+    "@patternfly/react-charts": "6.94.19",
+    "@patternfly/react-core": "4.276.8",
+    "@patternfly/react-log-viewer": "4.87.100",
+    "@patternfly/react-table": "4.113.0",
+    "@types/js-yaml": "4.0.5",
+    "@types/node": "18.16.3",
+    "@types/uuid": "9.0.1",
+    "axios": "1.4.0",
+    "buffer": "6.0.3",
+    "dagre": "0.8.5",
+    "file-saver": "2.0.5",
+    "html-to-image": "1.11.11",
+    "karavan-core": "file:../../../../../karavan-core",
+    "keycloak-js": "21.1.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "rxjs": "7.8.1",
+    "uuid": "9.0.0",
+    "zustand": "^4.3.8"
+  },
+  "devDependencies": {
+    "@svgr/webpack": "^7.0.0",
+    "@types/dagre": "^0.7.48",
+    "@types/file-saver": "^2.0.5",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.1",
+    "@typescript-eslint/eslint-plugin": "^5.51.0",
+    "@typescript-eslint/parser": "^5.51.0",
+    "eslint": "^8.33.0",
+    "monaco-editor": "0.36.1",
+    "react-scripts": "^5.0.1",
+    "typescript": "^4.9.5"
+  },
+  "overrides": {
+    "@svgr/webpack": "$@svgr/webpack",
+    "core-js": "^3.30.1"
+  }
+}

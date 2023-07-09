@@ -3,6 +3,7 @@ name: runner image
 on:
   push:
     branches: [ main ]
+    paths: ['karavan-cloud/docker/Dockerfile.runner']
   workflow_dispatch:
 
 env:
@@ -29,7 +30,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
-          context: ./karavan-runner
-          file: karavan-runner/Dockerfile
+          context: ./karavan-cloud/docker
+          file: karavan-cloud/docker/Dockerfile.runner
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}

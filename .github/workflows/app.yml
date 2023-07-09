@@ -3,6 +3,7 @@ name: cloud-native app
 on:
   push:
     branches: [ main ]
+    paths: ['karavan-cloud/karavan-app/**']
   workflow_dispatch:
   pull_request:
     branches: [ main ]

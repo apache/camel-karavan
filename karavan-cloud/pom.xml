@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.apache.camel.karavan</groupId>
+    <artifactId>karavan-cloud</artifactId>
+    <version>3.21.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <properties>
+        <compiler-plugin.version>3.11.0</compiler-plugin.version>
+        <maven.compiler.parameters>true</maven.compiler.parameters>
+        <maven.compiler.source>11</maven.compiler.source>
+        <jandex-maven-plugin-version>3.1.1</jandex-maven-plugin-version>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
+        <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
+        <quarkus.platform.version>2.16.7.Final</quarkus.platform.version>
+        <camel-quarkus.version>2.16.0</camel-quarkus.version>
+        <camel.version>3.21.0</camel.version>
+        <camel-kamelet.version>3.21.0</camel-kamelet.version>
+        <surefire-plugin.version>3.1.0</surefire-plugin.version>
+        <infinispan.version>14.0.9.Final</infinispan.version>
+        <tekton.version>6.3.1</tekton.version>
+        <jgit.version>2.3.1</jgit.version>
+        <quinoa.version>1.2.4</quinoa.version>
+        <resources-plugin.version>3.3.0</resources-plugin.version>
+        <kubernetes-client.version>6.7.1</kubernetes-client.version>
+
+        <picocli.version>4.7.3</picocli.version>
+        <log4j-version>2.20.0</log4j-version>
+        <slf4j-api-version>2.0.6</slf4j-api-version>
+        <log4j2-version>2.20.0</log4j2-version>
+
+        <docker-java.version>3.2.7</docker-java.version>
+
+        <maven-shade-plugin.version>3.4.1</maven-shade-plugin.version>
+        <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
+        <quarkus-sdk.version>5.1.1</quarkus-sdk.version>
+        <quarkus.version>2.16.7.Final</quarkus.version>
+    </properties>
+
+    <modules>
+        <module>karavan-cli</module>
+        <module>karavan-datagrid</module>
+        <module>karavan-bashi</module>
+        <module>karavan-app</module>
+        <module>karavan-operator</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${quarkus.platform.group-id}</groupId>
+                <artifactId>${quarkus.platform.artifact-id}</artifactId>
+                <version>${quarkus.platform.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <repositories>
+        <repository>
+            <id>apache.snapshots</id>
+            <name>Apache Development Snapshot Repository</name>
+            <url>https://repository.apache.org/content/repositories/snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${compiler-plugin.version}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <parameters>${maven.compiler.parameters}</parameters>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
