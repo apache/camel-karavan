@@ -2,28 +2,39 @@ package org.apache.camel.karavan.datagrid.model;
 
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
+//import org.infinispan.distribution.group.Group;
+
 
 public class GroupedKey {
 
-
     @ProtoField(number = 1)
-    String group;
+    String projectId;
     @ProtoField(number = 2)
+    String env;
+    @ProtoField(number = 3)
     String key;
 
     @ProtoFactory
-    public GroupedKey(String group, String key) {
-        this.group = group;
+    public GroupedKey(String projectId, String env, String key) {
+        this.projectId = projectId;
+        this.env = env;
         this.key = key;
     }
 
-    public static GroupedKey create(String group, String key) {
-        return new GroupedKey(group, key);
+    public static GroupedKey create(String projectId, String env, String key) {
+        return new GroupedKey(projectId, env, key);
     }
 
+    public String getEnv() {
+        return env;
+    }
 
-    public void setGroup(String group) {
-        this.group = group;
+    public void setEnv(String env) {
+        this.env = env;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 
     public String getKey() {
@@ -34,8 +45,9 @@ public class GroupedKey {
         this.key = key;
     }
 
-    public String getGroup() {
-        return group;
+//    @Group https://github.com/quarkusio/quarkus/issues/34677
+    public String getProjectId() {
+        return projectId;
     }
 
     @Override
@@ -45,13 +57,15 @@ public class GroupedKey {
 
         GroupedKey that = (GroupedKey) o;
 
-        if (!group.equals(that.group)) return false;
+        if (!projectId.equals(that.projectId)) return false;
+        if (!env.equals(that.env)) return false;
         return key.equals(that.key);
     }
 
     @Override
     public int hashCode() {
-        int result = group.hashCode();
+        int result = projectId.hashCode();
+        result = 31 * result + env.hashCode();
         result = 31 * result + key.hashCode();
         return result;
     }

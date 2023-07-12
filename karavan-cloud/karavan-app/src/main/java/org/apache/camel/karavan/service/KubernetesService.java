@@ -46,8 +46,7 @@ import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.service.ServiceUtil.APPLICATION_PROPERTIES_FILENAME;
-
+import static org.apache.camel.karavan.service.CodeService.APPLICATION_PROPERTIES_FILENAME;
 
 @Default
 @Readiness
@@ -395,7 +394,7 @@ public class KubernetesService implements HealthCheck {
         Pod old = kubernetesClient().pods().inNamespace(getNamespace()).withName(runnerName).get();
         if (old == null) {
             ProjectFile properties = datagridService.getProjectFile(project.getProjectId(), APPLICATION_PROPERTIES_FILENAME);
-            Map<String, String> containerResources = ServiceUtil
+            Map<String, String> containerResources = CodeService
                     .getRunnerContainerResourcesMap(properties, isOpenshift(), project.getRuntime().equals("quarkus"));
             Pod pod = getRunnerPod(project.getProjectId(), runnerName, jBangOptions, containerResources);
             Pod result = kubernetesClient().resource(pod).createOrReplace();

@@ -14,7 +14,7 @@ import javax.inject.Inject;
 
 import java.util.Objects;
 
-import static org.apache.camel.karavan.service.RunnerService.RUNNER_SUFFIX;
+import static org.apache.camel.karavan.service.DevModeService.DEVMODE_SUFFIX;
 
 @ApplicationScoped
 public class DevModeCommandListener {
@@ -33,13 +33,13 @@ public class DevModeCommandListener {
         System.out.println("receiveCommand " + message);
         if (kubernetesService.inKubernetes()) {
             DevModeCommand command = message.mapTo(DevModeCommand.class);
-            String runnerName = command.getProjectId() + "-" + RUNNER_SUFFIX;
+            String runnerName = command.getProjectId() + "-" + DEVMODE_SUFFIX;
             if (Objects.equals(command.getCommandName(), CommandName.RUN)) {
                 Project p = datagridService.getProject(command.getProjectId());
                 kubernetesService.tryCreateRunner(p, runnerName, "");
             } else if (Objects.equals(command.getCommandName(), CommandName.DELETE)){
                 kubernetesService.deleteRunner(runnerName, false);
-                datagridService.deleteCamelStatus(command.getProjectId(), environment);
+                datagridService.deleteDevModeStatus(command.getProjectId());
             }
         }
     }

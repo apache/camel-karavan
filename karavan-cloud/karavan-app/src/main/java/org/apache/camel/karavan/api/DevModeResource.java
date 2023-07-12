@@ -18,7 +18,7 @@ package org.apache.camel.karavan.api;
 
 import org.apache.camel.karavan.datagrid.DatagridService;
 import org.apache.camel.karavan.datagrid.model.*;
-import org.apache.camel.karavan.service.RunnerService;
+import org.apache.camel.karavan.service.DevModeService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.inject.Inject;
@@ -34,17 +34,16 @@ import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.Optional;
 
-import static org.apache.camel.karavan.service.RunnerService.RUNNER_SUFFIX;
-import static org.apache.camel.karavan.service.RunnerService.STATUS_NEED_INITIAL_LOAD;
+import static org.apache.camel.karavan.service.DevModeService.DEVMODE_SUFFIX;
 
-@Path("/api/runner")
-public class RunnerResource {
+@Path("/api/devmode")
+public class DevModeResource {
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
 
     @Inject
-    RunnerService runnerServices;
+    DevModeService devModeService;
 
     @Inject
     DatagridService datagridService;
@@ -54,11 +53,11 @@ public class RunnerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{jBangOptions}")
     public Response runProjectWithJBangOptions(Project project, @PathParam("jBangOptions") String jBangOptions) {
-        String runnerName = project.getProjectId() + "-" + RUNNER_SUFFIX;
+        String runnerName = project.getProjectId() + "-" + DEVMODE_SUFFIX;
         PodStatus status = datagridService.getDevModePodStatuses(runnerName, environment);
         if (status == null) {
-            datagridService.saveDevModeStatus(new DevModeStatus(project.getProjectId(), null, false));
-            datagridService.sendDevModeCommand(project.getProjectId(), new DevModeCommand(CommandName.DELETE, Instant.now().toEpochMilli()));
+            datagridService.saveDevModeStatus(new DevModeStatus(project.getProjectId(), null, null, false));
+            datagridService.sendDevModeCommand(project.getProjectId(), new DevModeCommand(CommandName.RUN, Instant.now().toEpochMilli()));
             return Response.ok(runnerName).build();
         }
         return Response.notModified().build();
@@ -75,7 +74,10 @@ public class RunnerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/reload/{projectId}")
     public Response reload(@PathParam("projectId") String projectId) {
-        runnerServices.reloadProjectCode(projectId);
+        devModeService.reloadProjectCode(projectId);
+        DevModeStatus dms = datagridService.getDevModeStatus(projectId);
+        dms.setCodeLoaded(true);
+        datagridService.saveDevModeStatus(dms);
         return Response.ok().build();
     }
 
@@ -85,6 +87,7 @@ public class RunnerResource {
     @Path("/{projectId}/{deletePVC}")
     public Response deleteRunner(@PathParam("projectId") String projectId, @PathParam("deletePVC") boolean deletePVC) {
         datagridService.sendDevModeCommand(projectId, new DevModeCommand(CommandName.DELETE, Instant.now().toEpochMilli()));
+        datagridService.deleteDevModeStatus(projectId);
         return Response.accepted().build();
     }
 
@@ -92,7 +95,7 @@ public class RunnerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/pod/{projectId}")
     public Response getPodStatus(@PathParam("projectId") String projectId) {
-        String runnerName = projectId + "-" + RUNNER_SUFFIX;
+        String runnerName = projectId + "-" + DEVMODE_SUFFIX;
         Optional<PodStatus> ps =  datagridService.getPodStatuses(projectId, environment).stream()
                 .filter(podStatus -> podStatus.getName().equals(runnerName))
                 .findFirst();
@@ -107,7 +110,7 @@ public class RunnerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/console/{projectId}/{statusName}")
     public Response getCamelStatusByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("statusName") String statusName) {
-        String name = projectId + "-" + RUNNER_SUFFIX;
+        String name = projectId + "-" + DEVMODE_SUFFIX;
         CamelStatus status = datagridService.getCamelStatus(name, statusName, environment);
         if (status != null) {
             return Response.ok(status).build();

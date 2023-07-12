@@ -304,7 +304,7 @@ export class KaravanApi {
     }
 
     static async getRunnerPodStatus(projectId: string, after: (res: AxiosResponse<PodStatus>) => void) {
-        instance.get('/api/runner/pod/' + projectId)
+        instance.get('/api/devmode/pod/' + projectId)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -313,7 +313,7 @@ export class KaravanApi {
     }
 
     static async getRunnerReload(projectId: string, after: (res: AxiosResponse<any>) => void) {
-        instance.get('/api/runner/reload/' + projectId)
+        instance.get('/api/devmode/reload/' + projectId)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -322,7 +322,7 @@ export class KaravanApi {
     }
 
     static async getRunnerConsoleStatus(projectId: string, statusName: string, after: (res: AxiosResponse<string>) => void) {
-        instance.get('/api/runner/console/' + projectId + "/" + statusName)
+        instance.get('/api/devmode/console/' + projectId + "/" + statusName)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -331,7 +331,7 @@ export class KaravanApi {
     }
 
     static async runProject(project: Project, verbose: boolean, after: (res: AxiosResponse<string>) => void) {
-        instance.post('/api/runner' + (verbose ? '/--verbose' : ''), project)
+        instance.post('/api/devmode' + (verbose ? '/--verbose' : ''), project)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -340,7 +340,7 @@ export class KaravanApi {
     }
 
     static async deleteRunner(name: string, deletePVC: boolean, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/runner/' +  name + "/" + deletePVC)
+        instance.delete('/api/devmode/' +  name + "/" + deletePVC)
             .then(res => {
                 after(res);
             }).catch(err => {

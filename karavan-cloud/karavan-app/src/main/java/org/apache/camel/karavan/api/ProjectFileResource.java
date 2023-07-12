@@ -16,7 +16,8 @@
  */
 package org.apache.camel.karavan.api;
 
-import org.apache.camel.karavan.model.ProjectFile;
+import org.apache.camel.karavan.datagrid.DatagridService;
+import org.apache.camel.karavan.datagrid.model.ProjectFile;
 import org.apache.camel.karavan.service.CodeService;
 
 import javax.inject.Inject;
@@ -50,7 +51,7 @@ public class ProjectFileResource {
     @Path("/{projectId}")
     public List<ProjectFile> get(@HeaderParam("username") String username,
                                  @PathParam("projectId") String projectId) throws Exception {
-        return infinispanService.getProjectFiles(projectId).stream()
+        return datagridService.getProjectFiles(projectId).stream()
                 .sorted(Comparator.comparing(ProjectFile::getName))
                 .collect(Collectors.toList());
     }
@@ -60,7 +61,7 @@ public class ProjectFileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public ProjectFile save(ProjectFile file) throws Exception {
         file.setLastUpdate(Instant.now().toEpochMilli());
-        infinispanService.saveProjectFile(file);
+        datagridService.saveProjectFile(file);
         return file;
     }
 
@@ -70,7 +71,7 @@ public class ProjectFileResource {
     public void delete(@HeaderParam("username") String username,
                        @PathParam("project") String project,
                        @PathParam("filename") String filename) throws Exception {
-        infinispanService.deleteProjectFile(
+        datagridService.deleteProjectFile(
                 URLDecoder.decode(project, StandardCharsets.UTF_8.toString()),
                 URLDecoder.decode(filename, StandardCharsets.UTF_8.toString())
         );
@@ -84,11 +85,11 @@ public class ProjectFileResource {
                                    @PathParam("integrationName") String integrationName,
                                    @PathParam("generateRest") boolean generateRest,
                                    @PathParam("generateRoutes") boolean generateRoutes, ProjectFile file) throws Exception {
-        infinispanService.saveProjectFile(file);
+        datagridService.saveProjectFile(file);
         if (generateRest) {
             String yaml = codeService.generate(file.getName(), file.getCode(), generateRoutes);
             ProjectFile integration = new ProjectFile(integrationName, yaml, file.getProjectId(), Instant.now().toEpochMilli());
-            infinispanService.saveProjectFile(integration);
+            datagridService.saveProjectFile(integration);
             return file;
         }
         return file;

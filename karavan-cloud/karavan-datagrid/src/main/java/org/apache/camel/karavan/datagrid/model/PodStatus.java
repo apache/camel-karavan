@@ -34,6 +34,15 @@ public class PodStatus {
         this.cpuInfo = cpuInfo;
     }
 
+    public PodStatus(String name, Boolean ready, String deployment, String projectId, String env, Boolean inDevMode) {
+        this.name = name;
+        this.ready = ready;
+        this.deployment = deployment;
+        this.projectId = projectId;
+        this.env = env;
+        this.inDevMode = inDevMode;
+    }
+
     public String getName() {
         return name;
     }

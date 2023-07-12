@@ -16,9 +16,11 @@
  */
 package org.apache.camel.karavan.api;
 
-import org.apache.camel.karavan.model.GroupedKey;
-import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.model.ProjectFile;
+import org.apache.camel.karavan.datagrid.DatagridService;
+import org.apache.camel.karavan.datagrid.model.GroupedKey;
+import org.apache.camel.karavan.datagrid.model.Project;
+import org.apache.camel.karavan.datagrid.model.ProjectFile;
+import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.GitService;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -45,10 +47,13 @@ public class ProjectResource {
     @Inject
     GitService gitService;
 
+    @Inject
+    CodeService codeService;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Project> getAll() throws Exception {
-        return infinispanService.getProjects().stream()
+        return datagridService.getProjects().stream()
                 .sorted((p1, p2) -> {
                     if (p1.getProjectId().equalsIgnoreCase(Project.NAME_TEMPLATES)) return 1;
                     if (p2.getProjectId().equalsIgnoreCase(Project.NAME_TEMPLATES)) return 1;
@@ -63,14 +68,19 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{project}")
     public Project get(@PathParam("project") String project) throws Exception {
-        return infinispanService.getProject(project);
+        return datagridService.getProject(project);
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Project save(Project project) throws Exception {
-        infinispanService.saveProject(project, false);
+        boolean isNew = datagridService.getProject(project.getProjectId()) != null;
+        datagridService.saveProject(project);
+        if (isNew){
+            ProjectFile appProp = codeService.getApplicationProperties(project);
+            datagridService.saveProjectFile(appProp);
+        }
         return project;
     }
 
@@ -80,9 +90,9 @@ public class ProjectResource {
     public void delete(@HeaderParam("username") String username,
                           @PathParam("project") String project) throws Exception {
         String projectId = URLDecoder.decode(project, StandardCharsets.UTF_8.toString());
-        gitService.deleteProject(projectId, infinispanService.getProjectFiles(projectId));
-        infinispanService.getProjectFiles(projectId).forEach(file -> infinispanService.deleteProjectFile(projectId, file.getName()));
-        infinispanService.deleteProject(projectId);
+        gitService.deleteProject(projectId, datagridService.getProjectFiles(projectId));
+        datagridService.getProjectFiles(projectId).forEach(file -> datagridService.deleteProjectFile(projectId, file.getName()));
+        datagridService.deleteProject(projectId);
     }
 
     @POST
@@ -91,13 +101,20 @@ public class ProjectResource {
     @Path("/copy/{sourceProject}")
     public Project copy(@PathParam("sourceProject") String sourceProject, Project project) throws Exception {
 //        Save project
-        Project s = infinispanService.getProject(sourceProject);
+        Project s = datagridService.getProject(sourceProject);
         project.setRuntime(s.getRuntime());
-        infinispanService.saveProject(project, false);
+        datagridService.saveProject(project);
 //        Copy files
-        Map<GroupedKey, ProjectFile> map = infinispanService.getProjectFiles(sourceProject).stream()
-                .collect(Collectors.toMap(f -> new GroupedKey(project.getProjectId(), f.getName()), f -> f));
-        infinispanService.saveProjectFiles(map);
+        Map<GroupedKey, ProjectFile> map = datagridService.getProjectFilesMap(sourceProject).entrySet().stream()
+                .collect(Collectors.toMap(
+                        e -> new GroupedKey(project.getProjectId(), e.getKey().getEnv(), e.getKey().getKey()),
+                        e -> {
+                            ProjectFile file = e.getValue();
+                            file.setProjectId(project.getProjectId());
+                            return file;
+                        })
+                );
+        datagridService.saveProjectFiles(map);
         return project;
     }
 }

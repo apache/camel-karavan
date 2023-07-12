@@ -17,12 +17,8 @@
 package org.apache.camel.karavan.api;
 
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.JsonObject;
-import org.apache.camel.karavan.model.CamelStatus;
-import org.apache.camel.karavan.model.DeploymentStatus;
-import org.apache.camel.karavan.model.Environment;
-import org.apache.camel.karavan.model.PipelineStatus;
-import org.apache.camel.karavan.service.StatusService;
+import org.apache.camel.karavan.datagrid.DatagridService;
+import org.apache.camel.karavan.datagrid.model.*;
 import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
@@ -33,7 +29,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Path("/api/status")
@@ -51,7 +46,7 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/pipeline/{projectId}/{env}")
     public Response getPipelineStatus(@PathParam("projectId") String projectId, @PathParam("env") String env) {
-        PipelineStatus status = infinispanService.getPipelineStatus(projectId, env);
+        PipelineStatus status = datagridService.getPipelineStatus(projectId, env);
         if (status != null) {
             return Response.ok(status).build();
         } else {
@@ -63,9 +58,9 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment/{name}/{env}")
     public Response getDeploymentStatus(@PathParam("name") String name, @PathParam("env") String env) {
-        Optional<Environment> environment = infinispanService.getEnvironments().stream().filter(e -> e.getName().equals(env)).findFirst();
+        Optional<Environment> environment = datagridService.getEnvironments().stream().filter(e -> e.getName().equals(env)).findFirst();
         if (environment.isPresent()){
-            DeploymentStatus status = infinispanService.getDeploymentStatus(name, environment.get().getNamespace(), environment.get().getCluster());
+            DeploymentStatus status = datagridService.getDeploymentStatus(name, env);
             if (status != null) {
                 return Response.ok(status).build();
             }
@@ -77,8 +72,7 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/camel/{projectId}/{env}")
     public Response getCamelStatusByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
-        bus.publish(StatusService.CMD_COLLECT_PROJECT_STATUS, new JsonObject(Map.of("projectId", projectId, "env", env)));
-        CamelStatus status = infinispanService.getCamelStatus(projectId, env);
+        CamelStatus status = datagridService.getCamelStatus(projectId, env, CamelStatusName.context.name());
         if (status != null) {
             return Response.ok(status).build();
         } else {
@@ -90,7 +84,6 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/camel/{env}")
     public List<CamelStatus> getCamelStatusByEnv(@PathParam("env") String env) {
-        bus.publish(StatusService.CMD_COLLECT_ALL_STATUSES, "");
-        return infinispanService.getCamelStatuses(env);
+        return datagridService.getCamelStatusesByEnv(env, CamelStatusName.context.name());
     }
 }

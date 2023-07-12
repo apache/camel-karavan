@@ -27,6 +27,8 @@ import org.apache.camel.generator.openapi.RestDslGenerator;
 import org.apache.camel.impl.lw.LightweightCamelContext;
 import org.apache.camel.karavan.api.KameletResources;
 import org.apache.camel.karavan.datagrid.DatagridService;
+import org.apache.camel.karavan.datagrid.model.GitRepo;
+import org.apache.camel.karavan.datagrid.model.GitRepoFile;
 import org.apache.camel.karavan.datagrid.model.Project;
 import org.apache.camel.karavan.datagrid.model.ProjectFile;
 import org.jboss.logging.Logger;
@@ -39,19 +41,15 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.Instant;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import static org.apache.camel.karavan.service.ServiceUtil.APPLICATION_PROPERTIES_FILENAME;
 
 @ApplicationScoped
 public class CodeService {
 
     private static final Logger LOGGER = Logger.getLogger(CodeService.class.getName());
+    public static final String APPLICATION_PROPERTIES_FILENAME = "application.properties";
 
     @Inject
     KubernetesService kubernetesService;
@@ -66,17 +64,25 @@ public class CodeService {
     List<String> targets = List.of("openshift", "kubernetes");
     List<String> interfaces = List.of("org.apache.camel.AggregationStrategy.java", "org.apache.camel.Processor.java");
 
-    public String getApplicationProperties(Project project) {
+    public static final Map<String, String> DEFAULT_CONTAINER_RESOURCES = Map.of(
+            "requests.memory", "512Mi",
+            "requests.cpu", "500m",
+            "limits.memory", "2048Mi",
+            "limits.cpu", "2000m"
+    );
+
+    public ProjectFile getApplicationProperties(Project project) {
         String target = kubernetesService.isOpenshift() ? "openshift" : "kubernetes";
         String templateName = project.getRuntime() + "-" + target + "-" + APPLICATION_PROPERTIES_FILENAME;
         String templateText = getTemplateText(templateName);
         Template result = engine.parse(templateText);
-        return result
+        String code =  result
                 .data("projectId", project.getProjectId())
                 .data("projectName", project.getName())
                 .data("projectDescription", project.getDescription())
                 .data("namespace", kubernetesService.getNamespace())
                 .render();
+        return new ProjectFile(APPLICATION_PROPERTIES_FILENAME, code, project.getProjectId(), Instant.now().toEpochMilli());
     }
 
     private String getTemplateText(String fileName) {
@@ -159,4 +165,76 @@ public class CodeService {
         return mapper.convertValue(map, JsonNode.class);
     }
 
+    public static Map<String, String> getRunnerContainerResourcesMap(ProjectFile propertiesFile, boolean isOpenshift, boolean isQuarkus) {
+        if (!isQuarkus) {
+            return DEFAULT_CONTAINER_RESOURCES;
+        } else {
+            Map<String, String> result = new HashMap<>();
+            String patternPrefix = isOpenshift ? "quarkus.openshift.resources." : "quarkus.kubernetes.resources.";
+            String devPatternPrefix = "%dev." + patternPrefix;
+
+            List<String> lines = propertiesFile.getCode().lines().collect(Collectors.toList());
+
+            DEFAULT_CONTAINER_RESOURCES.forEach((key, value) -> {
+                Optional<String> dev = lines.stream().filter(l -> l.startsWith(devPatternPrefix + key)).findFirst();
+                if (dev.isPresent()) {
+                    result.put(key, CodeService.getValueForProperty(dev.get(), devPatternPrefix + key));
+                } else {
+                    Optional<String> prod = lines.stream().filter(l -> l.startsWith(patternPrefix + key)).findFirst();
+                    if (prod.isPresent()){
+                        result.put(key, CodeService.getValueForProperty(prod.get(), patternPrefix + key));
+                    } else {
+                        result.put(key, value);
+                    }
+                }
+            });
+            return result;
+        }
+    }
+
+    public String getPropertiesFile(GitRepo repo) {
+        try {
+            for (GitRepoFile e : repo.getFiles()){
+                if (e.getName().equalsIgnoreCase(APPLICATION_PROPERTIES_FILENAME)) {
+                    return e.getBody();
+                }
+            }
+        } catch (Exception e) {
+
+        }
+        return null;
+    }
+
+    public String capitalize(String str) {
+        if(str == null || str.isEmpty()) {
+            return str;
+        }
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
+    }
+
+    public static String getProperty(String file, String property) {
+        String prefix = property + "=";
+        return  Arrays.stream(file.split(System.lineSeparator())).filter(s -> s.startsWith(prefix))
+                .findFirst().orElseGet(() -> "")
+                .replace(prefix, "");
+    }
+
+    public static String getValueForProperty(String line, String property) {
+        String prefix = property + "=";
+        return  line.replace(prefix, "");
+    }
+
+    public String getProjectDescription(String file) {
+        String description = getProperty(file, "camel.jbang.project-description");
+        return description != null && !description.isBlank() ? description : getProperty(file, "camel.karavan.project-description");
+    }
+
+    public String getProjectName(String file) {
+        String name = getProperty(file, "camel.jbang.project-name");
+        return name != null && !name.isBlank() ? name : getProperty(file, "camel.karavan.project-name");
+    }
+
+    public String getProjectRuntime(String file) {
+        return getProperty(file, "camel.jbang.runtime");
+    }
 }

@@ -16,7 +16,8 @@ import org.infinispan.protostream.annotations.AutoProtoSchemaBuilder;
                 ServiceStatus.class,
                 CommandName.class,
                 CamelStatusName.class,
-                DevModeCommand.class
+                DevModeCommand.class,
+                DevModeStatus.class
         },
         schemaPackageName = "karavan")
 public interface KaravanSchema extends GeneratedSchema {

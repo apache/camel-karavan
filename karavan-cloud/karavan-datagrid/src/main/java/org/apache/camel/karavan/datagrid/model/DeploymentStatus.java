@@ -6,7 +6,7 @@ import org.infinispan.protostream.annotations.ProtoField;
 public class DeploymentStatus {
     public static final String CACHE = "deployment_statuses";
     @ProtoField(number = 1)
-    String name;
+    String projectId;
     @ProtoField(number = 2)
     String namespace;
     @ProtoField(number = 3)
@@ -22,8 +22,8 @@ public class DeploymentStatus {
     @ProtoField(number = 8)
     Integer unavailableReplicas;
 
-    public DeploymentStatus(String name, String namespace, String cluster, String env) {
-        this.name = name;
+    public DeploymentStatus(String projectId, String namespace, String cluster, String env) {
+        this.projectId = projectId;
         this.namespace = namespace;
         this.cluster = cluster;
         this.env = env;
@@ -34,8 +34,8 @@ public class DeploymentStatus {
     }
 
     @ProtoFactory
-    public DeploymentStatus(String name, String namespace, String cluster, String env, String image, Integer replicas, Integer readyReplicas, Integer unavailableReplicas) {
-        this.name = name;
+    public DeploymentStatus(String projectId, String namespace, String cluster, String env, String image, Integer replicas, Integer readyReplicas, Integer unavailableReplicas) {
+        this.projectId = projectId;
         this.namespace = namespace;
         this.env = env;
         this.cluster = cluster;
@@ -45,16 +45,12 @@ public class DeploymentStatus {
         this.unavailableReplicas = unavailableReplicas;
     }
 
-    public String getId() {
-        return name + ":" + namespace + ":" + cluster;
+    public String getProjectId() {
+        return projectId;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 
     public String getEnv() {

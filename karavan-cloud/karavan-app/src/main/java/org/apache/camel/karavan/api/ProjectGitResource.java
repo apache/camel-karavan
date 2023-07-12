@@ -16,7 +16,7 @@
  */
 package org.apache.camel.karavan.api;
 
-import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.datagrid.model.Project;
 import org.apache.camel.karavan.service.ProjectService;
 
 import javax.inject.Inject;

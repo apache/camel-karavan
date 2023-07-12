@@ -4,12 +4,10 @@ import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.Event;
 import com.github.dockerjava.api.model.EventType;
-import com.github.dockerjava.api.model.Statistics;
 import io.vertx.core.eventbus.EventBus;
 import org.apache.camel.karavan.bashi.ConductorService;
 import org.apache.camel.karavan.bashi.Constants;
-import org.apache.camel.karavan.bashi.infinispan.InfinispanService;
-import org.apache.camel.karavan.bashi.infinispan.PodStatus;
+import org.apache.camel.karavan.datagrid.DatagridService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -18,7 +16,6 @@ import javax.inject.Inject;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Objects;
 
 @ApplicationScoped
@@ -34,7 +31,7 @@ public class DockerEventListener implements ResultCallback<Event> {
     EventBus eventBus;
 
     @Inject
-    InfinispanService infinispanService;
+    DatagridService datagridService;
 
     private static final Logger LOGGER = Logger.getLogger(DockerEventListener.class.getName());
 
@@ -53,11 +50,11 @@ public class DockerEventListener implements ResultCallback<Event> {
                 String health = status.replace("health_status: ", "");
                 LOGGER.infof("Container %s health status: %s", container.getNames()[0], health);
                 eventBus.publish(ConductorService.ADDRESS_INFINISPAN_HEALTH, health);
-            } else if (container.getNames()[0].endsWith(Constants.RUNNER_SUFFIX)) {
+            } else if (container.getNames()[0].endsWith(Constants.DEVMODE_SUFFIX)) {
                 if (Arrays.asList("stop", "die", "kill", "pause", "destroy").contains(event.getStatus())) {
                     String name = container.getNames()[0].replace("/", "");
-                    String projectId = name.replace("-" + Constants.RUNNER_SUFFIX, "");
-                    infinispanService.deletePodStatus(new PodStatus(name, projectId, environment));
+                    String projectId = name.replace("-" + Constants.DEVMODE_SUFFIX, "");
+                    datagridService.deletePodStatus(projectId, environment, name);
                 } else if (Arrays.asList("start", "unpause").contains(event.getStatus())) {
 
                 }

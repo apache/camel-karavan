@@ -10,8 +10,8 @@ import org.apache.camel.karavan.datagrid.model.PodStatus;
 import org.apache.camel.karavan.service.KubernetesService;
 import org.jboss.logging.Logger;
 
-import static org.apache.camel.karavan.service.RunnerService.RUNNER_SUFFIX;
-import static org.apache.camel.karavan.service.ServiceUtil.DEFAULT_CONTAINER_RESOURCES;
+import static org.apache.camel.karavan.service.CodeService.DEFAULT_CONTAINER_RESOURCES;
+import static org.apache.camel.karavan.service.DevModeService.DEVMODE_SUFFIX;
 
 public class PodEventHandler implements ResourceEventHandler<Pod> {
 
@@ -51,12 +51,8 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
         try {
             LOGGER.info("onDelete " + pod.getMetadata().getName());
             String deployment = pod.getMetadata().getLabels().get("app");
-            String project = deployment != null ? deployment : pod.getMetadata().getLabels().get("karavan/projectId");
-            PodStatus ps = new PodStatus(
-                    pod.getMetadata().getName(),
-                    project,
-                    kubernetesService.environment);
-            datagridService.deletePodStatus(ps);
+            String projectId = deployment != null ? deployment : pod.getMetadata().getLabels().get("karavan/projectId");
+            datagridService.deletePodStatus(projectId, kubernetesService.environment, pod.getMetadata().getName());
         } catch (Exception e){
             LOGGER.error(e.getMessage(), e.getCause());
         }
@@ -67,10 +63,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
         String deployment = pod.getMetadata().getLabels().get("app");
         String project = deployment != null ? deployment : pod.getMetadata().getLabels().get("karavan/projectId");
         try {
-            boolean initialized = pod.getStatus().getConditions().stream().anyMatch(c -> c.getType().equals("Initialized"));
             boolean ready = pod.getStatus().getConditions().stream().anyMatch(c -> c.getType().equals("Ready"));
-            boolean terminating = pod.getMetadata().getDeletionTimestamp() != null;
-            String creationTimestamp = pod.getMetadata().getCreationTimestamp();
 
             ResourceRequirements defaultRR = kubernetesService.getResourceRequirements(DEFAULT_CONTAINER_RESOURCES);
             ResourceRequirements resourceRequirements = pod.getSpec().getContainers().stream().findFirst()
@@ -82,27 +75,23 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             String limitCpu = resourceRequirements.getLimits().getOrDefault("cpu", new Quantity()).toString();
             return new PodStatus(
                     pod.getMetadata().getName(),
-                    pod.getStatus().getPhase(),
-                    initialized,
                     ready,
-                    terminating,
-                    pod.getStatus().getReason(),
                     deployment,
                     project,
                     kubernetesService.environment,
-                    deployment == null || pod.getMetadata().getName().endsWith(RUNNER_SUFFIX),
-                    requestMemory,
-                    requestCpu,
-                    limitMemory,
-                    limitCpu,
-                    creationTimestamp
+                    deployment == null || pod.getMetadata().getName().endsWith(DEVMODE_SUFFIX),
+                    requestMemory + " : " + limitMemory,
+                    requestCpu + " : " + limitCpu
             );
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage(), ex.getCause());
             return new PodStatus(
                     pod.getMetadata().getName(),
+                    false,
+                    null,
                     project,
-                    kubernetesService.environment);
+                    kubernetesService.environment,
+                    false);
         }
     }
 }

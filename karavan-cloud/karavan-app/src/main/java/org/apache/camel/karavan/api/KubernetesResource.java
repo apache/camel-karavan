@@ -19,10 +19,11 @@ package org.apache.camel.karavan.api;
 import io.smallrye.mutiny.Multi;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
-import org.apache.camel.karavan.model.DeploymentStatus;
-import org.apache.camel.karavan.model.PodStatus;
-import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.model.ServiceStatus;
+import org.apache.camel.karavan.datagrid.DatagridService;
+import org.apache.camel.karavan.datagrid.model.DeploymentStatus;
+import org.apache.camel.karavan.datagrid.model.PodStatus;
+import org.apache.camel.karavan.datagrid.model.Project;
+import org.apache.camel.karavan.datagrid.model.ServiceStatus;
 import org.apache.camel.karavan.service.KubernetesService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -57,7 +58,7 @@ public class KubernetesResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/pipeline/{env}")
     public String createPipeline(@PathParam("env") String env, Project project) throws Exception {
-        Project p = infinispanService.getProject(project.getProjectId());
+        Project p = datagridService.getProject(project.getProjectId());
         return kubernetesService.createPipelineRun(project);
     }
 
@@ -98,8 +99,8 @@ public class KubernetesResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment")
     public List<DeploymentStatus> getAllDeploymentStatuses() throws Exception {
-        return infinispanService.getDeploymentStatuses().stream()
-                .sorted(Comparator.comparing(DeploymentStatus::getName))
+        return datagridService.getDeploymentStatuses().stream()
+                .sorted(Comparator.comparing(DeploymentStatus::getProjectId))
                 .collect(Collectors.toList());
     }
 
@@ -107,8 +108,8 @@ public class KubernetesResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment/{env}")
     public List<DeploymentStatus> getDeploymentStatusesByEnv(@PathParam("env") String env) throws Exception {
-        return infinispanService.getDeploymentStatuses(env).stream()
-                .sorted(Comparator.comparing(DeploymentStatus::getName))
+        return datagridService.getDeploymentStatuses(env).stream()
+                .sorted(Comparator.comparing(DeploymentStatus::getProjectId))
                 .collect(Collectors.toList());
     }
 
@@ -133,8 +134,8 @@ public class KubernetesResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/service")
     public List<ServiceStatus> getAllServiceStatuses() throws Exception {
-        return infinispanService.getServiceStatuses().stream()
-                .sorted(Comparator.comparing(ServiceStatus::getName))
+        return datagridService.getServiceStatuses().stream()
+                .sorted(Comparator.comparing(ServiceStatus::getProjectId))
                 .collect(Collectors.toList());
     }
 
@@ -142,8 +143,8 @@ public class KubernetesResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/pod/{env}")
     public List<PodStatus> getPodStatusesByEnv(@PathParam("env") String env) throws Exception {
-        return infinispanService.getPodStatuses(env).stream()
-                .sorted(Comparator.comparing(PodStatus::getName))
+        return datagridService.getPodStatuses(env).stream()
+                .sorted(Comparator.comparing(PodStatus::getProjectId))
                 .collect(Collectors.toList());
     }
 
@@ -151,8 +152,8 @@ public class KubernetesResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/pod/{projectId}/{env}")
     public List<PodStatus> getPodStatusesByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) throws Exception {
-        return infinispanService.getPodStatuses(projectId, env).stream()
-                .filter(podStatus -> !podStatus.getRunner())
+        return datagridService.getPodStatuses(projectId, env).stream()
+                .filter(podStatus -> !podStatus.getInDevMode())
                 .sorted(Comparator.comparing(PodStatus::getName))
                 .collect(Collectors.toList());
     }

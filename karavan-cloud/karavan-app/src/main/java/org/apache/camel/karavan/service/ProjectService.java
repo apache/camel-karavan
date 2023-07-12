@@ -19,9 +19,10 @@ package org.apache.camel.karavan.service;
 import io.quarkus.scheduler.Scheduled;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.tuples.Tuple2;
-import org.apache.camel.karavan.model.GitRepo;
-import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.model.ProjectFile;
+import org.apache.camel.karavan.datagrid.DatagridService;
+import org.apache.camel.karavan.datagrid.model.GitRepo;
+import org.apache.camel.karavan.datagrid.model.Project;
+import org.apache.camel.karavan.datagrid.model.ProjectFile;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheck;
@@ -75,16 +76,16 @@ public class ProjectService implements HealthCheck{
     void pullCommits() {
         if (readyToPull.get()) {
             LOGGER.info("Pull commits...");
-            Tuple2<String, Integer> lastCommit = infinispanService.getLastCommit();
+            Tuple2<String, Integer> lastCommit = datagridService.getLastCommit();
             gitService.getCommitsAfterCommit(lastCommit.getItem2()).forEach(commitInfo -> {
-                if (!infinispanService.hasCommit(commitInfo.getCommitId())) {
+                if (!datagridService.hasCommit(commitInfo.getCommitId())) {
                     commitInfo.getRepos().forEach(repo -> {
                         Project project = importProjectFromRepo(repo);
                         kubernetesService.createPipelineRun(project);
                     });
-                    infinispanService.saveCommit(commitInfo.getCommitId(), commitInfo.getTime());
+                    datagridService.saveCommit(commitInfo.getCommitId(), commitInfo.getTime());
                 }
-                infinispanService.saveLastCommit(commitInfo.getCommitId());
+                datagridService.saveLastCommit(commitInfo.getCommitId());
             });
         }
     }
@@ -92,15 +93,15 @@ public class ProjectService implements HealthCheck{
     void importCommits() {
         LOGGER.info("Import commits...");
         gitService.getAllCommits().forEach(commitInfo -> {
-            infinispanService.saveCommit(commitInfo.getCommitId(), commitInfo.getTime());
-            infinispanService.saveLastCommit(commitInfo.getCommitId());
+            datagridService.saveCommit(commitInfo.getCommitId(), commitInfo.getTime());
+            datagridService.saveLastCommit(commitInfo.getCommitId());
         });
         readyToPull.set(true);
     }
 
     @ConsumeEvent(value = IMPORT_PROJECTS, blocking = true)
     void importProjects(String data) {
-        if (infinispanService.getProjects().isEmpty()) {
+        if (datagridService.getProjects().isEmpty()) {
             importAllProjects();
         }
         addTemplatesProject();
@@ -122,11 +123,11 @@ public class ProjectService implements HealthCheck{
                 } else {
                     project = getProjectFromRepo(repo);
                 }
-                infinispanService.saveProject(project, true);
+                datagridService.saveProject(project);
 
                 repo.getFiles().forEach(repoFile -> {
                     ProjectFile file = new ProjectFile(repoFile.getName(), repoFile.getBody(), folderName, repoFile.getLastCommitTimestamp());
-                    infinispanService.saveProjectFile(file);
+                    datagridService.saveProjectFile(file);
                 });
             });
             addKameletsProject();
@@ -150,10 +151,10 @@ public class ProjectService implements HealthCheck{
         LOGGER.info("Import project from GitRepo " + repo.getName());
         try {
             Project project = getProjectFromRepo(repo);
-            infinispanService.saveProject(project, true);
+            datagridService.saveProject(project);
             repo.getFiles().forEach(repoFile -> {
                 ProjectFile file = new ProjectFile(repoFile.getName(), repoFile.getBody(), repo.getName(), repoFile.getLastCommitTimestamp());
-                infinispanService.saveProjectFile(file);
+                datagridService.saveProjectFile(file);
             });
             return project;
         } catch (Exception e) {
@@ -164,33 +165,33 @@ public class ProjectService implements HealthCheck{
 
     public Project getProjectFromRepo(GitRepo repo) {
         String folderName = repo.getName();
-        String propertiesFile = ServiceUtil.getPropertiesFile(repo);
-        String projectName = ServiceUtil.getProjectName(propertiesFile);
-        String projectDescription = ServiceUtil.getProjectDescription(propertiesFile);
-        String runtime = ServiceUtil.getProjectRuntime(propertiesFile);
+        String propertiesFile = codeService.getPropertiesFile(repo);
+        String projectName = codeService.getProjectName(propertiesFile);
+        String projectDescription = codeService.getProjectDescription(propertiesFile);
+        String runtime = codeService.getProjectRuntime(propertiesFile);
         return new Project(folderName, projectName, projectDescription, runtime, repo.getCommitId(), repo.getLastCommitTimestamp());
     }
 
     public Project commitAndPushProject(String projectId, String message) throws Exception {
-        Project p = infinispanService.getProject(projectId);
-        List<ProjectFile> files = infinispanService.getProjectFiles(projectId);
+        Project p = datagridService.getProject(projectId);
+        List<ProjectFile> files = datagridService.getProjectFiles(projectId);
         RevCommit commit = gitService.commitAndPushProject(p, files, message);
         String commitId = commit.getId().getName();
         Long lastUpdate = commit.getCommitTime() * 1000L;
         p.setLastCommit(commitId);
         p.setLastCommitTimestamp(lastUpdate);
-        infinispanService.saveProject(p, false);
-        infinispanService.saveCommit(commitId, commit.getCommitTime());
+        datagridService.saveProject(p);
+        datagridService.saveCommit(commitId, commit.getCommitTime());
         return p;
     }
 
     void addKameletsProject() {
         LOGGER.info("Add custom kamelets project if not exists");
         try {
-            Project kamelets  = infinispanService.getProject(Project.NAME_KAMELETS);
+            Project kamelets  = datagridService.getProject(Project.NAME_KAMELETS);
             if (kamelets == null) {
                 kamelets = new Project(Project.NAME_KAMELETS, "Custom Kamelets", "Custom Kamelets", "", "", Instant.now().toEpochMilli());
-                infinispanService.saveProject(kamelets, true);
+                datagridService.saveProject(kamelets);
                 commitAndPushProject(Project.NAME_KAMELETS, "Add custom kamelets");
             }
         } catch (Exception e) {
@@ -201,14 +202,14 @@ public class ProjectService implements HealthCheck{
     void addTemplatesProject() {
         LOGGER.info("Add templates project if not exists");
         try {
-            Project templates  = infinispanService.getProject(Project.NAME_TEMPLATES);
+            Project templates  = datagridService.getProject(Project.NAME_TEMPLATES);
             if (templates == null) {
                 templates = new Project(Project.NAME_TEMPLATES, "Templates", "Templates", "", "", Instant.now().toEpochMilli());
-                infinispanService.saveProject(templates, true);
+                datagridService.saveProject(templates);
 
                 codeService.getApplicationPropertiesTemplates().forEach((name, value) -> {
                     ProjectFile file = new ProjectFile(name, value, Project.NAME_TEMPLATES, Instant.now().toEpochMilli());
-                    infinispanService.saveProjectFile(file);
+                    datagridService.saveProjectFile(file);
                 });
                 commitAndPushProject(Project.NAME_TEMPLATES, "Add default templates");
             }
@@ -220,14 +221,14 @@ public class ProjectService implements HealthCheck{
     void addPipelinesProject() {
         LOGGER.info("Add pipelines project if not exists");
         try {
-            Project pipelines  = infinispanService.getProject(Project.NAME_PIPELINES);
+            Project pipelines  = datagridService.getProject(Project.NAME_PIPELINES);
             if (pipelines == null) {
                 pipelines = new Project(Project.NAME_PIPELINES, "Pipelines", "CI/CD Pipelines", "", "", Instant.now().toEpochMilli());
-                infinispanService.saveProject(pipelines, true);
+                datagridService.saveProject(pipelines);
 
                 codeService.getApplicationPropertiesTemplates().forEach((name, value) -> {
                     ProjectFile file = new ProjectFile(name, value, Project.NAME_PIPELINES, Instant.now().toEpochMilli());
-                    infinispanService.saveProjectFile(file);
+                    datagridService.saveProjectFile(file);
                 });
                 commitAndPushProject(Project.NAME_PIPELINES, "Add default pipelines");
             }

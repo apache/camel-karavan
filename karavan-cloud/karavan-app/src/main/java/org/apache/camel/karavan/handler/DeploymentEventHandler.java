@@ -50,7 +50,7 @@ public class DeploymentEventHandler implements ResourceEventHandler<Deployment> 
                     kubernetesService.getCluster(),
                     kubernetesService.environment);
             datagridService.deleteDeploymentStatus(ds);
-            datagridService.deleteCamelStatus(ds.getName(), ds.getEnv());
+            datagridService.deleteCamelStatuses(deployment.getMetadata().getName(), ds.getEnv());
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }

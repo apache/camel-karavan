@@ -23,9 +23,6 @@ import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.datagrid.model.*;
 import org.apache.camel.karavan.datagrid.model.KaravanSchemaImpl;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.health.HealthCheck;
-import org.eclipse.microprofile.health.HealthCheckResponse;
-import org.eclipse.microprofile.health.Readiness;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.Search;
@@ -49,9 +46,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Default
-@Readiness
 @ApplicationScoped
-public class DatagridService implements HealthCheck  {
+public class DatagridService  {
 
     public static final String ADDRESS_DEVMODE_COMMAND = "ADDRESS_DEVMODE_COMMAND";
     protected static final String ADDRESS_DEVMODE_COMMAND_INTERNAL = "ADDRESS_DEVMODE_COMMAND_INTERNAL";
@@ -72,8 +68,8 @@ public class DatagridService implements HealthCheck  {
     private RemoteCache<GroupedKey, CamelStatus> camelStatuses;
     private RemoteCache<String, Environment> environments;
     private RemoteCache<String, String> commits;
-    private RemoteCache<GroupedKey, DevModeCommand> devmodeCommands;
     private RemoteCache<GroupedKey, DevModeStatus> devmodeStatuses;
+    private RemoteCache<GroupedKey, DevModeCommand> devmodeCommands;
     private final AtomicBoolean ready = new AtomicBoolean(false);
 
     RemoteCacheManager cacheManager;
@@ -81,12 +77,14 @@ public class DatagridService implements HealthCheck  {
     @Inject
     EventBus eventBus;
 
+    private static final Logger LOGGER = Logger.getLogger(DatagridService.class.getName());
+
+    private static final String DEFAULT_ENVIRONMENT = "dev";
     private static final String CACHE_CONFIG = "<distributed-cache name=\"%s\">"
             + " <encoding media-type=\"application/x-protostream\"/>"
             + " <groups enabled=\"true\"/>"
             + "</distributed-cache>";
 
-    private static final Logger LOGGER = Logger.getLogger(DatagridService.class.getName());
 
     public void start() {
         LOGGER.info("DatagridService is starting in remote mode");
@@ -117,11 +115,16 @@ public class DatagridService implements HealthCheck  {
         camelStatuses = getOrCreateCache(CamelStatus.CACHE, false);
         commits = getOrCreateCache("commits", false);
         deploymentStatuses = getOrCreateCache(DeploymentStatus.CACHE, false);
+        devmodeStatuses = getOrCreateCache(DevModeStatus.CACHE, false);
         devmodeCommands = getOrCreateCache(DevModeCommand.CACHE, true);
 
         cacheManager.getCache(DevModeCommand.CACHE).addClientListener(new ClientRunnerListener(eventBus));
         ready.set(true);
         LOGGER.info("DatagridService is started in remote mode");
+    }
+
+    public boolean isReady() {
+        return ready.get();
     }
 
     private <K, V> RemoteCache<K, V>  getOrCreateCache(String name, boolean command) {
@@ -150,28 +153,37 @@ public class DatagridService implements HealthCheck  {
     }
 
     public void saveProject(Project project) {
-        GroupedKey key = GroupedKey.create(project.getProjectId(), project.getProjectId());
+        GroupedKey key = GroupedKey.create(project.getProjectId(), DEFAULT_ENVIRONMENT, project.getProjectId());
         boolean isNew = !projects.containsKey(key);
         projects.put(key, project);
     }
 
     public List<ProjectFile> getProjectFiles(String projectId) {
-        QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) files);
+        QueryFactory queryFactory = Search.getQueryFactory(files);
         return queryFactory.<ProjectFile>create("FROM karavan.ProjectFile WHERE projectId = :projectId")
                 .setParameter("projectId", projectId)
                 .execute().list();
     }
 
+    public Map<GroupedKey, ProjectFile> getProjectFilesMap(String projectId) {
+        QueryFactory queryFactory = Search.getQueryFactory(files);
+        return queryFactory.<ProjectFile>create("FROM karavan.ProjectFile WHERE projectId = :projectId")
+                .setParameter("projectId", projectId)
+                .execute().list().stream()
+                .collect(Collectors.toMap(f -> new GroupedKey(f.getProjectId(), DEFAULT_ENVIRONMENT, f.getName()), f -> f));
+    }
+
     public ProjectFile getProjectFile(String projectId, String filename) {
-        QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) files);
-        return queryFactory.<ProjectFile>create("FROM karavan.ProjectFile WHERE projectId = :projectId AND name = :name")
+        QueryFactory queryFactory = Search.getQueryFactory(files);
+        List<ProjectFile> list = queryFactory.<ProjectFile>create("FROM karavan.ProjectFile WHERE projectId = :projectId AND name = :name")
                 .setParameter("projectId", projectId)
                 .setParameter("name", filename)
-                .execute().list().get(0);
+                .execute().list();
+        return list.size() > 0 ? list.get(0) : null;
     }
 
     public void saveProjectFile(ProjectFile file) {
-        files.put(GroupedKey.create(file.getProjectId(), file.getName()), file);
+        files.put(GroupedKey.create(file.getProjectId(), DEFAULT_ENVIRONMENT, file.getName()), file);
     }
 
     public void saveProjectFiles(Map<GroupedKey, ProjectFile> f) {
@@ -182,41 +194,40 @@ public class DatagridService implements HealthCheck  {
         files.putAll(files);
     }
 
-    public void deleteProject(String project) {
-        projects.remove(GroupedKey.create(project, project));
+    public void deleteProject(String projectId) {
+        projects.remove(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT,projectId));
     }
 
-    public void deleteProjectFile(String project, String filename) {
-        files.remove(GroupedKey.create(project, filename));
+    public void deleteProjectFile(String projectId, String filename) {
+        files.remove(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT,filename));
     }
 
-    public Project getProject(String project) {
-        return projects.get(GroupedKey.create(project, project));
+    public Project getProject(String projectId) {
+        return projects.get(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT,projectId));
     }
 
     public PipelineStatus getPipelineStatus(String projectId, String environment) {
-        return pipelineStatuses.get(GroupedKey.create(projectId, environment));
+        return pipelineStatuses.get(GroupedKey.create(projectId, environment, projectId));
     }
 
     public void savePipelineStatus(PipelineStatus status) {
-        pipelineStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv()), status);
+        pipelineStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getProjectId()), status);
     }
 
     public void deletePipelineStatus(PipelineStatus status) {
-        pipelineStatuses.remove(GroupedKey.create(status.getProjectId(), status.getEnv()));
+        pipelineStatuses.remove(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getProjectId()));
     }
 
-    public DeploymentStatus getDeploymentStatus(String name, String namespace, String cluster) {
-        String deploymentId = name + ":" + namespace + ":" + cluster;
-        return deploymentStatuses.get(GroupedKey.create(name, deploymentId));
+    public DeploymentStatus getDeploymentStatus(String projectId, String environment) {
+        return deploymentStatuses.get(GroupedKey.create(projectId, environment, projectId));
     }
 
     public void saveDeploymentStatus(DeploymentStatus status) {
-        deploymentStatuses.put(GroupedKey.create(status.getName(), status.getId()), status);
+        deploymentStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getProjectId()), status);
     }
 
     public void deleteDeploymentStatus(DeploymentStatus status) {
-        deploymentStatuses.remove(GroupedKey.create(status.getName(), status.getId()));
+        deploymentStatuses.remove(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getProjectId()));
     }
 
     public List<DeploymentStatus> getDeploymentStatuses() {
@@ -231,11 +242,11 @@ public class DatagridService implements HealthCheck  {
     }
 
     public void saveServiceStatus(ServiceStatus status) {
-        serviceStatuses.put(GroupedKey.create(status.getName(), status.getId()), status);
+        serviceStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getProjectId()), status);
     }
 
     public void deleteServiceStatus(ServiceStatus status) {
-        serviceStatuses.remove(GroupedKey.create(status.getName(), status.getId()));
+        serviceStatuses.remove(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getProjectId()));
     }
 
     public List<ServiceStatus> getServiceStatuses() {
@@ -243,59 +254,77 @@ public class DatagridService implements HealthCheck  {
     }
 
     public List<PodStatus> getPodStatuses(String projectId, String env) {
-        QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) podStatuses);
+        QueryFactory queryFactory = Search.getQueryFactory(podStatuses);
         return queryFactory.<PodStatus>create("FROM karavan.PodStatus WHERE projectId = :projectId AND env = :env")
-                .setParameter("project", projectId)
+                .setParameter("projectId", projectId)
                 .setParameter("env", env)
                 .execute().list();
     }
 
     public PodStatus getDevModePodStatuses(String projectId, String env) {
-        QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) podStatuses);
-        return queryFactory.<PodStatus>create("FROM karavan.PodStatus WHERE projectId = :projectId AND env = :env AND inDevMode = true")
-                .setParameter("project", projectId)
+        QueryFactory queryFactory = Search.getQueryFactory(podStatuses);
+        List<PodStatus> list = queryFactory.<PodStatus>create("FROM karavan.PodStatus WHERE projectId = :projectId AND env = :env AND inDevMode = true")
+                .setParameter("projectId", projectId)
                 .setParameter("env", env)
-                .execute().list().get(0);
+                .execute().list();
+        return list.size() > 0 ? list.get(0) : null;
     }
 
     public List<PodStatus> getPodStatuses(String env) {
-        QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) podStatuses);
+        QueryFactory queryFactory = Search.getQueryFactory(podStatuses);
         return queryFactory.<PodStatus>create("FROM karavan.PodStatus WHERE env = :env")
                 .setParameter("env", env)
                 .execute().list();
     }
 
     public void savePodStatus(PodStatus status) {
-        podStatuses.put(GroupedKey.create(status.getProjectId(), status.getName()), status);
+        podStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getName()), status);
     }
 
     public void deletePodStatus(PodStatus status) {
-        podStatuses.remove(GroupedKey.create(status.getProjectId(), status.getName()));
+        podStatuses.remove(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getName()));
     }
 
-    public CamelStatus getCamelStatus(String projectId, String name, String env) {
+    public void deletePodStatus(String projectId, String env, String podName) {
+        podStatuses.remove(GroupedKey.create(projectId, env, podName));
+    }
+
+    public CamelStatus getCamelStatus(String projectId, String env, String name) {
+        GroupedKey key = GroupedKey.create(projectId, env, name);
+        return camelStatuses.get(key);
+    }
+
+    public List<CamelStatus> getCamelStatusesByEnv(String env, String name) {
         QueryFactory queryFactory = Search.getQueryFactory(camelStatuses);
-        return queryFactory.<CamelStatus>create("FROM karavan.CamelStatus WHERE projectId = :projectId AND name = :name AND env = :env")
+        return queryFactory.<CamelStatus>create("FROM karavan.CamelStatus WHERE env = :env AND name = :name")
+                .setParameter("env", env)
+                .setParameter("name", name)
+                .execute().list();
+    }
+
+    public List<CamelStatus> getCamelStatusesByProjectIdEnv(String projectId, String name) {
+        QueryFactory queryFactory = Search.getQueryFactory(camelStatuses);
+        return queryFactory.<CamelStatus>create("FROM karavan.CamelStatus WHERE projectId = :projectId AND name = :name")
                 .setParameter("projectId", projectId)
                 .setParameter("name", name)
-                .setParameter("env", env)
-                .execute().list().get(0);
-    }
-
-    public List<CamelStatus> getCamelStatusesByEnv(String projectId, String env) {
-        QueryFactory queryFactory = Search.getQueryFactory(camelStatuses);
-        return queryFactory.<CamelStatus>create("FROM karavan.CamelStatus WHERE projectId = :projectId AND env = :env")
-                .setParameter("projectId", projectId)
-                .setParameter("env", env)
                 .execute().list();
     }
 
     public void saveCamelStatus(CamelStatus status) {
-        camelStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv()), status);
+        GroupedKey key = GroupedKey.create(status.getProjectId(), status.getEnv(), status.getName().name());
+        camelStatuses.put(key, status);
     }
 
-    public void deleteCamelStatus(String projectId, String env) {
-        camelStatuses.remove(GroupedKey.create(projectId, env));
+    public void deleteCamelStatus(String projectId, String name, String env) {
+        GroupedKey key = GroupedKey.create(projectId, env, name);
+        camelStatuses.remove(key);
+    }
+
+    public void deleteCamelStatuses(String projectId, String env) {
+        Arrays.stream(CamelStatusName.values()).forEach(name -> {
+            GroupedKey key = GroupedKey.create(projectId, env, name.name());
+            camelStatuses.remove(key);
+        });
     }
 
     public List<Environment> getEnvironments() {
@@ -325,22 +354,28 @@ public class DatagridService implements HealthCheck  {
     }
 
     public void saveDevModeStatus(DevModeStatus status) {
-        devmodeStatuses.put(GroupedKey.create(status.getProjectId(), status.getProjectId()), status);
+        devmodeStatuses.put(GroupedKey.create(status.getProjectId(), DEFAULT_ENVIRONMENT, status.getProjectId()), status);
     }
 
     public void deleteDevModeStatus(String projectId) {
-        devmodeStatuses.remove(GroupedKey.create(projectId, projectId));
+        devmodeStatuses.remove(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT, projectId));
     }
 
     public DevModeStatus getDevModeStatus(String projectId) {
-        return devmodeStatuses.get(GroupedKey.create(projectId, projectId));
+        return devmodeStatuses.get(GroupedKey.create(projectId,DEFAULT_ENVIRONMENT, projectId));
+    }
+
+    public List<DevModeStatus> getLoadedDevModeStatuses() {
+        QueryFactory queryFactory = Search.getQueryFactory(devmodeStatuses);
+        return queryFactory.<DevModeStatus>create("FROM karavan.DevModeStatus WHERE codeLoaded = true")
+                .execute().list();
     }
 
     public void sendDevModeCommand(String projectId, DevModeCommand command) {
         if (command.getProjectId() == null) {
             command.setProjectId(projectId);
         }
-        devmodeCommands.put(GroupedKey.create(projectId, UUID.randomUUID().toString()), command);
+        devmodeCommands.put(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT, UUID.randomUUID().toString()), command);
     }
 
     public DevModeCommand getDevModeCommand(GroupedKey key) {
@@ -348,17 +383,7 @@ public class DatagridService implements HealthCheck  {
     }
 
     public DevModeCommand getDevModeCommand(String projectId) {
-        return getDevModeCommand(GroupedKey.create(projectId, projectId));
-    }
-
-    @Override
-    public HealthCheckResponse call() {
-        if (cacheManager != null && cacheManager.isStarted() && ready.get()) {
-            return HealthCheckResponse.up("Infinispan Service is running in cluster mode.");
-        }
-        else {
-            return HealthCheckResponse.down("Infinispan Service is not running.");
-        }
+        return getDevModeCommand(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT, projectId));
     }
 
     public void clearAllStatuses() {

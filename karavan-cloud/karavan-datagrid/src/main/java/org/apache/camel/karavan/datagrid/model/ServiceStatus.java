@@ -6,7 +6,7 @@ import org.infinispan.protostream.annotations.ProtoField;
 public class ServiceStatus {
     public static final String CACHE = "service_statuses";
     @ProtoField(number = 1)
-    String name;
+    String projectId;
     @ProtoField(number = 2)
     String namespace;
     @ProtoField(number = 3)
@@ -23,8 +23,8 @@ public class ServiceStatus {
     String type;
 
     @ProtoFactory
-    public ServiceStatus(String name, String namespace, String env, String cluster, Integer port, Integer targetPort, String clusterIP, String type) {
-        this.name = name;
+    public ServiceStatus(String projectId, String namespace, String env, String cluster, Integer port, Integer targetPort, String clusterIP, String type) {
+        this.projectId = projectId;
         this.namespace = namespace;
         this.env = env;
         this.cluster = cluster;
@@ -34,23 +34,19 @@ public class ServiceStatus {
         this.type = type;
     }
 
-    public ServiceStatus(String name, String namespace, String cluster, String env) {
-        this.name = name;
+    public ServiceStatus(String projectId, String namespace, String cluster, String env) {
+        this.projectId = projectId;
         this.namespace = namespace;
         this.env = env;
         this.cluster = cluster;
     }
 
-    public String getId() {
-        return name + ":" + namespace + ":" + cluster;
+    public String getProjectId() {
+        return projectId;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 
     public String getNamespace() {
