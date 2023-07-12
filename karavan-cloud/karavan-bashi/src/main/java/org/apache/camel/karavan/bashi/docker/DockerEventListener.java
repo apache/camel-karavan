@@ -8,6 +8,7 @@ import io.vertx.core.eventbus.EventBus;
 import org.apache.camel.karavan.bashi.ConductorService;
 import org.apache.camel.karavan.bashi.Constants;
 import org.apache.camel.karavan.datagrid.DatagridService;
+import org.apache.camel.karavan.datagrid.model.PodStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -15,6 +16,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.Closeable;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -43,22 +45,31 @@ public class DockerEventListener implements ResultCallback<Event> {
     @Override
     public void onNext(Event event) {
 //        LOGGER.info(event.getType() + " : " + event.getStatus());
-        if (Objects.equals(event.getType(), EventType.CONTAINER)) {
-            Container container = dockerService.getContainer(event.getId());
-            String status = event.getStatus();
-            if (container.getNames()[0].equals("/infinispan") && status.startsWith("health_status:")) {
-                String health = status.replace("health_status: ", "");
-                LOGGER.infof("Container %s health status: %s", container.getNames()[0], health);
-                eventBus.publish(ConductorService.ADDRESS_INFINISPAN_HEALTH, health);
-            } else if (container.getNames()[0].endsWith(Constants.DEVMODE_SUFFIX)) {
-                if (Arrays.asList("stop", "die", "kill", "pause", "destroy").contains(event.getStatus())) {
-                    String name = container.getNames()[0].replace("/", "");
-                    String projectId = name.replace("-" + Constants.DEVMODE_SUFFIX, "");
-                    datagridService.deletePodStatus(projectId, environment, name);
-                } else if (Arrays.asList("start", "unpause").contains(event.getStatus())) {
-
+        try {
+            if (Objects.equals(event.getType(), EventType.CONTAINER)) {
+                Container container = dockerService.getContainer(event.getId());
+                String status = event.getStatus();
+                if (container.getNames()[0].equals("/infinispan") && status.startsWith("health_status:")) {
+                    String health = status.replace("health_status: ", "");
+                    LOGGER.infof("Container %s health status: %s", container.getNames()[0], health);
+                    eventBus.publish(ConductorService.ADDRESS_INFINISPAN_HEALTH, health);
+                } else if (container.getNames()[0].endsWith(Constants.DEVMODE_SUFFIX)) {
+                    if (Arrays.asList("stop", "die", "kill", "pause", "destroy").contains(event.getStatus())) {
+                        String name = container.getNames()[0].replace("/", "");
+                        String projectId = name.replace("-" + Constants.DEVMODE_SUFFIX, "");
+                        LOGGER.info("Deleted PodStatus for " + projectId);
+                        datagridService.deletePodStatus(projectId, environment, name);
+                    } else if (Arrays.asList("start", "unpause").contains(event.getStatus())) {
+                        String name = container.getNames()[0].replace("/", "");
+                        String projectId = name.replace("-" + Constants.DEVMODE_SUFFIX, "");
+                        PodStatus ps = new PodStatus(name, true, null, projectId, environment, true, Instant.ofEpochSecond(container.getCreated()).toString());
+                        LOGGER.info("Saved PodStatus for " + projectId);
+                        datagridService.savePodStatus(ps);
+                    }
                 }
             }
+        } catch (Exception exception) {
+            LOGGER.error(exception.getMessage());
         }
     }
 

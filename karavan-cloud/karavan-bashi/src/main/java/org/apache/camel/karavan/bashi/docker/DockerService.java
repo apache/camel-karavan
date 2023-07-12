@@ -12,31 +12,91 @@ import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.core.InvocationBuilder;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
+import io.quarkus.scheduler.Scheduled;
+import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
+import org.apache.camel.karavan.bashi.Constants;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormat;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static org.apache.camel.karavan.bashi.ConductorService.ADDRESS_CONTAINER_STATS;
 import static org.apache.camel.karavan.bashi.ConductorService.ADDRESS_INFINISPAN_HEALTH;
+import static org.apache.camel.karavan.bashi.Constants.DATAGRID_CONTAINER_NAME;
 import static org.apache.camel.karavan.bashi.Constants.NETWORK_NAME;
 
 @ApplicationScoped
 public class DockerService {
 
     private static final Logger LOGGER = Logger.getLogger(DockerService.class.getName());
+    private static final DecimalFormat formatCpu = new DecimalFormat("0.00");
+    private static final DecimalFormat formatMiB = new DecimalFormat("0.0");
+    private static final DecimalFormat formatGiB = new DecimalFormat("0.00");
+    private static final Map<String, Tuple2<Long, Long>> previousStats = new ConcurrentHashMap<>();
 
     @Inject
     DockerEventListener dockerEventListener;
 
     @Inject
     EventBus eventBus;
+
+    @Scheduled(every = "{karavan.container-stats-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    void collectContainersStats() {
+        System.out.println("collectContainersStats ");
+        getDockerClient().listContainersCmd().exec().forEach(container -> {
+            Statistics stats = getContainerStats(container.getId());
+
+            String name = container.getNames()[0].replace("/", "");
+            String projectId = name.replace("-" + Constants.DEVMODE_SUFFIX, "");
+            String memoryUsage = formatMemory(stats.getMemoryStats().getUsage());
+            String memoryLimit = formatMemory(stats.getMemoryStats().getLimit());
+            JsonObject data = JsonObject.of(
+                    "projectId", projectId,
+                    "memory", memoryUsage + " / " + memoryLimit,
+                    "cpu", formatCpu(name, stats)
+            );
+            eventBus.publish(ADDRESS_CONTAINER_STATS, data);
+        });
+    }
+
+    private String formatMemory(Long memory) {
+        if (memory < (1073741824)) {
+            return formatMiB.format(memory.doubleValue() / 1048576) + "MiB";
+        } else {
+            return formatGiB.format(memory.doubleValue() / 1073741824) + "GiB";
+        }
+    }
+
+    private String formatCpu(String containerName, Statistics stats) {
+        double cpuUsage = 0;
+        long previousCpu = previousStats.containsKey(containerName) ? previousStats.get(containerName).getItem1() : -1;
+        long previousSystem = previousStats.containsKey(containerName) ? previousStats.get(containerName).getItem2() : -1;
+
+        CpuStatsConfig cpuStats = stats.getCpuStats();
+        if (cpuStats != null) {
+            CpuUsageConfig cpuUsageConfig = cpuStats.getCpuUsage();
+            long systemUsage = cpuStats.getSystemCpuUsage();
+            long totalUsage = cpuUsageConfig.getTotalUsage();
+
+            if (previousCpu != -1 && previousSystem != -1) {
+                float cpuDelta = totalUsage - previousCpu;
+                float systemDelta = systemUsage - previousSystem;
+
+                if (cpuDelta > 0 && systemDelta > 0) {
+                    cpuUsage = cpuDelta / systemDelta * cpuStats.getOnlineCpus() * 100;
+                }
+            }
+            previousStats.put(containerName, Tuple2.of(totalUsage, systemUsage));
+        }
+        return formatCpu.format(cpuUsage) + "%";
+    }
 
     public void startListeners() {
         getDockerClient().eventsCmd().exec(dockerEventListener);
@@ -53,12 +113,12 @@ public class DockerService {
         }
     }
 
-    public void checkContainersStatus() {
-        getDockerClient().listContainersCmd().withShowAll(true).exec().stream()
+    public void checkDataGridHealth() {
+        getDockerClient().listContainersCmd().exec().stream()
                 .filter(c -> c.getState().equals("running"))
                 .forEach(c -> {
                     HealthState hs = getDockerClient().inspectContainerCmd(c.getId()).exec().getState().getHealth();
-                    if (c.getNames()[0].equals("/infinispan")) {
+                    if (c.getNames()[0].equals("/" + DATAGRID_CONTAINER_NAME)) {
                         eventBus.publish(ADDRESS_INFINISPAN_HEALTH, hs.getStatus());
                     }
                 });
@@ -69,14 +129,9 @@ public class DockerService {
         return containers.get(0);
     }
 
-    public List<Container> getRunnerContainer() {
-        return getDockerClient().listContainersCmd()
-                .withShowAll(true).withLabelFilter(Map.of("type", "runner")).exec();
-    }
-
-    public Statistics getContainerStats(String id) {
+    public Statistics getContainerStats(String containerId) {
         InvocationBuilder.AsyncResultCallback<Statistics> callback = new InvocationBuilder.AsyncResultCallback<>();
-        getDockerClient().statsCmd(id).withContainerId(id).exec(callback);
+        getDockerClient().statsCmd(containerId).withContainerId(containerId).withNoStream(true).exec(callback);
         Statistics stats = null;
         try {
             stats = callback.awaitResult();
@@ -87,7 +142,7 @@ public class DockerService {
         return stats;
     }
 
-    public void createContainer(String name, String image, List<String> env, String ports,
+    public Container createContainer(String name, String image, List<String> env, String ports,
                                 boolean exposedPort, HealthCheck healthCheck, Map<String, String> labels) throws InterruptedException {
         List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
         if (containers.size() == 0) {
@@ -95,7 +150,7 @@ public class DockerService {
 
             List<ExposedPort> exposedPorts = getPortsFromString(ports).values().stream().map(i -> ExposedPort.tcp(i)).collect(Collectors.toList());
 
-            CreateContainerResponse container = getDockerClient().createContainerCmd(image)
+            CreateContainerResponse response = getDockerClient().createContainerCmd(image)
                     .withName(name)
                     .withLabels(labels)
                     .withEnv(env)
@@ -104,9 +159,12 @@ public class DockerService {
                     .withHostConfig(getHostConfig(ports, exposedPort))
                     .withHealthcheck(healthCheck)
                     .exec();
-            LOGGER.info("Container created: " + container.getId());
+            LOGGER.info("Container created: " + response.getId());
+            return getDockerClient().listContainersCmd().withShowAll(true)
+                    .withIdFilter(Collections.singleton(response.getId())).exec().get(0);
         } else {
             LOGGER.info("Container already exists: " + containers.get(0).getId());
+            return containers.get(0);
         }
     }
 

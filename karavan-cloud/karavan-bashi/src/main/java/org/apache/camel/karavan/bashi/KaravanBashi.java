@@ -23,8 +23,8 @@ public class KaravanBashi {
 
     void onStart(@Observes StartupEvent ev) throws InterruptedException {
         LOGGER.info("Karavan Bashi is starting...");
-        dockerService.checkContainersStatus();
         dockerService.createNetwork();
+        dockerService.checkDataGridHealth();
         dockerService.startListeners();
         eventBus.publish(ConductorService.ADDRESS_INFINISPAN_START, "");
     }

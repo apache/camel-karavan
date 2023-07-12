@@ -1,13 +1,13 @@
 package org.apache.camel.karavan.bashi;
 
+import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.HealthCheck;
+import com.github.dockerjava.api.model.Statistics;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.bashi.docker.DockerService;
 import org.apache.camel.karavan.datagrid.DatagridService;
-import org.apache.camel.karavan.datagrid.model.CommandName;
-import org.apache.camel.karavan.datagrid.model.DevModeCommand;
-import org.apache.camel.karavan.datagrid.model.Project;
+import org.apache.camel.karavan.datagrid.model.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -46,6 +46,9 @@ public class ConductorService {
     @ConfigProperty(name = "infinispan.password")
     String infinispanPassword;
 
+    @ConfigProperty(name = "karavan.environment")
+    String environment;
+
     @Inject
     DockerService dockerService;
 
@@ -56,6 +59,7 @@ public class ConductorService {
 
     public static final String ADDRESS_INFINISPAN_START = "ADDRESS_INFINISPAN_START";
     public static final String ADDRESS_INFINISPAN_HEALTH = "ADDRESS_DATAGRID_HEALTH";
+    public static final String ADDRESS_CONTAINER_STATS = "ADDRESS_CONTAINER_STATS";
 
     @ConsumeEvent(value = ADDRESS_INFINISPAN_START, blocking = true, ordered = true)
     void startInfinispan(String data) throws InterruptedException {
@@ -73,11 +77,13 @@ public class ConductorService {
     }
 
     @ConsumeEvent(value = ADDRESS_INFINISPAN_HEALTH, blocking = true, ordered = true)
-    void startDatagridService(String infinispanHealth){
-        datagridService.start();
+    void startServices(String infinispanHealth){
+        if (infinispanHealth.equals("healthy")) {
+            datagridService.start();
+        }
     }
 
-//    @ConsumeEvent(value = ADDRESS_INFINISPAN_HEALTH, blocking = true, ordered = true)
+    @ConsumeEvent(value = ADDRESS_INFINISPAN_HEALTH, blocking = true, ordered = true)
     void startKaravan(String infinispanHealth) throws InterruptedException {
         if (infinispanHealth.equals("healthy")) {
             LOGGER.info("Karavan is starting...");
@@ -98,20 +104,42 @@ public class ConductorService {
 
     @ConsumeEvent(value = DatagridService.ADDRESS_DEVMODE_COMMAND, blocking = true, ordered = true)
     void receiveCommand(JsonObject message) throws InterruptedException {
-        System.out.println("receiveCommand " + message);
+        LOGGER.info("DevMode Command: " + message);
         DevModeCommand command = message.mapTo(DevModeCommand.class);
-        String runnerName = command.getProjectId() + "-" + DEVMODE_SUFFIX;
+        String containerName = command.getProjectId() + "-" + DEVMODE_SUFFIX;
+        Project p = datagridService.getProject(command.getProjectId());
         if (Objects.equals(command.getCommandName(), CommandName.RUN)) {
-            Project p = datagridService.getProject(command.getProjectId());
-            LOGGER.infof("Runner starting for %s", p.getProjectId());
-            dockerService.createContainer(runnerName, runnerImage,
+            LOGGER.infof("DevMode starting for %s", p.getProjectId());
+            Container container = dockerService.createContainer(containerName, runnerImage,
                     List.of(), "", false, new HealthCheck(), Map.of("type", "runner")
             );
-            dockerService.startContainer(runnerName);
-            LOGGER.infof("Runner started for %s", p.getProjectId());
+            dockerService.startContainer(containerName);
+            LOGGER.infof("DevMode started for %s", p.getProjectId());
+
+            // update DevModeStatus
+            DevModeStatus dms = datagridService.getDevModeStatus(p.getProjectId());
+            dms.setContainerName(containerName);
+            dms.setContainerId(container.getId());
+            datagridService.saveDevModeStatus(dms);
         } else if (Objects.equals(command.getCommandName(), CommandName.DELETE)){
-            dockerService.stopContainer(runnerName);
-            dockerService.deleteContainer(runnerName);
+            dockerService.stopContainer(containerName);
+            dockerService.deleteContainer(containerName);
+            datagridService.deleteDevModeStatus(p.getName());
+        }
+    }
+
+    @ConsumeEvent(value = ADDRESS_CONTAINER_STATS, blocking = true, ordered = true)
+    public void saveStats(JsonObject data) {
+        String projectId = data.getString("projectId");
+        String memory = data.getString("memory");
+        String cpu = data.getString("cpu");
+        if (datagridService.isReady()) {
+            PodStatus podStatus = datagridService.getDevModePodStatuses(projectId, environment);
+            if (podStatus != null) {
+                podStatus.setCpuInfo(cpu);
+                podStatus.setMemoryInfo(memory);
+                datagridService.savePodStatus(podStatus);
+            }
         }
     }
 }
