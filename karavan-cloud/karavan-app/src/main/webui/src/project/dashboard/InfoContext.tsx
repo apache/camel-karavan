@@ -17,7 +17,7 @@ interface Props {
     showConsole: boolean
 }
 
-export const RunnerInfoContext = (props: Props) => {
+export const InfoContext = (props: Props) => {
 
     function getContextInfo() {
         return (

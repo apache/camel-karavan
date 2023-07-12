@@ -201,10 +201,10 @@ export class ProjectStatus extends React.Component<Props, State> {
                     {podStatuses.length === 0 && <Label icon={<DownIcon/>} color={"grey"}>No pods</Label>}
                     <LabelGroup numLabels={2} isVertical>
                         {podStatuses.map(pod => {
-                                const running = pod.phase === 'Running' && !pod.terminating
+                                const ready = pod.ready;
                                 return (
-                                    <Tooltip key={pod.name} content={running ? "Running" : pod.phase}>
-                                        <Label icon={running ? <UpIcon/> : <DownIcon/>} color={running ? "green" : "red"}>
+                                    <Tooltip key={pod.name} content={ready ? "Ready" : "Not ready"}>
+                                        <Label icon={ready ? <UpIcon/> : <DownIcon/>} color={ready ? "green" : "red"}>
                                             <Button variant="link"
                                                     onClick={e => {
                                                         useLogStore.setState({

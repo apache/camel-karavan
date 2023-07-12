@@ -17,7 +17,7 @@ interface Props {
     reloadOnly?: boolean
 }
 
-export const RunnerToolbar = (props: Props) => {
+export const DevModeToolbar = (props: Props) => {
 
     const [status] = useRunnerStore((state) => [state.status], shallow)
     const [project] = useProjectStore((state) => [state.project], shallow)
@@ -29,7 +29,7 @@ export const RunnerToolbar = (props: Props) => {
     const isDeletingPod = status === "deleting";
     return (<>
         {(isRunning || isDeletingPod) && !isReloadingPod && props.reloadOnly !== true && <FlexItem>
-            <Tooltip content="Stop runner" position={TooltipPosition.bottom}>
+            <Tooltip content="Stop devmode" position={TooltipPosition.bottom}>
                 <Button isLoading={isDeletingPod ? true : undefined}
                         isSmall
                         variant={"secondary"}
@@ -50,7 +50,7 @@ export const RunnerToolbar = (props: Props) => {
             </Tooltip>
         </FlexItem>}
         {!isRunning && !isReloadingPod && props.reloadOnly !== true && <FlexItem>
-            <Tooltip content="Run in development mode" position={TooltipPosition.bottom}>
+            <Tooltip content="Run in developer mode" position={TooltipPosition.bottom}>
                 <Button isLoading={isStartingPod ? true : undefined}
                         isSmall
                         variant={"primary"}

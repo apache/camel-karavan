@@ -22,9 +22,8 @@ import '../designer/karavan.css';
 import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
-import {RunnerToolbar} from "./RunnerToolbar";
-import {useFilesStore, useFileStore, useProjectStore} from "../api/ProjectStore";
+import {DevModeToolbar} from "./DevModeToolbar";
+import {useFileStore, useProjectStore} from "../api/ProjectStore";
 import {EventBus} from "../designer/utils/EventBus";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
@@ -38,10 +37,7 @@ interface Props {
 
 export const ProjectToolbar = (props: Props) => {
 
-    const [commitMessageIsOpen, setCommitMessageIsOpen] = useState(false);
-    const [commitMessage, setCommitMessage] = useState('');
     const [project, isPushing] = useProjectStore((state) => [state.project, state.isPushing], shallow )
-    const {files} = useFilesStore();
     const [file, editAdvancedProperties, setEditAdvancedProperties, setAddProperty] = useFileStore((state) =>
         [state.file, state.editAdvancedProperties, state.setEditAdvancedProperties, state.setAddProperty], shallow )
 
@@ -69,10 +65,6 @@ export const ProjectToolbar = (props: Props) => {
         return file !== undefined && file.name.endsWith("java");
     }
 
-    function needCommit(): boolean {
-        return project ? files.filter(f => f.lastUpdate > project.lastCommitTimestamp).length > 0 : false;
-    }
-
     function downloadImage () {
         EventBus.sendCommand("downloadImage");
     }
@@ -88,43 +80,6 @@ export const ProjectToolbar = (props: Props) => {
         }
     }
 
-    function push () {
-        setCommitMessageIsOpen(false);
-        ProjectService.pushProject(project, commitMessage);
-    }
-
-    function getDate(lastUpdate: number): string {
-        if (lastUpdate) {
-            const date = new Date(lastUpdate);
-            return date.toISOString().slice(0, 19).replace('T',' ');
-        } else {
-            return "N/A"
-        }
-    }
-
-    function getLastUpdatePanel() {
-        const color = needCommit() ? "grey" : "green";
-        const commit = project?.lastCommit;
-        return (
-            <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentFlexStart"}}>
-                {project?.lastCommitTimestamp > 0 &&
-                    <FlexItem>
-                        <Tooltip content="Last update" position={TooltipPosition.bottom}>
-                            <Label color={color}>{getDate(project?.lastCommitTimestamp)}</Label>
-                        </Tooltip>
-                    </FlexItem>}
-                {project?.lastCommitTimestamp > 0 &&
-                <FlexItem>
-                    <Tooltip content={commit} position={TooltipPosition.bottom}>
-                        <Label
-                            color={color}>{commit ? commit?.substring(0, 18) : "-"}</Label>
-                    </Tooltip>
-                </FlexItem>}
-            </Flex>
-        )
-    }
-
-
     function getFileToolbar() {
         const { mode} = props;
         return <Toolbar id="toolbar-group-types">
@@ -135,22 +90,7 @@ export const ProjectToolbar = (props: Props) => {
                             <Label>{file?.code?.length}</Label>
                         </Tooltip>
                     </FlexItem>}
-                    {isRunnable() && <RunnerToolbar reloadOnly={true}/>}
-                    {!isFile && <FlexItem>
-                        <Tooltip content="Commit and push to git" position={"bottom-end"}>
-                            <Button isLoading={isPushing ? true : undefined}
-                                    isSmall
-                                    variant={needCommit() ? "primary" : "secondary"}
-                                    className="project-button"
-                                    icon={!isPushing ? <PushIcon/> : <div></div>}
-                                    onClick={() => {
-                                        setCommitMessage(commitMessage === '' ? new Date().toLocaleString() : commitMessage);
-                                        setCommitMessageIsOpen(true);
-                                    }}>
-                                {isPushing ? "..." : "Push"}
-                            </Button>
-                        </Tooltip>
-                    </FlexItem>}
+                    {isRunnable() && <DevModeToolbar reloadOnly={true}/>}
                     {isYaml() && <FlexItem>
                         <ToggleGroup>
                             <ToggleGroupItem text="Design" buttonId="design" isSelected={mode === "design"}
@@ -186,49 +126,13 @@ export const ProjectToolbar = (props: Props) => {
         return (<Toolbar id="toolbar-group-types">
             <ToolbarContent>
                 <Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
-                    <FlexItem>{getLastUpdatePanel()}</FlexItem>
-                    {isRunnable() && <RunnerToolbar/>}
-                    <FlexItem>
-                        <Tooltip content="Commit and push to git" position={"bottom-end"}>
-                            <Button isLoading={isPushing ? true : undefined}
-                                    isSmall
-                                    variant={needCommit() ? "primary" : "secondary"}
-                                    className="project-button"
-                                    icon={!isPushing ? <PushIcon/> : <div></div>}
-                                    onClick={() => {
-                                        setCommitMessage(commitMessage === '' ? new Date().toLocaleString() : commitMessage);
-                                        setCommitMessageIsOpen(true);
-                                    }}>
-                                {isPushing ? "..." : "Push"}
-                            </Button>
-                        </Tooltip>
-                    </FlexItem>
+                    {isRunnable() && <DevModeToolbar/>}
                 </Flex>
             </ToolbarContent>
         </Toolbar>)
     }
 
-    function getCommitModal() {
-        return (
-            <Modal
-                title="Commit"
-                variant={ModalVariant.small}
-                isOpen={commitMessageIsOpen}
-                onClose={() => setCommitMessageIsOpen(false)}
-                actions={[
-                    <Button key="confirm" variant="primary" onClick={() => push()}>Save</Button>,
-                    <Button key="cancel" variant="secondary" onClick={() => setCommitMessageIsOpen(false)}>Cancel</Button>
-                ]}
-            >
-                <Form autoComplete="off" isHorizontal className="create-file-form">
-                    <FormGroup label="Message" fieldId="name" isRequired>
-                        <TextInput value={commitMessage} onChange={value => setCommitMessage(value)}/>
-                        <FormHelperText isHidden={false} component="div"/>
-                    </FormGroup>
-                </Form>
-            </Modal>
-        )
-    }
+
 
     function isKameletsProject(): boolean {
         return project.projectId === 'kamelets';
@@ -249,7 +153,6 @@ export const ProjectToolbar = (props: Props) => {
             {/*{!isTemplates && getProjectToolbar()}*/}
              {!isFile() && getProjectToolbar()}
              {isFile() && getFileToolbar()}
-             {getCommitModal()}
         </>
     )
 }

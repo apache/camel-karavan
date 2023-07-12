@@ -303,16 +303,17 @@ export class KaravanApi {
         });
     }
 
-    static async getRunnerPodStatus(projectId: string, after: (res: AxiosResponse<PodStatus>) => void) {
+    static async getDevModePodStatus(projectId: string, after: (res: AxiosResponse<PodStatus>) => void) {
         instance.get('/api/devmode/pod/' + projectId)
             .then(res => {
+                console.log(res);
                 after(res);
             }).catch(err => {
             after(err);
         });
     }
 
-    static async getRunnerReload(projectId: string, after: (res: AxiosResponse<any>) => void) {
+    static async reloadDevMode(projectId: string, after: (res: AxiosResponse<any>) => void) {
         instance.get('/api/devmode/reload/' + projectId)
             .then(res => {
                 after(res);
@@ -321,9 +322,10 @@ export class KaravanApi {
         });
     }
 
-    static async getRunnerConsoleStatus(projectId: string, statusName: string, after: (res: AxiosResponse<string>) => void) {
-        instance.get('/api/devmode/console/' + projectId + "/" + statusName)
+    static async getDevModeStatus(projectId: string, statusName: string, after: (res: AxiosResponse<string>) => void) {
+        instance.get('/api/devmode/status/' + projectId + "/" + statusName)
             .then(res => {
+                console.log(res);
                 after(res);
             }).catch(err => {
             after(err);

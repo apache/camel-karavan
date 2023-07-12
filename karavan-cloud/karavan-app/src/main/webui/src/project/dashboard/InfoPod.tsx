@@ -12,18 +12,14 @@ import '../../designer/karavan.css';
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import {PodStatus} from "../../api/ProjectModels";
-import {useLogStore, useRunnerStore} from "../../api/ProjectStore";
+import {useLogStore} from "../../api/ProjectStore";
 
-
-export function isRunning(status: PodStatus): boolean {
-    return status.phase === 'Running' && !status.terminating;
-}
 
 interface Props {
     podStatus: PodStatus,
 }
 
-export const RunnerInfoPod = (props: Props) => {
+export const InfoPod = (props: Props) => {
 
     function getPodInfo() {
         const podStatus = props.podStatus;
@@ -40,42 +36,10 @@ export const RunnerInfoPod = (props: Props) => {
         )
     }
 
-    function getPodStatus() {
-        const podStatus = props.podStatus;
-        const status = !podStatus.terminating ? podStatus.phase : "Terminating"
+    function getPodInfoLabel(info: string) {
         return (
             <Label icon={getIcon()} color={getColor()}>
-                {status !== "" ? status : "N/A"}
-            </Label>
-        )
-    }
-
-    function getPodRequests() {
-        const podStatus = props.podStatus;
-        const text = podStatus.requestCpu !== '' ? podStatus.requestCpu + " : " + podStatus.requestMemory : "N/A";
-        return (
-            <Label icon={getIcon()} color={getColor()}>
-                {text}
-            </Label>
-        )
-    }
-
-    function getPodCreation() {
-        const podStatus = props.podStatus;
-        const text = podStatus.creationTimestamp !== '' ? podStatus.creationTimestamp : "N/A";
-        return (
-            <Label icon={getIcon()} color={getColor()}>
-                {text}
-            </Label>
-        )
-    }
-
-    function getPodLimits() {
-        const podStatus = props.podStatus;
-        const text = podStatus.limitCpu !== '' ? podStatus.limitCpu + " : " + podStatus.limitMemory : "N/A";
-        return (
-            <Label icon={getIcon()} color={getColor()}>
-                {text}
+                {info}
             </Label>
         )
     }
@@ -89,9 +53,10 @@ export const RunnerInfoPod = (props: Props) => {
     }
 
     function getRunning(): boolean {
-        return isRunning(props.podStatus);
+        return props.podStatus.ready;
     }
 
+    const podStatus = props.podStatus;
     return (
         <DescriptionList isHorizontal>
             <DescriptionListGroup>
@@ -103,25 +68,25 @@ export const RunnerInfoPod = (props: Props) => {
             <DescriptionListGroup>
                 <DescriptionListTerm>Status</DescriptionListTerm>
                 <DescriptionListDescription>
-                    {getPodStatus()}
+                    {getPodInfoLabel(podStatus.ready ? "Ready" : "Not Ready")}
                 </DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>
-                <DescriptionListTerm>Requests</DescriptionListTerm>
+                <DescriptionListTerm>CPU</DescriptionListTerm>
                 <DescriptionListDescription>
-                    {getPodRequests()}
+                    {getPodInfoLabel(podStatus.cpuInfo)}
                 </DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>
-                <DescriptionListTerm>Limits</DescriptionListTerm>
+                <DescriptionListTerm>Memory</DescriptionListTerm>
                 <DescriptionListDescription>
-                    {getPodLimits()}
+                    {getPodInfoLabel(podStatus.memoryInfo)}
                 </DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>
                 <DescriptionListTerm>Created</DescriptionListTerm>
                 <DescriptionListDescription>
-                    {getPodCreation()}
+                    {getPodInfoLabel(podStatus.created)}
                 </DescriptionListDescription>
             </DescriptionListGroup>
         </DescriptionList>

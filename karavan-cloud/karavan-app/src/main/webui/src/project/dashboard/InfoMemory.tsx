@@ -18,7 +18,7 @@ interface Props {
     showConsole: boolean
 }
 
-export const RunnerInfoMemory = (props: Props) => {
+export const InfoMemory = (props: Props) => {
 
     function getJvmInfo() {
         return (

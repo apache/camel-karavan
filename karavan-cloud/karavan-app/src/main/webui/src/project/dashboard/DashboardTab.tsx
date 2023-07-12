@@ -14,22 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Card,
     CardBody, Flex, FlexItem, Divider, PageSection
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {RunnerInfoPod} from "./RunnerInfoPod";
-import {RunnerInfoContext} from "./RunnerInfoContext";
-import {RunnerInfoMemory} from "./RunnerInfoMemory";
+import {InfoPod} from "./InfoPod";
+import {InfoContext} from "./InfoContext";
+import {InfoMemory} from "./InfoMemory";
 import {KaravanApi} from "../../api/KaravanApi";
-import {PodStatus} from "../../api/ProjectModels";
 import {useProjectStore} from "../../api/ProjectStore";
-
-export function isRunning(status: PodStatus): boolean {
-    return status.phase === 'Running' && !status.terminating;
-}
 
 export const DashboardTab = () => {
 
@@ -41,7 +36,7 @@ export const DashboardTab = () => {
     useEffect(() => {
         const interval = setInterval(() => {
             onRefreshStatus();
-        }, 1000);
+        }, 2000);
         return () => {
             clearInterval(interval)
         };
@@ -50,21 +45,21 @@ export const DashboardTab = () => {
 
     function onRefreshStatus() {
         const projectId = project.projectId;
-        KaravanApi.getRunnerConsoleStatus(projectId, "memory", res => {
+        KaravanApi.getDevModeStatus(projectId, "memory", res => {
             if (res.status === 200) {
                 setMemory(res.data);
             } else {
                 setMemory({});
             }
         })
-        KaravanApi.getRunnerConsoleStatus(projectId, "jvm", res => {
+        KaravanApi.getDevModeStatus(projectId, "jvm", res => {
             if (res.status === 200) {
                 setJvm(res.data);
             } else {
                 setJvm({});
             }
         })
-        KaravanApi.getRunnerConsoleStatus(projectId, "context", res => {
+        KaravanApi.getDevModeStatus(projectId, "context", res => {
             if (res.status === 200) {
                 setContext(res.data);
             } else {
@@ -74,7 +69,7 @@ export const DashboardTab = () => {
     }
 
     function showConsole(): boolean {
-        return podStatus.phase !== '';
+        return podStatus.ready;
     }
 
     return (
@@ -84,15 +79,15 @@ export const DashboardTab = () => {
                     <Flex direction={{default: "row"}}
                           justifyContent={{default: "justifyContentSpaceBetween"}}>
                         <FlexItem flex={{default: "flex_1"}}>
-                            <RunnerInfoPod podStatus={podStatus}/>
+                            <InfoPod podStatus={podStatus}/>
                         </FlexItem>
                         <Divider orientation={{default: "vertical"}}/>
                         <FlexItem flex={{default: "flex_1"}}>
-                            <RunnerInfoMemory jvm={jvm} memory={memory} showConsole={showConsole()}/>
+                            <InfoMemory jvm={jvm} memory={memory} showConsole={showConsole()}/>
                         </FlexItem>
                         <Divider orientation={{default: "vertical"}}/>
                         <FlexItem flex={{default: "flex_1"}}>
-                            <RunnerInfoContext context={context} showConsole={showConsole()}/>
+                            <InfoContext context={context} showConsole={showConsole()}/>
                         </FlexItem>
                     </Flex>
                 </CardBody>

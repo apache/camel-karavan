@@ -27,8 +27,8 @@ export const ProjectPage = () => {
     useEffect(() => {
         // TODO: make status request only when started or just opened
         const interval = setInterval(() => {
-            ProjectService.getRunnerPodStatus(project);
-        }, 1000);
+            ProjectService.getDevModePodStatus(project);
+        }, 2000);
         return () => {
             clearInterval(interval)
         };
