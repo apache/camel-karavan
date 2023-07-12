@@ -59,19 +59,14 @@ export class ServiceStatus {
 
 export class PodStatus {
     name: string = '';
-    phase: string = '';
-    started: boolean = false;
     ready: boolean = false;
-    terminating: boolean = false;
-    reason: string = '';
-    project: string = '';
     deployment: string = '';
-    runner: boolean = false;
-    requestMemory: string = '';
-    requestCpu: string = '';
-    limitMemory: string = '';
-    limitCpu: string = '';
-    creationTimestamp: string = '';
+    projectId: string = '';
+    env: string = '';
+    inDevMode: boolean = false;
+    memoryInfo: string = '';
+    cpuInfo: string = '';
+    created: string = '';
 
     public constructor(init?: Partial<PodStatus>) {
         Object.assign(this, init);

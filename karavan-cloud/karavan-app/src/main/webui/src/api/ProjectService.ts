@@ -29,7 +29,7 @@ export class ProjectService {
 
     public static reloadRunner(project: Project) {
         useRunnerStore.setState({status: "reloading"})
-        KaravanApi.getRunnerReload(project.projectId, res => {
+        KaravanApi.reloadDevMode(project.projectId, res => {
             if (res.status === 200 || res.status === 201) {
                 // setIsReloadingPod(false);
             } else {
@@ -51,9 +51,9 @@ export class ProjectService {
         });
     }
 
-    public static getRunnerPodStatus(project: Project) {
+    public static getDevModePodStatus(project: Project) {
         const projectId = project.projectId;
-        KaravanApi.getRunnerPodStatus(projectId, res => {
+        KaravanApi.getDevModePodStatus(projectId, res => {
             if (res.status === 200) {
                 unstable_batchedUpdates(() => {
                     const podStatus = res.data;
