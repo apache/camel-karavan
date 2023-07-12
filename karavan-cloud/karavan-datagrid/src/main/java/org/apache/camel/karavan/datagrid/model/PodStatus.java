@@ -21,9 +21,11 @@ public class PodStatus {
     String memoryInfo;
     @ProtoField(number = 8)
     String cpuInfo;
+    @ProtoField(number = 9)
+    String created;
 
     @ProtoFactory
-    public PodStatus(String name, Boolean ready, String deployment, String projectId, String env, Boolean inDevMode, String memoryInfo, String cpuInfo) {
+    public PodStatus(String name, Boolean ready, String deployment, String projectId, String env, Boolean inDevMode, String memoryInfo, String cpuInfo, String created) {
         this.name = name;
         this.ready = ready;
         this.deployment = deployment;
@@ -32,15 +34,17 @@ public class PodStatus {
         this.inDevMode = inDevMode;
         this.memoryInfo = memoryInfo;
         this.cpuInfo = cpuInfo;
+        this.created = created;
     }
 
-    public PodStatus(String name, Boolean ready, String deployment, String projectId, String env, Boolean inDevMode) {
+    public PodStatus(String name, Boolean ready, String deployment, String projectId, String env, Boolean inDevMode, String created) {
         this.name = name;
         this.ready = ready;
         this.deployment = deployment;
         this.projectId = projectId;
         this.env = env;
         this.inDevMode = inDevMode;
+        this.created = created;
     }
 
     public String getName() {
@@ -105,5 +109,13 @@ public class PodStatus {
 
     public void setCpuInfo(String cpuInfo) {
         this.cpuInfo = cpuInfo;
+    }
+
+    public String getCreated() {
+        return created;
+    }
+
+    public void setCreated(String created) {
+        this.created = created;
     }
 }

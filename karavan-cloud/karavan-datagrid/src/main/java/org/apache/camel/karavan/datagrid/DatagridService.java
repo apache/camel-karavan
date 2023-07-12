@@ -28,9 +28,11 @@ import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.Search;
 import org.infinispan.client.hotrod.configuration.ClientIntelligence;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
+import org.infinispan.client.hotrod.impl.query.RemoteQuery;
 import org.infinispan.commons.configuration.StringConfiguration;
 import org.infinispan.commons.marshall.ProtoStreamMarshaller;
 import org.infinispan.query.dsl.QueryFactory;
+import org.infinispan.query.remote.client.ProtobufMetadataManagerConstants;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -39,11 +41,17 @@ import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+
+import static org.infinispan.query.remote.client.ProtobufMetadataManagerConstants.PROTOBUF_METADATA_CACHE_NAME;
 
 @Default
 @ApplicationScoped
@@ -119,6 +127,9 @@ public class DatagridService  {
         devmodeCommands = getOrCreateCache(DevModeCommand.CACHE, true);
 
         cacheManager.getCache(DevModeCommand.CACHE).addClientListener(new ClientRunnerListener(eventBus));
+        // Grab the generated protobuf schema and registers in the server.
+        cacheManager.getCache(PROTOBUF_METADATA_CACHE_NAME).put("karavan.proto", getResourceFile("/proto/karavan.proto"));
+
         ready.set(true);
         LOGGER.info("DatagridService is started in remote mode");
     }
@@ -130,7 +141,6 @@ public class DatagridService  {
     private <K, V> RemoteCache<K, V>  getOrCreateCache(String name, boolean command) {
         String config = getResourceFile(command ? "/command-cache-config.xml" : "/data-cache-config.xml");
         return cacheManager.administration().getOrCreateCache(name, new StringConfiguration(String.format(config, name)));
-
     }
 
     private void cleanData() {
@@ -139,6 +149,7 @@ public class DatagridService  {
         podStatuses.clear();
         pipelineStatuses.clear();
         camelStatuses.clear();
+        devmodeCommands.clear();
     }
 
     @ConsumeEvent(value = ADDRESS_DEVMODE_COMMAND_INTERNAL, blocking = true, ordered = true, local = false)
@@ -231,7 +242,7 @@ public class DatagridService  {
     }
 
     public List<DeploymentStatus> getDeploymentStatuses() {
-        return deploymentStatuses.values().stream().collect(Collectors.toList());
+        return new ArrayList<>(deploymentStatuses.values());
     }
 
     public List<DeploymentStatus> getDeploymentStatuses(String env) {
@@ -275,6 +286,10 @@ public class DatagridService  {
         return queryFactory.<PodStatus>create("FROM karavan.PodStatus WHERE env = :env")
                 .setParameter("env", env)
                 .execute().list();
+    }
+
+    public List<PodStatus> getAllPodStatuses() {
+        return new ArrayList<>(podStatuses.values());
     }
 
     public void savePodStatus(PodStatus status) {
@@ -369,6 +384,10 @@ public class DatagridService  {
         QueryFactory queryFactory = Search.getQueryFactory(devmodeStatuses);
         return queryFactory.<DevModeStatus>create("FROM karavan.DevModeStatus WHERE codeLoaded = true")
                 .execute().list();
+    }
+
+    public List<DevModeStatus> getDevModeStatuses() {
+       return new ArrayList<>(devmodeStatuses.values());
     }
 
     public void sendDevModeCommand(String projectId, DevModeCommand command) {

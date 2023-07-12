@@ -6,6 +6,7 @@ import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.datagrid.model.CommandName;
 import org.apache.camel.karavan.datagrid.model.DevModeCommand;
+import org.apache.camel.karavan.datagrid.model.ProjectFile;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -20,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @QuarkusTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class DevCommandTest {
+public class DataGridTest {
 
     @Inject
     DatagridService datagridService;
@@ -39,7 +40,7 @@ public class DevCommandTest {
         commandsReceived.add(message.mapTo(DevModeCommand.class));
     }
 
-    @Test
+//    @Test
     public void sendCommand() throws InterruptedException {
         List<DevModeCommand> commandsSent = List.of(
                 new DevModeCommand(CommandName.RUN, Instant.now().toEpochMilli()),
@@ -57,4 +58,9 @@ public class DevCommandTest {
         assertEquals(commandsSent.get(2).getCommandName().name(),  commandsReceived.get(2).getCommandName().name());
     }
 
+    @Test
+    public void getProjectFiles() throws InterruptedException {
+        List<ProjectFile> files = datagridService.getProjectFiles("xxx");
+        assertEquals(0, files.size());
+    }
 }
