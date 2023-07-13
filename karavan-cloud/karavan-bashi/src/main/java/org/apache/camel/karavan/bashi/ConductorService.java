@@ -110,17 +110,17 @@ public class ConductorService {
         Project p = datagridService.getProject(command.getProjectId());
         if (Objects.equals(command.getCommandName(), CommandName.RUN)) {
             LOGGER.infof("DevMode starting for %s", p.getProjectId());
-            Container container = dockerService.createContainer(containerName, runnerImage,
-                    List.of(), "", false, new HealthCheck(), Map.of("type", "runner")
+
+            HealthCheck healthCheck = new HealthCheck().withTest(List.of("CMD", "curl", "-f", "http://localhost:8080/q/dev/health"))
+                    .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
+
+            dockerService.createContainer(containerName, runnerImage,
+                    List.of(), "", false, healthCheck,
+                    Map.of("type", "devmode", "projectId", p.getProjectId())
             );
             dockerService.startContainer(containerName);
             LOGGER.infof("DevMode started for %s", p.getProjectId());
 
-            // update DevModeStatus
-            DevModeStatus dms = datagridService.getDevModeStatus(p.getProjectId());
-            dms.setContainerName(containerName);
-            dms.setContainerId(container.getId());
-            datagridService.saveDevModeStatus(dms);
         } else if (Objects.equals(command.getCommandName(), CommandName.DELETE)){
             dockerService.stopContainer(containerName);
             dockerService.deleteContainer(containerName);

@@ -10,11 +10,11 @@ import org.infinispan.client.hotrod.event.ClientCacheEntryCreatedEvent;
 import org.infinispan.client.hotrod.event.ClientCacheEntryModifiedEvent;
 
 @ClientListener
-public class ClientRunnerListener {
+public class DevModeCommandListener {
 
     private final EventBus eventBus;
 
-    public ClientRunnerListener(EventBus eventBus) {
+    public DevModeCommandListener(EventBus eventBus) {
         this.eventBus = eventBus;
     }
 

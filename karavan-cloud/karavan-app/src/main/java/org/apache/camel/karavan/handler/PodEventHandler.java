@@ -11,7 +11,7 @@ import org.apache.camel.karavan.service.KubernetesService;
 import org.jboss.logging.Logger;
 
 import static org.apache.camel.karavan.service.CodeService.DEFAULT_CONTAINER_RESOURCES;
-import static org.apache.camel.karavan.service.CamelStatusService.DEVMODE_SUFFIX;
+import static org.apache.camel.karavan.service.CamelService.DEVMODE_SUFFIX;
 
 public class PodEventHandler implements ResourceEventHandler<Pod> {
 

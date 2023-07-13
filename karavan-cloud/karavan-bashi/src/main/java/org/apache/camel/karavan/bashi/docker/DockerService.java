@@ -49,7 +49,6 @@ public class DockerService {
 
     @Scheduled(every = "{karavan.container-stats-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectContainersStats() {
-        System.out.println("collectContainersStats ");
         getDockerClient().listContainersCmd().exec().forEach(container -> {
             Statistics stats = getContainerStats(container.getId());
 
@@ -106,7 +105,11 @@ public class DockerService {
         if (!getDockerClient().listNetworksCmd().exec().stream()
                 .filter(n -> n.getName().equals(NETWORK_NAME))
                 .findFirst().isPresent()) {
-            CreateNetworkResponse res = getDockerClient().createNetworkCmd().withName(NETWORK_NAME).withAttachable(true).exec();
+            CreateNetworkResponse res = getDockerClient().createNetworkCmd()
+                    .withName(NETWORK_NAME)
+                    .withDriver("bridge")
+                    .withInternal(false)
+                    .withAttachable(true).exec();
             LOGGER.info("Network created: {}" + res);
         } else {
             LOGGER.info("Network already exists with name: " + NETWORK_NAME);

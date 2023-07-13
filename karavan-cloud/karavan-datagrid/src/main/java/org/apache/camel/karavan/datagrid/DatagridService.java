@@ -28,11 +28,9 @@ import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.Search;
 import org.infinispan.client.hotrod.configuration.ClientIntelligence;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
-import org.infinispan.client.hotrod.impl.query.RemoteQuery;
 import org.infinispan.commons.configuration.StringConfiguration;
 import org.infinispan.commons.marshall.ProtoStreamMarshaller;
 import org.infinispan.query.dsl.QueryFactory;
-import org.infinispan.query.remote.client.ProtobufMetadataManagerConstants;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -41,10 +39,6 @@ import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -58,7 +52,9 @@ import static org.infinispan.query.remote.client.ProtobufMetadataManagerConstant
 public class DatagridService  {
 
     public static final String ADDRESS_DEVMODE_COMMAND = "ADDRESS_DEVMODE_COMMAND";
+    public static final String ADDRESS_DEVMODE_STATUS = "ADDRESS_DEVMODE_STATUS";
     protected static final String ADDRESS_DEVMODE_COMMAND_INTERNAL = "ADDRESS_DEVMODE_COMMAND_INTERNAL";
+    protected static final String ADDRESS_DEVMODE_STATUS_INTERNAL = "ADDRESS_DEVMODE_STATUS_INTERNAL";
 
     @ConfigProperty(name ="quarkus.infinispan-client.hosts")
     String infinispanHosts;
@@ -126,7 +122,8 @@ public class DatagridService  {
         devmodeStatuses = getOrCreateCache(DevModeStatus.CACHE, false);
         devmodeCommands = getOrCreateCache(DevModeCommand.CACHE, true);
 
-        cacheManager.getCache(DevModeCommand.CACHE).addClientListener(new ClientRunnerListener(eventBus));
+        cacheManager.getCache(DevModeCommand.CACHE).addClientListener(new DevModeCommandListener(eventBus));
+        cacheManager.getCache(DevModeStatus.CACHE).addClientListener(new DevModeStatusListener(eventBus));
         // Grab the generated protobuf schema and registers in the server.
         cacheManager.getCache(PROTOBUF_METADATA_CACHE_NAME).put("karavan.proto", getResourceFile("/proto/karavan.proto"));
 
@@ -153,10 +150,17 @@ public class DatagridService  {
     }
 
     @ConsumeEvent(value = ADDRESS_DEVMODE_COMMAND_INTERNAL, blocking = true, ordered = true, local = false)
-    void replyAsync(JsonObject message) {
+    void sendCommand(JsonObject message) {
         GroupedKey key = message.mapTo(GroupedKey.class);
         DevModeCommand command = getDevModeCommand(key);
         eventBus.publish(DatagridService.ADDRESS_DEVMODE_COMMAND, JsonObject.mapFrom(command));
+    }
+
+    @ConsumeEvent(value = ADDRESS_DEVMODE_STATUS_INTERNAL, blocking = true, ordered = true, local = false)
+    void sendStatus(JsonObject message) {
+        GroupedKey key = message.mapTo(GroupedKey.class);
+        DevModeStatus status = devmodeStatuses.get(key);
+        eventBus.publish(DatagridService.ADDRESS_DEVMODE_STATUS, JsonObject.mapFrom(status));
     }
 
     public List<Project> getProjects() {

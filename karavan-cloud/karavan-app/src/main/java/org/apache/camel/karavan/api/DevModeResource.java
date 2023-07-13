@@ -18,7 +18,7 @@ package org.apache.camel.karavan.api;
 
 import org.apache.camel.karavan.datagrid.DatagridService;
 import org.apache.camel.karavan.datagrid.model.*;
-import org.apache.camel.karavan.service.CamelStatusService;
+import org.apache.camel.karavan.service.CamelService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.inject.Inject;
@@ -34,7 +34,7 @@ import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.Optional;
 
-import static org.apache.camel.karavan.service.CamelStatusService.DEVMODE_SUFFIX;
+import static org.apache.camel.karavan.service.CamelService.DEVMODE_SUFFIX;
 
 @Path("/api/devmode")
 public class DevModeResource {
@@ -43,7 +43,7 @@ public class DevModeResource {
     String environment;
 
     @Inject
-    CamelStatusService camelStatusService;
+    CamelService camelService;
 
     @Inject
     DatagridService datagridService;
@@ -74,10 +74,7 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/reload/{projectId}")
     public Response reload(@PathParam("projectId") String projectId) {
-        camelStatusService.reloadProjectCode(projectId);
-        DevModeStatus dms = datagridService.getDevModeStatus(projectId);
-        dms.setCodeLoaded(true);
-        datagridService.saveDevModeStatus(dms);
+        camelService.reloadProjectCode(projectId);
         return Response.ok().build();
     }
 

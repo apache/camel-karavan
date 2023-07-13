@@ -8,6 +8,7 @@ import io.vertx.core.eventbus.EventBus;
 import org.apache.camel.karavan.bashi.ConductorService;
 import org.apache.camel.karavan.bashi.Constants;
 import org.apache.camel.karavan.datagrid.DatagridService;
+import org.apache.camel.karavan.datagrid.model.DevModeStatus;
 import org.apache.camel.karavan.datagrid.model.PodStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -44,7 +45,6 @@ public class DockerEventListener implements ResultCallback<Event> {
 
     @Override
     public void onNext(Event event) {
-//        LOGGER.info(event.getType() + " : " + event.getStatus());
         try {
             if (Objects.equals(event.getType(), EventType.CONTAINER)) {
                 Container container = dockerService.getContainer(event.getId());
@@ -53,6 +53,15 @@ public class DockerEventListener implements ResultCallback<Event> {
                     String health = status.replace("health_status: ", "");
                     LOGGER.infof("Container %s health status: %s", container.getNames()[0], health);
                     eventBus.publish(ConductorService.ADDRESS_INFINISPAN_HEALTH, health);
+                } else if (Objects.equals(container.getLabels().get("type"), "devmode") && status.startsWith("health_status:")) {
+                    String health = status.replace("health_status: ", "");
+                    LOGGER.infof("Container %s health status: %s", container.getNames()[0], health);
+//                     update DevModeStatus
+                    String containerName = container.getNames()[0].replace("/", "");
+                    DevModeStatus dms = datagridService.getDevModeStatus(container.getLabels().get("projectId"));
+                    dms.setContainerName(containerName);
+                    dms.setContainerId(container.getId());
+                    datagridService.saveDevModeStatus(dms);
                 } else if (container.getNames()[0].endsWith(Constants.DEVMODE_SUFFIX)) {
                     if (Arrays.asList("stop", "die", "kill", "pause", "destroy").contains(event.getStatus())) {
                         String name = container.getNames()[0].replace("/", "");

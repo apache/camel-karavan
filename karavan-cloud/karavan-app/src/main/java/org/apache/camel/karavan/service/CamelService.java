@@ -37,9 +37,9 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 @ApplicationScoped
-public class CamelStatusService {
+public class CamelService {
 
-    private static final Logger LOGGER = Logger.getLogger(CamelStatusService.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CamelService.class.getName());
     public static final String CMD_COLLECT_CAMEL_STATUS = "collect-camel-status";
     public static final String CMD_DELETE_CAMEL_STATUS = "delete-camel-status";
     public static final String DEVMODE_SUFFIX = "devmode";
@@ -74,10 +74,12 @@ public class CamelStatusService {
         try {
             datagridService.getProjectFiles(projectId).forEach(projectFile -> putRequest(containerName, projectFile.getName(), projectFile.getCode(), 1000));
             reloadRequest(containerName);
+            DevModeStatus dms = datagridService.getDevModeStatus(projectId);
+            dms.setCodeLoaded(true);
+            datagridService.saveDevModeStatus(dms);
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }
-        datagridService.deleteDevModeStatus(projectId);
     }
 
     @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)
@@ -113,7 +115,6 @@ public class CamelStatusService {
 
     @Scheduled(every = "{karavan.devmode-status-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectDevModeStatuses() {
-        System.out.println("Collect DevMode Statuses");
         if (datagridService.isReady()) {
             datagridService.getDevModeStatuses().forEach(dms -> {
                 CamelStatusRequest csr = new CamelStatusRequest(dms.getProjectId(), dms.getContainerName());
@@ -124,7 +125,6 @@ public class CamelStatusService {
 
     @Scheduled(every = "{karavan.camel-status-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectNonDevModeStatuses() {
-        System.out.println("Collect NonDevMode Statuses");
         if (datagridService.isReady()) {
             datagridService.getPodStatuses(environment).forEach(pod -> {
                 CamelStatusRequest csr = new CamelStatusRequest(pod.getProjectId(), pod.getName());
@@ -148,7 +148,6 @@ public class CamelStatusService {
 
     @Scheduled(every = "{karavan.devmode-status-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void cleanupDevModeStatuses() {
-        System.out.println("Clean DevMode Statuses");
         if (datagridService.isReady()) {
             datagridService.getDevModeStatuses().forEach(dms -> {
                 PodStatus pod = datagridService.getDevModePodStatuses(dms.getProjectId(), environment);
