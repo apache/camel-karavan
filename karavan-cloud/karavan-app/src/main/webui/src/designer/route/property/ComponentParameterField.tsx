@@ -34,9 +34,10 @@ import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefin
 import {ToDefinition} from "karavan-core/lib/model/CamelDefinition";
 import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
 import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
-import {KubernetesSelector} from "./KubernetesSelector";
-import {KubernetesAPI} from "../../utils/KubernetesAPI";
+import {InfrastructureSelector} from "./InfrastructureSelector";
+import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
 import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
+import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
@@ -206,7 +207,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
 
     getKubernetesSelectorModal() {
         return (
-            <KubernetesSelector
+            <InfrastructureSelector
                 dark={false}
                 isOpen={this.state.showKubernetesSelector}
                 onClose={() => this.closeKubernetesSelector()}
@@ -215,13 +216,14 @@ export class ComponentParameterField extends React.Component<Props, State> {
 
     getStringInput(property: ComponentProperty, value: any) {
         const {showEditor, showPassword} = this.state;
-        const inKubernetes = KubernetesAPI.inKubernetes;
-        const noKubeSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
+        const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
+        const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
+        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? <KubernetesIcon/> : <DockerIcon/>
         return <InputGroup>
-            {inKubernetes && !showEditor && !noKubeSelectorButton &&
+            {inInfrastructure && !showEditor && !noInfraSelectorButton &&
                 <Tooltip position="bottom-end" content="Select from Kubernetes">
                     <Button variant="control" onClick={e => this.openKubernetesSelector(property.name)}>
-                        <KubernetesIcon/>
+                        {icon}
                     </Button>
                 </Tooltip>}
             {(!showEditor || property.secret) &&

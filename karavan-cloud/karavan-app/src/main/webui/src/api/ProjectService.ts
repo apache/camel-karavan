@@ -1,7 +1,7 @@
 import {KaravanApi} from "./KaravanApi";
 import {DeploymentStatus, PodStatus, Project, ProjectFile, ToastMessage} from "./ProjectModels";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
-import {KubernetesAPI} from "../designer/utils/KubernetesAPI";
+import {InfrastructureAPI} from "../designer/utils/InfrastructureAPI";
 import {unstable_batchedUpdates} from 'react-dom'
 import {
     useAppConfigStore,
@@ -174,7 +174,6 @@ export class ProjectService {
 
     public static refreshProjectData() {
         const project = useProjectStore.getState().project;
-        const environment = useAppConfigStore.getState().config.environment;
         KaravanApi.getProject(project.projectId, (project: Project) => {
             // ProjectEventBus.selectProject(project);
             KaravanApi.getTemplatesFiles((files: ProjectFile[]) => {
@@ -190,17 +189,14 @@ export class ProjectService {
             useFilesStore.setState({files: files});
         });
 
-        KubernetesAPI.inKubernetes = true;
-        if (environment) {
-            KaravanApi.getConfigMaps(environment, (any: []) => {
-                KubernetesAPI.setConfigMaps(any);
-            });
-            KaravanApi.getSecrets(environment, (any: []) => {
-                KubernetesAPI.setSecrets(any);
-            });
-            KaravanApi.getServices(environment, (any: []) => {
-                KubernetesAPI.setServices(any);
-            });
-        }
+        KaravanApi.getConfigMaps((any: []) => {
+            InfrastructureAPI.setConfigMaps(any);
+        });
+        KaravanApi.getSecrets((any: []) => {
+            InfrastructureAPI.setSecrets(any);
+        });
+        KaravanApi.getServices((any: []) => {
+            InfrastructureAPI.setServices(any);
+        });
     }
 }

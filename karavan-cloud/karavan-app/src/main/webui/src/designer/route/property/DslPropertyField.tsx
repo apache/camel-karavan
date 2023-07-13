@@ -60,13 +60,13 @@ import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
 import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
 import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
-import {KubernetesSelector} from "./KubernetesSelector";
-import {KubernetesAPI} from "../../utils/KubernetesAPI";
+import {InfrastructureSelector} from "./InfrastructureSelector";
+import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
 import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {ModalEditor} from "./ModalEditor";
 import {KaravanInstance} from "../../KaravanDesigner";
-import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
+import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 
 interface Props {
     property: PropertyMeta,
@@ -204,7 +204,7 @@ export class DslPropertyField extends React.Component<Props, State> {
 
     getKubernetesSelectorModal() {
         return (
-            <KubernetesSelector
+            <InfrastructureSelector
                 dark={false}
                 isOpen={this.state.showKubernetesSelector}
                 onClose={() => this.closeKubernetesSelector()}
@@ -213,13 +213,14 @@ export class DslPropertyField extends React.Component<Props, State> {
 
     getStringInput = (property: PropertyMeta, value: any) => {
         const showEditor = this.state.showEditor;
-        const inKubernetes = KubernetesAPI.inKubernetes;
-        const noKubeSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
+        const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
+        const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
+        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? <KubernetesIcon/> : <DockerIcon/>
         return (<InputGroup>
-            {inKubernetes && !showEditor && !noKubeSelectorButton &&
+            {inInfrastructure && !showEditor && !noInfraSelectorButton &&
                 <Tooltip position="bottom-end" content="Select from Kubernetes">
                     <Button variant="control" onClick={e => this.openKubernetesSelector(property.name)}>
-                        <KubernetesIcon/>
+                        {icon}
                     </Button>
                 </Tooltip>}
             {(!showEditor || property.secret) && <TextInput

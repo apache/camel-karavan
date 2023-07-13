@@ -1,6 +1,6 @@
-export class KubernetesAPI {
+export class InfrastructureAPI {
 
-    static inKubernetes: boolean = false;
+    static infrastructure: 'kubernetes' | 'docker' | 'local' = 'local';
     static configMaps: string[] = [];
     static secrets: string[] = [];
     static services: string[] = [];

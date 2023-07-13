@@ -36,8 +36,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Path("/api/kubernetes")
-public class KubernetesResource {
+@Path("/api/infrastructure")
+public class InfrastructureResource {
 
     @Inject
     EventBus eventBus;
@@ -51,7 +51,7 @@ public class KubernetesResource {
     @ConfigProperty(name = "karavan.environment")
     String environment;
 
-    private static final Logger LOGGER = Logger.getLogger(KubernetesResource.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(InfrastructureResource.class.getName());
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
@@ -176,23 +176,35 @@ public class KubernetesResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/configmap/{env}")
-    public Response getConfigMaps(@PathParam("env") String env) throws Exception {
-        return Response.ok(kubernetesService.getConfigMaps(kubernetesService.getNamespace())).build();
+    @Path("/configmaps")
+    public Response getConfigMaps() throws Exception {
+        if (kubernetesService.inKubernetes()) {
+            return Response.ok(kubernetesService.getConfigMaps(kubernetesService.getNamespace())).build();
+        } else {
+            return Response.ok(List.of()).build();
+        }
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/secret/{env}")
-    public Response getSecrets(@PathParam("env") String env) throws Exception {
-        return Response.ok(kubernetesService.getSecrets(kubernetesService.getNamespace())).build();
+    @Path("/secrets")
+    public Response getSecrets() throws Exception {
+        if (kubernetesService.inKubernetes()) {
+            return Response.ok(kubernetesService.getSecrets(kubernetesService.getNamespace())).build();
+        } else {
+            return Response.ok(List.of()).build();
+        }
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/service/{env}")
-    public Response getServices(@PathParam("env") String env) throws Exception {
-        return Response.ok(kubernetesService.getServices(kubernetesService.getNamespace())).build();
+    @Path("/services")
+    public Response getServices() throws Exception {
+        if (kubernetesService.inKubernetes()) {
+            return Response.ok(kubernetesService.getServices(kubernetesService.getNamespace())).build();
+        } else {
+            return Response.ok(List.of()).build();
+        }
     }
 
     // TODO: implement log watch

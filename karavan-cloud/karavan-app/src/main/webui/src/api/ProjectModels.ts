@@ -2,7 +2,7 @@ import {v4 as uuidv4} from "uuid";
 
 export class AppConfig {
     version: string = '';
-    inKubernetes: boolean = true;
+    infrastructure: 'kubernetes' | 'docker' | 'local' = 'local';
     environment: string = '';
     environments: string[] = [];
     runtime: string = '';

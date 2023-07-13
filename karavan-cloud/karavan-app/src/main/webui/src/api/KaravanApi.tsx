@@ -349,7 +349,7 @@ export class KaravanApi {
     }
 
     static async pipelineRun(project: Project, environment: string, after: (res: AxiosResponse<any>) => void) {
-        instance.post('/api/kubernetes/pipeline/' + environment, project)
+        instance.post('/api/infrastructure/pipeline/' + environment, project)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -358,7 +358,7 @@ export class KaravanApi {
     }
 
     static async getPipelineLog(environment: string, pipelineRunName: string, after: (res: AxiosResponse<any>) => void) {
-        instance.get('/api/kubernetes/pipeline/log/' + environment + "/" + pipelineRunName)
+        instance.get('/api/infrastructure/pipeline/log/' + environment + "/" + pipelineRunName)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -369,7 +369,7 @@ export class KaravanApi {
     }
 
     static async stopPipelineRun(environment: string, pipelineRunName: string, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/kubernetes/pipelinerun/' + environment + "/" + pipelineRunName)
+        instance.delete('/api/infrastructure/pipelinerun/' + environment + "/" + pipelineRunName)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -380,7 +380,7 @@ export class KaravanApi {
     }
 
     static async getContainerLog(environment: string, name: string, after: (res: AxiosResponse<string>) => void) {
-        instance.get('/api/kubernetes/container/log/' + environment + "/" + name)
+        instance.get('/api/infrastructure/container/log/' + environment + "/" + name)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -391,7 +391,7 @@ export class KaravanApi {
     }
 
     static async getAllServiceStatuses(after: (statuses: ServiceStatus[]) => void) {
-        instance.get('/api/kubernetes/service')
+        instance.get('/api/infrastructure/service')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -402,7 +402,7 @@ export class KaravanApi {
     }
 
     static async getAllDeploymentStatuses(after: (statuses: DeploymentStatus[]) => void) {
-        instance.get('/api/kubernetes/deployment')
+        instance.get('/api/infrastructure/deployment')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -413,7 +413,7 @@ export class KaravanApi {
     }
 
     static async getDeploymentStatuses(env: string, after: (statuses: DeploymentStatus[]) => void) {
-        instance.get('/api/kubernetes/deployment/' + env)
+        instance.get('/api/infrastructure/deployment/' + env)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -424,7 +424,7 @@ export class KaravanApi {
     }
 
     static async rolloutDeployment(name: string, environment: string, after: (res: AxiosResponse<any>) => void) {
-        instance.post('/api/kubernetes/deployment/rollout/' + environment + '/' + name, "")
+        instance.post('/api/infrastructure/deployment/rollout/' + environment + '/' + name, "")
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -433,7 +433,7 @@ export class KaravanApi {
     }
 
     static async deleteDeployment(environment: string, name: string, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/kubernetes/deployment/' + environment + '/' + name)
+        instance.delete('/api/infrastructure/deployment/' + environment + '/' + name)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -442,7 +442,7 @@ export class KaravanApi {
     }
 
     static async getProjectPodStatuses(project: string, env: string, after: (statuses: PodStatus[]) => void) {
-        instance.get('/api/kubernetes/pod/' + project + "/" + env)
+        instance.get('/api/infrastructure/pod/' + project + "/" + env)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -453,7 +453,7 @@ export class KaravanApi {
     }
 
     static async deletePod(environment: string, name: string, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/kubernetes/pod/' + environment + '/' + name)
+        instance.delete('/api/infrastructure/pod/' + environment + '/' + name)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -461,8 +461,8 @@ export class KaravanApi {
         });
     }
 
-    static async getConfigMaps(environment: string, after: (any: []) => void) {
-        instance.get('/api/kubernetes/configmap/' + environment)
+    static async getConfigMaps(after: (any: []) => void) {
+        instance.get('/api/infrastructure/configmaps/')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -472,8 +472,8 @@ export class KaravanApi {
         });
     }
 
-    static async getSecrets(environment: string, after: (any: []) => void) {
-        instance.get('/api/kubernetes/secret/' + environment)
+    static async getSecrets(after: (any: []) => void) {
+        instance.get('/api/infrastructure/secrets')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -483,8 +483,8 @@ export class KaravanApi {
         });
     }
 
-    static async getServices(environment: string, after: (any: []) => void) {
-        instance.get('/api/kubernetes/service/' + environment)
+    static async getServices(after: (any: []) => void) {
+        instance.get('/api/infrastructure/services')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);

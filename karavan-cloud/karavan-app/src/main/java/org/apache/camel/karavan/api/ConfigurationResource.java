@@ -57,7 +57,7 @@ public class ConfigurationResource {
         return Response.ok(
                 Map.of(
                         "version", version,
-                        "inKubernetes", kubernetesService.inKubernetes(),
+                        "infrastructure", kubernetesService.inKubernetes() ? "kubernetes" : "docker",
                         "environment", environment,
                         "environments", datagridService.getEnvironments().stream()
                                 .map(e -> e.getName())

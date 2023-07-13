@@ -34,11 +34,12 @@ import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import {IntegrationHeader} from "../utils/KaravanComponents";
 import CloneIcon from '@patternfly/react-icons/dist/esm/icons/clone-icon'
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
-import {KubernetesSelector} from "../route/property/KubernetesSelector";
+import {InfrastructureSelector} from "../route/property/InfrastructureSelector";
 import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
-import {KubernetesAPI} from "../utils/KubernetesAPI";
+import {InfrastructureAPI} from "../utils/InfrastructureAPI";
 import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
+import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 
 
 interface Props {
@@ -137,7 +138,7 @@ export class BeanProperties extends React.Component<Props, State> {
 
     getKubernetesSelectorModal() {
         return (
-            <KubernetesSelector
+            <InfrastructureSelector
                 dark={false}
                 isOpen={this.state.showKubernetesSelector}
                 onClose={() => this.closeKubernetesSelector()}
@@ -199,15 +200,17 @@ export class BeanProperties extends React.Component<Props, State> {
                         const value = v[1][1];
                         const showPassword = v[1][2];
                         const isSecret = key !== undefined && SensitiveKeys.includes(key.toLowerCase());
+                        const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
+                        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? <KubernetesIcon/> : <DockerIcon/>
                         return (
                             <div key={"key-" + i} className="bean-property">
                                 <TextInput placeholder="Bean Field Name" className="text-field" isRequired type="text" id="key" name="key" value={key}
                                            onChange={e => this.propertyChanged(i, e, value, showPassword)}/>
                                 <InputGroup>
-                                    {KubernetesAPI.inKubernetes &&
+                                    {inInfrastructure &&
                                         <Tooltip position="bottom-end" content="Select value from Kubernetes">
                                         <Button variant="control" onClick={e => this.openKubernetesSelector(i, key)}>
-                                            <KubernetesIcon/>
+                                            {icon}
                                         </Button>
                                     </Tooltip>}
                                     <TextInput

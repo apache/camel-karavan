@@ -28,10 +28,11 @@ import {MainLogin} from "./MainLogin";
 import {DashboardPage} from "./dashboard/DashboardPage";
 import {Subscription} from "rxjs";
 import {ProjectEventBus} from "./api/ProjectEventBus";
-import {PodStatus, Project, ToastMessage} from "./api/ProjectModels";
+import {AppConfig, PodStatus, Project, ToastMessage} from "./api/ProjectModels";
 import {ProjectPage} from "./project/ProjectPage";
 import {useAppConfigStore, useDevModeStore, useFileStore, useProjectStore} from "./api/ProjectStore";
 import {Notification} from "./Notification";
+import {InfrastructureAPI} from "./designer/utils/InfrastructureAPI";
 
 class MenuItem {
     pageId: string = '';
@@ -111,9 +112,10 @@ export class Main extends React.Component<Props, State> {
     }
 
     getData() {
-        KaravanApi.getConfiguration((config: any) => {
+        KaravanApi.getConfiguration((config: AppConfig) => {
             this.setState({config: config, request: uuidv4()});
-            useAppConfigStore.setState({config: config})
+            useAppConfigStore.setState({config: config});
+            InfrastructureAPI.infrastructure = config.infrastructure;
         });
         this.updateKamelets();
         this.updateComponents();

@@ -17,7 +17,7 @@
 import React from 'react';
 import {
     Badge,
-    Button, Flex, FlexItem,
+    Button, capitalize, Flex, FlexItem,
     Form, FormGroup, Modal, PageSection,
     Tab, Tabs, TabTitleText, TextInput,
 } from '@patternfly/react-core';
@@ -40,7 +40,7 @@ interface State {
     services:  string[]
 }
 
-export class KubernetesSelector extends React.Component<Props, State> {
+export class InfrastructureSelector extends React.Component<Props, State> {
 
     public state: State = {
         tabIndex: "configMap",
@@ -210,7 +210,7 @@ export class KubernetesSelector extends React.Component<Props, State> {
         const tabIndex = this.state.tabIndex;
         return (
             <Modal
-                aria-label="Select from Kubernetes"
+                aria-label="Select from Infrastructure"
                 width={'50%'}
                 className='dsl-modal'
                 isOpen={this.props.isOpen}
@@ -218,7 +218,7 @@ export class KubernetesSelector extends React.Component<Props, State> {
                 header={
                     <Flex direction={{default: "column"}}>
                         <FlexItem>
-                            <h3>{"Select from Kubernetes"}</h3>
+                            <h3>{"Select from " + capitalize(InfrastructureAPI.infrastructure)}</h3>
                             {this.searchInput()}
                         </FlexItem>
                         <FlexItem>
