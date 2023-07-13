@@ -29,7 +29,11 @@ import { Beans, CamelElement, CamelElementMeta, Integration } from '../model/Int
 import { CamelDefinitionApi } from './CamelDefinitionApi';
 
 export class ChildElement {
-    constructor(public name: string = '', public className: string = '', public multiple: boolean = false) {}
+    constructor(
+        public name: string = '',
+        public className: string = '',
+        public multiple: boolean = false,
+    ) {}
 }
 
 export class CamelDefinitionApiExt {

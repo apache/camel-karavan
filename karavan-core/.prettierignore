@@ -1,0 +1,9 @@
+**/CamelDefinitionApi.ts
+**/CamelDefinitionYamlStep.ts
+**/CamelDefinition.ts
+**/CamelMetadata.ts
+**/test
+.prettierrc
+package-lock.json
+package.json
+tsconfig.json

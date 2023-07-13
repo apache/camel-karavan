@@ -14,9 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {v4 as uuidv4} from 'uuid';
-import {NamedBeanDefinition} from "./CamelDefinition";
-
+import { v4 as uuidv4 } from 'uuid';
+import { NamedBeanDefinition } from './CamelDefinition';
 
 export class Spec {
     flows?: any[] = [];
@@ -36,7 +35,7 @@ export class Metadata {
 
 export class Integration {
     apiVersion: string = 'camel.apache.org/v1'; // camel.apache.org/v1alpha1
-    kind: string = 'Integration';  // Kamelet
+    kind: string = 'Integration'; // Kamelet
     metadata: Metadata = new Metadata();
     spec: Spec = new Spec();
     type: 'crd' | 'plain' | 'kamelet' = 'crd';
@@ -46,18 +45,18 @@ export class Integration {
     }
 
     static createNew(name?: string, type: 'crd' | 'plain' | 'kamelet' = 'plain'): Integration {
-        return new Integration({type: type, metadata: new Metadata({name: name}), spec: new Spec({flows: []})})
+        return new Integration({ type: type, metadata: new Metadata({ name: name }), spec: new Spec({ flows: [] }) });
     }
 }
 
 export class CamelElement {
-    uuid: string = ''
-    dslName: string = ''
-    show: boolean = true
+    uuid: string = '';
+    dslName: string = '';
+    show: boolean = true;
 
     constructor(dslName: string) {
-        this.uuid = uuidv4()
-        this.dslName = dslName
+        this.uuid = uuidv4();
+        this.dslName = dslName;
     }
 
     hasId(): boolean {
@@ -74,22 +73,22 @@ export class CamelElement {
 }
 
 export class Beans extends CamelElement {
-    beans: NamedBeanDefinition[] = []
+    beans: NamedBeanDefinition[] = [];
 
     public constructor(init?: Partial<Beans>) {
-        super("Beans")
+        super('Beans');
         Object.assign(this, init);
     }
 }
 
 export class CamelElementMeta {
-    step?: CamelElement
-    parentUuid?: string
+    step?: CamelElement;
+    parentUuid?: string;
     position: number = 0;
 
-    constructor(step?: CamelElement, parentUuid?: string, position?: number) {
+    constructor(step?: CamelElement, parentUuid?: string, position: number = 0) {
         this.step = step;
         this.parentUuid = parentUuid;
-        this.position = position || 0;
+        this.position = position;
     }
 }
