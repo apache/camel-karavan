@@ -15,39 +15,44 @@
  * limitations under the License.
  */
 
-const Templates: Map<string, string> = new Map<string, string>();
-const JavaCode: Map<string, string> = new Map<string, string>();
+export class TemplateApi {
+    private static templates: Map<string, string> = new Map<string, string>();
+    private static javaCode: Map<string, string> = new Map<string, string>();
 
-export const TemplateApi = {
+    private constructor() {}
 
-    saveTemplates: (templates: Map<string, string>, clean: boolean = false) => {
-        if (clean) Templates.clear();
-        templates.forEach((value, key) => Templates.set(key, value));
-    },
+    static saveTemplates = (templates: Map<string, string>, clean: boolean = false): void => {
+        if (clean) TemplateApi.templates.clear();
+        templates.forEach((value, key) => TemplateApi.templates.set(key, value));
+    };
 
-    saveTemplate: (name: string, code: string) => {
-        Templates.set(name, code);
-    },
+    static saveTemplate = (name: string, code: string): void => {
+        TemplateApi.templates.set(name, code);
+    };
 
-    getTemplate: (name: string): string | undefined => {
-        return Templates.get(name);
-    },
+    static getTemplate = (name: string): string | undefined => {
+        return TemplateApi.templates.get(name);
+    };
 
-    generateCode: (name: string, beanName: string): string | undefined => {
-        return Templates.get(name)?.replaceAll("NAME", beanName);
-    },
+    static generateCode = (name: string, beanName: string): string | undefined => {
+        let template: string | undefined = TemplateApi.getTemplate(name);
+        if (template) {
+            return template.replaceAll('NAME', beanName);
+        } else {
+            throw new Error('Template not found');
+        }
+    };
 
+    static saveJavaCodes = (javaCode: Map<string, string>, clean: boolean = false): void => {
+        if (clean) TemplateApi.javaCode.clear();
+        javaCode.forEach((value, key) => TemplateApi.javaCode.set(key, value));
+    };
 
-    saveJavaCodes: (javaCode: Map<string, string>, clean: boolean = false) => {
-        if (clean) JavaCode.clear();
-        javaCode.forEach((value, key) => JavaCode.set(key, value));
-    },
+    static saveJavaCode = (name: string, code: string): void => {
+        TemplateApi.javaCode.set(name, code);
+    };
 
-    saveJavaCode: (name: string, code: string) => {
-        JavaCode.set(name, code);
-    },
-
-    getJavaCode: (name: string): string | undefined => {
-        return JavaCode.get(name);
-    },
+    static getJavaCode = (name: string): string | undefined => {
+        return TemplateApi.javaCode.get(name);
+    };
 }

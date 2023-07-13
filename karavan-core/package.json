@@ -6,7 +6,6 @@
   "scripts": {
     "build": "tsc",
     "test": "cross-env TS_NODE_PROJECT=\"test/tsconfig.testing.json\" mocha -r ts-node/register test/**/*.spec.ts",
-    "prepare": "npm run build && npm run test",
     "prepublishOnly": "npm run test"
   },
   "repository": {
@@ -37,7 +36,7 @@
   "dependencies": {
     "@types/js-yaml": "^4.0.5",
     "@types/uuid": "^8.3.4",
-    "typescript": "^4.9.4",
+    "typescript": "^5.1",
     "uuid": "8.3.2"
   },
   "devDependencies": {

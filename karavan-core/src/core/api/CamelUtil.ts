@@ -14,279 +14,299 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Integration, CamelElement, Beans } from '../model/IntegrationDefinition';
+import { CamelDefinitionApi } from './CamelDefinitionApi';
 import {
-    Integration,
-    CamelElement, Beans
-} from "../model/IntegrationDefinition";
-import {CamelDefinitionApi} from "./CamelDefinitionApi";
-import {KameletDefinition, NamedBeanDefinition, RouteConfigurationDefinition, ToDefinition} from "../model/CamelDefinition";
-import {KameletApi} from "./KameletApi";
-import {KameletModel, Property} from "../model/KameletModels";
-import {ComponentProperty} from "../model/ComponentModels";
-import {ComponentApi} from "./ComponentApi";
-import {CamelMetadataApi} from "../model/CamelMetadata";
-import {CamelDefinitionApiExt} from "./CamelDefinitionApiExt";
-import {v4 as uuidv4} from 'uuid';
+    KameletDefinition,
+    NamedBeanDefinition,
+    RouteConfigurationDefinition,
+    ToDefinition,
+} from '../model/CamelDefinition';
+import { KameletApi } from './KameletApi';
+import { KameletModel, Property } from '../model/KameletModels';
+import { ComponentProperty } from '../model/ComponentModels';
+import { ComponentApi } from './ComponentApi';
+import { CamelMetadataApi } from '../model/CamelMetadata';
+import { CamelDefinitionApiExt } from './CamelDefinitionApiExt';
+import { v4 as uuidv4 } from 'uuid';
 
 export class CamelUtil {
+    private constructor() {}
 
     static cloneIntegration = (integration: Integration): Integration => {
         const clone = JSON.parse(JSON.stringify(integration));
-        const int: Integration = new Integration({...clone});
+        const int: Integration = new Integration({ ...clone });
         const flows: any[] = [];
-        int.spec.flows?.filter((e: any) => e.dslName !== 'Beans')
-            .forEach(f => flows.push(CamelDefinitionApi.createStep(f.dslName, f)));
-        int.spec.flows?.filter((e: any) => e.dslName === 'Beans')
-            .forEach(beans => {
+
+        for (const flow of int.spec.flows || []) {
+            if (flow.dslName !== 'Beans') {
+                flows.push(CamelDefinitionApi.createStep(flow.dslName, flow));
+            } else {
                 const newBeans = new Beans();
-                (beans as Beans).beans.forEach(b => newBeans.beans.push(CamelUtil.cloneBean(b)));
+                newBeans.beans.push(...(flow as Beans).beans.map(bean => CamelUtil.cloneBean(bean)));
                 flows.push(newBeans);
-            });
-        int.spec.flows?.filter((e: any) => e.dslName === 'RouteConfiguration')
-            .forEach(routeConfiguration => {
-                const newRouteConfiguration = CamelUtil.cloneRouteConfiguration(routeConfiguration);
-                flows.push(newRouteConfiguration);
-            });
+            }
+        }
+
+        for (const routeConfiguration of int.spec.flows?.filter(flow => flow.dslName === 'RouteConfiguration') || []) {
+            const newRouteConfiguration = CamelUtil.cloneRouteConfiguration(routeConfiguration);
+            flows.push(newRouteConfiguration);
+        }
+
         int.spec.flows = flows;
         return int;
-    }
+    };
 
     static cloneStep = (step: CamelElement, generateUuids: boolean = false): CamelElement => {
-        const clone = JSON.parse(JSON.stringify(step, (key, value) => {
-            if (generateUuids && key === 'uuid'){
-                return uuidv4();
-            } else {
-                return value;
-            }
-        }));
+        const clone = JSON.parse(
+            JSON.stringify(step, (key, value) => {
+                if (generateUuids && key === 'uuid') {
+                    return uuidv4();
+                } else {
+                    return value;
+                }
+            }),
+        );
         return CamelDefinitionApi.createStep(step.dslName, clone, true);
-    }
+    };
 
     static cloneBean = (bean: NamedBeanDefinition): NamedBeanDefinition => {
         const clone = JSON.parse(JSON.stringify(bean));
         const newBean = new NamedBeanDefinition(clone);
         newBean.uuid = bean.uuid;
         return newBean;
-    }
+    };
 
-    static cloneRouteConfiguration = (routeConfiguration: RouteConfigurationDefinition): RouteConfigurationDefinition => {
+    static cloneRouteConfiguration = (
+        routeConfiguration: RouteConfigurationDefinition,
+    ): RouteConfigurationDefinition => {
         const clone = JSON.parse(JSON.stringify(routeConfiguration));
         const RouteConfiguration = new RouteConfigurationDefinition(clone);
         RouteConfiguration.uuid = routeConfiguration.uuid;
         return RouteConfiguration;
-    }
+    };
 
-    static capitalizeName = (name: string) => {
-        try {
-            return name[0].toUpperCase() + name.substring(1);
-        } catch (e) {
+    static capitalizeName = (name: string): string => {
+        if (name.length === 0) {
             return name;
         }
-    }
+        return name[0].toUpperCase() + name.substring(1);
+    };
 
-    static camelizeName = (
-        name: string,
-        separator: string,
-        firstSmall: boolean
-    ) => {
+    static camelizeName = (name: string, separator: string, firstSmall: boolean): string => {
         if (name.length === 0) return name;
         const res = name
             .split(separator)
-            .map((value) => CamelUtil.capitalizeName(value))
-            .join("");
+            .map(value => CamelUtil.capitalizeName(value))
+            .join('');
         return firstSmall ? res[0].toLowerCase() + res.substring(1) : res;
-    }
+    };
 
     static camelizeBody = (name: string, body: any, clone: boolean): any => {
-        if (body && Object.keys(body).length > 0){
+        if (body && Object.keys(body).length > 0) {
             const oldKey = Object.keys(body)[0];
             const key = CamelUtil.camelizeName(oldKey, '-', true);
-            return !clone && key === name ? {[key]: body[oldKey]} : body;
+            return !clone && key === name ? { [key]: body[oldKey] } : body;
         } else {
             return {};
         }
-    }
+    };
 
     static camelizeObject = (body: any): any => {
-        if (Array.isArray(body)){
-            const result: any [] = [];
-            (body as []).forEach(value => {
-                if (typeof value == 'object'){
-                    result.push(CamelUtil.camelizeObject(value));
-                } else {
-                    result.push(value);
-                }
-            });
-            return result;
-        } else {
+        if (Array.isArray(body)) {
+            return body.map(value => (typeof value === 'object' ? CamelUtil.camelizeObject(value) : value));
+        } else if (typeof body === 'object') {
             const result: any = {};
-            if (body && Object.keys(body).length > 0) {
-                Object.keys(body).forEach(key => {
-                    const newKey = CamelUtil.camelizeName(key, "-", true);
-                    if (typeof body[key] == 'object' || Array.isArray(body[key])){
-                        result[newKey] = CamelUtil.camelizeObject(body[key]);
+            for (const key in body) {
+                if (body?.hasOwnProperty(key)) {
+                    const newKey = CamelUtil.camelizeName(key, '-', true);
+                    const value = body[key];
+                    if (typeof value === 'object' || Array.isArray(value)) {
+                        result[newKey] = CamelUtil.camelizeObject(value);
                     } else {
-                        result[newKey] = body[key];
+                        result[newKey] = value;
                     }
-                });
+                }
             }
             return result;
+        } else {
+            return body;
         }
-    }
+    };
 
     static isKameletComponent = (element: CamelElement | undefined): boolean => {
         if (element?.dslName === 'KameletDefinition') {
             return true;
-        } else if (element && ["FromDefinition", "ToDefinition"].includes(element.dslName)) {
+        } else if (element?.dslName === 'FromDefinition' || element?.dslName === 'ToDefinition') {
             const uri: string = (element as any).uri;
-            return uri !== undefined && uri.startsWith("kamelet:");
+            return uri !== undefined && uri.startsWith('kamelet:');
         } else {
             return false;
         }
-    }
+    };
 
     static getKamelet = (element: CamelElement): KameletModel | undefined => {
         if (element.dslName === 'KameletDefinition') {
             return KameletApi.findKameletByName((element as KameletDefinition).name || '');
-        } else if (element.dslName === 'ToDefinition' && (element as ToDefinition).uri?.startsWith("kamelet:")) {
-            const kameletName = (element as ToDefinition).uri?.replace("kamelet:", "");
+        } else if (element.dslName === 'ToDefinition' && (element as ToDefinition).uri?.startsWith('kamelet:')) {
+            const kameletName = (element as ToDefinition).uri?.replace('kamelet:', '');
             return KameletApi.findKameletByName(kameletName);
-        } else if (["FromDefinition", "FromDefinition", "ToDefinition"].includes(element.dslName)) {
+        } else if (['FromDefinition', 'FromDefinition', 'ToDefinition'].includes(element.dslName)) {
             const uri: string = (element as any).uri;
-            const k =
-                uri !== undefined ? KameletApi.findKameletByUri(uri) : undefined;
-            return k;
+            return uri !== undefined ? KameletApi.findKameletByUri(uri) : undefined;
         } else {
             return undefined;
         }
-    }
+    };
 
     static getKameletProperties = (element: any): Property[] => {
-        const kamelet = this.getKamelet(element)
-        return kamelet
-            ? KameletApi.getKameletProperties(kamelet?.metadata.name)
-            : [];
-    }
+        const kamelet = this.getKamelet(element);
+        return kamelet ? KameletApi.getKameletProperties(kamelet?.metadata.name) : [];
+    };
 
     static getKameletRequiredParameters = (element: any): string[] => {
-        const kamelet = CamelUtil.getKamelet(element)
-        return kamelet
-            ? kamelet.spec.definition.required
-            : [];
-    }
+        const kamelet = CamelUtil.getKamelet(element);
+        return kamelet ? kamelet.spec.definition.required : [];
+    };
 
     static getComponentProperties = (element: any): ComponentProperty[] => {
-            const dslName: string = (element as any).dslName;
+        const dslName: string = (element as any).dslName;
+        const uri: string = (element as any).uri;
+        const name = ComponentApi.getComponentNameFromUri(uri);
+
+        if (dslName === 'ToDynamicDefinition') {
             const component = ComponentApi.findByName(dslName);
-            const uri: string = (element as any).uri;
-            const name = ComponentApi.getComponentNameFromUri(uri);
-        if (['ToDynamicDefinition'].includes(dslName)){
-            const component = ComponentApi.findByName(dslName);
-            return component ? ComponentApi.getComponentProperties(component?.component.name,'producer') : [];
+            return component ? ComponentApi.getComponentProperties(component?.component.name, 'producer') : [];
         } else {
-            if (name){
+            if (name) {
                 const component = ComponentApi.findByName(name);
-                return component ? ComponentApi.getComponentProperties(component?.component.name, element.dslName === 'FromDefinition' ? 'consumer' : 'producer') : [];
+                return component
+                    ? ComponentApi.getComponentProperties(
+                          component?.component.name,
+                          element.dslName === 'FromDefinition' ? 'consumer' : 'producer',
+                      )
+                    : [];
             } else {
                 return [];
             }
         }
-    }
+    };
 
-    static checkRequired = (element: CamelElement): [boolean, string []] => {
-        const result: [boolean, string []] = [true, []];
+    static checkRequired = (element: CamelElement): [boolean, string[]] => {
+        const result: [boolean, string[]] = [true, []];
         const className = element.dslName;
-        let elementMeta =  CamelMetadataApi.getCamelModelMetadataByClassName(className);
-        if (elementMeta === undefined && className.endsWith("Expression")) elementMeta = CamelMetadataApi.getCamelLanguageMetadataByClassName(className);
-        elementMeta?.properties.filter(p => p.required).forEach(p => {
-            const value = (element as any)[p.name];
-            if (p.type === 'string' && !p.isArray && (value === undefined || value.trim().length === 0)) {
-                result[0] = false;
-                result[1].push(p.displayName + " is required");
-            } else if (p.type === 'ExpressionDefinition'){
-                const expressionMeta =  CamelMetadataApi.getCamelModelMetadataByClassName('ExpressionDefinition');
-                let expressionCheck = false;
-                expressionMeta?.properties.forEach(ep => {
-                    const expValue = value[ep.name];
-                    if (expValue){
-                        const checkedExpression = this.checkRequired(expValue);
-                        if (checkedExpression[0]) expressionCheck = true;
+        let elementMeta = CamelMetadataApi.getCamelModelMetadataByClassName(className);
+
+        if (elementMeta === undefined && className.endsWith('Expression')) {
+            elementMeta = CamelMetadataApi.getCamelLanguageMetadataByClassName(className);
+        }
+
+        if (elementMeta) {
+            for (const property of elementMeta.properties.filter(p => p.required)) {
+                const value = (element as any)[property.name];
+                if (property.type === 'string' && !property.isArray && (value === undefined || !value.trim())) {
+                    result[0] = false;
+                    result[1].push(`${property.displayName} is required`);
+                } else if (property.type === 'ExpressionDefinition') {
+                    const expressionMeta = CamelMetadataApi.getCamelModelMetadataByClassName('ExpressionDefinition');
+                    const expressionCheck = expressionMeta?.properties.some(ep => {
+                        const expValue = value[ep.name];
+                        if (expValue) {
+                            const checkedExpression = this.checkRequired(expValue);
+                            return checkedExpression[0];
+                        }
+                        return false;
+                    });
+                    result[0] = !!expressionCheck;
+                    if (!expressionCheck) {
+                        result[1].push('Expression is not defined');
                     }
-                })
-                result[0] = expressionCheck;
-                if (!expressionCheck) result[1].push("Expression is not defined");
+                }
             }
-        })
-        if (['FromDefinition', 'ToDefinition'].includes(className)){
-            const isKamelet = this.isKameletComponent(element);
-            if (!isKamelet){
-                this.getComponentProperties(element).filter(p => p.required).forEach(p => {
-                    const value = CamelDefinitionApiExt.getParametersValue(element, p.name, p.kind === 'path');
-                   if (value === undefined || (p.type === 'string' && value.trim().length === 0)){
-                       result[0] = false;
-                       result[1].push(p.displayName + " is required");
-                   }
-                })
+        }
+
+        if (className === 'FromDefinition' || className === 'ToDefinition') {
+            if (!this.isKameletComponent(element)) {
+                const requiredProperties = this.getComponentProperties(element).filter(p => p.required);
+                for (const property of requiredProperties) {
+                    const value = CamelDefinitionApiExt.getParametersValue(
+                        element,
+                        property.name,
+                        property.kind === 'path',
+                    );
+                    if (value === undefined || (property.type === 'string' && value.trim().length === 0)) {
+                        result[0] = false;
+                        result[1].push(`${property.displayName} is required`);
+                    }
+                }
             } else {
                 const kamelet = this.getKamelet(element);
                 let allSet = true;
-                const filledParameters = Object.keys((element as any).parameters);
-                kamelet?.spec.definition.required?.forEach(name => {
-                    if (!filledParameters.includes(name)) {
-                        allSet = false;
-                        result[1].push(name + " is required");
-                    }
-                })
+                const filledParameters = (element as any) ? Object.keys((element as any).parameters) : [];
+                const missingParameters =
+                    kamelet?.spec.definition.required?.filter(name => !filledParameters.includes(name)) || [];
+                if (missingParameters.length > 0) {
+                    allSet = false;
+                    result[1].push(...missingParameters.map(name => `${name} is required`));
+                }
                 result[0] = allSet;
             }
         }
+
         return result;
-    }
+    };
 
     static findPlaceholdersInObject = (item: any, result: Set<string> = new Set<string>()): Set<string> => {
-        if (typeof item === 'object'){
-            Object.keys(item).forEach(key => {
-                const value = (item as any)[key];
-                if (Array.isArray(value)){
-                    this.findPlaceholdersInArray(value, result);
-                } else if (typeof value === 'object'){
-                    this.findPlaceholdersInObject(value, result);
-                } else {
-                    const r = this.findPlaceholder(value.toString());
-                    if (r[0] && r[1]) result.add(r[1]);
+        if (typeof item === 'object') {
+            for (const key in item) {
+                if (item?.hasOwnProperty) {
+                    const value = item[key];
+                    if (Array.isArray(value)) {
+                        this.findPlaceholdersInArray(value, result);
+                    } else if (typeof value === 'object') {
+                        this.findPlaceholdersInObject(value, result);
+                    } else {
+                        const placeholder = this.findPlaceholder(value.toString());
+                        if (placeholder[0] && placeholder[1]) {
+                            result.add(placeholder[1]);
+                        }
+                    }
                 }
-            })
+            }
         } else {
-            const r = this.findPlaceholder(item.toString());
-            if (r[0] && r[1]) result.add(r[1]);
+            const placeholder = this.findPlaceholder(item.toString());
+            if (placeholder[0] && placeholder[1]) {
+                result.add(placeholder[1]);
+            }
         }
         return result;
-    }
+    };
 
-    static findPlaceholdersInArray = (items: any[] | undefined, result: Set<string> = new Set<string>()): Set<string> => {
-        if (items !== undefined) {
-            items.forEach(item => {
-                if (typeof item === 'object'){
+    static findPlaceholdersInArray = (
+        items: any[] | undefined,
+        result: Set<string> = new Set<string>(),
+    ): Set<string> => {
+        if (items) {
+            for (const item of items) {
+                if (typeof item === 'object') {
                     this.findPlaceholdersInObject(item, result);
                 } else {
-                    const r = this.findPlaceholder(item.toString());
-                    if (r[0] && r[1]) result.add(r[1]);
+                    const placeholder = this.findPlaceholder(item.toString());
+                    if (placeholder[0] && placeholder[1]) {
+                        result.add(placeholder[1]);
+                    }
                 }
-            })
+            }
         }
         return result;
-    }
+    };
 
     static findPlaceholder = (value: string): [boolean, string?] => {
-        let result = false;
-        let placeholder: string | undefined = undefined;
-        if (value !== undefined) {
-            const val = value.trim();
-            result = val.includes("{{") && val.includes("}}");
-            const start = val.search("{{") + 2;
-            const end = val.search("}}");
-            placeholder = val.substring(start, end).trim();
-        }
+        const val = value?.trim();
+        const result = val?.includes('{{') && val?.includes('}}');
+        const start = val?.search('{{') + 2;
+        const end = val?.search('}}');
+        const placeholder = val?.substring(start, end)?.trim();
         return [result, placeholder];
-    }
+    };
 }
