@@ -309,7 +309,7 @@ public class DatagridService  {
         return camelStatuses.get(key);
     }
 
-    public List<CamelStatus> getCamelStatusesByEnv(String env, String name) {
+    public List<CamelStatus> getCamelStatusesByEnv(String env, CamelStatusName name) {
         QueryFactory queryFactory = Search.getQueryFactory(camelStatuses);
         return queryFactory.<CamelStatus>create("FROM karavan.CamelStatus WHERE env = :env AND name = :name")
                 .setParameter("env", env)
@@ -317,11 +317,11 @@ public class DatagridService  {
                 .execute().list();
     }
 
-    public List<CamelStatus> getCamelStatusesByProjectIdEnv(String projectId, String name) {
+    public List<CamelStatus> getCamelStatusesByProjectIdEnv(String projectId, String env) {
         QueryFactory queryFactory = Search.getQueryFactory(camelStatuses);
-        return queryFactory.<CamelStatus>create("FROM karavan.CamelStatus WHERE projectId = :projectId AND name = :name")
+        return queryFactory.<CamelStatus>create("FROM karavan.CamelStatus WHERE projectId = :projectId AND name = :env")
                 .setParameter("projectId", projectId)
-                .setParameter("name", name)
+                .setParameter("env", env)
                 .execute().list();
     }
 

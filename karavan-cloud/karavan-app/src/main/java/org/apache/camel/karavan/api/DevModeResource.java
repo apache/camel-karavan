@@ -18,7 +18,7 @@ package org.apache.camel.karavan.api;
 
 import org.apache.camel.karavan.datagrid.DatagridService;
 import org.apache.camel.karavan.datagrid.model.*;
-import org.apache.camel.karavan.service.DevModeService;
+import org.apache.camel.karavan.service.CamelStatusService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.inject.Inject;
@@ -34,7 +34,7 @@ import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.Optional;
 
-import static org.apache.camel.karavan.service.DevModeService.DEVMODE_SUFFIX;
+import static org.apache.camel.karavan.service.CamelStatusService.DEVMODE_SUFFIX;
 
 @Path("/api/devmode")
 public class DevModeResource {
@@ -43,7 +43,7 @@ public class DevModeResource {
     String environment;
 
     @Inject
-    DevModeService devModeService;
+    CamelStatusService camelStatusService;
 
     @Inject
     DatagridService datagridService;
@@ -74,7 +74,7 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/reload/{projectId}")
     public Response reload(@PathParam("projectId") String projectId) {
-        devModeService.reloadProjectCode(projectId);
+        camelStatusService.reloadProjectCode(projectId);
         DevModeStatus dms = datagridService.getDevModeStatus(projectId);
         dms.setCodeLoaded(true);
         datagridService.saveDevModeStatus(dms);
@@ -108,10 +108,9 @@ public class DevModeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/console/{projectId}/{statusName}")
+    @Path("/status/{projectId}/{statusName}")
     public Response getCamelStatusByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("statusName") String statusName) {
-        String name = projectId + "-" + DEVMODE_SUFFIX;
-        CamelStatus status = datagridService.getCamelStatus(name, statusName, environment);
+        CamelStatus status = datagridService.getCamelStatus(projectId, environment, statusName);
         if (status != null) {
             return Response.ok(status).build();
         } else {

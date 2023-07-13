@@ -84,6 +84,6 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/camel/{env}")
     public List<CamelStatus> getCamelStatusByEnv(@PathParam("env") String env) {
-        return datagridService.getCamelStatusesByEnv(env, CamelStatusName.context.name());
+        return datagridService.getCamelStatusesByEnv(env, CamelStatusName.context);
     }
 }

@@ -8,7 +8,7 @@ import '../designer/karavan.css';
 import RocketIcon from "@patternfly/react-icons/dist/esm/icons/rocket-icon";
 import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
-import {useProjectStore, useRunnerStore} from "../api/ProjectStore";
+import {useProjectStore, useDevModeStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 
@@ -19,7 +19,7 @@ interface Props {
 
 export const DevModeToolbar = (props: Props) => {
 
-    const [status] = useRunnerStore((state) => [state.status], shallow)
+    const [status] = useDevModeStore((state) => [state.status], shallow)
     const [project] = useProjectStore((state) => [state.project], shallow)
     const [verbose, setVerbose] = useState(false);
 

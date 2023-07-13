@@ -40,28 +40,27 @@ export const DashboardTab = () => {
         return () => {
             clearInterval(interval)
         };
-
-    }, [podStatus]);
+    }, []);
 
     function onRefreshStatus() {
         const projectId = project.projectId;
         KaravanApi.getDevModeStatus(projectId, "memory", res => {
             if (res.status === 200) {
-                setMemory(res.data);
+                setMemory(JSON.parse(res.data.status));
             } else {
                 setMemory({});
             }
         })
         KaravanApi.getDevModeStatus(projectId, "jvm", res => {
             if (res.status === 200) {
-                setJvm(res.data);
+                setJvm(JSON.parse(res.data.status));
             } else {
                 setJvm({});
             }
         })
         KaravanApi.getDevModeStatus(projectId, "context", res => {
             if (res.status === 200) {
-                setContext(res.data);
+                setContext(JSON.parse(res.data.status));
             } else {
                 setContext({});
             }

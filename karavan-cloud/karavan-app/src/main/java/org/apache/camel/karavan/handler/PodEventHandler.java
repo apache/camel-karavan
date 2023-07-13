@@ -11,7 +11,7 @@ import org.apache.camel.karavan.service.KubernetesService;
 import org.jboss.logging.Logger;
 
 import static org.apache.camel.karavan.service.CodeService.DEFAULT_CONTAINER_RESOURCES;
-import static org.apache.camel.karavan.service.DevModeService.DEVMODE_SUFFIX;
+import static org.apache.camel.karavan.service.CamelStatusService.DEVMODE_SUFFIX;
 
 public class PodEventHandler implements ResourceEventHandler<Pod> {
 
@@ -64,6 +64,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
         String project = deployment != null ? deployment : pod.getMetadata().getLabels().get("karavan/projectId");
         try {
             boolean ready = pod.getStatus().getConditions().stream().anyMatch(c -> c.getType().equals("Ready"));
+            String creationTimestamp = pod.getMetadata().getCreationTimestamp();
 
             ResourceRequirements defaultRR = kubernetesService.getResourceRequirements(DEFAULT_CONTAINER_RESOURCES);
             ResourceRequirements resourceRequirements = pod.getSpec().getContainers().stream().findFirst()
@@ -81,7 +82,9 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
                     kubernetesService.environment,
                     deployment == null || pod.getMetadata().getName().endsWith(DEVMODE_SUFFIX),
                     requestMemory + " : " + limitMemory,
-                    requestCpu + " : " + limitCpu
+                    requestCpu + " : " + limitCpu,
+                    creationTimestamp
+
             );
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage(), ex.getCause());
@@ -91,7 +94,8 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
                     null,
                     project,
                     kubernetesService.environment,
-                    false);
+                    false,
+                    "");
         }
     }
 }

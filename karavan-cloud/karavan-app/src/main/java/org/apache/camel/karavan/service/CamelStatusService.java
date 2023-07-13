@@ -37,9 +37,9 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 @ApplicationScoped
-public class DevModeService {
+public class CamelStatusService {
 
-    private static final Logger LOGGER = Logger.getLogger(DevModeService.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CamelStatusService.class.getName());
     public static final String CMD_COLLECT_CAMEL_STATUS = "collect-camel-status";
     public static final String CMD_DELETE_CAMEL_STATUS = "delete-camel-status";
     public static final String DEVMODE_SUFFIX = "devmode";
@@ -115,7 +115,7 @@ public class DevModeService {
     void collectDevModeStatuses() {
         System.out.println("Collect DevMode Statuses");
         if (datagridService.isReady()) {
-            datagridService.getLoadedDevModeStatuses().forEach(dms -> {
+            datagridService.getDevModeStatuses().forEach(dms -> {
                 CamelStatusRequest csr = new CamelStatusRequest(dms.getProjectId(), dms.getContainerName());
                 eventBus.publish(CMD_COLLECT_CAMEL_STATUS, JsonObject.mapFrom(csr));
             });
@@ -150,7 +150,7 @@ public class DevModeService {
     void cleanupDevModeStatuses() {
         System.out.println("Clean DevMode Statuses");
         if (datagridService.isReady()) {
-            datagridService.getLoadedDevModeStatuses().forEach(dms -> {
+            datagridService.getDevModeStatuses().forEach(dms -> {
                 PodStatus pod = datagridService.getDevModePodStatuses(dms.getProjectId(), environment);
                 if (pod == null) {
                     eventBus.publish(CMD_DELETE_CAMEL_STATUS, JsonObject.mapFrom(dms));

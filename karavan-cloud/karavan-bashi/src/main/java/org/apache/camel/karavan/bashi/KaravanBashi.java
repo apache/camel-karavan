@@ -21,7 +21,7 @@ public class KaravanBashi {
 
     private static final Logger LOGGER = Logger.getLogger(KaravanBashi.class.getName());
 
-    void onStart(@Observes StartupEvent ev) throws InterruptedException {
+    void onStart(@Observes StartupEvent ev) {
         LOGGER.info("Karavan Bashi is starting...");
         dockerService.createNetwork();
         dockerService.checkDataGridHealth();

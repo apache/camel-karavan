@@ -19,12 +19,11 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <quarkus.platform.version>2.16.7.Final</quarkus.platform.version>
+        <quarkus.platform.version>2.16.8.Final</quarkus.platform.version>
         <camel-quarkus.version>2.16.0</camel-quarkus.version>
         <camel.version>3.21.0</camel.version>
         <camel-kamelet.version>3.21.0</camel-kamelet.version>
         <surefire-plugin.version>3.1.0</surefire-plugin.version>
-        <infinispan.version>14.0.9.Final</infinispan.version>
         <tekton.version>6.3.1</tekton.version>
         <jgit.version>2.3.2</jgit.version>
         <quinoa.version>1.2.4</quinoa.version>

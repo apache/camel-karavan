@@ -323,15 +323,15 @@ export class DashboardPage extends React.Component<Props, State> {
                                     <Td modifier={"fitContent"}>
                                         <Flex direction={{default: "column"}}>
                                             {this.getCamelStatusByEnvironments(deployment).map(value => {
-                                                const color = value[1] ? (value[1].consumerStatus === "UP" ? "green" : "red") : "grey";
-                                                let icon = undefined;
-                                                if (value[1]?.consumerStatus === "UP") icon = <UpIcon/>
-                                                if (value[1]?.consumerStatus === "DOWN") icon = <DownIcon/>
-                                                const text = value[1] && value[1]?.contextVersion ? value[1]?.contextVersion : "???";
+                                                // const color = value[1] ? (value[1].consumerStatus === "UP" ? "green" : "red") : "grey";
+                                                // let icon = undefined;
+                                                // if (value[1]?.consumerStatus === "UP") icon = <UpIcon/>
+                                                // if (value[1]?.consumerStatus === "DOWN") icon = <DownIcon/>
+                                                // const text = value[1] && value[1]?.contextVersion ? value[1]?.contextVersion : "???";
                                                 return <FlexItem key={value[0]}>
-                                                    <LabelGroup numLabels={4} className="camel-label-group">
-                                                        <Label color={color} className="table-label" icon={icon}>{text}</Label>
-                                                    </LabelGroup>
+                                                    {/*<LabelGroup numLabels={4} className="camel-label-group">*/}
+                                                    {/*    <Label color={color} className="table-label" icon={icon}>{text}</Label>*/}
+                                                    {/*</LabelGroup>*/}
                                                 </FlexItem>
                                             })}
                                         </Flex>

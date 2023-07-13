@@ -248,20 +248,20 @@ export class ProjectStatus extends React.Component<Props, State> {
 
     getHealthPanel(env: string) {
         const status = this.state.camelStatus;
-        const routesStatus = status?.routesStatus;
-        const consumersStatus = status?.consumerStatus;
-        const contextStatus = status?.contextStatus;
-        const contextVersion = status?.contextVersion;
+        // const routesStatus = status?.routesStatus;
+        // const consumersStatus = status?.consumerStatus;
+        // const contextStatus = status?.contextStatus;
+        // const contextVersion = status?.contextVersion;
         return (
             <LabelGroup numLabels={4}>
-                {contextVersion &&
-                    <Label icon={this.getStatusIcon(contextStatus)}
-                           color={this.getStatusColor(contextStatus)}>{contextVersion}</Label>}
-                <Label icon={this.getStatusIcon(contextStatus)}
-                       color={this.getStatusColor(contextStatus)}>Context</Label>
-                <Label icon={this.getStatusIcon(consumersStatus)}
-                       color={this.getStatusColor(consumersStatus)}>Consumers</Label>
-                <Label icon={this.getStatusIcon(routesStatus)} color={this.getStatusColor(routesStatus)}>Routes</Label>
+                {/*{contextVersion &&*/}
+                {/*    <Label icon={this.getStatusIcon(contextStatus)}*/}
+                {/*           color={this.getStatusColor(contextStatus)}>{contextVersion}</Label>}*/}
+                {/*<Label icon={this.getStatusIcon(contextStatus)}*/}
+                {/*       color={this.getStatusColor(contextStatus)}>Context</Label>*/}
+                {/*<Label icon={this.getStatusIcon(consumersStatus)}*/}
+                {/*       color={this.getStatusColor(consumersStatus)}>Consumers</Label>*/}
+                {/*<Label icon={this.getStatusIcon(routesStatus)} color={this.getStatusColor(routesStatus)}>Routes</Label>*/}
             </LabelGroup>
         )
     }

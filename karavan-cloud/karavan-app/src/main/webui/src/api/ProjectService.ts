@@ -9,14 +9,14 @@ import {
     useFilesStore,
     useFileStore, useLogStore,
     useProjectsStore,
-    useProjectStore, useRunnerStore
+    useProjectStore, useDevModeStore
 } from "./ProjectStore";
 import {ProjectEventBus} from "./ProjectEventBus";
 
 export class ProjectService {
 
     public static startRunner(project: Project, verbose: boolean) {
-        useRunnerStore.setState({status: "starting"})
+        useDevModeStore.setState({status: "starting"})
         KaravanApi.runProject(project, verbose, res => {
             if (res.status === 200 || res.status === 201) {
                 ProjectEventBus.sendLog("set", '');
@@ -28,7 +28,7 @@ export class ProjectService {
     }
 
     public static reloadRunner(project: Project) {
-        useRunnerStore.setState({status: "reloading"})
+        useDevModeStore.setState({status: "reloading"})
         KaravanApi.reloadDevMode(project.projectId, res => {
             if (res.status === 200 || res.status === 201) {
                 // setIsReloadingPod(false);
@@ -40,7 +40,7 @@ export class ProjectService {
     }
 
     public static deleteRunner(project: Project) {
-        useRunnerStore.setState({status: "deleting"})
+        useDevModeStore.setState({status: "deleting"})
         ProjectEventBus.sendLog("set", '');
         KaravanApi.deleteRunner(project.projectId, false, res => {
             if (res.status === 202) {
@@ -57,19 +57,19 @@ export class ProjectService {
             if (res.status === 200) {
                 unstable_batchedUpdates(() => {
                     const podStatus = res.data;
-                    if (useRunnerStore.getState().podName !== podStatus.name){
-                        useRunnerStore.setState({podName: podStatus.name})
+                    if (useDevModeStore.getState().podName !== podStatus.name){
+                        useDevModeStore.setState({podName: podStatus.name})
                     }
-                    if (useRunnerStore.getState().status !== "running"){
-                        useRunnerStore.setState({status: "running"})
+                    if (useDevModeStore.getState().status !== "running"){
+                        useDevModeStore.setState({status: "running"})
                         useLogStore.setState({isRunning: true})
                     }
                     useProjectStore.setState({podStatus: res.data});
                 })
             } else {
                 unstable_batchedUpdates(() => {
-                    if (useRunnerStore.getState().status !== 'none') {
-                        useRunnerStore.setState({status: "none", podName: undefined})
+                    if (useDevModeStore.getState().status !== 'none') {
+                        useDevModeStore.setState({status: "none", podName: undefined})
                         useProjectStore.setState({podStatus: new PodStatus()});
                     }
                 })

@@ -306,7 +306,6 @@ export class KaravanApi {
     static async getDevModePodStatus(projectId: string, after: (res: AxiosResponse<PodStatus>) => void) {
         instance.get('/api/devmode/pod/' + projectId)
             .then(res => {
-                console.log(res);
                 after(res);
             }).catch(err => {
             after(err);
@@ -322,10 +321,9 @@ export class KaravanApi {
         });
     }
 
-    static async getDevModeStatus(projectId: string, statusName: string, after: (res: AxiosResponse<string>) => void) {
+    static async getDevModeStatus(projectId: string, statusName: string, after: (res: AxiosResponse<CamelStatus>) => void) {
         instance.get('/api/devmode/status/' + projectId + "/" + statusName)
             .then(res => {
-                console.log(res);
                 after(res);
             }).catch(err => {
             after(err);

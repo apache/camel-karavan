@@ -4,9 +4,7 @@ package org.apache.camel.karavan.datagrid;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
-import org.apache.camel.karavan.datagrid.model.CommandName;
-import org.apache.camel.karavan.datagrid.model.DevModeCommand;
-import org.apache.camel.karavan.datagrid.model.ProjectFile;
+import org.apache.camel.karavan.datagrid.model.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -59,8 +57,17 @@ public class DataGridTest {
     }
 
     @Test
-    public void getProjectFiles() throws InterruptedException {
+    public void testProjectFiles() throws InterruptedException {
         List<ProjectFile> files = datagridService.getProjectFiles("xxx");
         assertEquals(0, files.size());
+    }
+
+    @Test
+    public void testCamelStatuses() throws InterruptedException {
+        CamelStatus cs = new CamelStatus("test1", "container1", CamelStatusName.context, "", "dev");
+        datagridService.saveCamelStatus(cs);
+        List<CamelStatus> list = datagridService.getCamelStatusesByEnv("dev", CamelStatusName.context);
+        System.out.println(list);
+        assertEquals(1, list.size());
     }
 }

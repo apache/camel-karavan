@@ -75,11 +75,9 @@ export class PodStatus {
 
 export class CamelStatus {
     projectId: string = '';
-    registryStatus: string = '';
-    routesStatus: string = '';
-    consumerStatus: string = '';
-    contextStatus: string = '';
-    contextVersion: string = '';
+    containerName: string = '';
+    name: string = '';
+    status: string = '';
     env: string = '';
 }
 

@@ -14,7 +14,7 @@ import javax.inject.Inject;
 
 import java.util.Objects;
 
-import static org.apache.camel.karavan.service.DevModeService.DEVMODE_SUFFIX;
+import static org.apache.camel.karavan.service.CamelStatusService.DEVMODE_SUFFIX;
 
 @ApplicationScoped
 public class DevModeCommandListener {

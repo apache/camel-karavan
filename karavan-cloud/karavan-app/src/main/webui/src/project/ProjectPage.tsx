@@ -18,7 +18,6 @@ import {shallow} from "zustand/shallow";
 
 export const ProjectPage = () => {
 
-    const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
     const {file, operation} = useFileStore();
     const [mode, setMode] = useState<"design" | "code">("design");
     const [key, setKey] = useState<string>('');
@@ -28,7 +27,7 @@ export const ProjectPage = () => {
         // TODO: make status request only when started or just opened
         const interval = setInterval(() => {
             ProjectService.getDevModePodStatus(project);
-        }, 2000);
+        }, 1000);
         return () => {
             clearInterval(interval)
         };

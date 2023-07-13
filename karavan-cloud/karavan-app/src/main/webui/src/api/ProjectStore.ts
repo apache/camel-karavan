@@ -151,17 +151,17 @@ export const useDeploymentStatusesStore = create<DeploymentStatusesState>((set) 
 }))
 
 
-interface RunnerState {
+interface DevModeState {
     podName?: string,
     status: "none" | "starting" | "deleting"| "reloading" | "running",
     setStatus: (status: "none" | "starting" | "deleting"| "reloading" | "running") => void,
 }
 
-export const useRunnerStore = create<RunnerState>((set) => ({
+export const useDevModeStore = create<DevModeState>((set) => ({
     podName: undefined,
     status: "none",
     setStatus: (status: "none" | "starting" | "deleting"| "reloading" | "running") =>  {
-        set((state: RunnerState) => ({
+        set((state: DevModeState) => ({
             status: status,
         }));
     },

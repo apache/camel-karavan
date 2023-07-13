@@ -57,13 +57,12 @@ public class DockerEventListener implements ResultCallback<Event> {
                     if (Arrays.asList("stop", "die", "kill", "pause", "destroy").contains(event.getStatus())) {
                         String name = container.getNames()[0].replace("/", "");
                         String projectId = name.replace("-" + Constants.DEVMODE_SUFFIX, "");
-                        LOGGER.info("Deleted PodStatus for " + projectId);
                         datagridService.deletePodStatus(projectId, environment, name);
+                        datagridService.deleteCamelStatuses(projectId, environment);
                     } else if (Arrays.asList("start", "unpause").contains(event.getStatus())) {
                         String name = container.getNames()[0].replace("/", "");
                         String projectId = name.replace("-" + Constants.DEVMODE_SUFFIX, "");
                         PodStatus ps = new PodStatus(name, true, null, projectId, environment, true, Instant.ofEpochSecond(container.getCreated()).toString());
-                        LOGGER.info("Saved PodStatus for " + projectId);
                         datagridService.savePodStatus(ps);
                     }
                 }
