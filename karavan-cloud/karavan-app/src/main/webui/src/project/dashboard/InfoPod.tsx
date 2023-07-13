@@ -21,21 +21,6 @@ interface Props {
 
 export const InfoPod = (props: Props) => {
 
-    function getPodInfo() {
-        const podStatus = props.podStatus;
-        return (
-            <Label icon={getIcon()} color={getColor()}>
-                <Tooltip content={"Show log"}>
-                    <Button variant="link"
-                            onClick={e =>
-                                useLogStore.setState({showLog: true, type: 'container', podName: podStatus.name})}>
-                        {podStatus.name}
-                    </Button>
-                </Tooltip>
-            </Label>
-        )
-    }
-
     function getPodInfoLabel(info: string) {
         return (
             <Label icon={getIcon()} color={getColor()}>
@@ -62,7 +47,7 @@ export const InfoPod = (props: Props) => {
             <DescriptionListGroup>
                 <DescriptionListTerm>Pod</DescriptionListTerm>
                 <DescriptionListDescription>
-                    {getPodInfo()}
+                    {getPodInfoLabel(podStatus.name)}
                 </DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>

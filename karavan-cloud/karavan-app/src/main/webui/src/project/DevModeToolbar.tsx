@@ -1,16 +1,13 @@
 import React, {useState} from 'react';
-import {
-    Button, FlexItem, Switch,
-    Tooltip,
-    TooltipPosition
-} from '@patternfly/react-core';
+import {Button, Flex, FlexItem, Label, Switch, Tooltip, TooltipPosition} from '@patternfly/react-core';
 import '../designer/karavan.css';
 import RocketIcon from "@patternfly/react-icons/dist/esm/icons/rocket-icon";
 import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
-import {useProjectStore, useDevModeStore} from "../api/ProjectStore";
+import {useDevModeStore, useLogStore, useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
+import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 
 
 interface Props {
@@ -20,14 +17,25 @@ interface Props {
 export const DevModeToolbar = (props: Props) => {
 
     const [status] = useDevModeStore((state) => [state.status], shallow)
-    const [project] = useProjectStore((state) => [state.project], shallow)
+    const [project,podStatus ] = useProjectStore((state) => [state.project, state.podStatus], shallow)
     const [verbose, setVerbose] = useState(false);
 
     const isRunning = status === "running";
     const isStartingPod = status === "starting";
     const isReloadingPod = status === "reloading";
     const isDeletingPod = status === "deleting";
-    return (<>
+    return (<Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
+        {isRunning && <FlexItem>
+            <Label icon={<UpIcon/>} color={"green"}>
+                <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
+                    <Button variant="link"
+                            onClick={e =>
+                                useLogStore.setState({showLog: true, type: 'container', podName: podStatus.name})}>
+                        {podStatus.name}
+                    </Button>
+                </Tooltip>
+            </Label>
+        </FlexItem>}
         {(isRunning || isDeletingPod) && !isReloadingPod && props.reloadOnly !== true && <FlexItem>
             <Tooltip content="Stop devmode" position={TooltipPosition.bottom}>
                 <Button isLoading={isDeletingPod ? true : undefined}
@@ -73,5 +81,5 @@ export const DevModeToolbar = (props: Props) => {
                 </Button>
             </Tooltip>
         </FlexItem>}
-    </>);
+    </Flex>);
 }

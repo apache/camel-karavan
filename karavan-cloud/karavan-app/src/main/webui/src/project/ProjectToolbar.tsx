@@ -1,16 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {
     Button,
     Checkbox,
     Flex,
     FlexItem,
-    Form,
-    FormGroup,
-    FormHelperText,
     Label,
-    Modal,
-    ModalVariant,
-    TextInput,
     ToggleGroup,
     ToggleGroupItem,
     Toolbar,
@@ -125,14 +119,10 @@ export const ProjectToolbar = (props: Props) => {
     function getProjectToolbar() {
         return (<Toolbar id="toolbar-group-types">
             <ToolbarContent>
-                <Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
-                    {isRunnable() && <DevModeToolbar/>}
-                </Flex>
+                {isRunnable() && <DevModeToolbar/>}
             </ToolbarContent>
         </Toolbar>)
     }
-
-
 
     function isKameletsProject(): boolean {
         return project.projectId === 'kamelets';

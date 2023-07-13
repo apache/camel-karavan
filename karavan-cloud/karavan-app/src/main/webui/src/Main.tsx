@@ -28,9 +28,9 @@ import {MainLogin} from "./MainLogin";
 import {DashboardPage} from "./dashboard/DashboardPage";
 import {Subscription} from "rxjs";
 import {ProjectEventBus} from "./api/ProjectEventBus";
-import {Project, ToastMessage} from "./api/ProjectModels";
+import {PodStatus, Project, ToastMessage} from "./api/ProjectModels";
 import {ProjectPage} from "./project/ProjectPage";
-import {useAppConfigStore, useFileStore} from "./api/ProjectStore";
+import {useAppConfigStore, useDevModeStore, useFileStore, useProjectStore} from "./api/ProjectStore";
 import {Notification} from "./Notification";
 
 class MenuItem {
@@ -175,6 +175,8 @@ export class Main extends React.Component<Props, State> {
                                 className={this.state.pageId === page.pageId ? "nav-button-selected" : ""}
                                 onClick={event => {
                                     useFileStore.setState({operation:'none', file: undefined})
+                                    useDevModeStore.setState({podName: undefined, status: "none"})
+                                    useProjectStore.setState({podStatus: new PodStatus({}), })
                                     this.setState({pageId: page.pageId});
                                 }}
                         />

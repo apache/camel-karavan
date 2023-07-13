@@ -36,7 +36,7 @@ export const DashboardTab = () => {
     useEffect(() => {
         const interval = setInterval(() => {
             onRefreshStatus();
-        }, 2000);
+        }, 1000);
         return () => {
             clearInterval(interval)
         };
