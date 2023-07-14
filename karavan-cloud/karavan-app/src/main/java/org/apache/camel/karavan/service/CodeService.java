@@ -31,6 +31,7 @@ import org.apache.camel.karavan.datagrid.model.GitRepo;
 import org.apache.camel.karavan.datagrid.model.GitRepoFile;
 import org.apache.camel.karavan.datagrid.model.Project;
 import org.apache.camel.karavan.datagrid.model.ProjectFile;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.jboss.logging.Logger;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;

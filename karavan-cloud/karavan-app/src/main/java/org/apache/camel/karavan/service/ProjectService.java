@@ -23,6 +23,7 @@ import org.apache.camel.karavan.datagrid.DatagridService;
 import org.apache.camel.karavan.datagrid.model.GitRepo;
 import org.apache.camel.karavan.datagrid.model.Project;
 import org.apache.camel.karavan.datagrid.model.ProjectFile;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheck;

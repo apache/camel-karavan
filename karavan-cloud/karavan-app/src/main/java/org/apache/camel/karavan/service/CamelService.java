@@ -26,6 +26,7 @@ import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.apache.camel.karavan.datagrid.DatagridService;
 import org.apache.camel.karavan.datagrid.model.*;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.jboss.logging.Logger;

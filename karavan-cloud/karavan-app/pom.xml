@@ -27,11 +27,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.camel.karavan</groupId>
-            <artifactId>karavan-datagrid</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-reactive-messaging</artifactId>
         </dependency>
@@ -109,6 +104,22 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
+        <!-- Infinispan -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-infinispan-client</artifactId>
+        </dependency>
+        <!-- Docker -->
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-core</artifactId>
+            <version>${docker-java.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-transport-httpclient5</artifactId>
+            <version>${docker-java.version}</version>
+        </dependency>
         <!-- Code generator -->
         <dependency>
             <groupId>org.apache.camel</groupId>
@@ -150,6 +161,14 @@
                     <include>kamelets/**</include>
                     <include>snippets/**</include>
                     <include>META-INF/**</include>
+                    <include>**/**.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>target/classes/proto</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>karavan.proto</include>
                 </includes>
             </resource>
         </resources>

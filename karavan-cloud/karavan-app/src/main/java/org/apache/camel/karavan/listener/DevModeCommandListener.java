@@ -6,7 +6,7 @@ import org.apache.camel.karavan.datagrid.DatagridService;
 import org.apache.camel.karavan.datagrid.model.DevModeCommand;
 import org.apache.camel.karavan.datagrid.model.DevModeCommandName;
 import org.apache.camel.karavan.datagrid.model.Project;
-import org.apache.camel.karavan.service.KubernetesService;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;

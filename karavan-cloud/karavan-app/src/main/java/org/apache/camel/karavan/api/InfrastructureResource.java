@@ -24,7 +24,7 @@ import org.apache.camel.karavan.datagrid.model.DeploymentStatus;
 import org.apache.camel.karavan.datagrid.model.PodStatus;
 import org.apache.camel.karavan.datagrid.model.Project;
 import org.apache.camel.karavan.datagrid.model.ServiceStatus;
-import org.apache.camel.karavan.service.KubernetesService;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 

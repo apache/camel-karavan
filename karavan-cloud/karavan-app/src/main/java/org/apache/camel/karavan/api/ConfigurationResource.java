@@ -17,7 +17,7 @@
 package org.apache.camel.karavan.api;
 
 import org.apache.camel.karavan.datagrid.DatagridService;
-import org.apache.camel.karavan.service.KubernetesService;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.inject.Inject;

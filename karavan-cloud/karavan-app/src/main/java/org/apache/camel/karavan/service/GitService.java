@@ -20,6 +20,7 @@ import io.fabric8.kubernetes.api.model.Secret;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.Vertx;
 import org.apache.camel.karavan.datagrid.model.*;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.FetchCommand;

@@ -18,9 +18,13 @@ package org.apache.camel.karavan.service;
 
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
+import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.eventbus.EventBus;
 import org.apache.camel.karavan.datagrid.DatagridService;
 import org.apache.camel.karavan.datagrid.model.Environment;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.docker.DockerService;
+import org.apache.camel.karavan.docker.InfinispanContainer;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -33,11 +37,21 @@ public class KaravanService {
 
     private static final Logger LOGGER = Logger.getLogger(KaravanService.class.getName());
 
+    public static final String DEVMODE_SUFFIX = "-devmode";
+
+    private static final String HEALTHY = "healthy";
+
     @Inject
     DatagridService datagridService;
 
     @Inject
     KubernetesService kubernetesService;
+
+    @Inject
+    DockerService dockerService;
+
+    @Inject
+    InfinispanContainer infinispanContainer;
 
     @Inject
     EventBus bus;
@@ -46,12 +60,27 @@ public class KaravanService {
     String environment;
 
     void onStart(@Observes StartupEvent ev) {
-        LOGGER.info("Start Karavan");
-        datagridService.start();
-        datagridService.clearAllStatuses();
-        setEnvironment();
-        initialImport();
-        startInformers();
+        if (!kubernetesService.inKubernetes()) {
+            LOGGER.info("Start Karavan with Docker");
+            dockerService.createNetwork();
+            dockerService.checkDataGridHealth();
+            dockerService.startListeners();
+            infinispanContainer.startInfinispan();
+        } else {
+            LOGGER.info("Start Karavan in " + (kubernetesService.isOpenshift() ? "OpenShift" : "Kubernetes"));
+            startServices(HEALTHY);
+        }
+    }
+
+    @ConsumeEvent(value = DockerService.ADDRESS_INFINISPAN_STARTED, blocking = true, ordered = true)
+    void startServices(String infinispanHealth){
+        if (infinispanHealth.equals(HEALTHY)) {
+            datagridService.start();
+            datagridService.clearAllStatuses();
+            setEnvironment();
+            initialImport();
+            startInformers();
+        }
     }
 
     void onStop(@Observes ShutdownEvent ev) {

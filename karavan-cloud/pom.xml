@@ -45,8 +45,6 @@
 
     <modules>
         <module>karavan-cli</module>
-        <module>karavan-datagrid</module>
-        <module>karavan-bashi</module>
         <module>karavan-app</module>
         <module>karavan-operator</module>
     </modules>

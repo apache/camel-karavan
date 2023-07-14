@@ -20,7 +20,7 @@ import io.fabric8.kubernetes.client.dsl.LogWatch;
 import org.apache.camel.karavan.datagrid.DatagridService;
 import org.apache.camel.karavan.datagrid.model.DevModeCommand;
 import org.apache.camel.karavan.datagrid.model.DevModeCommandName;
-import org.apache.camel.karavan.service.KubernetesService;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.logging.Logger;
 
