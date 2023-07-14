@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import javax.inject.Inject;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -38,15 +37,24 @@ public class DataGridTest {
         commandsReceived.add(message.mapTo(DevModeCommand.class));
     }
 
-//    @Test
+    @Test
+    public void testContainersStatuses() throws InterruptedException {
+        ContainerInfo ci = new ContainerInfo("demo", "id", "image", List.of(8080, 8081, 8082), "dev");
+        datagridService.saveContainerInfo(ci);
+        List<ContainerInfo> list = datagridService.getContainerInfos("dev");
+        System.out.println(list);
+        assertEquals(1, list.size());
+    }
+
+    @Test
     public void sendCommand() throws InterruptedException {
         List<DevModeCommand> commandsSent = List.of(
-                new DevModeCommand(CommandName.RUN, Instant.now().toEpochMilli()),
-                new DevModeCommand(CommandName.RELOAD, Instant.now().toEpochMilli()),
-                new DevModeCommand(CommandName.DELETE, Instant.now().toEpochMilli()),
-                new DevModeCommand(CommandName.RUN, Instant.now().toEpochMilli())
+                DevModeCommand.createDevModeCommand(DevModeCommandName.RUN, "test1"),
+                DevModeCommand.createDevModeCommand(DevModeCommandName.RELOAD, "test1"),
+                DevModeCommand.createDevModeCommand(DevModeCommandName.DELETE, "test1"),
+                DevModeCommand.createDevModeCommand(DevModeCommandName.RUN, "test1")
         );
-        commandsSent.forEach(devModeCommand -> datagridService.sendDevModeCommand("test1", devModeCommand));
+        commandsSent.forEach(devModeCommand -> datagridService.sendDevModeCommand(devModeCommand));
 
         CountDownLatch latch = new CountDownLatch(4);
         latch.await(5, TimeUnit.SECONDS);

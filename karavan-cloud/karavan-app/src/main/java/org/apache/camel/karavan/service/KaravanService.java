@@ -48,7 +48,7 @@ public class KaravanService {
     void onStart(@Observes StartupEvent ev) {
         LOGGER.info("Start Karavan");
         datagridService.start();
-//        datagridService.clearAllStatuses();
+        datagridService.clearAllStatuses();
         setEnvironment();
         initialImport();
         startInformers();

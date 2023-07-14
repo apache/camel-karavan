@@ -5,6 +5,7 @@ import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.CreateNetworkResponse;
 import com.github.dockerjava.api.command.HealthState;
+import com.github.dockerjava.api.command.LogContainerCmd;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
@@ -16,7 +17,6 @@ import io.quarkus.scheduler.Scheduled;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
-import org.apache.camel.karavan.bashi.Constants;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -25,12 +25,14 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.bashi.ConductorService.ADDRESS_CONTAINER_STATS;
 import static org.apache.camel.karavan.bashi.ConductorService.ADDRESS_INFINISPAN_HEALTH;
 import static org.apache.camel.karavan.bashi.Constants.DATAGRID_CONTAINER_NAME;
 import static org.apache.camel.karavan.bashi.Constants.NETWORK_NAME;
+import static org.apache.camel.karavan.datagrid.model.DevModeCommand.DEVMODE_SUFFIX;
 
 @ApplicationScoped
 public class DockerService {
@@ -53,7 +55,7 @@ public class DockerService {
             Statistics stats = getContainerStats(container.getId());
 
             String name = container.getNames()[0].replace("/", "");
-            String projectId = name.replace("-" + Constants.DEVMODE_SUFFIX, "");
+            String projectId = name.replace(DEVMODE_SUFFIX, "");
             String memoryUsage = formatMemory(stats.getMemoryStats().getUsage());
             String memoryLimit = formatMemory(stats.getMemoryStats().getLimit());
             JsonObject data = JsonObject.of(
@@ -132,6 +134,11 @@ public class DockerService {
         return containers.get(0);
     }
 
+    public Container getContainerByName(String name) {
+        List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
+        return containers.get(0);
+    }
+
     public Statistics getContainerStats(String containerId) {
         InvocationBuilder.AsyncResultCallback<Statistics> callback = new InvocationBuilder.AsyncResultCallback<>();
         getDockerClient().statsCmd(containerId).withContainerId(containerId).withNoStream(true).exec(callback);
@@ -186,6 +193,18 @@ public class DockerService {
         startContainer(name);
     }
 
+    public void logContainer(String containerName) {
+        try {
+            LogCallback callback = new LogCallback();
+            Container container = getContainerByName(containerName);
+            getDockerClient().logContainerCmd(container.getId())
+                .withStdOut(true).withStdErr(true).withTimestamps(true).exec(callback);
+            callback.awaitCompletion();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void stopContainer(String name) {
         List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
         if (containers.size() == 1) {
@@ -201,6 +220,14 @@ public class DockerService {
         if (containers.size() == 1) {
             Container container = containers.get(0);
             getDockerClient().removeContainerCmd(container.getId()).exec();
+        }
+    }
+
+    public void killContainer(String name) {
+        List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
+        if (containers.size() == 1) {
+            Container container = containers.get(0);
+            getDockerClient().killContainerCmd(container.getId()).exec();
         }
     }
 

@@ -3,8 +3,8 @@ package org.apache.camel.karavan.listener;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.datagrid.DatagridService;
-import org.apache.camel.karavan.datagrid.model.CommandName;
 import org.apache.camel.karavan.datagrid.model.DevModeCommand;
+import org.apache.camel.karavan.datagrid.model.DevModeCommandName;
 import org.apache.camel.karavan.datagrid.model.Project;
 import org.apache.camel.karavan.service.KubernetesService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -34,10 +34,10 @@ public class DevModeCommandListener {
         if (kubernetesService.inKubernetes()) {
             DevModeCommand command = message.mapTo(DevModeCommand.class);
             String runnerName = command.getProjectId() + "-" + DEVMODE_SUFFIX;
-            if (Objects.equals(command.getCommandName(), CommandName.RUN)) {
+            if (Objects.equals(command.getCommandName(), DevModeCommandName.RUN)) {
                 Project p = datagridService.getProject(command.getProjectId());
                 kubernetesService.tryCreateRunner(p, runnerName, "");
-            } else if (Objects.equals(command.getCommandName(), CommandName.DELETE)){
+            } else if (Objects.equals(command.getCommandName(), DevModeCommandName.DELETE)){
                 kubernetesService.deleteRunner(runnerName, false);
                 datagridService.deleteDevModeStatus(command.getProjectId());
             }

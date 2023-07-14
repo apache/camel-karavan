@@ -17,6 +17,9 @@
 package org.apache.camel.karavan.api;
 
 import io.fabric8.kubernetes.client.dsl.LogWatch;
+import org.apache.camel.karavan.datagrid.DatagridService;
+import org.apache.camel.karavan.datagrid.model.DevModeCommand;
+import org.apache.camel.karavan.datagrid.model.DevModeCommandName;
 import org.apache.camel.karavan.service.KubernetesService;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.logging.Logger;
@@ -45,6 +48,9 @@ public class LogWatchResource {
     KubernetesService kubernetesService;
 
     @Inject
+    DatagridService datagridService;
+
+    @Inject
     ManagedExecutor managedExecutor;
 
     @GET
@@ -57,22 +63,30 @@ public class LogWatchResource {
     ) {
         managedExecutor.execute(() -> {
             LOGGER.info("LogWatch for " + name + " starting...");
-            try (SseEventSink sink = eventSink) {
-                LogWatch logWatch = type.equals("container")
-                        ? kubernetesService.getContainerLogWatch(name)
-                        : kubernetesService.getPipelineRunLogWatch(name);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(logWatch.getOutput()));
-                try {
-                    for (String line; (line = reader.readLine()) != null && !sink.isClosed(); ) {
-                        sink.send(sse.newEvent(line));
-                    }
-                } catch (IOException e) {
-                    LOGGER.error(e.getMessage());
-                }
-                logWatch.close();
-                sink.close();
-                LOGGER.info("LogWatch for " + name + " closed");
+            if (kubernetesService.inKubernetes()) {
+                getKubernetesLogs(type, name, eventSink, sse);
+            } else {
+                datagridService.sendDevModeCommand(DevModeCommand.createDevModeCommand(DevModeCommandName.LOG, name));
             }
         });
+    }
+
+    private void getKubernetesLogs(String type, String name, SseEventSink eventSink, Sse sse) {
+        try (SseEventSink sink = eventSink) {
+            LogWatch logWatch = type.equals("container")
+                    ? kubernetesService.getContainerLogWatch(name)
+                    : kubernetesService.getPipelineRunLogWatch(name);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(logWatch.getOutput()));
+            try {
+                for (String line; (line = reader.readLine()) != null && !sink.isClosed(); ) {
+                    sink.send(sse.newEvent(line));
+                }
+            } catch (IOException e) {
+                LOGGER.error(e.getMessage());
+            }
+            logWatch.close();
+            sink.close();
+            LOGGER.info("LogWatch for " + name + " closed");
+        }
     }
 }

@@ -208,6 +208,7 @@ export class InfrastructureSelector extends React.Component<Props, State> {
 
     render() {
         const tabIndex = this.state.tabIndex;
+        const tabs = InfrastructureAPI.infrastructure === 'kubernetes' ? ['configMap', 'secret', 'services'] : ['services'];
         return (
             <Modal
                 aria-label="Select from Infrastructure"
@@ -223,9 +224,7 @@ export class InfrastructureSelector extends React.Component<Props, State> {
                         </FlexItem>
                         <FlexItem>
                             <Tabs style={{overflow: 'hidden'}} activeKey={this.state.tabIndex} onSelect={this.selectTab}>
-                                <Tab eventKey={"configMap"} key={"configMap"} title={<TabTitleText>ConfigMaps</TabTitleText>} />
-                                <Tab eventKey={"secret"} key={"secret"} title={<TabTitleText>Secrets</TabTitleText>} />
-                                <Tab eventKey={"service"} key={"service"} title={<TabTitleText>Services</TabTitleText>} />
+                                {tabs.map(tab => <Tab eventKey={tab} key={tab} title={<TabTitleText>{capitalize(tab)}</TabTitleText>} />)}
                             </Tabs>
                         </FlexItem>
                     </Flex>
@@ -235,7 +234,7 @@ export class InfrastructureSelector extends React.Component<Props, State> {
                     {this.searchInput()}
                     {tabIndex === 'configMap' && this.getConfigMapTable()}
                     {tabIndex === 'secret' && this.getSecretsTable()}
-                    {tabIndex === 'service' && this.getServicesTable()}
+                    {tabIndex === 'services' && this.getServicesTable()}
                 </PageSection>
             </Modal>
         )

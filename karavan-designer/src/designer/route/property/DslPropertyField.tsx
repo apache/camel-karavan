@@ -35,7 +35,7 @@ import {
     Text,
     Tooltip,
     Card,
-    InputGroup,
+    InputGroup, capitalize,
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -87,8 +87,8 @@ interface State {
     isShowAdvanced: Map<string, boolean>,
     arrayValues: Map<string, string>,
     showEditor: boolean
-    showKubernetesSelector: boolean
-    kubernetesSelectorProperty?: string
+    infrastructureSelector: boolean
+    infrastructureSelectorProperty?: string
     customCode?: string
     ref: any
 }
@@ -100,7 +100,7 @@ export class DslPropertyField extends React.Component<Props, State> {
         arrayValues: new Map<string, string>(),
         isShowAdvanced: new Map<string, boolean>(),
         showEditor: false,
-        showKubernetesSelector: false,
+        infrastructureSelector: false,
         ref: React.createRef(),
     };
 
@@ -176,7 +176,7 @@ export class DslPropertyField extends React.Component<Props, State> {
         return property.name === 'uri' && !['ToDefinition', 'ToDynamicDefinition', 'WireTapDefinition'].includes(dslName)
     }
 
-    selectKubernetes = (value: string) => {
+    selectInfrastructure = (value: string) => {
         // check if there is a selection
         const textVal = this.state.ref.current;
         const cursorStart = textVal.selectionStart;
@@ -186,29 +186,29 @@ export class DslPropertyField extends React.Component<Props, State> {
             const selectedText = prevValue.substring(cursorStart, cursorEnd)
             value = prevValue.replace(selectedText, value);
         }
-        const propertyName = this.state.kubernetesSelectorProperty;
+        const propertyName = this.state.infrastructureSelectorProperty;
         if (propertyName) {
             if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
             this.propertyChanged(propertyName, value);
-            this.setState({showKubernetesSelector: false, kubernetesSelectorProperty: undefined})
+            this.setState({infrastructureSelector: false, infrastructureSelectorProperty: undefined})
         }
     }
 
-    openKubernetesSelector = (propertyName: string) => {
-        this.setState({kubernetesSelectorProperty: propertyName, showKubernetesSelector: true});
+    openInfrastructureSelector = (propertyName: string) => {
+        this.setState({infrastructureSelectorProperty: propertyName, infrastructureSelector: true});
     }
 
-    closeKubernetesSelector = () => {
-        this.setState({showKubernetesSelector: false})
+    closeInfrastructureSelector = () => {
+        this.setState({infrastructureSelector: false})
     }
 
-    getKubernetesSelectorModal() {
+    getInfrastructureSelectorModal() {
         return (
             <InfrastructureSelector
                 dark={false}
-                isOpen={this.state.showKubernetesSelector}
-                onClose={() => this.closeKubernetesSelector()}
-                onSelect={this.selectKubernetes}/>)
+                isOpen={this.state.infrastructureSelector}
+                onClose={() => this.closeInfrastructureSelector()}
+                onSelect={this.selectInfrastructure}/>)
     }
 
     getStringInput = (property: PropertyMeta, value: any) => {
@@ -218,8 +218,8 @@ export class DslPropertyField extends React.Component<Props, State> {
         const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? <KubernetesIcon/> : <DockerIcon/>
         return (<InputGroup>
             {inInfrastructure && !showEditor && !noInfraSelectorButton &&
-                <Tooltip position="bottom-end" content="Select from Kubernetes">
-                    <Button variant="control" onClick={e => this.openKubernetesSelector(property.name)}>
+                <Tooltip position="bottom-end" content={"Select from " + capitalize(InfrastructureAPI.infrastructure)}>
+                    <Button variant="control" onClick={e => this.openInfrastructureSelector(property.name)}>
                         {icon}
                     </Button>
                 </Tooltip>}
@@ -732,7 +732,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                     {isKamelet && property.name === 'parameters' && this.getKameletParameters()}
                     {!isKamelet && property.name === 'parameters' && this.getComponentParameters(property)}
                 </FormGroup>
-                {this.getKubernetesSelectorModal()}
+                {this.getInfrastructureSelectorModal()}
             </div>
         )
     }

@@ -3,29 +3,46 @@ package org.apache.camel.karavan.datagrid.model;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
+import java.time.Instant;
+
 public class DevModeCommand {
 
     public static final String CACHE = "devmode_commands";
+    public static final String DEVMODE_SUFFIX = "-devmode";
     @ProtoField(number = 1)
-    CommandName commandName;
+    DevModeCommandName commandName;
     @ProtoField(number = 2)
     String projectId;
     @ProtoField(number = 3)
+    String containerName;
+    @ProtoField(number = 4)
+    DevModeCommandType type;
+    @ProtoField(number = 5)
     Long time;
 
     @ProtoFactory
-    public DevModeCommand(CommandName commandName, String projectId, Long time) {
+    public DevModeCommand(DevModeCommandName commandName, String projectId, String containerName, DevModeCommandType type, Long time) {
         this.commandName = commandName;
         this.projectId = projectId;
+        this.containerName = containerName;
+        this.type = type;
         this.time = time;
     }
 
-    public DevModeCommand(CommandName commandName, Long time) {
+    public static DevModeCommand createDevModeCommand(DevModeCommandName commandName, String projectId) {
+        return new DevModeCommand(commandName, projectId, projectId + DEVMODE_SUFFIX, DevModeCommandType.DEVMODE, Instant.now().toEpochMilli());
+    }
+
+    public static DevModeCommand createDevServiceCommand(DevModeCommandName commandName, String serviceName) {
+        return new DevModeCommand(commandName, null, serviceName, DevModeCommandType.DEVSERVICE, Instant.now().toEpochMilli());
+    }
+
+    public DevModeCommandName getCommandName() {
+        return commandName;
+    }
+
+    public void setCommandName(DevModeCommandName commandName) {
         this.commandName = commandName;
-        this.time = time;
-    }
-
-    public DevModeCommand() {
     }
 
     public String getProjectId() {
@@ -36,12 +53,20 @@ public class DevModeCommand {
         this.projectId = projectId;
     }
 
-    public CommandName getCommandName() {
-        return commandName;
+    public String getContainerName() {
+        return containerName;
     }
 
-    public void setCommandName(CommandName commandName) {
-        this.commandName = commandName;
+    public void setContainerName(String containerName) {
+        this.containerName = containerName;
+    }
+
+    public DevModeCommandType getType() {
+        return type;
+    }
+
+    public void setType(DevModeCommandType type) {
+        this.type = type;
     }
 
     public Long getTime() {

@@ -57,7 +57,7 @@ public class DevModeResource {
         PodStatus status = datagridService.getDevModePodStatuses(runnerName, environment);
         if (status == null) {
             datagridService.saveDevModeStatus(new DevModeStatus(project.getProjectId(), null, null, false));
-            datagridService.sendDevModeCommand(project.getProjectId(), new DevModeCommand(CommandName.RUN, Instant.now().toEpochMilli()));
+            datagridService.sendDevModeCommand(DevModeCommand.createDevModeCommand(DevModeCommandName.RUN, project.getProjectId()));
             return Response.ok(runnerName).build();
         }
         return Response.notModified().build();
@@ -83,7 +83,7 @@ public class DevModeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{projectId}/{deletePVC}")
     public Response deleteRunner(@PathParam("projectId") String projectId, @PathParam("deletePVC") boolean deletePVC) {
-        datagridService.sendDevModeCommand(projectId, new DevModeCommand(CommandName.DELETE, Instant.now().toEpochMilli()));
+        datagridService.sendDevModeCommand(DevModeCommand.createDevModeCommand(DevModeCommandName.DELETE, projectId));
         datagridService.deleteDevModeStatus(projectId);
         return Response.accepted().build();
     }

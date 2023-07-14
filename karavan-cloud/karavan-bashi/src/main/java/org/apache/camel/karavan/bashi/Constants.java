@@ -6,5 +6,4 @@ public class Constants {
     public static final String DATAGRID_CONTAINER_NAME = "infinispan";
 
     public static final String KARAVAN_CONTAINER_NAME = "karavan";
-    public static final String DEVMODE_SUFFIX = "devmode";
 }

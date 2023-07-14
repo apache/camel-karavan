@@ -102,32 +102,6 @@ public class ConductorService {
         }
     }
 
-    @ConsumeEvent(value = DatagridService.ADDRESS_DEVMODE_COMMAND, blocking = true, ordered = true)
-    void receiveCommand(JsonObject message) throws InterruptedException {
-        LOGGER.info("DevMode Command: " + message);
-        DevModeCommand command = message.mapTo(DevModeCommand.class);
-        String containerName = command.getProjectId() + "-" + DEVMODE_SUFFIX;
-        Project p = datagridService.getProject(command.getProjectId());
-        if (Objects.equals(command.getCommandName(), CommandName.RUN)) {
-            LOGGER.infof("DevMode starting for %s", p.getProjectId());
-
-            HealthCheck healthCheck = new HealthCheck().withTest(List.of("CMD", "curl", "-f", "http://localhost:8080/q/dev/health"))
-                    .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
-
-            dockerService.createContainer(containerName, runnerImage,
-                    List.of(), "", false, healthCheck,
-                    Map.of("type", "devmode", "projectId", p.getProjectId())
-            );
-            dockerService.startContainer(containerName);
-            LOGGER.infof("DevMode started for %s", p.getProjectId());
-
-        } else if (Objects.equals(command.getCommandName(), CommandName.DELETE)){
-            dockerService.stopContainer(containerName);
-            dockerService.deleteContainer(containerName);
-            datagridService.deleteDevModeStatus(p.getName());
-        }
-    }
-
     @ConsumeEvent(value = ADDRESS_CONTAINER_STATS, blocking = true, ordered = true)
     public void saveStats(JsonObject data) {
         String projectId = data.getString("projectId");
@@ -141,5 +115,54 @@ public class ConductorService {
                 datagridService.savePodStatus(podStatus);
             }
         }
+    }
+
+    @ConsumeEvent(value = DatagridService.ADDRESS_DEVMODE_COMMAND, blocking = true, ordered = true)
+    void receiveCommand(JsonObject message) throws InterruptedException {
+        LOGGER.info("DevMode Command: " + message);
+        DevModeCommand command = message.mapTo(DevModeCommand.class);
+        switch (command.getCommandName()){
+            case RUN:
+                runContainer(command);
+                break;
+            case DELETE:
+                deleteContainer(command);
+                break;
+            case LOG:
+                logContainer(command);
+                break;
+        }
+        datagridService.deleteDevModeCommand(command);
+    }
+
+    void runContainer(DevModeCommand command) throws InterruptedException {
+        if (DevModeCommandType.DEVMODE.equals(command.getType())) {
+            String projectId = command.getProjectId();
+            LOGGER.infof("DevMode starting for %s", projectId);
+            HealthCheck healthCheck = new HealthCheck().withTest(List.of("CMD", "curl", "-f", "http://localhost:8080/q/dev/health"))
+                    .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
+            dockerService.createContainer(command.getContainerName(), runnerImage,
+                    List.of(), "", false, healthCheck,
+                    Map.of("type", "devmode", "projectId", projectId));
+            dockerService.startContainer(command.getContainerName());
+            LOGGER.infof("DevMode started for %s", projectId);
+        } else {
+
+        }
+    }
+
+    void deleteContainer(DevModeCommand command) {
+        if (DevModeCommandType.DEVMODE.equals(command.getType())) {
+            datagridService.deleteDevModeStatus(command.getProjectId());
+            dockerService.stopContainer(command.getContainerName());
+            dockerService.deleteContainer(command.getContainerName());
+        } else {
+            dockerService.stopContainer(command.getContainerName());
+            dockerService.deleteContainer(command.getContainerName());
+        }
+    }
+
+    void logContainer(DevModeCommand command) {
+        dockerService.logContainer(command.getContainerName());
     }
 }

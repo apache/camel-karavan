@@ -14,10 +14,12 @@ import org.infinispan.protostream.annotations.AutoProtoSchemaBuilder;
                 PodStatus.class,
                 Environment.class,
                 ServiceStatus.class,
-                CommandName.class,
+                DevModeCommandName.class,
+                DevModeCommandType.class,
                 CamelStatusName.class,
                 DevModeCommand.class,
-                DevModeStatus.class
+                DevModeStatus.class,
+                ContainerInfo.class
         },
         schemaFileName = "karavan.proto",
         schemaFilePath = "proto/",

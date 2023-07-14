@@ -203,7 +203,10 @@ public class InfrastructureResource {
         if (kubernetesService.inKubernetes()) {
             return Response.ok(kubernetesService.getServices(kubernetesService.getNamespace())).build();
         } else {
-            return Response.ok(List.of()).build();
+            List<String> list = datagridService.getContainerInfos(environment).stream()
+                    .map(ci -> ci.getPorts().stream().map(i -> ci.getContainerName() + ":" + i).collect(Collectors.toList()))
+                    .flatMap(List::stream).collect(Collectors.toList());
+            return Response.ok(list).build();
         }
     }
 

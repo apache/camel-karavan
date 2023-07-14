@@ -73,6 +73,7 @@ public class DatagridService  {
     private RemoteCache<String, Environment> environments;
     private RemoteCache<String, String> commits;
     private RemoteCache<GroupedKey, DevModeStatus> devmodeStatuses;
+    private RemoteCache<GroupedKey, ContainerInfo> containers;
     private RemoteCache<GroupedKey, DevModeCommand> devmodeCommands;
     private final AtomicBoolean ready = new AtomicBoolean(false);
 
@@ -120,6 +121,7 @@ public class DatagridService  {
         commits = getOrCreateCache("commits", false);
         deploymentStatuses = getOrCreateCache(DeploymentStatus.CACHE, false);
         devmodeStatuses = getOrCreateCache(DevModeStatus.CACHE, false);
+        containers = getOrCreateCache(ContainerInfo.CACHE, false);
         devmodeCommands = getOrCreateCache(DevModeCommand.CACHE, true);
 
         cacheManager.getCache(DevModeCommand.CACHE).addClientListener(new DevModeCommandListener(eventBus));
@@ -138,15 +140,6 @@ public class DatagridService  {
     private <K, V> RemoteCache<K, V>  getOrCreateCache(String name, boolean command) {
         String config = getResourceFile(command ? "/command-cache-config.xml" : "/data-cache-config.xml");
         return cacheManager.administration().getOrCreateCache(name, new StringConfiguration(String.format(config, name)));
-    }
-
-    private void cleanData() {
-        environments.clear();
-        deploymentStatuses.clear();
-        podStatuses.clear();
-        pipelineStatuses.clear();
-        camelStatuses.clear();
-        devmodeCommands.clear();
     }
 
     @ConsumeEvent(value = ADDRESS_DEVMODE_COMMAND_INTERNAL, blocking = true, ordered = true, local = false)
@@ -323,7 +316,7 @@ public class DatagridService  {
 
     public List<CamelStatus> getCamelStatusesByProjectIdEnv(String projectId, String env) {
         QueryFactory queryFactory = Search.getQueryFactory(camelStatuses);
-        return queryFactory.<CamelStatus>create("FROM karavan.CamelStatus WHERE projectId = :projectId AND name = :env")
+        return queryFactory.<CamelStatus>create("FROM karavan.CamelStatus WHERE projectId = :projectId AND env = :env")
                 .setParameter("projectId", projectId)
                 .setParameter("env", env)
                 .execute().list();
@@ -394,19 +387,35 @@ public class DatagridService  {
        return new ArrayList<>(devmodeStatuses.values());
     }
 
-    public void sendDevModeCommand(String projectId, DevModeCommand command) {
-        if (command.getProjectId() == null) {
-            command.setProjectId(projectId);
-        }
-        devmodeCommands.put(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT, UUID.randomUUID().toString()), command);
+    public void sendDevModeCommand(DevModeCommand command) {
+        devmodeCommands.put(GroupedKey.create(command.getContainerName(), DEFAULT_ENVIRONMENT, command.getTime().toString()), command);
     }
 
     public DevModeCommand getDevModeCommand(GroupedKey key) {
         return devmodeCommands.get(key);
     }
 
-    public DevModeCommand getDevModeCommand(String projectId) {
-        return getDevModeCommand(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT, projectId));
+    public void deleteDevModeCommand(DevModeCommand command) {
+        containers.remove(GroupedKey.create(command.getContainerName(), DEFAULT_ENVIRONMENT, command.getTime().toString()));
+    }
+
+    public void saveContainerInfo(ContainerInfo ci) {
+        containers.put(GroupedKey.create(ci.getContainerName(), ci.getEnv() != null ? ci.getEnv() : DEFAULT_ENVIRONMENT, ci.getContainerName()), ci);
+    }
+
+    public void getContainerInfo(String name, String env) {
+        containers.get(GroupedKey.create(name, env, name));
+    }
+
+    public List<ContainerInfo> getContainerInfos(String env) {
+        QueryFactory queryFactory = Search.getQueryFactory(containers);
+        return queryFactory.<ContainerInfo>create("FROM karavan.ContainerInfo WHERE env = :env")
+                .setParameter("env", env)
+                .execute().list();
+    }
+
+    public void deleteContainerInfo(String containerName) {
+        containers.remove(GroupedKey.create(containerName, DEFAULT_ENVIRONMENT, containerName));
     }
 
     public void clearAllStatuses() {
@@ -415,7 +424,8 @@ public class DatagridService  {
             podStatuses.clearAsync(),
             pipelineStatuses.clearAsync(),
             camelStatuses.clearAsync(),
-            devmodeCommands.clearAsync()
+            devmodeCommands.clearAsync(),
+            devmodeStatuses.clearAsync()
         ).join();
     }
 

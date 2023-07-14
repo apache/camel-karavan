@@ -54,9 +54,9 @@ interface State {
     bean?: NamedBeanDefinition
     properties: Map<string, [string, string, boolean]>
     key: string,
-    showKubernetesSelector: boolean
-    kubernetesSelectorUuid?: string
-    kubernetesSelectorProperty?: string
+    showInfrastructureSelector: boolean
+    infrastructureSelectorUuid?: string
+    infrastructureSelectorProperty?: string
 }
 
 export class BeanProperties extends React.Component<Props, State> {
@@ -70,7 +70,7 @@ export class BeanProperties extends React.Component<Props, State> {
     public state: State = {
         bean: this.props.bean,
         key: '',
-        showKubernetesSelector: false,
+        showInfrastructureSelector: false,
         properties: this.props.bean?.properties ? this.preparePropertiesMap(this.props.bean?.properties) : new Map<string, [string, string, boolean]>()
     };
 
@@ -118,31 +118,31 @@ export class BeanProperties extends React.Component<Props, State> {
         })
     }
 
-    selectKubernetes = (value: string) => {
-        const propertyId = this.state.kubernetesSelectorProperty;
-        const uuid = this.state.kubernetesSelectorUuid;
+    selectInfrastructure = (value: string) => {
+        const propertyId = this.state.infrastructureSelectorProperty;
+        const uuid = this.state.infrastructureSelectorUuid;
         if (propertyId && uuid){
             if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
             this.propertyChanged(uuid, propertyId, value, false);
-            this.setState({showKubernetesSelector: false, kubernetesSelectorProperty: undefined})
+            this.setState({showInfrastructureSelector: false, infrastructureSelectorProperty: undefined})
         }
     }
 
-    openKubernetesSelector = (uuid: string, propertyName: string) => {
-        this.setState({kubernetesSelectorUuid: uuid, kubernetesSelectorProperty: propertyName, showKubernetesSelector: true});
+    openInfrastructureSelector = (uuid: string, propertyName: string) => {
+        this.setState({infrastructureSelectorUuid: uuid, infrastructureSelectorProperty: propertyName, showInfrastructureSelector: true});
     }
 
-    closeKubernetesSelector = () => {
-        this.setState({showKubernetesSelector: false})
+    closeInfrastructureSelector = () => {
+        this.setState({showInfrastructureSelector: false})
     }
 
-    getKubernetesSelectorModal() {
+    getInfrastructureSelectorModal() {
         return (
             <InfrastructureSelector
                 dark={false}
-                isOpen={this.state.showKubernetesSelector}
-                onClose={() => this.closeKubernetesSelector()}
-                onSelect={this.selectKubernetes}/>)
+                isOpen={this.state.showInfrastructureSelector}
+                onClose={() => this.closeInfrastructureSelector()}
+                onSelect={this.selectInfrastructure}/>)
     }
 
     cloneBean = () => {
@@ -208,8 +208,8 @@ export class BeanProperties extends React.Component<Props, State> {
                                            onChange={e => this.propertyChanged(i, e, value, showPassword)}/>
                                 <InputGroup>
                                     {inInfrastructure &&
-                                        <Tooltip position="bottom-end" content="Select value from Kubernetes">
-                                        <Button variant="control" onClick={e => this.openKubernetesSelector(i, key)}>
+                                        <Tooltip position="bottom-end" content="Select value from Infrastructure">
+                                        <Button variant="control" onClick={e => this.openInfrastructureSelector(i, key)}>
                                             {icon}
                                         </Button>
                                     </Tooltip>}
@@ -246,7 +246,7 @@ export class BeanProperties extends React.Component<Props, State> {
                     {this.state.bean === undefined && <IntegrationHeader integration={this.props.integration}/>}
                     {this.state.bean !== undefined && this.getBeanForm()}
                 </Form>
-                {this.getKubernetesSelectorModal()}
+                {this.getInfrastructureSelectorModal()}
             </div>
         )
     }
