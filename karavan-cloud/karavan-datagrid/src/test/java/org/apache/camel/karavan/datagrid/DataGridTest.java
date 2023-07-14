@@ -49,10 +49,10 @@ public class DataGridTest {
     @Test
     public void sendCommand() throws InterruptedException {
         List<DevModeCommand> commandsSent = List.of(
-                DevModeCommand.createDevModeCommand(DevModeCommandName.RUN, "test1"),
-                DevModeCommand.createDevModeCommand(DevModeCommandName.RELOAD, "test1"),
-                DevModeCommand.createDevModeCommand(DevModeCommandName.DELETE, "test1"),
-                DevModeCommand.createDevModeCommand(DevModeCommandName.RUN, "test1")
+                DevModeCommand.createForProject(DevModeCommandName.RUN, "test1"),
+                DevModeCommand.createForProject(DevModeCommandName.RELOAD, "test1"),
+                DevModeCommand.createForProject(DevModeCommandName.DELETE, "test1"),
+                DevModeCommand.createForProject(DevModeCommandName.RUN, "test1")
         );
         commandsSent.forEach(devModeCommand -> datagridService.sendDevModeCommand(devModeCommand));
 

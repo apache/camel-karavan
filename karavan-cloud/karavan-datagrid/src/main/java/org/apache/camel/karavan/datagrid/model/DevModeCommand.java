@@ -29,8 +29,12 @@ public class DevModeCommand {
         this.time = time;
     }
 
-    public static DevModeCommand createDevModeCommand(DevModeCommandName commandName, String projectId) {
+    public static DevModeCommand createForProject(DevModeCommandName commandName, String projectId) {
         return new DevModeCommand(commandName, projectId, projectId + DEVMODE_SUFFIX, DevModeCommandType.DEVMODE, Instant.now().toEpochMilli());
+    }
+
+    public static DevModeCommand createForContainer(DevModeCommandName commandName, String containerName) {
+        return new DevModeCommand(commandName, null, containerName, DevModeCommandType.DEVMODE, Instant.now().toEpochMilli());
     }
 
     public static DevModeCommand createDevServiceCommand(DevModeCommandName commandName, String serviceName) {

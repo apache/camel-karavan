@@ -66,7 +66,7 @@ public class LogWatchResource {
             if (kubernetesService.inKubernetes()) {
                 getKubernetesLogs(type, name, eventSink, sse);
             } else {
-                datagridService.sendDevModeCommand(DevModeCommand.createDevModeCommand(DevModeCommandName.LOG, name));
+                datagridService.sendDevModeCommand(DevModeCommand.createForContainer(DevModeCommandName.LOG, name));
             }
         });
     }

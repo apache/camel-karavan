@@ -136,7 +136,7 @@ public class DockerService {
 
     public Container getContainerByName(String name) {
         List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
-        return containers.get(0);
+        return containers.size() > 0 ? containers.get(0) : null;
     }
 
     public Statistics getContainerStats(String containerId) {
@@ -195,11 +195,13 @@ public class DockerService {
 
     public void logContainer(String containerName) {
         try {
-            LogCallback callback = new LogCallback();
             Container container = getContainerByName(containerName);
-            getDockerClient().logContainerCmd(container.getId())
-                .withStdOut(true).withStdErr(true).withTimestamps(true).exec(callback);
-            callback.awaitCompletion();
+            if (container != null) {
+                LogCallback callback = new LogCallback();
+                getDockerClient().logContainerCmd(container.getId())
+                        .withStdOut(true).withStdErr(true).withTimestamps(true).exec(callback);
+                callback.awaitCompletion();
+            }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
