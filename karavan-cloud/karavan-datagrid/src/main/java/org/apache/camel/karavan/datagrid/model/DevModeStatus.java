@@ -13,13 +13,24 @@ public class DevModeStatus {
     String containerId;
     @ProtoField(number = 4)
     Boolean codeLoaded;
+    @ProtoField(number = 5)
+    Boolean logging;
 
     @ProtoFactory
+    public DevModeStatus(String projectId, String containerName, String containerId, Boolean codeLoaded, Boolean logging) {
+        this.projectId = projectId;
+        this.containerName = containerName;
+        this.containerId = containerId;
+        this.codeLoaded = codeLoaded;
+        this.logging = logging;
+    }
+
     public DevModeStatus(String projectId, String containerName, String containerId, Boolean codeLoaded) {
         this.projectId = projectId;
         this.containerName = containerName;
         this.containerId = containerId;
         this.codeLoaded = codeLoaded;
+        this.logging = false;
     }
 
     public String getProjectId() {
@@ -46,11 +57,19 @@ public class DevModeStatus {
         this.containerId = containerId;
     }
 
-    public Boolean isCodeLoaded() {
+    public Boolean getCodeLoaded() {
         return codeLoaded;
     }
 
     public void setCodeLoaded(Boolean codeLoaded) {
         this.codeLoaded = codeLoaded;
+    }
+
+    public Boolean getLogging() {
+        return logging;
+    }
+
+    public void setLogging(Boolean logging) {
+        this.logging = logging;
     }
 }

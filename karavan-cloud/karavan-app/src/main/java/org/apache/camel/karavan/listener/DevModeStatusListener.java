@@ -22,7 +22,7 @@ public class DevModeStatusListener {
     void receiveCommand(JsonObject message) {
         LOGGER.info("received Status " + message);
         DevModeStatus status = message.mapTo(DevModeStatus.class);
-        if (!status.isCodeLoaded() && status.getContainerId() != null) {
+        if (!status.getCodeLoaded() && status.getContainerId() != null) {
             camelService.reloadProjectCode(status.getProjectId());
         }
     }

@@ -68,35 +68,43 @@ public class DockerService {
     }
 
     private String formatMemory(Long memory) {
-        if (memory < (1073741824)) {
-            return formatMiB.format(memory.doubleValue() / 1048576) + "MiB";
-        } else {
-            return formatGiB.format(memory.doubleValue() / 1073741824) + "GiB";
+        try {
+            if (memory < (1073741824)) {
+                return formatMiB.format(memory.doubleValue() / 1048576) + "MiB";
+            } else {
+                return formatGiB.format(memory.doubleValue() / 1073741824) + "GiB";
+            }
+        } catch (Exception e) {
+            return "";
         }
     }
 
     private String formatCpu(String containerName, Statistics stats) {
-        double cpuUsage = 0;
-        long previousCpu = previousStats.containsKey(containerName) ? previousStats.get(containerName).getItem1() : -1;
-        long previousSystem = previousStats.containsKey(containerName) ? previousStats.get(containerName).getItem2() : -1;
+        try {
+            double cpuUsage = 0;
+            long previousCpu = previousStats.containsKey(containerName) ? previousStats.get(containerName).getItem1() : -1;
+            long previousSystem = previousStats.containsKey(containerName) ? previousStats.get(containerName).getItem2() : -1;
 
-        CpuStatsConfig cpuStats = stats.getCpuStats();
-        if (cpuStats != null) {
-            CpuUsageConfig cpuUsageConfig = cpuStats.getCpuUsage();
-            long systemUsage = cpuStats.getSystemCpuUsage();
-            long totalUsage = cpuUsageConfig.getTotalUsage();
+            CpuStatsConfig cpuStats = stats.getCpuStats();
+            if (cpuStats != null) {
+                CpuUsageConfig cpuUsageConfig = cpuStats.getCpuUsage();
+                long systemUsage = cpuStats.getSystemCpuUsage();
+                long totalUsage = cpuUsageConfig.getTotalUsage();
 
-            if (previousCpu != -1 && previousSystem != -1) {
-                float cpuDelta = totalUsage - previousCpu;
-                float systemDelta = systemUsage - previousSystem;
+                if (previousCpu != -1 && previousSystem != -1) {
+                    float cpuDelta = totalUsage - previousCpu;
+                    float systemDelta = systemUsage - previousSystem;
 
-                if (cpuDelta > 0 && systemDelta > 0) {
-                    cpuUsage = cpuDelta / systemDelta * cpuStats.getOnlineCpus() * 100;
+                    if (cpuDelta > 0 && systemDelta > 0) {
+                        cpuUsage = cpuDelta / systemDelta * cpuStats.getOnlineCpus() * 100;
+                    }
                 }
+                previousStats.put(containerName, Tuple2.of(totalUsage, systemUsage));
             }
-            previousStats.put(containerName, Tuple2.of(totalUsage, systemUsage));
+            return formatCpu.format(cpuUsage) + "%";
+        } catch (Exception e) {
+            return "";
         }
-        return formatCpu.format(cpuUsage) + "%";
     }
 
     public void startListeners() {
@@ -153,7 +161,7 @@ public class DockerService {
     }
 
     public Container createContainer(String name, String image, List<String> env, String ports,
-                                boolean exposedPort, HealthCheck healthCheck, Map<String, String> labels) throws InterruptedException {
+                                     boolean exposedPort, HealthCheck healthCheck, Map<String, String> labels) throws InterruptedException {
         List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
         if (containers.size() == 0) {
             pullImage(image);
@@ -193,18 +201,25 @@ public class DockerService {
         startContainer(name);
     }
 
-    public void logContainer(String containerName) {
+    public LogCallback logContainer(String containerName) {
         try {
             Container container = getContainerByName(containerName);
             if (container != null) {
-                LogCallback callback = new LogCallback();
+                LogCallback callback = new LogCallback(eventBus);
                 getDockerClient().logContainerCmd(container.getId())
-                        .withStdOut(true).withStdErr(true).withTimestamps(true).exec(callback);
+                        .withStdOut(true)
+                        .withStdErr(true)
+                        .withTimestamps(true)
+                        .withFollowStream(true)
+                        .withTailAll()
+                        .exec(callback);
                 callback.awaitCompletion();
+                return callback;
             }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
         }
+        return null;
     }
 
     public void stopContainer(String name) {
@@ -222,14 +237,6 @@ public class DockerService {
         if (containers.size() == 1) {
             Container container = containers.get(0);
             getDockerClient().removeContainerCmd(container.getId()).exec();
-        }
-    }
-
-    public void killContainer(String name) {
-        List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
-        if (containers.size() == 1) {
-            Container container = containers.get(0);
-            getDockerClient().killContainerCmd(container.getId()).exec();
         }
     }
 

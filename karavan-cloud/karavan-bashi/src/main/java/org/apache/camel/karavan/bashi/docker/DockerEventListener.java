@@ -105,9 +105,11 @@ public class DockerEventListener implements ResultCallback<Event> {
                     //update DevModeStatus
                     String containerName = container.getNames()[0].replace("/", "");
                     DevModeStatus dms = datagridService.getDevModeStatus(container.getLabels().get("projectId"));
-                    dms.setContainerName(containerName);
-                    dms.setContainerId(container.getId());
-                    datagridService.saveDevModeStatus(dms);
+                    if (dms != null) {
+                        dms.setContainerName(containerName);
+                        dms.setContainerId(container.getId());
+                        datagridService.saveDevModeStatus(dms);
+                    }
                 }
             }
         } catch (Exception exception) {

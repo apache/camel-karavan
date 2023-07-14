@@ -55,6 +55,9 @@ public class ConductorService {
     @Inject
     DatagridService datagridService;
 
+    @Inject
+    LoggerService loggerService;
+
     private static final Logger LOGGER = Logger.getLogger(ConductorService.class.getName());
 
     public static final String ADDRESS_INFINISPAN_START = "ADDRESS_INFINISPAN_START";
@@ -80,6 +83,7 @@ public class ConductorService {
     void startServices(String infinispanHealth){
         if (infinispanHealth.equals("healthy")) {
             datagridService.start();
+            datagridService.clearAllStatuses();
         }
     }
 
@@ -121,6 +125,7 @@ public class ConductorService {
     void receiveCommand(JsonObject message) throws InterruptedException {
         LOGGER.info("DevMode Command: " + message);
         DevModeCommand command = message.mapTo(DevModeCommand.class);
+        datagridService.deleteDevModeCommand(command);
         switch (command.getCommandName()){
             case RUN:
                 runContainer(command);
@@ -129,10 +134,9 @@ public class ConductorService {
                 deleteContainer(command);
                 break;
             case LOG:
-                logContainer(command);
+                loggerService.logContainer(command);
                 break;
         }
-        datagridService.deleteDevModeCommand(command);
     }
 
     void runContainer(DevModeCommand command) throws InterruptedException {
@@ -160,9 +164,5 @@ public class ConductorService {
             dockerService.stopContainer(command.getContainerName());
             dockerService.deleteContainer(command.getContainerName());
         }
-    }
-
-    void logContainer(DevModeCommand command) {
-        dockerService.logContainer(command.getContainerName());
     }
 }
