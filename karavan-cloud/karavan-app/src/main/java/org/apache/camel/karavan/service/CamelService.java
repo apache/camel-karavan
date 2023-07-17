@@ -75,10 +75,12 @@ public class CamelService {
 
     public void reloadProjectCode(String projectId) {
         LOGGER.info("Reload project code " + projectId);
-        String containerName = projectId + "-" + DEVMODE_SUFFIX;
+        String containerName = projectId + DEVMODE_SUFFIX;
         try {
-            infinispanService.getProjectFiles(projectId).forEach(projectFile -> putRequest(containerName, projectFile.getName(), projectFile.getCode(), 1000));
-            reloadRequest(containerName);
+            PodStatus podStatus = infinispanService.getDevModePodStatuses(projectId, environment);
+            Integer exposedPort = podStatus.getExposedPort();
+            infinispanService.getProjectFiles(projectId).forEach(projectFile -> putRequest(containerName,exposedPort, projectFile.getName(), projectFile.getCode(), 1000));
+            reloadRequest(containerName, exposedPort);
             DevModeStatus dms = infinispanService.getDevModeStatus(projectId);
             dms.setCodeLoaded(true);
             infinispanService.saveDevModeStatus(dms);
@@ -88,9 +90,9 @@ public class CamelService {
     }
 
     @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)
-    public boolean putRequest(String containerName, String fileName, String body, int timeout) {
+    public boolean putRequest(String containerName, Integer exposedPort, String fileName, String body, int timeout) {
         try {
-            String url = getContainerAddress(containerName) + "/q/upload/" + fileName;
+            String url = getContainerAddress(containerName, exposedPort) + "/q/upload/" + fileName;
             HttpResponse<Buffer> result = getWebClient().putAbs(url)
                     .timeout(timeout).sendBuffer(Buffer.buffer(body)).subscribeAsCompletionStage().toCompletableFuture().get();
             return result.statusCode() == 200;
@@ -100,8 +102,8 @@ public class CamelService {
         return false;
     }
 
-    public String reloadRequest(String containerName) {
-        String url = getContainerAddress(containerName) + "/q/dev/reload?reload=true";
+    public String reloadRequest(String containerName, Integer exposedPort) {
+        String url = getContainerAddress(containerName, exposedPort) + "/q/dev/reload?reload=true";
         try {
             return result(url, 1000);
         } catch (InterruptedException | ExecutionException e) {
@@ -110,27 +112,18 @@ public class CamelService {
         return null;
     }
 
-    public String getContainerAddress(String containerName) {
+    public String getContainerAddress(String containerName, Integer exposedPort) {
         if (ConfigService.inKubernetes()) {
             return "http://" + containerName + "." + kubernetesService.getNamespace() + ".svc.cluster.local";
         } else {
-            return "http://" + containerName + ":8080";
+            return "http://localhost:" + exposedPort;
         }
     }
 
-    public void collectDevModeStatuses() {
-        if (infinispanService.isReady()) {
-            infinispanService.getDevModeStatuses().forEach(dms -> {
-                CamelStatusRequest csr = new CamelStatusRequest(dms.getProjectId(), dms.getContainerName());
-                eventBus.publish(CMD_COLLECT_CAMEL_STATUS, JsonObject.mapFrom(csr));
-            });
-        }
-    }
-
-    public void collectNonDevModeStatuses() {
+    public void collectCamelStatuses() {
         if (infinispanService.isReady()) {
             infinispanService.getPodStatuses(environment).forEach(pod -> {
-                CamelStatusRequest csr = new CamelStatusRequest(pod.getProjectId(), pod.getName());
+                CamelStatusRequest csr = new CamelStatusRequest(pod.getProjectId(), pod.getName(), pod.getExposedPort());
                 eventBus.publish(CMD_COLLECT_CAMEL_STATUS, JsonObject.mapFrom(csr));
             });
         }
@@ -138,10 +131,11 @@ public class CamelService {
 
     @ConsumeEvent(value = CMD_COLLECT_CAMEL_STATUS, blocking = true, ordered = true)
     public void collectCamelStatuses(JsonObject data) {
-        DevModeStatus dms = data.mapTo(DevModeStatus.class);
+        CamelStatusRequest dms = data.mapTo(CamelStatusRequest.class);
         Arrays.stream(CamelStatusName.values()).forEach(statusName -> {
             String containerName = dms.getContainerName();
-            String status = getCamelStatus(containerName, statusName);
+            Integer exposedPort = dms.getExposedPort();
+            String status = getCamelStatus(containerName, exposedPort, statusName);
             if (status != null) {
                 CamelStatus cs = new CamelStatus(dms.getProjectId(), containerName, statusName, status, environment);
                 infinispanService.saveCamelStatus(cs);
@@ -169,7 +163,7 @@ public class CamelService {
     }
 
     private void reloadCode(String podName, String oldContext, String newContext) {
-        String projectName = podName.replace("-" + DEVMODE_SUFFIX, "");
+        String projectName = podName.replace(DEVMODE_SUFFIX, "");
         String newState = getContextState(newContext);
         String oldState = getContextState(oldContext);
         if (newContext != null && !Objects.equals(newState, oldState) && "Started".equals(newState)) {
@@ -186,8 +180,8 @@ public class CamelService {
         }
     }
 
-    public String getCamelStatus(String podName, CamelStatusName statusName) {
-        String url = getContainerAddress(podName) + "/q/dev/" + statusName.name();
+    public String getCamelStatus(String podName, Integer exposedPort, CamelStatusName statusName) {
+        String url = getContainerAddress(podName, exposedPort) + "/q/dev/" + statusName.name();
         try {
             return result(url, 500);
         } catch (InterruptedException | ExecutionException e) {
@@ -211,21 +205,42 @@ public class CamelService {
         return null;
     }
 
-    public class CamelStatusRequest {
-        private final String projectId;
-        private final String containerName;
+    public static class CamelStatusRequest {
+        private String projectId;
+        private String containerName;
+        private Integer exposedPort;
 
-        public CamelStatusRequest(String projectId, String containerName) {
+        public CamelStatusRequest() {
+        }
+
+        public CamelStatusRequest(String projectId, String containerName, Integer exposedPort) {
             this.projectId = projectId;
             this.containerName = containerName;
+            this.exposedPort = exposedPort;
         }
 
         public String getProjectId() {
             return projectId;
         }
 
+        public void setProjectId(String projectId) {
+            this.projectId = projectId;
+        }
+
         public String getContainerName() {
             return containerName;
+        }
+
+        public void setContainerName(String containerName) {
+            this.containerName = containerName;
+        }
+
+        public Integer getExposedPort() {
+            return exposedPort;
+        }
+
+        public void setExposedPort(Integer exposedPort) {
+            this.exposedPort = exposedPort;
         }
     }
 }

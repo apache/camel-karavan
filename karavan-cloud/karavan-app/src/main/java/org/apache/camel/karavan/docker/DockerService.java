@@ -12,10 +12,11 @@ import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.core.InvocationBuilder;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
-import io.quarkus.scheduler.Scheduled;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.PodStatus;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -24,13 +25,13 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.shared.EventType.CONTAINER_STATS;
-import static org.apache.camel.karavan.shared.EventType.INFINISPAN_HEALTH;
 import static org.apache.camel.karavan.shared.ConfigService.DEVMODE_SUFFIX;
+import static org.apache.camel.karavan.shared.EventType.*;
 
 @ApplicationScoped
 public class DockerService {
@@ -67,7 +68,7 @@ public class DockerService {
         HealthCheck healthCheck = new HealthCheck().withTest(List.of("CMD", "curl", "-f", "http://localhost:8080/q/dev/health"))
                 .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
         createContainer(runnerName, runnerImage,
-                List.of(), "", false, healthCheck,
+                List.of(), "8080:8080", true,true, healthCheck,
                 Map.of("type", "devmode", "projectId", projectId));
         startContainer(runnerName);
         LOGGER.infof("DevMode started for %s", projectId);
@@ -84,7 +85,7 @@ public class DockerService {
 
             createContainer(INFINISPAN_CONTAINER_NAME, infinispanImage,
                     List.of("USER=" + infinispanUsername, "PASS=" + infinispanPassword),
-                    infinispanPort, true, healthCheck, Map.of()
+                    infinispanPort, false, true, healthCheck, Map.of()
             );
             startContainer(INFINISPAN_CONTAINER_NAME);
             LOGGER.info("Infinispan is started");
@@ -107,6 +108,15 @@ public class DockerService {
                     "cpu", formatCpu(name, stats)
             );
             eventBus.publish(CONTAINER_STATS, data);
+        });
+    }
+
+    public void collectContainersStatuses() {
+        getDockerClient().listContainersCmd().exec().forEach(container -> {
+            String name = container.getNames()[0].replace("/", "");
+            if (!Objects.equals(name, INFINISPAN_CONTAINER_NAME)) {
+                dockerEventListener.savePodStatus(container);
+            }
         });
     }
 
@@ -139,7 +149,7 @@ public class DockerService {
                 .forEach(c -> {
                     HealthState hs = getDockerClient().inspectContainerCmd(c.getId()).exec().getState().getHealth();
                     if (c.getNames()[0].equals("/" + INFINISPAN_CONTAINER_NAME)) {
-                        eventBus.publish(INFINISPAN_HEALTH, hs.getStatus());
+                        eventBus.publish(INFINISPAN_STARTED, hs.getStatus());
                     }
                 });
     }
@@ -167,7 +177,7 @@ public class DockerService {
         return stats;
     }
 
-    public Container createContainer(String name, String image, List<String> env, String ports,
+    public Container createContainer(String name, String image, List<String> env, String ports, boolean inRange,
                                      boolean exposedPort, HealthCheck healthCheck, Map<String, String> labels) throws InterruptedException {
         List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
         if (containers.size() == 0) {
@@ -181,7 +191,7 @@ public class DockerService {
                     .withEnv(env)
                     .withExposedPorts(exposedPorts)
                     .withHostName(name)
-                    .withHostConfig(getHostConfig(ports, exposedPort))
+                    .withHostConfig(getHostConfig(ports, exposedPort, inRange))
                     .withHealthcheck(healthCheck)
                     .exec();
             LOGGER.info("Container created: " + response.getId());
@@ -254,13 +264,14 @@ public class DockerService {
         }
     }
 
-    private HostConfig getHostConfig(String ports, boolean exposedPort) {
+    private HostConfig getHostConfig(String ports, boolean exposedPort, boolean inRange) {
         Ports portBindings = new Ports();
+
         getPortsFromString(ports).forEach((hostPort, containerPort) -> {
-            portBindings.bind(
-                    ExposedPort.tcp(containerPort),
-                    exposedPort ? Ports.Binding.bindIp("0.0.0.0").bindPort(hostPort) : Ports.Binding.bindPort(hostPort)
-            );
+            Ports.Binding binding = exposedPort
+                    ? (inRange ? Ports.Binding.bindPortRange(hostPort, hostPort + 1000) : Ports.Binding.bindPort(hostPort))
+                    : Ports.Binding.bindPort(hostPort);
+            portBindings.bind(ExposedPort.tcp(containerPort), binding);
         });
         return new HostConfig()
                 .withPortBindings(portBindings)

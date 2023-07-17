@@ -6,6 +6,7 @@ import com.github.dockerjava.api.model.ContainerPort;
 import com.github.dockerjava.api.model.Event;
 import com.github.dockerjava.api.model.EventType;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.ContainerInfo;
 import org.apache.camel.karavan.infinispan.model.DevModeStatus;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static org.apache.camel.karavan.shared.EventType.DEVMODE_STATUS;
 import static org.apache.camel.karavan.shared.EventType.INFINISPAN_STARTED;
 import static org.apache.camel.karavan.shared.ConfigService.DEVMODE_SUFFIX;
 
@@ -96,9 +98,7 @@ public class DockerEventListener implements ResultCallback<Event> {
                     infinispanService.deletePodStatus(projectId, environment, name);
                     infinispanService.deleteCamelStatuses(projectId, environment);
                 } else if (Arrays.asList("start", "unpause").contains(event.getStatus())) {
-                    String projectId = name.replace(DEVMODE_SUFFIX, "");
-                    PodStatus ps = new PodStatus(name, true, null, projectId, environment, true, Instant.ofEpochSecond(container.getCreated()).toString());
-                    infinispanService.savePodStatus(ps);
+                    savePodStatus(container);
                 } else if (status.startsWith("health_status:")) {
                     String health = status.replace("health_status: ", "");
                     LOGGER.infof("Container %s health status: %s", container.getNames()[0], health);
@@ -109,11 +109,28 @@ public class DockerEventListener implements ResultCallback<Event> {
                         dms.setContainerName(containerName);
                         dms.setContainerId(container.getId());
                         infinispanService.saveDevModeStatus(dms);
+                        eventBus.publish(DEVMODE_STATUS, JsonObject.mapFrom(dms));
                     }
                 }
             }
         } catch (Exception exception) {
             LOGGER.error(exception.getMessage());
+        }
+    }
+
+    protected void savePodStatus(Container container){
+        String name = container.getNames()[0].replace("/", "");
+        boolean inDevMode = name.endsWith(DEVMODE_SUFFIX);
+        String projectId = name.replace(DEVMODE_SUFFIX, "");
+        Integer exposedPort =  (container.getPorts().length > 0)  ? container.getPorts()[0].getPublicPort() : null;
+        if (infinispanService.isReady()) {
+            PodStatus ps = infinispanService.getDevModePodStatuses(projectId, environment);
+            if (ps == null) {
+                ps = new PodStatus(name, true, null, projectId, environment, inDevMode, Instant.ofEpochSecond(container.getCreated()).toString(), exposedPort);
+            } else {
+                ps.setExposedPort(exposedPort);
+            }
+            infinispanService.savePodStatus(ps);
         }
     }
 

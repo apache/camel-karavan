@@ -94,7 +94,8 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
                     project,
                     kubernetesService.environment,
                     false,
-                    "");
+                    "",
+                    null);
         }
     }
 }

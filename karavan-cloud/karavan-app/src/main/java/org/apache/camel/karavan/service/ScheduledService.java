@@ -34,27 +34,27 @@ public class ScheduledService {
     @Inject
     CamelService camelService;
 
-    @Scheduled(every = "{karavan.container-stats-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    @Scheduled(every = "{karavan.container.status.pull-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    void collectContainersStatuses() {
+        dockerService.collectContainersStatuses();
+    }
+
+    @Scheduled(every = "{karavan.container.stats.container}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectContainersStats() {
         dockerService.collectContainersStats();
     }
 
-    @Scheduled(every = "{karavan.devmode-status-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
-    void collectDevModeCamelStatuses() {
-        camelService.collectDevModeStatuses();
+    @Scheduled(every = "{karavan.camel.status.pull-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    void collectCamelStatuses() {
+        camelService.collectCamelStatuses();
     }
 
-    @Scheduled(every = "{karavan.camel-status-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
-    void collectNonDevModeCamelStatuses() {
-        camelService.collectNonDevModeStatuses();
-    }
-
-    @Scheduled(every = "{karavan.devmode-status-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    @Scheduled(every = "{karavan.camel.status.pull-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void cleanupDevModeStatuses() {
         camelService.cleanupDevModeStatuses();
     }
 
-    @Scheduled(every = "{karavan.git-pull-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    @Scheduled(every = "{karavan.git.pull-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void pullCommitsFromGit() {
         projectService.pullCommits();
     }

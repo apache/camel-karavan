@@ -53,15 +53,19 @@ public class ProjectResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Project> getAll() throws Exception {
-        return infinispanService.getProjects().stream()
-                .sorted((p1, p2) -> {
-                    if (p1.getProjectId().equalsIgnoreCase(Project.NAME_TEMPLATES)) return 1;
-                    if (p2.getProjectId().equalsIgnoreCase(Project.NAME_TEMPLATES)) return 1;
-                    if (p1.getProjectId().equalsIgnoreCase(Project.NAME_KAMELETS)) return 1;
-                    if (p2.getProjectId().equalsIgnoreCase(Project.NAME_KAMELETS)) return 1;
-                    return (p1.getProjectId().compareTo(p2.getProjectId()));
-                })
-                .collect(Collectors.toList());
+        if (infinispanService.isReady()) {
+            return infinispanService.getProjects().stream()
+                    .sorted((p1, p2) -> {
+                        if (p1.getProjectId().equalsIgnoreCase(Project.NAME_TEMPLATES)) return 1;
+                        if (p2.getProjectId().equalsIgnoreCase(Project.NAME_TEMPLATES)) return 1;
+                        if (p1.getProjectId().equalsIgnoreCase(Project.NAME_KAMELETS)) return 1;
+                        if (p2.getProjectId().equalsIgnoreCase(Project.NAME_KAMELETS)) return 1;
+                        return (p1.getProjectId().compareTo(p2.getProjectId()));
+                    })
+                    .collect(Collectors.toList());
+        } else {
+            return List.of();
+        }
     }
 
     @GET

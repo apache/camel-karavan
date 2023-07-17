@@ -130,7 +130,7 @@ public class InfinispanService {
 
     public void saveProject(Project project) {
         GroupedKey key = GroupedKey.create(project.getProjectId(), DEFAULT_ENVIRONMENT, project.getProjectId());
-        boolean isNew = !projects.containsKey(key);
+        projects.put(key, project);
         projects.put(key, project);
     }
 

@@ -58,7 +58,7 @@ public class DevModeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{jBangOptions}")
     public Response runProjectWithJBangOptions(Project project, @PathParam("jBangOptions") String jBangOptions) throws InterruptedException {
-        String runnerName = project.getProjectId() + "-" + DEVMODE_SUFFIX;
+        String runnerName = project.getProjectId() + DEVMODE_SUFFIX;
         PodStatus status = infinispanService.getDevModePodStatuses(runnerName, environment);
         if (status == null) {
             infinispanService.saveDevModeStatus(new DevModeStatus(project.getProjectId(), null, null, false));
@@ -92,7 +92,7 @@ public class DevModeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{projectId}/{deletePVC}")
     public Response deleteRunner(@PathParam("projectId") String projectId, @PathParam("deletePVC") boolean deletePVC) {
-        String runnerName = projectId + "-" + DEVMODE_SUFFIX;
+        String runnerName = projectId + DEVMODE_SUFFIX;
         if (ConfigService.inKubernetes()) {
             kubernetesService.deleteRunner(runnerName, deletePVC);
         } else {
@@ -107,7 +107,7 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/pod/{projectId}")
     public Response getPodStatus(@PathParam("projectId") String projectId) throws RuntimeException {
-        String runnerName = projectId + "-" + DEVMODE_SUFFIX;
+        String runnerName = projectId + DEVMODE_SUFFIX;
         Optional<PodStatus> ps =  infinispanService.getPodStatuses(projectId, environment).stream()
                 .filter(podStatus -> podStatus.getName().equals(runnerName))
                 .findFirst();

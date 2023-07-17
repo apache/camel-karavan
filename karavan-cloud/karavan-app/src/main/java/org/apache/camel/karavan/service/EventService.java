@@ -50,9 +50,9 @@ public class EventService {
         if (!ConfigService.inKubernetes()) {
             LOGGER.info("Starting Karavan with Docker");
             dockerService.createNetwork();
-            dockerService.checkInfinispanHealth();
             dockerService.startListeners();
             dockerService.startInfinispan();
+            dockerService.checkInfinispanHealth();
         } else {
             LOGGER.info("Starting Karavan in " + (kubernetesService.isOpenshift() ? "OpenShift" : "Kubernetes"));
             startServices(HEALTHY);
@@ -75,7 +75,7 @@ public class EventService {
         if (ConfigService.inKubernetes()) {
             kubernetesService.startInformers(data);
         } else {
-            dockerService.startListeners();
+//            Docker listener is already started
         }
     }
 
@@ -94,7 +94,7 @@ public class EventService {
         projectService.importProjects(data);
     }
 
-    @ConsumeEvent(value = ADDRESS_DEVMODE_STATUS, blocking = true, ordered = true)
+    @ConsumeEvent(value = DEVMODE_STATUS, blocking = true, ordered = true)
     void receiveCommand(JsonObject message) {
         LOGGER.info("received Status " + message);
         DevModeStatus status = message.mapTo(DevModeStatus.class);

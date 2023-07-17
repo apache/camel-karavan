@@ -16,15 +16,30 @@ public class PodStatus {
     @ProtoField(number = 5)
     String env;
     @ProtoField(number = 6)
-    Boolean inDevMode;
+    Integer exposedPort;
     @ProtoField(number = 7)
-    String memoryInfo;
+    Boolean inDevMode;
     @ProtoField(number = 8)
-    String cpuInfo;
+    String memoryInfo;
     @ProtoField(number = 9)
+    String cpuInfo;
+    @ProtoField(number = 10)
     String created;
 
     @ProtoFactory
+    public PodStatus(String name, Boolean ready, String deployment, String projectId, String env, Integer exposedPort, Boolean inDevMode, String memoryInfo, String cpuInfo, String created) {
+        this.name = name;
+        this.ready = ready;
+        this.deployment = deployment;
+        this.projectId = projectId;
+        this.env = env;
+        this.exposedPort = exposedPort;
+        this.inDevMode = inDevMode;
+        this.memoryInfo = memoryInfo;
+        this.cpuInfo = cpuInfo;
+        this.created = created;
+    }
+
     public PodStatus(String name, Boolean ready, String deployment, String projectId, String env, Boolean inDevMode, String memoryInfo, String cpuInfo, String created) {
         this.name = name;
         this.ready = ready;
@@ -37,7 +52,7 @@ public class PodStatus {
         this.created = created;
     }
 
-    public PodStatus(String name, Boolean ready, String deployment, String projectId, String env, Boolean inDevMode, String created) {
+    public PodStatus(String name, Boolean ready, String deployment, String projectId, String env, Boolean inDevMode, String created, Integer exposedPort) {
         this.name = name;
         this.ready = ready;
         this.deployment = deployment;
@@ -45,6 +60,7 @@ public class PodStatus {
         this.env = env;
         this.inDevMode = inDevMode;
         this.created = created;
+        this.exposedPort = exposedPort;
     }
 
     public String getName() {
@@ -117,5 +133,13 @@ public class PodStatus {
 
     public void setCreated(String created) {
         this.created = created;
+    }
+
+    public Integer getExposedPort() {
+        return exposedPort;
+    }
+
+    public void setExposedPort(Integer exposedPort) {
+        this.exposedPort = exposedPort;
     }
 }
