@@ -16,25 +16,24 @@
  */
 package org.apache.camel.karavan.api;
 
-import org.apache.camel.karavan.datagrid.DatagridService;
-import org.apache.camel.karavan.datagrid.model.*;
+import org.apache.camel.karavan.docker.DockerService;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.CamelStatus;
+import org.apache.camel.karavan.infinispan.model.DevModeStatus;
+import org.apache.camel.karavan.infinispan.model.PodStatus;
+import org.apache.camel.karavan.infinispan.model.Project;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.CamelService;
+import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.Instant;
 import java.util.Optional;
 
-import static org.apache.camel.karavan.service.CamelService.DEVMODE_SUFFIX;
+import static org.apache.camel.karavan.shared.ConfigService.DEVMODE_SUFFIX;
 
 @Path("/api/devmode")
 public class DevModeResource {
@@ -46,18 +45,28 @@ public class DevModeResource {
     CamelService camelService;
 
     @Inject
-    DatagridService datagridService;
+    InfinispanService infinispanService;
+
+    @Inject
+    KubernetesService kubernetesService;
+
+    @Inject
+    DockerService dockerService;
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{jBangOptions}")
-    public Response runProjectWithJBangOptions(Project project, @PathParam("jBangOptions") String jBangOptions) {
+    public Response runProjectWithJBangOptions(Project project, @PathParam("jBangOptions") String jBangOptions) throws InterruptedException {
         String runnerName = project.getProjectId() + "-" + DEVMODE_SUFFIX;
-        PodStatus status = datagridService.getDevModePodStatuses(runnerName, environment);
+        PodStatus status = infinispanService.getDevModePodStatuses(runnerName, environment);
         if (status == null) {
-            datagridService.saveDevModeStatus(new DevModeStatus(project.getProjectId(), null, null, false));
-            datagridService.sendDevModeCommand(DevModeCommand.createForProject(DevModeCommandName.RUN, project.getProjectId()));
+            infinispanService.saveDevModeStatus(new DevModeStatus(project.getProjectId(), null, null, false));
+            if (ConfigService.inKubernetes()) {
+                kubernetesService.createRunner(project, runnerName, "");
+            } else {
+                dockerService.createRunner(project, runnerName, "");
+            }
             return Response.ok(runnerName).build();
         }
         return Response.notModified().build();
@@ -66,7 +75,7 @@ public class DevModeResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response runProject(Project project) {
+    public Response runProject(Project project) throws InterruptedException {
         return runProjectWithJBangOptions(project, "");
     }
 
@@ -83,17 +92,23 @@ public class DevModeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{projectId}/{deletePVC}")
     public Response deleteRunner(@PathParam("projectId") String projectId, @PathParam("deletePVC") boolean deletePVC) {
-        datagridService.sendDevModeCommand(DevModeCommand.createForProject(DevModeCommandName.DELETE, projectId));
-        datagridService.deleteDevModeStatus(projectId);
+        String runnerName = projectId + "-" + DEVMODE_SUFFIX;
+        if (ConfigService.inKubernetes()) {
+            kubernetesService.deleteRunner(runnerName, deletePVC);
+        } else {
+            dockerService.stopContainer(runnerName);
+            dockerService.deleteContainer(runnerName);
+        }
+        infinispanService.deleteDevModeStatus(projectId);
         return Response.accepted().build();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/pod/{projectId}")
-    public Response getPodStatus(@PathParam("projectId") String projectId) {
+    public Response getPodStatus(@PathParam("projectId") String projectId) throws RuntimeException {
         String runnerName = projectId + "-" + DEVMODE_SUFFIX;
-        Optional<PodStatus> ps =  datagridService.getPodStatuses(projectId, environment).stream()
+        Optional<PodStatus> ps =  infinispanService.getPodStatuses(projectId, environment).stream()
                 .filter(podStatus -> podStatus.getName().equals(runnerName))
                 .findFirst();
         if (ps.isPresent()) {
@@ -107,7 +122,7 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/status/{projectId}/{statusName}")
     public Response getCamelStatusByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("statusName") String statusName) {
-        CamelStatus status = datagridService.getCamelStatus(projectId, environment, statusName);
+        CamelStatus status = infinispanService.getCamelStatus(projectId, environment, statusName);
         if (status != null) {
             return Response.ok(status).build();
         } else {

@@ -2,18 +2,18 @@ package org.apache.camel.karavan.kubernetes;
 
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
-import org.apache.camel.karavan.datagrid.DatagridService;
-import org.apache.camel.karavan.datagrid.model.ServiceStatus;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.ServiceStatus;
 import org.jboss.logging.Logger;
 
 public class ServiceEventHandler implements ResourceEventHandler<Service> {
 
     private static final Logger LOGGER = Logger.getLogger(ServiceEventHandler.class.getName());
-    private DatagridService datagridService;
+    private InfinispanService infinispanService;
     private KubernetesService kubernetesService;
 
-    public ServiceEventHandler(DatagridService datagridService, KubernetesService kubernetesService) {
-        this.datagridService = datagridService;
+    public ServiceEventHandler(InfinispanService infinispanService, KubernetesService kubernetesService) {
+        this.infinispanService = infinispanService;
         this.kubernetesService = kubernetesService;
     }
 
@@ -22,7 +22,7 @@ public class ServiceEventHandler implements ResourceEventHandler<Service> {
         try {
             LOGGER.info("onAdd " + service.getMetadata().getName());
             ServiceStatus ds = getServiceStatus(service);
-            datagridService.saveServiceStatus(ds);
+            infinispanService.saveServiceStatus(ds);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
@@ -33,7 +33,7 @@ public class ServiceEventHandler implements ResourceEventHandler<Service> {
         try {
             LOGGER.info("onUpdate " + newService.getMetadata().getName());
             ServiceStatus ds = getServiceStatus(newService);
-            datagridService.saveServiceStatus(ds);
+            infinispanService.saveServiceStatus(ds);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
@@ -48,7 +48,7 @@ public class ServiceEventHandler implements ResourceEventHandler<Service> {
                     service.getMetadata().getNamespace(),
                     kubernetesService.getCluster(),
                     kubernetesService.environment);
-            datagridService.deleteServiceStatus(ds);
+            infinispanService.deleteServiceStatus(ds);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }

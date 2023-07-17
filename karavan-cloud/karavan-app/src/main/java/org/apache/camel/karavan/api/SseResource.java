@@ -56,11 +56,6 @@ public class SseResource {
     @OnOverflow(value = OnOverflow.Strategy.BUFFER, bufferSize = 1000)
     Emitter<JsonObject> emitter;
 
-//    @Scheduled(every="1s")
-//    void increment() {
-//        emitter.send(JsonObject.of("name", "marat1", "marat",  new Date()));
-//        emitter.send(JsonObject.of("name", "marat2", "marat",  new Date()));
-//    }
 
     @GET
     @Produces(MediaType.SERVER_SENT_EVENTS)

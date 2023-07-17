@@ -5,21 +5,21 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.ResourceRequirements;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
-import org.apache.camel.karavan.datagrid.DatagridService;
-import org.apache.camel.karavan.datagrid.model.PodStatus;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.PodStatus;
 import org.jboss.logging.Logger;
 
 import static org.apache.camel.karavan.service.CodeService.DEFAULT_CONTAINER_RESOURCES;
-import static org.apache.camel.karavan.service.CamelService.DEVMODE_SUFFIX;
+import static org.apache.camel.karavan.shared.ConfigService.DEVMODE_SUFFIX;
 
 public class PodEventHandler implements ResourceEventHandler<Pod> {
 
     private static final Logger LOGGER = Logger.getLogger(PodEventHandler.class.getName());
-    private final DatagridService datagridService;
+    private final InfinispanService infinispanService;
     private final KubernetesService kubernetesService;
 
-    public PodEventHandler(DatagridService datagridService, KubernetesService kubernetesService) {
-        this.datagridService = datagridService;
+    public PodEventHandler(InfinispanService infinispanService, KubernetesService kubernetesService) {
+        this.infinispanService = infinispanService;
         this.kubernetesService = kubernetesService;
     }
 
@@ -28,7 +28,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
         try {
             LOGGER.info("onAdd " + pod.getMetadata().getName());
             PodStatus ps = getPodStatus(pod);
-            datagridService.savePodStatus(ps);
+            infinispanService.savePodStatus(ps);
         } catch (Exception e){
             LOGGER.error(e.getMessage(), e.getCause());
         }
@@ -39,7 +39,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
         try {
             LOGGER.info("onUpdate " + newPod.getMetadata().getName());
             PodStatus ps = getPodStatus(newPod);
-            datagridService.savePodStatus(ps);
+            infinispanService.savePodStatus(ps);
         } catch (Exception e){
             LOGGER.error(e.getMessage(), e.getCause());
         }
@@ -51,7 +51,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             LOGGER.info("onDelete " + pod.getMetadata().getName());
             String deployment = pod.getMetadata().getLabels().get("app");
             String projectId = deployment != null ? deployment : pod.getMetadata().getLabels().get("karavan/projectId");
-            datagridService.deletePodStatus(projectId, kubernetesService.environment, pod.getMetadata().getName());
+            infinispanService.deletePodStatus(projectId, kubernetesService.environment, pod.getMetadata().getName());
         } catch (Exception e){
             LOGGER.error(e.getMessage(), e.getCause());
         }

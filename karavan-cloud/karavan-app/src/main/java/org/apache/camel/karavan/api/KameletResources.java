@@ -16,9 +16,9 @@
  */
 package org.apache.camel.karavan.api;
 
-import org.apache.camel.karavan.datagrid.DatagridService;
-import org.apache.camel.karavan.datagrid.model.Project;
-import org.apache.camel.karavan.datagrid.model.ProjectFile;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.Project;
+import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.service.CodeService;
 import org.yaml.snakeyaml.Yaml;
 
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 public class KameletResources {
 
     @Inject
-    DatagridService datagridService;
+    InfinispanService infinispanService;
 
     @Inject
     CodeService codeService;
@@ -45,7 +45,7 @@ public class KameletResources {
     @Produces(MediaType.TEXT_PLAIN)
     public String getKamelets() {
         StringBuilder kamelets = new StringBuilder(codeService.getResourceFile("/kamelets/kamelets.yaml"));
-        List<ProjectFile> custom = datagridService.getProjectFiles(Project.NAME_KAMELETS);
+        List<ProjectFile> custom = infinispanService.getProjectFiles(Project.NAME_KAMELETS);
         if (custom.size() > 0) {
             kamelets.append("\n---\n");
             kamelets.append(custom.stream()
@@ -60,7 +60,7 @@ public class KameletResources {
     @Path("/names")
     public List<String> getCustomNames() {
         Yaml yaml = new Yaml();
-        return datagridService.getProjectFiles(Project.NAME_KAMELETS).stream()
+        return infinispanService.getProjectFiles(Project.NAME_KAMELETS).stream()
                 .map(projectFile -> {
                     Map<String, LinkedHashMap> obj = yaml.load(projectFile.getCode());
                     LinkedHashMap<String, Object> metadata = obj.get("metadata");

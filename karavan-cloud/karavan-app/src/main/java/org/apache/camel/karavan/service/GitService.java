@@ -19,8 +19,9 @@ package org.apache.camel.karavan.service;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.Vertx;
-import org.apache.camel.karavan.datagrid.model.*;
+import org.apache.camel.karavan.infinispan.model.*;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.FetchCommand;
@@ -132,7 +133,7 @@ public class GitService {
     public GitConfig getGitConfig() {
         String propertiesPrefix = "karavan.";
         String branch = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-branch", String.class);
-        if (kubernetesService.inKubernetes()) {
+        if (ConfigService.inKubernetes()) {
             LOGGER.info("inKubernetes " + kubernetesService.getNamespace());
             Secret secret = kubernetesService.getKaravanSecret();
             String uri = new String(Base64.getDecoder().decode(secret.getData().get("git-repository").getBytes(StandardCharsets.UTF_8)));

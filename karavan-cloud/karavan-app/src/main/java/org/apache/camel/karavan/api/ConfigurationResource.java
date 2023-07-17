@@ -16,9 +16,7 @@
  */
 package org.apache.camel.karavan.api;
 
-import org.apache.camel.karavan.datagrid.DatagridService;
-import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.apache.camel.karavan.shared.ConfigService;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -26,53 +24,17 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Path("/api/configuration")
 public class ConfigurationResource {
 
-    @ConfigProperty(name = "karavan.version")
-    String version;
-
-    @ConfigProperty(name = "karavan.environment")
-    String environment;
-
-    @ConfigProperty(name = "karavan.default-runtime")
-    String runtime;
-
-    @ConfigProperty(name = "karavan.runtimes")
-    List<String> runtimes;
-
     @Inject
-    DatagridService datagridService;
-
-    @Inject
-    KubernetesService kubernetesService;
+    ConfigService configService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getConfiguration() throws Exception {
-        return Response.ok(
-                Map.of(
-                        "version", version,
-                        "infrastructure", kubernetesService.inKubernetes() ? "kubernetes" : "docker",
-                        "environment", environment,
-                        "environments", datagridService.getEnvironments().stream()
-                                .map(e -> e.getName())
-                                        .sorted((o1, o2) -> {
-                                            if (o1.startsWith("dev") && o2.startsWith("test")) return -1;
-                                            if (o1.startsWith("test") && o2.startsWith("dev")) return 1;
-                                            if (o1.startsWith("test") && o2.startsWith("prod")) return -1;
-                                            if (o1.startsWith("prod") && o2.startsWith("test")) return 1;
-                                            return o1.compareTo(o2);
-                                        })
-                                .collect(Collectors.toList()),
-                        "runtime", runtime,
-                        "runtimes", runtimes
-                )
-        ).build();
+        return Response.ok(configService.getConfiguration()).build();
     }
 
 }

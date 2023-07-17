@@ -16,10 +16,10 @@
  */
 package org.apache.camel.karavan.api;
 
-import org.apache.camel.karavan.datagrid.DatagridService;
-import org.apache.camel.karavan.datagrid.model.GroupedKey;
-import org.apache.camel.karavan.datagrid.model.Project;
-import org.apache.camel.karavan.datagrid.model.ProjectFile;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.GroupedKey;
+import org.apache.camel.karavan.infinispan.model.Project;
+import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.GitService;
 import javax.inject.Inject;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 public class ProjectResource {
 
     @Inject
-    DatagridService datagridService;
+    InfinispanService infinispanService;
 
     @Inject
     GitService gitService;
@@ -53,7 +53,7 @@ public class ProjectResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Project> getAll() throws Exception {
-        return datagridService.getProjects().stream()
+        return infinispanService.getProjects().stream()
                 .sorted((p1, p2) -> {
                     if (p1.getProjectId().equalsIgnoreCase(Project.NAME_TEMPLATES)) return 1;
                     if (p2.getProjectId().equalsIgnoreCase(Project.NAME_TEMPLATES)) return 1;
@@ -68,18 +68,18 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{project}")
     public Project get(@PathParam("project") String project) throws Exception {
-        return datagridService.getProject(project);
+        return infinispanService.getProject(project);
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Project save(Project project) throws Exception {
-        boolean isNew = datagridService.getProject(project.getProjectId()) != null;
-        datagridService.saveProject(project);
+        boolean isNew = infinispanService.getProject(project.getProjectId()) != null;
+        infinispanService.saveProject(project);
         if (isNew){
             ProjectFile appProp = codeService.getApplicationProperties(project);
-            datagridService.saveProjectFile(appProp);
+            infinispanService.saveProjectFile(appProp);
         }
         return project;
     }
@@ -90,9 +90,9 @@ public class ProjectResource {
     public void delete(@HeaderParam("username") String username,
                           @PathParam("project") String project) throws Exception {
         String projectId = URLDecoder.decode(project, StandardCharsets.UTF_8.toString());
-        gitService.deleteProject(projectId, datagridService.getProjectFiles(projectId));
-        datagridService.getProjectFiles(projectId).forEach(file -> datagridService.deleteProjectFile(projectId, file.getName()));
-        datagridService.deleteProject(projectId);
+        gitService.deleteProject(projectId, infinispanService.getProjectFiles(projectId));
+        infinispanService.getProjectFiles(projectId).forEach(file -> infinispanService.deleteProjectFile(projectId, file.getName()));
+        infinispanService.deleteProject(projectId);
     }
 
     @POST
@@ -101,11 +101,11 @@ public class ProjectResource {
     @Path("/copy/{sourceProject}")
     public Project copy(@PathParam("sourceProject") String sourceProject, Project project) throws Exception {
 //        Save project
-        Project s = datagridService.getProject(sourceProject);
+        Project s = infinispanService.getProject(sourceProject);
         project.setRuntime(s.getRuntime());
-        datagridService.saveProject(project);
+        infinispanService.saveProject(project);
 //        Copy files
-        Map<GroupedKey, ProjectFile> map = datagridService.getProjectFilesMap(sourceProject).entrySet().stream()
+        Map<GroupedKey, ProjectFile> map = infinispanService.getProjectFilesMap(sourceProject).entrySet().stream()
                 .collect(Collectors.toMap(
                         e -> new GroupedKey(project.getProjectId(), e.getKey().getEnv(), e.getKey().getKey()),
                         e -> {
@@ -114,7 +114,7 @@ public class ProjectResource {
                             return file;
                         })
                 );
-        datagridService.saveProjectFiles(map);
+        infinispanService.saveProjectFiles(map);
         return project;
     }
 }

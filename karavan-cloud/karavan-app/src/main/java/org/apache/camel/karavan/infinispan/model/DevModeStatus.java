@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.datagrid.model;
+package org.apache.camel.karavan.infinispan.model;
 
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
@@ -31,6 +31,9 @@ public class DevModeStatus {
         this.containerId = containerId;
         this.codeLoaded = codeLoaded;
         this.logging = false;
+    }
+
+    public DevModeStatus() {
     }
 
     public String getProjectId() {

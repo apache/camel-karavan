@@ -19,12 +19,13 @@ package org.apache.camel.karavan.api;
 import io.smallrye.mutiny.Multi;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
-import org.apache.camel.karavan.datagrid.DatagridService;
-import org.apache.camel.karavan.datagrid.model.DeploymentStatus;
-import org.apache.camel.karavan.datagrid.model.PodStatus;
-import org.apache.camel.karavan.datagrid.model.Project;
-import org.apache.camel.karavan.datagrid.model.ServiceStatus;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.DeploymentStatus;
+import org.apache.camel.karavan.infinispan.model.PodStatus;
+import org.apache.camel.karavan.infinispan.model.Project;
+import org.apache.camel.karavan.infinispan.model.ServiceStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -43,7 +44,7 @@ public class InfrastructureResource {
     EventBus eventBus;
 
     @Inject
-    DatagridService datagridService;
+    InfinispanService infinispanService;
 
     @Inject
     KubernetesService kubernetesService;
@@ -58,7 +59,7 @@ public class InfrastructureResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/pipeline/{env}")
     public String createPipeline(@PathParam("env") String env, Project project) throws Exception {
-        Project p = datagridService.getProject(project.getProjectId());
+        Project p = infinispanService.getProject(project.getProjectId());
         return kubernetesService.createPipelineRun(project);
     }
 
@@ -99,7 +100,7 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment")
     public List<DeploymentStatus> getAllDeploymentStatuses() throws Exception {
-        return datagridService.getDeploymentStatuses().stream()
+        return infinispanService.getDeploymentStatuses().stream()
                 .sorted(Comparator.comparing(DeploymentStatus::getProjectId))
                 .collect(Collectors.toList());
     }
@@ -108,7 +109,7 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment/{env}")
     public List<DeploymentStatus> getDeploymentStatusesByEnv(@PathParam("env") String env) throws Exception {
-        return datagridService.getDeploymentStatuses(env).stream()
+        return infinispanService.getDeploymentStatuses(env).stream()
                 .sorted(Comparator.comparing(DeploymentStatus::getProjectId))
                 .collect(Collectors.toList());
     }
@@ -134,7 +135,7 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/service")
     public List<ServiceStatus> getAllServiceStatuses() throws Exception {
-        return datagridService.getServiceStatuses().stream()
+        return infinispanService.getServiceStatuses().stream()
                 .sorted(Comparator.comparing(ServiceStatus::getProjectId))
                 .collect(Collectors.toList());
     }
@@ -143,7 +144,7 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/pod/{env}")
     public List<PodStatus> getPodStatusesByEnv(@PathParam("env") String env) throws Exception {
-        return datagridService.getPodStatuses(env).stream()
+        return infinispanService.getPodStatuses(env).stream()
                 .sorted(Comparator.comparing(PodStatus::getProjectId))
                 .collect(Collectors.toList());
     }
@@ -152,7 +153,7 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/pod/{projectId}/{env}")
     public List<PodStatus> getPodStatusesByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) throws Exception {
-        return datagridService.getPodStatuses(projectId, env).stream()
+        return infinispanService.getPodStatuses(projectId, env).stream()
                 .filter(podStatus -> !podStatus.getInDevMode())
                 .sorted(Comparator.comparing(PodStatus::getName))
                 .collect(Collectors.toList());
@@ -178,7 +179,7 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/configmaps")
     public Response getConfigMaps() throws Exception {
-        if (kubernetesService.inKubernetes()) {
+        if (ConfigService.inKubernetes()) {
             return Response.ok(kubernetesService.getConfigMaps(kubernetesService.getNamespace())).build();
         } else {
             return Response.ok(List.of()).build();
@@ -189,7 +190,7 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/secrets")
     public Response getSecrets() throws Exception {
-        if (kubernetesService.inKubernetes()) {
+        if (ConfigService.inKubernetes()) {
             return Response.ok(kubernetesService.getSecrets(kubernetesService.getNamespace())).build();
         } else {
             return Response.ok(List.of()).build();
@@ -200,10 +201,10 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/services")
     public Response getServices() throws Exception {
-        if (kubernetesService.inKubernetes()) {
+        if (ConfigService.inKubernetes()) {
             return Response.ok(kubernetesService.getServices(kubernetesService.getNamespace())).build();
         } else {
-            List<String> list = datagridService.getContainerInfos(environment).stream()
+            List<String> list = infinispanService.getContainerInfos(environment).stream()
                     .map(ci -> ci.getPorts().stream().map(i -> ci.getContainerName() + ":" + i).collect(Collectors.toList()))
                     .flatMap(List::stream).collect(Collectors.toList());
             return Response.ok(list).build();

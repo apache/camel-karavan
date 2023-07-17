@@ -26,11 +26,11 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.generator.openapi.RestDslGenerator;
 import org.apache.camel.impl.lw.LightweightCamelContext;
 import org.apache.camel.karavan.api.KameletResources;
-import org.apache.camel.karavan.datagrid.DatagridService;
-import org.apache.camel.karavan.datagrid.model.GitRepo;
-import org.apache.camel.karavan.datagrid.model.GitRepoFile;
-import org.apache.camel.karavan.datagrid.model.Project;
-import org.apache.camel.karavan.datagrid.model.ProjectFile;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.GitRepo;
+import org.apache.camel.karavan.infinispan.model.GitRepoFile;
+import org.apache.camel.karavan.infinispan.model.Project;
+import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.jboss.logging.Logger;
 import org.yaml.snakeyaml.Yaml;
@@ -56,7 +56,7 @@ public class CodeService {
     KubernetesService kubernetesService;
 
     @Inject
-    DatagridService datagridService;
+    InfinispanService infinispanService;
 
     @Inject
     Engine engine;
@@ -88,7 +88,7 @@ public class CodeService {
 
     private String getTemplateText(String fileName) {
         try {
-            List<ProjectFile> files = datagridService.getProjectFiles(Project.NAME_TEMPLATES);
+            List<ProjectFile> files = infinispanService.getProjectFiles(Project.NAME_TEMPLATES);
             return files.stream().filter(f -> f.getName().equalsIgnoreCase(fileName))
                     .map(ProjectFile::getCode).findFirst().orElse(null);
         } catch (Exception e) {

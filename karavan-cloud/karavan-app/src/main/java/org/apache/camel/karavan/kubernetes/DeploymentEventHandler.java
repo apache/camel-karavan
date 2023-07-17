@@ -2,18 +2,18 @@ package org.apache.camel.karavan.kubernetes;
 
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
-import org.apache.camel.karavan.datagrid.DatagridService;
-import org.apache.camel.karavan.datagrid.model.DeploymentStatus;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.DeploymentStatus;
 import org.jboss.logging.Logger;
 
 public class DeploymentEventHandler implements ResourceEventHandler<Deployment> {
 
     private static final Logger LOGGER = Logger.getLogger(DeploymentEventHandler.class.getName());
-    private final DatagridService datagridService;
+    private final InfinispanService infinispanService;
     private final KubernetesService kubernetesService;
 
-    public DeploymentEventHandler(DatagridService datagridService, KubernetesService kubernetesService) {
-        this.datagridService = datagridService;
+    public DeploymentEventHandler(InfinispanService infinispanService, KubernetesService kubernetesService) {
+        this.infinispanService = infinispanService;
         this.kubernetesService = kubernetesService;
     }
 
@@ -22,7 +22,7 @@ public class DeploymentEventHandler implements ResourceEventHandler<Deployment> 
         try {
             LOGGER.info("onAdd " + deployment.getMetadata().getName());
             DeploymentStatus ds = getDeploymentStatus(deployment);
-            datagridService.saveDeploymentStatus(ds);
+            infinispanService.saveDeploymentStatus(ds);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
@@ -33,7 +33,7 @@ public class DeploymentEventHandler implements ResourceEventHandler<Deployment> 
         try {
             LOGGER.info("onUpdate " + newDeployment.getMetadata().getName());
             DeploymentStatus ds = getDeploymentStatus(newDeployment);
-            datagridService.saveDeploymentStatus(ds);
+            infinispanService.saveDeploymentStatus(ds);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
@@ -48,8 +48,8 @@ public class DeploymentEventHandler implements ResourceEventHandler<Deployment> 
                     deployment.getMetadata().getNamespace(),
                     kubernetesService.getCluster(),
                     kubernetesService.environment);
-            datagridService.deleteDeploymentStatus(ds);
-            datagridService.deleteCamelStatuses(deployment.getMetadata().getName(), ds.getEnv());
+            infinispanService.deleteDeploymentStatus(ds);
+            infinispanService.deleteCamelStatuses(deployment.getMetadata().getName(), ds.getEnv());
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }

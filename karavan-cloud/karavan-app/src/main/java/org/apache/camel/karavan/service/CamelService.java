@@ -16,7 +16,6 @@
  */
 package org.apache.camel.karavan.service;
 
-import io.quarkus.scheduler.Scheduled;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.Vertx;
@@ -24,9 +23,13 @@ import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
-import org.apache.camel.karavan.datagrid.DatagridService;
-import org.apache.camel.karavan.datagrid.model.*;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.CamelStatus;
+import org.apache.camel.karavan.infinispan.model.CamelStatusName;
+import org.apache.camel.karavan.infinispan.model.DevModeStatus;
+import org.apache.camel.karavan.infinispan.model.PodStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.jboss.logging.Logger;
@@ -37,16 +40,17 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
+import static org.apache.camel.karavan.shared.ConfigService.DEVMODE_SUFFIX;
+
 @ApplicationScoped
 public class CamelService {
 
     private static final Logger LOGGER = Logger.getLogger(CamelService.class.getName());
     public static final String CMD_COLLECT_CAMEL_STATUS = "collect-camel-status";
     public static final String CMD_DELETE_CAMEL_STATUS = "delete-camel-status";
-    public static final String DEVMODE_SUFFIX = "devmode";
 
     @Inject
-    DatagridService datagridService;
+    InfinispanService infinispanService;
 
     @Inject
     KubernetesService kubernetesService;
@@ -73,11 +77,11 @@ public class CamelService {
         LOGGER.info("Reload project code " + projectId);
         String containerName = projectId + "-" + DEVMODE_SUFFIX;
         try {
-            datagridService.getProjectFiles(projectId).forEach(projectFile -> putRequest(containerName, projectFile.getName(), projectFile.getCode(), 1000));
+            infinispanService.getProjectFiles(projectId).forEach(projectFile -> putRequest(containerName, projectFile.getName(), projectFile.getCode(), 1000));
             reloadRequest(containerName);
-            DevModeStatus dms = datagridService.getDevModeStatus(projectId);
+            DevModeStatus dms = infinispanService.getDevModeStatus(projectId);
             dms.setCodeLoaded(true);
-            datagridService.saveDevModeStatus(dms);
+            infinispanService.saveDevModeStatus(dms);
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }
@@ -107,27 +111,25 @@ public class CamelService {
     }
 
     public String getContainerAddress(String containerName) {
-        if (kubernetesService.inKubernetes()) {
+        if (ConfigService.inKubernetes()) {
             return "http://" + containerName + "." + kubernetesService.getNamespace() + ".svc.cluster.local";
         } else {
             return "http://" + containerName + ":8080";
         }
     }
 
-    @Scheduled(every = "{karavan.devmode-status-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
-    void collectDevModeStatuses() {
-        if (datagridService.isReady()) {
-            datagridService.getDevModeStatuses().forEach(dms -> {
+    public void collectDevModeStatuses() {
+        if (infinispanService.isReady()) {
+            infinispanService.getDevModeStatuses().forEach(dms -> {
                 CamelStatusRequest csr = new CamelStatusRequest(dms.getProjectId(), dms.getContainerName());
                 eventBus.publish(CMD_COLLECT_CAMEL_STATUS, JsonObject.mapFrom(csr));
             });
         }
     }
 
-    @Scheduled(every = "{karavan.camel-status-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
-    void collectNonDevModeStatuses() {
-        if (datagridService.isReady()) {
-            datagridService.getPodStatuses(environment).forEach(pod -> {
+    public void collectNonDevModeStatuses() {
+        if (infinispanService.isReady()) {
+            infinispanService.getPodStatuses(environment).forEach(pod -> {
                 CamelStatusRequest csr = new CamelStatusRequest(pod.getProjectId(), pod.getName());
                 eventBus.publish(CMD_COLLECT_CAMEL_STATUS, JsonObject.mapFrom(csr));
             });
@@ -142,16 +144,15 @@ public class CamelService {
             String status = getCamelStatus(containerName, statusName);
             if (status != null) {
                 CamelStatus cs = new CamelStatus(dms.getProjectId(), containerName, statusName, status, environment);
-                datagridService.saveCamelStatus(cs);
+                infinispanService.saveCamelStatus(cs);
             }
         });
     }
 
-    @Scheduled(every = "{karavan.devmode-status-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
-    void cleanupDevModeStatuses() {
-        if (datagridService.isReady()) {
-            datagridService.getDevModeStatuses().forEach(dms -> {
-                PodStatus pod = datagridService.getDevModePodStatuses(dms.getProjectId(), environment);
+    public void cleanupDevModeStatuses() {
+        if (infinispanService.isReady()) {
+            infinispanService.getDevModeStatuses().forEach(dms -> {
+                PodStatus pod = infinispanService.getDevModePodStatuses(dms.getProjectId(), environment);
                 if (pod == null) {
                     eventBus.publish(CMD_DELETE_CAMEL_STATUS, JsonObject.mapFrom(dms));
                 }
@@ -163,7 +164,7 @@ public class CamelService {
     public void cleanupDevModeStatus(JsonObject data) {
         DevModeStatus dms = data.mapTo(DevModeStatus.class);
         Arrays.stream(CamelStatusName.values()).forEach(name -> {
-            datagridService.deleteCamelStatus(dms.getProjectId(), name.name(), environment);
+            infinispanService.deleteCamelStatus(dms.getProjectId(), name.name(), environment);
         });
     }
 

@@ -17,10 +17,9 @@
 package org.apache.camel.karavan.api;
 
 import io.fabric8.kubernetes.client.dsl.LogWatch;
-import org.apache.camel.karavan.datagrid.DatagridService;
-import org.apache.camel.karavan.datagrid.model.DevModeCommand;
-import org.apache.camel.karavan.datagrid.model.DevModeCommandName;
+import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.logging.Logger;
 
@@ -48,7 +47,7 @@ public class LogWatchResource {
     KubernetesService kubernetesService;
 
     @Inject
-    DatagridService datagridService;
+    InfinispanService infinispanService;
 
     @Inject
     ManagedExecutor managedExecutor;
@@ -63,10 +62,10 @@ public class LogWatchResource {
     ) {
         managedExecutor.execute(() -> {
             LOGGER.info("LogWatch for " + name + " starting...");
-            if (kubernetesService.inKubernetes()) {
+            if (ConfigService.inKubernetes()) {
                 getKubernetesLogs(type, name, eventSink, sse);
             } else {
-                datagridService.sendDevModeCommand(DevModeCommand.createForContainer(DevModeCommandName.LOG, name));
+//                infinispanService.sendDevModeCommand(DevModeCommand.createForContainer(DevModeCommandName.LOG, name));
             }
         });
     }

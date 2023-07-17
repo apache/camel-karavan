@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.datagrid.model;
+package org.apache.camel.karavan.infinispan.model;
 
 import org.infinispan.protostream.annotations.ProtoEnumValue;
 

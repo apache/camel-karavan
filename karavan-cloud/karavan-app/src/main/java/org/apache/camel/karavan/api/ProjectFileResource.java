@@ -16,8 +16,8 @@
  */
 package org.apache.camel.karavan.api;
 
-import org.apache.camel.karavan.datagrid.DatagridService;
-import org.apache.camel.karavan.datagrid.model.ProjectFile;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.service.CodeService;
 
 import javax.inject.Inject;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 public class ProjectFileResource {
 
     @Inject
-    DatagridService datagridService;
+    InfinispanService infinispanService;
 
     @Inject
     CodeService codeService;
@@ -51,7 +51,7 @@ public class ProjectFileResource {
     @Path("/{projectId}")
     public List<ProjectFile> get(@HeaderParam("username") String username,
                                  @PathParam("projectId") String projectId) throws Exception {
-        return datagridService.getProjectFiles(projectId).stream()
+        return infinispanService.getProjectFiles(projectId).stream()
                 .sorted(Comparator.comparing(ProjectFile::getName))
                 .collect(Collectors.toList());
     }
@@ -61,7 +61,7 @@ public class ProjectFileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public ProjectFile save(ProjectFile file) throws Exception {
         file.setLastUpdate(Instant.now().toEpochMilli());
-        datagridService.saveProjectFile(file);
+        infinispanService.saveProjectFile(file);
         return file;
     }
 
@@ -71,7 +71,7 @@ public class ProjectFileResource {
     public void delete(@HeaderParam("username") String username,
                        @PathParam("project") String project,
                        @PathParam("filename") String filename) throws Exception {
-        datagridService.deleteProjectFile(
+        infinispanService.deleteProjectFile(
                 URLDecoder.decode(project, StandardCharsets.UTF_8.toString()),
                 URLDecoder.decode(filename, StandardCharsets.UTF_8.toString())
         );
@@ -85,11 +85,11 @@ public class ProjectFileResource {
                                    @PathParam("integrationName") String integrationName,
                                    @PathParam("generateRest") boolean generateRest,
                                    @PathParam("generateRoutes") boolean generateRoutes, ProjectFile file) throws Exception {
-        datagridService.saveProjectFile(file);
+        infinispanService.saveProjectFile(file);
         if (generateRest) {
             String yaml = codeService.generate(file.getName(), file.getCode(), generateRoutes);
             ProjectFile integration = new ProjectFile(integrationName, yaml, file.getProjectId(), Instant.now().toEpochMilli());
-            datagridService.saveProjectFile(integration);
+            infinispanService.saveProjectFile(integration);
             return file;
         }
         return file;

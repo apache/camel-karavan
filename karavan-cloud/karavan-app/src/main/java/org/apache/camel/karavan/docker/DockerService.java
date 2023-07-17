@@ -16,6 +16,8 @@ import io.quarkus.scheduler.Scheduled;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
+import org.apache.camel.karavan.infinispan.model.Project;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -26,14 +28,14 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.service.KaravanService.DEVMODE_SUFFIX;
+import static org.apache.camel.karavan.shared.EventType.CONTAINER_STATS;
+import static org.apache.camel.karavan.shared.EventType.INFINISPAN_HEALTH;
+import static org.apache.camel.karavan.shared.ConfigService.DEVMODE_SUFFIX;
 
 @ApplicationScoped
 public class DockerService {
 
     private static final Logger LOGGER = Logger.getLogger(DockerService.class.getName());
-
-    public static final String ADDRESS_INFINISPAN_STARTED = "ADDRESS_INFINISPAN_STARTED";
 
     public static final String NETWORK_NAME = "karavan";
     private static final DecimalFormat formatCpu = new DecimalFormat("0.00");
@@ -41,14 +43,57 @@ public class DockerService {
     private static final DecimalFormat formatGiB = new DecimalFormat("0.00");
     private static final Map<String, Tuple2<Long, Long>> previousStats = new ConcurrentHashMap<>();
 
+    @ConfigProperty(name = "runner.image")
+    String runnerImage;
+
+    @ConfigProperty(name = "infinispan.image")
+    String infinispanImage;
+    @ConfigProperty(name = "infinispan.port")
+    String infinispanPort;
+    @ConfigProperty(name = "infinispan.username")
+    String infinispanUsername;
+    @ConfigProperty(name = "infinispan.password")
+    String infinispanPassword;
+
     @Inject
     DockerEventListener dockerEventListener;
 
     @Inject
     EventBus eventBus;
 
-    @Scheduled(every = "{karavan.container-stats-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
-    void collectContainersStats() {
+    public void createRunner(Project project, String runnerName, String jBangOptions) throws InterruptedException {
+        String projectId = project.getProjectId();
+        LOGGER.infof("DevMode starting for %s", projectId);
+        HealthCheck healthCheck = new HealthCheck().withTest(List.of("CMD", "curl", "-f", "http://localhost:8080/q/dev/health"))
+                .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
+        createContainer(runnerName, runnerImage,
+                List.of(), "", false, healthCheck,
+                Map.of("type", "devmode", "projectId", projectId));
+        startContainer(runnerName);
+        LOGGER.infof("DevMode started for %s", projectId);
+    }
+
+    public static final String INFINISPAN_CONTAINER_NAME = "infinispan";
+
+    public void startInfinispan() {
+        try {
+            LOGGER.info("Infinispan is starting...");
+
+            HealthCheck healthCheck = new HealthCheck().withTest(List.of("CMD", "curl", "-f", "http://localhost:11222/rest/v2/cache-managers/default/health/status"))
+                    .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
+
+            createContainer(INFINISPAN_CONTAINER_NAME, infinispanImage,
+                    List.of("USER=" + infinispanUsername, "PASS=" + infinispanPassword),
+                    infinispanPort, true, healthCheck, Map.of()
+            );
+            startContainer(INFINISPAN_CONTAINER_NAME);
+            LOGGER.info("Infinispan is started");
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+    }
+
+    public void collectContainersStats() {
         getDockerClient().listContainersCmd().exec().forEach(container -> {
             Statistics stats = getContainerStats(container.getId());
 
@@ -61,12 +106,16 @@ public class DockerService {
                     "memory", memoryUsage + " / " + memoryLimit,
                     "cpu", formatCpu(name, stats)
             );
-//            eventBus.publish(ADDRESS_CONTAINER_STATS, data);
+            eventBus.publish(CONTAINER_STATS, data);
         });
     }
 
     public void startListeners() {
         getDockerClient().eventsCmd().exec(dockerEventListener);
+    }
+
+    public void stopListeners() throws IOException {
+        dockerEventListener.close();
     }
 
     public void createNetwork() {
@@ -84,13 +133,13 @@ public class DockerService {
         }
     }
 
-    public void checkDataGridHealth() {
+    public void checkInfinispanHealth() {
         getDockerClient().listContainersCmd().exec().stream()
                 .filter(c -> c.getState().equals("running"))
                 .forEach(c -> {
                     HealthState hs = getDockerClient().inspectContainerCmd(c.getId()).exec().getState().getHealth();
-                    if (c.getNames()[0].equals("/" + InfinispanContainer.INFINISPAN_CONTAINER_NAME)) {
-//                        eventBus.publish(ADDRESS_INFINISPAN_HEALTH, hs.getStatus());
+                    if (c.getNames()[0].equals("/" + INFINISPAN_CONTAINER_NAME)) {
+                        eventBus.publish(INFINISPAN_HEALTH, hs.getStatus());
                     }
                 });
     }

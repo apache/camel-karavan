@@ -2,9 +2,9 @@ package org.apache.camel.karavan.kubernetes;
 
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.fabric8.tekton.pipeline.v1beta1.PipelineRun;
-import org.apache.camel.karavan.datagrid.DatagridService;
-import org.apache.camel.karavan.datagrid.model.PipelineStatus;
-import org.apache.camel.karavan.datagrid.model.Project;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.PipelineStatus;
+import org.apache.camel.karavan.infinispan.model.Project;
 import org.jboss.logging.Logger;
 
 import java.time.Instant;
@@ -12,11 +12,11 @@ import java.time.Instant;
 public class PipelineRunEventHandler implements ResourceEventHandler<PipelineRun> {
 
     private static final Logger LOGGER = Logger.getLogger(PipelineRunEventHandler.class.getName());
-    private DatagridService datagridService;
+    private InfinispanService infinispanService;
     private KubernetesService kubernetesService;
 
-    public PipelineRunEventHandler(DatagridService datagridService, KubernetesService kubernetesService) {
-        this.datagridService = datagridService;
+    public PipelineRunEventHandler(InfinispanService infinispanService, KubernetesService kubernetesService) {
+        this.infinispanService = infinispanService;
         this.kubernetesService = kubernetesService;
     }
 
@@ -25,7 +25,7 @@ public class PipelineRunEventHandler implements ResourceEventHandler<PipelineRun
         try {
             LOGGER.info("onAdd " + pipelineRun.getMetadata().getName());
             PipelineStatus ps = getPipelineStatus(pipelineRun);
-            if (ps != null) datagridService.savePipelineStatus(ps);
+            if (ps != null) infinispanService.savePipelineStatus(ps);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
@@ -36,7 +36,7 @@ public class PipelineRunEventHandler implements ResourceEventHandler<PipelineRun
         try {
             LOGGER.info("onUpdate " + newPipelineRun.getMetadata().getName());
             PipelineStatus ps = getPipelineStatus(newPipelineRun);
-            if (ps != null) datagridService.savePipelineStatus(ps);
+            if (ps != null) infinispanService.savePipelineStatus(ps);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
@@ -48,10 +48,10 @@ public class PipelineRunEventHandler implements ResourceEventHandler<PipelineRun
             LOGGER.info("onDelete " + pipelineRun.getMetadata().getName());
             String projectId = pipelineRun.getMetadata().getLabels().get("karavan-project-id");
             if (projectId != null) {
-                Project project = datagridService.getProject(projectId);
+                Project project = infinispanService.getProject(projectId);
                 if (project != null) {
                     PipelineStatus ps = new PipelineStatus(project.getProjectId(), kubernetesService.environment);
-                    datagridService.deletePipelineStatus(ps);
+                    infinispanService.deletePipelineStatus(ps);
                 }
             }
         } catch (Exception e){
@@ -62,7 +62,7 @@ public class PipelineRunEventHandler implements ResourceEventHandler<PipelineRun
     public PipelineStatus getPipelineStatus( PipelineRun pipelineRun) {
         String projectId = pipelineRun.getMetadata().getLabels().get("karavan-project-id");
         if (projectId != null) {
-            Project project = datagridService.getProject(projectId);
+            Project project = infinispanService.getProject(projectId);
             if (project != null) {
                 PipelineStatus pipelineStatus = new PipelineStatus(project.getProjectId(), kubernetesService.environment);
 

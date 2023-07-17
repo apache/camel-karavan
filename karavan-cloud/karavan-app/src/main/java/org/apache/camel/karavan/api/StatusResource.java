@@ -17,8 +17,8 @@
 package org.apache.camel.karavan.api;
 
 import io.vertx.core.eventbus.EventBus;
-import org.apache.camel.karavan.datagrid.DatagridService;
-import org.apache.camel.karavan.datagrid.model.*;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.*;
 import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
@@ -37,7 +37,7 @@ public class StatusResource {
     private static final Logger LOGGER = Logger.getLogger(StatusResource.class.getName());
 
     @Inject
-    DatagridService datagridService;
+    InfinispanService infinispanService;
 
     @Inject
     EventBus bus;
@@ -46,7 +46,7 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/pipeline/{projectId}/{env}")
     public Response getPipelineStatus(@PathParam("projectId") String projectId, @PathParam("env") String env) {
-        PipelineStatus status = datagridService.getPipelineStatus(projectId, env);
+        PipelineStatus status = infinispanService.getPipelineStatus(projectId, env);
         if (status != null) {
             return Response.ok(status).build();
         } else {
@@ -58,12 +58,9 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment/{name}/{env}")
     public Response getDeploymentStatus(@PathParam("name") String name, @PathParam("env") String env) {
-        Optional<Environment> environment = datagridService.getEnvironments().stream().filter(e -> e.getName().equals(env)).findFirst();
-        if (environment.isPresent()){
-            DeploymentStatus status = datagridService.getDeploymentStatus(name, env);
-            if (status != null) {
-                return Response.ok(status).build();
-            }
+        DeploymentStatus status = infinispanService.getDeploymentStatus(name, env);
+        if (status != null) {
+            return Response.ok(status).build();
         }
         return Response.noContent().build();
     }
@@ -72,7 +69,7 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/camel/{projectId}/{env}")
     public Response getCamelStatusByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
-        CamelStatus status = datagridService.getCamelStatus(projectId, env, CamelStatusName.context.name());
+        CamelStatus status = infinispanService.getCamelStatus(projectId, env, CamelStatusName.context.name());
         if (status != null) {
             return Response.ok(status).build();
         } else {
@@ -84,6 +81,6 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/camel/{env}")
     public List<CamelStatus> getCamelStatusByEnv(@PathParam("env") String env) {
-        return datagridService.getCamelStatusesByEnv(env, CamelStatusName.context);
+        return infinispanService.getCamelStatusesByEnv(env, CamelStatusName.context);
     }
 }

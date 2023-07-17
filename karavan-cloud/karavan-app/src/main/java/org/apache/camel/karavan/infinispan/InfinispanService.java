@@ -14,14 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.datagrid;
+package org.apache.camel.karavan.infinispan;
 
-import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.JsonObject;
-import org.apache.camel.karavan.datagrid.model.*;
+import org.apache.camel.karavan.infinispan.model.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.Search;
@@ -48,12 +47,7 @@ import static org.infinispan.query.remote.client.ProtobufMetadataManagerConstant
 
 @Default
 @ApplicationScoped
-public class DatagridService  {
-
-    public static final String ADDRESS_DEVMODE_COMMAND = "ADDRESS_DEVMODE_COMMAND";
-    public static final String ADDRESS_DEVMODE_STATUS = "ADDRESS_DEVMODE_STATUS";
-    protected static final String ADDRESS_DEVMODE_COMMAND_INTERNAL = "ADDRESS_DEVMODE_COMMAND_INTERNAL";
-    protected static final String ADDRESS_DEVMODE_STATUS_INTERNAL = "ADDRESS_DEVMODE_STATUS_INTERNAL";
+public class InfinispanService {
 
     @ConfigProperty(name ="infinispan.hosts")
     String infinispanHosts;
@@ -69,11 +63,9 @@ public class DatagridService  {
     private RemoteCache<GroupedKey, PodStatus> podStatuses;
     private RemoteCache<GroupedKey, ServiceStatus> serviceStatuses;
     private RemoteCache<GroupedKey, CamelStatus> camelStatuses;
-    private RemoteCache<String, Environment> environments;
     private RemoteCache<String, String> commits;
     private RemoteCache<GroupedKey, DevModeStatus> devmodeStatuses;
     private RemoteCache<GroupedKey, ContainerInfo> containers;
-    private RemoteCache<GroupedKey, DevModeCommand> devmodeCommands;
     private final AtomicBoolean ready = new AtomicBoolean(false);
 
     private RemoteCacheManager cacheManager;
@@ -81,12 +73,12 @@ public class DatagridService  {
     @Inject
     EventBus eventBus;
 
-    private static final Logger LOGGER = Logger.getLogger(DatagridService.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(InfinispanService.class.getName());
 
     private static final String DEFAULT_ENVIRONMENT = "dev";
 
     public void start() {
-        LOGGER.info("DatagridService is starting in remote mode");
+        LOGGER.info("InfinispanService is starting in remote mode");
 
         ProtoStreamMarshaller marshaller = new ProtoStreamMarshaller();
         marshaller.register(new KaravanSchemaImpl());
@@ -104,7 +96,6 @@ public class DatagridService  {
 
         cacheManager = new RemoteCacheManager(builder.build());
 
-        environments = getOrCreateCache(Environment.CACHE, false);
         projects = getOrCreateCache(Project.CACHE, false);
         files = getOrCreateCache(ProjectFile.CACHE, false);
         podStatuses = getOrCreateCache(PodStatus.CACHE, false);
@@ -116,15 +107,12 @@ public class DatagridService  {
         deploymentStatuses = getOrCreateCache(DeploymentStatus.CACHE, false);
         devmodeStatuses = getOrCreateCache(DevModeStatus.CACHE, false);
         containers = getOrCreateCache(ContainerInfo.CACHE, false);
-        devmodeCommands = getOrCreateCache(DevModeCommand.CACHE, true);
 
-        cacheManager.getCache(DevModeCommand.CACHE).addClientListener(new DevModeCommandListener(eventBus));
-        cacheManager.getCache(DevModeStatus.CACHE).addClientListener(new DevModeStatusListener(eventBus));
         // Grab the generated protobuf schema and registers in the server.
         cacheManager.getCache(PROTOBUF_METADATA_CACHE_NAME).put("karavan.proto", getResourceFile("/proto/karavan.proto"));
 
         ready.set(true);
-        LOGGER.info("DatagridService is started in remote mode");
+        LOGGER.info("InfinispanService is started in remote mode");
     }
 
     public boolean isReady() {
@@ -134,20 +122,6 @@ public class DatagridService  {
     private <K, V> RemoteCache<K, V>  getOrCreateCache(String name, boolean command) {
         String config = getResourceFile(command ? "/cache/command-cache-config.xml" : "/cache/data-cache-config.xml");
         return cacheManager.administration().getOrCreateCache(name, new StringConfiguration(String.format(config, name)));
-    }
-
-    @ConsumeEvent(value = ADDRESS_DEVMODE_COMMAND_INTERNAL, blocking = true, ordered = true, local = false)
-    void sendCommand(JsonObject message) {
-        GroupedKey key = message.mapTo(GroupedKey.class);
-        DevModeCommand command = getDevModeCommand(key);
-        eventBus.publish(DatagridService.ADDRESS_DEVMODE_COMMAND, JsonObject.mapFrom(command));
-    }
-
-    @ConsumeEvent(value = ADDRESS_DEVMODE_STATUS_INTERNAL, blocking = true, ordered = true, local = false)
-    void sendStatus(JsonObject message) {
-        GroupedKey key = message.mapTo(GroupedKey.class);
-        DevModeStatus status = devmodeStatuses.get(key);
-        eventBus.publish(DatagridService.ADDRESS_DEVMODE_STATUS, JsonObject.mapFrom(status));
     }
 
     public List<Project> getProjects() {
@@ -333,14 +307,6 @@ public class DatagridService  {
         });
     }
 
-    public List<Environment> getEnvironments() {
-        return new ArrayList<>(environments.values());
-    }
-
-    public void saveEnvironment(Environment environment) {
-        environments.put(environment.getName(), environment);
-    }
-
     public void saveCommit(String commitId, int time) {
         commits.put(commitId, String.valueOf(time));
     }
@@ -381,18 +347,6 @@ public class DatagridService  {
        return new ArrayList<>(devmodeStatuses.values());
     }
 
-    public void sendDevModeCommand(DevModeCommand command) {
-        devmodeCommands.put(GroupedKey.create(command.getContainerName(), DEFAULT_ENVIRONMENT, command.getTime().toString()), command);
-    }
-
-    public DevModeCommand getDevModeCommand(GroupedKey key) {
-        return devmodeCommands.get(key);
-    }
-
-    public void deleteDevModeCommand(DevModeCommand command) {
-        containers.remove(GroupedKey.create(command.getContainerName(), DEFAULT_ENVIRONMENT, command.getTime().toString()));
-    }
-
     public void saveContainerInfo(ContainerInfo ci) {
         containers.put(GroupedKey.create(ci.getContainerName(), ci.getEnv() != null ? ci.getEnv() : DEFAULT_ENVIRONMENT, ci.getContainerName()), ci);
     }
@@ -418,14 +372,13 @@ public class DatagridService  {
             podStatuses.clearAsync(),
             pipelineStatuses.clearAsync(),
             camelStatuses.clearAsync(),
-            devmodeCommands.clearAsync(),
             devmodeStatuses.clearAsync()
         ).join();
     }
 
     private String getResourceFile(String path) {
         try {
-            InputStream inputStream = DatagridService.class.getResourceAsStream(path);
+            InputStream inputStream = InfinispanService.class.getResourceAsStream(path);
             return new BufferedReader(new InputStreamReader(inputStream))
                     .lines().collect(Collectors.joining(System.getProperty("line.separator")));
         } catch (Exception e) {

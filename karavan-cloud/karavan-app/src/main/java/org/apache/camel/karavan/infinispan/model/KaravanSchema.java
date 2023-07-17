@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.datagrid.model;
+package org.apache.camel.karavan.infinispan.model;
 
 import org.infinispan.protostream.GeneratedSchema;
 import org.infinispan.protostream.annotations.AutoProtoSchemaBuilder;
@@ -12,12 +12,8 @@ import org.infinispan.protostream.annotations.AutoProtoSchemaBuilder;
                 CamelStatus.class,
                 DeploymentStatus.class,
                 PodStatus.class,
-                Environment.class,
                 ServiceStatus.class,
-                DevModeCommandName.class,
-                DevModeCommandType.class,
                 CamelStatusName.class,
-                DevModeCommand.class,
                 DevModeStatus.class,
                 ContainerInfo.class
         },

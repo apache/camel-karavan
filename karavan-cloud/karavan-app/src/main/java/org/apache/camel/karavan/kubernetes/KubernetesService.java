@@ -27,12 +27,12 @@ import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.tekton.client.DefaultTektonClient;
 import io.fabric8.tekton.pipeline.v1beta1.*;
-import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.mutiny.core.eventbus.EventBus;
-import org.apache.camel.karavan.datagrid.DatagridService;
-import org.apache.camel.karavan.datagrid.model.Project;
-import org.apache.camel.karavan.datagrid.model.ProjectFile;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.Project;
+import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.service.CodeService;
+import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -54,8 +54,6 @@ import static org.apache.camel.karavan.service.CodeService.APPLICATION_PROPERTIE
 public class KubernetesService implements HealthCheck {
 
     private static final Logger LOGGER = Logger.getLogger(KubernetesService.class.getName());
-    public static final String START_INFORMERS = "start-informers";
-    public static final String STOP_INFORMERS = "stop-informers";
     public static final int INFORMERS = 4;
     private static final String CAMEL_PREFIX = "camel";
     private static final String KARAVAN_PREFIX = "karavan";
@@ -67,7 +65,7 @@ public class KubernetesService implements HealthCheck {
     EventBus eventBus;
 
     @Inject
-    DatagridService datagridService;
+    InfinispanService infinispanService;
 
     @Produces
     public KubernetesClient kubernetesClient() {
@@ -95,30 +93,29 @@ public class KubernetesService implements HealthCheck {
 
     List<SharedIndexInformer> informers = new ArrayList<>(INFORMERS);
 
-    @ConsumeEvent(value = START_INFORMERS, blocking = true)
-    void startInformers(String data) {
+    public void startInformers(String data) {
         try {
             stopInformers(null);
             LOGGER.info("Starting Kubernetes Informers");
 
             SharedIndexInformer<Deployment> deploymentInformer = kubernetesClient().apps().deployments().inNamespace(getNamespace())
                     .withLabels(getRuntimeLabels()).inform();
-            deploymentInformer.addEventHandlerWithResyncPeriod(new DeploymentEventHandler(datagridService, this), 30 * 1000L);
+            deploymentInformer.addEventHandlerWithResyncPeriod(new DeploymentEventHandler(infinispanService, this), 30 * 1000L);
             informers.add(deploymentInformer);
 
             SharedIndexInformer<Service> serviceInformer = kubernetesClient().services().inNamespace(getNamespace())
                     .withLabels(getRuntimeLabels()).inform();
-            serviceInformer.addEventHandlerWithResyncPeriod(new ServiceEventHandler(datagridService, this), 30 * 1000L);
+            serviceInformer.addEventHandlerWithResyncPeriod(new ServiceEventHandler(infinispanService, this), 30 * 1000L);
             informers.add(serviceInformer);
 
             SharedIndexInformer<PipelineRun> pipelineRunInformer = tektonClient().v1beta1().pipelineRuns().inNamespace(getNamespace())
                     .withLabels(getRuntimeLabels()).inform();
-            pipelineRunInformer.addEventHandlerWithResyncPeriod(new PipelineRunEventHandler(datagridService, this), 30 * 1000L);
+            pipelineRunInformer.addEventHandlerWithResyncPeriod(new PipelineRunEventHandler(infinispanService, this), 30 * 1000L);
             informers.add(pipelineRunInformer);
 
             SharedIndexInformer<Pod> podRunInformer = kubernetesClient().pods().inNamespace(getNamespace())
                     .withLabels(getRuntimeLabels()).inform();
-            podRunInformer.addEventHandlerWithResyncPeriod(new PodEventHandler(datagridService, this), 30 * 1000L);
+            podRunInformer.addEventHandlerWithResyncPeriod(new PodEventHandler(infinispanService, this), 30 * 1000L);
             informers.add(podRunInformer);
 
             LOGGER.info("Started Kubernetes Informers");
@@ -130,7 +127,7 @@ public class KubernetesService implements HealthCheck {
 
     @Override
     public HealthCheckResponse call() {
-        if (inKubernetes()) {
+        if (ConfigService.inKubernetes()) {
             if (informers.size() == INFORMERS) {
                 return HealthCheckResponse.up("All Kubernetes informers are running.");
             } else {
@@ -141,8 +138,7 @@ public class KubernetesService implements HealthCheck {
         }
     }
 
-    @ConsumeEvent(value = STOP_INFORMERS, blocking = true)
-    void stopInformers(String data) {
+    public void stopInformers(String data) {
         LOGGER.info("Stop Kubernetes Informers");
         informers.forEach(SharedIndexInformer::close);
         informers.clear();
@@ -389,11 +385,11 @@ public class KubernetesService implements HealthCheck {
         return result;
     }
 
-    public String tryCreateRunner(Project project, String runnerName, String jBangOptions) {
+    public void createRunner(Project project, String runnerName, String jBangOptions) {
         createPVC(runnerName);
         Pod old = kubernetesClient().pods().inNamespace(getNamespace()).withName(runnerName).get();
         if (old == null) {
-            ProjectFile properties = datagridService.getProjectFile(project.getProjectId(), APPLICATION_PROPERTIES_FILENAME);
+            ProjectFile properties = infinispanService.getProjectFile(project.getProjectId(), APPLICATION_PROPERTIES_FILENAME);
             Map<String, String> containerResources = CodeService
                     .getRunnerContainerResourcesMap(properties, isOpenshift(), project.getRuntime().equals("quarkus"));
             Pod pod = getRunnerPod(project.getProjectId(), runnerName, jBangOptions, containerResources);
@@ -401,7 +397,6 @@ public class KubernetesService implements HealthCheck {
             LOGGER.info("Created pod " + result.getMetadata().getName());
         }
         createService(runnerName);
-        return runnerName;
     }
 
     public void deleteRunner(String name, boolean deletePVC) {
@@ -542,7 +537,7 @@ public class KubernetesService implements HealthCheck {
     }
 
     public boolean isOpenshift() {
-        return inKubernetes() ? kubernetesClient().isAdaptable(OpenShiftClient.class) : false;
+        return ConfigService.inKubernetes() ? kubernetesClient().isAdaptable(OpenShiftClient.class) : false;
     }
 
     public String getCluster() {
@@ -551,10 +546,6 @@ public class KubernetesService implements HealthCheck {
 
     public String getNamespace() {
         return currentNamespace;
-    }
-
-    public boolean inKubernetes() {
-        return Objects.nonNull(System.getenv("KUBERNETES_SERVICE_HOST"));
     }
 
 }
