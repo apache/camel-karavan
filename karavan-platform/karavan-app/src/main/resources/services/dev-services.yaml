@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+
+  artemis:
+    container_name: artemis
+    image: quay.io/artemiscloud/activemq-artemis-broker:artemis.2.29.0
+    ports:
+      - "8161:8161"
+      - "61616:61616"
+      - "5672:5672"
+    environment:
+      AMQ_USER: artemis
+      AMQ_PASSWORD: artemis
+    healthcheck:
+      test: ["CMD-SHELL", "curl -u artemis:artemis http://artemis:8161/console/jolokia"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 22181:2181
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  mariadb:
+    image: mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: mariadb
+
+  mariadb-adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 9080:8080
+
+  greenmail:
+    container_name: greenmail
+    image: greenmail/standalone:2.0.0
+    ports:
+      - "3025:3025"
+      - "3110:3110"
+      - "3143:3143"
+      - "3465:3465"
+      - "3993:3993"
+      - "3995:3995"
+      - "9980:8080"

@@ -23,19 +23,14 @@ import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.GitService;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Path("/api/project")
@@ -52,16 +47,11 @@ public class ProjectResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Project> getAll() throws Exception {
+    public List<Project> getAll(@QueryParam("type") String type) {
         if (infinispanService.isReady()) {
             return infinispanService.getProjects().stream()
-                    .sorted((p1, p2) -> {
-                        if (p1.getProjectId().equalsIgnoreCase(Project.NAME_TEMPLATES)) return 1;
-                        if (p2.getProjectId().equalsIgnoreCase(Project.NAME_TEMPLATES)) return 1;
-                        if (p1.getProjectId().equalsIgnoreCase(Project.NAME_KAMELETS)) return 1;
-                        if (p2.getProjectId().equalsIgnoreCase(Project.NAME_KAMELETS)) return 1;
-                        return (p1.getProjectId().compareTo(p2.getProjectId()));
-                    })
+                    .filter(p -> type == null || Objects.equals(p.getType().name(), type))
+                    .sorted(Comparator.comparing(Project::getProjectId))
                     .collect(Collectors.toList());
         } else {
             return List.of();

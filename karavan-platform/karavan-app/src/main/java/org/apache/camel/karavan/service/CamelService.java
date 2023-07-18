@@ -25,7 +25,6 @@ import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
-import org.apache.camel.karavan.infinispan.model.CamelStatusName;
 import org.apache.camel.karavan.infinispan.model.DevModeStatus;
 import org.apache.camel.karavan.infinispan.model.PodStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
@@ -132,7 +131,7 @@ public class CamelService {
     @ConsumeEvent(value = CMD_COLLECT_CAMEL_STATUS, blocking = true, ordered = true)
     public void collectCamelStatuses(JsonObject data) {
         CamelStatusRequest dms = data.mapTo(CamelStatusRequest.class);
-        Arrays.stream(CamelStatusName.values()).forEach(statusName -> {
+        Arrays.stream(CamelStatus.Name.values()).forEach(statusName -> {
             String containerName = dms.getContainerName();
             Integer exposedPort = dms.getExposedPort();
             String status = getCamelStatus(containerName, exposedPort, statusName);
@@ -157,7 +156,7 @@ public class CamelService {
     @ConsumeEvent(value = CMD_DELETE_CAMEL_STATUS, blocking = true, ordered = true)
     public void cleanupDevModeStatus(JsonObject data) {
         DevModeStatus dms = data.mapTo(DevModeStatus.class);
-        Arrays.stream(CamelStatusName.values()).forEach(name -> {
+        Arrays.stream(CamelStatus.Name.values()).forEach(name -> {
             infinispanService.deleteCamelStatus(dms.getProjectId(), name.name(), environment);
         });
     }
@@ -180,7 +179,7 @@ public class CamelService {
         }
     }
 
-    public String getCamelStatus(String podName, Integer exposedPort, CamelStatusName statusName) {
+    public String getCamelStatus(String podName, Integer exposedPort, CamelStatus.Name statusName) {
         String url = getContainerAddress(podName, exposedPort) + "/q/dev/" + statusName.name();
         try {
             return result(url, 500);

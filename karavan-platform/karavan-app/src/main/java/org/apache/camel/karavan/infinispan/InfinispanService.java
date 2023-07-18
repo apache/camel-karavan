@@ -274,7 +274,7 @@ public class InfinispanService {
         return camelStatuses.get(key);
     }
 
-    public List<CamelStatus> getCamelStatusesByEnv(String env, CamelStatusName name) {
+    public List<CamelStatus> getCamelStatusesByEnv(String env, CamelStatus.Name name) {
         QueryFactory queryFactory = Search.getQueryFactory(camelStatuses);
         return queryFactory.<CamelStatus>create("FROM karavan.CamelStatus WHERE env = :env AND name = :name")
                 .setParameter("env", env)
@@ -301,7 +301,7 @@ public class InfinispanService {
     }
 
     public void deleteCamelStatuses(String projectId, String env) {
-        Arrays.stream(CamelStatusName.values()).forEach(name -> {
+        Arrays.stream(CamelStatus.Name.values()).forEach(name -> {
             GroupedKey key = GroupedKey.create(projectId, env, name.name());
             camelStatuses.remove(key);
         });

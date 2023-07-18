@@ -23,17 +23,13 @@ import {
 } from "@patternfly/react-core";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
-import {KameletsPage} from "./kamelets/KameletsPage";
-import {ComponentsPage} from "./components/ComponentsPage";
-import {EipPage} from "./eip/EipPage";
 import {BlueprintIcon} from "@patternfly/react-icons";
-import KameletsIcon from "@patternfly/react-icons/dist/js/icons/registry-icon";
-import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
-import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
+import KnowledgebaseIcon from "@patternfly/react-icons/dist/js/icons/book-open-icon";
 import {KaravanIcon} from "./designer/utils/KaravanIcons";
 import './designer/karavan.css';
 import {DesignerPage} from "./DesignerPage";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
+import {KnowledgebasePage} from "./knowledgebase/KnowledgebasePage";
 
 class ToastMessage {
     id: string = ''
@@ -142,9 +138,7 @@ class App extends React.Component<Props, State> {
         const {pageId} = this.state;
         const pages: MenuItem[] = [
             new MenuItem("designer", "Designer", <BlueprintIcon/>),
-            new MenuItem("eip", "Enterprise Integration Patterns", <EipIcon/>),
-            new MenuItem("kamelets", "Kamelets", <KameletsIcon/>),
-            new MenuItem("components", "Components", <ComponentsIcon/>),
+            new MenuItem("knowledgebase", "Knowledgebase", <KnowledgebaseIcon/>),
         ]
         return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height: "100%"}}
                       spaceItems={{default: "spaceItemsNone"}}>
@@ -182,17 +176,9 @@ class App extends React.Component<Props, State> {
                         onSave={(filename, yaml1, propertyOnly) => this.save(filename, yaml1, propertyOnly)}
                         dark={dark}/>
                 )
-            case "kamelets":
+            case "knowledgebase":
                 return (
-                    <KameletsPage dark={dark}/>
-                )
-            case "components":
-                return (
-                    <ComponentsPage dark={dark}/>
-                )
-            case "eip":
-                return (
-                    <EipPage dark={dark}/>
+                    <KnowledgebasePage dark={dark}/>
                 )
         }
     }

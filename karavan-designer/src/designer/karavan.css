@@ -1220,6 +1220,10 @@
     margin-left: 3px;
 }
 
+.karavan .tools-section .knowledge-tabs {
+    background-color: white;
+}
+
 /* Project Tools */
 .karavan .project-builder {
     height: 100%;

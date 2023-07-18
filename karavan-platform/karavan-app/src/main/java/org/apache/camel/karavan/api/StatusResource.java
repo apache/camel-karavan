@@ -69,7 +69,7 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/camel/{projectId}/{env}")
     public Response getCamelStatusByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
-        CamelStatus status = infinispanService.getCamelStatus(projectId, env, CamelStatusName.context.name());
+        CamelStatus status = infinispanService.getCamelStatus(projectId, env, CamelStatus.Name.context.name());
         if (status != null) {
             return Response.ok(status).build();
         } else {
@@ -81,6 +81,6 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/camel/{env}")
     public List<CamelStatus> getCamelStatusByEnv(@PathParam("env") String env) {
-        return infinispanService.getCamelStatusesByEnv(env, CamelStatusName.context);
+        return infinispanService.getCamelStatusesByEnv(env, CamelStatus.Name.context);
     }
 }

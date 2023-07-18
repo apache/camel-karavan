@@ -11,16 +11,14 @@ import {KaravanApi} from "./api/KaravanApi";
 import {SsoApi} from "./api/SsoApi";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import './designer/karavan.css';
-import {KameletsPage} from "./kamelets/KameletsPage";
 import {v4 as uuidv4} from "uuid";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import Icon from "./Logo";
-import {ComponentsPage} from "./components/ComponentsPage";
-import {EipPage} from "./eip/EipPage";
 import {ProjectsPage} from "./projects/ProjectsPage";
 import UserIcon from "@patternfly/react-icons/dist/js/icons/user-icon";
 import ProjectsIcon from "@patternfly/react-icons/dist/js/icons/repository-icon";
-import KameletsIcon from "@patternfly/react-icons/dist/js/icons/registry-icon";
+import KnowledgebaseIcon from "@patternfly/react-icons/dist/js/icons/book-open-icon";
+import ServicesIcon from "@patternfly/react-icons/dist/js/icons/registry-icon";
 import DashboardIcon from "@patternfly/react-icons/dist/js/icons/tachometer-alt-icon";
 import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
 import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
@@ -33,6 +31,7 @@ import {ProjectPage} from "./project/ProjectPage";
 import {useAppConfigStore, useDevModeStore, useFileStore, useProjectStore} from "./api/ProjectStore";
 import {Notification} from "./Notification";
 import {InfrastructureAPI} from "./designer/utils/InfrastructureAPI";
+import {KnowledgebasePage} from "./knowledgebase/KnowledgebasePage";
 
 class MenuItem {
     pageId: string = '';
@@ -158,9 +157,10 @@ export class Main extends React.Component<Props, State> {
         const pages: MenuItem[] = [
             new MenuItem("dashboard", "Dashboard", <DashboardIcon/>),
             new MenuItem("projects", "Projects", <ProjectsIcon/>),
-            new MenuItem("eip", "Enterprise Integration Patterns", <EipIcon/>),
-            new MenuItem("kamelets", "Kamelets", <KameletsIcon/>),
-            new MenuItem("components", "Components", <ComponentsIcon/>)
+            new MenuItem("services", "Services", <ServicesIcon/>),
+            new MenuItem("knowledgebase", "Knowledgebase", <KnowledgebaseIcon/>),
+            // new MenuItem("eip", "Enterprise Integration Patterns", <EipIcon/>),
+            // new MenuItem("components", "Components", <ComponentsIcon/>)
         ]
         return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height: "100%"}}
                       spaceItems={{default: "spaceItemsNone"}}>
@@ -233,11 +233,7 @@ export class Main extends React.Component<Props, State> {
                         {this.state.pageId === 'dashboard' && <DashboardPage key={this.state.request}
                                                                              toast={this.toast}
                                                                              config={this.state.config}/>}
-                        {this.state.pageId === 'kamelets' &&
-                            <KameletsPage dark={false} onRefresh={this.updateKamelets}/>}
-                        {this.state.pageId === 'components' &&
-                            <ComponentsPage dark={false} onRefresh={this.updateComponents}/>}
-                        {this.state.pageId === 'eip' && <EipPage dark={false}/>}
+                        {this.state.pageId === 'knowledgebase' && <KnowledgebasePage dark={false}/>}
                     </FlexItem>
                 </Flex>
             </>

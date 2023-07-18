@@ -3,7 +3,7 @@
   "version": "3.21.1-SNAPSHOT",
   "private": true,
   "scripts": {
-    "copy-designer": "cp -r ../../../../../karavan-designer/src/designer src && cp -r ../../../../../karavan-designer/src/kamelets src && cp -r ../../../../../karavan-designer/src/components src && cp -r ../../../../../karavan-designer/src/eip src",
+    "copy-designer": "cp -r ../../../../../karavan-designer/src/designer src && cp -r ../../../../../karavan-designer/src/knowledgebase src",
     "start": "npm run copy-designer && react-scripts start",
     "build": "npm run copy-designer && DISABLE_ESLINT_PLUGIN=true react-scripts build"
   },

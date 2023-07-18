@@ -413,3 +413,7 @@ color: var(--vscode-editor-foreground);
   border-color:  var(--vscode-input-foreground);
   color:  var(--vscode-input-foreground);
 }
+
+.vscode-dark .karavan .tools-section .knowledge-tabs {
+    background-color: transparent;
+}

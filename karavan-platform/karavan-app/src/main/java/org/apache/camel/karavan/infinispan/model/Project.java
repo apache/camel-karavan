@@ -1,5 +1,6 @@
 package org.apache.camel.karavan.infinispan.model;
 
+import org.infinispan.protostream.annotations.ProtoEnumValue;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
@@ -8,9 +9,14 @@ import java.time.Instant;
 public class Project {
     public static final String CACHE = "projects";
 
-    public static final String NAME_TEMPLATES = "templates";
-    public static final String NAME_KAMELETS = "kamelets";
-    public static final String NAME_PIPELINES = "pipelines";
+    public enum Type {
+
+        @ProtoEnumValue(number = 0, name = "templates") templates,
+        @ProtoEnumValue (number = 1, name = "kamelets") kamelets,
+        @ProtoEnumValue (number = 2, name = "services") services,
+        @ProtoEnumValue (number = 3, name = "pipelines") pipelines,
+        @ProtoEnumValue (number = 4, name = "normal") normal,
+    }
 
     @ProtoField(number = 1)
     String projectId;
@@ -24,9 +30,20 @@ public class Project {
     String lastCommit;
     @ProtoField(number = 6)
     Long lastCommitTimestamp;
-
+    @ProtoField(number = 7)
+    Type type;
 
     @ProtoFactory
+    public Project(String projectId, String name, String description, String runtime, String lastCommit, Long lastCommitTimestamp, Type type) {
+        this.projectId = projectId;
+        this.name = name;
+        this.description = description;
+        this.runtime = runtime;
+        this.lastCommit = lastCommit;
+        this.lastCommitTimestamp = lastCommitTimestamp;
+        this.type = type;
+    }
+
     public Project(String projectId, String name, String description, String runtime, String lastCommit, Long lastCommitTimestamp) {
         this.projectId = projectId;
         this.name = name;
@@ -34,6 +51,7 @@ public class Project {
         this.runtime = runtime;
         this.lastCommit = lastCommit;
         this.lastCommitTimestamp = lastCommitTimestamp;
+        this.type = Type.normal;
     }
 
     public Project(String projectId, String name, String description, String runtime) {
@@ -42,9 +60,11 @@ public class Project {
         this.description = description;
         this.runtime = runtime;
         this.lastCommitTimestamp = Instant.now().toEpochMilli();
+        this.type = Type.normal;
     }
 
     public Project() {
+        this.type = Type.normal;
     }
 
     public String getProjectId() {
@@ -93,5 +113,13 @@ public class Project {
 
     public void setLastCommitTimestamp(Long lastCommitTimestamp) {
         this.lastCommitTimestamp = lastCommitTimestamp;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 }

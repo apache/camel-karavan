@@ -34,9 +34,7 @@ export class HelpView implements vscode.TreeDataProvider<HelpItem> {
 	}
 	getChildren(element?: HelpItem): vscode.ProviderResult<HelpItem[]> {
 		const helpItems: HelpItem[] = [];
-		helpItems.push(new HelpItem("Enterprise Integration Patterns", "Enterprise Integration Patterns", "eip", 'combine', { command: 'karavan.openEip', title: '' }));
-		helpItems.push(new HelpItem("Kamelet catalog", "Kamelet Catalog", "kamelets", 'extensions', { command: 'karavan.openKamelets', title: '' }));
-		helpItems.push(new HelpItem("Component catalog", "Component Catalog", "component", 'extensions', { command: 'karavan.openComponents', title: '' }));
+		helpItems.push(new HelpItem("Knowledgebase", "Knowledgebase", "knowledgebase", 'combine', { command: 'karavan.openKnowledgebase', title: '' }));
 		helpItems.push(new HelpItem("Report issue", "Report Issue", "issue", 'comment', { command: 'karavan.reportIssue', title: '' }));
 		return Promise.resolve(helpItems);
 	}
@@ -99,11 +97,11 @@ export class HelpView implements vscode.TreeDataProvider<HelpItem> {
 	 sendData(panel: vscode.WebviewPanel, page: string) {
 		// Read and send Kamelets
 		utils.readKamelets(this.context).then(kamelets => {
-			if (page === 'kamelets') panel.webview.postMessage({ command: 'kamelets', kamelets: kamelets });
+			panel.webview.postMessage({ command: 'kamelets', kamelets: kamelets });
 		}).finally(() => {
 			utils.readComponents(this.context).then(components => {
 				// Read and send Components
-				if (page === 'components') panel.webview.postMessage({ command: 'components', components: components });
+				panel.webview.postMessage({ command: 'components', components: components });
 			}).finally(() => {
 				// Send integration
 				panel.webview.postMessage({ command: 'open', page: page });

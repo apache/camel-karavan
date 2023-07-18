@@ -44,9 +44,7 @@ export function activate(context: ExtensionContext) {
 
     const helpView = new HelpView(context);
     window.registerTreeDataProvider('help', helpView);
-    commands.registerCommand('karavan.openKamelets', () => helpView.openKaravanWebView("kamelets"));
-    commands.registerCommand('karavan.openComponents', () => helpView.openKaravanWebView("components"));
-    commands.registerCommand('karavan.openEip', () => helpView.openKaravanWebView("eip"));
+    commands.registerCommand('karavan.openKnowledgebase', () => helpView.openKaravanWebView("knowledgebase"));
 
     // Create new Integration YAML command
     const createYaml = commands.registerCommand("karavan.create-yaml", (...args: any[]) => {

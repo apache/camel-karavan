@@ -6,7 +6,7 @@
   "description": "Integration Toolkit for Apache Camel",
   "version": "3.21.1-SNAPSHOT",
   "license": "Apache-2.0",
-  "preview": true,
+  "preview": false,
   "bugs": {
     "url": "https://github.com/apache/camel-karavan/issues"
   },
@@ -50,9 +50,7 @@
     "onCommand:karavan.jbang-export",
     "onCommand:karavan.generate-rest",
     "onCommand:karavan.download-image",
-    "onCommand:karavan.openKamelets",
-    "onCommand:karavan.openComponents",
-    "onCommand:karavan.openEip",
+    "onCommand:karavan.openKnowledgebase",
     "onCommand:karavan.reportIssue",
     "onView:integrations"
   ],
@@ -437,16 +435,8 @@
         "icon": "$(refresh)"
       },
       {
-        "command": "karavan.openKamelets",
-        "title": "Open Kamelet Catalog"
-      },
-      {
-        "command": "karavan.openComponents",
-        "title": "Open Component Catalog"
-      },
-      {
-        "command": "karavan.openEip",
-        "title": "Open EIP"
+        "command": "karavan.openKnowledgebase",
+        "title": "Open Knowledgebase"
       },
       {
         "command": "karavan.reportIssue",
@@ -610,7 +600,7 @@
   },
   "scripts": {
     "copy-core": "cp -r ../karavan-core/src/core webview",
-    "copy-designer": "cp -r ../karavan-designer/src/designer webview && cp -r ../karavan-designer/src/kamelets webview && cp -r ../karavan-designer/src/components webview && cp -r ../karavan-designer/src/eip webview",
+    "copy-designer": "cp -r ../karavan-designer/src/designer webview && cp -r ../karavan-designer/src/knowledgebase webview",
     "replace-import": "run-script-os",
     "replace-import:darwin": "find webview -type f -name '*.ts*' -exec sed -i '' 's!karavan-core/lib!core!g' {} +",
     "replace-import:linux": "find webview -type f -name '*.ts*' -exec sed -i 's!karavan-core/lib!core!g' {} +",

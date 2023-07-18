@@ -59,9 +59,6 @@ public class ProjectService implements HealthCheck{
     @Inject
     CodeService codeService;
 
-    @ConfigProperty(name = "karavan.default-runtime")
-    String runtime;
-
     private AtomicBoolean readyToPull = new AtomicBoolean(false);
 
     @Override
@@ -100,12 +97,12 @@ public class ProjectService implements HealthCheck{
         readyToPull.set(true);
     }
 
-    @ConsumeEvent(value = IMPORT_PROJECTS, blocking = true)
     public void importProjects(String data) {
         if (infinispanService.getProjects().isEmpty()) {
             importAllProjects();
         }
         addTemplatesProject();
+        addServicesProject();
         importCommits();
     }
 
@@ -116,12 +113,14 @@ public class ProjectService implements HealthCheck{
             repos.forEach(repo -> {
                 Project project;
                 String folderName = repo.getName();
-                if (folderName.equals(Project.NAME_TEMPLATES)) {
-                    project = new Project(Project.NAME_TEMPLATES, "Templates", "Templates", "", repo.getCommitId(), repo.getLastCommitTimestamp());
-                } else if (folderName.equals(Project.NAME_KAMELETS)){
-                    project = new Project(Project.NAME_KAMELETS, "Custom Kamelets", "Custom Kamelets", "", repo.getCommitId(), repo.getLastCommitTimestamp());
-//                } else if (folderName.equals(Project.NAME_PIPELINES)){
-//                    project = new Project(Project.NAME_PIPELINES, "Pipelines", "CI/CD Pipelines", "", repo.getCommitId(), repo.getLastCommitTimestamp());
+                if (folderName.equals(Project.Type.templates.name())) {
+                    project = new Project(Project.Type.templates.name(), "Templates", "Templates", "", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.templates);
+                } else if (folderName.equals(Project.Type.kamelets.name())){
+                    project = new Project(Project.Type.kamelets.name(), "Custom Kamelets", "Custom Kamelets", "", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.kamelets);
+                } else if (folderName.equals(Project.Type.pipelines.name())){
+                    project = new Project(Project.Type.pipelines.name(), "Pipelines", "CI/CD Pipelines", "", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.pipelines);
+                } else if (folderName.equals(Project.Type.services.name())){
+                    project = new Project(Project.Type.services.name(), "Services", "Development Services", "", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.services);
                 } else {
                     project = getProjectFromRepo(repo);
                 }
@@ -190,11 +189,11 @@ public class ProjectService implements HealthCheck{
     void addKameletsProject() {
         LOGGER.info("Add custom kamelets project if not exists");
         try {
-            Project kamelets  = infinispanService.getProject(Project.NAME_KAMELETS);
+            Project kamelets  = infinispanService.getProject(Project.Type.kamelets.name());
             if (kamelets == null) {
-                kamelets = new Project(Project.NAME_KAMELETS, "Custom Kamelets", "Custom Kamelets", "", "", Instant.now().toEpochMilli());
+                kamelets = new Project(Project.Type.kamelets.name(), "Custom Kamelets", "Custom Kamelets", "", "", Instant.now().toEpochMilli(), Project.Type.kamelets);
                 infinispanService.saveProject(kamelets);
-                commitAndPushProject(Project.NAME_KAMELETS, "Add custom kamelets");
+                commitAndPushProject(Project.Type.kamelets.name(), "Add custom kamelets");
             }
         } catch (Exception e) {
             LOGGER.error("Error during custom kamelets project creation", e);
@@ -204,35 +203,54 @@ public class ProjectService implements HealthCheck{
     void addTemplatesProject() {
         LOGGER.info("Add templates project if not exists");
         try {
-            Project templates  = infinispanService.getProject(Project.NAME_TEMPLATES);
+            Project templates  = infinispanService.getProject(Project.Type.templates.name());
             if (templates == null) {
-                templates = new Project(Project.NAME_TEMPLATES, "Templates", "Templates", "", "", Instant.now().toEpochMilli());
+                templates = new Project(Project.Type.templates.name(), "Templates", "Templates", "", "", Instant.now().toEpochMilli(), Project.Type.templates);
                 infinispanService.saveProject(templates);
 
                 codeService.getApplicationPropertiesTemplates().forEach((name, value) -> {
-                    ProjectFile file = new ProjectFile(name, value, Project.NAME_TEMPLATES, Instant.now().toEpochMilli());
+                    ProjectFile file = new ProjectFile(name, value, Project.Type.templates.name(), Instant.now().toEpochMilli());
                     infinispanService.saveProjectFile(file);
                 });
-                commitAndPushProject(Project.NAME_TEMPLATES, "Add default templates");
+                commitAndPushProject(Project.Type.templates.name(), "Add default templates");
             }
         } catch (Exception e) {
             LOGGER.error("Error during templates project creation", e);
         }
     }
 
+    void addServicesProject() {
+        LOGGER.info("Add services project if not exists");
+        try {
+            Project templates  = infinispanService.getProject(Project.Type.services.name());
+            if (templates == null) {
+                templates = new Project(Project.Type.services.name(), "Services", "Development Services", "", "", Instant.now().toEpochMilli(), Project.Type.services);
+                infinispanService.saveProject(templates);
+
+                codeService.getServices().forEach((name, value) -> {
+                    ProjectFile file = new ProjectFile(name, value, Project.Type.services.name(), Instant.now().toEpochMilli());
+                    infinispanService.saveProjectFile(file);
+                });
+                commitAndPushProject(Project.Type.templates.name(), "Add services");
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error during services project creation", e);
+        }
+    }
+
     void addPipelinesProject() {
         LOGGER.info("Add pipelines project if not exists");
         try {
-            Project pipelines  = infinispanService.getProject(Project.NAME_PIPELINES);
+            Project pipelines  = infinispanService.getProject(Project.Type.pipelines.name());
             if (pipelines == null) {
-                pipelines = new Project(Project.NAME_PIPELINES, "Pipelines", "CI/CD Pipelines", "", "", Instant.now().toEpochMilli());
+                pipelines = new Project(Project.Type.pipelines.name(), "Pipelines", "CI/CD Pipelines", "", "", Instant.now().toEpochMilli(), Project.Type.pipelines);
                 infinispanService.saveProject(pipelines);
 
                 codeService.getApplicationPropertiesTemplates().forEach((name, value) -> {
-                    ProjectFile file = new ProjectFile(name, value, Project.NAME_PIPELINES, Instant.now().toEpochMilli());
+                    ProjectFile file = new ProjectFile(name, value, Project.Type.pipelines.name(), Instant.now().toEpochMilli());
                     infinispanService.saveProjectFile(file);
                 });
-                commitAndPushProject(Project.NAME_PIPELINES, "Add default pipelines");
+                commitAndPushProject(Project.Type.pipelines.name(), "Add default pipelines");
             }
         } catch (Exception e) {
             LOGGER.error("Error during pipelines project creation", e);

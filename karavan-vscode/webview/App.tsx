@@ -22,11 +22,9 @@ import { KaravanDesigner } from "./designer/KaravanDesigner";
 import vscode from "./vscode";
 import { KameletApi } from "core/api/KameletApi";
 import { ComponentApi } from "core/api/ComponentApi";
-import { KameletsPage } from "./kamelets/KameletsPage";
-import { ComponentsPage } from "./components/ComponentsPage";
-import { EipPage } from "./eip/EipPage";
 import { TemplateApi } from "./core/api/TemplateApi";
 import {EventBus} from "./designer/utils/EventBus";
+import { KnowledgebasePage } from "./knowledgebase/KnowledgebasePage";
 
 interface Props {
   dark: boolean
@@ -44,7 +42,7 @@ interface State {
   interval?: NodeJS.Timer
   scheduledYaml: string
   hasChanges: boolean
-  page: "designer" | "kamelets" | "components" | "eip" | "builder"
+  page: "designer" | "knowledgebase"
   active: boolean
   tab?: string
   files: string
@@ -202,9 +200,7 @@ class App extends React.Component<Props, State> {
             }}
             />
         }
-        {loaded && page === "kamelets" && <KameletsPage dark={dark} />}
-        {loaded && page === "components" && <ComponentsPage dark={dark} />}
-        {loaded && page === "eip" && <EipPage dark={dark} />}
+        {loaded && page === "knowledgebase" && <KnowledgebasePage dark={dark} />}
       </Page>
     )
   }

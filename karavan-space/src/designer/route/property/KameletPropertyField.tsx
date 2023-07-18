@@ -19,7 +19,7 @@ import {
     FormGroup,
     TextInput,
     Popover,
-    Switch, InputGroup, Button, TextArea, Tooltip
+    Switch, InputGroup, Button, TextArea, Tooltip, capitalize
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -27,11 +27,12 @@ import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
 import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
 import {Property} from "karavan-core/lib/model/KameletModels";
-import {KubernetesSelector} from "./KubernetesSelector";
-import {KubernetesAPI} from "../../utils/KubernetesAPI";
+import {InfrastructureSelector} from "./InfrastructureSelector";
+import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
 import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
 import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
+import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 
 interface Props {
     property: Property,
@@ -44,8 +45,8 @@ interface State {
     selectIsOpen: boolean
     showEditor: boolean
     showPassword: boolean
-    showKubernetesSelector: boolean
-    kubernetesSelectorProperty?: string
+    showInfrastructureSelector: boolean
+    infrastructureSelectorProperty?: string
     ref: any
 }
 
@@ -55,7 +56,7 @@ export class KameletPropertyField extends React.Component<Props, State> {
         selectIsOpen: false,
         showEditor: false,
         showPassword: false,
-        showKubernetesSelector: false,
+        showInfrastructureSelector: false,
         ref: React.createRef(),
     }
 
@@ -68,7 +69,7 @@ export class KameletPropertyField extends React.Component<Props, State> {
         this.setState({selectIsOpen: false});
     }
 
-    selectKubernetes = (value: string) => {
+    selectInfrastructure = (value: string) => {
         // check if there is a selection
         const textVal = this.state.ref.current;
         const cursorStart = textVal.selectionStart;
@@ -78,29 +79,29 @@ export class KameletPropertyField extends React.Component<Props, State> {
             const selectedText = prevValue.substring(cursorStart, cursorEnd)
             value = prevValue.replace(selectedText, value);
         }
-        const propertyId = this.state.kubernetesSelectorProperty;
+        const propertyId = this.state.infrastructureSelectorProperty;
         if (propertyId){
             if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
             this.parametersChanged(propertyId, value);
-            this.setState({showKubernetesSelector: false, kubernetesSelectorProperty: undefined})
+            this.setState({showInfrastructureSelector: false, infrastructureSelectorProperty: undefined})
         }
     }
 
-    openKubernetesSelector = (propertyName: string) => {
-        this.setState({kubernetesSelectorProperty: propertyName, showKubernetesSelector: true});
+    openInfrastructureSelector = (propertyName: string) => {
+        this.setState({infrastructureSelectorProperty: propertyName, showInfrastructureSelector: true});
     }
 
-    closeKubernetesSelector = () => {
-        this.setState({showKubernetesSelector: false})
+    closeInfrastructureSelector = () => {
+        this.setState({showInfrastructureSelector: false})
     }
 
-    getKubernetesSelectorModal() {
+    getInfrastructureSelectorModal() {
         return (
-            <KubernetesSelector
+            <InfrastructureSelector
                 dark={false}
-                isOpen={this.state.showKubernetesSelector}
-                onClose={() => this.closeKubernetesSelector()}
-                onSelect={this.selectKubernetes}/>)
+                isOpen={this.state.showInfrastructureSelector}
+                onClose={() => this.closeInfrastructureSelector()}
+                onSelect={this.selectInfrastructure}/>)
     }
 
     getStringInput() {
@@ -108,13 +109,15 @@ export class KameletPropertyField extends React.Component<Props, State> {
         const {property, value} = this.props;
         const prefix = "parameters";
         const id = prefix + "-" + property.id;
-        const noKubeSelectorButton = ["uri", "id", "description", "group"].includes(property.id);
-        const showKubeSelectorButton = KubernetesAPI.inKubernetes && !showEditor && !noKubeSelectorButton
+        const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
+        const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.id);
+        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? <KubernetesIcon/> : <DockerIcon/>
+        const showInfraSelectorButton = inInfrastructure && !showEditor && !noInfraSelectorButton
         return <InputGroup>
-            {showKubeSelectorButton  &&
-                <Tooltip position="bottom-end" content="Select from Kubernetes">
-                    <Button variant="control" onClick={e => this.openKubernetesSelector(property.id)}>
-                        <KubernetesIcon/>
+            {showInfraSelectorButton  &&
+                <Tooltip position="bottom-end" content={"Select from " + capitalize(InfrastructureAPI.infrastructure)}>
+                    <Button variant="control" onClick={e => this.openInfrastructureSelector(property.id)}>
+                        {icon}
                     </Button>
                 </Tooltip>}
             {(!showEditor || property.format === "password") &&
@@ -194,7 +197,7 @@ export class KameletPropertyField extends React.Component<Props, State> {
                         onChange={e => this.parametersChanged(property.id, !Boolean(value))}/>
                     }
                 </FormGroup>
-                {this.getKubernetesSelectorModal()}
+                {this.getInfrastructureSelectorModal()}
             </div>
         )
     }

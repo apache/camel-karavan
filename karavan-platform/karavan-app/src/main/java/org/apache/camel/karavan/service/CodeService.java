@@ -88,7 +88,7 @@ public class CodeService {
 
     private String getTemplateText(String fileName) {
         try {
-            List<ProjectFile> files = infinispanService.getProjectFiles(Project.NAME_TEMPLATES);
+            List<ProjectFile> files = infinispanService.getProjectFiles(Project.Type.templates.name());
             return files.stream().filter(f -> f.getName().equalsIgnoreCase(fileName))
                     .map(ProjectFile::getCode).findFirst().orElse(null);
         } catch (Exception e) {
@@ -128,6 +128,13 @@ public class CodeService {
                 result.put(templateName, templateText);
             });
         });
+        return result;
+    }
+
+    public Map<String, String> getServices() {
+        Map<String, String> result = new HashMap<>();
+        String templateText = getResourceFile("/services/dev-services.yaml");
+        result.put("dev-services.yaml", templateText);
         return result;
     }
 

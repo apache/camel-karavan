@@ -45,7 +45,7 @@ public class KameletResources {
     @Produces(MediaType.TEXT_PLAIN)
     public String getKamelets() {
         StringBuilder kamelets = new StringBuilder(codeService.getResourceFile("/kamelets/kamelets.yaml"));
-        List<ProjectFile> custom = infinispanService.getProjectFiles(Project.NAME_KAMELETS);
+        List<ProjectFile> custom = infinispanService.getProjectFiles(Project.Type.kamelets.name());
         if (custom.size() > 0) {
             kamelets.append("\n---\n");
             kamelets.append(custom.stream()
@@ -60,7 +60,7 @@ public class KameletResources {
     @Path("/names")
     public List<String> getCustomNames() {
         Yaml yaml = new Yaml();
-        return infinispanService.getProjectFiles(Project.NAME_KAMELETS).stream()
+        return infinispanService.getProjectFiles(Project.Type.kamelets.name()).stream()
                 .map(projectFile -> {
                     Map<String, LinkedHashMap> obj = yaml.load(projectFile.getCode());
                     LinkedHashMap<String, Object> metadata = obj.get("metadata");

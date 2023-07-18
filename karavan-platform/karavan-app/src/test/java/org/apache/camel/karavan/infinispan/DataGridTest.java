@@ -3,7 +3,6 @@ package org.apache.camel.karavan.infinispan;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
-import org.apache.camel.karavan.infinispan.model.CamelStatusName;
 import org.apache.camel.karavan.infinispan.model.ContainerInfo;
 import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.junit.jupiter.api.BeforeAll;
@@ -45,9 +44,9 @@ public class DataGridTest {
 
     @Test
     public void testCamelStatuses() throws InterruptedException {
-        CamelStatus cs = new CamelStatus("test1", "container1", CamelStatusName.context, "", "dev");
+        CamelStatus cs = new CamelStatus("test1", "container1", CamelStatus.Name.context, "", "dev");
         infinispanService.saveCamelStatus(cs);
-        List<CamelStatus> list = infinispanService.getCamelStatusesByEnv("dev", CamelStatusName.context);
+        List<CamelStatus> list = infinispanService.getCamelStatusesByEnv("dev", CamelStatus.Name.context);
         System.out.println(list);
         assertEquals(1, list.size());
     }

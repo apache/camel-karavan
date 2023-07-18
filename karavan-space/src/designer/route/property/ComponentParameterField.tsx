@@ -23,7 +23,7 @@ import {
     Select,
     SelectVariant,
     SelectDirection,
-    SelectOption, InputGroup, TextArea, Tooltip, Button,
+    SelectOption, InputGroup, TextArea, Tooltip, Button, capitalize,
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -34,9 +34,10 @@ import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefin
 import {ToDefinition} from "karavan-core/lib/model/CamelDefinition";
 import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
 import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
-import {KubernetesSelector} from "./KubernetesSelector";
-import {KubernetesAPI} from "../../utils/KubernetesAPI";
+import {InfrastructureSelector} from "./InfrastructureSelector";
+import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
 import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
+import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
@@ -56,8 +57,8 @@ interface State {
     selectStatus: Map<string, boolean>
     showEditor: boolean
     showPassword: boolean
-    showKubernetesSelector: boolean
-    kubernetesSelectorProperty?: string
+    showInfrastructureSelector: boolean
+    infrastructureSelectorProperty?: string
     ref: any
     id: string
 }
@@ -68,7 +69,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
         selectStatus: new Map<string, boolean>(),
         showEditor: false,
         showPassword: false,
-        showKubernetesSelector: false,
+        showInfrastructureSelector: false,
         ref: React.createRef(),
         id: prefix + "-" + this.props.property.name
     }
@@ -178,7 +179,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
         </InputGroup>
     }
 
-    selectKubernetes = (value: string) => {
+    selectInfrastructure = (value: string) => {
         // check if there is a selection
         const textVal = this.state.ref.current;
         const cursorStart = textVal.selectionStart;
@@ -188,40 +189,41 @@ export class ComponentParameterField extends React.Component<Props, State> {
             const selectedText = prevValue.substring(cursorStart, cursorEnd)
             value = prevValue.replace(selectedText, value);
         }
-        const propertyName = this.state.kubernetesSelectorProperty;
+        const propertyName = this.state.infrastructureSelectorProperty;
         if (propertyName) {
             if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
             this.parametersChanged(propertyName, value);
-            this.setState({showKubernetesSelector: false, kubernetesSelectorProperty: undefined})
+            this.setState({showInfrastructureSelector: false, infrastructureSelectorProperty: undefined})
         }
     }
 
-    openKubernetesSelector = (propertyName: string) => {
-        this.setState({kubernetesSelectorProperty: propertyName, showKubernetesSelector: true});
+    openInfrastructureSelector = (propertyName: string) => {
+        this.setState({infrastructureSelectorProperty: propertyName, showInfrastructureSelector: true});
     }
 
-    closeKubernetesSelector = () => {
-        this.setState({showKubernetesSelector: false})
+    closeInfrastructureSelector = () => {
+        this.setState({showInfrastructureSelector: false})
     }
 
-    getKubernetesSelectorModal() {
+    getInfrastructureSelectorModal() {
         return (
-            <KubernetesSelector
+            <InfrastructureSelector
                 dark={false}
-                isOpen={this.state.showKubernetesSelector}
-                onClose={() => this.closeKubernetesSelector()}
-                onSelect={this.selectKubernetes}/>)
+                isOpen={this.state.showInfrastructureSelector}
+                onClose={() => this.closeInfrastructureSelector()}
+                onSelect={this.selectInfrastructure}/>)
     }
 
     getStringInput(property: ComponentProperty, value: any) {
         const {showEditor, showPassword} = this.state;
-        const inKubernetes = KubernetesAPI.inKubernetes;
-        const noKubeSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
+        const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
+        const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
+        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? <KubernetesIcon/> : <DockerIcon/>
         return <InputGroup>
-            {inKubernetes && !showEditor && !noKubeSelectorButton &&
-                <Tooltip position="bottom-end" content="Select from Kubernetes">
-                    <Button variant="control" onClick={e => this.openKubernetesSelector(property.name)}>
-                        <KubernetesIcon/>
+            {inInfrastructure && !showEditor && !noInfraSelectorButton &&
+                <Tooltip position="bottom-end" content={"Select from " + capitalize((InfrastructureAPI.infrastructure))}>
+                    <Button variant="control" onClick={e => this.openInfrastructureSelector(property.name)}>
+                        {icon}
                     </Button>
                 </Tooltip>}
             {(!showEditor || property.secret) &&
@@ -338,7 +340,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
                     && this.getSelect(property, value)}
                 {property.type === 'boolean'
                     && this.getSwitch(property, value)}
-                {this.getKubernetesSelectorModal()}
+                {this.getInfrastructureSelectorModal()}
             </FormGroup>
         )
     }

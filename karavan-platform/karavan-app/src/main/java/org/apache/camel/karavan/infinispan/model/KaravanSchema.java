@@ -7,13 +7,14 @@ import org.infinispan.protostream.annotations.AutoProtoSchemaBuilder;
         includeClasses = {
                 GroupedKey.class,
                 Project.class,
+                Project.Type.class,
                 ProjectFile.class,
                 PipelineStatus.class,
                 CamelStatus.class,
+                CamelStatus.Name.class,
                 DeploymentStatus.class,
                 PodStatus.class,
                 ServiceStatus.class,
-                CamelStatusName.class,
                 DevModeStatus.class,
                 ContainerInfo.class
         },
@@ -22,3 +23,5 @@ import org.infinispan.protostream.annotations.AutoProtoSchemaBuilder;
         schemaPackageName = "karavan")
 public interface KaravanSchema extends GeneratedSchema {
 }
+
+
