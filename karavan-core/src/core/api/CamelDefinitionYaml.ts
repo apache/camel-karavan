@@ -31,18 +31,20 @@ export class CamelDefinitionYaml {
             .filter(x => Object.keys(x).length !== 0);
         if (integration.type === 'crd') {
             delete clone.type;
-            const i = JSON.parse(JSON.stringify(clone, (key, value) => this.replacer(key, value), 3)); // fix undefined in string attributes
+            const i = JSON.parse(JSON.stringify(clone, (key, value) => CamelDefinitionYaml.replacer(key, value), 3)); // fix undefined in string attributes
             const text = CamelDefinitionYaml.yamlDump(i);
             return text;
         } else {
-            const f = JSON.parse(JSON.stringify(clone.spec.flows, (key, value) => this.replacer(key, value), 3));
+            const f = JSON.parse(
+                JSON.stringify(clone.spec.flows, (key, value) => CamelDefinitionYaml.replacer(key, value), 3),
+            );
             const text = CamelDefinitionYaml.yamlDump(f);
             return text;
         }
     };
 
     static isEmpty = (value?: string): boolean => {
-        return !value || value.trim().length === 0;
+        return !value || (value.trim && value.trim().length === 0);
     };
 
     static cleanupElement = (element: CamelElement, inArray?: boolean, inSteps?: boolean): CamelElement => {
@@ -77,13 +79,13 @@ export class CamelDefinitionYaml {
                 }
             } else if (key === 'parameters' && typeof value === 'object') {
                 const parameters = Object.entries(value || {})
-                    .filter(([_, v]: [string, any]) => !this.isEmpty(v))
+                    .filter(([_, v]: [string, any]) => !CamelDefinitionYaml.isEmpty(v))
                     .reduce((x: any, [k, v]) => ({ ...x, [k]: v }), {});
                 if (Object.keys(parameters).length > 0) {
                     result[key] = parameters;
                 }
             } else {
-                if (!this.isEmpty(value)) {
+                if (!CamelDefinitionYaml.isEmpty(value)) {
                     result[key] = value;
                 }
             }
@@ -188,11 +190,11 @@ export class CamelDefinitionYaml {
                 integration.metadata.name = camelized?.metadata?.name;
             }
             const int: Integration = new Integration({ ...camelized });
-            integration.spec.flows?.push(...this.flowsToCamelElements(int.spec.flows || []));
+            integration.spec.flows?.push(...CamelDefinitionYaml.flowsToCamelElements(int.spec.flows || []));
         } else if (Array.isArray(camelized)) {
             integration.type = 'plain';
             const flows: any[] = camelized;
-            integration.spec.flows?.push(...this.flowsToCamelElements(flows));
+            integration.spec.flows?.push(...CamelDefinitionYaml.flowsToCamelElements(flows));
         }
         return integration;
     };
@@ -213,60 +215,48 @@ export class CamelDefinitionYaml {
             return false;
         }
     };
-
     static flowsToCamelElements = (flows: any[]): any[] => {
+        const rules: { [key: string]: (flow: any) => any } = {
+            restConfiguration: (flow: any) =>
+                CamelDefinitionYamlStep.readRestConfigurationDefinition(flow.restConfiguration),
+            rest: (flow: any) => CamelDefinitionYamlStep.readRestDefinition(flow.rest),
+            route: (flow: any) => CamelDefinitionYamlStep.readRouteDefinition(flow.route),
+            from: (flow: any) => CamelDefinitionYamlStep.readRouteDefinition(new RouteDefinition({ from: flow.from })),
+            beans: (flow: any) => CamelDefinitionYaml.readBeanDefinition(flow),
+            routeConfiguration: (flow: any) =>
+                CamelDefinitionYamlStep.readRouteConfigurationDefinition(flow.routeConfiguration),
+            errorHandler: (flow: any) =>
+                CamelDefinitionYamlStep.readRouteConfigurationDefinition(
+                    new RouteConfigurationDefinition({ errorHandler: flow.errorHandler }),
+                ),
+            onException: (flow: any) =>
+                CamelDefinitionYamlStep.readRouteConfigurationDefinition(
+                    new RouteConfigurationDefinition({ onException: flow.onException }),
+                ),
+            intercept: (flow: any) =>
+                CamelDefinitionYamlStep.readRouteConfigurationDefinition(
+                    new RouteConfigurationDefinition({ intercept: flow.intercept }),
+                ),
+            interceptFrom: (flow: any) =>
+                CamelDefinitionYamlStep.readRouteConfigurationDefinition(
+                    new RouteConfigurationDefinition({ interceptFrom: flow.interceptFrom }),
+                ),
+            interceptSendToEndpoint: (flow: any) =>
+                CamelDefinitionYamlStep.readRouteConfigurationDefinition(
+                    new RouteConfigurationDefinition({ interceptSendToEndpoint: flow.interceptSendToEndpoint }),
+                ),
+            onCompletion: (flow: any) =>
+                CamelDefinitionYamlStep.readRouteConfigurationDefinition(
+                    new RouteConfigurationDefinition({ onCompletion: flow.onCompletion }),
+                ),
+        };
+
         const result: any[] = [];
-        for (const e of flows) {
-            if (e.hasOwnProperty('restConfiguration')) {
-                result.push(CamelDefinitionYamlStep.readRestConfigurationDefinition(e.restConfiguration));
-            } else if (e.hasOwnProperty('rest')) {
-                result.push(CamelDefinitionYamlStep.readRestDefinition(e.rest));
-            } else if (e.hasOwnProperty('route')) {
-                result.push(CamelDefinitionYamlStep.readRouteDefinition(e.route));
-            } else if (e.hasOwnProperty('from')) {
-                result.push(CamelDefinitionYamlStep.readRouteDefinition(new RouteDefinition({ from: e.from })));
-            } else if (e.hasOwnProperty('beans')) {
-                result.push(CamelDefinitionYaml.readBeanDefinition(e));
-            } else if (e.hasOwnProperty('routeConfiguration')) {
-                result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(e.routeConfiguration));
-            } else if (e.hasOwnProperty('errorHandler')) {
-                result.push(
-                    CamelDefinitionYamlStep.readRouteConfigurationDefinition(
-                        new RouteConfigurationDefinition({ errorHandler: e.errorHandler }),
-                    ),
-                );
-            } else if (e.hasOwnProperty('onException')) {
-                result.push(
-                    CamelDefinitionYamlStep.readRouteConfigurationDefinition(
-                        new RouteConfigurationDefinition({ onException: e.onException }),
-                    ),
-                );
-            } else if (e.hasOwnProperty('intercept')) {
-                result.push(
-                    CamelDefinitionYamlStep.readRouteConfigurationDefinition(
-                        new RouteConfigurationDefinition({ intercept: e.intercept }),
-                    ),
-                );
-            } else if (e.hasOwnProperty('interceptFrom')) {
-                result.push(
-                    CamelDefinitionYamlStep.readRouteConfigurationDefinition(
-                        new RouteConfigurationDefinition({ interceptFrom: e.interceptFrom }),
-                    ),
-                );
-            } else if (e.hasOwnProperty('interceptSendToEndpoint')) {
-                result.push(
-                    CamelDefinitionYamlStep.readRouteConfigurationDefinition(
-                        new RouteConfigurationDefinition({ interceptSendToEndpoint: e.interceptSendToEndpoint }),
-                    ),
-                );
-            } else if (e.hasOwnProperty('onCompletion')) {
-                result.push(
-                    CamelDefinitionYamlStep.readRouteConfigurationDefinition(
-                        new RouteConfigurationDefinition({ onCompletion: e.onCompletion }),
-                    ),
-                );
-            }
+
+        for (const [rule, func] of Object.entries(rules)) {
+            flows.filter((e: any) => e.hasOwnProperty(rule)).forEach((f: any) => result.push(func(f)));
         }
+
         return result;
     };
 

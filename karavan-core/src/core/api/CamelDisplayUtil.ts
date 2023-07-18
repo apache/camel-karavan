@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Integration, CamelElement } from '../model/IntegrationDefinition';
+import { Integration, CamelElement } from '../model/IntegrationDefinition.js';
 import { CamelUtil } from './CamelUtil';
 import { CamelDefinitionApi } from './CamelDefinitionApi';
 import { CamelDefinitionApiExt } from './CamelDefinitionApiExt';
@@ -29,7 +29,7 @@ export class CamelDisplayUtil {
     ): boolean => {
         const expandedUuids: string[] = [];
         if (selectedUuid) {
-            expandedUuids.push(...this.getParentStepDefinitions(integration, selectedUuid));
+            expandedUuids.push(...CamelDisplayUtil.getParentStepDefinitions(integration, selectedUuid));
         }
         return expandedUuids.includes(stepUuid);
     };
@@ -56,7 +56,7 @@ export class CamelDisplayUtil {
         const clone: Integration = CamelUtil.cloneIntegration(integration);
         const expandedUuids: string[] = [];
         if (selectedUuid) {
-            expandedUuids.push(...this.getParentStepDefinitions(integration, selectedUuid));
+            expandedUuids.push(...CamelDisplayUtil.getParentStepDefinitions(integration, selectedUuid));
         }
 
         const flows: any[] = [];
@@ -64,7 +64,7 @@ export class CamelDisplayUtil {
             if (flow.dslName !== 'RouteDefinition') {
                 flows.push(flow);
             } else {
-                const visibleRoute = this.setElementVisibility(flow, true, expandedUuids);
+                const visibleRoute = CamelDisplayUtil.setElementVisibility(flow, true, expandedUuids);
                 if (Object.keys(visibleRoute).length !== 0) {
                     flows.push(visibleRoute);
                 }
@@ -90,7 +90,7 @@ export class CamelDisplayUtil {
         for (const element of elementChildDefiniton) {
             const camelElement = CamelDefinitionApiExt.getElementChildren(step, element);
             if (element.multiple) {
-                (result as any)[element.name] = this.setElementsVisibility(
+                (result as any)[element.name] = CamelDisplayUtil.setElementsVisibility(
                     (result as any)[element.name],
                     showChildren,
                     expandedUuids,
@@ -98,7 +98,7 @@ export class CamelDisplayUtil {
             } else {
                 const prop = (result as any)[element.name];
                 if (prop && prop.hasOwnProperty('uuid')) {
-                    (result as any)[element.name] = this.setElementVisibility(
+                    (result as any)[element.name] = CamelDisplayUtil.setElementVisibility(
                         camelElement[0],
                         showChildren,
                         expandedUuids,
@@ -117,7 +117,7 @@ export class CamelDisplayUtil {
         const result: CamelElement[] = [];
         if (steps) {
             for (const step of steps) {
-                result.push(this.setElementVisibility(step, showChildren, expandedUuids));
+                result.push(CamelDisplayUtil.setElementVisibility(step, showChildren, expandedUuids));
             }
         }
         return result;

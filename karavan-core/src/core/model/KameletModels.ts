@@ -30,7 +30,7 @@ export class Definition {
     title: string = '';
     description: string = '';
     required: string[] = [];
-    properties: Record<string, any> = {};
+    properties: any = {};
 
     public constructor(init?: Partial<Definition>) {
         Object.assign(this, init);

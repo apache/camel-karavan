@@ -17,25 +17,25 @@
 import { Component, ComponentProperty, SupportedComponent } from '../model/ComponentModels';
 import { CamelElement } from '../model/IntegrationDefinition';
 
-export class ComponentApi {
-    private static components: Component[] = [];
-    private static supportedComponents: SupportedComponent[] = [];
-    private static supportedOnly: boolean = false;
+const Components: Component[] = [];
+const SupportedComponents: SupportedComponent[] = [];
+let SupportedOnly: boolean = false;
 
+export class ComponentApi {
     private constructor() {}
 
     static setSupportedOnly = (supportedOnly: boolean): void => {
-        this.supportedOnly = supportedOnly;
+        SupportedOnly = supportedOnly;
     };
 
     static saveSupportedComponents = (jsons: string): void => {
-        this.supportedComponents.length = 0;
+        SupportedComponents.length = 0;
         const sc: SupportedComponent[] = (JSON.parse(jsons) as []).map(json => new SupportedComponent(json));
-        this.supportedComponents.push(...sc);
+        SupportedComponents.push(...sc);
     };
 
     static getSupportedComponents = (): SupportedComponent[] => {
-        return this.supportedComponents;
+        return SupportedComponents;
     };
 
     static jsonToComponent = (json: string): Component => {
@@ -45,32 +45,32 @@ export class ComponentApi {
     };
 
     static saveComponents = (jsons: string[], clean: boolean = false): void => {
-        if (clean) this.components.length = 0;
+        if (clean) Components.length = 0;
         const components: Component[] = jsons.map(json => ComponentApi.jsonToComponent(json));
-        this.components.push(...components);
+        Components.push(...components);
     };
 
     static saveComponent = (json: string): void => {
         const component: Component = ComponentApi.jsonToComponent(json);
-        if (this.components.findIndex((c: Component) => c.component.name === component.component.name) === -1) {
-            this.components.push(component);
+        if (Components.findIndex((c: Component) => c.component.name === component.component.name) === -1) {
+            Components.push(component);
         }
     };
 
     static getComponents = (): Component[] => {
         const comps: Component[] = [];
-        if (this.supportedOnly) {
+        if (SupportedOnly) {
             comps.push(
-                ...this.components.filter(
-                    comp => this.supportedComponents.findIndex(sc => sc.name === comp.component.name) !== -1,
+                ...Components.filter(
+                    comp => SupportedComponents.findIndex(sc => sc.name === comp.component.name) !== -1,
                 ),
             );
         } else {
-            comps.push(...this.components);
+            comps.push(...Components);
         }
         return comps
             .map(comp => {
-                const sc = this.supportedComponents.find(sc => sc.name === comp.component.name);
+                const sc = SupportedComponents.find(sc => sc.name === comp.component.name);
                 if (sc !== undefined) {
                     comp.component.supportLevel = sc.level;
                     comp.component.supportType = 'Supported';

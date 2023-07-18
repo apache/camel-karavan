@@ -4,14 +4,15 @@
   "version": "3.21.1-SNAPSHOT",
   "description": "Apache Camel Karavan Core",
   "scripts": {
-    "build": "tsc",
-    "test": "cross-env TS_NODE_PROJECT=\"test/tsconfig.testing.json\" mocha -r ts-node/register test/**/*.spec.ts",
+    "build": "tsc && tsc-alias",
+    "test": "cross-env TS_NODE_PROJECT=\"test/tsconfig.testing.json\" mocha --config=\".mocharc.json\"",
     "prepublishOnly": "npm run test"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/apache/camel-karavan.git"
   },
+  "type": "module",
   "keywords": [
     "Camel",
     "Tool",
@@ -36,6 +37,7 @@
   "dependencies": {
     "@types/js-yaml": "^4.0.5",
     "@types/uuid": "^8.3.4",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.1",
     "uuid": "8.3.2"
   },
@@ -47,7 +49,8 @@
     "chai": "^4.3.4",
     "cross-env": "^7.0.3",
     "fs": "^0.0.1-security",
-    "mocha": "^9.2.0",
-    "ts-node": "^10.4.0"
+    "mocha": "^10.2.0",
+    "ts-node": "^10.9.1",
+    "tsc-alias": "^1.8.7"
   }
 }

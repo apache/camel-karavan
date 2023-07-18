@@ -23,7 +23,7 @@ export class ProjectModelApi {
         const lines = properties.split(/\r?\n/).filter(text => text.trim().length > 0 && !text.trim().startsWith('#'));
         const project = new ProjectModel();
 
-        project.properties = lines.map(value => this.stringToProperty(value));
+        project.properties = lines.map(value => ProjectModelApi.stringToProperty(value));
         return project;
     };
 
@@ -54,7 +54,7 @@ export class ProjectModelApi {
     };
 
     static updateProperties = (properties: string, project: ProjectModel): string => {
-        const mapFromProject: Map<string, any> = this.projectToMap(project);
+        const mapFromProject: Map<string, any> = ProjectModelApi.projectToMap(project);
         const result: string[] = [];
 
         for (const [key, value] of mapFromProject) {

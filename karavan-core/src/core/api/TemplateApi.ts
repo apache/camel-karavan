@@ -15,23 +15,23 @@
  * limitations under the License.
  */
 
-export class TemplateApi {
-    private static templates: Map<string, string> = new Map<string, string>();
-    private static javaCode: Map<string, string> = new Map<string, string>();
+const Templates: Map<string, string> = new Map<string, string>();
+const JavaCode: Map<string, string> = new Map<string, string>();
 
+export class TemplateApi {
     private constructor() {}
 
     static saveTemplates = (templates: Map<string, string>, clean: boolean = false): void => {
-        if (clean) TemplateApi.templates.clear();
-        templates.forEach((value, key) => TemplateApi.templates.set(key, value));
+        if (clean) Templates.clear();
+        templates.forEach((value, key) => Templates.set(key, value));
     };
 
     static saveTemplate = (name: string, code: string): void => {
-        TemplateApi.templates.set(name, code);
+        Templates.set(name, code);
     };
 
     static getTemplate = (name: string): string | undefined => {
-        return TemplateApi.templates.get(name);
+        return Templates.get(name);
     };
 
     static generateCode = (name: string, beanName: string): string | undefined => {
@@ -44,15 +44,15 @@ export class TemplateApi {
     };
 
     static saveJavaCodes = (javaCode: Map<string, string>, clean: boolean = false): void => {
-        if (clean) TemplateApi.javaCode.clear();
-        javaCode.forEach((value, key) => TemplateApi.javaCode.set(key, value));
+        if (clean) JavaCode.clear();
+        javaCode.forEach((value, key) => JavaCode.set(key, value));
     };
 
     static saveJavaCode = (name: string, code: string): void => {
-        TemplateApi.javaCode.set(name, code);
+        JavaCode.set(name, code);
     };
 
     static getJavaCode = (name: string): string | undefined => {
-        return TemplateApi.javaCode.get(name);
+        return JavaCode.get(name);
     };
 }

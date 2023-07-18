@@ -17,19 +17,19 @@
 import { KameletModel, Property } from '../model/KameletModels';
 import * as yaml from 'js-yaml';
 
-export class KameletApi {
-    private static kamelets: KameletModel[] = [];
-    private static customNames: string[] = [];
+const Kamelets: KameletModel[] = [];
+const CustomNames: string[] = [];
 
+export class KameletApi {
     private constructor() {}
 
     static getCustomKameletNames = (): string[] => {
-        return this.customNames;
+        return CustomNames;
     };
 
     static saveCustomKameletNames = (names: string[]) => {
-        this.customNames.length = 0;
-        this.customNames.push(...names);
+        CustomNames.length = 0;
+        CustomNames.push(...names);
     };
 
     static getKameletProperties = (kameletName: string): Property[] => {
@@ -60,7 +60,7 @@ export class KameletApi {
     };
 
     static getKamelets = (): KameletModel[] => {
-        return this.kamelets.sort((a, b) => a.title().localeCompare(b.title(), undefined, { sensitivity: 'base' }));
+        return Kamelets.sort((a, b) => a.title().localeCompare(b.title(), undefined, { sensitivity: 'base' }));
     };
 
     static jsonToKamelet = (json: string): KameletModel => {
@@ -70,7 +70,7 @@ export class KameletApi {
     };
 
     static findKameletByName = (name: string): KameletModel | undefined => {
-        return this.kamelets.find((k: KameletModel) => k.metadata.name === name);
+        return Kamelets.find((k: KameletModel) => k.metadata.name === name);
     };
 
     static findKameletByUri = (uri: string): KameletModel | undefined => {
@@ -84,8 +84,8 @@ export class KameletApi {
 
     static saveKamelets = (kameletYamls: string[], clean: boolean = false): void => {
         const kamelets: KameletModel[] = kameletYamls.map(text => KameletApi.yamlToKamelet(text));
-        if (clean) this.kamelets.length = 0;
-        this.kamelets.push(
+        if (clean) Kamelets.length = 0;
+        Kamelets.push(
             ...kamelets.sort((a, b) =>
                 a.spec.definition.title.localeCompare(b.spec.definition.title, undefined, { sensitivity: 'base' }),
             ),
@@ -94,8 +94,8 @@ export class KameletApi {
 
     static saveKamelet = (yaml: string): void => {
         const kamelet: KameletModel = KameletApi.yamlToKamelet(yaml);
-        if (this.kamelets.findIndex((k: KameletModel) => k.metadata.name === kamelet.metadata.name) === -1) {
-            this.kamelets.push(kamelet);
+        if (Kamelets.findIndex((k: KameletModel) => k.metadata.name === kamelet.metadata.name) === -1) {
+            Kamelets.push(kamelet);
         }
     };
 }

@@ -160,7 +160,7 @@ export class CamelUtil {
     };
 
     static getKameletProperties = (element: any): Property[] => {
-        const kamelet = this.getKamelet(element);
+        const kamelet = CamelUtil.getKamelet(element);
         return kamelet ? KameletApi.getKameletProperties(kamelet?.metadata.name) : [];
     };
 
@@ -212,7 +212,7 @@ export class CamelUtil {
                     const expressionCheck = expressionMeta?.properties.some(ep => {
                         const expValue = value[ep.name];
                         if (expValue) {
-                            const checkedExpression = this.checkRequired(expValue);
+                            const checkedExpression = CamelUtil.checkRequired(expValue);
                             return checkedExpression[0];
                         }
                         return false;
@@ -226,8 +226,8 @@ export class CamelUtil {
         }
 
         if (className === 'FromDefinition' || className === 'ToDefinition') {
-            if (!this.isKameletComponent(element)) {
-                const requiredProperties = this.getComponentProperties(element).filter(p => p.required);
+            if (!CamelUtil.isKameletComponent(element)) {
+                const requiredProperties = CamelUtil.getComponentProperties(element).filter(p => p.required);
                 for (const property of requiredProperties) {
                     const value = CamelDefinitionApiExt.getParametersValue(
                         element,
@@ -240,7 +240,7 @@ export class CamelUtil {
                     }
                 }
             } else {
-                const kamelet = this.getKamelet(element);
+                const kamelet = CamelUtil.getKamelet(element);
                 let allSet = true;
                 const filledParameters = (element as any) ? Object.keys((element as any).parameters) : [];
                 const missingParameters =
@@ -258,23 +258,22 @@ export class CamelUtil {
 
     static findPlaceholdersInObject = (item: any, result: Set<string> = new Set<string>()): Set<string> => {
         if (typeof item === 'object') {
-            for (const key in item) {
-                if (item?.hasOwnProperty) {
-                    const value = item[key];
-                    if (Array.isArray(value)) {
-                        this.findPlaceholdersInArray(value, result);
-                    } else if (typeof value === 'object') {
-                        this.findPlaceholdersInObject(value, result);
-                    } else {
-                        const placeholder = this.findPlaceholder(value.toString());
-                        if (placeholder[0] && placeholder[1]) {
-                            result.add(placeholder[1]);
-                        }
+            for (const value of Object.values(item)) {
+                if (value == undefined) {
+                    continue;
+                } else if (Array.isArray(value)) {
+                    CamelUtil.findPlaceholdersInArray(value, result);
+                } else if (typeof value === 'object') {
+                    CamelUtil.findPlaceholdersInObject(value, result);
+                } else {
+                    const placeholder = CamelUtil.findPlaceholder(value.toString());
+                    if (placeholder[0] && placeholder[1]) {
+                        result.add(placeholder[1]);
                     }
                 }
             }
         } else {
-            const placeholder = this.findPlaceholder(item.toString());
+            const placeholder = CamelUtil.findPlaceholder(item.toString());
             if (placeholder[0] && placeholder[1]) {
                 result.add(placeholder[1]);
             }
@@ -289,9 +288,9 @@ export class CamelUtil {
         if (items) {
             for (const item of items) {
                 if (typeof item === 'object') {
-                    this.findPlaceholdersInObject(item, result);
+                    CamelUtil.findPlaceholdersInObject(item, result);
                 } else {
-                    const placeholder = this.findPlaceholder(item.toString());
+                    const placeholder = CamelUtil.findPlaceholder(item.toString());
                     if (placeholder[0] && placeholder[1]) {
                         result.add(placeholder[1]);
                     }
