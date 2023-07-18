@@ -9,6 +9,14 @@ export class AppConfig {
     runtimes: string[] = [];
 }
 
+export enum ProjectType {
+    templates ='templates',
+    kamelets ='kamelets',
+    services ='services',
+    pipelines ='pipelines',
+    normal ='normal',
+}
+
 export class Project {
     projectId: string = '';
     name: string = '';
@@ -16,8 +24,9 @@ export class Project {
     runtime: string = '';
     lastCommit: string = '';
     lastCommitTimestamp: number = 0;
+    type: string = ProjectType.normal
 
-    public constructor(projectId: string, name: string, description: string, runtime: string, lastCommit: string);
+    public constructor(projectId: string, name: string, description: string, runtime: string, lastCommit: string, type: string);
     public constructor(init?: Partial<Project>);
     public constructor(...args: any[]) {
         if (args.length === 1) {
@@ -30,6 +39,7 @@ export class Project {
             this.runtime = args[3];
             this.lastCommit = args[4];
             this.lastCommitTimestamp = args[5];
+            this.type = args[6];
             return;
         }
     }

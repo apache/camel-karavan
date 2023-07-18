@@ -185,7 +185,7 @@ export class ProjectService {
                     })
             });
         });
-        KaravanApi.getFiles(project.projectId, (files: []) => {
+        KaravanApi.getFiles(project.projectId, (files: ProjectFile[]) => {
             useFilesStore.setState({files: files});
         });
 

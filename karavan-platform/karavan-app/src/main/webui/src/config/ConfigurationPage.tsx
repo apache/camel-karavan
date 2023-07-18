@@ -2,7 +2,7 @@ import React from 'react';
 import {Button, PageSection, Tab, Tabs, TabTitleText, Text, TextContent, Toolbar, ToolbarContent, ToolbarItem
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {MainToolbar} from "../common/MainToolbar";
+import {MainToolbar} from "../designer/MainToolbar";
 import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 
 interface Props {

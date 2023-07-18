@@ -6,7 +6,7 @@ import {
     PipelineStatus,
     PodStatus,
     Project,
-    ProjectFile, ServiceStatus
+    ProjectFile, ProjectType, ServiceStatus
 } from "./ProjectModels";
 import {Buffer} from 'buffer';
 import {SsoApi} from "./SsoApi";
@@ -204,8 +204,8 @@ export class KaravanApi {
         });
     }
 
-    static async getProjects(after: (projects: Project[]) => void) {
-        instance.get('/api/project')
+    static async getProjects(after: (projects: Project[]) => void, type?: ProjectType.normal) {
+        instance.get('/api/project' + (type !== undefined ? "?type=" + type : ""))
             .then(res => {
                 if (res.status === 200) {
                     after(res.data.map((p: Partial<Project> | undefined) => new Project(p)));
@@ -243,7 +243,7 @@ export class KaravanApi {
         });
     }
 
-    static async getFiles(project: string, after: (files: []) => void) {
+    static async getFiles(project: string, after: (files: ProjectFile[]) => void) {
         instance.get('/api/file/' + project)
             .then(res => {
                 if (res.status === 200) {

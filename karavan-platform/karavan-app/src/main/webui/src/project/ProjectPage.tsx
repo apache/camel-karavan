@@ -9,7 +9,7 @@ import {ProjectToolbar} from "./ProjectToolbar";
 import {ProjectLogPanel} from "./log/ProjectLogPanel";
 import {ProjectFile, ProjectFileTypes} from "../api/ProjectModels";
 import {useFileStore, useProjectStore} from "../api/ProjectStore";
-import {MainToolbar} from "../common/MainToolbar";
+import {MainToolbar} from "../designer/MainToolbar";
 import {ProjectTitle} from "./ProjectTitle";
 import {ProjectPanel} from "./ProjectPanel";
 import {FileEditor} from "./file/FileEditor";

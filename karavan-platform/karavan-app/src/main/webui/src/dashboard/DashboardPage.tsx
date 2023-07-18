@@ -22,7 +22,7 @@ import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
-import {MainToolbar} from "../common/MainToolbar";
+import {MainToolbar} from "../designer/MainToolbar";
 
 interface Props {
     config: any,

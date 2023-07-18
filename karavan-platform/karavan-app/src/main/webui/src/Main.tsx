@@ -32,6 +32,7 @@ import {useAppConfigStore, useDevModeStore, useFileStore, useProjectStore} from 
 import {Notification} from "./Notification";
 import {InfrastructureAPI} from "./designer/utils/InfrastructureAPI";
 import {KnowledgebasePage} from "./knowledgebase/KnowledgebasePage";
+import {ServicesPage} from "./services/ServicesPage";
 
 class MenuItem {
     pageId: string = '';
@@ -226,13 +227,12 @@ export class Main extends React.Component<Props, State> {
                         {this.pageNav()}
                     </FlexItem>
                     <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
-                        {this.state.pageId === 'projects' &&
-                            <ProjectsPage key={this.state.request}/>}
-                        {this.state.pageId === 'project' &&
-                            <ProjectPage key="projects"/>}
                         {this.state.pageId === 'dashboard' && <DashboardPage key={this.state.request}
                                                                              toast={this.toast}
                                                                              config={this.state.config}/>}
+                        {this.state.pageId === 'projects' && <ProjectsPage key={this.state.request}/>}
+                        {this.state.pageId === 'project' && <ProjectPage key="projects"/>}
+                        {this.state.pageId === 'services' && <ServicesPage key="services"/>}
                         {this.state.pageId === 'knowledgebase' && <KnowledgebasePage dark={false}/>}
                     </FlexItem>
                 </Flex>

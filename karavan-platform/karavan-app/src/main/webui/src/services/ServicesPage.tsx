@@ -19,49 +19,46 @@ import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
-import {ProjectsTableRow} from "./ProjectsTableRow";
-import {DeleteProjectModal} from "./DeleteProjectModal";
-import {CreateProjectModal} from "./CreateProjectModal";
-import {useProjectsStore, useProjectStore} from "../api/ProjectStore";
-import {ProjectService} from "../api/ProjectService";
+import {ServicesTableRow} from "./ServicesTableRow";
+import {DeleteServiceModal} from "./DeleteServiceModal";
+import {CreateServiceModal} from "./CreateServiceModal";
+import {useProjectStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
-import {Project, ProjectType} from "../api/ProjectModels";
+import {Project, ProjectFile, ProjectType} from "../api/ProjectModels";
+import {KaravanApi} from "../api/KaravanApi";
+import {Service, Services, ServicesYaml} from "../api/ServiceModels";
 
 
-export const ProjectsPage = () => {
+export const ServicesPage = () => {
 
-    const {projects, setProjects} = useProjectsStore();
-    const {operation} = useProjectStore();
-    const [filter, setFilter] = useState<string>('');
+    const [services, setServices] = useState<Services>();
+    const [operation, setOperation] = useState<'create' | 'delete' | 'none'>('none');
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            if (projects.length === 0) setLoading(true);
-            if (!["create", "delete", "select", "copy"].includes(operation)) ProjectService.refreshProjects();
-        }, 1300);
-        return () => {
-            clearInterval(interval)
-        };
-    }, [operation]);
+        getServices();
+    }, []);
+
+    function getServices() {
+        KaravanApi.getFiles(ProjectType.services, files => {
+            const file = files.at(0);
+            if (file) {
+                const services: Services = ServicesYaml.yamlToServices(file.code);
+                setServices(services);
+            }
+        })
+    }
 
     function getTools() {
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
                 <ToolbarItem>
-                    <Button variant="link" icon={<RefreshIcon/>} onClick={e =>
-                        ProjectService.refreshProjects()}/>
-                </ToolbarItem>
-                <ToolbarItem>
-                    <TextInput className="text-field" type="search" id="search" name="search"
-                               autoComplete="off" placeholder="Search by name"
-                               value={filter}
-                               onChange={e => setFilter(e)}/>
+                    <Button variant="link" icon={<RefreshIcon/>} onClick={e => getServices()}/>
                 </ToolbarItem>
                 <ToolbarItem>
                     <Button icon={<PlusIcon/>}
                             onClick={e =>
-                                useProjectStore.setState({operation:"create", project: new Project()})}
+                                useProjectStore.setState({operation: "create", project: new Project()})}
                     >Create</Button>
                 </ToolbarItem>
             </ToolbarContent>
@@ -70,7 +67,7 @@ export const ProjectsPage = () => {
 
     function title() {
         return <TextContent>
-            <Text component="h2">Projects</Text>
+            <Text component="h2">Services</Text>
         </TextContent>
     }
 
@@ -95,31 +92,23 @@ export const ProjectsPage = () => {
         )
     }
 
-    function getProjectsTable() {
-        const projs = projects
-            .filter(p => p.type === ProjectType.normal)
-            .filter(p => p.name.toLowerCase().includes(filter) || p.description.toLowerCase().includes(filter));
+    function getServicesTable() {
         return (
-            <TableComposable aria-label="Projects" variant={"compact"}>
+            <TableComposable aria-label="Services" variant={"compact"}>
                 <Thead>
                     <Tr>
-                        <Th key='type'>Runtime</Th>
-                        <Th key='projectId'>Project ID</Th>
+                        <Th />
                         <Th key='name'>Name</Th>
-                        <Th key='description'>Description</Th>
-                        <Th key='commit'>Commit</Th>
-                        <Th key='deployment'>Environment</Th>
+                        <Th key='container_name'>Container Name</Th>
+                        <Th key='image'>Image</Th>
+                        <Th key='ports'>Ports</Th>
                         <Th key='action'></Th>
                     </Tr>
                 </Thead>
-                <Tbody>
-                    {projs.map(project => (
-                        <ProjectsTableRow
-                            key={project.projectId}
-                            project={project}/>
-                    ))}
-                    {projs.length === 0 && getEmptyState()}
-                </Tbody>
+                {services?.services.map((service: Service, index: number) => (
+                    <ServicesTableRow key={service.name} index={index} service={service}/>
+                ))}
+                {services?.services.length === 0 && getEmptyState()}
             </TableComposable>
         )
     }
@@ -130,10 +119,10 @@ export const ProjectsPage = () => {
                 <MainToolbar title={title()} tools={getTools()}/>
             </PageSection>
             <PageSection isFilled className="kamelets-page">
-                {getProjectsTable()}
+                {getServicesTable()}
             </PageSection>
-            {["create", "copy"].includes(operation) && <CreateProjectModal/>}
-            {["delete"].includes(operation) && <DeleteProjectModal/>}
+            {["create"].includes(operation) && <CreateServiceModal/>}
+            {["delete"].includes(operation) && <DeleteServiceModal/>}
         </PageSection>
     )
 }
