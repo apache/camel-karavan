@@ -20,13 +20,13 @@
 
     Option 1:
     ```
-    mvn org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy -Dartifact=org.apache.camel.karavan:karavan-cli:$VERSION:jar -DoutputDirectory=. 
+    mvn org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy -Dartifact=org.apache.camel.karavan:karavan-cli:3.21.0:jar -DoutputDirectory=. 
 
-    java -jar karavan-cli-$VERSION.jar install --git-repository=$GIT_REPOSITORY --git-password=$GIT_TOKEN --git-username=$GIT_USERNAME  --node-port=30777
+    java -jar karavan-cli-3.21.0.jar install --git-repository=$GIT_REPOSITORY --git-password=$GIT_TOKEN --git-username=$GIT_USERNAME  --node-port=30777
     ```
     Option 2:
     ```
-    jbang org.apache.camel.karavan:karavan-cli:$VERSION install --git-repository=$GIT_REPOSITORY --git-password=$GIT_TOKEN --git-username=$GIT_USERNAME  --node-port=30777
+    jbang org.apache.camel.karavan:karavan-cli:3.21.0 install --git-repository=$GIT_REPOSITORY --git-password=$GIT_TOKEN --git-username=$GIT_USERNAME  --node-port=30777
     ```
 5. Get karavan service URL
     ```
