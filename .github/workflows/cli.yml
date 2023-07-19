@@ -3,6 +3,7 @@ name: cli
 on:
   push:
     branches: [ main ]
+    paths: ['karavan-platform/karavan-cli/**']
   workflow_dispatch:
   pull_request:
     branches: [ main ]

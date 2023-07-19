@@ -3,6 +3,7 @@ name: vscode extension
 on:
   push:
     branches: [ main ]
+    paths: ['karavan-vscode/**', 'karavan-core/**', 'karavan-designer/**']
   workflow_dispatch:
   pull_request:
     branches: [ main ]
