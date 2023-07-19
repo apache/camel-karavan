@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   pull_request:
     branches: [ main ]
-    paths: ['karavan-operator/**']
+    paths: ['karavan-platform/karavan-operator/**']
 
 env:
   REGISTRY: ghcr.io
@@ -48,11 +48,11 @@ jobs:
 
       - name: Test operator
         run: |
-          mvn test -f karavan-operator -Pintegration-tests
+          mvn test -f karavan-platform/karavan-operator -Pintegration-tests
 
       - name: Test operator (end-to-end)
         run: |
-          cd karavan-operator
+          cd karavan-platform/karavan-operator
           make test-deploy-kind
           mvn test -Pend-to-end-tests
           make test-undeploy-kind
@@ -60,7 +60,7 @@ jobs:
       #  Build Karavan operator
       - name: Build operator
         run: |
-          mvn package -f karavan-operator -DskipTest \
+          mvn package -f karavan-platform/karavan-operator -DskipTest \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=true \
           -Dquarkus.container-image.image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }} \
@@ -71,7 +71,7 @@ jobs:
       #  Build the Operator Bundle image
       - name: Build operator Bundle image
         run: |
-          cd karavan-operator
+          cd karavan-platform/karavan-operator
           MY_BUNDLE_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BUNDLE }}:${{ env.TAG }}
           docker login -u=${{ github.actor }} -p=${{ secrets.GITHUB_TOKEN }} ${{ env.REGISTRY }}
           docker build -t $MY_BUNDLE_IMAGE -f target/bundle/camel-karavan-operator.v${{env.TAG}}/bundle.Dockerfile target/bundle/camel-karavan-operator.v${{ env.TAG }}
