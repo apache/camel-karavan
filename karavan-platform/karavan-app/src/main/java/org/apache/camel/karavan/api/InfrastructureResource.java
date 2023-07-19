@@ -20,8 +20,8 @@ import io.smallrye.mutiny.Multi;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
 import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.DeploymentStatus;
-import org.apache.camel.karavan.infinispan.model.PodStatus;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.infinispan.model.ServiceStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
@@ -35,6 +35,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Path("/api/infrastructure")
@@ -143,19 +144,19 @@ public class InfrastructureResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/pod/{env}")
-    public List<PodStatus> getPodStatusesByEnv(@PathParam("env") String env) throws Exception {
-        return infinispanService.getPodStatuses(env).stream()
-                .sorted(Comparator.comparing(PodStatus::getProjectId))
+    public List<ContainerStatus> getContainerStatusesByEnv(@PathParam("env") String env) throws Exception {
+        return infinispanService.getContainerStatuses(env).stream()
+                .sorted(Comparator.comparing(ContainerStatus::getProjectId))
                 .collect(Collectors.toList());
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/pod/{projectId}/{env}")
-    public List<PodStatus> getPodStatusesByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) throws Exception {
-        return infinispanService.getPodStatuses(projectId, env).stream()
-                .filter(podStatus -> !podStatus.getInDevMode())
-                .sorted(Comparator.comparing(PodStatus::getName))
+    public List<ContainerStatus> getContainerStatusesByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) throws Exception {
+        return infinispanService.getContainerStatuses(projectId, env).stream()
+                .filter(podStatus -> Objects.equals(podStatus.getType(), ContainerStatus.CType.pod))
+                .sorted(Comparator.comparing(ContainerStatus::getName))
                 .collect(Collectors.toList());
     }
 
@@ -163,7 +164,7 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/pod/{env}/{name}")
-    public Response deletePod(@PathParam("env") String env, @PathParam("name") String name) throws Exception {
+    public Response deleteContainer(@PathParam("env") String env, @PathParam("name") String name) throws Exception {
         kubernetesService.deletePod(name, kubernetesService.getNamespace());
         return Response.accepted().build();
     }

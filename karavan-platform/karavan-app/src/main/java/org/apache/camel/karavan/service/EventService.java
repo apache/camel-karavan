@@ -6,7 +6,7 @@ import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.DevModeStatus;
-import org.apache.camel.karavan.infinispan.model.PodStatus;
+import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.shared.ConfigService;
 import org.apache.camel.karavan.shared.EventType;
@@ -109,11 +109,11 @@ public class EventService {
         String memory = data.getString("memory");
         String cpu = data.getString("cpu");
         if (infinispanService.isReady()) {
-            PodStatus podStatus = infinispanService.getDevModePodStatuses(projectId, configService.getConfiguration().getEnvironment());
-            if (podStatus != null) {
-                podStatus.setCpuInfo(cpu);
-                podStatus.setMemoryInfo(memory);
-                infinispanService.savePodStatus(podStatus);
+            ContainerStatus containerStatus = infinispanService.getDevModeContainerStatuses(projectId, configService.getConfiguration().getEnvironment());
+            if (containerStatus != null) {
+                containerStatus.setCpuInfo(cpu);
+                containerStatus.setMemoryInfo(memory);
+                infinispanService.saveContainerStatus(containerStatus);
             }
         }
     }

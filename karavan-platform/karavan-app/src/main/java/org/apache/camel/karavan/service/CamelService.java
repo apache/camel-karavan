@@ -25,8 +25,8 @@ import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
+import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.DevModeStatus;
-import org.apache.camel.karavan.infinispan.model.PodStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -76,8 +76,8 @@ public class CamelService {
         LOGGER.info("Reload project code " + projectId);
         String containerName = projectId + DEVMODE_SUFFIX;
         try {
-            PodStatus podStatus = infinispanService.getDevModePodStatuses(projectId, environment);
-            Integer exposedPort = podStatus.getExposedPort();
+            ContainerStatus containerStatus = infinispanService.getDevModeContainerStatuses(projectId, environment);
+            Integer exposedPort = containerStatus.getExposedPort();
             infinispanService.getProjectFiles(projectId).forEach(projectFile -> putRequest(containerName,exposedPort, projectFile.getName(), projectFile.getCode(), 1000));
             reloadRequest(containerName, exposedPort);
             DevModeStatus dms = infinispanService.getDevModeStatus(projectId);
@@ -121,7 +121,7 @@ public class CamelService {
 
     public void collectCamelStatuses() {
         if (infinispanService.isReady()) {
-            infinispanService.getPodStatuses(environment).forEach(pod -> {
+            infinispanService.getContainerStatuses(environment).forEach(pod -> {
                 CamelStatusRequest csr = new CamelStatusRequest(pod.getProjectId(), pod.getName(), pod.getExposedPort());
                 eventBus.publish(CMD_COLLECT_CAMEL_STATUS, JsonObject.mapFrom(csr));
             });
@@ -145,7 +145,7 @@ public class CamelService {
     public void cleanupDevModeStatuses() {
         if (infinispanService.isReady()) {
             infinispanService.getDevModeStatuses().forEach(dms -> {
-                PodStatus pod = infinispanService.getDevModePodStatuses(dms.getProjectId(), environment);
+                ContainerStatus pod = infinispanService.getDevModeContainerStatuses(dms.getProjectId(), environment);
                 if (pod == null) {
                     eventBus.publish(CMD_DELETE_CAMEL_STATUS, JsonObject.mapFrom(dms));
                 }

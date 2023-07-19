@@ -59,13 +59,17 @@ public class KameletResources {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/names")
     public List<String> getCustomNames() {
-        Yaml yaml = new Yaml();
-        return infinispanService.getProjectFiles(Project.Type.kamelets.name()).stream()
-                .map(projectFile -> {
-                    Map<String, LinkedHashMap> obj = yaml.load(projectFile.getCode());
-                    LinkedHashMap<String, Object> metadata = obj.get("metadata");
-                    return metadata.get("name").toString();
-                })
-                .collect(Collectors.toList());
+        if (infinispanService.isReady()) {
+            Yaml yaml = new Yaml();
+            return infinispanService.getProjectFiles(Project.Type.kamelets.name()).stream()
+                    .map(projectFile -> {
+                        Map<String, LinkedHashMap> obj = yaml.load(projectFile.getCode());
+                        LinkedHashMap<String, Object> metadata = obj.get("metadata");
+                        return metadata.get("name").toString();
+                    })
+                    .collect(Collectors.toList());
+        } else {
+            return List.of();
+        }
     }
 }

@@ -10,7 +10,7 @@ import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.ContainerInfo;
 import org.apache.camel.karavan.infinispan.model.DevModeStatus;
-import org.apache.camel.karavan.infinispan.model.PodStatus;
+import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -21,9 +21,11 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static org.apache.camel.karavan.docker.DockerService.LABEL_TYPE;
 import static org.apache.camel.karavan.shared.EventType.DEVMODE_STATUS;
 import static org.apache.camel.karavan.shared.EventType.INFINISPAN_STARTED;
 import static org.apache.camel.karavan.shared.ConfigService.DEVMODE_SUFFIX;
@@ -59,7 +61,7 @@ public class DockerEventListener implements ResultCallback<Event> {
                 String status = event.getStatus();
                 if (container.getNames()[0].equals("/infinispan") && status.startsWith("health_status:")) {
                     onInfinispanHealthEvent(event, container);
-                } else if (container.getNames()[0].endsWith(DEVMODE_SUFFIX) || Objects.equals(container.getLabels().get("type"), "devmode")) {
+                } else if (Objects.equals(container.getLabels().get(LABEL_TYPE), ContainerStatus.CType.devmode.name())) {
                     onDevModeEvent(event, container);
                 }
             }
@@ -95,10 +97,10 @@ public class DockerEventListener implements ResultCallback<Event> {
                 String name = container.getNames()[0].replace("/", "");
                 if (Arrays.asList("stop", "die", "kill", "pause", "destroy").contains(event.getStatus())) {
                     String projectId = name.replace(DEVMODE_SUFFIX, "");
-                    infinispanService.deletePodStatus(projectId, environment, name);
+                    infinispanService.deleteContainerStatus(projectId, environment, name);
                     infinispanService.deleteCamelStatuses(projectId, environment);
                 } else if (Arrays.asList("start", "unpause").contains(event.getStatus())) {
-                    savePodStatus(container);
+                    saveContainerStatus(container);
                 } else if (status.startsWith("health_status:")) {
                     String health = status.replace("health_status: ", "");
                     LOGGER.infof("Container %s health status: %s", container.getNames()[0], health);
@@ -118,20 +120,29 @@ public class DockerEventListener implements ResultCallback<Event> {
         }
     }
 
-    protected void savePodStatus(Container container){
+    protected void saveContainerStatus(Container container){
         String name = container.getNames()[0].replace("/", "");
-        boolean inDevMode = name.endsWith(DEVMODE_SUFFIX);
         String projectId = name.replace(DEVMODE_SUFFIX, "");
         Integer exposedPort =  (container.getPorts().length > 0)  ? container.getPorts()[0].getPublicPort() : null;
         if (infinispanService.isReady()) {
-            PodStatus ps = infinispanService.getDevModePodStatuses(projectId, environment);
+            ContainerStatus ps = infinispanService.getDevModeContainerStatuses(projectId, environment);
             if (ps == null) {
-                ps = new PodStatus(name, true, null, projectId, environment, inDevMode, Instant.ofEpochSecond(container.getCreated()).toString(), exposedPort);
+                ps = new ContainerStatus(name, true, projectId, environment, getCtype(container.getLabels()), Instant.ofEpochSecond(container.getCreated()).toString(), exposedPort);
             } else {
                 ps.setExposedPort(exposedPort);
             }
-            infinispanService.savePodStatus(ps);
+            infinispanService.saveContainerStatus(ps);
         }
+    }
+
+    private ContainerStatus.CType getCtype(Map<String, String> labels) {
+        String type = labels.get(LABEL_TYPE);
+        if (Objects.equals(type, ContainerStatus.CType.devmode.name())) {
+            return ContainerStatus.CType.devmode;
+        } else if (Objects.equals(type, ContainerStatus.CType.devservice.name())) {
+            return ContainerStatus.CType.devservice;
+        }
+        return ContainerStatus.CType.container;
     }
 
     @Override

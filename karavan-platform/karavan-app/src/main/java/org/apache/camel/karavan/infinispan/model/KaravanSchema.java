@@ -13,7 +13,8 @@ import org.infinispan.protostream.annotations.AutoProtoSchemaBuilder;
                 CamelStatus.class,
                 CamelStatus.Name.class,
                 DeploymentStatus.class,
-                PodStatus.class,
+                ContainerStatus.class,
+                ContainerStatus.CType.class,
                 ServiceStatus.class,
                 DevModeStatus.class,
                 ContainerInfo.class

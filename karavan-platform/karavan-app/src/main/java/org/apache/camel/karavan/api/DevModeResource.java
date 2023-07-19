@@ -19,8 +19,8 @@ package org.apache.camel.karavan.api;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
+import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.DevModeStatus;
-import org.apache.camel.karavan.infinispan.model.PodStatus;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.CamelService;
@@ -59,7 +59,7 @@ public class DevModeResource {
     @Path("/{jBangOptions}")
     public Response runProjectWithJBangOptions(Project project, @PathParam("jBangOptions") String jBangOptions) throws InterruptedException {
         String runnerName = project.getProjectId() + DEVMODE_SUFFIX;
-        PodStatus status = infinispanService.getDevModePodStatuses(runnerName, environment);
+        ContainerStatus status = infinispanService.getDevModeContainerStatuses(project.getProjectId(), environment);
         if (status == null) {
             infinispanService.saveDevModeStatus(new DevModeStatus(project.getProjectId(), null, null, false));
             if (ConfigService.inKubernetes()) {
@@ -108,7 +108,7 @@ public class DevModeResource {
     @Path("/pod/{projectId}")
     public Response getPodStatus(@PathParam("projectId") String projectId) throws RuntimeException {
         String runnerName = projectId + DEVMODE_SUFFIX;
-        Optional<PodStatus> ps =  infinispanService.getPodStatuses(projectId, environment).stream()
+        Optional<ContainerStatus> ps =  infinispanService.getContainerStatuses(projectId, environment).stream()
                 .filter(podStatus -> podStatus.getName().equals(runnerName))
                 .findFirst();
         if (ps.isPresent()) {

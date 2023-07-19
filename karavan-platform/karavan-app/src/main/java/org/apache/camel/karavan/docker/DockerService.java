@@ -15,8 +15,7 @@ import com.github.dockerjava.transport.DockerHttpClient;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.PodStatus;
+import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -25,7 +24,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -39,6 +37,8 @@ public class DockerService {
     private static final Logger LOGGER = Logger.getLogger(DockerService.class.getName());
 
     public static final String NETWORK_NAME = "karavan";
+    public static final String LABEL_TYPE = "type";
+    public static final String LABEL_PROJECT_ID = "projectId";
     private static final DecimalFormat formatCpu = new DecimalFormat("0.00");
     private static final DecimalFormat formatMiB = new DecimalFormat("0.0");
     private static final DecimalFormat formatGiB = new DecimalFormat("0.00");
@@ -69,7 +69,7 @@ public class DockerService {
                 .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
         createContainer(runnerName, runnerImage,
                 List.of(), "8080:8080", true,true, healthCheck,
-                Map.of("type", "devmode", "projectId", projectId));
+                Map.of(LABEL_TYPE, ContainerStatus.CType.devmode.name(), LABEL_PROJECT_ID, projectId));
         startContainer(runnerName);
         LOGGER.infof("DevMode started for %s", projectId);
     }
@@ -115,7 +115,7 @@ public class DockerService {
         getDockerClient().listContainersCmd().exec().forEach(container -> {
             String name = container.getNames()[0].replace("/", "");
             if (!Objects.equals(name, INFINISPAN_CONTAINER_NAME)) {
-                dockerEventListener.savePodStatus(container);
+                dockerEventListener.saveContainerStatus(container);
             }
         });
     }

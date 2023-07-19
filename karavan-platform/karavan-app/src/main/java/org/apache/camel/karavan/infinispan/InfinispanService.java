@@ -20,7 +20,6 @@ import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.eventbus.EventBus;
 import org.apache.camel.karavan.infinispan.model.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.Search;
@@ -60,7 +59,7 @@ public class InfinispanService {
     private RemoteCache<GroupedKey, ProjectFile> files;
     private RemoteCache<GroupedKey, PipelineStatus> pipelineStatuses;
     private RemoteCache<GroupedKey, DeploymentStatus> deploymentStatuses;
-    private RemoteCache<GroupedKey, PodStatus> podStatuses;
+    private RemoteCache<GroupedKey, ContainerStatus> containerStatuses;
     private RemoteCache<GroupedKey, ServiceStatus> serviceStatuses;
     private RemoteCache<GroupedKey, CamelStatus> camelStatuses;
     private RemoteCache<String, String> commits;
@@ -98,7 +97,7 @@ public class InfinispanService {
 
         projects = getOrCreateCache(Project.CACHE, false);
         files = getOrCreateCache(ProjectFile.CACHE, false);
-        podStatuses = getOrCreateCache(PodStatus.CACHE, false);
+        containerStatuses = getOrCreateCache(ContainerStatus.CACHE, false);
         pipelineStatuses = getOrCreateCache(PipelineStatus.CACHE, false);
         deploymentStatuses = getOrCreateCache(DeploymentStatus.CACHE, false);
         serviceStatuses = getOrCreateCache(ServiceStatus.CACHE, false);
@@ -229,44 +228,45 @@ public class InfinispanService {
         return new ArrayList<>(serviceStatuses.values());
     }
 
-    public List<PodStatus> getPodStatuses(String projectId, String env) {
-        QueryFactory queryFactory = Search.getQueryFactory(podStatuses);
-        return queryFactory.<PodStatus>create("FROM karavan.PodStatus WHERE projectId = :projectId AND env = :env")
+    public List<ContainerStatus> getContainerStatuses(String projectId, String env) {
+        QueryFactory queryFactory = Search.getQueryFactory(containerStatuses);
+        return queryFactory.<ContainerStatus>create("FROM karavan.ContainerStatus WHERE projectId = :projectId AND env = :env")
                 .setParameter("projectId", projectId)
                 .setParameter("env", env)
                 .execute().list();
     }
 
-    public PodStatus getDevModePodStatuses(String projectId, String env) {
-        QueryFactory queryFactory = Search.getQueryFactory(podStatuses);
-        List<PodStatus> list = queryFactory.<PodStatus>create("FROM karavan.PodStatus WHERE projectId = :projectId AND env = :env AND inDevMode = true")
+    public ContainerStatus getDevModeContainerStatuses(String projectId, String env) {
+        QueryFactory queryFactory = Search.getQueryFactory(containerStatuses);
+        List<ContainerStatus> list = queryFactory.<ContainerStatus>create("FROM karavan.ContainerStatus WHERE projectId = :projectId AND env = :env AND type = :type")
                 .setParameter("projectId", projectId)
                 .setParameter("env", env)
+                .setParameter("type", ContainerStatus.CType.devmode)
                 .execute().list();
         return list.size() > 0 ? list.get(0) : null;
     }
 
-    public List<PodStatus> getPodStatuses(String env) {
-        QueryFactory queryFactory = Search.getQueryFactory(podStatuses);
-        return queryFactory.<PodStatus>create("FROM karavan.PodStatus WHERE env = :env")
+    public List<ContainerStatus> getContainerStatuses(String env) {
+        QueryFactory queryFactory = Search.getQueryFactory(containerStatuses);
+        return queryFactory.<ContainerStatus>create("FROM karavan.ContainerStatus WHERE env = :env")
                 .setParameter("env", env)
                 .execute().list();
     }
 
-    public List<PodStatus> getAllPodStatuses() {
-        return new ArrayList<>(podStatuses.values());
+    public List<ContainerStatus> getAllContainerStatuses() {
+        return new ArrayList<>(containerStatuses.values());
     }
 
-    public void savePodStatus(PodStatus status) {
-        podStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getName()), status);
+    public void saveContainerStatus(ContainerStatus status) {
+        containerStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getName()), status);
     }
 
-    public void deletePodStatus(PodStatus status) {
-        podStatuses.remove(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getName()));
+    public void deleteContainerStatus(ContainerStatus status) {
+        containerStatuses.remove(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getName()));
     }
 
-    public void deletePodStatus(String projectId, String env, String podName) {
-        podStatuses.remove(GroupedKey.create(projectId, env, podName));
+    public void deleteContainerStatus(String projectId, String env, String containerName) {
+        containerStatuses.remove(GroupedKey.create(projectId, env, containerName));
     }
 
     public CamelStatus getCamelStatus(String projectId, String env, String name) {
@@ -369,7 +369,7 @@ public class InfinispanService {
     public void clearAllStatuses() {
         CompletableFuture.allOf(
             deploymentStatuses.clearAsync(),
-            podStatuses.clearAsync(),
+            containerStatuses.clearAsync(),
             pipelineStatuses.clearAsync(),
             camelStatuses.clearAsync(),
             devmodeStatuses.clearAsync()

@@ -1,66 +1,70 @@
 package org.apache.camel.karavan.infinispan.model;
 
+import org.infinispan.protostream.annotations.ProtoEnumValue;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
-public class PodStatus {
+public class ContainerStatus {
+
+    public enum CType {
+        @ProtoEnumValue(number = 0, name = "devmode") devmode,
+        @ProtoEnumValue(number = 1, name = "devservice") devservice,
+        @ProtoEnumValue(number = 2, name = "pod") pod,
+        @ProtoEnumValue(number = 3, name = "container") container,
+    }
+
     public static final String CACHE = "pod_statuses";
     @ProtoField(number = 1)
     String name;
     @ProtoField(number = 2)
     Boolean ready;
     @ProtoField(number = 3)
-    String deployment;
-    @ProtoField(number = 4)
     String projectId;
-    @ProtoField(number = 5)
+    @ProtoField(number = 4)
     String env;
-    @ProtoField(number = 6)
+    @ProtoField(number = 5)
     Integer exposedPort;
+    @ProtoField(number = 6)
+    CType type;
     @ProtoField(number = 7)
-    Boolean inDevMode;
-    @ProtoField(number = 8)
     String memoryInfo;
-    @ProtoField(number = 9)
+    @ProtoField(number = 8)
     String cpuInfo;
-    @ProtoField(number = 10)
+    @ProtoField(number = 9)
     String created;
 
     @ProtoFactory
-    public PodStatus(String name, Boolean ready, String deployment, String projectId, String env, Integer exposedPort, Boolean inDevMode, String memoryInfo, String cpuInfo, String created) {
+    public ContainerStatus(String name, Boolean ready, String projectId, String env, Integer exposedPort, CType type, String memoryInfo, String cpuInfo, String created) {
         this.name = name;
         this.ready = ready;
-        this.deployment = deployment;
         this.projectId = projectId;
         this.env = env;
         this.exposedPort = exposedPort;
-        this.inDevMode = inDevMode;
+        this.type = type;
         this.memoryInfo = memoryInfo;
         this.cpuInfo = cpuInfo;
         this.created = created;
     }
 
-    public PodStatus(String name, Boolean ready, String deployment, String projectId, String env, Boolean inDevMode, String memoryInfo, String cpuInfo, String created) {
+    public ContainerStatus(String name, Boolean ready, String projectId, String env, CType type, String memoryInfo, String cpuInfo, String created) {
         this.name = name;
         this.ready = ready;
-        this.deployment = deployment;
         this.projectId = projectId;
         this.env = env;
-        this.inDevMode = inDevMode;
         this.memoryInfo = memoryInfo;
         this.cpuInfo = cpuInfo;
         this.created = created;
+        this.type = type;
     }
 
-    public PodStatus(String name, Boolean ready, String deployment, String projectId, String env, Boolean inDevMode, String created, Integer exposedPort) {
+    public ContainerStatus(String name, Boolean ready, String projectId, String env, CType type, String created, Integer exposedPort) {
         this.name = name;
         this.ready = ready;
-        this.deployment = deployment;
         this.projectId = projectId;
         this.env = env;
-        this.inDevMode = inDevMode;
         this.created = created;
         this.exposedPort = exposedPort;
+        this.type = type;
     }
 
     public String getName() {
@@ -79,14 +83,6 @@ public class PodStatus {
         this.ready = ready;
     }
 
-    public String getDeployment() {
-        return deployment;
-    }
-
-    public void setDeployment(String deployment) {
-        this.deployment = deployment;
-    }
-
     public String getProjectId() {
         return projectId;
     }
@@ -101,14 +97,6 @@ public class PodStatus {
 
     public void setEnv(String env) {
         this.env = env;
-    }
-
-    public Boolean getInDevMode() {
-        return inDevMode;
-    }
-
-    public void setInDevMode(Boolean inDevMode) {
-        this.inDevMode = inDevMode;
     }
 
     public String getMemoryInfo() {
@@ -141,5 +129,13 @@ public class PodStatus {
 
     public void setExposedPort(Integer exposedPort) {
         this.exposedPort = exposedPort;
+    }
+
+    public CType getType() {
+        return type;
+    }
+
+    public void setType(CType type) {
+        this.type = type;
     }
 }

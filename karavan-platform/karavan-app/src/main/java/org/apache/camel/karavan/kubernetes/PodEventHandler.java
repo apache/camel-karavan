@@ -6,7 +6,7 @@ import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.ResourceRequirements;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.PodStatus;
+import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.jboss.logging.Logger;
 
 import static org.apache.camel.karavan.service.CodeService.DEFAULT_CONTAINER_RESOURCES;
@@ -27,8 +27,8 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
     public void onAdd(Pod pod) {
         try {
             LOGGER.info("onAdd " + pod.getMetadata().getName());
-            PodStatus ps = getPodStatus(pod);
-            infinispanService.savePodStatus(ps);
+            ContainerStatus ps = getPodStatus(pod);
+            infinispanService.saveContainerStatus(ps);
         } catch (Exception e){
             LOGGER.error(e.getMessage(), e.getCause());
         }
@@ -38,8 +38,8 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
     public void onUpdate(Pod oldPod, Pod newPod) {
         try {
             LOGGER.info("onUpdate " + newPod.getMetadata().getName());
-            PodStatus ps = getPodStatus(newPod);
-            infinispanService.savePodStatus(ps);
+            ContainerStatus ps = getPodStatus(newPod);
+            infinispanService.saveContainerStatus(ps);
         } catch (Exception e){
             LOGGER.error(e.getMessage(), e.getCause());
         }
@@ -51,14 +51,14 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             LOGGER.info("onDelete " + pod.getMetadata().getName());
             String deployment = pod.getMetadata().getLabels().get("app");
             String projectId = deployment != null ? deployment : pod.getMetadata().getLabels().get("karavan/projectId");
-            infinispanService.deletePodStatus(projectId, kubernetesService.environment, pod.getMetadata().getName());
+            infinispanService.deleteContainerStatus(projectId, kubernetesService.environment, pod.getMetadata().getName());
         } catch (Exception e){
             LOGGER.error(e.getMessage(), e.getCause());
         }
     }
 
 
-    public PodStatus getPodStatus(Pod pod) {
+    public ContainerStatus getPodStatus(Pod pod) {
         String deployment = pod.getMetadata().getLabels().get("app");
         String project = deployment != null ? deployment : pod.getMetadata().getLabels().get("karavan/projectId");
         try {
@@ -73,13 +73,12 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             String requestCpu = resourceRequirements.getRequests().getOrDefault("cpu", new Quantity()).toString();
             String limitMemory = resourceRequirements.getLimits().getOrDefault("memory", new Quantity()).toString();
             String limitCpu = resourceRequirements.getLimits().getOrDefault("cpu", new Quantity()).toString();
-            return new PodStatus(
+            return new ContainerStatus(
                     pod.getMetadata().getName(),
                     ready,
-                    deployment,
                     project,
                     kubernetesService.environment,
-                    deployment == null || pod.getMetadata().getName().endsWith(DEVMODE_SUFFIX),
+                    pod.getMetadata().getName().endsWith(DEVMODE_SUFFIX) ? ContainerStatus.CType.devmode : ContainerStatus.CType.pod,
                     requestMemory + " : " + limitMemory,
                     requestCpu + " : " + limitCpu,
                     creationTimestamp
@@ -87,13 +86,12 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             );
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage(), ex.getCause());
-            return new PodStatus(
+            return new ContainerStatus(
                     pod.getMetadata().getName(),
                     false,
-                    null,
                     project,
                     kubernetesService.environment,
-                    false,
+                    ContainerStatus.CType.pod,
                     "",
                     null);
         }
