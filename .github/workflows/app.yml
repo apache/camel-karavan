@@ -3,7 +3,7 @@ name: cloud-native app
 on:
   push:
     branches: [ main ]
-    paths: ['karavan-platform/karavan-app/**', 'karavan-core/**', 'karavan-designer/**']
+    paths: ['karavan-web/karavan-app/**', 'karavan-core/**', 'karavan-designer/**']
   workflow_dispatch:
   pull_request:
     branches: [ main ]
@@ -53,7 +53,7 @@ jobs:
 
       #  Build Karavan cloud app with public access
       - name: Build application public
-        working-directory: ./karavan/karavan-platform/karavan-app
+        working-directory: ./karavan/karavan-web/karavan-app
         run: |
           mvn package -Dquarkus.profile=public -DskipTest \
           -Dquarkus.quinoa.package-manager-install=false \
@@ -66,7 +66,7 @@ jobs:
 
       #  Build Karavan cloud app with basic authorization
       - name: Build application basic auth
-        working-directory: ./karavan/karavan-platform/karavan-app
+        working-directory: ./karavan/karavan-web/karavan-app
         run: |
           mvn package -Dquarkus.profile=basic -DskipTest \
           -Dquarkus.quinoa.package-manager-install=false \
@@ -79,7 +79,7 @@ jobs:
 
       #  Build Karavan cloud app with oidc authorization
       - name: Build application oidc
-        working-directory: ./karavan/karavan-platform/karavan-app
+        working-directory: ./karavan/karavan-web/karavan-app
         run: |
           mvn package -Dquarkus.profile=oidc -DskipTest \
           -Dquarkus.quinoa.package-manager-install=false \

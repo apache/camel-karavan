@@ -3,7 +3,7 @@ name: builder image
 on:
   push:
     branches: [ main ]
-    paths: ['karavan-platform/docker/Dockerfile.builder']
+    paths: ['karavan-web/docker/Dockerfile.builder']
   workflow_dispatch:
 
 env:
@@ -30,7 +30,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
-          context: ./karavan-platform/docker
-          file: karavan-platform/docker/Dockerfile.builder
+          context: ./karavan-web/docker
+          file: karavan-web/docker/Dockerfile.builder
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}

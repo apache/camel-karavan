@@ -3,7 +3,7 @@ name: cli
 on:
   push:
     branches: [ main ]
-    paths: ['karavan-platform/karavan-cli/**']
+    paths: ['karavan-web/karavan-cli/**']
   workflow_dispatch:
   pull_request:
     branches: [ main ]
@@ -37,7 +37,7 @@ jobs:
       
       #  Build Karavan cli
       - name: Build Karavan cli
-        working-directory: ./karavan/karavan-platform/karavan-cli
+        working-directory: ./karavan/karavan-web/karavan-cli
         run: |
           mvn package
         if: ${{ github.ref == 'refs/heads/main' }}
@@ -46,5 +46,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: karavan-cli.jar
-          path: ./karavan/karavan-platform/karavan-cli/target/karavan-cli-${{ env.TAG }}.jar
+          path: ./karavan/karavan-web/karavan-cli/target/karavan-cli-${{ env.TAG }}.jar
         if: ${{ github.ref == 'refs/heads/main' }}
