@@ -19,32 +19,9 @@ Integrations could be created using visual designer that includes Enterprise Int
 
 https://user-images.githubusercontent.com/1379213/211049026-4496d054-d529-4917-837f-a59b6f2f84b1.mp4
 
-
-## Installation
-
-Two types of applications are available: 
-1. [Cloud-native](karavan-cloud/README.md) application deployed into Kubernetes/OpenShift 
-2. [VS Code extension](karavan-vscode/README.md) available on the [Marketplace](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan). Extensions for VS Code Compatible Editors available on [Open VSX Registry](https://open-vsx.org/extension/camel-karavan/karavan)
-
-Both applications share same visual designer and work with Camel YAMl DSL.
-
-## Karavan cloud-native application
-Karavan cloud-native integration toolkit is an application to manage projects, design and monitor integrations, Tekton pipeline to build and deploy integrations. More about [cloud-native Karavan](karavan-cloud/README.md)
-
-![karavan-ipaas-1](images/karavan-ipaas-1.png)
-
-
-## Karavan VS Code extension
-Install Karavan VS Code extension from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan) or from [Open VSX Registry](https://open-vsx.org/extension/camel-karavan/karavan)
-
-More about [Karavan VS Code Extension](karavan-vscode/README.md)
-
-![karavan-vscode](images/karavan-vscode.png)
-
-
 ## Features
 ### Mode
-* [Cloud-native](karavan-cloud/README.md)
+* [Web application](karavan-cloud/README.md)
 * [VS Code extension](karavan-vscode/README.md)
 ### Visual Designer for Integrations
 * Enterprise Integration Patterns DSL
@@ -61,11 +38,11 @@ More about [Karavan VS Code Extension](karavan-vscode/README.md)
 ### Build and Deploy
 * Maven for local development
 * Tekton Pipelines for Kubernetes/OpenShift
-### Documentation
+### Knowledgebase
 Build-in catalogues:
 * Enterprise Integration Patterns
 * Kamelets
 * Components
 
-## Development
-How to build [Karavan](DEV.md)
+## Documentation
+[Karavan documentation](docs/INDEX.md)

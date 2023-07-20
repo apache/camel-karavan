@@ -1,4 +1,4 @@
-## Install Karavan with CLI
+## Install Karavan Web Application with CLI
 
 ### Requirements
 1. minikube v1.30+ installed with `--driver=hyperkit`

@@ -26,7 +26,7 @@ Integration project output is a runnable uber-jar or an OCI image for local envi
 ### Runtimes
 * [Camel JBang](https://camel.apache.org/manual/camel-jbang.html)
 * [Camel Quarkus](https://camel.apache.org/camel-quarkus)
-* [Camel Spring-Boot](https://camel.apache.org/camel-spring-boot) (WIP)
+* [Camel Spring-Boot](https://camel.apache.org/camel-spring-boot)
 * [Camel Main](https://camel.apache.org/components/3.18.x/others/main.html) (WIP)
 ### Build and Deploy
 * Maven for local development
