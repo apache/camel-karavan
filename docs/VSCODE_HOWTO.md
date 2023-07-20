@@ -1,4 +1,4 @@
-# Create and edit integration 
+# How to use Karavan 
 
 ## Create new Integration
 
@@ -8,8 +8,6 @@
 
 ![open](../images/open.png)
 
-
-# Run integration
 
 ## Run integration locally
 * Run in UI: click `Run` button 
@@ -30,7 +28,3 @@
     ```shell
     jbang -Dcamel.jbang.version=3.21.0 camel@apache/camel export --directory=export
     ```
-
-# Issues
-
-If you find a new issue, please [create a new issue report in GitHub](https://github.com/apache/camel-karavan/issues)!

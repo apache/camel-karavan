@@ -1,4 +1,4 @@
-# Installation
+# Install Karavan extension in VS Code
 
 ## Prerequisites
 * Microsoft VS Code installed. You can get the most recent version from (https://code.visualstudio.com/) for your chosen operating system.
