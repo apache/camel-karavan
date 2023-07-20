@@ -21,8 +21,8 @@ https://user-images.githubusercontent.com/1379213/211049026-4496d054-d529-4917-8
 
 ## Features
 ### Mode
-* [Web application](karavan-cloud/README.md)
-* [VS Code extension](karavan-vscode/README.md)
+* Web application
+* VS Code extension
 ### Visual Designer for Integrations
 * Enterprise Integration Patterns DSL
 * REST DSL designer
