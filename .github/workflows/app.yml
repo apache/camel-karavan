@@ -55,7 +55,7 @@ jobs:
       - name: Build application public
         working-directory: ./karavan/karavan-web/karavan-app
         run: |
-          mvn package -Dquarkus.profile=public -DskipTest \
+          mvn package -Dquarkus.profile=public -DskipTests \
           -Dquarkus.quinoa.package-manager-install=false \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=true \
@@ -68,7 +68,7 @@ jobs:
       - name: Build application basic auth
         working-directory: ./karavan/karavan-web/karavan-app
         run: |
-          mvn package -Dquarkus.profile=basic -DskipTest \
+          mvn package -Dquarkus.profile=basic -DskipTests \
           -Dquarkus.quinoa.package-manager-install=false \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=true \
@@ -81,7 +81,7 @@ jobs:
       - name: Build application oidc
         working-directory: ./karavan/karavan-web/karavan-app
         run: |
-          mvn package -Dquarkus.profile=oidc -DskipTest \
+          mvn package -Dquarkus.profile=oidc -DskipTests \
           -Dquarkus.quinoa.package-manager-install=false \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=true \
