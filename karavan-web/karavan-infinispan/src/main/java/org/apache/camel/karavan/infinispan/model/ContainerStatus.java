@@ -23,47 +23,32 @@ public class ContainerStatus {
     @ProtoField(number = 4)
     String env;
     @ProtoField(number = 5)
-    Integer exposedPort;
-    @ProtoField(number = 6)
     CType type;
-    @ProtoField(number = 7)
+    @ProtoField(number = 6)
     String memoryInfo;
-    @ProtoField(number = 8)
+    @ProtoField(number = 7)
     String cpuInfo;
-    @ProtoField(number = 9)
+    @ProtoField(number = 8)
     String created;
 
     @ProtoFactory
-    public ContainerStatus(String name, Boolean ready, String projectId, String env, Integer exposedPort, CType type, String memoryInfo, String cpuInfo, String created) {
-        this.name = name;
-        this.ready = ready;
-        this.projectId = projectId;
-        this.env = env;
-        this.exposedPort = exposedPort;
-        this.type = type;
-        this.memoryInfo = memoryInfo;
-        this.cpuInfo = cpuInfo;
-        this.created = created;
-    }
-
     public ContainerStatus(String name, Boolean ready, String projectId, String env, CType type, String memoryInfo, String cpuInfo, String created) {
         this.name = name;
         this.ready = ready;
         this.projectId = projectId;
         this.env = env;
+        this.type = type;
         this.memoryInfo = memoryInfo;
         this.cpuInfo = cpuInfo;
         this.created = created;
-        this.type = type;
     }
 
-    public ContainerStatus(String name, Boolean ready, String projectId, String env, CType type, String created, Integer exposedPort) {
+    public ContainerStatus(String name, Boolean ready, String projectId, String env, CType type, String created) {
         this.name = name;
         this.ready = ready;
         this.projectId = projectId;
         this.env = env;
         this.created = created;
-        this.exposedPort = exposedPort;
         this.type = type;
     }
 
@@ -121,14 +106,6 @@ public class ContainerStatus {
 
     public void setCreated(String created) {
         this.created = created;
-    }
-
-    public Integer getExposedPort() {
-        return exposedPort;
-    }
-
-    public void setExposedPort(Integer exposedPort) {
-        this.exposedPort = exposedPort;
     }
 
     public CType getType() {
