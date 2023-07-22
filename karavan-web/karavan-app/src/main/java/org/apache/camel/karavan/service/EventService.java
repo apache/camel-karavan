@@ -5,7 +5,6 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.DevModeStatus;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.shared.ConfigService;
@@ -56,7 +55,6 @@ public class EventService {
                 dockerService.startListeners();
                 dockerService.startInfinispan();
                 dockerService.checkInfinispanHealth();
-                dockerService.collectContainersStatuses();
             }
         } else {
             LOGGER.info("Starting Karavan in " + (kubernetesService.isOpenshift() ? "OpenShift" : "Kubernetes"));
@@ -67,12 +65,13 @@ public class EventService {
     @ConsumeEvent(value = INFINISPAN_STARTED, blocking = true, ordered = true)
     void startServices(String infinispanHealth) {
         if (infinispanHealth.equals(HEALTHY)) {
+            infinispanService.start(false);
+            infinispanService.clearAllStatuses();
             if (!ConfigService.inKubernetes()) {
                 dockerService.deleteKaravanHeadlessContainer();
                 dockerService.startKaravanHeadlessContainer();
+                dockerService.collectContainersStatuses();
             }
-            infinispanService.start(false);
-            infinispanService.clearAllStatuses();
             bus.publish(EventType.IMPORT_PROJECTS, "");
             bus.publish(EventType.START_INFRASTRUCTURE_LISTENERS, "");
         }
@@ -103,12 +102,16 @@ public class EventService {
         projectService.importProjects(data);
     }
 
-    @ConsumeEvent(value = DEVMODE_STATUS, blocking = true, ordered = true)
+    @ConsumeEvent(value = DEVMODE_CONTAINER_READY, blocking = true, ordered = true)
     void receiveCommand(JsonObject message) {
         LOGGER.info("received Status " + message);
-        DevModeStatus status = message.mapTo(DevModeStatus.class);
-        if (!status.getCodeLoaded() && status.getContainerId() != null) {
-            camelService.reloadProjectCode(status.getProjectId());
+        ContainerStatus status = message.mapTo(ContainerStatus.class);
+        if (!status.getCodeLoaded() && status.getContainerId() != null && status.getLifeCycle().equals(ContainerStatus.Lifecycle.ready)) {
+            if (ConfigService.inKubernetes()) {
+                camelService.reloadProjectCode(status.getProjectId());
+            } else {
+                infinispanService.sendCodeReloadCommand(status.getProjectId());
+            }
         }
     }
 
@@ -118,7 +121,7 @@ public class EventService {
         String memory = data.getString("memory");
         String cpu = data.getString("cpu");
         if (infinispanService.isReady()) {
-            ContainerStatus containerStatus = infinispanService.getDevModeContainerStatuses(projectId, configService.getConfiguration().getEnvironment());
+            ContainerStatus containerStatus = infinispanService.getDevModeContainerStatus(projectId, configService.getConfiguration().getEnvironment());
             if (containerStatus != null) {
                 containerStatus.setCpuInfo(cpu);
                 containerStatus.setMemoryInfo(memory);

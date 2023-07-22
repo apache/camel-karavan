@@ -68,9 +68,7 @@ public class InfinispanService {
     private RemoteCache<GroupedKey, ServiceStatus> serviceStatuses;
     private RemoteCache<GroupedKey, CamelStatus> camelStatuses;
     private RemoteCache<String, String> commits;
-    private RemoteCache<GroupedKey, DevModeStatus> devmodeStatuses;
     private RemoteCache<GroupedKey, String> codeReloadCommands;
-    private RemoteCache<GroupedKey, ContainerInfo> containers;
     private final AtomicBoolean ready = new AtomicBoolean(false);
 
     private RemoteCacheManager cacheManager;
@@ -110,8 +108,6 @@ public class InfinispanService {
         camelStatuses = getOrCreateCache(CamelStatus.CACHE, false);
         commits = getOrCreateCache("commits", false);
         deploymentStatuses = getOrCreateCache(DeploymentStatus.CACHE, false);
-        devmodeStatuses = getOrCreateCache(DevModeStatus.CACHE, false);
-        containers = getOrCreateCache(ContainerInfo.CACHE, false);
         codeReloadCommands = getOrCreateCache("code_reload_commands", true);
 
         cacheManager.getCache(PROTOBUF_METADATA_CACHE_NAME).put("karavan.proto", getResourceFile("/proto/karavan.proto"));
@@ -262,14 +258,12 @@ public class InfinispanService {
                 .execute().list();
     }
 
-    public ContainerStatus getDevModeContainerStatuses(String projectId, String env) {
-        QueryFactory queryFactory = Search.getQueryFactory(containerStatuses);
-        List<ContainerStatus> list = queryFactory.<ContainerStatus>create("FROM karavan.ContainerStatus WHERE projectId = :projectId AND env = :env AND type = :type")
-                .setParameter("projectId", projectId)
-                .setParameter("env", env)
-                .setParameter("type", ContainerStatus.CType.devmode)
-                .execute().list();
-        return list.size() > 0 ? list.get(0) : null;
+    public ContainerStatus getContainerStatus(String projectId, String env, String containerName) {
+        return containerStatuses.get(GroupedKey.create(projectId, env, containerName));
+    }
+
+    public ContainerStatus getDevModeContainerStatus(String projectId, String env) {
+        return containerStatuses.get(GroupedKey.create(projectId, env, projectId));
     }
 
     public List<ContainerStatus> getContainerStatuses(String env) {
@@ -284,11 +278,11 @@ public class InfinispanService {
     }
 
     public void saveContainerStatus(ContainerStatus status) {
-        containerStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getName()), status);
+        containerStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getContainerName()), status);
     }
 
     public void deleteContainerStatus(ContainerStatus status) {
-        containerStatuses.remove(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getName()));
+        containerStatuses.remove(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getContainerName()));
     }
 
     public void deleteContainerStatus(String projectId, String env, String containerName) {
@@ -351,45 +345,26 @@ public class InfinispanService {
         return commits.get(commitId) != null;
     }
 
-    public void saveDevModeStatus(DevModeStatus status) {
-        devmodeStatuses.put(GroupedKey.create(status.getProjectId(), DEFAULT_ENVIRONMENT, status.getProjectId()), status);
-    }
 
-    public void deleteDevModeStatus(String projectId) {
-        devmodeStatuses.remove(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT, projectId));
-    }
-
-    public DevModeStatus getDevModeStatus(String projectId) {
-        return devmodeStatuses.get(GroupedKey.create(projectId,DEFAULT_ENVIRONMENT, projectId));
-    }
-
-    public List<DevModeStatus> getLoadedDevModeStatuses() {
-        QueryFactory queryFactory = Search.getQueryFactory(devmodeStatuses);
-        return queryFactory.<DevModeStatus>create("FROM karavan.DevModeStatus WHERE codeLoaded = true")
+    public List<ContainerStatus> getLoadedDevModeStatuses() {
+        QueryFactory queryFactory = Search.getQueryFactory(containerStatuses);
+        return queryFactory.<ContainerStatus>create("FROM karavan.ContainerStatus WHERE type = :type AND codeLoaded = true")
+                .setParameter("type", ContainerStatus.CType.devmode)
                 .execute().list();
     }
 
-    public List<DevModeStatus> getDevModeStatuses() {
-       return new ArrayList<>(devmodeStatuses.values());
+    public List<ContainerStatus> getDevModeStatuses() {
+        QueryFactory queryFactory = Search.getQueryFactory(containerStatuses);
+        return queryFactory.<ContainerStatus>create("FROM karavan.ContainerStatus WHERE type = :type")
+                .setParameter("type", ContainerStatus.CType.devmode)
+                .execute().list();
     }
 
-    public void saveContainerInfo(ContainerInfo ci) {
-        containers.put(GroupedKey.create(ci.getContainerName(), ci.getEnv() != null ? ci.getEnv() : DEFAULT_ENVIRONMENT, ci.getContainerName()), ci);
-    }
-
-    public void getContainerInfo(String name, String env) {
-        containers.get(GroupedKey.create(name, env, name));
-    }
-
-    public List<ContainerInfo> getContainerInfos(String env) {
-        QueryFactory queryFactory = Search.getQueryFactory(containers);
-        return queryFactory.<ContainerInfo>create("FROM karavan.ContainerInfo WHERE env = :env")
+    public List<ContainerStatus> getContainerStatusByEnv(String env) {
+        QueryFactory queryFactory = Search.getQueryFactory(containerStatuses);
+        return queryFactory.<ContainerStatus>create("FROM karavan.ContainerStatus WHERE env = :env")
                 .setParameter("env", env)
                 .execute().list();
-    }
-
-    public void deleteContainerInfo(String containerName) {
-        containers.remove(GroupedKey.create(containerName, DEFAULT_ENVIRONMENT, containerName));
     }
 
     public void clearAllStatuses() {
@@ -397,8 +372,7 @@ public class InfinispanService {
             deploymentStatuses.clearAsync(),
             containerStatuses.clearAsync(),
             pipelineStatuses.clearAsync(),
-            camelStatuses.clearAsync(),
-            devmodeStatuses.clearAsync()
+            camelStatuses.clearAsync()
         ).join();
     }
 

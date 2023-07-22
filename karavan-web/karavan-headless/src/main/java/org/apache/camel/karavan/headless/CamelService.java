@@ -25,7 +25,6 @@ import io.vertx.mutiny.ext.web.client.WebClient;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.infinispan.model.DevModeStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.jboss.logging.Logger;
@@ -36,8 +35,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
-import static org.apache.camel.karavan.headless.EventService.CMD_COLLECT_CAMEL_STATUS;
-import static org.apache.camel.karavan.headless.EventService.CMD_DELETE_CAMEL_STATUS;
+import static org.apache.camel.karavan.headless.EventService.*;
 
 @ApplicationScoped
 public class CamelService {
@@ -68,12 +66,12 @@ public class CamelService {
     public void reloadProjectCode(String projectId) {
         LOGGER.info("Reload project code " + projectId);
         try {
-            ContainerStatus containerStatus = infinispanService.getDevModeContainerStatuses(projectId, environment);
-            infinispanService.getProjectFiles(projectId).forEach(projectFile -> putRequest(projectId, projectFile.getName(), projectFile.getCode(), 1000));
+            ContainerStatus containerStatus = infinispanService.getDevModeContainerStatus(projectId, environment);
+            infinispanService.getProjectFiles(projectId).forEach(projectFile ->
+                    putRequest(projectId, projectFile.getName(), projectFile.getCode(), 1000));
             reloadRequest(projectId);
-            DevModeStatus dms = infinispanService.getDevModeStatus(projectId);
-            dms.setCodeLoaded(true);
-            infinispanService.saveDevModeStatus(dms);
+            containerStatus.setCodeLoaded(true);
+            infinispanService.saveContainerStatus(containerStatus);
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }
@@ -102,19 +100,21 @@ public class CamelService {
     }
 
     public String getContainerAddress(String containerName) {
-        return "http://localhost:8080";
+        return "http://" + containerName + ":8080";
     }
 
     public void collectCamelStatuses() {
         if (infinispanService.isReady()) {
-            infinispanService.getContainerStatuses(environment).forEach(pod -> {
-                CamelStatusRequest csr = new CamelStatusRequest(pod.getProjectId(), pod.getName());
-                eventBus.publish(CMD_COLLECT_CAMEL_STATUS, JsonObject.mapFrom(csr));
-            });
+            infinispanService.getContainerStatuses(environment).stream()
+                    .filter(status -> status.getType().equals(ContainerStatus.CType.devmode) || status.getType().equals(ContainerStatus.CType.project))
+                    .forEach(status -> {
+                        CamelStatusRequest csr = new CamelStatusRequest(status.getProjectId(), status.getContainerName());
+                        eventBus.publish(CMD_COLLECT_CAMEL_STATUSES, JsonObject.mapFrom(csr));
+                    });
         }
     }
 
-    public void collectCamelStatuses(JsonObject data) {
+    public void collectCamelStatus(JsonObject data) {
         CamelStatusRequest dms = data.mapTo(CamelStatusRequest.class);
         Arrays.stream(CamelStatus.Name.values()).forEach(statusName -> {
             String containerName = dms.getContainerName();
@@ -126,43 +126,8 @@ public class CamelService {
         });
     }
 
-    public void cleanupDevModeStatuses() {
-        if (infinispanService.isReady()) {
-            infinispanService.getDevModeStatuses().forEach(dms -> {
-                ContainerStatus pod = infinispanService.getDevModeContainerStatuses(dms.getProjectId(), environment);
-                if (pod == null) {
-                    eventBus.publish(CMD_DELETE_CAMEL_STATUS, JsonObject.mapFrom(dms));
-                }
-            });
-        }
-    }
-
-    public void cleanupDevModeStatus(JsonObject data) {
-        DevModeStatus dms = data.mapTo(DevModeStatus.class);
-        Arrays.stream(CamelStatus.Name.values()).forEach(name -> {
-            infinispanService.deleteCamelStatus(dms.getProjectId(), name.name(), environment);
-        });
-    }
-
-    private void reloadCode(String podName, String oldContext, String newContext) {
-        String newState = getContextState(newContext);
-        String oldState = getContextState(oldContext);
-        if (newContext != null && !Objects.equals(newState, oldState) && "Started".equals(newState)) {
-            reloadProjectCode(podName);
-        }
-    }
-
-    private String getContextState(String context) {
-        if (context != null) {
-            JsonObject obj = new JsonObject(context);
-            return obj.getJsonObject("context").getString("state");
-        } else {
-            return null;
-        }
-    }
-
-    public String getCamelStatus(String podName, CamelStatus.Name statusName) {
-        String url = getContainerAddress(podName) + "/q/dev/" + statusName.name();
+    public String getCamelStatus(String containerName, CamelStatus.Name statusName) {
+        String url = getContainerAddress(containerName) + "/q/dev/" + statusName.name();
         try {
             return result(url, 500);
         } catch (InterruptedException | ExecutionException e) {

@@ -20,7 +20,6 @@ import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.infinispan.model.DevModeStatus;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.CamelService;
@@ -32,8 +31,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Optional;
-
-import static org.apache.camel.karavan.shared.ConfigService.DEVMODE_SUFFIX;
 
 @Path("/api/devmode")
 public class DevModeResource {
@@ -58,16 +55,16 @@ public class DevModeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{jBangOptions}")
     public Response runProjectWithJBangOptions(Project project, @PathParam("jBangOptions") String jBangOptions) throws InterruptedException {
-        String runnerName = project.getProjectId() + DEVMODE_SUFFIX;
-        ContainerStatus status = infinispanService.getDevModeContainerStatuses(project.getProjectId(), environment);
+        String containerName = project.getProjectId();
+        ContainerStatus status = infinispanService.getDevModeContainerStatus(project.getProjectId(), environment);
         if (status == null) {
-            infinispanService.saveDevModeStatus(new DevModeStatus(project.getProjectId(), null, null, false));
+            infinispanService.saveContainerStatus(ContainerStatus.createDevMode(project.getProjectId(), environment));
             if (ConfigService.inKubernetes()) {
-                kubernetesService.runDevModeContainer(project, runnerName, "");
+                kubernetesService.runDevModeContainer(project, "");
             } else {
-                dockerService.runDevmodeContainer(project, runnerName, "");
+                dockerService.runDevmodeContainer(project, "");
             }
-            return Response.ok(runnerName).build();
+            return Response.ok(containerName).build();
         }
         return Response.notModified().build();
     }
@@ -83,7 +80,11 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/reload/{projectId}")
     public Response reload(@PathParam("projectId") String projectId) {
-        camelService.reloadProjectCode(projectId);
+        if (ConfigService.inKubernetes()) {
+            camelService.reloadProjectCode(projectId);
+        } else {
+            infinispanService.sendCodeReloadCommand(projectId);
+        }
         return Response.ok().build();
     }
 
@@ -91,15 +92,18 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{projectId}/{deletePVC}")
-    public Response deleteRunner(@PathParam("projectId") String projectId, @PathParam("deletePVC") boolean deletePVC) {
-        String runnerName = projectId + DEVMODE_SUFFIX;
-        if (ConfigService.inKubernetes()) {
-            kubernetesService.deleteRunner(runnerName, deletePVC);
-        } else {
-            dockerService.stopContainer(runnerName);
-            dockerService.deleteContainer(runnerName);
+    public Response deleteDevMode(@PathParam("projectId") String projectId, @PathParam("deletePVC") boolean deletePVC) {
+        ContainerStatus status = infinispanService.getDevModeContainerStatus(projectId, environment);
+        if (status != null) {
+            status.setLifeCycle(ContainerStatus.Lifecycle.deleting);
+            infinispanService.saveContainerStatus(status);
         }
-        infinispanService.deleteDevModeStatus(projectId);
+        if (ConfigService.inKubernetes()) {
+            kubernetesService.deleteRunner(projectId, deletePVC);
+        } else {
+            dockerService.stopContainer(projectId);
+            dockerService.deleteContainer(projectId);
+        }
         return Response.accepted().build();
     }
 
@@ -107,12 +111,13 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/pod/{projectId}")
     public Response getPodStatus(@PathParam("projectId") String projectId) throws RuntimeException {
-        String runnerName = projectId + DEVMODE_SUFFIX;
-        Optional<ContainerStatus> ps =  infinispanService.getContainerStatuses(projectId, environment).stream()
-                .filter(podStatus -> podStatus.getName().equals(runnerName))
-                .findFirst();
-        if (ps.isPresent()) {
-            return Response.ok(ps.get()).build();
+        if (infinispanService.isReady()) {
+            ContainerStatus cs = infinispanService.getDevModeContainerStatus(projectId, environment);
+            if (cs != null) {
+                return Response.ok(cs).build();
+            } else {
+                return Response.noContent().build();
+            }
         } else {
             return Response.noContent().build();
         }

@@ -28,7 +28,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.shared.ConfigService.DEVMODE_SUFFIX;
 import static org.apache.camel.karavan.shared.EventType.*;
 
 @ApplicationScoped
@@ -40,12 +39,13 @@ public class DockerService {
     public static final String KARAVAN_CONTAINER_NAME = "karavan-headless";
 
     public static final String NETWORK_NAME = "karavan";
-    public static final String LABEL_TYPE = "type";
-    public static final String LABEL_PROJECT_ID = "projectId";
+    public static final String LABEL_TYPE = "org.apache.camel.karavan.type";
+    public static final String LABEL_PROJECT_ID = "org.apache.camel.karavan.projectId";
     private static final DecimalFormat formatCpu = new DecimalFormat("0.00");
     private static final DecimalFormat formatMiB = new DecimalFormat("0.0");
     private static final DecimalFormat formatGiB = new DecimalFormat("0.00");
     private static final Map<String, Tuple2<Long, Long>> previousStats = new ConcurrentHashMap<>();
+    private static final List<String> infinispanHealthCheckCMD = List.of("CMD", "curl", "-f", "http://localhost:11222/rest/v2/cache-managers/default/health/status");
 
     @ConfigProperty(name = "karavan.devmode.image")
     String devmodeImage;
@@ -70,15 +70,15 @@ public class DockerService {
     @Inject
     EventBus eventBus;
 
-    public void runDevmodeContainer(Project project, String runnerName, String jBangOptions) throws InterruptedException {
+    public void runDevmodeContainer(Project project, String jBangOptions) throws InterruptedException {
         String projectId = project.getProjectId();
         LOGGER.infof("DevMode starting for %s", projectId);
         HealthCheck healthCheck = new HealthCheck().withTest(List.of("CMD", "curl", "-f", "http://localhost:8080/q/dev/health"))
                 .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
-        createContainer(runnerName, devmodeImage,
+        createContainer(projectId, devmodeImage,
                 List.of(), null, false, false, healthCheck,
                 Map.of(LABEL_TYPE, ContainerStatus.CType.devmode.name(), LABEL_PROJECT_ID, projectId));
-        startContainer(runnerName);
+        startContainer(projectId);
         LOGGER.infof("DevMode started for %s", projectId);
     }
 
@@ -86,7 +86,7 @@ public class DockerService {
         try {
             LOGGER.info("Infinispan is starting...");
 
-            HealthCheck healthCheck = new HealthCheck().withTest(List.of("CMD", "curl", "-f", "http://localhost:11222/rest/v2/cache-managers/default/health/status"))
+            HealthCheck healthCheck = new HealthCheck().withTest(infinispanHealthCheckCMD)
                     .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
 
             createContainer(INFINISPAN_CONTAINER_NAME, infinispanImage,
@@ -131,11 +131,10 @@ public class DockerService {
             Statistics stats = getContainerStats(container.getId());
 
             String name = container.getNames()[0].replace("/", "");
-            String projectId = name.replace(DEVMODE_SUFFIX, "");
             String memoryUsage = formatMemory(stats.getMemoryStats().getUsage());
             String memoryLimit = formatMemory(stats.getMemoryStats().getLimit());
             JsonObject data = JsonObject.of(
-                    "projectId", projectId,
+                    "projectId", name,
                     "memory", memoryUsage + " / " + memoryLimit,
                     "cpu", formatCpu(name, stats)
             );
@@ -147,7 +146,10 @@ public class DockerService {
         getDockerClient().listContainersCmd().exec().forEach(container -> {
             String name = container.getNames()[0].replace("/", "");
             if (!Objects.equals(name, INFINISPAN_CONTAINER_NAME)) {
-                dockerEventListener.saveContainerStatus(container);
+                dockerEventListener.onCreateContainer(container, new Event(container.getStatus(), container.getId(), container.getImage(), container.getCreated()));
+            }
+            if (Objects.equals(container.getLabels().get(LABEL_TYPE), ContainerStatus.CType.devmode.name())) {
+                dockerEventListener.onCreateContainer(container, new Event(container.getStatus(), container.getId(), container.getImage(), container.getCreated()));
             }
         });
     }

@@ -29,7 +29,6 @@ import java.util.Objects;
 @ApplicationScoped
 public class ConfigService {
 
-    public static final String DEVMODE_SUFFIX = "-devmode";
     public static final String HEADLESS_MODE = "headless";
 
     @ConfigProperty(name = "karavan.version")
@@ -70,5 +69,9 @@ public class ConfigService {
 
     public static boolean isHeadless() {
         return ConfigUtils.isProfileActive(HEADLESS_MODE);
+    }
+
+    public static boolean isDevOrTest() {
+        return ProfileManager.getLaunchMode().isDevOrTest();
     }
 }

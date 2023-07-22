@@ -26,9 +26,7 @@ import io.vertx.mutiny.ext.web.client.WebClient;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.infinispan.model.DevModeStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.jboss.logging.Logger;
@@ -38,8 +36,6 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-
-import static org.apache.camel.karavan.shared.ConfigService.DEVMODE_SUFFIX;
 
 @ApplicationScoped
 public class CamelService {
@@ -74,13 +70,13 @@ public class CamelService {
 
     public void reloadProjectCode(String projectId) {
         LOGGER.info("Reload project code " + projectId);
-        String containerName = projectId + DEVMODE_SUFFIX;
         try {
-            infinispanService.getProjectFiles(projectId).forEach(projectFile -> putRequest(containerName, projectFile.getName(), projectFile.getCode(), 1000));
-            reloadRequest(containerName);
-            DevModeStatus dms = infinispanService.getDevModeStatus(projectId);
-            dms.setCodeLoaded(true);
-            infinispanService.saveDevModeStatus(dms);
+            ContainerStatus containerStatus = infinispanService.getDevModeContainerStatus(projectId, environment);
+            infinispanService.getProjectFiles(projectId).forEach(projectFile ->
+                    putRequest(projectId, projectFile.getName(), projectFile.getCode(), 1000));
+            reloadRequest(projectId);
+            containerStatus.setCodeLoaded(true);
+            infinispanService.saveContainerStatus(containerStatus);
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }
@@ -116,7 +112,7 @@ public class CamelService {
     public void collectCamelStatuses() {
         if (infinispanService.isReady()) {
             infinispanService.getContainerStatuses(environment).forEach(pod -> {
-                CamelStatusRequest csr = new CamelStatusRequest(pod.getProjectId(), pod.getName());
+                CamelStatusRequest csr = new CamelStatusRequest(pod.getProjectId(), pod.getContainerName());
                 eventBus.publish(CMD_COLLECT_CAMEL_STATUS, JsonObject.mapFrom(csr));
             });
         }
@@ -133,43 +129,6 @@ public class CamelService {
                 infinispanService.saveCamelStatus(cs);
             }
         });
-    }
-
-    public void cleanupDevModeStatuses() {
-        if (infinispanService.isReady()) {
-            infinispanService.getDevModeStatuses().forEach(dms -> {
-                ContainerStatus pod = infinispanService.getDevModeContainerStatuses(dms.getProjectId(), environment);
-                if (pod == null) {
-                    eventBus.publish(CMD_DELETE_CAMEL_STATUS, JsonObject.mapFrom(dms));
-                }
-            });
-        }
-    }
-
-    @ConsumeEvent(value = CMD_DELETE_CAMEL_STATUS, blocking = true, ordered = true)
-    public void cleanupDevModeStatus(JsonObject data) {
-        DevModeStatus dms = data.mapTo(DevModeStatus.class);
-        Arrays.stream(CamelStatus.Name.values()).forEach(name -> {
-            infinispanService.deleteCamelStatus(dms.getProjectId(), name.name(), environment);
-        });
-    }
-
-    private void reloadCode(String podName, String oldContext, String newContext) {
-        String projectName = podName.replace(DEVMODE_SUFFIX, "");
-        String newState = getContextState(newContext);
-        String oldState = getContextState(oldContext);
-        if (newContext != null && !Objects.equals(newState, oldState) && "Started".equals(newState)) {
-            reloadProjectCode(projectName);
-        }
-    }
-
-    private String getContextState(String context) {
-        if (context != null) {
-            JsonObject obj = new JsonObject(context);
-            return obj.getJsonObject("context").getString("state");
-        } else {
-            return null;
-        }
     }
 
     public String getCamelStatus(String podName, CamelStatus.Name statusName) {

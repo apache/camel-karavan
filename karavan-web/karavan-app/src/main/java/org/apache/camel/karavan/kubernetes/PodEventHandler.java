@@ -10,7 +10,6 @@ import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.jboss.logging.Logger;
 
 import static org.apache.camel.karavan.service.CodeService.DEFAULT_CONTAINER_RESOURCES;
-import static org.apache.camel.karavan.shared.ConfigService.DEVMODE_SUFFIX;
 
 public class PodEventHandler implements ResourceEventHandler<Pod> {
 
@@ -28,7 +27,9 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
         try {
             LOGGER.info("onAdd " + pod.getMetadata().getName());
             ContainerStatus ps = getPodStatus(pod);
-            infinispanService.saveContainerStatus(ps);
+            if (ps != null) {
+                infinispanService.saveContainerStatus(ps);
+            }
         } catch (Exception e){
             LOGGER.error(e.getMessage(), e.getCause());
         }
@@ -39,7 +40,9 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
         try {
             LOGGER.info("onUpdate " + newPod.getMetadata().getName());
             ContainerStatus ps = getPodStatus(newPod);
-            infinispanService.saveContainerStatus(ps);
+            if (ps != null) {
+                infinispanService.saveContainerStatus(ps);
+            }
         } catch (Exception e){
             LOGGER.error(e.getMessage(), e.getCause());
         }
@@ -60,7 +63,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
 
     public ContainerStatus getPodStatus(Pod pod) {
         String deployment = pod.getMetadata().getLabels().get("app");
-        String project = deployment != null ? deployment : pod.getMetadata().getLabels().get("karavan/projectId");
+        String projectId = deployment != null ? deployment : pod.getMetadata().getLabels().get("karavan/projectId");
         try {
             boolean ready = pod.getStatus().getConditions().stream().anyMatch(c -> c.getType().equals("Ready"));
             String creationTimestamp = pod.getMetadata().getCreationTimestamp();
@@ -75,10 +78,10 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             String limitCpu = resourceRequirements.getLimits().getOrDefault("cpu", new Quantity()).toString();
             return new ContainerStatus(
                     pod.getMetadata().getName(),
-                    ready,
-                    project,
+                    ContainerStatus.Lifecycle.ready,
+                    projectId,
                     kubernetesService.environment,
-                    pod.getMetadata().getName().endsWith(DEVMODE_SUFFIX) ? ContainerStatus.CType.devmode : ContainerStatus.CType.pod,
+                    pod.getMetadata().getName().equals(projectId) ? ContainerStatus.CType.devmode : ContainerStatus.CType.project,
                     requestMemory + " : " + limitMemory,
                     requestCpu + " : " + limitCpu,
                     creationTimestamp
@@ -86,13 +89,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             );
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage(), ex.getCause());
-            return new ContainerStatus(
-                    pod.getMetadata().getName(),
-                    false,
-                    project,
-                    kubernetesService.environment,
-                    ContainerStatus.CType.pod,
-                    "");
+            return null;
         }
     }
 }

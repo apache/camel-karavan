@@ -47,8 +47,6 @@ public class HeadlessService {
         LOGGER.info("Collect info statuses");
         // collect Camel statuses
         camelService.collectCamelStatuses();
-        // clean DevMode statuses if container deleted
-        camelService.cleanupDevModeStatuses();
     }
 
 }

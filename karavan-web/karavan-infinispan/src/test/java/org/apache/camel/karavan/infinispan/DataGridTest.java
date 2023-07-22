@@ -3,9 +3,8 @@ package org.apache.camel.karavan.infinispan;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.vertx.ConsumeEvent;
-import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
-import org.apache.camel.karavan.infinispan.model.ContainerInfo;
+import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -29,14 +28,6 @@ public class DataGridTest {
     @BeforeAll
     public void setup() {
         infinispanService.start(true);
-    }
-
-    @Test
-    public void testContainersStatuses() throws InterruptedException {
-        ContainerInfo ci = new ContainerInfo("demo", "id", "image", List.of(8080, 8081, 8082), "dev");
-        infinispanService.saveContainerInfo(ci);
-        List<ContainerInfo> list = infinispanService.getContainerInfos("dev");
-        assertEquals(1, list.size());
     }
 
     @Test

@@ -155,8 +155,8 @@ public class InfrastructureResource {
     @Path("/pod/{projectId}/{env}")
     public List<ContainerStatus> getContainerStatusesByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) throws Exception {
         return infinispanService.getContainerStatuses(projectId, env).stream()
-                .filter(podStatus -> Objects.equals(podStatus.getType(), ContainerStatus.CType.pod))
-                .sorted(Comparator.comparing(ContainerStatus::getName))
+                .filter(podStatus -> Objects.equals(podStatus.getType(), ContainerStatus.CType.project))
+                .sorted(Comparator.comparing(ContainerStatus::getContainerName))
                 .collect(Collectors.toList());
     }
 
@@ -205,7 +205,7 @@ public class InfrastructureResource {
         if (ConfigService.inKubernetes()) {
             return Response.ok(kubernetesService.getServices(kubernetesService.getNamespace())).build();
         } else {
-            List<String> list = infinispanService.getContainerInfos(environment).stream()
+            List<String> list = infinispanService.getContainerStatuses(environment).stream()
                     .map(ci -> ci.getPorts().stream().map(i -> ci.getContainerName() + ":" + i).collect(Collectors.toList()))
                     .flatMap(List::stream).collect(Collectors.toList());
             return Response.ok(list).build();

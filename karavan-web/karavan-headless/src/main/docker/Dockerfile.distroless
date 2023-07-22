@@ -12,7 +12,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-FROM gcr.io/distroless/java:11
+FROM gcr.io/distroless/java@sha256:629d4fdc17eec821242d45497abcb88cc0442c47fd5748baa79d88dde7da3e2d
 COPY target/*-runner.jar /deployments/karavan.jar
 WORKDIR /deployments
 CMD ["karavan.jar"]

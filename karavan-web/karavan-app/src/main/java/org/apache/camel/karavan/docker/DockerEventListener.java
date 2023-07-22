@@ -8,8 +8,6 @@ import com.github.dockerjava.api.model.EventType;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.ContainerInfo;
-import org.apache.camel.karavan.infinispan.model.DevModeStatus;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -18,7 +16,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.Closeable;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +23,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.docker.DockerService.LABEL_TYPE;
-import static org.apache.camel.karavan.shared.EventType.DEVMODE_STATUS;
+import static org.apache.camel.karavan.shared.EventType.DEVMODE_CONTAINER_READY;
 import static org.apache.camel.karavan.shared.EventType.INFINISPAN_STARTED;
-import static org.apache.camel.karavan.shared.ConfigService.DEVMODE_SUFFIX;
 
 @ApplicationScoped
 public class DockerEventListener implements ResultCallback<Event> {
@@ -58,12 +54,6 @@ public class DockerEventListener implements ResultCallback<Event> {
             if (Objects.equals(event.getType(), EventType.CONTAINER)) {
                 Container container = dockerService.getContainer(event.getId());
                 onContainerEvent(event, container);
-                String status = event.getStatus();
-                if (container.getNames()[0].equals("/infinispan") && status.startsWith("health_status:")) {
-                    onInfinispanHealthEvent(event, container);
-                } else if (Objects.equals(container.getLabels().get(LABEL_TYPE), ContainerStatus.CType.devmode.name())) {
-                    onDevModeEvent(event, container);
-                }
             }
         } catch (Exception exception) {
             LOGGER.error(exception.getMessage());
@@ -72,66 +62,72 @@ public class DockerEventListener implements ResultCallback<Event> {
 
     public void onContainerEvent(Event event, Container container) {
         if (infinispanService.isReady()) {
-            String name = container.getNames()[0].replace("/", "");
             if (Arrays.asList("destroy", "stop", "die", "kill", "pause", "destroy", "rename").contains(event.getStatus())) {
-                infinispanService.deleteContainerInfo(name);
+                onDeleteContainer(container);
             } else if (Arrays.asList("create", "start", "unpause").contains(event.getStatus())) {
-                List<Integer> ports = Arrays.stream(container.getPorts()).map(ContainerPort::getPrivatePort).filter(Objects::nonNull).collect(Collectors.toList());
-                ContainerInfo ci = new ContainerInfo(name, container.getId(), container.getImage(), ports, environment);
-                infinispanService.saveContainerInfo(ci);
+                onCreateContainer(container, event);
+            } else {
+                String status = event.getStatus();
+                if (status.startsWith("health_status:")) {
+                    if (container.getNames()[0].equals("/infinispan")) {
+                        onInfinispanHealthEvent(container, event);
+                    } else if (inDevMode(container)) {
+                        onDevModeHealthEvent(container,event);
+                    }
+                }
             }
         }
     }
 
-    public void onInfinispanHealthEvent(Event event, Container container) {
+    private void onDeleteContainer(Container container){
+        String name = container.getNames()[0].replace("/", "");
+        infinispanService.deleteContainerStatus(name, environment, name);
+        if (inDevMode(container)) {
+            infinispanService.deleteCamelStatuses(name, environment);
+        }
+    }
+
+    protected void onCreateContainer(Container container, Event event){
+        String name = container.getNames()[0].replace("/", "");
+        List<Integer> ports = Arrays.stream(container.getPorts()).map(ContainerPort::getPrivatePort).filter(Objects::nonNull).collect(Collectors.toList());
+        ContainerStatus.Lifecycle lc = event.getStatus().equals("create") ? ContainerStatus.Lifecycle.init : ContainerStatus.Lifecycle.ready;
+        ContainerStatus.CType type = getCtype(container.getLabels());
+        ContainerStatus ci = infinispanService.getContainerStatus(name, environment, name);
+        if (ci == null) {
+            ci = ContainerStatus.createWithId(name, environment, container.getId(), ports, type, lc);
+        } else {
+            ci.setContainerId(container.getId());
+            ci.setPorts(ports);
+            ci.setType(type);
+            ci.setLifeCycle(lc);
+        }
+        infinispanService.saveContainerStatus(ci);
+    }
+
+    public void onInfinispanHealthEvent(Container container, Event event) {
         String status = event.getStatus();
         String health = status.replace("health_status: ", "");
         LOGGER.infof("Container %s health status: %s", container.getNames()[0], health);
         eventBus.publish(INFINISPAN_STARTED, health);
     }
 
-    public void onDevModeEvent(Event event, Container container) {
-        try {
-            if (infinispanService.isReady()) {
-                String status = event.getStatus();
-                String name = container.getNames()[0].replace("/", "");
-                if (Arrays.asList("stop", "die", "kill", "pause", "destroy").contains(event.getStatus())) {
-                    String projectId = name.replace(DEVMODE_SUFFIX, "");
-                    infinispanService.deleteDevModeStatus(projectId);
-                    infinispanService.deleteContainerStatus(projectId, environment, name);
-                    infinispanService.deleteCamelStatuses(projectId, environment);
-                } else if (Arrays.asList("start", "unpause").contains(event.getStatus())) {
-                    saveContainerStatus(container);
-                } else if (status.startsWith("health_status:")) {
-                    String health = status.replace("health_status: ", "");
-                    LOGGER.infof("Container %s health status: %s", container.getNames()[0], health);
-                    //update DevModeStatus
-                    String containerName = container.getNames()[0].replace("/", "");
-                    DevModeStatus dms = infinispanService.getDevModeStatus(container.getLabels().get("projectId"));
-                    if (dms != null) {
-                        dms.setContainerName(containerName);
-                        dms.setContainerId(container.getId());
-                        infinispanService.saveDevModeStatus(dms);
-                        eventBus.publish(DEVMODE_STATUS, JsonObject.mapFrom(dms));
-                    }
-                }
-            }
-        } catch (Exception exception) {
-            LOGGER.error(exception.getMessage());
+    public void onDevModeHealthEvent(Container container, Event event) {
+        String name = container.getNames()[0].replace("/", "");
+        String status = event.getStatus();
+        String health = status.replace("health_status: ", "");
+        LOGGER.infof("Container %s health status: %s", container.getNames()[0], health);
+        // update ContainerStatus: set ready and
+        ContainerStatus cs = infinispanService.getDevModeContainerStatus(name, environment);
+        if (cs != null) {
+            cs.setLifeCycle(ContainerStatus.Lifecycle.ready);
+            cs.setContainerId(container.getId());
+            infinispanService.saveContainerStatus(cs);
+            eventBus.publish(DEVMODE_CONTAINER_READY, JsonObject.mapFrom(cs));
         }
     }
 
-    protected void saveContainerStatus(Container container){
-        String name = container.getNames()[0].replace("/", "");
-        String projectId = name.replace(DEVMODE_SUFFIX, "");
-        Integer exposedPort =  (container.getPorts().length > 0)  ? container.getPorts()[0].getPublicPort() : null;
-        if (infinispanService.isReady()) {
-            ContainerStatus ps = infinispanService.getDevModeContainerStatuses(projectId, environment);
-            if (ps == null) {
-                ps = new ContainerStatus(name, true, projectId, environment, getCtype(container.getLabels()), Instant.ofEpochSecond(container.getCreated()).toString());
-            }
-            infinispanService.saveContainerStatus(ps);
-        }
+    private boolean inDevMode(Container container) {
+        return Objects.equals(getCtype(container.getLabels()), ContainerStatus.CType.devmode);
     }
 
     private ContainerStatus.CType getCtype(Map<String, String> labels) {
@@ -140,8 +136,12 @@ public class DockerEventListener implements ResultCallback<Event> {
             return ContainerStatus.CType.devmode;
         } else if (Objects.equals(type, ContainerStatus.CType.devservice.name())) {
             return ContainerStatus.CType.devservice;
+        } else if (Objects.equals(type, ContainerStatus.CType.project.name())) {
+            return ContainerStatus.CType.project;
+        } else if (Objects.equals(type, ContainerStatus.CType.internal.name())) {
+            return ContainerStatus.CType.internal;
         }
-        return ContainerStatus.CType.container;
+        return ContainerStatus.CType.unknown;
     }
 
     @Override

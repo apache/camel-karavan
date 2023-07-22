@@ -19,7 +19,6 @@ package org.apache.camel.karavan.headless;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -27,21 +26,20 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class EventService {
 
-    private static final Logger LOGGER = Logger.getLogger(EventService.class.getName());
+    public static final String CMD_COLLECT_CAMEL_STATUSES = "collect-camel-statuses";
     public static final String CMD_COLLECT_CAMEL_STATUS = "collect-camel-status";
-    public static final String CMD_DELETE_CAMEL_STATUS = "delete-camel-status";
 
     @Inject
     CamelService camelService;
 
-    @ConsumeEvent(value = CMD_COLLECT_CAMEL_STATUS, blocking = true)
+    @ConsumeEvent(value = CMD_COLLECT_CAMEL_STATUSES, blocking = true)
     public void collectCamelStatuses(JsonObject data) {
         camelService.collectCamelStatuses();
     }
 
-    @ConsumeEvent(value = CMD_DELETE_CAMEL_STATUS, blocking = true)
-    public void cleanupDevModeStatus(JsonObject data) {
-        camelService.cleanupDevModeStatuses();
+    @ConsumeEvent(value = CMD_COLLECT_CAMEL_STATUS, blocking = true)
+    public void collectCamelStatus(JsonObject data) {
+        camelService.collectCamelStatus(data);
     }
 
     @ConsumeEvent(value = InfinispanService.CODE_RELOAD_COMMAND, blocking = true)

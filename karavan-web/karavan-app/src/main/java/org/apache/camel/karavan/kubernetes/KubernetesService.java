@@ -385,18 +385,19 @@ public class KubernetesService implements HealthCheck {
         return result;
     }
 
-    public void runDevModeContainer(Project project, String runnerName, String jBangOptions) {
-        createPVC(runnerName);
-        Pod old = kubernetesClient().pods().inNamespace(getNamespace()).withName(runnerName).get();
+    public void runDevModeContainer(Project project, String jBangOptions) {
+        String name = project.getProjectId();
+        createPVC(name);
+        Pod old = kubernetesClient().pods().inNamespace(getNamespace()).withName(name).get();
         if (old == null) {
             ProjectFile properties = infinispanService.getProjectFile(project.getProjectId(), APPLICATION_PROPERTIES_FILENAME);
             Map<String, String> containerResources = CodeService
                     .getRunnerContainerResourcesMap(properties, isOpenshift(), project.getRuntime().equals("quarkus"));
-            Pod pod = getRunnerPod(project.getProjectId(), runnerName, jBangOptions, containerResources);
+            Pod pod = getRunnerPod(project.getProjectId(), name, jBangOptions, containerResources);
             Pod result = kubernetesClient().resource(pod).createOrReplace();
             LOGGER.info("Created pod " + result.getMetadata().getName());
         }
-        createService(runnerName);
+        createService(name);
     }
 
     public void deleteRunner(String name, boolean deletePVC) {
