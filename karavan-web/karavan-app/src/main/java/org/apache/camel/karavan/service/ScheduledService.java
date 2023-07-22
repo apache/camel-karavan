@@ -18,12 +18,15 @@ package org.apache.camel.karavan.service;
 
 import io.quarkus.scheduler.Scheduled;
 import org.apache.camel.karavan.docker.DockerService;
+import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
 public class ScheduledService {
+
+    private static final Logger LOGGER = Logger.getLogger(ScheduledService.class.getName());
 
     @Inject
     DockerService dockerService;
@@ -34,23 +37,17 @@ public class ScheduledService {
     @Inject
     CamelService camelService;
 
-    @Scheduled(every = "{karavan.container.status.pull-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
-    void collectContainersStatuses() {
-        dockerService.collectContainersStatuses();
-    }
-
-    @Scheduled(every = "{karavan.container.stats.container}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    @Scheduled(every = "{karavan.container.statistics.container}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectContainersStats() {
         dockerService.collectContainersStats();
     }
 
     @Scheduled(every = "{karavan.camel.status.pull-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectCamelStatuses() {
+        LOGGER.info("Collect info statuses");
+        // collect Camel statuses
         camelService.collectCamelStatuses();
-    }
-
-    @Scheduled(every = "{karavan.camel.status.pull-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
-    void cleanupDevModeStatuses() {
+        // clean DevMode statuses if container deleted
         camelService.cleanupDevModeStatuses();
     }
 

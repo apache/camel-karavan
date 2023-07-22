@@ -17,6 +17,8 @@
 package org.apache.camel.karavan.shared;
 
 import io.quarkus.runtime.StartupEvent;
+import io.quarkus.runtime.configuration.ConfigUtils;
+import io.quarkus.runtime.configuration.ProfileManager;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -28,6 +30,7 @@ import java.util.Objects;
 public class ConfigService {
 
     public static final String DEVMODE_SUFFIX = "-devmode";
+    public static final String HEADLESS_MODE = "headless";
 
     @ConfigProperty(name = "karavan.version")
     String version;
@@ -63,5 +66,9 @@ public class ConfigService {
 
     public static boolean inKubernetes() {
         return Objects.nonNull(System.getenv("KUBERNETES_SERVICE_HOST"));
+    }
+
+    public static boolean isHeadless() {
+        return ConfigUtils.isProfileActive(HEADLESS_MODE);
     }
 }

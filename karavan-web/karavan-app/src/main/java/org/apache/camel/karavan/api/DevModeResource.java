@@ -63,9 +63,9 @@ public class DevModeResource {
         if (status == null) {
             infinispanService.saveDevModeStatus(new DevModeStatus(project.getProjectId(), null, null, false));
             if (ConfigService.inKubernetes()) {
-                kubernetesService.createRunner(project, runnerName, "");
+                kubernetesService.runDevModeContainer(project, runnerName, "");
             } else {
-                dockerService.createRunner(project, runnerName, "");
+                dockerService.runDevmodeContainer(project, runnerName, "");
             }
             return Response.ok(runnerName).build();
         }

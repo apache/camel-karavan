@@ -48,11 +48,16 @@ public class EventService {
     @ConsumeEvent(value = START_KARAVAN, blocking = true, ordered = true)
     void startKaravan(String data) {
         if (!ConfigService.inKubernetes()) {
-            LOGGER.info("Starting Karavan with Docker");
-            dockerService.createNetwork();
-            dockerService.startListeners();
-            dockerService.startInfinispan();
-            dockerService.checkInfinispanHealth();
+            if (ConfigService.isHeadless()) {
+                LOGGER.info("Starting Karavan Headless in Docker");
+            } else {
+                LOGGER.info("Starting Karavan with Docker");
+                dockerService.createNetwork();
+                dockerService.startListeners();
+                dockerService.startInfinispan();
+                dockerService.checkInfinispanHealth();
+                dockerService.collectContainersStatuses();
+            }
         } else {
             LOGGER.info("Starting Karavan in " + (kubernetesService.isOpenshift() ? "OpenShift" : "Kubernetes"));
             startServices(HEALTHY);
@@ -60,9 +65,13 @@ public class EventService {
     }
 
     @ConsumeEvent(value = INFINISPAN_STARTED, blocking = true, ordered = true)
-    void startServices(String infinispanHealth){
+    void startServices(String infinispanHealth) {
         if (infinispanHealth.equals(HEALTHY)) {
-            infinispanService.start();
+            if (!ConfigService.inKubernetes()) {
+                dockerService.deleteKaravanHeadlessContainer();
+                dockerService.startKaravanHeadlessContainer();
+            }
+            infinispanService.start(false);
             infinispanService.clearAllStatuses();
             bus.publish(EventType.IMPORT_PROJECTS, "");
             bus.publish(EventType.START_INFRASTRUCTURE_LISTENERS, "");
@@ -103,7 +112,7 @@ public class EventService {
         }
     }
 
-    @ConsumeEvent(value = CONTAINER_STATS, blocking = true, ordered = true)
+    @ConsumeEvent(value = CONTAINER_STATISTICS, blocking = true, ordered = true)
     public void saveStats(JsonObject data) {
         String projectId = data.getString("projectId");
         String memory = data.getString("memory");

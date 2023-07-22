@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.camel.karavan</groupId>
-    <artifactId>karavan-cloud</artifactId>
+    <artifactId>karavan-web</artifactId>
     <version>3.21.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -42,12 +42,6 @@
         <quarkus-sdk.version>5.1.1</quarkus-sdk.version>
         <quarkus.version>2.16.7.Final</quarkus.version>
     </properties>
-
-    <modules>
-        <module>karavan-cli</module>
-        <module>karavan-app</module>
-        <module>karavan-operator</module>
-    </modules>
 
     <dependencyManagement>
         <dependencies>

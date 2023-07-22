@@ -13,7 +13,7 @@ public class EventType {
 
     public static final String INFINISPAN_STARTED = "INFINISPAN_STARTED";
 
-    public static final String CONTAINER_STATS = "CONTAINER_STATS";
+    public static final String CONTAINER_STATISTICS = "CONTAINER_STATISTICS";
     public static final String DEVMODE_STATUS = "DEVMODE_STATUS";
 
 }

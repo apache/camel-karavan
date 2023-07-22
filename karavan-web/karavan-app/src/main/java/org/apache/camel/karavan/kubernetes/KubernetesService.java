@@ -385,7 +385,7 @@ public class KubernetesService implements HealthCheck {
         return result;
     }
 
-    public void createRunner(Project project, String runnerName, String jBangOptions) {
+    public void runDevModeContainer(Project project, String runnerName, String jBangOptions) {
         createPVC(runnerName);
         Pod old = kubernetesClient().pods().inNamespace(getNamespace()).withName(runnerName).get();
         if (old == null) {

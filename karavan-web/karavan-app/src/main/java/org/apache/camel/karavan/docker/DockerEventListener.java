@@ -97,6 +97,7 @@ public class DockerEventListener implements ResultCallback<Event> {
                 String name = container.getNames()[0].replace("/", "");
                 if (Arrays.asList("stop", "die", "kill", "pause", "destroy").contains(event.getStatus())) {
                     String projectId = name.replace(DEVMODE_SUFFIX, "");
+                    infinispanService.deleteDevModeStatus(projectId);
                     infinispanService.deleteContainerStatus(projectId, environment, name);
                     infinispanService.deleteCamelStatuses(projectId, environment);
                 } else if (Arrays.asList("start", "unpause").contains(event.getStatus())) {
@@ -127,9 +128,7 @@ public class DockerEventListener implements ResultCallback<Event> {
         if (infinispanService.isReady()) {
             ContainerStatus ps = infinispanService.getDevModeContainerStatuses(projectId, environment);
             if (ps == null) {
-                ps = new ContainerStatus(name, true, projectId, environment, getCtype(container.getLabels()), Instant.ofEpochSecond(container.getCreated()).toString(), exposedPort);
-            } else {
-                ps.setExposedPort(exposedPort);
+                ps = new ContainerStatus(name, true, projectId, environment, getCtype(container.getLabels()), Instant.ofEpochSecond(container.getCreated()).toString());
             }
             infinispanService.saveContainerStatus(ps);
         }

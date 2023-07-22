@@ -36,6 +36,9 @@ public class DockerService {
 
     private static final Logger LOGGER = Logger.getLogger(DockerService.class.getName());
 
+    public static final String INFINISPAN_CONTAINER_NAME = "infinispan";
+    public static final String KARAVAN_CONTAINER_NAME = "karavan-headless";
+
     public static final String NETWORK_NAME = "karavan";
     public static final String LABEL_TYPE = "type";
     public static final String LABEL_PROJECT_ID = "projectId";
@@ -44,11 +47,16 @@ public class DockerService {
     private static final DecimalFormat formatGiB = new DecimalFormat("0.00");
     private static final Map<String, Tuple2<Long, Long>> previousStats = new ConcurrentHashMap<>();
 
-    @ConfigProperty(name = "runner.image")
-    String runnerImage;
+    @ConfigProperty(name = "karavan.devmode.image")
+    String devmodeImage;
+
+    @ConfigProperty(name = "karavan.headless.image")
+    String headlessImage;
 
     @ConfigProperty(name = "infinispan.image")
     String infinispanImage;
+    @ConfigProperty(name = "infinispan.hosts")
+    String infinispanHosts;
     @ConfigProperty(name = "infinispan.port")
     String infinispanPort;
     @ConfigProperty(name = "infinispan.username")
@@ -62,19 +70,17 @@ public class DockerService {
     @Inject
     EventBus eventBus;
 
-    public void createRunner(Project project, String runnerName, String jBangOptions) throws InterruptedException {
+    public void runDevmodeContainer(Project project, String runnerName, String jBangOptions) throws InterruptedException {
         String projectId = project.getProjectId();
         LOGGER.infof("DevMode starting for %s", projectId);
         HealthCheck healthCheck = new HealthCheck().withTest(List.of("CMD", "curl", "-f", "http://localhost:8080/q/dev/health"))
                 .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
-        createContainer(runnerName, runnerImage,
-                List.of(), "8080:8080", true,true, healthCheck,
+        createContainer(runnerName, devmodeImage,
+                List.of(), null, false, false, healthCheck,
                 Map.of(LABEL_TYPE, ContainerStatus.CType.devmode.name(), LABEL_PROJECT_ID, projectId));
         startContainer(runnerName);
         LOGGER.infof("DevMode started for %s", projectId);
     }
-
-    public static final String INFINISPAN_CONTAINER_NAME = "infinispan";
 
     public void startInfinispan() {
         try {
@@ -94,6 +100,32 @@ public class DockerService {
         }
     }
 
+    public void startKaravanHeadlessContainer() {
+        try {
+            LOGGER.info("Karavan headless is starting...");
+
+            createContainer(KARAVAN_CONTAINER_NAME, headlessImage,
+                    List.of(
+                            "INFINISPAN_HOSTS=infinispan:11222",
+                            "INFINISPAN_USERNAME=" + infinispanUsername,
+                            "INFINISPAN_PASSWORD=" + infinispanPassword
+                    ),
+                    null, false, false, new HealthCheck(), Map.of());
+            startContainer(KARAVAN_CONTAINER_NAME);
+            LOGGER.info("Karavan headless is started");
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+    }
+
+    public void deleteKaravanHeadlessContainer() {
+        try {
+            deleteContainer(KARAVAN_CONTAINER_NAME);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+    }
+
     public void collectContainersStats() {
         getDockerClient().listContainersCmd().exec().forEach(container -> {
             Statistics stats = getContainerStats(container.getId());
@@ -107,7 +139,7 @@ public class DockerService {
                     "memory", memoryUsage + " / " + memoryLimit,
                     "cpu", formatCpu(name, stats)
             );
-            eventBus.publish(CONTAINER_STATS, data);
+            eventBus.publish(CONTAINER_STATISTICS, data);
         });
     }
 
@@ -259,7 +291,12 @@ public class DockerService {
 
     public void pullImage(String image) throws InterruptedException {
         List<Image> images = getDockerClient().listImagesCmd().withShowAll(true).exec();
-        if (!images.stream().filter(i -> Arrays.asList(i.getRepoTags()).contains(image)).findFirst().isPresent()) {
+        List<String> tags = images.stream()
+                .map(i -> Arrays.stream(i.getRepoTags()).collect(Collectors.toList()))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+        if (!images.stream().filter(i -> tags.contains(image)).findFirst().isPresent()) {
             ResultCallback.Adapter<PullResponseItem> pull = getDockerClient().pullImageCmd(image).start().awaitCompletion();
         }
     }
@@ -280,7 +317,7 @@ public class DockerService {
 
     private Map<Integer, Integer> getPortsFromString(String ports) {
         Map<Integer, Integer> p = new HashMap<>();
-        if (!ports.isEmpty()) {
+        if (ports != null && !ports.isEmpty()) {
             Arrays.stream(ports.split(",")).forEach(s -> {
                 String[] values = s.split(":");
                 p.put(Integer.parseInt(values[0]), Integer.parseInt(values[1]));

@@ -20,12 +20,17 @@
     <artifactId>karavan</artifactId>
     <parent>
         <groupId>org.apache.camel.karavan</groupId>
-        <artifactId>karavan-cloud</artifactId>
+        <artifactId>karavan-web</artifactId>
         <version>3.21.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.camel.karavan</groupId>
+            <artifactId>karavan-infinispan</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-reactive-messaging</artifactId>
@@ -104,11 +109,6 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
-        <!-- Infinispan -->
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-infinispan-client</artifactId>
-        </dependency>
         <!-- Docker -->
         <dependency>
             <groupId>com.github.docker-java</groupId>
@@ -144,11 +144,6 @@
             <artifactId>rest-assured</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>io.quarkiverse.quinoa</groupId>
-            <artifactId>quarkus-quinoa</artifactId>
-            <version>${quinoa.version}</version>
-        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -162,13 +157,6 @@
                     <include>snippets/**</include>
                     <include>META-INF/**</include>
                     <include>**/**.xml</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>target/classes/proto</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>karavan.proto</include>
                 </includes>
             </resource>
         </resources>
@@ -224,42 +212,6 @@
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>native</id>
-            <activation>
-                <property>
-                    <name>native</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>${surefire-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                                <configuration>
-                                    <systemPropertyVariables>
-                                        <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
-                                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                                        <maven.home>${maven.home}</maven.home>
-                                    </systemPropertyVariables>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-            <properties>
-                <quarkus.package.type>native</quarkus.package.type>
-            </properties>
-        </profile>
-    </profiles>
     <repositories>
         <repository>
             <id>apache.snapshots</id>
