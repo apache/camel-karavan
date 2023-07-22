@@ -1,0 +1,6 @@
+<distributed-cache name="%s" mode="SYNC">
+    <encoding media-type="application/x-protostream"/>
+    <locking isolation="REPEATABLE_READ"/>
+    <groups enabled="true"/>
+    <memory max-count="1000000" when-full="REMOVE"/>
+</distributed-cache>
