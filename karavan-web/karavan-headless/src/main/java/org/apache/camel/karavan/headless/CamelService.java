@@ -16,7 +16,6 @@
  */
 package org.apache.camel.karavan.headless;
 
-import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.core.buffer.Buffer;
@@ -70,9 +69,8 @@ public class CamelService {
         LOGGER.info("Reload project code " + projectId);
         try {
             ContainerStatus containerStatus = infinispanService.getDevModeContainerStatuses(projectId, environment);
-            Integer exposedPort = containerStatus.getExposedPort();
-            infinispanService.getProjectFiles(projectId).forEach(projectFile -> putRequest(projectId,exposedPort, projectFile.getName(), projectFile.getCode(), 1000));
-            reloadRequest(projectId, exposedPort);
+            infinispanService.getProjectFiles(projectId).forEach(projectFile -> putRequest(projectId, projectFile.getName(), projectFile.getCode(), 1000));
+            reloadRequest(projectId);
             DevModeStatus dms = infinispanService.getDevModeStatus(projectId);
             dms.setCodeLoaded(true);
             infinispanService.saveDevModeStatus(dms);
@@ -82,9 +80,9 @@ public class CamelService {
     }
 
     @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)
-    public boolean putRequest(String containerName, Integer exposedPort, String fileName, String body, int timeout) {
+    public boolean putRequest(String containerName, String fileName, String body, int timeout) {
         try {
-            String url = getContainerAddress(containerName, exposedPort) + "/q/upload/" + fileName;
+            String url = getContainerAddress(containerName) + "/q/upload/" + fileName;
             HttpResponse<Buffer> result = getWebClient().putAbs(url)
                     .timeout(timeout).sendBuffer(Buffer.buffer(body)).subscribeAsCompletionStage().toCompletableFuture().get();
             return result.statusCode() == 200;
@@ -94,8 +92,8 @@ public class CamelService {
         return false;
     }
 
-    public void reloadRequest(String containerName, Integer exposedPort) {
-        String url = getContainerAddress(containerName, exposedPort) + "/q/dev/reload?reload=true";
+    public void reloadRequest(String containerName) {
+        String url = getContainerAddress(containerName) + "/q/dev/reload?reload=true";
         try {
             result(url, 1000);
         } catch (InterruptedException | ExecutionException e) {
@@ -103,14 +101,14 @@ public class CamelService {
         }
     }
 
-    public String getContainerAddress(String containerName, Integer exposedPort) {
-        return "http://localhost:" + exposedPort;
+    public String getContainerAddress(String containerName) {
+        return "http://localhost:8080";
     }
 
     public void collectCamelStatuses() {
         if (infinispanService.isReady()) {
             infinispanService.getContainerStatuses(environment).forEach(pod -> {
-                CamelStatusRequest csr = new CamelStatusRequest(pod.getProjectId(), pod.getName(), pod.getExposedPort());
+                CamelStatusRequest csr = new CamelStatusRequest(pod.getProjectId(), pod.getName());
                 eventBus.publish(CMD_COLLECT_CAMEL_STATUS, JsonObject.mapFrom(csr));
             });
         }
@@ -120,8 +118,7 @@ public class CamelService {
         CamelStatusRequest dms = data.mapTo(CamelStatusRequest.class);
         Arrays.stream(CamelStatus.Name.values()).forEach(statusName -> {
             String containerName = dms.getContainerName();
-            Integer exposedPort = dms.getExposedPort();
-            String status = getCamelStatus(containerName, exposedPort, statusName);
+            String status = getCamelStatus(containerName, statusName);
             if (status != null) {
                 CamelStatus cs = new CamelStatus(dms.getProjectId(), containerName, statusName, status, environment);
                 infinispanService.saveCamelStatus(cs);
@@ -164,8 +161,8 @@ public class CamelService {
         }
     }
 
-    public String getCamelStatus(String podName, Integer exposedPort, CamelStatus.Name statusName) {
-        String url = getContainerAddress(podName, exposedPort) + "/q/dev/" + statusName.name();
+    public String getCamelStatus(String podName, CamelStatus.Name statusName) {
+        String url = getContainerAddress(podName) + "/q/dev/" + statusName.name();
         try {
             return result(url, 500);
         } catch (InterruptedException | ExecutionException e) {
@@ -192,15 +189,13 @@ public class CamelService {
     public static class CamelStatusRequest {
         private String projectId;
         private String containerName;
-        private Integer exposedPort;
 
         public CamelStatusRequest() {
         }
 
-        public CamelStatusRequest(String projectId, String containerName, Integer exposedPort) {
+        public CamelStatusRequest(String projectId, String containerName) {
             this.projectId = projectId;
             this.containerName = containerName;
-            this.exposedPort = exposedPort;
         }
 
         public String getProjectId() {
@@ -219,12 +214,5 @@ public class CamelService {
             this.containerName = containerName;
         }
 
-        public Integer getExposedPort() {
-            return exposedPort;
-        }
-
-        public void setExposedPort(Integer exposedPort) {
-            this.exposedPort = exposedPort;
-        }
     }
 }
