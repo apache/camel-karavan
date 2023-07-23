@@ -89,9 +89,7 @@ public class InfinispanService {
         marshaller.register(new KaravanSchemaImpl());
 
         ConfigurationBuilder builder = new ConfigurationBuilder();
-        builder.socketTimeout(1000)
-                .connectionTimeout(10000)
-                .addServers(infinispanHosts)
+        builder.addServers(infinispanHosts)
                 .security()
                 .authentication().enable()
                 .username(infinispanUsername)
