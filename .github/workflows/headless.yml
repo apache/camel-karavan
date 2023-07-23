@@ -1,4 +1,4 @@
-name: headless service 
+name: Headless service 
 
 on:
   push:

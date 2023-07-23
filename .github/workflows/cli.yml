@@ -1,4 +1,4 @@
-name: cli 
+name: Command-line interface 
 
 on:
   push:

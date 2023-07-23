@@ -1,4 +1,4 @@
-name: vscode extension
+name: VS Code extension
 
 on:
   push:
