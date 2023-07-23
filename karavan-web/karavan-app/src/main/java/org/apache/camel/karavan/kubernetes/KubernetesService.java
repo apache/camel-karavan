@@ -95,7 +95,7 @@ public class KubernetesService implements HealthCheck {
 
     public void startInformers(String data) {
         try {
-            stopInformers(null);
+            stopInformers();
             LOGGER.info("Starting Kubernetes Informers");
 
             SharedIndexInformer<Deployment> deploymentInformer = kubernetesClient().apps().deployments().inNamespace(getNamespace())
@@ -138,7 +138,7 @@ public class KubernetesService implements HealthCheck {
         }
     }
 
-    public void stopInformers(String data) {
+    public void stopInformers() {
         LOGGER.info("Stop Kubernetes Informers");
         informers.forEach(SharedIndexInformer::close);
         informers.clear();

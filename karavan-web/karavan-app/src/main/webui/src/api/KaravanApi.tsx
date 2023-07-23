@@ -4,7 +4,7 @@ import {
     CamelStatus,
     DeploymentStatus,
     PipelineStatus,
-    PodStatus,
+    ContainerStatus,
     Project,
     ProjectFile, ProjectType, ServiceStatus
 } from "./ProjectModels";
@@ -303,7 +303,7 @@ export class KaravanApi {
         });
     }
 
-    static async getDevModePodStatus(projectId: string, after: (res: AxiosResponse<PodStatus>) => void) {
+    static async getDevModePodStatus(projectId: string, after: (res: AxiosResponse<ContainerStatus>) => void) {
         instance.get('/api/devmode/pod/' + projectId)
             .then(res => {
                 after(res);
@@ -441,7 +441,7 @@ export class KaravanApi {
         });
     }
 
-    static async getProjectPodStatuses(project: string, env: string, after: (statuses: PodStatus[]) => void) {
+    static async getProjectPodStatuses(project: string, env: string, after: (statuses: ContainerStatus[]) => void) {
         instance.get('/api/infrastructure/pod/' + project + "/" + env)
             .then(res => {
                 if (res.status === 200) {

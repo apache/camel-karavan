@@ -16,6 +16,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.Closeable;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -92,14 +93,16 @@ public class DockerEventListener implements ResultCallback<Event> {
         List<Integer> ports = Arrays.stream(container.getPorts()).map(ContainerPort::getPrivatePort).filter(Objects::nonNull).collect(Collectors.toList());
         ContainerStatus.Lifecycle lc = event.getStatus().equals("create") ? ContainerStatus.Lifecycle.init : ContainerStatus.Lifecycle.ready;
         ContainerStatus.CType type = getCtype(container.getLabels());
+        String created = Instant.ofEpochSecond(container.getCreated()).toString();
         ContainerStatus ci = infinispanService.getContainerStatus(name, environment, name);
         if (ci == null) {
-            ci = ContainerStatus.createWithId(name, environment, container.getId(), ports, type, lc);
+            ci = ContainerStatus.createWithId(name, environment, container.getId(), ports, type, lc, created);
         } else {
             ci.setContainerId(container.getId());
             ci.setPorts(ports);
             ci.setType(type);
             ci.setLifeCycle(lc);
+            ci.setCreated(created);
         }
         infinispanService.saveContainerStatus(ci);
     }

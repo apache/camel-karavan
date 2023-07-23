@@ -26,7 +26,7 @@ import {MainLogin} from "./MainLogin";
 import {DashboardPage} from "./dashboard/DashboardPage";
 import {Subscription} from "rxjs";
 import {ProjectEventBus} from "./api/ProjectEventBus";
-import {AppConfig, PodStatus, Project, ToastMessage} from "./api/ProjectModels";
+import {AppConfig, ContainerStatus, Project, ToastMessage} from "./api/ProjectModels";
 import {ProjectPage} from "./project/ProjectPage";
 import {useAppConfigStore, useDevModeStore, useFileStore, useProjectStore} from "./api/ProjectStore";
 import {Notification} from "./Notification";
@@ -179,7 +179,7 @@ export class Main extends React.Component<Props, State> {
                                 onClick={event => {
                                     useFileStore.setState({operation:'none', file: undefined})
                                     useDevModeStore.setState({podName: undefined, status: "none"})
-                                    useProjectStore.setState({podStatus: new PodStatus({}), })
+                                    useProjectStore.setState({containerStatus: new ContainerStatus({}), })
                                     this.setState({pageId: page.pageId});
                                 }}
                         />

@@ -127,9 +127,13 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/status/{projectId}/{statusName}")
     public Response getCamelStatusByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("statusName") String statusName) {
-        CamelStatus status = infinispanService.getCamelStatus(projectId, environment, statusName);
-        if (status != null) {
-            return Response.ok(status).build();
+        if (infinispanService.isReady()) {
+            CamelStatus status = infinispanService.getCamelStatus(projectId, environment, statusName);
+            if (status != null) {
+                return Response.ok(status).build();
+            } else {
+                return Response.noContent().build();
+            }
         } else {
             return Response.noContent().build();
         }

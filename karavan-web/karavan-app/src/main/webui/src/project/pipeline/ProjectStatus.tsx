@@ -14,7 +14,7 @@ import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import ClockIcon from "@patternfly/react-icons/dist/esm/icons/clock-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
-import {CamelStatus, DeploymentStatus, PipelineStatus, PodStatus, Project} from "../../api/ProjectModels";
+import {CamelStatus, DeploymentStatus, PipelineStatus, ContainerStatus, Project} from "../../api/ProjectModels";
 import {useLogStore} from "../../api/ProjectStore";
 
 interface Props {
@@ -26,7 +26,7 @@ interface Props {
 interface State {
     pipelineStatus?: PipelineStatus,
     deploymentStatus?: DeploymentStatus,
-    podStatuses: PodStatus[],
+    podStatuses: ContainerStatus[],
     camelStatus?: CamelStatus,
     isPushing: boolean,
     isBuilding: boolean,
@@ -67,7 +67,7 @@ export class ProjectStatus extends React.Component<Props, State> {
                 this.setState({deploymentStatus: status});
                 // console.log(status);
             });
-            KaravanApi.getProjectPodStatuses(projectId, env, (statuses: PodStatus[]) => {
+            KaravanApi.getProjectPodStatuses(projectId, env, (statuses: ContainerStatus[]) => {
                 this.setState({podStatuses: statuses});
                 // console.log(status);
             });
@@ -193,7 +193,7 @@ export class ProjectStatus extends React.Component<Props, State> {
         )
     }
 
-    getPodsPanel(env: string, podStatuses: PodStatus[]) {
+    getPodsPanel(env: string, podStatuses: ContainerStatus[]) {
         return (
             <Flex justifyContent={{default: "justifyContentSpaceBetween"}}
                   alignItems={{default: "alignItemsFlexStart"}}>
@@ -201,27 +201,27 @@ export class ProjectStatus extends React.Component<Props, State> {
                     {podStatuses.length === 0 && <Label icon={<DownIcon/>} color={"grey"}>No pods</Label>}
                     <LabelGroup numLabels={2} isVertical>
                         {podStatuses.map(pod => {
-                                const ready = pod.ready;
+                                const ready = pod.lifeCycle === 'ready';
                                 return (
-                                    <Tooltip key={pod.name} content={ready ? "Ready" : "Not ready"}>
+                                    <Tooltip key={pod.containerName} content={pod.lifeCycle}>
                                         <Label icon={ready ? <UpIcon/> : <DownIcon/>} color={ready ? "green" : "red"}>
                                             <Button variant="link"
                                                     onClick={e => {
                                                         useLogStore.setState({
                                                             showLog: true,
                                                             type: 'container',
-                                                            podName: pod.name,
+                                                            podName: pod.containerName,
                                                             isRunning: true
                                                         });
                                                     }}>
-                                                {pod.name}
+                                                {pod.containerName}
                                             </Button>
                                             <Tooltip content={"Delete Pod"}>
                                                 <Button icon={<DeleteIcon/>} variant="link" onClick={e => this.setState({
                                                     showDeleteConfirmation: true,
                                                     deleteEntity: "pod",
                                                     deleteEntityEnv: env,
-                                                    deleteEntityName: pod.name
+                                                    deleteEntityName: pod.containerName
                                                 })}></Button>
                                             </Tooltip>
                                         </Label>

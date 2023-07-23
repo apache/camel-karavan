@@ -16,7 +16,7 @@
  */
 
 import {create} from 'zustand'
-import {AppConfig, DeploymentStatus, PodStatus, Project, ProjectFile, ToastMessage} from "./ProjectModels";
+import {AppConfig, DeploymentStatus, ContainerStatus, Project, ProjectFile, ToastMessage} from "./ProjectModels";
 import {ProjectEventBus} from "./ProjectEventBus";
 import {unstable_batchedUpdates} from "react-dom";
 import {bottom} from "@patternfly/react-core/helpers/Popper/thirdparty/popper-core";
@@ -60,7 +60,7 @@ interface ProjectState {
     project: Project;
     isPushing: boolean,
     isRunning: boolean,
-    podStatus: PodStatus,
+    containerStatus: ContainerStatus,
     operation: "create" | "select" | "delete" | "none" | "copy";
     setProject: (project: Project, operation:  "create" | "select" | "delete"| "none" | "copy") => void;
     setOperation: (o: "create" | "select" | "delete"| "none" | "copy") => void;
@@ -71,7 +71,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
     operation: "none",
     isPushing: false,
     isRunning: false,
-    podStatus: new PodStatus(),
+    containerStatus: new ContainerStatus(),
     setProject: (project: Project, operation:  "create" | "select" | "delete"| "none" | "copy") => {
         set((state: ProjectState) => ({
             project: project,

@@ -1,0 +1,56 @@
+name: headless service 
+
+on:
+  push:
+    branches: [ main ]
+    paths: ['karavan-web/karavan-headless/**', 'karavan-web/karavan-infinispan/**']
+  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
+
+env:
+  TAG: 3.21.1-SNAPSHOT
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Karavan
+        uses: actions/checkout@v3
+        with:
+          path: karavan
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: adopt
+          java-version: 11
+
+      - name: Cache local Maven repository
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/org/apache/camel/karavan
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      #  Build Karavan infinispan module
+      - name: Build infinispan module
+        working-directory: ./karavan/karavan-web/karavan-infinispan
+        run: |
+          mvn package
+        if: ${{ github.ref == 'refs/heads/main' }}
+
+      #  Build Karavan headless 
+      - name: Build headless service
+        working-directory: ./karavan/karavan-web/karavan-headless
+        run: |
+          mvn package -DskipTests \
+          -Dquarkus.container-image.build=true \
+          -Dquarkus.container-image.push=true \
+          -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}-headless:${{ env.TAG }} \
+          -Dquarkus.container-image.username=${{ github.actor }} \
+          -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }}
+        if: ${{ github.ref == 'refs/heads/main' }}
+

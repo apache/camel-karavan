@@ -45,12 +45,14 @@ public class KameletResources {
     @Produces(MediaType.TEXT_PLAIN)
     public String getKamelets() {
         StringBuilder kamelets = new StringBuilder(codeService.getResourceFile("/kamelets/kamelets.yaml"));
-        List<ProjectFile> custom = infinispanService.getProjectFiles(Project.Type.kamelets.name());
-        if (custom.size() > 0) {
-            kamelets.append("\n---\n");
-            kamelets.append(custom.stream()
-                    .map(ProjectFile::getCode)
-                    .collect(Collectors.joining("\n---\n")));
+        if (infinispanService.isReady()) {
+            List<ProjectFile> custom = infinispanService.getProjectFiles(Project.Type.kamelets.name());
+            if (custom.size() > 0) {
+                kamelets.append("\n---\n");
+                kamelets.append(custom.stream()
+                        .map(ProjectFile::getCode)
+                        .collect(Collectors.joining("\n---\n")));
+            }
         }
         return kamelets.toString();
     }

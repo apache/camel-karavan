@@ -57,6 +57,7 @@ export const TraceTab = () => {
         if (refreshTrace) {
             KaravanApi.getDevModeStatus(projectId, "trace", res => {
                 if (res.status === 200) {
+                    console.log(JSON.parse(res.data.status))
                     setTrace(JSON.parse(res.data.status));
                 } else {
                     setTrace({});

@@ -1,5 +1,5 @@
 import {KaravanApi} from "./KaravanApi";
-import {DeploymentStatus, PodStatus, Project, ProjectFile, ToastMessage} from "./ProjectModels";
+import {DeploymentStatus, ContainerStatus, Project, ProjectFile, ToastMessage} from "./ProjectModels";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {InfrastructureAPI} from "../designer/utils/InfrastructureAPI";
 import {unstable_batchedUpdates} from 'react-dom'
@@ -57,20 +57,20 @@ export class ProjectService {
             if (res.status === 200) {
                 unstable_batchedUpdates(() => {
                     const podStatus = res.data;
-                    if (useDevModeStore.getState().podName !== podStatus.name){
-                        useDevModeStore.setState({podName: podStatus.name})
+                    if (useDevModeStore.getState().podName !== podStatus.containerName){
+                        useDevModeStore.setState({podName: podStatus.containerName})
                     }
                     if (useDevModeStore.getState().status !== "running"){
                         useDevModeStore.setState({status: "running"})
                         useLogStore.setState({isRunning: true})
                     }
-                    useProjectStore.setState({podStatus: res.data});
+                    useProjectStore.setState({containerStatus: res.data});
                 })
             } else {
                 unstable_batchedUpdates(() => {
                     if (useDevModeStore.getState().status !== 'none') {
                         useDevModeStore.setState({status: "none", podName: undefined})
-                        useProjectStore.setState({podStatus: new PodStatus()});
+                        useProjectStore.setState({containerStatus: new ContainerStatus()});
                     }
                 })
             }

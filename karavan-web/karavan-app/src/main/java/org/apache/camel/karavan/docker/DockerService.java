@@ -171,7 +171,7 @@ public class DockerService {
                     .withDriver("bridge")
                     .withInternal(false)
                     .withAttachable(true).exec();
-            LOGGER.info("Network created: {}" + res);
+            LOGGER.info("Network created: " + NETWORK_NAME);
         } else {
             LOGGER.info("Network already exists with name: " + NETWORK_NAME);
         }

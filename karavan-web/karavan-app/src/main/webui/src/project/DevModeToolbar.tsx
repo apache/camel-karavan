@@ -8,6 +8,7 @@ import {useDevModeStore, useLogStore, useProjectStore} from "../api/ProjectStore
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
+import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 
 
 interface Props {
@@ -17,8 +18,21 @@ interface Props {
 export const DevModeToolbar = (props: Props) => {
 
     const [status] = useDevModeStore((state) => [state.status], shallow)
-    const [project,podStatus ] = useProjectStore((state) => [state.project, state.podStatus], shallow)
+    const [project,containerStatus ] = useProjectStore((state) => [state.project, state.containerStatus], shallow)
     const [verbose, setVerbose] = useState(false);
+
+
+    function getColor() {
+        return getRunning() ? "green" : "grey";
+    }
+
+    function getRunning(): boolean {
+        return containerStatus.lifeCycle === 'ready';
+    }
+
+    function getIcon() {
+        return (getRunning() ? <UpIcon/> : <DownIcon/>)
+    }
 
     const isRunning = status === "running";
     const isStartingPod = status === "starting";
@@ -26,12 +40,12 @@ export const DevModeToolbar = (props: Props) => {
     const isDeletingPod = status === "deleting";
     return (<Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
         {isRunning && <FlexItem>
-            <Label icon={<UpIcon/>} color={"green"}>
+            <Label icon={getIcon()} color={getColor()}>
                 <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
                     <Button variant="link"
                             onClick={e =>
-                                useLogStore.setState({showLog: true, type: 'container', podName: podStatus.name})}>
-                        {podStatus.name}
+                                useLogStore.setState({showLog: true, type: 'container', podName: containerStatus.containerName})}>
+                        {containerStatus.containerName}
                     </Button>
                 </Tooltip>
             </Label>

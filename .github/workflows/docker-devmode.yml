@@ -1,4 +1,4 @@
-name: runner image
+name: DevMode image
 
 on:
   push:

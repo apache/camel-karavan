@@ -50,6 +50,8 @@ import static org.infinispan.query.remote.client.ProtobufMetadataManagerConstant
 @ApplicationScoped
 public class InfinispanService {
 
+    public static final String HEALTHY_STATUS = "healthy";
+
     @ConfigProperty(name ="infinispan.hosts")
     String infinispanHosts;
     @ConfigProperty(name ="infinispan.username")

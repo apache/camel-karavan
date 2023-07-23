@@ -109,7 +109,7 @@ public class CamelService {
                     .filter(status -> status.getType().equals(ContainerStatus.CType.devmode) || status.getType().equals(ContainerStatus.CType.project))
                     .forEach(status -> {
                         CamelStatusRequest csr = new CamelStatusRequest(status.getProjectId(), status.getContainerName());
-                        eventBus.publish(CMD_COLLECT_CAMEL_STATUSES, JsonObject.mapFrom(csr));
+                        eventBus.publish(CMD_COLLECT_CAMEL_STATUS, JsonObject.mapFrom(csr));
                     });
         }
     }

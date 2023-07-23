@@ -19,14 +19,17 @@ package org.apache.camel.karavan.service;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import io.vertx.core.eventbus.EventBus;
+import org.apache.camel.karavan.docker.DockerService;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.shared.ConfigService;
 import org.apache.camel.karavan.shared.EventType;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-
-import static org.apache.camel.karavan.shared.EventType.START_KARAVAN;
+import java.io.IOException;
 
 @ApplicationScoped
 public class KaravanService {
@@ -34,16 +37,40 @@ public class KaravanService {
     private static final Logger LOGGER = Logger.getLogger(KaravanService.class.getName());
 
     @Inject
+    KubernetesService kubernetesService;
+
+    @Inject
+    DockerService dockerService;
+
+    @Inject
     EventBus bus;
 
     void onStart(@Observes StartupEvent ev) {
         LOGGER.info("Starting Karavan");
-        bus.publish(START_KARAVAN, "");
+        if (!ConfigService.inKubernetes()) {
+            if (ConfigService.isHeadless()) {
+                LOGGER.info("Starting Karavan Headless in Docker");
+            } else {
+                LOGGER.info("Starting Karavan with Docker");
+                dockerService.createNetwork();
+                dockerService.startListeners();
+                dockerService.startInfinispan();
+                dockerService.checkInfinispanHealth();
+            }
+        } else {
+            LOGGER.info("Starting Karavan in " + (kubernetesService.isOpenshift() ? "OpenShift" : "Kubernetes"));
+            bus.publish(EventType.INFINISPAN_STARTED, InfinispanService.HEALTHY_STATUS);
+        }
     }
 
-    void onStop(@Observes ShutdownEvent ev) {
+    void onStop(@Observes ShutdownEvent ev) throws IOException  {
+        LOGGER.info("Stop Listeners");
+        if (ConfigService.inKubernetes()) {
+            kubernetesService.stopInformers();
+        } else {
+            dockerService.stopListeners();
+        }
         LOGGER.info("Stop Karavan");
-        bus.publish(EventType.STOP_INFRASTRUCTURE_LISTENERS, "");
     }
 
 }

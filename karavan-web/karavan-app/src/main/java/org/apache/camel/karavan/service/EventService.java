@@ -21,7 +21,6 @@ import static org.apache.camel.karavan.shared.EventType.*;
 public class EventService {
 
     private static final Logger LOGGER = Logger.getLogger(EventService.class.getName());
-    private static final String HEALTHY = "healthy";
 
     @Inject
     InfinispanService infinispanService;
@@ -44,27 +43,9 @@ public class EventService {
     @Inject
     EventBus bus;
 
-    @ConsumeEvent(value = START_KARAVAN, blocking = true, ordered = true)
-    void startKaravan(String data) {
-        if (!ConfigService.inKubernetes()) {
-            if (ConfigService.isHeadless()) {
-                LOGGER.info("Starting Karavan Headless in Docker");
-            } else {
-                LOGGER.info("Starting Karavan with Docker");
-                dockerService.createNetwork();
-                dockerService.startListeners();
-                dockerService.startInfinispan();
-                dockerService.checkInfinispanHealth();
-            }
-        } else {
-            LOGGER.info("Starting Karavan in " + (kubernetesService.isOpenshift() ? "OpenShift" : "Kubernetes"));
-            startServices(HEALTHY);
-        }
-    }
-
     @ConsumeEvent(value = INFINISPAN_STARTED, blocking = true, ordered = true)
     void startServices(String infinispanHealth) {
-        if (infinispanHealth.equals(HEALTHY)) {
+        if (infinispanHealth.equals(InfinispanService.HEALTHY_STATUS)) {
             infinispanService.start(false);
             infinispanService.clearAllStatuses();
             if (!ConfigService.inKubernetes()) {
@@ -84,16 +65,6 @@ public class EventService {
             kubernetesService.startInformers(data);
         } else {
 //            Docker listener is already started
-        }
-    }
-
-    @ConsumeEvent(value = STOP_INFRASTRUCTURE_LISTENERS, blocking = true)
-    void stopInfrastructureListeners(String data) throws IOException {
-        LOGGER.info("Stop Infrastructure Listeners");
-        if (ConfigService.inKubernetes()) {
-            kubernetesService.stopInformers(data);
-        } else {
-            dockerService.stopListeners();
         }
     }
 

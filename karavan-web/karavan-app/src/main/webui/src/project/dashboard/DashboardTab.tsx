@@ -20,7 +20,7 @@ import {
     CardBody, Flex, FlexItem, Divider, PageSection
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {InfoPod} from "./InfoPod";
+import {InfoContainer} from "./InfoContainer";
 import {InfoContext} from "./InfoContext";
 import {InfoMemory} from "./InfoMemory";
 import {KaravanApi} from "../../api/KaravanApi";
@@ -28,7 +28,7 @@ import {useProjectStore} from "../../api/ProjectStore";
 
 export const DashboardTab = () => {
 
-    const {project, podStatus} = useProjectStore();
+    const {project, containerStatus} = useProjectStore();
     const [memory, setMemory] = useState({});
     const [jvm, setJvm] = useState({});
     const [context, setContext] = useState({});
@@ -68,7 +68,7 @@ export const DashboardTab = () => {
     }
 
     function showConsole(): boolean {
-        return podStatus.ready;
+        return containerStatus.lifeCycle === 'ready';
     }
 
     return (
@@ -78,7 +78,7 @@ export const DashboardTab = () => {
                     <Flex direction={{default: "row"}}
                           justifyContent={{default: "justifyContentSpaceBetween"}}>
                         <FlexItem flex={{default: "flex_1"}}>
-                            <InfoPod podStatus={podStatus}/>
+                            <InfoContainer containerStatus={containerStatus}/>
                         </FlexItem>
                         <Divider orientation={{default: "vertical"}}/>
                         <FlexItem flex={{default: "flex_1"}}>

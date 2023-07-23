@@ -26,16 +26,10 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class EventService {
 
-    public static final String CMD_COLLECT_CAMEL_STATUSES = "collect-camel-statuses";
     public static final String CMD_COLLECT_CAMEL_STATUS = "collect-camel-status";
 
     @Inject
     CamelService camelService;
-
-    @ConsumeEvent(value = CMD_COLLECT_CAMEL_STATUSES, blocking = true)
-    public void collectCamelStatuses(JsonObject data) {
-        camelService.collectCamelStatuses();
-    }
 
     @ConsumeEvent(value = CMD_COLLECT_CAMEL_STATUS, blocking = true)
     public void collectCamelStatus(JsonObject data) {

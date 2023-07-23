@@ -67,18 +67,20 @@ export class ServiceStatus {
     type: string = '';
 }
 
-export class PodStatus {
-    name: string = '';
-    ready: boolean = false;
+export class ContainerStatus {
+    containerName: string = '';
+    lifeCycle: string = '';
     deployment: string = '';
     projectId: string = '';
     env: string = '';
-    inDevMode: boolean = false;
+    type: string = '';
     memoryInfo: string = '';
     cpuInfo: string = '';
     created: string = '';
+    image: string = '';
+    ports: [] = [];
 
-    public constructor(init?: Partial<PodStatus>) {
+    public constructor(init?: Partial<ContainerStatus>) {
         Object.assign(this, init);
     }
 }
