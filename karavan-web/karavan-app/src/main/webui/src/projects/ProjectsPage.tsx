@@ -22,11 +22,11 @@ import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {ProjectsTableRow} from "./ProjectsTableRow";
 import {DeleteProjectModal} from "./DeleteProjectModal";
 import {CreateProjectModal} from "./CreateProjectModal";
-import {useAppConfigStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
+import {useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {MainToolbar} from "../designer/MainToolbar";
 import {Project, ProjectType} from "../api/ProjectModels";
-import {shallow} from "zustand/esm/shallow";
+import {shallow} from "zustand/shallow";
 
 
 export const ProjectsPage = () => {
