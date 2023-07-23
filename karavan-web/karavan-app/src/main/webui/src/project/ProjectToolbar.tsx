@@ -4,13 +4,11 @@ import {
     Checkbox,
     Flex,
     FlexItem,
-    Label,
     ToggleGroup,
     ToggleGroupItem,
     Toolbar,
     ToolbarContent,
-    Tooltip,
-    TooltipPosition
+    Tooltip
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
@@ -79,11 +77,6 @@ export const ProjectToolbar = (props: Props) => {
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
                 <Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
-                    {isJava() && <FlexItem>
-                        <Tooltip content="File size" position={TooltipPosition.bottom}>
-                            <Label>{file?.code?.length}</Label>
-                        </Tooltip>
-                    </FlexItem>}
                     {isRunnable() && <DevModeToolbar reloadOnly={true}/>}
                     {isYaml() && <FlexItem>
                         <ToggleGroup>

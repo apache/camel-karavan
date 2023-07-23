@@ -120,6 +120,7 @@ public class DockerService {
 
     public void deleteKaravanHeadlessContainer() {
         try {
+            stopContainer(KARAVAN_CONTAINER_NAME);
             deleteContainer(KARAVAN_CONTAINER_NAME);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
@@ -252,11 +253,10 @@ public class DockerService {
         startContainer(name);
     }
 
-    public LogCallback logContainer(String containerName) {
+    public void logContainer(String containerName, LogCallback callback) {
         try {
             Container container = getContainerByName(containerName);
             if (container != null) {
-                LogCallback callback = new LogCallback(eventBus);
                 getDockerClient().logContainerCmd(container.getId())
                         .withStdOut(true)
                         .withStdErr(true)
@@ -265,12 +265,10 @@ public class DockerService {
                         .withTailAll()
                         .exec(callback);
                 callback.awaitCompletion();
-                return callback;
             }
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
-        return null;
     }
 
     public void stopContainer(String name) {

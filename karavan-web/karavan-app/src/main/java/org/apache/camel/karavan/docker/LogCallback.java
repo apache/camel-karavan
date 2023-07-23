@@ -2,19 +2,20 @@ package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.model.Frame;
-import io.vertx.core.eventbus.EventBus;
+
+import java.util.function.Consumer;
 
 public class LogCallback extends ResultCallback.Adapter<Frame> {
 
-    private final EventBus eventBus;
+    private final Consumer<String> action;
 
-    public LogCallback(EventBus eventBus) {
-        this.eventBus = eventBus;
+    public LogCallback(Consumer<String> action) {
+        this.action = action;
     }
 
     @Override
     public void onNext(Frame frame) {
-        System.out.println(new String(frame.getPayload()));
+        action.accept(new String(frame.getPayload()));
     }
 
 }

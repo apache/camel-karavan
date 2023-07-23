@@ -18,6 +18,7 @@ package org.apache.camel.karavan.service;
 
 import io.quarkus.scheduler.Scheduled;
 import org.apache.camel.karavan.docker.DockerService;
+import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.shared.ConfigService;
 import org.jboss.logging.Logger;
 
@@ -38,12 +39,22 @@ public class ScheduledService {
     @Inject
     CamelService camelService;
 
-    @Scheduled(every = "{karavan.container.statistics.container}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    @Inject
+    InfinispanService infinispanService;
+
+    @Scheduled(every = "{karavan.container.statistics.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectContainersStats() {
         dockerService.collectContainersStats();
     }
 
-    @Scheduled(every = "{karavan.camel.status.pull-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    @Scheduled(every = "{karavan.container.infinispan.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    void checkInfinispanHealth() {
+        if (!infinispanService.isReady()) {
+            dockerService.checkInfinispanHealth();
+        }
+    }
+
+    @Scheduled(every = "{karavan.camel.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectCamelStatuses() {
         LOGGER.info("Collect info statuses");
         if (ConfigService.inKubernetes()) {
@@ -52,7 +63,7 @@ public class ScheduledService {
         }
     }
 
-    @Scheduled(every = "{karavan.git.pull-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    @Scheduled(every = "{karavan.git.pull.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void pullCommitsFromGit() {
         projectService.pullCommits();
     }

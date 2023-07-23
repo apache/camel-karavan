@@ -42,7 +42,7 @@ public class HeadlessService {
         infinispanService.clearAllStatuses();
     }
 
-    @Scheduled(every = "{karavan.camel.status.pull-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    @Scheduled(every = "{karavan.camel.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectCamelStatuses() {
         LOGGER.info("Collect info statuses");
         // collect Camel statuses

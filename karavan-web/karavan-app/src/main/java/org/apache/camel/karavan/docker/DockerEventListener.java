@@ -159,7 +159,7 @@ public class DockerEventListener implements ResultCallback<Event> {
 
     @Override
     public void close() throws IOException {
-        LOGGER.error("DockerEventListener close");
+        LOGGER.info("DockerEventListener close");
     }
 
 

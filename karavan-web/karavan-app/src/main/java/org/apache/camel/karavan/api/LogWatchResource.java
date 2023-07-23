@@ -17,10 +17,15 @@
 package org.apache.camel.karavan.api;
 
 import io.fabric8.kubernetes.client.dsl.LogWatch;
+import io.smallrye.context.api.ManagedExecutorConfig;
+import io.smallrye.context.api.NamedInstance;
+import org.apache.camel.karavan.docker.DockerService;
+import org.apache.camel.karavan.docker.LogCallback;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.context.ManagedExecutor;
+import org.eclipse.microprofile.context.ThreadContext;
 import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
@@ -30,11 +35,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.sse.Sse;
 import javax.ws.rs.sse.SseEventSink;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Path("/api/logwatch")
@@ -47,9 +54,11 @@ public class LogWatchResource {
     KubernetesService kubernetesService;
 
     @Inject
-    InfinispanService infinispanService;
+    DockerService dockerService;
 
     @Inject
+    @ManagedExecutorConfig()
+    @NamedInstance("logExecutor")
     ManagedExecutor managedExecutor;
 
     @GET
@@ -57,17 +66,33 @@ public class LogWatchResource {
     @Path("/{type}/{name}")
     public void eventSourcing(@PathParam("type") String type,
                               @PathParam("name") String name,
+                              @Context SecurityContext securityContext,
                               @Context SseEventSink eventSink,
-                              @Context Sse sse
-    ) {
+                              @Context Sse sse) {
+
         managedExecutor.execute(() -> {
             LOGGER.info("LogWatch for " + name + " starting...");
             if (ConfigService.inKubernetes()) {
                 getKubernetesLogs(type, name, eventSink, sse);
             } else {
-//                infinispanService.sendDevModeCommand(DevModeCommand.createForContainer(DevModeCommandName.LOG, name));
+                getDockerLogs(type, name, eventSink, sse);
             }
         });
+    }
+
+    private void getDockerLogs(String type, String name, SseEventSink eventSink, Sse sse) {
+        LOGGER.info("LogCallback for " + name + " starting");
+        try (SseEventSink sink = eventSink) {
+            LogCallback logCallback = new LogCallback(line -> {
+                sink.send(sse.newEvent(line));
+            });
+            dockerService.logContainer(name, logCallback);
+            logCallback.close();
+            sink.close();
+            LOGGER.info("LogCallback for " + name + " closed");
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
     }
 
     private void getKubernetesLogs(String type, String name, SseEventSink eventSink, Sse sse) {

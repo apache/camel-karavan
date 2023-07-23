@@ -191,10 +191,16 @@ export const useLogStore = create<LogState>((set) => ({
         set({data: data})
     },
     addData: (data: string)  => {
-        set((state: LogState) => ({data: state.data.concat('\n').concat(data)}))
+        set((state: LogState) => {
+            const delimiter = state.data.endsWith('\n') ? '' : '\n';
+            return ({data: state.data.concat(delimiter, data)})
+        })
     },
     addDataAsync: async (data: string) => {
-        set((state: LogState) => ({data: state.data.concat('\n').concat(data)}))
+        set((state: LogState) => {
+            const delimiter = state.data.endsWith('\n') ? '' : '\n';
+            return ({data: state.data.concat(delimiter, data)})
+        })
     },
     currentLine: 0,
     setCurrentLine: (currentLine: number)  => {
@@ -217,8 +223,11 @@ console.log("Start log subscriber");
 const sub = ProjectEventBus.onLog()?.subscribe((result: ["add" | "set", string]) => {
     if (result[0] === 'add') {
         unstable_batchedUpdates(() => {
-            useLogStore.setState((state: LogState) =>
-                ({data: state.data ? state.data.concat('\n').concat(result[1]) : result[1], currentLine: state.currentLine+1}))
+            useLogStore.setState((state: LogState) => {
+                const delimiter = state.data.endsWith('\n') ? '' : '\n';
+                const newData  = state.data ? state.data.concat(delimiter, result[1]) : result[1]
+                return ({data: newData, currentLine: state.currentLine+1});
+            })
         })
     }
     else if (result[0] === 'set') {

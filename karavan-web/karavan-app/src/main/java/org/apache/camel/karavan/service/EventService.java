@@ -49,7 +49,6 @@ public class EventService {
             infinispanService.start(false);
             infinispanService.clearAllStatuses();
             if (!ConfigService.inKubernetes()) {
-                dockerService.deleteKaravanHeadlessContainer();
                 dockerService.startKaravanHeadlessContainer();
                 dockerService.collectContainersStatuses();
             }

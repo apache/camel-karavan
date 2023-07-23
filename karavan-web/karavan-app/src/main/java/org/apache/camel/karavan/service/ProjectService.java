@@ -36,6 +36,7 @@ import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.apache.camel.karavan.shared.EventType.IMPORT_PROJECTS;
@@ -46,6 +47,9 @@ import static org.apache.camel.karavan.shared.EventType.IMPORT_PROJECTS;
 public class ProjectService implements HealthCheck{
 
     private static final Logger LOGGER = Logger.getLogger(ProjectService.class.getName());
+
+    @ConfigProperty(name = "karavan.git.pull.interval")
+    String gitPullInterval;
 
     @Inject
     InfinispanService infinispanService;
@@ -91,6 +95,7 @@ public class ProjectService implements HealthCheck{
     void importCommits() {
         LOGGER.info("Import commits...");
         gitService.getAllCommits().forEach(commitInfo -> {
+            System.out.println(commitInfo.getCommitId() + " " + Instant.ofEpochSecond(commitInfo.getTime()).toString());
             infinispanService.saveCommit(commitInfo.getCommitId(), commitInfo.getTime());
             infinispanService.saveLastCommit(commitInfo.getCommitId());
         });
@@ -103,7 +108,9 @@ public class ProjectService implements HealthCheck{
         }
         addTemplatesProject();
         addServicesProject();
-        importCommits();
+        if (!Objects.equals("disabled", gitPullInterval.toLowerCase()) && !Objects.equals("off", gitPullInterval.toLowerCase())) {
+            importCommits();
+        }
     }
 
     private void importAllProjects() {
