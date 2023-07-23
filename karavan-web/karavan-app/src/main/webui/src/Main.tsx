@@ -24,6 +24,7 @@ import ServicesIcon from "@patternfly/react-icons/dist/js/icons/services-icon";
 import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
 import {MainLogin} from "./MainLogin";
 import {DashboardPage} from "./dashboard/DashboardPage";
+import {ContainersPage} from "./containers/ContainersPage";
 import {ProjectEventBus} from "./api/ProjectEventBus";
 import {AppConfig, ContainerStatus, Project, ToastMessage} from "./api/ProjectModels";
 import {ProjectPage} from "./project/ProjectPage";
@@ -216,6 +217,7 @@ export const Main = () => {
                         {pageId === 'projects' && <ProjectsPage key={request}/>}
                         {pageId === 'project' && <ProjectPage key="projects"/>}
                         {pageId === 'services' && <ServicesPage key="services"/>}
+                        {pageId === 'containers' && <ContainersPage key="containers"/>}
                         {pageId === 'knowledgebase' && <KnowledgebasePage dark={false}/>}
                     </FlexItem>
                 </Flex>

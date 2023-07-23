@@ -145,13 +145,7 @@ public class DockerService {
 
     public void collectContainersStatuses() {
         getDockerClient().listContainersCmd().exec().forEach(container -> {
-            String name = container.getNames()[0].replace("/", "");
-            if (!Objects.equals(name, INFINISPAN_CONTAINER_NAME)) {
-                dockerEventListener.onCreateContainer(container, new Event(container.getStatus(), container.getId(), container.getImage(), container.getCreated()));
-            }
-            if (Objects.equals(container.getLabels().get(LABEL_TYPE), ContainerStatus.CType.devmode.name())) {
-                dockerEventListener.onCreateContainer(container, new Event(container.getStatus(), container.getId(), container.getImage(), container.getCreated()));
-            }
+            dockerEventListener.onCreateContainer(container, new Event(container.getStatus(), container.getId(), container.getImage(), container.getCreated()));
         });
     }
 

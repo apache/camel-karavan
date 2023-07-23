@@ -69,6 +69,7 @@ export class ServiceStatus {
 
 export class ContainerStatus {
     containerName: string = '';
+    containerId: string = '';
     lifeCycle: string = '';
     deployment: string = '';
     projectId: string = '';

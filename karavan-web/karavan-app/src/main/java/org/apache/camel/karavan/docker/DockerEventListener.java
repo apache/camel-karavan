@@ -96,13 +96,14 @@ public class DockerEventListener implements ResultCallback<Event> {
         String created = Instant.ofEpochSecond(container.getCreated()).toString();
         ContainerStatus ci = infinispanService.getContainerStatus(name, environment, name);
         if (ci == null) {
-            ci = ContainerStatus.createWithId(name, environment, container.getId(), ports, type, lc, created);
+            ci = ContainerStatus.createWithId(name, environment, container.getId(), container.getImage(), ports, type, lc, created);
         } else {
             ci.setContainerId(container.getId());
             ci.setPorts(ports);
             ci.setType(type);
             ci.setLifeCycle(lc);
             ci.setCreated(created);
+            ci.setImage(container.getImage());
         }
         infinispanService.saveContainerStatus(ci);
     }

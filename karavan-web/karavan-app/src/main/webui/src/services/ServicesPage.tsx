@@ -67,7 +67,7 @@ export const ServicesPage = () => {
 
     function title() {
         return <TextContent>
-            <Text component="h2">Services</Text>
+            <Text component="h2">Dev Services</Text>
         </TextContent>
     }
 
