@@ -51,8 +51,15 @@ jobs:
         working-directory: ./karavan/karavan-core
         run: npm ci
 
-      #  Build Karavan infinispan module
-      - name: Build infinispan module
+      #  Install parent
+      - name: Install parent
+        working-directory: ./karavan/karavan-web
+        run: |
+          mvn install
+        if: ${{ github.ref == 'refs/heads/main' }}
+
+      #  Install Karavan infinispan module
+      - name: Install infinispan module
         working-directory: ./karavan/karavan-web/karavan-infinispan
         run: |
           mvn install
