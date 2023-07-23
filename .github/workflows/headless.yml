@@ -35,11 +35,18 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
 
-      #  Build Karavan infinispan module
+      #  Install parent
       - name: Build infinispan module
         working-directory: ./karavan/karavan-web
         run: |
-          mvn install && mvn install -pl karavan-infinispan
+          mvn install
+        if: ${{ github.ref == 'refs/heads/main' }}
+
+      #  Install Karavan infinispan module
+      - name: Build infinispan module
+        working-directory: ./karavan/karavan-web/karavan-infinispan
+        run: |
+          mvn install
         if: ${{ github.ref == 'refs/heads/main' }}
 
       #  Build Karavan headless 
