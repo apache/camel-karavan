@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Page,
     Button,
@@ -18,13 +18,12 @@ import {ProjectsPage} from "./projects/ProjectsPage";
 import UserIcon from "@patternfly/react-icons/dist/js/icons/user-icon";
 import ProjectsIcon from "@patternfly/react-icons/dist/js/icons/repository-icon";
 import KnowledgebaseIcon from "@patternfly/react-icons/dist/js/icons/book-open-icon";
-import ServicesIcon from "@patternfly/react-icons/dist/js/icons/registry-icon";
+import ContainersIcon from "@patternfly/react-icons/dist/js/icons/cubes-icon";
 import DashboardIcon from "@patternfly/react-icons/dist/js/icons/tachometer-alt-icon";
-import EipIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
+import ServicesIcon from "@patternfly/react-icons/dist/js/icons/services-icon";
 import ComponentsIcon from "@patternfly/react-icons/dist/js/icons/module-icon";
 import {MainLogin} from "./MainLogin";
 import {DashboardPage} from "./dashboard/DashboardPage";
-import {Subscription} from "rxjs";
 import {ProjectEventBus} from "./api/ProjectEventBus";
 import {AppConfig, ContainerStatus, Project, ToastMessage} from "./api/ProjectModels";
 import {ProjectPage} from "./project/ProjectPage";
@@ -33,6 +32,7 @@ import {Notification} from "./Notification";
 import {InfrastructureAPI} from "./designer/utils/InfrastructureAPI";
 import {KnowledgebasePage} from "./knowledgebase/KnowledgebasePage";
 import {ServicesPage} from "./services/ServicesPage";
+import {shallow} from "zustand/shallow";
 
 class MenuItem {
     pageId: string = '';
@@ -46,38 +46,21 @@ class MenuItem {
     }
 }
 
-interface Props {
-}
+export const Main = () => {
 
-interface State {
-    config: any,
-    pageId: string,
-    isModalOpen: boolean,
-    openapi: string,
-    request: string,
-    filename: string,
-    key: string,
-    showUser?: boolean,
-}
+    const [config, setConfig] = useAppConfigStore((state) => [state.config, state.setConfig], shallow)
+    const [pageId, setPageId] = useState<string>('projects');
+    const [openapi, setOpenapi] = useState<string>('');
+    const [filename, setFileName] = useState<string>('');
+    const [key, setKey] = useState<string>('');
+    const [request, setRequest] = useState<string>(uuidv4());
+    const [isModalOpen, setIsModelOpen] = useState<boolean>(false);
+    const [showUser, setShowUser] = useState<boolean>(false);
 
-export class Main extends React.Component<Props, State> {
-
-    public state: State = {
-        config: {},
-        pageId: "projects",
-        isModalOpen: false,
-        request: uuidv4(),
-        openapi: '',
-        filename: '',
-        key: '',
-    };
-
-    designer = React.createRef();
-    sub?: Subscription;
-
-    componentDidMount() {
-        this.sub = ProjectEventBus.onSelectProject()?.subscribe((project: Project | undefined) => {
-            if (project) this.setState({pageId: "project"});
+    useEffect(() => {
+        console.log("Main Start");
+        const sub = ProjectEventBus.onSelectProject()?.subscribe((project: Project | undefined) => {
+            if (project) setPageId("project");
         });
         KaravanApi.getAuthType((authType: string) => {
             console.log("authType", authType);
@@ -85,44 +68,45 @@ export class Main extends React.Component<Props, State> {
                 SsoApi.auth(() => {
                     KaravanApi.getMe((user: any) => {
                         console.log("me", user);
-                        this.getData();
+                        getData();
                     });
                 });
             } else {
-                this.setState({key: Math.random().toString()})
+                setKey(Math.random().toString())
             }
             if (KaravanApi.isAuthorized || KaravanApi.authType === 'public') {
-                this.getData();
+                getData();
             }
         });
-    }
+        return () => {
+            console.log("Main End");
+            sub?.unsubscribe();
+        };
+    }, []);
 
-    componentWillUnmount() {
-        this.sub?.unsubscribe();
-    }
-
-    onLogin = (username: string, password: string) => {
+    function onLogin(username: string, password: string) {
         KaravanApi.auth(username, password, (res: any) => {
             if (res?.status === 200) {
-                this.getData();
+                getData();
             } else {
-                this.toast("Error", "Incorrect username and/or password!", "danger");
+                toast("Error", "Incorrect username and/or password!", "danger");
             }
         });
     }
 
-    getData() {
+    function getData() {
         KaravanApi.getConfiguration((config: AppConfig) => {
-            this.setState({config: config, request: uuidv4()});
+            setRequest(uuidv4());
+            setConfig(config);
             useAppConfigStore.setState({config: config});
             InfrastructureAPI.infrastructure = config.infrastructure;
         });
-        this.updateKamelets();
-        this.updateComponents();
-        // this.updateSupportedComponents(); // not implemented yet
+        updateKamelets();
+        updateComponents();
+        // updateSupportedComponents(); // not implemented yet
     }
 
-    updateKamelets: () => Promise<void> = async () => {
+    async function updateKamelets(): Promise<void> {
         await new Promise(resolve => {
             KaravanApi.getKamelets(yamls => {
                 const kamelets: string[] = [];
@@ -135,7 +119,7 @@ export class Main extends React.Component<Props, State> {
         });
     }
 
-    updateComponents: () => Promise<void> = async () => {
+    async function updateComponents(): Promise<void> {
         await new Promise(resolve => {
             KaravanApi.getComponents(code => {
                 const components: [] = JSON.parse(code);
@@ -146,7 +130,7 @@ export class Main extends React.Component<Props, State> {
         });
     }
 
-    updateSupportedComponents: () => Promise<void> = async () => {
+    async function updateSupportedComponents(): Promise<void> {
         await new Promise(resolve => {
             KaravanApi.getSupportedComponents(jsons => {
                 ComponentApi.saveSupportedComponents(jsons);
@@ -154,33 +138,33 @@ export class Main extends React.Component<Props, State> {
         });
     }
 
-    pageNav = () => {
+    function pageNav() {
         const pages: MenuItem[] = [
             new MenuItem("dashboard", "Dashboard", <DashboardIcon/>),
             new MenuItem("projects", "Projects", <ProjectsIcon/>),
             new MenuItem("services", "Services", <ServicesIcon/>),
+            new MenuItem("containers", "Containers", <ContainersIcon/>),
             new MenuItem("knowledgebase", "Knowledgebase", <KnowledgebaseIcon/>),
-            // new MenuItem("eip", "Enterprise Integration Patterns", <EipIcon/>),
             // new MenuItem("components", "Components", <ComponentsIcon/>)
         ]
         return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height: "100%"}}
                       spaceItems={{default: "spaceItemsNone"}}>
             <FlexItem alignSelf={{default: "alignSelfCenter"}}>
-                <Tooltip className="logo-tooltip" content={"Apache Camel Karavan " + this.state.config.version}
+                <Tooltip className="logo-tooltip" content={"Apache Camel Karavan " + config.version}
                          position={"right"}>
                     {Icon()}
                 </Tooltip>
             </FlexItem>
             {pages.map(page =>
-                <FlexItem key={page.pageId} className={this.state.pageId === page.pageId ? "nav-button-selected" : ""}>
+                <FlexItem key={page.pageId} className={pageId === page.pageId ? "nav-button-selected" : ""}>
                     <Tooltip content={page.tooltip} position={"right"}>
                         <Button id={page.pageId} icon={page.icon} variant={"plain"}
-                                className={this.state.pageId === page.pageId ? "nav-button-selected" : ""}
+                                className={pageId === page.pageId ? "nav-button-selected" : ""}
                                 onClick={event => {
-                                    useFileStore.setState({operation:'none', file: undefined})
+                                    useFileStore.setState({operation: 'none', file: undefined})
                                     useDevModeStore.setState({podName: undefined, status: "none"})
-                                    useProjectStore.setState({containerStatus: new ContainerStatus({}), })
-                                    this.setState({pageId: page.pageId});
+                                    useProjectStore.setState({containerStatus: new ContainerStatus({}),})
+                                    setPageId(page.pageId);
                                 }}
                         />
                     </Tooltip>
@@ -195,9 +179,9 @@ export class Main extends React.Component<Props, State> {
                         aria-label="Current user"
                         position={"right-end"}
                         hideOnOutsideClick={false}
-                        isVisible={this.state.showUser === true}
-                        shouldClose={tip => this.setState({showUser: false})}
-                        shouldOpen={tip => this.setState({showUser: true})}
+                        isVisible={showUser}
+                        shouldClose={tip => setShowUser(false)}
+                        shouldOpen={tip => setShowUser(true)}
                         headerContent={<div>{KaravanApi.me.userName}</div>}
                         bodyContent={
                             <Flex direction={{default: "row"}}>
@@ -214,45 +198,41 @@ export class Main extends React.Component<Props, State> {
         </Flex>)
     }
 
-    toast = (title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') => {
+    function toast(title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') {
         ProjectEventBus.sendAlert(new ToastMessage(title, text, variant))
     }
 
-    getMain() {
+    function getMain() {
         return (
             <>
                 <Flex direction={{default: "row"}} style={{width: "100%", height: "100%"}}
                       alignItems={{default: "alignItemsStretch"}} spaceItems={{default: 'spaceItemsNone'}}>
                     <FlexItem>
-                        {this.pageNav()}
+                        {pageNav()}
                     </FlexItem>
                     <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
-                        {this.state.pageId === 'dashboard' && <DashboardPage key={this.state.request}
-                                                                             toast={this.toast}
-                                                                             config={this.state.config}/>}
-                        {this.state.pageId === 'projects' && <ProjectsPage key={this.state.request}/>}
-                        {this.state.pageId === 'project' && <ProjectPage key="projects"/>}
-                        {this.state.pageId === 'services' && <ServicesPage key="services"/>}
-                        {this.state.pageId === 'knowledgebase' && <KnowledgebasePage dark={false}/>}
+                        {pageId === 'dashboard' && <DashboardPage key={request} toast={toast} config={config}/>}
+                        {pageId === 'projects' && <ProjectsPage key={request}/>}
+                        {pageId === 'project' && <ProjectPage key="projects"/>}
+                        {pageId === 'services' && <ServicesPage key="services"/>}
+                        {pageId === 'knowledgebase' && <KnowledgebasePage dark={false}/>}
                     </FlexItem>
                 </Flex>
             </>
         )
     }
 
-    render() {
-        return (
-            <Page className="karavan">
-                {KaravanApi.authType === undefined &&
-                    <Bullseye className="loading-page">
-                        <Spinner className="spinner" isSVG diameter="140px" aria-label="Loading..."/>
-                        <div className="logo-placeholder">{Icon()}</div>
-                    </Bullseye>}
-                {(KaravanApi.isAuthorized || KaravanApi.authType === 'public') && this.getMain()}
-                {!KaravanApi.isAuthorized && KaravanApi.authType === 'basic' &&
-                    <MainLogin config={this.state.config} onLogin={this.onLogin}/>}
-                <Notification/>
-            </Page>
-        )
-    }
+    return (
+        <Page className="karavan">
+            {KaravanApi.authType === undefined &&
+                <Bullseye className="loading-page">
+                    <Spinner className="spinner" isSVG diameter="140px" aria-label="Loading..."/>
+                    <div className="logo-placeholder">{Icon()}</div>
+                </Bullseye>}
+            {(KaravanApi.isAuthorized || KaravanApi.authType === 'public') && getMain()}
+            {!KaravanApi.isAuthorized && KaravanApi.authType === 'basic' &&
+                <MainLogin config={config} onLogin={onLogin}/>}
+            <Notification/>
+        </Page>
+    )
 }
