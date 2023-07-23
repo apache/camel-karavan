@@ -37,9 +37,9 @@ jobs:
 
       #  Build Karavan infinispan module
       - name: Build infinispan module
-        working-directory: ./karavan/karavan-web/karavan-infinispan
+        working-directory: ./karavan/karavan-web
         run: |
-          mvn install
+          mvn install && mvn install -pl karavan-infinispan
         if: ${{ github.ref == 'refs/heads/main' }}
 
       #  Build Karavan headless 
