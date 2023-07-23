@@ -55,7 +55,7 @@ jobs:
       - name: Build infinispan module
         working-directory: ./karavan/karavan-web/karavan-infinispan
         run: |
-          mvn package
+          mvn install
         if: ${{ github.ref == 'refs/heads/main' }}
 
       #  Build Karavan web app with public access
