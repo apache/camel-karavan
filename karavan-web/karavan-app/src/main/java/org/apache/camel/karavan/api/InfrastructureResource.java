@@ -143,6 +143,19 @@ public class InfrastructureResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Path("/container")
+    public List<ContainerStatus> getAllContainerStatuses() throws Exception {
+        if (infinispanService.isReady()) {
+            return infinispanService.getContainerStatuses().stream()
+                    .sorted(Comparator.comparing(ContainerStatus::getProjectId))
+                    .collect(Collectors.toList());
+        } else {
+            return List.of();
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/pod/{env}")
     public List<ContainerStatus> getContainerStatusesByEnv(@PathParam("env") String env) throws Exception {
         return infinispanService.getContainerStatuses(env).stream()

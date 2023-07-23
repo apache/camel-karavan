@@ -401,6 +401,17 @@ export class KaravanApi {
         });
     }
 
+    static async getAllContainerStatuses(after: (statuses: ContainerStatus[]) => void) {
+        instance.get('/api/infrastructure/container')
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    }
+
     static async getAllDeploymentStatuses(after: (statuses: DeploymentStatus[]) => void) {
         instance.get('/api/infrastructure/deployment')
             .then(res => {

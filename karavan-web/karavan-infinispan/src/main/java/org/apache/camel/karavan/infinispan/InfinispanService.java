@@ -250,6 +250,10 @@ public class InfinispanService {
         return new ArrayList<>(serviceStatuses.values());
     }
 
+    public List<ContainerStatus> getContainerStatuses() {
+        return new ArrayList<>(containerStatuses.values());
+    }
+
     public List<ContainerStatus> getContainerStatuses(String projectId, String env) {
         QueryFactory queryFactory = Search.getQueryFactory(containerStatuses);
         return queryFactory.<ContainerStatus>create("FROM karavan.ContainerStatus WHERE projectId = :projectId AND env = :env")

@@ -22,23 +22,28 @@ import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {ProjectsTableRow} from "./ProjectsTableRow";
 import {DeleteProjectModal} from "./DeleteProjectModal";
 import {CreateProjectModal} from "./CreateProjectModal";
-import {useProjectsStore, useProjectStore} from "../api/ProjectStore";
+import {useAppConfigStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {MainToolbar} from "../designer/MainToolbar";
 import {Project, ProjectType} from "../api/ProjectModels";
+import {shallow} from "zustand/esm/shallow";
 
 
 export const ProjectsPage = () => {
 
-    const {projects, setProjects} = useProjectsStore();
-    const {operation} = useProjectStore();
+    const [projects] = useProjectsStore((state) => [state.projects], shallow)
+    const [operation] = useProjectStore((state) => [state.operation], shallow)
     const [filter, setFilter] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
         const interval = setInterval(() => {
             if (projects.length === 0) setLoading(true);
-            if (!["create", "delete", "select", "copy"].includes(operation)) ProjectService.refreshProjects();
+            if (!["create", "delete", "select", "copy"].includes(operation)) {
+                ProjectService.refreshProjects();
+                ProjectService.refreshAllDeploymentStatuses();
+                ProjectService.refreshAllContainerStatuses();
+            }
         }, 1300);
         return () => {
             clearInterval(interval)
@@ -49,8 +54,11 @@ export const ProjectsPage = () => {
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
                 <ToolbarItem>
-                    <Button variant="link" icon={<RefreshIcon/>} onClick={e =>
-                        ProjectService.refreshProjects()}/>
+                    <Button variant="link" icon={<RefreshIcon/>} onClick={e => {
+                        ProjectService.refreshProjects();
+                        ProjectService.refreshAllDeploymentStatuses();
+                        ProjectService.refreshAllContainerStatuses();
+                    }}/>
                 </ToolbarItem>
                 <ToolbarItem>
                     <TextInput className="text-field" type="search" id="search" name="search"

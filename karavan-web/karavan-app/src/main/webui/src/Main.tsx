@@ -50,11 +50,7 @@ export const Main = () => {
 
     const [config, setConfig] = useAppConfigStore((state) => [state.config, state.setConfig], shallow)
     const [pageId, setPageId] = useState<string>('projects');
-    const [openapi, setOpenapi] = useState<string>('');
-    const [filename, setFileName] = useState<string>('');
-    const [key, setKey] = useState<string>('');
     const [request, setRequest] = useState<string>(uuidv4());
-    const [isModalOpen, setIsModelOpen] = useState<boolean>(false);
     const [showUser, setShowUser] = useState<boolean>(false);
 
     useEffect(() => {
@@ -71,8 +67,6 @@ export const Main = () => {
                         getData();
                     });
                 });
-            } else {
-                setKey(Math.random().toString())
             }
             if (KaravanApi.isAuthorized || KaravanApi.authType === 'public') {
                 getData();
@@ -138,15 +132,22 @@ export const Main = () => {
         });
     }
 
-    function pageNav() {
+    function getMenu() : MenuItem[]  {
         const pages: MenuItem[] = [
             new MenuItem("dashboard", "Dashboard", <DashboardIcon/>),
             new MenuItem("projects", "Projects", <ProjectsIcon/>),
-            new MenuItem("services", "Services", <ServicesIcon/>),
-            new MenuItem("containers", "Containers", <ContainersIcon/>),
-            new MenuItem("knowledgebase", "Knowledgebase", <KnowledgebaseIcon/>),
-            // new MenuItem("components", "Components", <ComponentsIcon/>)
         ]
+        if (config.infrastructure === 'docker') {
+            pages.push(
+                new MenuItem("services", "Services", <ServicesIcon/>),
+                new MenuItem("containers", "Containers", <ContainersIcon/>)
+            )
+        }
+        pages.push(new MenuItem("knowledgebase", "Knowledgebase", <KnowledgebaseIcon/>));
+        return pages;
+    }
+
+    function pageNav() {
         return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height: "100%"}}
                       spaceItems={{default: "spaceItemsNone"}}>
             <FlexItem alignSelf={{default: "alignSelfCenter"}}>
@@ -155,7 +156,7 @@ export const Main = () => {
                     {Icon()}
                 </Tooltip>
             </FlexItem>
-            {pages.map(page =>
+            {getMenu().map(page =>
                 <FlexItem key={page.pageId} className={pageId === page.pageId ? "nav-button-selected" : ""}>
                     <Tooltip content={page.tooltip} position={"right"}>
                         <Button id={page.pageId} icon={page.icon} variant={"plain"}
@@ -211,7 +212,7 @@ export const Main = () => {
                         {pageNav()}
                     </FlexItem>
                     <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
-                        {pageId === 'dashboard' && <DashboardPage key={request} toast={toast} config={config}/>}
+                        {pageId === 'dashboard' && <DashboardPage key='dashboard'/>}
                         {pageId === 'projects' && <ProjectsPage key={request}/>}
                         {pageId === 'project' && <ProjectPage key="projects"/>}
                         {pageId === 'services' && <ServicesPage key="services"/>}

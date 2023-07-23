@@ -4,9 +4,8 @@ import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {InfrastructureAPI} from "../designer/utils/InfrastructureAPI";
 import {unstable_batchedUpdates} from 'react-dom'
 import {
-    useAppConfigStore,
-    useDeploymentStatusesStore,
     useFilesStore,
+    useStatusesStore,
     useFileStore, useLogStore,
     useProjectsStore,
     useProjectStore, useDevModeStore
@@ -123,9 +122,21 @@ export class ProjectService {
         });
     }
 
+    public static refreshAllContainerStatuses() {
+        KaravanApi.getAllContainerStatuses( (statuses: ContainerStatus[]) => {
+            useStatusesStore.setState({containers: statuses});
+        });
+    }
+
+    public static refreshAllDeploymentStatuses() {
+        KaravanApi.getAllDeploymentStatuses( (statuses: DeploymentStatus[]) => {
+            useStatusesStore.setState({deployments: statuses});
+        });
+    }
+
     public static refreshDeploymentStatuses(environment: string) {
         KaravanApi.getDeploymentStatuses(environment, (statuses: DeploymentStatus[]) => {
-            useDeploymentStatusesStore.setState({statuses: statuses});
+            useStatusesStore.setState({deployments: statuses});
         });
     }
 

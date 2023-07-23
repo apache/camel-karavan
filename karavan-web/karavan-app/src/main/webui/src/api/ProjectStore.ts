@@ -16,10 +16,9 @@
  */
 
 import {create} from 'zustand'
-import {AppConfig, DeploymentStatus, ContainerStatus, Project, ProjectFile, ToastMessage} from "./ProjectModels";
+import {AppConfig, DeploymentStatus, ContainerStatus, Project, ProjectFile, ServiceStatus, CamelStatus} from "./ProjectModels";
 import {ProjectEventBus} from "./ProjectEventBus";
 import {unstable_batchedUpdates} from "react-dom";
-import {bottom} from "@patternfly/react-core/helpers/Popper/thirdparty/popper-core";
 
 interface AppConfigState {
     config: AppConfig;
@@ -136,21 +135,6 @@ export const useFileStore = create<FileState>((set) => ({
     },
 }))
 
-interface DeploymentStatusesState {
-    statuses: DeploymentStatus[];
-    setDeploymentStatuses: (statuses: DeploymentStatus[]) => void;
-}
-
-export const useDeploymentStatusesStore = create<DeploymentStatusesState>((set) => ({
-    statuses: [],
-    setDeploymentStatuses: (statuses: DeploymentStatus[]) => {
-        set((state: DeploymentStatusesState) => ({
-            statuses: statuses
-        }));
-    },
-}))
-
-
 interface DevModeState {
     podName?: string,
     status: "none" | "starting" | "deleting"| "reloading" | "running",
@@ -165,6 +149,44 @@ export const useDevModeStore = create<DevModeState>((set) => ({
             status: status,
         }));
     },
+}))
+
+interface StatusesState {
+    deployments: DeploymentStatus[];
+    services: ServiceStatus[];
+    containers: ContainerStatus[];
+    camels: CamelStatus[];
+    setDeployments: (d: DeploymentStatus[]) => void;
+    setServices: (s: ServiceStatus[]) => void;
+    setContainers: (c: ContainerStatus[]) => void;
+    setCamels: (c: CamelStatus[]) => void;
+}
+
+export const useStatusesStore = create<StatusesState>((set) => ({
+    deployments: [],
+    services: [],
+    containers: [],
+    camels: [],
+    setDeployments: (d: DeploymentStatus[]) => {
+        set((state: StatusesState) => ({
+            deployments: d,
+        }));
+    },
+    setServices: (s: ServiceStatus[]) => {
+        set((state: StatusesState) => ({
+            services: s,
+        }));
+    },
+    setContainers: (c: ContainerStatus[]) => {
+        set((state: StatusesState) => ({
+            containers: c,
+        }));
+    },
+    setCamels: (c: CamelStatus[]) => {
+        set((state: StatusesState) => ({
+            camels: c,
+        }));
+    }
 }))
 
 interface LogState {

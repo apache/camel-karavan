@@ -12,9 +12,8 @@ import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";
 import {DeploymentStatus, Project} from '../api/ProjectModels';
 import {
     useAppConfigStore,
-    useDeploymentStatusesStore,
     useLogStore,
-    useProjectStore,
+    useProjectStore, useStatusesStore,
 } from "../api/ProjectStore";
 import {ProjectEventBus} from "../api/ProjectEventBus";
 import {shallow} from "zustand/shallow";
@@ -25,7 +24,7 @@ interface Props {
 
 export const ProjectsTableRow = (props: Props) => {
 
-    const {statuses} = useDeploymentStatusesStore();
+    const [deployments, containers] = useStatusesStore((state) => [state.deployments, state.containers], shallow)
     const {config} = useAppConfigStore();
     const [setProject] = useProjectStore((state) => [state.setProject, state.setOperation], shallow);
     const [setShowLog] = useLogStore((state) => [state.setShowLog], shallow);
@@ -34,11 +33,13 @@ export const ProjectsTableRow = (props: Props) => {
         return config.environments && Array.isArray(config.environments) ? Array.from(config.environments) : [];
     }
 
-    function getDeploymentByEnvironments(name: string): [string, DeploymentStatus | undefined] [] {
+    function getStatusByEnvironments(name: string): [string, any] [] {
         return getEnvironments().map(e => {
             const env: string = e as string;
-            const dep = statuses.find(d => d.name === name && d.env === env);
-            return [env, dep];
+            const status = config.infrastructure === 'kubernetes'
+                ? deployments.find(d => d.name === name && d.env === env)
+                : containers.find(d => d.containerName === name && d.env === env);
+            return [env, status];
         });
     }
 
@@ -71,7 +72,7 @@ export const ProjectsTableRow = (props: Props) => {
             <Td noPadding style={{width: "180px"}}>
                 {!isBuildIn &&
                     <Flex direction={{default: "row"}}>
-                        {getDeploymentByEnvironments(project.projectId).map(value => (
+                        {getStatusByEnvironments(project.projectId).map(value => (
                             <FlexItem className="badge-flex-item" key={value[0]}>
                                 <Badge className="badge" isRead={!value[1]}>{value[0]}</Badge>
                             </FlexItem>
