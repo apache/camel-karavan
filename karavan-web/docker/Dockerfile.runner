@@ -1,4 +1,4 @@
-FROM jbangdev/jbang-action:0.106.1
+FROM jbangdev/jbang-action:0.110.0
 
 ENV CAMEL_VERSION=3.21.0
 ENV KARAVAN="/karavan"
