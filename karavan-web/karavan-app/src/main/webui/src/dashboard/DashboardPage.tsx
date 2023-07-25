@@ -63,6 +63,7 @@ export const DashboardPage = () => {
             selectedEnv.forEach(env => {
                 KaravanApi.getAllCamelStatuses(env, (statuses: CamelStatus[]) => {
                     setCamels(statuses);
+                    setLoading(false);
                     // setState((state) => {
                     //     statuses.forEach(newStatus => {
                     //         const index = state.camelStatuses.findIndex(s => s.projectId === newStatus.projectId && s.env === newStatus.env);
@@ -75,7 +76,6 @@ export const DashboardPage = () => {
                     // })
                 });
             });
-            setLoading(false);
         });
     }
 
@@ -107,7 +107,7 @@ export const DashboardPage = () => {
                 </ToolbarItem>
                 <ToolbarItem>
                     <TextInput className="text-field" type="search" id="search" name="search"
-                               autoComplete="off" placeholder="Search deployment by name"
+                               autoComplete="off" placeholder="Search by name"
                                value={filter}
                                onChange={e => setFilter(e)}/>
                 </ToolbarItem>
@@ -322,7 +322,7 @@ export const DashboardPage = () => {
                     {conts.map(container => (
                         <Tr key={container.containerName}>
                             <Td style={{verticalAlign: "middle"}} modifier={"fitContent"}>
-                                <Label variant={"outline"}>{container.type}</Label>
+                                <Badge className="badge">{container.type}</Badge>
                             </Td>
                             <Td style={{verticalAlign: "middle"}}>
                                 <Label color={container.lifeCycle === 'ready' ? "green" : 'grey'}>
@@ -337,8 +337,9 @@ export const DashboardPage = () => {
                             <Td>
                                 <Flex direction={{default: "column"}}>
                                     {container.ports.map(port => (
-                                        <FlexItem className="badge-flex-item" key={port}><Badge className="badge"
-                                                                                                    isRead={true}>{port}</Badge></FlexItem>
+                                        <FlexItem className="badge-flex-item" key={port}>
+                                            <Badge className="badge" isRead={true}>{port}</Badge>
+                                        </FlexItem>
                                     ))}
                                 </Flex>
                             </Td>
@@ -346,9 +347,9 @@ export const DashboardPage = () => {
                                 <Flex direction={{default: "column"}}>
                                     {getContainerByEnvironments(container.containerName).map(value => (
                                         <FlexItem className="badge-flex-item" key={value[0]}>
-                                            <Badge className={"badge"}>
+                                            <Label color={"green"}>
                                                 {value[1] ? value[1]?.env : ""}
-                                            </Badge>
+                                            </Label>
                                         </FlexItem>
                                     ))}
                                 </Flex>

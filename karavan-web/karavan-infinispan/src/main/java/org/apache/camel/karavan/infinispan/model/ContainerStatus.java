@@ -92,8 +92,8 @@ public class ContainerStatus {
         return new ContainerStatus(projectId, projectId, null, null, null, env, CType.devmode, null, null, null,  Lifecycle.init, false, false);
     }
 
-    public static ContainerStatus createWithId(String name, String env, String containerId, List<Integer> ports, CType type, Lifecycle lifeCycle, String created) {
-        return new ContainerStatus(name, name, containerId, null, ports, env, type,
+    public static ContainerStatus createWithId(String name, String env, String containerId, String image, List<Integer> ports, CType type, Lifecycle lifeCycle, String created) {
+        return new ContainerStatus(name, name, containerId, image, ports, env, type,
                 null, null, created,  lifeCycle, false, false);
     }
 

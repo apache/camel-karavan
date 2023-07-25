@@ -3,7 +3,7 @@ import {
     Button,
     Badge,
     Tooltip,
-    Flex, FlexItem
+    Flex, FlexItem, Label
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import { Td, Tr} from "@patternfly/react-table";
@@ -17,6 +17,8 @@ import {
 } from "../api/ProjectStore";
 import {ProjectEventBus} from "../api/ProjectEventBus";
 import {shallow} from "zustand/shallow";
+import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
+import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 
 interface Props {
     project: Project
@@ -66,17 +68,20 @@ export const ProjectsTableRow = (props: Props) => {
             <Td>{project.description}</Td>
             <Td isActionCell>
                 <Tooltip content={project.lastCommit} position={"bottom"}>
-                    <Badge>{project.lastCommit?.substr(0, 7)}</Badge>
+                    <Badge className="badge">{project.lastCommit?.substr(0, 7)}</Badge>
                 </Tooltip>
             </Td>
             <Td noPadding style={{width: "180px"}}>
                 {!isBuildIn &&
                     <Flex direction={{default: "row"}}>
-                        {getStatusByEnvironments(project.projectId).map(value => (
-                            <FlexItem className="badge-flex-item" key={value[0]}>
-                                <Badge className="badge" isRead={!value[1]}>{value[0]}</Badge>
+                        {getStatusByEnvironments(project.projectId).map(value => {
+                            const active = value[1];
+                            const color = active ? "green" : "grey"
+                            const style = active ? {fontWeight: "bold"} : {}
+                            return <FlexItem className="badge-flex-item" key={value[0]}>
+                                <Label style={style} color={color} >{value[0]}</Label>
                             </FlexItem>
-                        ))}
+                        })}
                     </Flex>
                 }
             </Td>
