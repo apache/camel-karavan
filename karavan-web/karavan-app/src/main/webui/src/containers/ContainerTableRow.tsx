@@ -2,13 +2,16 @@ import React, {useState} from 'react';
 import {
     Button,
     Tooltip,
-    Flex, FlexItem, Label, Badge
+    Flex, FlexItem, Label, Badge, Spinner
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {ExpandableRowContent, Tbody, Td, Tr} from "@patternfly/react-table";
 import StopIcon from "@patternfly/react-icons/dist/js/icons/stop-icon";
 import PlayIcon from "@patternfly/react-icons/dist/esm/icons/play-icon";
 import {ContainerStatus} from "../api/ProjectModels";
+import PauseIcon from "@patternfly/react-icons/dist/esm/icons/pause-icon";
+import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
+import {KaravanApi} from "../api/KaravanApi";
 
 interface Props {
     index: number
@@ -18,14 +21,13 @@ interface Props {
 export const ContainerTableRow = (props: Props) => {
 
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
-    const [running, setRunning] = useState<boolean>(false);
 
     const container = props.container;
-    const env = container.env;
+    const commands = container.commands;
     const ports = container.ports;
-    const icon = running ? <StopIcon/> : <PlayIcon/>;
-    const tooltip = running ? "Stop container" : "Start container";
-    const color = container.lifeCycle === 'ready' ? "green" : "grey";
+    const isRunning = container.state === 'running';
+    const inTransit = container.inTransit;
+    const color = container.state === 'running' ? "green" : "grey";
     return (
         <Tbody isExpanded={isExpanded}>
             <Tr key={container.containerName}>
@@ -48,23 +50,52 @@ export const ContainerTableRow = (props: Props) => {
                 </Td>
                 <Td>{container.image}</Td>
                 <Td>
-                    <Label color={color}>{container.cpuInfo}</Label>
+                    {isRunning && container.cpuInfo && <Label color={color}>{container.cpuInfo}</Label>}
                 </Td>
                 <Td>
-                    <Label color={color}>{container.memoryInfo}</Label>
+                    {isRunning && container.memoryInfo && <Label color={color}>{container.memoryInfo}</Label>}
                 </Td>
-                {/*<Td>{container.environment}</Td>*/}
+                <Td>
+                    {!inTransit && <Label color={color}>{container.state}</Label>}
+                    {inTransit && <Spinner isSVG size="md" aria-label="spinner"/>}
+                </Td>
                 <Td className="project-action-buttons">
-                    <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentFlexEnd"}}
-                          spaceItems={{default: 'spaceItemsNone'}}>
-                        <FlexItem>
-                            <Tooltip content={tooltip} position={"bottom"}>
-                                <Button variant={"plain"} icon={icon} onClick={e => {
-                                    // setProject(project, "delete");
-                                }}></Button>
-                            </Tooltip>
-                        </FlexItem>
-                    </Flex>
+                    {container.type !== 'internal' &&
+                        <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentFlexEnd"}}
+                              spaceItems={{default: 'spaceItemsNone'}}>
+                            <FlexItem>
+                                <Tooltip content={"Start container"} position={"bottom"}>
+                                    <Button variant={"plain"} icon={<PlayIcon/>} isDisabled={!commands.includes('run') || inTransit}
+                                            onClick={e => {
+                                                KaravanApi.manageContainer(container.env, container.containerName, 'run', res => {});
+                                            }}></Button>
+                                </Tooltip>
+                            </FlexItem>
+                            <FlexItem>
+                                <Tooltip content={"Pause container"} position={"bottom"}>
+                                    <Button variant={"plain"} icon={<PauseIcon/>} isDisabled={!commands.includes('pause') || inTransit}
+                                            onClick={e => {
+                                                KaravanApi.manageContainer(container.env, container.containerName, 'pause', res => {});
+                                            }}></Button>
+                                </Tooltip>
+                            </FlexItem>
+                            <FlexItem>
+                                <Tooltip content={"Stop container"} position={"bottom"}>
+                                    <Button variant={"plain"} icon={<StopIcon/>} isDisabled={!commands.includes('stop') || inTransit}
+                                            onClick={e => {
+                                                KaravanApi.manageContainer(container.env, container.containerName, 'stop', res => {});
+                                            }}></Button>
+                                </Tooltip>
+                            </FlexItem>
+                            <FlexItem>
+                                <Tooltip content={"Delete container"} position={"bottom"}>
+                                    <Button variant={"plain"} icon={<DeleteIcon/>} isDisabled={!commands.includes('delete') || inTransit}
+                                            onClick={e => {
+                                                KaravanApi.deleteContainer(container.env, container.containerName, res => {});
+                                            }}></Button>
+                                </Tooltip>
+                            </FlexItem>
+                        </Flex>}
                 </Td>
             </Tr>
             {<Tr isExpanded={isExpanded}>
@@ -84,7 +115,7 @@ export const ContainerTableRow = (props: Props) => {
                 <Td colSpan={2}>
                     <ExpandableRowContent>
                         <Flex direction={{default: "row"}} cellPadding={"0px"}>
-                            {ports.map(port => <FlexItem>{port}</FlexItem>)}
+                            {ports.map((port, index) => <FlexItem key={index}>{port}</FlexItem>)}
                         </Flex>
                     </ExpandableRowContent>
                 </Td>

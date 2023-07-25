@@ -14,8 +14,8 @@ import org.infinispan.protostream.annotations.AutoProtoSchemaBuilder;
                 CamelStatus.Name.class,
                 DeploymentStatus.class,
                 ContainerStatus.class,
-                ContainerStatus.CType.class,
-                ContainerStatus.Lifecycle.class,
+                ContainerStatus.ContainerType.class,
+                ContainerStatus.Command.class,
                 ServiceStatus.class
         },
         schemaFileName = "karavan.proto",

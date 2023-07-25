@@ -87,7 +87,7 @@ export class ProjectStatus extends React.Component<Props, State> {
                 });
                 break;
             case "pod":
-                KaravanApi.deletePod(environment, name, (res: any) => {
+                KaravanApi.deleteContainer(environment, name, (res: any) => {
                     // if (Array.isArray(res) && Array.from(res).length > 0)
                     // this.onRefresh();
                 });

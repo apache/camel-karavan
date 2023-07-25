@@ -14,43 +14,68 @@ import {ProjectEventBus} from "./ProjectEventBus";
 
 export class ProjectService {
 
-    public static startRunner(project: Project, verbose: boolean) {
-        useDevModeStore.setState({status: "starting"})
-        KaravanApi.runProject(project, verbose, res => {
+    public static startDevModeContainer(project: Project, verbose: boolean) {
+        useDevModeStore.setState({status: "wip"})
+        KaravanApi.startDevModeContainer(project, verbose, res => {
             if (res.status === 200 || res.status === 201) {
                 ProjectEventBus.sendLog("set", '');
                 useLogStore.setState({showLog: true, type: 'container', podName: res.data})
+                useDevModeStore.setState({status: "none"})
             } else {
                 // Todo notification
             }
         });
     }
 
-    public static reloadRunner(project: Project) {
-        useDevModeStore.setState({status: "reloading"})
-        KaravanApi.reloadDevMode(project.projectId, res => {
+    public static reloadDevModeCode(project: Project) {
+        useDevModeStore.setState({status: "wip"})
+        KaravanApi.reloadDevModeCode(project.projectId, res => {
             if (res.status === 200 || res.status === 201) {
                 // setIsReloadingPod(false);
             } else {
                 // Todo notification
                 // setIsReloadingPod(false);
             }
+            useDevModeStore.setState({status: "none"})
         });
     }
 
-    public static deleteRunner(project: Project) {
-        useDevModeStore.setState({status: "deleting"})
+    public static stopDevModeContainer(project: Project) {
+        useDevModeStore.setState({status: "wip"})
+        KaravanApi.manageContainer("dev", project.projectId, 'stop', res => {
+            if (res.status === 200) {
+                useLogStore.setState({showLog: false, type: 'container', isRunning: false})
+            } else {
+                ProjectEventBus.sendAlert(new ToastMessage("Error stopping DevMode container", res.statusText, 'warning'))
+            }
+        });
+    }
+
+    public static pauseDevModeContainer(project: Project) {
+        useDevModeStore.setState({status: "wip"})
+        KaravanApi.manageContainer("dev", project.projectId, 'pause', res => {
+            if (res.status === 200) {
+                useLogStore.setState({showLog: false, type: 'container', isRunning: false})
+            } else {
+                ProjectEventBus.sendAlert(new ToastMessage("Error stopping DevMode container", res.statusText, 'warning'))
+            }
+        });
+    }
+
+    public static deleteDevModeContainer(project: Project) {
+        useDevModeStore.setState({status: "wip"})
         ProjectEventBus.sendLog("set", '');
-        KaravanApi.deleteRunner(project.projectId, false, res => {
+        KaravanApi.deleteDevModeContainer(project.projectId, false, res => {
             if (res.status === 202) {
                 useLogStore.setState({showLog: false, type: 'container', isRunning: false})
             } else {
                 ProjectEventBus.sendAlert(new ToastMessage("Error delete runner", res.statusText, 'warning'))
             }
+            useDevModeStore.setState({status: "none"})
         });
     }
 
-    public static getDevModePodStatus(project: Project) {
+    public static getDevModeStatus(project: Project) {
         const projectId = project.projectId;
         KaravanApi.getDevModePodStatus(projectId, res => {
             if (res.status === 200) {
@@ -59,8 +84,8 @@ export class ProjectService {
                     if (useDevModeStore.getState().podName !== podStatus.containerName){
                         useDevModeStore.setState({podName: podStatus.containerName})
                     }
-                    if (useDevModeStore.getState().status !== "running"){
-                        useDevModeStore.setState({status: "running"})
+                    if (useDevModeStore.getState().status !== "wip"){
+                        useDevModeStore.setState({status: "wip"})
                         useLogStore.setState({isRunning: true})
                     }
                     useProjectStore.setState({containerStatus: res.data});

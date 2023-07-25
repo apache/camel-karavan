@@ -47,7 +47,7 @@ export const ServicesTableRow = (props: Props) => {
                 <Td>{service.image}</Td>
                 <Td>
                     <Flex direction={{default: "row"}}>
-                        {service.ports.map(port => <FlexItem>{port}</FlexItem>)}
+                        {service.ports.map(port => <FlexItem key={port}>{port}</FlexItem>)}
                     </Flex>
                 </Td>
                 {/*<Td>{service.environment}</Td>*/}
@@ -70,7 +70,7 @@ export const ServicesTableRow = (props: Props) => {
                 <Td colSpan={2}>
                     <ExpandableRowContent>
                         <Flex direction={{default: "column"}} cellPadding={"0px"}>
-                        {keys.map(key => <FlexItem>{key + ": " + env[key]}</FlexItem>)}
+                        {keys.map(key => <FlexItem key={key}>{key + ": " + env[key]}</FlexItem>)}
                         </Flex>
                     </ExpandableRowContent>
                 </Td>

@@ -35,7 +35,7 @@ export const InfoContainer = (props: Props) => {
     }
 
     function getRunning(): boolean {
-        return props.containerStatus.lifeCycle === 'ready';
+        return props.containerStatus.state === 'running';
     }
 
     const containerStatus = props.containerStatus;
@@ -50,7 +50,7 @@ export const InfoContainer = (props: Props) => {
             <DescriptionListGroup>
                 <DescriptionListTerm>Status</DescriptionListTerm>
                 <DescriptionListDescription>
-                    {getPodInfoLabel(containerStatus.lifeCycle)}
+                    {getPodInfoLabel(containerStatus.state)}
                 </DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>

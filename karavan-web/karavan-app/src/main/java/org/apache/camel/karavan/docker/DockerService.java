@@ -14,7 +14,7 @@ import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.JsonObject;
+import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -24,6 +24,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -47,6 +48,9 @@ public class DockerService {
     private static final Map<String, Tuple2<Long, Long>> previousStats = new ConcurrentHashMap<>();
     private static final List<String> infinispanHealthCheckCMD = List.of("CMD", "curl", "-f", "http://localhost:11222/rest/v2/cache-managers/default/health/status");
 
+    @ConfigProperty(name = "karavan.environment")
+    String environment;
+
     @ConfigProperty(name = "karavan.devmode.image")
     String devmodeImage;
 
@@ -68,16 +72,24 @@ public class DockerService {
     DockerEventListener dockerEventListener;
 
     @Inject
+    InfinispanService infinispanService;
+
+    @Inject
     EventBus eventBus;
+
+    private DockerClient dockerClient;
 
     public void runDevmodeContainer(Project project, String jBangOptions) throws InterruptedException {
         String projectId = project.getProjectId();
         LOGGER.infof("DevMode starting for %s", projectId);
+
         HealthCheck healthCheck = new HealthCheck().withTest(List.of("CMD", "curl", "-f", "http://localhost:8080/q/dev/health"))
                 .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
+
         createContainer(projectId, devmodeImage,
                 List.of(), null, false, false, healthCheck,
-                Map.of(LABEL_TYPE, ContainerStatus.CType.devmode.name(), LABEL_PROJECT_ID, projectId));
+                Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devmode.name(), LABEL_PROJECT_ID, projectId));
+
         startContainer(projectId);
         LOGGER.infof("DevMode started for %s", projectId);
     }
@@ -91,8 +103,9 @@ public class DockerService {
 
             createContainer(INFINISPAN_CONTAINER_NAME, infinispanImage,
                     List.of("USER=" + infinispanUsername, "PASS=" + infinispanPassword),
-                    infinispanPort, false, true, healthCheck, Map.of()
-            );
+                    infinispanPort, false, true, healthCheck,
+                    Map.of(LABEL_TYPE, ContainerStatus.ContainerType.internal.name()));
+
             startContainer(INFINISPAN_CONTAINER_NAME);
             LOGGER.info("Infinispan is started");
         } catch (Exception e) {
@@ -110,7 +123,9 @@ public class DockerService {
                             "INFINISPAN_USERNAME=" + infinispanUsername,
                             "INFINISPAN_PASSWORD=" + infinispanPassword
                     ),
-                    null, false, false, new HealthCheck(), Map.of());
+                    null, false, false, new HealthCheck(),
+                    Map.of(LABEL_TYPE, ContainerStatus.ContainerType.internal.name()));
+
             startContainer(KARAVAN_CONTAINER_NAME);
             LOGGER.info("Karavan headless is started");
         } catch (Exception e) {
@@ -127,26 +142,33 @@ public class DockerService {
         }
     }
 
-    public void collectContainersStats() {
-        getDockerClient().listContainersCmd().exec().forEach(container -> {
-            Statistics stats = getContainerStats(container.getId());
-
-            String name = container.getNames()[0].replace("/", "");
-            String memoryUsage = formatMemory(stats.getMemoryStats().getUsage());
-            String memoryLimit = formatMemory(stats.getMemoryStats().getLimit());
-            JsonObject data = JsonObject.of(
-                    "projectId", name,
-                    "memory", memoryUsage + " / " + memoryLimit,
-                    "cpu", formatCpu(name, stats)
-            );
-            eventBus.publish(CONTAINER_STATISTICS, data);
+    public List<ContainerStatus> collectContainersStatuses() {
+        List<ContainerStatus> result = new ArrayList<>();
+        getDockerClient().listContainersCmd().withShowAll(true).exec().forEach(container -> {
+            ContainerStatus containerStatus = getContainerStatus(container);
+            updateStatistics(containerStatus, container);
+            result.add(containerStatus);
         });
+        return result;
     }
 
-    public void collectContainersStatuses() {
-        getDockerClient().listContainersCmd().exec().forEach(container -> {
-            dockerEventListener.onCreateContainer(container, new Event(container.getStatus(), container.getId(), container.getImage(), container.getCreated()));
-        });
+    private ContainerStatus getContainerStatus(Container container) {
+        String name = container.getNames()[0].replace("/", "");
+        List<Integer> ports = Arrays.stream(container.getPorts()).map(ContainerPort::getPrivatePort).filter(Objects::nonNull).collect(Collectors.toList());
+        List<ContainerStatus.Command> commands = getContainerCommand(container.getState());
+        ContainerStatus.ContainerType type = getContainerType(container.getLabels());
+        String created = Instant.ofEpochSecond(container.getCreated()).toString();
+        return ContainerStatus.createWithId(name, environment, container.getId(), container.getImage(), ports, type, commands, container.getState(), created);
+    }
+
+    private void updateStatistics(ContainerStatus containerStatus, Container container) {
+        Statistics stats = getContainerStats(container.getId());
+        if (stats != null && stats.getMemoryStats() != null) {
+            String memoryUsage = formatMemory(stats.getMemoryStats().getUsage());
+            String memoryLimit = formatMemory(stats.getMemoryStats().getLimit());
+            containerStatus.setMemoryInfo(memoryUsage + " / " + memoryLimit);
+            containerStatus.setCpuInfo(formatCpu(containerStatus.getContainerName(), stats));
+        }
     }
 
     public void startListeners() {
@@ -276,10 +298,14 @@ public class DockerService {
     }
 
     public void deleteContainer(String name) {
+        long time = System.currentTimeMillis();
         List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
+        System.out.println("Get containers " + (System.currentTimeMillis() - time));
+        time = System.currentTimeMillis();
         if (containers.size() == 1) {
             Container container = containers.get(0);
-            getDockerClient().removeContainerCmd(container.getId()).exec();
+            getDockerClient().removeContainerCmd(container.getId()).withForce(true).exec();
+            System.out.println("removeContainerCmd " + (System.currentTimeMillis() - time));
         }
     }
 
@@ -335,7 +361,10 @@ public class DockerService {
     }
 
     private DockerClient getDockerClient() {
-        return DockerClientImpl.getInstance(getDockerClientConfig(), getDockerHttpClient());
+        if (dockerClient == null) {
+            dockerClient = DockerClientImpl.getInstance(getDockerClientConfig(), getDockerHttpClient());
+        }
+        return dockerClient;
     }
 
     private String formatMemory(Long memory) {
@@ -348,6 +377,42 @@ public class DockerService {
         } catch (Exception e) {
             return "";
         }
+    }
+
+    private ContainerStatus.ContainerType getContainerType(Map<String, String> labels) {
+        String type = labels.get(LABEL_TYPE);
+        if (Objects.equals(type, ContainerStatus.ContainerType.devmode.name())) {
+            return ContainerStatus.ContainerType.devmode;
+        } else if (Objects.equals(type, ContainerStatus.ContainerType.devservice.name())) {
+            return ContainerStatus.ContainerType.devservice;
+        } else if (Objects.equals(type, ContainerStatus.ContainerType.project.name())) {
+            return ContainerStatus.ContainerType.project;
+        } else if (Objects.equals(type, ContainerStatus.ContainerType.internal.name())) {
+            return ContainerStatus.ContainerType.internal;
+        }
+        return ContainerStatus.ContainerType.unknown;
+    }
+
+    private List<ContainerStatus.Command> getContainerCommand(String state) {
+        List<ContainerStatus.Command> result = new ArrayList<>();
+        if (Objects.equals(state, ContainerStatus.State.created.name())) {
+            result.add(ContainerStatus.Command.run);
+            result.add(ContainerStatus.Command.delete);
+        } else if (Objects.equals(state, ContainerStatus.State.exited.name())) {
+            result.add(ContainerStatus.Command.run);
+            result.add(ContainerStatus.Command.delete);
+        } else if (Objects.equals(state, ContainerStatus.State.running.name())) {
+            result.add(ContainerStatus.Command.pause);
+            result.add(ContainerStatus.Command.stop);
+            result.add(ContainerStatus.Command.delete);
+        } else if (Objects.equals(state, ContainerStatus.State.paused.name())) {
+            result.add(ContainerStatus.Command.run);
+            result.add(ContainerStatus.Command.stop);
+            result.add(ContainerStatus.Command.delete);
+        } else if (Objects.equals(state, ContainerStatus.State.dead.name())) {
+            result.add(ContainerStatus.Command.delete);
+        }
+        return result;
     }
 
     private String formatCpu(String containerName, Statistics stats) {

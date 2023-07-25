@@ -40,7 +40,7 @@ export const ContainersPage = () => {
     useEffect(() => {
         const interval = setInterval(() => {
             onGetProjects()
-        }, 2000);
+        }, 700);
         return () => {
             clearInterval(interval)
         };
@@ -111,21 +111,23 @@ export const ContainersPage = () => {
 
     function getEmptyState() {
         return (
-            <Tr>
-                <Td colSpan={8}>
-                    <Bullseye>
-                        {loading && <Spinner className="progress-stepper" isSVG diameter="80px" aria-label="Loading..."/>}
-                        {!loading &&
-                            <EmptyState variant={EmptyStateVariant.small}>
-                                <EmptyStateIcon icon={SearchIcon}/>
-                                <Title headingLevel="h2" size="lg">
-                                    No results found
-                                </Title>
-                            </EmptyState>
-                        }
-                    </Bullseye>
-                </Td>
-            </Tr>
+            <Tbody>
+                <Tr>
+                    <Td colSpan={8}>
+                        <Bullseye>
+                            {loading && <Spinner className="progress-stepper" isSVG diameter="80px" aria-label="Loading..."/>}
+                            {!loading &&
+                                <EmptyState variant={EmptyStateVariant.small}>
+                                    <EmptyStateIcon icon={SearchIcon}/>
+                                    <Title headingLevel="h2" size="lg">
+                                        No results found
+                                    </Title>
+                                </EmptyState>
+                            }
+                        </Bullseye>
+                    </Td>
+                </Tr>
+            </Tbody>
         )
     }
 
@@ -145,6 +147,7 @@ export const ContainersPage = () => {
                             <Th key='image'>Image</Th>
                             <Th key='cpuInfo'>CPU</Th>
                             <Th key='memoryInfo'>Memory</Th>
+                            <Th key='state'>State</Th>
                             <Th key='action'></Th>
                         </Tr>
                     </Thead>

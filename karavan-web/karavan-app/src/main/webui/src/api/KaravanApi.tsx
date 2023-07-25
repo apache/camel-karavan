@@ -304,7 +304,7 @@ export class KaravanApi {
     }
 
     static async getDevModePodStatus(projectId: string, after: (res: AxiosResponse<ContainerStatus>) => void) {
-        instance.get('/api/devmode/pod/' + projectId)
+        instance.get('/api/devmode/container/' + projectId)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -312,7 +312,7 @@ export class KaravanApi {
         });
     }
 
-    static async reloadDevMode(projectId: string, after: (res: AxiosResponse<any>) => void) {
+    static async reloadDevModeCode(projectId: string, after: (res: AxiosResponse<any>) => void) {
         instance.get('/api/devmode/reload/' + projectId)
             .then(res => {
                 after(res);
@@ -330,7 +330,7 @@ export class KaravanApi {
         });
     }
 
-    static async runProject(project: Project, verbose: boolean, after: (res: AxiosResponse<string>) => void) {
+    static async startDevModeContainer(project: Project, verbose: boolean, after: (res: AxiosResponse<string>) => void) {
         instance.post('/api/devmode' + (verbose ? '/--verbose' : ''), project)
             .then(res => {
                 after(res);
@@ -339,7 +339,7 @@ export class KaravanApi {
         });
     }
 
-    static async deleteRunner(name: string, deletePVC: boolean, after: (res: AxiosResponse<any>) => void) {
+    static async deleteDevModeContainer(name: string, deletePVC: boolean, after: (res: AxiosResponse<any>) => void) {
         instance.delete('/api/devmode/' +  name + "/" + deletePVC)
             .then(res => {
                 after(res);
@@ -453,7 +453,7 @@ export class KaravanApi {
     }
 
     static async getProjectPodStatuses(project: string, env: string, after: (statuses: ContainerStatus[]) => void) {
-        instance.get('/api/infrastructure/pod/' + project + "/" + env)
+        instance.get('/api/infrastructure/container/' + project + "/" + env)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -463,8 +463,17 @@ export class KaravanApi {
         });
     }
 
-    static async deletePod(environment: string, name: string, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/infrastructure/pod/' + environment + '/' + name)
+    static async manageContainer(environment: string, name: string, command: 'run' | 'pause' | 'stop', after: (res: AxiosResponse<any>) => void) {
+        instance.post('/api/infrastructure/container/' + environment + '/' + name, {command: command})
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    }
+
+    static async deleteContainer(environment: string, name: string, after: (res: AxiosResponse<any>) => void) {
+        instance.delete('/api/infrastructure/container/' + environment + '/' + name)
             .then(res => {
                 after(res);
             }).catch(err => {

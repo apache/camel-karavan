@@ -5,21 +5,28 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.ResourceRequirements;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
+import io.vertx.core.json.JsonObject;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.jboss.logging.Logger;
 
+import java.util.List;
+
 import static org.apache.camel.karavan.service.CodeService.DEFAULT_CONTAINER_RESOURCES;
+import static org.apache.camel.karavan.shared.EventType.CONTAINER_STATUS;
 
 public class PodEventHandler implements ResourceEventHandler<Pod> {
 
     private static final Logger LOGGER = Logger.getLogger(PodEventHandler.class.getName());
     private final InfinispanService infinispanService;
     private final KubernetesService kubernetesService;
+    private final EventBus eventBus;
 
-    public PodEventHandler(InfinispanService infinispanService, KubernetesService kubernetesService) {
+    public PodEventHandler(InfinispanService infinispanService, KubernetesService kubernetesService, EventBus eventBus) {
         this.infinispanService = infinispanService;
         this.kubernetesService = kubernetesService;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -28,7 +35,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             LOGGER.info("onAdd " + pod.getMetadata().getName());
             ContainerStatus ps = getPodStatus(pod);
             if (ps != null) {
-                infinispanService.saveContainerStatus(ps);
+                eventBus.send(CONTAINER_STATUS, JsonObject.mapFrom(ps));
             }
         } catch (Exception e){
             LOGGER.error(e.getMessage(), e.getCause());
@@ -41,7 +48,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             LOGGER.info("onUpdate " + newPod.getMetadata().getName());
             ContainerStatus ps = getPodStatus(newPod);
             if (ps != null) {
-                infinispanService.saveContainerStatus(ps);
+                eventBus.send(CONTAINER_STATUS, JsonObject.mapFrom(ps));
             }
         } catch (Exception e){
             LOGGER.error(e.getMessage(), e.getCause());
@@ -76,17 +83,22 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             String requestCpu = resourceRequirements.getRequests().getOrDefault("cpu", new Quantity()).toString();
             String limitMemory = resourceRequirements.getLimits().getOrDefault("memory", new Quantity()).toString();
             String limitCpu = resourceRequirements.getLimits().getOrDefault("cpu", new Quantity()).toString();
-            return new ContainerStatus(
+            ContainerStatus status = new ContainerStatus(
                     pod.getMetadata().getName(),
-                    ContainerStatus.Lifecycle.ready,
+                    List.of(ContainerStatus.Command.delete),
                     projectId,
                     kubernetesService.environment,
-                    pod.getMetadata().getName().equals(projectId) ? ContainerStatus.CType.devmode : ContainerStatus.CType.project,
+                    pod.getMetadata().getName().equals(projectId) ? ContainerStatus.ContainerType.devmode : ContainerStatus.ContainerType.project,
                     requestMemory + " : " + limitMemory,
                     requestCpu + " : " + limitCpu,
-                    creationTimestamp
+                    creationTimestamp);
 
-            );
+            if (ready) {
+                status.setState(ContainerStatus.State.running.name());
+            } else {
+                status.setState(ContainerStatus.State.created.name());
+            }
+            return status;
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage(), ex.getCause());
             return null;

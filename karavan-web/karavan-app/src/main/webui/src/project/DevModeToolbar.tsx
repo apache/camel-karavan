@@ -3,12 +3,13 @@ import {Button, Flex, FlexItem, Label, Switch, Tooltip, TooltipPosition} from '@
 import '../designer/karavan.css';
 import RocketIcon from "@patternfly/react-icons/dist/esm/icons/rocket-icon";
 import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
-import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
+import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import {useDevModeStore, useLogStore, useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
+import StopIcon from "@patternfly/react-icons/dist/js/icons/stop-icon";
 
 
 interface Props {
@@ -18,29 +19,18 @@ interface Props {
 export const DevModeToolbar = (props: Props) => {
 
     const [status] = useDevModeStore((state) => [state.status], shallow)
-    const [project,containerStatus ] = useProjectStore((state) => [state.project, state.containerStatus], shallow)
+    const [project, containerStatus ] = useProjectStore((state) => [state.project, state.containerStatus], shallow)
     const [verbose, setVerbose] = useState(false);
 
-
-    function getColor() {
-        return getRunning() ? "green" : "grey";
-    }
-
-    function getRunning(): boolean {
-        return containerStatus.lifeCycle === 'ready';
-    }
-
-    function getIcon() {
-        return (getRunning() ? <UpIcon/> : <DownIcon/>)
-    }
-
-    const isRunning = status === "running";
-    const isStartingPod = status === "starting";
-    const isReloadingPod = status === "reloading";
-    const isDeletingPod = status === "deleting";
+    const commands = containerStatus.commands;
+    const ports = containerStatus.ports;
+    const isRunning = containerStatus.state === 'running';
+    const inTransit = containerStatus.inTransit;
+    const color = containerStatus.state === 'running' ? "green" : "grey";
+    const icon = isRunning ? <UpIcon/> : <DownIcon/>;
     return (<Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
-        {isRunning && <FlexItem>
-            <Label icon={getIcon()} color={getColor()}>
+        {<FlexItem>
+            <Label icon={icon} color={color}>
                 <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
                     <Button variant="link"
                             onClick={e =>
@@ -50,19 +40,7 @@ export const DevModeToolbar = (props: Props) => {
                 </Tooltip>
             </Label>
         </FlexItem>}
-        {(isRunning || isDeletingPod) && !isReloadingPod && props.reloadOnly !== true && <FlexItem>
-            <Tooltip content="Stop devmode" position={TooltipPosition.bottom}>
-                <Button isLoading={isDeletingPod ? true : undefined}
-                        isSmall
-                        variant={"secondary"}
-                        className="project-button"
-                        icon={!isRunning ? <DeleteIcon/> : <div></div>}
-                        onClick={() => ProjectService.deleteRunner(project)}>
-                    {isDeletingPod ? "..." : "Stop"}
-                </Button>
-            </Tooltip>
-        </FlexItem>}
-        {!isRunning && !isReloadingPod && !isDeletingPod && props.reloadOnly !== true && <FlexItem>
+        <FlexItem>
             <Tooltip content="Verbose" position={TooltipPosition.bottom}>
                 <Switch aria-label="verbose"
                         id="verbose"
@@ -70,28 +48,50 @@ export const DevModeToolbar = (props: Props) => {
                         onChange={checked => setVerbose(checked)}
                 />
             </Tooltip>
-        </FlexItem>}
-        {!isRunning && !isReloadingPod && props.reloadOnly !== true && <FlexItem>
+        </FlexItem>
+        {!isRunning && <FlexItem>
             <Tooltip content="Run in developer mode" position={TooltipPosition.bottom}>
-                <Button isLoading={isStartingPod ? true : undefined}
+                <Button isLoading={status === 'wip'}
                         isSmall
+                        isDisabled={(!(commands.length === 0) && !commands.includes('run')) || inTransit}
                         variant={"primary"}
-                        className="project-button"
-                        icon={!isStartingPod ? <RocketIcon/> : <div></div>}
-                        onClick={() => ProjectService.startRunner(project, verbose)}>
-                    {isStartingPod ? "..." : "Run"}
+                        icon={<RocketIcon/>}
+                        onClick={() => ProjectService.startDevModeContainer(project, verbose)}>
+                    {"Run"}
                 </Button>
             </Tooltip>
         </FlexItem>}
-        {(isRunning || isReloadingPod) && <FlexItem>
+        {isRunning && <FlexItem>
             <Tooltip content="Reload" position={TooltipPosition.bottom}>
-                <Button isLoading={isReloadingPod ? true : undefined}
+                <Button isLoading={status === 'wip'}
                         isSmall
+                        isDisabled={inTransit}
                         variant={"primary"}
                         className="project-button"
-                        icon={!isReloadingPod ? <ReloadIcon/> : <div></div>}
-                        onClick={() => ProjectService.reloadRunner(project)}>
-                    {isReloadingPod ? "..." : "Reload"}
+                        icon={<ReloadIcon/>}
+                        onClick={() => ProjectService.reloadDevModeCode(project)}>Reload
+                </Button>
+            </Tooltip>
+        </FlexItem>}
+        {<FlexItem>
+            <Tooltip content="Stop container" position={TooltipPosition.bottom}>
+                <Button isLoading={status === 'wip'}
+                        isSmall
+                        isDisabled={!commands.includes('stop') || inTransit}
+                        variant={"control"}
+                        icon={<StopIcon/>}
+                        onClick={() => ProjectService.stopDevModeContainer(project)}>
+                </Button>
+            </Tooltip>
+        </FlexItem>}
+        {<FlexItem>
+            <Tooltip content="Delete container" position={TooltipPosition.bottom}>
+                <Button isLoading={status === 'wip'}
+                        isSmall
+                        isDisabled={!commands.includes('delete') || inTransit}
+                        variant={"control"}
+                        icon={<DeleteIcon/>}
+                        onClick={() => ProjectService.deleteDevModeContainer(project)}>
                 </Button>
             </Tooltip>
         </FlexItem>}

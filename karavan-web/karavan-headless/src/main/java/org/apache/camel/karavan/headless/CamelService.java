@@ -66,10 +66,10 @@ public class CamelService {
     public void reloadProjectCode(String projectId) {
         LOGGER.info("Reload project code " + projectId);
         try {
-            ContainerStatus containerStatus = infinispanService.getDevModeContainerStatus(projectId, environment);
             infinispanService.getProjectFiles(projectId).forEach(projectFile ->
                     putRequest(projectId, projectFile.getName(), projectFile.getCode(), 1000));
             reloadRequest(projectId);
+            ContainerStatus containerStatus = infinispanService.getDevModeContainerStatus(projectId, environment);
             containerStatus.setCodeLoaded(true);
             infinispanService.saveContainerStatus(containerStatus);
         } catch (Exception ex) {
@@ -106,7 +106,7 @@ public class CamelService {
     public void collectCamelStatuses() {
         if (infinispanService.isReady()) {
             infinispanService.getContainerStatuses(environment).stream()
-                    .filter(status -> status.getType().equals(ContainerStatus.CType.devmode) || status.getType().equals(ContainerStatus.CType.project))
+                    .filter(status -> status.getType().equals(ContainerStatus.ContainerType.devmode) || status.getType().equals(ContainerStatus.ContainerType.project))
                     .forEach(status -> {
                         CamelStatusRequest csr = new CamelStatusRequest(status.getProjectId(), status.getContainerName());
                         eventBus.publish(CMD_COLLECT_CAMEL_STATUS, JsonObject.mapFrom(csr));

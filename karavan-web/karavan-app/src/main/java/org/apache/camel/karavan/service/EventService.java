@@ -9,11 +9,13 @@ import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.shared.ConfigService;
 import org.apache.camel.karavan.shared.EventType;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Objects;
 
 import static org.apache.camel.karavan.shared.EventType.*;
 
@@ -21,6 +23,9 @@ import static org.apache.camel.karavan.shared.EventType.*;
 public class EventService {
 
     private static final Logger LOGGER = Logger.getLogger(EventService.class.getName());
+
+    @ConfigProperty(name = "karavan.environment")
+    String environment;
 
     @Inject
     InfinispanService infinispanService;
@@ -36,9 +41,6 @@ public class EventService {
 
     @Inject
     ProjectService projectService;
-
-    @Inject
-    ConfigService configService;
 
     @Inject
     EventBus bus;
@@ -73,29 +75,30 @@ public class EventService {
     }
 
     @ConsumeEvent(value = DEVMODE_CONTAINER_READY, blocking = true, ordered = true)
-    void receiveCommand(JsonObject message) {
-        LOGGER.info("received Status " + message);
-        ContainerStatus status = message.mapTo(ContainerStatus.class);
-        if (!status.getCodeLoaded() && status.getContainerId() != null && status.getLifeCycle().equals(ContainerStatus.Lifecycle.ready)) {
+    void receiveCommand(String projectId) {
+        LOGGER.info("DEVMODE_CONTAINER_READY " + projectId);
+        ContainerStatus status = infinispanService.getContainerStatus(projectId, environment, projectId);
+        if (!status.getCodeLoaded() && status.getContainerId() != null && status.getState().equals(ContainerStatus.State.running.name())) {
             if (ConfigService.inKubernetes()) {
-                camelService.reloadProjectCode(status.getProjectId());
+                camelService.reloadProjectCode(projectId);
             } else {
-                infinispanService.sendCodeReloadCommand(status.getProjectId());
+                infinispanService.sendCodeReloadCommand(projectId);
             }
         }
     }
 
-    @ConsumeEvent(value = CONTAINER_STATISTICS, blocking = true, ordered = true)
-    public void saveStats(JsonObject data) {
-        String projectId = data.getString("projectId");
-        String memory = data.getString("memory");
-        String cpu = data.getString("cpu");
+    @ConsumeEvent(value = CONTAINER_STATUS, blocking = true, ordered = true)
+    public void saveContainerStatus(JsonObject data) {
         if (infinispanService.isReady()) {
-            ContainerStatus containerStatus = infinispanService.getDevModeContainerStatus(projectId, configService.getConfiguration().getEnvironment());
-            if (containerStatus != null) {
-                containerStatus.setCpuInfo(cpu);
-                containerStatus.setMemoryInfo(memory);
-                infinispanService.saveContainerStatus(containerStatus);
+            ContainerStatus newStatus = data.mapTo(ContainerStatus.class);
+            System.out.println(newStatus);
+            ContainerStatus oldStatus = infinispanService.getContainerStatus(newStatus.getProjectId(), newStatus.getEnv(), newStatus.getContainerName());
+            if (oldStatus == null || Objects.equals(oldStatus.getInTransit(), Boolean.FALSE)) {
+                infinispanService.saveContainerStatus(newStatus);
+            } else if (Objects.equals(oldStatus.getInTransit(), Boolean.TRUE)){
+                if (!Objects.equals(oldStatus.getState(), newStatus.getState())) {
+                    infinispanService.saveContainerStatus(newStatus);
+                }
             }
         }
     }

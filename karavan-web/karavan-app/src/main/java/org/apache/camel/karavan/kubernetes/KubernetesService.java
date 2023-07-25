@@ -115,7 +115,7 @@ public class KubernetesService implements HealthCheck {
 
             SharedIndexInformer<Pod> podRunInformer = kubernetesClient().pods().inNamespace(getNamespace())
                     .withLabels(getRuntimeLabels()).inform();
-            podRunInformer.addEventHandlerWithResyncPeriod(new PodEventHandler(infinispanService, this), 30 * 1000L);
+            podRunInformer.addEventHandlerWithResyncPeriod(new PodEventHandler(infinispanService, this, eventBus), 30 * 1000L);
             informers.add(podRunInformer);
 
             LOGGER.info("Started Kubernetes Informers");

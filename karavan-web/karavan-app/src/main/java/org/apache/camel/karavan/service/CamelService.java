@@ -37,6 +37,8 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
+import static org.apache.camel.karavan.shared.EventType.CONTAINER_STATUS;
+
 @ApplicationScoped
 public class CamelService {
 
@@ -71,12 +73,12 @@ public class CamelService {
     public void reloadProjectCode(String projectId) {
         LOGGER.info("Reload project code " + projectId);
         try {
-            ContainerStatus containerStatus = infinispanService.getDevModeContainerStatus(projectId, environment);
             infinispanService.getProjectFiles(projectId).forEach(projectFile ->
                     putRequest(projectId, projectFile.getName(), projectFile.getCode(), 1000));
             reloadRequest(projectId);
+            ContainerStatus containerStatus = infinispanService.getDevModeContainerStatus(projectId, environment);
             containerStatus.setCodeLoaded(true);
-            infinispanService.saveContainerStatus(containerStatus);
+            eventBus.send(CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }

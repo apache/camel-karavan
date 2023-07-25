@@ -9,7 +9,16 @@ import java.util.List;
 
 public class ContainerStatus {
 
-    public enum CType {
+    public enum State {
+        created,
+        running,
+        restarting,
+        paused,
+        exited,
+        dead
+    }
+
+    public enum ContainerType {
         @ProtoEnumValue(number = 0, name = "internal") internal,
         @ProtoEnumValue(number = 1, name = "devmode") devmode,
         @ProtoEnumValue(number = 2, name = "devservice") devservice,
@@ -17,10 +26,11 @@ public class ContainerStatus {
         @ProtoEnumValue(number = 5, name = "unknown") unknown,
     }
 
-    public enum Lifecycle {
-        @ProtoEnumValue(number = 0, name = "init") init,
-        @ProtoEnumValue(number = 1, name = "ready") ready,
-        @ProtoEnumValue(number = 2, name = "deleting") deleting,
+    public enum Command {
+        @ProtoEnumValue(number = 0, name = "run") run,
+        @ProtoEnumValue(number = 1, name = "pause") pause,
+        @ProtoEnumValue(number = 2, name = "stop") stop,
+        @ProtoEnumValue(number = 3, name = "delete") delete,
     }
 
     public static final String CACHE = "container_statuses";
@@ -37,7 +47,7 @@ public class ContainerStatus {
     @ProtoField(number = 6)
     String env;
     @ProtoField(number = 7)
-    CType type;
+    ContainerType type;
     @ProtoField(number = 8)
     String memoryInfo;
     @ProtoField(number = 9)
@@ -45,14 +55,16 @@ public class ContainerStatus {
     @ProtoField(number = 10)
     String created;
     @ProtoField(number = 11)
-    Lifecycle lifeCycle;
+    List<Command> commands;
     @ProtoField(number = 12)
-    Boolean codeLoaded;
+    String state;
     @ProtoField(number = 13)
-    Boolean logging;
+    Boolean codeLoaded;
+    @ProtoField(number = 14)
+    Boolean inTransit = false;
 
     @ProtoFactory
-    public ContainerStatus(String projectId, String containerName, String containerId, String image, List<Integer> ports, String env, CType type, String memoryInfo, String cpuInfo, String created, Lifecycle lifeCycle, Boolean codeLoaded, Boolean logging) {
+    public ContainerStatus(String projectId, String containerName, String containerId, String image, List<Integer> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, List<Command> commands, String state, Boolean codeLoaded, Boolean inTransit) {
         this.projectId = projectId;
         this.containerName = containerName;
         this.containerId = containerId;
@@ -63,14 +75,15 @@ public class ContainerStatus {
         this.memoryInfo = memoryInfo;
         this.cpuInfo = cpuInfo;
         this.created = created;
-        this.lifeCycle = lifeCycle;
+        this.commands = commands;
+        this.state = state;
         this.codeLoaded = codeLoaded;
-        this.logging = logging;
+        this.inTransit = inTransit;
     }
 
-    public ContainerStatus(String containerName, Lifecycle lifeCycle, String projectId, String env, CType type, String memoryInfo, String cpuInfo, String created) {
+    public ContainerStatus(String containerName, List<Command> commands, String projectId, String env, ContainerType type, String memoryInfo, String cpuInfo, String created) {
         this.containerName = containerName;
-        this.lifeCycle = lifeCycle;
+        this.commands = commands;
         this.projectId = projectId;
         this.env = env;
         this.type = type;
@@ -79,9 +92,9 @@ public class ContainerStatus {
         this.created = created;
     }
 
-    public ContainerStatus(String containerName, Lifecycle lifeCycle, String projectId, String env, CType type, String created) {
+    public ContainerStatus(String containerName, List<Command> commands, String projectId, String env, ContainerType type, String created) {
         this.containerName = containerName;
-        this.lifeCycle = lifeCycle;
+        this.commands = commands;
         this.projectId = projectId;
         this.env = env;
         this.created = created;
@@ -89,16 +102,17 @@ public class ContainerStatus {
     }
 
     public static ContainerStatus createDevMode(String projectId, String env) {
-        return new ContainerStatus(projectId, projectId, null, null, null, env, CType.devmode, null, null, null,  Lifecycle.init, false, false);
+        return new ContainerStatus(projectId, projectId, null, null, null, env, ContainerType.devmode, null, null, null, List.of(Command.run), null, false, false);
     }
 
-    public static ContainerStatus createWithId(String name, String env, String containerId, String image, List<Integer> ports, CType type, Lifecycle lifeCycle, String created) {
+    public static ContainerStatus createWithId(String name, String env, String containerId, String image, List<Integer> ports, ContainerType type, List<Command> commands, String status, String created) {
         return new ContainerStatus(name, name, containerId, image, ports, env, type,
-                null, null, created,  lifeCycle, false, false);
+                null, null, created,  commands, status, false, false);
     }
 
     public ContainerStatus() {
     }
+
 
     public String getProjectId() {
         return projectId;
@@ -148,11 +162,11 @@ public class ContainerStatus {
         this.env = env;
     }
 
-    public CType getType() {
+    public ContainerType getType() {
         return type;
     }
 
-    public void setType(CType type) {
+    public void setType(ContainerType type) {
         this.type = type;
     }
 
@@ -180,12 +194,20 @@ public class ContainerStatus {
         this.created = created;
     }
 
-    public Lifecycle getLifeCycle() {
-        return lifeCycle;
+    public List<Command> getCommands() {
+        return commands;
     }
 
-    public void setLifeCycle(Lifecycle lifeCycle) {
-        this.lifeCycle = lifeCycle;
+    public void setCommands(List<Command> commands) {
+        this.commands = commands;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 
     public Boolean getCodeLoaded() {
@@ -196,11 +218,31 @@ public class ContainerStatus {
         this.codeLoaded = codeLoaded;
     }
 
-    public Boolean getLogging() {
-        return logging;
+    public Boolean getInTransit() {
+        return inTransit;
     }
 
-    public void setLogging(Boolean logging) {
-        this.logging = logging;
+    public void setInTransit(Boolean inTransit) {
+        this.inTransit = inTransit;
+    }
+
+    @Override
+    public String toString() {
+        return "ContainerStatus{" +
+                "projectId='" + projectId + '\'' +
+                ", containerName='" + containerName + '\'' +
+                ", containerId='" + containerId + '\'' +
+                ", image='" + image + '\'' +
+                ", ports=" + ports +
+                ", env='" + env + '\'' +
+                ", type=" + type +
+                ", memoryInfo='" + memoryInfo + '\'' +
+                ", cpuInfo='" + cpuInfo + '\'' +
+                ", created='" + created + '\'' +
+                ", commands=" + commands +
+                ", state='" + state + '\'' +
+                ", codeLoaded=" + codeLoaded +
+                ", logging=" + inTransit +
+                '}';
     }
 }

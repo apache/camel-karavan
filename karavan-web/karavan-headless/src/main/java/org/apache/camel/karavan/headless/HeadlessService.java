@@ -39,12 +39,11 @@ public class HeadlessService {
     void onStart(@Observes StartupEvent ev) {
         LOGGER.info("Starting Headless Karavan");
         infinispanService.start(true);
-        infinispanService.clearAllStatuses();
     }
 
     @Scheduled(every = "{karavan.camel.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectCamelStatuses() {
-        LOGGER.info("Collect info statuses");
+        LOGGER.info("Collect Camel statuses");
         // collect Camel statuses
         camelService.collectCamelStatuses();
     }

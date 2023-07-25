@@ -17,18 +17,28 @@
 package org.apache.camel.karavan.service;
 
 import io.quarkus.scheduler.Scheduled;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.shared.ConfigService;
+import org.apache.camel.karavan.shared.EventType;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ScheduledService {
 
     private static final Logger LOGGER = Logger.getLogger(ScheduledService.class.getName());
+
+    @ConfigProperty(name = "karavan.environment")
+    String environment;
 
     @Inject
     DockerService dockerService;
@@ -42,9 +52,25 @@ public class ScheduledService {
     @Inject
     InfinispanService infinispanService;
 
-    @Scheduled(every = "{karavan.container.statistics.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
-    void collectContainersStats() {
-        dockerService.collectContainersStats();
+    @Inject
+    EventBus eventBus;
+
+    @Scheduled(every = "{karavan.container.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    void collectContainersStatuses() {
+        if (infinispanService.isReady()) {
+            List<ContainerStatus> statusesInDocker = dockerService.collectContainersStatuses();
+            List<String> namesInDocker = statusesInDocker.stream().map(ContainerStatus::getContainerName).collect(Collectors.toList());
+            List<ContainerStatus> statusesInInfinispan = infinispanService.getContainerStatuses(environment);
+            // clean deleted
+            statusesInInfinispan.stream().filter(cs -> !namesInDocker.contains(cs.getContainerName())).forEach(containerStatus -> {
+                infinispanService.deleteContainerStatus(containerStatus);
+                infinispanService.deleteCamelStatuses(containerStatus.getProjectId(), containerStatus.getEnv());
+            });
+            // send statuses to save
+            statusesInDocker.forEach(containerStatus -> {
+                eventBus.send(EventType.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
+            });
+        }
     }
 
     @Scheduled(every = "{karavan.container.infinispan.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)

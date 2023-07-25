@@ -30,6 +30,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Objects;
 import java.util.Optional;
 
 @Path("/api/devmode")
@@ -58,7 +59,13 @@ public class DevModeResource {
         String containerName = project.getProjectId();
         ContainerStatus status = infinispanService.getDevModeContainerStatus(project.getProjectId(), environment);
         if (status == null) {
-            infinispanService.saveContainerStatus(ContainerStatus.createDevMode(project.getProjectId(), environment));
+            status = ContainerStatus.createDevMode(project.getProjectId(), environment);
+        }
+
+        if (!Objects.equals(status.getState(), ContainerStatus.State.running.name())){
+            status.setInTransit(true);
+            infinispanService.saveContainerStatus(status);
+
             if (ConfigService.inKubernetes()) {
                 kubernetesService.runDevModeContainer(project, "");
             } else {
@@ -93,15 +100,10 @@ public class DevModeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{projectId}/{deletePVC}")
     public Response deleteDevMode(@PathParam("projectId") String projectId, @PathParam("deletePVC") boolean deletePVC) {
-        ContainerStatus status = infinispanService.getDevModeContainerStatus(projectId, environment);
-        if (status != null) {
-            status.setLifeCycle(ContainerStatus.Lifecycle.deleting);
-            infinispanService.saveContainerStatus(status);
-        }
+        infinispanService.setContainerStatusTransit(projectId, environment, projectId);
         if (ConfigService.inKubernetes()) {
             kubernetesService.deleteRunner(projectId, deletePVC);
         } else {
-            dockerService.stopContainer(projectId);
             dockerService.deleteContainer(projectId);
         }
         return Response.accepted().build();
@@ -109,7 +111,7 @@ public class DevModeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/pod/{projectId}")
+    @Path("/container/{projectId}")
     public Response getPodStatus(@PathParam("projectId") String projectId) throws RuntimeException {
         if (infinispanService.isReady()) {
             ContainerStatus cs = infinispanService.getDevModeContainerStatus(projectId, environment);

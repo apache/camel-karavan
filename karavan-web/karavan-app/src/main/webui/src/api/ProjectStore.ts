@@ -137,14 +137,14 @@ export const useFileStore = create<FileState>((set) => ({
 
 interface DevModeState {
     podName?: string,
-    status: "none" | "starting" | "deleting"| "reloading" | "running",
-    setStatus: (status: "none" | "starting" | "deleting"| "reloading" | "running") => void,
+    status: "none" | "wip",
+    setStatus: (status: "none" | "wip") => void,
 }
 
 export const useDevModeStore = create<DevModeState>((set) => ({
     podName: undefined,
     status: "none",
-    setStatus: (status: "none" | "starting" | "deleting"| "reloading" | "running") =>  {
+    setStatus: (status: "none" | "wip") =>  {
         set((state: DevModeState) => ({
             status: status,
         }));

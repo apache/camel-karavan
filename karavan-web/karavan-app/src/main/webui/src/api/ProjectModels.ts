@@ -71,6 +71,7 @@ export class ContainerStatus {
     containerName: string = '';
     containerId: string = '';
     lifeCycle: string = '';
+    state: string = '';
     deployment: string = '';
     projectId: string = '';
     env: string = '';
@@ -80,6 +81,8 @@ export class ContainerStatus {
     created: string = '';
     image: string = '';
     ports: [] = [];
+    commands: string [] = [];
+    inTransit: boolean = false;
 
     public constructor(init?: Partial<ContainerStatus>) {
         Object.assign(this, init);

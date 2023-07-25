@@ -67,6 +67,7 @@ public class InfinispanService {
     private RemoteCache<GroupedKey, PipelineStatus> pipelineStatuses;
     private RemoteCache<GroupedKey, DeploymentStatus> deploymentStatuses;
     private RemoteCache<GroupedKey, ContainerStatus> containerStatuses;
+    private RemoteCache<GroupedKey, Boolean> transits;
     private RemoteCache<GroupedKey, ServiceStatus> serviceStatuses;
     private RemoteCache<GroupedKey, CamelStatus> camelStatuses;
     private RemoteCache<String, String> commits;
@@ -107,6 +108,7 @@ public class InfinispanService {
         serviceStatuses = getOrCreateCache(ServiceStatus.CACHE, false);
         camelStatuses = getOrCreateCache(CamelStatus.CACHE, false);
         commits = getOrCreateCache("commits", false);
+        transits = getOrCreateCache("transits", false);
         deploymentStatuses = getOrCreateCache(DeploymentStatus.CACHE, false);
         codeReloadCommands = getOrCreateCache("code_reload_commands", true);
 
@@ -250,6 +252,18 @@ public class InfinispanService {
         return new ArrayList<>(serviceStatuses.values());
     }
 
+    public List<Boolean> getTransits() {
+        return new ArrayList<>(transits.values());
+    }
+
+    public Boolean getTransit(String projectId, String env, String containerName) {
+        return transits.get(GroupedKey.create(projectId, env, containerName));
+    }
+
+    public void setTransit(String projectId, String env, String containerName) {
+        transits.put(GroupedKey.create(projectId,env,containerName), true);
+    }
+
     public List<ContainerStatus> getContainerStatuses() {
         return new ArrayList<>(containerStatuses.values());
     }
@@ -260,6 +274,12 @@ public class InfinispanService {
                 .setParameter("projectId", projectId)
                 .setParameter("env", env)
                 .execute().list();
+    }
+
+    public void setContainerStatusTransit(String projectId, String env, String containerName) {
+        ContainerStatus cs = getContainerStatus(projectId, env, containerName);
+        cs.setInTransit(true);
+        saveContainerStatus(cs);
     }
 
     public ContainerStatus getContainerStatus(String projectId, String env, String containerName) {
@@ -353,14 +373,14 @@ public class InfinispanService {
     public List<ContainerStatus> getLoadedDevModeStatuses() {
         QueryFactory queryFactory = Search.getQueryFactory(containerStatuses);
         return queryFactory.<ContainerStatus>create("FROM karavan.ContainerStatus WHERE type = :type AND codeLoaded = true")
-                .setParameter("type", ContainerStatus.CType.devmode)
+                .setParameter("type", ContainerStatus.ContainerType.devmode)
                 .execute().list();
     }
 
     public List<ContainerStatus> getDevModeStatuses() {
         QueryFactory queryFactory = Search.getQueryFactory(containerStatuses);
         return queryFactory.<ContainerStatus>create("FROM karavan.ContainerStatus WHERE type = :type")
-                .setParameter("type", ContainerStatus.CType.devmode)
+                .setParameter("type", ContainerStatus.ContainerType.devmode)
                 .execute().list();
     }
 
