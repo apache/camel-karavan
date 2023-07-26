@@ -34,7 +34,6 @@ export const ProjectToolbar = (props: Props) => {
         [state.file, state.editAdvancedProperties, state.setEditAdvancedProperties, state.setAddProperty], shallow )
 
     useEffect(() => {
-        console.log("ProjectToolbar useEffect", isPushing, project.lastCommitTimestamp);
     }, [project, file]);
 
     function isFile(): boolean {

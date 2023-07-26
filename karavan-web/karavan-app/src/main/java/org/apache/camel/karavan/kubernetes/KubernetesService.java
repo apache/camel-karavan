@@ -29,6 +29,7 @@ import io.fabric8.tekton.client.DefaultTektonClient;
 import io.fabric8.tekton.pipeline.v1beta1.*;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.service.CodeService;
@@ -47,6 +48,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.service.CodeService.APPLICATION_PROPERTIES_FILENAME;
+import static org.apache.camel.karavan.shared.Constants.*;
 
 @Default
 @Readiness
@@ -54,12 +56,12 @@ import static org.apache.camel.karavan.service.CodeService.APPLICATION_PROPERTIE
 public class KubernetesService implements HealthCheck {
 
     private static final Logger LOGGER = Logger.getLogger(KubernetesService.class.getName());
-    public static final int INFORMERS = 4;
+    protected static final int INFORMERS = 4;
     private static final String CAMEL_PREFIX = "camel";
     private static final String KARAVAN_PREFIX = "karavan";
     private static final String JBANG_CACHE_SUFFIX = "jbang-cache";
     private static final String M2_CACHE_SUFFIX = "m2-cache";
-    public static final String PVC_MAVEN_SETTINGS = "maven-settings";
+    protected static final String PVC_MAVEN_SETTINGS = "maven-settings";
 
     @Inject
     EventBus eventBus;
@@ -400,9 +402,9 @@ public class KubernetesService implements HealthCheck {
         createService(name);
     }
 
-    public void deleteRunner(String name, boolean deletePVC) {
+    public void deleteDevModePod(String name, boolean deletePVC) {
         try {
-            LOGGER.info("Delete runner: " + name + " in the namespace: " + getNamespace());
+            LOGGER.info("Delete devmode pod: " + name + " in the namespace: " + getNamespace());
             kubernetesClient().pods().inNamespace(getNamespace()).withName(name).delete();
             kubernetesClient().services().inNamespace(getNamespace()).withName(name).delete();
             if (deletePVC) {
@@ -426,7 +428,7 @@ public class KubernetesService implements HealthCheck {
         Map<String, String> labels = new HashMap<>();
         labels.putAll(getRuntimeLabels());
         labels.putAll(getKaravanRunnerLabels(name));
-        labels.put("karavan/projectId", projectId);
+        labels.put(LABEL_PROJECT_ID, projectId);
 
         ResourceRequirements resources = getResourceRequirements(containerResources);
 
@@ -448,7 +450,7 @@ public class KubernetesService implements HealthCheck {
                 .withPorts(port)
                 .withResources(resources)
                 .withImagePullPolicy("Always")
-                .withEnv(new EnvVarBuilder().withName("JBANG_OPTIONS").withValue(jbangOptions).build())
+                .withEnv(new EnvVarBuilder().withName(ENV_VAR_JBANG_OPTIONS).withValue(jbangOptions).build())
                 .withVolumeMounts(
                         new VolumeMountBuilder().withName(name).withMountPath("/karavan/.jbang/cache").build(),
                         new VolumeMountBuilder().withName("maven-settings").withSubPath("maven-settings.xml")
@@ -473,14 +475,14 @@ public class KubernetesService implements HealthCheck {
                 .build();
     }
 
-    private void createPVC(String runnerName) {
-        PersistentVolumeClaim old = kubernetesClient().persistentVolumeClaims().inNamespace(getNamespace()).withName(runnerName).get();
+    private void createPVC(String podName) {
+        PersistentVolumeClaim old = kubernetesClient().persistentVolumeClaims().inNamespace(getNamespace()).withName(podName).get();
         if (old == null) {
             PersistentVolumeClaim pvc = new PersistentVolumeClaimBuilder()
                     .withNewMetadata()
-                    .withName(runnerName)
+                    .withName(podName)
                     .withNamespace(getNamespace())
-                    .withLabels(getKaravanRunnerLabels(runnerName))
+                    .withLabels(getKaravanRunnerLabels(podName))
                     .endMetadata()
                     .withNewSpec()
                     .withResources(new ResourceRequirementsBuilder().withRequests(Map.of("storage", new Quantity("2Gi"))).build())
@@ -533,7 +535,7 @@ public class KubernetesService implements HealthCheck {
     }
 
     public static Map<String, String> getKaravanRunnerLabels(String name) {
-        return Map.of("karavan/type", "runner",
+        return Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devmode.name(),
                 "app.kubernetes.io/name", name);
     }
 

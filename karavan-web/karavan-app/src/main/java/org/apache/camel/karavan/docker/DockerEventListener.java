@@ -6,7 +6,6 @@ import com.github.dockerjava.api.model.ContainerPort;
 import com.github.dockerjava.api.model.Event;
 import com.github.dockerjava.api.model.EventType;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -20,8 +19,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.docker.DockerService.LABEL_PROJECT_ID;
-import static org.apache.camel.karavan.docker.DockerService.LABEL_TYPE;
+import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
+import static org.apache.camel.karavan.shared.Constants.LABEL_TYPE;
 import static org.apache.camel.karavan.shared.EventType.DEVMODE_CONTAINER_READY;
 import static org.apache.camel.karavan.shared.EventType.INFINISPAN_STARTED;
 

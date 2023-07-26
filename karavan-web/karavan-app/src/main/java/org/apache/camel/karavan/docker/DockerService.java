@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.DockerClient;
@@ -29,6 +45,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static org.apache.camel.karavan.shared.Constants.*;
 import static org.apache.camel.karavan.shared.EventType.*;
 
 @ApplicationScoped
@@ -36,12 +53,10 @@ public class DockerService {
 
     private static final Logger LOGGER = Logger.getLogger(DockerService.class.getName());
 
-    public static final String INFINISPAN_CONTAINER_NAME = "infinispan";
-    public static final String KARAVAN_CONTAINER_NAME = "karavan-headless";
+    protected static final String INFINISPAN_CONTAINER_NAME = "infinispan";
+    protected static final String KARAVAN_CONTAINER_NAME = "karavan-headless";
 
-    public static final String NETWORK_NAME = "karavan";
-    public static final String LABEL_TYPE = "org.apache.camel.karavan.type";
-    public static final String LABEL_PROJECT_ID = "org.apache.camel.karavan.projectId";
+    protected static final String NETWORK_NAME = "karavan";
     private static final DecimalFormat formatCpu = new DecimalFormat("0.00");
     private static final DecimalFormat formatMiB = new DecimalFormat("0.0");
     private static final DecimalFormat formatGiB = new DecimalFormat("0.00");
@@ -59,8 +74,6 @@ public class DockerService {
 
     @ConfigProperty(name = "infinispan.image")
     String infinispanImage;
-    @ConfigProperty(name = "infinispan.hosts")
-    String infinispanHosts;
     @ConfigProperty(name = "infinispan.port")
     String infinispanPort;
     @ConfigProperty(name = "infinispan.username")
@@ -72,22 +85,23 @@ public class DockerService {
     DockerEventListener dockerEventListener;
 
     @Inject
-    InfinispanService infinispanService;
-
-    @Inject
     EventBus eventBus;
 
     private DockerClient dockerClient;
 
     public void runDevmodeContainer(Project project, String jBangOptions) throws InterruptedException {
         String projectId = project.getProjectId();
-        LOGGER.infof("DevMode starting for %s", projectId);
+        LOGGER.infof("DevMode starting for %s with JBANG_OPTIONS=%s", projectId, jBangOptions);
 
         HealthCheck healthCheck = new HealthCheck().withTest(List.of("CMD", "curl", "-f", "http://localhost:8080/q/dev/health"))
                 .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
 
+        List<String> env = jBangOptions !=null && !jBangOptions.trim().isEmpty()
+                ? List.of(ENV_VAR_JBANG_OPTIONS + "=" + jBangOptions)
+                : List.of();
+
         createContainer(projectId, devmodeImage,
-                List.of(), null, false, false, healthCheck,
+                env, null, false, false, healthCheck,
                 Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devmode.name(), LABEL_PROJECT_ID, projectId));
 
         startContainer(projectId);
@@ -298,14 +312,10 @@ public class DockerService {
     }
 
     public void deleteContainer(String name) {
-        long time = System.currentTimeMillis();
         List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
-        System.out.println("Get containers " + (System.currentTimeMillis() - time));
-        time = System.currentTimeMillis();
         if (containers.size() == 1) {
             Container container = containers.get(0);
             getDockerClient().removeContainerCmd(container.getId()).withForce(true).exec();
-            System.out.println("removeContainerCmd " + (System.currentTimeMillis() - time));
         }
     }
 

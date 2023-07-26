@@ -78,7 +78,8 @@ public class EventService {
     void receiveCommand(String projectId) {
         LOGGER.info("DEVMODE_CONTAINER_READY " + projectId);
         ContainerStatus status = infinispanService.getContainerStatus(projectId, environment, projectId);
-        if (!status.getCodeLoaded() && status.getContainerId() != null && status.getState().equals(ContainerStatus.State.running.name())) {
+        System.out.println(status);
+        if (status != null && !status.getCodeLoaded() && status.getContainerId() != null && status.getState().equals(ContainerStatus.State.running.name())) {
             if (ConfigService.inKubernetes()) {
                 camelService.reloadProjectCode(projectId);
             } else {
@@ -91,7 +92,6 @@ public class EventService {
     public void saveContainerStatus(JsonObject data) {
         if (infinispanService.isReady()) {
             ContainerStatus newStatus = data.mapTo(ContainerStatus.class);
-            System.out.println(newStatus);
             ContainerStatus oldStatus = infinispanService.getContainerStatus(newStatus.getProjectId(), newStatus.getEnv(), newStatus.getContainerName());
             if (oldStatus == null || Objects.equals(oldStatus.getInTransit(), Boolean.FALSE)) {
                 infinispanService.saveContainerStatus(newStatus);

@@ -14,6 +14,7 @@ import org.jboss.logging.Logger;
 import java.util.List;
 
 import static org.apache.camel.karavan.service.CodeService.DEFAULT_CONTAINER_RESOURCES;
+import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
 import static org.apache.camel.karavan.shared.EventType.CONTAINER_STATUS;
 
 public class PodEventHandler implements ResourceEventHandler<Pod> {
@@ -60,7 +61,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
         try {
             LOGGER.info("onDelete " + pod.getMetadata().getName());
             String deployment = pod.getMetadata().getLabels().get("app");
-            String projectId = deployment != null ? deployment : pod.getMetadata().getLabels().get("karavan/projectId");
+            String projectId = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_PROJECT_ID);
             infinispanService.deleteContainerStatus(projectId, kubernetesService.environment, pod.getMetadata().getName());
         } catch (Exception e){
             LOGGER.error(e.getMessage(), e.getCause());
@@ -70,7 +71,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
 
     public ContainerStatus getPodStatus(Pod pod) {
         String deployment = pod.getMetadata().getLabels().get("app");
-        String projectId = deployment != null ? deployment : pod.getMetadata().getLabels().get("karavan/projectId");
+        String projectId = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_PROJECT_ID);
         try {
             boolean ready = pod.getStatus().getConditions().stream().anyMatch(c -> c.getType().equals("Ready"));
             String creationTimestamp = pod.getMetadata().getCreationTimestamp();
@@ -89,8 +90,8 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
                     projectId,
                     kubernetesService.environment,
                     pod.getMetadata().getName().equals(projectId) ? ContainerStatus.ContainerType.devmode : ContainerStatus.ContainerType.project,
-                    requestMemory + " : " + limitMemory,
-                    requestCpu + " : " + limitCpu,
+                    requestMemory + " / " + limitMemory,
+                    requestCpu + " / " + limitCpu,
                     creationTimestamp);
 
             if (ready) {

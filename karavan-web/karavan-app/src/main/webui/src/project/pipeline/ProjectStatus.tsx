@@ -65,15 +65,12 @@ export class ProjectStatus extends React.Component<Props, State> {
             });
             KaravanApi.getProjectDeploymentStatus(projectId, env, (status?: DeploymentStatus) => {
                 this.setState({deploymentStatus: status});
-                // console.log(status);
             });
             KaravanApi.getProjectPodStatuses(projectId, env, (statuses: ContainerStatus[]) => {
                 this.setState({podStatuses: statuses});
-                // console.log(status);
             });
             KaravanApi.getProjectCamelStatus(projectId, env, (status: CamelStatus) => {
                 this.setState({camelStatus: status});
-                // console.log(status);
             });
         }
     }

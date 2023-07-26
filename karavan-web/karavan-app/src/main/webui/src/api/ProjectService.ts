@@ -17,10 +17,10 @@ export class ProjectService {
     public static startDevModeContainer(project: Project, verbose: boolean) {
         useDevModeStore.setState({status: "wip"})
         KaravanApi.startDevModeContainer(project, verbose, res => {
+            useDevModeStore.setState({status: "none"})
             if (res.status === 200 || res.status === 201) {
                 ProjectEventBus.sendLog("set", '');
                 useLogStore.setState({showLog: true, type: 'container', podName: res.data})
-                useDevModeStore.setState({status: "none"})
             } else {
                 // Todo notification
             }
@@ -30,19 +30,20 @@ export class ProjectService {
     public static reloadDevModeCode(project: Project) {
         useDevModeStore.setState({status: "wip"})
         KaravanApi.reloadDevModeCode(project.projectId, res => {
+            useDevModeStore.setState({status: "none"})
             if (res.status === 200 || res.status === 201) {
                 // setIsReloadingPod(false);
             } else {
                 // Todo notification
                 // setIsReloadingPod(false);
             }
-            useDevModeStore.setState({status: "none"})
         });
     }
 
     public static stopDevModeContainer(project: Project) {
         useDevModeStore.setState({status: "wip"})
         KaravanApi.manageContainer("dev", project.projectId, 'stop', res => {
+            useDevModeStore.setState({status: "none"})
             if (res.status === 200) {
                 useLogStore.setState({showLog: false, type: 'container', isRunning: false})
             } else {
@@ -54,6 +55,7 @@ export class ProjectService {
     public static pauseDevModeContainer(project: Project) {
         useDevModeStore.setState({status: "wip"})
         KaravanApi.manageContainer("dev", project.projectId, 'pause', res => {
+            useDevModeStore.setState({status: "none"})
             if (res.status === 200) {
                 useLogStore.setState({showLog: false, type: 'container', isRunning: false})
             } else {
@@ -66,12 +68,12 @@ export class ProjectService {
         useDevModeStore.setState({status: "wip"})
         ProjectEventBus.sendLog("set", '');
         KaravanApi.deleteDevModeContainer(project.projectId, false, res => {
+            useDevModeStore.setState({status: "none"})
             if (res.status === 202) {
                 useLogStore.setState({showLog: false, type: 'container', isRunning: false})
             } else {
                 ProjectEventBus.sendAlert(new ToastMessage("Error delete runner", res.statusText, 'warning'))
             }
-            useDevModeStore.setState({status: "none"})
         });
     }
 
@@ -80,22 +82,19 @@ export class ProjectService {
         KaravanApi.getDevModePodStatus(projectId, res => {
             if (res.status === 200) {
                 unstable_batchedUpdates(() => {
-                    const podStatus = res.data;
-                    if (useDevModeStore.getState().podName !== podStatus.containerName){
-                        useDevModeStore.setState({podName: podStatus.containerName})
+                    const containerStatus = res.data;
+                    if (useDevModeStore.getState().podName !== containerStatus.containerName){
+                        useDevModeStore.setState({podName: containerStatus.containerName})
                     }
                     if (useDevModeStore.getState().status !== "wip"){
-                        useDevModeStore.setState({status: "wip"})
                         useLogStore.setState({isRunning: true})
                     }
-                    useProjectStore.setState({containerStatus: res.data});
+                    useProjectStore.setState({containerStatus: containerStatus});
                 })
             } else {
                 unstable_batchedUpdates(() => {
-                    if (useDevModeStore.getState().status !== 'none') {
-                        useDevModeStore.setState({status: "none", podName: undefined})
-                        useProjectStore.setState({containerStatus: new ContainerStatus()});
-                    }
+                    useDevModeStore.setState({status: "none", podName: undefined})
+                    useProjectStore.setState({containerStatus: new ContainerStatus({})});
                 })
             }
         });
@@ -178,7 +177,6 @@ export class ProjectService {
 
     public static createProject(project: Project) {
         KaravanApi.postProject(project, res => {
-            console.log(res.status)
             if (res.status === 200 || res.status === 201) {
                 ProjectService.refreshProjectData();
                 // this.props.toast?.call(this, "Success", "Project created", "success");

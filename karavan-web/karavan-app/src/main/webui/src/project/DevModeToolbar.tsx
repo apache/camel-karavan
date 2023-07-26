@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Button, Flex, FlexItem, Label, Switch, Tooltip, TooltipPosition} from '@patternfly/react-core';
+import {Button, Flex, FlexItem, Label, Spinner, Switch, Tooltip, TooltipPosition} from '@patternfly/react-core';
 import '../designer/karavan.css';
 import RocketIcon from "@patternfly/react-icons/dist/esm/icons/rocket-icon";
 import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
@@ -23,13 +23,16 @@ export const DevModeToolbar = (props: Props) => {
     const [verbose, setVerbose] = useState(false);
 
     const commands = containerStatus.commands;
-    const ports = containerStatus.ports;
     const isRunning = containerStatus.state === 'running';
     const inTransit = containerStatus.inTransit;
+    const isLoading= status === 'wip';
     const color = containerStatus.state === 'running' ? "green" : "grey";
     const icon = isRunning ? <UpIcon/> : <DownIcon/>;
     return (<Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
-        {<FlexItem>
+        <FlexItem>
+            {(inTransit || isLoading) && <Spinner isSVG size="lg" aria-label="spinner"/>}
+        </FlexItem>
+        {containerStatus.containerId && <FlexItem>
             <Label icon={icon} color={color}>
                 <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
                     <Button variant="link"
@@ -51,8 +54,7 @@ export const DevModeToolbar = (props: Props) => {
         </FlexItem>
         {!isRunning && <FlexItem>
             <Tooltip content="Run in developer mode" position={TooltipPosition.bottom}>
-                <Button isLoading={status === 'wip'}
-                        isSmall
+                <Button isSmall
                         isDisabled={(!(commands.length === 0) && !commands.includes('run')) || inTransit}
                         variant={"primary"}
                         icon={<RocketIcon/>}
@@ -63,8 +65,7 @@ export const DevModeToolbar = (props: Props) => {
         </FlexItem>}
         {isRunning && <FlexItem>
             <Tooltip content="Reload" position={TooltipPosition.bottom}>
-                <Button isLoading={status === 'wip'}
-                        isSmall
+                <Button isSmall
                         isDisabled={inTransit}
                         variant={"primary"}
                         className="project-button"
@@ -75,8 +76,7 @@ export const DevModeToolbar = (props: Props) => {
         </FlexItem>}
         {<FlexItem>
             <Tooltip content="Stop container" position={TooltipPosition.bottom}>
-                <Button isLoading={status === 'wip'}
-                        isSmall
+                <Button isSmall
                         isDisabled={!commands.includes('stop') || inTransit}
                         variant={"control"}
                         icon={<StopIcon/>}
@@ -86,8 +86,7 @@ export const DevModeToolbar = (props: Props) => {
         </FlexItem>}
         {<FlexItem>
             <Tooltip content="Delete container" position={TooltipPosition.bottom}>
-                <Button isLoading={status === 'wip'}
-                        isSmall
+                <Button isSmall
                         isDisabled={!commands.includes('delete') || inTransit}
                         variant={"control"}
                         icon={<DeleteIcon/>}

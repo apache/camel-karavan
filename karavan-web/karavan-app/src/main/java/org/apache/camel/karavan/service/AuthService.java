@@ -16,7 +16,6 @@
  */
 package org.apache.camel.karavan.service;
 
-import io.vertx.core.Vertx;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.logging.Logger;
 

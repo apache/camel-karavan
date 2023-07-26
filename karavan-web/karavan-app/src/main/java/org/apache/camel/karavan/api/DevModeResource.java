@@ -16,6 +16,8 @@
  */
 package org.apache.camel.karavan.api;
 
+import io.vertx.core.json.JsonObject;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
@@ -24,6 +26,7 @@ import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.CamelService;
 import org.apache.camel.karavan.shared.ConfigService;
+import org.apache.camel.karavan.shared.EventType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.inject.Inject;
@@ -31,7 +34,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Objects;
-import java.util.Optional;
 
 @Path("/api/devmode")
 public class DevModeResource {
@@ -51,6 +53,9 @@ public class DevModeResource {
     @Inject
     DockerService dockerService;
 
+    @Inject
+    EventBus eventBus;
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -64,12 +69,12 @@ public class DevModeResource {
 
         if (!Objects.equals(status.getState(), ContainerStatus.State.running.name())){
             status.setInTransit(true);
-            infinispanService.saveContainerStatus(status);
+            eventBus.send(EventType.CONTAINER_STATUS, JsonObject.mapFrom(status));
 
             if (ConfigService.inKubernetes()) {
-                kubernetesService.runDevModeContainer(project, "");
+                kubernetesService.runDevModeContainer(project, jBangOptions);
             } else {
-                dockerService.runDevmodeContainer(project, "");
+                dockerService.runDevmodeContainer(project, jBangOptions);
             }
             return Response.ok(containerName).build();
         }
@@ -102,7 +107,7 @@ public class DevModeResource {
     public Response deleteDevMode(@PathParam("projectId") String projectId, @PathParam("deletePVC") boolean deletePVC) {
         infinispanService.setContainerStatusTransit(projectId, environment, projectId);
         if (ConfigService.inKubernetes()) {
-            kubernetesService.deleteRunner(projectId, deletePVC);
+            kubernetesService.deleteDevModePod(projectId, deletePVC);
         } else {
             dockerService.deleteContainer(projectId);
         }
