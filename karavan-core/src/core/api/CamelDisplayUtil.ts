@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Integration, CamelElement } from '../model/IntegrationDefinition.js';
+import { Integration, CamelElement } from '../model/IntegrationDefinition';
 import { CamelUtil } from './CamelUtil';
 import { CamelDefinitionApi } from './CamelDefinitionApi';
 import { CamelDefinitionApiExt } from './CamelDefinitionApiExt';
