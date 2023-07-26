@@ -4,7 +4,7 @@ KAMELETS_DIR="/scripts/kamelets"
 
 if  [[ $GIT_REPOSITORY == https* ]] ;
 then
-    replacer=https://$GIT_PASSWORD@
+    replacer=https://$GIT_USERNAME:$GIT_PASSWORD@
     prefix=https://
     url="${GIT_REPOSITORY/$prefix/$replacer}"
     git clone --depth 1 --branch ${GIT_BRANCH} $url ${CHECKOUT_DIR}
