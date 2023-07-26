@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc && tsc-alias",
     "test": "cross-env TS_NODE_PROJECT=\"test/tsconfig.testing.json\" mocha --config=\".mocharc.json\"",
+    "prepare": "npm run build && npm run test",
     "prepublishOnly": "npm run test"
   },
   "repository": {
