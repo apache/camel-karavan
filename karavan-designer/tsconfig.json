@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "module": "esnext",
+    "target": "es2022",
+    "module": "es2022",
     "outDir": "out",
     "sourceMap": true,
     "lib": [
       "dom",
       "dom.iterable",
-      "esnext"
+      "esnext",
+      "es2022"
     ],
     "allowJs": true,
     "skipLibCheck": true,
