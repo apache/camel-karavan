@@ -36,7 +36,6 @@ import {CamelUi, RouteToCreate} from "../utils/CamelUi";
 import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {IntegrationHeader} from "../utils/KaravanComponents";
 import CloneIcon from "@patternfly/react-icons/dist/esm/icons/clone-icon";
-import { debounce } from 'lodash';
 
 interface Props {
     integration: Integration,
