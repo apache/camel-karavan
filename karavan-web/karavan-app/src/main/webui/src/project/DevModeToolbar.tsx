@@ -4,6 +4,7 @@ import '../designer/karavan.css';
 import RocketIcon from "@patternfly/react-icons/dist/esm/icons/rocket-icon";
 import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
+import PauseIcon from "@patternfly/react-icons/dist/esm/icons/pause-icon";
 import {useDevModeStore, useLogStore, useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
@@ -74,7 +75,7 @@ export const DevModeToolbar = (props: Props) => {
                 </Button>
             </Tooltip>
         </FlexItem>}
-        {<FlexItem>
+        <FlexItem>
             <Tooltip content="Stop container" position={TooltipPosition.bottom}>
                 <Button isSmall
                         isDisabled={!commands.includes('stop') || inTransit}
@@ -83,8 +84,8 @@ export const DevModeToolbar = (props: Props) => {
                         onClick={() => ProjectService.stopDevModeContainer(project)}>
                 </Button>
             </Tooltip>
-        </FlexItem>}
-        {<FlexItem>
+        </FlexItem>
+        <FlexItem>
             <Tooltip content="Delete container" position={TooltipPosition.bottom}>
                 <Button isSmall
                         isDisabled={!commands.includes('delete') || inTransit}
@@ -93,6 +94,6 @@ export const DevModeToolbar = (props: Props) => {
                         onClick={() => ProjectService.deleteDevModeContainer(project)}>
                 </Button>
             </Tooltip>
-        </FlexItem>}
+        </FlexItem>
     </Flex>);
 }

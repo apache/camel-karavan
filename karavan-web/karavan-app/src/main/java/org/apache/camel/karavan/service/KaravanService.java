@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.service;
 
+import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import io.vertx.core.eventbus.EventBus;
@@ -52,10 +53,14 @@ public class KaravanService {
                 LOGGER.info("Starting Karavan Headless in Docker");
             } else {
                 LOGGER.info("Starting Karavan with Docker");
-                dockerService.createNetwork();
-                dockerService.startListeners();
-                dockerService.startInfinispan();
-                dockerService.checkInfinispanHealth();
+                if (!dockerService.checkDocker()){
+                    Quarkus.asyncExit();
+                } else {
+                    dockerService.createNetwork();
+                    dockerService.startListeners();
+                    dockerService.startInfinispan();
+                    dockerService.checkInfinispanHealth();
+                }
             }
         } else {
             LOGGER.info("Starting Karavan in " + (kubernetesService.isOpenshift() ? "OpenShift" : "Kubernetes"));

@@ -229,10 +229,10 @@ public class ProjectService implements HealthCheck{
     void addServicesProject() {
         LOGGER.info("Add services project if not exists");
         try {
-            Project templates  = infinispanService.getProject(Project.Type.services.name());
-            if (templates == null) {
-                templates = new Project(Project.Type.services.name(), "Services", "Development Services", "", "", Instant.now().toEpochMilli(), Project.Type.services);
-                infinispanService.saveProject(templates);
+            Project services  = infinispanService.getProject(Project.Type.services.name());
+            if (services == null) {
+                services = new Project(Project.Type.services.name(), "Services", "Development Services", "", "", Instant.now().toEpochMilli(), Project.Type.services);
+                infinispanService.saveProject(services);
 
                 codeService.getServices().forEach((name, value) -> {
                     ProjectFile file = new ProjectFile(name, value, Project.Type.services.name(), Instant.now().toEpochMilli());

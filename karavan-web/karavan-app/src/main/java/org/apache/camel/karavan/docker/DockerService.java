@@ -89,6 +89,17 @@ public class DockerService {
 
     private DockerClient dockerClient;
 
+    public boolean checkDocker() {
+        try {
+            getDockerClient().pingCmd().exec();
+            LOGGER.info("Docker is available");
+            return true;
+        } catch (Exception e) {
+            LOGGER.error("Error connecting Docker: " + e.getMessage());
+            return false;
+        }
+    }
+
     public void runDevmodeContainer(Project project, String jBangOptions) throws InterruptedException {
         String projectId = project.getProjectId();
         LOGGER.infof("DevMode starting for %s with JBANG_OPTIONS=%s", projectId, jBangOptions);

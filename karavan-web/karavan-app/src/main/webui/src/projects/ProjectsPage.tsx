@@ -40,9 +40,7 @@ export const ProjectsPage = () => {
         const interval = setInterval(() => {
             if (projects.length === 0) setLoading(true);
             if (!["create", "delete", "select", "copy"].includes(operation)) {
-                ProjectService.refreshProjects();
-                ProjectService.refreshAllDeploymentStatuses();
-                ProjectService.refreshAllContainerStatuses();
+                refresh();
             }
         }, 1300);
         return () => {
@@ -50,14 +48,19 @@ export const ProjectsPage = () => {
         };
     }, [operation]);
 
+    function refresh() {
+        ProjectService.refreshProjects();
+        ProjectService.refreshAllDeploymentStatuses();
+        ProjectService.refreshAllContainerStatuses();
+        setLoading(false);
+    }
     function getTools() {
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
                 <ToolbarItem>
                     <Button variant="link" icon={<RefreshIcon/>} onClick={e => {
-                        ProjectService.refreshProjects();
-                        ProjectService.refreshAllDeploymentStatuses();
-                        ProjectService.refreshAllContainerStatuses();
+                        setLoading(true);
+                        refresh();
                     }}/>
                 </ToolbarItem>
                 <ToolbarItem>
