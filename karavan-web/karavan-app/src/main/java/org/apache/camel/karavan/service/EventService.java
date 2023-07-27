@@ -78,7 +78,6 @@ public class EventService {
     void receiveCommand(String projectId) {
         LOGGER.info("DEVMODE_CONTAINER_READY " + projectId);
         ContainerStatus status = infinispanService.getContainerStatus(projectId, environment, projectId);
-        System.out.println(status);
         if (status != null && !status.getCodeLoaded() && status.getContainerId() != null && status.getState().equals(ContainerStatus.State.running.name())) {
             if (ConfigService.inKubernetes()) {
                 camelService.reloadProjectCode(projectId);

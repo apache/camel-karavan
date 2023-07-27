@@ -11,7 +11,7 @@ public class DevService {
     private String restart;
     private List<String> ports;
     private List<String> expose;
-    private String depends_on;
+    private List<String> depends_on;
     private Map<String,String> environment;
     private HealthCheckConfig healthcheck;
 
@@ -58,11 +58,11 @@ public class DevService {
         this.expose = expose;
     }
 
-    public String getDepends_on() {
+    public List<String> getDepends_on() {
         return depends_on;
     }
 
-    public void setDepends_on(String depends_on) {
+    public void setDepends_on(List<String> depends_on) {
         this.depends_on = depends_on;
     }
 
