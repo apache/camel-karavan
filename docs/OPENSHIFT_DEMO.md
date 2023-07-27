@@ -15,14 +15,14 @@ Karavan cloud-native integration toolkit demo on OpenShift with Gitea repository
     ```
 2. Install Tekton Operator if it is not installed yet
     ```
-    oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/pipeline-operator.yaml
+    oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/docs/openshift/pipeline-operator.yaml
     ```
     
     Wait until operators are ready (Status: Succeeded)
     
 3. Install Karavan Operator
     ```
-    oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/karavan-operator.yaml
+    oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/docs/openshift/karavan-operator.yaml
     ```
     Wait until operator is ready (Status: Succeeded)
 
@@ -37,7 +37,7 @@ Karavan cloud-native integration toolkit demo on OpenShift with Gitea repository
     
 2. Create Gitea instance
     ```
-    oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/gitea.yaml
+    oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/docs/openshift/gitea.yaml
     ```
 
     Wait until Gitea is ready
@@ -46,12 +46,12 @@ Karavan cloud-native integration toolkit demo on OpenShift with Gitea repository
 
 3. Create Karavan Secret
     ```
-    oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/karavan-secret.yaml
+    oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/docs/openshift/karavan-secret.yaml
     ```
 4. Create Karavan Instance
 
     ```
-    oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/karavan-cloud/openshift/karavan.yaml
+    oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/docs/openshift/karavan.yaml
     ```
 
     Wait until karavan Karavan is ready and open Karavan
