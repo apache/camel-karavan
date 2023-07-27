@@ -37,7 +37,7 @@ Karavan cloud-native integration toolkit demo on OpenShift with Gitea repository
     
 2. Create Gitea instance
     ```
-    oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/docs/openshift/gitea.yaml
+    oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/docs/openshift/gitea.yaml -n karavan
     ```
 
     Wait until Gitea is ready
@@ -46,12 +46,12 @@ Karavan cloud-native integration toolkit demo on OpenShift with Gitea repository
 
 3. Create Karavan Secret
     ```
-    oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/docs/openshift/karavan-secret.yaml
+    oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/docs/openshift/karavan-secret.yaml -n karavan
     ```
 4. Create Karavan Instance
 
     ```
-    oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/docs/openshift/karavan.yaml
+    oc apply -f https://raw.githubusercontent.com/apache/camel-karavan/main/docs/openshift/karavan.yaml -n karavan
     ```
 
     Wait until karavan Karavan is ready and open Karavan
