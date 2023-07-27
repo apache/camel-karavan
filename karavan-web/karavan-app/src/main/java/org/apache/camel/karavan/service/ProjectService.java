@@ -16,8 +16,6 @@
  */
 package org.apache.camel.karavan.service;
 
-import io.quarkus.scheduler.Scheduled;
-import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.tuples.Tuple2;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.GitRepo;
@@ -37,9 +35,10 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.apache.camel.karavan.shared.EventType.IMPORT_PROJECTS;
+import static org.apache.camel.karavan.service.CodeService.DEV_SERVICES_FILENAME;
 
 @Default
 @Readiness
@@ -262,5 +261,11 @@ public class ProjectService implements HealthCheck{
         } catch (Exception e) {
             LOGGER.error("Error during pipelines project creation", e);
         }
+    }
+
+    public String getDevServiceCode() {
+        List <ProjectFile> files = infinispanService.getProjectFiles(Project.Type.services.name());
+        Optional<ProjectFile> file = files.stream().filter(f -> f.getName().equals(DEV_SERVICES_FILENAME)).findFirst();
+        return file.orElse(new ProjectFile()).getCode();
     }
 }

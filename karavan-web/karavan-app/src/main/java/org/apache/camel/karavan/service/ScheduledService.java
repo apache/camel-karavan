@@ -62,10 +62,13 @@ public class ScheduledService {
             List<String> namesInDocker = statusesInDocker.stream().map(ContainerStatus::getContainerName).collect(Collectors.toList());
             List<ContainerStatus> statusesInInfinispan = infinispanService.getContainerStatuses(environment);
             // clean deleted
-            statusesInInfinispan.stream().filter(cs -> !namesInDocker.contains(cs.getContainerName())).forEach(containerStatus -> {
-                infinispanService.deleteContainerStatus(containerStatus);
-                infinispanService.deleteCamelStatuses(containerStatus.getProjectId(), containerStatus.getEnv());
-            });
+            statusesInInfinispan.stream()
+                    .filter(cs -> !(cs.getContainerId() == null && cs.getInTransit()))
+                    .filter(cs -> !namesInDocker.contains(cs.getContainerName()))
+                    .forEach(containerStatus -> {
+                        infinispanService.deleteContainerStatus(containerStatus);
+                        infinispanService.deleteCamelStatuses(containerStatus.getProjectId(), containerStatus.getEnv());
+                    });
             // send statuses to save
             statusesInDocker.forEach(containerStatus -> {
                 eventBus.send(EventType.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));

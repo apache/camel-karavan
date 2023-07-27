@@ -3,7 +3,6 @@ import {
     Toolbar,
     ToolbarContent,
     ToolbarItem,
-    TextInput,
     PageSection,
     TextContent,
     Text,
@@ -17,27 +16,42 @@ import {
 import '../designer/karavan.css';
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
-import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import {TableComposable, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {ServicesTableRow} from "./ServicesTableRow";
 import {DeleteServiceModal} from "./DeleteServiceModal";
 import {CreateServiceModal} from "./CreateServiceModal";
-import {useProjectStore} from "../api/ProjectStore";
+import {useProjectStore, useStatusesStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
-import {Project, ProjectFile, ProjectType} from "../api/ProjectModels";
+import {ContainerStatus, Project, ProjectType} from "../api/ProjectModels";
 import {KaravanApi} from "../api/KaravanApi";
-import {Service, Services, ServicesYaml} from "../api/ServiceModels";
+import {DevService, Services, ServicesYaml} from "../api/ServiceModels";
+import {shallow} from "zustand/shallow";
 
 
 export const ServicesPage = () => {
 
     const [services, setServices] = useState<Services>();
+    const [containers, setContainers] = useStatusesStore((state) => [state.containers, state.setContainers], shallow);
     const [operation, setOperation] = useState<'create' | 'delete' | 'none'>('none');
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
         getServices();
+        const interval = setInterval(() => {
+            updateContainerStatuses()
+        }, 700);
+        return () => {
+            clearInterval(interval)
+        };
     }, []);
+
+    function updateContainerStatuses() {
+        KaravanApi.getAllContainerStatuses((statuses: ContainerStatus[]) => {
+            setContainers(statuses);
+            setLoading(false);
+        });
+    }
 
     function getServices() {
         KaravanApi.getFiles(ProjectType.services, files => {
@@ -92,6 +106,10 @@ export const ServicesPage = () => {
         )
     }
 
+    function getContainer(name: string) {
+        return containers.filter(c => c.containerName === name).at(0);
+    }
+
     function getServicesTable() {
         return (
             <TableComposable aria-label="Services" variant={"compact"}>
@@ -102,11 +120,12 @@ export const ServicesPage = () => {
                         <Th key='container_name'>Container Name</Th>
                         <Th key='image'>Image</Th>
                         <Th key='ports'>Ports</Th>
+                        <Th key='state'>State</Th>
                         <Th key='action'></Th>
                     </Tr>
                 </Thead>
-                {services?.services.map((service: Service, index: number) => (
-                    <ServicesTableRow key={service.name} index={index} service={service}/>
+                {services?.services.map((service: DevService, index: number) => (
+                    <ServicesTableRow key={service.container_name} index={index} service={service} container={getContainer(service.container_name)}/>
                 ))}
                 {services?.services.length === 0 && getEmptyState()}
             </TableComposable>

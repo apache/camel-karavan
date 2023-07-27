@@ -105,6 +105,10 @@ public class ContainerStatus {
         return new ContainerStatus(projectId, projectId, null, null, null, env, ContainerType.devmode, null, null, null, List.of(Command.run), null, false, false);
     }
 
+    public static ContainerStatus createByType(String name, String env, ContainerType type) {
+        return new ContainerStatus(name, name, null, null, null, env, type, null, null, null, List.of(Command.run), null, false, false);
+    }
+
     public static ContainerStatus createWithId(String name, String env, String containerId, String image, List<Integer> ports, ContainerType type, List<Command> commands, String status, String created) {
         return new ContainerStatus(name, name, containerId, image, ports, env, type,
                 null, null, created,  commands, status, false, false);

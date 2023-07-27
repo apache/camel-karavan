@@ -59,15 +59,15 @@ export const ContainerTableRow = (props: Props) => {
                     {!inTransit && <Label color={color}>{container.state}</Label>}
                     {inTransit && <Spinner isSVG size="lg" aria-label="spinner"/>}
                 </Td>
-                <Td className="project-action-buttons">
+                <Td>
                     {container.type !== 'internal' &&
-                        <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentFlexEnd"}}
+                        <Flex direction={{default: "row"}} flexWrap={{default: "nowrap"}}
                               spaceItems={{default: 'spaceItemsNone'}}>
                             <FlexItem>
                                 <Tooltip content={"Start container"} position={"bottom"}>
                                     <Button variant={"plain"} icon={<PlayIcon/>} isDisabled={!commands.includes('run') || inTransit}
                                             onClick={e => {
-                                                KaravanApi.manageContainer(container.env, container.containerName, 'run', res => {});
+                                                KaravanApi.manageContainer(container.env, container.type, container.containerName, 'run', res => {});
                                             }}></Button>
                                 </Tooltip>
                             </FlexItem>
@@ -75,7 +75,7 @@ export const ContainerTableRow = (props: Props) => {
                                 <Tooltip content={"Pause container"} position={"bottom"}>
                                     <Button variant={"plain"} icon={<PauseIcon/>} isDisabled={!commands.includes('pause') || inTransit}
                                             onClick={e => {
-                                                KaravanApi.manageContainer(container.env, container.containerName, 'pause', res => {});
+                                                KaravanApi.manageContainer(container.env, container.type, container.containerName, 'pause', res => {});
                                             }}></Button>
                                 </Tooltip>
                             </FlexItem>
@@ -83,7 +83,7 @@ export const ContainerTableRow = (props: Props) => {
                                 <Tooltip content={"Stop container"} position={"bottom"}>
                                     <Button variant={"plain"} icon={<StopIcon/>} isDisabled={!commands.includes('stop') || inTransit}
                                             onClick={e => {
-                                                KaravanApi.manageContainer(container.env, container.containerName, 'stop', res => {});
+                                                KaravanApi.manageContainer(container.env, container.type, container.containerName, 'stop', res => {});
                                             }}></Button>
                                 </Tooltip>
                             </FlexItem>
@@ -91,7 +91,7 @@ export const ContainerTableRow = (props: Props) => {
                                 <Tooltip content={"Delete container"} position={"bottom"}>
                                     <Button variant={"plain"} icon={<DeleteIcon/>} isDisabled={!commands.includes('delete') || inTransit}
                                             onClick={e => {
-                                                KaravanApi.deleteContainer(container.env, container.containerName, res => {});
+                                                KaravanApi.deleteContainer(container.env, container.type, container.containerName, res => {});
                                             }}></Button>
                                 </Tooltip>
                             </FlexItem>

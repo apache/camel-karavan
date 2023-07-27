@@ -1,32 +1,24 @@
 import React, {useEffect, useState} from 'react';
 import {
-    Badge, Bullseye,
+    Bullseye,
     Button, EmptyState, EmptyStateIcon, EmptyStateVariant,
-    Flex,
-    FlexItem, HelperText, HelperTextItem, Label, LabelGroup,
     PageSection, Spinner,
     Text,
     TextContent,
     TextInput, Title, ToggleGroup, ToggleGroupItem,
     Toolbar,
     ToolbarContent,
-    ToolbarItem, Tooltip
+    ToolbarItem
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {CamelStatus, ContainerStatus, DeploymentStatus, Project, ServiceStatus} from "../api/ProjectModels";
+import {ContainerStatus} from "../api/ProjectModels";
 import {TableComposable, TableVariant, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
-import {camelIcon, CamelUi} from "../designer/utils/CamelUi";
 import {KaravanApi} from "../api/KaravanApi";
-import Icon from "../Logo";
-import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import {MainToolbar} from "../designer/MainToolbar";
-import {useAppConfigStore, useProjectsStore, useStatusesStore} from "../api/ProjectStore";
+import {useAppConfigStore, useStatusesStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
-import {Service} from "../api/ServiceModels";
-import {ServicesTableRow} from "../services/ServicesTableRow";
 import {ContainerTableRow} from "./ContainerTableRow";
 
 export const ContainersPage = () => {
@@ -39,19 +31,17 @@ export const ContainersPage = () => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            onGetProjects()
+            updateContainerStatuses()
         }, 700);
         return () => {
             clearInterval(interval)
         };
     }, []);
 
-    function onGetProjects() {
-        KaravanApi.getConfiguration((config: any) => {
-            KaravanApi.getAllContainerStatuses((statuses: ContainerStatus[]) => {
-                setContainers(statuses);
-                setLoading(false);
-            });
+    function updateContainerStatuses() {
+        KaravanApi.getAllContainerStatuses((statuses: ContainerStatus[]) => {
+            setContainers(statuses);
+            setLoading(false);
         });
     }
 
@@ -72,7 +62,7 @@ export const ContainersPage = () => {
         return (<Toolbar id="toolbar-group-types">
             <ToolbarContent>
                 <ToolbarItem>
-                    <Button variant="link" icon={<RefreshIcon/>} onClick={e => onGetProjects()}/>
+                    <Button variant="link" icon={<RefreshIcon/>} onClick={e => updateContainerStatuses()}/>
                 </ToolbarItem>
                 <ToolbarItem>
                     <ToggleGroup aria-label="Default with single selectable">
@@ -148,7 +138,7 @@ export const ContainersPage = () => {
                             <Th key='cpuInfo'>CPU</Th>
                             <Th key='memoryInfo'>Memory</Th>
                             <Th key='state'>State</Th>
-                            <Th key='action'></Th>
+                            <Th  key='action'></Th>
                         </Tr>
                     </Thead>
                     {conts?.map((container: ContainerStatus, index: number) => (

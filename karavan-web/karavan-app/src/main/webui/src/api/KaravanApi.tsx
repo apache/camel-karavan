@@ -463,8 +463,8 @@ export class KaravanApi {
         });
     }
 
-    static async manageContainer(environment: string, name: string, command: 'run' | 'pause' | 'stop', after: (res: AxiosResponse<any>) => void) {
-        instance.post('/api/infrastructure/container/' + environment + '/' + name, {command: command})
+    static async manageContainer(environment: string, type: 'devmove' | 'devservice' | 'project' | 'internal' | 'unknown',  name: string, command: 'run' | 'pause' | 'stop', after: (res: AxiosResponse<any>) => void) {
+        instance.post('/api/infrastructure/container/' + environment + '/' + type + "/" + name, {command: command})
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -472,8 +472,8 @@ export class KaravanApi {
         });
     }
 
-    static async deleteContainer(environment: string, name: string, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/infrastructure/container/' + environment + '/' + name)
+    static async deleteContainer(environment: string, type: 'devmove' | 'devservice' | 'project' | 'internal' | 'unknown', name: string, after: (res: AxiosResponse<any>) => void) {
+        instance.delete('/api/infrastructure/container/' + environment + '/' + type + "/" + name)
             .then(res => {
                 after(res);
             }).catch(err => {

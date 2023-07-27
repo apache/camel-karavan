@@ -51,6 +51,7 @@ public class CodeService {
 
     private static final Logger LOGGER = Logger.getLogger(CodeService.class.getName());
     public static final String APPLICATION_PROPERTIES_FILENAME = "application.properties";
+    public static final String DEV_SERVICES_FILENAME = "dev-services.yaml";
 
     @Inject
     KubernetesService kubernetesService;
@@ -133,8 +134,8 @@ public class CodeService {
 
     public Map<String, String> getServices() {
         Map<String, String> result = new HashMap<>();
-        String templateText = getResourceFile("/services/dev-services.yaml");
-        result.put("dev-services.yaml", templateText);
+        String templateText = getResourceFile("/services/" + DEV_SERVICES_FILENAME);
+        result.put(DEV_SERVICES_FILENAME, templateText);
         return result;
     }
 

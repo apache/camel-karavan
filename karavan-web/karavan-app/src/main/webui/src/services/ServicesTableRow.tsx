@@ -2,35 +2,90 @@ import React, {useState} from 'react';
 import {
     Button,
     Tooltip,
-    Flex, FlexItem, Label
+    Flex, FlexItem, Label, ToolbarContent, Toolbar, ToolbarItem, Spinner
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {ExpandableRowContent, Tbody, Td, Tr} from "@patternfly/react-table";
+import {ActionsColumn, ExpandableRowContent, Tbody, Td, Tr} from "@patternfly/react-table";
 import StopIcon from "@patternfly/react-icons/dist/js/icons/stop-icon";
 import PlayIcon from "@patternfly/react-icons/dist/esm/icons/play-icon";
-import {Service} from "../api/ServiceModels";
+import {DevService} from "../api/ServiceModels";
+import {ContainerStatus} from "../api/ProjectModels";
+import PauseIcon from "@patternfly/react-icons/dist/esm/icons/pause-icon";
+import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
+import {useAppConfigStore} from "../api/ProjectStore";
+import {shallow} from "zustand/shallow";
+import {KaravanApi} from "../api/KaravanApi";
 
 interface Props {
     index: number
-    service: Service
+    service: DevService
+    container?: ContainerStatus
 }
 
 export const ServicesTableRow = (props: Props) => {
 
+    const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
-    const [running, setRunning] = useState<boolean>(false);
+
+
+    function getButtons() {
+        const container = props.container;
+        const commands = container?.commands || ['run'];
+        const inTransit = container?.inTransit;
+        return (
+            <Td noPadding className="project-action-buttons">
+                <Flex direction={{default: "row"}} flexWrap={{default: "nowrap"}}
+                      spaceItems={{default: 'spaceItemsNone'}}>
+                    <FlexItem>
+                        <Tooltip content={"Start container"} position={"bottom"}>
+                            <Button variant={"plain"} icon={<PlayIcon/>} isDisabled={!commands.includes('run') || inTransit}
+                                    onClick={e => {
+                                        KaravanApi.manageContainer(config.environment, 'devservice', service.container_name, 'run', res => {});
+                                    }}></Button>
+                        </Tooltip>
+                    </FlexItem>
+                    <FlexItem>
+                        <Tooltip content={"Pause container"} position={"bottom"}>
+                            <Button variant={"plain"} icon={<PauseIcon/>} isDisabled={!commands.includes('pause') || inTransit}
+                                    onClick={e => {
+                                        // KaravanApi.manageContainer(container.env, container.containerName, 'pause', res => {});
+                                    }}></Button>
+                        </Tooltip>
+                    </FlexItem>
+                    <FlexItem>
+                        <Tooltip content={"Stop container"} position={"bottom"}>
+                            <Button variant={"plain"} icon={<StopIcon/>} isDisabled={!commands.includes('stop') || inTransit}
+                                    onClick={e => {
+                                        KaravanApi.manageContainer(config.environment, 'devservice', service.container_name, 'stop', res => {});
+                                    }}></Button>
+                        </Tooltip>
+                    </FlexItem>
+                    <FlexItem>
+                        <Tooltip content={"Delete container"} position={"bottom"}>
+                            <Button variant={"plain"} icon={<DeleteIcon/>} isDisabled={!commands.includes('delete') || inTransit}
+                                    onClick={e => {
+                                        KaravanApi.deleteContainer(config.environment, 'devservice', service.container_name, res => {});
+                                    }}></Button>
+                        </Tooltip>
+                    </FlexItem>
+                </Flex>
+            </Td>
+        )
+    }
 
     const service = props.service;
     const healthcheck = service.healthcheck;
     const env = service.environment;
     const keys = Object.keys(env);
-    const icon = running ? <StopIcon/> : <PlayIcon/>;
-    const tooltip = running ? "Stop container" : "Start container";
+    const container = props.container;
+    const isRunning = container?.state === 'running';
+    const inTransit = container?.inTransit;
+    const color = container?.state === 'running' ? "green" : "grey";
     return (
         <Tbody isExpanded={isExpanded}>
-            <Tr key={service.name}>
+            <Tr key={service.container_name}>
                 <Td expand={
-                    service.name
+                    service.container_name
                         ? {
                             rowIndex: props.index,
                             isExpanded: isExpanded,
@@ -41,7 +96,7 @@ export const ServicesTableRow = (props: Props) => {
                     modifier={"fitContent"}>
                 </Td>
                 <Td>
-                    <Label color={"grey"}>{service.name}</Label>
+                    <Label color={color}>{service.container_name}</Label>
                 </Td>
                 <Td>{service.container_name}</Td>
                 <Td>{service.image}</Td>
@@ -50,19 +105,11 @@ export const ServicesTableRow = (props: Props) => {
                         {service.ports.map(port => <FlexItem key={port}>{port}</FlexItem>)}
                     </Flex>
                 </Td>
-                {/*<Td>{service.environment}</Td>*/}
-                <Td className="project-action-buttons">
-                    <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentFlexEnd"}}
-                          spaceItems={{default: 'spaceItemsNone'}}>
-                        <FlexItem>
-                            <Tooltip content={tooltip} position={"bottom"}>
-                                <Button variant={"plain"} icon={icon} onClick={e => {
-                                    // setProject(project, "delete");
-                                }}></Button>
-                            </Tooltip>
-                        </FlexItem>
-                    </Flex>
+                <Td>
+                    {!inTransit && container?.state && <Label color={color}>{container?.state}</Label>}
+                    {inTransit && <Spinner isSVG size="lg" aria-label="spinner"/>}
                 </Td>
+                {getButtons()}
             </Tr>
             {keys.length > 0 && <Tr isExpanded={isExpanded}>
                 <Td></Td>

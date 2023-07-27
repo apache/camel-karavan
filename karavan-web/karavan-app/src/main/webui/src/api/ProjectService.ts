@@ -1,7 +1,7 @@
-import {KaravanApi} from "./KaravanApi";
-import {DeploymentStatus, ContainerStatus, Project, ProjectFile, ToastMessage} from "./ProjectModels";
-import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
-import {InfrastructureAPI} from "../designer/utils/InfrastructureAPI";
+import {KaravanApi} from './KaravanApi';
+import {DeploymentStatus, ContainerStatus, Project, ProjectFile, ToastMessage} from './ProjectModels';
+import {TemplateApi} from 'karavan-core/lib/api/TemplateApi';
+import {InfrastructureAPI} from '../designer/utils/InfrastructureAPI';
 import {unstable_batchedUpdates} from 'react-dom'
 import {
     useFilesStore,
@@ -9,17 +9,17 @@ import {
     useFileStore, useLogStore,
     useProjectsStore,
     useProjectStore, useDevModeStore
-} from "./ProjectStore";
-import {ProjectEventBus} from "./ProjectEventBus";
+} from './ProjectStore';
+import {ProjectEventBus} from './ProjectEventBus';
 
 export class ProjectService {
 
     public static startDevModeContainer(project: Project, verbose: boolean) {
-        useDevModeStore.setState({status: "wip"})
+        useDevModeStore.setState({status: 'wip'})
         KaravanApi.startDevModeContainer(project, verbose, res => {
-            useDevModeStore.setState({status: "none"})
+            useDevModeStore.setState({status: 'none'})
             if (res.status === 200 || res.status === 201) {
-                ProjectEventBus.sendLog("set", '');
+                ProjectEventBus.sendLog('set', '');
                 useLogStore.setState({showLog: true, type: 'container', podName: res.data})
             } else {
                 // Todo notification
@@ -28,9 +28,9 @@ export class ProjectService {
     }
 
     public static reloadDevModeCode(project: Project) {
-        useDevModeStore.setState({status: "wip"})
+        useDevModeStore.setState({status: 'wip'})
         KaravanApi.reloadDevModeCode(project.projectId, res => {
-            useDevModeStore.setState({status: "none"})
+            useDevModeStore.setState({status: 'none'})
             if (res.status === 200 || res.status === 201) {
                 // setIsReloadingPod(false);
             } else {
@@ -41,38 +41,38 @@ export class ProjectService {
     }
 
     public static stopDevModeContainer(project: Project) {
-        useDevModeStore.setState({status: "wip"})
-        KaravanApi.manageContainer("dev", project.projectId, 'stop', res => {
-            useDevModeStore.setState({status: "none"})
+        useDevModeStore.setState({status: 'wip'})
+        KaravanApi.manageContainer('dev', 'devmove', project.projectId, 'stop', res => {
+            useDevModeStore.setState({status: 'none'})
             if (res.status === 200) {
                 useLogStore.setState({showLog: false, type: 'container', isRunning: false})
             } else {
-                ProjectEventBus.sendAlert(new ToastMessage("Error stopping DevMode container", res.statusText, 'warning'))
+                ProjectEventBus.sendAlert(new ToastMessage('Error stopping DevMode container', res.statusText, 'warning'))
             }
         });
     }
 
     public static pauseDevModeContainer(project: Project) {
-        useDevModeStore.setState({status: "wip"})
-        KaravanApi.manageContainer("dev", project.projectId, 'pause', res => {
-            useDevModeStore.setState({status: "none"})
+        useDevModeStore.setState({status: 'wip'})
+        KaravanApi.manageContainer('dev', 'devmove', project.projectId, 'pause', res => {
+            useDevModeStore.setState({status: 'none'})
             if (res.status === 200) {
                 useLogStore.setState({showLog: false, type: 'container', isRunning: false})
             } else {
-                ProjectEventBus.sendAlert(new ToastMessage("Error stopping DevMode container", res.statusText, 'warning'))
+                ProjectEventBus.sendAlert(new ToastMessage('Error stopping DevMode container', res.statusText, 'warning'))
             }
         });
     }
 
     public static deleteDevModeContainer(project: Project) {
-        useDevModeStore.setState({status: "wip"})
-        ProjectEventBus.sendLog("set", '');
+        useDevModeStore.setState({status: 'wip'})
+        ProjectEventBus.sendLog('set', '');
         KaravanApi.deleteDevModeContainer(project.projectId, false, res => {
-            useDevModeStore.setState({status: "none"})
+            useDevModeStore.setState({status: 'none'})
             if (res.status === 202) {
                 useLogStore.setState({showLog: false, type: 'container', isRunning: false})
             } else {
-                ProjectEventBus.sendAlert(new ToastMessage("Error delete runner", res.statusText, 'warning'))
+                ProjectEventBus.sendAlert(new ToastMessage('Error delete runner', res.statusText, 'warning'))
             }
         });
     }
@@ -86,14 +86,14 @@ export class ProjectService {
                     if (useDevModeStore.getState().podName !== containerStatus.containerName){
                         useDevModeStore.setState({podName: containerStatus.containerName})
                     }
-                    if (useDevModeStore.getState().status !== "wip"){
+                    if (useDevModeStore.getState().status !== 'wip'){
                         useLogStore.setState({isRunning: true})
                     }
                     useProjectStore.setState({containerStatus: containerStatus});
                 })
             } else {
                 unstable_batchedUpdates(() => {
-                    useDevModeStore.setState({status: "none", podName: undefined})
+                    useDevModeStore.setState({status: 'none', podName: undefined})
                     useProjectStore.setState({containerStatus: new ContainerStatus({})});
                 })
             }
@@ -103,8 +103,8 @@ export class ProjectService {
     public static pushProject(project: Project, commitMessage: string) {
         useProjectStore.setState({isPushing: true})
         const params = {
-            "projectId": project.projectId,
-            "message": commitMessage
+            'projectId': project.projectId,
+            'message': commitMessage
         };
         KaravanApi.push(params, res => {
             if (res.status === 200 || res.status === 201) {
@@ -167,10 +167,10 @@ export class ProjectService {
     public static deleteProject(project: Project) {
         KaravanApi.deleteProject(project, res => {
             if (res.status === 204) {
-                // this.props.toast?.call(this, "Success", "Project deleted", "success");
+                // this.props.toast?.call(this, 'Success', 'Project deleted', 'success');
                 ProjectService.refreshProjectData();
             } else {
-                // this.props.toast?.call(this, "Error", res.statusText, "danger");
+                // this.props.toast?.call(this, 'Error', res.statusText, 'danger');
             }
         });
     }
@@ -179,9 +179,9 @@ export class ProjectService {
         KaravanApi.postProject(project, res => {
             if (res.status === 200 || res.status === 201) {
                 ProjectService.refreshProjectData();
-                // this.props.toast?.call(this, "Success", "Project created", "success");
+                // this.props.toast?.call(this, 'Success', 'Project created', 'success');
             } else {
-                // this.props.toast?.call(this, "Error", res.status + ", " + res.statusText, "danger");
+                // this.props.toast?.call(this, 'Error', res.status + ', ' + res.statusText, 'danger');
             }
         });
     }
@@ -211,10 +211,10 @@ export class ProjectService {
         KaravanApi.getProject(project.projectId, (project: Project) => {
             // ProjectEventBus.selectProject(project);
             KaravanApi.getTemplatesFiles((files: ProjectFile[]) => {
-                files.filter(f => f.name.endsWith("java"))
+                files.filter(f => f.name.endsWith('java'))
                     .filter(f => f.name.startsWith(project.runtime))
                     .forEach(f => {
-                        const name = f.name.replace(project.runtime + "-", '').replace(".java", '');
+                        const name = f.name.replace(project.runtime + '-', '').replace('.java', '');
                         TemplateApi.saveTemplate(name, f.code);
                     })
             });

@@ -21,12 +21,14 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
 import org.apache.camel.karavan.docker.DockerService;
+import org.apache.camel.karavan.docker.model.DevService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.DeploymentStatus;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.infinispan.model.ServiceStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.service.ProjectService;
 import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -39,6 +41,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static org.apache.camel.karavan.shared.EventType.CONTAINER_STATUS;
 
 @Path("/api/infrastructure")
 public class InfrastructureResource {
@@ -54,6 +58,9 @@ public class InfrastructureResource {
 
     @Inject
     DockerService dockerService;
+
+    @Inject
+    ProjectService projectService;
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
@@ -166,21 +173,45 @@ public class InfrastructureResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/container/{env}/{name}")
-    public Response startContainer(@PathParam("env") String env, @PathParam("name") String name, JsonObject command) throws Exception {
+    @Path("/container/{env}/{type}/{name}")
+    public Response startContainer(@PathParam("env") String env, @PathParam("type") String type, @PathParam("name") String name, JsonObject command) throws Exception {
         if (infinispanService.isReady()) {
-            infinispanService.setContainerStatusTransit(name, env, name);
+            // set container statuses
+            setContainerStatusTransit(name, type);
+            // exec docker commands
             if (command.containsKey("command")) {
-                if (command.getString("command").equalsIgnoreCase("start")) {
-                    dockerService.startContainer(name);
+                if (command.getString("command").equalsIgnoreCase("run")) {
+                    if (Objects.equals(type, ContainerStatus.ContainerType.devservice.name())) {
+                        String code = projectService.getDevServiceCode();
+                        DevService devService = dockerService.getDevService(code, name);
+                        if (devService != null) {
+                            dockerService.createDevserviceContainer(devService);
+                            dockerService.runContainer(devService.getContainer_name());
+                        }
+                    } else if (Objects.equals(type, ContainerStatus.ContainerType.devmode.name())) {
+                        dockerService.createDevmodeContainer(name, "");
+                        dockerService.runContainer(name);
+                    }
                     return Response.ok().build();
                 } else if (command.getString("command").equalsIgnoreCase("stop")) {
                     dockerService.stopContainer(name);
+                    return Response.ok().build();
+                } else if (command.getString("command").equalsIgnoreCase("pause")) {
+                    dockerService.pauseContainer(name);
                     return Response.ok().build();
                 }
             }
         }
         return Response.notModified().build();
+    }
+
+    private void setContainerStatusTransit(String name, String type){
+        ContainerStatus status = infinispanService.getContainerStatus(name, environment, name);
+        if (status == null) {
+            status = ContainerStatus.createByType(name, environment, ContainerStatus.ContainerType.valueOf(type));
+        }
+        status.setInTransit(true);
+        eventBus.send(CONTAINER_STATUS, JsonObject.mapFrom(status));
     }
 
     @GET
@@ -205,10 +236,11 @@ public class InfrastructureResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/container/{env}/{name}")
-    public Response deleteContainer(@PathParam("env") String env, @PathParam("name") String name) {
+    @Path("/container/{env}/{type}/{name}")
+    public Response deleteContainer(@PathParam("env") String env, @PathParam("type") String type, @PathParam("name") String name) {
         if (infinispanService.isReady()) {
-            infinispanService.setContainerStatusTransit(name, env, name);
+            // set container statuses
+            setContainerStatusTransit(name, type);
             try {
                 if (ConfigService.inKubernetes()) {
                     kubernetesService.deletePod(name, kubernetesService.getNamespace());

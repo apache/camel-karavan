@@ -276,12 +276,6 @@ public class InfinispanService {
                 .execute().list();
     }
 
-    public void setContainerStatusTransit(String projectId, String env, String containerName) {
-        ContainerStatus cs = getContainerStatus(projectId, env, containerName);
-        cs.setInTransit(true);
-        saveContainerStatus(cs);
-    }
-
     public ContainerStatus getContainerStatus(String projectId, String env, String containerName) {
         return containerStatuses.get(GroupedKey.create(projectId, env, containerName));
     }

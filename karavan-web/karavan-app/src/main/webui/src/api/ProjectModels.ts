@@ -75,7 +75,7 @@ export class ContainerStatus {
     deployment: string = '';
     projectId: string = '';
     env: string = '';
-    type: string = '';
+    type: 'devmove' | 'devservice' | 'project' | 'internal' | 'unknown' = 'unknown';
     memoryInfo: string = '';
     cpuInfo: string = '';
     created: string = '';

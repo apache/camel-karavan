@@ -18,6 +18,7 @@ package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
+import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.CreateNetworkResponse;
 import com.github.dockerjava.api.command.HealthState;
@@ -30,11 +31,14 @@ import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.eventbus.EventBus;
-import org.apache.camel.karavan.infinispan.InfinispanService;
+import io.vertx.core.json.JsonObject;
+import org.apache.camel.karavan.docker.model.DevService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.Project;
+import org.apache.camel.karavan.service.CodeService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
+import org.yaml.snakeyaml.Yaml;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -49,7 +53,7 @@ import static org.apache.camel.karavan.shared.Constants.*;
 import static org.apache.camel.karavan.shared.EventType.*;
 
 @ApplicationScoped
-public class DockerService {
+public class DockerService extends DockerServiceUtils {
 
     private static final Logger LOGGER = Logger.getLogger(DockerService.class.getName());
 
@@ -57,10 +61,7 @@ public class DockerService {
     protected static final String KARAVAN_CONTAINER_NAME = "karavan-headless";
 
     protected static final String NETWORK_NAME = "karavan";
-    private static final DecimalFormat formatCpu = new DecimalFormat("0.00");
-    private static final DecimalFormat formatMiB = new DecimalFormat("0.0");
-    private static final DecimalFormat formatGiB = new DecimalFormat("0.00");
-    private static final Map<String, Tuple2<Long, Long>> previousStats = new ConcurrentHashMap<>();
+
     private static final List<String> infinispanHealthCheckCMD = List.of("CMD", "curl", "-f", "http://localhost:11222/rest/v2/cache-managers/default/health/status");
 
     @ConfigProperty(name = "karavan.environment")
@@ -100,23 +101,35 @@ public class DockerService {
         }
     }
 
-    public void runDevmodeContainer(Project project, String jBangOptions) throws InterruptedException {
-        String projectId = project.getProjectId();
+    public void createDevmodeContainer(String projectId, String jBangOptions) throws InterruptedException {
         LOGGER.infof("DevMode starting for %s with JBANG_OPTIONS=%s", projectId, jBangOptions);
 
         HealthCheck healthCheck = new HealthCheck().withTest(List.of("CMD", "curl", "-f", "http://localhost:8080/q/dev/health"))
                 .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
 
-        List<String> env = jBangOptions !=null && !jBangOptions.trim().isEmpty()
+        List<String> env = jBangOptions != null && !jBangOptions.trim().isEmpty()
                 ? List.of(ENV_VAR_JBANG_OPTIONS + "=" + jBangOptions)
                 : List.of();
 
         createContainer(projectId, devmodeImage,
-                env, null, false, false, healthCheck,
+                env, null, false, List.of(), healthCheck,
                 Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devmode.name(), LABEL_PROJECT_ID, projectId));
 
-        startContainer(projectId);
         LOGGER.infof("DevMode started for %s", projectId);
+    }
+
+    public void createDevserviceContainer(DevService devService) throws InterruptedException {
+        LOGGER.infof("DevService starting for ", devService.getContainer_name());
+
+        HealthCheck healthCheck = getHealthCheck(devService.getHealthcheck());
+        List<String> env = devService.getEnvironment() != null ? devService.getEnvironmentList() : List.of();
+        String ports = String.join(",", devService.getPorts());
+
+        createContainer(devService.getContainer_name(), devService.getImage(),
+                env, ports, false, devService.getExpose(), healthCheck,
+                Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devservice.name()));
+
+        LOGGER.infof("DevService started for %s", devService.getContainer_name());
     }
 
     public void startInfinispan() {
@@ -126,12 +139,14 @@ public class DockerService {
             HealthCheck healthCheck = new HealthCheck().withTest(infinispanHealthCheckCMD)
                     .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
 
+            List<String> exposedPorts = List.of(infinispanPort.split(":")[0]);
+
             createContainer(INFINISPAN_CONTAINER_NAME, infinispanImage,
                     List.of("USER=" + infinispanUsername, "PASS=" + infinispanPassword),
-                    infinispanPort, false, true, healthCheck,
+                    infinispanPort, false, exposedPorts, healthCheck,
                     Map.of(LABEL_TYPE, ContainerStatus.ContainerType.internal.name()));
 
-            startContainer(INFINISPAN_CONTAINER_NAME);
+            runContainer(INFINISPAN_CONTAINER_NAME);
             LOGGER.info("Infinispan is started");
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
@@ -148,10 +163,10 @@ public class DockerService {
                             "INFINISPAN_USERNAME=" + infinispanUsername,
                             "INFINISPAN_PASSWORD=" + infinispanPassword
                     ),
-                    null, false, false, new HealthCheck(),
+                    null, false, List.of(), new HealthCheck(),
                     Map.of(LABEL_TYPE, ContainerStatus.ContainerType.internal.name()));
 
-            startContainer(KARAVAN_CONTAINER_NAME);
+            runContainer(KARAVAN_CONTAINER_NAME);
             LOGGER.info("Karavan headless is started");
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
@@ -171,7 +186,8 @@ public class DockerService {
         List<ContainerStatus> result = new ArrayList<>();
         getDockerClient().listContainersCmd().withShowAll(true).exec().forEach(container -> {
             ContainerStatus containerStatus = getContainerStatus(container);
-            updateStatistics(containerStatus, container);
+            Statistics stats = getContainerStats(container.getId());
+            updateStatistics(containerStatus, container, stats);
             result.add(containerStatus);
         });
         return result;
@@ -184,16 +200,6 @@ public class DockerService {
         ContainerStatus.ContainerType type = getContainerType(container.getLabels());
         String created = Instant.ofEpochSecond(container.getCreated()).toString();
         return ContainerStatus.createWithId(name, environment, container.getId(), container.getImage(), ports, type, commands, container.getState(), created);
-    }
-
-    private void updateStatistics(ContainerStatus containerStatus, Container container) {
-        Statistics stats = getContainerStats(container.getId());
-        if (stats != null && stats.getMemoryStats() != null) {
-            String memoryUsage = formatMemory(stats.getMemoryStats().getUsage());
-            String memoryLimit = formatMemory(stats.getMemoryStats().getLimit());
-            containerStatus.setMemoryInfo(memoryUsage + " / " + memoryLimit);
-            containerStatus.setCpuInfo(formatCpu(containerStatus.getContainerName(), stats));
-        }
     }
 
     public void startListeners() {
@@ -254,22 +260,23 @@ public class DockerService {
     }
 
     public Container createContainer(String name, String image, List<String> env, String ports, boolean inRange,
-                                     boolean exposedPort, HealthCheck healthCheck, Map<String, String> labels) throws InterruptedException {
+                                     List<String> exposed, HealthCheck healthCheck, Map<String, String> labels) throws InterruptedException {
         List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
         if (containers.size() == 0) {
             pullImage(image);
 
-            List<ExposedPort> exposedPorts = getPortsFromString(ports).values().stream().map(i -> ExposedPort.tcp(i)).collect(Collectors.toList());
+            CreateContainerCmd createContainerCmd = getDockerClient().createContainerCmd(image)
+                    .withName(name).withLabels(labels).withEnv(env).withHostName(name).withHealthcheck(healthCheck);
 
-            CreateContainerResponse response = getDockerClient().createContainerCmd(image)
-                    .withName(name)
-                    .withLabels(labels)
-                    .withEnv(env)
-                    .withExposedPorts(exposedPorts)
-                    .withHostName(name)
-                    .withHostConfig(getHostConfig(ports, exposedPort, inRange))
-                    .withHealthcheck(healthCheck)
-                    .exec();
+            if (exposed != null) {
+                List<ExposedPort> exposedPorts = exposed.stream().map(i -> ExposedPort.tcp(Integer.parseInt(i))).collect(Collectors.toList());
+                createContainerCmd.withExposedPorts(exposedPorts);
+                createContainerCmd.withHostConfig(getHostConfig(ports, exposedPorts, inRange, NETWORK_NAME));
+            } else {
+                createContainerCmd.withHostConfig(getHostConfig(ports, List.of(), inRange, NETWORK_NAME));
+            }
+
+            CreateContainerResponse response = createContainerCmd.exec();
             LOGGER.info("Container created: " + response.getId());
             return getDockerClient().listContainersCmd().withShowAll(true)
                     .withIdFilter(Collections.singleton(response.getId())).exec().get(0);
@@ -279,19 +286,16 @@ public class DockerService {
         }
     }
 
-    public void startContainer(String name) throws InterruptedException {
+    public void runContainer(String name) {
         List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
         if (containers.size() == 1) {
             Container container = containers.get(0);
-            if (!container.getState().equals("running")) {
+            if (container.getState().equals("paused")) {
+                getDockerClient().unpauseContainerCmd(container.getId()).exec();
+            } else if (!container.getState().equals("running")) {
                 getDockerClient().startContainerCmd(container.getId()).exec();
             }
         }
-    }
-
-    public void restartContainer(String name) throws InterruptedException {
-        stopContainer(name);
-        startContainer(name);
     }
 
     public void logContainer(String containerName, LogCallback callback) {
@@ -309,6 +313,16 @@ public class DockerService {
             }
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
+        }
+    }
+
+    public void pauseContainer(String name) {
+        List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
+        if (containers.size() == 1) {
+            Container container = containers.get(0);
+            if (container.getState().equals("running")) {
+                getDockerClient().pauseContainerCmd(container.getId()).exec();
+            }
         }
     }
 
@@ -342,31 +356,6 @@ public class DockerService {
         }
     }
 
-    private HostConfig getHostConfig(String ports, boolean exposedPort, boolean inRange) {
-        Ports portBindings = new Ports();
-
-        getPortsFromString(ports).forEach((hostPort, containerPort) -> {
-            Ports.Binding binding = exposedPort
-                    ? (inRange ? Ports.Binding.bindPortRange(hostPort, hostPort + 1000) : Ports.Binding.bindPort(hostPort))
-                    : Ports.Binding.bindPort(hostPort);
-            portBindings.bind(ExposedPort.tcp(containerPort), binding);
-        });
-        return new HostConfig()
-                .withPortBindings(portBindings)
-                .withNetworkMode(NETWORK_NAME);
-    }
-
-    private Map<Integer, Integer> getPortsFromString(String ports) {
-        Map<Integer, Integer> p = new HashMap<>();
-        if (ports != null && !ports.isEmpty()) {
-            Arrays.stream(ports.split(",")).forEach(s -> {
-                String[] values = s.split(":");
-                p.put(Integer.parseInt(values[0]), Integer.parseInt(values[1]));
-            });
-        }
-        return p;
-    }
-
     private DockerClientConfig getDockerClientConfig() {
         return DefaultDockerClientConfig.createDefaultConfigBuilder().build();
     }
@@ -386,81 +375,5 @@ public class DockerService {
             dockerClient = DockerClientImpl.getInstance(getDockerClientConfig(), getDockerHttpClient());
         }
         return dockerClient;
-    }
-
-    private String formatMemory(Long memory) {
-        try {
-            if (memory < (1073741824)) {
-                return formatMiB.format(memory.doubleValue() / 1048576) + "MiB";
-            } else {
-                return formatGiB.format(memory.doubleValue() / 1073741824) + "GiB";
-            }
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-    private ContainerStatus.ContainerType getContainerType(Map<String, String> labels) {
-        String type = labels.get(LABEL_TYPE);
-        if (Objects.equals(type, ContainerStatus.ContainerType.devmode.name())) {
-            return ContainerStatus.ContainerType.devmode;
-        } else if (Objects.equals(type, ContainerStatus.ContainerType.devservice.name())) {
-            return ContainerStatus.ContainerType.devservice;
-        } else if (Objects.equals(type, ContainerStatus.ContainerType.project.name())) {
-            return ContainerStatus.ContainerType.project;
-        } else if (Objects.equals(type, ContainerStatus.ContainerType.internal.name())) {
-            return ContainerStatus.ContainerType.internal;
-        }
-        return ContainerStatus.ContainerType.unknown;
-    }
-
-    private List<ContainerStatus.Command> getContainerCommand(String state) {
-        List<ContainerStatus.Command> result = new ArrayList<>();
-        if (Objects.equals(state, ContainerStatus.State.created.name())) {
-            result.add(ContainerStatus.Command.run);
-            result.add(ContainerStatus.Command.delete);
-        } else if (Objects.equals(state, ContainerStatus.State.exited.name())) {
-            result.add(ContainerStatus.Command.run);
-            result.add(ContainerStatus.Command.delete);
-        } else if (Objects.equals(state, ContainerStatus.State.running.name())) {
-            result.add(ContainerStatus.Command.pause);
-            result.add(ContainerStatus.Command.stop);
-            result.add(ContainerStatus.Command.delete);
-        } else if (Objects.equals(state, ContainerStatus.State.paused.name())) {
-            result.add(ContainerStatus.Command.run);
-            result.add(ContainerStatus.Command.stop);
-            result.add(ContainerStatus.Command.delete);
-        } else if (Objects.equals(state, ContainerStatus.State.dead.name())) {
-            result.add(ContainerStatus.Command.delete);
-        }
-        return result;
-    }
-
-    private String formatCpu(String containerName, Statistics stats) {
-        try {
-            double cpuUsage = 0;
-            long previousCpu = previousStats.containsKey(containerName) ? previousStats.get(containerName).getItem1() : -1;
-            long previousSystem = previousStats.containsKey(containerName) ? previousStats.get(containerName).getItem2() : -1;
-
-            CpuStatsConfig cpuStats = stats.getCpuStats();
-            if (cpuStats != null) {
-                CpuUsageConfig cpuUsageConfig = cpuStats.getCpuUsage();
-                long systemUsage = cpuStats.getSystemCpuUsage();
-                long totalUsage = cpuUsageConfig.getTotalUsage();
-
-                if (previousCpu != -1 && previousSystem != -1) {
-                    float cpuDelta = totalUsage - previousCpu;
-                    float systemDelta = systemUsage - previousSystem;
-
-                    if (cpuDelta > 0 && systemDelta > 0) {
-                        cpuUsage = cpuDelta / systemDelta * cpuStats.getOnlineCpus() * 100;
-                    }
-                }
-                previousStats.put(containerName, Tuple2.of(totalUsage, systemUsage));
-            }
-            return formatCpu.format(cpuUsage) + "%";
-        } catch (Exception e) {
-            return "";
-        }
     }
 }

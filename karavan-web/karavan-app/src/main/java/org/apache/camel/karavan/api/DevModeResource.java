@@ -35,6 +35,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Objects;
 
+import static org.apache.camel.karavan.shared.EventType.CONTAINER_STATUS;
+
 @Path("/api/devmode")
 public class DevModeResource {
 
@@ -74,7 +76,8 @@ public class DevModeResource {
             if (ConfigService.inKubernetes()) {
                 kubernetesService.runDevModeContainer(project, jBangOptions);
             } else {
-                dockerService.runDevmodeContainer(project, jBangOptions);
+                dockerService.createDevmodeContainer(project.getProjectId(), jBangOptions);
+                dockerService.runContainer(project.getProjectId());
             }
             return Response.ok(containerName).build();
         }
@@ -105,13 +108,22 @@ public class DevModeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{projectId}/{deletePVC}")
     public Response deleteDevMode(@PathParam("projectId") String projectId, @PathParam("deletePVC") boolean deletePVC) {
-        infinispanService.setContainerStatusTransit(projectId, environment, projectId);
+        setContainerStatusTransit(projectId, ContainerStatus.ContainerType.devmode.name());
         if (ConfigService.inKubernetes()) {
             kubernetesService.deleteDevModePod(projectId, deletePVC);
         } else {
             dockerService.deleteContainer(projectId);
         }
         return Response.accepted().build();
+    }
+
+    private void setContainerStatusTransit(String name, String type){
+        ContainerStatus status = infinispanService.getContainerStatus(name, environment, name);
+        if (status == null) {
+            status = ContainerStatus.createByType(name, environment, ContainerStatus.ContainerType.valueOf(type));
+        }
+        status.setInTransit(true);
+        eventBus.send(CONTAINER_STATUS, JsonObject.mapFrom(status));
     }
 
     @GET
