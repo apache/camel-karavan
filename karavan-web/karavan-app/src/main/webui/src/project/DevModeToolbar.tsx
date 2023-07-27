@@ -4,8 +4,7 @@ import '../designer/karavan.css';
 import RocketIcon from "@patternfly/react-icons/dist/esm/icons/rocket-icon";
 import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
-import PauseIcon from "@patternfly/react-icons/dist/esm/icons/pause-icon";
-import {useDevModeStore, useLogStore, useProjectStore} from "../api/ProjectStore";
+import {useDevModeStore, useLogStore, useProjectStore, useStatusesStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
@@ -20,23 +19,25 @@ interface Props {
 export const DevModeToolbar = (props: Props) => {
 
     const [status] = useDevModeStore((state) => [state.status], shallow)
-    const [project, containerStatus ] = useProjectStore((state) => [state.project, state.containerStatus], shallow)
+    const [project ] = useProjectStore((state) => [state.project], shallow)
+    const [containers] = useStatusesStore((state) => [state.containers], shallow);
     const [verbose, setVerbose] = useState(false);
 
-    const commands = containerStatus.commands;
-    const isRunning = containerStatus.state === 'running';
-    const inTransit = containerStatus.inTransit;
+    const containerStatus = containers.filter(c => c.containerName === project.projectId).at(0);
+    const commands = containerStatus?.commands || ['run'];
+    const isRunning = containerStatus?.state === 'running';
+    const inTransit = containerStatus?.inTransit;
     const isLoading= status === 'wip';
-    const color = containerStatus.state === 'running' ? "green" : "grey";
+    const color = containerStatus?.state === 'running' ? "green" : "grey";
     const icon = isRunning ? <UpIcon/> : <DownIcon/>;
     return (<Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
         <FlexItem>
             {(inTransit || isLoading) && <Spinner isSVG size="lg" aria-label="spinner"/>}
         </FlexItem>
-        {containerStatus.containerId && <FlexItem>
+        {containerStatus?.containerId && <FlexItem>
             <Label icon={icon} color={color}>
                 <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
-                    <Button variant="link"
+                    <Button variant="link" isDisabled={!isRunning}
                             onClick={e =>
                                 useLogStore.setState({showLog: true, type: 'container', podName: containerStatus.containerName})}>
                         {containerStatus.containerName}

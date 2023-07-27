@@ -180,7 +180,7 @@
   margin-bottom: 100px;
 }
 
-.karavan .project-page .project-log {
+.karavan .project-log {
   position: absolute;
   bottom: 0;
   right: 0;
@@ -191,7 +191,7 @@
   align-items: stretch;
 }
 
-.karavan .project-page .project-log .buttons {
+.karavan .project-log .buttons {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
@@ -199,26 +199,26 @@
   padding-right: 6px;
 }
 
-.karavan .project-page .project-log .buttons button,
-.karavan .project-page .project-log .buttons .pf-c-check {
+.karavan .project-log .buttons button,
+.karavan .project-log .buttons .pf-c-check {
   padding: 8px;
 }
 
-.karavan .project-page .project-log .buttons .pf-c-check .pf-c-check__label{
+.karavan .project-log .buttons .pf-c-check .pf-c-check__label{
   font-size: 12px;
   line-height: 20px;
   padding: 0;
 }
 
-.karavan .project-page .project-log .pf-c-log-viewer__scroll-container {
+.karavan .project-log .pf-c-log-viewer__scroll-container {
   /*height: 100% !important;*/
 }
 
-.karavan .project-page .project-log .pf-c-log-viewer__text {
+.karavan .project-log .pf-c-log-viewer__text {
   font-size: 12px;
 }
 
-.karavan .project-page .project-log .log-name {
+.karavan .project-log .log-name {
   --pf-c-label__content--before--BorderWidth: 0;
   --pf-c-label--BackgroundColor: transparent;
   margin-right: auto;

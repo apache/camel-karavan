@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
     Bullseye,
-    Button, EmptyState, EmptyStateIcon, EmptyStateVariant,
+    EmptyState, EmptyStateIcon, EmptyStateVariant,
     PageSection, Spinner,
     Text,
     TextContent,
@@ -13,8 +13,6 @@ import {
 import '../designer/karavan.css';
 import {ContainerStatus} from "../api/ProjectModels";
 import {TableComposable, TableVariant, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
-import {KaravanApi} from "../api/KaravanApi";
-import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import {MainToolbar} from "../designer/MainToolbar";
 import {useAppConfigStore, useStatusesStore} from "../api/ProjectStore";
@@ -24,26 +22,10 @@ import {ContainerTableRow} from "./ContainerTableRow";
 export const ContainersPage = () => {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow)
-    const [containers, setContainers] = useStatusesStore((state) => [state.containers, state.setContainers], shallow);
+    const [containers] = useStatusesStore((state) => [state.containers, state.setContainers], shallow);
     const [filter, setFilter] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(true);
+    const [loading] = useState<boolean>(true);
     const [selectedEnv, setSelectedEnv] = useState<string[]>([config.environment]);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            updateContainerStatuses()
-        }, 700);
-        return () => {
-            clearInterval(interval)
-        };
-    }, []);
-
-    function updateContainerStatuses() {
-        KaravanApi.getAllContainerStatuses((statuses: ContainerStatus[]) => {
-            setContainers(statuses);
-            setLoading(false);
-        });
-    }
 
     function selectEnvironment(name: string, selected: boolean) {
         if (selected && !selectedEnv.includes(name)) {
@@ -61,9 +43,6 @@ export const ContainersPage = () => {
     function tools() {
         return (<Toolbar id="toolbar-group-types">
             <ToolbarContent>
-                <ToolbarItem>
-                    <Button variant="link" icon={<RefreshIcon/>} onClick={e => updateContainerStatuses()}/>
-                </ToolbarItem>
                 <ToolbarItem>
                     <ToggleGroup aria-label="Default with single selectable">
                         {config.environments.map(env => (

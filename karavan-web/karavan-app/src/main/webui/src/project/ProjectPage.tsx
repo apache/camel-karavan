@@ -13,7 +13,6 @@ import {MainToolbar} from "../designer/MainToolbar";
 import {ProjectTitle} from "./ProjectTitle";
 import {ProjectPanel} from "./ProjectPanel";
 import {FileEditor} from "./file/FileEditor";
-import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 
 export const ProjectPage = () => {
@@ -23,15 +22,15 @@ export const ProjectPage = () => {
     const [key, setKey] = useState<string>('');
     const [project] = useProjectStore((state) => [state.project], shallow )
 
-    useEffect(() => {
-        // TODO: make status request only when started or just opened
-        const interval = setInterval(() => {
-            ProjectService.getDevModeStatus(project);
-        }, 1000);
-        return () => {
-            clearInterval(interval)
-        };
-    }, []);
+    // useEffect(() => {
+    //     // TODO: make status request only when started or just opened
+    //     const interval = setInterval(() => {
+    //         ProjectService.getDevModeStatus(project);
+    //     }, 1000);
+    //     return () => {
+    //         clearInterval(interval)
+    //     };
+    // }, []);
 
     function post (file: ProjectFile)  {
         KaravanApi.postProjectFile(file, res => {

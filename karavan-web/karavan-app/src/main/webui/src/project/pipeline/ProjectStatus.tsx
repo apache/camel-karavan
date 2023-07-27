@@ -207,8 +207,7 @@ export class ProjectStatus extends React.Component<Props, State> {
                                                         useLogStore.setState({
                                                             showLog: true,
                                                             type: 'container',
-                                                            podName: pod.containerName,
-                                                            isRunning: true
+                                                            podName: pod.containerName
                                                         });
                                                     }}>
                                                 {pod.containerName}
@@ -287,7 +286,7 @@ export class ProjectStatus extends React.Component<Props, State> {
                             <Label icon={isRunning ? <Spinner isSVG diameter="16px" className="spinner"/> : icon} color={color}>
                                 {pipeline
                                     ? <Button variant="link" onClick={e =>
-                                        useLogStore.setState({showLog: true, type: 'pipeline', podName: pipeline, isRunning: true})
+                                        useLogStore.setState({showLog: true, type: 'pipeline', podName: pipeline})
                                     }>
                                         {pipeline}
                                     </Button>

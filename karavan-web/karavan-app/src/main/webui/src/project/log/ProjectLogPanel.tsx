@@ -5,7 +5,7 @@ import CloseIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
 import ExpandIcon from '@patternfly/react-icons/dist/esm/icons/expand-icon';
 import CollapseIcon from '@patternfly/react-icons/dist/esm/icons/compress-icon';
 import CleanIcon from '@patternfly/react-icons/dist/esm/icons/trash-alt-icon';
-import {useLogStore} from "../../api/ProjectStore";
+import {useLogStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
 import {KaravanApi} from "../../api/KaravanApi";
 import {shallow} from "zustand/shallow";
 import {ProjectEventBus} from "../../api/ProjectEventBus";
@@ -14,9 +14,10 @@ import {ProjectLog} from "./ProjectLog";
 const INITIAL_LOG_HEIGHT = "50%";
 
 export const ProjectLogPanel = () => {
-    const [showLog, type, setShowLog, podName, isRunning] = useLogStore(
-        (state) => [state.showLog, state.type, state.setShowLog, state.podName, state.isRunning], shallow)
+    const [showLog, type, setShowLog, podName] = useLogStore(
+        (state) => [state.showLog, state.type, state.setShowLog, state.podName], shallow)
 
+    const [containers] = useStatusesStore((state) => [state.containers], shallow);
     const [height, setHeight] = useState(INITIAL_LOG_HEIGHT);
     const [isTextWrapped, setIsTextWrapped] = useState(true);
     const [autoScroll, setAutoScroll] = useState(true);
@@ -24,9 +25,10 @@ export const ProjectLogPanel = () => {
     const [currentPodName, setCurrentPodName] = useState<string | undefined>(undefined);
 
     useEffect(() => {
-        console.log("ProjectLogPanel", showLog, type, podName, isRunning);
+        const containerStatus = containers.filter(c => c.containerName === podName).at(0);
+        console.log("ProjectLogPanel", showLog, type, podName, containerStatus);
         const controller = new AbortController();
-        if (showLog && type !== 'none' && podName !== undefined && isRunning) {
+        if (showLog && type !== 'none' && podName !== undefined) {
             const f = KaravanApi.fetchData(type, podName, controller).then(value => {
                 console.log("Fetch Started for: " + podName)
             });
@@ -37,7 +39,7 @@ export const ProjectLogPanel = () => {
             console.log("end");
             controller.abort();
         };
-    }, [showLog, type, podName, isRunning]);
+    }, [showLog, type, podName]);
 
     useEffect(() => {
         if (currentPodName !== podName) {

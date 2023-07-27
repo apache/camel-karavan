@@ -23,35 +23,23 @@ import {DeleteServiceModal} from "./DeleteServiceModal";
 import {CreateServiceModal} from "./CreateServiceModal";
 import {useProjectStore, useStatusesStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
-import {ContainerStatus, Project, ProjectType} from "../api/ProjectModels";
+import {Project, ProjectType} from "../api/ProjectModels";
 import {KaravanApi} from "../api/KaravanApi";
 import {DevService, Services, ServicesYaml} from "../api/ServiceModels";
 import {shallow} from "zustand/shallow";
+import {ProjectLogPanel} from "../project/log/ProjectLogPanel";
 
 
 export const ServicesPage = () => {
 
     const [services, setServices] = useState<Services>();
-    const [containers, setContainers] = useStatusesStore((state) => [state.containers, state.setContainers], shallow);
-    const [operation, setOperation] = useState<'create' | 'delete' | 'none'>('none');
-    const [loading, setLoading] = useState<boolean>(false);
+    const [containers] = useStatusesStore((state) => [state.containers, state.setContainers], shallow);
+    const [operation] = useState<'create' | 'delete' | 'none'>('none');
+    const [loading] = useState<boolean>(false);
 
     useEffect(() => {
         getServices();
-        const interval = setInterval(() => {
-            updateContainerStatuses()
-        }, 700);
-        return () => {
-            clearInterval(interval)
-        };
     }, []);
-
-    function updateContainerStatuses() {
-        KaravanApi.getAllContainerStatuses((statuses: ContainerStatus[]) => {
-            setContainers(statuses);
-            setLoading(false);
-        });
-    }
 
     function getServices() {
         KaravanApi.getFiles(ProjectType.services, files => {
@@ -142,6 +130,7 @@ export const ServicesPage = () => {
             </PageSection>
             {["create"].includes(operation) && <CreateServiceModal/>}
             {["delete"].includes(operation) && <DeleteServiceModal/>}
+            <ProjectLogPanel/>
         </PageSection>
     )
 }

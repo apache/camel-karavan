@@ -24,11 +24,14 @@ import {InfoContainer} from "./InfoContainer";
 import {InfoContext} from "./InfoContext";
 import {InfoMemory} from "./InfoMemory";
 import {KaravanApi} from "../../api/KaravanApi";
-import {useProjectStore} from "../../api/ProjectStore";
+import {useProjectStore, useStatusesStore} from "../../api/ProjectStore";
+import {shallow} from "zustand/shallow";
+import {ContainerStatus} from "../../api/ProjectModels";
 
 export const DashboardTab = () => {
 
-    const {project, containerStatus} = useProjectStore();
+    const [project] = useProjectStore((state) => [state.project], shallow);
+    const [containers] = useStatusesStore((state) => [state.containers], shallow);
     const [memory, setMemory] = useState({});
     const [jvm, setJvm] = useState({});
     const [context, setContext] = useState({});
@@ -67,10 +70,8 @@ export const DashboardTab = () => {
         })
     }
 
-    function showConsole(): boolean {
-        return containerStatus.lifeCycle === 'ready';
-    }
-
+    const containerStatus = containers.filter(c => c.containerName === project.projectId).at(0);
+    const showConsole = containerStatus?.state === 'running'
     return (
         <PageSection className="project-tab-panel" padding={{default: "padding"}}>
             <Card className="project-development">
@@ -78,15 +79,15 @@ export const DashboardTab = () => {
                     <Flex direction={{default: "row"}}
                           justifyContent={{default: "justifyContentSpaceBetween"}}>
                         <FlexItem flex={{default: "flex_1"}}>
-                            <InfoContainer containerStatus={containerStatus}/>
+                            <InfoContainer containerStatus={containerStatus || new ContainerStatus()}/>
                         </FlexItem>
                         <Divider orientation={{default: "vertical"}}/>
                         <FlexItem flex={{default: "flex_1"}}>
-                            <InfoMemory jvm={jvm} memory={memory} showConsole={showConsole()}/>
+                            <InfoMemory jvm={jvm} memory={memory} showConsole={showConsole}/>
                         </FlexItem>
                         <Divider orientation={{default: "vertical"}}/>
                         <FlexItem flex={{default: "flex_1"}}>
-                            <InfoContext context={context} showConsole={showConsole()}/>
+                            <InfoContext context={context} showConsole={showConsole}/>
                         </FlexItem>
                     </Flex>
                 </CardBody>

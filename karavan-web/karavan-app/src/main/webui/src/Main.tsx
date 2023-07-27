@@ -28,12 +28,13 @@ import {ContainersPage} from "./containers/ContainersPage";
 import {ProjectEventBus} from "./api/ProjectEventBus";
 import {AppConfig, ContainerStatus, Project, ToastMessage} from "./api/ProjectModels";
 import {ProjectPage} from "./project/ProjectPage";
-import {useAppConfigStore, useDevModeStore, useFileStore, useProjectStore} from "./api/ProjectStore";
+import {useAppConfigStore, useDevModeStore, useFileStore, useProjectStore, useStatusesStore} from "./api/ProjectStore";
 import {Notification} from "./Notification";
 import {InfrastructureAPI} from "./designer/utils/InfrastructureAPI";
 import {KnowledgebasePage} from "./knowledgebase/KnowledgebasePage";
 import {ServicesPage} from "./services/ServicesPage";
 import {shallow} from "zustand/shallow";
+import {ProjectService} from "./api/ProjectService";
 
 class MenuItem {
     pageId: string = '';
@@ -50,12 +51,16 @@ class MenuItem {
 export const Main = () => {
 
     const [config, setConfig] = useAppConfigStore((state) => [state.config, state.setConfig], shallow)
+    const [setContainers] = useStatusesStore((state) => [state.setContainers], shallow);
     const [pageId, setPageId] = useState<string>('projects');
     const [request, setRequest] = useState<string>(uuidv4());
     const [showUser, setShowUser] = useState<boolean>(false);
 
     useEffect(() => {
         console.log("Main Start");
+        const interval = setInterval(() => {
+            getStatuses();
+        }, 1000);
         const sub = ProjectEventBus.onSelectProject()?.subscribe((project: Project | undefined) => {
             if (project) setPageId("project");
         });
@@ -64,17 +69,15 @@ export const Main = () => {
             if (authType === 'oidc') {
                 SsoApi.auth(() => {
                     KaravanApi.getMe((user: any) => {
-                        console.log("me", user);
                         getData();
                     });
                 });
             }
-            if (KaravanApi.isAuthorized || KaravanApi.authType === 'public') {
-                getData();
-            }
+            getData();
         });
         return () => {
             console.log("Main End");
+            clearInterval(interval);
             sub?.unsubscribe();
         };
     }, []);
@@ -88,17 +91,26 @@ export const Main = () => {
             }
         });
     }
+    function getStatuses() {
+        if (KaravanApi.isAuthorized || KaravanApi.authType === 'public') {
+            KaravanApi.getAllContainerStatuses((statuses: ContainerStatus[]) => {
+                setContainers(statuses);
+            });
+        }
+    }
 
     function getData() {
-        KaravanApi.getConfiguration((config: AppConfig) => {
-            setRequest(uuidv4());
-            setConfig(config);
-            useAppConfigStore.setState({config: config});
-            InfrastructureAPI.infrastructure = config.infrastructure;
-        });
-        updateKamelets();
-        updateComponents();
-        // updateSupportedComponents(); // not implemented yet
+        if (KaravanApi.isAuthorized || KaravanApi.authType === 'public') {
+            KaravanApi.getConfiguration((config: AppConfig) => {
+                setRequest(uuidv4());
+                setConfig(config);
+                useAppConfigStore.setState({config: config});
+                InfrastructureAPI.infrastructure = config.infrastructure;
+            });
+            updateKamelets();
+            updateComponents();
+            // updateSupportedComponents(); // not implemented yet
+        }
     }
 
     async function updateKamelets(): Promise<void> {
@@ -165,7 +177,6 @@ export const Main = () => {
                                 onClick={event => {
                                     useFileStore.setState({operation: 'none', file: undefined})
                                     useDevModeStore.setState({podName: undefined, status: "none"})
-                                    useProjectStore.setState({containerStatus: new ContainerStatus({}),})
                                     setPageId(page.pageId);
                                 }}
                         />

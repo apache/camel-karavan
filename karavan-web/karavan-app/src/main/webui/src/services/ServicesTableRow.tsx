@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {
     Button,
     Tooltip,
-    Flex, FlexItem, Label, ToolbarContent, Toolbar, ToolbarItem, Spinner
+    Flex, FlexItem, Label, ToolbarContent, Toolbar, ToolbarItem, Spinner, TooltipPosition
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {ActionsColumn, ExpandableRowContent, Tbody, Td, Tr} from "@patternfly/react-table";
@@ -12,9 +12,11 @@ import {DevService} from "../api/ServiceModels";
 import {ContainerStatus} from "../api/ProjectModels";
 import PauseIcon from "@patternfly/react-icons/dist/esm/icons/pause-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
-import {useAppConfigStore} from "../api/ProjectStore";
+import {useAppConfigStore, useLogStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {KaravanApi} from "../api/KaravanApi";
+import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
+import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 
 interface Props {
     index: number
@@ -80,7 +82,8 @@ export const ServicesTableRow = (props: Props) => {
     const container = props.container;
     const isRunning = container?.state === 'running';
     const inTransit = container?.inTransit;
-    const color = container?.state === 'running' ? "green" : "grey";
+    const color = isRunning ? "green" : "grey";
+    const icon = isRunning ? <UpIcon/> : <DownIcon/>;
     return (
         <Tbody isExpanded={isExpanded}>
             <Tr key={service.container_name}>
@@ -96,7 +99,17 @@ export const ServicesTableRow = (props: Props) => {
                     modifier={"fitContent"}>
                 </Td>
                 <Td>
-                    <Label color={color}>{service.container_name}</Label>
+                    {container && <Label icon={icon} color={color}>
+                        <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
+                            <Button variant="link" isDisabled={!isRunning}
+                                    onClick={e => {
+                                        useLogStore.setState({showLog: true, type: 'container', podName: container.containerName});
+                                    }}>
+                                {service.container_name}
+                            </Button>
+                        </Tooltip>
+                    </Label>}
+                    {!container && <Label color={color}>{service.container_name}</Label>}
                 </Td>
                 <Td>{service.container_name}</Td>
                 <Td>{service.image}</Td>

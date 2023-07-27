@@ -45,7 +45,7 @@ export class ProjectService {
         KaravanApi.manageContainer('dev', 'devmove', project.projectId, 'stop', res => {
             useDevModeStore.setState({status: 'none'})
             if (res.status === 200) {
-                useLogStore.setState({showLog: false, type: 'container', isRunning: false})
+                useLogStore.setState({showLog: false, type: 'container'})
             } else {
                 ProjectEventBus.sendAlert(new ToastMessage('Error stopping DevMode container', res.statusText, 'warning'))
             }
@@ -57,7 +57,7 @@ export class ProjectService {
         KaravanApi.manageContainer('dev', 'devmove', project.projectId, 'pause', res => {
             useDevModeStore.setState({status: 'none'})
             if (res.status === 200) {
-                useLogStore.setState({showLog: false, type: 'container', isRunning: false})
+                useLogStore.setState({showLog: false, type: 'container'})
             } else {
                 ProjectEventBus.sendAlert(new ToastMessage('Error stopping DevMode container', res.statusText, 'warning'))
             }
@@ -70,35 +70,35 @@ export class ProjectService {
         KaravanApi.deleteDevModeContainer(project.projectId, false, res => {
             useDevModeStore.setState({status: 'none'})
             if (res.status === 202) {
-                useLogStore.setState({showLog: false, type: 'container', isRunning: false})
+                useLogStore.setState({showLog: false, type: 'container'})
             } else {
                 ProjectEventBus.sendAlert(new ToastMessage('Error delete runner', res.statusText, 'warning'))
             }
         });
     }
 
-    public static getDevModeStatus(project: Project) {
-        const projectId = project.projectId;
-        KaravanApi.getDevModePodStatus(projectId, res => {
-            if (res.status === 200) {
-                unstable_batchedUpdates(() => {
-                    const containerStatus = res.data;
-                    if (useDevModeStore.getState().podName !== containerStatus.containerName){
-                        useDevModeStore.setState({podName: containerStatus.containerName})
-                    }
-                    if (useDevModeStore.getState().status !== 'wip'){
-                        useLogStore.setState({isRunning: true})
-                    }
-                    useProjectStore.setState({containerStatus: containerStatus});
-                })
-            } else {
-                unstable_batchedUpdates(() => {
-                    useDevModeStore.setState({status: 'none', podName: undefined})
-                    useProjectStore.setState({containerStatus: new ContainerStatus({})});
-                })
-            }
-        });
-    }
+    // public static getDevModeStatus(project: Project) {
+    //     const projectId = project.projectId;
+    //     KaravanApi.getDevModePodStatus(projectId, res => {
+    //         if (res.status === 200) {
+    //             unstable_batchedUpdates(() => {
+    //                 const containerStatus = res.data;
+    //                 if (useDevModeStore.getState().podName !== containerStatus.containerName){
+    //                     useDevModeStore.setState({podName: containerStatus.containerName})
+    //                 }
+    //                 if (useDevModeStore.getState().status !== 'wip'){
+    //                     useLogStore.setState({isRunning: true})
+    //                 }
+    //                 useStatusesStore.setState({containerStatus: containerStatus});
+    //             })
+    //         } else {
+    //             unstable_batchedUpdates(() => {
+    //                 useDevModeStore.setState({status: 'none', podName: undefined})
+    //                 useStatusesStore.setState({containerStatus: new ContainerStatus({})});
+    //             })
+    //         }
+    //     });
+    // }
 
     public static pushProject(project: Project, commitMessage: string) {
         useProjectStore.setState({isPushing: true})
