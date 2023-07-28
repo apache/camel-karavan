@@ -24,8 +24,8 @@
                     id: log-2
             steps:
               - setBody:
-                  id: setBody-1
                   expression:
                     groovy:
                       expression: 1000 / 0
                       id: groovy-1
+                  id: setBody-1
