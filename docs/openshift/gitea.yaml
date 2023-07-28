@@ -1,4 +1,4 @@
-apiVersion: gpte.opentlc.com/v1
+apiVersion: pfe.rhpds.com/v1
 kind: Gitea
 metadata:
   name: gitea
