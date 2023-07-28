@@ -6,6 +6,7 @@ import com.github.dockerjava.api.model.ContainerPort;
 import com.github.dockerjava.api.model.Event;
 import com.github.dockerjava.api.model.EventType;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -19,8 +20,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
-import static org.apache.camel.karavan.shared.Constants.LABEL_TYPE;
+import static org.apache.camel.karavan.shared.Constants.*;
 import static org.apache.camel.karavan.shared.EventType.DEVMODE_CONTAINER_READY;
 import static org.apache.camel.karavan.shared.EventType.INFINISPAN_STARTED;
 
@@ -117,7 +117,11 @@ public class DockerEventListener implements ResultCallback<Event> {
         String status = event.getStatus();
         String health = status.replace("health_status: ", "");
         LOGGER.infof("Container %s health status: %s", container.getNames()[0], health);
-        eventBus.publish(DEVMODE_CONTAINER_READY, container.getLabels().get(LABEL_PROJECT_ID));
+        Map<String, Object> message = Map.of(
+                LABEL_PROJECT_ID, container.getLabels().get(LABEL_PROJECT_ID),
+                RELOAD_TRY_COUNT, 1
+        );
+        eventBus.publish(DEVMODE_CONTAINER_READY, JsonObject.mapFrom(message));
     }
 
     private boolean inDevMode(Container container) {

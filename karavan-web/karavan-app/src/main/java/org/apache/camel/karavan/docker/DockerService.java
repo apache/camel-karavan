@@ -29,28 +29,21 @@ import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.core.InvocationBuilder;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
-import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.docker.model.DevService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.infinispan.model.Project;
-import org.apache.camel.karavan.service.CodeService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
-import org.yaml.snakeyaml.Yaml;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.shared.Constants.*;
-import static org.apache.camel.karavan.shared.EventType.*;
+import static org.apache.camel.karavan.shared.EventType.INFINISPAN_STARTED;
 
 @ApplicationScoped
 public class DockerService extends DockerServiceUtils {

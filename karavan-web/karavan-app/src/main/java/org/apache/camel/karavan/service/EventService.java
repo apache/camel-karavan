@@ -1,10 +1,12 @@
 package org.apache.camel.karavan.service;
 
 import io.quarkus.vertx.ConsumeEvent;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.CamelStatus;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.shared.ConfigService;
@@ -14,9 +16,11 @@ import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.io.IOException;
+import java.util.Map;
 import java.util.Objects;
 
+import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
+import static org.apache.camel.karavan.shared.Constants.RELOAD_TRY_COUNT;
 import static org.apache.camel.karavan.shared.EventType.*;
 
 @ApplicationScoped
@@ -43,7 +47,7 @@ public class EventService {
     ProjectService projectService;
 
     @Inject
-    EventBus bus;
+    EventBus eventBus;
 
     @ConsumeEvent(value = INFINISPAN_STARTED, blocking = true, ordered = true)
     void startServices(String infinispanHealth) {
@@ -54,8 +58,8 @@ public class EventService {
                 dockerService.startKaravanHeadlessContainer();
                 dockerService.collectContainersStatuses();
             }
-            bus.publish(EventType.IMPORT_PROJECTS, "");
-            bus.publish(EventType.START_INFRASTRUCTURE_LISTENERS, "");
+            eventBus.publish(EventType.IMPORT_PROJECTS, "");
+            eventBus.publish(EventType.START_INFRASTRUCTURE_LISTENERS, "");
         }
     }
 
@@ -75,15 +79,41 @@ public class EventService {
     }
 
     @ConsumeEvent(value = DEVMODE_CONTAINER_READY, blocking = true, ordered = true)
-    void receiveCommand(String projectId) {
-        LOGGER.info("DEVMODE_CONTAINER_READY " + projectId);
+    void receiveCommand(JsonObject json) {
+        String projectId = json.getString(LABEL_PROJECT_ID);
+        Integer reloadCount = json.getInteger(RELOAD_TRY_COUNT);
+        LOGGER.info("DEVMODE_CONTAINER_READY " + projectId + " : " + reloadCount);
         ContainerStatus status = infinispanService.getContainerStatus(projectId, environment, projectId);
-        if (status != null && !status.getCodeLoaded() && status.getContainerId() != null && status.getState().equals(ContainerStatus.State.running.name())) {
+        CamelStatus cs = infinispanService.getCamelStatus(projectId, environment, CamelStatus.Name.context.name());
+        if (status != null
+                && !status.getCodeLoaded()
+                && status.getContainerId() != null
+                && status.getState().equals(ContainerStatus.State.running.name())
+                && camelIsStarted(cs)) {
+            LOGGER.info("CAMEL STARTED -> SEND RELOAD");
             if (ConfigService.inKubernetes()) {
                 camelService.reloadProjectCode(projectId);
             } else {
                 infinispanService.sendCodeReloadCommand(projectId);
             }
+        } else if (reloadCount < 30) {
+            LOGGER.info("CAMEL NOT STARTED -> SEND DEVMODE_CONTAINER_READY");
+            // retry again
+            Map<String, Object> message = Map.of(
+                    LABEL_PROJECT_ID, projectId,
+                    RELOAD_TRY_COUNT, ++reloadCount
+            );
+            eventBus.publish(DELAY_MESSAGE, JsonObject.mapFrom(message));
+        }
+    }
+
+    private boolean camelIsStarted(CamelStatus camelStatus) {
+        try {
+            String status = camelStatus.getStatus();
+            JsonObject obj = new JsonObject(status);
+            return Objects.equals("Started", obj.getJsonObject("context").getString("state"));
+        } catch (Exception e) {
+            return false;
         }
     }
 
@@ -94,7 +124,7 @@ public class EventService {
             ContainerStatus oldStatus = infinispanService.getContainerStatus(newStatus.getProjectId(), newStatus.getEnv(), newStatus.getContainerName());
             if (oldStatus == null || Objects.equals(oldStatus.getInTransit(), Boolean.FALSE)) {
                 infinispanService.saveContainerStatus(newStatus);
-            } else if (Objects.equals(oldStatus.getInTransit(), Boolean.TRUE)){
+            } else if (Objects.equals(oldStatus.getInTransit(), Boolean.TRUE)) {
                 if (!Objects.equals(oldStatus.getState(), newStatus.getState())) {
                     infinispanService.saveContainerStatus(newStatus);
                 }

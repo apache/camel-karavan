@@ -28,5 +28,6 @@ public class EventType {
 
     public static final String CONTAINER_STATUS = "CONTAINER_STATUS";
     public static final String DEVMODE_CONTAINER_READY = "DEVMODE_STATUS";
+    public static final String DELAY_MESSAGE = "DELAY_MESSAGE";
 
 }

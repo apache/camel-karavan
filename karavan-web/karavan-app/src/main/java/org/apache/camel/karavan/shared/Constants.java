@@ -23,4 +23,5 @@ public class Constants {
     public static final String LABEL_TYPE = "org.apache.camel.karavan/type";
     public static final String LABEL_PROJECT_ID = "org.apache.camel.karavan/projectId";
 
+    public static final String RELOAD_TRY_COUNT = "reloadTryCount";
 }

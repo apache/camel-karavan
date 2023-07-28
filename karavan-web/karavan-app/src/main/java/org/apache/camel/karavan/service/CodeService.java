@@ -51,7 +51,7 @@ public class CodeService {
 
     private static final Logger LOGGER = Logger.getLogger(CodeService.class.getName());
     public static final String APPLICATION_PROPERTIES_FILENAME = "application.properties";
-    public static final String DEV_SERVICES_FILENAME = "dev-services.yaml";
+    public static final String DEV_SERVICES_FILENAME = "devservices.yaml";
 
     @Inject
     KubernetesService kubernetesService;

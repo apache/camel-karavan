@@ -81,9 +81,9 @@ public class InfinispanService {
     private static final String DEFAULT_ENVIRONMENT = "dev";
 
     public static final String CODE_RELOAD_COMMAND = "CODE_RELOAD_COMMAND";
-    public static final String CODE_RELOAD_COMMAND_INTERNAL = "CODE_RELOAD_COMMAND_INTERNAL";
+    protected static final String CODE_RELOAD_COMMAND_INTERNAL = "CODE_RELOAD_COMMAND_INTERNAL";
 
-    public void start(boolean startCodeReloadListeners) {
+    public void start(boolean startCodeReloadListener) {
         LOGGER.info("InfinispanService is starting in remote mode");
 
         ProtoStreamMarshaller marshaller = new ProtoStreamMarshaller();
@@ -114,7 +114,7 @@ public class InfinispanService {
 
         cacheManager.getCache(PROTOBUF_METADATA_CACHE_NAME).put("karavan.proto", getResourceFile("/proto/karavan.proto"));
 
-        if (startCodeReloadListeners) {
+        if (startCodeReloadListener) {
             cacheManager.getCache("code_reload_commands").addClientListener(new CodeReloadListener(eventBus));
         }
 
@@ -309,6 +309,10 @@ public class InfinispanService {
 
     public CamelStatus getCamelStatus(String projectId, String env, String name) {
         GroupedKey key = GroupedKey.create(projectId, env, name);
+        return camelStatuses.get(key);
+    }
+
+    public CamelStatus getCamelStatus(GroupedKey key) {
         return camelStatuses.get(key);
     }
 
