@@ -167,13 +167,11 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>**/application.properties</include>
-                    <include>components/**</include>
-                    <include>kamelets/**</include>
-                    <include>snippets/**</include>
-                    <include>META-INF/**</include>
-                    <include>**/**.xml</include>
+                    <include>**/**</include>
                 </includes>
+                <excludes>
+                    <exclude>**/.gitignore</exclude>
+                </excludes>
             </resource>
         </resources>
         <plugins>
