@@ -26,7 +26,7 @@ import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.service.CodeService;
 import org.yaml.snakeyaml.Yaml;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;

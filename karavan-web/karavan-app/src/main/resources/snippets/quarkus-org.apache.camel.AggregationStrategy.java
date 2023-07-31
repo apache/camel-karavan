@@ -2,8 +2,8 @@ import org.apache.camel.AggregationStrategy
 ;
 import org.apache.camel.Exchange;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 @Singleton
 @Named("NAME")

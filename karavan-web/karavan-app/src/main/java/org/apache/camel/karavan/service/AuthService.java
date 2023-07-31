@@ -19,7 +19,7 @@ package org.apache.camel.karavan.service;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.net.MalformedURLException;
 import java.util.Map;
 

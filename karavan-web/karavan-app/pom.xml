@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.camel.karavan</groupId>
         <artifactId>karavan-web</artifactId>
-        <version>3.21.1-SNAPSHOT</version>
+        <version>4.0.0-RC2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -114,11 +114,13 @@
             <groupId>com.github.docker-java</groupId>
             <artifactId>docker-java-core</artifactId>
             <version>${docker-java.version}</version>
+            <optional>false</optional>
         </dependency>
         <dependency>
             <groupId>com.github.docker-java</groupId>
-            <artifactId>docker-java-transport-httpclient5</artifactId>
+            <artifactId>docker-java-transport-zerodep</artifactId>
             <version>${docker-java.version}</version>
+            <optional>false</optional>
         </dependency>
         <!-- Code generator -->
         <dependency>

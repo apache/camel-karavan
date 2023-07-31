@@ -18,10 +18,10 @@ package org.apache.camel.karavan.headless;
 
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 @ApplicationScoped
 public class EventService {

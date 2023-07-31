@@ -1,8 +1,8 @@
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 @Singleton
 @Named("NAME")

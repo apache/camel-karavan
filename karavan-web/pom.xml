@@ -6,7 +6,7 @@
 
     <groupId>org.apache.camel.karavan</groupId>
     <artifactId>karavan-web</artifactId>
-    <version>3.21.1-SNAPSHOT</version>
+    <version>4.0.0-RC2</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -21,10 +21,10 @@
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.version>3.2.2.Final</quarkus.platform.version>
         <camel-quarkus.version>3.2.2</camel-quarkus.version>
-        <camel.version>4.0.0-RC2</camel.version>
+        <camel.version>4.0.0-RC1</camel.version>
         <camel-kamelet.version>4.0.0-RC1</camel-kamelet.version>
         <surefire-plugin.version>3.1.0</surefire-plugin.version>
-        <tekton.version>6.3.1</tekton.version>
+        <tekton.version>6.7.2</tekton.version>
         <jgit.version>2.3.2</jgit.version>
         <quinoa.version>1.2.4</quinoa.version>
         <resources-plugin.version>3.3.0</resources-plugin.version>
@@ -35,7 +35,7 @@
         <slf4j-api-version>2.0.6</slf4j-api-version>
         <log4j2-version>2.20.0</log4j2-version>
 
-        <docker-java.version>3.2.13</docker-java.version>
+        <docker-java.version>3.3.2</docker-java.version>
 
         <maven-shade-plugin.version>3.4.1</maven-shade-plugin.version>
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
