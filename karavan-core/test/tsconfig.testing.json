@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
-    "jsx": "react",
+    "module": "ES2022",
+    "target": "ES2022",
     "lib": [
       "dom",
       "dom.iterable",
       "esnext",
+      "ES2021",
       "ES2021.String"
     ]
   },

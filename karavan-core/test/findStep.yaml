@@ -26,21 +26,21 @@
             id: aggregate-6615
         - choice:
             when:
-              - id: when-2521
-                expression: {}
+              - expression: {}
+                id: when-2521
                 steps:
                   - log:
                       id: log-8bc9
-            id: choice-9b86
             otherwise:
               id: otherwise-4843
               steps:
                 - to:
                     uri: arangodb
                     id: to-3d1c
+            id: choice-9b86
         - split:
-            id: split-fe40
             expression: {}
+            id: split-fe40
         - saga:
             id: saga-0075
         - to:

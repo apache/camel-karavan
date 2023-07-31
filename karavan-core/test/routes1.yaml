@@ -8,24 +8,24 @@
       steps:
         - choice:
             when:
-              - id: when-1
-                expression:
+              - expression:
                   simple:
                     expression: ${headers} != null
                     id: simple-1
+                id: when-1
                 steps:
                   - log:
                       message: hello11
-                      id: log-1
                       logName: log11
-              - id: when-2
-                expression:
+                      id: log-1
+              - expression:
                   simple:
                     expression: ${headers} == null
                     id: simple-2
+                id: when-2
                 steps:
                   - log:
                       message: hello22s
-                      id: log-2
                       logName: log22
+                      id: log-2
             id: choice-1

@@ -8,20 +8,20 @@
         message: '1'
       steps:
         - setBody:
-            id: setBody-1
             expression:
               groovy:
                 expression: 1000 / 0
                 id: groovy-10a6
+            id: setBody-1
         - log:
             message: $[body}
             id: log-1
 - routeConfiguration:
-    id: routeConfiguration-1
     errorHandler:
       id: errorHandler-1
       deadLetterChannel:
         deadLetterUri: log:dlq
-        id: deadLetterChannel-1
         level: TRACE
         useOriginalMessage: true
+        id: deadLetterChannel-1
+    id: routeConfiguration-1

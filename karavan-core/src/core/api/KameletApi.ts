@@ -14,30 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {KameletModel, Property} from "../model/KameletModels";
+import { KameletModel, Property } from '../model/KameletModels';
 import * as yaml from 'js-yaml';
 
-export const Kamelets: KameletModel[] = [];
-export const CustomNames: string[] = [];
+const Kamelets: KameletModel[] = [];
+const CustomNames: string[] = [];
 
-export const KameletApi = {
+export class KameletApi {
+    private constructor() {}
 
-    getCustomKameletNames: (): string [] => {
+    static getCustomKameletNames = (): string[] => {
         return CustomNames;
-    },
+    };
 
-    saveCustomKameletNames: (names: string[]) => {
+    static saveCustomKameletNames = (names: string[]) => {
         CustomNames.length = 0;
         CustomNames.push(...names);
-    },
+    };
 
-    getKameletProperties: (kameletName: string): Property[] => {
+    static getKameletProperties = (kameletName: string): Property[] => {
         const kamelet: KameletModel | undefined = KameletApi.findKameletByName(kameletName);
         const properties: Property[] = [];
         try {
             if (kamelet !== undefined) {
-                const map: Map<string, any> = kamelet.spec.definition.properties ? new Map(Object.entries(kamelet.spec.definition.properties)) : new Map();
-                map.forEach((value, key, map) => {
+                const map: Map<string, any> = kamelet.spec.definition.properties
+                    ? new Map(Object.entries(kamelet.spec.definition.properties))
+                    : new Map();
+                map.forEach((value, key) => {
                     const prop = new Property();
                     prop.id = key;
                     prop.title = value.title;
@@ -46,61 +49,53 @@ export const KameletApi = {
                     prop.format = value.format;
                     prop.example = value.example;
                     prop.type = value.type;
-                    if (value.default) prop.value = value.default
-                    prop["x-descriptors"] = value["x-descriptors"];
+                    if (value.default) prop.value = value.default;
+                    prop['x-descriptors'] = value['x-descriptors'];
                     properties.push(prop);
-                })
+                });
             }
         } finally {
             return properties;
         }
-    },
+    };
 
-    getKamelets: (): KameletModel[] => {
-        return Kamelets.sort((a, b) => {
-            if (a.title().toLowerCase() < b.title().toLowerCase()) {
-                return -1;
-            }
-            return a.title().toLowerCase() > b.title().toLowerCase() ? 1 : 0;
-        });
-    },
+    static getKamelets = (): KameletModel[] => {
+        return Kamelets.sort((a, b) => a.title().localeCompare(b.title(), undefined, { sensitivity: 'base' }));
+    };
 
-    jsonToKamelet: (json: string) => {
+    static jsonToKamelet = (json: string): KameletModel => {
         const fromJson: KameletModel = JSON.parse(json) as KameletModel;
         const k: KameletModel = new KameletModel(fromJson);
         return k;
-    },
+    };
 
-
-    findKameletByName: (name: string): KameletModel | undefined => {
+    static findKameletByName = (name: string): KameletModel | undefined => {
         return Kamelets.find((k: KameletModel) => k.metadata.name === name);
-    },
+    };
 
-    findKameletByUri: (uri: string): KameletModel | undefined => {
-        return KameletApi.findKameletByName(uri.split(":")[1]);
-    },
+    static findKameletByUri = (uri: string): KameletModel | undefined => {
+        return KameletApi.findKameletByName(uri.split(':')[1]);
+    };
 
-    yamlToKamelet: (text: string):KameletModel => {
+    static yamlToKamelet = (text: string): KameletModel => {
         const fromYaml = yaml.load(text);
         return KameletApi.jsonToKamelet(JSON.stringify(fromYaml));
-    },
+    };
 
-    saveKamelets: (kameletYamls: string[], clean: boolean = false) => {
-        const kamelets:KameletModel[] = kameletYamls.map(text => KameletApi.yamlToKamelet(text));
+    static saveKamelets = (kameletYamls: string[], clean: boolean = false): void => {
+        const kamelets: KameletModel[] = kameletYamls.map(text => KameletApi.yamlToKamelet(text));
         if (clean) Kamelets.length = 0;
-        Kamelets.push(...kamelets.sort((a, b) => {
-                if (a.spec.definition.title.toLowerCase() < b.spec.definition.title.toLowerCase()) {
-                    return -1;
-                }
-                return a.spec.definition.title.toLowerCase() > b.spec.definition.title.toLowerCase() ? 1 : 0;
-            })
+        Kamelets.push(
+            ...kamelets.sort((a, b) =>
+                a.spec.definition.title.localeCompare(b.spec.definition.title, undefined, { sensitivity: 'base' }),
+            ),
         );
-    },
+    };
 
-    saveKamelet: (yaml: string) => {
-        const kamelet:KameletModel = KameletApi.yamlToKamelet(yaml);
-        if (Kamelets.findIndex((k:KameletModel) => k.metadata.name === kamelet.metadata.name) === -1) {
+    static saveKamelet = (yaml: string): void => {
+        const kamelet: KameletModel = KameletApi.yamlToKamelet(yaml);
+        if (Kamelets.findIndex((k: KameletModel) => k.metadata.name === kamelet.metadata.name) === -1) {
             Kamelets.push(kamelet);
         }
-    }
+    };
 }
