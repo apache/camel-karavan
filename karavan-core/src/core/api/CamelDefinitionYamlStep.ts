@@ -7,7 +7,6 @@ import {
     ProcessorDefinition,
     BeansDeserializer,
     ErrorHandlerBuilderDeserializer,
-    NamedBeanDefinition,
     OutputAwareFromDefinition,
     AggregateDefinition,
     BeanDefinition,
@@ -19,7 +18,6 @@ import {
     ConvertBodyDefinition,
     DataFormatDefinition,
     DelayDefinition,
-    DescriptionDefinition,
     DynamicRouterDefinition,
     EnrichDefinition,
     ErrorHandlerDefinition,
@@ -31,8 +29,6 @@ import {
     GlobalOptionDefinition,
     GlobalOptionsDefinition,
     IdempotentConsumerDefinition,
-    InOnlyDefinition,
-    InOutDefinition,
     InputTypeDefinition,
     InterceptDefinition,
     InterceptFromDefinition,
@@ -108,6 +104,12 @@ import {
     WhenDefinition,
     WhenSkipSendToEndpointDefinition,
     WireTapDefinition,
+    ApplicationDefinition,
+    BeanPropertiesDefinition,
+    BeanPropertyDefinition,
+    BeansDefinition,
+    ComponentScanDefinition,
+    RegistryBeanDefinition,
     BlacklistServiceCallServiceFilterConfiguration,
     CachingServiceCallServiceDiscoveryConfiguration,
     CombinedServiceCallServiceDiscoveryConfiguration,
@@ -131,7 +133,6 @@ import {
     BatchResequencerConfig,
     StreamResequencerConfig,
     ASN1DataFormat,
-    Any23DataFormat,
     AvroDataFormat,
     BarcodeDataFormat,
     Base64DataFormat,
@@ -155,6 +156,7 @@ import {
     LZFDataFormat,
     MimeMultipartDataFormat,
     PGPDataFormat,
+    ParquetAvroDataFormat,
     ProtobufDataFormat,
     RssDataFormat,
     SoapDataFormat,
@@ -169,7 +171,6 @@ import {
     UniVocityHeader,
     UniVocityTsvDataFormat,
     XMLSecurityDataFormat,
-    XStreamDataFormat,
     YAMLDataFormat,
     YAMLTypeFilterDefinition,
     ZipDeflaterDataFormat,
@@ -236,6 +237,7 @@ import {
     CustomTransformerDefinition,
     DataFormatTransformerDefinition,
     EndpointTransformerDefinition,
+    LoadTransformerDefinition,
     TransformersDefinition,
     CustomValidatorDefinition,
     EndpointValidatorDefinition,
@@ -298,20 +300,6 @@ export class CamelDefinitionYamlStep {
                def.setHeader = CamelDefinitionYamlStep.readSetHeaderDefinition(element.setHeader[0]); 
             } else { 
                def.setHeader = CamelDefinitionYamlStep.readSetHeaderDefinition(element.setHeader); 
-            } 
-        } 
-        if (element?.inOnly !== undefined) { 
-            if (Array.isArray(element.inOnly)) { 
-               def.inOnly = CamelDefinitionYamlStep.readInOnlyDefinition(element.inOnly[0]); 
-            } else { 
-               def.inOnly = CamelDefinitionYamlStep.readInOnlyDefinition(element.inOnly); 
-            } 
-        } 
-        if (element?.inOut !== undefined) { 
-            if (Array.isArray(element.inOut)) { 
-               def.inOut = CamelDefinitionYamlStep.readInOutDefinition(element.inOut[0]); 
-            } else { 
-               def.inOut = CamelDefinitionYamlStep.readInOutDefinition(element.inOut); 
             } 
         } 
         if (element?.split !== undefined) { 
@@ -759,13 +747,6 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
-    static readNamedBeanDefinition = (element: any): NamedBeanDefinition => {
-        
-        let def = element ? new NamedBeanDefinition({...element}) : new NamedBeanDefinition();
-
-        return def;
-    }
-
     static readOutputAwareFromDefinition = (element: any): OutputAwareFromDefinition => {
         
         let def = element ? new OutputAwareFromDefinition({...element}) : new OutputAwareFromDefinition();
@@ -926,13 +907,6 @@ export class CamelDefinitionYamlStep {
                 delete (def as any)[languageName];
             }
         }
-
-        return def;
-    }
-
-    static readDescriptionDefinition = (element: any): DescriptionDefinition => {
-        
-        let def = element ? new DescriptionDefinition({...element}) : new DescriptionDefinition();
 
         return def;
     }
@@ -1260,22 +1234,6 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
-    static readInOnlyDefinition = (element: any): InOnlyDefinition => {
-        if (element && typeof element === 'string') element = {uri: element};
-        let def = element ? new InOnlyDefinition({...element}) : new InOnlyDefinition();
-        def = ComponentApi.parseElementUri(def);
-
-        return def;
-    }
-
-    static readInOutDefinition = (element: any): InOutDefinition => {
-        if (element && typeof element === 'string') element = {uri: element};
-        let def = element ? new InOutDefinition({...element}) : new InOutDefinition();
-        def = ComponentApi.parseElementUri(def);
-
-        return def;
-    }
-
     static readInputTypeDefinition = (element: any): InputTypeDefinition => {
         
         let def = element ? new InputTypeDefinition({...element}) : new InputTypeDefinition();
@@ -1479,6 +1437,13 @@ export class CamelDefinitionYamlStep {
                def.jaxb = CamelDefinitionYamlStep.readJaxbDataFormat(element.jaxb); 
             } 
         } 
+        if (element?.parquetAvro !== undefined) { 
+            if (Array.isArray(element.parquetAvro)) { 
+               def.parquetAvro = CamelDefinitionYamlStep.readParquetAvroDataFormat(element.parquetAvro[0]); 
+            } else { 
+               def.parquetAvro = CamelDefinitionYamlStep.readParquetAvroDataFormat(element.parquetAvro); 
+            } 
+        } 
         if (element?.rss !== undefined) { 
             if (Array.isArray(element.rss)) { 
                def.rss = CamelDefinitionYamlStep.readRssDataFormat(element.rss[0]); 
@@ -1561,13 +1526,6 @@ export class CamelDefinitionYamlStep {
                def.fhirJson = CamelDefinitionYamlStep.readFhirJsonDataFormat(element.fhirJson[0]); 
             } else { 
                def.fhirJson = CamelDefinitionYamlStep.readFhirJsonDataFormat(element.fhirJson); 
-            } 
-        } 
-        if (element?.any23 !== undefined) { 
-            if (Array.isArray(element.any23)) { 
-               def.any23 = CamelDefinitionYamlStep.readAny23DataFormat(element.any23[0]); 
-            } else { 
-               def.any23 = CamelDefinitionYamlStep.readAny23DataFormat(element.any23); 
             } 
         } 
         if (element?.custom !== undefined) { 
@@ -1666,13 +1624,6 @@ export class CamelDefinitionYamlStep {
                def.grok = CamelDefinitionYamlStep.readGrokDataFormat(element.grok[0]); 
             } else { 
                def.grok = CamelDefinitionYamlStep.readGrokDataFormat(element.grok); 
-            } 
-        } 
-        if (element?.xstream !== undefined) { 
-            if (Array.isArray(element.xstream)) { 
-               def.xstream = CamelDefinitionYamlStep.readXStreamDataFormat(element.xstream[0]); 
-            } else { 
-               def.xstream = CamelDefinitionYamlStep.readXStreamDataFormat(element.xstream); 
             } 
         } 
         if (element?.gzipDeflater !== undefined) { 
@@ -2034,11 +1985,25 @@ export class CamelDefinitionYamlStep {
     static readRouteDefinition = (element: any): RouteDefinition => {
         
         let def = element ? new RouteDefinition({...element}) : new RouteDefinition();
+        if (element?.outputType !== undefined) { 
+            if (Array.isArray(element.outputType)) { 
+               def.outputType = CamelDefinitionYamlStep.readOutputTypeDefinition(element.outputType[0]); 
+            } else { 
+               def.outputType = CamelDefinitionYamlStep.readOutputTypeDefinition(element.outputType); 
+            } 
+        } 
         if (element?.from !== undefined) { 
             if (Array.isArray(element.from)) { 
                def.from = CamelDefinitionYamlStep.readFromDefinition(element.from[0]); 
             } else { 
                def.from = CamelDefinitionYamlStep.readFromDefinition(element.from); 
+            } 
+        } 
+        if (element?.inputType !== undefined) { 
+            if (Array.isArray(element.inputType)) { 
+               def.inputType = CamelDefinitionYamlStep.readInputTypeDefinition(element.inputType[0]); 
+            } else { 
+               def.inputType = CamelDefinitionYamlStep.readInputTypeDefinition(element.inputType); 
             } 
         } 
 
@@ -2464,6 +2429,13 @@ export class CamelDefinitionYamlStep {
                def.jaxb = CamelDefinitionYamlStep.readJaxbDataFormat(element.jaxb); 
             } 
         } 
+        if (element?.parquetAvro !== undefined) { 
+            if (Array.isArray(element.parquetAvro)) { 
+               def.parquetAvro = CamelDefinitionYamlStep.readParquetAvroDataFormat(element.parquetAvro[0]); 
+            } else { 
+               def.parquetAvro = CamelDefinitionYamlStep.readParquetAvroDataFormat(element.parquetAvro); 
+            } 
+        } 
         if (element?.rss !== undefined) { 
             if (Array.isArray(element.rss)) { 
                def.rss = CamelDefinitionYamlStep.readRssDataFormat(element.rss[0]); 
@@ -2546,13 +2518,6 @@ export class CamelDefinitionYamlStep {
                def.fhirJson = CamelDefinitionYamlStep.readFhirJsonDataFormat(element.fhirJson[0]); 
             } else { 
                def.fhirJson = CamelDefinitionYamlStep.readFhirJsonDataFormat(element.fhirJson); 
-            } 
-        } 
-        if (element?.any23 !== undefined) { 
-            if (Array.isArray(element.any23)) { 
-               def.any23 = CamelDefinitionYamlStep.readAny23DataFormat(element.any23[0]); 
-            } else { 
-               def.any23 = CamelDefinitionYamlStep.readAny23DataFormat(element.any23); 
             } 
         } 
         if (element?.custom !== undefined) { 
@@ -2653,13 +2618,6 @@ export class CamelDefinitionYamlStep {
                def.grok = CamelDefinitionYamlStep.readGrokDataFormat(element.grok); 
             } 
         } 
-        if (element?.xstream !== undefined) { 
-            if (Array.isArray(element.xstream)) { 
-               def.xstream = CamelDefinitionYamlStep.readXStreamDataFormat(element.xstream[0]); 
-            } else { 
-               def.xstream = CamelDefinitionYamlStep.readXStreamDataFormat(element.xstream); 
-            } 
-        } 
         if (element?.gzipDeflater !== undefined) { 
             if (Array.isArray(element.gzipDeflater)) { 
                def.gzipDeflater = CamelDefinitionYamlStep.readGzipDeflaterDataFormat(element.gzipDeflater[0]); 
@@ -2745,6 +2703,72 @@ export class CamelDefinitionYamlStep {
         
         let def = element ? new WireTapDefinition({...element}) : new WireTapDefinition();
         def = ComponentApi.parseElementUri(def);
+
+        return def;
+    }
+
+    static readApplicationDefinition = (element: any): ApplicationDefinition => {
+        
+        let def = element ? new ApplicationDefinition({...element}) : new ApplicationDefinition();
+        def.rest = element && element?.rest ? element?.rest.map((x:any) => CamelDefinitionYamlStep.readRestDefinition(x)) :[]; 
+        def.routeTemplate = element && element?.routeTemplate ? element?.routeTemplate.map((x:any) => CamelDefinitionYamlStep.readRouteTemplateDefinition(x)) :[]; 
+        def.route = element && element?.route ? element?.route.map((x:any) => CamelDefinitionYamlStep.readRouteDefinition(x)) :[]; 
+        def.restConfiguration = element && element?.restConfiguration ? element?.restConfiguration.map((x:any) => CamelDefinitionYamlStep.readRestConfigurationDefinition(x)) :[]; 
+        def.templatedRoute = element && element?.templatedRoute ? element?.templatedRoute.map((x:any) => CamelDefinitionYamlStep.readTemplatedRouteDefinition(x)) :[]; 
+        def.routeConfiguration = element && element?.routeConfiguration ? element?.routeConfiguration.map((x:any) => CamelDefinitionYamlStep.readRouteConfigurationDefinition(x)) :[]; 
+        def.bean = element && element?.bean ? element?.bean.map((x:any) => CamelDefinitionYamlStep.readRegistryBeanDefinition(x)) :[]; 
+        def.componentScan = element && element?.componentScan ? element?.componentScan.map((x:any) => CamelDefinitionYamlStep.readComponentScanDefinition(x)) :[]; 
+
+        return def;
+    }
+
+    static readBeanPropertiesDefinition = (element: any): BeanPropertiesDefinition => {
+        
+        let def = element ? new BeanPropertiesDefinition({...element}) : new BeanPropertiesDefinition();
+        def.property = element && element?.property ? element?.property.map((x:any) => CamelDefinitionYamlStep.readBeanPropertyDefinition(x)) :[]; 
+
+        return def;
+    }
+
+    static readBeanPropertyDefinition = (element: any): BeanPropertyDefinition => {
+        
+        let def = element ? new BeanPropertyDefinition({...element}) : new BeanPropertyDefinition();
+        if (element?.properties !== undefined) { 
+            if (Array.isArray(element.properties)) { 
+               def.properties = CamelDefinitionYamlStep.readBeanPropertiesDefinition(element.properties[0]); 
+            } else { 
+               def.properties = CamelDefinitionYamlStep.readBeanPropertiesDefinition(element.properties); 
+            } 
+        } 
+
+        return def;
+    }
+
+    static readBeansDefinition = (element: any): BeansDefinition => {
+        
+        let def = element ? new BeansDefinition({...element}) : new BeansDefinition();
+        def.rest = element && element?.rest ? element?.rest.map((x:any) => CamelDefinitionYamlStep.readRestDefinition(x)) :[]; 
+        def.routeTemplate = element && element?.routeTemplate ? element?.routeTemplate.map((x:any) => CamelDefinitionYamlStep.readRouteTemplateDefinition(x)) :[]; 
+        def.route = element && element?.route ? element?.route.map((x:any) => CamelDefinitionYamlStep.readRouteDefinition(x)) :[]; 
+        def.restConfiguration = element && element?.restConfiguration ? element?.restConfiguration.map((x:any) => CamelDefinitionYamlStep.readRestConfigurationDefinition(x)) :[]; 
+        def.templatedRoute = element && element?.templatedRoute ? element?.templatedRoute.map((x:any) => CamelDefinitionYamlStep.readTemplatedRouteDefinition(x)) :[]; 
+        def.routeConfiguration = element && element?.routeConfiguration ? element?.routeConfiguration.map((x:any) => CamelDefinitionYamlStep.readRouteConfigurationDefinition(x)) :[]; 
+        def.bean = element && element?.bean ? element?.bean.map((x:any) => CamelDefinitionYamlStep.readRegistryBeanDefinition(x)) :[]; 
+        def.componentScan = element && element?.componentScan ? element?.componentScan.map((x:any) => CamelDefinitionYamlStep.readComponentScanDefinition(x)) :[]; 
+
+        return def;
+    }
+
+    static readComponentScanDefinition = (element: any): ComponentScanDefinition => {
+        
+        let def = element ? new ComponentScanDefinition({...element}) : new ComponentScanDefinition();
+
+        return def;
+    }
+
+    static readRegistryBeanDefinition = (element: any): RegistryBeanDefinition => {
+        
+        let def = element ? new RegistryBeanDefinition({...element}) : new RegistryBeanDefinition();
 
         return def;
     }
@@ -3235,14 +3259,6 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
-    static readAny23DataFormat = (element: any): Any23DataFormat => {
-        
-        let def = element ? new Any23DataFormat({...element}) : new Any23DataFormat();
-        def.configuration = element && element?.configuration ? element?.configuration.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
     static readAvroDataFormat = (element: any): AvroDataFormat => {
         
         let def = element ? new AvroDataFormat({...element}) : new AvroDataFormat();
@@ -3463,13 +3479,6 @@ export class CamelDefinitionYamlStep {
                def.fhirJson = CamelDefinitionYamlStep.readFhirJsonDataFormat(element.fhirJson); 
             } 
         } 
-        if (element?.any23 !== undefined) { 
-            if (Array.isArray(element.any23)) { 
-               def.any23 = CamelDefinitionYamlStep.readAny23DataFormat(element.any23[0]); 
-            } else { 
-               def.any23 = CamelDefinitionYamlStep.readAny23DataFormat(element.any23); 
-            } 
-        } 
         if (element?.custom !== undefined) { 
             if (Array.isArray(element.custom)) { 
                def.custom = CamelDefinitionYamlStep.readCustomDataFormat(element.custom[0]); 
@@ -3566,13 +3575,6 @@ export class CamelDefinitionYamlStep {
                def.grok = CamelDefinitionYamlStep.readGrokDataFormat(element.grok[0]); 
             } else { 
                def.grok = CamelDefinitionYamlStep.readGrokDataFormat(element.grok); 
-            } 
-        } 
-        if (element?.xstream !== undefined) { 
-            if (Array.isArray(element.xstream)) { 
-               def.xstream = CamelDefinitionYamlStep.readXStreamDataFormat(element.xstream[0]); 
-            } else { 
-               def.xstream = CamelDefinitionYamlStep.readXStreamDataFormat(element.xstream); 
             } 
         } 
         if (element?.gzipDeflater !== undefined) { 
@@ -3691,6 +3693,13 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
+    static readParquetAvroDataFormat = (element: any): ParquetAvroDataFormat => {
+        
+        let def = element ? new ParquetAvroDataFormat({...element}) : new ParquetAvroDataFormat();
+
+        return def;
+    }
+
     static readProtobufDataFormat = (element: any): ProtobufDataFormat => {
         
         let def = element ? new ProtobufDataFormat({...element}) : new ProtobufDataFormat();
@@ -3788,17 +3797,6 @@ export class CamelDefinitionYamlStep {
     static readXMLSecurityDataFormat = (element: any): XMLSecurityDataFormat => {
         
         let def = element ? new XMLSecurityDataFormat({...element}) : new XMLSecurityDataFormat();
-
-        return def;
-    }
-
-    static readXStreamDataFormat = (element: any): XStreamDataFormat => {
-        
-        let def = element ? new XStreamDataFormat({...element}) : new XStreamDataFormat();
-        def.omitFields = element && element?.omitFields ? element?.omitFields.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-        def.aliases = element && element?.aliases ? element?.aliases.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-        def.implicitCollections = element && element?.implicitCollections ? element?.implicitCollections.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-        def.converters = element && element?.converters ? element?.converters.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
 
         return def;
     }
@@ -4618,6 +4616,13 @@ export class CamelDefinitionYamlStep {
                def.jaxb = CamelDefinitionYamlStep.readJaxbDataFormat(element.jaxb); 
             } 
         } 
+        if (element?.parquetAvro !== undefined) { 
+            if (Array.isArray(element.parquetAvro)) { 
+               def.parquetAvro = CamelDefinitionYamlStep.readParquetAvroDataFormat(element.parquetAvro[0]); 
+            } else { 
+               def.parquetAvro = CamelDefinitionYamlStep.readParquetAvroDataFormat(element.parquetAvro); 
+            } 
+        } 
         if (element?.rss !== undefined) { 
             if (Array.isArray(element.rss)) { 
                def.rss = CamelDefinitionYamlStep.readRssDataFormat(element.rss[0]); 
@@ -4700,13 +4705,6 @@ export class CamelDefinitionYamlStep {
                def.fhirJson = CamelDefinitionYamlStep.readFhirJsonDataFormat(element.fhirJson[0]); 
             } else { 
                def.fhirJson = CamelDefinitionYamlStep.readFhirJsonDataFormat(element.fhirJson); 
-            } 
-        } 
-        if (element?.any23 !== undefined) { 
-            if (Array.isArray(element.any23)) { 
-               def.any23 = CamelDefinitionYamlStep.readAny23DataFormat(element.any23[0]); 
-            } else { 
-               def.any23 = CamelDefinitionYamlStep.readAny23DataFormat(element.any23); 
             } 
         } 
         if (element?.custom !== undefined) { 
@@ -4807,13 +4805,6 @@ export class CamelDefinitionYamlStep {
                def.grok = CamelDefinitionYamlStep.readGrokDataFormat(element.grok); 
             } 
         } 
-        if (element?.xstream !== undefined) { 
-            if (Array.isArray(element.xstream)) { 
-               def.xstream = CamelDefinitionYamlStep.readXStreamDataFormat(element.xstream[0]); 
-            } else { 
-               def.xstream = CamelDefinitionYamlStep.readXStreamDataFormat(element.xstream); 
-            } 
-        } 
         if (element?.gzipDeflater !== undefined) { 
             if (Array.isArray(element.gzipDeflater)) { 
                def.gzipDeflater = CamelDefinitionYamlStep.readGzipDeflaterDataFormat(element.gzipDeflater[0]); 
@@ -4840,6 +4831,13 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
+    static readLoadTransformerDefinition = (element: any): LoadTransformerDefinition => {
+        
+        let def = element ? new LoadTransformerDefinition({...element}) : new LoadTransformerDefinition();
+
+        return def;
+    }
+
     static readTransformersDefinition = (element: any): TransformersDefinition => {
         
         let def = element ? new TransformersDefinition({...element}) : new TransformersDefinition();
@@ -4855,6 +4853,13 @@ export class CamelDefinitionYamlStep {
                def.customTransformer = CamelDefinitionYamlStep.readCustomTransformerDefinition(element.customTransformer[0]); 
             } else { 
                def.customTransformer = CamelDefinitionYamlStep.readCustomTransformerDefinition(element.customTransformer); 
+            } 
+        } 
+        if (element?.loadTransformer !== undefined) { 
+            if (Array.isArray(element.loadTransformer)) { 
+               def.loadTransformer = CamelDefinitionYamlStep.readLoadTransformerDefinition(element.loadTransformer[0]); 
+            } else { 
+               def.loadTransformer = CamelDefinitionYamlStep.readLoadTransformerDefinition(element.loadTransformer); 
             } 
         } 
         if (element?.dataFormatTransformer !== undefined) { 
@@ -4936,7 +4941,6 @@ export class CamelDefinitionYamlStep {
             case 'setProperty': return CamelDefinitionYamlStep.readSetPropertyDefinition(newBody);
             case 'to': return CamelDefinitionYamlStep.readToDefinition(newBody);
             case 'doCatch': return CamelDefinitionYamlStep.readCatchDefinition(newBody);
-            case 'inOut': return CamelDefinitionYamlStep.readInOutDefinition(newBody);
             case 'onFallback': return CamelDefinitionYamlStep.readOnFallbackDefinition(newBody);
             case 'loadBalance': return CamelDefinitionYamlStep.readLoadBalanceDefinition(newBody);
             case 'process': return CamelDefinitionYamlStep.readProcessDefinition(newBody);
@@ -4967,7 +4971,6 @@ export class CamelDefinitionYamlStep {
             case 'doTry': return CamelDefinitionYamlStep.readTryDefinition(newBody);
             case 'delay': return CamelDefinitionYamlStep.readDelayDefinition(newBody);
             case 'script': return CamelDefinitionYamlStep.readScriptDefinition(newBody);
-            case 'inOnly': return CamelDefinitionYamlStep.readInOnlyDefinition(newBody);
             case 'enrich': return CamelDefinitionYamlStep.readEnrichDefinition(newBody);
             case 'onCompletion': return CamelDefinitionYamlStep.readOnCompletionDefinition(newBody);
             case 'wireTap': return CamelDefinitionYamlStep.readWireTapDefinition(newBody);

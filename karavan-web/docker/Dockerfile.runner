@@ -1,6 +1,6 @@
 FROM jbangdev/jbang-action:0.110.0
 
-ENV CAMEL_VERSION=3.21.0
+ENV CAMEL_VERSION=4.0.0-RC2
 ENV KARAVAN="/karavan"
 ENV JBANG_REPO="$KARAVAN/.jbang/cache/.m2"
 ENV JBANG_DIR="$KARAVAN/.jbang"

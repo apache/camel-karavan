@@ -12,7 +12,7 @@ import java.util.concurrent.Callable;
         description = "Install Karavan")
 public class InstallCommand implements Callable<Integer> {
 
-    @CommandLine.Option(names = {"-v", "--version"}, required = true, description = "Karavan version", defaultValue = "3.21.0")
+    @CommandLine.Option(names = {"-v", "--version"}, required = true, description = "Karavan version", defaultValue = "4.0.0-RC2")
     private String version;
     @CommandLine.Option(names = {"-n", "--namespace"}, description = "Namespace", defaultValue = Constants.DEFAULT_NAMESPACE)
     private String namespace;

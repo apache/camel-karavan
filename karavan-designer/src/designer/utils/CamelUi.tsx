@@ -22,7 +22,7 @@ import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {
-    NamedBeanDefinition,
+    RegistryBeanDefinition,
     RouteConfigurationDefinition,
     RouteDefinition,
     SagaDefinition,
@@ -545,8 +545,8 @@ export class CamelUi {
         return result;
     }
 
-    static getBeans = (integration: Integration): NamedBeanDefinition[] => {
-        const result: NamedBeanDefinition[] = [];
+    static getBeans = (integration: Integration): RegistryBeanDefinition[] => {
+        const result: RegistryBeanDefinition[] = [];
         const beans = integration.spec.flows?.filter((e: any) => e.dslName === 'Beans');
         if (beans && beans.length > 0 && beans[0].beans) {
             result.push(...beans[0].beans);

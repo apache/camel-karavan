@@ -26,7 +26,7 @@ docker-compose up
 
 ### Start integration 
 ```
-jbang -Dcamel.jbang.version=3.21.0 camel@apache/camel run *
+jbang -Dcamel.jbang.version=4.0.0-RC2 camel@apache/camel run *
 ```
 
 ### Publish payment to JMS

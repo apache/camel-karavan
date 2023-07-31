@@ -18,7 +18,7 @@ import { CamelMetadataApi, ElementMeta, Languages, PropertyMeta } from '../model
 import { ComponentApi } from './ComponentApi';
 import { CamelUtil } from './CamelUtil';
 import {
-    NamedBeanDefinition,
+    RegistryBeanDefinition,
     ExpressionDefinition,
     RouteDefinition,
     RestDefinition,
@@ -314,7 +314,7 @@ export class CamelDefinitionApiExt {
         return result;
     };
 
-    static addBeanToIntegration = (integration: Integration, bean: NamedBeanDefinition): Integration => {
+    static addBeanToIntegration = (integration: Integration, bean: RegistryBeanDefinition): Integration => {
         const flows: any[] = [];
         const beans: Beans[] = integration.spec.flows?.filter(flow => flow.dslName === 'Beans') ?? [];
         if (integration.spec.flows && beans.length === 0) {
@@ -323,7 +323,7 @@ export class CamelDefinitionApiExt {
         } else {
             flows.push(...integration.spec.flows?.filter(flow => flow.dslName !== 'Beans') ?? []);
             for (const flow of beans) {
-                const beans: NamedBeanDefinition[] = [];
+                const beans: RegistryBeanDefinition[] = [];
                 if ((flow as Beans).beans.filter(b => b.uuid === bean.uuid).length === 0) {
                     beans.push(...(flow as Beans).beans.filter(b => b.uuid !== bean.uuid));
                     beans.push(bean);
@@ -341,11 +341,11 @@ export class CamelDefinitionApiExt {
         return integration;
     };
 
-    static deleteBeanFromIntegration = (integration: Integration, bean?: NamedBeanDefinition): Integration => {
+    static deleteBeanFromIntegration = (integration: Integration, bean?: RegistryBeanDefinition): Integration => {
         const flows: any[] = [];
         for (const flow of integration.spec.flows ?? []) {
             if (flow.dslName === 'Beans') {
-                const beans: NamedBeanDefinition[] = (flow as Beans).beans.filter(
+                const beans: RegistryBeanDefinition[] = (flow as Beans).beans.filter(
                     b => !(b.uuid === bean?.uuid && b.type === bean?.type),
                 );
                 if (beans.length > 0) {

@@ -18,8 +18,6 @@ export class ProcessorDefinition extends CamelElement {
     filter?: FilterDefinition;
     doFinally?: FinallyDefinition;
     idempotentConsumer?: IdempotentConsumerDefinition;
-    inOnly?: InOnlyDefinition | string;
-    inOut?: InOutDefinition | string;
     intercept?: InterceptDefinition;
     interceptFrom?: InterceptFromDefinition | string;
     interceptSendToEndpoint?: InterceptSendToEndpointDefinition | string;
@@ -94,16 +92,6 @@ export class ErrorHandlerBuilderDeserializer extends CamelElement {
     springTransactionErrorHandler?: SpringTransactionErrorHandlerDefinition;
     public constructor(init?: Partial<ErrorHandlerBuilderDeserializer>) {
         super('ErrorHandlerBuilderDeserializer');
-        Object.assign(this, init);
-    }
-}
-
-export class NamedBeanDefinition extends CamelElement {
-    name: string = '';
-    properties?: any = {};
-    type: string = '';
-    public constructor(init?: Partial<NamedBeanDefinition>) {
-        super('NamedBeanDefinition');
         Object.assign(this, init);
     }
 }
@@ -208,14 +196,14 @@ export class ChoiceDefinition extends CamelElement {
 
 export class CircuitBreakerDefinition extends CamelElement {
     stepName?: string = 'circuitBreaker';
+    configuration?: string;
     resilience4jConfiguration?: Resilience4jConfigurationDefinition;
     faultToleranceConfiguration?: FaultToleranceConfigurationDefinition;
-    configuration?: string;
+    onFallback?: OnFallbackDefinition;
     disabled?: boolean;
     id?: string = 'circuitBreaker-' + uuidv4().substring(0,4);
     description?: string;
     inheritErrorHandler?: boolean;
-    onFallback?: OnFallbackDefinition;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<CircuitBreakerDefinition>) {
         super('CircuitBreakerDefinition');
@@ -287,16 +275,6 @@ export class DelayDefinition extends CamelElement {
     inheritErrorHandler?: boolean;
     public constructor(init?: Partial<DelayDefinition>) {
         super('DelayDefinition');
-        Object.assign(this, init);
-    }
-}
-
-export class DescriptionDefinition extends CamelElement {
-    stepName?: string = 'description';
-    lang?: string;
-    text?: string;
-    public constructor(init?: Partial<DescriptionDefinition>) {
-        super('DescriptionDefinition');
         Object.assign(this, init);
     }
 }
@@ -484,34 +462,6 @@ export class IdempotentConsumerDefinition extends CamelElement {
     }
 }
 
-export class InOnlyDefinition extends CamelElement {
-    stepName?: string = 'inOnly';
-    uri: string = '';
-    disabled?: boolean;
-    id?: string = 'inOnly-' + uuidv4().substring(0,4);
-    description?: string;
-    inheritErrorHandler?: boolean;
-    parameters?: any = {};
-    public constructor(init?: Partial<InOnlyDefinition>) {
-        super('InOnlyDefinition');
-        Object.assign(this, init);
-    }
-}
-
-export class InOutDefinition extends CamelElement {
-    stepName?: string = 'inOut';
-    uri: string = '';
-    disabled?: boolean;
-    id?: string = 'inOut-' + uuidv4().substring(0,4);
-    description?: string;
-    inheritErrorHandler?: boolean;
-    parameters?: any = {};
-    public constructor(init?: Partial<InOutDefinition>) {
-        super('InOutDefinition');
-        Object.assign(this, init);
-    }
-}
-
 export class InputTypeDefinition extends CamelElement {
     stepName?: string = 'inputType';
     urn: string = '';
@@ -637,7 +587,6 @@ export class MarshalDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'marshal-' + uuidv4().substring(0,4);
     description?: string;
-    any23?: Any23DataFormat | string;
     asn1?: ASN1DataFormat | string;
     avro?: AvroDataFormat | string;
     barcode?: BarcodeDataFormat;
@@ -661,6 +610,7 @@ export class MarshalDefinition extends CamelElement {
     jsonApi?: JsonApiDataFormat;
     lzf?: LZFDataFormat;
     mimeMultipart?: MimeMultipartDataFormat;
+    parquetAvro?: ParquetAvroDataFormat | string;
     pgp?: PGPDataFormat;
     protobuf?: ProtobufDataFormat | string;
     rss?: RssDataFormat;
@@ -675,7 +625,6 @@ export class MarshalDefinition extends CamelElement {
     univocityFixed?: UniVocityFixedDataFormat;
     univocityTsv?: UniVocityTsvDataFormat;
     xmlSecurity?: XMLSecurityDataFormat;
-    xstream?: XStreamDataFormat | string;
     yaml?: YAMLDataFormat;
     zipDeflater?: ZipDeflaterDataFormat;
     zipFile?: ZipFileDataFormat;
@@ -1070,6 +1019,13 @@ export class Resilience4jConfigurationDefinition extends CamelElement {
     automaticTransitionFromOpenToHalfOpenEnabled?: boolean;
     slowCallRateThreshold?: number;
     slowCallDurationThreshold?: number;
+    bulkheadEnabled?: boolean;
+    bulkheadMaxConcurrentCalls?: number;
+    bulkheadMaxWaitDuration?: number;
+    timeoutEnabled?: boolean;
+    timeoutExecutorService?: string;
+    timeoutDuration?: number;
+    timeoutCancelRunningFuture?: boolean;
     id?: string = 'resilience4jConfiguration-' + uuidv4().substring(0,4);
     public constructor(init?: Partial<Resilience4jConfigurationDefinition>) {
         super('Resilience4jConfigurationDefinition');
@@ -1089,6 +1045,7 @@ export class RestContextRefDefinition extends CamelElement {
 export class ResumableDefinition extends CamelElement {
     stepName?: string = 'resumable';
     resumeStrategy: string = '';
+    loggingLevel?: string;
     intermittent?: boolean;
     disabled?: boolean;
     id?: string = 'resumable-' + uuidv4().substring(0,4);
@@ -1173,6 +1130,8 @@ export class RouteDefinition extends CamelElement {
     id?: string = 'route-' + uuidv4().substring(0,4);
     description?: string;
     from: FromDefinition = new FromDefinition();
+    inputType?: InputTypeDefinition;
+    outputType?: OutputTypeDefinition;
     routePolicy?: string;
     streamCaching?: boolean;
     public constructor(init?: Partial<RouteDefinition>) {
@@ -1199,6 +1158,7 @@ export class RouteTemplateDefinition extends CamelElement {
     stepName?: string = 'routeTemplate';
     route?: RouteDefinition;
     id: string = 'routeTemplate-' + uuidv4().substring(0,4);
+    description?: string;
     beans?: RouteTemplateBeanDefinition[] = [];
     from?: FromDefinition;
     parameters?: RouteTemplateParameterDefinition[] = [];
@@ -1423,8 +1383,8 @@ export class TemplatedRouteBeanDefinition extends CamelElement {
     type: string = '';
     beanType?: string;
     property?: PropertyDefinition[] = [];
-    script?: string;
     properties?: any = {};
+    script?: string;
     public constructor(init?: Partial<TemplatedRouteBeanDefinition>) {
         super('TemplatedRouteBeanDefinition');
         Object.assign(this, init);
@@ -1579,6 +1539,8 @@ export class TransactedDefinition extends CamelElement {
 export class TransformDefinition extends CamelElement {
     stepName?: string = 'transform';
     expression?: ExpressionDefinition;
+    fromType?: string;
+    toType?: string;
     disabled?: boolean;
     id?: string = 'transform-' + uuidv4().substring(0,4);
     description?: string;
@@ -1610,7 +1572,6 @@ export class UnmarshalDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'unmarshal-' + uuidv4().substring(0,4);
     description?: string;
-    any23?: Any23DataFormat | string;
     asn1?: ASN1DataFormat | string;
     avro?: AvroDataFormat | string;
     barcode?: BarcodeDataFormat;
@@ -1634,6 +1595,7 @@ export class UnmarshalDefinition extends CamelElement {
     jsonApi?: JsonApiDataFormat;
     lzf?: LZFDataFormat;
     mimeMultipart?: MimeMultipartDataFormat;
+    parquetAvro?: ParquetAvroDataFormat | string;
     pgp?: PGPDataFormat;
     protobuf?: ProtobufDataFormat | string;
     rss?: RssDataFormat;
@@ -1648,7 +1610,6 @@ export class UnmarshalDefinition extends CamelElement {
     univocityFixed?: UniVocityFixedDataFormat;
     univocityTsv?: UniVocityTsvDataFormat;
     xmlSecurity?: XMLSecurityDataFormat;
-    xstream?: XStreamDataFormat | string;
     yaml?: YAMLDataFormat;
     zipDeflater?: ZipDeflaterDataFormat;
     zipFile?: ZipFileDataFormat;
@@ -1728,6 +1689,78 @@ export class WireTapDefinition extends CamelElement {
     parameters?: any = {};
     public constructor(init?: Partial<WireTapDefinition>) {
         super('WireTapDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class ApplicationDefinition extends CamelElement {
+    stepName?: string = 'application';
+    bean?: RegistryBeanDefinition[] = [];
+    componentScan?: ComponentScanDefinition[] = [];
+    rest?: RestDefinition[] = [];
+    restConfiguration?: RestConfigurationDefinition[] = [];
+    route?: RouteDefinition[] = [];
+    routeConfiguration?: RouteConfigurationDefinition[] = [];
+    routeTemplate?: RouteTemplateDefinition[] = [];
+    templatedRoute?: TemplatedRouteDefinition[] = [];
+    public constructor(init?: Partial<ApplicationDefinition>) {
+        super('ApplicationDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class BeanPropertiesDefinition extends CamelElement {
+    stepName?: string = 'beanProperties';
+    property?: BeanPropertyDefinition[] = [];
+    public constructor(init?: Partial<BeanPropertiesDefinition>) {
+        super('BeanPropertiesDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class BeanPropertyDefinition extends CamelElement {
+    stepName?: string = 'beanProperty';
+    key?: string;
+    properties?: BeanPropertiesDefinition;
+    value?: string;
+    public constructor(init?: Partial<BeanPropertyDefinition>) {
+        super('BeanPropertyDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class BeansDefinition extends CamelElement {
+    stepName?: string = 'beans';
+    bean?: RegistryBeanDefinition[] = [];
+    restConfiguration?: RestConfigurationDefinition[] = [];
+    rest?: RestDefinition[] = [];
+    routeConfiguration?: RouteConfigurationDefinition[] = [];
+    routeTemplate?: RouteTemplateDefinition[] = [];
+    templatedRoute?: TemplatedRouteDefinition[] = [];
+    route?: RouteDefinition[] = [];
+    componentScan?: ComponentScanDefinition[] = [];
+    public constructor(init?: Partial<BeansDefinition>) {
+        super('BeansDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class ComponentScanDefinition extends CamelElement {
+    stepName?: string = 'componentScan';
+    basePackage?: string;
+    public constructor(init?: Partial<ComponentScanDefinition>) {
+        super('ComponentScanDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class RegistryBeanDefinition extends CamelElement {
+    stepName?: string = 'registryBean';
+    name?: string;
+    properties?: any = {};
+    type?: string;
+    public constructor(init?: Partial<RegistryBeanDefinition>) {
+        super('RegistryBeanDefinition');
         Object.assign(this, init);
     }
 }
@@ -2057,19 +2090,6 @@ export class ASN1DataFormat extends CamelElement {
     }
 }
 
-export class Any23DataFormat extends CamelElement {
-    dataFormatName?: string = 'any23';
-    outputFormat?: string;
-    baseUri?: string;
-    configuration?: PropertyDefinition[] = [];
-    extractors?: string[] = [];
-    id?: string = 'any23-' + uuidv4().substring(0,4);
-    public constructor(init?: Partial<Any23DataFormat>) {
-        super('Any23DataFormat');
-        Object.assign(this, init);
-    }
-}
-
 export class AvroDataFormat extends CamelElement {
     dataFormatName?: string = 'avro';
     instanceClassName?: string;
@@ -2225,7 +2245,6 @@ export class CustomDataFormat extends CamelElement {
 
 export class DataFormatsDefinition extends CamelElement {
     stepName?: string = 'dataFormats';
-    any23?: Any23DataFormat | string;
     asn1?: ASN1DataFormat | string;
     avro?: AvroDataFormat | string;
     barcode?: BarcodeDataFormat;
@@ -2262,7 +2281,6 @@ export class DataFormatsDefinition extends CamelElement {
     univocityFixed?: UniVocityFixedDataFormat;
     univocityTsv?: UniVocityTsvDataFormat;
     xmlSecurity?: XMLSecurityDataFormat;
-    xstream?: XStreamDataFormat | string;
     yaml?: YAMLDataFormat;
     zipDeflater?: ZipDeflaterDataFormat;
     zipFile?: ZipFileDataFormat;
@@ -2467,10 +2485,8 @@ export class JsonDataFormat extends CamelElement {
     moduleRefs?: string;
     enableFeatures?: string;
     disableFeatures?: string;
-    permissions?: string;
     allowUnmarshallType?: boolean;
     timezone?: string;
-    dropRootNode?: boolean;
     schemaResolver?: string;
     autoDiscoverSchemaResolver?: boolean;
     namingStrategy?: string;
@@ -2526,6 +2542,17 @@ export class PGPDataFormat extends CamelElement {
     id?: string = 'pgp-' + uuidv4().substring(0,4);
     public constructor(init?: Partial<PGPDataFormat>) {
         super('PGPDataFormat');
+        Object.assign(this, init);
+    }
+}
+
+export class ParquetAvroDataFormat extends CamelElement {
+    dataFormatName?: string = 'parquetAvroDataFormat';
+    compressionCodecName?: string;
+    id?: string = 'parquetAvroDataFormat-' + uuidv4().substring(0,4);
+    unmarshalType?: string;
+    public constructor(init?: Partial<ParquetAvroDataFormat>) {
+        super('ParquetAvroDataFormat');
         Object.assign(this, init);
     }
 }
@@ -2755,25 +2782,6 @@ export class XMLSecurityDataFormat extends CamelElement {
     id?: string = 'xmlSecurity-' + uuidv4().substring(0,4);
     public constructor(init?: Partial<XMLSecurityDataFormat>) {
         super('XMLSecurityDataFormat');
-        Object.assign(this, init);
-    }
-}
-
-export class XStreamDataFormat extends CamelElement {
-    dataFormatName?: string = 'xstream';
-    permissions?: string;
-    encoding?: string;
-    driver?: string;
-    driverRef?: string;
-    mode?: string;
-    contentTypeHeader?: boolean;
-    converters?: PropertyDefinition[] = [];
-    aliases?: PropertyDefinition[] = [];
-    omitFields?: PropertyDefinition[] = [];
-    implicitCollections?: PropertyDefinition[] = [];
-    id?: string = 'xstream-' + uuidv4().substring(0,4);
-    public constructor(init?: Partial<XStreamDataFormat>) {
-        super('XStreamDataFormat');
         Object.assign(this, init);
     }
 }
@@ -3777,6 +3785,7 @@ export class CustomTransformerDefinition extends CamelElement {
     stepName?: string = 'customTransformer';
     className?: string;
     fromType?: string;
+    name?: string;
     ref?: string;
     scheme?: string;
     toType?: string;
@@ -3788,7 +3797,6 @@ export class CustomTransformerDefinition extends CamelElement {
 
 export class DataFormatTransformerDefinition extends CamelElement {
     stepName?: string = 'dataFormatTransformer';
-    any23?: Any23DataFormat | string;
     asn1?: ASN1DataFormat | string;
     avro?: AvroDataFormat | string;
     barcode?: BarcodeDataFormat;
@@ -3812,6 +3820,8 @@ export class DataFormatTransformerDefinition extends CamelElement {
     jsonApi?: JsonApiDataFormat;
     lzf?: LZFDataFormat;
     mimeMultipart?: MimeMultipartDataFormat;
+    name?: string;
+    parquetAvro?: ParquetAvroDataFormat | string;
     pgp?: PGPDataFormat;
     protobuf?: ProtobufDataFormat | string;
     rss?: RssDataFormat;
@@ -3828,7 +3838,6 @@ export class DataFormatTransformerDefinition extends CamelElement {
     univocityFixed?: UniVocityFixedDataFormat;
     univocityTsv?: UniVocityTsvDataFormat;
     xmlSecurity?: XMLSecurityDataFormat;
-    xstream?: XStreamDataFormat | string;
     yaml?: YAMLDataFormat;
     zipDeflater?: ZipDeflaterDataFormat;
     zipFile?: ZipFileDataFormat;
@@ -3841,6 +3850,7 @@ export class DataFormatTransformerDefinition extends CamelElement {
 export class EndpointTransformerDefinition extends CamelElement {
     stepName?: string = 'endpointTransformer';
     fromType?: string;
+    name?: string;
     ref?: string;
     scheme?: string;
     toType?: string;
@@ -3851,11 +3861,26 @@ export class EndpointTransformerDefinition extends CamelElement {
     }
 }
 
+export class LoadTransformerDefinition extends CamelElement {
+    stepName?: string = 'loadTransformer';
+    defaults?: boolean;
+    fromType?: string;
+    name?: string;
+    packageScan?: string;
+    scheme?: string;
+    toType?: string;
+    public constructor(init?: Partial<LoadTransformerDefinition>) {
+        super('LoadTransformerDefinition');
+        Object.assign(this, init);
+    }
+}
+
 export class TransformersDefinition extends CamelElement {
     stepName?: string = 'transformers';
     customTransformer?: CustomTransformerDefinition;
     dataFormatTransformer?: DataFormatTransformerDefinition;
     endpointTransformer?: EndpointTransformerDefinition;
+    loadTransformer?: LoadTransformerDefinition;
     public constructor(init?: Partial<TransformersDefinition>) {
         super('TransformersDefinition');
         Object.assign(this, init);

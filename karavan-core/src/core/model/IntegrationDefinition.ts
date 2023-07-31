@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 import { v4 as uuidv4 } from 'uuid';
-import { NamedBeanDefinition } from './CamelDefinition';
+import { RegistryBeanDefinition } from './CamelDefinition';
 
 export class Spec {
     flows?: any[] = [];
@@ -73,7 +73,7 @@ export class CamelElement {
 }
 
 export class Beans extends CamelElement {
-    beans: NamedBeanDefinition[] = [];
+    beans: RegistryBeanDefinition[] = [];
 
     public constructor(init?: Partial<Beans>) {
         super('Beans');

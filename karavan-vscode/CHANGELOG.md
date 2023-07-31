@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.0.0-RC2
+0. Camel 4.0.0-RC2
+1. Kamelets 4.0.0-RC1
+2. Spring Boot 3.1.2
+3. jkube 1.13.1
+4. Quarkus 3.2.2.Final
+
+
 ## 3.21.0
 0. Camel 3.21.0
 1. Kamelets 3.21.0

@@ -4,7 +4,7 @@
   "displayName": "Karavan",
   "icon": "icons/karavan.png",
   "description": "Integration Toolkit for Apache Camel",
-  "version": "3.21.1-SNAPSHOT",
+  "version": "4.0.0-RC2",
   "license": "Apache-2.0",
   "preview": false,
   "bugs": {
@@ -62,7 +62,7 @@
       "properties": {
         "camel.version": {
           "type": "string",
-          "default": "3.21.0",
+          "default": "4.0.0-RC2",
           "description": "Camel version",
           "scope": "machine",
           "order": 10
@@ -222,7 +222,7 @@
             "camel.karavan.project-description=$NAME",
             "camel.karavan.target=$TARGET",
             "camel.jbang.gav=$GAV",
-            "camel.jbang.quarkusVersion=2.16.7.Final",
+            "camel.jbang.quarkusVersion=3.2.2.Final",
             "camel.jbang.runtime=$RUNTIME",
             "camel.jbang.exportDir=.export"
           ],
@@ -244,8 +244,8 @@
             "camel.karavan.project-description=$NAME",
             "camel.karavan.target=$TARGET",
             "camel.jbang.gav=$GAV",
-            "camel.jbang.camelSpringBootVersion=3.21.0",
-            "camel.jbang.springBootVersion=2.7.13",
+            "camel.jbang.camelSpringBootVersion=4.0.0-RC2",
+            "camel.jbang.springBootVersion=3.1.2",
             "camel.jbang.runtime=$RUNTIME",
             "camel.jbang.exportDir=.export",
             "management.endpoints.web.exposure.include=health",
@@ -263,7 +263,7 @@
             "type": "string"
           },
           "default": [
-            "camel.jbang.quarkusVersion=2.16.7.Final",
+            "camel.jbang.quarkusVersion=3.2.2.Final",
             "camel.jbang.dependencies=camel:microprofile-health,mvn:io.quarkus:quarkus-openshift,mvn:io.quarkus:quarkus-container-image-jib",
             "# image build properties",
             "quarkus.container-image.build=true",
@@ -301,7 +301,7 @@
             "type": "string"
           },
           "default": [
-            "camel.jbang.quarkusVersion=2.16.7.Final",
+            "camel.jbang.quarkusVersion=3.2.2.Final",
             "camel.jbang.dependencies=camel:microprofile-health,mvn:io.quarkus:quarkus-container-image-jib,mvn:io.quarkus:quarkus-kubernetes",
             "# image build properties",
             "quarkus.container-image.build=true",

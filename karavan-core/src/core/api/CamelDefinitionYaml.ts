@@ -16,7 +16,7 @@
  */
 import * as yaml from 'js-yaml';
 import { Integration, CamelElement, Beans } from '../model/IntegrationDefinition';
-import { RouteDefinition, NamedBeanDefinition, RouteConfigurationDefinition } from '../model/CamelDefinition';
+import { RouteDefinition, RegistryBeanDefinition, RouteConfigurationDefinition } from '../model/CamelDefinition';
 import { CamelUtil } from './CamelUtil';
 import { CamelDefinitionYamlStep } from './CamelDefinitionYamlStep';
 
@@ -61,7 +61,7 @@ export class CamelDefinitionYaml {
             delete object.expressionName;
         } else if (object.dslName.endsWith('DataFormat')) {
             delete object.dataFormatName;
-        } else if (object.dslName === 'NamedBeanDefinition') {
+        } else if (object.dslName === 'RegistryBeanDefinition') {
             if (object.properties && Object.keys(object.properties).length === 0) {
                 delete object.properties;
             }
@@ -273,7 +273,7 @@ export class CamelDefinitionYaml {
                 }
             }
             bean.properties = props;
-            result.beans.push(new NamedBeanDefinition(bean));
+            result.beans.push(new RegistryBeanDefinition(bean));
         }
         return result;
     };

@@ -6,7 +6,7 @@
     <groupId>org.apache.camel.karavan</groupId>
     <artifactId>karavan-cli</artifactId>
     <name>karavan-cli</name>
-    <version>3.21.1-SNAPSHOT</version>
+    <version>4.0.0-RC2</version>
     <packaging>jar</packaging>
 
     <!-- Required to publish to the repo -->
@@ -19,8 +19,8 @@
     <properties>
         <compiler-plugin.version>3.10.1</compiler-plugin.version>
         <maven.compiler.parameters>true</maven.compiler.parameters>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

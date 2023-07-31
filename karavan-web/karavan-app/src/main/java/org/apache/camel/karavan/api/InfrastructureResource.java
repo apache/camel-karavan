@@ -126,9 +126,13 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment/{env}")
     public List<DeploymentStatus> getDeploymentStatusesByEnv(@PathParam("env") String env) throws Exception {
+        if (infinispanService.isReady()) {
         return infinispanService.getDeploymentStatuses(env).stream()
                 .sorted(Comparator.comparing(DeploymentStatus::getProjectId))
                 .collect(Collectors.toList());
+        } else {
+            return List.of();
+        }
     }
 
     @POST

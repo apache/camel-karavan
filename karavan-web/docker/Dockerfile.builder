@@ -1,6 +1,6 @@
 FROM jbangdev/jbang-action:0.110.0
 
-ENV CAMEL_VERSION=3.21.0
+ENV CAMEL_VERSION=4.0.0-RC2
 ENV MAVEN_SETTINGS="/karavan-config-map/maven-settings.xml"
 
 # Add Camel-JBang

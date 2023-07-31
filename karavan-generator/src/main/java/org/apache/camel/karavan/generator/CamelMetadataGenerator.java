@@ -105,12 +105,13 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
 
         classProps.clear();
         defsMap.forEach((s, o) -> {
-            String ref = ((Map) o).get("$ref").toString();
+            String ref = ((Map<?, ?>) o).get("$ref").toString();
             String name = classSimple(ref);
             JsonObject obj = getDefinition(definitions, ref);
             JsonObject props = obj.containsKey("oneOf") ? obj.getJsonArray("oneOf").getJsonObject(1).getJsonObject("properties") : obj.getJsonObject("properties");
             classProps.put(name, props);
         });
+
 
         // add additional classes
         getClasses(definitions, "org.apache.camel.model").forEach(s -> {
@@ -146,7 +147,16 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
     private String getMetadataCode(String className, Map<String, JsonObject> classProps, Map<String, String> stepNames, String folder) {
         StringBuilder code = new StringBuilder();
         code.append(String.format("export const %s: ElementMeta[] = [\n", className));
-        classProps.forEach((name, properties) -> {
+        classProps.entrySet().stream().filter(entry -> {
+            if (entry.getValue() == null) {
+                System.out.println(entry.getKey());
+                return false;
+            } else {
+                return true;
+            }
+        }).forEach(entry -> {
+            String name = entry.getKey();
+            JsonObject properties = entry.getValue();
             String stepName = stepNames.get(name);
             String json = folder.equals("model") ? getMetaModel(stepName) : (folder.equals("language") ? getMetaLanguage(stepName) : getMetaDataFormat(stepName));
             if (json != null) {
