@@ -69,7 +69,7 @@
         },
         "camel.runtimes": {
           "type": "string",
-          "default": "quarkus",
+          "default": "camel-main",
           "enum": [
             "camel-main",
             "quarkus",

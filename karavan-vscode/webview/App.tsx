@@ -195,7 +195,7 @@ class App extends React.Component<Props, State> {
             onSaveCustomCode={(name, code) => this.saveJavCode(name, code)}
             onGetCustomCode={(name, javaType) => {
                 let code = TemplateApi.getJavaCode(name);
-                if (code === undefined || code.length === 0) code = TemplateApi.generateCode(name, javaType);
+                if (code === undefined || code.length === 0) code = TemplateApi.generateCode(javaType, name);
                 return new Promise<string | undefined>(resolve => resolve(code))
             }}
             />
