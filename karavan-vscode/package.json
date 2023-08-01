@@ -71,6 +71,7 @@
           "type": "string",
           "default": "quarkus",
           "enum": [
+            "camel-main",
             "quarkus",
             "spring-boot"
           ],
@@ -194,6 +195,20 @@
           "scope": "machine",
           "order": 70
         },
+        "Karavan.camelmainOpenshiftDeploy": {
+          "type": "string",
+          "default": "mvn -Popenshift clean package oc:build oc:resource oc:apply",
+          "description": "Camel-main deploy command for Openshift",
+          "scope": "machine",
+          "order": 70
+        },
+        "Karavan.camelmainKubernetesDeploy": {
+          "type": "string",
+          "default": "eval $(minikube -p minikube docker-env) && mvn -Pkubernetes clean package k8s:build k8s:resource k8s:apply",
+          "description": "Camel-main deploy command for Kubernetes",
+          "scope": "machine",
+          "order": 70
+        },
         "Karavan.applicationGitignore": {
           "type": "array",
           "uniqueItems": true,
@@ -253,6 +268,31 @@
             "management.endpoint.health.show-details=always"
           ],
           "description": "Spring Boot application.properties template",
+          "scope": "machine",
+          "order": 91
+        },
+        "Karavan.camelmainApplicationProperties": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "camel.health.enabled=true",
+            "camel.health.exposure-level=full",
+            "camel.karavan.project-id=$NAME",
+            "camel.karavan.project-name=$NAME",
+            "camel.karavan.project-description=$NAME",
+            "camel.karavan.target=$TARGET",
+            "camel.jbang.gav=$GAV",
+            "camel.jbang.version=4.0.0-RC2",
+            "camel.jbang.runtime=$RUNTIME",
+            "camel.jbang.exportDir=.export",
+            "management.endpoints.web.exposure.include=health",
+            "management.health.probes.enabled=true",
+            "management.endpoint.health.show-details=always"
+          ],
+          "description": "Camel-main application.properties template",
           "scope": "machine",
           "order": 91
         },
@@ -345,6 +385,28 @@
           "scope": "machine",
           "order": 94
         },
+        "Karavan.camelmainOpenshiftProperties": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "camel.jbang.dependencies=camel:microprofile-health",
+            "# jkube properties",
+            "jkube.version=1.13.1",
+            "jkube.build.strategy=s2i",
+            "jkube.namespace=${NAMESPACE}",
+            "jkube.generator.name=image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/$NAME:${DATE}",
+            "jkube.imagePullPolicy=IfNotPresent",
+            "jkube.enricher.jkube-controller.type=Deployment",
+            "jkube.enricher.jkube-controller.replicaCount=1",
+            "jkube.enricher.jkube-service.port=80"
+          ],
+          "description": "application.properties template for camel-main on Kubernetes",
+          "scope": "machine",
+          "order": 94
+        },
         "Karavan.springbootKubernetesProperties": {
           "type": "array",
           "uniqueItems": true,
@@ -364,6 +426,28 @@
             "jkube.enricher.jkube-service.port=80"
           ],
           "description": "application.properties template for camel-springboot on Kubernetes",
+          "scope": "machine",
+          "order": 95
+        },
+        "Karavan.camelmainKubernetesProperties": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "camel.jbang.dependencies=camel:microprofile-health",
+            "# jkube properties",
+            "jkube.version=1.13.1",
+            "jkube.build.strategy=docker",
+            "jkube.namespace=default",
+            "jkube.generator.name=default/$NAME:${DATE}",
+            "jkube.imagePullPolicy=IfNotPresent",
+            "jkube.enricher.jkube-controller.type=Deployment",
+            "jkube.enricher.jkube-controller.replicaCount=1",
+            "jkube.enricher.jkube-service.port=80"
+          ],
+          "description": "application.properties template for camel-main on Kubernetes",
           "scope": "machine",
           "order": 95
         }
