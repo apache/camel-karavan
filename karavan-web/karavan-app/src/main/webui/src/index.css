@@ -1,5 +1,3 @@
-
-
 #root {
   margin: 0;
   height: 100%;
@@ -93,10 +91,20 @@
   font-size: 14px;
 }
 
+.karavan .projects-page .pf-c-table tr {
+  --pf-c-table--cell--FontSize: 14px;
+}
+
+.karavan .projects-page .icon-td {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 .karavan .projects-page .icon {
-  height: 16px;
-  width: 16px;
-  margin: auto;
+  height: 21px;
+  width: 21px;
+  margin-top: 8px;
+  position: absolute;
 }
 
 .karavan .project-page .badge,
@@ -104,6 +112,7 @@
   font-size: 14px;
   font-weight: 400;
   padding: 4px 8px 4px 8px;
+  min-width: 70px;
 }
 
 .karavan .projects-page .runtime-badge {
@@ -369,10 +378,6 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-}
-
-.new-project .radio {
-  margin-right: 16px;
 }
 
 .new-project .pf-c-radio__body {

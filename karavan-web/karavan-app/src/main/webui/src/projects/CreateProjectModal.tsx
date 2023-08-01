@@ -2,14 +2,14 @@ import React, {useState} from 'react';
 import {
     Button, Form, FormGroup,
     Modal,
-    ModalVariant, Radio, TextInput,
+    ModalVariant, Radio, TextInput, ToggleGroup, ToggleGroupItem,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {useAppConfigStore, useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {Project} from "../api/ProjectModels";
-import {QuarkusIcon, SpringIcon} from "../designer/utils/KaravanIcons";
+import {QuarkusIcon, SpringIcon, CamelIcon} from "../designer/utils/KaravanIcons";
 import {CamelUi} from "../designer/utils/CamelUi";
 
 
@@ -18,35 +18,48 @@ export const CreateProjectModal = () => {
     const {project, operation} = useProjectStore();
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
-    const [runtime, setRuntime] = useState('');
     const [projectId, setProjectId] = useState('');
     const {config} = useAppConfigStore();
+    const [runtime, setRuntime] = useState(config.runtime);
 
-    function cleanValues()  {
+    function cleanValues() {
         setName("");
         setDescription("");
-        setRuntime("");
+        setRuntime(config.runtime);
         setProjectId("");
     }
 
-    function closeModal () {
+    function closeModal() {
         useProjectStore.setState({operation: "none"});
         cleanValues();
     }
 
-    function confirmAndCloseModal () {
+    function confirmAndCloseModal() {
         ProjectService.createProject(new Project({name: name, description: description, runtime: runtime, projectId: projectId}));
         useProjectStore.setState({operation: "none"});
         cleanValues();
     }
 
-    function onKeyDown (event: React.KeyboardEvent<HTMLDivElement>): void {
+    function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>): void {
         if (event.key === 'Enter' && name !== undefined && description !== undefined && projectId !== undefined) {
             confirmAndCloseModal();
         }
     }
 
+    function getIcon(runtime: string) {
+        if (runtime === 'quarkus') return QuarkusIcon();
+        else if (runtime === 'spring-boot') return SpringIcon();
+        else if (runtime === 'camel-main') return CamelIcon();
+    }
+
+    function getTitle(runtime: string) {
+        if (runtime === 'quarkus') return "Quarkus";
+        else if (runtime === 'spring-boot') return "Spring";
+        else if (runtime === 'camel-main') return "Camel";
+    }
+
     const runtimes = config.runtimes;
+    const defaultRuntime = config.runtime;
     const isReady = projectId && name && description && !['templates', 'kamelets'].includes(projectId);
     return (
         <Modal
@@ -80,19 +93,19 @@ export const CreateProjectModal = () => {
                                onChange={e => setProjectId(CamelUi.nameFromTitle(e))}/>
                 </FormGroup>
                 <FormGroup label="Runtime" fieldId="runtime" isRequired>
-                    {runtimes?.map((r: string) => (
-                        <Radio key={r} id={r} name={r} className="radio" aria-label="runtime"
-                               isChecked={r === runtime}
-                               onChange={checked => {
-                                   if (checked) setRuntime(r)
-                               }}
-                               body={
-                                   <div className="runtime-radio">
-                                       {r === 'quarkus' ? QuarkusIcon() : SpringIcon()}
-                                       <div className="runtime-label">{CamelUtil.capitalizeName(r)}</div>
-                                   </div>}
-                        />
-                    ))}
+                    <ToggleGroup>
+                        {runtimes?.map((r: string) => (
+                            <ToggleGroupItem key={r} id={r} name={r}
+                                             aria-label="runtime"
+                                             isSelected={r === runtime}
+                                             text={getTitle(r)}
+                                             icon={getIcon(r)}
+                                             onChange={checked => {
+                                                 if (checked) setRuntime(r)
+                                             }}
+                            />
+                        ))}
+                    </ToggleGroup>
                 </FormGroup>
             </Form>
         </Modal>

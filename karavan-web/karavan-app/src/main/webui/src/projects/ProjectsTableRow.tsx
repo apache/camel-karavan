@@ -9,7 +9,7 @@ import '../designer/karavan.css';
 import { Td, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";
-import {DeploymentStatus, Project} from '../api/ProjectModels';
+import {Project} from '../api/ProjectModels';
 import {
     useAppConfigStore,
     useLogStore,
@@ -17,8 +17,7 @@ import {
 } from "../api/ProjectStore";
 import {ProjectEventBus} from "../api/ProjectEventBus";
 import {shallow} from "zustand/shallow";
-import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
+import {CamelIcon, QuarkusIcon, SpringIcon} from "../designer/utils/KaravanIcons";
 
 interface Props {
     project: Project
@@ -45,15 +44,20 @@ export const ProjectsTableRow = (props: Props) => {
         });
     }
 
+    function getIcon(runtime: string) {
+        if (runtime === 'quarkus') return QuarkusIcon();
+        else if (runtime === 'spring-boot') return SpringIcon();
+        else if (runtime === 'camel-main') return CamelIcon();
+    }
+
     const project = props.project;
     const isBuildIn = ['kamelets', 'templates'].includes(project.projectId);
     const badge = isBuildIn ? project.projectId.toUpperCase().charAt(0) : project.runtime.substring(0, 1).toUpperCase();
+    const commit = project.lastCommit ? project.lastCommit?.substr(0, 7) : "...";
     return (
         <Tr key={project.projectId}>
-            <Td modifier={"fitContent"}>
-                <Tooltip content={project.runtime} position={"left"}>
-                    <Badge isRead={isBuildIn} className="runtime-badge">{badge}</Badge>
-                </Tooltip>
+            <Td className="icon-td">
+                {getIcon(project.runtime)}
             </Td>
             <Td>
                 <Button style={{padding: '6px'}} variant={"link"} onClick={e => {
@@ -68,7 +72,7 @@ export const ProjectsTableRow = (props: Props) => {
             <Td>{project.description}</Td>
             <Td isActionCell>
                 <Tooltip content={project.lastCommit} position={"bottom"}>
-                    <Badge className="badge">{project.lastCommit?.substr(0, 7)}</Badge>
+                    <Badge className="badge">{commit}</Badge>
                 </Tooltip>
             </Td>
             <Td noPadding style={{width: "180px"}}>

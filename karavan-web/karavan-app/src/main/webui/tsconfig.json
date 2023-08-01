@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "module": "esnext",
+    "target": "ES2022",
+    "module": "ES2022",
     "outDir": "out",
     "sourceMap": true,
     "lib": [
       "dom",
       "dom.iterable",
-      "esnext"
+      "esnext",
+      "ES2021",
+      "ES2021.String"
     ],
     "allowJs": true,
     "skipLibCheck": true,
@@ -24,5 +26,9 @@
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/test/*"
   ]
 }

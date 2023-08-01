@@ -22,6 +22,7 @@ import io.apicurio.datamodels.Library;
 import io.apicurio.datamodels.openapi.models.OasDocument;
 import io.quarkus.qute.Engine;
 import io.quarkus.qute.Template;
+import io.quarkus.qute.TemplateInstance;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.CamelContext;
@@ -34,6 +35,7 @@ import org.apache.camel.karavan.infinispan.model.GitRepoFile;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.shared.ConfigService;
 import org.jboss.logging.Logger;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -63,8 +65,8 @@ public class CodeService {
     @Inject
     Engine engine;
 
-    List<String> runtimes = List.of("quarkus", "spring-boot");
-    List<String> targets = List.of("openshift", "kubernetes");
+    List<String> runtimes = List.of("quarkus", "spring-boot", "camel-main");
+    List<String> targets = List.of("openshift", "kubernetes", "docker");
     List<String> interfaces = List.of("org.apache.camel.AggregationStrategy.java", "org.apache.camel.Processor.java");
 
     public static final Map<String, String> DEFAULT_CONTAINER_RESOURCES = Map.of(
@@ -75,16 +77,21 @@ public class CodeService {
     );
 
     public ProjectFile getApplicationProperties(Project project) {
-        String target = kubernetesService.isOpenshift() ? "openshift" : "kubernetes";
+        String target = "docker";
+        if (ConfigService.inKubernetes()) {
+            target = kubernetesService.isOpenshift() ? "openshift" : "kubernetes";
+        }
         String templateName = project.getRuntime() + "-" + target + "-" + APPLICATION_PROPERTIES_FILENAME;
         String templateText = getTemplateText(templateName);
         Template result = engine.parse(templateText);
-        String code =  result
+        TemplateInstance instance = result
                 .data("projectId", project.getProjectId())
                 .data("projectName", project.getName())
-                .data("projectDescription", project.getDescription())
-                .data("namespace", kubernetesService.getNamespace())
-                .render();
+                .data("projectDescription", project.getDescription());
+        if (ConfigService.inKubernetes()) {
+            instance.data("namespace", kubernetesService.getNamespace());
+        }
+        String code =  result.render();
         return new ProjectFile(APPLICATION_PROPERTIES_FILENAME, code, project.getProjectId(), Instant.now().toEpochMilli());
     }
 

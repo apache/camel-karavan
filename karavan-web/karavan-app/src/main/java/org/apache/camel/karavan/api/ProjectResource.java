@@ -69,7 +69,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Project save(Project project) throws Exception {
-        boolean isNew = infinispanService.getProject(project.getProjectId()) != null;
+        boolean isNew = infinispanService.getProject(project.getProjectId()) == null;
         infinispanService.saveProject(project);
         if (isNew){
             ProjectFile appProp = codeService.getApplicationProperties(project);
@@ -83,7 +83,7 @@ public class ProjectResource {
     @Path("/{project}")
     public void delete(@HeaderParam("username") String username,
                           @PathParam("project") String project) throws Exception {
-        String projectId = URLDecoder.decode(project, StandardCharsets.UTF_8.toString());
+        String projectId = URLDecoder.decode(project, StandardCharsets.UTF_8);
         gitService.deleteProject(projectId, infinispanService.getProjectFiles(projectId));
         infinispanService.getProjectFiles(projectId).forEach(file -> infinispanService.deleteProjectFile(projectId, file.getName()));
         infinispanService.deleteProject(projectId);
