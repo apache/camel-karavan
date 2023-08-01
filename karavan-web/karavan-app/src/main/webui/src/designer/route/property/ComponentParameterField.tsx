@@ -139,7 +139,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
         const internalUris = CamelUi.getInternalRouteUris(this.props.integration, componentName, false);
         const uris: string [] = [];
         uris.push(...internalUris);
-        if (value.length > 0 && !uris.includes(value)) {
+        if (value && value.length > 0 && !uris.includes(value)) {
             uris.unshift(value);
         }
         if (uris && uris.length > 0) {
