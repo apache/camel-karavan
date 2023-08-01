@@ -3,14 +3,13 @@ package org.apache.camel.karavan.infinispan;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.vertx.ConsumeEvent;
+import jakarta.inject.Inject;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
-import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
