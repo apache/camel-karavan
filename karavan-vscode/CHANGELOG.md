@@ -6,7 +6,7 @@
 2. Kamelets 4.0.0-RC1
 3. Spring Boot 3.1.2
 4. jkube 1.13.1
-5. Quarkus 3.2.2.Final
+5. Quarkus 3.2.3.Final
 
 
 ## 3.21.0

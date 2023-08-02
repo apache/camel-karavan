@@ -204,7 +204,7 @@
         },
         "Karavan.camelmainKubernetesDeploy": {
           "type": "string",
-          "default": "eval $(minikube -p minikube docker-env) && mvn -Pkubernetes clean package k8s:build k8s:resource k8s:apply",
+          "default": "eval $(minikube -p minikube docker-env) && mvn clean package jib:dockerBuild k8s:resource k8s:apply ",
           "description": "Camel-main deploy command for Kubernetes",
           "scope": "machine",
           "order": 70
@@ -237,7 +237,7 @@
             "camel.karavan.project-description=$NAME",
             "camel.karavan.target=$TARGET",
             "camel.jbang.gav=$GAV",
-            "camel.jbang.quarkusVersion=3.2.2.Final",
+            "camel.jbang.quarkusVersion=3.2.3.Final",
             "camel.jbang.runtime=$RUNTIME",
             "camel.jbang.exportDir=.export"
           ],
@@ -287,7 +287,10 @@
             "camel.jbang.runtime=$RUNTIME",
             "camel.jbang.exportDir=.export",
             "camel.health.enabled=true",
-            "camel.health.exposure-level=full"
+            "camel.health.exposure-level=full",
+            "camel.server.enabled=true",
+            "camel.server.healthCheckEnabled=true",
+            "camel.server.devConsoleEnabled=true"
           ],
           "description": "Camel-main application.properties template",
           "scope": "machine",
@@ -300,7 +303,6 @@
             "type": "string"
           },
           "default": [
-            "camel.jbang.quarkusVersion=3.2.2.Final",
             "camel.jbang.dependencies=camel:microprofile-health,mvn:io.quarkus:quarkus-openshift,mvn:io.quarkus:quarkus-container-image-jib",
             "# image build properties",
             "quarkus.container-image.build=true",
@@ -310,6 +312,7 @@
             "quarkus.container-image.builder=openshift",
             "# for jib build uncomment and set pproperties",
             "#quarkus.container-image.builder=jib",
+            "#quarkus.jib.base-jvm-image=registry.access.redhat.com/ubi8/openjdk-17-runtime:1.16",
             "#quarkus.container-image.insecure=true",
             "#quarkus.container-image.registry=",
             "#quarkus.container-image.username=",
@@ -338,13 +341,13 @@
             "type": "string"
           },
           "default": [
-            "camel.jbang.quarkusVersion=3.2.2.Final",
             "camel.jbang.dependencies=camel:microprofile-health,mvn:io.quarkus:quarkus-container-image-jib,mvn:io.quarkus:quarkus-kubernetes",
             "# image build properties",
             "quarkus.container-image.build=true",
             "quarkus.container-image.group=default",
             "quarkus.container-image.name=$NAME",
             "quarkus.container-image.builder=jib",
+            "quarkus.jib.base-jvm-image=registry.access.redhat.com/ubi8/openjdk-17-runtime:1.16",
             "quarkus.container-image.insecure=true",
             "quarkus.container-image.tag=${DATE}",
             "# deployment properties",
@@ -367,7 +370,6 @@
             "type": "string"
           },
           "default": [
-            "camel.jbang.dependencies=camel:microprofile-health",
             "# jkube properties",
             "jkube.version=1.13.1",
             "jkube.build.strategy=s2i",
@@ -410,7 +412,6 @@
             "type": "string"
           },
           "default": [
-            "camel.jbang.dependencies=camel:microprofile-health",
             "# jkube properties",
             "jkube.version=1.13.1",
             "jkube.build.strategy=docker",
@@ -432,16 +433,22 @@
             "type": "string"
           },
           "default": [
-            "camel.jbang.dependencies=camel:microprofile-health",
-            "# jkube properties",
+            "# kubernetes properties",
+            "label.runtime=app.kubernetes.io/runtime",
+            "jib.from.image=gcr.io/distroless/java17@sha256:3a4ea21bd7b412b8b6ae61313b39337d8f03bb6844013810e8e4625d8c765edb",
+            "jib.to.image=default/$NAME:${DATE}",
             "jkube.version=1.13.1",
-            "jkube.build.strategy=docker",
+            "jkube.skip.build=true",
+            "jkube.build.strategy=jib",
             "jkube.namespace=default",
-            "jkube.generator.name=default/$NAME:${DATE}",
+            "jkube.generator.name=${jib.to.image}",
             "jkube.imagePullPolicy=IfNotPresent",
             "jkube.enricher.jkube-controller.type=Deployment",
             "jkube.enricher.jkube-controller.replicaCount=1",
-            "jkube.enricher.jkube-service.port=80"
+            "jkube.enricher.jkube-service.port=80",
+            "jkube.enricher.jkube-project-label.group=karavan",
+            "jkube.enricher.jkube-project-label.provider=karavan",
+            "jkube.recreate=true"
           ],
           "description": "application.properties template for camel-main on Kubernetes",
           "scope": "machine",
