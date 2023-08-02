@@ -1,7 +1,9 @@
 import org.apache.camel.AggregationStrategy;
+import org.apache.camel.Configuration;
 import org.apache.camel.BindToRegistry;
 import org.apache.camel.Exchange;
 
+@Configuration
 @BindToRegistry("NAME")
 public class NAME implements AggregationStrategy {
     @Override

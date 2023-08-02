@@ -278,8 +278,6 @@
             "type": "string"
           },
           "default": [
-            "camel.health.enabled=true",
-            "camel.health.exposure-level=full",
             "camel.karavan.project-id=$NAME",
             "camel.karavan.project-name=$NAME",
             "camel.karavan.project-description=$NAME",
@@ -288,9 +286,8 @@
             "camel.jbang.version=4.0.0-RC2",
             "camel.jbang.runtime=$RUNTIME",
             "camel.jbang.exportDir=.export",
-            "management.endpoints.web.exposure.include=health",
-            "management.health.probes.enabled=true",
-            "management.endpoint.health.show-details=always"
+            "camel.health.enabled=true",
+            "camel.health.exposure-level=full"
           ],
           "description": "Camel-main application.properties template",
           "scope": "machine",
@@ -392,7 +389,6 @@
             "type": "string"
           },
           "default": [
-            "camel.jbang.dependencies=camel:microprofile-health",
             "# jkube properties",
             "jkube.version=1.13.1",
             "jkube.build.strategy=s2i",

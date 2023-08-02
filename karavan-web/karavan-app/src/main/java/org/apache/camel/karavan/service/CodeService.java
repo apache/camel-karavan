@@ -91,7 +91,7 @@ public class CodeService {
         if (ConfigService.inKubernetes()) {
             instance.data("namespace", kubernetesService.getNamespace());
         }
-        String code =  result.render();
+        String code =  instance.render();
         return new ProjectFile(APPLICATION_PROPERTIES_FILENAME, code, project.getProjectId(), Instant.now().toEpochMilli());
     }
 
