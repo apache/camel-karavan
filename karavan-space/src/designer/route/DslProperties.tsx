@@ -31,7 +31,6 @@ import {
 } from "karavan-core/lib/model/CamelDefinition";
 import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelUi, RouteToCreate} from "../utils/CamelUi";
 import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";

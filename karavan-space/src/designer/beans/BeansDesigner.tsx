@@ -19,7 +19,7 @@ import {
     Button, Drawer, DrawerContent, DrawerContentBody, DrawerPanelContent, Modal, PageSection
 } from '@patternfly/react-core';
 import '../karavan.css';
-import {NamedBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUi} from "../utils/CamelUi";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
@@ -37,7 +37,7 @@ interface Props {
 interface State {
     integration: Integration
     showDeleteConfirmation: boolean
-    selectedBean?: NamedBeanDefinition
+    selectedBean?: RegistryBeanDefinition
     key: string
     propertyOnly: boolean
 }
@@ -57,7 +57,7 @@ export class BeansDesigner extends React.Component<Props, State> {
         }
     }
 
-    showDeleteConfirmation = (bean: NamedBeanDefinition) => {
+    showDeleteConfirmation = (bean: RegistryBeanDefinition) => {
         this.setState({selectedBean: bean, showDeleteConfirmation: true});
     }
 
@@ -71,12 +71,12 @@ export class BeansDesigner extends React.Component<Props, State> {
             integration: i,
             showDeleteConfirmation: false,
             key: Math.random().toString(),
-            selectedBean: new NamedBeanDefinition(),
+            selectedBean: new RegistryBeanDefinition(),
             propertyOnly: false
         });
     }
 
-    changeBean = (bean: NamedBeanDefinition) => {
+    changeBean = (bean: RegistryBeanDefinition) => {
         const clone = CamelUtil.cloneIntegration(this.state.integration);
         const i = CamelDefinitionApiExt.addBeanToIntegration(clone, bean);
         this.setState({integration: i, propertyOnly: false, key: Math.random().toString(), selectedBean: bean});
@@ -100,7 +100,7 @@ export class BeansDesigner extends React.Component<Props, State> {
         </Modal>)
     }
 
-    selectBean = (bean?: NamedBeanDefinition) => {
+    selectBean = (bean?: RegistryBeanDefinition) => {
         this.setState({selectedBean: bean})
     }
 
@@ -112,7 +112,7 @@ export class BeansDesigner extends React.Component<Props, State> {
     };
 
     createBean = () => {
-        this.changeBean(new NamedBeanDefinition());
+        this.changeBean(new RegistryBeanDefinition());
     }
 
     getPropertiesPanel() {

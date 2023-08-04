@@ -29,6 +29,7 @@ import {toPng} from 'html-to-image';
 import {RouteDesigner, RouteDesignerState} from "./RouteDesigner";
 import {findDOMNode} from "react-dom";
 import {Subscription} from "rxjs";
+import debounce from 'lodash.debounce';
 
 export class RouteDesignerLogic {
 
@@ -143,7 +144,7 @@ export class RouteDesignerLogic {
         }
     }
 
-    onPropertyUpdate = (element: CamelElement, newRoute?: RouteToCreate) => {
+    onPropertyUpdate = debounce((element: CamelElement, newRoute?: RouteToCreate) => {
         if (newRoute) {
             let i = CamelDefinitionApiExt.updateIntegrationRouteElement(this.routeDesigner.state.integration, element);
             const f = CamelDefinitionApi.createFromDefinition({uri: newRoute.componentName + ":" + newRoute.name})
@@ -163,7 +164,7 @@ export class RouteDesignerLogic {
             const i = CamelDefinitionApiExt.updateIntegrationRouteElement(clone, element);
             this.routeDesigner.setState({integration: i, propertyOnly: true, key: Math.random().toString()});
         }
-    }
+    }, 300, {leading: true})
 
     showDeleteConfirmation = (id: string) => {
         let message: string;

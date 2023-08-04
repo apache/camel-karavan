@@ -19,7 +19,7 @@ import {
     CardHeader, Card, CardTitle, CardBody, CardFooter, Badge
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {camelIcon, CamelUi} from "../../designer/utils/CamelUi";
+import {CamelUi} from "../../designer/utils/CamelUi";
 import {Component} from "karavan-core/lib/model/ComponentModels";
 
 interface Props {
@@ -45,7 +45,7 @@ export class ComponentCard extends React.Component<Props, State> {
     render() {
         const component = this.state.component;
         return (
-            <Card isHoverable isCompact key={component.component.name} className="kamelet-card"
+            <Card isCompact key={component.component.name} className="kamelet-card"
                 onClick={event => this.click(event)}
             >
                 <CardHeader className="header-labels">
@@ -53,7 +53,7 @@ export class ComponentCard extends React.Component<Props, State> {
                     <Badge isRead className="support-level labels">{component.component.supportLevel}</Badge>
                 </CardHeader>
                 <CardHeader>
-                    {CamelUi.getIconFromSource(camelIcon)}
+                    {CamelUi.getIconForComponent(component.component.title, component.component.label)}
                     <CardTitle>{component.component.title}</CardTitle>
                 </CardHeader>
                 <CardBody>{component.component.description}</CardBody>

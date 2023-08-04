@@ -29,8 +29,65 @@ import {
     ToDefinition
 } from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
-import {AggregateIcon, ChoiceIcon, FilterIcon, Intercept, InterceptFrom, InterceptSendToEndpoint, OnCompletion, SagaIcon, SortIcon, SplitIcon} from "./KaravanIcons";
+import {
+    AggregateIcon,
+    ApiIcon,
+    AwsIcon,
+    AzureIcon,
+    BlockchainIcon,
+    ChatIcon,
+    ChoiceIcon,
+    CloudIcon,
+    ClusterIcon,
+    DatabaseIcon,
+    DebeziumIcon,
+    DocumentIcon,
+    FileIcon,
+    FilterIcon,
+    GithubIcon,
+    GitIcon,
+    GoogleCloudIcon,
+    GrapeIcon,
+    HazelcastIcon,
+    HealthIcon,
+    HttpIcon,
+    IgniteIcon,
+    InfinispanIcon,
+    Intercept,
+    InterceptFrom,
+    InterceptSendToEndpoint,
+    IotIcon,
+    KubernetesIcon,
+    MachineLearningIcon,
+    MailIcon,
+    MessagingIcon,
+    MobileIcon,
+    MonitoringIcon,
+    NetworkingIcon,
+    OnCompletion,
+    OpenshiftIcon,
+    OpenstackIcon,
+    RedisIcon,
+    RefIcon,
+    RpcIcon,
+    SagaIcon,
+    SapIcon,
+    SchedulingIcon,
+    ScriptIcon,
+    SearchIcon,
+    SocialIcon,
+    SortIcon,
+    SplitIcon,
+    SpringIcon,
+    TerminalIcon,
+    TestingIcon,
+    TransformationIcon,
+    ValidationIcon,
+    WebserviceIcon,
+    WorkflowIcon
+} from "./KaravanIcons";
 import React from "react";
+import {Icon} from "@patternfly/react-core";
 
 const StepElements: string[] = [
     "AggregateDefinition",
@@ -426,7 +483,7 @@ export class CamelUi {
             case "SagaDefinition":
                 return "data:image/svg+xml,%0A%3Csvg width='32px' height='32px' viewBox='0 0 32 32' id='icon' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:none;%7D%3C/style%3E%3C/defs%3E%3Ctitle%3Eexpand-categories%3C/title%3E%3Crect x='20' y='26' width='6' height='2'/%3E%3Crect x='20' y='18' width='8' height='2'/%3E%3Crect x='20' y='10' width='10' height='2'/%3E%3Crect x='15' y='4' width='2' height='24'/%3E%3Cpolygon points='10.586 3.959 7 7.249 3.412 3.958 2 5.373 7 10 12 5.373 10.586 3.959'/%3E%3Crect id='_Transparent_Rectangle_' data-name='&lt;Transparent Rectangle&gt;' class='cls-1' width='32' height='32'/%3E%3C/svg%3E";
             case "FromDefinition":
-                return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24px' height='24px' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M12.6577283,22.7532553 L12,23.3275712 L11.3422717,22.7532553 C5.81130786,17.9237218 3,13.70676 3,10 C3,4.7506636 7.09705254,1 12,1 C16.9029475,1 21,4.7506636 21,10 C21,13.70676 18.1886921,17.9237218 12.6577283,22.7532553 Z M5,10 C5,12.8492324 7.30661202,16.4335466 12,20.6634039 C16.693388,16.4335466 19,12.8492324 19,10 C19,5.8966022 15.8358849,3 12,3 C8.16411512,3 5,5.8966022 5,10 Z M13.5857864,11 L7,11 L7,9 L13.5857864,9 L11.2928932,6.70710678 L12.7071068,5.29289322 L17.4142136,10 L12.7071068,14.7071068 L11.2928932,13.2928932 L13.5857864,11 Z'/%3E%3C/svg%3E";
+                return "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IS0tIFVwbG9hZGVkIHRvOiBTVkcgUmVwbywgd3d3LnN2Z3JlcG8uY29tLCBHZW5lcmF0b3I6IFNWRyBSZXBvIE1peGVyIFRvb2xzIC0tPg0KPHN2ZyB3aWR0aD0iODAwcHgiIGhlaWdodD0iODAwcHgiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4NCjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMTIgMy4yNUMxMi40MTQyIDMuMjUgMTIuNzUgMy41ODU3OSAxMi43NSA0TDEyLjc1IDE4LjE4OTNMMTcuNDY5NyAxMy40Njk3QzE3Ljc2MjYgMTMuMTc2OCAxOC4yMzc0IDEzLjE3NjggMTguNTMwMyAxMy40Njk3QzE4LjgyMzIgMTMuNzYyNiAxOC44MjMyIDE0LjIzNzQgMTguNTMwMyAxNC41MzAzTDEyLjUzMDMgMjAuNTMwM0MxMi4zODk3IDIwLjY3MSAxMi4xOTg5IDIwLjc1IDEyIDIwLjc1QzExLjgwMTEgMjAuNzUgMTEuNjEwMyAyMC42NzEgMTEuNDY5NyAyMC41MzAzTDUuNDY5NjcgMTQuNTMwM0M1LjE3Njc4IDE0LjIzNzQgNS4xNzY3OCAxMy43NjI2IDUuNDY5NjcgMTMuNDY5N0M1Ljc2MjU2IDEzLjE3NjggNi4yMzc0NCAxMy4xNzY4IDYuNTMwMzMgMTMuNDY5N0wxMS4yNSAxOC4xODkzTDExLjI1IDRDMTEuMjUgMy41ODU3OSAxMS41ODU4IDMuMjUgMTIgMy4yNVoiIGZpbGw9IiMxQzI3NEMiLz4NCjwvc3ZnPg==";
             case "ToDefinition":
                 return "data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E.cls-1 %7B fill: none; %7D%3C/style%3E%3C/defs%3E%3Cg class='layer'%3E%3Ctitle%3ELayer 1%3C/title%3E%3Cpath d='m24.08924,9.30736l-1.67194,1.57734l4.23986,3.99986l-5.47865,0a5.92883,5.59337 0 0 0 -4.60981,-4.34899l0,-10.15173l-2.36467,0l0,10.15173a5.91168,5.5772 0 0 0 0,10.92886l0,10.15173l2.36467,0l0,-10.15173a5.92883,5.59337 0 0 0 4.60981,-4.34899l5.47865,0l-4.23986,3.99986l1.67194,1.57734l7.09402,-6.69264l-7.09402,-6.69264zm-8.70288,10.03896a3.54701,3.34632 0 1 1 3.54701,-3.34632a3.55091,3.35 0 0 1 -3.54701,3.34632z' id='svg_1'/%3E%3Crect class='cls-1' data-name='&lt;Transparent Rectangle&gt;' height='32' id='_Transparent_Rectangle_' width='31.91342' x='0' y='0'/%3E%3C/g%3E%3C/svg%3E";
             case "SwitchDefinition":
@@ -479,18 +536,147 @@ export class CamelUi {
             && dsl.uri?.startsWith("kamelet")) {
             return this.getIconFromSource(CamelUi.getKameletIconByUri(dsl.uri));
         } else if (dsl.navigation === 'component' ){
-            return this.getIconFromSource(camelIcon);
+            return CamelUi.getIconForComponent(dsl.title, dsl.labels);
         } else {
             return CamelUi.getIconForDslName(dsl.dsl);
         }
     }
 
+    static getIconForComponent = (title: string, label: string):JSX.Element => {
+        const labels = label.split(",");
+        if (title === "Ref") {
+            return RefIcon();
+        } else if (title === "Exec") {
+            return TerminalIcon();
+        } else if (title === "Grape") {
+            return GrapeIcon();
+        } else if (title.startsWith("Google")) {
+            return GoogleCloudIcon();
+        } else if (title.startsWith("Spring")) {
+            return SpringIcon();
+        } else if (title.startsWith("Kubernetes")) {
+            return KubernetesIcon();
+        } else if (title.startsWith("SAP")) {
+            return SapIcon();
+        } else if (title.toLowerCase().startsWith("openstack")) {
+            return OpenstackIcon();
+        } else if (title.toLowerCase().startsWith("openshift")) {
+            return OpenshiftIcon();
+        } else if (title.includes("Redis")) {
+            return RedisIcon();
+        } else if (title.startsWith("Azure")) {
+            return AzureIcon();
+        } else if (title.startsWith("AWS")) {
+            return AwsIcon();
+        } else if (title.startsWith("Debezium")) {
+            return DebeziumIcon();
+        } else if (title.startsWith("Infinispan")) {
+            return InfinispanIcon();
+        } else if (title.startsWith("Ignite")) {
+            return IgniteIcon();
+        } else if (title.startsWith("GitHub")) {
+            return GithubIcon();
+        } else if (title.startsWith("Git")) {
+            return GitIcon();
+        } else if (title.startsWith("Hazelcast")) {
+            return HazelcastIcon();
+        } else if (title.startsWith("FHIR") || title.startsWith("MLLP")) {
+            return HealthIcon();
+        } else if (labels.includes('transformation')) {
+            return TransformationIcon();
+        } else if (labels.includes("validation")){
+            return ValidationIcon();
+        } else if (labels.includes("scheduling")){
+            return SchedulingIcon();
+        } else if (labels.includes("database")){
+            return DatabaseIcon();
+        } else if (labels.includes("cloud")){
+            return CloudIcon();
+        } else if (labels.includes("chat")){
+            return ChatIcon();
+        } else if (labels.includes("messaging")){
+            return MessagingIcon();
+        } else if (labels.includes("script")){
+            return ScriptIcon();
+        } else if (labels.includes("file")){
+            return FileIcon();
+        } else if (labels.includes("monitoring")){
+            return MonitoringIcon();
+        } else if (labels.includes("iot")){
+            return IotIcon();
+        } else if (labels.includes("mail")){
+            return MailIcon();
+        } else if (labels.includes("http")){
+            return HttpIcon();
+        } else if (labels.includes("document")){
+            return DocumentIcon();
+        } else if (labels.includes("social")){
+            return SocialIcon();
+        } else if (labels.includes("networking")){
+            return NetworkingIcon();
+        } else if (labels.includes("api")){
+            return ApiIcon();
+        } else if (labels.includes("testing")){
+            return TestingIcon();
+        } else if (labels.includes("clustering")){
+            return ClusterIcon();
+        } else if (labels.includes("mobile")){
+            return MobileIcon();
+        } else if (labels.includes("workflow")){
+            return WorkflowIcon();
+        } else if (labels.includes("webservice") || labels.includes("rest")){
+            return WebserviceIcon();
+        } else if (labels.includes("search")){
+            return SearchIcon();
+        } else if (labels.includes("blockchain")){
+            return BlockchainIcon();
+        } else if (labels.includes("ai")){
+            return MachineLearningIcon();
+        } else if (labels.includes("rpc")){
+            return RpcIcon();
+        } else {
+            return this.getIconFromSource(camelIcon);
+        }
+    }
+
+    static isElementInternalComponent = (element: CamelElement):boolean => {
+        const uri = (element as any).uri;
+        const component = ComponentApi.findByName(uri);
+        return component !== undefined && CamelUi.isComponentInternal(component.component.label);
+    }
+
+    static isComponentInternal = (label: string):boolean => {
+        const labels = label.split(",");
+        if (labels.includes('core') && (
+                labels.includes('transformation')
+                || labels.includes('testing')
+                || labels.includes('scheduling')
+                || labels.includes('monitoring')
+                || labels.includes('transformation')
+                || labels.includes('java')
+                || labels.includes('endpoint')
+                || labels.includes('script')
+                || labels.includes('validation')
+            )) {
+            return true;
+        } else if (label === 'transformation') {
+            return true;
+        }
+        return false;
+    }
+
     static getIconForElement = (element: CamelElement):JSX.Element => {
+        const uri = (element as any).uri;
+        const component = ComponentApi.findByName(uri);
         const k: KameletModel | undefined = CamelUtil.getKamelet(element);
-        if (["FromDefinition", "KameletDefinition"].includes(element.dslName)) {
+        if (["FromDefinition", "KameletDefinition"].includes(element.dslName) && k !== undefined) {
             return k ? this.getIconFromSource(k.icon()) : CamelUi.getIconForDslName(element.dslName);
+        } else if ("FromDefinition" === element.dslName && component !== undefined && CamelUi.isComponentInternal(component.component.label)) {
+            return this.getIconForComponent(component?.component.title, component?.component.label);
         } else if (element.dslName === "ToDefinition" && (element as ToDefinition).uri?.startsWith("kamelet:")) {
             return k ? this.getIconFromSource(k.icon()) : CamelUi.getIconForDslName(element.dslName);
+        } else if (element.dslName === "ToDefinition" && component && CamelUi.isComponentInternal(component.component.label)) {
+            return this.getIconForComponent(component?.component.title, component?.component.label);
         } else {
             return this.getIconForDslName(element.dslName);
         }
@@ -515,7 +701,24 @@ export class CamelUi {
         return <img draggable={false} src={src} className="icon" alt="icon"/>
     }
 
-    static getConnectionIcon = (element: CamelElement): string => {
+    static getConnectionIcon = (element: CamelElement): JSX.Element  => {
+        const k: KameletModel | undefined = CamelUtil.getKamelet(element);
+        const uri = (element as any).uri;
+        const component = ComponentApi.findByName(uri);
+        if (component) {
+            return CamelUi.getIconForComponent(component.component.title, component.component.label);
+        } else  if (["FromDefinition", "KameletDefinition"].includes(element.dslName)) {
+            const icon =  k ? k.icon() : externalIcon;
+            return <img src={icon} className="icon"/>
+        } else if (element.dslName === "ToDefinition" && (element as ToDefinition).uri?.startsWith("kamelet:")) {
+            const icon = k ? k.icon() : CamelUi.getIconSrcForName(element.dslName);
+            return <img src={icon} className="icon"/>
+        } else {
+            return <img src={externalIcon} className="icon"/>;
+        }
+    }
+
+    static getConnectionIconString = (element: CamelElement): string => {
         const k: KameletModel | undefined = CamelUtil.getKamelet(element);
         if (["FromDefinition", "KameletDefinition"].includes(element.dslName)) {
             return k ? k.icon() : externalIcon;

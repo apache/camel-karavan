@@ -73,6 +73,7 @@ export class DslConnections extends React.Component<Props, State> {
     getIncomings() {
         let outs: [string, number][] = Array.from(this.state.steps.values())
             .filter(pos => ["FromDefinition"].includes(pos.step.dslName))
+            .filter(pos => !CamelUi.isElementInternalComponent(pos.step))
             .filter(pos => !(pos.step.dslName === 'FromDefinition' && CamelUi.hasInternalUri(pos.step)))
             .sort((pos1: DslPosition, pos2: DslPosition) => {
                 const y1 = pos1.headerRect.y + pos1.headerRect.height / 2;
@@ -104,11 +105,27 @@ export class DslConnections extends React.Component<Props, State> {
             return (
                 <g key={pos.step.uuid + "-incoming"}>
                     <circle cx={incomingX} cy={fromY} r={r} className="circle-incoming"/>
-                    <image x={imageX} y={imageY} href={CamelUi.getConnectionIcon(pos.step)} className="icon"/>
+                    {/*<image x={imageX} y={imageY} href={CamelUi.getConnectionIconString(pos.step)} className="icon"/>*/}
                     {/*<text x={imageX - 5} y={imageY + 40} className="caption" textAnchor="start">{CamelUi.getTitle(pos.step)}</text>*/}
                     <path d={`M ${lineX1},${lineY1} C ${lineX1},${lineY2} ${lineX2},${lineY1}  ${lineX2},${lineY2}`}
                           className="path-incoming" markerEnd="url(#arrowhead)"/>
                 </g>
+            )
+        }
+    }
+
+    getIncomingIcons(data: [string, number]) {
+        const pos = this.state.steps.get(data[0]);
+        if (pos) {
+            const fromY = pos.headerRect.y + pos.headerRect.height / 2 - this.props.top;
+            const r = pos.headerRect.height / 2;
+            const incomingX = 20;
+            const imageX = incomingX - r + 5;
+            const imageY = fromY - r + 5;
+            return (
+                <div style={{display: "block", position: "absolute", top: imageY, left: imageX}}>
+                    {CamelUi.getConnectionIcon(pos.step)}
+                </div>
             )
         }
     }
@@ -135,7 +152,7 @@ export class DslConnections extends React.Component<Props, State> {
         let outs: [string, number][] = Array.from(this.state.steps.values())
             .filter(pos => outgoingDefinitions.includes(pos.step.dslName))
             .filter(pos => pos.step.dslName !== 'KameletDefinition' || (pos.step.dslName === 'KameletDefinition' && !CamelUi.isActionKamelet(pos.step)))
-            .filter(pos => pos.step.dslName === 'ToDefinition' && !CamelUi.isActionKamelet(pos.step))
+            .filter(pos => pos.step.dslName === 'ToDefinition' && !CamelUi.isActionKamelet(pos.step) && !CamelUi.isElementInternalComponent(pos.step))
             .filter(pos => !(outgoingDefinitions.includes(pos.step.dslName) && CamelUi.hasInternalUri(pos.step)))
             .filter(pos => pos.step.dslName !== 'SagaDefinition')
             .sort((pos1: DslPosition, pos2: DslPosition) => {
@@ -168,17 +185,33 @@ export class DslConnections extends React.Component<Props, State> {
             const lineXi = lineX1 + 40;
             const lineYi = lineY2;
 
-            let image = CamelUi.getConnectionIcon(pos.step);
+            let image = CamelUi.getConnectionIconString(pos.step);
             const imageX = outgoingX - r + 5;
             const imageY = outgoingY - r + 5;
             return (
                 <g key={pos.step.uuid + "-outgoing"}>
                     <circle cx={outgoingX} cy={outgoingY} r={r} className="circle-outgoing"/>
-                    <image x={imageX} y={imageY} href={image} className="icon"/>
+                    {/*<image x={imageX} y={imageY} href={image} className="icon"/>*/}
                     {/*<text x={imageX + 25} y={imageY + 40}  className="caption" textAnchor="end">{CamelUi.getOutgoingTitle(pos.step)}</text>*/}
                     <path d={`M ${lineX1},${lineY1} C ${lineXi - 20}, ${lineY1} ${lineX1 - 15},${lineYi} ${lineXi},${lineYi} L ${lineX2},${lineY2}`}
                           className="path-incoming" markerEnd="url(#arrowhead)"/>
                 </g>
+            )
+        }
+    }
+
+    getOutgoingIcons(data: [string, number]) {
+        const pos = this.state.steps.get(data[0]);
+        if (pos) {
+            const r = pos.headerRect.height / 2;
+            const outgoingX = this.props.width - 20;
+            const outgoingY = data[1] + 15;
+            const imageX = outgoingX - r + 5;
+            const imageY = outgoingY - r + 5;
+            return (
+                <div style={{display: "block", position: "absolute", top: imageY, left: imageX}}>
+                    {CamelUi.getConnectionIcon(pos.step)}
+                </div>
             )
         }
     }
@@ -432,6 +465,8 @@ export class DslConnections extends React.Component<Props, State> {
         return (
             <div className="connections" style={{width: this.props.width, height: this.props.height, marginTop: "8px"}}>
                 {this.getSvg()}
+                {this.getIncomings().map(p => this.getIncomingIcons(p))}
+                {this.getOutgoings().map(p => this.getOutgoingIcons(p))}
             </div>
         );
     }

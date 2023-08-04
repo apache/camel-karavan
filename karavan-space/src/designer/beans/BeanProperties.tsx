@@ -23,7 +23,7 @@ import {
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import {
-    NamedBeanDefinition,
+    RegistryBeanDefinition,
 } from "karavan-core/lib/model/CamelDefinition";
 import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
@@ -44,14 +44,14 @@ import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 
 interface Props {
     integration: Integration
-    bean?: NamedBeanDefinition
+    bean?: RegistryBeanDefinition
     dark: boolean
-    onChange: (bean: NamedBeanDefinition) => void
-    onClone: (bean: NamedBeanDefinition) => void
+    onChange: (bean: RegistryBeanDefinition) => void
+    onClone: (bean: RegistryBeanDefinition) => void
 }
 
 interface State {
-    bean?: NamedBeanDefinition
+    bean?: RegistryBeanDefinition
     properties: Map<string, [string, string, boolean]>
     key: string,
     showInfrastructureSelector: boolean
@@ -88,7 +88,7 @@ export class BeanProperties extends React.Component<Props, State> {
         }
     }
 
-    setBean = (bean?: NamedBeanDefinition) => {
+    setBean = (bean?: RegistryBeanDefinition) => {
         this.setState({
             bean: bean,
             properties: bean?.properties ? this.preparePropertiesMap(bean.properties) : new Map<string, [string, string, false]>()
