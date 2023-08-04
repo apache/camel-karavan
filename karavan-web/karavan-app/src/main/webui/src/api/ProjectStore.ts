@@ -23,12 +23,18 @@ import {unstable_batchedUpdates} from "react-dom";
 interface AppConfigState {
     config: AppConfig;
     setConfig: (config: AppConfig) => void;
+    pageId: string;
+    setPageId: (pageId: string) => void;
 }
 
 export const useAppConfigStore = create<AppConfigState>((set) => ({
     config: new AppConfig(),
+    pageId: 'projects',
     setConfig: (config: AppConfig)  => {
         set({config: config})
+    },
+    setPageId: (pageId: string)  => {
+        set({pageId: pageId})
     },
 }))
 
@@ -107,7 +113,7 @@ export const useFilesStore = create<FilesState>((set) => ({
 interface FileState {
     file?: ProjectFile;
     operation: "create" | "select" | "delete" | "none" | "copy" | "upload";
-    setFile: (file: ProjectFile, operation:  "create" | "select" | "delete"| "none" | "copy" | "upload") => void;
+    setFile: (operation:  "create" | "select" | "delete"| "none" | "copy" | "upload", file?: ProjectFile) => void;
     editAdvancedProperties: boolean;
     setEditAdvancedProperties: (editAdvancedProperties: boolean) => void;
     addProperty: string;
@@ -119,7 +125,7 @@ export const useFileStore = create<FileState>((set) => ({
     operation: "none",
     editAdvancedProperties: false,
     addProperty: '',
-    setFile: (file: ProjectFile, operation:  "create" | "select" | "delete"| "none" | "copy" | "upload") => {
+    setFile: (operation:  "create" | "select" | "delete"| "none" | "copy" | "upload", file?: ProjectFile) => {
         set((state: FileState) => ({
             file: file,
             operation: operation
@@ -137,6 +143,7 @@ interface DevModeState {
     podName?: string,
     status: "none" | "wip",
     setStatus: (status: "none" | "wip") => void,
+    setPodName: (podName?: string) => void,
 }
 
 export const useDevModeStore = create<DevModeState>((set) => ({
@@ -145,6 +152,11 @@ export const useDevModeStore = create<DevModeState>((set) => ({
     setStatus: (status: "none" | "wip") =>  {
         set((state: DevModeState) => ({
             status: status,
+        }));
+    },
+    setPodName: (podName?: string) =>  {
+        set((state: DevModeState) => ({
+            podName: podName,
         }));
     },
 }))

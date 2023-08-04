@@ -56,7 +56,7 @@ import {
     Intercept,
     InterceptFrom,
     InterceptSendToEndpoint,
-    IotIcon,
+    IotIcon, KafkaIcon,
     KubernetesIcon,
     MachineLearningIcon,
     MailIcon,
@@ -574,6 +574,8 @@ export class CamelUi {
             return InfinispanIcon();
         } else if (title.startsWith("Ignite")) {
             return IgniteIcon();
+        } else if (title.startsWith("Kafka")) {
+            return KafkaIcon();
         } else if (title.startsWith("GitHub")) {
             return GithubIcon();
         } else if (title.startsWith("Git")) {

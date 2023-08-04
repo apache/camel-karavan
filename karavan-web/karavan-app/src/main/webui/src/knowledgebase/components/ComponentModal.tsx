@@ -27,7 +27,7 @@ import {
 import '../../designer/karavan.css';
 import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import {Component} from "karavan-core/lib/model/ComponentModels";
-import {camelIcon, CamelUi} from "../../designer/utils/CamelUi";
+import {CamelUi} from "../../designer/utils/CamelUi";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 
@@ -85,7 +85,7 @@ export class ComponentModal extends  React.Component<Props, State> {
                 <Flex direction={{default: 'column'}} key={component?.component.name}
                       className="kamelet-modal-card">
                     <CardHeader>
-                        {CamelUi.getIconFromSource(camelIcon)}
+                        {component && CamelUi.getIconForComponent(component.component.title, component.component.label)}
                         <CardActions>
                             <Badge className="badge"
                                    isRead> {component?.component.label}</Badge>

@@ -3,9 +3,9 @@ import {
     Alert,
     AlertActionCloseButton, AlertGroup,
 } from '@patternfly/react-core';
-import './designer/karavan.css';
-import {ToastMessage} from "./api/ProjectModels";
-import {ProjectEventBus} from "./api/ProjectEventBus";
+import '../designer/karavan.css';
+import {ToastMessage} from "../api/ProjectModels";
+import {ProjectEventBus} from "../api/ProjectEventBus";
 
 export const Notification = () => {
 
