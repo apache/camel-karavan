@@ -30,6 +30,7 @@ import {
 } from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {
+    ActivemqIcon,
     AggregateIcon,
     ApiIcon,
     AwsIcon,
@@ -554,7 +555,7 @@ export class CamelUi {
             return GoogleCloudIcon();
         } else if (title.startsWith("Spring")) {
             return SpringIcon();
-        } else if (title.startsWith("Kubernetes")) {
+        } else if (title.startsWith("Kubernetes") || title.startsWith("Knative")) {
             return KubernetesIcon();
         } else if (title.startsWith("SAP")) {
             return SapIcon();
@@ -576,6 +577,8 @@ export class CamelUi {
             return IgniteIcon();
         } else if (title.startsWith("Kafka")) {
             return KafkaIcon();
+        } else if (title.startsWith("ActiveMQ")) {
+            return ActivemqIcon();
         } else if (title.startsWith("GitHub")) {
             return GithubIcon();
         } else if (title.startsWith("Git")) {

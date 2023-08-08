@@ -937,6 +937,293 @@ export function GithubIcon() {
         </svg>
     );
 }
+export function ActivemqIcon() {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={116.42}
+            height={167.526}
+            viewBox="0 0 30.803 44.324"
+            className="icon">
+            <defs>
+                <filter
+                    id="a"
+                    width={1.068}
+                    height={1.046}
+                    x={-0.017}
+                    y={-0.011}
+                >
+                    <feFlood floodColor="#000" floodOpacity={0.498} result="flood" />
+                    <feComposite
+                        in="flood"
+                        in2="SourceGraphic"
+                        operator="in"
+                        result="composite1"
+                    />
+                    <feGaussianBlur in="composite1" result="blur" stdDeviation={0.2} />
+                    <feOffset dx={1} dy={1} result="offset" />
+                    <feComposite in="SourceGraphic" in2="offset" result="composite2" />
+                </filter>
+            </defs>
+            <g
+                style={{
+                    display: "inline",
+                }}
+            >
+                <g
+                    style={{
+                        filter: "url(#a)",
+                    }}
+                    transform="translate(-39.667 -110.707)"
+                >
+                    <path
+                        d="m64.697 153.552-8.352-.05-4.133-7.257 4.218-7.208 8.352.049 4.134 7.257z"
+                        style={{
+                            fill: "#fff",
+                            strokeWidth: 0.394699,
+                            strokeMiterlimit: 4,
+                            strokeDasharray: "none",
+                        }}
+                    />
+                    <path
+                        d="m52.632 146.553-8.352-.049-4.133-7.257 4.218-7.209 8.352.05 4.134 7.257z"
+                        style={{
+                            display: "inline",
+                            fill: "#fff",
+                            strokeWidth: 0.394699,
+                            strokeMiterlimit: 4,
+                            strokeDasharray: "none",
+                        }}
+                    />
+                    <path
+                        d="m64.771 139.589-8.352-.05-4.133-7.257 4.218-7.208 8.352.05 4.134 7.257z"
+                        style={{
+                            display: "inline",
+                            fill: "#fff",
+                            strokeWidth: 0.394699,
+                            strokeMiterlimit: 4,
+                            strokeDasharray: "none",
+                        }}
+                    />
+                    <path
+                        d="m64.765 125.702-8.351-.049-4.134-7.257 4.219-7.209 8.352.05 4.133 7.257z"
+                        style={{
+                            display: "inline",
+                            fill: "#fff",
+                            strokeWidth: 0.394699,
+                            strokeMiterlimit: 4,
+                            strokeDasharray: "none",
+                        }}
+                    />
+                    <path
+                        d="m52.696 132.676-8.352-.049-4.133-7.257 4.218-7.209 8.352.05 4.133 7.257z"
+                        style={{
+                            display: "inline",
+                            fill: "#fff",
+                            strokeWidth: 0.394699,
+                            strokeMiterlimit: 4,
+                            strokeDasharray: "none",
+                        }}
+                    />
+                </g>
+            </g>
+            <g
+                style={{
+                    display: "inline",
+                }}
+                transform="translate(-39.667 -110.707)"
+            >
+                <path
+                    d="m1849.139 640.353-96.824 20.558-66.216-73.574 30.608-94.13 96.824-20.559 66.216 73.573z"
+                    style={{
+                        opacity: 1,
+                        fill: "#c12766",
+                        fillOpacity: 1,
+                        stroke: "none",
+                        strokeWidth: 3,
+                        strokeMiterlimit: 4,
+                        strokeDasharray: "none",
+                        strokeOpacity: 1,
+                    }}
+                    transform="matrix(.07206 .01553 -.01553 .07206 -59.031 63.796)"
+                />
+                <path
+                    d="m1849.139 640.353-96.824 20.558-66.216-73.574 30.608-94.13 96.824-20.559 66.216 73.573z"
+                    style={{
+                        opacity: 1,
+                        fill: "#3e489f",
+                        fillOpacity: 1,
+                        stroke: "none",
+                        strokeWidth: 15,
+                        strokeMiterlimit: 4,
+                        strokeDasharray: "none",
+                        strokeOpacity: 1,
+                    }}
+                    transform="matrix(.07206 .01553 -.01553 .07206 -71.17 70.76)"
+                />
+                <path
+                    d="m1849.139 640.353-96.824 20.558-66.216-73.574 30.608-94.13 96.824-20.559 66.216 73.573z"
+                    style={{
+                        opacity: 1,
+                        fill: "#714099",
+                        fillOpacity: 1,
+                        stroke: "none",
+                        strokeWidth: 3,
+                        strokeMiterlimit: 4,
+                        strokeDasharray: "none",
+                        strokeOpacity: 1,
+                    }}
+                    transform="matrix(.07206 .01553 -.01553 .07206 -59.106 77.758)"
+                />
+                <path
+                    d="m1849.139 640.353-96.824 20.558-66.216-73.574 30.608-94.13 96.824-20.559 66.216 73.573z"
+                    style={{
+                        opacity: 1,
+                        fill: "#78932c",
+                        fillOpacity: 1,
+                        stroke: "none",
+                        strokeWidth: 3,
+                        strokeMiterlimit: 4,
+                        strokeDasharray: "none",
+                        strokeOpacity: 1,
+                    }}
+                    transform="matrix(.07206 .01553 -.01553 .07206 -71.106 56.883)"
+                />
+                <path
+                    d="m1849.139 640.353-96.824 20.558-66.216-73.574 30.608-94.13 96.824-20.559 66.216 73.573z"
+                    style={{
+                        opacity: 1,
+                        fill: "#cf242a",
+                        fillOpacity: 1,
+                        stroke: "none",
+                        strokeWidth: 3,
+                        strokeMiterlimit: 4,
+                        strokeDasharray: "none",
+                        strokeOpacity: 1,
+                    }}
+                    transform="matrix(.07206 .01553 -.01553 .07206 -59.037 49.91)"
+                />
+                <circle
+                    cx={60.564}
+                    cy={146.294}
+                    r={1.6}
+                    style={{
+                        opacity: 1,
+                        fill: "#fff",
+                        fillOpacity: 1,
+                        stroke: "none",
+                        strokeWidth: 0.320071,
+                        strokeMiterlimit: 4,
+                        strokeDasharray: "none",
+                        strokeOpacity: 1,
+                    }}
+                />
+                <path
+                    d="m61.748 117.71-14.267 8.174M48.514 124.197l.048 16.442M47.525 138.715l14.136 8.397M60.59 117.133l.048 16.442"
+                    style={{
+                        fill: "none",
+                        fillRule: "evenodd",
+                        stroke: "#fff",
+                        strokeWidth: 0.523753,
+                        strokeLinecap: "butt",
+                        strokeLinejoin: "miter",
+                        strokeMiterlimit: 4,
+                        strokeDasharray: "none",
+                        strokeOpacity: 1,
+                    }}
+                />
+                <path
+                    d="m60.657 131.093.048 16.442"
+                    style={{
+                        fill: "none",
+                        fillRule: "evenodd",
+                        stroke: "#fff",
+                        strokeWidth: 0.5238,
+                        strokeLinecap: "butt",
+                        strokeLinejoin: "miter",
+                        strokeMiterlimit: 4,
+                        strokeDasharray: "none",
+                        strokeOpacity: 1,
+                    }}
+                />
+                <path
+                    d="m61.766 131.708-14.267 8.174M47.564 124.84l14.136 8.398"
+                    style={{
+                        fill: "none",
+                        fillRule: "evenodd",
+                        stroke: "#fff",
+                        strokeWidth: 0.523753,
+                        strokeLinecap: "butt",
+                        strokeLinejoin: "miter",
+                        strokeMiterlimit: 4,
+                        strokeDasharray: "none",
+                        strokeOpacity: 1,
+                    }}
+                />
+                <circle
+                    cx={48.334}
+                    cy={139.242}
+                    r={1.6}
+                    style={{
+                        opacity: 1,
+                        fill: "#fff",
+                        fillOpacity: 1,
+                        stroke: "none",
+                        strokeWidth: 0.320071,
+                        strokeMiterlimit: 4,
+                        strokeDasharray: "none",
+                        strokeOpacity: 1,
+                    }}
+                />
+                <circle
+                    cx={60.901}
+                    cy={132.486}
+                    r={1.6}
+                    style={{
+                        opacity: 1,
+                        fill: "#fff",
+                        fillOpacity: 1,
+                        stroke: "none",
+                        strokeWidth: 0.320071,
+                        strokeMiterlimit: 4,
+                        strokeDasharray: "none",
+                        strokeOpacity: 1,
+                    }}
+                />
+                <circle
+                    cx={48.563}
+                    cy={125.419}
+                    r={1.6}
+                    style={{
+                        opacity: 1,
+                        fill: "#fff",
+                        fillOpacity: 1,
+                        stroke: "none",
+                        strokeWidth: 0.320071,
+                        strokeMiterlimit: 4,
+                        strokeDasharray: "none",
+                        strokeOpacity: 1,
+                    }}
+                />
+                <circle
+                    cx={60.632}
+                    cy={118.445}
+                    r={1.6}
+                    style={{
+                        opacity: 1,
+                        fill: "#fff",
+                        fillOpacity: 1,
+                        stroke: "none",
+                        strokeWidth: 0.320071,
+                        strokeMiterlimit: 4,
+                        strokeDasharray: "none",
+                        strokeOpacity: 1,
+                    }}
+                />
+            </g>
+        </svg>
+    );
+}
 export function KafkaIcon() {
     return (
         <svg
