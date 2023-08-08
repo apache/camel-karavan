@@ -20,7 +20,7 @@ import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import org.apache.camel.karavan.cli.Constants;
-import org.apache.camel.karavan.cli.KaravanConfig;
+import org.apache.camel.karavan.cli.KaravanCommand;
 
 import java.util.Map;
 
@@ -31,7 +31,7 @@ public class Nexus {
     public static final String NEXUS_DATA = "nexus-data";
     public static final int NEXUS_PORT = 8081;
 
-    public static Service getService(KaravanConfig config) {
+    public static Service getService(KaravanCommand config) {
 
         ServicePortBuilder portBuilder = new ServicePortBuilder()
                 .withPort(80)
@@ -50,7 +50,7 @@ public class Nexus {
                 .build();
     }
 
-    public static Deployment getDeployment (KaravanConfig config) {
+    public static Deployment getDeployment (KaravanCommand config) {
         return new DeploymentBuilder()
                 .withNewMetadata()
                 .withName(NEXUS_NAME)

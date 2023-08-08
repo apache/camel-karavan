@@ -29,7 +29,7 @@ import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import org.apache.camel.karavan.cli.Constants;
-import org.apache.camel.karavan.cli.KaravanConfig;
+import org.apache.camel.karavan.cli.KaravanCommand;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ import java.util.Objects;
 
 public class KaravanDeployment {
 
-    public static Deployment getDeployment (KaravanConfig config) {
+    public static Deployment getDeployment (KaravanCommand config) {
 
         String baseImage = config.getBaseImage();
 

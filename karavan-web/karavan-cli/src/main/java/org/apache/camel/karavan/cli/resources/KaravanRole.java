@@ -18,11 +18,11 @@ package org.apache.camel.karavan.cli.resources;
 
 import io.fabric8.kubernetes.api.model.rbac.*;
 import org.apache.camel.karavan.cli.Constants;
-import org.apache.camel.karavan.cli.KaravanConfig;
+import org.apache.camel.karavan.cli.KaravanCommand;
 
 public class KaravanRole {
 
-    public static Role getRole(KaravanConfig config) {
+    public static Role getRole(KaravanCommand config) {
         return new RoleBuilder()
                 .withNewMetadata()
                 .withName(Constants.ROLE_KARAVAN)
@@ -39,7 +39,7 @@ public class KaravanRole {
                 .build();
     }
 
-    public static RoleBinding getRoleBinding(KaravanConfig config) {
+    public static RoleBinding getRoleBinding(KaravanCommand config) {
         return new RoleBindingBuilder()
                 .withNewMetadata()
                 .withName(Constants.ROLEBINDING_KARAVAN)
@@ -50,7 +50,7 @@ public class KaravanRole {
                 .build();
     }
 
-    public static RoleBinding getRoleBindingView(KaravanConfig config) {
+    public static RoleBinding getRoleBindingView(KaravanCommand config) {
         return new RoleBindingBuilder()
                 .withNewMetadata()
                 .withName(Constants.ROLEBINDING_KARAVAN_VIEW)
@@ -63,7 +63,7 @@ public class KaravanRole {
 
 //    Pipeline roles
 
-    public static Role getRoleDeployer(KaravanConfig config) {
+    public static Role getRoleDeployer(KaravanCommand config) {
         return new RoleBuilder()
                 .withNewMetadata()
                 .withName(Constants.ROLE_PIPELINE_DEPLOYER)
@@ -78,7 +78,7 @@ public class KaravanRole {
                 .build();
     }
 
-    public static RoleBinding getRoleBindingPipeline(KaravanConfig config) {
+    public static RoleBinding getRoleBindingPipeline(KaravanCommand config) {
         return new RoleBindingBuilder()
                 .withNewMetadata()
                 .withName(Constants.ROLEBINDING_PIPELINE_DEPLOYER)

@@ -19,7 +19,7 @@ package org.apache.camel.karavan.cli.resources;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
 import org.apache.camel.karavan.cli.Constants;
-import org.apache.camel.karavan.cli.KaravanConfig;
+import org.apache.camel.karavan.cli.KaravanCommand;
 import org.apache.camel.karavan.cli.ResourceUtils;
 
 import java.io.BufferedReader;
@@ -32,7 +32,7 @@ public class KaravanConfigMap {
 
     private static final String MAVEN_URL = "<url>https://repo.maven.apache.org/maven2/</url>";
 
-    public static ConfigMap getConfigMap(KaravanConfig config) {
+    public static ConfigMap getConfigMap(KaravanCommand config) {
 
         String xml = getXml(config);
 
@@ -46,7 +46,7 @@ public class KaravanConfigMap {
                 .build();
     }
 
-    private static String getXml(KaravanConfig config) {
+    private static String getXml(KaravanCommand config) {
         try {
             InputStream inputStream = KaravanConfigMap.class.getResourceAsStream("/settings.xml");
             return new BufferedReader(new InputStreamReader(inputStream))

@@ -23,11 +23,11 @@ import java.util.*;
 
 public class ResourceUtils {
 
-    public static String generateResources(KaravanConfig config) {
+    public static String generateResources(KaravanCommand config) {
         return String.join("", generateResourcesMap(config).values());
     }
 
-    public static Map<String, String> generateResourcesMap(KaravanConfig config) {
+    public static Map<String, String> generateResourcesMap(KaravanCommand config) {
         Map<String, String> result = new HashMap<>();
 
         result.put("sa-karavan", toYAML(KaravanServiceAccount.getServiceAccount(config)));

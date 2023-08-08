@@ -18,7 +18,7 @@ package org.apache.camel.karavan.cli.resources;
 
 import io.fabric8.kubernetes.api.model.*;
 import org.apache.camel.karavan.cli.Constants;
-import org.apache.camel.karavan.cli.KaravanConfig;
+import org.apache.camel.karavan.cli.KaravanCommand;
 import org.apache.camel.karavan.cli.ResourceUtils;
 
 import java.util.HashMap;
@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class KaravanSecret {
 
-    public static Secret getSecret(KaravanConfig config) {
+    public static Secret getSecret(KaravanCommand config) {
 
         Map<String, String> secretData = new HashMap<>();
         secretData.put("master-password", (config.isAuthBasic() ? config.getMasterPassword() : "karavan"));

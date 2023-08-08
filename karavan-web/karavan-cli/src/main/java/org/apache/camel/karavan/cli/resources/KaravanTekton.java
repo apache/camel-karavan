@@ -20,7 +20,7 @@ import io.fabric8.kubernetes.api.model.EnvVarBuilder;
 import io.fabric8.kubernetes.api.model.EnvVarSourceBuilder;
 import io.fabric8.tekton.pipeline.v1beta1.*;
 import org.apache.camel.karavan.cli.Constants;
-import org.apache.camel.karavan.cli.KaravanConfig;
+import org.apache.camel.karavan.cli.KaravanCommand;
 import org.apache.camel.karavan.cli.ResourceUtils;
 
 import java.io.BufferedReader;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 public class KaravanTekton {
 
-    public static Task getTask(KaravanConfig config, String runtime) {
+    public static Task getTask(KaravanCommand config, String runtime) {
         String taskName = Constants.TASK_DEV + runtime;
         String buildImage = config.getBaseBuilderImage();
         String script = getScript(config, runtime);
@@ -78,7 +78,7 @@ public class KaravanTekton {
                 .build();
     }
 
-    private static String getScript(KaravanConfig config, String runtime) {
+    private static String getScript(KaravanCommand config, String runtime) {
         try {
             InputStream inputStream = config.isOpenShift()
                     ? KaravanTekton.class.getResourceAsStream("/" + runtime + "-builder-script-openshift.sh")
@@ -99,7 +99,7 @@ public class KaravanTekton {
         }
     }
 
-    public static Pipeline getPipeline(KaravanConfig config, String runtime) {
+    public static Pipeline getPipeline(KaravanCommand config, String runtime) {
         String taskName = Constants.TASK_DEV + runtime;
         String pipelineName = Constants.PIPELINE_DEV + runtime;
 

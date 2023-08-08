@@ -19,14 +19,14 @@ package org.apache.camel.karavan.cli.resources;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
 import org.apache.camel.karavan.cli.Constants;
-import org.apache.camel.karavan.cli.KaravanConfig;
+import org.apache.camel.karavan.cli.KaravanCommand;
 import org.apache.camel.karavan.cli.ResourceUtils;
 
 import java.util.Map;
 
 public class KaravanServiceAccount {
 
-    public static ServiceAccount getServiceAccount(KaravanConfig config) {
+    public static ServiceAccount getServiceAccount(KaravanCommand config) {
         return new ServiceAccountBuilder()
                 .withNewMetadata()
                 .withName(Constants.SERVICEACCOUNT_KARAVAN)
@@ -36,7 +36,7 @@ public class KaravanServiceAccount {
                 .build();
     }
 
-    public static ServiceAccount getServiceAccountPipeline(KaravanConfig config) {
+    public static ServiceAccount getServiceAccountPipeline(KaravanCommand config) {
         return new ServiceAccountBuilder()
                 .withNewMetadata()
                 .withName(Constants.SERVICEACCOUNT_PIPELINE)

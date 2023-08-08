@@ -19,6 +19,7 @@ package org.apache.camel.karavan.cli;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentCondition;
+import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.openshift.api.model.operatorhub.v1.Operator;
@@ -27,16 +28,20 @@ import io.fabric8.tekton.pipeline.v1beta1.Pipeline;
 import io.fabric8.tekton.pipeline.v1beta1.Task;
 import org.apache.camel.karavan.cli.resources.*;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class CommandUtils {
     private static final Pipeline pipeline = new Pipeline();
     private static final Task task = new Task();
 
-    public static void installKaravan(KaravanConfig config) {
+    public static void installKaravan(KaravanCommand config) {
         try (KubernetesClient client = new KubernetesClientBuilder().build()) {
             OpenShiftClient oClient = client.adapt(OpenShiftClient.class);
             if (oClient.isSupported()) {
@@ -50,7 +55,7 @@ public class CommandUtils {
         }
     }
 
-    private static void install(KaravanConfig config, KubernetesClient client) {
+    private static void install(KaravanCommand config, KubernetesClient client) {
         // Check and install Tekton
         if (!isTektonInstalled(client)) {
             log("Tekton is not installed");
@@ -71,6 +76,17 @@ public class CommandUtils {
         } else {
             log("Namespace " + config.getNamespace() + " already exists");
         }
+
+        // Check and install Infinispan
+        if (!isInfinispanInstalled(client)) {
+            log("Infinispan is not installed");
+            if (isOpenShift(client)) {
+                logPoint("Please install Infinispan first");
+                System.exit(0);
+            }
+            installInfinispan(config, client);
+        }
+        log("Infinispan is installed");
 
         // Check secrets
         if (!checkKaravanSecrets(config, client)) {
@@ -134,12 +150,12 @@ public class CommandUtils {
         log("Karavan is ready");
     }
 
-    public static boolean checkKaravanSecrets(KaravanConfig config, KubernetesClient client) {
+    public static boolean checkKaravanSecrets(KaravanCommand config, KubernetesClient client) {
         Secret secret = client.secrets().inNamespace(config.getNamespace()).withName(Constants.NAME).get();
         return secret != null;
     }
 
-    public static boolean tryToCreateKaravanSecrets(KaravanConfig config, KubernetesClient client) {
+    public static boolean tryToCreateKaravanSecrets(KaravanCommand config, KubernetesClient client) {
         if (config.gitConfigured()) {
             if (config.getImageRegistry() == null) {
                 if (config.isOpenShift()) {
@@ -161,7 +177,7 @@ public class CommandUtils {
         return false;
     }
 
-    public static boolean checkReady(KaravanConfig config, KubernetesClient client) {
+    public static boolean checkReady(KaravanCommand config, KubernetesClient client) {
         Deployment deployment = client.apps().deployments().inNamespace(config.getNamespace()).withName(Constants.NAME).get();
         Integer replicas = deployment.getStatus().getReplicas();
         Integer ready = deployment.getStatus().getReadyReplicas();
@@ -183,7 +199,22 @@ public class CommandUtils {
         }
     }
 
-    private static void installTekton(KaravanConfig config, KubernetesClient client) {
+    private static void installInfinispan(KaravanCommand config, KubernetesClient client) {
+        System.out.print("⏳ Installing Infinispan");
+        String yaml = getResourceFile("/infinispan.yaml");
+//
+//        client.load(CommandUtils.class.getResourceAsStream("/pipelines.yaml")).create().forEach(hasMetadata -> {
+//            System.out.print(".");
+//        });
+//        client.load(CommandUtils.class.getResourceAsStream("/dashboard.yaml")).create().forEach(hasMetadata -> {
+//            System.out.print(".");
+//        });
+        System.out.println(yaml);
+        System.exit(0);
+        log("Infinispan is installed");
+    }
+
+    private static void installTekton(KaravanCommand config, KubernetesClient client) {
         System.out.print("⏳ Installing Tekton");
         client.load(CommandUtils.class.getResourceAsStream("/pipelines.yaml")).create().forEach(hasMetadata -> {
             System.out.print(".");
@@ -219,6 +250,12 @@ public class CommandUtils {
         return false;
     }
 
+    private static boolean isInfinispanInstalled(KubernetesClient client) {
+        Service service = client.services().withName("infinispan").get();
+        StatefulSet set = client.apps().statefulSets().withName("infinispan").get();
+        return service != null && set != null;
+    }
+
     public static void log(String emoji, String message) {
         System.out.println(emoji + " " + message);
     }
@@ -249,5 +286,15 @@ public class CommandUtils {
 
     private static boolean isOpenShift(KubernetesClient client) {
         return client.adapt(OpenShiftClient.class).isSupported();
+    }
+
+    private static String getResourceFile(String path) {
+        try {
+            InputStream inputStream = CommandUtils.class.getResourceAsStream(path);
+            return new BufferedReader(new InputStreamReader(inputStream))
+                    .lines().collect(Collectors.joining(System.getProperty("line.separator")));
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

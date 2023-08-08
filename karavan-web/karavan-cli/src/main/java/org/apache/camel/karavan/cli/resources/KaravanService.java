@@ -25,14 +25,14 @@ import io.fabric8.openshift.api.model.RouteBuilder;
 import io.fabric8.openshift.api.model.RoutePort;
 import io.fabric8.openshift.api.model.RouteTargetReferenceBuilder;
 import org.apache.camel.karavan.cli.Constants;
-import org.apache.camel.karavan.cli.KaravanConfig;
+import org.apache.camel.karavan.cli.KaravanCommand;
 import org.apache.camel.karavan.cli.ResourceUtils;
 
 import java.util.Map;
 
 public class KaravanService {
 
-    public static Service getService(KaravanConfig config) {
+    public static Service getService(KaravanCommand config) {
 
         ServicePortBuilder portBuilder = new ServicePortBuilder()
                 .withName("http").withPort(80).withProtocol("TCP").withTargetPort(new IntOrString(8080));
@@ -54,7 +54,7 @@ public class KaravanService {
                 .build();
     }
 
-    public static Route getRoute(KaravanConfig config) {
+    public static Route getRoute(KaravanCommand config) {
         return new RouteBuilder()
                 .withNewMetadata()
                 .withName(Constants.NAME)

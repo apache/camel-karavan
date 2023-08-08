@@ -21,14 +21,14 @@ import io.fabric8.kubernetes.api.model.PersistentVolumeClaimBuilder;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.ResourceRequirementsBuilder;
 import org.apache.camel.karavan.cli.Constants;
-import org.apache.camel.karavan.cli.KaravanConfig;
+import org.apache.camel.karavan.cli.KaravanCommand;
 import org.apache.camel.karavan.cli.ResourceUtils;
 
 import java.util.Map;
 
 public class KaravanPvc {
 
-    public static PersistentVolumeClaim getPvcData (KaravanConfig config) {
+    public static PersistentVolumeClaim getPvcData (KaravanCommand config) {
         return new PersistentVolumeClaimBuilder()
                 .withNewMetadata()
                 .withName(Constants.PVC_DATA)
@@ -43,7 +43,7 @@ public class KaravanPvc {
                 .build();
     }
 
-    public static PersistentVolumeClaim getPvcM2Cache(KaravanConfig config) {
+    public static PersistentVolumeClaim getPvcM2Cache(KaravanCommand config) {
         return new PersistentVolumeClaimBuilder()
                 .withNewMetadata()
                 .withName(Constants.PVC_M2_CACHE)
@@ -58,7 +58,7 @@ public class KaravanPvc {
                 .build();
     }
 
-    public static PersistentVolumeClaim getPvcJbangCache(KaravanConfig config) {
+    public static PersistentVolumeClaim getPvcJbangCache(KaravanCommand config) {
         return new PersistentVolumeClaimBuilder()
                 .withNewMetadata()
                 .withName(Constants.PVC_JBANG_CACHE)
