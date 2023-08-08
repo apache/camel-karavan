@@ -59,7 +59,11 @@ export class ComponentsTab extends React.Component<Props, State> {
     render() {
         const component = this.state.component;
         const {filter} = this.props;
-        const components = ComponentApi.getComponents().filter(c => c.component.name.toLowerCase().includes(filter.toLowerCase()));
+        const components = ComponentApi.getComponents().filter(c => {
+            return c.component.name.toLowerCase().includes(filter.toLowerCase())
+            || c.component.title.toLowerCase().includes(filter.toLowerCase())
+            || c.component.description.toLowerCase().includes(filter.toLowerCase())
+        }).sort((a, b) => (a.component.title?.toLowerCase() > b.component.title?.toLowerCase() ? 1 : -1)) ;
         return (
             <PageSection variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light} padding={{ default: 'noPadding' }} className="kamelet-section">
                 <ComponentModal key={component?.component.name + this.state.isModalOpen.toString()}

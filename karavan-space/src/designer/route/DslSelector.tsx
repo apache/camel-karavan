@@ -121,7 +121,7 @@ export class DslSelector extends React.Component<Props, State> {
 
     render() {
         const {parentDsl, isOpen} = this.props;
-        const title = parentDsl === undefined ? "Select source/from" : "Select step";
+        const title = parentDsl === undefined ? "Select source" : "Select step";
         const labelText: string = this.state.tabIndex ? this.state.tabIndex.toString() : "";
         return (
             <Modal

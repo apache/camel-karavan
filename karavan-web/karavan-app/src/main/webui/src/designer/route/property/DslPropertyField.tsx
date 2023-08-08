@@ -274,7 +274,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                 value={value?.toString()}
                 onChange={e => this.propertyChanged(property.name, CamelUtil.capitalizeName(e?.replace(/\s/g, '')))}/>
             <Tooltip position="bottom-end" content={"Create Java Class"}>
-                <Button variant="control" onClick={e => this.showCode(value, property.javaType)}>
+                <Button isDisabled={value?.length === 0} variant="control" onClick={e => this.showCode(value, property.javaType)}>
                     <PlusIcon/>
                 </Button>
             </Tooltip>

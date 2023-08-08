@@ -144,7 +144,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
         }
         if (uris && uris.length > 0) {
             selectOptions.push(...uris.map((value: string) =>
-                <SelectOption key={value} value={value.trim()}/>));
+                <SelectOption key={value} value={value ? value.trim() : value}/>));
         }
         return <InputGroup id={this.state.id} name={this.state.id}>
             <Select
@@ -169,9 +169,11 @@ export class ComponentParameterField extends React.Component<Props, State> {
                 {selectOptions}
             </Select>
             <Tooltip position="bottom-end" content={"Create route"}>
-                <Button variant="control" onClick={e => {
-                    const newRoute = !internalUris.includes(value.toString()) ? new RouteToCreate(componentName, value.toString()) : undefined;
-                    this.parametersChanged(property.name, value, property.kind === 'path', newRoute);
+                <Button isDisabled={value === undefined} variant="control" onClick={e => {
+                    if (value) {
+                        const newRoute = !internalUris.includes(value.toString()) ? new RouteToCreate(componentName, value.toString()) : undefined;
+                        this.parametersChanged(property.name, value, property.kind === 'path', newRoute);
+                    }
                 }}>
                     {<PlusIcon/>}
                 </Button>

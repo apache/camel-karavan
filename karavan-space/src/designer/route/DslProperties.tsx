@@ -93,7 +93,7 @@ export class DslProperties extends React.Component<Props, State> {
             parameters[parameter] = value;
             (clone as any).parameters = parameters;
             this.setStep(clone);
-            this.props.onPropertyUpdate?.call(this, clone);
+            this.props.onPropertyUpdate?.call(this, clone, newRoute);
         }
     }
 

@@ -60,7 +60,10 @@ export class DslConnections extends React.Component<Props, State> {
             this.setState(prevState => ({steps: prevState.steps.set(evt.step.uuid, evt)}));
         }
         else if (evt.command === "delete") this.setState(prevState => {
-            // prevState.steps.clear();
+            prevState.steps.clear();
+            Array.from(prevState.steps.entries())
+                .filter(value => value[1]?.parent?.uuid !== evt.step.uuid)
+                .forEach(value => prevState.steps.set(value[0], value[1]));
             prevState.steps.delete(evt.step.uuid);
             return {steps: prevState.steps};
         });
@@ -456,7 +459,7 @@ export class DslConnections extends React.Component<Props, State> {
                 {steps.map(pos => this.getArrow(pos))}
                 {this.getIncomings().map(p => this.getIncoming(p))}
                 {this.getOutgoings().map(p => this.getOutgoing(p))}
-                {this.getInternals().map((p) => this.getInternalLines(p)).flat()}
+                {/*{this.getInternals().map((p) => this.getInternalLines(p)).flat()}*/}
             </svg>
         )
     }

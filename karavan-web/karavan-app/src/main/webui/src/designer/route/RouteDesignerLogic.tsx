@@ -147,7 +147,7 @@ export class RouteDesignerLogic {
     onPropertyUpdate = debounce((element: CamelElement, newRoute?: RouteToCreate) => {
         if (newRoute) {
             let i = CamelDefinitionApiExt.updateIntegrationRouteElement(this.routeDesigner.state.integration, element);
-            const f = CamelDefinitionApi.createFromDefinition({uri: newRoute.componentName + ":" + newRoute.name})
+            const f = CamelDefinitionApi.createFromDefinition({uri: newRoute.componentName, parameters: {name: newRoute.name}});
             const r = CamelDefinitionApi.createRouteDefinition({from: f, id: newRoute.name})
             i = CamelDefinitionApiExt.addStepToIntegration(i, r, '');
             const clone = CamelUtil.cloneIntegration(i);
@@ -329,13 +329,14 @@ export class RouteDesignerLogic {
         const i = CamelDefinitionApiExt.addStepToIntegration(this.routeDesigner.state.integration, step, parentId, position);
         const clone = CamelUtil.cloneIntegration(i);
         EventBus.sendPosition("clean", step, undefined, new DOMRect(), new DOMRect(), 0);
+        const selectedStep = step.dslName === 'RouteDefinition' ? (step as RouteDefinition).from  : step;
         this.routeDesigner.setState(prevState => ({
             integration: clone,
             key: Math.random().toString(),
             showSelector: false,
-            selectedStep: step,
+            selectedStep: selectedStep,
             propertyOnly: false,
-            selectedUuids: [step.uuid],
+            selectedUuids: [selectedStep.uuid],
         }));
     }
 

@@ -30,11 +30,12 @@ import {
 } from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {
+    ActivemqIcon,
     AggregateIcon,
     ApiIcon,
     AwsIcon,
     AzureIcon,
-    BlockchainIcon,
+    BlockchainIcon, CassandraIcon,
     ChatIcon,
     ChoiceIcon,
     CloudIcon,
@@ -158,18 +159,18 @@ export class RouteToCreate {
 
 export class CamelUi {
 
-    static getSelectorModelTypes = (parentDsl: string | undefined, showSteps: boolean = true, filter:string|undefined = undefined): [string, number][] => {
-        const navs =  CamelUi.getSelectorModelsForParent(parentDsl, showSteps).map(dsl => dsl.navigation.split(","))
+    static getSelectorModelTypes = (parentDsl: string | undefined, showSteps: boolean = true, filter: string | undefined = undefined): [string, number][] => {
+        const navs = CamelUi.getSelectorModelsForParent(parentDsl, showSteps).map(dsl => dsl.navigation.split(","))
             .reduce((accumulator, value) => accumulator.concat(value), [])
             .filter((nav, i, arr) => arr.findIndex(l => l === nav) === i)
-            .filter((nav, i, arr) => ![ 'dataformat'].includes(nav));
+            .filter((nav, i, arr) => !['dataformat'].includes(nav));
         const connectorNavs = ['routing', "transformation", "error", "configuration", "endpoint", "kamelet", "component"];
         const eipLabels = connectorNavs.filter(n => navs.includes(n));
         return eipLabels.map(label => [label, this.getSelectorModelsForParentFiltered(parentDsl, label, true)
             .filter((dsl: DslMetaModel) => filter === undefined ? true : CamelUi.checkFilter(dsl, filter)).length]);
     }
 
-    static checkFilter = (dsl: DslMetaModel, filter:string|undefined = undefined): boolean => {
+    static checkFilter = (dsl: DslMetaModel, filter: string | undefined = undefined): boolean => {
         if (filter !== undefined && filter !== "") {
             return dsl.title.toLowerCase().includes(filter.toLowerCase())
                 || dsl.description.toLowerCase().includes(filter.toLowerCase());
@@ -187,14 +188,15 @@ export class CamelUi {
         return ['GetDefinition', 'PostDefinition', 'PutDefinition', 'PatchDefinition', 'DeleteDefinition', 'HeadDefinition'].map(method => this.getDslMetaModel(method));
     }
 
-    static getSelectorModelsForParentFiltered = (parentDsl: string | undefined, navigation: string,  showSteps: boolean = true): DslMetaModel[] => {
-        const models =  CamelUi.getSelectorModelsForParent(parentDsl, showSteps)
+    static getSelectorModelsForParentFiltered = (parentDsl: string | undefined, navigation: string, showSteps: boolean = true): DslMetaModel[] => {
+        const models = CamelUi.getSelectorModelsForParent(parentDsl, showSteps)
             .filter(dsl => dsl.navigation.includes(navigation));
         return models;
-        }
+    }
+
     static getSelectorModelsForParent = (parentDsl: string | undefined, showSteps: boolean = true): DslMetaModel[] => {
         const result: DslMetaModel[] = [];
-        if (!parentDsl){
+        if (!parentDsl) {
             result.push(...CamelUi.getComponentsDslMetaModel("consumer"));
             result.push(...CamelUi.getKameletDslMetaModel("source"));
         } else {
@@ -221,7 +223,15 @@ export class CamelUi {
 
     static getDslMetaModel = (className: string): DslMetaModel => {
         const el = CamelMetadataApi.getCamelModelMetadataByClassName(className);
-        return  new DslMetaModel({dsl: className, name: el?.name, title: el?.title, description: el?.description, labels: el?.labels, navigation: el?.labels, type: "DSL"})
+        return new DslMetaModel({
+            dsl: className,
+            name: el?.name,
+            title: el?.title,
+            description: el?.description,
+            labels: el?.labels,
+            navigation: el?.labels,
+            type: "DSL"
+        })
     }
 
     static getComponentsDslMetaModel = (type: 'consumer' | "producer"): DslMetaModel[] => {
@@ -281,17 +291,17 @@ export class CamelUi {
     }
 
     static hasDirectUri = (element: CamelElement): boolean => {
-        return this.hasUriStartWith(element,'direct');
+        return this.hasUriStartWith(element, 'direct');
     }
 
     static hasSedaUri = (element: CamelElement): boolean => {
-        return this.hasUriStartWith(element,'seda');
+        return this.hasUriStartWith(element, 'seda');
     }
 
     static hasUriStartWith = (element: CamelElement, text: string): boolean => {
         if ((element as any).uri && typeof (element as any).uri === 'string') {
             return (element as any).uri.startsWith(text);
-        } else if (element.dslName === 'SagaDefinition'){
+        } else if (element.dslName === 'SagaDefinition') {
             const completion = (element as SagaDefinition).completion || '';
             const compensation = (element as SagaDefinition).compensation || '';
             return completion.startsWith(text) || compensation.startsWith(text);
@@ -301,7 +311,7 @@ export class CamelUi {
     }
 
     static getInternalRouteUris = (integration: Integration, componentName: string, showComponentName: boolean = true): string[] => {
-        const result:string[] = [];
+        const result: string[] = [];
         integration.spec.flows?.filter(f => f.dslName === 'RouteDefinition')
             .filter((r: RouteDefinition) => r.from.uri.startsWith(componentName))
             .forEach((r: RouteDefinition) => {
@@ -334,7 +344,7 @@ export class CamelUi {
         } else if (element.dslName === 'RouteDefinition') {
             const routeId = (element as RouteDefinition).id
             return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
-        } else if ((element as any).uri && element.dslName === 'ToDefinition') {
+        } else if ((element as any).uri && (['ToDefinition', 'FromDefinition'].includes(element.dslName))) {
             const uri = (element as any).uri
             return ComponentApi.getComponentTitleFromUri(uri) || '';
         } else {
@@ -347,7 +357,7 @@ export class CamelUi {
         const kamelet: KameletModel | undefined = CamelUtil.getKamelet(element);
         if (kamelet) {
             return kamelet.spec.definition.description;
-        } else if ((element as any).uri && element.dslName === 'ToDefinition') {
+        } else if ((element as any).uri && (['ToDefinition', 'FromDefinition'].includes(element.dslName))) {
             const uri = (element as any).uri
             return ComponentApi.getComponentDescriptionFromUri(uri) || '';
         } else {
@@ -372,7 +382,7 @@ export class CamelUi {
     }
 
     static isShowExpressionTooltip = (element: CamelElement): boolean => {
-        if (element.hasOwnProperty("expression")){
+        if (element.hasOwnProperty("expression")) {
             const exp = CamelDefinitionApiExt.getExpressionValue((element as any).expression);
             return (exp !== undefined && (exp as any)?.expression?.trim().length > 0);
         }
@@ -381,7 +391,7 @@ export class CamelUi {
 
     static isShowUriTooltip = (element: CamelElement): boolean => {
         const uri: string = (element as any).uri;
-        if (uri !== undefined && !uri.startsWith("kamelet")){
+        if (uri !== undefined && !uri.startsWith("kamelet")) {
             return ComponentApi.getComponentNameFromUri(uri) !== uri;
         }
         return false;
@@ -508,7 +518,7 @@ export class CamelUi {
                 return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzJweCIgaGVpZ2h0PSIzMnB4IiB2aWV3Qm94PSIwIDAgMzIgMzIiIGlkPSJpY29uIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxzdHlsZT4uY2xzLTF7ZmlsbDpub25lO308L3N0eWxlPjwvZGVmcz48dGl0bGU+d2FybmluZzwvdGl0bGU+PHBhdGggZD0iTTE2LDJBMTQsMTQsMCwxLDAsMzAsMTYsMTQsMTQsMCwwLDAsMTYsMlptMCwyNkExMiwxMiwwLDEsMSwyOCwxNiwxMiwxMiwwLDAsMSwxNiwyOFoiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgMCkiLz48cmVjdCB4PSIxNSIgeT0iOCIgd2lkdGg9IjIiIGhlaWdodD0iMTEiLz48cGF0aCBkPSJNMTYsMjJhMS41LDEuNSwwLDEsMCwxLjUsMS41QTEuNSwxLjUsMCwwLDAsMTYsMjJaIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwIDApIi8+PHJlY3QgaWQ9Il9UcmFuc3BhcmVudF9SZWN0YW5nbGVfIiBkYXRhLW5hbWU9IiZsdDtUcmFuc3BhcmVudCBSZWN0YW5nbGUmZ3Q7IiBjbGFzcz0iY2xzLTEiIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIvPjwvc3ZnPg==";
             case "ScriptDefinition":
                 return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjU2cHgiIGhlaWdodD0iMjU2cHgiIHZpZXdCb3g9IjAgMCAyNTYgMjU2IiBpZD0iRmxhdCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cGF0aCBkPSJNNDMuMTc1MjksMTI4YTI5Ljc4NTIsMjkuNzg1MiwwLDAsMSw4LjAyMywxMC4yNTk3N0M1NiwxNDguMTYzMDksNTYsMTYwLjI4MTI1LDU2LDE3MmMwLDI0LjMxMzQ4LDEuMDE5NTMsMzYsMjQsMzZhOCw4LDAsMCwxLDAsMTZjLTE3LjQ4MTQ1LDAtMjkuMzI0MjItNi4xNDM1NS0zNS4xOTgyNC0xOC4yNTk3N0M0MCwxOTUuODM2OTEsNDAsMTgzLjcxODc1LDQwLDE3MmMwLTI0LjMxMzQ4LTEuMDE5NTMtMzYtMjQtMzZhOCw4LDAsMCwxLDAtMTZjMjIuOTgwNDcsMCwyNC0xMS42ODY1MiwyNC0zNiwwLTExLjcxODc1LDAtMjMuODM2OTEsNC44MDE3Ni0zMy43NDAyM0M1MC42NzU3OCwzOC4xNDM1NSw2Mi41MTg1NSwzMiw4MCwzMmE4LDgsMCwwLDEsMCwxNkM1Ny4wMTk1Myw0OCw1Niw1OS42ODY1Miw1Niw4NGMwLDExLjcxODc1LDAsMjMuODM2OTEtNC44MDE3NiwzMy43NDAyM0EyOS43ODUyLDI5Ljc4NTIsMCwwLDEsNDMuMTc1MjksMTI4Wk0yNDAsMTIwYy0yMi45ODA0NywwLTI0LTExLjY4NjUyLTI0LTM2LDAtMTEuNzE4NzUsMC0yMy44MzY5MS00LjgwMTc2LTMzLjc0MDIzQzIwNS4zMjQyMiwzOC4xNDM1NSwxOTMuNDgxNDUsMzIsMTc2LDMyYTgsOCwwLDAsMCwwLDE2YzIyLjk4MDQ3LDAsMjQsMTEuNjg2NTIsMjQsMzYsMCwxMS43MTg3NSwwLDIzLjgzNjkxLDQuODAxNzYsMzMuNzQwMjNBMjkuNzg1MiwyOS43ODUyLDAsMCwwLDIxMi44MjQ3MSwxMjhhMjkuNzg1MiwyOS43ODUyLDAsMCwwLTguMDIzLDEwLjI1OTc3QzIwMCwxNDguMTYzMDksMjAwLDE2MC4yODEyNSwyMDAsMTcyYzAsMjQuMzEzNDgtMS4wMTk1MywzNi0yNCwzNmE4LDgsMCwwLDAsMCwxNmMxNy40ODE0NSwwLDI5LjMyNDIyLTYuMTQzNTUsMzUuMTk4MjQtMTguMjU5NzdDMjE2LDE5NS44MzY5MSwyMTYsMTgzLjcxODc1LDIxNiwxNzJjMC0yNC4zMTM0OCwxLjAxOTUzLTM2LDI0LTM2YTgsOCwwLDAsMCwwLTE2WiIvPgo8L3N2Zz4K";
-           case "PausableDefinition":
+            case "PausableDefinition":
                 return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzJweCIgaGVpZ2h0PSIzMnB4IiB2aWV3Qm94PSIwIDAgMzIgMzIiIGlkPSJpY29uIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxzdHlsZT4uY2xzLTF7ZmlsbDpub25lO308L3N0eWxlPjwvZGVmcz48dGl0bGU+cGF1c2UtLWZpbGxlZDwvdGl0bGU+PHBhdGggZD0iTTEyLDZIMTBBMiwyLDAsMCwwLDgsOFYyNGEyLDIsMCwwLDAsMiwyaDJhMiwyLDAsMCwwLDItMlY4YTIsMiwwLDAsMC0yLTJaIi8+PHBhdGggZD0iTTIyLDZIMjBhMiwyLDAsMCwwLTIsMlYyNGEyLDIsMCwwLDAsMiwyaDJhMiwyLDAsMCwwLDItMlY4YTIsMiwwLDAsMC0yLTJaIi8+PHJlY3QgaWQ9Il9UcmFuc3BhcmVudF9SZWN0YW5nbGVfIiBkYXRhLW5hbWU9IiZsdDtUcmFuc3BhcmVudCBSZWN0YW5nbGUmZ3Q7IiBjbGFzcz0iY2xzLTEiIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIvPjwvc3ZnPg==";
             case "StopDefinition":
                 return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzJweCIgaGVpZ2h0PSIzMnB4IiB2aWV3Qm94PSIwIDAgMzIgMzIiIGlkPSJpY29uIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxzdHlsZT4uY2xzLTF7ZmlsbDpub25lO308L3N0eWxlPjwvZGVmcz48dGl0bGU+c3RvcC0tZmlsbGVkPC90aXRsZT48cGF0aCBkPSJNMjQsNkg4QTIsMiwwLDAsMCw2LDhWMjRhMiwyLDAsMCwwLDIsMkgyNGEyLDIsMCwwLDAsMi0yVjhhMiwyLDAsMCwwLTItMloiLz48cmVjdCBpZD0iX1RyYW5zcGFyZW50X1JlY3RhbmdsZV8iIGRhdGEtbmFtZT0iJmx0O1RyYW5zcGFyZW50IFJlY3RhbmdsZSZndDsiIGNsYXNzPSJjbHMtMSIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIi8+PC9zdmc+";
@@ -529,20 +539,20 @@ export class CamelUi {
         }
     }
 
-    static getIconForDsl = (dsl: DslMetaModel):JSX.Element => {
+    static getIconForDsl = (dsl: DslMetaModel): JSX.Element => {
         if (dsl.dsl && (dsl.dsl === "KameletDefinition" || dsl.navigation === 'kamelet')) {
             return this.getIconFromSource(CamelUi.getKameletIconByName(dsl.name));
         } else if ((dsl.dsl && dsl.dsl === "FromDefinition")
             && dsl.uri?.startsWith("kamelet")) {
             return this.getIconFromSource(CamelUi.getKameletIconByUri(dsl.uri));
-        } else if (dsl.navigation === 'component' ){
+        } else if (dsl.navigation === 'component') {
             return CamelUi.getIconForComponent(dsl.title, dsl.labels);
         } else {
             return CamelUi.getIconForDslName(dsl.dsl);
         }
     }
 
-    static getIconForComponent = (title: string, label: string):JSX.Element => {
+    static getIconForComponent = (title: string, label: string): JSX.Element => {
         const labels = label.split(",");
         if (title === "Ref") {
             return RefIcon();
@@ -554,7 +564,7 @@ export class CamelUi {
             return GoogleCloudIcon();
         } else if (title.startsWith("Spring")) {
             return SpringIcon();
-        } else if (title.startsWith("Kubernetes")) {
+        } else if (title.startsWith("Kubernetes") || title.startsWith("Knative")) {
             return KubernetesIcon();
         } else if (title.startsWith("SAP")) {
             return SapIcon();
@@ -576,90 +586,94 @@ export class CamelUi {
             return IgniteIcon();
         } else if (title.startsWith("Kafka")) {
             return KafkaIcon();
+        } else if (title.startsWith("ActiveMQ")) {
+            return ActivemqIcon();
         } else if (title.startsWith("GitHub")) {
             return GithubIcon();
         } else if (title.startsWith("Git")) {
             return GitIcon();
+        } else if (title.startsWith("Cassandra")) {
+            return CassandraIcon();
         } else if (title.startsWith("Hazelcast")) {
             return HazelcastIcon();
         } else if (title.startsWith("FHIR") || title.startsWith("MLLP")) {
             return HealthIcon();
         } else if (labels.includes('transformation')) {
             return TransformationIcon();
-        } else if (labels.includes("validation")){
+        } else if (labels.includes("validation")) {
             return ValidationIcon();
-        } else if (labels.includes("scheduling")){
+        } else if (labels.includes("scheduling")) {
             return SchedulingIcon();
-        } else if (labels.includes("database")){
+        } else if (labels.includes("database")) {
             return DatabaseIcon();
-        } else if (labels.includes("cloud")){
+        } else if (labels.includes("cloud")) {
             return CloudIcon();
-        } else if (labels.includes("chat")){
+        } else if (labels.includes("chat")) {
             return ChatIcon();
-        } else if (labels.includes("messaging")){
+        } else if (labels.includes("messaging")) {
             return MessagingIcon();
-        } else if (labels.includes("script")){
+        } else if (labels.includes("script")) {
             return ScriptIcon();
-        } else if (labels.includes("file")){
+        } else if (labels.includes("file")) {
             return FileIcon();
-        } else if (labels.includes("monitoring")){
+        } else if (labels.includes("monitoring")) {
             return MonitoringIcon();
-        } else if (labels.includes("iot")){
+        } else if (labels.includes("iot")) {
             return IotIcon();
-        } else if (labels.includes("mail")){
+        } else if (labels.includes("mail")) {
             return MailIcon();
-        } else if (labels.includes("http")){
+        } else if (labels.includes("http")) {
             return HttpIcon();
-        } else if (labels.includes("document")){
+        } else if (labels.includes("document")) {
             return DocumentIcon();
-        } else if (labels.includes("social")){
+        } else if (labels.includes("social")) {
             return SocialIcon();
-        } else if (labels.includes("networking")){
+        } else if (labels.includes("networking")) {
             return NetworkingIcon();
-        } else if (labels.includes("api")){
+        } else if (labels.includes("api")) {
             return ApiIcon();
-        } else if (labels.includes("testing")){
+        } else if (labels.includes("testing")) {
             return TestingIcon();
-        } else if (labels.includes("clustering")){
+        } else if (labels.includes("clustering")) {
             return ClusterIcon();
-        } else if (labels.includes("mobile")){
+        } else if (labels.includes("mobile")) {
             return MobileIcon();
-        } else if (labels.includes("workflow")){
+        } else if (labels.includes("workflow")) {
             return WorkflowIcon();
-        } else if (labels.includes("webservice") || labels.includes("rest")){
+        } else if (labels.includes("webservice") || labels.includes("rest")) {
             return WebserviceIcon();
-        } else if (labels.includes("search")){
+        } else if (labels.includes("search")) {
             return SearchIcon();
-        } else if (labels.includes("blockchain")){
+        } else if (labels.includes("blockchain")) {
             return BlockchainIcon();
-        } else if (labels.includes("ai")){
+        } else if (labels.includes("ai")) {
             return MachineLearningIcon();
-        } else if (labels.includes("rpc")){
+        } else if (labels.includes("rpc")) {
             return RpcIcon();
         } else {
             return this.getIconFromSource(camelIcon);
         }
     }
 
-    static isElementInternalComponent = (element: CamelElement):boolean => {
+    static isElementInternalComponent = (element: CamelElement): boolean => {
         const uri = (element as any).uri;
         const component = ComponentApi.findByName(uri);
         return component !== undefined && CamelUi.isComponentInternal(component.component.label);
     }
 
-    static isComponentInternal = (label: string):boolean => {
+    static isComponentInternal = (label: string): boolean => {
         const labels = label.split(",");
         if (labels.includes('core') && (
-                labels.includes('transformation')
-                || labels.includes('testing')
-                || labels.includes('scheduling')
-                || labels.includes('monitoring')
-                || labels.includes('transformation')
-                || labels.includes('java')
-                || labels.includes('endpoint')
-                || labels.includes('script')
-                || labels.includes('validation')
-            )) {
+            labels.includes('transformation')
+            || labels.includes('testing')
+            || labels.includes('scheduling')
+            || labels.includes('monitoring')
+            || labels.includes('transformation')
+            || labels.includes('java')
+            || labels.includes('endpoint')
+            || labels.includes('script')
+            || labels.includes('validation')
+        )) {
             return true;
         } else if (label === 'transformation') {
             return true;
@@ -667,7 +681,7 @@ export class CamelUi {
         return false;
     }
 
-    static getIconForElement = (element: CamelElement):JSX.Element => {
+    static getIconForElement = (element: CamelElement): JSX.Element => {
         const uri = (element as any).uri;
         const component = ComponentApi.findByName(uri);
         const k: KameletModel | undefined = CamelUtil.getKamelet(element);
@@ -683,34 +697,45 @@ export class CamelUi {
             return this.getIconForDslName(element.dslName);
         }
     }
-    static getIconForDslName = (dslName: string):JSX.Element => {
+    static getIconForDslName = (dslName: string): JSX.Element => {
         switch (dslName) {
-            case 'AggregateDefinition': return <AggregateIcon/>;
-            case 'ChoiceDefinition' :return <ChoiceIcon/>;
-            case 'SplitDefinition' :return <SplitIcon/>;
-            case 'SagaDefinition' :return <SagaIcon/>;
-            case 'FilterDefinition' :return <FilterIcon/>;
-            case 'SortDefinition' :return <SortIcon/>;
-            case 'OnCompletionDefinition' :return <OnCompletion/>;
-            case 'InterceptDefinition' :return <Intercept/>;
-            case 'InterceptFromDefinition' :return <InterceptFrom/>;
-            case 'InterceptSendToEndpointDefinition' :return <InterceptSendToEndpoint/>;
-            default: return this.getIconFromSource(CamelUi.getIconSrcForName(dslName))
+            case 'AggregateDefinition':
+                return <AggregateIcon/>;
+            case 'ChoiceDefinition' :
+                return <ChoiceIcon/>;
+            case 'SplitDefinition' :
+                return <SplitIcon/>;
+            case 'SagaDefinition' :
+                return <SagaIcon/>;
+            case 'FilterDefinition' :
+                return <FilterIcon/>;
+            case 'SortDefinition' :
+                return <SortIcon/>;
+            case 'OnCompletionDefinition' :
+                return <OnCompletion/>;
+            case 'InterceptDefinition' :
+                return <Intercept/>;
+            case 'InterceptFromDefinition' :
+                return <InterceptFrom/>;
+            case 'InterceptSendToEndpointDefinition' :
+                return <InterceptSendToEndpoint/>;
+            default:
+                return this.getIconFromSource(CamelUi.getIconSrcForName(dslName))
         }
     }
 
-    static getIconFromSource = (src: string):JSX.Element => {
+    static getIconFromSource = (src: string): JSX.Element => {
         return <img draggable={false} src={src} className="icon" alt="icon"/>
     }
 
-    static getConnectionIcon = (element: CamelElement): JSX.Element  => {
+    static getConnectionIcon = (element: CamelElement): JSX.Element => {
         const k: KameletModel | undefined = CamelUtil.getKamelet(element);
         const uri = (element as any).uri;
         const component = ComponentApi.findByName(uri);
         if (component) {
             return CamelUi.getIconForComponent(component.component.title, component.component.label);
-        } else  if (["FromDefinition", "KameletDefinition"].includes(element.dslName)) {
-            const icon =  k ? k.icon() : externalIcon;
+        } else if (["FromDefinition", "KameletDefinition"].includes(element.dslName)) {
+            const icon = k ? k.icon() : externalIcon;
             return <img src={icon} className="icon"/>
         } else if (element.dslName === "ToDefinition" && (element as ToDefinition).uri?.startsWith("kamelet:")) {
             const icon = k ? k.icon() : CamelUi.getIconSrcForName(element.dslName);
@@ -737,7 +762,7 @@ export class CamelUi {
         result.set('rest', i.spec.flows?.filter((e: any) => e.dslName === 'RestDefinition').length || 0);
         result.set('routeConfiguration', i.spec.flows?.filter((e: any) => e.dslName === 'RouteConfigurationDefinition').length || 0);
         const beans = i.spec.flows?.filter((e: any) => e.dslName === 'Beans');
-        if (beans && beans.length > 0 && beans[0].beans && beans[0].beans.length > 0){
+        if (beans && beans.length > 0 && beans[0].beans && beans[0].beans.length > 0) {
             result.set('beans', Array.from(beans[0].beans).length);
         }
         return result;
