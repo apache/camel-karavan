@@ -45,7 +45,7 @@ export class EipCard extends React.Component<Props, State> {
     render() {
         const component = this.state.element;
         return (
-            <Card isHoverable isCompact key={component.name} className="kamelet-card"
+            <Card  isCompact key={component.name} className="kamelet-card"
                 onClick={event => this.click(event)}
             >
                 <CardHeader>

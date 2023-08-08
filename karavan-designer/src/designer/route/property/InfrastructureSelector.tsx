@@ -22,7 +22,7 @@ import {
     Tab, Tabs, TabTitleText, TextInput,
 } from '@patternfly/react-core';
 import '../../karavan.css';
-import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import {Table /* data-codemods */, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
 
 interface Props {
@@ -65,7 +65,7 @@ export class InfrastructureSelector extends React.Component<Props, State> {
         return (
             <Form isHorizontal className="search" autoComplete="off">
                 <FormGroup fieldId="search">
-                    <TextInput className="text-field" type="text" id="search" name="search" iconVariant='search'
+                    <TextInput className="text-field" type="text" id="search" name="search" 
                                value={this.state.filter}
                                onChange={e => this.setState({filter: e})}/>
                 </FormGroup>
@@ -76,7 +76,7 @@ export class InfrastructureSelector extends React.Component<Props, State> {
     getConfigMapTable() {
         const configMaps = this.state.configMaps;
         return (
-            <TableComposable variant='compact' borders={false}>
+            <Table variant='compact' borders={false}>
                 <Thead>
                     <Tr>
                         <Th/>
@@ -108,14 +108,14 @@ export class InfrastructureSelector extends React.Component<Props, State> {
                             )
                         })}
                 </Tbody>
-            </TableComposable>
+            </Table>
         )
     }
 
     getSecretsTable() {
         const secrets = this.state.secrets;
         return (
-            <TableComposable variant='compact' borders={false}>
+            <Table variant='compact' borders={false}>
                 <Thead>
                     <Tr>
                         <Th/>
@@ -147,14 +147,14 @@ export class InfrastructureSelector extends React.Component<Props, State> {
                             )
                         })}
                 </Tbody>
-            </TableComposable>
+            </Table>
         )
     }
 
     getServicesTable() {
         const services = this.state.services;
         return (
-            <TableComposable variant='compact' borders={false}>
+            <Table variant='compact' borders={false}>
                 <Thead>
                     <Tr>
                         <Th/>
@@ -202,7 +202,7 @@ export class InfrastructureSelector extends React.Component<Props, State> {
                             )
                         })}
                 </Tbody>
-            </TableComposable>
+            </Table>
         )
     }
 

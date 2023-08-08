@@ -129,7 +129,7 @@ class App extends React.Component<Props, State> {
     getSpinner() {
         return (
             <Bullseye className="loading-page">
-                <Spinner className="progress-stepper" isSVG diameter="80px" aria-label="Loading..."/>
+                <Spinner className="progress-stepper"  diameter="80px" aria-label="Loading..."/>
             </Bullseye>
         )
     }

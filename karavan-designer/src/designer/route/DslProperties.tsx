@@ -128,7 +128,7 @@ export class DslProperties extends React.Component<Props, State> {
                 </div>
                 <Text component={TextVariants.p}>{descriptionLines.at(0)}</Text>
                 {descriptionLines.length > 1 && <ExpandableSection toggleText={isDescriptionExpanded ? 'Show less' : 'Show more'}
-                                                                   onToggle={isExpanded => this.setState({isDescriptionExpanded: !isDescriptionExpanded})}
+                                                                   onToggle={(_event, isExpanded) => this.setState({isDescriptionExpanded: !isDescriptionExpanded})}
                                                                    isExpanded={isDescriptionExpanded}>
                     {descriptionLines.filter((value, index) => index > 0)
                         .map((desc, index, array) => <Text key={index} component={TextVariants.p}>{desc}</Text>)}
@@ -199,7 +199,7 @@ export class DslProperties extends React.Component<Props, State> {
                     {propertiesAdvanced.length > 0 &&
                         <ExpandableSection
                             toggleText={'Advanced properties'}
-                            onToggle={isExpanded => this.setState({isShowAdvanced: !this.state.isShowAdvanced})}
+                            onToggle={(_event, isExpanded) => this.setState({isShowAdvanced: !this.state.isShowAdvanced})}
                             isExpanded={this.state.isShowAdvanced}>
                             <div className="parameters">
                                 {this.getPropertyFields(propertiesAdvanced)}

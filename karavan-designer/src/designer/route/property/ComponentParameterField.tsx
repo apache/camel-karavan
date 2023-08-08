@@ -16,15 +16,22 @@
  */
 import React from 'react';
 import {
-    FormGroup,
-    TextInput,
-    Popover,
-    Switch,
-    Select,
-    SelectVariant,
-    SelectDirection,
-    SelectOption, InputGroup, TextArea, Tooltip, Button, capitalize,
+	FormGroup,
+	TextInput,
+	Popover,
+	Switch,
+	InputGroup,
+	TextArea,
+	Tooltip,
+	Button,
+	capitalize, InputGroupItem
 } from '@patternfly/react-core';
+import {
+	Select,
+	SelectVariant,
+	SelectDirection,
+	SelectOption
+} from '@patternfly/react-core/deprecated';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
@@ -99,7 +106,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
                 id={this.state.id} name={this.state.id}
                 variant={SelectVariant.single}
                 aria-label={property.name}
-                onToggle={isExpanded => {
+                onToggle={(_event, isExpanded) => {
                     this.openSelect(property.name, isExpanded)
                 }}
                 onSelect={(e, value, isPlaceholder) => this.parametersChanged(property.name, (!isPlaceholder ? value : undefined))}
@@ -147,12 +154,12 @@ export class ComponentParameterField extends React.Component<Props, State> {
                 <SelectOption key={value} value={value ? value.trim() : value}/>));
         }
         return <InputGroup id={this.state.id} name={this.state.id}>
-            <Select
+            <InputGroupItem><Select
                 id={this.state.id} name={this.state.id}
                 placeholderText="Select or type an URI"
                 variant={SelectVariant.typeahead}
                 aria-label={property.name}
-                onToggle={isExpanded => {
+                onToggle={(_event, isExpanded) => {
                     this.openSelect(property.name, isExpanded)
                 }}
                 onSelect={(e, value, isPlaceholder) => {
@@ -167,8 +174,8 @@ export class ComponentParameterField extends React.Component<Props, State> {
                 direction={SelectDirection.down}
             >
                 {selectOptions}
-            </Select>
-            <Tooltip position="bottom-end" content={"Create route"}>
+            </Select></InputGroupItem>
+            <InputGroupItem><Tooltip position="bottom-end" content={"Create route"}>
                 <Button isDisabled={value === undefined} variant="control" onClick={e => {
                     if (value) {
                         const newRoute = !internalUris.includes(value.toString()) ? new RouteToCreate(componentName, value.toString()) : undefined;
@@ -177,7 +184,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
                 }}>
                     {<PlusIcon/>}
                 </Button>
-            </Tooltip>
+            </Tooltip></InputGroupItem>
         </InputGroup>
     }
 
@@ -280,7 +287,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
                 id={this.state.id} name={this.state.id}
                 variant={SelectVariant.single}
                 aria-label={property.name}
-                onToggle={isExpanded => {
+                onToggle={(_event, isExpanded) => {
                     this.openSelect(property.name, isExpanded)
                 }}
                 onSelect={(e, value, isPlaceholder) => this.parametersChanged(property.name, (!isPlaceholder ? value : undefined), property.kind === 'path')}

@@ -76,7 +76,7 @@ export class DslSelector extends React.Component<Props, State> {
         return (
             <Form isHorizontal className="search" autoComplete="off">
                 <FormGroup fieldId="search">
-                    <TextInput className="text-field" type="text" id="search" name="search" iconVariant='search'
+                    <TextInput className="text-field" type="text" id="search" name="search" 
                                value={this.state.filter}
                                onChange={e => this.setState({filter: e})}/>
                 </FormGroup>
@@ -86,7 +86,7 @@ export class DslSelector extends React.Component<Props, State> {
 
     getCard(dsl: DslMetaModel, index: number) {
         return (
-            <Card key={dsl.dsl + index} isHoverable isCompact className="dsl-card"
+            <Card key={dsl.dsl + index}  isCompact className="dsl-card"
                   onClick={event => this.selectDsl(event, dsl)}>
                 <CardHeader className="header-labels">
                     {dsl.supportType === 'Supported' && <Badge isRead className="support-type labels">{dsl.supportType}</Badge>}

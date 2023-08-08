@@ -18,7 +18,7 @@ import React from 'react';
 import {
     Form,
     FormGroup,
-    TextInput, Button, Title, Tooltip, Popover, InputGroup,
+    TextInput, Button, Title, Tooltip, Popover, InputGroup, InputGroupItem,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -213,7 +213,7 @@ export class BeanProperties extends React.Component<Props, State> {
                                             {icon}
                                         </Button>
                                     </Tooltip>}
-                                    <TextInput
+                                    <InputGroupItem isFill ><TextInput
                                         placeholder="Bean Field Value"
                                         type={isSecret && !showPassword ? "password" : "text"}
                                         className="text-field"
@@ -221,7 +221,7 @@ export class BeanProperties extends React.Component<Props, State> {
                                         id="value"
                                         name="value"
                                         value={value}
-                                        onChange={e => this.propertyChanged(i, key, e, showPassword)}/>
+                                        onChange={e => this.propertyChanged(i, key, e, showPassword)}/></InputGroupItem>
                                     {isSecret && <Tooltip position="bottom-end" content={showPassword ? "Hide" : "Show"}>
                                         <Button variant="control" onClick={e => this.propertyChanged(i, key, value, !showPassword)}>
                                             {showPassword ? <ShowIcon/> : <HideIcon/>}

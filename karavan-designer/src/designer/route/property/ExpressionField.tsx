@@ -16,13 +16,15 @@
  */
 import React from 'react';
 import {
-    FormGroup,
-    Popover,
-    Select,
-    SelectVariant,
-    SelectDirection,
-    SelectOption
+	FormGroup,
+	Popover
 } from '@patternfly/react-core';
+import {
+	Select,
+	SelectVariant,
+	SelectDirection,
+	SelectOption
+} from '@patternfly/react-core/deprecated';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
@@ -116,7 +118,7 @@ export class ExpressionField extends React.Component<Props, State> {
                 <Select
                     variant={SelectVariant.typeahead}
                     aria-label={property.name}
-                    onToggle={isExpanded => {
+                    onToggle={(_event, isExpanded) => {
                         this.openSelect(isExpanded)
                     }}
                     onSelect={(e, lang, isPlaceholder) => {

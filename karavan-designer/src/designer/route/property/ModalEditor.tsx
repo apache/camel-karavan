@@ -76,9 +76,9 @@ export class ModalEditor extends React.Component<Props, State> {
                 isOpen={showEditor}
                 onClose={() => this.close()}
                 actions={[
-                    <Button key="save" variant="primary" isSmall
+                    <Button key="save" variant="primary" size="sm"
                             onClick={e => this.closeAndSave()}>Save</Button>,
-                    <Button key="cancel" variant="secondary" isSmall
+                    <Button key="cancel" variant="secondary" size="sm"
                             onClick={e => this.close()}>Close</Button>
                 ]}
                 onEscapePress={e => this.close()}>

@@ -17,7 +17,7 @@
 import React from 'react';
 import {
      EmptyState, EmptyStateBody, EmptyStateIcon,
-    PageSection, Title
+    PageSection, EmptyStateHeader, 
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
@@ -59,10 +59,7 @@ export class TemplatesDesigner extends React.Component<Props, State> {
             <PageSection className="templates-page" isFilled padding={{default: 'noPadding'}}>
                 <div className="templates-page-columns">
                     <EmptyState>
-                        <EmptyStateIcon icon={CubesIcon} />
-                        <Title headingLevel="h4" size="lg">
-                            Templates
-                        </Title>
+                        <EmptyStateHeader titleText="Templates" icon={<EmptyStateIcon icon={CubesIcon} />} headingLevel="h4" />
                         <EmptyStateBody>
                             Templates not implemented yet
                         </EmptyStateBody>
