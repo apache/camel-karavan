@@ -147,7 +147,7 @@ export class RouteDesignerLogic {
     onPropertyUpdate = debounce((element: CamelElement, newRoute?: RouteToCreate) => {
         if (newRoute) {
             let i = CamelDefinitionApiExt.updateIntegrationRouteElement(this.routeDesigner.state.integration, element);
-            const f = CamelDefinitionApi.createFromDefinition({uri: newRoute.componentName + ":" + newRoute.name})
+            const f = CamelDefinitionApi.createFromDefinition({uri: newRoute.componentName, parameters: {name: newRoute.name}});
             const r = CamelDefinitionApi.createRouteDefinition({from: f, id: newRoute.name})
             i = CamelDefinitionApiExt.addStepToIntegration(i, r, '');
             const clone = CamelUtil.cloneIntegration(i);
