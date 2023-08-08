@@ -344,7 +344,7 @@ export class CamelUi {
         } else if (element.dslName === 'RouteDefinition') {
             const routeId = (element as RouteDefinition).id
             return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
-        } else if ((element as any).uri && element.dslName === 'ToDefinition') {
+        } else if ((element as any).uri && (['ToDefinition', 'FromDefinition'].includes(element.dslName))) {
             const uri = (element as any).uri
             return ComponentApi.getComponentTitleFromUri(uri) || '';
         } else {
@@ -357,7 +357,7 @@ export class CamelUi {
         const kamelet: KameletModel | undefined = CamelUtil.getKamelet(element);
         if (kamelet) {
             return kamelet.spec.definition.description;
-        } else if ((element as any).uri && element.dslName === 'ToDefinition') {
+        } else if ((element as any).uri && (['ToDefinition', 'FromDefinition'].includes(element.dslName))) {
             const uri = (element as any).uri
             return ComponentApi.getComponentDescriptionFromUri(uri) || '';
         } else {
