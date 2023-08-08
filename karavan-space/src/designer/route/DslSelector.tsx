@@ -17,14 +17,13 @@
 import React from 'react';
 import {
     Badge,
-    Card, CardBody, CardFooter, CardHeader, Flex, FlexItem, Form, FormGroup, Gallery, Modal, PageSection,
+    Card, CardBody, CardFooter, CardHeader, Flex, FlexItem, Form, FormGroup, Gallery, Label, Modal, PageSection,
     Tab, Tabs, TabTitleText,
-    Text, TextInput,
+    Text, TextInput, ToggleGroup, ToggleGroupItem,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {CamelUi} from "../utils/CamelUi";
 import {DslMetaModel} from "../utils/DslMetaModel";
-import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 
 interface Props {
     onDslSelect: (dsl: DslMetaModel, parentId: string, position?: number | undefined) => void,
@@ -41,23 +40,19 @@ interface Props {
 interface State {
     tabIndex: string | number
     filter: string;
+    selectedLabels: string []
 }
 
 export class DslSelector extends React.Component<Props, State> {
 
-    getDefaultTabIndex = () => {
-        const x = CamelUi.getSelectorModelTypes(this.props.parentDsl, this.props.showSteps);
-        if (x.length > 0) return x[0][0]
-        else return '';
-    }
-
     public state: State = {
-        tabIndex: this.props.tabIndex ? this.props.tabIndex : this.getDefaultTabIndex(),
-        filter: ''
+        tabIndex: this.props.tabIndex ? this.props.tabIndex : (this.props.parentDsl ? 'eip' : 'kamelet'),
+        filter: '',
+        selectedLabels: []
     }
 
     selectTab = (evt: React.MouseEvent<HTMLElement, MouseEvent>, eventKey: string | number) => {
-        this.setState({tabIndex: eventKey})
+        this.setState({tabIndex: eventKey});
     }
 
     componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
@@ -68,7 +63,7 @@ export class DslSelector extends React.Component<Props, State> {
 
     selectDsl = (evt: React.MouseEvent, dsl: any) => {
         evt.stopPropagation();
-        this.setState({filter:""});
+        this.setState({filter: ""});
         this.props.onDslSelect.call(this, dsl, this.props.parentId, this.props.position);
     }
 
@@ -85,12 +80,15 @@ export class DslSelector extends React.Component<Props, State> {
     }
 
     getCard(dsl: DslMetaModel, index: number) {
+        const labels = dsl.labels !== undefined ? dsl.labels.split(",").filter(label => label !== 'eip') : [];
         return (
-            <Card key={dsl.dsl + index} isHoverable isCompact className="dsl-card"
+            <Card key={dsl.dsl + index} isCompact className="dsl-card"
                   onClick={event => this.selectDsl(event, dsl)}>
                 <CardHeader className="header-labels">
-                    {dsl.supportType === 'Supported' && <Badge isRead className="support-type labels">{dsl.supportType}</Badge>}
                     <Badge isRead className="support-level labels">{dsl.supportLevel}</Badge>
+                    {['kamelet', 'component'].includes(dsl.navigation.toLowerCase()) &&
+                        <Badge isRead className="version labels">{dsl.version}</Badge>
+                    }
                 </CardHeader>
                 <CardHeader>
                     {CamelUi.getIconForDsl(dsl)}
@@ -99,30 +97,53 @@ export class DslSelector extends React.Component<Props, State> {
                 <CardBody>
                     <Text>{dsl.description}</Text>
                 </CardBody>
-                    {dsl.navigation.toLowerCase() === "kamelet"
-                        && <CardFooter className="footer-labels">
-                            <Badge isRead className="labels">{dsl.labels}</Badge>
-                            <Badge isRead className="version labels">{dsl.version}</Badge>
-                        </CardFooter>}
-                    {dsl.navigation.toLowerCase() === "component"
-                        && <CardFooter className="footer-labels">
-                            <Badge isRead className="labels">{dsl.labels}</Badge>
-                            <Badge isRead className="version labels">{dsl.version}</Badge>
-                        </CardFooter>
-                    }
+                <CardFooter className="footer-labels">
+                    <div style={{display: "flex", flexDirection: "row", justifyContent: "start"}}>
+                        {labels.map(label => <Badge isRead className="labels">{label}</Badge>)}
+                    </div>
+
+                </CardFooter>
             </Card>
         )
     }
 
     close = () => {
-        this.setState({filter:""});
+        this.setState({filter: ""});
         this.props.onClose?.call(this);
     }
 
+    selectLabel = (eipLabel: string) => {
+        if (!this.state.selectedLabels.includes(eipLabel)) {
+            this.setState((state) => {
+                state.selectedLabels.push(eipLabel);
+                return state
+            })
+        } else {
+            this.setState((state) => {
+                const index = state.selectedLabels.findIndex((label) => label === eipLabel);
+                state.selectedLabels.splice(index, 1);
+                return state;
+            })
+        }
+    }
+
     render() {
+        const isEip = this.state.tabIndex === 'eip';
         const {parentDsl, isOpen} = this.props;
         const title = parentDsl === undefined ? "Select source" : "Select step";
-        const labelText: string = this.state.tabIndex ? this.state.tabIndex.toString() : "";
+        const navigation: string = this.state.tabIndex ? this.state.tabIndex.toString() : "";
+        const elements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, navigation, this.props.showSteps);
+        const eipLabels = [...new Set(elements.map(e => e.labels).join(",").split(",").filter(e => e !== 'eip'))];
+        const filteredElement = elements
+            .filter((dsl: DslMetaModel) => CamelUi.checkFilter(dsl, this.state.filter))
+            .filter((dsl: DslMetaModel) => {
+                if (!isEip || this.state.selectedLabels.length === 0) {
+                    return true;
+                } else {
+                    return dsl.labels.split(",").some(r => this.state.selectedLabels.includes(r));
+                }
+            });
+
         return (
             <Modal
                 aria-label={title}
@@ -139,26 +160,33 @@ export class DslSelector extends React.Component<Props, State> {
                         <FlexItem>
                             <Tabs style={{overflow: 'hidden'}} activeKey={this.state.tabIndex}
                                   onSelect={this.selectTab}>
-                                {CamelUi.getSelectorModelTypes(parentDsl, this.props.showSteps,this.state.filter).map((label: [string, number], index: number) => {
-                                    const labelText = label[0];
-                                    const count = label[1];
-                                    const title = ['kamelet', 'component'].includes(labelText.toLowerCase()) ? labelText + "s (" + count + ")" : labelText;
-                                    return (
-                                        <Tab eventKey={labelText} key={"tab-" + labelText}
-                                             title={<TabTitleText>{CamelUtil.capitalizeName(title)}</TabTitleText>}>
-                                        </Tab>
-                                    )
-                                })}
+                                {parentDsl !== undefined &&
+                                    <Tab eventKey={"eip"} key={"tab-eip"}
+                                         title={<TabTitleText>Integration Patterns</TabTitleText>}>
+                                    </Tab>
+                                }
+                                <Tab eventKey={'kamelet'} key={"tab-kamelet"}
+                                     title={<TabTitleText>Kamelets</TabTitleText>}>
+                                </Tab>
+                                <Tab eventKey={'component'} key={'tab-component'}
+                                     title={<TabTitleText>Components</TabTitleText>}>
+                                </Tab>
                             </Tabs>
                         </FlexItem>
                     </Flex>
                 }
                 actions={{}}>
                 <PageSection variant={this.props.dark ? "darker" : "light"}>
-                    <Gallery key={"gallery-" + labelText} hasGutter className="dsl-gallery">
-                        {isOpen && CamelUi.getSelectorModelsForParentFiltered(parentDsl, labelText, this.props.showSteps)
-                            .filter((dsl: DslMetaModel) => CamelUi.checkFilter(dsl, this.state.filter))
-                            .map((dsl: DslMetaModel, index: number) => this.getCard(dsl, index))}
+                    {isEip && <ToggleGroup aria-label="Labels" isCompact>
+                        {eipLabels.map(eipLabel => <ToggleGroupItem
+                            text={eipLabel}
+                            buttonId={eipLabel}
+                            isSelected={this.state.selectedLabels.includes(eipLabel)}
+                            onChange={selected => this.selectLabel(eipLabel)}
+                        />)}
+                    </ToggleGroup>}
+                    <Gallery key={"gallery-" + navigation} hasGutter className="dsl-gallery">
+                        {isOpen && filteredElement.map((dsl: DslMetaModel, index: number) => this.getCard(dsl, index))}
                     </Gallery>
                 </PageSection>
             </Modal>
