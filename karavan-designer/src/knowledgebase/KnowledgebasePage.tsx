@@ -68,8 +68,8 @@ export const KnowledgebasePage = (props: Props) => {
                 <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
                     <FlexItem className="knowledge-tabs">
                         <Tabs activeKey={tab} onSelect={(event, tabIndex) => setTab(tabIndex)}>
-                            <Tab eventKey="kamelets" title="Kamelets"/>
                             <Tab eventKey="eip" title="Enterprise Integration Patterns"/>
+                            <Tab eventKey="kamelets" title="Kamelets"/>
                             <Tab eventKey="components" title="Components"/>
                         </Tabs>
                     </FlexItem>
