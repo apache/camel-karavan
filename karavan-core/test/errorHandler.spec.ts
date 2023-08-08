@@ -16,6 +16,7 @@
  */
 import {expect} from 'chai';
 import * as fs from 'fs';
+import * as jsYaml from 'js-yaml';
 import 'mocha';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
 
@@ -32,6 +33,6 @@ describe('Global Error Handler', () => {
         expect(i.spec.flows?.[1].errorHandler.deadLetterChannel.useOriginalMessage).to.equal(true);
         expect(i.spec.flows?.[1].errorHandler.deadLetterChannel.level).to.equal('TRACE');
         const yaml2 = CamelDefinitionYaml.integrationToYaml(i);
-        expect(yaml).to.equal(yaml2);
+        expect(yaml.replaceAll("\r\n", "\n")).to.equal(yaml2); // replace for Windows compatibility
     });
 });

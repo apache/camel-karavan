@@ -31,8 +31,8 @@ describe('Plain YAML with route to integration', () => {
         expect(i.type).to.equal('plain');
         if (i.spec.flows) expect(i.spec.flows[0].from.uri).to.equal('timer');
         if (i.spec.flows) expect(i.spec.flows[0].from.parameters.name).to.equal('info');
-        const y = CamelDefinitionYaml.integrationToYaml(i);
-        expect(y).to.equal(yaml);
+        const yaml2 = CamelDefinitionYaml.integrationToYaml(i);
+        expect(yaml.replaceAll("\r\n", "\n")).to.equal(yaml2); // replace for Windows compatibility
     });
 
 });

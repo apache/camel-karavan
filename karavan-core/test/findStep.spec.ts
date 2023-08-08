@@ -101,7 +101,7 @@ describe('Find Step', () => {
         const yaml = fs.readFileSync('test/findStep.yaml',{encoding:'utf8', flag:'r'});
         const i = CamelDefinitionYaml.yamlToIntegration("demo.yaml", yaml);
         const yaml2 = CamelDefinitionYaml.integrationToYaml(i);
-        expect(yaml2).to.equal(yaml);
+        expect(yaml.replaceAll("\r\n", "\n")).to.equal(yaml2); // replace for Windows compatibility
 
         const res1 = CamelDefinitionApiExt.hasElementWithId(i, 'to-6a8b');
         const res2 = CamelDefinitionApiExt.hasElementWithId(i, 'to-6a81');
