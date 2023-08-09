@@ -334,7 +334,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
                         }>
                         <button type="button" aria-label="More info" onClick={e => e.preventDefault()}
                                 className="pf-c-form__group-label-help">
-                            <HelpIcon noVerticalAlign/>
+                            <HelpIcon />
                         </button>
                     </Popover>
                 }>

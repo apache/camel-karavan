@@ -77,8 +77,12 @@ export class DslSelector extends React.Component<Props, State> {
             <Form isHorizontal className="search" autoComplete="off">
                 <FormGroup fieldId="search">
                     <TextInput className="text-field" type="text" id="search" name="search" 
-                               value={this.state.filter}
-                               onChange={e => this.setState({filter: e})}/>
+                            value={this.state.filter}
+                            onChange={e => {
+                                // TODO: check what should be set here, probably not e
+                                // @ts-ignore
+                                this.setState({filter: e})
+                            }}/>
                 </FormGroup>
             </Form>
         )

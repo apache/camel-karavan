@@ -158,7 +158,7 @@ export class DslPropertyField extends React.Component<Props, State> {
             const tooltip = value ? "Delete " + property.name : "Add " + property.name;
             const className = value ? "change-button delete-button" : "change-button add-button";
             const x = value ? undefined : CamelDefinitionApi.createStep(property.type, {});
-            const icon = value ? (<DeleteIcon noVerticalAlign/>) : (<AddIcon noVerticalAlign/>);
+            const icon = value ? (<DeleteIcon />) : (<AddIcon />);
             return (
                 <div style={{display: "flex"}}>
                     <Text>{property.displayName} </Text>
@@ -275,7 +275,11 @@ export class DslPropertyField extends React.Component<Props, State> {
                 type="text"
                 id={property.name} name={property.name}
                 value={value?.toString()}
-                onChange={e => this.propertyChanged(property.name, CamelUtil.capitalizeName(e?.replace(/\s/g, '')))} readOnlyVariant="default"/></InputGroupItem>
+                onChange={e => {
+                    // TODO: it is unclear what should be done here e is not a string
+                    // @ts-ignore
+                    this.propertyChanged(property.name, CamelUtil.capitalizeName(e?.replace(/\s/g, '')))
+                }} readOnlyVariant="default"/></InputGroupItem>
             <InputGroupItem><Tooltip position="bottom-end" content={"Create Java Class"}>
                 <Button isDisabled={value?.length === 0} variant="control" onClick={e => this.showCode(value, property.javaType)}>
                     <PlusIcon/>
@@ -663,7 +667,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                         e.preventDefault();
                         e.stopPropagation();
                     }} className="pf-c-form__group-label-help">
-                        <HelpIcon noVerticalAlign/>
+                        <HelpIcon />
                     </button>
                 </Popover>
                 : <div></div>

@@ -144,7 +144,7 @@ export class ExpressionField extends React.Component<Props, State> {
                                 e.stopPropagation();
                             }}
                                     className="pf-c-form__group-label-help">
-                                <HelpIcon noVerticalAlign/>
+                                <HelpIcon />
                             </button>
                         </Popover> : <div></div>
                     }>
