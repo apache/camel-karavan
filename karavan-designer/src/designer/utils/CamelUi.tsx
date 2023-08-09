@@ -88,7 +88,6 @@ import {
     WorkflowIcon
 } from "./KaravanIcons";
 import React from "react";
-import {Icon} from "@patternfly/react-core";
 
 const StepElements: string[] = [
     "AggregateDefinition",

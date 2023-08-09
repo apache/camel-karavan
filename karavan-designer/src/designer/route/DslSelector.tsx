@@ -99,7 +99,7 @@ export class DslSelector extends React.Component<Props, State> {
                 </CardBody>
                 <CardFooter className="footer-labels">
                     <div style={{display: "flex", flexDirection: "row", justifyContent: "start"}}>
-                        {labels.map(label => <Badge isRead className="labels">{label}</Badge>)}
+                        {labels.map(label => <Badge key={label} isRead className="labels">{label}</Badge>)}
                     </div>
 
                 </CardFooter>
@@ -179,6 +179,7 @@ export class DslSelector extends React.Component<Props, State> {
                 <PageSection variant={this.props.dark ? "darker" : "light"}>
                     {isEip && <ToggleGroup aria-label="Labels" isCompact>
                         {eipLabels.map(eipLabel => <ToggleGroupItem
+                            key={eipLabel}
                             text={eipLabel}
                             buttonId={eipLabel}
                             isSelected={this.state.selectedLabels.includes(eipLabel)}
