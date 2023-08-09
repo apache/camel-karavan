@@ -568,19 +568,15 @@ export class CamelDefinitionApiExt {
     };
 
     static getDataFormat = (element: CamelElement | undefined): ElementMeta | undefined => {
-        if (!element) {
-            return undefined;
+        let result: ElementMeta | undefined = undefined;
+        if (element) {
+            Object.keys(element).forEach(fieldName => {
+                const df = CamelMetadataApi.getCamelDataFormatMetadataByName(fieldName);
+                result =  (element as any)[fieldName] ? df : result;
+            });
         }
-
-        for (const fieldName in element) {
-            const df = CamelMetadataApi.getCamelDataFormatMetadataByName(fieldName);
-            if (df) {
-                return df;
-            }
-        }
-
-        return undefined;
-    };
+        return result;
+    }
 
     static getExpressionValue = (expression: ExpressionDefinition | undefined): CamelElement | undefined => {
         const language = CamelDefinitionApiExt.getExpressionLanguageName(expression);

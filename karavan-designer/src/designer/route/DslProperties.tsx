@@ -33,7 +33,7 @@ import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefin
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelUi, RouteToCreate} from "../utils/CamelUi";
-import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
+import {CamelMetadataApi, DataFormats, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {IntegrationHeader} from "../utils/KaravanComponents";
 import CloneIcon from "@patternfly/react-icons/dist/esm/icons/clone-icon";
 
@@ -170,7 +170,7 @@ export class DslProperties extends React.Component<Props, State> {
 
     getPropertyFields = (properties: PropertyMeta[]) => {
         return (<>
-            {this.state.step && !['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName) && properties.map((property: PropertyMeta) =>
+            {properties.map((property: PropertyMeta) =>
                 <DslPropertyField key={property.name}
                                   integration={this.props.integration}
                                   property={property}
@@ -186,7 +186,11 @@ export class DslProperties extends React.Component<Props, State> {
     }
 
     render() {
-        const properties = this.getProperties();
+        const dataFormats = DataFormats.map(value => value[0]);
+        const dataFormatElement = this.state.step !== undefined && ['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName);
+        const properties = !dataFormatElement
+                    ? this.getProperties()
+                    : this.getProperties().filter(p => !dataFormats.includes(p.name));
         const propertiesMain = properties.filter(p => !p.label.includes("advanced"));
         const propertiesAdvanced = properties.filter(p => p.label.includes("advanced"));
         return (
@@ -196,7 +200,8 @@ export class DslProperties extends React.Component<Props, State> {
                     {this.state.step === undefined && <IntegrationHeader integration={this.props.integration}/>}
                     {this.state.step && this.getComponentHeader()}
                     {this.getPropertyFields(propertiesMain)}
-                    {propertiesAdvanced.length > 0 &&
+                    {this.state.step && !['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName)
+                        && propertiesAdvanced.length > 0 &&
                         <ExpandableSection
                             toggleText={'Advanced properties'}
                             onToggle={isExpanded => this.setState({isShowAdvanced: !this.state.isShowAdvanced})}
