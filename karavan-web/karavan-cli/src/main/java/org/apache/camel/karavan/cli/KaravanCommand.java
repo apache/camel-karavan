@@ -4,6 +4,7 @@ import picocli.CommandLine;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -19,7 +20,7 @@ public class KaravanCommand implements Callable<Integer> {
     private String namespace;
     @CommandLine.Option(names = {"-e", "--environment"}, description = "Environment", defaultValue = Constants.DEFAULT_ENVIRONMENT)
     private String environment;
-    @CommandLine.Option(names = {"-r", "--runtimes"}, description = "Runtimes: quarkus, spring-boot", defaultValue = Constants.DEFAULT_RUNTIMES)
+    @CommandLine.Option(names = {"-r", "--runtimes"}, description = "Runtimes: camel-main, quarkus, spring-boot", defaultValue = Constants.DEFAULT_RUNTIMES)
     private String runtimes;
     @CommandLine.Option(names = {"--auth"}, description = "Authentication: public, basic, oidc", defaultValue = Constants.DEFAULT_AUTH)
     private String auth;
@@ -27,9 +28,9 @@ public class KaravanCommand implements Callable<Integer> {
     private int nodePort;
     @CommandLine.Option(names = {"--instances"}, description = "Instances. Default: 1", defaultValue = "1")
     private int instances;
-    @CommandLine.Option(names = {"--base-image"}, description = "Base Image", defaultValue = Constants.KARAVAN_IMAGE)
+    @CommandLine.Option(names = {"--image"}, description = "Karavan Base Image", defaultValue = Constants.KARAVAN_IMAGE)
     private String baseImage;
-    @CommandLine.Option(names = {"--base-builder-image"}, description = "Base Builder Image", defaultValue = Constants.DEFAULT_BUILD_IMAGE)
+    @CommandLine.Option(names = {"--builder-image"}, description = "Karavan Base Builder Image", defaultValue = Constants.DEFAULT_BUILD_IMAGE)
     private String baseBuilderImage;
     @CommandLine.Option(names = {"--file"}, description = "YAML file name", defaultValue = "karavan.yaml")
     private String file;
@@ -78,7 +79,7 @@ public class KaravanCommand implements Callable<Integer> {
     @CommandLine.Option(names = { "-h", "--help" }, usageHelp = true, description = "Display help")
     private boolean helpRequested;
 
-    private Map<String,String> labels;
+    private Map<String,String> labels = new HashMap<>();
 
     public static void main(String... args) {
         CommandLine commandLine = new CommandLine(new KaravanCommand());

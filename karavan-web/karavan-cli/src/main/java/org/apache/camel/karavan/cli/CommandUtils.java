@@ -29,6 +29,7 @@ import io.fabric8.tekton.pipeline.v1beta1.Task;
 import org.apache.camel.karavan.cli.resources.*;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
@@ -48,7 +49,7 @@ public class CommandUtils {
                 System.out.println("⭕ Installing Karavan to OpenShift");
                 config.setOpenShift(true);
             } else {
-                System.out.println("\u2388 Installing Karavan to Kubernetes");
+                System.out.println("⭕ Installing Karavan to Kubernetes");
                 config.setOpenShift(false);
             }
             install(config, client);
@@ -58,7 +59,7 @@ public class CommandUtils {
     private static void install(KaravanCommand config, KubernetesClient client) {
         // Check and install Tekton
         if (!isTektonInstalled(client)) {
-            log("Tekton is not installed");
+            logError("Tekton is not installed");
             if (isOpenShift(client)) {
                 logPoint("Please install Tekton Operator first");
                 System.exit(0);
@@ -79,14 +80,13 @@ public class CommandUtils {
 
         // Check and install Infinispan
         if (!isInfinispanInstalled(client)) {
-            log("Infinispan is not installed");
+            logError("Infinispan is not installed");
             if (isOpenShift(client)) {
                 logPoint("Please install Infinispan first");
                 System.exit(0);
             }
             installInfinispan(config, client);
         }
-        log("Infinispan is installed");
 
         // Check secrets
         if (!checkKaravanSecrets(config, client)) {
@@ -137,9 +137,9 @@ public class CommandUtils {
         }
         log("Karavan is installed");
         System.out.print("\uD83D\uDC2B Karavan is starting ");
-        while (!checkReady(config, client)) {
+        while (!checkKaravanReady(config, client)) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(2000);
             } catch (Exception e) {
 
             }
@@ -162,7 +162,12 @@ public class CommandUtils {
                     config.setImageRegistry(Constants.DEFAULT_IMAGE_REGISTRY_OPENSHIFT);
                 } else {
                     Service registryService = client.services().inNamespace("kube-system").withName("registry").get();
-                    config.setImageRegistry(registryService.getSpec().getClusterIP());
+                    if (registryService != null) {
+                        config.setImageRegistry(registryService.getSpec().getClusterIP());
+                    } else {
+                        logError("Set Image Registry parameters");
+                        System.exit(0);
+                    }
                 }
             }
             if ((config.isAuthOidc() && config.oidcConfigured())
@@ -177,7 +182,7 @@ public class CommandUtils {
         return false;
     }
 
-    public static boolean checkReady(KaravanCommand config, KubernetesClient client) {
+    public static boolean checkKaravanReady(KaravanCommand config, KubernetesClient client) {
         Deployment deployment = client.apps().deployments().inNamespace(config.getNamespace()).withName(Constants.NAME).get();
         Integer replicas = deployment.getStatus().getReplicas();
         Integer ready = deployment.getStatus().getReadyReplicas();
@@ -190,6 +195,16 @@ public class CommandUtils {
                 && condition.isPresent();
     }
 
+    public static boolean checkInfinispanReady(KaravanCommand config, KubernetesClient client) {
+        StatefulSet statefulSet = client.apps().statefulSets().inNamespace(config.getNamespace()).withName(Constants.INFINISPAN_NAME).get();
+        Integer replicas = statefulSet.getStatus().getReplicas();
+        Integer ready = statefulSet.getStatus().getReadyReplicas();
+        Integer available = statefulSet.getStatus().getAvailableReplicas();
+        return statefulSet.getStatus() != null
+                && Objects.equals(replicas, ready)
+                && Objects.equals(replicas, available);
+    }
+
     private static <T extends HasMetadata> void createOrReplace(T is, KubernetesClient client) {
         try {
             T result = client.resource(is).createOrReplace();
@@ -200,27 +215,38 @@ public class CommandUtils {
     }
 
     private static void installInfinispan(KaravanCommand config, KubernetesClient client) {
-        System.out.print("⏳ Installing Infinispan");
+        System.out.print("⏳ Installing Infinispan ");
         String yaml = getResourceFile("/infinispan.yaml");
-//
-//        client.load(CommandUtils.class.getResourceAsStream("/pipelines.yaml")).create().forEach(hasMetadata -> {
-//            System.out.print(".");
-//        });
-//        client.load(CommandUtils.class.getResourceAsStream("/dashboard.yaml")).create().forEach(hasMetadata -> {
-//            System.out.print(".");
-//        });
-        System.out.println(yaml);
-        System.exit(0);
+        String resource = yaml
+                .replace("$INFINISPAN_PASSWORD", config.getInfinispanPassword())
+                .replace("$INFINISPAN_IMAGE", config.getInfinispanImage());
+
+        client.load(new ByteArrayInputStream(resource.getBytes())).inNamespace(config.getNamespace())
+                .create().forEach(hasMetadata -> System.out.print("\uD83D\uDC2B "));
+        System.out.println();
         log("Infinispan is installed");
+        System.out.print("⏳ Infinispan is starting ");
+        while (!checkInfinispanReady(config, client)) {
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+
+            }
+            System.out.print("\uD83D\uDC2B ");
+        }
+        System.out.println();
+        log("Infinispan is started");
     }
 
     private static void installTekton(KaravanCommand config, KubernetesClient client) {
-        System.out.print("⏳ Installing Tekton");
+        System.out.print("⏳ Installing Tekton ");
         client.load(CommandUtils.class.getResourceAsStream("/pipelines.yaml")).create().forEach(hasMetadata -> {
-            System.out.print(".");
+            System.out.print("\uD83D\uDC2B ");
         });
+        System.out.println();
+        System.out.print("⏳ Installing Tekton Dashboard ");
         client.load(CommandUtils.class.getResourceAsStream("/dashboard.yaml")).create().forEach(hasMetadata -> {
-            System.out.print(".");
+            System.out.print("\uD83D\uDC2B ");
         });
         System.out.println();
         log("Tekton is installed");

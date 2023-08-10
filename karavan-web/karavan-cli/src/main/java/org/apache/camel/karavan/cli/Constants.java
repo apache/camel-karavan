@@ -19,14 +19,14 @@ package org.apache.camel.karavan.cli;
 public final class Constants {
     public static final String DEFAULT_NAMESPACE = "karavan";
     public static final String DEFAULT_ENVIRONMENT = "dev";
-    public static final String DEFAULT_RUNTIMES = "quarkus,spring-boot";
+    public static final String DEFAULT_RUNTIMES = "camel-main,quarkus,spring-boot";
     public static final String DEFAULT_AUTH = "public";
     public static final String DEFAULT_GIT_PULL_INTERVAL = "off";
     public static final String DEFAULT_IMAGE_REGISTRY_OPENSHIFT = "image-registry.openshift-image-registry.svc:5000";
     public static final String DEFAULT_IMAGE_REGISTRY_MINIKUBE = "registry.kube-system.svc.cluster.local";
     public static final int DEFAULT_NODE_PORT = 0;
     public static final int DEFAULT_INSTANCES = 1;
-    public static final String DEFAULT_BUILD_IMAGE = "ghcr.io/apache/camel-karavan-builder";
+    public static final String DEFAULT_BUILD_IMAGE = "ghcr.io/apache/camel-karavan-devmode";
 
     public static final String KARAVAN_IMAGE = "ghcr.io/apache/camel-karavan";
 
@@ -48,6 +48,9 @@ public final class Constants {
     public static final String PVC_MAVEN_SETTINGS = "maven-settings";
     public static final String PVC_M2_CACHE = "karavan-m2-cache";
     public static final String PVC_JBANG_CACHE = "karavan-jbang-cache";
+
+    public static final String INFINISPAN_NAME = "infinispan";
+    public static final String INFINISPAN_SECRET_NAME = "infinispan-secret";
 
     public static final String PIPELINE_DEV = "karavan-pipeline-dev-";
     public static final String TASK_DEV = "karavan-task-dev-";

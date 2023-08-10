@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: infinispan-generated-secret
+  name: infinispan-secret
   labels:
     app: infinispan-secret-identities
     clusterName: infinispan
@@ -18,8 +18,8 @@ metadata:
     "helm.sh/resource-policy": keep
 type: Opaque
 stringData:
-  username: monitor
-  password: $INFINISPAN_PASSWORD
+  username: 'monitor'
+  password: '$INFINISPAN_PASSWORD'
   identities-batch: |-
     user create admin -p $INFINISPAN_PASSWORD
     user create monitor -p $INFINISPAN_PASSWORD --users-file metrics-users.properties --groups-file metrics-groups.properties
@@ -201,63 +201,6 @@ data:
         </Loggers>
     </Configuration>
 ---
-# Source: infinispan/templates/metrics-service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: infinispan-metrics
-  annotations:
-    meta.helm.sh/release-name: infinispan
-    meta.helm.sh/release-namespace: default
-  labels:
-    app: infinispan-service-metrics
-    clusterName: infinispan
-    helm.sh/chart: infinispan-0.3.1
-    meta.helm.sh/release-name: infinispan
-    meta.helm.sh/release-namespace: default
-    app.kubernetes.io/version: "14.0"
-    app.kubernetes.io/managed-by: Helm
-
-spec:
-  type: ClusterIP
-  clusterIP: None
-  ports:
-    - port: 11223
-      protocol: TCP
-      name: infinispan-met
-  selector:
-    clusterName: infinispan
-    app: infinispan-pod
----
-# Source: infinispan/templates/ping-service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: infinispan-ping
-  annotations:
-    meta.helm.sh/release-name: infinispan
-    meta.helm.sh/release-namespace: default
-  labels:
-    app: infinispan-service-ping
-    clusterName: infinispan
-    helm.sh/chart: infinispan-0.3.1
-    meta.helm.sh/release-name: infinispan
-    meta.helm.sh/release-namespace: default
-    app.kubernetes.io/version: "14.0"
-    app.kubernetes.io/managed-by: Helm
-
-spec:
-  publishNotReadyAddresses: true
-  type: ClusterIP
-  clusterIP: None
-  ports:
-    - port: 8888
-      protocol: TCP
-      name: infinispan
-  selector:
-    clusterName: infinispan
-    app: infinispan-pod
----
 # Source: infinispan/templates/service.yaml
 apiVersion: v1
 kind: Service
@@ -407,7 +350,7 @@ spec:
           name: config-volume
         - name: identities-volume
           secret:
-            secretName: infinispan-generated-secret
+            secretName: infinispan-secret
         - name: data-volume
           emptyDir: { }
   updateStrategy:
