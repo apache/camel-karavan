@@ -176,7 +176,7 @@ export class DslPropertyField extends React.Component<Props, State> {
 
     isUriReadOnly = (property: PropertyMeta): boolean => {
         const dslName: string = this.props.element?.dslName || '';
-        return property.name === 'uri' && !['ToDefinition', 'ToDynamicDefinition', 'WireTapDefinition'].includes(dslName)
+        return property.name === 'uri' && !['ToDynamicDefinition', 'WireTapDefinition'].includes(dslName)
     }
 
     selectInfrastructure = (value: string) => {
@@ -232,7 +232,8 @@ export class DslPropertyField extends React.Component<Props, State> {
                 type={['integer', 'number'].includes(property.type) ? 'number' : (property.secret ? "password" : "text")}
                 id={property.name} name={property.name}
                 value={value?.toString()}
-                onChange={e => this.propertyChanged(property.name, ['integer', 'number'].includes(property.type) ? Number(e) : e)} readOnlyVariant="default"/>
+                onChange={(_, v) => this.propertyChanged(property.name, ['integer', 'number'].includes(property.type) ? Number(v) : v)}
+                readOnlyVariant={this.isUriReadOnly(property) ? "default" : undefined}/>
             }
             {showEditor && !property.secret && <TextArea
                 ref={this.state.ref}
@@ -241,7 +242,8 @@ export class DslPropertyField extends React.Component<Props, State> {
                 type="text"
                 id={property.name} name={property.name}
                 value={value?.toString()}
-                onChange={e => this.propertyChanged(property.name, ['integer', 'number'].includes(property.type) ? Number(e) : e)} readOnlyVariant="default"/>
+                onChange={(_, v) => this.propertyChanged(property.name, ['integer', 'number'].includes(property.type) ? Number(v) : v)}
+                readOnlyVariant={this.isUriReadOnly(property) ? "default" : undefined}/>
             }
             {!property.secret &&
                 <Tooltip position="bottom-end" content={showEditor ? "Change to TextField" : "Change to Text Area"}>
@@ -278,7 +280,8 @@ export class DslPropertyField extends React.Component<Props, State> {
                     value={value?.toString()}
                     onChange={(_, value) => {
                         this.propertyChanged(property.name, CamelUtil.capitalizeName(value?.replace(/\s/g, '')))
-                    }} readOnlyVariant="default"/>
+                    }}
+                    readOnlyVariant={this.isUriReadOnly(property) ? "default" : undefined}/>
             </InputGroupItem>
             <InputGroupItem><Tooltip position="bottom-end" content={"Create Java Class"}>
                 <Button isDisabled={value?.length === 0} variant="control" onClick={e => this.showCode(value, property.javaType)}>
@@ -313,7 +316,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                     name={property.name}
                     height={"100px"}
                     value={value?.toString()}
-                    onChange={e => this.propertyChanged(property.name, e)}/></InputGroupItem>
+                    onChange={(_, v) => this.propertyChanged(property.name, v)}/></InputGroupItem>
                 <InputGroupItem><Tooltip position="bottom-end" content={"Show Editor"}>
                     <Button variant="control" onClick={e => this.setState({showEditor: !showEditor})}>
                         <EditorIcon/>
@@ -366,7 +369,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                 value={value?.toString()}
                 aria-label={property.name}
                 isChecked={isChecked}
-                onChange={e => this.propertyChanged(property.name, e)}/>
+                onChange={(_, v) => this.propertyChanged(property.name, v)}/>
         )
     }
 
@@ -666,7 +669,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                     <button type="button" aria-label="More info" onClick={e => {
                         e.preventDefault();
                         e.stopPropagation();
-                    }} className="pf-c-form__group-label-help">
+                    }} className="pf-v5-c-form__group-label-help">
                         <HelpIcon />
                     </button>
                 </Popover>

@@ -127,14 +127,14 @@ export class KameletPropertyField extends React.Component<Props, State> {
                     type={property.format && !showPassword ? "password" : "text"}
                     id={id} name={id}
                     value={value}
-                    onChange={e => this.parametersChanged(property.id, e)}/>}
+                    onChange={(e, value) => this.parametersChanged(property.id, value)}/>}
             {showEditor && property.format !== "password" &&
                 <TextArea autoResize={true}
                           className="text-field" isRequired
                           type="text"
                           id={id} name={id}
                           value={value}
-                          onChange={e => this.parametersChanged(property.id, e)}/>}
+                          onChange={(e, value) => this.parametersChanged(property.id, value)}/>}
             {property.format !== "password" &&
                 <Tooltip position="bottom-end" content={showEditor ? "Change to TextField" : "Change to Text Area"}>
                     <Button variant="control" onClick={e => this.setState({showEditor: !showEditor})}>
@@ -177,7 +177,7 @@ export class KameletPropertyField extends React.Component<Props, State> {
                                 </div>
                             }>
                             <button type="button" aria-label="More info" onClick={e => e.preventDefault()}
-                                    className="pf-c-form__group-label-help">
+                                    className="pf-v5-c-form__group-label-help">
                                 <HelpIcon />
                             </button>
                         </Popover>
@@ -186,7 +186,7 @@ export class KameletPropertyField extends React.Component<Props, State> {
                     }
                     {['integer', 'int', 'number'].includes(property.type) &&
                         <TextInput className="text-field" isRequired type='number' id={id} name={id} value={value}
-                                   onChange={e => this.parametersChanged(property.id, Number(e))}
+                                   onChange={(e, value) => this.parametersChanged(property.id, Number(value))}
                         />
                     }
                     {property.type === 'boolean' && <Switch

@@ -49,9 +49,11 @@ export class EipCard extends React.Component<Props, State> {
                 onClick={event => this.click(event)}
             >
                 <CardHeader>
-                    {CamelUi.getIconForDslName(component.className)}
                 </CardHeader>
-                <CardTitle>{component.title}</CardTitle>
+                <CardHeader>
+                    {CamelUi.getIconForDslName(component.className)}
+                    <CardTitle>{component.title}</CardTitle>
+                </CardHeader>
                 <CardBody>{component.description}</CardBody>
                 <CardFooter className="footer-labels">
                     <div>

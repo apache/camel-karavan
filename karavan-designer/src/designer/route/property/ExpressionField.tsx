@@ -143,7 +143,7 @@ export class ExpressionField extends React.Component<Props, State> {
                                 e.preventDefault();
                                 e.stopPropagation();
                             }}
-                                    className="pf-c-form__group-label-help">
+                                    className="pf-v5-c-form__group-label-help">
                                 <HelpIcon />
                             </button>
                         </Popover> : <div></div>

@@ -240,14 +240,14 @@ export class ComponentParameterField extends React.Component<Props, State> {
                            type={property.secret && !showPassword ? "password" : "text"}
                            id={this.state.id} name={this.state.id}
                            value={value !== undefined ? value : property.defaultValue}
-                           onChange={e => this.parametersChanged(property.name, e, property.kind === 'path')}/>}
+                           onChange={(e, value) => this.parametersChanged(property.name, value, property.kind === 'path')}/>}
             {showEditor && !property.secret &&
                 <TextArea autoResize={true} ref={this.state.ref}
                           className="text-field" isRequired
                           type="text"
                           id={this.state.id} name={this.state.id}
                           value={value !== undefined ? value : property.defaultValue}
-                          onChange={e => this.parametersChanged(property.name, e, property.kind === 'path')}/>}
+                          onChange={(e, value) => this.parametersChanged(property.name, value, property.kind === 'path')}/>}
             {!property.secret &&
                 <Tooltip position="bottom-end" content={showEditor ? "Change to TextField" : "Change to Text Area"}>
                     <Button variant="control" onClick={e => this.setState({showEditor: !showEditor})}>
@@ -272,7 +272,9 @@ export class ComponentParameterField extends React.Component<Props, State> {
                 type={['integer', 'int', 'number'].includes(property.type) ? 'number' : (property.secret ? "password" : "text")}
                 id={this.state.id} name={this.state.id}
                 value={value !== undefined ? value : property.defaultValue}
-                onChange={e => this.parametersChanged(property.name, ['integer', 'int', 'number'].includes(property.type) ? Number(e) : e, property.kind === 'path')}/>
+                onChange={(e, value) => {
+                    this.parametersChanged(property.name, ['integer', 'int', 'number'].includes(property.type) ? Number(value) : value, property.kind === 'path')
+                }}/>
         )
     }
 
@@ -333,7 +335,7 @@ export class ComponentParameterField extends React.Component<Props, State> {
                             </div>
                         }>
                         <button type="button" aria-label="More info" onClick={e => e.preventDefault()}
-                                className="pf-c-form__group-label-help">
+                                className="pf-v5-c-form__group-label-help">
                             <HelpIcon />
                         </button>
                     </Popover>

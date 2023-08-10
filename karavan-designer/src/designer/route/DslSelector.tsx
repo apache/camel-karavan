@@ -176,7 +176,7 @@ export class DslSelector extends React.Component<Props, State> {
                     </Flex>
                 }
                 actions={{}}>
-                <PageSection variant={this.props.dark ? "darker" : "light"}>
+                <PageSection padding={{default:"noPadding"}} variant={this.props.dark ? "darker" : "light"}>
                     {isEip && <ToggleGroup aria-label="Labels" isCompact>
                         {eipLabels.map(eipLabel => <ToggleGroupItem
                             key={eipLabel}
