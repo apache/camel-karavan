@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17.0.8_7-jdk
+FROM maven:3.9.3-eclipse-temurin-17-alpine
 
 LABEL "org.opencontainers.image.title"="karavan"
 LABEL "org.opencontainers.image.description"="Apache Camel Karavan DevMode"
@@ -16,8 +16,7 @@ ENV KAMELETS_DIR="/scripts/kamelets"
 ENV CODE_DIR="/scripts/code"
 ENV PATH="${PATH}:$KARAVAN/.jbang/bin"
 
-RUN apt-get update -y && apt-get install maven git -y && apt-get clean  \    
-    && curl -Ls https://sh.jbang.dev | bash -s - app setup \
+RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
     && mkdir -p $CODE_DIR \
     && mkdir -p $KAMELETS_DIR \
     && jbang trust add  --quiet  https://github.com/apache/camel \
