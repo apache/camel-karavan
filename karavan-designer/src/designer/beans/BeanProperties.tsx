@@ -188,17 +188,11 @@ export class BeanProperties extends React.Component<Props, State> {
                 </div>
                 <FormGroup label="Name" fieldId="name" isRequired labelIcon={this.getLabelIcon("Name", "Bean name used as a reference ex: myBean")}>
                     <TextInput className="text-field" isRequired type="text" id="name" name="name" value={bean?.name}
-                                onChange={e => {
-                                // TODO: Check if beanChanged, propertyChanged use a string or really e
-                                // @ts-ignore
-                                this.beanChanged("name", e)
-                                }}/>
+                                onChange={(_, value)=> this.beanChanged("name", value)}/>
                 </FormGroup>
                 <FormGroup label="Type" fieldId="type" isRequired labelIcon={this.getLabelIcon("Type", "Bean class Canonical Name ex: org.demo.MyBean")}>
-                    <TextInput className="text-field" isRequired type="text" id="type" name="type" value={bean?.type} onChange={e => {
-                        // @ts-ignore
-                        this.beanChanged("type", e)
-                    }}/>
+                    <TextInput className="text-field" isRequired type="text" id="type" name="type" value={bean?.type}
+                        onChange={(_, value) => this.beanChanged("type", value)}/>
                 </FormGroup>
                 <FormGroup label="Properties" fieldId="properties" className="bean-properties">
                     {Array.from(this.state.properties.entries()).map((v, index, array) => {

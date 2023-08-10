@@ -269,17 +269,17 @@ export class DslPropertyField extends React.Component<Props, State> {
         const {dslLanguage, dark} = this.props;
         const {showEditor, customCode} = this.state;
         return (<InputGroup>
-            <InputGroupItem isFill ><TextInput
-                ref={this.state.ref}
-                className="text-field" isRequired 
-                type="text"
-                id={property.name} name={property.name}
-                value={value?.toString()}
-                onChange={e => {
-                    // TODO: it is unclear what should be done here e is not a string
-                    // @ts-ignore
-                    this.propertyChanged(property.name, CamelUtil.capitalizeName(e?.replace(/\s/g, '')))
-                }} readOnlyVariant="default"/></InputGroupItem>
+            <InputGroupItem isFill >
+                <TextInput
+                    ref={this.state.ref}
+                    className="text-field" isRequired 
+                    type="text"
+                    id={property.name} name={property.name}
+                    value={value?.toString()}
+                    onChange={(_, value) => {
+                        this.propertyChanged(property.name, CamelUtil.capitalizeName(value?.replace(/\s/g, '')))
+                    }} readOnlyVariant="default"/>
+            </InputGroupItem>
             <InputGroupItem><Tooltip position="bottom-end" content={"Create Java Class"}>
                 <Button isDisabled={value?.length === 0} variant="control" onClick={e => this.showCode(value, property.javaType)}>
                     <PlusIcon/>

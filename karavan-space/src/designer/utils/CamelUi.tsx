@@ -157,6 +157,9 @@ export class RouteToCreate {
     }
 }
 
+const INTEGRATION_PATTERNS = 'Integration Patterns';
+const connectorNavs = ['routing', "transformation", "error", "configuration", "endpoint", "kamelet", "component"];
+
 export class CamelUi {
 
     static getSelectorModelTypes = (parentDsl: string | undefined, showSteps: boolean = true, filter: string | undefined = undefined): [string, number][] => {
@@ -164,7 +167,8 @@ export class CamelUi {
             .reduce((accumulator, value) => accumulator.concat(value), [])
             .filter((nav, i, arr) => arr.findIndex(l => l === nav) === i)
             .filter((nav, i, arr) => !['dataformat'].includes(nav));
-        const connectorNavs = ['routing', "transformation", "error", "configuration", "endpoint", "kamelet", "component"];
+        console.log(navs);
+        const connectorNavs = [INTEGRATION_PATTERNS, "kamelet", "component"];
         const eipLabels = connectorNavs.filter(n => navs.includes(n));
         return eipLabels.map(label => [label, this.getSelectorModelsForParentFiltered(parentDsl, label, true)
             .filter((dsl: DslMetaModel) => filter === undefined ? true : CamelUi.checkFilter(dsl, filter)).length]);
@@ -173,7 +177,8 @@ export class CamelUi {
     static checkFilter = (dsl: DslMetaModel, filter: string | undefined = undefined): boolean => {
         if (filter !== undefined && filter !== "") {
             return dsl.title.toLowerCase().includes(filter.toLowerCase())
-                || dsl.description.toLowerCase().includes(filter.toLowerCase());
+                || dsl.description.toLowerCase().includes(filter.toLowerCase())
+                || dsl.labels.toLowerCase().includes(filter.toLowerCase());
         } else {
             return true;
         }
@@ -229,7 +234,7 @@ export class CamelUi {
             title: el?.title,
             description: el?.description,
             labels: el?.labels,
-            navigation: el?.labels,
+            navigation: 'eip',
             type: "DSL"
         })
     }

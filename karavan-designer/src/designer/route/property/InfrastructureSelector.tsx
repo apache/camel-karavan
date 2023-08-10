@@ -67,10 +67,8 @@ export class InfrastructureSelector extends React.Component<Props, State> {
                 <FormGroup fieldId="search">
                     <TextInput className="text-field" type="text" id="search" name="search" 
                             value={this.state.filter}
-                            onChange={e => {
-                                // TODO: check what should be set here, probably not e
-                                // @ts-ignore
-                                this.setState({filter: e})
+                            onChange={(_, value) => {
+                                this.setState({filter: value})
                             }}/>
                 </FormGroup>
             </Form>

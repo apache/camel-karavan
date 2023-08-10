@@ -28,7 +28,7 @@ interface Props {
 
 export const KnowledgebasePage = (props: Props) => {
 
-    const [tab, setTab] = useState<string | number>("kamelets");
+    const [tab, setTab] = useState<string | number>("eip");
     const [filter, setFilter] = useState<string>("");
     const [customOnly, setCustomOnly] = useState<boolean>(false);
 
@@ -68,8 +68,8 @@ export const KnowledgebasePage = (props: Props) => {
                 <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
                     <FlexItem className="knowledge-tabs">
                         <Tabs activeKey={tab} onSelect={(event, tabIndex) => setTab(tabIndex)}>
+                            <Tab eventKey="eip" title="Integration Patterns"/>
                             <Tab eventKey="kamelets" title="Kamelets"/>
-                            <Tab eventKey="eip" title="Enterprise Integration Patterns"/>
                             <Tab eventKey="components" title="Components"/>
                         </Tabs>
                     </FlexItem>
