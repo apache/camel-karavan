@@ -16,7 +16,8 @@ ENV KAMELETS_DIR="/scripts/kamelets"
 ENV CODE_DIR="/scripts/code"
 ENV PATH="${PATH}:$KARAVAN/.jbang/bin"
 
-RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
+RUN apt-get update -y && apt-get install maven git -y && apt-get clean  \    
+    && curl -Ls https://sh.jbang.dev | bash -s - app setup \
     && mkdir -p $CODE_DIR \
     && mkdir -p $KAMELETS_DIR \
     && jbang trust add  --quiet  https://github.com/apache/camel \
