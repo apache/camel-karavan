@@ -206,9 +206,9 @@ export class BeanProperties extends React.Component<Props, State> {
                         return (
                             <div key={"key-" + i} className="bean-property">
                                 <TextInput placeholder="Bean Field Name" className="text-field" isRequired type="text" id="key" name="key" value={key}
-                                            onChange={e => {
-                                                // @ts-ignore
-                                                this.propertyChanged(i, e, value, showPassword)
+                                            onChange={(_, beanFieldName) => {
+                                                // TODO: is this correct
+                                                this.propertyChanged(i, beanFieldName, value, showPassword)
                                             }}/>
                                 <InputGroup>
                                     {inInfrastructure &&
@@ -217,18 +217,20 @@ export class BeanProperties extends React.Component<Props, State> {
                                             {icon}
                                         </Button>
                                     </Tooltip>}
-                                    <InputGroupItem isFill ><TextInput
-                                        placeholder="Bean Field Value"
-                                        type={isSecret && !showPassword ? "password" : "text"}
-                                        className="text-field"
-                                        isRequired
-                                        id="value"
-                                        name="value"
-                                        value={value}
-                                        onChange={e => {
-                                            // @ts-ignore
-                                            this.propertyChanged(i, key, e, showPassword)
-                                        }}/></InputGroupItem>
+                                    <InputGroupItem isFill>
+                                        <TextInput
+                                            placeholder="Bean Field Value"
+                                            type={isSecret && !showPassword ? "password" : "text"}
+                                            className="text-field"
+                                            isRequired
+                                            id="value"
+                                            name="value"
+                                            value={value}
+                                            onChange={(_, value) => {
+                                                // TODO: is this correct
+                                                this.propertyChanged(i, key, value, showPassword)
+                                            }}/>
+                                    </InputGroupItem>
                                     {isSecret && <Tooltip position="bottom-end" content={showPassword ? "Hide" : "Show"}>
                                         <Button variant="control" onClick={e => this.propertyChanged(i, key, value, !showPassword)}>
                                             {showPassword ? <ShowIcon/> : <HideIcon/>}
