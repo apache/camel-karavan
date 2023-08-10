@@ -24,3 +24,5 @@ RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
     && jbang app install camel@apache/camel
 
 EXPOSE 8080
+
+ENTRYPOINT ["jbang"]
