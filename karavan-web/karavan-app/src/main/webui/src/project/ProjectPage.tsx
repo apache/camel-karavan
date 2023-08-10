@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
     PageSection,
 } from '@patternfly/react-core';
@@ -64,14 +64,6 @@ export const ProjectPage = () => {
         }
     }
 
-
-    function tools () {
-        return <ProjectToolbar
-                               mode={mode}
-                               setMode={mode => setMode(mode)}
-        />
-    }
-
     function isBuildIn(): boolean {
         return ['kamelets', 'templates'].includes(project.projectId);
     }
@@ -87,7 +79,7 @@ export const ProjectPage = () => {
     return (
         <PageSection key={key} className="kamelet-section project-page" padding={{default: 'noPadding'}}>
             <PageSection className="tools-section" padding={{default: 'noPadding'}}>
-                <MainToolbar title={<ProjectTitle/>} tools={tools()}/>
+                <MainToolbar title={<ProjectTitle/>} tools={<ProjectToolbar/>}/>
             </PageSection>
             {showFilePanel && <FileEditor/>}
             {!showFilePanel && <ProjectPanel/>}

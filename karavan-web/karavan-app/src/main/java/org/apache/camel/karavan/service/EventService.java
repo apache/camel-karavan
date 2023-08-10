@@ -86,7 +86,7 @@ public class EventService {
         ContainerStatus status = infinispanService.getContainerStatus(projectId, environment, projectId);
         CamelStatus cs = infinispanService.getCamelStatus(projectId, environment, CamelStatus.Name.context.name());
         if (status != null
-                && !status.getCodeLoaded()
+                && !Objects.equals(status.getCodeLoaded(), Boolean.TRUE)
                 && status.getContainerId() != null
                 && status.getState().equals(ContainerStatus.State.running.name())
                 && camelIsStarted(cs)) {

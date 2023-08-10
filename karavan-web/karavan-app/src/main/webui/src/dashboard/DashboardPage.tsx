@@ -325,7 +325,7 @@ export const DashboardPage = () => {
                                 <Badge className="badge">{container.type}</Badge>
                             </Td>
                             <Td style={{verticalAlign: "middle"}}>
-                                <Label color={container.lifeCycle === 'ready' ? "green" : 'grey'}>
+                                <Label color={container.state === 'running' ? "green" : 'grey'}>
                                     {container.containerName}
                                 </Label>
                             </Td>

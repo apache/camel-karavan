@@ -126,7 +126,7 @@ export class DslConnections extends React.Component<Props, State> {
             const imageX = incomingX - r + 5;
             const imageY = fromY - r + 5;
             return (
-                <div style={{display: "block", position: "absolute", top: imageY, left: imageX}}>
+                <div key={pos.step.uuid + "-icon"} style={{display: "block", position: "absolute", top: imageY, left: imageX}}>
                     {CamelUi.getConnectionIcon(pos.step)}
                 </div>
             )
@@ -212,7 +212,7 @@ export class DslConnections extends React.Component<Props, State> {
             const imageX = outgoingX - r + 5;
             const imageY = outgoingY - r + 5;
             return (
-                <div style={{display: "block", position: "absolute", top: imageY, left: imageX}}>
+                <div key={pos.step.uuid + "-icon"} style={{display: "block", position: "absolute", top: imageY, left: imageX}}>
                     {CamelUi.getConnectionIcon(pos.step)}
                 </div>
             )

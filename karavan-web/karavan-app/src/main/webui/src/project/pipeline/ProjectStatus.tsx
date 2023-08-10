@@ -198,9 +198,9 @@ export class ProjectStatus extends React.Component<Props, State> {
                     {podStatuses.length === 0 && <Label icon={<DownIcon/>} color={"grey"}>No pods</Label>}
                     <LabelGroup numLabels={2} isVertical>
                         {podStatuses.map(pod => {
-                                const ready = pod.lifeCycle === 'ready';
+                                const ready = pod.state === 'running';
                                 return (
-                                    <Tooltip key={pod.containerName} content={pod.lifeCycle}>
+                                    <Tooltip key={pod.containerName} content={pod.state}>
                                         <Label icon={ready ? <UpIcon/> : <DownIcon/>} color={ready ? "green" : "red"}>
                                             <Button variant="link"
                                                     onClick={e => {

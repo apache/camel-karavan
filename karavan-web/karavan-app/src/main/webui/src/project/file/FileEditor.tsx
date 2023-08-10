@@ -14,28 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useState} from 'react';
-import {
-    CodeBlockCode,
-    CodeBlock, Skeleton
-} from '@patternfly/react-core';
+import React from 'react';
 import '../../designer/karavan.css';
 import Editor from "@monaco-editor/react";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {ProjectFile, ProjectFileTypes} from "../../api/ProjectModels";
-import {useAppConfigStore, useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectStore";
+import {useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectStore";
 import {KaravanDesigner} from "../../designer/KaravanDesigner";
 import {ProjectService} from "../../api/ProjectService";
 import {PropertiesTable} from "./PropertiesTable";
+import {shallow} from "zustand/shallow";
 
 export const FileEditor = () => {
 
-    const [editAdvancedProperties] = useState<boolean>(false);
-    const {file, operation} = useFileStore();
-    const [mode, setMode] = useState<"design" | "code">("design");
-    const [key, setKey] = useState<string>('');
+    const [file, operation, mode] = useFileStore((state) =>
+        [state.file, state.operation, state.mode, state.setMode], shallow )
     const {project} = useProjectStore();
-    const {config} = useAppConfigStore();
 
     function save (name: string, code: string) {
         if (file) {

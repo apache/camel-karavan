@@ -22,16 +22,13 @@ import {shallow} from "zustand/shallow";
 import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
 import {ProjectModel, ProjectProperty} from "karavan-core/lib/model/ProjectModel";
 
-interface Props {
-    mode: "design" | "code",
-    setMode: (mode: "design" | "code") => void,
-}
 
-export const ProjectToolbar = (props: Props) => {
+export const ProjectToolbar = () => {
 
     const [project, isPushing] = useProjectStore((state) => [state.project, state.isPushing], shallow )
-    const [file, editAdvancedProperties, setEditAdvancedProperties, setAddProperty] = useFileStore((state) =>
-        [state.file, state.editAdvancedProperties, state.setEditAdvancedProperties, state.setAddProperty], shallow )
+    const [file, editAdvancedProperties, setEditAdvancedProperties, setAddProperty, mode, setMode]
+        = useFileStore((state) =>
+        [state.file, state.editAdvancedProperties, state.setEditAdvancedProperties, state.setAddProperty, state.mode, state.setMode], shallow )
 
     useEffect(() => {
     }, [project, file]);
@@ -72,7 +69,6 @@ export const ProjectToolbar = (props: Props) => {
     }
 
     function getFileToolbar() {
-        const { mode} = props;
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
                 <Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
@@ -80,9 +76,9 @@ export const ProjectToolbar = (props: Props) => {
                     {isYaml() && <FlexItem>
                         <ToggleGroup>
                             <ToggleGroupItem text="Design" buttonId="design" isSelected={mode === "design"}
-                                             onChange={s => props.setMode("design")}/>
+                                             onChange={s => setMode("design")}/>
                             <ToggleGroupItem text="Code" buttonId="code" isSelected={mode === "code"}
-                                             onChange={s => props.setMode("code")}/>
+                                             onChange={s => setMode("code")}/>
                         </ToggleGroup>
                     </FlexItem>}
 

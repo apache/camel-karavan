@@ -92,7 +92,7 @@ public class ScheduledService {
         }
     }
 
-    @Scheduled(every = "{karavan.git.pull.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    @Scheduled(every = "{karavan.git-pull-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void pullCommitsFromGit() {
         projectService.pullCommits();
     }

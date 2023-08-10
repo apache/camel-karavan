@@ -34,10 +34,14 @@ import org.jboss.logging.Logger;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
+import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
+import static org.apache.camel.karavan.shared.Constants.RELOAD_TRY_COUNT;
 import static org.apache.camel.karavan.shared.EventType.CONTAINER_STATUS;
+import static org.apache.camel.karavan.shared.EventType.DEVMODE_CONTAINER_READY;
 
 @ApplicationScoped
 public class CamelService {
@@ -123,11 +127,19 @@ public class CamelService {
     @ConsumeEvent(value = CMD_COLLECT_CAMEL_STATUS, blocking = true, ordered = true)
     public void collectCamelStatuses(JsonObject data) {
         CamelStatusRequest dms = data.mapTo(CamelStatusRequest.class);
+        String projectId = dms.getProjectId();
+        if (infinispanService.getCamelStatus(projectId, environment, CamelStatus.Name.context.name()) == null) {
+            Map<String, Object> message = Map.of(
+                    LABEL_PROJECT_ID, projectId,
+                    RELOAD_TRY_COUNT, 1
+            );
+            eventBus.publish(DEVMODE_CONTAINER_READY, JsonObject.mapFrom(message));
+        }
         Arrays.stream(CamelStatus.Name.values()).forEach(statusName -> {
             String containerName = dms.getContainerName();
             String status = getCamelStatus(containerName, statusName);
             if (status != null) {
-                CamelStatus cs = new CamelStatus(dms.getProjectId(), containerName, statusName, status, environment);
+                CamelStatus cs = new CamelStatus(projectId, containerName, statusName, status, environment);
                 infinispanService.saveCamelStatus(cs);
             }
         });

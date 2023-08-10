@@ -12,10 +12,14 @@ import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.jboss.logging.Logger;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static org.apache.camel.karavan.service.CodeService.DEFAULT_CONTAINER_RESOURCES;
 import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
+import static org.apache.camel.karavan.shared.Constants.RELOAD_TRY_COUNT;
 import static org.apache.camel.karavan.shared.EventType.CONTAINER_STATUS;
+import static org.apache.camel.karavan.shared.EventType.DEVMODE_CONTAINER_READY;
 
 public class PodEventHandler implements ResourceEventHandler<Pod> {
 
@@ -47,9 +51,18 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
     public void onUpdate(Pod oldPod, Pod newPod) {
         try {
             LOGGER.info("onUpdate " + newPod.getMetadata().getName());
-            ContainerStatus ps = getPodStatus(newPod);
-            if (ps != null) {
-                eventBus.send(CONTAINER_STATUS, JsonObject.mapFrom(ps));
+            if (!newPod.isMarkedForDeletion() && newPod.getMetadata().getDeletionTimestamp() == null) {
+                ContainerStatus ps = getPodStatus(newPod);
+                if (ps != null) {
+                    eventBus.send(CONTAINER_STATUS, JsonObject.mapFrom(ps));
+                    if (Objects.equals(ps.getState(), ContainerStatus.State.running.name())) {
+                        Map<String, Object> message = Map.of(
+                                LABEL_PROJECT_ID, ps.getProjectId(),
+                                RELOAD_TRY_COUNT, 1
+                        );
+                        eventBus.publish(DEVMODE_CONTAINER_READY, JsonObject.mapFrom(message));
+                    }
+                }
             }
         } catch (Exception e){
             LOGGER.error(e.getMessage(), e.getCause());
@@ -63,6 +76,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             String deployment = pod.getMetadata().getLabels().get("app");
             String projectId = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_PROJECT_ID);
             infinispanService.deleteContainerStatus(projectId, kubernetesService.environment, pod.getMetadata().getName());
+            infinispanService.deleteCamelStatuses(projectId, kubernetesService.environment);
         } catch (Exception e){
             LOGGER.error(e.getMessage(), e.getCause());
         }
@@ -93,7 +107,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
                     requestMemory + " / " + limitMemory,
                     requestCpu + " / " + limitCpu,
                     creationTimestamp);
-
+            status.setContainerId(pod.getMetadata().getName());
             if (ready) {
                 status.setState(ContainerStatus.State.running.name());
             } else {
