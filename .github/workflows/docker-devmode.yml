@@ -3,12 +3,12 @@ name: DevMode container image
 on:
   push:
     branches: [ main ]
-    paths: ['karavan-web/docker/Dockerfile.runner']
+    paths: ['karavan-web/docker/Dockerfile.devmode']
   workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}-runner
+  IMAGE_NAME: ${{ github.repository }}-devmode
   TAG: 4.0.0-RC2
 
 jobs:
@@ -31,6 +31,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: ./karavan-web/docker
-          file: karavan-web/docker/Dockerfile.runner
+          file: karavan-web/docker/Dockerfile.devmode
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}

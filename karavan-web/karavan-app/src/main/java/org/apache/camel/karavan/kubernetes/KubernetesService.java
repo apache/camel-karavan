@@ -84,9 +84,6 @@ public class KubernetesService implements HealthCheck {
         return kubernetesClient().adapt(OpenShiftClient.class);
     }
 
-    @ConfigProperty(name = "kubernetes.namespace", defaultValue = KARAVAN_PREFIX)
-    String currentNamespace;
-
     @ConfigProperty(name = "karavan.environment")
     public String environment;
 
@@ -446,7 +443,7 @@ public class KubernetesService implements HealthCheck {
 
         Container container = new ContainerBuilder()
                 .withName(name)
-                .withImage("ghcr.io/apache/camel-karavan-runner:" + version)
+                .withImage("ghcr.io/apache/camel-karavan-devmode:" + version)
                 .withPorts(port)
                 .withResources(resources)
                 .withImagePullPolicy("Always")
@@ -548,7 +545,7 @@ public class KubernetesService implements HealthCheck {
     }
 
     public String getNamespace() {
-        return currentNamespace;
+        return kubernetesClient().getNamespace();
     }
 
 }
