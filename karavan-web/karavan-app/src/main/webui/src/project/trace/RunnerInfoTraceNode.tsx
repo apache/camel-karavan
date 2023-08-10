@@ -32,7 +32,7 @@ export const RunnerInfoTraceNode = (props: Props) => {
 
     const type = props.trace?.message?.body?.type;
     const body = props.trace?.message?.body?.value;
-    const headers: any[] = [{key: "header1", type: "java.lang.String", value: "value1"}, {key: "header2", type: "java.lang.String", value: "value2"}];
+    const headers: any[] = [...props.trace?.message?.headers];
     return (
         <Panel isScrollable>
                 <PanelMain tabIndex={0}>
