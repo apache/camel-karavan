@@ -71,7 +71,7 @@ export class ModalEditor extends React.Component<Props, State> {
                     <Title id="modal-custom-header-label" headingLevel="h1" size={TitleSizes['2xl']}>
                         {title}
                     </Title>
-                    <p className="pf-u-pt-sm">{dslLanguage?.[2]}</p>
+                    <p className="pf-v5-u-pt-sm">{dslLanguage?.[2]}</p>
                 </React.Fragment>}
                 isOpen={showEditor}
                 onClose={() => this.close()}

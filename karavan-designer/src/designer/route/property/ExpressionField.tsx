@@ -111,9 +111,9 @@ export class ExpressionField extends React.Component<Props, State> {
         })
         return (
             <div>
-                <label className="pf-c-form__label" htmlFor="expression">
-                    <span className="pf-c-form__label-text">Language</span>
-                    <span className="pf-c-form__label-required" aria-hidden="true"> *</span>
+                <label className="pf-v5-c-form__label" htmlFor="expression">
+                    <span className="pf-v5-c-form__label-text">Language</span>
+                    <span className="pf-v5-c-form__label-required" aria-hidden="true"> *</span>
                 </label>
                 <Select
                     variant={SelectVariant.typeahead}
