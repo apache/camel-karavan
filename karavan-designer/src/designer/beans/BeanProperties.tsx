@@ -207,7 +207,6 @@ export class BeanProperties extends React.Component<Props, State> {
                             <div key={"key-" + i} className="bean-property">
                                 <TextInput placeholder="Bean Field Name" className="text-field" isRequired type="text" id="key" name="key" value={key}
                                             onChange={(_, beanFieldName) => {
-                                                // TODO: is this correct
                                                 this.propertyChanged(i, beanFieldName, value, showPassword)
                                             }}/>
                                 <InputGroup>
@@ -227,7 +226,6 @@ export class BeanProperties extends React.Component<Props, State> {
                                             name="value"
                                             value={value}
                                             onChange={(_, value) => {
-                                                // TODO: is this correct
                                                 this.propertyChanged(i, key, value, showPassword)
                                             }}/>
                                     </InputGroupItem>
