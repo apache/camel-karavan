@@ -1379,6 +1379,7 @@
     flex-shrink: unset;
     flex-grow: 1;
     background-color: var(--pf-v5-global--BackgroundColor--light-300);
+    margin-bottom: 100px;
 }
 
 .karavan .designer-page {

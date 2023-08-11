@@ -35,7 +35,7 @@
 }
 
 .karavan .header-button {
-    margin-left: var(--pf-c-page__header-tools--MarginRight);
+    margin-left: var(--pf-v5-c-page__header-tools--MarginRight);
 }
 
 .karavan .page-header {
@@ -43,7 +43,7 @@
     justify-content: space-between;
 }
 
-.karavan .page-header .top-toolbar .pf-c-page__header-tools {
+.karavan .page-header .top-toolbar .pf-v5-c-page__header-tools {
     margin-right: 0;
 }
 
@@ -51,7 +51,7 @@
     width: 100%;
 }
 
-.karavan .page-header .pf-c-page__header-brand {
+.karavan .page-header .pf-v5-c-page__header-brand {
     padding-right: 16px;
 }
 
@@ -63,29 +63,29 @@
     width: 100%;
 }
 
-.modal-footer .deploy-buttons .pf-c-form__actions {
+.modal-footer .deploy-buttons .pf-v5-c-form__actions {
     justify-content: flex-end;
     margin-top: 16px;
 }
 
-.modal-footer .deploy-buttons .pf-c-button {
+.modal-footer .deploy-buttons .pf-v5-c-button {
     margin-left: 16px;
 }
 
-.action-buttons .pf-c-form__actions {
+.action-buttons .pf-v5-c-form__actions {
     justify-content: flex-end;
     margin-top: 16px;
 }
 
-.action-buttons .pf-c-button {
+.action-buttons .pf-v5-c-button {
     margin-left: 16px;
 }
 
-.pf-c-modal-box__footer .hidden {
+.pf-v5-c-modal-box__footer .hidden {
     display: none;
 }
 
-.upload-buttons .pf-c-form__actions {
+.upload-buttons .pf-v5-c-form__actions {
     margin-top: 20px;
     justify-content: flex-end;
 }
@@ -96,7 +96,7 @@
     height: 160px;
 }
 
-.integration-page .integration-card .pf-c-card__header {
+.integration-page .integration-card .pf-v5-c-card__header {
     padding-right: 6px;
 }
 
@@ -125,16 +125,26 @@
     height: 160px;
 }
 
-.kamelets-page .kamelet-card .pf-c-card__header .custom {
+
+.kamelets-page .kamelet-card .pf-v5-c-card__header {
+    padding-top: var(--pf-v5-global--spacer--sm);
+}
+
+.kamelets-page .kamelet-card .pf-v5-c-card__header .custom {
     margin-left: auto;
 }
 
-.kamelets-page .kamelet-card .pf-c-card__title {
+.kamelets-page .kamelet-card .pf-v5-c-card__header .pf-v5-c-card__header-main {
+    display: flex;
+    flex-direction: row;
+}
+
+.kamelets-page .kamelet-card .pf-v5-c-card__title {
     font-size: 15px;
     font-weight: 400;
 }
 
-.kamelets-page .kamelet-card .pf-c-card__body {
+.kamelets-page .kamelet-card .pf-v5-c-card__body {
     overflow: hidden;
     position: relative;
     line-height: 1.6em;
@@ -142,7 +152,7 @@
 
 .kamelets-page .kamelet-card .icon {
     height: 24px;
-    width: 24px;
+    max-width: 24px;
     margin-top: auto;
     margin-bottom: auto;
     margin-right: 5px;
@@ -184,13 +194,13 @@
 }
 
 /*kamelet modal*/
-.kamelet-modal-card .pf-c-card__header {
+.kamelet-modal-card .pf-v5-c-card__header {
     padding-right: 6px;
     display: flex;
     justify-content: space-between;
 }
 
-.kamelet-modal-card .pf-c-card__title {
+.kamelet-modal-card .pf-v5-c-card__title {
     font-weight: 600;
 }
 
@@ -243,7 +253,7 @@
 }
 
 .karavan .main-tabs .top-menu-item .count {
-    background: var(--pf-global--active-color--100);
+    background: var(--pf-v5-global--active-color--100);
     color: white;
     height: fit-content;
     margin-top: auto;
@@ -251,12 +261,12 @@
     min-width: 0px;
 }
 
-.karavan .main-tabs .pf-c-tabs__link .pf-c-tabs__item-icon {
+.karavan .main-tabs .pf-v5-c-tabs__link .pf-v5-c-tabs__item-icon {
     height: 24px;
     margin-right: 0;
 }
 
-.karavan .main-tabs .pf-c-tabs__item-text {
+.karavan .main-tabs .pf-v5-c-tabs__item-text {
     font-size: 14px;
     font-weight: bold;
     margin-top: auto;
@@ -279,12 +289,12 @@
     margin-bottom: 70px;
 }
 
-.karavan .pf-c-drawer__splitter {
+.karavan .pf-v5-c-drawer__splitter {
     width: 2px;
     background-color: #fcfcfc;
 }
 
-.karavan .pf-c-drawer__splitter-handle {
+.karavan .pf-v5-c-drawer__splitter-handle {
     display: none;
 }
 
@@ -311,17 +321,17 @@
     display: contents;
 }
 
-.karavan .properties .pf-c-form {
+.karavan .properties .pf-v5-c-form {
     row-gap: 10px;
 }
 
-.karavan .properties .pf-c-form__group-label {
+.karavan .properties .pf-v5-c-form__group-label {
     padding-bottom: 3px;
     display: flex;
     justify-content: space-between;
 }
 
-.karavan .properties .pf-c-form__label {
+.karavan .properties .pf-v5-c-form__label {
     font-size: 14px;
 }
 
@@ -330,41 +340,41 @@
     height: auto;
 }
 
-.karavan .properties .pf-c-select {
-    --pf-c-select__toggle--FontSize: 14px;
-    --pf-c-select__menu-item--FontSize: 14px;
+.karavan .properties .pf-v5-c-select {
+    --pf-v5-c-select__toggle--FontSize: 14px;
+    --pf-v5-c-select__menu-item--FontSize: 14px;
 }
 
-.karavan .properties .input-group .pf-c-text-input-group__text {
+.karavan .properties .input-group .pf-v5-c-text-input-group__text {
     width: 100%;
 }
 
-.karavan .properties .input-group .pf-c-chip-group,
-.karavan .properties .input-group .pf-c-text-input-group__main,
-.karavan .properties .input-group .pf-c-chip-group .pf-c-chip-group__list,
-.karavan .properties .input-group .pf-c-chip-group .pf-c-chip-group__list .pf-c-chip-group__list-item,
-.karavan .properties .input-group .pf-c-chip-group .pf-c-chip-group__main {
+.karavan .properties .input-group .pf-v5-c-chip-group,
+.karavan .properties .input-group .pf-v5-c-text-input-group__main,
+.karavan .properties .input-group .pf-v5-c-chip-group .pf-v5-c-chip-group__list,
+.karavan .properties .input-group .pf-v5-c-chip-group .pf-v5-c-chip-group__list .pf-v5-c-chip-group__list-item,
+.karavan .properties .input-group .pf-v5-c-chip-group .pf-v5-c-chip-group__main {
     display: block;
 }
 
-.karavan .properties .input-group .pf-c-chip-group {
+.karavan .properties .input-group .pf-v5-c-chip-group {
     margin-left: 0;
 }
 
-.karavan .properties .input-group .pf-c-chip-group .pf-c-chip .pf-c-chip__text {
+.karavan .properties .input-group .pf-v5-c-chip-group .pf-v5-c-chip .pf-v5-c-chip__text {
     max-width: inherit;
 }
 
-.karavan .properties .input-group .pf-c-chip-group .pf-c-chip {
+.karavan .properties .input-group .pf-v5-c-chip-group .pf-v5-c-chip {
     width: 100%;
 }
 
-.karavan .properties .input-group .pf-c-text-input-group__utilities {
+.karavan .properties .input-group .pf-v5-c-text-input-group__utilities {
     align-items: end;
     margin-top: auto;
 }
 
-.karavan .properties .chip .pf-c-button {
+.karavan .properties .chip .pf-v5-c-button {
     position: absolute;
     right: 0;
 }
@@ -378,20 +388,20 @@
     font-size: 13px;
 }
 
-.karavan .properties .pf-c-select__menu-search {
+.karavan .properties .pf-v5-c-select__menu-search {
     padding: 0px 6px 6px 6px;
 }
 
-.karavan .properties .pf-c-select__toggle-typeahead {
+.karavan .properties .pf-v5-c-select__toggle-typeahead {
     font-size: 14px;
     height: auto;
 }
 
-.karavan .properties .pf-c-select__menu-item {
+.karavan .properties .pf-v5-c-select__menu-item {
     /*width: 280px;*/
 }
 
-.karavan .properties .pf-c-select__menu-item-description {
+.karavan .properties .pf-v5-c-select__menu-item-description {
     overflow-wrap: anywhere;
 }
 
@@ -406,12 +416,12 @@
 
 .karavan .properties .number .clear-button {
     color: #b1b1b7;
-    --pf-c-button--BorderRadius: var(--pf-c-button--m-control--BorderRadius);
-    --pf-c-button--disabled--BackgroundColor: var(--pf-c-button--m-control--disabled--BackgroundColor);
-    --pf-c-button--after--BorderWidth: var(--pf-c-button--m-control--after--BorderWidth);
-    --pf-c-button--after--BorderColor: var(--pf-c-button--m-control--after--BorderTopColor) var(--pf-c-button--m-control--after--BorderRightColor) var(--pf-c-button--m-control--after--BorderBottomColor) var(--pf-c-button--m-control--after--BorderLeftColor);
-    color: var(--pf-c-button--m-control--Color);
-    background-color: var(--pf-c-button--m-control--BackgroundColor);
+    --pf-v5-c-button--BorderRadius: var(--pf-v5-c-button--m-control--BorderRadius);
+    --pf-v5-c-button--disabled--BackgroundColor: var(--pf-v5-c-button--m-control--disabled--BackgroundColor);
+    --pf-v5-c-button--after--BorderWidth: var(--pf-v5-c-button--m-control--after--BorderWidth);
+    --pf-v5-c-button--after--BorderColor: var(--pf-v5-c-button--m-control--after--BorderTopColor) var(--pf-v5-c-button--m-control--after--BorderRightColor) var(--pf-v5-c-button--m-control--after--BorderBottomColor) var(--pf-v5-c-button--m-control--after--BorderLeftColor);
+    color: var(--pf-v5-c-button--m-control--Color);
+    background-color: var(--pf-v5-c-button--m-control--BackgroundColor);
     padding-left: 5px;
     padding-right: 5px;
 }
@@ -421,11 +431,11 @@
 }
 
 .karavan .properties .component-selector {
-    border-width: var(--pf-global--BorderWidth--sm);
-    border-top-color: var(--pf-global--BorderColor--300);
-    border-right-color: var(--pf-global--BorderColor--300);
-    border-bottom-color: var(--pf-global--BorderColor--200);
-    border-left-color: var(--pf-global--BorderColor--300);
+    border-width: var(--pf-v5-global--BorderWidth--sm);
+    border-top-color: var(--pf-v5-global--BorderColor--300);
+    border-right-color: var(--pf-v5-global--BorderColor--300);
+    border-bottom-color: var(--pf-v5-global--BorderColor--200);
+    border-left-color: var(--pf-v5-global--BorderColor--300);
     border-style: solid;
 }
 
@@ -471,24 +481,24 @@
     width: 100%;
 }
 
-.karavan .properties .expression .pf-c-form__group-label,
-.karavan .properties .object .pf-c-form__group-label,
-.karavan .properties .dataformat .pf-c-form__group-label,
-.karavan .properties .parameters .pf-c-form__group-label {
+.karavan .properties .expression .pf-v5-c-form__group-label,
+.karavan .properties .object .pf-v5-c-form__group-label,
+.karavan .properties .dataformat .pf-v5-c-form__group-label,
+.karavan .properties .parameters .pf-v5-c-form__group-label {
     font-weight: 100;
 }
 
-.karavan .properties .expression .pf-c-form__group,
-.karavan .properties .object .pf-c-form__group,
-.karavan .properties .dataformat .pf-c-form__group,
-.karavan .properties .parameters .pf-c-form__group {
+.karavan .properties .expression .pf-v5-c-form__group,
+.karavan .properties .object .pf-v5-c-form__group,
+.karavan .properties .dataformat .pf-v5-c-form__group,
+.karavan .properties .parameters .pf-v5-c-form__group {
     margin-bottom: 10px;
 }
 
-.karavan .properties .expression .pf-c-select__menu-wrapper,
-.karavan .properties .object .pf-c-select__menu-wrapper,
-.karavan .properties .dataformat .pf-c-select__menu-wrapper,
-.karavan .properties .parameters .pf-c-select__menu-wrapper {
+.karavan .properties .expression .pf-v5-c-select__menu-wrapper,
+.karavan .properties .object .pf-v5-c-select__menu-wrapper,
+.karavan .properties .dataformat .pf-v5-c-select__menu-wrapper,
+.karavan .properties .parameters .pf-v5-c-select__menu-wrapper {
     width: 350px;
 }
 
@@ -507,23 +517,23 @@
 }
 
 .karavan .properties .add-button {
-    color: var(--pf-global--active-color--100);
+    color: var(--pf-v5-global--active-color--100);
 }
 
 .karavan .properties .delete-button {
     color: #909090;
 }
 
-.karavan .properties .pf-c-expandable-section__toggle {
+.karavan .properties .pf-v5-c-expandable-section__toggle {
     margin: 0;
     padding: 0;
 }
 
-.karavan .properties .pf-c-expandable-section__content {
+.karavan .properties .pf-v5-c-expandable-section__content {
     margin: 0;
 }
 
-.karavan .properties .pf-c-expandable-section__content p {
+.karavan .properties .pf-v5-c-expandable-section__content p {
     min-height: 6px;
 }
 
@@ -566,19 +576,19 @@
 }
 
 .karavan .dsl-page .graph .connections .arrow {
-    stroke: var(--pf-global--Color--200);
-    fill: var(--pf-global--Color--200);
+    stroke: var(--pf-v5-global--Color--200);
+    fill: var(--pf-v5-global--Color--200);
 }
 
 .karavan .dsl-page .graph .connections .path {
-    stroke: var(--pf-global--Color--200);
+    stroke: var(--pf-v5-global--Color--200);
     stroke-width: 1;
     fill: transparent;
 }
 
 .karavan .dsl-page .graph .connections .circle-outgoing,
 .karavan .dsl-page .graph .connections .circle-incoming {
-    stroke: var(--pf-global--Color--200);
+    stroke: var(--pf-v5-global--Color--200);
     stroke-width: 1;
     fill: white;
 }
@@ -587,14 +597,14 @@
     stroke-dasharray: 5;
     -webkit-animation: dashdraw .5s linear infinite;
     animation: dashdraw .5s linear infinite;
-    stroke: var(--pf-global--Color--200);
+    stroke: var(--pf-v5-global--Color--200);
     stroke-width: 1;
     fill: transparent;
 }
 
 .karavan .dsl-page .graph .connections .path-direct {
     stroke-dasharray: 0;
-    stroke: var(--pf-global--Color--200);
+    stroke: var(--pf-v5-global--Color--200);
     stroke-width: 0.7;
     stroke-opacity: 0.7;
     fill: transparent;
@@ -602,7 +612,7 @@
 
 .karavan .dsl-page .graph .connections .path-direct-selected {
     stroke-dasharray: 0;
-    stroke: var(--pf-global--active-color--100);
+    stroke: var(--pf-v5-global--active-color--100);
     stroke-width: 1;
     stroke-opacity: 1;
     fill: transparent;
@@ -610,7 +620,7 @@
 
 .karavan .dsl-page .graph .connections .path-seda {
     stroke-dasharray: 2;
-    stroke: var(--pf-global--Color--200);
+    stroke: var(--pf-v5-global--Color--200);
     -webkit-animation: dashdraw .5s linear infinite;
     animation: dashdraw .5s linear infinite;
     stroke-width: 1;
@@ -629,7 +639,7 @@
     display: flex;
     flex-direction: column;
     width: fit-content;
-    border-color: var(--pf-global--Color--200);
+    border-color: var(--pf-v5-global--Color--200);
     border-radius: 16px;
     border-width: 1px;
     min-width: 120px;
@@ -639,8 +649,8 @@
 }
 
 .karavan {
-    --step-border-color: var(--pf-global--Color--200);
-    --step-border-color-selected: var(--pf-global--active-color--100);
+    --step-border-color: var(--pf-v5-global--Color--200);
+    --step-border-color-selected: var(--pf-v5-global--active-color--100);
 }
 
 .karavan .dsl-page .flows .children {
@@ -712,12 +722,12 @@
 }
 
 .karavan .step-element-selected {
-    background-color: rgba(var(--pf-global--palette--blue-50), 1);
+    background-color: rgba(var(--pf-v5-global--palette--blue-50), 1);
 }
 
 .karavan .step-element .selected .header-icon {
-    border-color: var(--pf-global--primary-color--100);
-    background-color: var(--pf-global--palette--blue-50);
+    border-color: var(--pf-v5-global--primary-color--100);
+    background-color: var(--pf-v5-global--palette--blue-50);
     border-width: 2px;
 }
 
@@ -745,12 +755,12 @@
 }
 
 .karavan .step-element .header .header-text-required {
-    color: var(--pf-global--danger-color--100);
+    color: var(--pf-v5-global--danger-color--100);
     font-weight: bold;
 }
 
 .karavan .step-element .header-icon {
-    border-color: var(--pf-global--Color--200);
+    border-color: var(--pf-v5-global--Color--200);
     border-style: solid;
     border-radius: 30px;
     border-width: 1px;
@@ -784,7 +794,7 @@
     border: 0;
     padding: 0;
     background: transparent;
-    color: var(--pf-global--primary-color--100);
+    color: var(--pf-v5-global--primary-color--100);
     visibility: hidden;
     z-index: 100;
     position: absolute;
@@ -801,7 +811,7 @@
     margin: 0 0 0 -25px;
     background: transparent;
     background: transparent;
-    color: var(--pf-global--primary-color--100);
+    color: var(--pf-v5-global--primary-color--100);
     visibility: hidden;
     z-index: 100;
 }
@@ -828,7 +838,7 @@
     padding: 0;
     margin: 0;
     background: transparent;
-    color: var(--pf-global--primary-color--100);
+    color: var(--pf-v5-global--primary-color--100);
     visibility: hidden;
     z-index: 100;
 }
@@ -846,7 +856,7 @@
     padding: 0;
     margin: 3px auto 0 auto;
     background: transparent;
-    color: var(--pf-global--primary-color--100);
+    color: var(--pf-v5-global--primary-color--100);
     visibility: hidden;
     height: 100%;
     display: flex;
@@ -872,11 +882,22 @@
 
 .dsl-modal {
     height: 80%;
-    color: var(--pf-global--Color--100);
+    color: var(--pf-v5-global--Color--100);
 }
 
 .dsl-modal .dsl-card {
     cursor: pointer;
+}
+
+.dsl-modal .dsl-card .pf-v5-c-card__header-main {
+    display: flex;
+    flex-direction: row;
+}
+
+.dsl-modal .dsl-card .header-labels .pf-v5-c-card__header-main {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 .dsl-modal .dsl-card .icon {
@@ -899,7 +920,7 @@
 }
 
 
-.dsl-modal .search .pf-c-form__group-label {
+.dsl-modal .search .pf-v5-c-form__group-label {
     padding: 0;
     margin: auto;
 }
@@ -909,23 +930,23 @@
     height: auto;
 }
 
-.dsl-modal .pf-c-form.pf-m-horizontal .pf-c-form__group {
+.dsl-modal .pf-v5-c-form.pf-v5-m-horizontal .pf-v5-c-form__group {
     display: contents;
 }
 
-.dsl-modal .pf-c-card__body {
+.dsl-modal .pf-v5-c-card__body {
     padding-bottom: 0;
     height: 54px;
 }
 
 
-.dsl-modal .pf-c-card__body p {
+.dsl-modal .dsl-card p {
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 }
-.dsl-modal .pf-c-card__footer {
+.dsl-modal .pf-v5-c-card__footer {
     padding-bottom: 1em;
 }
 
@@ -936,14 +957,14 @@
     flex-wrap: wrap;
 }
 
-.dsl-modal .pf-c-card.pf-m-compact .header-labels {
+.dsl-modal .dsl-card .header-labels {
     padding: 5px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
 
-.dsl-modal .pf-c-card.pf-m-compact .footer-labels {
+.dsl-modal .dsl-card .footer-labels {
     padding: 5px;
     display: flex;
     flex-direction: row;
@@ -970,11 +991,11 @@
     width: 270px !important;
 }
 
-.move-modal .pf-c-modal-box__body {
+.move-modal .pf-v5-c-modal-box__body {
     margin-right: 0 !important;
 }
 
-.move-modal .pf-m-plain {
+.move-modal .pf-v5-m-plain {
     display: none;
 }
 
@@ -985,7 +1006,7 @@
     padding-bottom: 100px;
 }
 
-.pf-c-popover__footer {
+.pf-v5-c-popover__footer {
     overflow-wrap: anywhere;
 }
 
@@ -1041,18 +1062,18 @@
 .karavan .rest-page .rest-card-unselected,
 .karavan .rest-page .rest-config-card-unselected,
 .karavan .rest-page .method-card-unselected {
-    border-color: var(--pf-global--Color--200);
+    border-color: var(--pf-v5-global--Color--200);
     background-color: transparent;
 }
 
 .karavan .rest-page .rest-card-selected,
 .karavan .rest-page .rest-config-card-selected,
 .karavan .rest-page .method-card-selected {
-    border-color: var(--pf-global--primary-color--100);
+    border-color: var(--pf-v5-global--primary-color--100);
 }
 
 .karavan .rest-page .rest-card-selected .title {
-    color: var(--pf-global--primary-color--100);
+    color: var(--pf-v5-global--primary-color--100);
 }
 
 .karavan .rest-page .rest-config-card,
@@ -1095,11 +1116,11 @@
 }
 
 .karavan .rest-page .method-card-unselected .method {
-    background: var(--pf-global--Color--400);
+    background: var(--pf-v5-global--Color--400);
 }
 
 .karavan .rest-page .method-card-selected .method {
-    background: var(--pf-global--primary-color--100);
+    background: var(--pf-v5-global--primary-color--100);
 }
 
 .karavan .rest-page .rest-card .title,
@@ -1147,7 +1168,7 @@
     font-size: 15px;
     border: 0;
     background: transparent;
-    color: var(--pf-global--primary-color--100);
+    color: var(--pf-v5-global--primary-color--100);
     z-index: 100;
 }
 
@@ -1160,7 +1181,7 @@
 }
 
 /*Beans*/
-.karavan .rest-page .properties .bean-properties .pf-c-form__group-control {
+.karavan .rest-page .properties .bean-properties .pf-v5-c-form__group-control {
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -1201,9 +1222,9 @@
     background: #fafafa;
 }
 
-.karavan .templates-page-columns .pf-c-empty-state,
-.karavan .exception-page-columns .pf-c-empty-state,
-.karavan .error-page-columns .pf-c-empty-state {
+.karavan .templates-page-columns .pf-v5-c-empty-state,
+.karavan .exception-page-columns .pf-v5-c-empty-state,
+.karavan .error-page-columns .pf-v5-c-empty-state {
     margin: auto;
     height: 100%;
 }
@@ -1239,12 +1260,12 @@
     padding-right: 10px;
 }
 
-.karavan .project-builder .pf-c-toolbar__content {
+.karavan .project-builder .pf-v5-c-toolbar__content {
     padding: 0;
 }
 
-.karavan .project-builder .pf-c-tabs__link,
-.karavan .project-builder .pf-c-card__title,
+.karavan .project-builder .pf-v5-c-tabs__link,
+.karavan .project-builder .pf-v5-c-card__title,
 .karavan .project-builder .profile-caption {
     font-size: 14px;
 }
@@ -1257,11 +1278,11 @@
     opacity: 0.4;
 }
 
-.karavan .project-builder .pf-c-form__label {
+.karavan .project-builder .pf-v5-c-form__label {
     font-size: 14px;
 }
 
-.karavan .project-builder .pf-c-check__label {
+.karavan .project-builder .pf-v5-c-check__label {
     font-size: 14px;
 }
 
@@ -1270,23 +1291,23 @@
     height: auto;
 }
 
-.karavan .project-builder .pf-c-input-group button {
+.karavan .project-builder .pf-v5-c-input-group button {
     font-size: 14px;
     height: auto;
 }
 
-.karavan .project-builder .pf-c-form {
-    --pf-c-form--GridGap: 1em;
+.karavan .project-builder .pf-v5-c-form {
+    --pf-v5-c-form--GridGap: 1em;
 }
 
-.karavan .project-builder .pf-c-card__body {
-    --pf-c-card--child--PaddingRight: 0.5em;
-    --pf-c-card--child--PaddingBottom: 1em;
-    --pf-c-card--child--PaddingLeft: 1em;
+.karavan .project-builder .pf-v5-c-card__body {
+    --pf-v5-c-card--child--PaddingRight: 0.5em;
+    --pf-v5-c-card--child--PaddingBottom: 1em;
+    --pf-v5-c-card--child--PaddingLeft: 1em;
 }
 
-.karavan .project-builder .pf-c-card__header {
-    --pf-c-card--first-child--PaddingTop: 0.5em;
+.karavan .project-builder .pf-v5-c-card__header {
+    --pf-v5-c-card--first-child--PaddingTop: 0.5em;
 }
 
 .karavan .project-builder .center {
@@ -1343,7 +1364,7 @@
     margin-top: 6px;
 }
 
-.root .tooltip-required-field .pf-c-tooltip__content {
+.root .tooltip-required-field .pf-v5-c-tooltip__content {
     text-align: start;
 }
 
@@ -1357,7 +1378,8 @@
     overflow: auto;
     flex-shrink: unset;
     flex-grow: 1;
-    background-color: var(--pf-global--BackgroundColor--light-300);
+    background-color: var(--pf-v5-global--BackgroundColor--light-300);
+    margin-bottom: 100px;
 }
 
 .karavan .designer-page {
