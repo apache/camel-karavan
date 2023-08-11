@@ -17,7 +17,7 @@
 import React from 'react';
 import {
     Badge,
-    Card, CardBody, CardFooter, CardHeader, Flex, FlexItem, Form, FormGroup, Gallery, Label, Modal, PageSection,
+    Card, CardBody, CardFooter, CardHeader, Flex, FlexItem, Form, FormGroup, Gallery, Modal, PageSection,
     Tab, Tabs, TabTitleText,
     Text, TextInput, ToggleGroup, ToggleGroupItem,
 } from '@patternfly/react-core';
