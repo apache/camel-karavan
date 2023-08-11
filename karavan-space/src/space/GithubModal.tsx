@@ -152,26 +152,26 @@ export class GithubModal extends React.Component<Props, State> {
                     <FormGroup label="Repository" fieldId="repository" isRequired>
                         <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsStretch"}}>
                             <FlexItem>
-                                <TextInput id="owner" placeholder="Owner" value={owner} onChange={value => this.setState({owner: value})}/>
+                                <TextInput id="owner" placeholder="Owner" value={owner} onChange={(_event, value) => this.setState({owner: value})}/>
                             </FlexItem>
                             <FlexItem>
-                                <TextInput id="repo" placeholder="Repo" value={repo} onChange={value => this.setState({repo: value})}/>
+                                <TextInput id="repo" placeholder="Repo" value={repo} onChange={(_event, value) => this.setState({repo: value})}/>
                             </FlexItem>
                             <FlexItem>
-                                <TextInput id="path" placeholder="Path" value={path} onChange={value => this.setState({path: value})}/>
+                                <TextInput id="path" placeholder="Path" value={path} onChange={(_event, value) => this.setState({path: value})}/>
                             </FlexItem>
                             <FlexItem>
-                                <TextInput id="branch" placeholder="branch" value={branch} onChange={value => this.setState({branch: value})}/>
+                                <TextInput id="branch" placeholder="branch" value={branch} onChange={(_event, value) => this.setState({branch: value})}/>
                             </FlexItem>
                         </Flex>
                     </FormGroup>
                     <FormGroup label="Commit user" fieldId="user" isRequired>
                         <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsStretch"}}>
                             <FlexItem>
-                                <TextInput id="username" placeholder="Username" value={name} onChange={value => this.setState({name: value})}/>
+                                <TextInput id="username" placeholder="Username" value={name} onChange={(_event, value) => this.setState({name: value})}/>
                             </FlexItem>
                             <FlexItem flex={{default: "flex_3"}}>
-                                <TextInput id="email" placeholder="Email" value={email} onChange={value => this.setState({email: value})}/>
+                                <TextInput id="email" placeholder="Email" value={email} onChange={(_event, value) => this.setState({email: value})}/>
                             </FlexItem>
                         </Flex>
                     </FormGroup>
@@ -187,7 +187,7 @@ export class GithubModal extends React.Component<Props, State> {
                     </FormGroup>
                     <FormGroup label="Save" fieldId="save" isRequired>
                         <TextInputGroup className="input-group">
-                            <Switch label="Save parameters in browser (except token)" checked={save} onChange={checked => this.setState({save: checked})}/>
+                            <Switch label="Save parameters in browser (except token)" checked={save} onChange={(_event, checked) => this.setState({save: checked})}/>
                         </TextInputGroup>
                     </FormGroup>
                 </Form>

@@ -38,9 +38,9 @@ class ToastMessage {
     id: string = ''
     text: string = ''
     title: string = ''
-    variant?: 'success' | 'danger' | 'warning' | 'info' | 'default';
+    variant?: 'success' | 'danger' | 'warning' | 'info' | 'custom';
 
-    constructor(title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') {
+    constructor(title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'custom') {
         this.id = Date.now().toString().concat(Math.random().toString());
         this.title = title;
         this.text = text;
@@ -85,7 +85,7 @@ class App extends React.Component<Props, State> {
         githubModalIsOpen: false
     }
 
-    toast = (title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') => {
+    toast = (title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'custom') => {
         const mess = [];
         mess.push(...this.state.alerts, new ToastMessage(title, text, variant));
         this.setState({alerts: mess})
@@ -144,7 +144,7 @@ class App extends React.Component<Props, State> {
     getSpinner() {
         return (
             <Bullseye className="loading-page">
-                <Spinner className="progress-stepper" isSVG diameter="80px" aria-label="Loading..."/>
+                <Spinner className="progress-stepper"  diameter="80px" aria-label="Loading..."/>
             </Bullseye>
         )
     }

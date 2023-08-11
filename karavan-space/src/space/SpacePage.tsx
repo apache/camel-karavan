@@ -87,7 +87,9 @@ export class SpacePage extends React.Component<Props, State> {
     }
 
     addYaml = (yaml: string | undefined) => {
-        this.save(this.props.name, this.props.yaml + "\n" + yaml, false);
+        if (yaml) {
+            this.save(this.props.name, this.props.yaml + "\n" + yaml, false);
+        }
         this.setState({showUploadModal: false, key: Math.random().toString()})
     }
 
@@ -135,7 +137,7 @@ export class SpacePage extends React.Component<Props, State> {
         return (
             <PageSection className="kamelet-section designer-page" padding={{default: 'noPadding'}}>
                 <PageSection className="tools-section" padding={{default: 'noPadding'}}
-                             style={{backgroundColor:"transparent", paddingLeft: "var(--pf-c-page__main-section--PaddingLeft)"}}>
+                             style={{backgroundColor:"transparent", paddingLeft: "var(--pf-v5-c-page__main-section--PaddingLeft)"}}>
                     <Flex className="tools" justifyContent={{default: 'justifyContentSpaceBetween'}}>
                         <FlexItem>
                             <Flex>
@@ -147,9 +149,9 @@ export class SpacePage extends React.Component<Props, State> {
                                 <FlexItem>
                                     <ToggleGroup>
                                         <ToggleGroupItem text="Design" buttonId="design" isSelected={mode === "design"}
-                                                         onChange={s => this.setState({mode: 'design'})} />
+                                                         onChange={(_event, s) => this.setState({mode: 'design'})} />
                                         <ToggleGroupItem text="Code" buttonId="code" isSelected={mode === "code"}
-                                                         onChange={s => this.setState({mode: 'code'})} />
+                                                         onChange={(_event, s) => this.setState({mode: 'code'})} />
                                     </ToggleGroup>
                                 </FlexItem>
                             </Flex>

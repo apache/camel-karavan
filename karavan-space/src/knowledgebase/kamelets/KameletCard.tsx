@@ -47,7 +47,7 @@ export class KameletCard extends React.Component<Props, State> {
         const kamelet = this.state.kamelet;
         const isCustom = KameletApi.getCustomKameletNames().includes(kamelet.metadata.name);
         return (
-            <Card isHoverable isCompact key={kamelet.metadata.name} className="kamelet-card"
+            <Card  isCompact key={kamelet.metadata.name} className="kamelet-card"
                   onClick={event => this.click(event)}
             >
                 <CardHeader className="header-labels">

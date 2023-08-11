@@ -45,13 +45,15 @@ export class EipCard extends React.Component<Props, State> {
     render() {
         const component = this.state.element;
         return (
-            <Card isHoverable isCompact key={component.name} className="kamelet-card"
+            <Card  isCompact key={component.name} className="kamelet-card"
                 onClick={event => this.click(event)}
             >
                 <CardHeader>
-                    {CamelUi.getIconForDslName(component.className)}
                 </CardHeader>
-                <CardTitle>{component.title}</CardTitle>
+                <CardHeader>
+                    {CamelUi.getIconForDslName(component.className)}
+                    <CardTitle>{component.title}</CardTitle>
+                </CardHeader>
                 <CardBody>{component.description}</CardBody>
                 <CardFooter className="footer-labels">
                     <div>

@@ -5,6 +5,7 @@ import {
 import '../designer/karavan.css';
 import {GeneratorApi} from "../api/GeneratorApi";
 import {SpaceBus} from "./SpaceBus";
+import {DropEvent, FileRejection} from "react-dropzone";
 
 interface Props {
     isOpen: boolean,
@@ -50,11 +51,11 @@ export class UploadModal extends React.Component<Props, State> {
         })
     }
 
-    handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement> | React.DragEvent<HTMLElement>, file: File) => this.setState({filename: file.name});
+    handleFileInputChange = (file: File) => this.setState({filename: file.name});
     handleFileReadStarted = (fileHandle: File) => this.setState({isLoading: true});
     handleFileReadFinished = (fileHandle: File) => this.setState({isLoading: false});
     handleTextOrDataChange = (data: string) => this.setState({data: data});
-    handleFileRejected = (acceptedOrRejected: File[], event: React.DragEvent<HTMLElement>) => this.setState({isRejected: true});
+    handleFileRejected = (fileRejections: FileRejection[], event: DropEvent) => this.setState({isRejected: true});
     handleClear = (event: React.MouseEvent<HTMLButtonElement>) => this.setState({
         filename: '',
         data: '',
@@ -66,7 +67,7 @@ export class UploadModal extends React.Component<Props, State> {
         const {generating} = this.state;
         const fileNotUploaded = (this.state.filename === '' || this.state.data === '');
         const isDisabled = fileNotUploaded || generating;
-        const accept = '.json, .yaml';
+        const accept = {'application/yaml': ['.yaml', '.yml'], 'application/json': ['.json']}
         return (
             <Modal
                 title="Upload OpenAPI"
@@ -88,11 +89,11 @@ export class UploadModal extends React.Component<Props, State> {
                             hideDefaultPreview
                             browseButtonText="Upload"
                             isLoading={this.state.isLoading}
-                            onFileInputChange={this.handleFileInputChange}
-                            onDataChange={data => this.handleTextOrDataChange(data)}
-                            onTextChange={text => this.handleTextOrDataChange(text)}
-                            onReadStarted={this.handleFileReadStarted}
-                            onReadFinished={this.handleFileReadFinished}
+                            onFileInputChange={(event, file) => this.handleFileInputChange(file)}
+                            onDataChange={(_event, data) => this.handleTextOrDataChange(data)}
+                            onTextChange={(_event, text) => this.handleTextOrDataChange(text)}
+                            onReadStarted={(_event, fileHandle: File) => this.handleFileReadStarted(fileHandle)}
+                            onReadFinished={(_event, fileHandle: File) => this.handleFileReadFinished(fileHandle)}
                             allowEditingUploadedText={false}
                             onClearClick={this.handleClear}
                             dropzoneProps={{accept: accept, onDropRejected: this.handleFileRejected}}

@@ -21,11 +21,10 @@ import {
     ActionGroup,
     Text,
     CardHeader,
-    CardActions,
     Badge, Flex, CardTitle,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import {Table /* data-codemods */, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import {CamelUi} from "../../designer/utils/CamelUi";
 import {ElementMeta, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 
@@ -77,18 +76,16 @@ export class EipModal extends  React.Component<Props, State> {
             >
                 <Flex direction={{default: 'column'}} key={component?.name}
                       className="kamelet-modal-card">
-                    <CardHeader>
+                    <CardHeader actions={{ actions: <><Badge className="badge"
+                                   isRead> {component?.labels}</Badge></>, hasNoOffset: false, className: undefined}} >
                         {component && CamelUi.getIconForDslName(component?.className)}
-                        <CardActions>
-                            <Badge className="badge"
-                                   isRead> {component?.labels}</Badge>
-                        </CardActions>
+                        
                     </CardHeader>
                     <Text className="description">{component?.description}</Text>
                     {component?.properties.length !== 0 &&
                     <div>
                         <CardTitle>Properties</CardTitle>
-                        <TableComposable aria-label="Simple table" variant='compact'>
+                        <Table aria-label="Simple table" variant='compact'>
                             <Thead>
                                 <Tr>
                                     <Th key='name'>Display Name / Name</Th>
@@ -115,7 +112,7 @@ export class EipModal extends  React.Component<Props, State> {
                                     </Tr>
                                 ))}
                             </Tbody>
-                        </TableComposable>
+                        </Table>
                     </div>
                     }
                 </Flex>

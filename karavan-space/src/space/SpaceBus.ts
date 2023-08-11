@@ -21,10 +21,10 @@ const alerts = new Subject<AlertMessage>();
 export class AlertMessage {
     title: string;
     message: string;
-    variant: 'success' | 'danger' | 'warning' | 'info' | 'default';
+    variant: 'success' | 'danger' | 'warning' | 'info' | 'custom';
 
 
-    constructor(title: string, message: string, variant: "success" | "danger" | "warning" | "info" | "default") {
+    constructor(title: string, message: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'custom') {
         this.title = title;
         this.message = message;
         this.variant = variant;
@@ -35,7 +35,7 @@ export const SpaceBus = {
     sendAlert: (
         title: string,
         message: string,
-        variant: "success" | "danger" | "warning" | "info" | "default" = 'success'
+        variant: 'success' | 'danger' | 'warning' | 'info' | 'custom' = 'success'
     ) => alerts.next(new AlertMessage(title, message, variant)),
     onAlert: () => alerts.asObservable(),
 }

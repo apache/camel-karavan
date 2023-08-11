@@ -45,13 +45,13 @@ export const KnowledgebasePage = (props: Props) => {
                     <Switch
                         label="Custom only"
                         isChecked={customOnly}
-                        onChange={checked => setCustomOnly(checked)}
+                        onChange={(_event, checked) => setCustomOnly(checked)}
                     />
                 </ToolbarItem>}
                 <ToolbarItem>
                     <TextInput className="text-field" type="search" id="search" name="search"
                                value={filter}
-                               onChange={value => setFilter(value)}
+                               onChange={(_event, value) => setFilter(value)}
                                autoComplete="off"
                                placeholder="Search by name"/>
                 </ToolbarItem>

@@ -17,7 +17,7 @@
 import React from 'react';
 import {
     Badge,
-    Card, CardBody, CardFooter, CardHeader, Flex, FlexItem, Form, FormGroup, Gallery, Label, Modal, PageSection,
+    Card, CardBody, CardFooter, CardHeader, Flex, FlexItem, Form, FormGroup, Gallery, Modal, PageSection,
     Tab, Tabs, TabTitleText,
     Text, TextInput, ToggleGroup, ToggleGroupItem,
 } from '@patternfly/react-core';
@@ -71,9 +71,9 @@ export class DslSelector extends React.Component<Props, State> {
         return (
             <Form isHorizontal className="search" autoComplete="off">
                 <FormGroup fieldId="search">
-                    <TextInput className="text-field" type="text" id="search" name="search" iconVariant='search'
-                               value={this.state.filter}
-                               onChange={e => this.setState({filter: e})}/>
+                    <TextInput className="text-field" type="text" id="search" name="search" 
+                            value={this.state.filter}
+                            onChange={(_, value) => this.setState({filter: value})}/>
                 </FormGroup>
             </Form>
         )
@@ -99,7 +99,7 @@ export class DslSelector extends React.Component<Props, State> {
                 </CardBody>
                 <CardFooter className="footer-labels">
                     <div style={{display: "flex", flexDirection: "row", justifyContent: "start"}}>
-                        {labels.map(label => <Badge isRead className="labels">{label}</Badge>)}
+                        {labels.map(label => <Badge key={label} isRead className="labels">{label}</Badge>)}
                     </div>
 
                 </CardFooter>
@@ -176,9 +176,10 @@ export class DslSelector extends React.Component<Props, State> {
                     </Flex>
                 }
                 actions={{}}>
-                <PageSection variant={this.props.dark ? "darker" : "light"}>
+                <PageSection padding={{default:"noPadding"}} variant={this.props.dark ? "darker" : "light"}>
                     {isEip && <ToggleGroup aria-label="Labels" isCompact>
                         {eipLabels.map(eipLabel => <ToggleGroupItem
+                            key={eipLabel}
                             text={eipLabel}
                             buttonId={eipLabel}
                             isSelected={this.state.selectedLabels.includes(eipLabel)}
