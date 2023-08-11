@@ -50,7 +50,7 @@ export class RestMethodSelector extends React.Component<Props, State> {
 
     getCard(dsl: DslMetaModel, index: number) {
         return (
-            <Card key={dsl.dsl + index} isHoverable isCompact className="dsl-card"
+            <Card key={dsl.dsl + index}  isCompact className="dsl-card"
                   onClick={event => this.selectMethod(event, dsl)}>
                 <CardHeader>
                     {CamelUi.getIconForDsl(dsl)}

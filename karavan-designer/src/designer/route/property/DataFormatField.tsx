@@ -16,11 +16,14 @@
  */
 import React from 'react';
 import {
-    Select,
-    SelectVariant,
-    SelectDirection,
-    SelectOption, ExpandableSection,
+	ExpandableSection
 } from '@patternfly/react-core';
+import {
+	Select,
+	SelectVariant,
+	SelectDirection,
+	SelectOption
+} from '@patternfly/react-core/deprecated';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
@@ -135,9 +138,9 @@ export class DataFormatField extends React.Component<Props, State> {
         return (
             <div>
                 <div>
-                    <label className="pf-c-form__label" htmlFor="expression">
-                        <span className="pf-c-form__label-text">{"Data Format"}</span>
-                        <span className="pf-c-form__label-required" aria-hidden="true"> *</span>
+                    <label className="pf-v5-c-form__label" htmlFor="expression">
+                        <span className="pf-v5-c-form__label-text">{"Data Format"}</span>
+                        <span className="pf-v5-c-form__label-required" aria-hidden="true"> *</span>
                     </label>
                     <Select
                         variant={SelectVariant.typeahead}
@@ -160,7 +163,7 @@ export class DataFormatField extends React.Component<Props, State> {
                         {propertiesAdvanced.length > 0 &&
                             <ExpandableSection
                                 toggleText={'Advanced properties'}
-                                onToggle={isExpanded => this.setState({isShowAdvanced: !this.state.isShowAdvanced})}
+                                onToggle={(_event, isExpanded) => this.setState({isShowAdvanced: !this.state.isShowAdvanced})}
                                 isExpanded={this.state.isShowAdvanced}>
                                 {this.getPropertyFields(value, propertiesAdvanced)}
                             </ExpandableSection>}

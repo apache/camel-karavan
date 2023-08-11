@@ -107,7 +107,7 @@ export class DesignerPage extends React.Component<Props, State> {
         return (
             <PageSection className="kamelet-section designer-page" padding={{default: 'noPadding'}}>
                 <PageSection className="tools-section" padding={{default: 'noPadding'}}
-                             style={{backgroundColor:"transparent", paddingLeft: "var(--pf-c-page__main-section--PaddingLeft)"}}>
+                             style={{backgroundColor:"transparent", paddingLeft: "var(--pf-v5-c-page__main-section--PaddingLeft)"}}>
                     <Flex className="tools" justifyContent={{default: 'justifyContentSpaceBetween'}}>
                         <FlexItem>
                             <TextContent className="header">
@@ -120,9 +120,9 @@ export class DesignerPage extends React.Component<Props, State> {
                                     <ToolbarItem>
                                         <ToggleGroup>
                                             <ToggleGroupItem text="Design" buttonId="design" isSelected={mode === "design"}
-                                                             onChange={s => this.setState({mode: "design"})} />
+                                                             onChange={(_event, s) => this.setState({mode: "design"})} />
                                             <ToggleGroupItem text="Code" buttonId="code" isSelected={mode === "code"}
-                                                             onChange={s => this.setState({mode: "code"})} />
+                                                             onChange={(_event, s) => this.setState({mode: "code"})} />
                                         </ToggleGroup>
                                     </ToolbarItem>
                                     <ToolbarItem>

@@ -146,7 +146,7 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
 
     getPropertiesPanel() {
         return (
-            <DrawerPanelContent onResize={width => this.setState({key: Math.random().toString()})}
+            <DrawerPanelContent onResize={(_event, width) => this.setState({key: Math.random().toString()})}
                                 style={{transform: "initial"}} isResizable hasNoBorder defaultSize={'400px'}
                                 maxSize={'800px'} minSize={'300px'}>
                 <DslProperties ref={this.state.ref}

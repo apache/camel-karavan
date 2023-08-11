@@ -129,7 +129,7 @@ class App extends React.Component<Props, State> {
     getSpinner() {
         return (
             <Bullseye className="loading-page">
-                <Spinner className="progress-stepper" isSVG diameter="80px" aria-label="Loading..."/>
+                <Spinner className="progress-stepper"  diameter="80px" aria-label="Loading..."/>
             </Bullseye>
         )
     }
@@ -189,6 +189,7 @@ class App extends React.Component<Props, State> {
             <Page className="karavan">
                 <AlertGroup isToast isLiveRegion>
                     {this.state.alerts.map((e: ToastMessage) => (
+                        // @ts-ignore
                         <Alert key={e.id} className="main-alert" variant={e.variant} title={e.title}
                                timeout={e.variant === "success" ? 2000 : 10000}
                                actionClose={<AlertActionCloseButton onClose={() => this.deleteErrorMessage(e.id)}/>}>

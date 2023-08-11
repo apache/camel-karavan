@@ -35,8 +35,8 @@ export class IntegrationHeader extends React.Component<Props> {
                 {/*               }/>*/}
                 {/*</FormGroup>*/}
                 <FormGroup label="Name" fieldId="name" isRequired>
-                    <TextInput className="text-field" type="text" id="name" name="name" isReadOnly
-                               value={this.props.integration.metadata.name}/>
+                    <TextInput className="text-field" type="text" id="name" name="name" 
+                               value={this.props.integration.metadata.name} readOnlyVariant="default"/>
                 </FormGroup>
             </div>
         )

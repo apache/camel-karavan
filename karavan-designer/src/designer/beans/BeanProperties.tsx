@@ -18,7 +18,7 @@ import React from 'react';
 import {
     Form,
     FormGroup,
-    TextInput, Button, Title, Tooltip, Popover, InputGroup,
+    TextInput, Button, Title, Tooltip, Popover, InputGroup, InputGroupItem,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -167,8 +167,8 @@ export class BeanProperties extends React.Component<Props, State> {
                     <button type="button" aria-label="More info" onClick={e => {
                         e.preventDefault();
                         e.stopPropagation();
-                    }} className="pf-c-form__group-label-help">
-                        <HelpIcon noVerticalAlign/>
+                    }} className="pf-v5-c-form__group-label-help">
+                        <HelpIcon />
                     </button>
                 </Popover>
         )
@@ -188,10 +188,11 @@ export class BeanProperties extends React.Component<Props, State> {
                 </div>
                 <FormGroup label="Name" fieldId="name" isRequired labelIcon={this.getLabelIcon("Name", "Bean name used as a reference ex: myBean")}>
                     <TextInput className="text-field" isRequired type="text" id="name" name="name" value={bean?.name}
-                               onChange={e => this.beanChanged("name", e)}/>
+                                onChange={(_, value)=> this.beanChanged("name", value)}/>
                 </FormGroup>
                 <FormGroup label="Type" fieldId="type" isRequired labelIcon={this.getLabelIcon("Type", "Bean class Canonical Name ex: org.demo.MyBean")}>
-                    <TextInput className="text-field" isRequired type="text" id="type" name="type" value={bean?.type} onChange={e => this.beanChanged("type", e)}/>
+                    <TextInput className="text-field" isRequired type="text" id="type" name="type" value={bean?.type}
+                        onChange={(_, value) => this.beanChanged("type", value)}/>
                 </FormGroup>
                 <FormGroup label="Properties" fieldId="properties" className="bean-properties">
                     {Array.from(this.state.properties.entries()).map((v, index, array) => {
@@ -205,7 +206,9 @@ export class BeanProperties extends React.Component<Props, State> {
                         return (
                             <div key={"key-" + i} className="bean-property">
                                 <TextInput placeholder="Bean Field Name" className="text-field" isRequired type="text" id="key" name="key" value={key}
-                                           onChange={e => this.propertyChanged(i, e, value, showPassword)}/>
+                                            onChange={(_, beanFieldName) => {
+                                                this.propertyChanged(i, beanFieldName, value, showPassword)
+                                            }}/>
                                 <InputGroup>
                                     {inInfrastructure &&
                                         <Tooltip position="bottom-end" content="Select value from Infrastructure">
@@ -213,15 +216,19 @@ export class BeanProperties extends React.Component<Props, State> {
                                             {icon}
                                         </Button>
                                     </Tooltip>}
-                                    <TextInput
-                                        placeholder="Bean Field Value"
-                                        type={isSecret && !showPassword ? "password" : "text"}
-                                        className="text-field"
-                                        isRequired
-                                        id="value"
-                                        name="value"
-                                        value={value}
-                                        onChange={e => this.propertyChanged(i, key, e, showPassword)}/>
+                                    <InputGroupItem isFill>
+                                        <TextInput
+                                            placeholder="Bean Field Value"
+                                            type={isSecret && !showPassword ? "password" : "text"}
+                                            className="text-field"
+                                            isRequired
+                                            id="value"
+                                            name="value"
+                                            value={value}
+                                            onChange={(_, value) => {
+                                                this.propertyChanged(i, key, value, showPassword)
+                                            }}/>
+                                    </InputGroupItem>
                                     {isSecret && <Tooltip position="bottom-end" content={showPassword ? "Hide" : "Show"}>
                                         <Button variant="control" onClick={e => this.propertyChanged(i, key, value, !showPassword)}>
                                             {showPassword ? <ShowIcon/> : <HideIcon/>}

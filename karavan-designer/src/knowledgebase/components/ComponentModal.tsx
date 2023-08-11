@@ -21,11 +21,10 @@ import {
     ActionGroup,
     Text,
     CardHeader,
-    CardActions,
     Badge, Flex, CardTitle,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import {Table /* data-codemods */, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import {Component} from "karavan-core/lib/model/ComponentModels";
 import {CamelUi} from "../../designer/utils/CamelUi";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
@@ -84,18 +83,16 @@ export class ComponentModal extends  React.Component<Props, State> {
             >
                 <Flex direction={{default: 'column'}} key={component?.component.name}
                       className="kamelet-modal-card">
-                    <CardHeader>
+                    <CardHeader actions={{ actions: <><Badge className="badge"
+                                   isRead> {component?.component.label}</Badge></>, hasNoOffset: false, className: undefined}} >
                         {component && CamelUi.getIconForComponent(component.component.title, component.component.label)}
-                        <CardActions>
-                            <Badge className="badge"
-                                   isRead> {component?.component.label}</Badge>
-                        </CardActions>
+                        
                     </CardHeader>
                     <Text className="description">{component?.component.description}</Text>
                     {props.size !== 0 &&
                     <div>
                         <CardTitle>Properties</CardTitle>
-                        <TableComposable aria-label="Simple table" variant='compact'>
+                        <Table aria-label="Simple table" variant='compact'>
                             <Thead>
                                 <Tr>
                                     <Th key='name'>Display Name / Name</Th>
@@ -122,7 +119,7 @@ export class ComponentModal extends  React.Component<Props, State> {
                                     </Tr>
                                 ))}
                             </Tbody>
-                        </TableComposable>
+                        </Table>
                     </div>
                     }
                 </Flex>

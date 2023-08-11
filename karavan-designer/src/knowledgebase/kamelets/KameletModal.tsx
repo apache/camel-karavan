@@ -21,12 +21,11 @@ import {
     ActionGroup,
     Text,
     CardHeader,
-    CardActions,
     Badge, Flex, CardTitle,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {KameletModel, Property} from "karavan-core/lib/model/KameletModels";
-import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import {Table /* data-codemods */, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import {CamelUi} from "../../designer/utils/CamelUi";
 
 interface Props {
@@ -82,18 +81,16 @@ export class KameletModal extends Component<Props, State> {
             >
                 <Flex direction={{default: 'column'}} key={this.state.kamelet?.metadata.name}
                       className="kamelet-modal-card">
-                    <CardHeader>
+                    <CardHeader actions={{ actions: <><Badge className="badge"
+                                   isRead> {this.state.kamelet?.metadata.labels["camel.apache.org/kamelet.type"].toLowerCase()}</Badge></>, hasNoOffset: false, className: undefined}} >
                         {this.state.kamelet && CamelUi.getIconFromSource(this.state.kamelet?.icon())}
-                        <CardActions>
-                            <Badge className="badge"
-                                   isRead> {this.state.kamelet?.metadata.labels["camel.apache.org/kamelet.type"].toLowerCase()}</Badge>
-                        </CardActions>
+                        
                     </CardHeader>
                     <Text className="description">{this.state.kamelet?.spec.definition.description}</Text>
                     {this.state.kamelet?.spec.definition.properties && this.state.kamelet?.spec.definition.properties.length !== 0 &&
                     <div>
                         <CardTitle>Properties</CardTitle>
-                        <TableComposable aria-label="Simple table" variant='compact'>
+                        <Table aria-label="Simple table" variant='compact'>
                             <Thead>
                                 <Tr>
                                     <Th key='title'>Title</Th>
@@ -114,7 +111,7 @@ export class KameletModal extends Component<Props, State> {
                                     </Tr>
                                 ))}
                             </Tbody>
-                        </TableComposable>
+                        </Table>
                     </div>
                     }
                 </Flex>
