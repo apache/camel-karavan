@@ -24,6 +24,7 @@ import {ProjectFile, ToastMessage} from "../../api/ProjectModels";
 import {KaravanApi} from "../../api/KaravanApi";
 import {useFileStore} from "../../api/ProjectStore";
 import {ProjectEventBus} from "../../api/ProjectEventBus";
+import {Accept, DropEvent, FileRejection} from "react-dropzone";
 
 interface Props {
     projectId: string,
@@ -84,11 +85,11 @@ export class UploadFileModal extends React.Component<Props, State> {
         }
     }
 
-    handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement> | React.DragEvent<HTMLElement>, file: File) => this.setState({filename: file.name});
+    handleFileInputChange = (file: File) => this.setState({filename: file.name});
     handleFileReadStarted = (fileHandle: File) => this.setState({isLoading: true});
     handleFileReadFinished = (fileHandle: File) => this.setState({isLoading: false});
     handleTextOrDataChange = (data: string) => this.setState({data: data});
-    handleFileRejected = (acceptedOrRejected: File[], event: React.DragEvent<HTMLElement>) => this.setState({isRejected: true});
+    handleFileRejected = (fileRejections: FileRejection[], event: DropEvent) => this.setState({isRejected: true});
     handleClear = (event: React.MouseEvent<HTMLButtonElement>) => this.setState({
         filename: '',
         data: '',
@@ -101,7 +102,9 @@ export class UploadFileModal extends React.Component<Props, State> {
         const isDisabled = this.state.type === 'integration'
             ? fileNotUploaded
             : !(!fileNotUploaded && this.state.integrationName !== undefined && this.state.integrationName.endsWith(".yaml"));
-        const accept = this.state.type === 'integration' ? '.yaml' : '.json, .yaml';
+        const accept : Accept = this.state.type === 'integration'
+            ? {'application/yaml': ['.yaml', '.yml']}
+            :  {'application/yaml': ['.yaml', '.yml'], 'application/json': ['.json'], 'plain/text': ['.sql']};
         return (
             <Modal
                 title="Upload"
@@ -116,10 +119,10 @@ export class UploadFileModal extends React.Component<Props, State> {
                 <Form>
                     <FormGroup fieldId="type">
                         <Radio value="Integration" label="Integration yaml" name="Integration" id="Integration" isChecked={this.state.type === 'integration'}
-                            onChange={(_, event) => this.setState({ type: _ ? 'integration': 'openapi' })}
+                            onChange={(event, _) => this.setState({ type: _ ? 'integration': 'openapi' })}
                         />{' '}
                         <Radio value="OpenAPI" label="OpenAPI json/yaml" name="OpenAPI" id="OpenAPI" isChecked={this.state.type === 'openapi'}
-                            onChange={(_, event) => this.setState({ type: _ ? 'openapi' : 'integration' })}
+                            onChange={(event, _) => this.setState({ type: _ ? 'openapi' : 'integration' })}
                         />
                     </FormGroup>
                     <FormGroup fieldId="upload">
@@ -131,11 +134,11 @@ export class UploadFileModal extends React.Component<Props, State> {
                             hideDefaultPreview
                             browseButtonText="Upload"
                             isLoading={this.state.isLoading}
-                            onFileInputChange={this.handleFileInputChange}
-                            onDataChange={data => this.handleTextOrDataChange(data)}
-                            onTextChange={text => this.handleTextOrDataChange(text)}
-                            onReadStarted={this.handleFileReadStarted}
-                            onReadFinished={this.handleFileReadFinished}
+                            onFileInputChange={(_event, fileHandle: File) => this.handleFileInputChange(fileHandle)}
+                            onDataChange={(_event, data) => this.handleTextOrDataChange(data)}
+                            onTextChange={(_event, text) => this.handleTextOrDataChange(text)}
+                            onReadStarted={(_event, fileHandle: File) => this.handleFileReadStarted(fileHandle)}
+                            onReadFinished={(_event, fileHandle: File) => this.handleFileReadFinished(fileHandle)}
                             allowEditingUploadedText={false}
                             onClearClick={this.handleClear}
                             dropzoneProps={{accept: accept, onDropRejected: this.handleFileRejected}}
@@ -148,7 +151,7 @@ export class UploadFileModal extends React.Component<Props, State> {
                             label="Generate REST DSL"
                             labelOff="Do not generate REST DSL"
                             isChecked={this.state.generateRest}
-                            onChange={checked => this.setState({generateRest: checked})}
+                             onChange={(_, checked) => this.setState({generateRest: checked})}
                         />
                     </FormGroup>}
                     {this.state.type === 'openapi' && this.state.generateRest && <FormGroup fieldId="generateRoutes">
@@ -157,7 +160,7 @@ export class UploadFileModal extends React.Component<Props, State> {
                             label="Generate Routes"
                             labelOff="Do not generate Routes"
                             isChecked={this.state.generateRoutes}
-                            onChange={checked => this.setState({generateRoutes: checked})}
+                             onChange={(_, checked) => this.setState({generateRoutes: checked})}
                         />
                     </FormGroup>}
                     {this.state.type === 'openapi' && this.state.generateRest && <FormGroup fieldId="integrationName" label="Integration name">
@@ -166,8 +169,7 @@ export class UploadFileModal extends React.Component<Props, State> {
                             type="text"
                             placeholder="Integration file name with yaml extension"
                             required
-
-                            onChange={value => this.setState({integrationName: value})}
+                            onChange={(_, value) => this.setState({integrationName: value})}
                         />
                     </FormGroup>}
                 </Form>

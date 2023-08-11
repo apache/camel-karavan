@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {
-    Button, Form, FormGroup,
+    Button, Form, FormGroup, FormHelperText, HelperText, HelperTextItem,
     Modal,
     ModalVariant, Radio, TextInput,
 } from '@patternfly/react-core';
@@ -66,24 +66,29 @@ export const CreateServiceModal = () => {
                 <FormGroup label="Name" fieldId="name" isRequired>
                     <TextInput className="text-field" type="text" id="name" name="name"
                                value={name}
-                               onChange={e => setName(e)}/>
+                               onChange={(_, e) => setName(e)}/>
                 </FormGroup>
                 <FormGroup label="Description" fieldId="description" isRequired>
                     <TextInput className="text-field" type="text" id="description" name="description"
                                value={description}
-                               onChange={e => setDescription(e)}/>
+                               onChange={(_, e) => setDescription(e)}/>
                 </FormGroup>
-                <FormGroup label="Project ID" fieldId="projectId" isRequired helperText="Unique project name">
+                <FormGroup label="Project ID" fieldId="projectId" isRequired>
                     <TextInput className="text-field" type="text" id="projectId" name="projectId"
                                value={projectId}
                                onFocus={e => setProjectId(projectId === '' ? CamelUi.nameFromTitle(name) : projectId)}
-                               onChange={e => setProjectId(CamelUi.nameFromTitle(e))}/>
+                               onChange={(_, e) => setProjectId(CamelUi.nameFromTitle(e))}/>
+                    <FormHelperText>
+                        <HelperText>
+                            <HelperTextItem>Unique service name</HelperTextItem>
+                        </HelperText>
+                    </FormHelperText>
                 </FormGroup>
                 <FormGroup label="Runtime" fieldId="runtime" isRequired>
                     {runtimes?.map((r: string) => (
                         <Radio key={r} id={r} name={r} className="radio" aria-label="runtime"
                                isChecked={r === runtime}
-                               onChange={checked => {
+                               onChange={(_, checked) => {
                                    if (checked) setRuntime(r)
                                }}
                                body={

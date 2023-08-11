@@ -12,12 +12,21 @@ import {
     EmptyState,
     EmptyStateVariant,
     EmptyStateIcon,
-    Title, Spinner
+    Spinner, EmptyStateHeader
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
-import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import {
+	Tbody,
+	Td,
+	Th,
+	Thead,
+	Tr
+} from '@patternfly/react-table';
+import {
+	Table
+} from '@patternfly/react-table/deprecated';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {ProjectsTableRow} from "./ProjectsTableRow";
 import {DeleteProjectModal} from "./DeleteProjectModal";
@@ -67,7 +76,7 @@ export const ProjectsPage = () => {
                     <TextInput className="text-field" type="search" id="search" name="search"
                                autoComplete="off" placeholder="Search by name"
                                value={filter}
-                               onChange={e => setFilter(e)}/>
+                               onChange={(_, e) => setFilter(e)}/>
                 </ToolbarItem>
                 <ToolbarItem>
                     <Button icon={<PlusIcon/>}
@@ -91,13 +100,10 @@ export const ProjectsPage = () => {
                 <Td colSpan={8}>
                     <Bullseye>
                         {loading &&
-                            <Spinner className="progress-stepper" isSVG diameter="80px" aria-label="Loading..."/>}
+                            <Spinner className="progress-stepper" diameter="80px" aria-label="Loading..."/>}
                         {!loading &&
-                            <EmptyState variant={EmptyStateVariant.small}>
-                                <EmptyStateIcon icon={SearchIcon}/>
-                                <Title headingLevel="h2" size="lg">
-                                    No results found
-                                </Title>
+                            <EmptyState variant={EmptyStateVariant.sm}>
+                                <EmptyStateHeader titleText="No results found" icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2" />
                             </EmptyState>
                         }
                     </Bullseye>
@@ -111,7 +117,7 @@ export const ProjectsPage = () => {
             .filter(p => p.type === ProjectType.normal)
             .filter(p => p.name.toLowerCase().includes(filter) || p.description.toLowerCase().includes(filter));
         return (
-            <TableComposable aria-label="Projects" variant={"compact"}>
+            <Table aria-label="Projects" variant={"compact"}>
                 <Thead>
                     <Tr>
                         <Th key='type' >Runtime</Th>
@@ -131,7 +137,7 @@ export const ProjectsPage = () => {
                     ))}
                     {projs.length === 0 && getEmptyState()}
                 </Tbody>
-            </TableComposable>
+            </Table>
         )
     }
 

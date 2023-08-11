@@ -127,7 +127,7 @@ export class ProjectStatus extends React.Component<Props, State> {
         return (<Tooltip content="Start build pipeline" position={"left"}>
             <Button isLoading={isBuilding ? true : undefined}
                     isDisabled={isBuilding || isRunning || isPushing}
-                    isSmall
+                    size="sm"
                     variant="secondary"
                     className="project-button"
                     icon={!isBuilding ? <BuildIcon/> : <div></div>}
@@ -140,7 +140,7 @@ export class ProjectStatus extends React.Component<Props, State> {
     rolloutButton = () => {
         const isRolling = this.state.isRolling;
         return (<Tooltip content="Rollout deployment" position={"left"}>
-            <Button isLoading={isRolling ? true : undefined} isSmall variant="secondary"
+            <Button isLoading={isRolling ? true : undefined} size="sm" variant="secondary"
                     className="project-button"
                     icon={!isRolling ? <RolloutIcon/> : <div></div>}
                     onClick={e => this.rollout()}>
@@ -151,7 +151,7 @@ export class ProjectStatus extends React.Component<Props, State> {
 
     deleteDeploymentButton = (env: string) => {
         return (<Tooltip content="Delete deployment" position={"left"}>
-            <Button isSmall variant="secondary"
+            <Button size="sm" variant="secondary"
                     className="project-button"
                     icon={<DeleteIcon/>}
                     onClick={e => this.setState({
@@ -283,9 +283,9 @@ export class ProjectStatus extends React.Component<Props, State> {
                 <FlexItem>
                     <Tooltip content={pipelineResult} position={"right"}>
                         <LabelGroup numLabels={2}>
-                            <Label icon={isRunning ? <Spinner isSVG diameter="16px" className="spinner"/> : icon} color={color}>
+                            <Label icon={isRunning ? <Spinner diameter="16px" className="spinner"/> : icon} color={color}>
                                 {pipeline
-                                    ? <Button variant="link" onClick={e =>
+                                    ?  <Button className='labeled-button' variant="link" onClick={e =>
                                         useLogStore.setState({showLog: true, type: 'pipeline', podName: pipeline})
                                     }>
                                         {pipeline}

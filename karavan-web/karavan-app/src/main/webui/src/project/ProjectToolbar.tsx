@@ -76,9 +76,9 @@ export const ProjectToolbar = () => {
                     {isYaml() && <FlexItem>
                         <ToggleGroup>
                             <ToggleGroupItem text="Design" buttonId="design" isSelected={mode === "design"}
-                                             onChange={s => setMode("design")}/>
+                                             onChange={(_event, s) => setMode("design")}/>
                             <ToggleGroupItem text="Code" buttonId="code" isSelected={mode === "code"}
-                                             onChange={s => setMode("code")}/>
+                                             onChange={(_event, s) => setMode("code")}/>
                         </ToggleGroup>
                     </FlexItem>}
 
@@ -87,16 +87,16 @@ export const ProjectToolbar = () => {
                             id="advanced"
                             label="Edit advanced"
                             isChecked={editAdvancedProperties}
-                            onChange={checked => setEditAdvancedProperties(checked)}
+                             onChange={(_, checked) => setEditAdvancedProperties(checked)}
                         />
                     </FlexItem>}
                     {isProperties() && <FlexItem>
-                        <Button isSmall variant="primary" icon={<PlusIcon/>} onClick={e => addProperty()}>Add property</Button>
+                        <Button size="sm" variant="primary" icon={<PlusIcon/>} onClick={e => addProperty()}>Add property</Button>
                     </FlexItem>}
 
                     {isIntegration() && <FlexItem>
                         <Tooltip content="Download image" position={"bottom-end"}>
-                            <Button isSmall variant="control" icon={<DownloadImageIcon/>} onClick={e => downloadImage()}/>
+                            <Button size="sm" variant="control" icon={<DownloadImageIcon/>} onClick={e => downloadImage()}/>
                         </Tooltip>
                     </FlexItem>}
                 </Flex>

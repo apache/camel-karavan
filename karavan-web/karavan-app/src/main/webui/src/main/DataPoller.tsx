@@ -1,31 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {
-    Page,
-    Flex,
-    FlexItem,
-     Spinner, Bullseye
-} from '@patternfly/react-core';
+
 import {KaravanApi} from "../api/KaravanApi";
 import {SsoApi} from "../api/SsoApi";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import '../designer/karavan.css';
 import {v4 as uuidv4} from "uuid";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
-import Icon from "../Logo";
-import {ProjectsPage} from "../projects/ProjectsPage";
-import {MainLogin} from "./MainLogin";
-import {DashboardPage} from "../dashboard/DashboardPage";
-import {ContainersPage} from "../containers/ContainersPage";
-import {ProjectEventBus} from "../api/ProjectEventBus";
-import {AppConfig, ContainerStatus, Project, ToastMessage} from "../api/ProjectModels";
-import {ProjectPage} from "../project/ProjectPage";
+import {AppConfig, ContainerStatus} from "../api/ProjectModels";
 import {useAppConfigStore, useStatusesStore} from "../api/ProjectStore";
-import {Notification} from "./Notification";
 import {InfrastructureAPI} from "../designer/utils/InfrastructureAPI";
-import {KnowledgebasePage} from "../knowledgebase/KnowledgebasePage";
-import {ServicesPage} from "../services/ServicesPage";
 import {shallow} from "zustand/shallow";
-import {PageNavigation} from "./PageNavigation";
 
 export const DataPoller = () => {
 

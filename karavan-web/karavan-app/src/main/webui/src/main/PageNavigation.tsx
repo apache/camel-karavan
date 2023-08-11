@@ -85,8 +85,8 @@ export const PageNavigation = () => {
                     position={"right-end"}
                     hideOnOutsideClick={false}
                     isVisible={showUser}
-                    shouldClose={tip => setShowUser(false)}
-                    shouldOpen={tip => setShowUser(true)}
+                    shouldClose={(_event, tip) => setShowUser(false)}
+                    shouldOpen={(_event, tip) => setShowUser(true)}
                     headerContent={<div>{KaravanApi.me.userName}</div>}
                     bodyContent={
                         <Flex direction={{default: "row"}}>

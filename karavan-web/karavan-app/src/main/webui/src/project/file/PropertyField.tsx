@@ -45,7 +45,7 @@ export const PropertyField = (props: Props) => {
                 <TextInput isDisabled={props.readOnly} isRequired={true} className="text-field" type={"text"}
                            id={"key-" + props.property.id}
                            value={key}
-                           onChange={(val, e) => {
+                           onChange={(e, val) => {
                                e.preventDefault();
                                setKey(val)
                                props.changeProperty?.call(this, new ProjectProperty({id: props.property.id, key: val, value: value}));
@@ -55,7 +55,7 @@ export const PropertyField = (props: Props) => {
                 <TextInput isDisabled={props.readOnly} isRequired={true} className="text-field" type={"text"}
                            id={"value-" + props.property.id}
                            value={value }
-                           onChange={(val, e) => {
+                           onChange={(e, val) => {
                                e.preventDefault();
                                setValue(val);
                                props.changeProperty?.call(this, new ProjectProperty({id: props.property.id, key: key, value: val}));

@@ -57,7 +57,7 @@ export const ContainerTableRow = (props: Props) => {
                 </Td>
                 <Td>
                     {!inTransit && <Label color={color}>{container.state}</Label>}
-                    {inTransit && <Spinner isSVG size="lg" aria-label="spinner"/>}
+                    {inTransit && <Spinner size="lg" aria-label="spinner"/>}
                 </Td>
                 <Td>
                     {container.type !== 'internal' &&

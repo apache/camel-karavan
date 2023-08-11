@@ -47,7 +47,7 @@ public class ProjectService implements HealthCheck{
 
     private static final Logger LOGGER = Logger.getLogger(ProjectService.class.getName());
 
-    @ConfigProperty(name = "karavan.git.pull.interval")
+    @ConfigProperty(name = "karavan.git-pull-interval")
     String gitPullInterval;
 
     @Inject

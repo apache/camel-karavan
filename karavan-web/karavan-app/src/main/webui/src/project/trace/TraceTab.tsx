@@ -24,11 +24,20 @@ import {
     Panel,
     PanelHeader,
     Text,
-    Switch, TextContent, TextVariants, Title, PageSection,
+    Switch, TextContent, TextVariants, PageSection, EmptyStateHeader,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {RunnerInfoTraceModal} from "./RunnerInfoTraceModal";
-import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import {
+	Tbody,
+	Td,
+	Th,
+	Thead,
+	Tr
+} from '@patternfly/react-table';
+import {
+	Table
+} from '@patternfly/react-table/deprecated';
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import {KaravanApi} from "../../api/KaravanApi";
 import {useProjectStore} from "../../api/ProjectStore";
@@ -101,13 +110,13 @@ export const TraceTab = () => {
                             <Switch aria-label="refresh"
                                     id="refresh"
                                     isChecked={refreshTrace}
-                                    onChange={checked => setRefreshTrace(checked)}
+                                     onChange={(_, checked) => setRefreshTrace(checked)}
                             />
                         </FlexItem>
                     </Flex>
                 </PanelHeader>
             </Panel>
-            <TableComposable aria-label="Files" variant={"compact"} className={"table"}>
+            <Table aria-label="Files" variant={"compact"} className={"table"}>
                 <Thead>
                     <Tr>
                         <Th key='uid' width={30}>Type</Th>
@@ -142,18 +151,15 @@ export const TraceTab = () => {
                         <Tr>
                             <Td colSpan={8}>
                                 <Bullseye>
-                                    <EmptyState variant={EmptyStateVariant.small}>
-                                        <EmptyStateIcon icon={SearchIcon}/>
-                                        <Title headingLevel="h2" size="lg">
-                                            No results found
-                                        </Title>
+                                    <EmptyState variant={EmptyStateVariant.sm}>
+                                        <EmptyStateHeader titleText="No results found" icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2" />
                                     </EmptyState>
                                 </Bullseye>
                             </Td>
                         </Tr>
                     }
                 </Tbody>
-            </TableComposable>
+            </Table>
         </PageSection>
     );
 }

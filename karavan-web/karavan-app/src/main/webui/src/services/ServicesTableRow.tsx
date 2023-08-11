@@ -2,10 +2,10 @@ import React, {useState} from 'react';
 import {
     Button,
     Tooltip,
-    Flex, FlexItem, Label, ToolbarContent, Toolbar, ToolbarItem, Spinner, TooltipPosition
+    Flex, FlexItem, Label, Spinner, TooltipPosition
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {ActionsColumn, ExpandableRowContent, Tbody, Td, Tr} from "@patternfly/react-table";
+import {ExpandableRowContent, Tbody, Td, Tr} from "@patternfly/react-table";
 import StopIcon from "@patternfly/react-icons/dist/js/icons/stop-icon";
 import PlayIcon from "@patternfly/react-icons/dist/esm/icons/play-icon";
 import {DevService} from "../api/ServiceModels";
@@ -101,7 +101,7 @@ export const ServicesTableRow = (props: Props) => {
                 <Td>
                     {container && <Label icon={icon} color={color}>
                         <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
-                            <Button variant="link" isDisabled={!isRunning}
+                            <Button className='labeled-button' variant="link" isDisabled={!isRunning}
                                     onClick={e => {
                                         useLogStore.setState({showLog: true, type: 'container', podName: container.containerName});
                                     }}>
@@ -120,7 +120,7 @@ export const ServicesTableRow = (props: Props) => {
                 </Td>
                 <Td>
                     {!inTransit && container?.state && <Label color={color}>{container?.state}</Label>}
-                    {inTransit && <Spinner isSVG size="lg" aria-label="spinner"/>}
+                    {inTransit && <Spinner size="lg" aria-label="spinner"/>}
                 </Td>
                 {getButtons()}
             </Tr>

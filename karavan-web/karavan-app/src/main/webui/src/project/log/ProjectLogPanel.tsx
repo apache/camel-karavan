@@ -56,10 +56,10 @@ export const ProjectLogPanel = () => {
             </Tooltip>
             <Checkbox label="Wrap text" aria-label="wrap text checkbox" isChecked={isTextWrapped}
                       id="wrap-text-checkbox"
-                      onChange={checked => setIsTextWrapped(checked)}/>
+                       onChange={(_, checked) => setIsTextWrapped(checked)}/>
             <Checkbox label="Autoscroll" aria-label="autoscroll checkbox" isChecked={autoScroll}
                       id="autoscroll-checkbox"
-                      onChange={checked => setAutoScroll(checked)}/>
+                       onChange={(_, checked) => setAutoScroll(checked)}/>
             {/*<Tooltip content={"Scroll to bottom"} position={TooltipPosition.bottom}>*/}
             {/*    <Button variant="plain" onClick={() => } icon={<ScrollIcon/>}/>*/}
             {/*</Tooltip>*/}

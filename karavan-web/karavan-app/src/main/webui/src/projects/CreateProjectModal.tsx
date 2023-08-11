@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import {
-    Button, Form, FormGroup,
+    Button, Form, FormGroup, FormHelperText, HelperText, HelperTextItem,
     Modal,
-    ModalVariant, Radio, TextInput, ToggleGroup, ToggleGroupItem,
+    ModalVariant, TextInput, ToggleGroup, ToggleGroupItem,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
@@ -79,18 +79,23 @@ export const CreateProjectModal = () => {
                 <FormGroup label="Name" fieldId="name" isRequired>
                     <TextInput className="text-field" type="text" id="name" name="name"
                                value={name}
-                               onChange={e => setName(e)}/>
+                               onChange={(_, e) => setName(e)}/>
                 </FormGroup>
                 <FormGroup label="Description" fieldId="description" isRequired>
                     <TextInput className="text-field" type="text" id="description" name="description"
                                value={description}
-                               onChange={e => setDescription(e)}/>
+                               onChange={(_, e) => setDescription(e)}/>
                 </FormGroup>
-                <FormGroup label="Project ID" fieldId="projectId" isRequired helperText="Unique project name">
+                <FormGroup label="Project ID" fieldId="projectId" isRequired>
                     <TextInput className="text-field" type="text" id="projectId" name="projectId"
                                value={projectId}
                                onFocus={e => setProjectId(projectId === '' ? CamelUi.nameFromTitle(name) : projectId)}
-                               onChange={e => setProjectId(CamelUi.nameFromTitle(e))}/>
+                               onChange={(_, e) => setProjectId(CamelUi.nameFromTitle(e))}/>
+                    <FormHelperText>
+                        <HelperText>
+                            <HelperTextItem>Unique project name</HelperTextItem>
+                        </HelperText>
+                    </FormHelperText>
                 </FormGroup>
                 <FormGroup label="Runtime" fieldId="runtime" isRequired>
                     <ToggleGroup>
@@ -100,7 +105,7 @@ export const CreateProjectModal = () => {
                                              isSelected={r === runtime}
                                              text={getTitle(r)}
                                              icon={getIcon(r)}
-                                             onChange={checked => {
+                                              onChange={(_, checked) => {
                                                  if (checked) setRuntime(r)
                                              }}
                             />

@@ -7,14 +7,24 @@ import {
     PageSection, Spinner,
     Text,
     TextContent,
-    TextInput, Title, ToggleGroup, ToggleGroupItem,
+    TextInput, ToggleGroup, ToggleGroupItem,
     Toolbar,
     ToolbarContent,
-    ToolbarItem, Tooltip
+    ToolbarItem, Tooltip, EmptyStateHeader
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {CamelStatus, ContainerStatus, DeploymentStatus, Project, ServiceStatus} from "../api/ProjectModels";
-import {TableComposable, TableVariant, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import {
+	TableVariant,
+	Tbody,
+	Td,
+	Th,
+	Thead,
+	Tr
+} from '@patternfly/react-table';
+import {
+	Table
+} from '@patternfly/react-table/deprecated';
 import {camelIcon, CamelUi} from "../designer/utils/CamelUi";
 import {KaravanApi} from "../api/KaravanApi";
 import Icon from "../Logo";
@@ -101,7 +111,8 @@ export const DashboardPage = () => {
                 <ToolbarItem>
                     <ToggleGroup aria-label="Default with single selectable">
                         {config.environments.map(env => (
-                            <ToggleGroupItem key={env} text={env} buttonId={env} isSelected={selectedEnv.includes(env)} onChange={selected => selectEnvironment(env, selected)}/>
+                            <ToggleGroupItem key={env} text={env} buttonId={env} isSelected={selectedEnv.includes(env)}
+                                             onChange={(_, selected)  => selectEnvironment(env, selected)}/>
                         ))}
                     </ToggleGroup>
                 </ToolbarItem>
@@ -109,7 +120,7 @@ export const DashboardPage = () => {
                     <TextInput className="text-field" type="search" id="search" name="search"
                                autoComplete="off" placeholder="Search by name"
                                value={filter}
-                               onChange={e => setFilter(e)}/>
+                               onChange={(_, e) => setFilter(e)}/>
                 </ToolbarItem>
             </ToolbarContent>
         </Toolbar>);
@@ -211,13 +222,10 @@ export const DashboardPage = () => {
             <Tr>
                 <Td colSpan={8}>
                     <Bullseye>
-                        {loading && <Spinner className="progress-stepper" isSVG diameter="80px" aria-label="Loading..."/>}
+                        {loading && <Spinner className="progress-stepper" diameter="80px" aria-label="Loading..."/>}
                         {!loading &&
-                            <EmptyState variant={EmptyStateVariant.small}>
-                                <EmptyStateIcon icon={SearchIcon}/>
-                                <Title headingLevel="h2" size="lg">
-                                    No results found
-                                </Title>
+                            <EmptyState variant={EmptyStateVariant.sm}>
+                                <EmptyStateHeader titleText="No results found" icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2" />
                             </EmptyState>
                         }
                     </Bullseye>
@@ -229,7 +237,7 @@ export const DashboardPage = () => {
     function getKubernetesTable() {
         const deps = Array.from(new Set(deployments.filter(d => d.name.toLowerCase().includes(filter)).map(d => d.name)));
         return (
-            <TableComposable aria-label="Projects" variant={TableVariant.compact}>
+            <Table aria-label="Projects" variant={TableVariant.compact}>
                 <Thead>
                     <Tr>
                         <Th key='type'>Type</Th>
@@ -297,7 +305,7 @@ export const DashboardPage = () => {
                     ))}
                     {deps.length === 0 && getEmptyState()}
                 </Tbody>
-            </TableComposable>
+            </Table>
         )
     }
 
@@ -306,7 +314,7 @@ export const DashboardPage = () => {
             .filter(c => ['devmode', 'project'].includes(c.type))
             .filter(d => d.containerName.toLowerCase().includes(filter));
         return (
-            <TableComposable aria-label="Projects" variant={TableVariant.compact}>
+            <Table aria-label="Projects" variant={TableVariant.compact}>
                 <Thead>
                     <Tr>
                         <Th key='type'>Type</Th>
@@ -374,7 +382,7 @@ export const DashboardPage = () => {
                     ))}
                     {conts.length === 0 && getEmptyState()}
                 </Tbody>
-            </TableComposable>
+            </Table>
         )
     }
 

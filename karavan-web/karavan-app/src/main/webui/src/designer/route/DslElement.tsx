@@ -379,7 +379,7 @@ export class DslElement extends React.Component<Props, State> {
                      content={<div>{"Add step to " + CamelUi.getTitle(step)}</div>}>
                 <button type="button" aria-label="Add" onClick={e => this.openSelector(e)}
                         className={this.isAddStepButtonLeft() ? "add-button add-button-left" : "add-button add-button-bottom"}>
-                    <AddIcon noVerticalAlign/>
+                    <AddIcon />
                 </button>
             </Tooltip>
         )
@@ -393,7 +393,7 @@ export class DslElement extends React.Component<Props, State> {
                     aria-label="Add"
                     onClick={e => this.openSelector(e, false)}
                     className={"add-element-button"}>
-                    <AddIcon noVerticalAlign/>
+                    <AddIcon />
                 </button>
             </Tooltip>
         )
@@ -402,7 +402,7 @@ export class DslElement extends React.Component<Props, State> {
     getInsertElementButton() {
         return (
             <Tooltip position={"left"} content={<div>{"Insert element before"}</div>}>
-                <button type="button" aria-label="Insert" onClick={e => this.openSelector(e, true, true)} className={"insert-element-button"}><InsertIcon noVerticalAlign/>
+                <button type="button" aria-label="Insert" onClick={e => this.openSelector(e, true, true)} className={"insert-element-button"}><InsertIcon />
                 </button>
             </Tooltip>
         )
@@ -411,7 +411,7 @@ export class DslElement extends React.Component<Props, State> {
     getDeleteButton() {
         return (
             <Tooltip position={"right"} content={<div>{"Delete element"}</div>}>
-                <button type="button" aria-label="Delete" onClick={e => this.delete(e)} className="delete-button"><DeleteIcon noVerticalAlign/></button>
+                <button type="button" aria-label="Delete" onClick={e => this.delete(e)} className="delete-button"><DeleteIcon /></button>
             </Tooltip>
         )
     }

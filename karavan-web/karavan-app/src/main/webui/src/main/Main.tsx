@@ -121,7 +121,7 @@ export const Main = () => {
         });
     }
 
-    function toast(title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') {
+    function toast(title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'custom') {
         ProjectEventBus.sendAlert(new ToastMessage(title, text, variant))
     }
 
@@ -150,7 +150,7 @@ export const Main = () => {
         <Page className="karavan">
             {KaravanApi.authType === undefined &&
                 <Bullseye className="loading-page">
-                    <Spinner className="spinner" isSVG diameter="140px" aria-label="Loading..."/>
+                    <Spinner className="spinner" diameter="140px" aria-label="Loading..."/>
                     <div className="logo-placeholder">{Icon()}</div>
                 </Bullseye>}
             {(KaravanApi.isAuthorized || KaravanApi.authType === 'public') && getMain()}

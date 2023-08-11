@@ -11,12 +11,20 @@ import {
     EmptyState,
     EmptyStateVariant,
     EmptyStateIcon,
-    Title, Spinner
+    Spinner, EmptyStateHeader
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
-import {TableComposable, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import {
+	Td,
+	Th,
+	Thead,
+	Tr
+} from '@patternfly/react-table';
+import {
+	Table
+} from '@patternfly/react-table/deprecated';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {ServicesTableRow} from "./ServicesTableRow";
 import {DeleteServiceModal} from "./DeleteServiceModal";
@@ -79,13 +87,10 @@ export const ServicesPage = () => {
                 <Td colSpan={8}>
                     <Bullseye>
                         {loading &&
-                            <Spinner className="progress-stepper" isSVG diameter="80px" aria-label="Loading..."/>}
+                            <Spinner className="progress-stepper" diameter="80px" aria-label="Loading..."/>}
                         {!loading &&
-                            <EmptyState variant={EmptyStateVariant.small}>
-                                <EmptyStateIcon icon={SearchIcon}/>
-                                <Title headingLevel="h2" size="lg">
-                                    No results found
-                                </Title>
+                            <EmptyState variant={EmptyStateVariant.sm}>
+                                <EmptyStateHeader titleText="No results found" icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2" />
                             </EmptyState>
                         }
                     </Bullseye>
@@ -100,7 +105,7 @@ export const ServicesPage = () => {
 
     function getServicesTable() {
         return (
-            <TableComposable aria-label="Services" variant={"compact"}>
+            <Table aria-label="Services" variant={"compact"}>
                 <Thead>
                     <Tr>
                         <Th />
@@ -116,7 +121,7 @@ export const ServicesPage = () => {
                     <ServicesTableRow key={service.container_name} index={index} service={service} container={getContainer(service.container_name)}/>
                 ))}
                 {services?.services.length === 0 && getEmptyState()}
-            </TableComposable>
+            </Table>
         )
     }
 

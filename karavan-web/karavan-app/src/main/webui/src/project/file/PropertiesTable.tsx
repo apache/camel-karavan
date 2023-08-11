@@ -21,8 +21,16 @@ import {
     PageSection,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
+import {
+	Tbody,
+	Th,
+	Thead,
+	Tr
+} from '@patternfly/react-table';
+import {
+	Table
+} from '@patternfly/react-table/deprecated';
+
 import {ProjectModel, ProjectProperty} from "karavan-core/lib/model/ProjectModel";
 import {useFileStore} from "../../api/ProjectStore";
 import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
@@ -95,7 +103,7 @@ export const PropertiesTable = () => {
         <PageSection isFilled className="kamelets-page" padding={{default: file !== undefined ? 'noPadding' : 'padding'}}>
             <PageSection padding={{default: "noPadding"}}>
                 {properties.length > 0 &&
-                    <TableComposable aria-label="Property table" variant='compact' borders={false}
+                    <Table aria-label="Property table" variant='compact' borders={false}
                                      className="project-properties">
                         <Thead>
                             <Tr>
@@ -111,7 +119,7 @@ export const PropertiesTable = () => {
                                     <PropertyField property={property} readOnly={readOnly} changeProperty={changeProperty} onDelete={startDelete}/>
                                 )})}
                         </Tbody>
-                    </TableComposable>}
+                    </Table>}
                 {showDeleteConfirmation && getDeleteConfirmation()}
             </PageSection>
         </PageSection>

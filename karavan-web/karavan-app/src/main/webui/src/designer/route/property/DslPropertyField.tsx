@@ -16,27 +16,30 @@
  */
 import React from 'react';
 import {
-    FormGroup,
-    TextInput,
-    Popover,
-    Switch,
-    Select,
-    SelectVariant,
-    SelectDirection,
-    SelectOption,
-    ExpandableSection,
-    TextArea,
-    Chip,
-    TextInputGroup,
-    TextInputGroupMain,
-    TextInputGroupUtilities,
-    ChipGroup,
-    Button,
-    Text,
-    Tooltip,
-    Card,
-    InputGroup, capitalize,
+	FormGroup,
+	TextInput,
+	Popover,
+	Switch,
+	ExpandableSection,
+	TextArea,
+	Chip,
+	TextInputGroup,
+	TextInputGroupMain,
+	TextInputGroupUtilities,
+	ChipGroup,
+	Button,
+	Text,
+	Tooltip,
+	Card,
+	InputGroup,
+	capitalize, InputGroupItem
 } from '@patternfly/react-core';
+import {
+	Select,
+	SelectVariant,
+	SelectDirection,
+	SelectOption
+} from '@patternfly/react-core/deprecated';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
@@ -155,7 +158,7 @@ export class DslPropertyField extends React.Component<Props, State> {
             const tooltip = value ? "Delete " + property.name : "Add " + property.name;
             const className = value ? "change-button delete-button" : "change-button add-button";
             const x = value ? undefined : CamelDefinitionApi.createStep(property.type, {});
-            const icon = value ? (<DeleteIcon noVerticalAlign/>) : (<AddIcon noVerticalAlign/>);
+            const icon = value ? (<DeleteIcon />) : (<AddIcon />);
             return (
                 <div style={{display: "flex"}}>
                     <Text>{property.displayName} </Text>
@@ -173,7 +176,7 @@ export class DslPropertyField extends React.Component<Props, State> {
 
     isUriReadOnly = (property: PropertyMeta): boolean => {
         const dslName: string = this.props.element?.dslName || '';
-        return property.name === 'uri' && !['ToDefinition', 'ToDynamicDefinition', 'WireTapDefinition'].includes(dslName)
+        return property.name === 'uri' && !['ToDynamicDefinition', 'WireTapDefinition'].includes(dslName)
     }
 
     selectInfrastructure = (value: string) => {
@@ -225,20 +228,22 @@ export class DslPropertyField extends React.Component<Props, State> {
                 </Tooltip>}
             {(!showEditor || property.secret) && <TextInput
                 ref={this.state.ref}
-                className="text-field" isRequired isReadOnly={this.isUriReadOnly(property)}
+                className="text-field" isRequired 
                 type={['integer', 'number'].includes(property.type) ? 'number' : (property.secret ? "password" : "text")}
                 id={property.name} name={property.name}
                 value={value?.toString()}
-                onChange={e => this.propertyChanged(property.name, ['integer', 'number'].includes(property.type) ? Number(e) : e)}/>
+                onChange={(_, v) => this.propertyChanged(property.name, ['integer', 'number'].includes(property.type) ? Number(v) : v)}
+                readOnlyVariant={this.isUriReadOnly(property) ? "default" : undefined}/>
             }
             {showEditor && !property.secret && <TextArea
                 ref={this.state.ref}
                 autoResize={true}
-                className="text-field" isRequired isReadOnly={this.isUriReadOnly(property)}
+                className="text-field" isRequired 
                 type="text"
                 id={property.name} name={property.name}
                 value={value?.toString()}
-                onChange={e => this.propertyChanged(property.name, ['integer', 'number'].includes(property.type) ? Number(e) : e)}/>
+                onChange={(_, v) => this.propertyChanged(property.name, ['integer', 'number'].includes(property.type) ? Number(v) : v)}
+                readOnlyVariant={this.isUriReadOnly(property) ? "default" : undefined}/>
             }
             {!property.secret &&
                 <Tooltip position="bottom-end" content={showEditor ? "Change to TextField" : "Change to Text Area"}>
@@ -266,19 +271,24 @@ export class DslPropertyField extends React.Component<Props, State> {
         const {dslLanguage, dark} = this.props;
         const {showEditor, customCode} = this.state;
         return (<InputGroup>
-            <TextInput
-                ref={this.state.ref}
-                className="text-field" isRequired isReadOnly={this.isUriReadOnly(property)}
-                type="text"
-                id={property.name} name={property.name}
-                value={value?.toString()}
-                onChange={e => this.propertyChanged(property.name, CamelUtil.capitalizeName(e?.replace(/\s/g, '')))}/>
-            <Tooltip position="bottom-end" content={"Create Java Class"}>
+            <InputGroupItem isFill >
+                <TextInput
+                    ref={this.state.ref}
+                    className="text-field" isRequired 
+                    type="text"
+                    id={property.name} name={property.name}
+                    value={value?.toString()}
+                    onChange={(_, value) => {
+                        this.propertyChanged(property.name, CamelUtil.capitalizeName(value?.replace(/\s/g, '')))
+                    }}
+                    readOnlyVariant={this.isUriReadOnly(property) ? "default" : undefined}/>
+            </InputGroupItem>
+            <InputGroupItem><Tooltip position="bottom-end" content={"Create Java Class"}>
                 <Button isDisabled={value?.length === 0} variant="control" onClick={e => this.showCode(value, property.javaType)}>
                     <PlusIcon/>
                 </Button>
-            </Tooltip>
-            <ModalEditor property={property}
+            </Tooltip></InputGroupItem>
+            <InputGroupItem><ModalEditor property={property}
                          customCode={customCode}
                          showEditor={showEditor}
                          dark={dark}
@@ -289,7 +299,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                              this.propertyChanged(fieldId, value);
                              KaravanInstance.getProps().onSaveCustomCode?.call(this, value, value1);
                              this.setState({showEditor: false});
-                         }}/>
+                         }}/></InputGroupItem>
         </InputGroup>)
     }
 
@@ -298,7 +308,7 @@ export class DslPropertyField extends React.Component<Props, State> {
         const {showEditor} = this.state;
         return (
             <InputGroup>
-                <TextArea
+                <InputGroupItem isFill ><TextArea
                     autoResize
                     className="text-field" isRequired
                     type={"text"}
@@ -306,13 +316,13 @@ export class DslPropertyField extends React.Component<Props, State> {
                     name={property.name}
                     height={"100px"}
                     value={value?.toString()}
-                    onChange={e => this.propertyChanged(property.name, e)}/>
-                <Tooltip position="bottom-end" content={"Show Editor"}>
+                    onChange={(_, v) => this.propertyChanged(property.name, v)}/></InputGroupItem>
+                <InputGroupItem><Tooltip position="bottom-end" content={"Show Editor"}>
                     <Button variant="control" onClick={e => this.setState({showEditor: !showEditor})}>
                         <EditorIcon/>
                     </Button>
-                </Tooltip>
-                <ModalEditor property={property}
+                </Tooltip></InputGroupItem>
+                <InputGroupItem><ModalEditor property={property}
                              customCode={value}
                              showEditor={showEditor}
                              dark={dark}
@@ -322,7 +332,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                              onSave={(fieldId, value1) => {
                                  this.propertyChanged(fieldId, value1);
                                  this.setState({showEditor: false});
-                             }}/>
+                             }}/></InputGroupItem>
             </InputGroup>
         )
     }
@@ -359,7 +369,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                 value={value?.toString()}
                 aria-label={property.name}
                 isChecked={isChecked}
-                onChange={e => this.propertyChanged(property.name, e)}/>
+                onChange={(_, v) => this.propertyChanged(property.name, v)}/>
         )
     }
 
@@ -374,7 +384,7 @@ export class DslPropertyField extends React.Component<Props, State> {
             <Select
                 variant={SelectVariant.single}
                 aria-label={property.name}
-                onToggle={isExpanded => {
+                onToggle={(_event, isExpanded) => {
                     this.openSelect(property.name, isExpanded)
                 }}
                 onSelect={(e, value, isPlaceholder) => this.propertyChanged(property.name, (!isPlaceholder ? value : undefined))}
@@ -399,7 +409,7 @@ export class DslPropertyField extends React.Component<Props, State> {
             <Select
                 variant={SelectVariant.single}
                 aria-label={property.name}
-                onToggle={isExpanded => {
+                onToggle={(_event, isExpanded) => {
                     this.openSelect(property.name, isExpanded)
                 }}
                 onSelect={(e, value, isPlaceholder) => this.propertyChanged(property.name, (!isPlaceholder ? value : undefined))}
@@ -433,7 +443,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                 placeholderText="Select Media Type"
                 variant={SelectVariant.typeahead}
                 aria-label={property.name}
-                onToggle={isExpanded => {
+                onToggle={(_event, isExpanded) => {
                     this.openSelect(property.name, isExpanded)
                 }}
                 onSelect={(e, value, isPlaceholder) => this.propertyChanged(property.name, (!isPlaceholder ? value : undefined))}
@@ -490,7 +500,7 @@ export class DslPropertyField extends React.Component<Props, State> {
                 variant={SelectVariant.typeahead}
                 aria-label={property.name}
                 onClear={event => this.clearSelection(property.name)}
-                onToggle={isExpanded => {
+                onToggle={(_event, isExpanded) => {
                     this.openSelect(property.name, isExpanded)
                 }}
                 onSelect={(e, value, isPlaceholder) => {
@@ -621,7 +631,7 @@ export class DslPropertyField extends React.Component<Props, State> {
         return (
             <ExpandableSection
                 toggleText={label}
-                onToggle={isExpanded => {
+                onToggle={(_event, isExpanded) => {
                     this.setState(state => {
                         state.isShowAdvanced.set(label, !state.isShowAdvanced.get(label));
                         return {isShowAdvanced: state.isShowAdvanced};
@@ -659,8 +669,8 @@ export class DslPropertyField extends React.Component<Props, State> {
                     <button type="button" aria-label="More info" onClick={e => {
                         e.preventDefault();
                         e.stopPropagation();
-                    }} className="pf-c-form__group-label-help">
-                        <HelpIcon noVerticalAlign/>
+                    }} className="pf-v5-c-form__group-label-help">
+                        <HelpIcon />
                     </button>
                 </Popover>
                 : <div></div>

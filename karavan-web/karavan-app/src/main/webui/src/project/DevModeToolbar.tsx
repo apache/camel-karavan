@@ -32,12 +32,12 @@ export const DevModeToolbar = (props: Props) => {
     const icon = isRunning ? <UpIcon/> : <DownIcon/>;
     return (<Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
         <FlexItem>
-            {(inTransit || isLoading) && <Spinner isSVG size="lg" aria-label="spinner"/>}
+            {(inTransit || isLoading) && <Spinner size="lg" aria-label="spinner"/>}
         </FlexItem>
         {containerStatus?.containerId && <FlexItem>
             <Label icon={icon} color={color}>
                 <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
-                    <Button variant="link" isDisabled={!isRunning}
+                    <Button className='labeled-button' variant="link" isDisabled={!isRunning}
                             onClick={e =>
                                 useLogStore.setState({showLog: true, type: 'container', podName: containerStatus.containerName})}>
                         {containerStatus.containerName}
@@ -50,13 +50,13 @@ export const DevModeToolbar = (props: Props) => {
                 <Switch aria-label="verbose"
                         id="verbose"
                         isChecked={verbose}
-                        onChange={checked => setVerbose(checked)}
+                         onChange={(_, checked) => setVerbose(checked)}
                 />
             </Tooltip>
         </FlexItem>
         {!isRunning && <FlexItem>
             <Tooltip content="Run in developer mode" position={TooltipPosition.bottom}>
-                <Button isSmall
+                <Button size="sm"
                         isDisabled={(!(commands.length === 0) && !commands.includes('run')) || inTransit}
                         variant={"primary"}
                         icon={<RocketIcon/>}
@@ -67,7 +67,7 @@ export const DevModeToolbar = (props: Props) => {
         </FlexItem>}
         {isRunning && <FlexItem>
             <Tooltip content="Reload" position={TooltipPosition.bottom}>
-                <Button isSmall
+                <Button size="sm"
                         isDisabled={inTransit}
                         variant={"primary"}
                         className="project-button"
@@ -79,7 +79,7 @@ export const DevModeToolbar = (props: Props) => {
         {config.infrastructure !== 'kubernetes' &&
             <FlexItem>
                 <Tooltip content="Stop container" position={TooltipPosition.bottom}>
-                    <Button isSmall
+                    <Button size="sm"
                             isDisabled={!commands.includes('stop') || inTransit}
                             variant={"control"}
                             icon={<StopIcon/>}
@@ -90,7 +90,7 @@ export const DevModeToolbar = (props: Props) => {
         }
         <FlexItem>
             <Tooltip content="Delete container" position={TooltipPosition.bottom}>
-                <Button isSmall
+                <Button size="sm"
                         isDisabled={!commands.includes('delete') || inTransit}
                         variant={"control"}
                         icon={<DeleteIcon/>}

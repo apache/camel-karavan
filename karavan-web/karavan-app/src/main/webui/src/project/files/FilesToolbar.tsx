@@ -61,8 +61,8 @@ export const FileToolbar = () => {
             >
                 <Form autoComplete="off" isHorizontal className="create-file-form">
                     <FormGroup label="Message" fieldId="name" isRequired>
-                        <TextInput value={commitMessage} onChange={value => setCommitMessage(value)}/>
-                        <FormHelperText isHidden={false} component="div"/>
+                        <TextInput value={commitMessage} onChange={(_, value) => setCommitMessage(value)}/>
+                        <FormHelperText  />
                     </FormGroup>
                 </Form>
             </Modal>
@@ -110,7 +110,7 @@ export const FileToolbar = () => {
         <FlexItem>
             <Tooltip content="Commit and push to git" position={"bottom-end"}>
                 <Button isLoading={isPushing ? true : undefined}
-                        isSmall
+                        size="sm"
                         variant={needCommit() ? "primary" : "secondary"}
                         className="project-button"
                         icon={!isPushing ? <PushIcon/> : <div></div>}
@@ -123,11 +123,11 @@ export const FileToolbar = () => {
             </Tooltip>
         </FlexItem>
         <FlexItem>
-            <Button isSmall variant={"secondary"} icon={<PlusIcon/>}
+            <Button size="sm" variant={"secondary"} icon={<PlusIcon/>}
                     onClick={e => useFileStore.setState({operation:"create"})}>Create</Button>
         </FlexItem>
         <FlexItem>
-            <Button isSmall variant="secondary" icon={<UploadIcon/>}
+            <Button size="sm" variant="secondary" icon={<UploadIcon/>}
                     onClick={e => useFileStore.setState({operation:"upload"})}>Upload</Button>
         </FlexItem>
         {getCommitModal()}

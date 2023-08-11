@@ -16,13 +16,15 @@
  */
 import React from 'react';
 import {
-    FormGroup,
-    Popover,
-    Select,
-    SelectVariant,
-    SelectDirection,
-    SelectOption
+	FormGroup,
+	Popover
 } from '@patternfly/react-core';
+import {
+	Select,
+	SelectVariant,
+	SelectDirection,
+	SelectOption
+} from '@patternfly/react-core/deprecated';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
@@ -109,14 +111,14 @@ export class ExpressionField extends React.Component<Props, State> {
         })
         return (
             <div>
-                <label className="pf-c-form__label" htmlFor="expression">
-                    <span className="pf-c-form__label-text">Language</span>
-                    <span className="pf-c-form__label-required" aria-hidden="true"> *</span>
+                <label className="pf-v5-c-form__label" htmlFor="expression">
+                    <span className="pf-v5-c-form__label-text">Language</span>
+                    <span className="pf-v5-c-form__label-required" aria-hidden="true"> *</span>
                 </label>
                 <Select
                     variant={SelectVariant.typeahead}
                     aria-label={property.name}
-                    onToggle={isExpanded => {
+                    onToggle={(_event, isExpanded) => {
                         this.openSelect(isExpanded)
                     }}
                     onSelect={(e, lang, isPlaceholder) => {
@@ -141,8 +143,8 @@ export class ExpressionField extends React.Component<Props, State> {
                                 e.preventDefault();
                                 e.stopPropagation();
                             }}
-                                    className="pf-c-form__group-label-help">
-                                <HelpIcon noVerticalAlign/>
+                                    className="pf-v5-c-form__group-label-help">
+                                <HelpIcon />
                             </button>
                         </Popover> : <div></div>
                     }>

@@ -6,10 +6,19 @@ import {
     EmptyState,
     EmptyStateVariant,
     EmptyStateIcon,
-    Title, PageSection, PanelHeader, Panel, Tooltip, Label,
+    PageSection, PanelHeader, Panel, Tooltip, Label, EmptyStateHeader,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {TableComposable, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import {
+	Tbody,
+	Td,
+	Th,
+	Thead,
+	Tr
+} from '@patternfly/react-table';
+import {
+	Table
+} from '@patternfly/react-table/deprecated';
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectStore";
@@ -67,7 +76,7 @@ export const FilesTab = () => {
                     <FileToolbar/>
                 </PanelHeader>
             </Panel>
-            <TableComposable aria-label="Files" variant={"compact"} className={"table"}>
+            <Table aria-label="Files" variant={"compact"} className={"table"}>
                 <Thead>
                     <Tr>
                         <Th key='type' width={20}>Type</Th>
@@ -110,7 +119,7 @@ export const FilesTab = () => {
                                     </Button>
                                 }
                                 <Tooltip content="Download source" position={"bottom-end"}>
-                                    <Button isSmall variant="plain" icon={<DownloadIcon/>} onClick={e => download(file)}/>
+                                    <Button size="sm" variant="plain" icon={<DownloadIcon/>} onClick={e => download(file)}/>
                                 </Tooltip>
                             </Td>
                         </Tr>
@@ -119,18 +128,15 @@ export const FilesTab = () => {
                         <Tr>
                             <Td colSpan={8}>
                                 <Bullseye>
-                                    <EmptyState variant={EmptyStateVariant.small}>
-                                        <EmptyStateIcon icon={SearchIcon}/>
-                                        <Title headingLevel="h2" size="lg">
-                                            No results found
-                                        </Title>
+                                    <EmptyState variant={EmptyStateVariant.sm}>
+                                        <EmptyStateHeader titleText="No results found" icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2" />
                                     </EmptyState>
                                 </Bullseye>
                             </Td>
                         </Tr>
                     }
                 </Tbody>
-            </TableComposable>
+            </Table>
             <CreateFileModal types={types}/>
             <UploadFileModal projectId={project.projectId} isOpen={operation === 'upload'} />
             <DeleteFileModal />

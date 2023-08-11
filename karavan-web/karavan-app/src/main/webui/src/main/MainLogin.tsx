@@ -43,12 +43,12 @@ export class MainLogin extends React.Component<Props, State> {
                             showHelperText={true}
                             usernameLabel="Username"
                             usernameValue={this.state.username}
-                            onChangeUsername={value => this.setState({username: value})}
+                            onChangeUsername={(_event, value) => this.setState({username: value})}
                             isValidUsername={this.state.isValidUsername}
                             passwordLabel="Password"
                             passwordValue={this.state.password}
                             isShowPasswordEnabled
-                            onChangePassword={value => this.setState({password: value})}
+                            onChangePassword={(_event, value) => this.setState({password: value})}
                             isValidPassword={this.state.isValidPassword}
                             onLoginButtonClick={this.onLoginButtonClick}
                             loginButtonLabel="Log in"

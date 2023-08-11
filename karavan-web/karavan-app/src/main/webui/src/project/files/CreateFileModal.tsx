@@ -73,15 +73,15 @@ export const CreateFileModal = (props: Props) => {
                                 const title = p.title + ' (' + p.extension + ')';
                                 return <ToggleGroupItem key={title} text={title} buttonId={p.name}
                                                         isSelected={fileType === p.name}
-                                                        onChange={selected => {
+                                                        onChange={(_, selected)  => {
                                                             setFileType(p.name);
                                                         }}/>
                             })}
                     </ToggleGroup>
                 </FormGroup>
                 <FormGroup label="Name" fieldId="name" isRequired>
-                    <TextInput id="name" aria-label="name" value={name} onChange={value => setName(value)}/>
-                    <FormHelperText isHidden={false} component="div">
+                    <TextInput id="name" aria-label="name" value={name} onChange={(_, value) => setName(value)}/>
+                    <FormHelperText  >
                         <HelperText id="helper-text1">
                             <HelperTextItem variant={'default'}>{filename + '.' + extension}</HelperTextItem>
                         </HelperText>

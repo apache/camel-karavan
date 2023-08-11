@@ -5,14 +5,24 @@ import {
     PageSection, Spinner,
     Text,
     TextContent,
-    TextInput, Title, ToggleGroup, ToggleGroupItem,
+    TextInput, ToggleGroup, ToggleGroupItem,
     Toolbar,
     ToolbarContent,
-    ToolbarItem
+    ToolbarItem, EmptyStateHeader
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {ContainerStatus} from "../api/ProjectModels";
-import {TableComposable, TableVariant, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import {
+	TableVariant,
+	Tbody,
+	Td,
+	Th,
+	Thead,
+	Tr
+} from '@patternfly/react-table';
+import {
+	Table
+} from '@patternfly/react-table/deprecated';
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import {MainToolbar} from "../designer/MainToolbar";
 import {useAppConfigStore, useStatusesStore} from "../api/ProjectStore";
@@ -46,7 +56,8 @@ export const ContainersPage = () => {
                 <ToolbarItem>
                     <ToggleGroup aria-label="Default with single selectable">
                         {config.environments.map(env => (
-                            <ToggleGroupItem key={env} text={env} buttonId={env} isSelected={selectedEnv.includes(env)} onChange={selected => selectEnvironment(env, selected)}/>
+                            <ToggleGroupItem key={env} text={env} buttonId={env} isSelected={selectedEnv.includes(env)}
+                                             onChange={(_, selected) => selectEnvironment(env, selected)}/>
                         ))}
                     </ToggleGroup>
                 </ToolbarItem>
@@ -54,7 +65,7 @@ export const ContainersPage = () => {
                     <TextInput className="text-field" type="search" id="search" name="search"
                                autoComplete="off" placeholder="Search by name"
                                value={filter}
-                               onChange={e => setFilter(e)}/>
+                               onChange={(_, e) => setFilter(e)}/>
                 </ToolbarItem>
             </ToolbarContent>
         </Toolbar>);
@@ -84,13 +95,10 @@ export const ContainersPage = () => {
                 <Tr>
                     <Td colSpan={8}>
                         <Bullseye>
-                            {loading && <Spinner className="progress-stepper" isSVG diameter="80px" aria-label="Loading..."/>}
+                            {loading && <Spinner className="progress-stepper" diameter="80px" aria-label="Loading..."/>}
                             {!loading &&
-                                <EmptyState variant={EmptyStateVariant.small}>
-                                    <EmptyStateIcon icon={SearchIcon}/>
-                                    <Title headingLevel="h2" size="lg">
-                                        No results found
-                                    </Title>
+                                <EmptyState variant={EmptyStateVariant.sm}>
+                                    <EmptyStateHeader titleText="No results found" icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2" />
                                 </EmptyState>
                             }
                         </Bullseye>
@@ -107,7 +115,7 @@ export const ContainersPage = () => {
                 <MainToolbar title={title()} tools={tools()}/>
             </PageSection>
             <PageSection isFilled className="kamelets-page">
-                <TableComposable aria-label="Projects" variant={TableVariant.compact}>
+                <Table aria-label="Projects" variant={TableVariant.compact}>
                     <Thead>
                         <Tr>
                             <Th />
@@ -124,7 +132,7 @@ export const ContainersPage = () => {
                         <ContainerTableRow key={container.containerName} index={index} container={container}/>
                     ))}
                     {conts?.length === 0 && getEmptyState()}
-                </TableComposable>
+                </Table>
             </PageSection>
         </PageSection>
     )
