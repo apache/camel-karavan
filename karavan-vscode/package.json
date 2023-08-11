@@ -706,10 +706,10 @@
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. ../karavan-demo/hello-world/"
   },
   "dependencies": {
-    "@monaco-editor/react": "4.5.0",
-    "@patternfly/patternfly": "4.224.2",
-    "@patternfly/react-core": "4.276.8",
-    "@patternfly/react-table": "4.113.0",
+    "@monaco-editor/react": "4.5.1",
+    "@patternfly/patternfly": "^5.0.2",
+    "@patternfly/react-core": "^5.0.0",
+    "@patternfly/react-table": "^5.0.0",
     "@types/js-yaml": "4.0.5",
     "@types/uuid": "9.0.1",
     "html-to-image": "1.11.11",

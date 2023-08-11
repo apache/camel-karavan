@@ -21,7 +21,7 @@ export function getWebviewContent(context: ExtensionContext, webview: Webview): 
               <main class="pf-c-page__main" tabindex="-1">
                 <section class="pf-c-page__main-section pf-m-dark-200 loading-page"><svg
                     class="pf-c-spinner pf-m-xl progress-stepper" role="progressbar" aria-valuetext="Loading..."
-                    viewBox="0 0 100 100" style="--pf-c-spinner--diameter:80px" aria-label="Loading...">
+                    viewBox="0 0 100 100" style="--pf-v5-c-spinner--diameter:80px" aria-label="Loading...">
                     <circle class="pf-c-spinner__path" cx="50" cy="50" r="45" fill="none"></circle>
                   </svg></section>
               </main>

@@ -6,26 +6,26 @@ body,
 }
 
 body, :root, #root, .karavan {
-  --pf-global--primary-color--100: var(--vscode-focusBorder) !important;
-  --pf-global--primary-color--200: var(--vscode-focusBorder) !important;
-  --pf-global--active-color--100: var(--vscode-focusBorder) !important;
-  --pf-global--link--Color: var(--vscode-focusBorder) !important;
-  --pf-c-tabs__link--after--BorderColor: var(--vscode-focusBorder) !important;
-  --pf-c-switch__input--checked__toggle--BackgroundColor: var(--vscode-focusBorder) !important;
-  --pf-c-button--m-plain--Color: var(--vscode-focusBorder) !important;
-  --pf-c-button--m-secondary--Color: var(--vscode-focusBorder) !important;
+  --pf-v5-global--primary-color--100: var(--vscode-focusBorder) !important;
+  --pf-v5-global--primary-color--200: var(--vscode-focusBorder) !important;
+  --pf-v5-global--active-color--100: var(--vscode-focusBorder) !important;
+  --pf-v5-global--link--Color: var(--vscode-focusBorder) !important;
+  --pf-v5-c-tabs__link--after--BorderColor: var(--vscode-focusBorder) !important;
+  --pf-v5-c-switch__input--checked__toggle--BackgroundColor: var(--vscode-focusBorder) !important;
+  --pf-v5-c-button--m-plain--Color: var(--vscode-focusBorder) !important;
+  --pf-v5-c-button--m-secondary--Color: var(--vscode-focusBorder) !important;
 
-  --pf-global--Color--100: var(--vscode-foreground) !important;
+  --pf-v5-global--Color--100: var(--vscode-foreground) !important;
 
-  --step-border-color: var(--pf-global--active-color--200);
+  --step-border-color: var(--pf-v5-global--active-color--200);
   --step-border-color-selected:var(--vscode-focusBorder);
 }
 
-.vscode-dark .pf-c-page {
+.vscode-dark .pf-v5-c-page {
   background-color:  var(--vscode-editor-background);
 }
 
-.karavan .pf-c-drawer__content {
+.karavan .pf-v5-c-drawer__content {
   background-color: transparent;
 }
 
@@ -33,34 +33,34 @@ body, :root, #root, .karavan {
   color: var(--vscode-foreground) !important;
 }
 
-.vscode-dark .pf-c-button.pf-m-primary {
+.vscode-dark .pf-v5-c-button.pf-m-primary {
   color: var(--vscode-foreground) !important;
   background-color: var(--vscode-focusBorder) !important;
 }
 
-.vscode-dark .pf-c-button.pf-m-primary:hover {
-  color: var(--pf-c-button--m-primary--hover--Color);
+.vscode-dark .pf-v5-c-button.pf-m-primary:hover {
+  color: var(--pf-v5-c-button--m-primary--hover--Color);
   background-color: var(--vscode-button-hoverBackground)  !important;
 }
 
-.vscode-dark .pf-c-button.pf-m-secondary {
+.vscode-dark .pf-v5-c-button.pf-m-secondary {
   color: var(--vscode-focusBorder) !important;
   background-color: var(--vscode-button-secondaryBackground) !important;
 }
 
 .vscode-dark .karavan {
-  color: var(--pf-global--Color--200);
+  color: var(--pf-v5-global--Color--200);
 }
 
 .vscode-dark .karavan .top-icon {
-  fill: var(--pf-global--Color--200);
+  fill: var(--pf-v5-global--Color--200);
 }
 
 .vscode-dark .karavan .main-tabs {
   background-color: var(--vscode-tab-inactiveBackground);
 }
 
-.vscode-dark .karavan .main-tabs .pf-c-tabs__list {
+.vscode-dark .karavan .main-tabs .pf-v5-c-tabs__list {
     background-color: var(--vscode-tab-inactiveBackground);
 }
 
@@ -68,12 +68,12 @@ body, :root, #root, .karavan {
   border-color: var(--vscode-tab-inactiveBackground);
 }
 
-.vscode-dark .karavan .main-tabs .pf-c-tabs__item.pf-m-current {
+.vscode-dark .karavan .main-tabs .pf-v5-c-tabs__item.pf-m-current {
   background-color: var(--vscode-tab-activeBackground);
 }
 
-.karavan .main-tabs .pf-c-tabs__item-text {
-  color: var(--pf-global--palette--black-400);
+.karavan .main-tabs .pf-v5-c-tabs__item-text {
+  color: var(--pf-v5-global--palette--black-400);
 }
 
 .karavan .loading-page {
@@ -93,16 +93,16 @@ body, :root, #root, .karavan {
 } */
 
 /* Tabs */
-.vscode-dark .pf-c-tabs__link::after {
-  border-color: var(--pf-global--active-color--100);
+.vscode-dark .pf-v5-c-tabs__link::after {
+  border-color: var(--pf-v5-global--active-color--100);
 }
 
-.vscode-dark .pf-c-tabs__scroll-button {
+.vscode-dark .pf-v5-c-tabs__scroll-button {
   color: #cecece;
   background-color: var(--vscode-editor-background);
 }
 
-.vscode-dark .pf-c-tabs__scroll-button::before {
+.vscode-dark .pf-v5-c-tabs__scroll-button::before {
   border-color: var(--vscode-tab-inactiveBackground);
 }
 
@@ -117,26 +117,26 @@ body, :root, #root, .karavan {
 }
 
 .vscode-dark .karavan .dsl-page .flows .step-element .header-route {
-  color: var(--pf-global--Color--200);
+  color: var(--pf-v5-global--Color--200);
 }
 
 .vscode-dark .karavan .dsl-page .flows .step-element-with-steps {
-  border-color: var(--pf-global--Color--200);
+  border-color: var(--pf-v5-global--Color--200);
 }
 
 .vscode-dark .step-element .selected .text {
-  color: var(--pf-global--info-color--100);
+  color: var(--pf-v5-global--info-color--100);
 }
 
 .vscode-dark .step-element .selected .header-icon {
-  border-color: var(--pf-global--info-color--100);
-  background: var(--pf-global--info-color--100);
+  border-color: var(--pf-v5-global--info-color--100);
+  background: var(--pf-v5-global--info-color--100);
   border-width: 2px;
 }
 
 .vscode-dark .step-element .header-icon {
-  background: var(--pf-global--BorderColor--200);
-  border-color: var(--pf-global--Color--200);
+  background: var(--pf-v5-global--BorderColor--200);
+  border-color: var(--pf-v5-global--Color--200);
 }
 
 .vscode-dark .step-element .header .text-bottom {
@@ -150,21 +150,21 @@ body, :root, #root, .karavan {
 
 /* Connections */
 .vscode-dark .karavan .dsl-page .graph .connections .arrow {
-  stroke: var(--pf-global--BorderColor--light-100);
-  fill: var(--pf-global--BorderColor--light-100);
+  stroke: var(--pf-v5-global--BorderColor--light-100);
+  fill: var(--pf-v5-global--BorderColor--light-100);
 }
 
 .vscode-dark .karavan .dsl-page .graph .connections .path {
-   stroke: var(--pf-global--BorderColor--light-100);
+   stroke: var(--pf-v5-global--BorderColor--light-100);
 }
 
 .vscode-dark .karavan .dsl-page .graph .connections .path-incoming {
-  stroke: var(--pf-global--BorderColor--light-100);
+  stroke: var(--pf-v5-global--BorderColor--light-100);
 }
 .vscode-dark .karavan .dsl-page .graph .connections .circle-outgoing,
 .vscode-dark .karavan .dsl-page .graph .connections .circle-incoming {
-  stroke: var(--pf-global--Color--200);
-  fill: var(--pf-global--BorderColor--200);
+  stroke: var(--pf-v5-global--Color--200);
+  fill: var(--pf-v5-global--BorderColor--200);
 }
 
 /* Properties */
@@ -175,17 +175,17 @@ body, :root, #root, .karavan {
   margin-bottom: 0;
 }
 
-.vscode-dark .karavan .pf-c-drawer__splitter {
+.vscode-dark .karavan .pf-v5-c-drawer__splitter {
   background: var(--vscode-tab-inactiveBackground);
 }
 
-.vscode-dark .karavan .pf-c-drawer__splitter::after {
+.vscode-dark .karavan .pf-v5-c-drawer__splitter::after {
   border: var(--vscode-tab-inactiveBackground) solid;
   border-width: 2px;
 }
 
-.vscode-dark .karavan .pf-c-switch {
-  --pf-c-switch__input--checked__toggle--BackgroundColor: var(--vscode-focusBorder);
+.vscode-dark .karavan .pf-v5-c-switch {
+  --pf-v5-c-switch__input--checked__toggle--BackgroundColor: var(--vscode-focusBorder);
 }
 
 .vscode-dark .karavan .properties .text-field {
@@ -194,52 +194,52 @@ body, :root, #root, .karavan {
   color: var(--vscode-input-foreground);
 }
 
-.vscode-dark .pf-c-select {
-  --pf-c-select__toggle--BackgroundColor: var(--vscode-input-background);
-  --pf-c-select__toggle--before--BorderTopColor: var(--vscode-input-background);
-  --pf-c-select__toggle--before--BorderRightColor: var(--vscode-input-background);
-  --pf-c-select__toggle--before--BorderBottomColor: var(--vscode-input-background);
-  --pf-c-select__toggle--before--BorderLeftColor: var(--vscode-input-background);
-  --pf-c-select__toggle--Color: var(--pf-global--Color--200);
+.vscode-dark .pf-v5-c-select {
+  --pf-v5-c-select__toggle--BackgroundColor: var(--vscode-input-background);
+  --pf-v5-c-select__toggle--before--BorderTopColor: var(--vscode-input-background);
+  --pf-v5-c-select__toggle--before--BorderRightColor: var(--vscode-input-background);
+  --pf-v5-c-select__toggle--before--BorderBottomColor: var(--vscode-input-background);
+  --pf-v5-c-select__toggle--before--BorderLeftColor: var(--vscode-input-background);
+  --pf-v5-c-select__toggle--Color: var(--pf-v5-global--Color--200);
 }
 
-.vscode-dark .pf-c-select__menu {
+.vscode-dark .pf-v5-c-select__menu {
   background-color: var(--vscode-input-background);
-  box-shadow: var(--pf-c-select__menu--BoxShadow);
+  box-shadow: var(--pf-v5-c-select__menu--BoxShadow);
 }
 
-.vscode-dark .karavan .properties .pf-c-select__menu-item {
+.vscode-dark .karavan .properties .pf-v5-c-select__menu-item {
   color: var(--vscode-input-foreground);
 }
 
-.vscode-dark .karavan .properties .pf-c-select__menu-item:hover {
+.vscode-dark .karavan .properties .pf-v5-c-select__menu-item:hover {
   color: var(--vscode-input-foreground);
   background-color: var(--vscode-focusBorder);
 }
 
-.vscode-dark .karavan .properties .pf-c-select__menu-item:hover .pf-c-select__menu-item-description {
+.vscode-dark .karavan .properties .pf-v5-c-select__menu-item:hover .pf-v5-c-select__menu-item-description {
   color: var(--vscode-input-foreground);
 }
 
-.vscode-dark .karavan .properties .pf-c-select__toggle-typeahead {
+.vscode-dark .karavan .properties .pf-v5-c-select__toggle-typeahead {
   color: var(--vscode-input-foreground);
 }
 
-.vscode-dark .karavan .properties .pf-c-input-group, 
-.vscode-dark .karavan .properties .pf-c-text-input-group {
+.vscode-dark .karavan .properties .pf-v5-c-input-group, 
+.vscode-dark .karavan .properties .pf-v5-c-text-input-group {
   background-color: var(--vscode-input-background);
   border-color: var(--vscode-input-foreground);;
   color: var(--vscode-input-foreground);
-  --pf-c-text-input-group__text--before--BorderColor: transparent;
-  --pf-c-text-input-group__text--after--BorderBottomColor: transparent;
+  --pf-v5-c-text-input-group__text--before--BorderColor: transparent;
+  --pf-v5-c-text-input-group__text--after--BorderBottomColor: transparent;
 }
 
-.vscode-dark .karavan .properties .pf-c-input-group .pf-m-control {
+.vscode-dark .karavan .properties .pf-v5-c-input-group .pf-m-control {
   background-color: transparent;
   color: var(--vscode-input-foreground);
 }
 
-.vscode-dark .karavan .properties .pf-c-input-group .pf-c-button.pf-m-control::after {
+.vscode-dark .karavan .properties .pf-v5-c-input-group .pf-v5-c-button.pf-m-control::after {
   border-radius: initial;
   border-right: none;
   border-top: none;
@@ -247,54 +247,54 @@ body, :root, #root, .karavan {
   border-bottom-color: transparent;
 }
 
-.vscode-dark .karavan .properties .pf-c-input-group .pf-c-button.pf-m-control:hover::after {
+.vscode-dark .karavan .properties .pf-v5-c-input-group .pf-v5-c-button.pf-m-control:hover::after {
   border-bottom-color: var(--vscode-focusBorder);
 }
 
-.vscode-dark .karavan .properties .input-group .pf-c-chip-group .pf-c-chip {
-  --pf-c-chip--BackgroundColor: transparent;
-  --pf-c-chip__text--Color: var(--vscode-input-foreground);
-  --pf-c-chip--before--BorderColor: var(--vscode-input-foreground);
+.vscode-dark .karavan .properties .input-group .pf-v5-c-chip-group .pf-v5-c-chip {
+  --pf-v5-c-chip--BackgroundColor: transparent;
+  --pf-v5-c-chip__text--Color: var(--vscode-input-foreground);
+  --pf-v5-c-chip--before--BorderColor: var(--vscode-input-foreground);
 }
 
-.vscode-dark .karavan .properties .input-group .pf-c-chip-group li:last-child .pf-c-chip {
-  --pf-c-chip--before--BorderColor: transparent;
+.vscode-dark .karavan .properties .input-group .pf-v5-c-chip-group li:last-child .pf-v5-c-chip {
+  --pf-v5-c-chip--before--BorderColor: transparent;
 }
 
-.vscode-dark .karavan .properties .pf-c-select__toggle-text {
+.vscode-dark .karavan .properties .pf-v5-c-select__toggle-text {
   color: var(--vscode-input-foreground);
 }
 
-.vscode-dark .karavan .properties .pf-c-expandable-section__toggle-icon {
+.vscode-dark .karavan .properties .pf-v5-c-expandable-section__toggle-icon {
   color: var(--vscode-focusBorder);
 }
 
 .vscode-dark .karavan .properties .object-value {
-  --pf-c-card--BackgroundColor: transparent;
+  --pf-v5-c-card--BackgroundColor: transparent;
   border-color: var(--vscode-input-foreground);
 }
 
 /* Popover */
-.vscode-dark .pf-c-popover {
-  --pf-c-popover__content--BackgroundColor: var(--vscode-tab-activeBackground);
-  --pf-c-popover__arrow--BackgroundColor: var(--vscode-tab-activeBackground);
+.vscode-dark .pf-v5-c-popover {
+  --pf-v5-c-popover__content--BackgroundColor: var(--vscode-tab-activeBackground);
+  --pf-v5-c-popover__arrow--BackgroundColor: var(--vscode-tab-activeBackground);
 }
 
-.vscode-dark .pf-c-tooltip {
-  --pf-c-tooltip__content--BackgroundColor: var(--vscode-input-background);
+.vscode-dark .pf-v5-c-tooltip {
+  --pf-v5-c-tooltip__content--BackgroundColor: var(--vscode-input-background);
 }
 
 /* Modal */
 .vscode-dark .dsl-modal .dsl-card .icon {
   height: 24px;
-  background: var(--pf-global--BorderColor--200);
-  border-color: var(--pf-global--Color--200);
+  background: var(--pf-v5-global--BorderColor--200);
+  border-color: var(--pf-v5-global--Color--200);
   border-radius: 24px;
   padding: 4px;
 }
 
-.vscode-dark .pf-c-modal-box {
-  --pf-c-modal-box--BackgroundColor: var(--vscode-input-background);
+.vscode-dark .pf-v5-c-modal-box {
+  --pf-v5-c-modal-box--BackgroundColor: var(--vscode-input-background);
 }
 
 .vscode-dark .dsl-modal .search .text-field {
@@ -314,7 +314,7 @@ body, :root, #root, .karavan {
 
 .vscode-dark .karavan .kamelet-section,
 .vscode-dark .karavan .tools-section,
-.vscode-dark .karavan .tools-section .pf-c-toolbar,
+.vscode-dark .karavan .tools-section .pf-v5-c-toolbar,
 .vscode-dark .karavan .kamelets-page {
   background-color: transparent;
   border: none;
@@ -334,13 +334,13 @@ color: var(--vscode-editor-foreground);
   color:  var(--vscode-input-foreground);
 }
 
-.vscode-dark .kamelet-modal-card .pf-c-table {
+.vscode-dark .kamelet-modal-card .pf-v5-c-table {
   background-color: transparent;
   color:  var(--vscode-input-foreground);
 }
 
-.vscode-dark .pf-c-table {
-  --pf-c-table--cell--Color:  var(--vscode-input-foreground);
+.vscode-dark .pf-v5-c-table {
+  --pf-v5-c-table--cell--Color:  var(--vscode-input-foreground);
   color:  var(--vscode-input-foreground);
 }
 
@@ -349,13 +349,13 @@ color: var(--vscode-editor-foreground);
   background: var(--vscode-editor-background);
   border: none;
 }
-.vscode-dark .karavan .project-builder .header .pf-c-badge {
-  --pf-c-badge--BackgroundColor: var(--pf-global--primary-color--200);
+.vscode-dark .karavan .project-builder .header .pf-v5-c-badge {
+  --pf-v5-c-badge--BackgroundColor: var(--pf-v5-global--primary-color--200);
 }
 
 .vscode-dark .karavan .project-builder h2,
-.vscode-dark .karavan .project-builder .pf-c-card__title,
-.vscode-dark .karavan .project-builder .pf-c-form__label-text {
+.vscode-dark .karavan .project-builder .pf-v5-c-card__title,
+.vscode-dark .karavan .project-builder .pf-v5-c-form__label-text {
   color: var(--vscode-editor-foreground);
 }
 
@@ -369,42 +369,42 @@ color: var(--vscode-editor-foreground);
   color: var(--vscode-input-foreground);
 }
 
-.vscode-dark .karavan .project-builder .pf-c-input-group {
+.vscode-dark .karavan .project-builder .pf-v5-c-input-group {
   background-color: transparent;
   border-color: var(--vscode-input-foreground);
   color: var(--vscode-input-foreground);
-  --pf-c-text-input-group__text--before--BorderColor: transparent;
-  --pf-c-text-input-group__text--after--BorderBottomColor: transparent;
+  --pf-v5-c-text-input-group__text--before--BorderColor: transparent;
+  --pf-v5-c-text-input-group__text--after--BorderBottomColor: transparent;
 }
 
-.vscode-dark .karavan .project-builder .pf-c-toggle-group {
-  --pf-c-toggle-group__button--BackgroundColor: transparent;
-  --pf-c-toggle-group__button--Color: var(--vscode-editor-foreground);
+.vscode-dark .karavan .project-builder .pf-v5-c-toggle-group {
+  --pf-v5-c-toggle-group__button--BackgroundColor: transparent;
+  --pf-v5-c-toggle-group__button--Color: var(--vscode-editor-foreground);
 }
 
-.vscode-dark .karavan .project-builder .pf-c-toggle-group .pf-c-toggle-group__button.pf-m-selected {
-  --pf-c-toggle-group__button--BackgroundColor: var(--pf-global--primary-color--200);
+.vscode-dark .karavan .project-builder .pf-v5-c-toggle-group .pf-v5-c-toggle-group__button.pf-m-selected {
+  --pf-v5-c-toggle-group__button--BackgroundColor: var(--pf-v5-global--primary-color--200);
 }
 
-.vscode-dark .karavan .project-builder .pf-c-toggle-group .pf-c-toggle-group__button:hover {
-  --pf-c-toggle-group__button--BackgroundColor: var(--vscode-input-background);
+.vscode-dark .karavan .project-builder .pf-v5-c-toggle-group .pf-v5-c-toggle-group__button:hover {
+  --pf-v5-c-toggle-group__button--BackgroundColor: var(--vscode-input-background);
 }
 
-.vscode-dark .karavan .project-builder .pf-c-progress-stepper__step-icon {
+.vscode-dark .karavan .project-builder .pf-v5-c-progress-stepper__step-icon {
   background-color: var(--vscode-input-background);
 }
 
-.vscode-dark .karavan .project-builder .footer .buttons .pf-c-toolbar {
+.vscode-dark .karavan .project-builder .footer .buttons .pf-v5-c-toolbar {
   background: transparent;
 }
 
-.vscode-dark .project-builder .pf-c-table {
+.vscode-dark .project-builder .pf-v5-c-table {
   background-color: transparent;
   color:  var(--vscode-input-foreground);
 }
 
-.vscode-dark .pf-c-table {
-  --pf-c-table--cell--Color:  var(--vscode-input-foreground);
+.vscode-dark .pf-v5-c-table {
+  --pf-v5-c-table--cell--Color:  var(--vscode-input-foreground);
   color:  var(--vscode-input-foreground);
 }
 
@@ -416,4 +416,12 @@ color: var(--vscode-editor-foreground);
 
 .vscode-dark .karavan .tools-section .knowledge-tabs {
     background-color: transparent;
+}
+
+.vscode-dark .dsl-modal .pf-v5-c-page__main-section.pf-m-dark-100 {
+  --pf-v5-c-page__main-section--BackgroundColor: transparent;
+} 
+
+.vscode-dark .dsl-modal .pf-v5-c-toggle-group .pf-v5-c-toggle-group__button.pf-m-selected {
+  --pf-v5-c-toggle-group__button--BackgroundColor: var(--pf-v5-global--primary-color--200);
 }
