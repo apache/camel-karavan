@@ -213,7 +213,7 @@ export class CircuitBreakerDefinition extends CamelElement {
 
 export class ClaimCheckDefinition extends CamelElement {
     stepName?: string = 'claimCheck';
-    operation: string = '';
+    operation?: string;
     key?: string;
     filter?: string;
     aggregationStrategy?: string;
@@ -990,7 +990,7 @@ export class RemovePropertyDefinition extends CamelElement {
 
 export class ResequenceDefinition extends CamelElement {
     stepName?: string = 'resequence';
-    expression: ExpressionDefinition = new ExpressionDefinition();
+    expression?: ExpressionDefinition;
     disabled?: boolean;
     id?: string = 'resequence-' + uuidv4().substring(0,4);
     description?: string;
@@ -1272,7 +1272,7 @@ export class SetBodyDefinition extends CamelElement {
 
 export class SetExchangePatternDefinition extends CamelElement {
     stepName?: string = 'setExchangePattern';
-    pattern: string = '';
+    pattern?: string;
     disabled?: boolean;
     id?: string = 'setExchangePattern-' + uuidv4().substring(0,4);
     description?: string;
@@ -2146,7 +2146,7 @@ export class Base64DataFormat extends CamelElement {
 
 export class BindyDataFormat extends CamelElement {
     dataFormatName?: string = 'bindy';
-    type: string = '';
+    type?: string;
     classType?: string;
     allowEmptyStream?: boolean;
     unwrapSingleInstance?: boolean;
@@ -2267,6 +2267,7 @@ export class DataFormatsDefinition extends CamelElement {
     jsonApi?: JsonApiDataFormat;
     lzf?: LZFDataFormat;
     mimeMultipart?: MimeMultipartDataFormat;
+    parquetAvro?: ParquetAvroDataFormat | string;
     pgp?: PGPDataFormat;
     protobuf?: ProtobufDataFormat | string;
     rss?: RssDataFormat;
@@ -2547,10 +2548,10 @@ export class PGPDataFormat extends CamelElement {
 }
 
 export class ParquetAvroDataFormat extends CamelElement {
-    dataFormatName?: string = 'parquetAvroDataFormat';
+    dataFormatName?: string = 'parquetAvro';
     compressionCodecName?: string;
-    id?: string = 'parquetAvroDataFormat-' + uuidv4().substring(0,4);
     unmarshalType?: string;
+    id?: string = 'parquetAvro-' + uuidv4().substring(0,4);
     public constructor(init?: Partial<ParquetAvroDataFormat>) {
         super('ParquetAvroDataFormat');
         Object.assign(this, init);
@@ -3528,7 +3529,7 @@ export class OpenIdConnectDefinition extends CamelElement {
 export class ParamDefinition extends CamelElement {
     stepName?: string = 'param';
     name: string = '';
-    type: string = '';
+    type?: string;
     defaultValue?: string;
     required?: boolean;
     collectionFormat?: string;

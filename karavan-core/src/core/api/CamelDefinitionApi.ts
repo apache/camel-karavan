@@ -1301,9 +1301,6 @@ export class CamelDefinitionApi {
     }
 
     static createSetExchangePatternDefinition = (element: any): SetExchangePatternDefinition => { 
-        if (element && typeof element === 'string') {
-            element = {pattern: element};
-        }
         const def = element ? new SetExchangePatternDefinition({...element}) : new SetExchangePatternDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -2075,6 +2072,9 @@ export class CamelDefinitionApi {
         }
         if (element?.mimeMultipart !== undefined) { 
             def.mimeMultipart = CamelDefinitionApi.createMimeMultipartDataFormat(element.mimeMultipart); 
+        }
+        if (element?.parquetAvro !== undefined) { 
+            def.parquetAvro = CamelDefinitionApi.createParquetAvroDataFormat(element.parquetAvro); 
         }
         if (element?.pgp !== undefined) { 
             def.pgp = CamelDefinitionApi.createPGPDataFormat(element.pgp); 
@@ -3421,6 +3421,7 @@ export class CamelDefinitionApi {
             case 'PGPDataFormat': return CamelDefinitionApi.createPGPDataFormat(newBody);
             case 'UniVocityCsvDataFormat': return CamelDefinitionApi.createUniVocityCsvDataFormat(newBody);
             case 'SyslogDataFormat': return CamelDefinitionApi.createSyslogDataFormat(newBody);
+            case 'ParquetAvroDataFormat': return CamelDefinitionApi.createParquetAvroDataFormat(newBody);
             case 'FhirXmlDataFormat': return CamelDefinitionApi.createFhirXmlDataFormat(newBody);
             case 'SwiftMtDataFormat': return CamelDefinitionApi.createSwiftMtDataFormat(newBody);
             default: return new JsonDataFormat(newBody);

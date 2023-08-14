@@ -2127,7 +2127,7 @@ export class CamelDefinitionYamlStep {
     }
 
     static readSetExchangePatternDefinition = (element: any): SetExchangePatternDefinition => {
-        if (element && typeof element === 'string') element = {pattern: element};
+        
         let def = element ? new SetExchangePatternDefinition({...element}) : new SetExchangePatternDefinition();
 
         return def;
@@ -3393,6 +3393,13 @@ export class CamelDefinitionYamlStep {
                def.jaxb = CamelDefinitionYamlStep.readJaxbDataFormat(element.jaxb[0]); 
             } else { 
                def.jaxb = CamelDefinitionYamlStep.readJaxbDataFormat(element.jaxb); 
+            } 
+        } 
+        if (element?.parquetAvro !== undefined) { 
+            if (Array.isArray(element.parquetAvro)) { 
+               def.parquetAvro = CamelDefinitionYamlStep.readParquetAvroDataFormat(element.parquetAvro[0]); 
+            } else { 
+               def.parquetAvro = CamelDefinitionYamlStep.readParquetAvroDataFormat(element.parquetAvro); 
             } 
         } 
         if (element?.rss !== undefined) { 
