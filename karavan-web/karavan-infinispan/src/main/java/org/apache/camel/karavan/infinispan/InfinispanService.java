@@ -210,6 +210,13 @@ public class InfinispanService {
         return pipelineStatuses.get(GroupedKey.create(projectId, environment, projectId));
     }
 
+    public List<PipelineStatus> getPipelineStatuses(String environment) {
+        QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) pipelineStatuses);
+        return queryFactory.<PipelineStatus>create("FROM karavan.PipelineStatus WHERE env = :env")
+                .setParameter("env", environment)
+                .execute().list();
+    }
+
     public void savePipelineStatus(PipelineStatus status) {
         pipelineStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getProjectId()), status);
     }

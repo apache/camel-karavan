@@ -155,13 +155,13 @@ export class KaravanApi {
         });
     }
 
-    static async getProjectPipelineStatus(projectId: string, env: string, after: (status?: PipelineStatus) => void) {
-        instance.get('/api/status/pipeline/' + projectId + "/" + env)
+    static async getPipelineStatuses(env: string, after: (status: PipelineStatus[]) => void) {
+        instance.get('/api/status/pipeline/' + env)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
                 } else if (res.status === 204) {
-                    after(undefined);
+                    after([]);
                 }
 
             }).catch(err => {

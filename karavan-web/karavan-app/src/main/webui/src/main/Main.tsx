@@ -1,11 +1,9 @@
-import {Routes, Route, useNavigate, Navigate} from 'react-router-dom';
-import {useLocation} from 'react-router-dom';
-import React, {useEffect, useRef, useState} from "react";
+import {Routes, Route, Navigate} from 'react-router-dom';
+import React, {useEffect, useRef} from "react";
 import {KaravanApi} from "../api/KaravanApi";
 import {Bullseye, Flex, FlexItem, Page, Spinner} from "@patternfly/react-core";
 import Icon from "../Logo";
 import {MainLogin} from "./MainLogin";
-import {Notification} from "./Notification";
 import {DashboardPage} from "../dashboard/DashboardPage";
 import {ProjectsPage} from "../projects/ProjectsPage";
 import {ProjectPage} from "../project/ProjectPage";
@@ -13,12 +11,14 @@ import {ServicesPage} from "../services/ServicesPage";
 import {ContainersPage} from "../containers/ContainersPage";
 import {KnowledgebasePage} from "../knowledgebase/KnowledgebasePage";
 import {ProjectEventBus} from "../api/ProjectEventBus";
-import {Project, ToastMessage} from "../api/ProjectModels";
+import {ToastMessage} from "../api/ProjectModels";
 import {SsoApi} from "../api/SsoApi";
-import {useAppConfigStore, useStatusesStore} from "../api/ProjectStore";
+import {useAppConfigStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {PageNavigation} from "./PageNavigation";
+import {Notification} from "./Notification";
 import {useMainHook} from "./useMainHook";
+import {MainDataPoller} from "./MainDataPoller";
 
 export const Main = () => {
 
@@ -36,9 +36,6 @@ export const Main = () => {
 
     function effect() {
         console.log("Main Start");
-        const interval = setInterval(() => {
-            getStatuses();
-        }, 1000);
         KaravanApi.getAuthType((authType: string) => {
             console.log("authType", authType);
             if (authType === 'oidc') {
@@ -52,19 +49,9 @@ export const Main = () => {
         });
         return () => {
             console.log("Main End");
-            clearInterval(interval);
         };
     }
 
-    function onLogin(username: string, password: string) {
-        KaravanApi.auth(username, password, (res: any) => {
-            if (res?.status === 200) {
-                getData();
-            } else {
-                toast("Error", "Incorrect username and/or password!", "danger");
-            }
-        });
-    }
 
     function toast(title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'custom') {
         ProjectEventBus.sendAlert(new ToastMessage(title, text, variant))
@@ -97,8 +84,9 @@ export const Main = () => {
                 </Flex>
             }
             {!KaravanApi.isAuthorized && KaravanApi.authType === 'basic' &&
-                <MainLogin config={config} onLogin={onLogin}/>}
-            {/*<Notification/>*/}
+                <MainLogin/>}
+            <Notification/>
+            <MainDataPoller/>
         </Page>
     );
 };

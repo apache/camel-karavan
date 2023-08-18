@@ -25,8 +25,6 @@ export const ProjectLogPanel = () => {
     const [currentPodName, setCurrentPodName] = useState<string | undefined>(undefined);
 
     useEffect(() => {
-        const containerStatus = containers.filter(c => c.containerName === podName).at(0);
-        console.log("ProjectLogPanel", showLog, type, podName, containerStatus);
         const controller = new AbortController();
         if (showLog && type !== 'none' && podName !== undefined) {
             const f = KaravanApi.fetchData(type, podName, controller).then(value => {

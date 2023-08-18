@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
     Badge, Bullseye,
     Button, EmptyState, EmptyStateIcon, EmptyStateVariant,
@@ -26,11 +26,9 @@ import {
 	Table
 } from '@patternfly/react-table/deprecated';
 import {camelIcon, CamelUi} from "../designer/utils/CamelUi";
-import {KaravanApi} from "../api/KaravanApi";
 import Icon from "../Logo";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
-import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import {MainToolbar} from "../designer/MainToolbar";
 import {useAppConfigStore, useProjectsStore, useStatusesStore} from "../api/ProjectStore";
@@ -44,50 +42,7 @@ export const DashboardPage = () => {
         = useStatusesStore((state) => [state.deployments, state.services, state.containers, state.camels,
         state.setDeployments, state.setServices, state.setContainers, state.setCamels], shallow);
     const [filter, setFilter] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(true);
     const [selectedEnv, setSelectedEnv] = useState<string[]>([config.environment]);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            onGetProjects()
-        }, 1300);
-        return () => {
-            clearInterval(interval)
-        };
-    }, []);
-
-    function onGetProjects() {
-        KaravanApi.getConfiguration((config: any) => {
-            KaravanApi.getProjects((projects: Project[]) => {
-                setProjects(projects);
-            });
-            KaravanApi.getAllDeploymentStatuses((statuses: DeploymentStatus[]) => {
-                setDeployments(statuses);
-            });
-            KaravanApi.getAllServiceStatuses((statuses: ServiceStatus[]) => {
-                setServices(statuses);
-            });
-            KaravanApi.getAllContainerStatuses((statuses: ContainerStatus[]) => {
-                setContainers(statuses);
-            });
-            selectedEnv.forEach(env => {
-                KaravanApi.getAllCamelStatuses(env, (statuses: CamelStatus[]) => {
-                    setCamels(statuses);
-                    setLoading(false);
-                    // setState((state) => {
-                    //     statuses.forEach(newStatus => {
-                    //         const index = state.camelStatuses.findIndex(s => s.projectId === newStatus.projectId && s.env === newStatus.env);
-                    //         if (index !== -1) {
-                    //             state.camelStatuses.splice(index, 1);
-                    //         }
-                    //         state.camelStatuses.push(newStatus);
-                    //     })
-                    //     return state;
-                    // })
-                });
-            });
-        });
-    }
 
     function selectEnvironment(name: string, selected: boolean) {
         if (selected && !selectedEnv.includes(name)) {
@@ -105,9 +60,9 @@ export const DashboardPage = () => {
     function tools() {
         return (<Toolbar id="toolbar-group-types">
             <ToolbarContent>
-                <ToolbarItem>
-                    <Button variant="link" icon={<RefreshIcon/>} onClick={e => onGetProjects()}/>
-                </ToolbarItem>
+                {/*<ToolbarItem>*/}
+                {/*    <Button variant="link" icon={<RefreshIcon/>} onClick={e => onGetProjects()}/>*/}
+                {/*</ToolbarItem>*/}
                 <ToolbarItem>
                     <ToggleGroup aria-label="Default with single selectable">
                         {config.environments.map(env => (
@@ -170,9 +125,9 @@ export const DashboardPage = () => {
     }
 
     function getCamelStatusByEnvironments(name: string): [string, CamelStatus | undefined] [] {
-        return getSelectedEnvironments().map(e => {
+        return selectedEnv.map(e => {
             const env: string = e as string;
-            const status = camels.find(d => d.projectId === name && d.env === env);
+            const status = camels?.find(d => d.projectId === name && d.env === env);
             return [env, status];
         });
     }
@@ -222,12 +177,9 @@ export const DashboardPage = () => {
             <Tr>
                 <Td colSpan={8}>
                     <Bullseye>
-                        {loading && <Spinner className="progress-stepper" diameter="80px" aria-label="Loading..."/>}
-                        {!loading &&
-                            <EmptyState variant={EmptyStateVariant.sm}>
-                                <EmptyStateHeader titleText="No results found" icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2" />
-                            </EmptyState>
-                        }
+                        <EmptyState variant={EmptyStateVariant.sm}>
+                            <EmptyStateHeader titleText="No results found" icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2" />
+                        </EmptyState>
                     </Bullseye>
                 </Td>
             </Tr>

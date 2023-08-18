@@ -14,6 +14,7 @@ import {FileEditor} from "./file/FileEditor";
 import {shallow} from "zustand/shallow";
 import {useParams} from "react-router-dom";
 import {KaravanApi} from "../api/KaravanApi";
+import {ProjectDataPoller} from "./ProjectDataPoller";
 
 export const ProjectPage = () => {
 
@@ -53,6 +54,7 @@ export const ProjectPage = () => {
             {showFilePanel && <FileEditor/>}
             {!showFilePanel && <ProjectPanel/>}
             <ProjectLogPanel/>
+            <ProjectDataPoller/>
         </PageSection>
     )
 }

@@ -156,9 +156,13 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/service")
     public List<ServiceStatus> getAllServiceStatuses() throws Exception {
-        return infinispanService.getServiceStatuses().stream()
-                .sorted(Comparator.comparing(ServiceStatus::getProjectId))
-                .collect(Collectors.toList());
+        if (infinispanService.isReady()) {
+            return infinispanService.getServiceStatuses().stream()
+                    .sorted(Comparator.comparing(ServiceStatus::getProjectId))
+                    .collect(Collectors.toList());
+        } else {
+            return List.of();
+        }
     }
 
     @GET

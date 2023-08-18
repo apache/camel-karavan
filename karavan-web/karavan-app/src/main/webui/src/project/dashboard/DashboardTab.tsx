@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {
     Card,
     CardBody, Flex, FlexItem, Divider, PageSection
@@ -23,55 +23,19 @@ import '../../designer/karavan.css';
 import {InfoContainer} from "./InfoContainer";
 import {InfoContext} from "./InfoContext";
 import {InfoMemory} from "./InfoMemory";
-import {KaravanApi} from "../../api/KaravanApi";
 import {useProjectStore, useStatusesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {ContainerStatus} from "../../api/ProjectModels";
 
 export const DashboardTab = () => {
 
-    const [project] = useProjectStore((state) => [state.project], shallow);
+    const [project, memory, jvm, context] = useProjectStore((state) =>
+        [state.project, state.memory, state.jvm, state.context], shallow);
     const [containers] = useStatusesStore((state) => [state.containers], shallow);
-    const [memory, setMemory] = useState({});
-    const [jvm, setJvm] = useState({});
-    const [context, setContext] = useState({});
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            onRefreshStatus();
-        }, 1000);
-        return () => {
-            clearInterval(interval)
-        };
-    }, []);
-
-    function onRefreshStatus() {
-        const projectId = project.projectId;
-        KaravanApi.getDevModeStatus(projectId, "memory", res => {
-            if (res.status === 200) {
-                setMemory(JSON.parse(res.data.status));
-            } else {
-                setMemory({});
-            }
-        })
-        KaravanApi.getDevModeStatus(projectId, "jvm", res => {
-            if (res.status === 200) {
-                setJvm(JSON.parse(res.data.status));
-            } else {
-                setJvm({});
-            }
-        })
-        KaravanApi.getDevModeStatus(projectId, "context", res => {
-            if (res.status === 200) {
-                setContext(JSON.parse(res.data.status));
-            } else {
-                setContext({});
-            }
-        })
-    }
 
     const containerStatus = containers.filter(c => c.containerName === project.projectId).at(0);
     const showConsole = containerStatus?.state === 'running'
+
     return (
         <PageSection className="project-tab-panel" padding={{default: "padding"}}>
             <Card className="project-development">

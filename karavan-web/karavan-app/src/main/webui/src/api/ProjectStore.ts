@@ -16,16 +16,32 @@
  */
 
 import {create} from 'zustand'
-import {AppConfig, DeploymentStatus, ContainerStatus, Project, ProjectFile, ServiceStatus, CamelStatus} from "./ProjectModels";
+import {
+    AppConfig,
+    DeploymentStatus,
+    ContainerStatus,
+    Project,
+    ProjectFile,
+    ServiceStatus,
+    CamelStatus,
+    PipelineStatus
+} from "./ProjectModels";
 import {ProjectEventBus} from "./ProjectEventBus";
 import {unstable_batchedUpdates} from "react-dom";
+import {useState} from "react";
 
 interface AppConfigState {
+    loading: boolean;
+    setLoading: (loading: boolean) => void;
     config: AppConfig;
     setConfig: (config: AppConfig) => void;
 }
 
 export const useAppConfigStore = create<AppConfigState>((set) => ({
+    loading: false,
+    setLoading: (loading: boolean)  => {
+        set({loading: loading})
+    },
     config: new AppConfig(),
     setConfig: (config: AppConfig)  => {
         set({config: config})
@@ -56,12 +72,22 @@ export const useProjectsStore = create<ProjectsState>((set) => ({
 }))
 
 interface ProjectState {
-    project: Project;
     isPushing: boolean,
     isRunning: boolean,
-    operation: "create" | "select" | "delete" | "none" | "copy";
+    project: Project;
     setProject: (project: Project, operation:  "create" | "select" | "delete"| "none" | "copy") => void;
+    operation: "create" | "select" | "delete" | "none" | "copy";
     setOperation: (o: "create" | "select" | "delete"| "none" | "copy") => void;
+    memory: any,
+    setMemory: (memory: any) => void;
+    jvm: any,
+    setJvm: (jvm: any) => void;
+    context: any,
+    setContext: (context: any) => void;
+    trace: any,
+    setTrace: (trace: any) => void;
+    refreshTrace: boolean
+    setRefreshTrace: (refreshTrace: boolean) => void;
 }
 
 export const useProjectStore = create<ProjectState>((set) => ({
@@ -72,13 +98,38 @@ export const useProjectStore = create<ProjectState>((set) => ({
     setProject: (project: Project, operation:  "create" | "select" | "delete"| "none" | "copy") => {
         set((state: ProjectState) => ({
             project: project,
-            operation: operation
+            operation: operation,
+            refreshTrace: false,
+            jvm: {},
+            context: {},
+            trace: {},
+            memory: {},
         }));
     },
     setOperation: (o: "create" | "select" | "delete"| "none" | "copy") => {
         set((state: ProjectState) => ({
             operation: o
         }));
+    },
+    memory: {},
+    setMemory: (memory: boolean)  => {
+        set({memory: memory})
+    },
+    jvm: {},
+    setJvm: (jvm: boolean)  => {
+        set({jvm: jvm})
+    },
+    context: {},
+    setContext: (context: boolean)  => {
+        set({context: context})
+    },
+    trace: {},
+    setTrace: (trace: boolean)  => {
+        set({trace: trace})
+    },
+    refreshTrace: false,
+    setRefreshTrace: (refreshTrace: boolean)  => {
+        set({refreshTrace: refreshTrace})
     },
 }))
 
@@ -170,6 +221,8 @@ interface StatusesState {
     setServices: (s: ServiceStatus[]) => void;
     setContainers: (c: ContainerStatus[]) => void;
     setCamels: (c: CamelStatus[]) => void;
+    pipelineStatuses: PipelineStatus[],
+    setPipelineStatuses: (pipelineStatus: PipelineStatus[]) => void;
 }
 
 export const useStatusesStore = create<StatusesState>((set) => ({
@@ -196,7 +249,11 @@ export const useStatusesStore = create<StatusesState>((set) => ({
         set((state: StatusesState) => ({
             camels: c,
         }));
-    }
+    },
+    pipelineStatuses: [],
+    setPipelineStatuses: (pipelineStatuses: PipelineStatus[])  => {
+        set({pipelineStatuses: pipelineStatuses})
+    },
 }))
 
 interface LogState {

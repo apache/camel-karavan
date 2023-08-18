@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
     Button,
     DescriptionList,
@@ -14,116 +14,76 @@ import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import ClockIcon from "@patternfly/react-icons/dist/esm/icons/clock-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
-import {CamelStatus, DeploymentStatus, PipelineStatus, ContainerStatus, Project} from "../../api/ProjectModels";
-import {useLogStore} from "../../api/ProjectStore";
+import {CamelStatus, DeploymentStatus, ContainerStatus} from "../../api/ProjectModels";
+import {useLogStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
+import {shallow} from "zustand/shallow";
 
 interface Props {
-    project: Project,
-    config: any,
     env: string,
 }
 
-interface State {
-    pipelineStatus?: PipelineStatus,
-    deploymentStatus?: DeploymentStatus,
-    podStatuses: ContainerStatus[],
-    camelStatus?: CamelStatus,
-    isPushing: boolean,
-    isBuilding: boolean,
-    isRolling: boolean,
-    showDeleteConfirmation: boolean,
-    deleteEntity?: 'pod' | 'deployment' | 'pipelinerun',
-    deleteEntityName?: string,
-    deleteEntityEnv?: string,
-}
+export const ProjectStatus = (props: Props) => {
 
-export class ProjectStatus extends React.Component<Props, State> {
+    const [project] = useProjectStore((s) => [s.project], shallow);
+    const [containers, deployments, camels, pipelineStatuses] =
+        useStatusesStore((s) => [s.containers, s.deployments, s.camels, s.pipelineStatuses], shallow);
+    const [isPushing, setIsPushing] = useState<boolean>(false);
+    const [isBuilding, setIsBuilding] = useState<boolean>(false);
+    const [isRolling, setIsRolling] = useState<boolean>(false);
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
+    const [deleteEntityType, setDeleteEntityType] = useState<'pod' | 'deployment' | 'pipelinerun'>('pod');
+    const [deleteEntityName, setDeleteEntityName] = useState<string>();
+    const [deleteEntityEnv, setDeleteEntityEnv] = useState<string>();
 
-    public state: State = {
-        podStatuses: [],
-        isPushing: false,
-        isBuilding: false,
-        isRolling: false,
-        showDeleteConfirmation: false,
-    };
-    interval: any;
-
-    componentDidMount() {
-        this.interval = setInterval(() => this.onRefreshStatus(), 700);
-    }
-
-    componentWillUnmount() {
-        clearInterval(this.interval);
-    }
-
-    onRefreshStatus = () => {
-        const projectId = this.props.project.projectId;
-        const env = this.props.env;
-        if (this.props.project) {
-            KaravanApi.getProjectPipelineStatus(projectId, env, (status?: PipelineStatus) => {
-                this.setState({pipelineStatus: status});
-            });
-            KaravanApi.getProjectDeploymentStatus(projectId, env, (status?: DeploymentStatus) => {
-                this.setState({deploymentStatus: status});
-            });
-            KaravanApi.getProjectPodStatuses(projectId, env, (statuses: ContainerStatus[]) => {
-                this.setState({podStatuses: statuses});
-            });
-            KaravanApi.getProjectCamelStatus(projectId, env, (status: CamelStatus) => {
-                this.setState({camelStatus: status});
-            });
-        }
-    }
-
-    deleteEntity = (type: 'pod' | 'deployment' | 'pipelinerun', name: string, environment: string) => {
+    function deleteEntity (type: 'pod' | 'deployment' | 'pipelinerun', name: string, environment: string)  {
         switch (type) {
             case "deployment":
                 KaravanApi.deleteDeployment(environment, name, (res: any) => {
                     // if (Array.isArray(res) && Array.from(res).length > 0)
-                    // this.onRefresh();
+                    // onRefresh();
                 });
                 break;
             case "pod":
                 KaravanApi.deleteContainer(environment, 'project', name, (res: any) => {
                     // if (Array.isArray(res) && Array.from(res).length > 0)
-                    // this.onRefresh();
+                    // onRefresh();
                 });
                 break;
             case "pipelinerun":
                 KaravanApi.stopPipelineRun(environment, name, (res: any) => {
                     // if (Array.isArray(res) && Array.from(res).length > 0)
-                    // this.onRefresh();
+                    // onRefresh();
                 });
                 break;
         }
     }
 
-    build = () => {
-        this.setState({isBuilding: true});
-        KaravanApi.pipelineRun(this.props.project, this.props.env, res => {
+    function build () {
+        setIsBuilding(true);
+        KaravanApi.pipelineRun(project, env, res => {
             if (res.status === 200 || res.status === 201) {
-                this.setState({isBuilding: false});
+                setIsBuilding(false);
             } else {
                 // Todo notification
             }
         });
     }
 
-    rollout = () => {
-        this.setState({isRolling: true});
-        KaravanApi.rolloutDeployment(this.props.project.projectId, this.props.env, res => {
+    function rollout () {
+        setIsRolling(true);
+        KaravanApi.rolloutDeployment(project.projectId, env, res => {
             console.log(res)
             if (res.status === 200 || res.status === 201) {
-                this.setState({isRolling: false});
+                setIsRolling(false);
             } else {
                 // Todo notification
             }
         });
     }
 
-    buildButton = (env: string) => {
-        const {isBuilding, isPushing, pipelineStatus} = this.state;
-        const isRunning = pipelineStatus?.result === 'Running';
+    function buildButton (env: string) {
+        const status = pipelineStatuses.filter(p => p.projectId === project.projectId).at(0);
+        const isRunning = status?.result === 'Running';
         return (<Tooltip content="Start build pipeline" position={"left"}>
             <Button isLoading={isBuilding ? true : undefined}
                     isDisabled={isBuilding || isRunning || isPushing}
@@ -131,41 +91,41 @@ export class ProjectStatus extends React.Component<Props, State> {
                     variant="secondary"
                     className="project-button"
                     icon={!isBuilding ? <BuildIcon/> : <div></div>}
-                    onClick={e => this.build()}>
+                    onClick={e => build()}>
                 {isBuilding ? "..." : "Build"}
             </Button>
         </Tooltip>)
     }
 
-    rolloutButton = () => {
-        const isRolling = this.state.isRolling;
+    function rolloutButton () {
         return (<Tooltip content="Rollout deployment" position={"left"}>
             <Button isLoading={isRolling ? true : undefined} size="sm" variant="secondary"
                     className="project-button"
                     icon={!isRolling ? <RolloutIcon/> : <div></div>}
-                    onClick={e => this.rollout()}>
+                    onClick={e => rollout()}>
                 {isRolling ? "..." : "Rollout"}
             </Button>
         </Tooltip>)
     }
 
-    deleteDeploymentButton = (env: string) => {
+    function deleteDeploymentButton (env: string) {
         return (<Tooltip content="Delete deployment" position={"left"}>
             <Button size="sm" variant="secondary"
                     className="project-button"
                     icon={<DeleteIcon/>}
-                    onClick={e => this.setState({
-                        showDeleteConfirmation: true,
-                        deleteEntity: "deployment",
-                        deleteEntityEnv: env,
-                        deleteEntityName: this.props.project?.projectId
-                    })}>
+                    onClick={e => {
+                        setShowDeleteConfirmation(true);
+                        setDeleteEntityType("deployment");
+                        setDeleteEntityEnv(env);
+                        setDeleteEntityName(project?.projectId);
+                    }}>
                 {"Delete"}
             </Button>
         </Tooltip>)
     }
 
-    getReplicasPanel(env: string, deploymentStatus?: DeploymentStatus) {
+    function getReplicasPanel(env: string) {
+        const deploymentStatus = deployments.find(d => d.name === project?.projectId);
         const ok = (deploymentStatus && deploymentStatus?.readyReplicas > 0
             && (deploymentStatus.unavailableReplicas === 0 || deploymentStatus.unavailableReplicas === undefined || deploymentStatus.unavailableReplicas === null)
             && deploymentStatus?.replicas === deploymentStatus?.readyReplicas)
@@ -185,19 +145,20 @@ export class ProjectStatus extends React.Component<Props, State> {
                     </LabelGroup>}
                     {deploymentStatus === undefined && <Label icon={<DownIcon/>} color={"grey"}>No deployments</Label>}
                 </FlexItem>
-                <FlexItem>{env === "dev" && this.deleteDeploymentButton(env)}</FlexItem>
+                <FlexItem>{env === "dev" && deleteDeploymentButton(env)}</FlexItem>
             </Flex>
         )
     }
 
-    getPodsPanel(env: string, podStatuses: ContainerStatus[]) {
+    function getPodsPanel(env: string) {
+        const podStatuses = containers.filter(d => d.projectId === project?.projectId);
         return (
             <Flex justifyContent={{default: "justifyContentSpaceBetween"}}
                   alignItems={{default: "alignItemsFlexStart"}}>
                 <FlexItem>
                     {podStatuses.length === 0 && <Label icon={<DownIcon/>} color={"grey"}>No pods</Label>}
                     <LabelGroup numLabels={2} isVertical>
-                        {podStatuses.map(pod => {
+                        {podStatuses.map((pod: ContainerStatus) => {
                                 const ready = pod.state === 'running';
                                 return (
                                     <Tooltip key={pod.containerName} content={pod.state}>
@@ -213,12 +174,12 @@ export class ProjectStatus extends React.Component<Props, State> {
                                                 {pod.containerName}
                                             </Button>
                                             <Tooltip content={"Delete Pod"}>
-                                                <Button icon={<DeleteIcon/>} variant="link" onClick={e => this.setState({
-                                                    showDeleteConfirmation: true,
-                                                    deleteEntity: "pod",
-                                                    deleteEntityEnv: env,
-                                                    deleteEntityName: pod.containerName
-                                                })}></Button>
+                                                <Button icon={<DeleteIcon/>} variant="link" onClick={e => {
+                                                    setShowDeleteConfirmation(true);
+                                                    setDeleteEntityType("pod");
+                                                    setDeleteEntityEnv(env);
+                                                    setDeleteEntityName(pod.containerName);
+                                                }}></Button>
                                             </Tooltip>
                                         </Label>
                                     </Tooltip>
@@ -227,23 +188,23 @@ export class ProjectStatus extends React.Component<Props, State> {
                         )}
                     </LabelGroup>
                 </FlexItem>
-                <FlexItem>{env === "dev" && this.rolloutButton()}</FlexItem>
+                <FlexItem>{env === "dev" && rolloutButton()}</FlexItem>
             </Flex>
         )
     }
 
-    getStatusColor(status?: string) {
+    function getStatusColor(status?: string) {
         if (status === 'UP') return 'green';
         if (status === 'DOWN') return 'red';
         if (status === 'UNDEFINED') return 'grey';
     }
 
-    getStatusIcon(status?: string) {
+    function getStatusIcon(status?: string) {
         return (status === 'UP' ? <UpIcon/> : <DownIcon/>)
     }
 
-    getHealthPanel(env: string) {
-        const status = this.state.camelStatus;
+    function getHealthPanel(env: string) {
+        const status = camels;
         // const routesStatus = status?.routesStatus;
         // const consumersStatus = status?.consumerStatus;
         // const contextStatus = status?.contextStatus;
@@ -251,19 +212,19 @@ export class ProjectStatus extends React.Component<Props, State> {
         return (
             <LabelGroup numLabels={4}>
                 {/*{contextVersion &&*/}
-                {/*    <Label icon={this.getStatusIcon(contextStatus)}*/}
-                {/*           color={this.getStatusColor(contextStatus)}>{contextVersion}</Label>}*/}
-                {/*<Label icon={this.getStatusIcon(contextStatus)}*/}
-                {/*       color={this.getStatusColor(contextStatus)}>Context</Label>*/}
-                {/*<Label icon={this.getStatusIcon(consumersStatus)}*/}
-                {/*       color={this.getStatusColor(consumersStatus)}>Consumers</Label>*/}
-                {/*<Label icon={this.getStatusIcon(routesStatus)} color={this.getStatusColor(routesStatus)}>Routes</Label>*/}
+                {/*    <Label icon={getStatusIcon(contextStatus)}*/}
+                {/*           color={getStatusColor(contextStatus)}>{contextVersion}</Label>}*/}
+                {/*<Label icon={getStatusIcon(contextStatus)}*/}
+                {/*       color={getStatusColor(contextStatus)}>Context</Label>*/}
+                {/*<Label icon={getStatusIcon(consumersStatus)}*/}
+                {/*       color={getStatusColor(consumersStatus)}>Consumers</Label>*/}
+                {/*<Label icon={getStatusIcon(routesStatus)} color={getStatusColor(routesStatus)}>Routes</Label>*/}
             </LabelGroup>
         )
     }
 
-    getPipelineState(env: string) {
-        const status = this.state.pipelineStatus;
+    function getPipelineState(env: string) {
+        const status = pipelineStatuses.filter(p => p.projectId === project.projectId).at(0);
         const pipeline = status?.pipelineName;
         const pipelineResult = status?.result;
         let lastPipelineRunTime = 0;
@@ -292,14 +253,12 @@ export class ProjectStatus extends React.Component<Props, State> {
                                     </Button>
                                     : "No pipeline"}
                                 {isRunning && <Tooltip content={"Stop PipelineRun"}>
-                                    <Button icon={<DeleteIcon/>} variant="link" onClick={e =>
-                                        this.setState({
-                                            showDeleteConfirmation: true,
-                                            deleteEntity: "pipelinerun",
-                                            deleteEntityEnv: env,
-                                            deleteEntityName: pipeline
-                                        })
-                                    }></Button>
+                                    <Button icon={<DeleteIcon/>} variant="link" onClick={e => {
+                                        setShowDeleteConfirmation(true);
+                                        setDeleteEntityType("pipelinerun");
+                                        setDeleteEntityEnv(env);
+                                        setDeleteEntityName(pipeline);
+                                        }}></Button>
                                 </Tooltip>}
                             </Label>
                             {pipeline !== undefined && showTime === true && lastPipelineRunTime !== undefined &&
@@ -307,75 +266,71 @@ export class ProjectStatus extends React.Component<Props, State> {
                         </LabelGroup>
                     </Tooltip>
                 </FlexItem>
-                <FlexItem>{env === "dev" && this.buildButton(env)}</FlexItem>
+                <FlexItem>{env === "dev" && buildButton(env)}</FlexItem>
             </Flex>
         )
     }
 
-    getDeleteConfirmation() {
-        const {deleteEntity, deleteEntityEnv, deleteEntityName} = this.state;
+    function getDeleteConfirmation() {
         return (<Modal
             className="modal-delete"
             title="Confirmation"
-            isOpen={this.state.showDeleteConfirmation}
-            onClose={() => this.setState({showDeleteConfirmation: false})}
+            isOpen={showDeleteConfirmation}
+            onClose={() => setShowDeleteConfirmation(false)}
             actions={[
                 <Button key="confirm" variant="primary" onClick={e => {
                     if (deleteEntityEnv && deleteEntityName && deleteEntity) {
-                        this.deleteEntity(deleteEntity, deleteEntityName, deleteEntityEnv);
-                        this.setState({showDeleteConfirmation: false});
+                        deleteEntity(deleteEntityType, deleteEntityName, deleteEntityEnv);
+                        setShowDeleteConfirmation(false);
                     }
                 }}>Delete
                 </Button>,
                 <Button key="cancel" variant="link"
-                        onClick={e => this.setState({showDeleteConfirmation: false})}>Cancel</Button>
+                        onClick={e => setShowDeleteConfirmation(false)}>Cancel</Button>
             ]}
-            onEscapePress={e => this.setState({showDeleteConfirmation: false})}>
+            onEscapePress={e => setShowDeleteConfirmation(false)}>
             <div>{"Delete " + deleteEntity + " " + deleteEntityName + "?"}</div>
         </Modal>)
     }
 
-    render() {
-        const {deploymentStatus, podStatuses} = this.state;
-        const {env} = this.props;
-        return (
-            <Card className="project-status">
-                <CardBody>
-                    <DescriptionList isHorizontal>
-                        <DescriptionListGroup>
-                            <DescriptionListTerm>Environment</DescriptionListTerm>
-                            <DescriptionListDescription>
-                                <Badge className="badge">{env}</Badge>
-                            </DescriptionListDescription>
-                        </DescriptionListGroup>
-                        <DescriptionListGroup>
-                            <DescriptionListTerm>Pipeline</DescriptionListTerm>
-                            <DescriptionListDescription>
-                                {this.getPipelineState(env)}
-                            </DescriptionListDescription>
-                        </DescriptionListGroup>
-                        <DescriptionListGroup>
-                            <DescriptionListTerm>Deployment</DescriptionListTerm>
-                            <DescriptionListDescription>
-                                {this.getReplicasPanel(env, deploymentStatus)}
-                            </DescriptionListDescription>
-                        </DescriptionListGroup>
-                        <DescriptionListGroup>
-                            <DescriptionListTerm>Pods</DescriptionListTerm>
-                            <DescriptionListDescription>
-                                {this.getPodsPanel(env, podStatuses)}
-                            </DescriptionListDescription>
-                        </DescriptionListGroup>
-                        <DescriptionListGroup>
-                            <DescriptionListTerm>Camel health</DescriptionListTerm>
-                            <DescriptionListDescription>
-                                {this.getHealthPanel(env)}
-                            </DescriptionListDescription>
-                        </DescriptionListGroup>
-                    </DescriptionList>
-                </CardBody>
-                {this.state.showDeleteConfirmation && this.getDeleteConfirmation()}
-            </Card>
-        )
-    }
+    const env = props.env;
+    return (
+        <Card className="project-status">
+            <CardBody>
+                <DescriptionList isHorizontal>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>Environment</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <Badge className="badge">{env}</Badge>
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>Pipeline</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            {getPipelineState(env)}
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>Deployment</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            {getReplicasPanel(env)}
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>Pods</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            {getPodsPanel(env)}
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>Camel health</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            {getHealthPanel(env)}
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                </DescriptionList>
+            </CardBody>
+            {showDeleteConfirmation && getDeleteConfirmation()}
+        </Card>
+    )
 }

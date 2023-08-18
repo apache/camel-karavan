@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
     Bullseye,
     Button,
@@ -39,40 +39,16 @@ import {
 	Table
 } from '@patternfly/react-table/deprecated';
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
-import {KaravanApi} from "../../api/KaravanApi";
 import {useProjectStore} from "../../api/ProjectStore";
+import {shallow} from "zustand/shallow";
 
 
 export const TraceTab = () => {
 
-    const {project} = useProjectStore();
-    const [trace, setTrace] = useState<any>({});
+    const [refreshTrace, setRefreshTrace, trace] = useProjectStore((state) =>
+        [state.refreshTrace, state.setRefreshTrace, state.trace], shallow);
     const [nodes, setNodes] = useState([{}]);
-    const [isOpen, setIsOpen] = useState(false);
-    const [refreshTrace, setRefreshTrace] = useState(false);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            onRefreshStatus();
-        }, 1000);
-        return () => {
-            clearInterval(interval)
-        };
-    }, [refreshTrace]);
-
-
-    function onRefreshStatus() {
-        const projectId = project.projectId;
-        if (refreshTrace) {
-            KaravanApi.getDevModeStatus(projectId, "trace", res => {
-                if (res.status === 200) {
-                    setTrace(JSON.parse(res.data.status));
-                } else {
-                    setTrace({});
-                }
-            })
-        }
-    }
+    const [isOpen, setIsOpen] = useState<boolean>(false);
 
     function closeModal() {
         setIsOpen(false);
@@ -134,7 +110,7 @@ export const TraceTab = () => {
                             <Td>
                                 <Button style={{padding: '0'}} variant={"link"}
                                         onClick={e => {
-                                            setTrace(trace);
+                                            // setTrace(trace);
                                             setNodes(getNodes(exchangeId));
                                             setIsOpen(true);
                                         }}>

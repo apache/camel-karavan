@@ -14,8 +14,8 @@ export const ProjectPipelineTab = () => {
         <PageSection className="project-tab-panel" padding={{default: "padding"}}>
             <div className="project-operations">
                 {/*{["dev", "test", "prod"].map(env =>*/}
-                {["dev"].map(env =>
-                    <ProjectStatus key={env} project={project} config={config} env={env}/>
+                {config.environments.map(env =>
+                    <ProjectStatus env={env}/>
                 )}
             </div>
         </PageSection>

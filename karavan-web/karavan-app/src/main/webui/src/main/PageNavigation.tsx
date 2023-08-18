@@ -4,7 +4,7 @@ import {
     Flex,
     FlexItem,
     Tooltip,
-    Divider, Popover, Badge
+    Divider, Popover, Badge, Spinner, Bullseye
 } from '@patternfly/react-core';
 import {KaravanApi} from "../api/KaravanApi";
 import '../designer/karavan.css';
@@ -33,7 +33,7 @@ class MenuItem {
 
 export const PageNavigation = () => {
 
-    const [config] = useAppConfigStore((state) => [state.config], shallow)
+    const [config, loading] = useAppConfigStore((state) => [state.config, state.loading], shallow)
     const [setFile] = useFileStore((state) => [state.setFile], shallow)
     const [setStatus, setPodName] = useDevModeStore((state) => [state.setStatus, state.setPodName], shallow)
     const [showUser, setShowUser] = useState<boolean>(false);
@@ -58,10 +58,14 @@ export const PageNavigation = () => {
     return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height: "100%"}}
                   spaceItems={{default: "spaceItemsNone"}}>
         <FlexItem alignSelf={{default: "alignSelfCenter"}}>
-            <Tooltip className="logo-tooltip" content={"Apache Camel Karavan " + config.version}
-                     position={"right"}>
-                {Icon()}
-            </Tooltip>
+            <Bullseye>
+                {loading && <Spinner style={{position: "absolute"}} diameter="40px" aria-label="Loading..."/>}
+                <Tooltip className="logo-tooltip" content={"Apache Camel Karavan " + config.version}
+                         position={"right"}>
+                    {Icon()}
+                </Tooltip>
+            </Bullseye>
+
         </FlexItem>
         {getMenu().map(page =>
             <FlexItem key={page.pageId} className={pageId === page.pageId ? "nav-button-selected" : ""}>

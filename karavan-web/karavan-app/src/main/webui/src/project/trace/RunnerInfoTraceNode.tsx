@@ -42,8 +42,8 @@ export const RunnerInfoTraceNode = (props: Props) => {
                                 <DescriptionListTerm>Headers</DescriptionListTerm>
                             </DescriptionListGroup>
                             <DataList aria-label="Compact data list example" isCompact>
-                                {headers.map((header: any) => (
-                                    <DataListItem key={header[0]} aria-labelledby="compact-item1">
+                                {headers.map((header: any, index: number) => (
+                                    <DataListItem key={header[0] + "-" + index} aria-labelledby="compact-item1">
                                         <DataListItemRow>
                                             <DataListItemCells
                                                 dataListCells={[

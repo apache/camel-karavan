@@ -44,13 +44,12 @@ public class StatusResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/pipeline/{projectId}/{env}")
-    public Response getPipelineStatus(@PathParam("projectId") String projectId, @PathParam("env") String env) {
-        PipelineStatus status = infinispanService.getPipelineStatus(projectId, env);
-        if (status != null) {
-            return Response.ok(status).build();
+    @Path("/pipeline/{env}")
+    public List<PipelineStatus> getPipelineStatuses(@PathParam("env") String env) {
+        if (infinispanService.isReady()) {
+            return infinispanService.getPipelineStatuses(env);
         } else {
-            return Response.noContent().build();
+            return List.of();
         }
     }
 
@@ -81,6 +80,10 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/camel/{env}")
     public List<CamelStatus> getCamelStatusByEnv(@PathParam("env") String env) {
-        return infinispanService.getCamelStatusesByEnv(env, CamelStatus.Name.context);
+        if (infinispanService.isReady()) {
+            return infinispanService.getCamelStatusesByEnv(env, CamelStatus.Name.context);
+        } else {
+            return List.of();
+        }
     }
 }

@@ -49,36 +49,10 @@ export const ProjectsPage = () => {
     const [projects] = useProjectsStore((state) => [state.projects], shallow)
     const [operation] = useProjectStore((state) => [state.operation], shallow)
     const [filter, setFilter] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            if (projects.length === 0) setLoading(true);
-            if (!["create", "delete", "select", "copy"].includes(operation)) {
-                refresh();
-            }
-        }, 1300);
-        return () => {
-            clearInterval(interval)
-        };
-    }, [operation]);
-
-    function refresh() {
-        ProjectService.refreshProjects();
-        ProjectService.refreshAllDeploymentStatuses();
-        ProjectService.refreshAllContainerStatuses();
-        setLoading(false);
-    }
 
     function getTools() {
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
-                <ToolbarItem>
-                    <Button variant="link" icon={<RefreshIcon/>} onClick={e => {
-                        setLoading(true);
-                        refresh();
-                    }}/>
-                </ToolbarItem>
                 <ToolbarItem>
                     <TextInput className="text-field" type="search" id="search" name="search"
                                autoComplete="off" placeholder="Search by name"
@@ -106,14 +80,10 @@ export const ProjectsPage = () => {
             <Tr>
                 <Td colSpan={8}>
                     <Bullseye>
-                        {loading &&
-                            <Spinner className="progress-stepper" diameter="80px" aria-label="Loading..."/>}
-                        {!loading &&
-                            <EmptyState variant={EmptyStateVariant.sm}>
-                                <EmptyStateHeader titleText="No results found"
-                                                  icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2"/>
-                            </EmptyState>
-                        }
+                        <EmptyState variant={EmptyStateVariant.sm}>
+                            <EmptyStateHeader titleText="No results found"
+                                              icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2"/>
+                        </EmptyState>
                     </Bullseye>
                 </Td>
             </Tr>

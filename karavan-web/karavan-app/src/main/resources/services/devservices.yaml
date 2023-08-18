@@ -41,17 +41,20 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
-  mariadb:
-    image: mariadb
+  postgres:
+    image: postgres:15.4
     restart: always
     environment:
-      MARIADB_ROOT_PASSWORD: mariadb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
 
-  mariadb-adminer:
-    image: adminer
+  adminer:
+    image: adminer:4.8.1-standalone
     restart: always
     ports:
-      - 9080:8080
+      - 8080:8080
 
   greenmail:
     container_name: greenmail

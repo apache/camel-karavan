@@ -39,7 +39,6 @@ export const FileToolbar = () => {
 
 
     useEffect(() => {
-        console.log("ProjectToolbar useEffect", isPushing, project.lastCommitTimestamp);
     }, [project, file]);
 
     function push () {

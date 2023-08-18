@@ -1,61 +1,63 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
     Bullseye, Card, CardBody, CardTitle, LoginForm, Text
 } from '@patternfly/react-core';
+import {KaravanApi} from "../api/KaravanApi";
+import {useAppConfigStore} from "../api/ProjectStore";
+import {shallow} from "zustand/shallow";
+import {ProjectEventBus} from "../api/ProjectEventBus";
+import {ToastMessage} from "../api/ProjectModels";
 
-interface Props {
-    config: any,
-    onLogin: (username: string, password: string) => void
-}
+export const MainLogin = () => {
 
-interface State {
-    username: string,
-    password: string,
-    isValidUsername: boolean,
-    isValidPassword: boolean,
-    isRememberMeChecked: boolean,
-}
+    const [config] = useAppConfigStore((state) => [state.config], shallow)
+    const [username, setUsername] = useState<string>();
+    const [password, setPassword] = useState<string>();
+    const [isValidUsername, setIsValidUsername] = useState<boolean>(true);
+    const [isValidPassword, setIsValidPassword] = useState<boolean>(true);
+    const [isRememberMeChecked, setIsRememberMeChecked] = useState<boolean>(false);
 
-export class MainLogin extends React.Component<Props, State> {
-    public state: State = {
-        username: "",
-        password: "",
-        isValidUsername: true,
-        isValidPassword: true,
-        isRememberMeChecked: false,
-    }
-
-    onLoginButtonClick = (event: any) => {
+    function onLoginButtonClick(event: any) {
         event.preventDefault();
-        this.props.onLogin?.call(this, this.state.username, this.state.password);
+        if (username && password) {
+            onLogin(username, password);
+        }
     }
 
-    render() {
-        return (
-            <Bullseye>
-                <Card isFlat isCompact>
-                    <CardTitle>
-                        <img alt="karavan-logo" src="karavan-logo-light.png" className="login-logo"/>
-                        <Text component="h3" style={{width:"fit-content", marginLeft:"auto"}}>{this.props.config.version}</Text>
-                    </CardTitle>
-                    <CardBody>
-                        <LoginForm
-                            showHelperText={true}
-                            usernameLabel="Username"
-                            usernameValue={this.state.username}
-                            onChangeUsername={(_event, value) => this.setState({username: value})}
-                            isValidUsername={this.state.isValidUsername}
-                            passwordLabel="Password"
-                            passwordValue={this.state.password}
-                            isShowPasswordEnabled
-                            onChangePassword={(_event, value) => this.setState({password: value})}
-                            isValidPassword={this.state.isValidPassword}
-                            onLoginButtonClick={this.onLoginButtonClick}
-                            loginButtonLabel="Log in"
-                        />
-                    </CardBody>
-                </Card>
-            </Bullseye>
-        );
+    function onLogin(username: string, password: string) {
+        KaravanApi.auth(username, password, (res: any) => {
+            if (res?.status === 200) {
+            } else {
+                ProjectEventBus.sendAlert(new ToastMessage("Error", "Incorrect username and/or password!", "danger"))
+            }
+        });
     }
+
+    return (
+        <Bullseye>
+            <Card isFlat isCompact>
+                <CardTitle>
+                    <img alt="karavan-logo" src="karavan-logo-light.png" className="login-logo"/>
+                    <Text component="h3"
+                          style={{width: "fit-content", marginLeft: "auto"}}>{config.version}</Text>
+                </CardTitle>
+                <CardBody>
+                    <LoginForm
+                        showHelperText={true}
+                        usernameLabel="Username"
+                        usernameValue={username}
+                        onChangeUsername={(_event, value) => setUsername(value)}
+                        isValidUsername={isValidUsername}
+                        passwordLabel="Password"
+                        passwordValue={password}
+                        isShowPasswordEnabled
+                        onChangePassword={(_event, value) => setPassword(value)}
+                        isValidPassword={isValidPassword}
+                        onLoginButtonClick={onLoginButtonClick}
+                        loginButtonLabel="Log in"
+                    />
+                </CardBody>
+            </Card>
+        </Bullseye>
+    );
 }

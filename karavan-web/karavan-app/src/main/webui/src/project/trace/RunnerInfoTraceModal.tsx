@@ -58,8 +58,8 @@ export const RunnerInfoTraceModal = (props: Props) => {
                             <DescriptionListTerm>Nodes</DescriptionListTerm>
                         </DescriptionListGroup>
                     </DescriptionList>
-                    {props.nodes.map((node: any) => (
-                        <FlexItem>
+                    {props.nodes.map((node: any, index: number) => (
+                        <FlexItem key={node.uid + "-" + index}>
                             <Button variant={node.uid === activeNode.uid ? "secondary" : "link"}
                                     icon={node.nodeId === undefined ? <ArrowRightIcon/> : undefined}
                                     onClick={event => {setActiveNode(node)}}>
