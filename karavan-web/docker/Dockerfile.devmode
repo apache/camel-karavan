@@ -7,7 +7,7 @@ LABEL "org.opencontainers.image.licenses"="Apache 2.0"
 LABEL "org.opencontainers.image.version"="4.0.0-RC2"
 
 ENV JBANG_VERSION=0.110.0
-ENV CAMEL_VERSION=4.0.0-RC2
+ENV CAMEL_VERSION=4.0.0
 ENV KARAVAN="/karavan"
 ENV JBANG_REPO="$KARAVAN/.jbang/cache/.m2"
 ENV JBANG_DIR="$KARAVAN/.jbang"
