@@ -23,18 +23,12 @@ import {unstable_batchedUpdates} from "react-dom";
 interface AppConfigState {
     config: AppConfig;
     setConfig: (config: AppConfig) => void;
-    pageId: string;
-    setPageId: (pageId: string) => void;
 }
 
 export const useAppConfigStore = create<AppConfigState>((set) => ({
     config: new AppConfig(),
-    pageId: 'projects',
     setConfig: (config: AppConfig)  => {
         set({config: config})
-    },
-    setPageId: (pageId: string)  => {
-        set({pageId: pageId})
     },
 }))
 

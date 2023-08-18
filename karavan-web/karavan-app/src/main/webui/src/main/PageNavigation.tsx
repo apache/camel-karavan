@@ -33,10 +33,11 @@ class MenuItem {
 
 export const PageNavigation = () => {
 
-    const [config, pageId, setPageId] = useAppConfigStore((state) => [state.config, state.pageId, state.setPageId], shallow)
+    const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [setFile] = useFileStore((state) => [state.setFile], shallow)
     const [setStatus, setPodName] = useDevModeStore((state) => [state.setStatus, state.setPodName], shallow)
     const [showUser, setShowUser] = useState<boolean>(false);
+    const [pageId, setPageId] = useState<string>();
     const navigate = useNavigate();
 
     function getMenu() : MenuItem[]  {

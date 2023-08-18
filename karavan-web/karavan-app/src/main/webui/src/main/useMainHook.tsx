@@ -1,5 +1,3 @@
-import React, {useEffect} from 'react';
-
 import {KaravanApi} from "../api/KaravanApi";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import '../designer/karavan.css';
@@ -9,23 +7,12 @@ import {useAppConfigStore, useStatusesStore} from "../api/ProjectStore";
 import {InfrastructureAPI} from "../designer/utils/InfrastructureAPI";
 import {shallow} from "zustand/shallow";
 
-export const DataPoller = () => {
+export const useMainHook = () => {
 
     const [setConfig] = useAppConfigStore((state) => [state.setConfig], shallow)
     const [setContainers] = useStatusesStore((state) => [state.setContainers], shallow);
 
-    useEffect(() => {
-        console.log("DataPoller Start");
-        const interval = setInterval(() => {
-            getStatuses();
-        }, 1000);
-        return () => {
-            console.log("DataPoller End");
-            clearInterval(interval);
-        };
-    }, []);
-
-    function getStatuses() {
+    const getStatuses = () =>  {
         if (KaravanApi.isAuthorized || KaravanApi.authType === 'public') {
             KaravanApi.getAllContainerStatuses((statuses: ContainerStatus[]) => {
                 setContainers(statuses);
@@ -33,7 +20,7 @@ export const DataPoller = () => {
         }
     }
 
-    function getData() {
+    const getData = () =>  {
         if (KaravanApi.isAuthorized || KaravanApi.authType === 'public') {
             KaravanApi.getConfiguration((config: AppConfig) => {
                 setConfig(config);
@@ -77,7 +64,5 @@ export const DataPoller = () => {
         });
     }
 
-    return (
-        <React.Fragment></React.Fragment>
-    )
+    return { getData, getStatuses }
 }
