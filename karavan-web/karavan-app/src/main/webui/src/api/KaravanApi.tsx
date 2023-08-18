@@ -21,7 +21,7 @@ export class KaravanApi {
 
     static me?: any;
     static basicToken: string = '';
-    static authType: string = '';
+    static authType?: string = undefined;
     static isAuthorized: boolean = false;
 
     static setAuthType(authType: string) {

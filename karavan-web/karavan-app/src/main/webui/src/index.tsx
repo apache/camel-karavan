@@ -1,9 +1,14 @@
 import React from 'react';
-import {createRoot} from "react-dom/client";
+import ReactDOM from 'react-dom/client';
 import "@patternfly/patternfly/patternfly.css";
 import './index.css';
 import {Main} from "./main/Main";
+import {BrowserRouter} from "react-router-dom";
 
-const container = document.getElementById('root');
-const root = createRoot(container!);
-root.render(<Main/>);
+ReactDOM.createRoot(document.getElementById("root")!).render(
+    <React.StrictMode>
+        <BrowserRouter>
+            <Main />
+        </BrowserRouter>
+    </React.StrictMode>
+);

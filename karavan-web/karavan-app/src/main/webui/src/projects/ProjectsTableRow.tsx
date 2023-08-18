@@ -18,6 +18,7 @@ import {
 import {ProjectEventBus} from "../api/ProjectEventBus";
 import {shallow} from "zustand/shallow";
 import {CamelIcon, QuarkusIcon, SpringIcon} from "../designer/utils/KaravanIcons";
+import {useNavigate} from "react-router-dom";
 
 interface Props {
     project: Project
@@ -29,6 +30,7 @@ export const ProjectsTableRow = (props: Props) => {
     const {config} = useAppConfigStore();
     const [setProject] = useProjectStore((state) => [state.setProject, state.setOperation], shallow);
     const [setShowLog] = useLogStore((state) => [state.setShowLog], shallow);
+    const navigate = useNavigate();
 
     function getEnvironments(): string [] {
         return config.environments && Array.isArray(config.environments) ? Array.from(config.environments) : [];
@@ -61,9 +63,10 @@ export const ProjectsTableRow = (props: Props) => {
             </Td>
             <Td>
                 <Button style={{padding: '6px'}} variant={"link"} onClick={e => {
-                    setProject(project, "select");
+                    // setProject(project, "select");
                     setShowLog(false);
-                    ProjectEventBus.selectProject(project);
+                    // ProjectEventBus.selectProject(project);
+                    navigate("/projects/"+ project.projectId);
                 }}>
                     {project.projectId}
                 </Button>

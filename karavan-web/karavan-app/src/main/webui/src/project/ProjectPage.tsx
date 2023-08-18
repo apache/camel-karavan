@@ -1,68 +1,37 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     PageSection,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {KaravanApi} from "../api/KaravanApi";
-import FileSaver from "file-saver";
 import {ProjectToolbar} from "./ProjectToolbar";
 import {ProjectLogPanel} from "./log/ProjectLogPanel";
-import {ProjectFile, ProjectFileTypes} from "../api/ProjectModels";
-import {useFileStore, useProjectStore} from "../api/ProjectStore";
+import {ProjectFileTypes} from "../api/ProjectModels";
+import {useFileStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
 import {ProjectTitle} from "./ProjectTitle";
 import {ProjectPanel} from "./ProjectPanel";
 import {FileEditor} from "./file/FileEditor";
 import {shallow} from "zustand/shallow";
+import {useParams} from "react-router-dom";
+import {KaravanApi} from "../api/KaravanApi";
 
 export const ProjectPage = () => {
 
     const {file, operation} = useFileStore();
     const [mode, setMode] = useState<"design" | "code">("design");
     const [key, setKey] = useState<string>('');
-    const [project] = useProjectStore((state) => [state.project], shallow )
+    const [projects] = useProjectsStore((state) => [state.projects], shallow)
+    const [project, setProject] = useProjectStore((state) => [state.project, state.setProject], shallow )
+    let { projectId } = useParams();
 
-    // useEffect(() => {
-    //     // TODO: make status request only when started or just opened
-    //     const interval = setInterval(() => {
-    //         ProjectService.getDevModeStatus(project);
-    //     }, 1000);
-    //     return () => {
-    //         clearInterval(interval)
-    //     };
-    // }, []);
-
-    function post (file: ProjectFile)  {
-        KaravanApi.postProjectFile(file, res => {
-            if (res.status === 200) {
-                const newFile = res.data;
-                // setFiles((files => {
-                //     const index = files.findIndex(f => f.name === newFile.name);
-                //     if (index !== -1) files.splice(index, 1, newFile)
-                //     else files.push(newFile);
-                //     return files
-                // }))
-            } else {
-                // console.log(res) //TODO show notification
-            }
-        })
-    }
-
-    function save (name: string, code: string) {
-        if (file) {
-            file.code = code;
-            // setFile(file);
-            post(file);
+    useEffect(() => {
+        const p = projects.filter(project => project.projectId === projectId).at(0);
+        if (p) {
+            setProject(p, "select");
+        } else if (projectId){
+            KaravanApi.getProject(projectId, project1 => setProject(project1, "select"));
         }
-    }
-
-    function download () {
-        if (file) {
-            const type = file.name.endsWith("yaml") ? "application/yaml;charset=utf-8" : undefined;
-            const f = new File([file.code], file.name, {type: type});
-            FileSaver.saveAs(f);
-        }
-    }
+    }, []);
 
     function isBuildIn(): boolean {
         return ['kamelets', 'templates'].includes(project.projectId);

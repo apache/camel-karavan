@@ -1,29 +1,25 @@
-import React, {useEffect, useState} from 'react';
-import {
-    Page,
-    Flex,
-    FlexItem,
-     Spinner, Bullseye
-} from '@patternfly/react-core';
+import {Routes, Route, useNavigate, Navigate} from 'react-router-dom';
+import {useLocation} from 'react-router-dom';
+import React, {useEffect, useState} from "react";
 import {KaravanApi} from "../api/KaravanApi";
-import {SsoApi} from "../api/SsoApi";
-import {KameletApi} from "karavan-core/lib/api/KameletApi";
-import '../designer/karavan.css';
-import {v4 as uuidv4} from "uuid";
-import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
+import {Bullseye, Flex, FlexItem, Page, Spinner} from "@patternfly/react-core";
 import Icon from "../Logo";
-import {ProjectsPage} from "../projects/ProjectsPage";
 import {MainLogin} from "./MainLogin";
+import {Notification} from "./Notification";
 import {DashboardPage} from "../dashboard/DashboardPage";
+import {ProjectsPage} from "../projects/ProjectsPage";
+import {ProjectPage} from "../project/ProjectPage";
+import {ServicesPage} from "../services/ServicesPage";
 import {ContainersPage} from "../containers/ContainersPage";
+import {KnowledgebasePage} from "../knowledgebase/KnowledgebasePage";
 import {ProjectEventBus} from "../api/ProjectEventBus";
 import {AppConfig, ContainerStatus, Project, ToastMessage} from "../api/ProjectModels";
-import {ProjectPage} from "../project/ProjectPage";
-import {useAppConfigStore, useStatusesStore} from "../api/ProjectStore";
-import {Notification} from "./Notification";
+import {SsoApi} from "../api/SsoApi";
+import {v4 as uuidv4} from "uuid";
 import {InfrastructureAPI} from "../designer/utils/InfrastructureAPI";
-import {KnowledgebasePage} from "../knowledgebase/KnowledgebasePage";
-import {ServicesPage} from "../services/ServicesPage";
+import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
+import {useAppConfigStore, useStatusesStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {PageNavigation} from "./PageNavigation";
 
@@ -32,6 +28,8 @@ export const Main = () => {
     const [config, pageId, setPageId, setConfig] = useAppConfigStore((state) => [state.config, state.pageId, state.setPageId, state.setConfig], shallow)
     const [setContainers] = useStatusesStore((state) => [state.setContainers], shallow);
     const [request, setRequest] = useState<string>(uuidv4());
+    let location = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         console.log("Main Start");
@@ -68,6 +66,7 @@ export const Main = () => {
             }
         });
     }
+
     function getStatuses() {
         if (KaravanApi.isAuthorized || KaravanApi.authType === 'public') {
             KaravanApi.getAllContainerStatuses((statuses: ContainerStatus[]) => {
@@ -125,27 +124,6 @@ export const Main = () => {
         ProjectEventBus.sendAlert(new ToastMessage(title, text, variant))
     }
 
-    function getMain() {
-        return (
-            <>
-                <Flex direction={{default: "row"}} style={{width: "100%", height: "100%"}}
-                      alignItems={{default: "alignItemsStretch"}} spaceItems={{default: 'spaceItemsNone'}}>
-                    <FlexItem>
-                        {<PageNavigation/>}
-                    </FlexItem>
-                    <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
-                        {pageId === 'dashboard' && <DashboardPage key='dashboard'/>}
-                        {pageId === 'projects' && <ProjectsPage key={request}/>}
-                        {pageId === 'project' && <ProjectPage key="projects"/>}
-                        {pageId === 'services' && <ServicesPage key="services"/>}
-                        {pageId === 'containers' && <ContainersPage key="containers"/>}
-                        {pageId === 'knowledgebase' && <KnowledgebasePage dark={false}/>}
-                    </FlexItem>
-                </Flex>
-            </>
-        )
-    }
-
     return (
         <Page className="karavan">
             {KaravanApi.authType === undefined &&
@@ -153,10 +131,28 @@ export const Main = () => {
                     <Spinner className="spinner" diameter="140px" aria-label="Loading..."/>
                     <div className="logo-placeholder">{Icon()}</div>
                 </Bullseye>}
-            {(KaravanApi.isAuthorized || KaravanApi.authType === 'public') && getMain()}
+            {(KaravanApi.isAuthorized || KaravanApi.authType === 'public') &&
+                <Flex direction={{default: "row"}} style={{width: "100%", height: "100%"}}
+                      alignItems={{default: "alignItemsStretch"}} spaceItems={{default: 'spaceItemsNone'}}>
+                    <FlexItem>
+                        {<PageNavigation/>}
+                    </FlexItem>
+                    <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
+                        <Routes>
+                            <Route path="/dashboard" element={<DashboardPage key={'dashboard'}/>}/>
+                            <Route path="/projects" element={<ProjectsPage key={'projects'}/>}/>
+                            <Route path="/projects/:projectId" element={<ProjectPage key={'project'}/>}/>
+                            <Route path="/services" element={<ServicesPage key="services"/>}/>
+                            <Route path="/containers" element={<ContainersPage key="services"/>}/>
+                            <Route path="/knowledgebase" element={<KnowledgebasePage dark={false}/>}/>
+                            <Route path="*" element={<Navigate to="/projects" replace/>}/>
+                        </Routes>
+                    </FlexItem>
+                </Flex>
+            }
             {!KaravanApi.isAuthorized && KaravanApi.authType === 'basic' &&
                 <MainLogin config={config} onLogin={onLogin}/>}
             <Notification/>
         </Page>
-    )
-}
+    );
+};

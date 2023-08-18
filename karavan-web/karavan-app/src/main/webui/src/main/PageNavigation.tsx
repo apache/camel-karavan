@@ -17,6 +17,7 @@ import DashboardIcon from "@patternfly/react-icons/dist/js/icons/tachometer-alt-
 import ServicesIcon from "@patternfly/react-icons/dist/js/icons/services-icon";
 import {useAppConfigStore, useDevModeStore, useFileStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
+import {useNavigate} from "react-router-dom";
 
 class MenuItem {
     pageId: string = '';
@@ -36,6 +37,7 @@ export const PageNavigation = () => {
     const [setFile] = useFileStore((state) => [state.setFile], shallow)
     const [setStatus, setPodName] = useDevModeStore((state) => [state.setStatus, state.setPodName], shallow)
     const [showUser, setShowUser] = useState<boolean>(false);
+    const navigate = useNavigate();
 
     function getMenu() : MenuItem[]  {
         const pages: MenuItem[] = [
@@ -70,6 +72,7 @@ export const PageNavigation = () => {
                                 setPodName(undefined);
                                 setStatus("none");
                                 setPageId(page.pageId);
+                                navigate(page.pageId);
                             }}
                     />
                 </Tooltip>
@@ -87,11 +90,11 @@ export const PageNavigation = () => {
                     isVisible={showUser}
                     shouldClose={(_event, tip) => setShowUser(false)}
                     shouldOpen={(_event, tip) => setShowUser(true)}
-                    headerContent={<div>{KaravanApi.me.userName}</div>}
+                    headerContent={<div>{KaravanApi.me?.userName}</div>}
                     bodyContent={
                         <Flex direction={{default: "row"}}>
-                            {KaravanApi.me.roles && Array.isArray(KaravanApi.me.roles)
-                                && KaravanApi.me.roles
+                            {KaravanApi.me?.roles && Array.isArray(KaravanApi.me?.roles)
+                                && KaravanApi.me?.roles
                                     .filter((r: string) => ['administrator', 'developer', 'viewer'].includes(r))
                                     .map((role: string) => <Badge id={role} isRead>{role}</Badge>)}
                         </Flex>
