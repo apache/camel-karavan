@@ -21,10 +21,11 @@ import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import io.vertx.core.eventbus.EventBus;
 import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.shared.ConfigService;
+import org.apache.camel.karavan.shared.Constants;
 import org.apache.camel.karavan.shared.EventType;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -37,6 +38,9 @@ public class KaravanService {
 
     private static final Logger LOGGER = Logger.getLogger(KaravanService.class.getName());
 
+    @ConfigProperty(name = "karavan.git-install-gitea")
+    boolean giteaInstall;
+
     @Inject
     KubernetesService kubernetesService;
 
@@ -44,7 +48,10 @@ public class KaravanService {
     DockerService dockerService;
 
     @Inject
-    EventBus bus;
+    GitService gitService;
+
+    @Inject
+    EventBus eventBus;
 
     void onStart(@Observes StartupEvent ev) {
         LOGGER.info("Starting Karavan");
@@ -58,13 +65,16 @@ public class KaravanService {
                 } else {
                     dockerService.createNetwork();
                     dockerService.startListeners();
-                    dockerService.startInfinispan();
-                    dockerService.checkInfinispanHealth();
+                    if (giteaInstall) {
+                        dockerService.startGitea();
+                    } else {
+                        eventBus.publish(EventType.START_INFINISPAN_IN_DOCKER, null);
+                    }
                 }
             }
         } else {
             LOGGER.info("Starting Karavan in " + (kubernetesService.isOpenshift() ? "OpenShift" : "Kubernetes"));
-            bus.publish(EventType.INFINISPAN_STARTED, InfinispanService.HEALTHY_STATUS);
+            eventBus.publish(EventType.INFINISPAN_STARTED, Constants.HEALTHY_STATUS);
         }
     }
 

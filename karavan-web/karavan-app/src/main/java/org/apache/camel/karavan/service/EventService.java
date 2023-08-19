@@ -10,6 +10,7 @@ import org.apache.camel.karavan.infinispan.model.CamelStatus;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.shared.ConfigService;
+import org.apache.camel.karavan.shared.Constants;
 import org.apache.camel.karavan.shared.EventType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -49,9 +50,15 @@ public class EventService {
     @Inject
     EventBus eventBus;
 
+    @ConsumeEvent(value = START_INFINISPAN_IN_DOCKER, blocking = true, ordered = true)
+    void startInfinispan1(String data) {
+        dockerService.startInfinispan();
+        dockerService.checkInfinispanHealth();
+    }
+
     @ConsumeEvent(value = INFINISPAN_STARTED, blocking = true, ordered = true)
-    void startServices(String infinispanHealth) {
-        if (infinispanHealth.equals(InfinispanService.HEALTHY_STATUS)) {
+    void startServices1(String infinispanHealth) {
+        if (infinispanHealth.equals(Constants.HEALTHY_STATUS)) {
             infinispanService.start(false);
             infinispanService.clearAllStatuses();
             if (!ConfigService.inKubernetes()) {
@@ -61,6 +68,16 @@ public class EventService {
             eventBus.publish(EventType.IMPORT_PROJECTS, "");
             eventBus.publish(EventType.START_INFRASTRUCTURE_LISTENERS, "");
         }
+    }
+
+    @ConsumeEvent(value = GITEA_STARTED, blocking = true, ordered = true)
+    void startServices2(String giteaHealth) {
+        eventBus.publish(EventType.START_INFINISPAN_IN_DOCKER, null);
+    }
+
+    void startServices(String infinispanHealth) {
+        eventBus.publish(EventType.IMPORT_PROJECTS, "");
+        eventBus.publish(EventType.START_INFRASTRUCTURE_LISTENERS, "");
     }
 
     @ConsumeEvent(value = START_INFRASTRUCTURE_LISTENERS, blocking = true, ordered = true)

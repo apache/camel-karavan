@@ -59,19 +59,18 @@ public class DockerEventListener implements ResultCallback<Event> {
     }
 
     public void onContainerEvent(Event event, Container container) {
+        String status = event.getStatus();
+        if (status.startsWith("health_status:") && container.getNames()[0].equals("/gitea")) {
+            dockerService.installGitea();
+        }
         if (infinispanService.isReady()) {
-//             if (Arrays.asList("create", "start", "unpause", "stop", "pause").contains(event.getStatus())) {
-//                onExistingContainer(container);
-//            } else {
-                String status = event.getStatus();
-                if (status.startsWith("health_status:")) {
-                    if (container.getNames()[0].equals("/infinispan")) {
-                        onInfinispanHealthEvent(container, event);
-                    } else if (inDevMode(container)) {
-                        onDevModeHealthEvent(container, event);
-                    }
+            if (status.startsWith("health_status:")) {
+                if (container.getNames()[0].equals("/infinispan")) {
+                    onInfinispanHealthEvent(container, event);
+                } else if (inDevMode(container)) {
+                    onDevModeHealthEvent(container, event);
                 }
-//            }
+            }
         }
     }
 

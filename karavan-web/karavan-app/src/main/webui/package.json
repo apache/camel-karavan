@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "copy-designer": "cp -r ../../../../../karavan-designer/src/designer src && cp -r ../../../../../karavan-designer/src/knowledgebase src",
-    "start": "npm run copy-designer && react-scripts start",
+    "start": "export PORT=3003 && npm run copy-designer && react-scripts start",
     "build": "CI=false && npm run copy-designer && DISABLE_ESLINT_PLUGIN=true react-scripts build"
   },
   "proxy": "http://127.0.0.1:8080/",

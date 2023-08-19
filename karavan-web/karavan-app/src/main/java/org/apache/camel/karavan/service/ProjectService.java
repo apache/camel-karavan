@@ -105,6 +105,7 @@ public class ProjectService implements HealthCheck{
         if (infinispanService.getProjects().isEmpty()) {
             importAllProjects();
         }
+        addKameletsProject();
         addTemplatesProject();
         addServicesProject();
         if (!Objects.equals("disabled", gitPullInterval.toLowerCase()) && !Objects.equals("off", gitPullInterval.toLowerCase())) {
@@ -137,7 +138,6 @@ public class ProjectService implements HealthCheck{
                     infinispanService.saveProjectFile(file);
                 });
             });
-            addKameletsProject();
         } catch (Exception e) {
             LOGGER.error("Error during project import", e);
         }
@@ -237,7 +237,7 @@ public class ProjectService implements HealthCheck{
                     ProjectFile file = new ProjectFile(name, value, Project.Type.services.name(), Instant.now().toEpochMilli());
                     infinispanService.saveProjectFile(file);
                 });
-                commitAndPushProject(Project.Type.templates.name(), "Add services");
+                commitAndPushProject(Project.Type.services.name(), "Add services");
             }
         } catch (Exception e) {
             LOGGER.error("Error during services project creation", e);

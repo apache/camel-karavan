@@ -24,4 +24,6 @@ public class Constants {
     public static final String LABEL_PROJECT_ID = "org.apache.camel.karavan/projectId";
 
     public static final String RELOAD_TRY_COUNT = "reloadTryCount";
+
+    public static final String HEALTHY_STATUS = "healthy";
 }
