@@ -58,7 +58,11 @@ export const FilesTab = () => {
     }
 
     function isBuildIn(): boolean {
-        return ['kamelets', 'templates'].includes(project.projectId);
+        return ['kamelets', 'templates', 'services'].includes(project.projectId);
+    }
+
+    function canDeleteFiles(): boolean {
+        return !['templates', 'services'].includes(project.projectId);
     }
 
     function isKameletsProject(): boolean {
@@ -109,7 +113,7 @@ export const FilesTab = () => {
                                 {!needCommit(file.lastUpdate) && getDate(file.lastUpdate)}
                             </Td>
                             <Td modifier={"fitContent"}>
-                                {file.projectId !== 'templates' &&
+                                {canDeleteFiles() &&
                                     <Button style={{padding: '0'}} variant={"plain"}
                                             isDisabled={file.name === 'application.properties'}
                                             onClick={e =>

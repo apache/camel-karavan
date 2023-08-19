@@ -11,7 +11,8 @@ import {
     Bullseye,
     EmptyState,
     EmptyStateVariant,
-    EmptyStateIcon, EmptyStateHeader
+    EmptyStateIcon,
+    EmptyStateHeader
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
@@ -26,7 +27,7 @@ import {
     Table
 } from '@patternfly/react-table/deprecated';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
-import {ProjectsTableRow} from "./ProjectsTableRow";
+import {TemplatesTableRow} from "./TemplatesTableRow";
 import {DeleteProjectModal} from "./DeleteProjectModal";
 import {CreateProjectModal} from "./CreateProjectModal";
 import {useProjectsStore, useProjectStore} from "../api/ProjectStore";
@@ -34,7 +35,7 @@ import {MainToolbar} from "../designer/MainToolbar";
 import {Project, ProjectType} from "../api/ProjectModels";
 import {shallow} from "zustand/shallow";
 
-export const ProjectsPage = () => {
+export const TemplatesPage = () => {
 
     const [projects] = useProjectsStore((state) => [state.projects], shallow)
     const [operation] = useProjectStore((state) => [state.operation], shallow)
@@ -48,12 +49,6 @@ export const ProjectsPage = () => {
                                autoComplete="off" placeholder="Search by name"
                                value={filter}
                                onChange={(_, e) => setFilter(e)}/>
-                </ToolbarItem>
-                <ToolbarItem>
-                    <Button icon={<PlusIcon/>}
-                            onClick={e =>
-                                useProjectStore.setState({operation: "create", project: new Project()})}
-                    >Create</Button>
                 </ToolbarItem>
             </ToolbarContent>
         </Toolbar>
@@ -82,24 +77,21 @@ export const ProjectsPage = () => {
 
     function getProjectsTable() {
         const projs = projects
-            .filter(p => p.type === ProjectType.normal)
+            .filter(p => p.type !== ProjectType.normal)
             .filter(p => p.name.toLowerCase().includes(filter) || p.description.toLowerCase().includes(filter));
         return (
-            <Table aria-label="Projects" variant={"compact"}>
+            <Table aria-label="Templates" variant={"compact"}>
                 <Thead>
                     <Tr>
-                        <Th key='type'>Runtime</Th>
                         <Th key='projectId'>Project ID</Th>
                         <Th key='name'>Name</Th>
                         <Th key='description'>Description</Th>
                         <Th key='commit'>Commit</Th>
-                        <Th key='deployment'>Environment</Th>
-                        <Th key='action'></Th>
                     </Tr>
                 </Thead>
                 <Tbody>
                     {projs.map(project => (
-                        <ProjectsTableRow
+                        <TemplatesTableRow
                             key={project.projectId}
                             project={project}/>
                     ))}

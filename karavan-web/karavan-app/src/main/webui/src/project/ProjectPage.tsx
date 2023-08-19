@@ -35,7 +35,7 @@ export const ProjectPage = () => {
     }, []);
 
     function isBuildIn(): boolean {
-        return ['kamelets', 'templates'].includes(project.projectId);
+        return ['kamelets', 'templates', 'services'].includes(project.projectId);
     }
 
     function isKameletsProject(): boolean {

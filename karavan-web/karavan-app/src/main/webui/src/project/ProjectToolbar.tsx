@@ -73,7 +73,7 @@ export const ProjectToolbar = () => {
             <ToolbarContent>
                 <Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
                     {isRunnable() && <DevModeToolbar reloadOnly={true}/>}
-                    {isYaml() && <FlexItem>
+                    {isIntegration() && <FlexItem>
                         <ToggleGroup>
                             <ToggleGroupItem text="Design" buttonId="design" isSelected={mode === "design"}
                                              onChange={(_event, s) => setMode("design")}/>
@@ -120,8 +120,16 @@ export const ProjectToolbar = () => {
         return project.projectId === 'templates';
     }
 
+    function isServicesProject(): boolean {
+        return project.projectId === 'services';
+    }
+
     function isRunnable(): boolean {
-        return !isKameletsProject() && !isTemplatesProject();
+        return !isKameletsProject() && !isTemplatesProject() && !isServicesProject();
+    }
+
+    function allowAddFiles(): boolean {
+        return !isTemplatesProject() && !isServicesProject();
     }
 
     const isTemplates = isTemplatesProject();

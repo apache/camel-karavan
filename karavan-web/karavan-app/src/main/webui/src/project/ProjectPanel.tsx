@@ -26,16 +26,14 @@ export const ProjectPanel = () => {
     }
 
     function isBuildIn(): boolean {
-        return ['kamelets', 'templates'].includes(project.projectId);
+        return ['kamelets', 'templates', 'services'].includes(project.projectId);
     }
 
     const buildIn = isBuildIn();
+    const isCustomKamelets = project.projectId === 'kamelets';
     return (
         <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
             <FlexItem className="project-tabs">
-                {buildIn && <Tabs activeKey={tab} onSelect={(event, tabIndex) => setTab(tabIndex)}>
-                    <Tab eventKey="files" title="Files"/>
-                </Tabs>}
                 {!buildIn && <Tabs activeKey={tab} onSelect={(event, tabIndex) => setTab(tabIndex)}>
                     <Tab eventKey="files" title="Files"/>
                     <Tab eventKey="dashboard" title="Dashboard"/>

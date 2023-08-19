@@ -46,6 +46,10 @@ export const FileToolbar = () => {
         ProjectService.pushProject(project, commitMessage);
     }
 
+    function canAddFiles(): boolean {
+        return !['templates', 'services'].includes(project.projectId);
+    }
+
     function getCommitModal() {
         return (
             <Modal
@@ -121,14 +125,14 @@ export const FileToolbar = () => {
                 </Button>
             </Tooltip>
         </FlexItem>
-        <FlexItem>
+        {canAddFiles() && <FlexItem>
             <Button size="sm" variant={"secondary"} icon={<PlusIcon/>}
-                    onClick={e => useFileStore.setState({operation:"create"})}>Create</Button>
-        </FlexItem>
-        <FlexItem>
+                    onClick={e => useFileStore.setState({operation: "create"})}>Create</Button>
+        </FlexItem>}
+        {canAddFiles() && <FlexItem>
             <Button size="sm" variant="secondary" icon={<UploadIcon/>}
-                    onClick={e => useFileStore.setState({operation:"upload"})}>Upload</Button>
-        </FlexItem>
+                    onClick={e => useFileStore.setState({operation: "upload"})}>Upload</Button>
+        </FlexItem>}
         {getCommitModal()}
     </Flex>
 }

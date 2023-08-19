@@ -19,6 +19,7 @@ import {PageNavigation} from "./PageNavigation";
 import {Notification} from "./Notification";
 import {useMainHook} from "./useMainHook";
 import {MainDataPoller} from "./MainDataPoller";
+import {TemplatesPage} from "../templates/TemplatesPage";
 
 export const Main = () => {
 
@@ -75,6 +76,7 @@ export const Main = () => {
                             <Route path="/dashboard" element={<DashboardPage key={'dashboard'}/>}/>
                             <Route path="/projects" element={<ProjectsPage key={'projects'}/>}/>
                             <Route path="/projects/:projectId" element={<ProjectPage key={'project'}/>}/>
+                            <Route path="/templates" element={<TemplatesPage key={'templates'}/>}/>
                             <Route path="/services" element={<ServicesPage key="services"/>}/>
                             <Route path="/containers" element={<ContainersPage key="services"/>}/>
                             <Route path="/knowledgebase" element={<KnowledgebasePage dark={false}/>}/>

@@ -3,12 +3,9 @@ import {
     Button,
     Badge,
     Tooltip,
-    Flex, FlexItem, Label
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import { Td, Tr} from "@patternfly/react-table";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
-import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";
 import {Project} from '../api/ProjectModels';
 import {
     useAppConfigStore,
@@ -23,7 +20,7 @@ interface Props {
     project: Project
 }
 
-export const ProjectsTableRow = (props: Props) => {
+export const TemplatesTableRow = (props: Props) => {
 
     const [deployments, containers] = useStatusesStore((state) => [state.deployments, state.containers], shallow)
     const {config} = useAppConfigStore();
@@ -57,9 +54,6 @@ export const ProjectsTableRow = (props: Props) => {
     const commit = project.lastCommit ? project.lastCommit?.substr(0, 7) : "...";
     return (
         <Tr key={project.projectId}>
-            <Td className="icon-td">
-                {getIcon(project.runtime)}
-            </Td>
             <Td>
                 <Button style={{padding: '6px'}} variant={"link"} onClick={e => {
                     // setProject(project, "select");
@@ -72,46 +66,10 @@ export const ProjectsTableRow = (props: Props) => {
             </Td>
             <Td>{project.name}</Td>
             <Td>{project.description}</Td>
-            <Td isActionCell>
+            <Td>
                 <Tooltip content={project.lastCommit} position={"bottom"}>
                     <Badge className="badge">{commit}</Badge>
                 </Tooltip>
-            </Td>
-            <Td noPadding style={{width: "180px"}}>
-                {!isBuildIn &&
-                    <Flex direction={{default: "row"}}>
-                        {getStatusByEnvironments(project.projectId).map(value => {
-                            const active = value[1];
-                            const color = active ? "green" : "grey"
-                            const style = active ? {fontWeight: "bold"} : {}
-                            return <FlexItem className="badge-flex-item" key={value[0]}>
-                                <Label style={style} color={color} >{value[0]}</Label>
-                            </FlexItem>
-                        })}
-                    </Flex>
-                }
-            </Td>
-            <Td className="project-action-buttons">
-                {!isBuildIn &&
-                    <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentFlexEnd"}}
-                          spaceItems={{default: 'spaceItemsNone'}}>
-                        <FlexItem>
-                            <Tooltip content={"Copy project"} position={"bottom"}>
-                                <Button variant={"plain"} icon={<CopyIcon/>}
-                                        onClick={e => {
-                                            setProject(project, "copy");
-                                        }}></Button>
-                            </Tooltip>
-                        </FlexItem>
-                        <FlexItem>
-                            <Tooltip content={"Delete project"} position={"bottom"}>
-                                <Button variant={"plain"} icon={<DeleteIcon/>} onClick={e => {
-                                    setProject(project, "delete");
-                                }}></Button>
-                            </Tooltip>
-                        </FlexItem>
-                    </Flex>
-                }
             </Td>
         </Tr>
     )

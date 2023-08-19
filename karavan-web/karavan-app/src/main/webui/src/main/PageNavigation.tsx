@@ -11,6 +11,7 @@ import '../designer/karavan.css';
 import Icon from "../Logo";
 import UserIcon from "@patternfly/react-icons/dist/js/icons/user-icon";
 import ProjectsIcon from "@patternfly/react-icons/dist/js/icons/repository-icon";
+import TemplatesIcon from "@patternfly/react-icons/dist/js/icons/blueprint-icon";
 import KnowledgebaseIcon from "@patternfly/react-icons/dist/js/icons/book-open-icon";
 import ContainersIcon from "@patternfly/react-icons/dist/js/icons/cubes-icon";
 import DashboardIcon from "@patternfly/react-icons/dist/js/icons/tachometer-alt-icon";
@@ -44,6 +45,7 @@ export const PageNavigation = () => {
         const pages: MenuItem[] = [
             new MenuItem("dashboard", "Dashboard", <DashboardIcon/>),
             new MenuItem("projects", "Projects", <ProjectsIcon/>),
+            new MenuItem("templates", "Templates", <TemplatesIcon/>),
         ]
         if (config.infrastructure === 'docker') {
             pages.push(
