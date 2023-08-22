@@ -84,7 +84,9 @@ public class LogWatchResource {
         LOGGER.info("LogCallback for " + name + " starting");
         try (SseEventSink sink = eventSink) {
             LogCallback logCallback = new LogCallback(line -> {
-                sink.send(sse.newEvent(line));
+                if (!sink.isClosed()) {
+                    sink.send(sse.newEvent(line));
+                }
             });
             dockerService.logContainer(name, logCallback);
             logCallback.close();

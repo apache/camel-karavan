@@ -297,13 +297,17 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/services")
     public Response getServices() throws Exception {
-        if (ConfigService.inKubernetes()) {
-            return Response.ok(kubernetesService.getServices(kubernetesService.getNamespace())).build();
+        if (infinispanService.isReady()) {
+            if (ConfigService.inKubernetes()) {
+                return Response.ok(kubernetesService.getServices(kubernetesService.getNamespace())).build();
+            } else {
+                List<String> list = infinispanService.getContainerStatuses(environment).stream()
+                        .map(ci -> ci.getPorts().stream().map(i -> ci.getContainerName() + ":" + i).collect(Collectors.toList()))
+                        .flatMap(List::stream).collect(Collectors.toList());
+                return Response.ok(list).build();
+            }
         } else {
-            List<String> list = infinispanService.getContainerStatuses(environment).stream()
-                    .map(ci -> ci.getPorts().stream().map(i -> ci.getContainerName() + ":" + i).collect(Collectors.toList()))
-                    .flatMap(List::stream).collect(Collectors.toList());
-            return Response.ok(list).build();
+            return Response.ok(List.of()).build();
         }
     }
 
