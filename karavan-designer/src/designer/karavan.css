@@ -381,7 +381,7 @@
 
 .karavan .properties .expression-title {
     font-size: 17px;
-    font-weught: bold;
+    font-weight: bold;
 }
 
 .karavan .properties .text-area {
@@ -1090,7 +1090,7 @@
     height: 44px;
     margin-left: 6px;
     cursor: pointer;
-    ustify-content: space-between;
+    justify-content: space-between;
 }
 
 .karavan .rest-page .rest-config-card,
