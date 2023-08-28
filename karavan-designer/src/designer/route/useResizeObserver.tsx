@@ -14,16 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {StrictMode} from 'react';
-import "./index.css";
-import "@patternfly/patternfly/patternfly.css";
-import App from "./App";
-import {createRoot} from "react-dom/client";
 
-const container = document.getElementById('root');
-const root = createRoot(container!);
-root.render(
-    // <StrictMode>
-        <App />
-    // </StrictMode>
-);
+import { useLayoutEffect, useRef } from 'react';
+
+function useResizeObserver<T extends HTMLElement>(callback: (target: T, entry: ResizeObserverEntry) => void) {
+    const ref = useRef<T>(null)
+
+    useLayoutEffect(() => {
+        const element = ref?.current;
+        if (!element) {
+            return;
+        }
+        const observer1 = new ResizeObserver((entries) => {
+            callback(element, entries[0]);
+        });
+        observer1.observe(element);
+        return () => {
+            observer1.disconnect();
+        };
+    }, [callback, ref]);
+
+    return ref
+}
+
+export default useResizeObserver;

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {useState} from 'react';
 import {
     Badge,
     Button, capitalize, Flex, FlexItem,
@@ -32,51 +32,33 @@ interface Props {
     dark: boolean,
 }
 
-interface State {
-    tabIndex: string | number
-    filter?: string
-    configMaps:  string[]
-    secrets:  string[]
-    services:  string[]
-}
+export function InfrastructureSelector(props: Props) {
 
-export class InfrastructureSelector extends React.Component<Props, State> {
+    const [tabIndex, setTabIndex] = useState<string | number>("configMap");
+    const [filter, setFilter] = useState<string>();
 
-    public state: State = {
-        tabIndex: "configMap",
-        configMaps: InfrastructureAPI.configMaps,
-        secrets: InfrastructureAPI.secrets,
-        services: InfrastructureAPI.services
-    };
-
-    selectTab = (evt: React.MouseEvent<HTMLElement, MouseEvent>, eventKey: string | number) => {
-        this.setState({tabIndex: eventKey})
-    }
-
-    checkFilter = (name: string): boolean => {
-        if (this.state.filter !== undefined && name) {
-            return name.toLowerCase().includes(this.state.filter.toLowerCase())
+    function checkFilter  (name: string): boolean {
+        if (filter !== undefined && name) {
+            return name.toLowerCase().includes(filter.toLowerCase())
         } else {
             return true;
         }
     }
 
-    searchInput = () => {
+    function searchInput () {
         return (
             <Form isHorizontal className="search" autoComplete="off">
                 <FormGroup fieldId="search">
                     <TextInput className="text-field" type="text" id="search" name="search" 
-                            value={this.state.filter}
-                            onChange={(_, value) => {
-                                this.setState({filter: value})
-                            }}/>
+                            value={filter}
+                            onChange={(_, value) => setFilter(value)}/>
                 </FormGroup>
             </Form>
         )
     }
 
-    getConfigMapTable() {
-        const configMaps = this.state.configMaps;
+    function getConfigMapTable() {
+        const configMaps = InfrastructureAPI.configMaps;
         return (
             <Table variant='compact' borders={false}>
                 <Thead>
@@ -88,7 +70,7 @@ export class InfrastructureSelector extends React.Component<Props, State> {
                 </Thead>
                 <Tbody>
                     {configMaps
-                        .filter(name => this.checkFilter(name))
+                        .filter(name => checkFilter(name))
                         .map((name, idx: number) => {
                             const configMapName = name.split("/")[0];
                             const data = name.split("/")[1];
@@ -102,7 +84,7 @@ export class InfrastructureSelector extends React.Component<Props, State> {
                                     </Td>
                                     <Td noPadding>
                                         <Button style={{padding: '6px'}} variant={"link"} onClick={
-                                            e => this.props.onSelect?.call(this, "configmap:" + name)}>
+                                            e => props.onSelect?.("configmap:" + name)}>
                                             {data}
                                         </Button>
                                     </Td>
@@ -114,8 +96,8 @@ export class InfrastructureSelector extends React.Component<Props, State> {
         )
     }
 
-    getSecretsTable() {
-        const secrets = this.state.secrets;
+    function getSecretsTable() {
+        const secrets = InfrastructureAPI.secrets;
         return (
             <Table variant='compact' borders={false}>
                 <Thead>
@@ -127,7 +109,7 @@ export class InfrastructureSelector extends React.Component<Props, State> {
                 </Thead>
                 <Tbody>
                     {secrets
-                        .filter(name => this.checkFilter(name))
+                        .filter(name => checkFilter(name))
                         .map((name, idx: number) => {
                             const configMapName = name.split("/")[0];
                             const data = name.split("/")[1];
@@ -141,7 +123,7 @@ export class InfrastructureSelector extends React.Component<Props, State> {
                                     </Td>
                                     <Td noPadding>
                                         <Button style={{padding: '6px'}} variant={"link"} onClick={
-                                            e => this.props.onSelect?.call(this, "secret:" + name)}>
+                                            e => props.onSelect?.("secret:" + name)}>
                                             {data}
                                         </Button>
                                     </Td>
@@ -153,8 +135,8 @@ export class InfrastructureSelector extends React.Component<Props, State> {
         )
     }
 
-    getServicesTable() {
-        const services = this.state.services;
+    function getServicesTable() {
+        const services = InfrastructureAPI.services;
         return (
             <Table variant='compact' borders={false}>
                 <Thead>
@@ -168,7 +150,7 @@ export class InfrastructureSelector extends React.Component<Props, State> {
                 </Thead>
                 <Tbody>
                     {services
-                        .filter(name => this.checkFilter(name))
+                        .filter(name => checkFilter(name))
                         .map((name, idx: number) => {
                             const serviceName = name.split("|")[0];
                             const hostPort = name.split("|")[1];
@@ -184,19 +166,19 @@ export class InfrastructureSelector extends React.Component<Props, State> {
                                     {/*</Td>*/}
                                     <Td noPadding>
                                         <Button style={{padding: '6px'}} variant={"link"} onClick={
-                                            e => this.props.onSelect?.call(this, hostPort)}>
+                                            e => props.onSelect?.(hostPort)}>
                                             {serviceName}
                                         </Button>
                                     </Td>
                                     <Td noPadding>
                                         <Button style={{padding: '6px'}} variant={"link"} onClick={
-                                            e => this.props.onSelect?.call(this, host)}>
+                                            e => props.onSelect?.(host)}>
                                             {host}
                                         </Button>
                                     </Td>
                                     <Td noPadding>
                                         <Button style={{padding: '6px'}} variant={"link"} onClick={
-                                            e => this.props.onSelect?.call(this, port)}>
+                                            e => props.onSelect?.(port)}>
                                             {port}
                                         </Button>
                                     </Td>
@@ -208,37 +190,34 @@ export class InfrastructureSelector extends React.Component<Props, State> {
         )
     }
 
-    render() {
-        const tabIndex = this.state.tabIndex;
-        const tabs = InfrastructureAPI.infrastructure === 'kubernetes' ? ['configMap', 'secret', 'services'] : ['services'];
-        return (
-            <Modal
-                aria-label="Select from Infrastructure"
-                width={'50%'}
-                className='dsl-modal'
-                isOpen={this.props.isOpen}
-                onClose={this.props.onClose}
-                header={
-                    <Flex direction={{default: "column"}}>
-                        <FlexItem>
-                            <h3>{"Select from " + capitalize(InfrastructureAPI.infrastructure)}</h3>
-                            {this.searchInput()}
-                        </FlexItem>
-                        <FlexItem>
-                            <Tabs style={{overflow: 'hidden'}} activeKey={this.state.tabIndex} onSelect={this.selectTab}>
-                                {tabs.map(tab => <Tab eventKey={tab} key={tab} title={<TabTitleText>{capitalize(tab)}</TabTitleText>} />)}
-                            </Tabs>
-                        </FlexItem>
-                    </Flex>
-                }
-                actions={{}}>
-                <PageSection variant={this.props.dark ? "darker" : "light"}>
-                    {this.searchInput()}
-                    {tabIndex === 'configMap' && this.getConfigMapTable()}
-                    {tabIndex === 'secret' && this.getSecretsTable()}
-                    {tabIndex === 'services' && this.getServicesTable()}
-                </PageSection>
-            </Modal>
-        )
-    }
+    const tabs = InfrastructureAPI.infrastructure === 'kubernetes' ? ['configMap', 'secret', 'services'] : ['services'];
+    return (
+        <Modal
+            aria-label="Select from Infrastructure"
+            width={'50%'}
+            className='dsl-modal'
+            isOpen={props.isOpen}
+            onClose={props.onClose}
+            header={
+                <Flex direction={{default: "column"}}>
+                    <FlexItem>
+                        <h3>{"Select from " + capitalize(InfrastructureAPI.infrastructure)}</h3>
+                        {searchInput()}
+                    </FlexItem>
+                    <FlexItem>
+                        <Tabs style={{overflow: 'hidden'}} activeKey={tabIndex} onSelect={(_, eventKey) => setTabIndex(eventKey)}>
+                            {tabs.map(tab => <Tab eventKey={tab} key={tab} title={<TabTitleText>{capitalize(tab)}</TabTitleText>} />)}
+                        </Tabs>
+                    </FlexItem>
+                </Flex>
+            }
+            actions={{}}>
+            <PageSection variant={props.dark ? "darker" : "light"}>
+                {searchInput()}
+                {tabIndex === 'configMap' && getConfigMapTable()}
+                {tabIndex === 'secret' && getSecretsTable()}
+                {tabIndex === 'services' && getServicesTable()}
+            </PageSection>
+        </Modal>
+    )
 }

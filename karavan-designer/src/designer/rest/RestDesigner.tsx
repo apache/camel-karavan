@@ -20,9 +20,8 @@ import {
     PageSection
 } from '@patternfly/react-core';
 import '../karavan.css';
-import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
+import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {DslProperties} from "../route/DslProperties";
-import {RouteToCreate} from "../utils/CamelUi";
 import {RestCard} from "./RestCard";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {RestConfigurationDefinition, RestContextRefDefinition, RestDefinition} from "karavan-core/lib/model/CamelDefinition";
@@ -33,259 +32,205 @@ import {DslMetaModel} from "../utils/DslMetaModel";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {RestConfigurationCard} from "./RestConfigurationCard";
 import {v4 as uuidv4} from "uuid";
+import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../KaravanStore";
+import {shallow} from "zustand/shallow";
 
-interface Props {
-    onSave?: (integration: Integration, propertyOnly: boolean) => void
-    integration: Integration
-    dark: boolean
-}
+export function RestDesigner() {
 
-interface State {
-    integration: Integration
-    selectedStep?: CamelElement
-    key: string
-    showSelector: boolean
-    showDeleteConfirmation: boolean
-    propertyOnly: boolean
-}
+    const [integration, setIntegration] = useIntegrationStore((state) => [state.integration, state.setIntegration], shallow)
+    const [dark, selectedStep, showDeleteConfirmation, setShowDeleteConfirmation, setPosition, width, height, top, left, hideLogDSL, setSelectedStep] = useDesignerStore((s) =>
+        [s.dark, s.selectedStep, s.showDeleteConfirmation, s.setShowDeleteConfirmation, s.setPosition, s.width, s.height, s.top, s.left, s.hideLogDSL, s.setSelectedStep], shallow)
 
-export class RestDesigner extends React.Component<Props, State> {
-
-    public state: State = {
-        integration: this.props.integration,
-        key: "",
-        showSelector: false,
-        showDeleteConfirmation: false,
-        propertyOnly: false
-    };
-
-    componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        if (prevState.key !== this.state.key) {
-            this.props.onSave?.call(this, this.state.integration, this.state.propertyOnly);
-        }
+    const [showSelector, setShowSelector] = useSelectorStore((s) => [s.showSelector, s.setShowSelector], shallow)
+    
+    function selectElement (element: CamelElement) {
+        setSelectedStep(element);
     }
 
-    onIntegrationUpdate = (i: Integration) => {
-        this.setState({integration: i, showSelector: false, key: Math.random().toString(), propertyOnly: false});
-    }
-
-    selectElement = (element: CamelElement) => {
-        this.setState({selectedStep: element})
-    }
-
-    onPropertyUpdate = (element: CamelElement, newRoute?: RouteToCreate) => {
-        if (newRoute) {
-            let i = CamelDefinitionApiExt.updateIntegrationRestElement(this.state.integration, element);
-            const f = CamelDefinitionApi.createFromDefinition({uri: newRoute.componentName + ":" + newRoute.name})
-            const r = CamelDefinitionApi.createRouteDefinition({from: f, id: newRoute.name})
-            i = CamelDefinitionApiExt.addStepToIntegration(i, r, '');
-            const clone = CamelUtil.cloneIntegration(i);
-            this.setState({
-                integration: clone,
-                key: Math.random().toString(),
-                showSelector: false,
-                selectedStep: element,
-                propertyOnly: false
-            });
-        } else {
-            const clone = CamelUtil.cloneIntegration(this.state.integration);
-            const i = CamelDefinitionApiExt.updateIntegrationRestElement(clone, element);
-            this.setState({integration: i, propertyOnly: true, key: Math.random().toString()});
-        }
-    }
-
-    unselectElement = (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    function unselectElement (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) {
         if ((evt.target as any).dataset.click === 'REST') {
             evt.stopPropagation()
-            this.setState({selectedStep: undefined,})
+            setSelectedStep(undefined);
         }
     }
 
-    addRest = (rest: RestDefinition) => {
-        const clone = CamelUtil.cloneIntegration(this.state.integration);
+    function addRest (rest: RestDefinition) {
+        const clone = CamelUtil.cloneIntegration(integration);
         const i = CamelDefinitionApiExt.addRestToIntegration(clone, rest);
-        this.setState({integration: i, propertyOnly: false, key: Math.random().toString(), selectedStep: rest});
+        setIntegration(i, false);
+        setSelectedStep(rest);
     }
 
-    createRest = () => {
-        this.addRest(new RestDefinition());
+    function createRest () {
+        addRest(new RestDefinition());
     }
 
-    createRestConfiguration = () => {
-        this.addRest(new RestConfigurationDefinition());
+    function createRestConfiguration () {
+        addRest(new RestConfigurationDefinition());
     }
 
-    showDeleteConfirmation = (element: CamelElement) => {
-        this.setState({selectedStep: element, showSelector: false, showDeleteConfirmation: true});
+    function onShowDeleteConfirmation (element: CamelElement) {
+        setSelectedStep(element);
+        setShowDeleteConfirmation(true);
     }
 
-    deleteElement = () => {
-        const step = this.state.selectedStep;
-        if (step) {
+    function deleteElement () {
+        if (selectedStep) {
             let i;
-            if (step.dslName === 'RestDefinition') i = CamelDefinitionApiExt.deleteRestFromIntegration(this.state.integration, step.uuid);
-            else if (step.dslName === 'RestConfigurationDefinition') i = CamelDefinitionApiExt.deleteRestConfigurationFromIntegration(this.state.integration);
-            else i = CamelDefinitionApiExt.deleteRestMethodFromIntegration(this.state.integration, step.uuid);
-            this.setState({
-                integration: i,
-                showSelector: false,
-                showDeleteConfirmation: false,
-                key: Math.random().toString(),
-                selectedStep: undefined,
-                propertyOnly: false
-            });
+            if (selectedStep.dslName === 'RestDefinition') i = CamelDefinitionApiExt.deleteRestFromIntegration(integration, selectedStep.uuid);
+            else if (selectedStep.dslName === 'RestConfigurationDefinition') i = CamelDefinitionApiExt.deleteRestConfigurationFromIntegration(integration);
+            else i = CamelDefinitionApiExt.deleteRestMethodFromIntegration(integration, selectedStep.uuid);
+            setIntegration(i, false);
+            setSelectedStep(undefined);
+            setShowDeleteConfirmation(false);
         }
     }
 
-    getDeleteConfirmation() {
+    function getDeleteConfirmation() {
         return (<Modal
             className="modal-delete"
             title="Confirmation"
-            isOpen={this.state.showDeleteConfirmation}
-            onClose={() => this.setState({showDeleteConfirmation: false})}
+            isOpen={showDeleteConfirmation}
+            onClose={() => setShowDeleteConfirmation(false)}
             actions={[
-                <Button key="confirm" variant="primary" onClick={e => this.deleteElement()}>Delete</Button>,
+                <Button key="confirm" variant="primary" onClick={e => deleteElement()}>Delete</Button>,
                 <Button key="cancel" variant="link"
-                        onClick={e => this.setState({showDeleteConfirmation: false})}>Cancel</Button>
+                        onClick={e => setShowDeleteConfirmation(false)}>Cancel</Button>
             ]}
-            onEscapePress={e => this.setState({showDeleteConfirmation: false})}>
+            onEscapePress={e => setShowDeleteConfirmation(false)}>
             <div>
                 Delete element from integration?
             </div>
         </Modal>)
     }
 
-    closeMethodSelector = () => {
-        this.setState({showSelector: false})
+    function closeMethodSelector () {
+        setShowSelector(false);
     }
 
-    onMethodSelect = (method: DslMetaModel) => {
-        if (this.state.selectedStep) {
-            const clone = CamelUtil.cloneIntegration(this.state.integration);
+    function onMethodSelect (method: DslMetaModel) {
+        if (selectedStep) {
+            const clone = CamelUtil.cloneIntegration(integration);
             const m = CamelDefinitionApi.createStep(method.dsl, {});
-            const i = CamelDefinitionApiExt.addRestMethodToIntegration(clone, m, this.state.selectedStep?.uuid);
-            this.setState({integration: i, key: Math.random().toString(), selectedStep: m, showSelector: false});
+            const i = CamelDefinitionApiExt.addRestMethodToIntegration(clone, m, selectedStep?.uuid);
+            setIntegration(i, false);
+            setSelectedStep(m);
+            setShowSelector(false);
         }
     }
 
-    cloneRest = (rest: CamelElement) => {
+    function cloneRest (rest: CamelElement) {
         if (rest.dslName === 'RestDefinition'){
             const cloneRest = CamelUtil.cloneStep(rest);
             cloneRest.uuid = uuidv4();
-            const cloneIntegration = CamelUtil.cloneIntegration(this.state.integration);
+            const cloneIntegration = CamelUtil.cloneIntegration(integration);
             const i = CamelDefinitionApiExt.addRestToIntegration(cloneIntegration, cloneRest);
-            this.setState({integration: i, propertyOnly: false, key: Math.random().toString(), selectedStep: cloneRest});
+            setIntegration(i, false);
+            setSelectedStep(cloneRest);
         } else if (rest.dslName === 'RestConfigurationDefinition') {
             // could be only one RestConfigurationDefinition
-        } else if (this.state.selectedStep) {
-            const parentId = CamelDefinitionApiExt.findRestMethodParent(this.state.integration, rest);
+        } else if (selectedStep) {
+            const parentId = CamelDefinitionApiExt.findRestMethodParent(integration, rest);
             if (parentId){
                 const cloneRest = CamelUtil.cloneStep(rest);
                 cloneRest.uuid = uuidv4();
-                const cloneIntegration = CamelUtil.cloneIntegration(this.state.integration);
+                const cloneIntegration = CamelUtil.cloneIntegration(integration);
                 const i = CamelDefinitionApiExt.addRestMethodToIntegration(cloneIntegration, cloneRest, parentId);
-                this.setState({integration: i, key: Math.random().toString(), selectedStep: cloneRest, showSelector: false});
+                setIntegration(i, false);
+                setSelectedStep(cloneRest);
             }
         }
     }
 
-    selectMethod = (element: CamelElement) => {
-        this.setState({selectedStep: element, showSelector: true})
+    function selectMethod (element: CamelElement) {
+        setSelectedStep(element);
+        setShowSelector(true);
     }
 
-    getSelectorModal() {
+    function getSelectorModal() {
         return (
             <Modal
                 title="Select method"
                 width={'90%'}
                 className='dsl-modal'
-                isOpen={this.state.showSelector}
-                onClose={() => this.closeMethodSelector()}
+                isOpen={showSelector}
+                onClose={() => closeMethodSelector()}
                 actions={{}}>
-                <RestMethodSelector
-                    dark={this.props.dark}
-                    onMethodSelect={this.onMethodSelect}/>
+                <RestMethodSelector onMethodSelect={onMethodSelect}/>
             </Modal>)
     }
 
-    getRestConfigurationCard(config: RestContextRefDefinition) {
+    function getRestConfigurationCard(config: RestContextRefDefinition) {
         return (<>
             <RestConfigurationCard key={Math.random().toString()}
-                                   selectedRestConfig={this.state.selectedStep}
+                                   selectedRestConfig={selectedStep}
                                    restConfig={config}
-                                   integration={this.props.integration}
-                                   selectElement={this.selectElement}
-                                   deleteElement={this.showDeleteConfirmation}/>
+                                   selectElement={selectElement}
+                                   deleteElement={onShowDeleteConfirmation}/>
         </>)
     }
 
-    getRestCards(data: RestDefinition[]) {
+    function getRestCards(data: RestDefinition[]) {
         return (<>
-            {data?.map(rest => <RestCard key={rest.uuid + this.state.key}
-                                         selectedStep={this.state.selectedStep}
+            {data?.map((rest, index) =>
+                <RestCard key={rest.uuid + index}
+                                         selectedStep={selectedStep}
                                          rest={rest}
-                                         integration={this.props.integration}
-                                         selectMethod={this.selectMethod}
-                                         selectElement={this.selectElement}
-                                         deleteElement={this.showDeleteConfirmation}/>)}
+                                         integration={integration}
+                                         selectMethod={selectMethod}
+                                         selectElement={selectElement}
+                                         deleteElement={onShowDeleteConfirmation}
+                />
+            )}
         </>)
     }
 
 
-    getPropertiesPanel() {
+    function getPropertiesPanel() {
         return (
             <DrawerPanelContent isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'300px'}>
-                <DslProperties
-                    integration={this.props.integration}
-                    step={this.state.selectedStep}
-                    onIntegrationUpdate={this.onIntegrationUpdate}
-                    onPropertyUpdate={this.onPropertyUpdate}
-                    isRouteDesigner={false}
-                    onClone={this.cloneRest}
-                    dark={this.props.dark}/>
+                <DslProperties isRouteDesigner={false}/>
             </DrawerPanelContent>
         )
     }
 
-    render() {
-        const data = this.props.integration.spec.flows?.filter(f => f.dslName === 'RestDefinition');
-        const configData = this.props.integration.spec.flows?.filter(f => f.dslName === 'RestConfigurationDefinition');
-        const config = configData && Array.isArray(configData) ? configData[0] : undefined;
-        return (
-            <PageSection className="rest-page" isFilled padding={{default: 'noPadding'}}>
-                <div className="rest-page-columns">
-                    <Drawer isExpanded isInline>
-                        <DrawerContent panelContent={this.getPropertiesPanel()}>
-                            <DrawerContentBody>
-                                <div className="graph" data-click="REST" onClick={event => this.unselectElement(event)}>
-                                    <div className="flows">
-                                        {config && this.getRestConfigurationCard(config)}
-                                        {data && this.getRestCards(data)}
-                                        <div className="add-rest">
+    const data = integration.spec.flows?.filter(f => f.dslName === 'RestDefinition');
+    const configData = integration.spec.flows?.filter(f => f.dslName === 'RestConfigurationDefinition');
+    const config = configData && Array.isArray(configData) ? configData[0] : undefined;
+    return (
+        <PageSection className="rest-page" isFilled padding={{default: 'noPadding'}}>
+            <div className="rest-page-columns">
+                <Drawer isExpanded isInline>
+                    <DrawerContent panelContent={getPropertiesPanel()}>
+                        <DrawerContentBody>
+                            <div className="graph" data-click="REST" onClick={event => unselectElement(event)}>
+                                <div className="flows">
+                                    {config && getRestConfigurationCard(config)}
+                                    {data && getRestCards(data)}
+                                    <div className="add-rest">
+                                        <Button
+                                            variant={data?.length === 0 ? "primary" : "secondary"}
+                                            data-click="ADD_REST"
+                                            icon={<PlusIcon/>}
+                                            onClick={e => createRest()}>Create service
+                                        </Button>
+                                        {config === undefined &&
                                             <Button
-                                                variant={data?.length === 0 ? "primary" : "secondary"}
-                                                data-click="ADD_REST"
+                                                variant="secondary"
+                                                data-click="ADD_REST_REST_CONFIG"
                                                 icon={<PlusIcon/>}
-                                                onClick={e => this.createRest()}>Create service
+                                                onClick={e => createRestConfiguration()}>Create configuration
                                             </Button>
-                                            {config === undefined &&
-                                                <Button
-                                                    variant="secondary"
-                                                    data-click="ADD_REST_REST_CONFIG"
-                                                    icon={<PlusIcon/>}
-                                                    onClick={e => this.createRestConfiguration()}>Create configuration
-                                                </Button>
-                                            }
-                                        </div>
+                                        }
                                     </div>
                                 </div>
-                            </DrawerContentBody>
-                        </DrawerContent>
-                    </Drawer>
-                </div>
-                {this.getSelectorModal()}
-                {this.getDeleteConfirmation()}
-            </PageSection>
-        )
-    }
+                            </div>
+                        </DrawerContentBody>
+                    </DrawerContent>
+                </Drawer>
+            </div>
+            {getSelectorModal()}
+            {getDeleteConfirmation()}
+        </PageSection>
+    )
 }
