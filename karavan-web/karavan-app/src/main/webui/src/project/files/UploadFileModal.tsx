@@ -20,11 +20,12 @@ import {
     Button, Modal, FormGroup, ModalVariant, Switch, Form, FileUpload, Radio
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {ProjectFile, ToastMessage} from "../../api/ProjectModels";
+import {ProjectFile} from "../../api/ProjectModels";
 import {KaravanApi} from "../../api/KaravanApi";
 import {useFileStore} from "../../api/ProjectStore";
 import {ProjectEventBus} from "../../api/ProjectEventBus";
 import {Accept, DropEvent, FileRejection} from "react-dropzone";
+import {EventBus} from "../../designer/utils/EventBus";
 
 interface Props {
     projectId: string,
@@ -69,7 +70,7 @@ export class UploadFileModal extends React.Component<Props, State> {
                     this.closeModal();
                 } else {
                     this.closeModal();
-                    ProjectEventBus.sendAlert(new ToastMessage("Error", res.statusText, "warning"))
+                    EventBus.sendAlert("Error", res.statusText, "warning")
                 }
             })
         } else {
@@ -79,7 +80,7 @@ export class UploadFileModal extends React.Component<Props, State> {
                     this.closeModal();
                 } else {
                     this.closeModal();
-                    ProjectEventBus.sendAlert(new ToastMessage("Error", res.statusText, "warning"))
+                    EventBus.sendAlert("Error", res.statusText, "warning")
                 }
             })
         }

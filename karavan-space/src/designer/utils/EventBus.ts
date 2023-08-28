@@ -16,6 +16,7 @@
  */
 import {Subject} from 'rxjs';
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
+import {v4 as uuidv4} from "uuid";
 
 const positions = new Subject<DslPosition>();
 
@@ -70,6 +71,21 @@ export class IntegrationUpdate {
     }
 }
 
+const alerts = new Subject<ToastMessage>();
+export class ToastMessage {
+    id: string = ''
+    text: string = ''
+    title: string = ''
+    variant?: 'success' | 'danger' | 'warning' | 'info' | 'custom';
+
+    constructor(title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'custom') {
+        this.id = uuidv4();
+        this.title = title;
+        this.text = text;
+        this.variant = variant;
+    }
+}
+
 export const EventBus = {
     sendPosition: (command: "add" | "delete" | "clean",
                    step: CamelElement,
@@ -86,4 +102,8 @@ export const EventBus = {
 
     sendCommand: (command: string, data?: any) => commands.next(new Command(command, data)),
     onCommand: () => commands.asObservable(),
+
+    sendAlert: (title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'custom' = 'success') =>
+        alerts.next(new ToastMessage(title, text, variant)),
+    onAlert: () => alerts.asObservable(),
 }

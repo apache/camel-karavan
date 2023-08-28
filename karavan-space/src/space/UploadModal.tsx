@@ -4,8 +4,8 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {GeneratorApi} from "../api/GeneratorApi";
-import {SpaceBus} from "./SpaceBus";
 import {DropEvent, FileRejection} from "react-dropzone";
+import {EventBus} from "../designer/utils/EventBus";
 
 interface Props {
     isOpen: boolean,
@@ -42,11 +42,11 @@ export class UploadModal extends React.Component<Props, State> {
         this.setState({generating: true});
         const {filename, data} = this.state;
         GeneratorApi.generate(filename, data).then(value => {
-            SpaceBus.sendAlert('Success', 'Generated REST DSL');
+            EventBus.sendAlert('Success', 'Generated REST DSL');
             this.setState({generating: false});
             this.closeModal(value);
         }).catch(reason => {
-            SpaceBus.sendAlert('Error', reason.toString(), 'danger');
+            EventBus.sendAlert('Error', reason.toString(), 'danger');
             this.setState({generating: false});
         })
     }

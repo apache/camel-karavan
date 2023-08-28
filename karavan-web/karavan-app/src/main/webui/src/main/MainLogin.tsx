@@ -6,7 +6,7 @@ import {KaravanApi} from "../api/KaravanApi";
 import {useAppConfigStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {ProjectEventBus} from "../api/ProjectEventBus";
-import {ToastMessage} from "../api/ProjectModels";
+import {EventBus} from "../designer/utils/EventBus";
 
 export function MainLogin () {
 
@@ -28,7 +28,7 @@ export function MainLogin () {
         KaravanApi.auth(username, password, (res: any) => {
             if (res?.status === 200) {
             } else {
-                ProjectEventBus.sendAlert(new ToastMessage("Error", "Incorrect username and/or password!", "danger"))
+                EventBus.sendAlert("Error", "Incorrect username and/or password!", "danger")
             }
         });
     }

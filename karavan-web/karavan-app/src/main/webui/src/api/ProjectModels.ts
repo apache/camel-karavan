@@ -151,16 +151,3 @@ export function getProjectFileType (file: ProjectFile) {
     return ProjectFileTypes.filter(p => p.extension === extension).map(p => p.title)[0];
 }
 
-export class ToastMessage {
-    id: string = ''
-    text: string = ''
-    title: string = ''
-    variant?: 'success' | 'danger' | 'warning' | 'info' | 'custom';
-
-    constructor(title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'custom') {
-        this.id = uuidv4();
-        this.title = title;
-        this.text = text;
-        this.variant = variant;
-    }
-}

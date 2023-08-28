@@ -11,7 +11,7 @@ import '../designer/karavan.css';
 import {GithubApi, GithubParams} from "../api/GithubApi";
 import GithubImageIcon from "@patternfly/react-icons/dist/esm/icons/github-icon";
 import {StorageApi} from "../api/StorageApi";
-import {SpaceBus} from "./SpaceBus";
+import {EventBus} from "../designer/utils/EventBus";
 
 interface Props {
     yaml: string,
@@ -76,7 +76,7 @@ export class GithubModal extends React.Component<Props, State> {
                 }
             },
             reason => {
-                SpaceBus.sendAlert('Error', reason.toString(), 'danger');
+                EventBus.sendAlert('Error', reason.toString(), 'danger');
             });
     }
 
@@ -92,7 +92,7 @@ export class GithubModal extends React.Component<Props, State> {
             const email: string = (Array.isArray(data[1]) ? Array.from(data[1]).filter(d => d.primary === true)?.at(0)?.email : '') || '';
             this.setState({token: token, name: name, email:email, owner: login})
         }).catch(err =>
-            SpaceBus.sendAlert('Error', err.toString(), 'danger')
+            EventBus.sendAlert('Error', err.toString(), 'danger')
         );
     }
 
@@ -121,11 +121,11 @@ export class GithubModal extends React.Component<Props, State> {
                 token, this.props.yaml,
                 result => {
                     this.setState({pushing: false});
-                    SpaceBus.sendAlert('Success', "Saved");
+                    EventBus.sendAlert('Success', "Saved");
                     this.props.onClose?.call(this)
                 },
                 reason => {
-                    SpaceBus.sendAlert('Error', reason.toString(), 'danger');
+                    EventBus.sendAlert('Error', reason.toString(), 'danger');
                     this.setState({pushing: false});
                 }
             )

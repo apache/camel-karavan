@@ -35,7 +35,7 @@ import {useDesignerStore, useIntegrationStore} from "./KaravanStore";
 import {shallow} from "zustand/shallow";
 import {getDesignerIcon} from "./utils/KaravanIcons";
 import {InfrastructureAPI} from "./utils/InfrastructureAPI";
-import {EventBus, IntegrationUpdate} from "./utils/EventBus";
+import {EventBus, IntegrationUpdate, ToastMessage} from "./utils/EventBus";
 import {RestDesigner} from "./rest/RestDesigner";
 import {BeansDesigner} from "./beans/BeansDesigner";
 
@@ -78,11 +78,17 @@ export function KaravanDesigner (props: Props) {
     }, []);
 
     function makeIntegration(yaml: string, filename: string): Integration {
-        if (yaml && CamelDefinitionYaml.yamlIsIntegration(yaml)) {
-            return CamelDefinitionYaml.yamlToIntegration(props.filename, props.yaml)
-        } else {
+        try {
+            if (yaml && CamelDefinitionYaml.yamlIsIntegration(yaml)) {
+                return CamelDefinitionYaml.yamlToIntegration(props.filename, props.yaml)
+            } else {
+                return Integration.createNew(filename, 'plain');
+            }
+        } catch (e) {
+            EventBus.sendAlert("Error parsing YAML", (e as Error).message, 'danger')
             return Integration.createNew(filename, 'plain');
         }
+
     }
 
     function save(integration: Integration, propertyOnly: boolean): void {
@@ -134,6 +140,7 @@ export function KaravanDesigner (props: Props) {
                         onChange={(_, checked) => {
                             setHideLogDSL(checked)
                         }}
+                        aria-label={"Hide Log"}
                         id="hideLogDSL"
                         name="hideLogDSL"
                         className={"hide-log"}

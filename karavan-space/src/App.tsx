@@ -16,8 +16,6 @@
  */
 import * as React from "react";
 import {
-    Alert,
-    AlertActionCloseButton, AlertGroup,
     Bullseye, Button, Divider, Flex, FlexItem,
     Page, Spinner, Tooltip,
 } from "@patternfly/react-core";
@@ -29,24 +27,10 @@ import {KaravanIcon} from "./designer/utils/KaravanIcons";
 import './designer/karavan.css';
 import {SpacePage} from "./space/SpacePage";
 import {GithubModal} from "./space/GithubModal";
-import {Subscription} from "rxjs";
-import {AlertMessage, SpaceBus} from "./space/SpaceBus";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {KnowledgebasePage} from "./knowledgebase/KnowledgebasePage";
-
-class ToastMessage {
-    id: string = ''
-    text: string = ''
-    title: string = ''
-    variant?: 'success' | 'danger' | 'warning' | 'info' | 'custom';
-
-    constructor(title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'custom') {
-        this.id = Date.now().toString().concat(Math.random().toString());
-        this.title = title;
-        this.text = text;
-        this.variant = variant;
-    }
-}
+import {EventBus, ToastMessage} from "./designer/utils/EventBus";
+import {Notification} from "./designer/utils/Notification";
 
 class MenuItem {
     pageId: string = '';
@@ -70,34 +54,19 @@ interface State {
     loaded?: boolean,
     githubModalIsOpen: boolean,
     pageId: string,
-    alerts: ToastMessage[],
-    sub?: Subscription
 }
 
 class App extends React.Component<Props, State> {
 
     public state: State = {
         pageId: "designer",
-        alerts: [],
         name: 'example.yaml',
         key: '',
         yaml: '',
         githubModalIsOpen: false
     }
 
-    toast = (title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'custom') => {
-        const mess = [];
-        mess.push(...this.state.alerts, new ToastMessage(title, text, variant));
-        this.setState({alerts: mess})
-    }
-
-    deleteErrorMessage = (id: string) => {
-        this.setState({alerts: this.state.alerts.filter(a => a.id !== id)})
-    }
-
     componentDidMount() {
-        const sub = SpaceBus.onAlert()?.subscribe((evt: AlertMessage) => this.toast(evt.title, evt.message, evt.variant));
-        this.setState({sub: sub});
         Promise.all([
             fetch("kamelets/kamelets.yaml"),
             fetch("components/components.json"),
@@ -120,12 +89,8 @@ class App extends React.Component<Props, State> {
             TemplateApi.saveTemplate("org.apache.camel.AggregationStrategy", data[2]);
             TemplateApi.saveTemplate("org.apache.camel.Processor", data[3]);
         }).catch(err =>
-            this.toast("Error", err.text, 'danger')
+            EventBus.sendAlert("Error", err.text, 'danger')
         );
-    }
-
-    componentWillUnmount() {
-        this.state.sub?.unsubscribe();
     }
 
     save(filename: string, yaml: string, propertyOnly: boolean) {
@@ -203,16 +168,7 @@ class App extends React.Component<Props, State> {
         const {loaded, githubModalIsOpen, yaml, name} = this.state;
         return (
             <Page className="karavan">
-                <AlertGroup isToast isLiveRegion>
-                    {this.state.alerts.map((e: ToastMessage) => (
-                        <Alert key={e.id} className="main-alert" variant={e.variant} title={e.title}
-                               timeout={e.variant === "success" ? 1000 : 5000}
-                               onTimeout={() => this.deleteErrorMessage(e.id)}
-                               actionClose={<AlertActionCloseButton onClose={() => this.deleteErrorMessage(e.id)}/>}>
-                            {e.text}
-                        </Alert>
-                    ))}
-                </AlertGroup>
+                <Notification/>
                 <>
                     <Flex direction={{default: "row"}} style={{width: "100%", height: "100%"}}
                           alignItems={{default: "alignItemsStretch"}} spaceItems={{default: 'spaceItemsNone'}}>

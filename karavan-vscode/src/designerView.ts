@@ -32,15 +32,21 @@ export class DesignerView {
     }
     karavanOpen(fullPath: string, tab?: string) {
         utils.readFile(path.resolve(fullPath)).then(readData => {
+            
             const yaml = Buffer.from(readData).toString('utf8');
             const filename = path.basename(fullPath);
             const relativePath = utils.getRalativePath(fullPath);
-            const integration = utils.parceYaml(filename, yaml);
-
-            if (integration[0]) {
-                this.openKaravanWebView(filename, relativePath, fullPath, integration[1], tab);
-            } else {
-                window.showErrorMessage("File is not Camel Integration!")
+            let integration;
+            try {
+                integration = utils.parceYaml(filename, yaml);
+            } catch (e) {
+                window.showErrorMessage("Error parcing YAML!")
+            } finally {
+                if (integration && integration[0]) {
+                    this.openKaravanWebView(filename, relativePath, fullPath, integration[1], tab);
+                } else {
+                    window.showErrorMessage("File is not Camel Integration!")
+                }
             }
         })
     }

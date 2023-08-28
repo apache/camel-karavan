@@ -30,20 +30,8 @@ import './designer/karavan.css';
 import {DesignerPage} from "./DesignerPage";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {KnowledgebasePage} from "./knowledgebase/KnowledgebasePage";
-
-class ToastMessage {
-    id: string = ''
-    text: string = ''
-    title: string = ''
-    variant?: 'success' | 'danger' | 'warning' | 'info' | 'default';
-
-    constructor(title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') {
-        this.id = Date.now().toString().concat(Math.random().toString());
-        this.title = title;
-        this.text = text;
-        this.variant = variant;
-    }
-}
+import {Notification} from "./designer/utils/Notification";
+import {EventBus, ToastMessage} from "./designer/utils/EventBus";
 
 class MenuItem {
     pageId: string = '';
@@ -66,27 +54,15 @@ interface State {
     key: string
     loaded?: boolean,
     pageId: string,
-    alerts: ToastMessage[],
 }
 
 class App extends React.Component<Props, State> {
 
     public state: State = {
         pageId: "designer",
-        alerts: [],
         name: 'example.yaml',
         key: '',
         yaml: ''
-    }
-
-    toast = (title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'default') => {
-        const mess = [];
-        mess.push(...this.state.alerts, new ToastMessage(title, text, variant));
-        this.setState({alerts: mess})
-    }
-
-    deleteErrorMessage = (id: string) => {
-        this.setState({alerts: this.state.alerts.filter(a => a.id !== id)})
     }
 
     componentDidMount() {
@@ -122,7 +98,7 @@ class App extends React.Component<Props, State> {
                 ComponentApi.setSupportedOnly(true);
             }
         }).catch(err =>
-            this.toast("Error", err.text, 'danger')
+            EventBus.sendAlert("Error", err.text, 'danger')
         );
     }
 
@@ -202,16 +178,7 @@ class App extends React.Component<Props, State> {
         const {loaded} = this.state;
         return (
             <Page className="karavan">
-                <AlertGroup isToast isLiveRegion>
-                    {this.state.alerts.map((e: ToastMessage) => (
-                        // @ts-ignore
-                        <Alert key={e.id} className="main-alert" variant={e.variant} title={e.title}
-                               timeout={e.variant === "success" ? 2000 : 10000}
-                               actionClose={<AlertActionCloseButton onClose={() => this.deleteErrorMessage(e.id)}/>}>
-                            {e.text}
-                        </Alert>
-                    ))}
-                </AlertGroup>
+                <Notification/>
                 <Flex direction={{default: "row"}} style={{width: "100%", height: "100%"}}
                       alignItems={{default: "alignItemsStretch"}} spaceItems={{default: 'spaceItemsNone'}}>
                     <FlexItem>

@@ -10,16 +10,15 @@ import {ProjectPage} from "../project/ProjectPage";
 import {ServicesPage} from "../services/ServicesPage";
 import {ContainersPage} from "../containers/ContainersPage";
 import {KnowledgebasePage} from "../knowledgebase/KnowledgebasePage";
-import {ProjectEventBus} from "../api/ProjectEventBus";
-import {ToastMessage} from "../api/ProjectModels";
 import {SsoApi} from "../api/SsoApi";
 import {useAppConfigStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {PageNavigation} from "./PageNavigation";
-import {Notification} from "./Notification";
 import {useMainHook} from "./useMainHook";
 import {MainDataPoller} from "./MainDataPoller";
 import {TemplatesPage} from "../templates/TemplatesPage";
+import {EventBus} from "../designer/utils/EventBus";
+import {Notification} from "../designer/utils/Notification";
 
 export function Main () {
 
@@ -55,7 +54,7 @@ export function Main () {
 
 
     function toast(title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'custom') {
-        ProjectEventBus.sendAlert(new ToastMessage(title, text, variant))
+        EventBus.sendAlert(title, text, variant)
     }
 
     return (

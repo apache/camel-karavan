@@ -1,5 +1,5 @@
 import {KaravanApi} from './KaravanApi';
-import {DeploymentStatus, ContainerStatus, Project, ProjectFile, ToastMessage} from './ProjectModels';
+import {DeploymentStatus, ContainerStatus, Project, ProjectFile} from './ProjectModels';
 import {TemplateApi} from 'karavan-core/lib/api/TemplateApi';
 import {InfrastructureAPI} from '../designer/utils/InfrastructureAPI';
 import {unstable_batchedUpdates} from 'react-dom'
@@ -11,6 +11,7 @@ import {
     useProjectStore, useDevModeStore
 } from './ProjectStore';
 import {ProjectEventBus} from './ProjectEventBus';
+import {EventBus} from "../designer/utils/EventBus";
 
 export class ProjectService {
 
@@ -47,7 +48,7 @@ export class ProjectService {
             if (res.status === 200) {
                 useLogStore.setState({showLog: false, type: 'container'})
             } else {
-                ProjectEventBus.sendAlert(new ToastMessage('Error stopping DevMode container', res.statusText, 'warning'))
+                EventBus.sendAlert('Error stopping DevMode container', res.statusText, 'warning')
             }
         });
     }
@@ -59,7 +60,7 @@ export class ProjectService {
             if (res.status === 200) {
                 useLogStore.setState({showLog: false, type: 'container'})
             } else {
-                ProjectEventBus.sendAlert(new ToastMessage('Error stopping DevMode container', res.statusText, 'warning'))
+                EventBus.sendAlert('Error stopping DevMode container', res.statusText, 'warning')
             }
         });
     }
@@ -72,7 +73,7 @@ export class ProjectService {
             if (res.status === 202) {
                 useLogStore.setState({showLog: false, type: 'container'})
             } else {
-                ProjectEventBus.sendAlert(new ToastMessage('Error delete runner', res.statusText, 'warning'))
+                EventBus.sendAlert('Error delete runner', res.statusText, 'warning')
             }
         });
     }
