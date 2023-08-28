@@ -20,6 +20,9 @@ body, :root, #root, .karavan {
   --step-border-color: var(--pf-v5-global--active-color--200);
   --step-border-color-selected:var(--vscode-focusBorder);
 }
+.karavan .properties .pf-v5-c-form-control > :is(input, select, textarea):focus {
+  outline-color: var(--vscode-focusBorder);
+}
 
 .vscode-dark .pf-v5-c-page {
   background-color:  var(--vscode-editor-background);
@@ -54,6 +57,14 @@ body, :root, #root, .karavan {
 
 .vscode-dark .karavan .top-icon {
   fill: var(--pf-v5-global--Color--200);
+}
+
+.vscode-dark .karavan .page .main-tabs-wrapper {
+  background-color: var(--vscode-tab-inactiveBackground);
+}
+
+.vscode-dark .karavan .page .main-tabs-wrapper::before {
+  border-bottom-color: transparent;
 }
 
 .vscode-dark .karavan .main-tabs {
@@ -206,6 +217,13 @@ body, :root, #root, .karavan {
 .vscode-dark .pf-v5-c-select__menu {
   background-color: var(--vscode-input-background);
   box-shadow: var(--pf-v5-c-select__menu--BoxShadow);
+}
+
+.vscode-dark .karavan .properties .pf-v5-c-form-control::before {
+  border: none;
+}
+.vscode-dark .karavan .properties .pf-v5-c-form-control::after {
+  border: none;
 }
 
 .vscode-dark .karavan .properties .pf-v5-c-select__menu-item {

@@ -31,7 +31,7 @@
               "--extensionDevelopmentKind=web"
             ],
             "outFiles": ["${workspaceFolder}/dist/**/*.*"],
-            "preLaunchTask": "npm: watch-web"
+            "preLaunchTask": "npm: watch"
           }
     ]
   }
