@@ -321,7 +321,6 @@ export function DslPropertyField(props: Props) {
             <InputGroup>
                 <InputGroupItem isFill>
                     <TextArea
-                        autoResize
                         className="text-field" isRequired
                         type={"text"}
                         id={property.name}

@@ -188,7 +188,7 @@ export function RestDesigner() {
 
     function getPropertiesPanel() {
         return (
-            <DrawerPanelContent isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'300px'}>
+            <DrawerPanelContent isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'100px'}>
                 <DslProperties isRouteDesigner={false}/>
             </DrawerPanelContent>
         )
