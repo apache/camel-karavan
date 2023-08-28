@@ -18,8 +18,8 @@ import * as React from "react";
 import {
     Alert,
     AlertActionCloseButton, AlertGroup,
-    Bullseye, Button, Divider, Flex, FlexItem,
-    Page, Spinner, Tooltip,
+    Bullseye, Button, Divider, Flex, FlexItem, Masthead, MastheadBrand, MastheadContent, MastheadMain, MastheadToggle,
+    Page, PageSidebar, PageSidebarBody, PageToggleButton, Spinner, Tooltip,
 } from "@patternfly/react-core";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
@@ -94,7 +94,8 @@ class App extends React.Component<Props, State> {
             fetch("kamelets/kamelets.yaml"),
             fetch("components/components.json"),
             fetch("snippets/org.apache.camel.AggregationStrategy"),
-            fetch("snippets/org.apache.camel.Processor")
+            fetch("snippets/org.apache.camel.Processor"),
+            fetch("example/demo.camel.yaml")
             // fetch("components/supported-components.json"),
         ]).then(responses =>
             Promise.all(responses.map(response => response.text()))
@@ -113,6 +114,10 @@ class App extends React.Component<Props, State> {
             TemplateApi.saveTemplate("org.apache.camel.Processor", data[3]);
 
             if (data[4]) {
+                this.setState({yaml: data[4], name: "demo.camel.yaml"})
+            }
+
+            if (data[5]) {
                 ComponentApi.saveSupportedComponents(data[4]);
                 ComponentApi.setSupportedOnly(true);
             }
@@ -122,8 +127,7 @@ class App extends React.Component<Props, State> {
     }
 
     save(filename: string, yaml: string, propertyOnly: boolean) {
-        this.setState({name: filename, yaml: yaml});
-        // console.log(yaml);
+        console.log(yaml);
     }
 
     getSpinner() {
@@ -183,6 +187,17 @@ class App extends React.Component<Props, State> {
         }
     }
 
+    getHeader = () => (
+        <Masthead>
+        </Masthead>
+    );
+
+    getSidebar = () => (
+        <PageSidebar isSidebarOpen={true} id="fill-sidebar">
+            <PageSidebarBody>Navigation</PageSidebarBody>
+        </PageSidebar>
+    );
+
     public render() {
         const {loaded} = this.state;
         return (
@@ -197,18 +212,16 @@ class App extends React.Component<Props, State> {
                         </Alert>
                     ))}
                 </AlertGroup>
-                <>
-                    <Flex direction={{default: "row"}} style={{width: "100%", height: "100%"}}
-                          alignItems={{default: "alignItemsStretch"}} spaceItems={{default: 'spaceItemsNone'}}>
-                        <FlexItem>
-                            {this.pageNav()}
-                        </FlexItem>
-                        <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
-                            {loaded !== true && this.getSpinner()}
-                            {loaded === true && this.getPage()}
-                        </FlexItem>
-                    </Flex>
-                </>
+                <Flex direction={{default: "row"}} style={{width: "100%", height: "100%"}}
+                      alignItems={{default: "alignItemsStretch"}} spaceItems={{default: 'spaceItemsNone'}}>
+                    <FlexItem>
+                        {this.pageNav()}
+                    </FlexItem>
+                    <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
+                        {loaded !== true && this.getSpinner()}
+                        {loaded === true && this.getPage()}
+                </FlexItem>
+                </Flex>
             </Page>
         )
     }

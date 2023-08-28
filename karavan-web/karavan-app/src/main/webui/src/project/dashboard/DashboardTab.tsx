@@ -27,7 +27,7 @@ import {useProjectStore, useStatusesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {ContainerStatus} from "../../api/ProjectModels";
 
-export const DashboardTab = () => {
+export function DashboardTab () {
 
     const [project, memory, jvm, context] = useProjectStore((state) =>
         [state.project, state.memory, state.jvm, state.context], shallow);

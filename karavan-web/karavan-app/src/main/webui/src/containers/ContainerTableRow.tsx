@@ -18,7 +18,7 @@ interface Props {
     container: ContainerStatus
 }
 
-export const ContainerTableRow = (props: Props) => {
+export function ContainerTableRow (props: Props) {
 
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
 

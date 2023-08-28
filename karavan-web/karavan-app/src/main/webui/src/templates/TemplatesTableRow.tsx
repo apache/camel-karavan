@@ -20,7 +20,7 @@ interface Props {
     project: Project
 }
 
-export const TemplatesTableRow = (props: Props) => {
+export function TemplatesTableRow (props: Props) {
 
     const [deployments, containers] = useStatusesStore((state) => [state.deployments, state.containers], shallow)
     const {config} = useAppConfigStore();

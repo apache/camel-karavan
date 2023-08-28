@@ -29,7 +29,7 @@ import {useAppConfigStore, useStatusesStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {ContainerTableRow} from "./ContainerTableRow";
 
-export const ContainersPage = () => {
+export function ContainersPage () {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [containers] = useStatusesStore((state) => [state.containers, state.setContainers], shallow);

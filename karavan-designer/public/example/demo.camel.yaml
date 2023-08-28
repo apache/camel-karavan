@@ -1,0 +1,76 @@
+- route:
+    id: route-f435
+    from:
+      uri: kamelet:timer-source
+      id: from-e52c
+      steps:
+        - process:
+            id: process-1dad
+        - filter:
+            expression: {}
+            id: filter-064f
+#        - choice:
+#            when:
+#              - expression: {}
+#                id: when-064f
+#                steps:
+#                  - multicast:
+#                      id: multicast-38cea
+#                      steps:
+#                        - bean:
+#                            id: bean-3b8e
+#                        - log:
+#                            message: ${body}
+#                            id: log-546f
+#                        - loop:
+#                            expression: {}
+#                            id: loop-4635
+#                            steps:
+#                              - convertBodyTo:
+#                                  id: convertBodyTo-1cae
+#            otherwise:
+#              id: otherwise-0b09
+#              steps:
+#                - filter:
+#                    expression: {}
+#                    id: filter-a02b
+#            id: choice-c53c
+#        - doTry:
+#            id: doTry-8fd5
+#            doCatch:
+#              - id: doCatch-1071
+#              - id: doCatch-c38e
+#            steps:
+#              - routingSlip:
+#                  expression: {}
+#                  id: routingSlip-a85a
+#- route:
+#    id: route-178a
+#    from:
+#      uri: kamelet:aws-cloudtrail-source
+#      id: from-3e7d
+#      steps:
+#        - multicast:
+#            id: multicast-eef7
+#            steps:
+#              - bean:
+#                  id: bean-a5ef
+#              - aggregate:
+#                  id: aggregate-f5d8
+#              - aggregate:
+#                  id: aggregate-b9e7
+#              - aggregate:
+#                  id: aggregate-5eb8
+#              - aggregate:
+#                  id: aggregate-c57e
+#              - aggregate:
+#                  id: aggregate-1cd4
+#              - bean:
+#                  id: bean-72a1
+#              - choice:
+#                  when:
+#                    - expression: {}
+#                      id: when-a56b
+#                  otherwise:
+#                    id: otherwise-9f31
+#                  id: choice-1905

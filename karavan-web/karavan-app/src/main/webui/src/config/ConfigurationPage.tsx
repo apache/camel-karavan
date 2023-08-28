@@ -22,7 +22,7 @@ export class ConfigurationPage extends React.Component<Props, State> {
         this.onGetTemplates();
     }
 
-    onGetTemplates = () => {
+    onGetTemplates () {
         // KaravanApi.getTemplates((templates: []) => {
         //     console.log(templates)
         //     this.setState({templates: templates})

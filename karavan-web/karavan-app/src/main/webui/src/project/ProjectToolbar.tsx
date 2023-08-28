@@ -23,7 +23,7 @@ import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
 import {ProjectModel, ProjectProperty} from "karavan-core/lib/model/ProjectModel";
 
 
-export const ProjectToolbar = () => {
+export function ProjectToolbar () {
 
     const [project, isPushing] = useProjectStore((state) => [state.project, state.isPushing], shallow )
     const [file, editAdvancedProperties, setEditAdvancedProperties, setAddProperty, mode, setMode]
@@ -63,7 +63,7 @@ export const ProjectToolbar = () => {
             const props = project.properties;
             props.push(ProjectProperty.createNew("", ""));
             file.code = ProjectModelApi.propertiesToString(props);
-            ProjectService.saveFile(file);
+            ProjectService.saveFile(file, true);
             setAddProperty(Math.random().toString());
         }
     }

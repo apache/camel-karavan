@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Toolbar,
     ToolbarContent,
@@ -26,7 +26,8 @@ import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
 import {KaravanDesigner} from "./designer/KaravanDesigner";
 import Editor from "@monaco-editor/react";
-import {EventBus} from "./designer/utils/EventBus";
+import {EventBus, IntegrationUpdate} from "./designer/utils/EventBus";
+import {InfrastructureAPI} from "./designer/utils/InfrastructureAPI";
 
 interface Props {
     name: string,
@@ -35,25 +36,23 @@ interface Props {
     onSave: (filename: string, yaml: string, propertyOnly: boolean) => void
 }
 
-interface State {
-    mode: "design" | "code",
-}
+export const DesignerPage = (props: Props) => {
 
-export class DesignerPage extends React.Component<Props, State> {
+    const [mode, setMode] = useState<"design" | "code">('design');
+    const [yaml, setYaml] = useState<string>(props.yaml);
 
-    public state: State = {
-        mode: 'design',
-    };
+    useEffect(() => {
+        console.log("DesignerPage")
+        // setYaml();
+    }, []);
 
-    componentDidMount() {
+    function save(filename: string, yaml: string, propertyOnly: boolean) {
+        setYaml(yaml);
+        props.onSave(filename, yaml, propertyOnly);
     }
 
-    save(filename: string, yaml: string, propertyOnly: boolean) {
-        this.props.onSave?.call(this, filename, yaml, propertyOnly);
-    }
-
-    download = () => {
-        const {name, yaml} = this.props;
+    function download () {
+        const {name, yaml} = props;
         if (name && yaml) {
             const a = document.createElement('a');
             a.setAttribute('download', 'example.yaml');
@@ -62,18 +61,17 @@ export class DesignerPage extends React.Component<Props, State> {
         }
     }
 
-    downloadImage = () => {
+    function downloadImage () {
         EventBus.sendCommand("downloadImage");
     }
 
-    getDesigner = () => {
-        const {name, yaml} = this.props;
+    function getDesigner () {
         return (
             <KaravanDesigner
-                dark={this.props.dark}
-                filename={name}
+                dark={props.dark}
+                filename={props.name}
                 yaml={yaml}
-                onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}
+                onSave={(filename, yaml, propertyOnly) => save(filename, yaml, propertyOnly)}
                 onGetCustomCode={name => {
                     return new Promise<string | undefined>(resolve => resolve(undefined))
                 }}
@@ -84,8 +82,7 @@ export class DesignerPage extends React.Component<Props, State> {
         )
     }
 
-    getEditor = () => {
-        const {name, yaml} = this.props;
+    function getEditor () {
         return (
             <Editor
                 height="100vh"
@@ -95,58 +92,55 @@ export class DesignerPage extends React.Component<Props, State> {
                 className={'code-editor'}
                 onChange={(value, ev) => {
                     if (value) {
-                        this.save(name, value, false)
+                        save(props.name, value, false)
                     }
                 }}
             />
         )
     }
 
-    render() {
-        const {mode} = this.state;
-        return (
-            <PageSection className="kamelet-section designer-page" padding={{default: 'noPadding'}}>
-                <PageSection className="tools-section" padding={{default: 'noPadding'}}
-                             style={{backgroundColor:"transparent", paddingLeft: "var(--pf-v5-c-page__main-section--PaddingLeft)"}}>
-                    <Flex className="tools" justifyContent={{default: 'justifyContentSpaceBetween'}}>
-                        <FlexItem>
-                            <TextContent className="header">
-                                <Text component="h2">Designer</Text>
-                            </TextContent>
-                        </FlexItem>
-                        <FlexItem>
-                            <Toolbar id="toolbar-group-types">
-                                <ToolbarContent>
-                                    <ToolbarItem>
-                                        <ToggleGroup>
-                                            <ToggleGroupItem text="Design" buttonId="design" isSelected={mode === "design"}
-                                                             onChange={(_event, s) => this.setState({mode: "design"})} />
-                                            <ToggleGroupItem text="Code" buttonId="code" isSelected={mode === "code"}
-                                                             onChange={(_event, s) => this.setState({mode: "code"})} />
-                                        </ToggleGroup>
-                                    </ToolbarItem>
-                                    <ToolbarItem>
-                                        <Tooltip content="Download YAML" position={"bottom"}>
-                                            <Button variant="primary" icon={<DownloadIcon/>} onClick={e => this.download()}>
-                                                YAML
-                                            </Button>
-                                        </Tooltip>
-                                    </ToolbarItem>
-                                    <ToolbarItem>
-                                        <Tooltip content="Download image" position={"bottom"}>
-                                            <Button variant="secondary" icon={<DownloadImageIcon/>} onClick={e => this.downloadImage()}>
-                                                Image
-                                            </Button>
-                                        </Tooltip>
-                                    </ToolbarItem>
-                                </ToolbarContent>
-                            </Toolbar>
-                        </FlexItem>
-                    </Flex>
-                </PageSection>
-                {mode === 'design' && this.getDesigner()}
-                {mode === 'code'  && this.getEditor()}
-            </PageSection>
-        );
-    }
+    return (
+        <PageSection className="designer-page" padding={{default: 'noPadding'}}>
+            <div className="tools-section" //padding={{default: 'noPadding'}}
+                 style={{paddingLeft: "var(--pf-v5-c-page__main-section--PaddingLeft)"}}>
+                <Flex className="tools" justifyContent={{default: 'justifyContentSpaceBetween'}}>
+                    <FlexItem>
+                        <TextContent className="header">
+                            <Text component="h2">Designer</Text>
+                        </TextContent>
+                    </FlexItem>
+                    <FlexItem>
+                        <Toolbar id="toolbar-group-types">
+                            <ToolbarContent>
+                                <ToolbarItem>
+                                    <ToggleGroup>
+                                        <ToggleGroupItem text="Design" buttonId="design" isSelected={mode === "design"}
+                                                         onChange={(_event, s) => setMode("design")} />
+                                        <ToggleGroupItem text="Code" buttonId="code" isSelected={mode === "code"}
+                                                         onChange={(_event, s) => setMode("code")} />
+                                    </ToggleGroup>
+                                </ToolbarItem>
+                                <ToolbarItem>
+                                    <Tooltip content="Download YAML" position={"bottom"}>
+                                        <Button variant="primary" icon={<DownloadIcon/>} onClick={e => download()}>
+                                            YAML
+                                        </Button>
+                                    </Tooltip>
+                                </ToolbarItem>
+                                <ToolbarItem>
+                                    <Tooltip content="Download image" position={"bottom"}>
+                                        <Button variant="secondary" icon={<DownloadImageIcon/>} onClick={e => downloadImage()}>
+                                            Image
+                                        </Button>
+                                    </Tooltip>
+                                </ToolbarItem>
+                            </ToolbarContent>
+                        </Toolbar>
+                    </FlexItem>
+                </Flex>
+            </div>
+            {mode === 'design' && getDesigner()}
+            {mode === 'code'  && getEditor()}
+        </PageSection>
+    )
 };

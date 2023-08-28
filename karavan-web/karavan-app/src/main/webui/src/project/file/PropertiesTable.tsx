@@ -38,7 +38,7 @@ import {shallow} from "zustand/shallow"
 import {PropertyField} from "./PropertyField";
 import {ProjectService} from "../../api/ProjectService";
 
-export const PropertiesTable = () => {
+export function PropertiesTable () {
 
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
     const [deleteId, setDeleteId] = useState<string | undefined>(undefined);
@@ -55,7 +55,7 @@ export const PropertiesTable = () => {
     function save (props: ProjectProperty[]) {
         if (file) {
             file.code = ProjectModelApi.propertiesToString(props);
-            ProjectService.saveFile(file);
+            ProjectService.saveFile(file, true);
         }
     }
 

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Button,
     Modal,
@@ -36,64 +36,53 @@ interface Props {
     showEditor: boolean
 }
 
-interface State {
-    customCode: any,
-}
+export function ModalEditor(props: Props) {
 
-export class ModalEditor extends React.Component<Props, State> {
+    const [customCode, setCustomCode] = useState<string | undefined>();
 
-    public state: State = {
-        customCode: this.props.customCode,
+    useEffect(() => {
+        setCustomCode(props.customCode)
+    },[]);
+
+    function close(){
+        props.onClose();
     }
 
-    componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        if (prevProps.showEditor !== this.props.showEditor) {
-            this.setState({customCode: this.props.customCode})
-        }
+    function closeAndSave(){
+        props.onSave(props.property.name, customCode);
     }
 
-    close(){
-        this.props.onClose?.call(this);
-    }
-
-    closeAndSave(){
-        this.props.onSave?.call(this, this.props.property.name, this.state.customCode);
-    }
-
-    render() {
-        const {dark, dslLanguage, title, showEditor} = this.props;
-        const {customCode} = this.state;
-        return (
-            <Modal
-                aria-label={"expression"}
-                variant={ModalVariant.large}
-                header={<React.Fragment>
-                    <Title id="modal-custom-header-label" headingLevel="h1" size={TitleSizes['2xl']}>
-                        {title}
-                    </Title>
-                    <p className="pf-v5-u-pt-sm">{dslLanguage?.[2]}</p>
-                </React.Fragment>}
-                isOpen={showEditor}
-                onClose={() => this.close()}
-                actions={[
-                    <Button key="save" variant="primary" size="sm"
-                            onClick={e => this.closeAndSave()}>Save</Button>,
-                    <Button key="cancel" variant="secondary" size="sm"
-                            onClick={e => this.close()}>Close</Button>
-                ]}
-                onEscapePress={e => this.close()}>
-                <Editor
-                    height="400px"
-                    width="100%"
-                    defaultLanguage={'java'}
-                    language={'java'}
-                    theme={dark ? 'vs-dark' : 'light'}
-                    options={{lineNumbers: "off", folding: false, lineNumbersMinChars: 10, showUnused: false, fontSize: 12, minimap: {enabled: false}}}
-                    value={customCode?.toString()}
-                    className={'code-editor'}
-                    onChange={(value: any, ev: any) => this.setState({customCode: value})}
-                />
-            </Modal>
-        )
-    }
+    const {dark, dslLanguage, title, showEditor} = props;
+    return (
+        <Modal
+            aria-label={"expression"}
+            variant={ModalVariant.large}
+            header={<React.Fragment>
+                <Title id="modal-custom-header-label" headingLevel="h1" size={TitleSizes['2xl']}>
+                    {title}
+                </Title>
+                <p className="pf-v5-u-pt-sm">{dslLanguage?.[2]}</p>
+            </React.Fragment>}
+            isOpen={showEditor}
+            onClose={() => close()}
+            actions={[
+                <Button key="save" variant="primary" size="sm"
+                        onClick={e => closeAndSave()}>Save</Button>,
+                <Button key="cancel" variant="secondary" size="sm"
+                        onClick={e => close()}>Close</Button>
+            ]}
+            onEscapePress={e => close()}>
+            <Editor
+                height="400px"
+                width="100%"
+                defaultLanguage={'java'}
+                language={'java'}
+                theme={dark ? 'vs-dark' : 'light'}
+                options={{lineNumbers: "off", folding: false, lineNumbersMinChars: 10, showUnused: false, fontSize: 12, minimap: {enabled: false}}}
+                value={customCode?.toString()}
+                className={'code-editor'}
+                onChange={(value,_) => setCustomCode(value)}
+            />
+        </Modal>
+    )
 }

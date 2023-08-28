@@ -20,7 +20,7 @@ import {
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
-import {RestDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {GetDefinition, RestDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {RestMethodCard} from "./RestMethodCard";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
@@ -34,45 +34,76 @@ interface Props {
     deleteElement: (element: CamelElement) => void
 }
 
-export class RestCard extends React.Component<Props, any> {
+export function RestCard(props: Props) {
 
-    selectElement = (evt: React.MouseEvent) => {
+    function selectElement(evt: React.MouseEvent) {
         evt.stopPropagation();
-        this.props.selectElement.call(this, this.props.rest);
+        props.selectElement(props.rest);
     }
 
-    selectMethod = (evt: React.MouseEvent) => {
+    function selectMethod(evt: React.MouseEvent) {
         evt.stopPropagation();
-        this.props.selectMethod.call(this, this.props.rest);
+        props.selectMethod(props.rest);
     }
 
-    delete = (evt: React.MouseEvent) => {
+    function onDelete(evt: React.MouseEvent) {
         evt.stopPropagation();
-        this.props.deleteElement.call(this, this.props.rest);
+        props.deleteElement(props.rest);
     }
 
-    render() {
-        const rest = this.props.rest;
-        return (
-            <div className={this.props.selectedStep?.uuid === rest.uuid ? "rest-card rest-card-selected" : "rest-card rest-card-unselected"} onClick={e => this.selectElement(e)}>
-                <div className="header">
-                    <div className="title">REST</div>
-                    <div className="title">{rest.path}</div>
-                    <div className="description">{rest.description}</div>
-                    <Tooltip position={"bottom"} content={<div>Add REST method</div>}>
-                        <Button variant={"link"} icon={<AddIcon/>} aria-label="Add" onClick={e => this.selectMethod(e)} className="add-button">Add method</Button>
-                    </Tooltip>
-                    <Button variant="link" className="delete-button" onClick={e => this.delete(e)}><DeleteIcon/></Button>
-                </div>
-                <div className="rest-content" key={Math.random().toString()}>
-                    {rest.get?.map(get => <RestMethodCard key={get.uuid} method={get} selectedStep={this.props.selectedStep} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
-                    {rest.post?.map(post => <RestMethodCard key={post.uuid} method={post} selectedStep={this.props.selectedStep} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
-                    {rest.put?.map(put => <RestMethodCard key={put.uuid} method={put} selectedStep={this.props.selectedStep} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
-                    {rest.patch?.map(patch => <RestMethodCard key={patch.uuid} method={patch} selectedStep={this.props.selectedStep} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
-                    {rest.delete?.map(del => <RestMethodCard key={del.uuid} method={del} selectedStep={this.props.selectedStep} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
-                    {rest.head?.map(head => <RestMethodCard key={head.uuid} method={head} selectedStep={this.props.selectedStep} integration={this.props.integration} selectElement={this.props.selectElement} deleteElement={this.props.deleteElement}/>)}
-                </div>
+    const rest = props.rest;
+    return (
+        <div
+            className={props.selectedStep?.uuid === rest.uuid ? "rest-card rest-card-selected" : "rest-card rest-card-unselected"}
+            onClick={e => selectElement(e)}>
+            <div className="header">
+                <div className="title">REST</div>
+                <div className="title">{rest.path}</div>
+                <div className="description">{rest.description}</div>
+                <Tooltip position={"bottom"} content={<div>Add REST method</div>}>
+                    <Button variant={"link"} icon={<AddIcon/>} aria-label="Add" onClick={e => selectMethod(e)}
+                            className="add-button">Add method</Button>
+                </Tooltip>
+                <Button variant="link" className="delete-button" onClick={e => onDelete(e)}><DeleteIcon/></Button>
             </div>
-        );
-    }
+            <div className="rest-content" key={Math.random().toString()}>
+                {rest.get?.map((get: GetDefinition) =>
+                    <RestMethodCard key={get.uuid}
+                                    method={get}
+                                    selectElement={props.selectElement}
+                                    deleteElement={props.deleteElement}
+                    />)}
+                {rest.post?.map(post =>
+                    <RestMethodCard key={post.uuid}
+                                    method={post}
+                                    selectElement={props.selectElement}
+                                    deleteElement={props.deleteElement}
+                    />)}
+                {rest.put?.map(put =>
+                    <RestMethodCard key={put.uuid}
+                                    method={put}
+                                    selectElement={props.selectElement}
+                                    deleteElement={props.deleteElement}
+                    />)}
+                {rest.patch?.map(patch =>
+                    <RestMethodCard key={patch.uuid}
+                                    method={patch}
+                                    selectElement={props.selectElement}
+                                    deleteElement={props.deleteElement}
+                    />)}
+                {rest.delete?.map(del =>
+                    <RestMethodCard key={del.uuid}
+                                    method={del}
+                                    selectElement={props.selectElement}
+                                    deleteElement={props.deleteElement}
+                    />)}
+                {rest.head?.map(head =>
+                    <RestMethodCard key={head.uuid}
+                                    method={head}
+                                    selectElement={props.selectElement}
+                                    deleteElement={props.deleteElement}
+                    />)}
+            </div>
+        </div>
+    )
 }

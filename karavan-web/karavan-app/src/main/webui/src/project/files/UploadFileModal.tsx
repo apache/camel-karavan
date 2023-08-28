@@ -55,11 +55,11 @@ export class UploadFileModal extends React.Component<Props, State> {
         generateRoutes: true
     };
 
-    closeModal = () => {
+    closeModal () {
         useFileStore.setState({operation:"none"});
     }
 
-    saveAndCloseModal = () => {
+    saveAndCloseModal () {
         const state = this.state;
         const file = new ProjectFile(state.filename, this.props.projectId, state.data, Date.now());
         if (this.state.type === "integration"){

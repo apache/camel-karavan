@@ -209,7 +209,7 @@ export class CamelUtil {
                     result[1].push(`${property.displayName} is required`);
                 } else if (property.type === 'ExpressionDefinition') {
                     const expressionMeta = CamelMetadataApi.getCamelModelMetadataByClassName('ExpressionDefinition');
-                    const expressionCheck = expressionMeta?.properties.some(ep => {
+                    const expressionCheck = expressionMeta && value!== undefined && expressionMeta?.properties.some(ep => {
                         const expValue = value[ep.name];
                         if (expValue) {
                             const checkedExpression = CamelUtil.checkRequired(expValue);

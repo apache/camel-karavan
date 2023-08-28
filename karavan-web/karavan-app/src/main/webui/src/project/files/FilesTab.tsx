@@ -30,7 +30,7 @@ import {CreateFileModal} from "./CreateFileModal";
 import {DeleteFileModal} from "./DeleteFileModal";
 import {UploadFileModal} from "./UploadFileModal";
 
-export const FilesTab = () => {
+export function FilesTab () {
 
     const {files} = useFilesStore();
     const {project} = useProjectStore();

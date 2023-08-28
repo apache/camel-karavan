@@ -75,13 +75,9 @@ export class CamelDisplayUtil {
         return clone;
     };
 
-    static setElementVisibility = (
-        step: CamelElement,
-        showChildren: boolean,
-        expandedUuids: string[],
-    ): CamelElement => {
+    static setElementVisibility = (step: CamelElement, showChildren: boolean, expandedUuids: string[]): CamelElement => {
         const result = CamelDefinitionApi.createStep(step.dslName, step);
-        result.show = showChildren;
+        result.showChildren = showChildren;
         if (result.dslName === 'StepDefinition') {
             showChildren = expandedUuids.includes(result.uuid);
         }

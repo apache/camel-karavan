@@ -81,7 +81,7 @@ import {
     SplitIcon,
     SpringIcon,
     TerminalIcon,
-    TestingIcon,
+    TestingIcon, ToIcon,
     TransformationIcon,
     ValidationIcon,
     WebserviceIcon,
@@ -160,6 +160,16 @@ const INTEGRATION_PATTERNS = 'Integration Patterns';
 const connectorNavs = ['routing', "transformation", "error", "configuration", "endpoint", "kamelet", "component"];
 
 export class CamelUi {
+
+    static createNewInternalRoute = (uri: string): RouteToCreate | undefined => {
+        const uris = uri.toString().split(":");
+        const componentName = uris[0];
+        const name = uris[1];
+        if (['direct', 'seda'].includes(componentName)) {
+            return new RouteToCreate(componentName, name)
+        }
+        return undefined;
+    }
 
     static getSelectorModelTypes = (parentDsl: string | undefined, showSteps: boolean = true, filter: string | undefined = undefined): [string, number][] => {
         const navs = CamelUi.getSelectorModelsForParent(parentDsl, showSteps).map(dsl => dsl.navigation.split(","))
@@ -705,6 +715,8 @@ export class CamelUi {
         switch (dslName) {
             case 'AggregateDefinition':
                 return <AggregateIcon/>;
+            case 'ToDefinition':
+                return <ToIcon/>;
             case 'ChoiceDefinition' :
                 return <ChoiceIcon/>;
             case 'SplitDefinition' :
@@ -723,6 +735,18 @@ export class CamelUi {
                 return <InterceptFrom/>;
             case 'InterceptSendToEndpointDefinition' :
                 return <InterceptSendToEndpoint/>;
+            case 'GetDefinition' :
+                return <ApiIcon/>;
+            case 'PostDefinition' :
+                return <ApiIcon/>;
+            case 'PutDefinition' :
+                return <ApiIcon/>;
+            case 'PatchDefinition' :
+                return <ApiIcon/>;
+            case 'DeleteDefinition' :
+                return <ApiIcon/>;
+            case 'HeadDefinition' :
+                return <ApiIcon/>;
             default:
                 return this.getIconFromSource(CamelUi.getIconSrcForName(dslName))
         }

@@ -35,7 +35,7 @@ import {MainToolbar} from "../designer/MainToolbar";
 import {Project, ProjectType} from "../api/ProjectModels";
 import {shallow} from "zustand/shallow";
 
-export const TemplatesPage = () => {
+export function TemplatesPage () {
 
     const [projects] = useProjectsStore((state) => [state.projects], shallow)
     const [operation] = useProjectStore((state) => [state.operation], shallow)

@@ -18,23 +18,26 @@ import React from 'react';
 import '../../designer/karavan.css';
 import Editor from "@monaco-editor/react";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import {ProjectFile, ProjectFileTypes} from "../../api/ProjectModels";
-import {useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectStore";
+import {ProjectFile} from "../../api/ProjectModels";
+import {useFilesStore, useFileStore} from "../../api/ProjectStore";
 import {KaravanDesigner} from "../../designer/KaravanDesigner";
 import {ProjectService} from "../../api/ProjectService";
 import {PropertiesTable} from "./PropertiesTable";
 import {shallow} from "zustand/shallow";
 
-export const FileEditor = () => {
+interface Props {
+    projectId: string
+}
+
+export function FileEditor (props: Props) {
 
     const [file, operation, mode] = useFileStore((state) =>
         [state.file, state.operation, state.mode, state.setMode], shallow )
-    const {project} = useProjectStore();
 
     function save (name: string, code: string) {
         if (file) {
             file.code = code;
-            ProjectService.saveFile(file);
+            ProjectService.saveFile(file, true);
         }
     }
 
@@ -48,12 +51,11 @@ export const FileEditor = () => {
             file !== undefined &&
             <KaravanDesigner
                 dark={false}
-                key={"key"}
                 filename={file.name}
                 yaml={file.code}
                 onSave={(name, yaml) => save(name, yaml)}
                 onSaveCustomCode={(name, code) =>
-                    ProjectService.saveFile(new ProjectFile(name + ".java", project.projectId, code, Date.now()))}
+                    ProjectService.saveFile(new ProjectFile(name + ".java", props.projectId, code, Date.now()), false)}
                 onGetCustomCode={onGetCustomCode}
             />
         )
@@ -78,21 +80,6 @@ export const FileEditor = () => {
         )
     }
 
-    function isBuildIn(): boolean {
-        return ['kamelets', 'templates'].includes(project.projectId);
-    }
-
-    function isKameletsProject(): boolean {
-        return project.projectId === 'kamelets';
-    }
-
-    function isTemplatesProject(): boolean {
-        return project.projectId === 'templates';
-    }
-
-    const types = isBuildIn()
-        ? (isKameletsProject() ? ['KAMELET'] : ['CODE', 'PROPERTIES'])
-        : ProjectFileTypes.filter(p => !['PROPERTIES', 'LOG', 'KAMELET'].includes(p.name)).map(p => p.name);
     const isYaml = file !== undefined && file.name.endsWith("yaml");
     const isIntegration = isYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
     const isProperties = file !== undefined && file.name.endsWith("properties");

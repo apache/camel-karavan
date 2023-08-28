@@ -14,6 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+:root {
+    --pf-v5-global--FontSize--md: 14px;
+}
+
 .karavan .tools-section {
     padding-top: 0px;
     padding-bottom: 0px;
@@ -32,6 +36,11 @@
 
 .karavan .brand {
     height: 36px;
+}
+
+.karavan .pf-v5-c-switch__input:focus ~ .pf-v5-c-switch__toggle {
+    outline: transparent;
+    outline-offset: 0;
 }
 
 .karavan .header-button {
@@ -231,10 +240,13 @@
     flex-direction: column;
 }
 
+.karavan main {
+    overflow: hidden;
+}
+
 /*DSL*/
 .karavan .dsl-page {
-    flex: 1;
-    overflow: auto;
+    height: 100%;
 }
 
 .karavan .dsl-page .dsl-page-columns {
@@ -247,12 +259,41 @@
     height: 24px;
 }
 
-.karavan .main-tabs .top-menu-item {
+.karavan .designer-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.karavan .designer-page .project-page-section {
+    background-color: white;
+}
+
+.karavan .page .main-tabs-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.karavan .page .main-tabs-wrapper::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border: solid;
+    border-width: 0 0 var(--pf-v5-global--BorderWidth--sm) 0;
+    border-bottom-color: var(--pf-v5-global--BorderColor--100);
+}
+
+.karavan .page .main-tabs-wrapper .main-tabs .top-menu-item {
     display: flex;
     flex-direction: row;
 }
 
-.karavan .main-tabs .top-menu-item .count {
+.karavan .page .main-tabs-wrapper .main-tabs .top-menu-item .count {
     background: var(--pf-v5-global--active-color--100);
     color: white;
     height: fit-content;
@@ -261,24 +302,27 @@
     min-width: 0px;
 }
 
-.karavan .main-tabs .pf-v5-c-tabs__link .pf-v5-c-tabs__item-icon {
+.karavan .page .main-tabs-wrapper .main-tabs .pf-v5-c-tabs__link .pf-v5-c-tabs__item-icon {
     height: 24px;
     margin-right: 0;
 }
 
-.karavan .main-tabs .pf-v5-c-tabs__item-text {
-    font-size: 14px;
+.karavan .page .main-tabs-wrapper .main-tabs .pf-v5-c-tabs__item-text {
     font-weight: bold;
     margin-top: auto;
     margin-bottom: auto;
     margin-right: 6px;
 }
 
+.karavan .designer-page .page .main-tabs-wrapper .hide-log {
+    white-space: nowrap;
+    margin-right: 16px;
+}
+
 /*Properties*/
 .karavan .properties {
     border: 1px solid #eee;
     padding: 10px 10px 10px 10px;
-    font-size: 14px;
     background: #fcfcfc;
     width: 100%;
     height: 100%;
@@ -331,13 +375,9 @@
     justify-content: space-between;
 }
 
-.karavan .properties .pf-v5-c-form__label {
-    font-size: 14px;
-}
-
-.karavan .properties .text-field {
-    font-size: 14px;
-    height: auto;
+.karavan .properties .pf-v5-c-form-control:focus-within {
+    --pf-v5-c-form-control--after--BorderBottomColor: var(--pf-v5-c-form-control--after--BorderBottomColor);
+    --pf-v5-c-form-control--after--BorderBottomWidth: var(--pf-v5-c-form-control--after--BorderBottomWidth);
 }
 
 .karavan .properties .pf-v5-c-select {
@@ -393,7 +433,6 @@
 }
 
 .karavan .properties .pf-v5-c-select__toggle-typeahead {
-    font-size: 14px;
     height: auto;
 }
 
@@ -542,7 +581,6 @@
 .karavan .dsl-page .graph {
     display: block;
     flex-direction: column;
-    font-size: 14px;
     height: 100%;
     width: 100%;
     position: relative;
@@ -551,8 +589,8 @@
 
 .karavan .dsl-page .flows {
     width: 100%;
-    position: relative;
-    margin-bottom: 80px;
+    position: absolute;
+    /*margin-bottom: 80px;*/
 }
 
 .karavan .dsl-page .flows .add-flow {
@@ -681,7 +719,6 @@
     position: absolute;
     top: 4px;
     right: 4px;
-    font-size: 14px;
     line-height: 1;
     border: 0;
     padding: 0;
@@ -695,7 +732,6 @@
 .element-builder .header .delete-button {
     position: absolute;
     top: -5px;
-    font-size: 14px;
     line-height: 1;
     border: 0;
     padding: 0;
@@ -803,8 +839,6 @@
 .karavan .step-element .insert-element-button {
     position: absolute;
     top: -5px;
-    /*right: 10px;*/
-    font-size: 14px;
     line-height: 1;
     border: 0;
     padding: 0;
@@ -926,7 +960,6 @@
 }
 
 .dsl-modal .search .text-field {
-    font-size: 14px;
     height: auto;
 }
 
@@ -1025,7 +1058,6 @@
 .karavan .rest-page .graph {
     display: block;
     flex-direction: column;
-    font-size: 14px;
     height: 100%;
     width: 100%;
     position: relative;
@@ -1107,7 +1139,6 @@
     border-radius: 3px;
     color: #fff;
     font-family: sans-serif;
-    font-size: 14px;
     font-weight: 700;
     min-width: 80px;
     padding: 6px 0;
@@ -1147,7 +1178,6 @@
     position: absolute;
     top: 3px;
     right: 3px;
-    font-size: 14px;
     line-height: 1;
     border: 0;
     padding: 0;
@@ -1196,7 +1226,6 @@
 .karavan .rest-page .properties .bean-property .delete-button {
     padding: 3px;
     color: #b1b1b7;
-    font-size: 14px;
 }
 
 /*YAML*/
@@ -1235,6 +1264,9 @@
 }
 
 
+.karavan .tools-section {
+    background-color: white;
+}
 .karavan .tools-section .tools .header {
     display: flex;
     flex-direction: row;
@@ -1252,7 +1284,6 @@
 /* Project Tools */
 .karavan .project-builder {
     height: 100%;
-    font-size: 14px;
 }
 
 .karavan .project-builder .tools-section {
@@ -1264,11 +1295,6 @@
     padding: 0;
 }
 
-.karavan .project-builder .pf-v5-c-tabs__link,
-.karavan .project-builder .pf-v5-c-card__title,
-.karavan .project-builder .profile-caption {
-    font-size: 14px;
-}
 
 .karavan .project-builder .card-header svg {
     margin-right: 6px;
@@ -1276,24 +1302,6 @@
 
 .karavan .project-builder .card-disabled {
     opacity: 0.4;
-}
-
-.karavan .project-builder .pf-v5-c-form__label {
-    font-size: 14px;
-}
-
-.karavan .project-builder .pf-v5-c-check__label {
-    font-size: 14px;
-}
-
-.karavan .project-builder .text-field {
-    font-size: 14px;
-    height: auto;
-}
-
-.karavan .project-builder .pf-v5-c-input-group button {
-    font-size: 14px;
-    height: auto;
 }
 
 .karavan .project-builder .pf-v5-c-form {
@@ -1380,12 +1388,4 @@
     flex-grow: 1;
     background-color: var(--pf-v5-global--BackgroundColor--light-300);
     margin-bottom: 100px;
-}
-
-.karavan .designer-page {
-    background-color: white;
-}
-
-.karavan .designer-page .project-page-section {
-    background-color: white;
 }

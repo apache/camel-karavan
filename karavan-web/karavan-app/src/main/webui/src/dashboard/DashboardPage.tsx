@@ -34,7 +34,7 @@ import {MainToolbar} from "../designer/MainToolbar";
 import {useAppConfigStore, useProjectsStore, useStatusesStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 
-export const DashboardPage = () => {
+export function DashboardPage () {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [projects, setProjects] = useProjectsStore((state) => [state.projects, state.setProjects], shallow)

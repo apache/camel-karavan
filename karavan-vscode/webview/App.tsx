@@ -31,7 +31,6 @@ interface Props {
 }
 
 interface State {
-  karavanDesignerRef: any
   filename: string
   relativePath: string
   fullPath: string
@@ -51,7 +50,6 @@ interface State {
 class App extends React.Component<Props, State> {
 
   public state: State = {
-    karavanDesignerRef: React.createRef(),
     filename: '',
     relativePath: '',
     fullPath: '',
@@ -173,7 +171,7 @@ class App extends React.Component<Props, State> {
   }
 
   public render() {
-    const {loadingMessages, filename, key, yaml, karavanDesignerRef, page, loaded, tab} = this.state;
+    const {loadingMessages, filename, key, yaml, page, loaded, tab} = this.state;
     const {dark} = this.props;
     return (
       <Page className="karavan">
@@ -185,7 +183,7 @@ class App extends React.Component<Props, State> {
           </PageSection>
         }
         {loaded && page === "designer" &&
-          <KaravanDesigner ref={karavanDesignerRef}
+          <KaravanDesigner 
             key={key}
             filename={filename}
             yaml={yaml}

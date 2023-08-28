@@ -8,11 +8,11 @@ import {FilesTab} from "./files/FilesTab";
 import {useProjectStore} from "../api/ProjectStore";
 import {DashboardTab} from "./dashboard/DashboardTab";
 import {TraceTab} from "./trace/TraceTab";
-import {ProjectPipelineTab} from "./pipeline/ProjectPipelineTab";
+import {ProjectBuildTab} from "./build/ProjectBuildTab";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 
-export const ProjectPanel = () => {
+export function ProjectPanel () {
 
     const [tab, setTab] = useState<string | number>('files');
     const [project] = useProjectStore((state) => [state.project], shallow )
@@ -38,7 +38,7 @@ export const ProjectPanel = () => {
                     <Tab eventKey="files" title="Files"/>
                     <Tab eventKey="dashboard" title="Dashboard"/>
                     <Tab eventKey="trace" title="Trace"/>
-                    <Tab eventKey="pipeline" title="Pipeline"/>
+                    <Tab eventKey="build" title="Build"/>
                 </Tabs>}
             </FlexItem>
             <FlexItem>
@@ -48,7 +48,7 @@ export const ProjectPanel = () => {
                         {tab === 'files' && <FilesTab/>}
                         {tab === 'dashboard' && project && <DashboardTab/>}
                         {tab === 'trace' && project && <TraceTab/>}
-                        {tab === 'pipeline' && <ProjectPipelineTab/>}
+                        {tab === 'build' && <ProjectBuildTab/>}
                     </>
                 }
             </FlexItem>

@@ -17,50 +17,40 @@
 import React from 'react';
 import {Button} from '@patternfly/react-core';
 import '../karavan.css';
-import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
+import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
+import {useDesignerStore} from "../KaravanStore";
+import {shallow} from "zustand/shallow";
 
-interface Props<T> {
+interface Props<T extends CamelElement> {
     method: T
-    selectedStep?: CamelElement
-    integration: Integration
     selectElement: (element: CamelElement) => void
     deleteElement: (element: CamelElement) => void
 }
 
-interface State<T> {
-    method: T
-    expanded: boolean
-}
+export function RestMethodCard<T extends CamelElement> (props: Props<T>) {
 
-export class RestMethodCard extends React.Component<Props<any>, State<any>> {
+    const [selectedStep] = useDesignerStore((s) => [s.selectedStep], shallow)
 
-    public state: State<any> = {
-        method: this.props.method,
-        expanded: false
-    };
-
-    selectElement = (evt: React.MouseEvent) => {
+    function selectElement (evt: React.MouseEvent) {
         evt.stopPropagation();
-        this.props.selectElement.call(this, this.state.method);
+        props.selectElement(props.method);
     }
 
-    delete = (evt: React.MouseEvent) => {
+    function onDelete (evt: React.MouseEvent) {
         evt.stopPropagation();
-        this.props.deleteElement.call(this, this.props.method);
+        props.deleteElement(props.method);
     }
 
-    render() {
-        const method = this.state.method;
-        return (
-            <div className={this.props.selectedStep?.uuid === method.uuid ? "method-card method-card-selected" : "method-card method-card-unselected"} onClick={e => this.selectElement(e)}>
-                <div className="method">{method.dslName.replace('Definition', '').toUpperCase()}</div>
-                <div className="rest-method-desc">
-                    <div className="title">{method.path}</div>
-                    <div className="description">{method.description}</div>
-                </div>
-                <Button variant="link" className="delete-button" onClick={e => this.delete(e)}><DeleteIcon/></Button>
+    const method: any = props.method;
+    return (
+        <div className={selectedStep?.uuid === method.uuid ? "method-card method-card-selected" : "method-card method-card-unselected"} onClick={e => selectElement(e)}>
+            <div className="method">{method.dslName.replace('Definition', '').toUpperCase()}</div>
+            <div className="rest-method-desc">
+                <div className="title">{method.path}</div>
+                <div className="description">{method.description}</div>
             </div>
-        );
-    }
+            <Button variant="link" className="delete-button" onClick={e => onDelete(e)}><DeleteIcon/></Button>
+        </div>
+    )
 }

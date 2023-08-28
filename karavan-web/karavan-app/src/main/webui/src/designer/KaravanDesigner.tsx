@@ -14,10 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Badge,
-    PageSection, PageSectionVariants, Tab, Tabs, TabTitleIcon, TabTitleText, Tooltip,
+    PageSection,
+    PageSectionVariants,
+    Switch,
+    Tab,
+    Tabs,
+    TabTitleIcon, TabTitleText,
+    Tooltip,
 } from '@patternfly/react-core';
 import './karavan.css';
 import {RouteDesigner} from "./route/RouteDesigner";
@@ -25,9 +31,13 @@ import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelUi} from "./utils/CamelUi";
-import {BeansDesigner} from "./beans/BeansDesigner";
-import {RestDesigner} from "./rest/RestDesigner";
+import {useDesignerStore, useIntegrationStore} from "./KaravanStore";
+import {shallow} from "zustand/shallow";
 import {getDesignerIcon} from "./utils/KaravanIcons";
+import {InfrastructureAPI} from "./utils/InfrastructureAPI";
+import {EventBus, IntegrationUpdate} from "./utils/EventBus";
+import {RestDesigner} from "./rest/RestDesigner";
+import {BeansDesigner} from "./beans/BeansDesigner";
 
 interface Props {
     onSave: (filename: string, yaml: string, propertyOnly: boolean) => void
@@ -36,70 +46,57 @@ interface Props {
     filename: string
     yaml: string
     dark: boolean
+    hideLogDSL?: boolean
     tab?: string
 }
 
-interface State {
-    tab: string
-    integration: Integration
-    key: string
-    propertyOnly: boolean
-}
+export function KaravanDesigner (props: Props) {
 
-export class KaravanInstance {
-    static designer: KaravanDesigner;
+    const [tab, setTab] = useState<string>('routes');
+    const [setDark, hideLogDSL, setHideLogDSL, setSelectedStep, reset] = useDesignerStore((s) =>
+        [s.setDark, s.hideLogDSL, s.setHideLogDSL, s.setSelectedStep, s.reset], shallow)
+    const [integration, setIntegration] = useIntegrationStore((s) =>
+        [s.integration, s.setIntegration], shallow)
 
-    static set(designer: KaravanDesigner): void  {
-        KaravanInstance.designer = designer;
-    }
+    useEffect(() => {
+        const sub = EventBus.onIntegrationUpdate()?.subscribe((update: IntegrationUpdate) =>
+            save(update.integration, update.propertyOnly));
+        InfrastructureAPI.setOnSaveCustomCode(props.onSaveCustomCode);
+        InfrastructureAPI.setOnGetCustomCode(props.onGetCustomCode);
+        InfrastructureAPI.setOnSave(props.onSave);
 
-    static get(): KaravanDesigner {
-        return KaravanInstance.designer;
-    }
+        setSelectedStep(undefined);
+        setIntegration(makeIntegration(props.yaml, props.filename), false);
+        reset();
+        setDark(props.dark);
+        setHideLogDSL(props.hideLogDSL === true);
+        return () => {
+            sub?.unsubscribe();
+            setSelectedStep(undefined);
+            reset();
+        };
+    }, []);
 
-    static getProps(): Props {
-        return KaravanInstance.designer?.props;
-    }
-}
-
-export class KaravanDesigner extends React.Component<Props, State> {
-
-    getIntegration = (yaml: string, filename: string): Integration => {
-       if (yaml && CamelDefinitionYaml.yamlIsIntegration(yaml)) {
-           return CamelDefinitionYaml.yamlToIntegration(this.props.filename, this.props.yaml)
-       } else {
-           return Integration.createNew(filename, 'plain');
-       }
-    }
-
-    public state: State = {
-        tab: this.props.tab ? this.props.tab : 'routes',
-        integration: this.getIntegration(this.props.yaml, this.props.filename),
-        key: "",
-        propertyOnly: false,
-    }
-
-    componentDidMount() {
-        KaravanInstance.set(this);
-    }
-
-    componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        if (prevState.key !== this.state.key) {
-            this.props.onSave?.call(this, this.props.filename, this.getCode(this.state.integration), this.state.propertyOnly);
+    function makeIntegration(yaml: string, filename: string): Integration {
+        if (yaml && CamelDefinitionYaml.yamlIsIntegration(yaml)) {
+            return CamelDefinitionYaml.yamlToIntegration(props.filename, props.yaml)
+        } else {
+            return Integration.createNew(filename, 'plain');
         }
     }
 
-    save = (integration: Integration, propertyOnly: boolean): void => {
-        this.setState({key: Math.random().toString(), integration: integration, propertyOnly: propertyOnly});
+    function save(integration: Integration, propertyOnly: boolean): void {
+        const code = getCode(integration);
+        props.onSave(props.filename, code, propertyOnly);
     }
 
-    getCode = (integration: Integration): string => {
+    function getCode(integration: Integration): string {
         const clone = CamelUtil.cloneIntegration(integration);
         return CamelDefinitionYaml.integrationToYaml(clone);
     }
 
-    getTab(title: string, tooltip: string, icon: string) {
-        const counts = CamelUi.getFlowCounts(this.state.integration);
+    function getTab(title: string, tooltip: string, icon: string) {
+        const counts = CamelUi.getFlowCounts(integration);
         const count = counts.has(icon) && counts.get(icon) ? counts.get(icon) : undefined;
         const showCount = count && count > 0;
         return (
@@ -115,25 +112,37 @@ export class KaravanDesigner extends React.Component<Props, State> {
         )
     }
 
-    render() {
-        const tab = this.state.tab;
-        return (
-            <PageSection variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light} className="page" isFilled padding={{default: 'noPadding'}}>
-                <Tabs className="main-tabs" activeKey={tab} onSelect={(event, tabIndex) => this.setState({tab: tabIndex.toString()})} style={{width: "100%"}}>
-                    <Tab eventKey='routes' title={this.getTab("Routes", "Integration flows", "routes")}></Tab>
-                    <Tab eventKey='rest' title={this.getTab("REST", "REST services", "rest")}></Tab>
-                    <Tab eventKey='beans' title={this.getTab("Beans", "Beans Configuration", "beans")}></Tab>
+    return (
+        <PageSection variant={props.dark ? PageSectionVariants.darker : PageSectionVariants.light} className="page"
+                     isFilled padding={{default: 'noPadding'}}>
+            <div className={"main-tabs-wrapper"}>
+                <Tabs className="main-tabs"
+                      activeKey={tab}
+                      onSelect={(event, tabIndex) => {
+                          setTab(tabIndex.toString());
+                          setSelectedStep(undefined);
+                      }}
+                      style={{width: "100%"}}>
+                    <Tab eventKey='routes' title={getTab("Routes", "Integration flows", "routes")}></Tab>
+                    <Tab eventKey='rest' title={getTab("REST", "REST services", "rest")}></Tab>
+                    <Tab eventKey='beans' title={getTab("Beans", "Beans Configuration", "beans")}></Tab>
                 </Tabs>
-                    {tab === 'routes' && <RouteDesigner integration={this.state.integration}
-                                                        onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
-                                                        dark={this.props.dark}/>}
-                    {tab === 'rest' && <RestDesigner integration={this.state.integration}
-                                                     onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
-                                                     dark={this.props.dark}/>}
-                    {tab === 'beans' && <BeansDesigner integration={this.state.integration}
-                                                       onSave={(integration, propertyOnly) => this.save(integration, propertyOnly)}
-                                                       dark={this.props.dark}/>}
-            </PageSection>
-        )
-    }
+                {tab === 'routes' && <Tooltip content={"Hide Log elements"}>
+                    <Switch
+                        isReversed
+                        isChecked={hideLogDSL}
+                        onChange={(_, checked) => {
+                            setHideLogDSL(checked)
+                        }}
+                        id="hideLogDSL"
+                        name="hideLogDSL"
+                        className={"hide-log"}
+                    />
+                </Tooltip>}
+            </div>
+            {tab === 'routes' && <RouteDesigner/>}
+            {tab === 'rest' && <RestDesigner/>}
+            {tab === 'beans' && <BeansDesigner/>}
+        </PageSection>
+    )
 }

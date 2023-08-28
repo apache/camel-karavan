@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Toolbar,
     ToolbarContent,
@@ -33,8 +33,10 @@ import {useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
 import {Project, ProjectType} from "../api/ProjectModels";
 import {shallow} from "zustand/shallow";
+import {useParams} from "react-router-dom";
+import {KaravanApi} from "../api/KaravanApi";
 
-export const ProjectsPage = () => {
+export function ProjectsPage () {
 
     const [projects] = useProjectsStore((state) => [state.projects], shallow)
     const [operation] = useProjectStore((state) => [state.operation], shallow)

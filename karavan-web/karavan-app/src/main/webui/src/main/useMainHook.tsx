@@ -7,7 +7,7 @@ import {useAppConfigStore, useStatusesStore} from "../api/ProjectStore";
 import {InfrastructureAPI} from "../designer/utils/InfrastructureAPI";
 import {shallow} from "zustand/shallow";
 
-export const useMainHook = () => {
+export function useMainHook () {
 
     const [setConfig] = useAppConfigStore((state) => [state.setConfig], shallow)
     const [setContainers] = useStatusesStore((state) => [state.setContainers], shallow);

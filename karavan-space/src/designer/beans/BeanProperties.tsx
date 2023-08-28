@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {useState} from 'react';
 import {
     Form,
     FormGroup,
@@ -31,7 +31,6 @@ import {SensitiveKeys} from "karavan-core/lib/model/CamelMetadata";
 import {v4 as uuidv4} from "uuid";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
-import {IntegrationHeader} from "../utils/KaravanComponents";
 import CloneIcon from '@patternfly/react-icons/dist/esm/icons/clone-icon'
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import {InfrastructureSelector} from "../route/property/InfrastructureSelector";
@@ -40,6 +39,9 @@ import {InfrastructureAPI} from "../utils/InfrastructureAPI";
 import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
+import {useDesignerStore} from "../KaravanStore";
+import {shallow} from "zustand/shallow";
+import {IntegrationHeader} from "../utils/IntegrationHeader";
 
 
 interface Props {
@@ -50,110 +52,95 @@ interface Props {
     onClone: (bean: RegistryBeanDefinition) => void
 }
 
-interface State {
-    bean?: RegistryBeanDefinition
-    properties: Map<string, [string, string, boolean]>
-    key: string,
-    showInfrastructureSelector: boolean
-    infrastructureSelectorUuid?: string
-    infrastructureSelectorProperty?: string
-}
+export function BeanProperties (props: Props) {
 
-export class BeanProperties extends React.Component<Props, State> {
+    const [selectedStep] = useDesignerStore((s) => [s.selectedStep], shallow);
+    const [infrastructureSelector, setInfrastructureSelector] = useState<boolean>(false);
+    const [infrastructureSelectorProperty, setInfrastructureSelectorProperty] = useState<string | undefined>(undefined);
+    const [infrastructureSelectorUuid, setInfrastructureSelectorUuid] = useState<string | undefined>(undefined);
+    const [properties, setProperties] =
+        useState<Map<string, [string, string, boolean]>>(props.bean?.properties ? preparePropertiesMap(props.bean?.properties) : new Map<string, [string, string, boolean]>());
 
-    preparePropertiesMap = (properties: any): Map<string, [string, string, boolean]> => {
+
+    function preparePropertiesMap (properties: any): Map<string, [string, string, boolean]>  {
         const result = new Map<string, [string, string, boolean]>();
         Object.keys(properties).forEach((k, i, a) => result.set(uuidv4(), [k, properties[k], false]));
         return result;
     }
 
-    public state: State = {
-        bean: this.props.bean,
-        key: '',
-        showInfrastructureSelector: false,
-        properties: this.props.bean?.properties ? this.preparePropertiesMap(this.props.bean?.properties) : new Map<string, [string, string, boolean]>()
-    };
-
-    componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        if (prevProps.bean?.uuid !== this.props.bean?.uuid) {
-            this.setBean(this.props.bean);
-        }
-        if (prevState.key !== this.state.key && this.state.bean) {
-            const bean = CamelUtil.cloneBean(this.state.bean);
-            const properties: any = {};
-            this.state.properties.forEach(p => properties[p[0]] = p[1]);
-            bean.properties = properties;
-            this.setState({bean: bean});
-            this.props.onChange?.call(this, bean);
+    function onBeanPropertyUpdate ()  {
+        if (selectedStep) {
+            const bean = CamelUtil.cloneBean(selectedStep);
+            const beanProperties: any = {};
+            properties.forEach((p: any) => beanProperties[p[0]] = p[1]);
+            bean.properties = beanProperties;
+            props.onChange(bean);
         }
     }
 
-    setBean = (bean?: RegistryBeanDefinition) => {
-        this.setState({
-            bean: bean,
-            properties: bean?.properties ? this.preparePropertiesMap(bean.properties) : new Map<string, [string, string, false]>()
-        });
-    }
-
-    beanChanged = (fieldId: string, value: string) => {
-        if (this.state.bean) {
-            const bean = CamelUtil.cloneBean(this.state.bean);
+    function beanFieldChanged (fieldId: string, value: string) {
+        if (selectedStep) {
+            const bean = CamelUtil.cloneBean(selectedStep);
             (bean as any)[fieldId] = value;
-            this.setState({bean: bean});
-            this.props.onChange?.call(this, bean);
+            props.onChange(bean);
         }
     }
 
-    propertyChanged = (uuid: string, key: string, value: string, showPassword: boolean) => {
-        this.setState(state => {
-            state.properties.set(uuid, [key, value, showPassword]);
-            return {properties: state.properties, key: Math.random().toString()};
-        })
+    function propertyChanged (uuid: string, key: string, value: string, showPassword: boolean)  {
+        setProperties(prevState => {
+            prevState.set(uuid, [key, value, showPassword]);
+            return prevState;
+        });
+        onBeanPropertyUpdate();
     }
 
-    propertyDeleted = (uuid: string) => {
-        this.setState(state => {
-            state.properties.delete(uuid);
-            return {properties: state.properties, key: Math.random().toString()};
+    function propertyDeleted (uuid: string)  {
+        setProperties(prevState => {
+            prevState.delete(uuid);
+            return prevState;
         })
+        onBeanPropertyUpdate();
     }
 
-    selectInfrastructure = (value: string) => {
-        const propertyId = this.state.infrastructureSelectorProperty;
-        const uuid = this.state.infrastructureSelectorUuid;
+    function selectInfrastructure (value: string)  {
+        const propertyId = infrastructureSelectorProperty;
+        const uuid = infrastructureSelectorUuid;
         if (propertyId && uuid){
             if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
-            this.propertyChanged(uuid, propertyId, value, false);
-            this.setState({showInfrastructureSelector: false, infrastructureSelectorProperty: undefined})
+            propertyChanged(uuid, propertyId, value, false);
+            setInfrastructureSelector(false);
+            setInfrastructureSelectorProperty(undefined);
         }
     }
 
-    openInfrastructureSelector = (uuid: string, propertyName: string) => {
-        this.setState({infrastructureSelectorUuid: uuid, infrastructureSelectorProperty: propertyName, showInfrastructureSelector: true});
+    function openInfrastructureSelector (uuid: string, propertyName: string)  {
+        setInfrastructureSelector(true);
+        setInfrastructureSelectorProperty(propertyName);
+        setInfrastructureSelectorUuid(uuid);
     }
 
-    closeInfrastructureSelector = () => {
-        this.setState({showInfrastructureSelector: false})
+    function closeInfrastructureSelector ()  {
+        setInfrastructureSelector(false);
     }
 
-    getInfrastructureSelectorModal() {
+    function getInfrastructureSelectorModal() {
         return (
             <InfrastructureSelector
                 dark={false}
-                isOpen={this.state.showInfrastructureSelector}
-                onClose={() => this.closeInfrastructureSelector()}
-                onSelect={this.selectInfrastructure}/>)
+                isOpen={infrastructureSelector}
+                onClose={() => closeInfrastructureSelector()}
+                onSelect={selectInfrastructure}/>)
     }
 
-    cloneBean = () => {
-        if (this.state.bean) {
-            const bean = CamelUtil.cloneBean(this.state.bean);
+    function cloneBean ()  {
+        if (selectedStep) {
+            const bean = CamelUtil.cloneBean(selectedStep);
             bean.uuid = uuidv4();
-            this.props.onClone?.call(this, bean);
+            props.onClone(bean);
         }
     }
 
-    getLabelIcon = (displayName: string, description: string) => {
+    function getLabelIcon (displayName: string, description: string)  {
         return (
             <Popover
                     position={"left"}
@@ -174,28 +161,28 @@ export class BeanProperties extends React.Component<Props, State> {
         )
     }
 
-    getBeanForm() {
-        const bean = this.state.bean;
+    function getBeanForm() {
+        const bean = (selectedStep as RegistryBeanDefinition);
         return (
             <>
                 <div className="headers">
                     <div className="top">
                         <Title headingLevel="h1" size="md">Bean</Title>
                         <Tooltip content="Clone bean" position="bottom">
-                            <Button variant="link" onClick={() => this.cloneBean()} icon={<CloneIcon/>}/>
+                            <Button variant="link" onClick={() => cloneBean()} icon={<CloneIcon/>}/>
                         </Tooltip>
                     </div>
                 </div>
-                <FormGroup label="Name" fieldId="name" isRequired labelIcon={this.getLabelIcon("Name", "Bean name used as a reference ex: myBean")}>
+                <FormGroup label="Name" fieldId="name" isRequired labelIcon={getLabelIcon("Name", "Bean name used as a reference ex: myBean")}>
                     <TextInput className="text-field" isRequired type="text" id="name" name="name" value={bean?.name}
-                                onChange={(_, value)=> this.beanChanged("name", value)}/>
+                                onChange={(_, value)=> beanFieldChanged("name", value)}/>
                 </FormGroup>
-                <FormGroup label="Type" fieldId="type" isRequired labelIcon={this.getLabelIcon("Type", "Bean class Canonical Name ex: org.demo.MyBean")}>
+                <FormGroup label="Type" fieldId="type" isRequired labelIcon={getLabelIcon("Type", "Bean class Canonical Name ex: org.demo.MyBean")}>
                     <TextInput className="text-field" isRequired type="text" id="type" name="type" value={bean?.type}
-                        onChange={(_, value) => this.beanChanged("type", value)}/>
+                        onChange={(_, value) => beanFieldChanged("type", value)}/>
                 </FormGroup>
                 <FormGroup label="Properties" fieldId="properties" className="bean-properties">
-                    {Array.from(this.state.properties.entries()).map((v, index, array) => {
+                    {Array.from(properties.entries()).map((v, index, array) => {
                         const i = v[0];
                         const key = v[1][0];
                         const value = v[1][1];
@@ -207,12 +194,12 @@ export class BeanProperties extends React.Component<Props, State> {
                             <div key={"key-" + i} className="bean-property">
                                 <TextInput placeholder="Bean Field Name" className="text-field" isRequired type="text" id="key" name="key" value={key}
                                             onChange={(_, beanFieldName) => {
-                                                this.propertyChanged(i, beanFieldName, value, showPassword)
+                                                propertyChanged(i, beanFieldName, value, showPassword)
                                             }}/>
                                 <InputGroup>
                                     {inInfrastructure &&
                                         <Tooltip position="bottom-end" content="Select value from Infrastructure">
-                                        <Button variant="control" onClick={e => this.openInfrastructureSelector(i, key)}>
+                                        <Button variant="control" onClick={e => openInfrastructureSelector(i, key)}>
                                             {icon}
                                         </Button>
                                     </Tooltip>}
@@ -226,35 +213,34 @@ export class BeanProperties extends React.Component<Props, State> {
                                             name="value"
                                             value={value}
                                             onChange={(_, value) => {
-                                                this.propertyChanged(i, key, value, showPassword)
+                                                propertyChanged(i, key, value, showPassword)
                                             }}/>
                                     </InputGroupItem>
                                     {isSecret && <Tooltip position="bottom-end" content={showPassword ? "Hide" : "Show"}>
-                                        <Button variant="control" onClick={e => this.propertyChanged(i, key, value, !showPassword)}>
+                                        <Button variant="control" onClick={e => propertyChanged(i, key, value, !showPassword)}>
                                             {showPassword ? <ShowIcon/> : <HideIcon/>}
                                         </Button>
                                     </Tooltip>}
                                 </InputGroup>
-                                <Button variant="link" className="delete-button" onClick={e => this.propertyDeleted(i)}><DeleteIcon/></Button>
+                                <Button variant="link" className="delete-button" onClick={e => propertyDeleted(i)}><DeleteIcon/></Button>
                             </div>
                         )
                     })}
-                    <Button variant="link" className="add-button" onClick={e => this.propertyChanged(uuidv4(), '', '', false)}>
+                    <Button variant="link" className="add-button" onClick={e => propertyChanged(uuidv4(), '', '', false)}>
                         <AddIcon/>Add property</Button>
                 </FormGroup>
             </>
         )
     }
 
-    render() {
-        return (
-            <div className='properties' key={this.state.bean ? this.state.bean.uuid : 'integration'}>
-                <Form autoComplete="off" onSubmit={event => event.preventDefault()}>
-                    {this.state.bean === undefined && <IntegrationHeader integration={this.props.integration}/>}
-                    {this.state.bean !== undefined && this.getBeanForm()}
-                </Form>
-                {this.getInfrastructureSelectorModal()}
-            </div>
-        )
-    }
+    const bean = (selectedStep as RegistryBeanDefinition);
+    return (
+        <div className='properties' key={bean ? bean.uuid : 'integration'}>
+            <Form autoComplete="off" onSubmit={event => event.preventDefault()}>
+                {bean === undefined && <IntegrationHeader/>}
+                {bean !== undefined && getBeanForm()}
+            </Form>
+            {getInfrastructureSelectorModal()}
+        </div>
+    )
 }

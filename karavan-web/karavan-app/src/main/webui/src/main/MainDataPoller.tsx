@@ -11,34 +11,35 @@ import {
     Project,
     ServiceStatus
 } from "../api/ProjectModels";
-import {useAppConfigStore, useProjectsStore, useStatusesStore} from "../api/ProjectStore";
+import {useAppConfigStore, useProjectsStore, useProjectStore, useStatusesStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 
-export const MainDataPoller = () => {
+export function MainDataPoller () {
 
-    const [config, setLoading] = useAppConfigStore((state) => [state.config, state.setLoading], shallow)
+    const [config, setLoading] = useAppConfigStore((s) =>
+        [s.config, s.setLoading], shallow)
     const [projects, setProjects] = useProjectsStore((state) => [state.projects, state.setProjects], shallow)
     const [deployments, services, containers, camels, setDeployments, setServices, setContainers, setCamels, setPipelineStatuses]
         = useStatusesStore((s) => [s.deployments, s.services, s.containers, s.camels,
         s.setDeployments, s.setServices, s.setContainers, s.setCamels, s.setPipelineStatuses], shallow);
 
+    const [project] = useProjectStore((state) => [state.project], shallow )
+
     useEffect(() => {
-        console.log("MainDataPoller Start");
-        const interval = setInterval(() => {
-            getData();
-        }, 1300);
+        const interval = setInterval(() => getData(), 1300)
         return () => {
-            console.log("MainDataPoller Stop");
             clearInterval(interval);
         };
-    }, []);
+    }, [project]);
 
     function getData() {
         setLoading(true);
         KaravanApi.getConfiguration((config: AppConfig) => {
-            KaravanApi.getProjects((projects: Project[]) => {
-                setProjects(projects);
-            });
+            if (project.projectId === undefined) {
+                KaravanApi.getProjects((projects: Project[]) => {
+                    setProjects(projects);
+                });
+            }
             KaravanApi.getAllDeploymentStatuses((statuses: DeploymentStatus[]) => {
                 setDeployments(statuses);
             });

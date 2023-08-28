@@ -24,34 +24,26 @@ import {
 import '../karavan.css';
 import {CamelUi} from "../utils/CamelUi";
 import {DslMetaModel} from "../utils/DslMetaModel";
+import {useDesignerStore} from "../KaravanStore";
+import {shallow} from "zustand/shallow";
 
 interface Props {
     onMethodSelect: (method: DslMetaModel) => void
-    dark: boolean
 }
 
-interface State {
-}
+export function RestMethodSelector(props: Props) {
 
-export class RestMethodSelector extends React.Component<Props, State> {
+    const [dark] = useDesignerStore((s) => [s.dark], shallow)
 
-    public state: State = {};
-
-
-    selectTab = (evt: React.MouseEvent<HTMLElement, MouseEvent>, eventKey: string | number) => {
-        this.setState({tabIndex: eventKey})
-    }
-
-
-    selectMethod = (evt: React.MouseEvent, method: any) => {
+    function selectMethod (evt: React.MouseEvent, method: any) {
         evt.stopPropagation()
-        this.props.onMethodSelect.call(this, method);
+        props.onMethodSelect(method);
     }
 
-    getCard(dsl: DslMetaModel, index: number) {
+    function getCard(dsl: DslMetaModel, index: number) {
         return (
             <Card key={dsl.dsl + index}  isCompact className="dsl-card"
-                  onClick={event => this.selectMethod(event, dsl)}>
+                  onClick={event => selectMethod(event, dsl)}>
                 <CardHeader>
                     {CamelUi.getIconForDsl(dsl)}
                     <Text>{dsl.title}</Text>
@@ -74,17 +66,15 @@ export class RestMethodSelector extends React.Component<Props, State> {
         )
     }
 
-    render() {
-        return (
-            <PageSection variant={this.props.dark ? "darker" : "light"}>
-                <Tabs style={{overflow: 'hidden'}} activeKey="methods" onSelect={this.selectTab}>
-                        <Tab eventKey="methods" title={<TabTitleText>Methods</TabTitleText>}>
-                            <Gallery hasGutter className="dsl-gallery">
-                                {CamelUi.getSelectorRestMethodModels().map((dsl: DslMetaModel, index: number) => this.getCard(dsl, index))}
-                            </Gallery>
-                        </Tab>
-                </Tabs>
-            </PageSection>
-        );
-    }
+    return (
+        <PageSection variant={dark ? "darker" : "light"}>
+            <Tabs style={{overflow: 'hidden'}} activeKey="methods" onSelect={event => {}}>
+                <Tab eventKey="methods" title={<TabTitleText>Methods</TabTitleText>}>
+                    <Gallery hasGutter className="dsl-gallery">
+                        {CamelUi.getSelectorRestMethodModels().map((dsl: DslMetaModel, index: number) => getCard(dsl, index))}
+                    </Gallery>
+                </Tab>
+            </Tabs>
+        </PageSection>
+    )
 }

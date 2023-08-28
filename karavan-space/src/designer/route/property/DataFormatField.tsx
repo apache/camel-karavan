@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {useState} from 'react';
 import {
-	ExpandableSection
+    ExpandableSection
 } from '@patternfly/react-core';
 import {
-	Select,
-	SelectVariant,
-	SelectDirection,
-	SelectOption
+    Select,
+    SelectVariant,
+    SelectDirection,
+    SelectOption
 } from '@patternfly/react-core/deprecated';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -42,135 +42,107 @@ interface Props {
     dark: boolean,
 }
 
-interface State {
-    selectIsOpen: boolean
-    dataFormat: string
-    isShowAdvanced: boolean
-}
+export function DataFormatField(props: Props) {
 
-export class DataFormatField extends React.Component<Props, State> {
+    const [selectIsOpen, setSelectIsOpen] = useState<boolean>(false);
+    const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
 
-    public state: State = {
-        selectIsOpen: false,
-        dataFormat: CamelDefinitionApiExt.getDataFormat(this.props.value)?.name || "json",
-        isShowAdvanced: false
+    function getDataFormatString() {
+        return CamelDefinitionApiExt.getDataFormat(props.value)?.name || 'json';
     }
 
-    componentDidMount() {
-        if (CamelDefinitionApiExt.getDataFormat(this.props.value)?.name === undefined) {
-            this.dataFormatChanged("json", CamelDefinitionApi.createDataFormat('JsonDataFormat', {}));
-        }
+    function openSelect() {
+        setSelectIsOpen(true)
     }
 
-    componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        const newDataFormat = CamelDefinitionApiExt.getDataFormat(this.props.value)?.name || "json"
-        if (prevProps.value
-            && (prevProps.value.uuid !== this.props.value.uuid
-                || prevState.dataFormat !== newDataFormat)
-        ) {
-            this.setState({
-                dataFormat: newDataFormat
-            });
-        }
-    }
-
-    openSelect = () => {
-        this.setState({selectIsOpen: true});
-    }
-
-    dataFormatChanged = (dataFormat: string, value?: CamelElement) => {
+    function dataFormatChanged(dataFormat: string, value?: CamelElement) {
         if (dataFormat !== (value as any).dataFormatName) {
             const className = CamelMetadataApi.getCamelDataFormatMetadataByName(dataFormat)?.className;
             value = CamelDefinitionApi.createDataFormat(className || '', {}); // perhaps copy other similar fields later
         }
-        const df = CamelDefinitionApi.createStep(this.props.dslName, {});
+        const df = CamelDefinitionApi.createStep(props.dslName, {});
         (df as any)[dataFormat] = value;
-        this.props.onDataFormatChange?.call(this, df);
-        this.setState({selectIsOpen: false});
+        (df as any)['uuid'] = props.value.uuid;
+        (df as any)['id'] = (props.value as any)['id'];
+
+        props.onDataFormatChange?.(df);
+        setSelectIsOpen(false);
     }
 
-    propertyChanged = (fieldId: string, value: string | number | boolean | any) => {
-        const df = this.getDataFormatValue();
+    function propertyChanged(fieldId: string, value: string | number | boolean | any) {
+        const df = getDataFormatValue();
         if (df) {
             (df as any)[fieldId] = value;
-            this.dataFormatChanged(this.state.dataFormat, df);
+            dataFormatChanged(getDataFormatString(), df);
         }
     }
 
-    getDataFormatValue = (): CamelElement => {
-        return (this.props.value as any)[this.state.dataFormat]
-            ? (this.props.value as any)[this.state.dataFormat]
-            : CamelDefinitionApi.createDataFormat(this.state.dataFormat, (this.props.value as any)[this.state.dataFormat]);
+    function getDataFormatValue(): CamelElement {
+        const dataFormatString = getDataFormatString();
+        return (props.value as any)[dataFormatString]
+            ? (props.value as any)[dataFormatString]
+            : CamelDefinitionApi.createDataFormat(dataFormatString, (props.value as any)[dataFormatString]);
     }
 
-    getPropertyFields = (value: any, properties: PropertyMeta[]) => {
+    function getPropertyFields(value: any, properties: PropertyMeta[]) {
         return (<>
             {value && properties?.map((property: PropertyMeta) =>
-                <DslPropertyField key={property.name} property={property}
-                                  integration={this.props.integration}
-                                  element={value}
-                                  value={value ? (value as any)[property.name] : undefined}
-                                  onExpressionChange={exp => {
-                                  }}
-                                  onParameterChange={parameter => {
-                                      console.log(parameter)
-                                  }}
-                                  onDataFormatChange={dataFormat => {
-                                      console.log(dataFormat)
-                                  }}
-                                  dark={this.props.dark}
-                                  onChange={this.propertyChanged}/>
+                <DslPropertyField
+                    key={property.name}
+                    property={property}
+                    value={value ? (value as any)[property.name] : undefined}
+                    onPropertyChange={propertyChanged}
+                />
             )}
         </>)
     }
 
-    render() {
-        const value = this.getDataFormatValue();
-        const dataFormat = DataFormats.find((l: [string, string, string]) => l[0] === this.state.dataFormat);
-        const properties = CamelDefinitionApiExt.getElementPropertiesByName(this.state.dataFormat).sort((a, b) => a.name === 'library' ? -1 : 1);
-        const propertiesMain = properties.filter(p => !p.label.includes("advanced"));
-        const propertiesAdvanced = properties.filter(p => p.label.includes("advanced"));
-        const selectOptions: JSX.Element[] = []
-        DataFormats.forEach((lang: [string, string, string]) => {
-            const s = <SelectOption key={lang[0]} value={lang[0]} description={lang[2]}/>;
-            selectOptions.push(s);
-        })
-        return (
+    const value = getDataFormatValue();
+    const dataFormatString = getDataFormatString();
+    const dataFormat = DataFormats.find((l: [string, string, string]) => l[0] === dataFormatString);
+    const properties = CamelDefinitionApiExt.getElementPropertiesByName(dataFormatString).sort((a, b) => a.name === 'library' ? -1 : 1);
+    const propertiesMain = properties.filter(p => !p.label.includes("advanced"));
+    const propertiesAdvanced = properties.filter(p => p.label.includes("advanced"));
+    const selectOptions: JSX.Element[] = []
+    DataFormats.forEach((lang: [string, string, string]) => {
+        const s = <SelectOption key={lang[0]} value={lang[0]} description={lang[2]}/>;
+        selectOptions.push(s);
+    })
+    return (
+        <div>
             <div>
-                <div>
-                    <label className="pf-v5-c-form__label" htmlFor="expression">
-                        <span className="pf-v5-c-form__label-text">{"Data Format"}</span>
-                        <span className="pf-v5-c-form__label-required" aria-hidden="true"> *</span>
-                    </label>
-                    <Select
-                        variant={SelectVariant.typeahead}
-                        aria-label={"dataFormat"}
-                        onToggle={() => {
-                            this.openSelect()
-                        }}
-                        onSelect={(e, dataFormat, isPlaceholder) => this.dataFormatChanged(dataFormat.toString(), value)}
-                        selections={dataFormat}
-                        isOpen={this.state.selectIsOpen}
-                        aria-labelledby={"dataFormat"}
-                        direction={SelectDirection.down}
-                    >
-                        {selectOptions}
-                    </Select>
-                </div>
-                <div className="object">
-                    <div>
-                        {this.getPropertyFields(value, propertiesMain)}
-                        {propertiesAdvanced.length > 0 &&
-                            <ExpandableSection
-                                toggleText={'Advanced properties'}
-                                onToggle={(_event, isExpanded) => this.setState({isShowAdvanced: !this.state.isShowAdvanced})}
-                                isExpanded={this.state.isShowAdvanced}>
-                                {this.getPropertyFields(value, propertiesAdvanced)}
-                            </ExpandableSection>}
-                    </div>
-
-                </div>
+                <label className="pf-v5-c-form__label" htmlFor="expression">
+                    <span className="pf-v5-c-form__label-text">{"Data Format"}</span>
+                    <span className="pf-v5-c-form__label-required" aria-hidden="true"> *</span>
+                </label>
+                <Select
+                    variant={SelectVariant.typeahead}
+                    aria-label={"dataFormat"}
+                    onToggle={() => {
+                        openSelect()
+                    }}
+                    onSelect={(_, dataFormat, isPlaceholder) => dataFormatChanged(dataFormat.toString(), value)}
+                    selections={dataFormat}
+                    isOpen={selectIsOpen}
+                    aria-labelledby={"dataFormat"}
+                    direction={SelectDirection.down}
+                >
+                    {selectOptions}
+                </Select>
             </div>
-        )
-    }
+            <div className="object">
+                <div>
+                    {getPropertyFields(value, propertiesMain)}
+                    {propertiesAdvanced.length > 0 &&
+                        <ExpandableSection
+                            toggleText={'Advanced properties'}
+                            onToggle={(_event, isExpanded) => setShowAdvanced(!showAdvanced)}
+                            isExpanded={showAdvanced}>
+                            {getPropertyFields(value, propertiesAdvanced)}
+                        </ExpandableSection>}
+                </div>
+
+            </div>
+        </div>
+    )
 }

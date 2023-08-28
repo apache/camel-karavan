@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Badge,
     Card, CardBody, CardFooter, CardHeader, Flex, FlexItem, Form, FormGroup, Gallery, Modal, PageSection,
@@ -24,66 +24,62 @@ import {
 import '../karavan.css';
 import {CamelUi} from "../utils/CamelUi";
 import {DslMetaModel} from "../utils/DslMetaModel";
+import {useDesignerStore, useSelectorStore} from "../KaravanStore";
+import {shallow} from "zustand/shallow";
+import {useRouteDesignerHook} from "./useRouteDesignerHook";
 
 interface Props {
-    onDslSelect: (dsl: DslMetaModel, parentId: string, position?: number | undefined) => void,
-    onClose?: () => void,
-    parentId: string,
-    parentDsl?: string,
-    showSteps: boolean,
-    dark: boolean,
-    isOpen: boolean,
-    position?: number
     tabIndex?: string | number
 }
 
-interface State {
-    tabIndex: string | number
-    filter: string;
-    selectedLabels: string []
-}
+export function DslSelector (props: Props) {
 
-export class DslSelector extends React.Component<Props, State> {
+    const [showSelector, showSteps, parentId, parentDsl, selectorTabIndex, setShowSelector, setSelectorTabIndex,
+        selectedPosition, selectedLabels, addSelectedLabel, deleteSelectedLabel] =
+        useSelectorStore((s) =>
+            [s.showSelector, s.showSteps, s.parentId, s.parentDsl, s.selectorTabIndex, s.setShowSelector, s.setSelectorTabIndex,
+                s.selectedPosition, s.selectedLabels, s.addSelectedLabel, s.deleteSelectedLabel], shallow)
 
-    public state: State = {
-        tabIndex: this.props.tabIndex ? this.props.tabIndex : (this.props.parentDsl ? 'eip' : 'kamelet'),
-        filter: '',
-        selectedLabels: []
+
+    const [dark] = useDesignerStore((s) => [s.dark], shallow)
+
+    const {onDslSelect} = useRouteDesignerHook();
+
+
+    const [filter, setFilter] = useState<string>('');
+
+    useEffect(() => {
+    }, [selectedLabels]);
+
+
+    function selectTab(evt: React.MouseEvent<HTMLElement, MouseEvent>, eventKey: string | number) {
+        setSelectorTabIndex(eventKey);
     }
 
-    selectTab = (evt: React.MouseEvent<HTMLElement, MouseEvent>, eventKey: string | number) => {
-        this.setState({tabIndex: eventKey});
-    }
-
-    componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        if (prevProps.parentDsl !== this.props.parentDsl) {
-            this.setState({tabIndex: CamelUi.getSelectorModelTypes(this.props.parentDsl, this.props.showSteps)[0][0]});
-        }
-    }
-
-    selectDsl = (evt: React.MouseEvent, dsl: any) => {
+    function selectDsl(evt: React.MouseEvent, dsl: any) {
         evt.stopPropagation();
-        this.setState({filter: ""});
-        this.props.onDslSelect.call(this, dsl, this.props.parentId, this.props.position);
+        setFilter('');
+        setShowSelector(false);
+        onDslSelect(dsl, parentId, selectedPosition);
     }
 
-    searchInput = () => {
+    function searchInput() {
         return (
             <Form isHorizontal className="search" autoComplete="off">
                 <FormGroup fieldId="search">
-                    <TextInput className="text-field" type="text" id="search" name="search" 
-                            value={this.state.filter}
-                            onChange={(_, value) => this.setState({filter: value})}/>
+                    <TextInput className="text-field" type="text" id="search" name="search"
+                               value={filter}
+                               onChange={(_, value) => setFilter(value)}/>
                 </FormGroup>
             </Form>
         )
     }
 
-    getCard(dsl: DslMetaModel, index: number) {
+    function getCard(dsl: DslMetaModel, index: number) {
         const labels = dsl.labels !== undefined ? dsl.labels.split(",").filter(label => label !== 'eip') : [];
         return (
             <Card key={dsl.dsl + index} isCompact className="dsl-card"
-                  onClick={event => this.selectDsl(event, dsl)}>
+                  onClick={event => selectDsl(event, dsl)}>
                 <CardHeader className="header-labels">
                     <Badge isRead className="support-level labels">{dsl.supportLevel}</Badge>
                     {['kamelet', 'component'].includes(dsl.navigation.toLowerCase()) &&
@@ -99,7 +95,8 @@ export class DslSelector extends React.Component<Props, State> {
                 </CardBody>
                 <CardFooter className="footer-labels">
                     <div style={{display: "flex", flexDirection: "row", justifyContent: "start"}}>
-                        {labels.map(label => <Badge key={label} isRead className="labels">{label}</Badge>)}
+                        {labels.map((label, index) => <Badge key={label + "-" + index} isRead
+                                                             className="labels">{label}</Badge>)}
                     </div>
 
                 </CardFooter>
@@ -107,90 +104,80 @@ export class DslSelector extends React.Component<Props, State> {
         )
     }
 
-    close = () => {
-        this.setState({filter: ""});
-        this.props.onClose?.call(this);
+    function close() {
+        setFilter('');
+        setShowSelector(false);
     }
 
-    selectLabel = (eipLabel: string) => {
-        if (!this.state.selectedLabels.includes(eipLabel)) {
-            this.setState((state) => {
-                state.selectedLabels.push(eipLabel);
-                return state
-            })
+    function selectLabel(eipLabel: string) {
+        if (!selectedLabels.includes(eipLabel)) {
+            addSelectedLabel(eipLabel);
         } else {
-            this.setState((state) => {
-                const index = state.selectedLabels.findIndex((label) => label === eipLabel);
-                state.selectedLabels.splice(index, 1);
-                return state;
-            })
+            deleteSelectedLabel(eipLabel);
         }
     }
 
-    render() {
-        const isEip = this.state.tabIndex === 'eip';
-        const {parentDsl, isOpen} = this.props;
-        const title = parentDsl === undefined ? "Select source" : "Select step";
-        const navigation: string = this.state.tabIndex ? this.state.tabIndex.toString() : "";
-        const elements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, navigation, this.props.showSteps);
-        const eipLabels = [...new Set(elements.map(e => e.labels).join(",").split(",").filter(e => e !== 'eip'))];
-        const filteredElement = elements
-            .filter((dsl: DslMetaModel) => CamelUi.checkFilter(dsl, this.state.filter))
-            .filter((dsl: DslMetaModel) => {
-                if (!isEip || this.state.selectedLabels.length === 0) {
-                    return true;
-                } else {
-                    return dsl.labels.split(",").some(r => this.state.selectedLabels.includes(r));
-                }
-            });
+    const isEip = selectorTabIndex === 'eip';
+    const title = parentDsl === undefined ? "Select source" : "Select step";
+    const navigation: string = selectorTabIndex ? selectorTabIndex.toString() : '';
+    const elements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, navigation, showSteps);
+    const eipLabels = [...new Set(elements.map(e => e.labels).join(",").split(",").filter(e => e !== 'eip'))];
+    const filteredElement = elements
+        .filter((dsl: DslMetaModel) => CamelUi.checkFilter(dsl, filter))
+        .filter((dsl: DslMetaModel) => {
+            if (!isEip || selectedLabels.length === 0) {
+                return true;
+            } else {
+                return dsl.labels.split(",").some(r => selectedLabels.includes(r));
+            }
+        });
 
-        return (
-            <Modal
-                aria-label={title}
-                width={'90%'}
-                className='dsl-modal'
-                isOpen={this.props.isOpen}
-                onClose={() => this.close()}
-                header={
-                    <Flex direction={{default: "column"}}>
-                        <FlexItem>
-                            <h3>{title}</h3>
-                            {this.searchInput()}
-                        </FlexItem>
-                        <FlexItem>
-                            <Tabs style={{overflow: 'hidden'}} activeKey={this.state.tabIndex}
-                                  onSelect={this.selectTab}>
-                                {parentDsl !== undefined &&
-                                    <Tab eventKey={"eip"} key={"tab-eip"}
-                                         title={<TabTitleText>Integration Patterns</TabTitleText>}>
-                                    </Tab>
-                                }
-                                <Tab eventKey={'kamelet'} key={"tab-kamelet"}
-                                     title={<TabTitleText>Kamelets</TabTitleText>}>
+    return (
+        <Modal
+            aria-label={title}
+            width={'90%'}
+            className='dsl-modal'
+            isOpen={showSelector}
+            onClose={() => close()}
+            header={
+                <Flex direction={{default: "column"}}>
+                    <FlexItem>
+                        <h3>{title}</h3>
+                        {searchInput()}
+                    </FlexItem>
+                    <FlexItem>
+                        <Tabs style={{overflow: 'hidden'}} activeKey={selectorTabIndex}
+                              onSelect={selectTab}>
+                            {parentDsl !== undefined &&
+                                <Tab eventKey={"eip"} key={"tab-eip"}
+                                     title={<TabTitleText>Integration Patterns</TabTitleText>}>
                                 </Tab>
-                                <Tab eventKey={'component'} key={'tab-component'}
-                                     title={<TabTitleText>Components</TabTitleText>}>
-                                </Tab>
-                            </Tabs>
-                        </FlexItem>
-                    </Flex>
-                }
-                actions={{}}>
-                <PageSection padding={{default:"noPadding"}} variant={this.props.dark ? "darker" : "light"}>
-                    {isEip && <ToggleGroup aria-label="Labels" isCompact>
-                        {eipLabels.map(eipLabel => <ToggleGroupItem
-                            key={eipLabel}
-                            text={eipLabel}
-                            buttonId={eipLabel}
-                            isSelected={this.state.selectedLabels.includes(eipLabel)}
-                            onChange={selected => this.selectLabel(eipLabel)}
-                        />)}
-                    </ToggleGroup>}
-                    <Gallery key={"gallery-" + navigation} hasGutter className="dsl-gallery">
-                        {isOpen && filteredElement.map((dsl: DslMetaModel, index: number) => this.getCard(dsl, index))}
-                    </Gallery>
-                </PageSection>
-            </Modal>
-        )
-    }
+                            }
+                            <Tab eventKey={'kamelet'} key={"tab-kamelet"}
+                                 title={<TabTitleText>Kamelets</TabTitleText>}>
+                            </Tab>
+                            <Tab eventKey={'component'} key={'tab-component'}
+                                 title={<TabTitleText>Components</TabTitleText>}>
+                            </Tab>
+                        </Tabs>
+                    </FlexItem>
+                </Flex>
+            }
+            actions={{}}>
+            <PageSection padding={{default: "noPadding"}} variant={dark ? "darker" : "light"}>
+                {isEip && <ToggleGroup aria-label="Labels" isCompact>
+                    {eipLabels.map(eipLabel => <ToggleGroupItem
+                        key={eipLabel}
+                        text={eipLabel}
+                        buttonId={eipLabel}
+                        isSelected={selectedLabels.includes(eipLabel)}
+                        onChange={selected => selectLabel(eipLabel)}
+                    />)}
+                </ToggleGroup>}
+                <Gallery key={"gallery-" + navigation} hasGutter className="dsl-gallery">
+                    {showSelector && filteredElement.map((dsl: DslMetaModel, index: number) => getCard(dsl, index))}
+                </Gallery>
+            </PageSection>
+        </Modal>
+    )
 }

@@ -28,7 +28,7 @@ interface Props {
     trace: any
 }
 
-export const RunnerInfoTraceNode = (props: Props) => {
+export function RunnerInfoTraceNode (props: Props) {
 
     const type = props.trace?.message?.body?.type;
     const body = props.trace?.message?.body?.value;

@@ -68,7 +68,7 @@ export class CamelDefinitionYaml {
         }
 
         delete object.uuid;
-        delete object.show;
+        delete object.showChildren;
 
         for (const [key, value] of Object.entries(object) as [string, any][]) {
             if (value instanceof CamelElement || (typeof value === 'object' && value?.dslName)) {

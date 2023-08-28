@@ -24,13 +24,13 @@ import {RunnerInfoTraceNode} from "./RunnerInfoTraceNode";
 import ArrowRightIcon from "@patternfly/react-icons/dist/esm/icons/arrow-right-icon";
 
 interface Props {
-    trace: any
+    exchangeId: string
     nodes: any[]
     isOpen: boolean
     onClose: () => void
 }
 
-export const RunnerInfoTraceModal = (props: Props) => {
+export function RunnerInfoTraceModal (props: Props) {
 
     const [activeNode, setActiveNode] = useState(props.nodes.at(0));
 
@@ -42,12 +42,13 @@ export const RunnerInfoTraceModal = (props: Props) => {
         return Array.from(new Set((props.nodes).map((item: any) => item?.routeId)));
     }
 
+    console.log(props.nodes)
     return (
         <Modal
-            title={"Exchange: " + props.trace?.message?.exchangeId}
+            title={"Exchange: " + props.exchangeId}
             variant={ModalVariant.large}
             isOpen={props.isOpen}
-            onClose={() => props.onClose?.call(this)}
+            onClose={() => props.onClose()}
             actions={[
             ]}
         >

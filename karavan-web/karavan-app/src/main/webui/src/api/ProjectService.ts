@@ -117,14 +117,14 @@ export class ProjectService {
         });
     }
 
-    public static saveFile(file: ProjectFile) {
+    public static saveFile(file: ProjectFile, active: boolean) {
         KaravanApi.postProjectFile(file, res => {
             if (res.status === 200) {
                 const newFile = res.data;
-                useFileStore.setState({file: newFile});
-                unstable_batchedUpdates(() => {
-                    useFilesStore.getState().upsertFile(newFile);
-                })
+                useFilesStore.getState().upsertFile(newFile);
+                if (active) {
+                    useFileStore.setState({file: newFile});
+                }
             } else {
                 // console.log(res) //TODO show notification
             }

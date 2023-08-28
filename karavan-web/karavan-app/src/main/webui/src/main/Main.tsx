@@ -21,7 +21,7 @@ import {useMainHook} from "./useMainHook";
 import {MainDataPoller} from "./MainDataPoller";
 import {TemplatesPage} from "../templates/TemplatesPage";
 
-export const Main = () => {
+export function Main () {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow)
     const { getData, getStatuses } = useMainHook();
