@@ -112,6 +112,9 @@ export class ComponentApi {
     };
 
     static parseElementUri(def: any): any {
+        if (def.dslName === 'ToDynamicDefinition') {
+            return def;
+        }
         const uriParts = ComponentApi.parseUri(def.uri);
         if (uriParts.length > 1 && !def.uri.startsWith('kamelet:')) {
             const uriValues = ComponentApi.getUriParts(def.uri);
