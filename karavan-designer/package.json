@@ -37,7 +37,6 @@
     "dagre": "0.8.5",
     "html-to-image": "1.11.11",
     "karavan-core": "file:../karavan-core",
-    "lodash.debounce": "^4.0.8",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "rxjs": "7.8.1",
@@ -47,8 +46,6 @@
   "devDependencies": {
     "@svgr/webpack": "^7.0.0",
     "@types/dagre": "^0.7.48",
-    "@types/lodash": "^4.14.195",
-    "@types/lodash.debounce": "^4.0.7",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.1",
     "@typescript-eslint/eslint-plugin": "^5.59.2",

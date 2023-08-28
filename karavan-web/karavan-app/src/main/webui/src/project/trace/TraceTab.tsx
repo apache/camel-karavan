@@ -43,7 +43,7 @@ import {useProjectStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 
 
-export const TraceTab = () => {
+export function TraceTab () {
 
     const [refreshTrace, setRefreshTrace, trace] = useProjectStore((state) =>
         [state.refreshTrace, state.setRefreshTrace, state.trace], shallow);

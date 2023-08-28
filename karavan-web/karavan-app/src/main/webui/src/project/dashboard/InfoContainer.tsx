@@ -16,7 +16,7 @@ interface Props {
     containerStatus: ContainerStatus,
 }
 
-export const InfoContainer = (props: Props) => {
+export function InfoContainer (props: Props) {
 
     function getPodInfoLabel(info: string) {
         return (

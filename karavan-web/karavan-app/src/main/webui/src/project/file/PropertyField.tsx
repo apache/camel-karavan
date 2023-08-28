@@ -31,7 +31,7 @@ interface Props {
     onDelete: (id: string) => void
 }
 
-export const PropertyField = (props: Props) => {
+export function PropertyField (props: Props) {
 
     const [key, setKey] = useState<string | undefined>(props.property.key);
     const [value, setValue] = useState<string | undefined>(props.property.value);
@@ -48,7 +48,7 @@ export const PropertyField = (props: Props) => {
                            onChange={(e, val) => {
                                e.preventDefault();
                                setKey(val)
-                               props.changeProperty?.call(this, new ProjectProperty({id: props.property.id, key: val, value: value}));
+                               props.changeProperty(new ProjectProperty({id: props.property.id, key: val, value: value}));
                            }}/>
             </Td>
             <Td noPadding width={20} dataLabel="value">
@@ -58,13 +58,13 @@ export const PropertyField = (props: Props) => {
                            onChange={(e, val) => {
                                e.preventDefault();
                                setValue(val);
-                               props.changeProperty?.call(this, new ProjectProperty({id: props.property.id, key: key, value: val}));
+                               props.changeProperty(new ProjectProperty({id: props.property.id, key: key, value: val}));
                            }}/>
             </Td>
             <Td noPadding isActionCell dataLabel="delete" className="delete-cell">
                 {!props.readOnly && <Button variant={"plain"} icon={<DeleteIcon/>} className={"delete-button"}
                                       onClick={event => {
-                                          props.onDelete?.call(this, props.property.id)
+                                          props.onDelete(props.property.id)
                                       }}/>}
             </Td>
         </Tr>

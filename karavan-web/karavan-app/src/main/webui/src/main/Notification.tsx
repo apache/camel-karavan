@@ -7,7 +7,7 @@ import '../designer/karavan.css';
 import {ToastMessage} from "../api/ProjectModels";
 import {ProjectEventBus} from "../api/ProjectEventBus";
 
-export const Notification = () => {
+export function Notification () {
 
     const [alerts, setAlerts] = useState<ToastMessage[]>([]);
 

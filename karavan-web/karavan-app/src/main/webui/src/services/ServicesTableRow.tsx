@@ -24,7 +24,7 @@ interface Props {
     container?: ContainerStatus
 }
 
-export const ServicesTableRow = (props: Props) => {
+export function ServicesTableRow (props: Props) {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [isExpanded, setIsExpanded] = useState<boolean>(false);

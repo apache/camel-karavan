@@ -8,7 +8,7 @@ import '../../designer/karavan.css';
 import {useFileStore} from "../../api/ProjectStore";
 import {ProjectService} from "../../api/ProjectService";
 
-export const DeleteFileModal = () => {
+export function DeleteFileModal () {
 
     const {file, operation} = useFileStore();
 

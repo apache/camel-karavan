@@ -38,7 +38,7 @@ import {shallow} from "zustand/shallow";
 import {ProjectLogPanel} from "../project/log/ProjectLogPanel";
 
 
-export const ServicesPage = () => {
+export function ServicesPage () {
 
     const [services, setServices] = useState<Services>();
     const [containers] = useStatusesStore((state) => [state.containers, state.setContainers], shallow);

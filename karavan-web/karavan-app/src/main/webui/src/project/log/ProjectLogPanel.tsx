@@ -5,7 +5,7 @@ import CloseIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
 import ExpandIcon from '@patternfly/react-icons/dist/esm/icons/expand-icon';
 import CollapseIcon from '@patternfly/react-icons/dist/esm/icons/compress-icon';
 import CleanIcon from '@patternfly/react-icons/dist/esm/icons/trash-alt-icon';
-import {useLogStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
+import {useLogStore, useStatusesStore} from "../../api/ProjectStore";
 import {KaravanApi} from "../../api/KaravanApi";
 import {shallow} from "zustand/shallow";
 import {ProjectEventBus} from "../../api/ProjectEventBus";
@@ -13,7 +13,7 @@ import {ProjectLog} from "./ProjectLog";
 
 const INITIAL_LOG_HEIGHT = "50%";
 
-export const ProjectLogPanel = () => {
+export function ProjectLogPanel () {
     const [showLog, type, setShowLog, podName] = useLogStore(
         (state) => [state.showLog, state.type, state.setShowLog, state.podName], shallow)
 

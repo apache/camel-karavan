@@ -12,7 +12,7 @@ import '../designer/karavan.css';
 import {getProjectFileType} from "../api/ProjectModels";
 import {useAppConfigStore, useFileStore, useProjectStore} from "../api/ProjectStore";
 
-export const ProjectTitle = () => {
+export function ProjectTitle () {
 
     const {project} = useProjectStore();
     const {file, operation, setFile} = useFileStore();

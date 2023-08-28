@@ -13,7 +13,7 @@ import {QuarkusIcon, SpringIcon} from "../designer/utils/KaravanIcons";
 import {CamelUi} from "../designer/utils/CamelUi";
 
 
-export const CreateServiceModal = () => {
+export function CreateServiceModal () {
 
     const {project, operation} = useProjectStore();
     const [name, setName] = useState('');

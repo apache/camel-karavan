@@ -8,7 +8,7 @@ import '../designer/karavan.css';
 import {useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 
-export const DeleteProjectModal = () => {
+export function DeleteProjectModal () {
 
     const {project, operation} = useProjectStore();
 

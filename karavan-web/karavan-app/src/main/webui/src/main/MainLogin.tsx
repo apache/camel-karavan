@@ -8,7 +8,7 @@ import {shallow} from "zustand/shallow";
 import {ProjectEventBus} from "../api/ProjectEventBus";
 import {ToastMessage} from "../api/ProjectModels";
 
-export const MainLogin = () => {
+export function MainLogin () {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [username, setUsername] = useState<string>();

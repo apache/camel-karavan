@@ -14,7 +14,7 @@ import {
 import {useAppConfigStore, useProjectsStore, useProjectStore, useStatusesStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 
-export const MainDataPoller = () => {
+export function MainDataPoller () {
 
     const [config, setLoading] = useAppConfigStore((s) =>
         [s.config, s.setLoading], shallow)

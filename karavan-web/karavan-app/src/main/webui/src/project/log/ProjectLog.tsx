@@ -10,7 +10,7 @@ interface Props {
     header?: React.ReactNode
 }
 
-export const ProjectLog = (props: Props) => {
+export function ProjectLog (props: Props) {
 
     const [data, currentLine] = useLogStore((state) => [state.data, state.currentLine], shallow );
     const [logViewerRef] = useState(React.createRef());

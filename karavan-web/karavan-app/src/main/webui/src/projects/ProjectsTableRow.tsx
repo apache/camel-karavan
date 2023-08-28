@@ -23,7 +23,7 @@ interface Props {
     project: Project
 }
 
-export const ProjectsTableRow = (props: Props) => {
+export function ProjectsTableRow (props: Props) {
 
     const [deployments, containers] = useStatusesStore((state) => [state.deployments, state.containers], shallow)
     const {config} = useAppConfigStore();

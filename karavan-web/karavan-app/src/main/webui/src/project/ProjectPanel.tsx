@@ -12,7 +12,7 @@ import {ProjectBuildTab} from "./build/ProjectBuildTab";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 
-export const ProjectPanel = () => {
+export function ProjectPanel () {
 
     const [tab, setTab] = useState<string | number>('files');
     const [project] = useProjectStore((state) => [state.project], shallow )

@@ -19,17 +19,12 @@ import '../karavan.css';
 import {DslMetaModel} from "../utils/DslMetaModel";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {ChoiceDefinition, FromDefinition, LogDefinition, RouteConfigurationDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
-import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
+import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {Command, EventBus} from "../utils/EventBus";
-import {RouteToCreate} from "../utils/CamelUi";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {toPng} from 'html-to-image';
-import {RouteDesigner} from "./RouteDesigner";
-import {findDOMNode} from "react-dom";
-import {Subscription} from "rxjs";
-import debounce from 'lodash.debounce';
 import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../KaravanStore";
 import {shallow} from "zustand/shallow";
 

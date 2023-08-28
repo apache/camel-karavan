@@ -30,7 +30,7 @@ interface Props {
     onClose: () => void
 }
 
-export const RunnerInfoTraceModal = (props: Props) => {
+export function RunnerInfoTraceModal (props: Props) {
 
     const [activeNode, setActiveNode] = useState(props.nodes.at(0));
 
@@ -48,7 +48,7 @@ export const RunnerInfoTraceModal = (props: Props) => {
             title={"Exchange: " + props.exchangeId}
             variant={ModalVariant.large}
             isOpen={props.isOpen}
-            onClose={() => props.onClose?.call(this)}
+            onClose={() => props.onClose()}
             actions={[
             ]}
         >

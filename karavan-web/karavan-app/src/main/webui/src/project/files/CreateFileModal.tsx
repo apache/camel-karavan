@@ -19,7 +19,7 @@ interface Props {
     types: string[]
 }
 
-export const CreateFileModal = (props: Props) => {
+export function CreateFileModal (props: Props) {
 
     const {operation} = useFileStore();
     const {project, setProject} = useProjectStore();

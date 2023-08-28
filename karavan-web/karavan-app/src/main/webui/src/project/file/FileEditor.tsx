@@ -29,7 +29,7 @@ interface Props {
     projectId: string
 }
 
-export const FileEditor = (props: Props) => {
+export function FileEditor (props: Props) {
 
     const [file, operation, mode] = useFileStore((state) =>
         [state.file, state.operation, state.mode, state.setMode], shallow )

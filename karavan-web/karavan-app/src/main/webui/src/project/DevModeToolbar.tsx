@@ -15,7 +15,7 @@ interface Props {
     reloadOnly?: boolean
 }
 
-export const DevModeToolbar = (props: Props) => {
+export function DevModeToolbar (props: Props) {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [status] = useDevModeStore((state) => [state.status], shallow)

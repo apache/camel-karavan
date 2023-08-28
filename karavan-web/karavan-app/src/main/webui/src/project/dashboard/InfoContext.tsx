@@ -17,7 +17,7 @@ interface Props {
     showConsole: boolean
 }
 
-export const InfoContext = (props: Props) => {
+export function InfoContext (props: Props) {
 
     function getContextInfo() {
         return (

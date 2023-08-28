@@ -28,7 +28,7 @@ import {shallow} from "zustand/shallow";
 import {ProjectService} from "../../api/ProjectService";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 
-export const FileToolbar = () => {
+export function FileToolbar () {
 
     const [commitMessageIsOpen, setCommitMessageIsOpen] = useState(false);
     const [commitMessage, setCommitMessage] = useState('');

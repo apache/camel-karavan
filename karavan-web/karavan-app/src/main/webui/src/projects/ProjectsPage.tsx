@@ -36,7 +36,7 @@ import {shallow} from "zustand/shallow";
 import {useParams} from "react-router-dom";
 import {KaravanApi} from "../api/KaravanApi";
 
-export const ProjectsPage = () => {
+export function ProjectsPage () {
 
     const [projects] = useProjectsStore((state) => [state.projects], shallow)
     const [operation] = useProjectStore((state) => [state.operation], shallow)

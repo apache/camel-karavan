@@ -16,7 +16,7 @@ import {useParams} from "react-router-dom";
 import {KaravanApi} from "../api/KaravanApi";
 import {ProjectDataPoller} from "./ProjectDataPoller";
 
-export const ProjectPage = () => {
+export function ProjectPage () {
 
     const {file, operation} = useFileStore();
     const [mode, setMode] = useState<"design" | "code">("design");

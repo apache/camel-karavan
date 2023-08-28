@@ -13,7 +13,7 @@ import {QuarkusIcon, SpringIcon, CamelIcon} from "../designer/utils/KaravanIcons
 import {CamelUi} from "../designer/utils/CamelUi";
 
 
-export const CreateProjectModal = () => {
+export function CreateProjectModal () {
 
     const {project, operation} = useProjectStore();
     const [name, setName] = useState('');

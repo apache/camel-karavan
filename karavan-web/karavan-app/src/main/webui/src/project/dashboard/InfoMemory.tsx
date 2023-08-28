@@ -18,7 +18,7 @@ interface Props {
     showConsole: boolean
 }
 
-export const InfoMemory = (props: Props) => {
+export function InfoMemory (props: Props) {
 
     function getJvmInfo() {
         return (

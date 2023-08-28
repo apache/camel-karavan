@@ -32,7 +32,7 @@ class MenuItem {
     }
 }
 
-export const PageNavigation = () => {
+export function PageNavigation () {
 
     const [config, loading] = useAppConfigStore((state) => [state.config, state.loading], shallow)
     const [setFile] = useFileStore((state) => [state.setFile], shallow)

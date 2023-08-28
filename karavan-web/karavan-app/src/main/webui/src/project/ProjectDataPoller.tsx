@@ -5,7 +5,7 @@ import '../designer/karavan.css';
 import {useAppConfigStore, useProjectStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 
-export const ProjectDataPoller = () => {
+export function ProjectDataPoller () {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [project, setMemory, setJvm, setContext, refreshTrace, setTrace] = useProjectStore((s) =>
