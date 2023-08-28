@@ -5,7 +5,7 @@ import {
 import '../designer/karavan.css';
 import {ProjectToolbar} from "./ProjectToolbar";
 import {ProjectLogPanel} from "./log/ProjectLogPanel";
-import {ProjectFileTypes} from "../api/ProjectModels";
+import {Project, ProjectFileTypes} from "../api/ProjectModels";
 import {useFileStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
 import {ProjectTitle} from "./ProjectTitle";
@@ -32,26 +32,18 @@ export const ProjectPage = () => {
         } else if (projectId){
             KaravanApi.getProject(projectId, project1 => setProject(project1, "select"));
         }
+        return () => {
+            setProject(new Project(), "none");
+        }
     }, []);
 
-    function isBuildIn(): boolean {
-        return ['kamelets', 'templates', 'services'].includes(project.projectId);
-    }
-
-    function isKameletsProject(): boolean {
-        return project.projectId === 'kamelets';
-    }
-
-    const types = isBuildIn()
-        ? (isKameletsProject() ? ['KAMELET'] : ['CODE', 'PROPERTIES'])
-        : ProjectFileTypes.filter(p => !['PROPERTIES', 'LOG', 'KAMELET'].includes(p.name)).map(p => p.name);
     const showFilePanel = file !== undefined && operation === 'select';
     return (
-        <PageSection key={key} className="kamelet-section project-page" padding={{default: 'noPadding'}}>
-            <PageSection className="tools-section" padding={{default: 'noPadding'}}>
+        <PageSection className="designer-page project-page" padding={{default: 'noPadding'}}>
+            <div className="tools-section">
                 <MainToolbar title={<ProjectTitle/>} tools={<ProjectToolbar/>}/>
-            </PageSection>
-            {showFilePanel && <FileEditor/>}
+            </div>
+            {showFilePanel && <FileEditor projectId={project.projectId}/>}
             {!showFilePanel && <ProjectPanel/>}
             <ProjectLogPanel/>
             <ProjectDataPoller/>

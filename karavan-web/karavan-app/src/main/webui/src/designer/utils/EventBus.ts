@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 import {Subject} from 'rxjs';
-import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
+import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 
 const positions = new Subject<DslPosition>();
 
@@ -59,6 +59,17 @@ export class Command {
     }
 }
 
+const updates = new Subject<IntegrationUpdate>();
+export class IntegrationUpdate {
+    integration: Integration;
+    propertyOnly: boolean;
+
+    constructor(integration: Integration, propertyOnly: boolean) {
+        this.integration = integration;
+        this.propertyOnly = propertyOnly;
+    }
+}
+
 export const EventBus = {
     sendPosition: (command: "add" | "delete" | "clean",
                    step: CamelElement,
@@ -69,6 +80,9 @@ export const EventBus = {
                    inSteps: boolean = false,
                    isSelected: boolean = false) => positions.next(new DslPosition(command, step, parent, rect, headerRect, position, inSteps, isSelected)),
     onPosition: () => positions.asObservable(),
+
+    sendIntegrationUpdate: (i: Integration, propertyOnly: boolean) => updates.next(new IntegrationUpdate(i, propertyOnly)),
+    onIntegrationUpdate: () => updates.asObservable(),
 
     sendCommand: (command: string, data?: any) => commands.next(new Command(command, data)),
     onCommand: () => commands.asObservable(),

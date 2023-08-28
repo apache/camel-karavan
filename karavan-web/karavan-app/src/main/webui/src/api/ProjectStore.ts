@@ -28,7 +28,8 @@ import {
 } from "./ProjectModels";
 import {ProjectEventBus} from "./ProjectEventBus";
 import {unstable_batchedUpdates} from "react-dom";
-import {useState} from "react";
+import {createWithEqualityFn} from "zustand/traditional";
+import {shallow} from "zustand/shallow";
 
 interface AppConfigState {
     loading: boolean;
@@ -37,7 +38,7 @@ interface AppConfigState {
     setConfig: (config: AppConfig) => void;
 }
 
-export const useAppConfigStore = create<AppConfigState>((set) => ({
+export const useAppConfigStore = createWithEqualityFn<AppConfigState>((set) => ({
     loading: false,
     setLoading: (loading: boolean)  => {
         set({loading: loading})
@@ -46,7 +47,7 @@ export const useAppConfigStore = create<AppConfigState>((set) => ({
     setConfig: (config: AppConfig)  => {
         set({config: config})
     },
-}))
+}), shallow)
 
 
 interface ProjectsState {
@@ -55,7 +56,7 @@ interface ProjectsState {
     upsertProject: (project: Project) => void;
 }
 
-export const useProjectsStore = create<ProjectsState>((set) => ({
+export const useProjectsStore = createWithEqualityFn<ProjectsState>((set) => ({
     projects: [],
     setProjects: (ps: Project[]) => {
         set((state: ProjectsState) => ({
@@ -69,7 +70,7 @@ export const useProjectsStore = create<ProjectsState>((set) => ({
                 : [...state.projects.filter(f => f.projectId !== project.projectId), project]
         }));
     }
-}))
+}), shallow)
 
 interface ProjectState {
     isPushing: boolean,
@@ -90,7 +91,7 @@ interface ProjectState {
     setRefreshTrace: (refreshTrace: boolean) => void;
 }
 
-export const useProjectStore = create<ProjectState>((set) => ({
+export const useProjectStore = createWithEqualityFn<ProjectState>((set) => ({
     project: new Project(),
     operation: "none",
     isPushing: false,
@@ -131,7 +132,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
     setRefreshTrace: (refreshTrace: boolean)  => {
         set({refreshTrace: refreshTrace})
     },
-}))
+}), shallow)
 
 interface FilesState {
     files: ProjectFile[];
@@ -139,7 +140,7 @@ interface FilesState {
     upsertFile: (file: ProjectFile) => void;
 }
 
-export const useFilesStore = create<FilesState>((set) => ({
+export const useFilesStore = createWithEqualityFn<FilesState>((set) => ({
     files: [],
     setFiles: (files: ProjectFile[]) => {
         set((state: FilesState) => ({
@@ -153,7 +154,7 @@ export const useFilesStore = create<FilesState>((set) => ({
                 : [...state.files.filter(f => f.name !== file.name), file]
         }));
     }
-}))
+}), shallow)
 
 interface FileState {
     file?: ProjectFile;
@@ -167,7 +168,7 @@ interface FileState {
     setMode: (mode: "design" | "code") => void;
 }
 
-export const useFileStore = create<FileState>((set) => ({
+export const useFileStore = createWithEqualityFn<FileState>((set) => ({
     file: undefined,
     operation: "none",
     editAdvancedProperties: false,
@@ -188,7 +189,7 @@ export const useFileStore = create<FileState>((set) => ({
     setAddProperty: (addProperty: string) => {
         set(() => ({addProperty: addProperty}));
     },
-}))
+}), shallow)
 
 interface DevModeState {
     podName?: string,
@@ -197,7 +198,7 @@ interface DevModeState {
     setPodName: (podName?: string) => void,
 }
 
-export const useDevModeStore = create<DevModeState>((set) => ({
+export const useDevModeStore = createWithEqualityFn<DevModeState>((set) => ({
     podName: undefined,
     status: "none",
     setStatus: (status: "none" | "wip") =>  {
@@ -210,7 +211,7 @@ export const useDevModeStore = create<DevModeState>((set) => ({
             podName: podName,
         }));
     },
-}))
+}), shallow)
 
 interface StatusesState {
     deployments: DeploymentStatus[];
@@ -225,7 +226,7 @@ interface StatusesState {
     setPipelineStatuses: (pipelineStatus: PipelineStatus[]) => void;
 }
 
-export const useStatusesStore = create<StatusesState>((set) => ({
+export const useStatusesStore = createWithEqualityFn<StatusesState>((set) => ({
     deployments: [],
     services: [],
     containers: [],
@@ -254,7 +255,7 @@ export const useStatusesStore = create<StatusesState>((set) => ({
     setPipelineStatuses: (pipelineStatuses: PipelineStatus[])  => {
         set({pipelineStatuses: pipelineStatuses})
     },
-}))
+}), shallow)
 
 interface LogState {
     podName?: string,
@@ -270,7 +271,7 @@ interface LogState {
     setType: (type: 'container' | 'pipeline' | 'none') => void,
 }
 
-export const useLogStore = create<LogState>((set) => ({
+export const useLogStore = createWithEqualityFn<LogState>((set) => ({
     podName: undefined,
     data: '',
     setData: (data: string)  => {
@@ -300,7 +301,7 @@ export const useLogStore = create<LogState>((set) => ({
     setType: (type: 'container' | 'pipeline' | 'none') =>  {
         set((state: LogState) => ({type: type}));
     },
-}))
+}), shallow)
 
 console.log("Start log subscriber");
 const sub = ProjectEventBus.onLog()?.subscribe((result: ["add" | "set", string]) => {

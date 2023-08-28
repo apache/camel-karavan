@@ -4,9 +4,11 @@
       uri: kamelet:timer-source
       id: from-e52c
       steps:
+        - process:
+            id: process-1dad
         - filter:
-              expression: {}
-              id: filter-064f
+            expression: {}
+            id: filter-064f
 #        - choice:
 #            when:
 #              - expression: {}

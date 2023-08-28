@@ -102,7 +102,7 @@ export const DesignerPage = (props: Props) => {
     return (
         <PageSection className="designer-page" padding={{default: 'noPadding'}}>
             <div className="tools-section" //padding={{default: 'noPadding'}}
-                 style={{backgroundColor:"transparent", paddingLeft: "var(--pf-v5-c-page__main-section--PaddingLeft)"}}>
+                 style={{paddingLeft: "var(--pf-v5-c-page__main-section--PaddingLeft)"}}>
                 <Flex className="tools" justifyContent={{default: 'justifyContentSpaceBetween'}}>
                     <FlexItem>
                         <TextContent className="header">

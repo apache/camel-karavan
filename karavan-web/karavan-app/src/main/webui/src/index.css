@@ -91,6 +91,12 @@
   font-size: 14px;
 }
 
+.karavan .projects-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .karavan .projects-page .pf-v5-c-table tr {
   --pf-v5-c-table--cell--FontSize: 14px;
 }

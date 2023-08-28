@@ -144,7 +144,7 @@ export function RouteDesigner() {
             </div>)
     }
 
-    const hasFlows = integration?.spec?.flows?.length && integration?.spec?.flows?.length > 0;
+    const hasFlows = integration?.spec?.flows !== undefined;
     return (
         <div className="dsl-page" ref={firstRef}>
             <div className="dsl-page-columns" ref={secondRef}>

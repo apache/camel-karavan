@@ -4,7 +4,6 @@ import {KaravanApi} from "../api/KaravanApi";
 import '../designer/karavan.css';
 import {useAppConfigStore, useProjectStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
-import {CamelStatus, DeploymentStatus, PipelineStatus} from "../api/ProjectModels";
 
 export const ProjectDataPoller = () => {
 
@@ -14,9 +13,7 @@ export const ProjectDataPoller = () => {
 
     useEffect(() => {
         console.log("ProjectDataPoller Start");
-        const interval = setInterval(() => {
-            onRefreshStatus();
-        }, 1000);
+        const interval = setInterval(() => onRefreshStatus(), 1000);
         return () => {
             console.log("ProjectDataPoller Stop");
             clearInterval(interval)
@@ -24,6 +21,7 @@ export const ProjectDataPoller = () => {
     }, [project, refreshTrace]);
 
     function onRefreshStatus() {
+        console.log("ProjectDataPoller onRefreshStatus")
         const projectId = project.projectId;
         KaravanApi.getDevModeStatus(projectId, "memory", res => {
             if (res.status === 200) {

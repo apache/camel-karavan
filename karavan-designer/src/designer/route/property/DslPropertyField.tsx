@@ -69,6 +69,7 @@ import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 import {useDesignerStore, useIntegrationStore} from "../../KaravanStore";
 import {shallow} from "zustand/shallow";
 import {DataFormatDefinition, ExpressionDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 
 interface Props {
     property: PropertyMeta,
@@ -262,17 +263,16 @@ export function DslPropertyField(props: Props) {
 
     function showCode(name: string, javaType: string) {
         const {property} = props;
-        // TODO: 
-        // InfrastructureAPI.onGetCustomCode?.(name, property.javaType).then(value => {
-        //     if (value === undefined) {
-        //         const code = TemplateApi.generateCode(property.javaType, name);
-        //         setShowEditor(true);
-        //         setCustomCode(code);
-        //     } else {
-        //         setShowEditor(true);
-        //         setCustomCode(value);
-        //     }
-        // }).catch((reason: any) => console.log(reason))
+        InfrastructureAPI.onGetCustomCode?.(name, property.javaType).then(value => {
+            if (value === undefined) {
+                const code = TemplateApi.generateCode(property.javaType, name);
+                setCustomCode(code);
+                setShowEditor(true);
+            } else {
+                setCustomCode(value);
+                setShowEditor(true);
+            }
+        }).catch((reason: any) => console.log(reason))
     }
 
     function getJavaTypeGeneratedInput(property: PropertyMeta, value: any) {
@@ -298,7 +298,7 @@ export function DslPropertyField(props: Props) {
                     </Button>
                 </Tooltip>
             </InputGroupItem>
-            <InputGroupItem>
+            {showEditor && <InputGroupItem>
                 <ModalEditor property={property}
                              customCode={customCode}
                              showEditor={showEditor}
@@ -308,11 +308,10 @@ export function DslPropertyField(props: Props) {
                              onClose={() => setShowEditor(false)}
                              onSave={(fieldId, value1) => {
                                  propertyChanged(fieldId, value);
-                                 // TODO:
-                                 // KaravanInstance.getProps().onSaveCustomCode?.call(this, value, value1);
+                                 InfrastructureAPI.onSaveCustomCode?.(value, value1);
                                  setShowEditor(false)
                              }}/>
-            </InputGroupItem>
+            </InputGroupItem>}
         </InputGroup>)
     }
 
@@ -322,21 +321,21 @@ export function DslPropertyField(props: Props) {
             <InputGroup>
                 <InputGroupItem isFill>
                     <TextArea
-                    autoResize
-                    className="text-field" isRequired
-                    type={"text"}
-                    id={property.name}
-                    name={property.name}
-                    height={"100px"}
-                    value={value?.toString()}
-                    onChange={(_, v) => propertyChanged(property.name, v)}/>
+                        autoResize
+                        className="text-field" isRequired
+                        type={"text"}
+                        id={property.name}
+                        name={property.name}
+                        height={"100px"}
+                        value={value?.toString()}
+                        onChange={(_, v) => propertyChanged(property.name, v)}/>
                 </InputGroupItem>
                 <InputGroupItem>
                     <Tooltip position="bottom-end" content={"Show Editor"}>
-                    <Button variant="control" onClick={e => setShowEditor(!showEditor)}>
-                        <EditorIcon/>
-                    </Button>
-                </Tooltip>
+                        <Button variant="control" onClick={e => setShowEditor(!showEditor)}>
+                            <EditorIcon/>
+                        </Button>
+                    </Tooltip>
                 </InputGroupItem>
                 {showEditor && <InputGroupItem>
                     <ModalEditor property={property}
@@ -514,26 +513,26 @@ export function DslPropertyField(props: Props) {
         return (
             <InputGroup id={property.name} name={property.name}>
                 <InputGroupItem isFill>
-            <Select
-                placeholderText="Select or type an URI"
-                variant={SelectVariant.typeahead}
-                aria-label={property.name}
-                onClear={event => propertyChanged(property.name, undefined, undefined)}
-                onToggle={(_event, isExpanded) => {
-                    openSelect(property.name, isExpanded)
-                }}
-                onSelect={(e, value, isPlaceholder) => {
-                    propertyChanged(property.name, (!isPlaceholder ? value : undefined), undefined)
-                }}
-                selections={value}
-                isOpen={isSelectOpen(property.name)}
-                isCreatable={true}
-                isInputFilterPersisted={true}
-                aria-labelledby={property.name}
-                direction={SelectDirection.down}
-            >
-                {selectOptions}
-            </Select>
+                    <Select
+                        placeholderText="Select or type an URI"
+                        variant={SelectVariant.typeahead}
+                        aria-label={property.name}
+                        onClear={event => propertyChanged(property.name, undefined, undefined)}
+                        onToggle={(_event, isExpanded) => {
+                            openSelect(property.name, isExpanded)
+                        }}
+                        onSelect={(e, value, isPlaceholder) => {
+                            propertyChanged(property.name, (!isPlaceholder ? value : undefined), undefined)
+                        }}
+                        selections={value}
+                        isOpen={isSelectOpen(property.name)}
+                        isCreatable={true}
+                        isInputFilterPersisted={true}
+                        aria-labelledby={property.name}
+                        direction={SelectDirection.down}
+                    >
+                        {selectOptions}
+                    </Select>
                 </InputGroupItem>
                 <InputGroupItem>
                     <Tooltip position="bottom-end" content={"Create route"}>

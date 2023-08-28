@@ -255,6 +255,16 @@
     height: 24px;
 }
 
+.karavan .designer-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.karavan .designer-page .project-page-section {
+    background-color: white;
+}
+
 .karavan .designer-page .main-tabs-wrapper {
     display: flex;
     flex-direction: row;
@@ -1267,6 +1277,9 @@
 }
 
 
+.karavan .tools-section {
+    background-color: white;
+}
 .karavan .tools-section .tools .header {
     display: flex;
     flex-direction: row;
@@ -1412,15 +1425,4 @@
     flex-grow: 1;
     background-color: var(--pf-v5-global--BackgroundColor--light-300);
     margin-bottom: 100px;
-}
-
-.karavan .designer-page {
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-.karavan .designer-page .project-page-section {
-    background-color: white;
 }

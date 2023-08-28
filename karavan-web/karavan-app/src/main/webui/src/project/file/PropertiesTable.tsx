@@ -55,7 +55,7 @@ export const PropertiesTable = () => {
     function save (props: ProjectProperty[]) {
         if (file) {
             file.code = ProjectModelApi.propertiesToString(props);
-            ProjectService.saveFile(file);
+            ProjectService.saveFile(file, true);
         }
     }
 

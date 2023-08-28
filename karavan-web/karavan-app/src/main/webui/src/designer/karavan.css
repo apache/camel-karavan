@@ -34,6 +34,11 @@
     height: 36px;
 }
 
+.karavan .pf-v5-c-switch__input:focus ~ .pf-v5-c-switch__toggle {
+    outline: transparent;
+    outline-offset: 0;
+}
+
 .karavan .header-button {
     margin-left: var(--pf-v5-c-page__header-tools--MarginRight);
 }
@@ -231,10 +236,13 @@
     flex-direction: column;
 }
 
+.karavan main {
+    overflow: hidden;
+}
+
 /*DSL*/
 .karavan .dsl-page {
-    flex: 1;
-    overflow: auto;
+    height: 100%;
 }
 
 .karavan .dsl-page .dsl-page-columns {
@@ -247,12 +255,41 @@
     height: 24px;
 }
 
-.karavan .main-tabs .top-menu-item {
+.karavan .designer-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.karavan .designer-page .project-page-section {
+    background-color: white;
+}
+
+.karavan .designer-page .main-tabs-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.karavan .designer-page .main-tabs-wrapper::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border: solid;
+    border-width: 0 0 var(--pf-v5-global--BorderWidth--sm) 0;
+    border-bottom-color: var(--pf-v5-global--BorderColor--100);
+}
+
+.karavan .designer-page .main-tabs-wrapper .main-tabs .top-menu-item {
     display: flex;
     flex-direction: row;
 }
 
-.karavan .main-tabs .top-menu-item .count {
+.karavan .designer-page .main-tabs-wrapper .main-tabs .top-menu-item .count {
     background: var(--pf-v5-global--active-color--100);
     color: white;
     height: fit-content;
@@ -261,17 +298,22 @@
     min-width: 0px;
 }
 
-.karavan .main-tabs .pf-v5-c-tabs__link .pf-v5-c-tabs__item-icon {
+.karavan .designer-page .main-tabs-wrapper .main-tabs .pf-v5-c-tabs__link .pf-v5-c-tabs__item-icon {
     height: 24px;
     margin-right: 0;
 }
 
-.karavan .main-tabs .pf-v5-c-tabs__item-text {
+.karavan .designer-page .main-tabs-wrapper .main-tabs .pf-v5-c-tabs__item-text {
     font-size: 14px;
     font-weight: bold;
     margin-top: auto;
     margin-bottom: auto;
     margin-right: 6px;
+}
+
+.karavan .designer-page .page .main-tabs-wrapper .hide-log {
+    white-space: nowrap;
+    margin-right: 16px;
 }
 
 /*Properties*/
@@ -381,7 +423,7 @@
 
 .karavan .properties .expression-title {
     font-size: 17px;
-    font-weught: bold;
+    font-weight: bold;
 }
 
 .karavan .properties .text-area {
@@ -551,8 +593,8 @@
 
 .karavan .dsl-page .flows {
     width: 100%;
-    position: relative;
-    margin-bottom: 80px;
+    position: absolute;
+    /*margin-bottom: 80px;*/
 }
 
 .karavan .dsl-page .flows .add-flow {
@@ -1090,7 +1132,7 @@
     height: 44px;
     margin-left: 6px;
     cursor: pointer;
-    ustify-content: space-between;
+    justify-content: space-between;
 }
 
 .karavan .rest-page .rest-config-card,
@@ -1235,6 +1277,9 @@
 }
 
 
+.karavan .tools-section {
+    background-color: white;
+}
 .karavan .tools-section .tools .header {
     display: flex;
     flex-direction: row;
@@ -1380,12 +1425,4 @@
     flex-grow: 1;
     background-color: var(--pf-v5-global--BackgroundColor--light-300);
     margin-bottom: 100px;
-}
-
-.karavan .designer-page {
-    background-color: white;
-}
-
-.karavan .designer-page .project-page-section {
-    background-color: white;
 }

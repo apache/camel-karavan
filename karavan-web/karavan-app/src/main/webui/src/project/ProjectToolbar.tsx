@@ -63,7 +63,7 @@ export const ProjectToolbar = () => {
             const props = project.properties;
             props.push(ProjectProperty.createNew("", ""));
             file.code = ProjectModelApi.propertiesToString(props);
-            ProjectService.saveFile(file);
+            ProjectService.saveFile(file, true);
             setAddProperty(Math.random().toString());
         }
     }
