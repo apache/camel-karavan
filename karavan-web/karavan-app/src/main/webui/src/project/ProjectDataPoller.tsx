@@ -12,16 +12,13 @@ export const ProjectDataPoller = () => {
         [s.project, s.setMemory, s.setJvm, s.setContext, s.refreshTrace, s.setTrace], shallow);
 
     useEffect(() => {
-        console.log("ProjectDataPoller Start");
         const interval = setInterval(() => onRefreshStatus(), 1000);
         return () => {
-            console.log("ProjectDataPoller Stop");
             clearInterval(interval)
         };
     }, [project, refreshTrace]);
 
     function onRefreshStatus() {
-        console.log("ProjectDataPoller onRefreshStatus")
         const projectId = project.projectId;
         KaravanApi.getDevModeStatus(projectId, "memory", res => {
             if (res.status === 200) {

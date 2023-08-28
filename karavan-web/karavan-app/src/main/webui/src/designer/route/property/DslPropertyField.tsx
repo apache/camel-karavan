@@ -321,21 +321,21 @@ export function DslPropertyField(props: Props) {
             <InputGroup>
                 <InputGroupItem isFill>
                     <TextArea
-                    autoResize
-                    className="text-field" isRequired
-                    type={"text"}
-                    id={property.name}
-                    name={property.name}
-                    height={"100px"}
-                    value={value?.toString()}
-                    onChange={(_, v) => propertyChanged(property.name, v)}/>
+                        autoResize
+                        className="text-field" isRequired
+                        type={"text"}
+                        id={property.name}
+                        name={property.name}
+                        height={"100px"}
+                        value={value?.toString()}
+                        onChange={(_, v) => propertyChanged(property.name, v)}/>
                 </InputGroupItem>
                 <InputGroupItem>
                     <Tooltip position="bottom-end" content={"Show Editor"}>
-                    <Button variant="control" onClick={e => setShowEditor(!showEditor)}>
-                        <EditorIcon/>
-                    </Button>
-                </Tooltip>
+                        <Button variant="control" onClick={e => setShowEditor(!showEditor)}>
+                            <EditorIcon/>
+                        </Button>
+                    </Tooltip>
                 </InputGroupItem>
                 {showEditor && <InputGroupItem>
                     <ModalEditor property={property}
@@ -513,26 +513,26 @@ export function DslPropertyField(props: Props) {
         return (
             <InputGroup id={property.name} name={property.name}>
                 <InputGroupItem isFill>
-            <Select
-                placeholderText="Select or type an URI"
-                variant={SelectVariant.typeahead}
-                aria-label={property.name}
-                onClear={event => propertyChanged(property.name, undefined, undefined)}
-                onToggle={(_event, isExpanded) => {
-                    openSelect(property.name, isExpanded)
-                }}
-                onSelect={(e, value, isPlaceholder) => {
-                    propertyChanged(property.name, (!isPlaceholder ? value : undefined), undefined)
-                }}
-                selections={value}
-                isOpen={isSelectOpen(property.name)}
-                isCreatable={true}
-                isInputFilterPersisted={true}
-                aria-labelledby={property.name}
-                direction={SelectDirection.down}
-            >
-                {selectOptions}
-            </Select>
+                    <Select
+                        placeholderText="Select or type an URI"
+                        variant={SelectVariant.typeahead}
+                        aria-label={property.name}
+                        onClear={event => propertyChanged(property.name, undefined, undefined)}
+                        onToggle={(_event, isExpanded) => {
+                            openSelect(property.name, isExpanded)
+                        }}
+                        onSelect={(e, value, isPlaceholder) => {
+                            propertyChanged(property.name, (!isPlaceholder ? value : undefined), undefined)
+                        }}
+                        selections={value}
+                        isOpen={isSelectOpen(property.name)}
+                        isCreatable={true}
+                        isInputFilterPersisted={true}
+                        aria-labelledby={property.name}
+                        direction={SelectDirection.down}
+                    >
+                        {selectOptions}
+                    </Select>
                 </InputGroupItem>
                 <InputGroupItem>
                     <Tooltip position="bottom-end" content={"Create route"}>

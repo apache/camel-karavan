@@ -49,6 +49,7 @@ export const TraceTab = () => {
         [state.refreshTrace, state.setRefreshTrace, state.trace], shallow);
     const [nodes, setNodes] = useState([{}]);
     const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [exchangeId, setExchangeId] = useState<string>('');
 
     function closeModal() {
         setIsOpen(false);
@@ -73,7 +74,7 @@ export const TraceTab = () => {
     const exchanges: any[] = Array.from(new Set((traces).map((item: any) => item?.message?.exchangeId)));
     return (
         <PageSection className="project-tab-panel" padding={{default: "padding"}}>
-            {isOpen && <RunnerInfoTraceModal isOpen={isOpen} trace={trace} nodes={nodes} onClose={closeModal}/>}
+            {isOpen && <RunnerInfoTraceModal isOpen={isOpen} exchangeId={exchangeId} nodes={nodes} onClose={closeModal}/>}
             <Panel>
                 <PanelHeader>
                     <Flex direction={{default: "row"}} justifyContent={{default:"justifyContentFlexEnd"}}>
@@ -95,8 +96,8 @@ export const TraceTab = () => {
             <Table aria-label="Files" variant={"compact"} className={"table"}>
                 <Thead>
                     <Tr>
-                        <Th key='uid' width={30}>Type</Th>
-                        <Th key='exchangeId' width={40}>Filename</Th>
+                        <Th key='uid' width={30}>UID</Th>
+                        <Th key='exchangeId' width={40}>ExchangeId</Th>
                         <Th key='timestamp' width={30}>Updated</Th>
                     </Tr>
                 </Thead>
@@ -110,7 +111,7 @@ export const TraceTab = () => {
                             <Td>
                                 <Button style={{padding: '0'}} variant={"link"}
                                         onClick={e => {
-                                            // setTrace(trace);
+                                            setExchangeId(exchangeId);
                                             setNodes(getNodes(exchangeId));
                                             setIsOpen(true);
                                         }}>
