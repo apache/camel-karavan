@@ -99,7 +99,7 @@ export class SpacePage extends React.Component<Props, State> {
             <KaravanDesigner
                 key={this.state.key}
                 dark={this.props.dark}
-                ref={this.state.karavanDesignerRef}
+                // ref={this.state.karavanDesignerRef}
                 filename={name}
                 yaml={yaml}
                 onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}
@@ -137,7 +137,7 @@ export class SpacePage extends React.Component<Props, State> {
         return (
             <PageSection className="kamelet-section designer-page" padding={{default: 'noPadding'}}>
                 <PageSection className="tools-section" padding={{default: 'noPadding'}}
-                             style={{backgroundColor:"transparent", paddingLeft: "var(--pf-v5-c-page__main-section--PaddingLeft)"}}>
+                             style={{ paddingLeft: "var(--pf-v5-c-page__main-section--PaddingLeft)"}}>
                     <Flex className="tools" justifyContent={{default: 'justifyContentSpaceBetween'}}>
                         <FlexItem>
                             <Flex>

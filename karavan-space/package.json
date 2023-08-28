@@ -49,7 +49,8 @@
     "react-dom": "18.2.0",
     "react-scripts": "5.0.1",
     "rxjs": "7.8.1",
-    "uuid": "9.0.0"
+    "uuid": "9.0.0",
+    "zustand": "^4.4.1"
   },
   "devDependencies": {
     "@svgr/webpack": "^7.0.0",
