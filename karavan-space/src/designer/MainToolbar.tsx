@@ -9,7 +9,7 @@ interface Props {
     tools: React.ReactNode;
 }
 
-export const MainToolbar = (props: Props) => {
+export function MainToolbar(props: Props) {
 
     return (
         <PageSection className="tools-section" variant={PageSectionVariants.light}>

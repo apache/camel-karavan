@@ -14,182 +14,109 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {useCallback, useEffect, useRef} from 'react';
 import {
     Drawer,
     DrawerPanelContent,
     DrawerContent,
     DrawerContentBody,
-    Button, Modal,
-    PageSection,
+    Button
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {DslSelector} from "./DslSelector";
 import {DslProperties} from "./DslProperties";
-import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {DslConnections} from "./DslConnections";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {DslElement} from "./DslElement";
 import {CamelUi} from "../utils/CamelUi";
-import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
-import {RouteDesignerLogic} from "./RouteDesignerLogic";
+import {useRouteDesignerHook} from "./useRouteDesignerHook";
+import {useConnectionsStore, useDesignerStore, useIntegrationStore, useSelectorStore} from "../KaravanStore";
+import {shallow} from "zustand/shallow";
+import useResizeObserver from "./useResizeObserver";
+import {Command, EventBus} from "../utils/EventBus";
+import useMutationsObserver from "./useDrawerMutationsObserver";
+import {DeleteConfirmation} from "./DeleteConfirmation";
 
-interface Props {
-    onSave?: (integration: Integration, propertyOnly: boolean) => void
-    integration: Integration
-    dark: boolean
-}
+export function RouteDesigner() {
 
-export interface RouteDesignerState {
-    logic: RouteDesignerLogic
-    integration: Integration
-    selectedStep?: CamelElement
-    showSelector: boolean
-    showDeleteConfirmation: boolean
-    deleteMessage: string
-    parentId: string
-    parentDsl?: string
-    selectedPosition?: number
-    showSteps: boolean
-    selectedUuids: string []
-    key: string
-    width: number
-    height: number
-    top: number
-    left: number
-    clipboardSteps: CamelElement[]
-    shiftKeyPressed?: boolean
-    ref?: any
-    printerRef?: any
-    propertyOnly: boolean
-    selectorTabIndex?: string | number
-}
+    const {openSelector, createRouteConfiguration, onCommand, handleKeyDown, handleKeyUp, unselectElement} = useRouteDesignerHook();
 
-export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
+    const [integration] = useIntegrationStore((state) => [state.integration], shallow)
+    const [showDeleteConfirmation, setPosition, width, height, top, left, hideLogDSL] = useDesignerStore((s) =>
+        [s.showDeleteConfirmation, s.setPosition, s.width, s.height, s.top, s.left, s.hideLogDSL], shallow)
 
-    public state: RouteDesignerState = {
-        logic: new RouteDesignerLogic(this),
-        integration: CamelDisplayUtil.setIntegrationVisibility(this.props.integration, undefined),
-        showSelector: false,
-        showDeleteConfirmation: false,
-        deleteMessage: '',
-        parentId: '',
-        showSteps: true,
-        selectedUuids: [],
-        clipboardSteps: [],
-        key: "",
-        width: 1000,
-        height: 1000,
-        top: 0,
-        left: 0,
-        ref: React.createRef(),
-        printerRef: React.createRef(),
-        propertyOnly: false,
-    };
+    const [showSelector] = useSelectorStore((s) => [s.showSelector], shallow)
 
-    componentDidMount() {
-        this.state.logic.componentDidMount();
+    const [clearSteps] = useConnectionsStore((s) => [s.clearSteps], shallow)
+
+    const onChangeGraphSize = useCallback((target: HTMLDivElement)  => {
+        changeGraphSize();
+    }, [])
+
+    function changeGraphSize ()  {
+        if (flowRef && flowRef.current) {
+            const el = flowRef.current;
+            const rect = el.getBoundingClientRect();
+            setPosition(rect.width, rect.height, rect.top, rect.left)
+        }
     }
 
-    componentWillUnmount() {
-        this.state.logic.componentWillUnmount();
-    }
+    const firstRef = useResizeObserver(onChangeGraphSize);
+    const secondRef = useMutationsObserver(onChangeGraphSize);
+    const printerRef = useRef<HTMLDivElement | null>(null);
+    const flowRef = useRef<HTMLDivElement | null>(null);
 
-    handleResize = (event: any) => {
-        return this.state.logic.handleResize(event);
-    }
+    useEffect(()=> {
+        // window.addEventListener('resize', changeGraphSize);
+        const interval = setInterval(() => {
+            changeGraphSize();
+        }, 500);
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+        const commandSub = EventBus.onCommand()?.subscribe((command: Command) => onCommand(command, printerRef));
+        if (flowRef.current === null) {
+            clearSteps();
+        } else {
+            changeGraphSize();
+        }
+        return ()=> {
+            clearInterval(interval)
+            // window.removeEventListener('resize', changeGraphSize);
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+            commandSub?.unsubscribe();
+        }
+    }, [showSelector, integration])
 
-    handleKeyDown = (event: KeyboardEvent) => {
-        return this.state.logic.handleKeyDown(event);
-    }
-
-    handleKeyUp = (event: KeyboardEvent) => {
-        return this.state.logic.handleKeyUp(event);
-    }
-
-    componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<RouteDesignerState>, snapshot?: any) => {
-        return this.state.logic.componentDidUpdate(prevState, snapshot);
-    }
-
-    getSelectorModal() {
+    function getPropertiesPanel() {
         return (
-            <DslSelector
-                isOpen={this.state.showSelector}
-                onClose={() => this.state.logic.closeDslSelector()}
-                dark={this.props.dark}
-                parentId={this.state.parentId}
-                parentDsl={this.state.parentDsl}
-                showSteps={this.state.showSteps}
-                position={this.state.selectedPosition}
-                tabIndex={this.state.selectorTabIndex}
-                onDslSelect={this.state.logic.onDslSelect}/>)
-    }
-
-    getDeleteConfirmation() {
-        let htmlContent: string = this.state.deleteMessage;
-        return (<Modal
-            className="modal-delete"
-            title="Confirmation"
-            isOpen={this.state.showDeleteConfirmation}
-            onClose={() => this.setState({showDeleteConfirmation: false})}
-            actions={[
-                <Button key="confirm" variant="primary" onClick={e => this.state.logic.deleteElement()}>Delete</Button>,
-                <Button key="cancel" variant="link"
-                        onClick={e => this.setState({showDeleteConfirmation: false})}>Cancel</Button>
-            ]}
-            onEscapePress={e => this.setState({showDeleteConfirmation: false})}>
-            <div>
-                {htmlContent}
-            </div>
-        </Modal>)
-    }
-
-    getPropertiesPanel() {
-        return (
-            <DrawerPanelContent onResize={(_event, width) => this.setState({key: Math.random().toString()})}
-                                style={{transform: "initial"}} isResizable hasNoBorder defaultSize={'400px'}
+            <DrawerPanelContent style={{transform: "initial"}} isResizable hasNoBorder defaultSize={'400px'}
                                 maxSize={'800px'} minSize={'300px'}>
-                <DslProperties ref={this.state.ref}
-                               integration={this.state.integration}
-                               step={this.state.selectedStep}
-                               onIntegrationUpdate={this.state.logic.onIntegrationUpdate}
-                               onPropertyUpdate={this.state.logic.onPropertyUpdate}
-                               isRouteDesigner={true}
-                               dark={this.props.dark}/>
+                <DslProperties isRouteDesigner={true}/>
             </DrawerPanelContent>
         )
     }
 
-    getGraph() {
-        const {selectedUuids, integration, key, width, height, top, left} = this.state;
+    function getGraph() {
         const routes = CamelUi.getRoutes(integration);
         const routeConfigurations = CamelUi.getRouteConfigurations(integration);
         return (
-            <div ref={this.state.printerRef} className="graph">
-                <DslConnections height={height} width={width} top={top} left={left} integration={integration}/>
-                <div className="flows" data-click="FLOWS" onClick={event => this.state.logic.unselectElement(event)}
-                     ref={el => this.state.logic.onResizePage(el)}>
+            <div className="graph" ref={printerRef}>
+                <DslConnections/>
+                <div id="flows"
+                     className="flows"
+                     data-click="FLOWS"
+                     onClick={event => {unselectElement(event)}}
+                     ref={flowRef}>
                     {routeConfigurations?.map((routeConfiguration, index: number) => (
-                        <DslElement key={routeConfiguration.uuid + key}
-                                    integration={integration}
-                                    openSelector={this.state.logic.openSelector}
-                                    deleteElement={this.state.logic.showDeleteConfirmation}
-                                    selectElement={this.state.logic.selectElement}
-                                    moveElement={this.state.logic.moveElement}
-                                    selectedUuid={selectedUuids}
+                        <DslElement key={routeConfiguration.uuid}
                                     inSteps={false}
                                     position={index}
                                     step={routeConfiguration}
                                     parent={undefined}/>
                     ))}
                     {routes?.map((route: any, index: number) => (
-                        <DslElement key={route.uuid + key}
-                                    integration={integration}
-                                    openSelector={this.state.logic.openSelector}
-                                    deleteElement={this.state.logic.showDeleteConfirmation}
-                                    selectElement={this.state.logic.selectElement}
-                                    moveElement={this.state.logic.moveElement}
-                                    selectedUuid={selectedUuids}
+                        <DslElement key={route.uuid}
                                     inSteps={false}
                                     position={index}
                                     step={route}
@@ -199,31 +126,36 @@ export class RouteDesigner extends React.Component<Props, RouteDesignerState> {
                         <Button
                             variant={routes.length === 0 ? "primary" : "secondary"}
                             icon={<PlusIcon/>}
-                            onClick={e => this.state.logic.openSelector(undefined, undefined)}>Create route
+                            onClick={e => {
+                                openSelector(undefined, undefined)
+                            }}
+                        >
+                            Create route
                         </Button>
                         <Button
                             variant="secondary"
                             icon={<PlusIcon/>}
-                            onClick={e => this.state.logic.createRouteConfiguration()}>Create configuration
+                            onClick={e => createRouteConfiguration()}
+                        >
+                            Create configuration
                         </Button>
                     </div>
                 </div>
             </div>)
     }
 
-    render() {
-        return (
-            <PageSection className="dsl-page" isFilled padding={{default: 'noPadding'}}>
-                <div className="dsl-page-columns">
-                    <Drawer isExpanded isInline>
-                        <DrawerContent panelContent={this.getPropertiesPanel()}>
-                            <DrawerContentBody>{this.getGraph()}</DrawerContentBody>
-                        </DrawerContent>
-                    </Drawer>
-                </div>
-                {this.state.showSelector === true && this.getSelectorModal()}
-                {this.getDeleteConfirmation()}
-            </PageSection>
-        );
-    }
+    const hasFlows = integration?.spec?.flows !== undefined;
+    return (
+        <div className="dsl-page" ref={firstRef}>
+            <div className="dsl-page-columns" ref={secondRef}>
+                <Drawer isExpanded isInline>
+                    <DrawerContent panelContent={getPropertiesPanel()}>
+                        <DrawerContentBody>{hasFlows && getGraph()}</DrawerContentBody>
+                    </DrawerContent>
+                </Drawer>
+            </div>
+            {showSelector && <DslSelector/>}
+            {showDeleteConfirmation && <DeleteConfirmation/>}
+        </div>
+    )
 }

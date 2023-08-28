@@ -19,47 +19,42 @@ import {
     Button
 } from '@patternfly/react-core';
 import '../karavan.css';
-import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
+import {useDesignerStore} from "../KaravanStore";
+import {shallow} from "zustand/shallow";
 
 interface Props {
     bean: RegistryBeanDefinition
-    selectedStep?: RegistryBeanDefinition
-    integration: Integration
     selectElement: (element: RegistryBeanDefinition) => void
     deleteElement: (element: RegistryBeanDefinition) => void
 }
 
-export class BeanCard extends React.Component<Props, any> {
+export function BeanCard (props: Props) {
 
-    selectElement = (evt: React.MouseEvent) => {
+    const [ selectedStep] = useDesignerStore((s) => [s.selectedStep], shallow)
+
+    function selectElement (evt: React.MouseEvent) {
         evt.stopPropagation();
-        this.props.selectElement.call(this, this.props.bean);
+        props.selectElement(props.bean);
     }
 
-    delete = (evt: React.MouseEvent) => {
+    function onDelete (evt: React.MouseEvent) {
         evt.stopPropagation();
-        this.props.deleteElement.call(this, this.props.bean);
+        props.deleteElement(props.bean);
     }
 
-    render() {
-        const bean = this.props.bean;
-        return (
-            <div className={this.props.selectedStep?.uuid === bean.uuid ? "rest-card rest-card-selected" : "rest-card rest-card-unselected"} onClick={e => this.selectElement(e)}>
-                <div className="header">
-                    <div className="title">BEAN</div>
-                    <div className="title">{bean.name}</div>
-                    <div className="description">{bean.type}</div>
-                    {/*<Tooltip position={"bottom"} content={<div>Add REST method</div>}>*/}
-                        {/*<Button variant={"link"} icon={<AddIcon/>} aria-label="Add" onClick={e => this.selectMethod(e)} className="add-button">Add method</Button>*/}
-                    {/*</Tooltip>*/}
-                    <Button variant="link" className="delete-button" onClick={e => this.delete(e)}><DeleteIcon/></Button>
-                </div>
-                <div className="rest-content" key={Math.random().toString()}>
-
-                </div>
+    const bean = props.bean;
+    return (
+        <div className={selectedStep?.uuid === bean.uuid ? "rest-card rest-card-selected" : "rest-card rest-card-unselected"} onClick={e => selectElement(e)}>
+            <div className="header">
+                <div className="title">Bean</div>
+                <div className="title">{bean.name}</div>
+                <div className="description">{bean.type}</div>
+                <Button variant="link" className="delete-button" onClick={e => onDelete(e)}>
+                    <DeleteIcon/>
+                </Button>
             </div>
-        );
-    }
+        </div>
+    )
 }

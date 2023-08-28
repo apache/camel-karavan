@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {useState} from 'react';
 import {
     Form,
     Text,
@@ -25,101 +25,35 @@ import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import {DataFormatField} from "./property/DataFormatField";
 import {DslPropertyField} from "./property/DslPropertyField";
-import {
-    ExpressionDefinition,
-    DataFormatDefinition
-} from "karavan-core/lib/model/CamelDefinition";
-import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {CamelUi, RouteToCreate} from "../utils/CamelUi";
+import {CamelUi} from "../utils/CamelUi";
 import {CamelMetadataApi, DataFormats, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
-import {IntegrationHeader} from "../utils/KaravanComponents";
+import {IntegrationHeader} from "../utils/IntegrationHeader";
 import CloneIcon from "@patternfly/react-icons/dist/esm/icons/clone-icon";
+import {useDesignerStore, useIntegrationStore} from "../KaravanStore";
+import {shallow} from "zustand/shallow";
+import {usePropertiesHook} from "./usePropertiesHook";
 
 interface Props {
-    integration: Integration,
-    step?: CamelElement,
-    onIntegrationUpdate?: any,
-    onPropertyUpdate?: (element: CamelElement, newRoute?: RouteToCreate) => void
-    onClone?: (element: CamelElement) => void
     isRouteDesigner: boolean
-    dark: boolean
 }
 
-interface State {
-    step?: CamelElement,
-    selectStatus: Map<string, boolean>
-    isShowAdvanced: boolean
-    isDescriptionExpanded?: boolean
-}
+export function DslProperties(props: Props) {
 
-export class DslProperties extends React.Component<Props, State> {
+    const [integration, setIntegration] = useIntegrationStore((state) =>
+        [state.integration, state.setIntegration], shallow)
 
-    public state: State = {
-        step: this.props.step,
-        selectStatus: new Map<string, boolean>(),
-        isShowAdvanced: false
-    };
+    const {cloneElement, onDataFormatChange, onPropertyChange, onParametersChange, onExpressionChange} = usePropertiesHook(props.isRouteDesigner);
 
-    propertyChanged = (fieldId: string, value: string | number | boolean | any, newRoute?: RouteToCreate) => {
-        if (this.state.step) {
-            const clone = CamelUtil.cloneStep(this.state.step);
-            (clone as any)[fieldId] = value;
-            this.setStep(clone)
-            this.props.onPropertyUpdate?.call(this, clone, newRoute);
-        }
-    }
+    const [selectedStep, dark, setSelectedStep, setSelectedUuids] = useDesignerStore((s) =>
+        [s.selectedStep, s.dark, s.setSelectedStep, s.setSelectedUuids], shallow)
 
-    dataFormatChanged = (value: DataFormatDefinition) => {
-        value.uuid = this.state.step?.uuid ? this.state.step?.uuid : value.uuid;
-        this.setStep(value);
-        this.props.onPropertyUpdate?.call(this, value);
-    }
+    const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
+    const [isDescriptionExpanded, setIsDescriptionExpanded] = useState<boolean>(false);
 
-    expressionChanged = (propertyName: string, exp: ExpressionDefinition) => {
-        if (this.state.step) {
-            const clone = (CamelUtil.cloneStep(this.state.step));
-            (clone as any)[propertyName] = exp;
-            this.setStep(clone);
-            this.props.onPropertyUpdate?.call(this, clone);
-        }
-    }
-
-    parametersChanged = (parameter: string, value: string | number | boolean | any, pathParameter?: boolean, newRoute?: RouteToCreate) => {
-        if (this.state.step && this.state.step) {
-            const clone = (CamelUtil.cloneStep(this.state.step));
-            const parameters: any = {...(clone as any).parameters};
-            parameters[parameter] = value;
-            (clone as any).parameters = parameters;
-            this.setStep(clone);
-            this.props.onPropertyUpdate?.call(this, clone, newRoute);
-        }
-    }
-
-    cloneElement = () => {
-        if (this.state.step) {
-            this.props.onClone?.call(this, this.state.step);
-        }
-    }
-
-    componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        if (prevProps.step !== this.props.step) {
-            this.setStep(this.props.step);
-        }
-    }
-
-    setStep = (step?: CamelElement) => {
-        this.setState({
-            step: step,
-            selectStatus: new Map<string, boolean>()
-        });
-    }
-
-    getRouteHeader= (): JSX.Element => {
-        const isDescriptionExpanded = this.state.isDescriptionExpanded;
-        const title = this.state.step && CamelUi.getTitle(this.state.step)
-        const description =  this.state.step &&  CamelUi.getDescription(this.state.step);
+    function getRouteHeader(): JSX.Element {
+        const title = selectedStep && CamelUi.getTitle(selectedStep)
+        const description = selectedStep && CamelUi.getDescription(selectedStep);
         const descriptionLines: string [] = description ? description?.split("\n") : [""];
         return (
             <div className="headers">
@@ -127,40 +61,42 @@ export class DslProperties extends React.Component<Props, State> {
                     <Title headingLevel="h1" size="md">{title}</Title>
                 </div>
                 <Text component={TextVariants.p}>{descriptionLines.at(0)}</Text>
-                {descriptionLines.length > 1 && <ExpandableSection toggleText={isDescriptionExpanded ? 'Show less' : 'Show more'}
-                                                                   onToggle={(_event, isExpanded) => this.setState({isDescriptionExpanded: !isDescriptionExpanded})}
-                                                                   isExpanded={isDescriptionExpanded}>
-                    {descriptionLines.filter((value, index) => index > 0)
-                        .map((desc, index, array) => <Text key={index} component={TextVariants.p}>{desc}</Text>)}
-                </ExpandableSection>}
+                {descriptionLines.length > 1 &&
+                    <ExpandableSection toggleText={isDescriptionExpanded ? 'Show less' : 'Show more'}
+                                       onToggle={(_event, isExpanded) => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                                       isExpanded={isDescriptionExpanded}>
+                        {descriptionLines.filter((value, index) => index > 0)
+                            .map((desc, index, array) => <Text key={index} component={TextVariants.p}>{desc}</Text>)}
+                    </ExpandableSection>}
             </div>
         )
     }
 
-    getClonableElementHeader = (): JSX.Element => {
-        const title = this.state.step && CamelUi.getTitle(this.state.step);
-        const description = this.state.step?.dslName ? CamelMetadataApi.getCamelModelMetadataByClassName(this.state.step?.dslName)?.description : title;
+    function getClonableElementHeader(): JSX.Element {
+        const title = selectedStep && CamelUi.getTitle(selectedStep);
+        const description = selectedStep?.dslName ? CamelMetadataApi.getCamelModelMetadataByClassName(selectedStep?.dslName)?.description : title;
         const descriptionLines: string [] = description ? description?.split("\n") : [""];
         return (
             <div className="headers">
                 <div className="top">
                     <Title headingLevel="h1" size="md">{title}</Title>
                     <Tooltip content="Clone element" position="bottom">
-                        <Button variant="link" onClick={() => this.cloneElement()} icon={<CloneIcon/>}/>
+                        <Button variant="link" onClick={() => cloneElement()} icon={<CloneIcon/>}/>
                     </Tooltip>
                 </div>
-                {descriptionLines.map((desc, index, array) => <Text key={index} component={TextVariants.p}>{desc}</Text>)}
+                {descriptionLines.map((desc, index, array) => <Text key={index}
+                                                                    component={TextVariants.p}>{desc}</Text>)}
             </div>
         )
     }
 
-    getComponentHeader = (): JSX.Element => {
-        if (this.props.isRouteDesigner) return this.getRouteHeader()
-        else return this.getClonableElementHeader();
+    function getComponentHeader(): JSX.Element {
+        if (props.isRouteDesigner) return getRouteHeader()
+        else return getClonableElementHeader();
     }
 
-    getProperties = (): PropertyMeta[] => {
-        const dslName = this.state.step?.dslName;
+    function getProperties(): PropertyMeta[] {
+        const dslName = selectedStep?.dslName;
         return CamelDefinitionApiExt.getElementProperties(dslName)
             // .filter((p: PropertyMeta) => (showAdvanced && p.label.includes('advanced')) || (!showAdvanced && !p.label.includes('advanced')))
             .filter((p: PropertyMeta) => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)) || (dslName === 'CatchDefinition' && p.name === 'onWhen'))
@@ -168,58 +104,55 @@ export class DslProperties extends React.Component<Props, State> {
         // .filter((p: PropertyMeta) => dslName && !(['RestDefinition', 'GetDefinition', 'PostDefinition', 'PutDefinition', 'PatchDefinition', 'DeleteDefinition', 'HeadDefinition'].includes(dslName) && ['param', 'responseMessage'].includes(p.name))) // TODO: configure this properties
     }
 
-    getPropertyFields = (properties: PropertyMeta[]) => {
+    function getPropertyFields(properties: PropertyMeta[]) {
         return (<>
             {properties.map((property: PropertyMeta) =>
                 <DslPropertyField key={property.name}
-                                  integration={this.props.integration}
                                   property={property}
-                                  element={this.state.step}
-                                  value={this.state.step ? (this.state.step as any)[property.name] : undefined}
-                                  onExpressionChange={this.expressionChanged}
-                                  onParameterChange={this.parametersChanged}
-                                  onDataFormatChange={this.dataFormatChanged}
-                                  onChange={this.propertyChanged}
-                                  dark={this.props.dark}/>
+                                  element={selectedStep}
+                                  value={selectedStep ? (selectedStep as any)[property.name] : undefined}
+                                  onExpressionChange={onExpressionChange}
+                                  onParameterChange={onParametersChange}
+                                  onDataFormatChange={onDataFormatChange}
+                                  onPropertyChange={onPropertyChange}
+                />
             )}
         </>)
     }
 
-    render() {
-        const dataFormats = DataFormats.map(value => value[0]);
-        const dataFormatElement = this.state.step !== undefined && ['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName);
-        const properties = !dataFormatElement
-                    ? this.getProperties()
-                    : this.getProperties().filter(p => !dataFormats.includes(p.name));
-        const propertiesMain = properties.filter(p => !p.label.includes("advanced"));
-        const propertiesAdvanced = properties.filter(p => p.label.includes("advanced"));
-        return (
-            <div key={this.state.step ? this.state.step.uuid : 'integration'}
-                 className='properties'>
-                <Form autoComplete="off" onSubmit={event => event.preventDefault()}>
-                    {this.state.step === undefined && <IntegrationHeader integration={this.props.integration}/>}
-                    {this.state.step && this.getComponentHeader()}
-                    {this.getPropertyFields(propertiesMain)}
-                    {this.state.step && !['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName)
-                        && propertiesAdvanced.length > 0 &&
-                        <ExpandableSection
-                            toggleText={'Advanced properties'}
-                            onToggle={(_event, isExpanded) => this.setState({isShowAdvanced: !this.state.isShowAdvanced})}
-                            isExpanded={this.state.isShowAdvanced}>
-                            <div className="parameters">
-                                {this.getPropertyFields(propertiesAdvanced)}
-                            </div>
-                        </ExpandableSection>}
-                    {this.state.step && ['MarshalDefinition', 'UnmarshalDefinition'].includes(this.state.step.dslName) &&
-                        <DataFormatField
-                            integration={this.props.integration}
-                            dslName={this.state.step.dslName}
-                            value={this.state.step}
-                            onDataFormatChange={this.dataFormatChanged}
-                            dark={this.props.dark}/>
-                    }
-                </Form>
-            </div>
-        )
-    }
+    const dataFormats = DataFormats.map(value => value[0]);
+    const dataFormatElement = selectedStep !== undefined && ['MarshalDefinition', 'UnmarshalDefinition'].includes(selectedStep.dslName);
+    const properties = !dataFormatElement
+        ? getProperties()
+        : getProperties().filter(p => !dataFormats.includes(p.name));
+    const propertiesMain = properties.filter(p => !p.label.includes("advanced"));
+    const propertiesAdvanced = properties.filter(p => p.label.includes("advanced"));
+    return (
+        <div key={selectedStep ? selectedStep.uuid : 'integration'}
+             className='properties'>
+            <Form autoComplete="off" onSubmit={event => event.preventDefault()}>
+                {selectedStep === undefined && <IntegrationHeader/>}
+                {selectedStep && getComponentHeader()}
+                {getPropertyFields(propertiesMain)}
+                {selectedStep && !['MarshalDefinition', 'UnmarshalDefinition'].includes(selectedStep.dslName)
+                    && propertiesAdvanced.length > 0 &&
+                    <ExpandableSection
+                        toggleText={'Advanced properties'}
+                        onToggle={(_event, isExpanded) => setShowAdvanced(!showAdvanced)}
+                        isExpanded={showAdvanced}>
+                        <div className="parameters">
+                            {getPropertyFields(propertiesAdvanced)}
+                        </div>
+                    </ExpandableSection>}
+                {selectedStep && ['MarshalDefinition', 'UnmarshalDefinition'].includes(selectedStep.dslName) &&
+                    <DataFormatField
+                        integration={integration}
+                        dslName={selectedStep.dslName}
+                        value={selectedStep}
+                        onDataFormatChange={onDataFormatChange}
+                        dark={dark}/>
+                }
+            </Form>
+        </div>
+    )
 }

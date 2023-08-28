@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {useRef, useState} from 'react';
 import {
     FormGroup,
     TextInput,
@@ -33,80 +33,66 @@ import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon
 import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
+import {usePropertiesHook} from "../usePropertiesHook";
 
 interface Props {
     property: Property,
     value: any,
     required: boolean,
-    onParameterChange?: (parameter: string, value: string | number | boolean | any, pathParameter?: boolean) => void
 }
 
-interface State {
-    selectIsOpen: boolean
-    showEditor: boolean
-    showPassword: boolean
-    showInfrastructureSelector: boolean
-    infrastructureSelectorProperty?: string
-    ref: any
-}
+export function KameletPropertyField(props: Props) {
 
-export class KameletPropertyField extends React.Component<Props, State> {
+    const {onParametersChange} = usePropertiesHook();
 
-    public state: State = {
-        selectIsOpen: false,
-        showEditor: false,
-        showPassword: false,
-        showInfrastructureSelector: false,
-        ref: React.createRef(),
+    const [selectIsOpen, setSelectIsOpen] = useState<boolean>(false);
+    const [showEditor, setShowEditor] = useState<boolean>(false);
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [infrastructureSelector, setInfrastructureSelector] = useState<boolean>(false);
+    const [infrastructureSelectorProperty, setInfrastructureSelectorProperty] = useState<string | undefined>(undefined);
+
+    const ref = useRef<any>(null);
+
+    function parametersChanged (parameter: string, value: string | number | boolean | any, pathParameter?: boolean)  {
+        onParametersChange(parameter, value, pathParameter);
+        setSelectIsOpen(false);
     }
 
-    openSelect = () => {
-        this.setState({selectIsOpen: true});
-    }
-
-    parametersChanged = (parameter: string, value: string | number | boolean | any, pathParameter?: boolean) => {
-        this.props.onParameterChange?.call(this, parameter, value, pathParameter);
-        this.setState({selectIsOpen: false});
-    }
-
-    selectInfrastructure = (value: string) => {
+    function selectInfrastructure (value: string)  {
         // check if there is a selection
-        const textVal = this.state.ref.current;
+        const textVal = ref.current;
         const cursorStart = textVal.selectionStart;
         const cursorEnd = textVal.selectionEnd;
         if (cursorStart !== cursorEnd){
-            const prevValue = this.props.value;
+            const prevValue =  props.value;
             const selectedText = prevValue.substring(cursorStart, cursorEnd)
             value = prevValue.replace(selectedText, value);
         }
-        const propertyId = this.state.infrastructureSelectorProperty;
+        const propertyId = infrastructureSelectorProperty;
         if (propertyId){
             if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
-            this.parametersChanged(propertyId, value);
-            this.setState({showInfrastructureSelector: false, infrastructureSelectorProperty: undefined})
+            parametersChanged(propertyId, value);
+            setInfrastructureSelector(false);
+            setInfrastructureSelectorProperty(undefined);
         }
     }
 
-    openInfrastructureSelector = (propertyName: string) => {
-        this.setState({infrastructureSelectorProperty: propertyName, showInfrastructureSelector: true});
+    function openInfrastructureSelector (propertyName: string)  {
+        setInfrastructureSelector(true);
+        setInfrastructureSelectorProperty(propertyName);
     }
 
-    closeInfrastructureSelector = () => {
-        this.setState({showInfrastructureSelector: false})
-    }
-
-    getInfrastructureSelectorModal() {
+    function getInfrastructureSelectorModal() {
         return (
             <InfrastructureSelector
                 dark={false}
-                isOpen={this.state.showInfrastructureSelector}
-                onClose={() => this.closeInfrastructureSelector()}
-                onSelect={this.selectInfrastructure}/>)
+                isOpen={infrastructureSelector}
+                onClose={() => setInfrastructureSelector(false)}
+                onSelect={selectInfrastructure}/>)
     }
 
-    getStringInput() {
-        const {showEditor, showPassword} = this.state;
-        const {property, value} = this.props;
+    function getStringInput() {
+        const {property, value} = props;
         const prefix = "parameters";
         const id = prefix + "-" + property.id;
         const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
@@ -116,35 +102,35 @@ export class KameletPropertyField extends React.Component<Props, State> {
         return <InputGroup>
             {showInfraSelectorButton  &&
                 <Tooltip position="bottom-end" content={"Select from " + capitalize(InfrastructureAPI.infrastructure)}>
-                    <Button variant="control" onClick={e => this.openInfrastructureSelector(property.id)}>
+                    <Button variant="control" onClick={e => openInfrastructureSelector(property.id)}>
                         {icon}
                     </Button>
                 </Tooltip>}
             {(!showEditor || property.format === "password") &&
                 <TextInput
-                    ref={this.state.ref}
+                    ref={ref}
                     className="text-field" isRequired
                     type={property.format && !showPassword ? "password" : "text"}
                     id={id} name={id}
                     value={value}
-                    onChange={(e, value) => this.parametersChanged(property.id, value)}/>}
+                    onChange={(e, value) => parametersChanged(property.id, value)}/>}
             {showEditor && property.format !== "password" &&
                 <TextArea autoResize={true}
                           className="text-field" isRequired
                           type="text"
                           id={id} name={id}
                           value={value}
-                          onChange={(e, value) => this.parametersChanged(property.id, value)}/>}
+                          onChange={(e, value) => parametersChanged(property.id, value)}/>}
             {property.format !== "password" &&
                 <Tooltip position="bottom-end" content={showEditor ? "Change to TextField" : "Change to Text Area"}>
-                    <Button variant="control" onClick={e => this.setState({showEditor: !showEditor})}>
+                    <Button variant="control" onClick={e => setShowEditor(!showEditor)}>
                         {showEditor ? <CompressIcon/> : <ExpandIcon/>}
                     </Button>
                 </Tooltip>
             }
             {property.format === "password" &&
                 <Tooltip position="bottom-end" content={showPassword ? "Hide" : "Show"}>
-                    <Button variant="control" onClick={e => this.setState({showPassword: !showPassword})}>
+                    <Button variant="control" onClick={e => setShowPassword(!showPassword)}>
                         {showPassword ? <ShowIcon/> : <HideIcon/>}
                     </Button>
                 </Tooltip>
@@ -152,53 +138,51 @@ export class KameletPropertyField extends React.Component<Props, State> {
         </InputGroup>
     }
 
-    render() {
-        const property = this.props.property;
-        const value = this.props.value;
-        const prefix = "parameters";
-        const id = prefix + "-" + property.id;
-        return (
-            <div>
-                <FormGroup
-                    key={id}
-                    label={property.title}
-                    fieldId={id}
-                    isRequired={this.props.required}
-                    labelIcon={
-                        <Popover
-                            position={"left"}
-                            headerContent={property.title}
-                            bodyContent={property.description}
-                            footerContent={
-                                <div>
-                                    {property.default !== undefined &&
-                                        <div>Default: {property.default.toString()}</div>}
-                                    {property.example !== undefined && <div>Example: {property.example}</div>}
-                                </div>
-                            }>
-                            <button type="button" aria-label="More info" onClick={e => e.preventDefault()}
-                                    className="pf-v5-c-form__group-label-help">
-                                <HelpIcon />
-                            </button>
-                        </Popover>
-                    }>
-                    {property.type === 'string' && this.getStringInput()
-                    }
-                    {['integer', 'int', 'number'].includes(property.type) &&
-                        <TextInput className="text-field" isRequired type='number' id={id} name={id} value={value}
-                                   onChange={(e, value) => this.parametersChanged(property.id, Number(value))}
-                        />
-                    }
-                    {property.type === 'boolean' && <Switch
-                        id={id} name={id}
-                        value={value?.toString()}
-                        aria-label={id}
-                        isChecked={Boolean(value) === true}
-                        onChange={e => this.parametersChanged(property.id, !Boolean(value))}/>
-                    }
-                </FormGroup>
-                {this.getInfrastructureSelectorModal()}
-            </div>
-        )
-    }
+    const property =  props.property;
+    const value =  props.value;
+    const prefix = "parameters";
+    const id = prefix + "-" + property.id;
+    return (
+        <div>
+            <FormGroup
+                key={id}
+                label={property.title}
+                fieldId={id}
+                isRequired={ props.required}
+                labelIcon={
+                    <Popover
+                        position={"left"}
+                        headerContent={property.title}
+                        bodyContent={property.description}
+                        footerContent={
+                            <div>
+                                {property.default !== undefined &&
+                                    <div>Default: {property.default.toString()}</div>}
+                                {property.example !== undefined && <div>Example: {property.example}</div>}
+                            </div>
+                        }>
+                        <button type="button" aria-label="More info" onClick={e => e.preventDefault()}
+                                className="pf-v5-c-form__group-label-help">
+                            <HelpIcon />
+                        </button>
+                    </Popover>
+                }>
+                {property.type === 'string' && getStringInput()
+                }
+                {['integer', 'int', 'number'].includes(property.type) &&
+                    <TextInput className="text-field" isRequired type='number' id={id} name={id} value={value}
+                               onChange={(e, value) => parametersChanged(property.id, Number(value))}
+                    />
+                }
+                {property.type === 'boolean' && <Switch
+                    id={id} name={id}
+                    value={value?.toString()}
+                    aria-label={id}
+                    isChecked={Boolean(value) === true}
+                    onChange={e => parametersChanged(property.id, !Boolean(value))}/>
+                }
+            </FormGroup>
+            {getInfrastructureSelectorModal()}
+        </div>
+    )
 }
