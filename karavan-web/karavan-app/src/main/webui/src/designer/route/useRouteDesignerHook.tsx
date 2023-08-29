@@ -76,6 +76,7 @@ export function useRouteDesignerHook () {
     }
 
     const deleteElement = () =>  {
+        EventBus.sendPosition("clean", new CamelElement(""), undefined, new DOMRect(), new DOMRect(), 0);
         selectedUuids.forEach(uuidToDelete => {
             const i = CamelDefinitionApiExt.deleteStepFromIntegration(integration, uuidToDelete);
             setIntegration(i, false);
@@ -83,11 +84,7 @@ export function useRouteDesignerHook () {
             setShowDeleteConfirmation(false);
             setDeleteMessage('');
             setSelectedStep(undefined);
-            setSelectedUuids([uuidToDelete]);
-
-            const el = new CamelElement("");
-            el.uuid = uuidToDelete;
-            EventBus.sendPosition("delete", el, undefined, new DOMRect(), new DOMRect(), 0);
+            setSelectedUuids([]);
         });
     }
 

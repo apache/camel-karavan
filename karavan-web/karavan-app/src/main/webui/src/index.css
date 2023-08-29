@@ -8,6 +8,10 @@
   flex-direction: column;
 }
 
+.pf-v5-c-toggle-group__button {
+  align-items: center;
+}
+
 .karavan .pf-v5-c-page__main {
   overflow: hidden;
 }
@@ -411,4 +415,8 @@
 
 .projects-page .pf-v5-c-table.pf-m-compact tr:not(.pf-v5-c-table__expandable-row) > *:last-child {
   --pf-v5-c-table--cell--PaddingRight: 0;
+}
+
+.new-project .icon {
+  display: block;
 }

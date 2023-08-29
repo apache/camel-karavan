@@ -30,8 +30,8 @@ const outgoingDefinitions: string[] = ['ToDefinition', 'KameletDefinition', 'ToD
 export function DslConnections() {
 
     const [integration] = useIntegrationStore((state) => [state.integration], shallow)
-    const [width, height, top, left] = useDesignerStore((s) =>
-        [s.width, s.height, s.top, s.left], shallow)
+    const [width, height, top, left, hideLogDSL] = useDesignerStore((s) =>
+        [s.width, s.height, s.top, s.left, s.hideLogDSL], shallow)
     const [ steps, addStep, deleteStep, clearSteps] = useConnectionsStore((s) => [s.steps, s.addStep, s.deleteStep, s.clearSteps], shallow)
 
     useEffect(() => {
@@ -363,12 +363,17 @@ export function DslConnections() {
         )
     }
 
+    function isElementHidden(element: CamelElement): boolean {
+        return element.dslName === 'LogDefinition' && hideLogDSL;
+    }
+
     function getCircle(pos: DslPosition) {
+        const isHidden = isElementHidden(pos.step);
         const cx = pos.headerRect.x + pos.headerRect.width / 2 - left;
         const cy = pos.headerRect.y + pos.headerRect.height / 2 - top;
-        const r = pos.headerRect.height / 2;
+        const r = isHidden ? 1 : pos.headerRect.height / 2;
         return (
-            <circle cx={cx} cy={cy} r={r} stroke="transparent" strokeWidth="3" fill="transparent" key={pos.step.uuid + "-circle"}/>
+            <circle cx={cx} cy={cy} r={r} stroke="red" strokeWidth="3" fill="transparent" key={pos.step.uuid + "-circle"}/>
         )
     }
 
@@ -385,6 +390,7 @@ export function DslConnections() {
     }
 
     function getArrow(pos: DslPosition) {
+        const isHidden = isElementHidden(pos.step);
         const endX = pos.headerRect.x + pos.headerRect.width / 2 - left;
         const endY = pos.headerRect.y - 9 - top;
         if (pos.parent) {
@@ -395,12 +401,14 @@ export function DslConnections() {
                 if ((!pos.inSteps || (pos.inSteps && pos.position === 0)) && parent.step.dslName !== 'MulticastDefinition') {
                     return (
                         <path name={pos.step.dslName} d={`M ${startX},${startY} C ${startX},${endY} ${endX},${startY}   ${endX},${endY}`}
-                              className="path" key={pos.step.uuid} markerEnd="url(#arrowhead)"/>
+                              className="path"
+                              key={pos.step.uuid} markerEnd={isHidden ? "none" : "url(#arrowhead)"}/>
                     )
                 } else if (parent.step.dslName === 'MulticastDefinition' && pos.inSteps) {
                     return (
                         <path d={`M ${startX},${startY} C ${startX},${endY} ${endX},${startY}   ${endX},${endY}`}
-                              className="path" key={pos.step.uuid} markerEnd="url(#arrowhead)"/>
+                              className="path"
+                              key={pos.step.uuid} markerEnd={isHidden ? "none" : "url(#arrowhead)"}/>
                     )
                 } else if (pos.inSteps && pos.position > 0 && !hasSteps(pos.step)) {
                     const prev = getPreviousStep(pos);
@@ -409,7 +417,8 @@ export function DslConnections() {
                         const prevX = r.x + r.width / 2 - left;
                         const prevY = r.y + r.height - top;
                         return (
-                            <line x1={prevX} y1={prevY} x2={endX} y2={endY} className="path" key={pos.step.uuid} markerEnd="url(#arrowhead)"/>
+                            <line x1={prevX} y1={prevY} x2={endX} y2={endY} className="path" key={pos.step.uuid}
+                                  markerEnd={isHidden ? "none" : "url(#arrowhead)"}/>
                         )
                     }
                 } else if (pos.inSteps && pos.position > 0 && hasSteps(pos.step)) {
@@ -419,7 +428,8 @@ export function DslConnections() {
                         const prevX = r.x + r.width / 2 - left;
                         const prevY = r.y + r.height - top;
                         return (
-                            <line x1={prevX} y1={prevY} x2={endX} y2={endY} className="path" key={pos.step.uuid} markerEnd="url(#arrowhead)"/>
+                            <line x1={prevX} y1={prevY} x2={endX} y2={endY} className="path" key={pos.step.uuid}
+                                  markerEnd={isHidden ? "none" : "url(#arrowhead)"}/>
                         )
                     }
                 }
