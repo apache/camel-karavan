@@ -26,6 +26,7 @@ public class EventType {
 
     public static final String START_INFINISPAN_IN_DOCKER = "START_INFINISPAN_IN_DOCKER";
     public static final String INFINISPAN_STARTED = "INFINISPAN_STARTED";
+    public static final String GITEA_CONTAINER_STARTED = "GITEA_CONTAINER_STARTED";
     public static final String GITEA_STARTED = "GITEA_STARTED";
 
     public static final String CONTAINER_STATUS = "CONTAINER_STATUS";

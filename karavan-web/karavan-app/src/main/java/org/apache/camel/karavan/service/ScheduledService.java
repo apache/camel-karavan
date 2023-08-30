@@ -19,6 +19,7 @@ package org.apache.camel.karavan.service;
 import io.quarkus.scheduler.Scheduled;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
+import org.apache.camel.karavan.docker.DockerForInfinispan;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
@@ -42,6 +43,9 @@ public class ScheduledService {
 
     @Inject
     DockerService dockerService;
+
+    @Inject
+    DockerForInfinispan dockerForInfinispan;
 
     @Inject
     ProjectService projectService;
@@ -79,7 +83,7 @@ public class ScheduledService {
     @Scheduled(every = "{karavan.container.infinispan.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void checkInfinispanHealth() {
         if (!infinispanService.isReady()) {
-            dockerService.checkInfinispanHealth();
+            dockerForInfinispan.checkInfinispanHealth();
         }
     }
 

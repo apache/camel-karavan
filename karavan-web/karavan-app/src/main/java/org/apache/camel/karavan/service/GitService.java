@@ -166,7 +166,7 @@ public class GitService {
     public List<GitRepo> readProjectsToImport() {
         Git importGit = getGitForImport();
         if (importGit != null) {
-            return readProjectsFromRepository(importGit, null);
+            return readProjectsFromRepository(importGit, new String[0]);
         }
         return new ArrayList<>(0);
     }
@@ -254,7 +254,7 @@ public class GitService {
             if (folderName.startsWith(".")) {
                 // skip hidden
             } else if (Files.isDirectory(Paths.get(path))) {
-                if (filter == null || Arrays.stream(filter).filter(f -> f.equals(folderName)).findFirst().isPresent()) {
+                if (filter == null || filter.length == 0 || Arrays.stream(filter).filter(f -> f.equals(folderName)).findFirst().isPresent()) {
                     LOGGER.info("Importing project from folder " + folderName);
                     files.add(folderName);
                 }

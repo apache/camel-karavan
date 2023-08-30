@@ -20,6 +20,7 @@ import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import io.vertx.core.eventbus.EventBus;
+import org.apache.camel.karavan.docker.DockerForGitea;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.shared.ConfigService;
@@ -48,6 +49,9 @@ public class KaravanService {
     DockerService dockerService;
 
     @Inject
+    DockerForGitea dockerForGitea;
+
+    @Inject
     GitService gitService;
 
     @Inject
@@ -66,7 +70,7 @@ public class KaravanService {
                     dockerService.createNetwork();
                     dockerService.startListeners();
                     if (giteaInstall) {
-                        dockerService.startGitea();
+                        dockerForGitea.startGitea();
                     } else {
                         eventBus.publish(EventType.START_INFINISPAN_IN_DOCKER, null);
                     }

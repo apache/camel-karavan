@@ -18,6 +18,7 @@ package org.apache.camel.karavan.api;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
+import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
@@ -56,6 +57,9 @@ public class DevModeResource {
     DockerService dockerService;
 
     @Inject
+    DockerForKaravan dockerForKaravan;
+
+    @Inject
     EventBus eventBus;
 
     @POST
@@ -76,7 +80,7 @@ public class DevModeResource {
             if (ConfigService.inKubernetes()) {
                 kubernetesService.runDevModeContainer(project, jBangOptions);
             } else {
-                dockerService.createDevmodeContainer(project.getProjectId(), jBangOptions);
+                dockerForKaravan.createDevmodeContainer(project.getProjectId(), jBangOptions);
                 dockerService.runContainer(project.getProjectId());
             }
             return Response.ok(containerName).build();

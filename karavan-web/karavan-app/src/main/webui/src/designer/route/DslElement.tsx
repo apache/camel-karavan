@@ -204,12 +204,12 @@ export function DslElement(props: Props) {
                 const headerRect = headerIcon.getBoundingClientRect();
                 const rect = el.getBoundingClientRect();
                 if (props.step.showChildren) {
-                    // if (isHidden) {
+                    if (isHidden) {
                         // EventBus.sendPosition("delete", props.step, props.parent, new DOMRect(), new DOMRect(), 0);
-                        // EventBus.sendPosition("add", props.step, props.parent, rect, headerRect, props.position, props.inSteps, isSelected);
-                    // } else {
                         EventBus.sendPosition("add", props.step, props.parent, rect, headerRect, props.position, props.inSteps, isSelected);
-                    // }
+                    } else {
+                        EventBus.sendPosition("add", props.step, props.parent, rect, headerRect, props.position, props.inSteps, isSelected);
+                    }
                 } else {
                     EventBus.sendPosition("delete", props.step, props.parent, new DOMRect(), new DOMRect(), 0);
                 }
@@ -444,16 +444,7 @@ export function DslElement(props: Props) {
         <div key={"root" + element.uuid}
              className={className}
              ref={el => sendPosition(el)}
-             style={isElementHidden() ? {
-                 visibility: "hidden",
-                 height: "1px",
-                 width: "1px",
-                 borderStyle: hasBorder() ? "dotted" : "none",
-                 borderColor: isElementSelected() ? "var(--step-border-color-selected)" : "var(--step-border-color)",
-                 marginTop: isInStepWithChildren() ? "16px" : "8px",
-                 zIndex: element.dslName === 'ToDefinition' ? 20 : 10,
-                 boxShadow: isDraggedOver ? "0px 0px 1px 2px var(--step-border-color-selected)" : "none",
-             }: {
+             style={{
                  borderStyle: hasBorder() ? "dotted" : "none",
                  borderColor: isElementSelected() ? "var(--step-border-color-selected)" : "var(--step-border-color)",
                  marginTop: isInStepWithChildren() ? "16px" : "8px",

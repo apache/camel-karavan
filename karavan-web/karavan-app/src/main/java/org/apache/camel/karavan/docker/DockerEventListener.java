@@ -21,8 +21,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.shared.Constants.*;
-import static org.apache.camel.karavan.shared.EventType.DEVMODE_CONTAINER_READY;
-import static org.apache.camel.karavan.shared.EventType.INFINISPAN_STARTED;
+import static org.apache.camel.karavan.shared.EventType.*;
 
 @ApplicationScoped
 public class DockerEventListener implements ResultCallback<Event> {
@@ -61,7 +60,7 @@ public class DockerEventListener implements ResultCallback<Event> {
     public void onContainerEvent(Event event, Container container) {
         String status = event.getStatus();
         if (status.startsWith("health_status:") && container.getNames()[0].equals("/gitea")) {
-            dockerService.installGitea();
+            onGiteaHealthEvent(container, event);
         }
         if (infinispanService.isReady()) {
             if (status.startsWith("health_status:")) {
@@ -103,6 +102,13 @@ public class DockerEventListener implements ResultCallback<Event> {
             }
             infinispanService.saveContainerStatus(ci);
         }
+    }
+
+    public void onGiteaHealthEvent(Container container, Event event) {
+        String status = event.getStatus();
+        String health = status.replace("health_status: ", "");
+        LOGGER.infof("Container %s health status: %s", container.getNames()[0], health);
+        eventBus.publish(GITEA_CONTAINER_STARTED, health);
     }
 
     public void onInfinispanHealthEvent(Container container, Event event) {

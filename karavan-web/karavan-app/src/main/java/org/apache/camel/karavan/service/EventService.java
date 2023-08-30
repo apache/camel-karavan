@@ -4,6 +4,9 @@ import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
+import org.apache.camel.karavan.docker.DockerForGitea;
+import org.apache.camel.karavan.docker.DockerForInfinispan;
+import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
@@ -42,6 +45,15 @@ public class EventService {
     DockerService dockerService;
 
     @Inject
+    DockerForInfinispan dockerForInfinispan;
+
+    @Inject
+    DockerForKaravan dockerForKaravan;
+
+    @Inject
+    DockerForGitea dockerForGitea;
+
+    @Inject
     CamelService camelService;
 
     @Inject
@@ -52,8 +64,8 @@ public class EventService {
 
     @ConsumeEvent(value = START_INFINISPAN_IN_DOCKER, blocking = true, ordered = true)
     void startInfinispan1(String data) {
-        dockerService.startInfinispan();
-        dockerService.checkInfinispanHealth();
+        dockerForInfinispan.startInfinispan();
+        dockerForInfinispan.checkInfinispanHealth();
     }
 
     @ConsumeEvent(value = INFINISPAN_STARTED, blocking = true, ordered = true)
@@ -62,7 +74,7 @@ public class EventService {
             infinispanService.start(false);
             infinispanService.clearAllStatuses();
             if (!ConfigService.inKubernetes()) {
-                dockerService.startKaravanHeadlessContainer();
+                dockerForKaravan.startKaravanHeadlessContainer();
                 dockerService.collectContainersStatuses();
             }
             eventBus.publish(EventType.IMPORT_PROJECTS, "");
@@ -71,8 +83,13 @@ public class EventService {
     }
 
     @ConsumeEvent(value = GITEA_STARTED, blocking = true, ordered = true)
-    void startServices2(String giteaHealth) {
+    void startInfinispanAfterGitea(String giteaHealth) {
         eventBus.publish(EventType.START_INFINISPAN_IN_DOCKER, null);
+    }
+
+    @ConsumeEvent(value = GITEA_CONTAINER_STARTED, blocking = true, ordered = true)
+    void installGiteaInGiteaContainer(String giteaHealth) {
+        dockerForGitea.installGitea();
     }
 
     void startServices(String infinispanHealth) {

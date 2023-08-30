@@ -20,6 +20,7 @@ import io.smallrye.mutiny.Multi;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
+import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.docker.model.DevService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
@@ -55,6 +56,9 @@ public class InfrastructureResource {
 
     @Inject
     KubernetesService kubernetesService;
+
+    @Inject
+    DockerForKaravan dockerForKaravan;
 
     @Inject
     DockerService dockerService;
@@ -193,11 +197,11 @@ public class InfrastructureResource {
                         String code = projectService.getDevServiceCode();
                         DevService devService = dockerService.getDevService(code, name);
                         if (devService != null) {
-                            dockerService.createDevserviceContainer(devService);
+                            dockerForKaravan.createDevserviceContainer(devService);
                             dockerService.runContainer(devService.getContainer_name());
                         }
                     } else if (Objects.equals(type, ContainerStatus.ContainerType.devmode.name())) {
-                        dockerService.createDevmodeContainer(name, "");
+                        dockerForKaravan.createDevmodeContainer(name, "");
                         dockerService.runContainer(name);
                     }
                     return Response.ok().build();
