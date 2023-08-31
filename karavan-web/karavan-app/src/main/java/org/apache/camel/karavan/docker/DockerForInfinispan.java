@@ -17,7 +17,6 @@
 package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.command.HealthState;
-import com.github.dockerjava.api.model.HealthCheck;
 import io.vertx.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -26,9 +25,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import java.util.List;
-import java.util.Map;
-
-import static org.apache.camel.karavan.shared.Constants.LABEL_TYPE;
 import static org.apache.camel.karavan.shared.EventType.INFINISPAN_STARTED;
 
 @ApplicationScoped
@@ -38,12 +34,6 @@ public class DockerForInfinispan {
 
     protected static final String INFINISPAN_CONTAINER_NAME = "infinispan";
 
-    private static final List<String> infinispanHealthCheckCMD = List.of("CMD", "curl", "-f", "http://localhost:11222/rest/v2/cache-managers/default/health/status");
-
-    @ConfigProperty(name = "karavan.infinispan.image")
-    String infinispanImage;
-    @ConfigProperty(name = "karavan.infinispan.port")
-    String infinispanPort;
     @ConfigProperty(name = "karavan.infinispan.username")
     String infinispanUsername;
     @ConfigProperty(name = "karavan.infinispan.password")
@@ -58,17 +48,9 @@ public class DockerForInfinispan {
     public void startInfinispan() {
         try {
             LOGGER.info("Infinispan is starting...");
-
-            HealthCheck healthCheck = new HealthCheck().withTest(infinispanHealthCheckCMD)
-                    .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
-
-            List<String> exposedPorts = List.of(infinispanPort.split(":")[0]);
-
-            dockerService.createContainer(INFINISPAN_CONTAINER_NAME, infinispanImage,
-                    List.of("USER=" + infinispanUsername, "PASS=" + infinispanPassword),
-                    infinispanPort, false, exposedPorts, healthCheck,
-                    Map.of(LABEL_TYPE, ContainerStatus.ContainerType.internal.name()));
-
+            var compose = dockerService.getInternalDockerComposeService(INFINISPAN_CONTAINER_NAME);
+            compose.getEnvironmentList().addAll(List.of("USER=" + infinispanUsername, "PASS=" + infinispanPassword));
+            dockerService.createContainerFromCompose(compose, ContainerStatus.ContainerType.internal);
             dockerService.runContainer(INFINISPAN_CONTAINER_NAME);
             LOGGER.info("Infinispan is started");
         } catch (Exception e) {

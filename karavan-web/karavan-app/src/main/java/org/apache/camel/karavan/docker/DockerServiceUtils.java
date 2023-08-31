@@ -18,27 +18,31 @@ package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.model.*;
 import io.smallrye.mutiny.tuples.Tuple2;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.api.KameletResources;
-import org.apache.camel.karavan.docker.model.DevService;
+import org.apache.camel.karavan.docker.model.DockerComposeService;
 import org.apache.camel.karavan.docker.model.HealthCheckConfig;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.service.CodeService;
 import org.yaml.snakeyaml.Yaml;
 
 import jakarta.inject.Inject;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+
+import java.io.*;
 import java.text.DecimalFormat;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.shared.Constants.LABEL_TYPE;
 
 public class DockerServiceUtils {
+
+    protected static final String ENVIRONMENT = "environment";
 
     protected static final DecimalFormat formatCpu = new DecimalFormat("0.00");
     protected static final DecimalFormat formatMiB = new DecimalFormat("0.0");
@@ -67,42 +71,57 @@ public class DockerServiceUtils {
         }
     }
 
-    public DevService getDevService(String code, String name) {
+    public DockerComposeService getInternalDockerComposeService (String name) {
+        String composeText = getResourceFile("/services/internal.yaml");
+        return convertToDockerComposeService(composeText, name);
+    }
+
+    public DockerComposeService convertToDockerComposeService(String code, String name) {
         Yaml yaml = new Yaml();
         Map<String, Object> obj = yaml.load(code);
         JsonObject json = JsonObject.mapFrom(obj);
         JsonObject services = json.getJsonObject("services");
         if (services.containsKey(name)) {
-            DevService ds = services.getJsonObject(name).mapTo(DevService.class);
-            if (ds.getContainer_name() == null) {
-                ds.setContainer_name(name);
-            }
-            return ds;
+            JsonObject service = services.getJsonObject(name);
+            return convertToDockerComposeService(name, service);
         } else {
             Optional<JsonObject> j = services.fieldNames().stream()
                     .map(services::getJsonObject)
-                    .filter(s -> {
-                        s.getJsonObject("container_name");
-                        return false;
-                    }).findFirst();
+                    .filter(s -> s.getString("container_name").equalsIgnoreCase(name)).findFirst();
             if (j.isPresent()) {
-                return j.get().mapTo(DevService.class);
+                return convertToDockerComposeService(name, j.get());
             }
         }
         return null;
+    }
+
+    public DockerComposeService convertToDockerComposeService(String name, JsonObject service) {
+        if (service.containsKey(ENVIRONMENT) && service.getValue(ENVIRONMENT) instanceof JsonArray) {
+            JsonObject env = new JsonObject();
+            service.getJsonArray(ENVIRONMENT).forEach(o -> {
+                String[] kv = o.toString().split("=");
+                env.put(kv[0], kv[1]);
+            });
+            service.put(ENVIRONMENT, env);
+        }
+        DockerComposeService ds = service.mapTo(DockerComposeService.class);
+        if (ds.getContainer_name() == null) {
+            ds.setContainer_name(name);
+        }
+        return ds;
     }
 
     protected HealthCheck getHealthCheck(HealthCheckConfig config) {
         if (config != null) {
             HealthCheck healthCheck = new HealthCheck().withTest(config.getTest());
             if (config.getInterval() != null) {
-                healthCheck.withInterval(convertDuration(config.getInterval()));
+                healthCheck.withInterval(durationNanos(config.getInterval()));
             }
             if (config.getTimeout() != null) {
-                healthCheck.withTimeout(convertDuration(config.getTimeout()));
+                healthCheck.withTimeout(durationNanos(config.getTimeout()));
             }
             if (config.getStart_period() != null) {
-                healthCheck.withStartPeriod(convertDuration(config.getStart_period()));
+                healthCheck.withStartPeriod(durationNanos(config.getStart_period()));
             }
             if (config.getRetries() != null) {
                 healthCheck.withRetries(config.getRetries());
@@ -112,11 +131,7 @@ public class DockerServiceUtils {
         return new HealthCheck();
     }
 
-    protected Long convertDuration(String value) {
-        return Long.parseLong(value.replace("s", "")) * 1000000000L;
-    }
-
-    protected String getResourceFile(String path) {
+    protected static String getResourceFile(String path) {
         try {
             InputStream inputStream = KameletResources.class.getResourceAsStream(path);
             return new BufferedReader(new InputStreamReader(inputStream))
@@ -126,7 +141,17 @@ public class DockerServiceUtils {
         }
     }
 
-    protected HostConfig getHostConfig(String ports, List<ExposedPort> exposedPorts, boolean inRange, String network) {
+    protected static long durationNanos(String s) {
+        if (Pattern.compile("\\d+d\\s").matcher(s).find()) {
+            int idxSpace = s.indexOf(" ");
+            s = "P" + s.substring(0, idxSpace) + "T" + s.substring(idxSpace + 1);
+        } else
+            s = "PT" + s;
+        s = s.replace(" ", "");
+        return Duration.parse(s).toMillis() * 1000000L;
+    }
+
+    protected Ports getPortBindings(String ports, List<ExposedPort> exposedPorts, boolean inRange) {
         Ports portBindings = new Ports();
 
         getPortsFromString(ports).forEach((hostPort, containerPort) -> {
@@ -135,9 +160,7 @@ public class DockerServiceUtils {
                     : Ports.Binding.bindPort(hostPort);
             portBindings.bind(ExposedPort.tcp(containerPort), binding);
         });
-        return new HostConfig()
-                .withPortBindings(portBindings)
-                .withNetworkMode(network);
+        return portBindings;
     }
 
     protected Map<Integer, Integer> getPortsFromString(String ports) {

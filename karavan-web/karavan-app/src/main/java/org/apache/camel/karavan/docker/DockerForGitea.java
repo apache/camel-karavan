@@ -18,20 +18,13 @@ package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.command.ExecCreateCmdResponse;
 import com.github.dockerjava.api.model.Container;
-import com.github.dockerjava.api.model.HealthCheck;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.GitConfig;
 import org.apache.camel.karavan.service.GitService;
 import org.apache.camel.karavan.service.GiteaService;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
-
-import java.util.List;
-import java.util.Map;
-
-import static org.apache.camel.karavan.shared.Constants.LABEL_TYPE;
 
 @ApplicationScoped
 public class DockerForGitea {
@@ -39,11 +32,6 @@ public class DockerForGitea {
     private static final Logger LOGGER = Logger.getLogger(DockerForGitea.class.getName());
 
     protected static final String GITEA_CONTAINER_NAME = "gitea";
-
-    private static final List<String> giteaHealthCheckCMD = List.of("CMD", "curl", "-fss", "127.0.0.1:3000/api/healthz");
-
-    @ConfigProperty(name = "karavan.gitea.image")
-    String giteaImage;
 
     @Inject
     DockerService dockerService;
@@ -57,39 +45,22 @@ public class DockerForGitea {
     public void startGitea() {
         try {
             LOGGER.info("Gitea container is starting...");
-
-            HealthCheck healthCheck = new HealthCheck().withTest(giteaHealthCheckCMD)
-                    .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
-
-            dockerService.createContainer(GITEA_CONTAINER_NAME, giteaImage,
-                    List.of(), "3000:3000", false, List.of("3000"), healthCheck,
-                    Map.of(LABEL_TYPE, ContainerStatus.ContainerType.internal.name()));
-
+            var compose = dockerService.getInternalDockerComposeService(GITEA_CONTAINER_NAME);
+            Container c = dockerService.createContainerFromCompose(compose, ContainerStatus.ContainerType.internal);
+            copyAppIni(c.getId());
             dockerService.runContainer(GITEA_CONTAINER_NAME);
-
             LOGGER.info("Gitea container is started");
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
     }
 
-    protected void createGiteaInstance() {
+    protected void copyAppIni(String containerId) {
         try {
-            LOGGER.info("Creating Gitea Instance");
-            Container gitea = dockerService.getContainerByName(GITEA_CONTAINER_NAME);
-            ExecCreateCmdResponse instance = dockerService.execCreate(gitea.getId(),
-                            "curl", "-X", "POST", "localhost:3000", "-d",
-                            "db_type=sqlite3&db_host=localhost%3A3306&db_user=root&db_passwd=&db_name=gitea" +
-                                    "&ssl_mode=disable&db_schema=&db_path=%2Fvar%2Flib%2Fgitea%2Fdata%2Fgitea.db&app_name=Gitea%3A+Git+with+a+cup+of+tea" +
-                                    "&repo_root_path=%2Fvar%2Flib%2Fgitea%2Fgit%2Frepositories&lfs_root_path=%2Fvar%2Flib%2Fgitea%2Fgit%2Flfs&run_user=git" +
-                                    "&domain=localhost&ssh_port=2222&http_port=3000&app_url=http%3A%2F%2Flocalhost%3A3000%2F&log_root_path=%2Fvar%2Flib%2Fgitea%2Fdata%2Flog" +
-                                    "&smtp_addr=&smtp_port=&smtp_from=&smtp_user=&smtp_passwd=&enable_federated_avatar=on&enable_open_id_sign_in=on" +
-                                    "&enable_open_id_sign_up=on&default_allow_create_organization=on&default_enable_timetracking=on" +
-                                    "&no_reply_address=noreply.localhost&password_algorithm=pbkdf2&admin_name=&admin_email=&admin_passwd=&admin_confirm_passwd=",
-                            "-H", "'Content-Type: application/x-www-form-urlencoded'");
-
-            dockerService.execStart(instance.getId());
-            LOGGER.info("Created Gitea Instance");
+            LOGGER.info("Copying Gitea app.ini");
+            String ini = DockerServiceUtils.getResourceFile("/gitea/app.ini");
+            dockerService.copyFile(containerId, "/etc/gitea","app.ini", ini);
+            LOGGER.info("Copied Gitea app.ini");
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
@@ -128,7 +99,6 @@ public class DockerForGitea {
     }
 
     public void installGitea() {
-        createGiteaInstance();
         checkGiteaInstance();
     }
 }

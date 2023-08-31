@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class DevService {
+public class DockerComposeService {
 
     private String container_name;
     private String image;
@@ -15,7 +15,7 @@ public class DevService {
     private Map<String,String> environment;
     private HealthCheckConfig healthcheck;
 
-    public DevService() {
+    public DockerComposeService() {
     }
 
     public String getContainer_name() {
@@ -89,7 +89,7 @@ public class DevService {
 
     @Override
     public String toString() {
-        return "DevService{" +
+        return "DockerComposeService {" +
                 "container_name='" + container_name + '\'' +
                 ", image='" + image + '\'' +
                 ", restart='" + restart + '\'' +

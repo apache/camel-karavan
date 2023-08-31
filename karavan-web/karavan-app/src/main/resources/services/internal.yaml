@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+
+  infinispan:
+    image: quay.io/infinispan/server:14.0.6.Final
+    restart: always
+    ports:
+      - "11222:11222"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:11222/rest/v2/cache-managers/default/health/status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+
+  gitea:
+    image: gitea/gitea:1.20.2-rootless
+    restart: always
+    environment:
+      GITEA__server__APP_DATA_PATH: /data
+#      - USER_UID=1000
+#      - USER_GID=1000
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: [ "CMD", "curl", "-fss", "127.0.0.1:3000/api/healthz" ]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 10s

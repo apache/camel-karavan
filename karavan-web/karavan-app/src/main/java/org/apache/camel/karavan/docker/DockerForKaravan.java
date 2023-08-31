@@ -19,7 +19,7 @@ package org.apache.camel.karavan.docker;
 import com.github.dockerjava.api.model.HealthCheck;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.docker.model.DevService;
+import org.apache.camel.karavan.docker.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -62,23 +62,15 @@ public class DockerForKaravan {
 
         dockerService.createContainer(projectId, devmodeImage,
                 env, null, false, List.of(), healthCheck,
-                Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devmode.name(), LABEL_PROJECT_ID, projectId));
+                Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devmode.name(), LABEL_PROJECT_ID, projectId),
+                Map.of());
 
         LOGGER.infof("DevMode started for %s", projectId);
     }
 
-    public void createDevserviceContainer(DevService devService) throws InterruptedException {
-        LOGGER.infof("DevService starting for ", devService.getContainer_name());
-
-        HealthCheck healthCheck = dockerService.getHealthCheck(devService.getHealthcheck());
-        List<String> env = devService.getEnvironment() != null ? devService.getEnvironmentList() : List.of();
-        String ports = String.join(",", devService.getPorts());
-
-        dockerService.createContainer(devService.getContainer_name(), devService.getImage(),
-                env, ports, false, devService.getExpose(), healthCheck,
-                Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devservice.name()));
-
-        LOGGER.infof("DevService started for %s", devService.getContainer_name());
+    public void createDevserviceContainer(DockerComposeService dockerComposeService) throws InterruptedException {
+        LOGGER.infof("DevService starting for ", dockerComposeService.getContainer_name());
+        dockerService.createContainerFromCompose(dockerComposeService, ContainerStatus.ContainerType.devservice);
     }
 
     public void startKaravanHeadlessContainer() {
@@ -92,7 +84,8 @@ public class DockerForKaravan {
                             "INFINISPAN_PASSWORD=" + infinispanPassword
                     ),
                     null, false, List.of(), new HealthCheck(),
-                    Map.of(LABEL_TYPE, ContainerStatus.ContainerType.internal.name()));
+                    Map.of(LABEL_TYPE, ContainerStatus.ContainerType.internal.name()),
+                    Map.of());
 
             dockerService.runContainer(KARAVAN_CONTAINER_NAME);
             LOGGER.info("Karavan headless is started");

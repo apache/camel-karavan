@@ -22,7 +22,7 @@ import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
 import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.docker.model.DevService;
+import org.apache.camel.karavan.docker.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.DeploymentStatus;
@@ -195,10 +195,10 @@ public class InfrastructureResource {
                 if (command.getString("command").equalsIgnoreCase("run")) {
                     if (Objects.equals(type, ContainerStatus.ContainerType.devservice.name())) {
                         String code = projectService.getDevServiceCode();
-                        DevService devService = dockerService.getDevService(code, name);
-                        if (devService != null) {
-                            dockerForKaravan.createDevserviceContainer(devService);
-                            dockerService.runContainer(devService.getContainer_name());
+                        DockerComposeService dockerComposeService = dockerService.convertToDockerComposeService(code, name);
+                        if (dockerComposeService != null) {
+                            dockerForKaravan.createDevserviceContainer(dockerComposeService);
+                            dockerService.runContainer(dockerComposeService.getContainer_name());
                         }
                     } else if (Objects.equals(type, ContainerStatus.ContainerType.devmode.name())) {
                         dockerForKaravan.createDevmodeContainer(name, "");
