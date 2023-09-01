@@ -16,15 +16,17 @@
  */
 package org.apache.camel.karavan.infinispan;
 
+import io.quarkus.runtime.StartupEvent;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Default;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import org.apache.camel.karavan.infinispan.model.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.Search;
@@ -34,7 +36,6 @@ import org.infinispan.commons.configuration.StringConfiguration;
 import org.infinispan.commons.marshall.ProtoStreamMarshaller;
 import org.infinispan.query.dsl.QueryFactory;
 import org.jboss.logging.Logger;
-
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -47,15 +48,14 @@ import java.util.stream.Collectors;
 
 import static org.infinispan.query.remote.client.ProtobufMetadataManagerConstants.PROTOBUF_METADATA_CACHE_NAME;
 
-@Default
-@ApplicationScoped
+@Singleton
 public class InfinispanService {
 
-    @ConfigProperty(name ="karavan.infinispan.hosts")
+    @ConfigProperty(name = "karavan.infinispan.hosts")
     String infinispanHosts;
-    @ConfigProperty(name ="karavan.infinispan.username")
+    @ConfigProperty(name = "karavan.infinispan.username")
     String infinispanUsername;
-    @ConfigProperty(name ="karavan.infinispan.password")
+    @ConfigProperty(name = "karavan.infinispan.password")
     String infinispanPassword;
 
     @Inject
@@ -82,7 +82,12 @@ public class InfinispanService {
     public static final String CODE_RELOAD_COMMAND = "CODE_RELOAD_COMMAND";
     protected static final String CODE_RELOAD_COMMAND_INTERNAL = "CODE_RELOAD_COMMAND_INTERNAL";
 
-    public void start(boolean startCodeReloadListener) {
+    @Retry(maxRetries = 100, delay = 2000)
+    public void tryStart(boolean startCodeReloadListener) throws Exception {
+        start(startCodeReloadListener);
+    }
+
+    void start(boolean startCodeReloadListener) throws Exception {
         LOGGER.info("InfinispanService is starting in remote mode");
 
         ProtoStreamMarshaller marshaller = new ProtoStreamMarshaller();
@@ -99,29 +104,34 @@ public class InfinispanService {
 
         cacheManager = new RemoteCacheManager(builder.build());
 
-        projects = getOrCreateCache(Project.CACHE, false);
-        files = getOrCreateCache(ProjectFile.CACHE, false);
-        containerStatuses = getOrCreateCache(ContainerStatus.CACHE, false);
-        pipelineStatuses = getOrCreateCache(PipelineStatus.CACHE, false);
-        deploymentStatuses = getOrCreateCache(DeploymentStatus.CACHE, false);
-        serviceStatuses = getOrCreateCache(ServiceStatus.CACHE, false);
-        camelStatuses = getOrCreateCache(CamelStatus.CACHE, false);
-        commits = getOrCreateCache("commits", false);
-        transits = getOrCreateCache("transits", false);
-        deploymentStatuses = getOrCreateCache(DeploymentStatus.CACHE, false);
-        codeReloadCommands = getOrCreateCache("code_reload_commands", true);
+        if (cacheManager.getConnectionCount() > 0 ) {
 
-        cacheManager.getCache(PROTOBUF_METADATA_CACHE_NAME).put("karavan.proto", getResourceFile("/proto/karavan.proto"));
+            projects = getOrCreateCache(Project.CACHE, false);
+            files = getOrCreateCache(ProjectFile.CACHE, false);
+            containerStatuses = getOrCreateCache(ContainerStatus.CACHE, false);
+            pipelineStatuses = getOrCreateCache(PipelineStatus.CACHE, false);
+            deploymentStatuses = getOrCreateCache(DeploymentStatus.CACHE, false);
+            serviceStatuses = getOrCreateCache(ServiceStatus.CACHE, false);
+            camelStatuses = getOrCreateCache(CamelStatus.CACHE, false);
+            commits = getOrCreateCache("commits", false);
+            transits = getOrCreateCache("transits", false);
+            deploymentStatuses = getOrCreateCache(DeploymentStatus.CACHE, false);
+            codeReloadCommands = getOrCreateCache("code_reload_commands", true);
 
-        if (startCodeReloadListener) {
-            cacheManager.getCache("code_reload_commands").addClientListener(new CodeReloadListener(eventBus));
+            cacheManager.getCache(PROTOBUF_METADATA_CACHE_NAME).put("karavan.proto", getResourceFile("/proto/karavan.proto"));
+
+            if (startCodeReloadListener) {
+                cacheManager.getCache("code_reload_commands").addClientListener(new CodeReloadListener(eventBus));
+            }
+
+            ready.set(true);
+            LOGGER.info("InfinispanService is started in remote mode");
+        } else {
+            throw new Exception("Not connected...");
         }
-
-        ready.set(true);
-        LOGGER.info("InfinispanService is started in remote mode");
     }
 
-    private <K, V> RemoteCache<K, V>  getOrCreateCache(String name, boolean command) {
+    private <K, V> RemoteCache<K, V> getOrCreateCache(String name, boolean command) {
         String config = getResourceFile(command ? "/cache/command-cache-config.xml" : "/cache/data-cache-config.xml");
         return cacheManager.administration().getOrCreateCache(name, new StringConfiguration(String.format(config, name)));
     }
@@ -193,15 +203,15 @@ public class InfinispanService {
     }
 
     public void deleteProject(String projectId) {
-        projects.remove(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT,projectId));
+        projects.remove(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT, projectId));
     }
 
     public void deleteProjectFile(String projectId, String filename) {
-        files.remove(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT,filename));
+        files.remove(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT, filename));
     }
 
     public Project getProject(String projectId) {
-        return projects.get(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT,projectId));
+        return projects.get(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT, projectId));
     }
 
     public PipelineStatus getPipelineStatus(String projectId, String environment) {
@@ -267,7 +277,7 @@ public class InfinispanService {
     }
 
     public void setTransit(String projectId, String env, String containerName) {
-        transits.put(GroupedKey.create(projectId,env,containerName), true);
+        transits.put(GroupedKey.create(projectId, env, containerName), true);
     }
 
     public List<ContainerStatus> getContainerStatuses() {
@@ -397,10 +407,10 @@ public class InfinispanService {
 
     public void clearAllStatuses() {
         CompletableFuture.allOf(
-            deploymentStatuses.clearAsync(),
-            containerStatuses.clearAsync(),
-            pipelineStatuses.clearAsync(),
-            camelStatuses.clearAsync()
+                deploymentStatuses.clearAsync(),
+                containerStatuses.clearAsync(),
+                pipelineStatuses.clearAsync(),
+                camelStatuses.clearAsync()
         ).join();
     }
 

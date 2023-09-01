@@ -19,22 +19,26 @@ package org.apache.camel.karavan.service;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
+import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.eventbus.EventBus;
+import jakarta.inject.Singleton;
 import org.apache.camel.karavan.docker.DockerForGitea;
+import org.apache.camel.karavan.docker.DockerForInfinispan;
 import org.apache.camel.karavan.docker.DockerService;
+import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.shared.ConfigService;
-import org.apache.camel.karavan.shared.Constants;
-import org.apache.camel.karavan.shared.EventType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.logging.Logger;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import java.io.IOException;
 
-@ApplicationScoped
+import static org.apache.camel.karavan.shared.EventType.IMPORT_PROJECTS;
+
+@Singleton
 public class KaravanService {
 
     private static final Logger LOGGER = Logger.getLogger(KaravanService.class.getName());
@@ -52,34 +56,44 @@ public class KaravanService {
     DockerForGitea dockerForGitea;
 
     @Inject
-    GitService gitService;
+    DockerForInfinispan dockerForInfinispan;
+
+    @Inject
+    InfinispanService infinispanService;
 
     @Inject
     EventBus eventBus;
 
-    void onStart(@Observes StartupEvent ev) {
-        LOGGER.info("Starting Karavan");
+    private static final String START_INTERNAL_DOCKER_SERVICES = "START_INTERNAL_DOCKER_SERVICES";
+    private static final String START_SERVICES = "START_SERVICES";
+
+    void onStart(@Observes StartupEvent ev) throws Exception {
         if (!ConfigService.inKubernetes()) {
-            if (ConfigService.isHeadless()) {
-                LOGGER.info("Starting Karavan Headless in Docker");
-            } else {
-                LOGGER.info("Starting Karavan with Docker");
-                if (!dockerService.checkDocker()){
-                    Quarkus.asyncExit();
-                } else {
-                    dockerService.createNetwork();
-                    dockerService.startListeners();
-                    if (giteaInstall) {
-                        dockerForGitea.startGitea();
-                    } else {
-                        eventBus.publish(EventType.START_INFINISPAN_IN_DOCKER, null);
-                    }
-                }
-            }
+            eventBus.publish(START_INTERNAL_DOCKER_SERVICES, null);
         } else {
             LOGGER.info("Starting Karavan in " + (kubernetesService.isOpenshift() ? "OpenShift" : "Kubernetes"));
-            eventBus.publish(EventType.INFINISPAN_STARTED, Constants.HEALTHY_STATUS);
         }
+        eventBus.publish(START_SERVICES, null);
+    }
+
+    @ConsumeEvent(value = START_INTERNAL_DOCKER_SERVICES, blocking = true)
+    void startInternalDockerServices(String data) {
+        LOGGER.info("Starting Karavan in Docker");
+        if (!dockerService.checkDocker()){
+            Quarkus.asyncExit();
+        } else {
+            dockerService.createNetwork();
+            dockerService.startListeners();
+            dockerForInfinispan.startInfinispan();
+            if (giteaInstall) {
+                dockerForGitea.startGitea();
+            }
+        }
+    }
+
+    @ConsumeEvent(value = START_SERVICES, blocking = true)
+    void startServices(String data) throws Exception {
+        infinispanService.tryStart(false);
     }
 
     void onStop(@Observes ShutdownEvent ev) throws IOException  {

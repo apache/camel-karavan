@@ -16,6 +16,7 @@ import org.apache.camel.karavan.shared.ConfigService;
 import org.apache.camel.karavan.shared.Constants;
 import org.apache.camel.karavan.shared.EventType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.infinispan.client.hotrod.exceptions.TransportException;
 import org.jboss.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -62,36 +63,6 @@ public class EventService {
     @Inject
     EventBus eventBus;
 
-    @ConsumeEvent(value = START_INFINISPAN_IN_DOCKER, blocking = true, ordered = true)
-    void startInfinispan1(String data) {
-        dockerForInfinispan.startInfinispan();
-        dockerForInfinispan.checkInfinispanHealth();
-    }
-
-    @ConsumeEvent(value = INFINISPAN_STARTED, blocking = true, ordered = true)
-    void startServices1(String infinispanHealth) {
-        if (infinispanHealth.equals(Constants.HEALTHY_STATUS)) {
-            infinispanService.start(false);
-            infinispanService.clearAllStatuses();
-            if (!ConfigService.inKubernetes()) {
-                dockerForKaravan.startKaravanHeadlessContainer();
-                dockerService.collectContainersStatuses();
-            }
-            eventBus.publish(EventType.IMPORT_PROJECTS, "");
-            eventBus.publish(EventType.START_INFRASTRUCTURE_LISTENERS, "");
-        }
-    }
-
-    @ConsumeEvent(value = GITEA_STARTED, blocking = true, ordered = true)
-    void startInfinispanAfterGitea(String giteaHealth) {
-        eventBus.publish(EventType.START_INFINISPAN_IN_DOCKER, null);
-    }
-
-    @ConsumeEvent(value = GITEA_CONTAINER_STARTED, blocking = true, ordered = true)
-    void installGiteaInGiteaContainer(String giteaHealth) {
-        dockerForGitea.installGitea();
-    }
-
     void startServices(String infinispanHealth) {
         eventBus.publish(EventType.IMPORT_PROJECTS, "");
         eventBus.publish(EventType.START_INFRASTRUCTURE_LISTENERS, "");
@@ -137,7 +108,7 @@ public class EventService {
                     LABEL_PROJECT_ID, projectId,
                     RELOAD_TRY_COUNT, ++reloadCount
             );
-            eventBus.publish(DELAY_MESSAGE, JsonObject.mapFrom(message));
+            eventBus.publish(DEVMODE_DELAY_MESSAGE, JsonObject.mapFrom(message));
         }
     }
 

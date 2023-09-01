@@ -145,7 +145,7 @@ public class DockerService extends DockerServiceUtils {
     public Container createContainerFromCompose(DockerComposeService compose, ContainerStatus.ContainerType type) throws InterruptedException {
         List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(compose.getContainer_name())).exec();
         if (containers.isEmpty()) {
-            LOGGER.infof("Compose Service starting for ", compose.getContainer_name());
+            LOGGER.infof("Compose Service starting for %s", compose.getContainer_name());
 
             HealthCheck healthCheck = getHealthCheck(compose.getHealthcheck());
             List<String> env = compose.getEnvironment() != null ? compose.getEnvironmentList() : List.of();
@@ -247,7 +247,6 @@ public class DockerService extends DockerServiceUtils {
     public InspectContainerResponse inspectContainer(String id) {
         return getDockerClient().inspectContainerCmd(id).exec();
     }
-
 
     public ExecCreateCmdResponse execCreate(String id, String... cmd) {
         return getDockerClient().execCreateCmd(id)
@@ -354,7 +353,7 @@ public class DockerService extends DockerServiceUtils {
                 .build();
     }
 
-    private DockerClient getDockerClient() {
+    public DockerClient getDockerClient() {
         if (dockerClient == null) {
             dockerClient = DockerClientImpl.getInstance(getDockerClientConfig(), getDockerHttpClient());
         }

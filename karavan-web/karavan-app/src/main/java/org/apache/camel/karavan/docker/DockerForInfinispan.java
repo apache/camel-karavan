@@ -16,7 +16,6 @@
  */
 package org.apache.camel.karavan.docker;
 
-import com.github.dockerjava.api.command.HealthState;
 import io.vertx.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -24,8 +23,8 @@ import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
+import java.util.Arrays;
 import java.util.List;
-import static org.apache.camel.karavan.shared.EventType.INFINISPAN_STARTED;
 
 @ApplicationScoped
 public class DockerForInfinispan {
@@ -49,23 +48,24 @@ public class DockerForInfinispan {
         try {
             LOGGER.info("Infinispan is starting...");
             var compose = dockerService.getInternalDockerComposeService(INFINISPAN_CONTAINER_NAME);
-            compose.getEnvironmentList().addAll(List.of("USER=" + infinispanUsername, "PASS=" + infinispanPassword));
+            compose.addEnvironment("USER", infinispanUsername);
+            compose.addEnvironment("PASS", infinispanPassword);
             dockerService.createContainerFromCompose(compose, ContainerStatus.ContainerType.internal);
             dockerService.runContainer(INFINISPAN_CONTAINER_NAME);
             LOGGER.info("Infinispan is started");
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getCause().getMessage());
         }
     }
 
-    public void checkInfinispanHealth() {
-        dockerService.listContainers(false).stream()
-                .filter(c -> c.getState().equals("running"))
-                .forEach(c -> {
-                    HealthState hs = dockerService.inspectContainer(c.getId()).getState().getHealth();
-                    if (c.getNames()[0].equals("/" + INFINISPAN_CONTAINER_NAME)) {
-                        eventBus.publish(INFINISPAN_STARTED, hs.getStatus());
-                    }
-                });
-    }
+//    public void checkInfinispanHealth() {
+//        dockerService.listContainers(false).stream()
+//                .filter(c -> c.getState().equals("running"))
+//                .forEach(c -> {
+//                    HealthState hs = dockerService.inspectContainer(c.getId()).getState().getHealth();
+//                    if (c.getNames()[0].equals("/" + INFINISPAN_CONTAINER_NAME)) {
+//                        eventBus.publish(INFINISPAN_STARTED, hs.getStatus());
+//                    }
+//                });
+//    }
 }

@@ -80,12 +80,12 @@ public class ScheduledService {
         }
     }
 
-    @Scheduled(every = "{karavan.container.infinispan.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
-    void checkInfinispanHealth() {
-        if (!infinispanService.isReady()) {
-            dockerForInfinispan.checkInfinispanHealth();
-        }
-    }
+//    @Scheduled(every = "{karavan.container.infinispan.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+//    void checkInfinispanHealth() {
+//        if (!infinispanService.isReady()) {
+//            dockerForInfinispan.checkInfinispanHealth();
+//        }
+//    }
 
     @Scheduled(every = "{karavan.camel.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectCamelStatuses() {

@@ -25,7 +25,7 @@ public class DataGridTest {
     InfinispanService infinispanService;
 
     @BeforeAll
-    public void setup() {
+    public void setup() throws Exception {
         infinispanService.start(true);
     }
 

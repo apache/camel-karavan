@@ -52,4 +52,15 @@ public class HealthCheckConfig {
     public void setStart_period(String start_period) {
         this.start_period = start_period;
     }
+
+    @Override
+    public String toString() {
+        return "HealthCheckConfig{" +
+                "interval='" + interval + '\'' +
+                ", retries=" + retries +
+                ", timeout='" + timeout + '\'' +
+                ", start_period='" + start_period + '\'' +
+                ", test=" + test +
+                '}';
+    }
 }

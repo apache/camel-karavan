@@ -1,5 +1,7 @@
 package org.apache.camel.karavan.docker.model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -67,12 +69,19 @@ public class DockerComposeService {
     }
 
     public Map<String, String> getEnvironment() {
-        return environment;
+        return environment != null ? environment : new HashMap<>();
     }
 
     public List<String> getEnvironmentList() {
-        return environment.entrySet().stream()
-                .map(e -> e.getKey().concat("=").concat(e.getValue())).collect(Collectors.toList());
+        return environment != null
+                ? environment.entrySet().stream() .map(e -> e.getKey().concat("=").concat(e.getValue())).collect(Collectors.toList())
+                : new ArrayList<>();
+    }
+
+    public void addEnvironment(String key, String value) {
+        Map<String, String> map = getEnvironment();
+        map.put(key, value);
+        setEnvironment(map);
     }
 
     public void setEnvironment(Map<String, String> environment) {
