@@ -22,11 +22,15 @@ import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.apache.camel.karavan.infinispan.model.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.Retry;
+import org.eclipse.microprofile.health.HealthCheck;
+import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.Readiness;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.Search;
@@ -48,8 +52,10 @@ import java.util.stream.Collectors;
 
 import static org.infinispan.query.remote.client.ProtobufMetadataManagerConstants.PROTOBUF_METADATA_CACHE_NAME;
 
+@Default
+@Readiness
 @Singleton
-public class InfinispanService {
+public class InfinispanService implements HealthCheck {
 
     @ConfigProperty(name = "karavan.infinispan.hosts")
     String infinispanHosts;
@@ -421,6 +427,15 @@ public class InfinispanService {
                     .lines().collect(Collectors.joining(System.getProperty("line.separator")));
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    @Override
+    public HealthCheckResponse call() {
+        if (isReady()) {
+            return HealthCheckResponse.named("infinispan").up().build();
+        } else {
+            return HealthCheckResponse.named("infinispan").down().build();
         }
     }
 }

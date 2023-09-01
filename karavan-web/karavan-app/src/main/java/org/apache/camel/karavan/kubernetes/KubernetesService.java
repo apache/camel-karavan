@@ -128,12 +128,12 @@ public class KubernetesService implements HealthCheck {
     public HealthCheckResponse call() {
         if (ConfigService.inKubernetes()) {
             if (informers.size() == INFORMERS) {
-                return HealthCheckResponse.up("All Kubernetes informers are running.");
+                return HealthCheckResponse.named("kubernetes").withData("mode", "kubernetes").up().build();
             } else {
-                return HealthCheckResponse.down("kubernetes Informers are not running.");
+                return HealthCheckResponse.named("kubernetes").down().build();
             }
         } else {
-            return HealthCheckResponse.up("Running Kubernetesless.");
+            return HealthCheckResponse.named("kubernetes").withData("mode", "kubernetesless").up().build();
         }
     }
 

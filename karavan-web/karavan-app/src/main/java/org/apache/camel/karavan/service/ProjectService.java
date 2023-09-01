@@ -27,6 +27,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.Readiness;
 import org.jboss.logging.Logger;
 
@@ -69,10 +70,10 @@ public class ProjectService implements HealthCheck{
     @Override
     public HealthCheckResponse call() {
         if(ready.get()) {
-            return HealthCheckResponse.up("Git authentication is successfull.");
+            return HealthCheckResponse.named("project").up().build();
         }
         else {
-            return HealthCheckResponse.down("Git authentication is unsuccessfull. Check your git credentials.");
+            return HealthCheckResponse.named("project").down().build();
         }
     }
 
