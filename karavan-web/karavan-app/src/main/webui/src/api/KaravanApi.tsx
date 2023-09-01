@@ -84,6 +84,20 @@ export class KaravanApi {
         });
     }
 
+    static async getReadiness(after: (readiness: any) => void) {
+        axios.get('/q/health/ready', {headers: {'Accept': 'application/json'}})
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                } else {
+                    after(undefined);
+                }
+            }).catch(err => {
+            console.log(err.message);
+            after(undefined);
+        });
+    }
+
     static async getConfig(after: (config: {}) => void) {
         axios.get('/public/sso-config', {headers: {'Accept': 'application/json'}})
             .then(res => {

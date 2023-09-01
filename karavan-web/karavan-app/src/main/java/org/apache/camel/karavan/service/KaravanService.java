@@ -24,6 +24,7 @@ import io.vertx.core.eventbus.EventBus;
 import jakarta.inject.Singleton;
 import org.apache.camel.karavan.docker.DockerForGitea;
 import org.apache.camel.karavan.docker.DockerForInfinispan;
+import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
@@ -52,6 +53,8 @@ public class KaravanService {
     @Inject
     DockerForGitea dockerForGitea;
 
+    @Inject
+    DockerForKaravan dockerForKaravan;
     @Inject
     DockerForInfinispan dockerForInfinispan;
 
@@ -88,7 +91,9 @@ public class KaravanService {
         } else {
             dockerService.createNetwork();
             dockerService.startListeners();
+
             dockerForInfinispan.startInfinispan();
+            dockerForKaravan.startKaravanHeadlessContainer();
             if (giteaInstall) {
                 dockerForGitea.startGitea();
                 giteaService.install();

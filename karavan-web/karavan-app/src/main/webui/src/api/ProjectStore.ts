@@ -36,6 +36,8 @@ interface AppConfigState {
     setLoading: (loading: boolean) => void;
     config: AppConfig;
     setConfig: (config: AppConfig) => void;
+    readiness: any;
+    setReadiness: (readiness: any) => void;
 }
 
 export const useAppConfigStore = createWithEqualityFn<AppConfigState>((set) => ({
@@ -46,6 +48,10 @@ export const useAppConfigStore = createWithEqualityFn<AppConfigState>((set) => (
     config: new AppConfig(),
     setConfig: (config: AppConfig)  => {
         set({config: config})
+    },
+    readiness: undefined,
+    setReadiness: (readiness: any)  => {
+        set({readiness: readiness})
     },
 }), shallow)
 

@@ -16,8 +16,8 @@ import {shallow} from "zustand/shallow";
 
 export function MainDataPoller () {
 
-    const [config, setLoading] = useAppConfigStore((s) =>
-        [s.config, s.setLoading], shallow)
+    const [config, setLoading, readiness, setReadiness] = useAppConfigStore((s) =>
+        [s.config, s.setLoading, s.readiness, s.setReadiness], shallow)
     const [projects, setProjects] = useProjectsStore((state) => [state.projects, state.setProjects], shallow)
     const [deployments, services, containers, camels, setDeployments, setServices, setContainers, setCamels, setPipelineStatuses]
         = useStatusesStore((s) => [s.deployments, s.services, s.containers, s.camels,
@@ -30,33 +30,40 @@ export function MainDataPoller () {
         return () => {
             clearInterval(interval);
         };
-    }, [project]);
+    }, [project, readiness]);
 
     function getData() {
-        setLoading(true);
-        KaravanApi.getConfiguration((config: AppConfig) => {
-            if (project.projectId === undefined) {
-                KaravanApi.getProjects((projects: Project[]) => {
-                    setProjects(projects);
+        console.log(readiness);
+        KaravanApi.getReadiness((r: any) => {
+            setReadiness(r);
+        })
+        if (readiness) {
+            console.log("getData");
+            setLoading(true);
+            KaravanApi.getConfiguration((config: AppConfig) => {
+                if (project.projectId === undefined) {
+                    KaravanApi.getProjects((projects: Project[]) => {
+                        setProjects(projects);
+                    });
+                }
+                KaravanApi.getAllDeploymentStatuses((statuses: DeploymentStatus[]) => {
+                    setDeployments(statuses);
                 });
-            }
-            KaravanApi.getAllDeploymentStatuses((statuses: DeploymentStatus[]) => {
-                setDeployments(statuses);
+                KaravanApi.getAllServiceStatuses((statuses: ServiceStatus[]) => {
+                    setServices(statuses);
+                });
+                KaravanApi.getAllContainerStatuses((statuses: ContainerStatus[]) => {
+                    setContainers(statuses);
+                });
+                KaravanApi.getAllCamelStatuses(config.environment, (statuses: CamelStatus[]) => {
+                    setCamels(statuses);
+                });
+                KaravanApi.getPipelineStatuses(config.environment, (status: PipelineStatus[]) => {
+                    setPipelineStatuses(status);
+                });
+                setLoading(false);
             });
-            KaravanApi.getAllServiceStatuses((statuses: ServiceStatus[]) => {
-                setServices(statuses);
-            });
-            KaravanApi.getAllContainerStatuses((statuses: ContainerStatus[]) => {
-                setContainers(statuses);
-            });
-            KaravanApi.getAllCamelStatuses(config.environment, (statuses: CamelStatus[]) => {
-                setCamels(statuses);
-            });
-            KaravanApi.getPipelineStatuses(config.environment, (status: PipelineStatus[]) => {
-                setPipelineStatuses(status);
-            });
-            setLoading(false);
-        });
+        }
     }
 
     return (<></>)
