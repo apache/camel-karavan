@@ -35,7 +35,6 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import java.io.IOException;
 
-
 @Singleton
 public class KaravanService {
 

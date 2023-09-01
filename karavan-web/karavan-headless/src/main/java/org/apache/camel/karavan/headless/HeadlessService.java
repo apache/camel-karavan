@@ -18,6 +18,8 @@ package org.apache.camel.karavan.headless;
 
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.scheduler.Scheduled;
+import io.quarkus.vertx.ConsumeEvent;
+import io.vertx.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
@@ -35,9 +37,19 @@ public class HeadlessService {
     @Inject
     CamelService camelService;
 
-    void onStart(@Observes StartupEvent ev) {
+    @Inject
+    EventBus eventBus;
+
+    private static final String START_SERVICES = "START_SERVICES";
+
+    void onStart(@Observes StartupEvent ev) throws Exception {
+        eventBus.publish(START_SERVICES, null);
+    }
+
+    @ConsumeEvent(value = START_SERVICES, blocking = true)
+    void startServices(String data) throws Exception {
         LOGGER.info("Starting Headless Karavan");
-        infinispanService.start(true);
+        infinispanService.tryStart(true);
     }
 
     @Scheduled(every = "{karavan.camel.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)

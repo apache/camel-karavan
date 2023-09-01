@@ -22,7 +22,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 
-
 @ApplicationScoped
 public class EventService {
 
