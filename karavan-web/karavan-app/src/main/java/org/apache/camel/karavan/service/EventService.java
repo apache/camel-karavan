@@ -1,26 +1,19 @@
 package org.apache.camel.karavan.service;
 
 import io.quarkus.vertx.ConsumeEvent;
-import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
-import org.apache.camel.karavan.docker.DockerForGitea;
-import org.apache.camel.karavan.docker.DockerForInfinispan;
-import org.apache.camel.karavan.docker.DockerForKaravan;
-import org.apache.camel.karavan.docker.DockerService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.shared.ConfigService;
-import org.apache.camel.karavan.shared.Constants;
 import org.apache.camel.karavan.shared.EventType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.infinispan.client.hotrod.exceptions.TransportException;
 import org.jboss.logging.Logger;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.util.Map;
 import java.util.Objects;
 
@@ -41,18 +34,6 @@ public class EventService {
 
     @Inject
     KubernetesService kubernetesService;
-
-    @Inject
-    DockerService dockerService;
-
-    @Inject
-    DockerForInfinispan dockerForInfinispan;
-
-    @Inject
-    DockerForKaravan dockerForKaravan;
-
-    @Inject
-    DockerForGitea dockerForGitea;
 
     @Inject
     CamelService camelService;

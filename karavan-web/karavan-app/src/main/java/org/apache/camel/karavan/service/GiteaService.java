@@ -16,7 +16,6 @@
  */
 package org.apache.camel.karavan.service;
 
-import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.core.buffer.Buffer;
@@ -25,7 +24,7 @@ import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.infinispan.model.GitConfig;
-import org.apache.camel.karavan.shared.EventType;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.logging.Logger;
 
 import java.util.List;
@@ -40,9 +39,6 @@ public class GiteaService {
     Vertx vertx;
 
     @Inject
-    EventBus eventBus;
-
-    @Inject
     GitService gitService;
 
     WebClient webClient;
@@ -54,8 +50,30 @@ public class GiteaService {
         return webClient;
     }
 
-    public void createRepository() {
-        try {
+    @Retry(maxRetries = 100, delay = 2000)
+    public void install() throws Exception {
+            LOGGER.info("Install Gitea");
+            HttpResponse<Buffer> result = getWebClient().postAbs("http://localhost:3000").timeout(1000)
+                    .putHeader("Content-Type", "application/x-www-form-urlencoded")
+                    .sendBuffer(Buffer.buffer(
+                "db_type=sqlite3&db_host=localhost%3A3306&db_user=root&db_passwd=&db_name=gitea" +
+                        "&ssl_mode=disable&db_schema=&db_path=%2Fvar%2Flib%2Fgitea%2Fdata%2Fgitea.db&app_name=Karavan" +
+                        "&repo_root_path=%2Fvar%2Flib%2Fgitea%2Fgit%2Frepositories&lfs_root_path=%2Fvar%2Flib%2Fgitea%2Fgit%2Flfs&run_user=git" +
+                        "&domain=localhost&ssh_port=2222&http_port=3000&app_url=http%3A%2F%2Flocalhost%3A3000%2F&log_root_path=%2Fvar%2Flib%2Fgitea%2Fdata%2Flog" +
+                        "&smtp_addr=&smtp_port=&smtp_from=&smtp_user=&smtp_passwd=&enable_federated_avatar=on&enable_open_id_sign_in=on" +
+                        "&enable_open_id_sign_up=on&default_allow_create_organization=on&default_enable_timetracking=on" +
+                        "&no_reply_address=noreply.localhost&password_algorithm=pbkdf2&admin_name=&admin_email=&admin_passwd=&admin_confirm_passwd="
+                    ))
+                    .subscribeAsCompletionStage().toCompletableFuture().get();
+            if (result.statusCode() != 200 && result.statusCode() != 405) {
+                LOGGER.info("Gitea not ready");
+                throw new Exception("Gitea not ready");
+            }
+            LOGGER.info("Installed Gitea");
+    }
+
+    @Retry(maxRetries = 100, delay = 2000)
+    public void createRepository() throws Exception {
             LOGGER.info("Creating Gitea Repository");
             String token = generateToken();
             HttpResponse<Buffer> result = getWebClient().postAbs("http://localhost:3000/api/v1/user/repos").timeout(500)
@@ -71,16 +89,15 @@ public class GiteaService {
                     .subscribeAsCompletionStage().toCompletableFuture().get();
             if (result.statusCode() == 201) {
                 JsonObject res = result.bodyAsJsonObject();
-                eventBus.publish(EventType.START_INFINISPAN_IN_DOCKER, null);
+            } else {
+                LOGGER.info("Error creating Gitea repository");
+                throw new Exception("Error creating Gitea repository");
             }
             LOGGER.info("Created Gitea Repository");
-        } catch (Exception e) {
-            LOGGER.info(e.getMessage());
-        }
     }
 
-    private String generateToken() {
-        try {
+    @Retry(maxRetries = 100, delay = 2000)
+    protected String generateToken() throws Exception {
             LOGGER.info("Creating Gitea User Token");
             GitConfig config = gitService.getGitConfig();
             HttpResponse<Buffer> result = getWebClient().postAbs("http://localhost:3000/api/v1/users/" + config.getUsername() + "/tokens").timeout(500)
@@ -92,10 +109,9 @@ public class GiteaService {
             if (result.statusCode() == 201) {
                 JsonObject res = result.bodyAsJsonObject();
                 return res.getString("sha1");
+            } else {
+                LOGGER.info("Error getting token");
+                throw new Exception("Error getting token");
             }
-        } catch (Exception e) {
-            LOGGER.info(e.getMessage());
-        }
-        return null;
     }
 }

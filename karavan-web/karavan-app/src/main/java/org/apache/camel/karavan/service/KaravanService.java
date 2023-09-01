@@ -35,6 +35,7 @@ import org.jboss.logging.Logger;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 import static org.apache.camel.karavan.shared.EventType.IMPORT_PROJECTS;
 
@@ -64,6 +65,9 @@ public class KaravanService {
     @Inject
     EventBus eventBus;
 
+    @Inject
+    GiteaService giteaService;
+
     private static final String START_INTERNAL_DOCKER_SERVICES = "START_INTERNAL_DOCKER_SERVICES";
     private static final String START_SERVICES = "START_SERVICES";
 
@@ -73,20 +77,22 @@ public class KaravanService {
         } else {
             LOGGER.info("Starting Karavan in " + (kubernetesService.isOpenshift() ? "OpenShift" : "Kubernetes"));
         }
-        eventBus.publish(START_SERVICES, null);
+//        eventBus.publish(START_SERVICES, null);
     }
 
     @ConsumeEvent(value = START_INTERNAL_DOCKER_SERVICES, blocking = true)
-    void startInternalDockerServices(String data) {
+    void startInternalDockerServices(String data) throws Exception {
         LOGGER.info("Starting Karavan in Docker");
         if (!dockerService.checkDocker()){
             Quarkus.asyncExit();
         } else {
             dockerService.createNetwork();
             dockerService.startListeners();
-            dockerForInfinispan.startInfinispan();
+//            dockerForInfinispan.startInfinispan();
             if (giteaInstall) {
                 dockerForGitea.startGitea();
+                giteaService.install();
+                dockerForGitea.createGiteaUser();
             }
         }
     }

@@ -59,14 +59,9 @@ public class DockerEventListener implements ResultCallback<Event> {
 
     public void onContainerEvent(Event event, Container container) {
         String status = event.getStatus();
-//        if (status.startsWith("health_status:") && container.getNames()[0].equals("/gitea")) {
-//            onGiteaHealthEvent(container, event);
-//        }
         if (infinispanService.isReady()) {
             if (status.startsWith("health_status:")) {
-                if (container.getNames()[0].equals("/infinispan")) {
-                    onInfinispanHealthEvent(container, event);
-                } else if (inDevMode(container)) {
+                if (inDevMode(container)) {
                     onDevModeHealthEvent(container, event);
                 }
             }
@@ -102,20 +97,6 @@ public class DockerEventListener implements ResultCallback<Event> {
             }
             infinispanService.saveContainerStatus(ci);
         }
-    }
-
-    public void onGiteaHealthEvent(Container container, Event event) {
-        String status = event.getStatus();
-        String health = status.replace("health_status: ", "");
-        LOGGER.infof("Container %s health status: %s", container.getNames()[0], health);
-//        eventBus.publish(GITEA_CONTAINER_STARTED, health);
-    }
-
-    public void onInfinispanHealthEvent(Container container, Event event) {
-        String status = event.getStatus();
-        String health = status.replace("health_status: ", "");
-        LOGGER.infof("Container %s health status: %s", container.getNames()[0], health);
-//        eventBus.publish(INFINISPAN_STARTED, health);
     }
 
     public void onDevModeHealthEvent(Container container, Event event) {
