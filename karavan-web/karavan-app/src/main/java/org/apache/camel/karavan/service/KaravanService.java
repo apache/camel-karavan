@@ -29,15 +29,12 @@ import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.logging.Logger;
 
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
-import static org.apache.camel.karavan.shared.EventType.IMPORT_PROJECTS;
 
 @Singleton
 public class KaravanService {
@@ -68,6 +65,10 @@ public class KaravanService {
     @Inject
     GiteaService giteaService;
 
+    @Inject
+    ProjectService projectService;
+
+    private static final String START_KUBERNETES_LISTENERS = "START_KUBERNETES_LISTENERS";
     private static final String START_INTERNAL_DOCKER_SERVICES = "START_INTERNAL_DOCKER_SERVICES";
     private static final String START_SERVICES = "START_SERVICES";
 
@@ -75,9 +76,9 @@ public class KaravanService {
         if (!ConfigService.inKubernetes()) {
             eventBus.publish(START_INTERNAL_DOCKER_SERVICES, null);
         } else {
-            LOGGER.info("Starting Karavan in " + (kubernetesService.isOpenshift() ? "OpenShift" : "Kubernetes"));
+            eventBus.publish(START_KUBERNETES_LISTENERS, null);
         }
-//        eventBus.publish(START_SERVICES, null);
+        eventBus.publish(START_SERVICES, null);
     }
 
     @ConsumeEvent(value = START_INTERNAL_DOCKER_SERVICES, blocking = true)
@@ -88,7 +89,7 @@ public class KaravanService {
         } else {
             dockerService.createNetwork();
             dockerService.startListeners();
-//            dockerForInfinispan.startInfinispan();
+            dockerForInfinispan.startInfinispan();
             if (giteaInstall) {
                 dockerForGitea.startGitea();
                 giteaService.install();
@@ -97,9 +98,16 @@ public class KaravanService {
         }
     }
 
+    @ConsumeEvent(value = START_KUBERNETES_LISTENERS, blocking = true)
+    void startKubernetesListeners(String data) throws Exception {
+        LOGGER.info("Starting Karavan in Kubernetes");
+        kubernetesService.startInformers(null);
+    }
+
     @ConsumeEvent(value = START_SERVICES, blocking = true)
     void startServices(String data) throws Exception {
         infinispanService.tryStart(false);
+        projectService.tryStart();
     }
 
     void onStop(@Observes ShutdownEvent ev) throws IOException  {

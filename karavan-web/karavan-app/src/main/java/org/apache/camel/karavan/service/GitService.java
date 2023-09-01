@@ -43,6 +43,7 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -448,5 +449,18 @@ public class GitService {
             }
         }
         return files;
+    }
+
+    @Retry(maxRetries = 100, delay = 2000)
+    public boolean checkGit() throws Exception {
+        LOGGER.info("Check git");
+        GitConfig gitConfig = getGitConfig();
+        CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
+        String uuid = UUID.randomUUID().toString();
+        String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
+        try (Git git = clone(folder, gitConfig.getUri(), gitConfig.getBranch(), cred)) {
+            LOGGER.info("Git is ready");
+        }
+        return true;
     }
 }

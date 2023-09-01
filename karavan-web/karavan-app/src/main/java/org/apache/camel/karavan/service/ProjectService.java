@@ -24,6 +24,7 @@ import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Readiness;
@@ -62,11 +63,12 @@ public class ProjectService implements HealthCheck{
     @Inject
     CodeService codeService;
 
+    private AtomicBoolean ready = new AtomicBoolean(false);
     private AtomicBoolean readyToPull = new AtomicBoolean(false);
 
     @Override
     public HealthCheckResponse call() {
-        if(readyToPull.get()) {
+        if(ready.get()) {
             return HealthCheckResponse.up("Git authentication is successfull.");
         }
         else {
@@ -101,15 +103,22 @@ public class ProjectService implements HealthCheck{
         readyToPull.set(true);
     }
 
-    public void importProjects(String data) {
-        if (infinispanService.getProjects().isEmpty()) {
-            importAllProjects();
-        }
-        addKameletsProject();
-        addTemplatesProject();
-        addServicesProject();
-        if (!Objects.equals("disabled", gitPullInterval.toLowerCase()) && !Objects.equals("off", gitPullInterval.toLowerCase())) {
-            importCommits();
+    @Retry(maxRetries = 100, delay = 2000)
+    public void tryStart() throws Exception {
+        if (infinispanService.isReady() && gitService.checkGit()) {
+            if (infinispanService.getProjects().isEmpty()) {
+                importAllProjects();
+            }
+            addKameletsProject();
+            addTemplatesProject();
+            addServicesProject();
+            if (!Objects.equals("disabled", gitPullInterval.toLowerCase()) && !Objects.equals("off", gitPullInterval.toLowerCase())) {
+                importCommits();
+            }
+            ready.set(true);
+        } else {
+            LOGGER.info("Projects are not ready");
+            throw new Exception("Projects are not ready");
         }
     }
 

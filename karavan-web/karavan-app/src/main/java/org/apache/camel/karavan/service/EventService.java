@@ -8,9 +8,7 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.shared.ConfigService;
-import org.apache.camel.karavan.shared.EventType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -33,36 +31,10 @@ public class EventService {
     InfinispanService infinispanService;
 
     @Inject
-    KubernetesService kubernetesService;
-
-    @Inject
     CamelService camelService;
 
     @Inject
-    ProjectService projectService;
-
-    @Inject
     EventBus eventBus;
-
-    void startServices(String infinispanHealth) {
-        eventBus.publish(EventType.IMPORT_PROJECTS, "");
-        eventBus.publish(EventType.START_INFRASTRUCTURE_LISTENERS, "");
-    }
-
-    @ConsumeEvent(value = START_INFRASTRUCTURE_LISTENERS, blocking = true, ordered = true)
-    void startInfrastructureListeners(String data) {
-        LOGGER.info("Start Infrastructure Listeners");
-        if (ConfigService.inKubernetes()) {
-            kubernetesService.startInformers(data);
-        } else {
-//            Docker listener is already started
-        }
-    }
-
-    @ConsumeEvent(value = IMPORT_PROJECTS, blocking = true)
-    public void importProjects(String data) {
-        projectService.importProjects(data);
-    }
 
     @ConsumeEvent(value = DEVMODE_CONTAINER_READY, blocking = true, ordered = true)
     void receiveCommand(JsonObject json) {
