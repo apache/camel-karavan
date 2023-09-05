@@ -29,6 +29,7 @@ import org.apache.camel.karavan.infinispan.model.DeploymentStatus;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.infinispan.model.ServiceStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.ProjectService;
 import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -65,6 +66,9 @@ public class InfrastructureResource {
 
     @Inject
     ProjectService projectService;
+
+    @Inject
+    CodeService codeService;
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
@@ -186,7 +190,7 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/container/{env}/{type}/{name}")
-    public Response startContainer(@PathParam("env") String env, @PathParam("type") String type, @PathParam("name") String name, JsonObject command) throws Exception {
+    public Response manageContainer(@PathParam("env") String env, @PathParam("type") String type, @PathParam("name") String name, JsonObject command) throws Exception {
         if (infinispanService.isReady()) {
             // set container statuses
             setContainerStatusTransit(name, type);
@@ -195,14 +199,15 @@ public class InfrastructureResource {
                 if (command.getString("command").equalsIgnoreCase("run")) {
                     if (Objects.equals(type, ContainerStatus.ContainerType.devservice.name())) {
                         String code = projectService.getDevServiceCode();
-                        DockerComposeService dockerComposeService = dockerService.convertToDockerComposeService(code, name);
+                        DockerComposeService dockerComposeService = codeService.convertToDockerComposeService(code, name);
                         if (dockerComposeService != null) {
                             dockerForKaravan.createDevserviceContainer(dockerComposeService);
                             dockerService.runContainer(dockerComposeService.getContainer_name());
                         }
                     } else if (Objects.equals(type, ContainerStatus.ContainerType.devmode.name())) {
-                        dockerForKaravan.createDevmodeContainer(name, "");
-                        dockerService.runContainer(name);
+//                        TODO: merge with DevMode service
+//                        dockerForKaravan.createDevmodeContainer(name, "");
+//                        dockerService.runContainer(name);
                     }
                     return Response.ok().build();
                 } else if (command.getString("command").equalsIgnoreCase("stop")) {

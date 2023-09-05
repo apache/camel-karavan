@@ -1,9 +1,6 @@
 package org.apache.camel.karavan.docker.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DockerComposeService {
@@ -50,6 +47,17 @@ public class DockerComposeService {
 
     public void setPorts(List<String> ports) {
         this.ports = ports;
+    }
+
+    public Map<Integer, Integer> getPortsMap() {
+        Map<Integer, Integer> p = new HashMap<>();
+        if (ports != null && !ports.isEmpty()) {
+            ports.forEach(s -> {
+                String[] values = s.split(":");
+                p.put(Integer.parseInt(values[0]), Integer.parseInt(values[1]));
+            });
+        }
+        return p;
     }
 
     public List<String> getExpose() {

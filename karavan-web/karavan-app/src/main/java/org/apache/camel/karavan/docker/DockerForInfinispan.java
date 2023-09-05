@@ -20,6 +20,7 @@ import io.vertx.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
+import org.apache.camel.karavan.service.CodeService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -42,12 +43,12 @@ public class DockerForInfinispan {
     DockerService dockerService;
 
     @Inject
-    EventBus eventBus;
+    CodeService codeService;
 
     public void startInfinispan() {
         try {
             LOGGER.info("Infinispan is starting...");
-            var compose = dockerService.getInternalDockerComposeService(INFINISPAN_CONTAINER_NAME);
+            var compose = codeService.getInternalDockerComposeService(INFINISPAN_CONTAINER_NAME);
             compose.addEnvironment("USER", infinispanUsername);
             compose.addEnvironment("PASS", infinispanPassword);
             dockerService.createContainerFromCompose(compose, ContainerStatus.ContainerType.internal);

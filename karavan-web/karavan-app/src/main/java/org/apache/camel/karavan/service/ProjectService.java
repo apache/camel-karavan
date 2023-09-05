@@ -17,17 +17,25 @@
 package org.apache.camel.karavan.service;
 
 import io.smallrye.mutiny.tuples.Tuple2;
+import io.vertx.core.json.JsonObject;
+import io.vertx.mutiny.core.eventbus.EventBus;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.core.Response;
+import org.apache.camel.karavan.docker.DockerForKaravan;
+import org.apache.camel.karavan.docker.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.GitRepo;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.shared.ConfigService;
+import org.apache.camel.karavan.shared.EventType;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
-import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.Readiness;
 import org.jboss.logging.Logger;
 
@@ -36,11 +44,14 @@ import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.service.CodeService.DEV_SERVICES_FILENAME;
+import static org.apache.camel.karavan.service.CodeService.PROJECT_COMPOSE_FILENAME;
 
 @Default
 @Readiness
@@ -48,6 +59,9 @@ import static org.apache.camel.karavan.service.CodeService.DEV_SERVICES_FILENAME
 public class ProjectService implements HealthCheck{
 
     private static final Logger LOGGER = Logger.getLogger(ProjectService.class.getName());
+
+    @ConfigProperty(name = "karavan.environment")
+    String environment;
 
     @ConfigProperty(name = "karavan.git-pull-interval")
     String gitPullInterval;
@@ -59,10 +73,16 @@ public class ProjectService implements HealthCheck{
     KubernetesService kubernetesService;
 
     @Inject
+    DockerForKaravan dockerForKaravan;
+
+    @Inject
     GitService gitService;
 
     @Inject
     CodeService codeService;
+
+    @Inject
+    EventBus eventBus;
 
     private AtomicBoolean ready = new AtomicBoolean(false);
     private AtomicBoolean readyToPull = new AtomicBoolean(false);
@@ -75,6 +95,47 @@ public class ProjectService implements HealthCheck{
         else {
             return HealthCheckResponse.named("project").down().build();
         }
+    }
+
+    public String runProjectWithJBangOptions(Project project, @PathParam("jBangOptions") String jBangOptions) throws Exception {
+        String containerName = project.getProjectId();
+        ContainerStatus status = infinispanService.getDevModeContainerStatus(project.getProjectId(), environment);
+        if (status == null) {
+            status = ContainerStatus.createDevMode(project.getProjectId(), environment);
+        }
+
+        if (!Objects.equals(status.getState(), ContainerStatus.State.running.name())) {
+            status.setInTransit(true);
+            eventBus.send(EventType.CONTAINER_STATUS, JsonObject.mapFrom(status));
+
+            if (ConfigService.inKubernetes()) {
+                kubernetesService.runDevModeContainer(project, jBangOptions);
+            } else {
+                Map<String, String> files  = infinispanService.getProjectFiles(project.getProjectId()).stream()
+                        .filter(f -> !Objects.equals(f.getName(), PROJECT_COMPOSE_FILENAME))
+                        .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::getCode));
+                ProjectFile compose = infinispanService.getProjectFile(project.getProjectId(), PROJECT_COMPOSE_FILENAME);
+                DockerComposeService dcs = codeService.convertToDockerComposeService(compose.getCode(), project.getProjectId());
+                dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, dcs.getPortsMap(), files);
+            }
+            return containerName;
+        } else {
+            return null;
+        }
+    }
+
+    public Project save(Project project) throws Exception {
+        boolean isNew = infinispanService.getProject(project.getProjectId()) == null;
+        infinispanService.saveProject(project);
+        if (isNew){
+            ProjectFile appProp = codeService.getApplicationProperties(project);
+            infinispanService.saveProjectFile(appProp);
+            if (!ConfigService.inKubernetes()) {
+                ProjectFile projectCompose = codeService.createInitialProjectCompose(project);
+                infinispanService.saveProjectFile(projectCompose);
+            }
+        }
+        return project;
     }
 
     public void pullCommits() {
@@ -224,7 +285,7 @@ public class ProjectService implements HealthCheck{
                 templates = new Project(Project.Type.templates.name(), "Templates", "Templates", "", "", Instant.now().toEpochMilli(), Project.Type.templates);
                 infinispanService.saveProject(templates);
 
-                codeService.getApplicationPropertiesTemplates().forEach((name, value) -> {
+                codeService.getTemplates().forEach((name, value) -> {
                     ProjectFile file = new ProjectFile(name, value, Project.Type.templates.name(), Instant.now().toEpochMilli());
                     infinispanService.saveProjectFile(file);
                 });
@@ -262,7 +323,7 @@ public class ProjectService implements HealthCheck{
                 pipelines = new Project(Project.Type.pipelines.name(), "Pipelines", "CI/CD Pipelines", "", "", Instant.now().toEpochMilli(), Project.Type.pipelines);
                 infinispanService.saveProject(pipelines);
 
-                codeService.getApplicationPropertiesTemplates().forEach((name, value) -> {
+                codeService.getTemplates().forEach((name, value) -> {
                     ProjectFile file = new ProjectFile(name, value, Project.Type.pipelines.name(), Instant.now().toEpochMilli());
                     infinispanService.saveProjectFile(file);
                 });

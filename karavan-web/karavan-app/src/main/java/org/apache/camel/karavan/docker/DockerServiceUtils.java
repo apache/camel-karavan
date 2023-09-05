@@ -42,8 +42,6 @@ import static org.apache.camel.karavan.shared.Constants.LABEL_TYPE;
 
 public class DockerServiceUtils {
 
-    protected static final String ENVIRONMENT = "environment";
-
     protected static final DecimalFormat formatCpu = new DecimalFormat("0.00");
     protected static final DecimalFormat formatMiB = new DecimalFormat("0.0");
     protected static final DecimalFormat formatGiB = new DecimalFormat("0.00");
@@ -69,46 +67,6 @@ public class DockerServiceUtils {
             containerStatus.setMemoryInfo(memoryUsage + " / " + memoryLimit);
             containerStatus.setCpuInfo(formatCpu(containerStatus.getContainerName(), stats));
         }
-    }
-
-    public DockerComposeService getInternalDockerComposeService (String name) {
-        String composeText = getResourceFile("/services/internal.yaml");
-        return convertToDockerComposeService(composeText, name);
-    }
-
-    public DockerComposeService convertToDockerComposeService(String code, String name) {
-        Yaml yaml = new Yaml();
-        Map<String, Object> obj = yaml.load(code);
-        JsonObject json = JsonObject.mapFrom(obj);
-        JsonObject services = json.getJsonObject("services");
-        if (services.containsKey(name)) {
-            JsonObject service = services.getJsonObject(name);
-            return convertToDockerComposeService(name, service);
-        } else {
-            Optional<JsonObject> j = services.fieldNames().stream()
-                    .map(services::getJsonObject)
-                    .filter(s -> s.getString("container_name").equalsIgnoreCase(name)).findFirst();
-            if (j.isPresent()) {
-                return convertToDockerComposeService(name, j.get());
-            }
-        }
-        return null;
-    }
-
-    public DockerComposeService convertToDockerComposeService(String name, JsonObject service) {
-        if (service.containsKey(ENVIRONMENT) && service.getValue(ENVIRONMENT) instanceof JsonArray) {
-            JsonObject env = new JsonObject();
-            service.getJsonArray(ENVIRONMENT).forEach(o -> {
-                String[] kv = o.toString().split("=");
-                env.put(kv[0], kv[1]);
-            });
-            service.put(ENVIRONMENT, env);
-        }
-        DockerComposeService ds = service.mapTo(DockerComposeService.class);
-        if (ds.getContainer_name() == null) {
-            ds.setContainer_name(name);
-        }
-        return ds;
     }
 
     protected HealthCheck getHealthCheck(HealthCheckConfig config) {
@@ -151,27 +109,14 @@ public class DockerServiceUtils {
         return Duration.parse(s).toMillis() * 1000000L;
     }
 
-    protected Ports getPortBindings(String ports, List<ExposedPort> exposedPorts, boolean inRange) {
+    protected Ports getPortBindings(Map<Integer, Integer> ports) {
         Ports portBindings = new Ports();
 
-        getPortsFromString(ports).forEach((hostPort, containerPort) -> {
-            Ports.Binding binding = (exposedPorts.stream().anyMatch(e -> e.getPort() == containerPort))
-                    ? (inRange ? Ports.Binding.bindPortRange(hostPort, hostPort + 1000) : Ports.Binding.bindPort(hostPort))
-                    : Ports.Binding.bindPort(hostPort);
+        ports.forEach((hostPort, containerPort) -> {
+            Ports.Binding binding = Ports.Binding.bindPort(hostPort);
             portBindings.bind(ExposedPort.tcp(containerPort), binding);
         });
         return portBindings;
-    }
-
-    protected Map<Integer, Integer> getPortsFromString(String ports) {
-        Map<Integer, Integer> p = new HashMap<>();
-        if (ports != null && !ports.isEmpty()) {
-            Arrays.stream(ports.split(",")).forEach(s -> {
-                String[] values = s.split(":");
-                p.put(Integer.parseInt(values[0]), Integer.parseInt(values[1]));
-            });
-        }
-        return p;
     }
 
     protected String formatMemory(Long memory) {

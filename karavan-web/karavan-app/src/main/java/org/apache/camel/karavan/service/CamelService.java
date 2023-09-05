@@ -27,6 +27,7 @@ import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.jboss.logging.Logger;
@@ -40,8 +41,7 @@ import java.util.concurrent.ExecutionException;
 
 import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
 import static org.apache.camel.karavan.shared.Constants.RELOAD_TRY_COUNT;
-import static org.apache.camel.karavan.shared.EventType.CONTAINER_STATUS;
-import static org.apache.camel.karavan.shared.EventType.DEVMODE_CONTAINER_READY;
+import static org.apache.camel.karavan.shared.EventType.*;
 
 @ApplicationScoped
 public class CamelService {
@@ -72,6 +72,37 @@ public class CamelService {
             webClient = WebClient.create(vertx);
         }
         return webClient;
+    }
+
+
+    public void loadCodeToDevMode(String projectId) {
+        LOGGER.info("DevMode reload code " + projectId);
+        ContainerStatus status = infinispanService.getContainerStatus(projectId, environment, projectId);
+        CamelStatus cs = infinispanService.getCamelStatus(projectId, environment, CamelStatus.Name.context.name());
+        if (status != null
+                && !Objects.equals(status.getCodeLoaded(), Boolean.TRUE)
+                && status.getContainerId() != null
+                && status.getState().equals(ContainerStatus.State.running.name())
+                && camelIsStarted(cs)) {
+            LOGGER.info("CAMEL STARTED -> SEND RELOAD");
+            if (ConfigService.inKubernetes()) {
+                reloadProjectCode(projectId);
+            } else {
+                infinispanService.sendCodeReloadCommand(projectId);
+            }
+        } else {
+
+        }
+    }
+
+    private boolean camelIsStarted(CamelStatus camelStatus) {
+        try {
+            String status = camelStatus.getStatus();
+            JsonObject obj = new JsonObject(status);
+            return Objects.equals("Started", obj.getJsonObject("context").getString("state"));
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public void reloadProjectCode(String projectId) {

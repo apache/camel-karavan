@@ -25,6 +25,8 @@ import org.apache.camel.karavan.service.GitService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import org.apache.camel.karavan.service.ProjectService;
+
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
@@ -43,7 +45,7 @@ public class ProjectResource {
     GitService gitService;
 
     @Inject
-    CodeService codeService;
+    ProjectService projectService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -69,13 +71,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Project save(Project project) throws Exception {
-        boolean isNew = infinispanService.getProject(project.getProjectId()) == null;
-        infinispanService.saveProject(project);
-        if (isNew){
-            ProjectFile appProp = codeService.getApplicationProperties(project);
-            infinispanService.saveProjectFile(appProp);
-        }
-        return project;
+        return projectService.save(project);
     }
 
     @DELETE

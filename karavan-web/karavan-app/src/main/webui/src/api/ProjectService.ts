@@ -111,7 +111,7 @@ export class ProjectService {
             if (res.status === 200 || res.status === 201) {
                 useProjectStore.setState({isPushing: false})
                 ProjectService.refreshProject(project.projectId);
-                ProjectService.refreshProjectData();
+                ProjectService.refreshProjectData(project.projectId);
             } else {
                 // Todo notification
             }
@@ -169,7 +169,7 @@ export class ProjectService {
         KaravanApi.deleteProject(project, res => {
             if (res.status === 204) {
                 // this.props.toast?.call(this, 'Success', 'Project deleted', 'success');
-                ProjectService.refreshProjectData();
+                ProjectService.refreshProjectData(project.projectId);
             } else {
                 // this.props.toast?.call(this, 'Error', res.statusText, 'danger');
             }
@@ -179,7 +179,7 @@ export class ProjectService {
     public static createProject(project: Project) {
         KaravanApi.postProject(project, res => {
             if (res.status === 200 || res.status === 201) {
-                ProjectService.refreshProjectData();
+                ProjectService.refreshProjectData(project.projectId);
                 // this.props.toast?.call(this, 'Success', 'Project created', 'success');
             } else {
                 // this.props.toast?.call(this, 'Error', res.status + ', ' + res.statusText, 'danger');
@@ -191,7 +191,7 @@ export class ProjectService {
         KaravanApi.postProjectFile(file, res => {
             if (res.status === 200) {
                 // console.log(res) //TODO show notification
-                ProjectService.refreshProjectData();
+                ProjectService.refreshProjectData(file.projectId);
             } else {
                 // console.log(res) //TODO show notification
             }
@@ -201,15 +201,14 @@ export class ProjectService {
     public static deleteFile(file: ProjectFile) {
         KaravanApi.deleteProjectFile(file, res => {
             if (res.status === 204) {
-                ProjectService.refreshProjectData();
+                ProjectService.refreshProjectData(file.projectId);
             } else {
             }
         });
     }
 
-    public static refreshProjectData() {
-        const project = useProjectStore.getState().project;
-        KaravanApi.getProject(project.projectId, (project: Project) => {
+    public static refreshProjectData(projectId: string) {
+        KaravanApi.getProject(projectId, (project: Project) => {
             // ProjectEventBus.selectProject(project);
             KaravanApi.getTemplatesFiles((files: ProjectFile[]) => {
                 files.filter(f => f.name.endsWith('java'))
@@ -220,7 +219,7 @@ export class ProjectService {
                     })
             });
         });
-        KaravanApi.getFiles(project.projectId, (files: ProjectFile[]) => {
+        KaravanApi.getFiles(projectId, (files: ProjectFile[]) => {
             useFilesStore.setState({files: files});
         });
 

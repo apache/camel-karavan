@@ -196,6 +196,13 @@ public class InfinispanService implements HealthCheck {
         return list.size() > 0 ? list.get(0) : null;
     }
 
+    public List<ProjectFile> getProjectFilesByName(String filename) {
+        QueryFactory queryFactory = Search.getQueryFactory(files);
+        return queryFactory.<ProjectFile>create("FROM karavan.ProjectFile WHERE name = :name")
+                .setParameter("name", filename)
+                .execute().list();
+    }
+
     public void saveProjectFile(ProjectFile file) {
         files.put(GroupedKey.create(file.getProjectId(), DEFAULT_ENVIRONMENT, file.getName()), file);
     }

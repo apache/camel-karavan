@@ -23,12 +23,16 @@ import io.apicurio.datamodels.openapi.models.OasDocument;
 import io.quarkus.qute.Engine;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.CamelContext;
 import org.apache.camel.generator.openapi.RestDslGenerator;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.karavan.api.KameletResources;
+import org.apache.camel.karavan.docker.DockerService;
+import org.apache.camel.karavan.docker.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.GitRepo;
 import org.apache.camel.karavan.infinispan.model.GitRepoFile;
@@ -55,9 +59,17 @@ public class CodeService {
     private static final Logger LOGGER = Logger.getLogger(CodeService.class.getName());
     public static final String APPLICATION_PROPERTIES_FILENAME = "application.properties";
     public static final String DEV_SERVICES_FILENAME = "devservices.yaml";
+    public static final String PROJECT_COMPOSE_FILENAME = "project-compose.yaml";
+    private static final String SNIPPETS_PATH = "/snippets/";
+    private static final int INTERNAL_PORT = 8080;
+
+    protected static final String ENVIRONMENT = "environment";
 
     @Inject
     KubernetesService kubernetesService;
+
+    @Inject
+    DockerService dockerService;
 
     @Inject
     InfinispanService infinispanService;
@@ -106,20 +118,22 @@ public class CodeService {
         return null;
     }
 
-    public Map<String, String> getApplicationPropertiesTemplates() {
+    public Map<String, String> getTemplates() {
         Map<String, String> result = new HashMap<>();
 
         List<String> files = new ArrayList<>(interfaces);
-        files.addAll(targets.stream().map(target -> target + "-" + APPLICATION_PROPERTIES_FILENAME).collect(Collectors.toList()));
+        files.addAll(targets.stream().map(target -> target + "-" + APPLICATION_PROPERTIES_FILENAME).toList());
 
         runtimes.forEach(runtime -> {
             files.forEach(file -> {
                 String templateName = runtime + "-" + file;
-                String templatePath = "/snippets/" + templateName;
+                String templatePath = SNIPPETS_PATH + templateName;
                 String templateText = getResourceFile(templatePath);
                 result.put(templateName, templateText);
             });
         });
+
+        result.put(PROJECT_COMPOSE_FILENAME, getResourceFile(SNIPPETS_PATH + PROJECT_COMPOSE_FILENAME));
         return result;
     }
 
@@ -253,5 +267,82 @@ public class CodeService {
 
     public String getProjectRuntime(String file) {
         return getProperty(file, "camel.jbang.runtime");
+    }
+
+    public ProjectFile createInitialProjectCompose(Project project) {
+        int port = getNextAvailablePort();
+        String templateText = getTemplateText(PROJECT_COMPOSE_FILENAME);
+        Template result = engine.parse(templateText);
+        TemplateInstance instance = result
+                .data("projectId", project.getProjectId())
+                .data("projectPort", port)
+                .data("projectImage", project.getProjectId());
+        String code =  instance.render();
+        return new ProjectFile(PROJECT_COMPOSE_FILENAME, code, project.getProjectId(), Instant.now().toEpochMilli());
+    }
+
+    private int getNextAvailablePort() {
+        int dockerPort = dockerService.getMaxPortMapped(INTERNAL_PORT);
+        int projectPort = getMaxPortMappedInProjects();
+        return Math.max(projectPort, dockerPort) + 1;
+    }
+
+
+    private int getMaxPortMappedInProjects() {
+        List<ProjectFile> files =  infinispanService.getProjectFilesByName(PROJECT_COMPOSE_FILENAME).stream()
+                .filter(f -> !Objects.equals(f.getProjectId(), Project.Type.templates.name())).toList();
+        if (!files.isEmpty()) {
+            return files.stream().map(f -> convertToDockerComposeService(f.getCode(), f.getProjectId()))
+                    .map(dcs -> {
+                        Optional<Integer> port = dcs.getPortsMap().entrySet().stream()
+                                .filter(e -> Objects.equals(e.getValue(), INTERNAL_PORT)).map(Map.Entry::getKey).findFirst();
+                        return port.orElse(INTERNAL_PORT);
+                    })
+                    .mapToInt(Integer::intValue)
+                    .max().orElse(INTERNAL_PORT);
+        } else {
+            return INTERNAL_PORT;
+        }
+    }
+
+
+    public DockerComposeService getInternalDockerComposeService (String name) {
+        String composeText = getResourceFile("/services/internal.yaml");
+        return convertToDockerComposeService(composeText, name);
+    }
+
+    public DockerComposeService convertToDockerComposeService(String code, String name) {
+        Yaml yaml = new Yaml();
+        Map<String, Object> obj = yaml.load(code);
+        JsonObject json = JsonObject.mapFrom(obj);
+        JsonObject services = json.getJsonObject("services");
+        if (services.containsKey(name)) {
+            JsonObject service = services.getJsonObject(name);
+            return convertToDockerComposeService(name, service);
+        } else {
+            Optional<JsonObject> j = services.fieldNames().stream()
+                    .map(services::getJsonObject)
+                    .filter(s -> s.getString("container_name").equalsIgnoreCase(name)).findFirst();
+            if (j.isPresent()) {
+                return convertToDockerComposeService(name, j.get());
+            }
+        }
+        return null;
+    }
+
+    public DockerComposeService convertToDockerComposeService(String name, JsonObject service) {
+        if (service.containsKey(ENVIRONMENT) && service.getValue(ENVIRONMENT) instanceof JsonArray) {
+            JsonObject env = new JsonObject();
+            service.getJsonArray(ENVIRONMENT).forEach(o -> {
+                String[] kv = o.toString().split("=");
+                env.put(kv[0], kv[1]);
+            });
+            service.put(ENVIRONMENT, env);
+        }
+        DockerComposeService ds = service.mapTo(DockerComposeService.class);
+        if (ds.getContainer_name() == null) {
+            ds.setContainer_name(name);
+        }
+        return ds;
     }
 }

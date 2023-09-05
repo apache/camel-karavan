@@ -34,8 +34,10 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.docker.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.utils.IOUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -121,7 +123,7 @@ public class DockerService extends DockerServiceUtils {
 
     public Container getContainer(String id) {
         List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withIdFilter(List.of(id)).exec();
-        return containers.get(0);
+        return containers.isEmpty() ? null : containers.get(0);
     }
 
     public Container getContainerByName(String name) {
@@ -149,14 +151,11 @@ public class DockerService extends DockerServiceUtils {
 
             HealthCheck healthCheck = getHealthCheck(compose.getHealthcheck());
             List<String> env = compose.getEnvironment() != null ? compose.getEnvironmentList() : List.of();
-            String ports = String.join(",", compose.getPorts());
 
             LOGGER.infof("Compose Service started for %s", compose.getContainer_name());
 
             return createContainer(compose.getContainer_name(), compose.getImage(),
-                    env, ports, false, compose.getExpose(), healthCheck,
-                    Map.of(LABEL_TYPE, type.name()),
-                    Map.of());
+                    env, compose.getPortsMap(), healthCheck, Map.of(LABEL_TYPE, type.name()), Map.of());
 
         } else {
             LOGGER.info("Compose Service already exists: " + containers.get(0).getId());
@@ -164,17 +163,8 @@ public class DockerService extends DockerServiceUtils {
         }
     }
 
-    public Container createContainerFromCompose(String yaml, String name, ContainerStatus.ContainerType type) throws Exception {
-        var compose = convertToDockerComposeService(yaml, name);
-        if (compose != null) {
-            return createContainerFromCompose(compose, type);
-        } else {
-            throw new Exception("Service not found in compose YAML!");
-        }
-    }
-
-    public Container createContainer(String name, String image, List<String> env, String ports, boolean inRange,
-                                     List<String> exposed, HealthCheck healthCheck, Map<String, String> labels,
+    public Container createContainer(String name, String image, List<String> env, Map<Integer, Integer> ports,
+                                     HealthCheck healthCheck, Map<String, String> labels,
                                      Map<String, String> volumes) throws InterruptedException {
         List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
         if (containers.size() == 0) {
@@ -183,14 +173,7 @@ public class DockerService extends DockerServiceUtils {
             CreateContainerCmd createContainerCmd = getDockerClient().createContainerCmd(image)
                     .withName(name).withLabels(labels).withEnv(env).withHostName(name).withHealthcheck(healthCheck);
 
-            Ports portBindings;
-            List<ExposedPort> exposedPorts = new ArrayList<>();
-            if (exposed != null) {
-                exposedPorts.addAll(exposed.stream().map(i -> ExposedPort.tcp(Integer.parseInt(i))).toList());
-                portBindings = getPortBindings(ports,exposedPorts, inRange);
-            } else {
-                portBindings = getPortBindings(ports,exposedPorts, inRange);
-            }
+            Ports portBindings = getPortBindings(ports);
 
             List<Mount> mounts = new ArrayList<>();
             if (volumes != null && !volumes.isEmpty()) {
@@ -198,8 +181,7 @@ public class DockerService extends DockerServiceUtils {
                     mounts.add(new Mount().withType(MountType.BIND).withSource(hostPath).withTarget(containerPath));
                 });
             }
-
-            createContainerCmd.withExposedPorts(exposedPorts);
+//            createContainerCmd.withExposedPorts(exposedPorts);
             createContainerCmd.withHostConfig(new HostConfig()
                     .withPortBindings(portBindings)
                             .withMounts(mounts)
@@ -260,25 +242,23 @@ public class DockerService extends DockerServiceUtils {
     }
 
     public void execStart(String id, ResultCallback.Adapter<Frame> callBack) throws InterruptedException {
-        getDockerClient().execStartCmd(id).exec(callBack).awaitCompletion();
+        dockerClient.execStartCmd(id).exec(callBack).awaitCompletion();
     }
 
-    public void copyFile(String id, String containerPath, String filename, String text) throws IOException {
-//        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//                TarArchiveOutputStream tarArchive = new TarArchiveOutputStream(byteArrayOutputStream)) {
-//            tarArchive.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
-//            tarArchive.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
-//
-//            String temp = vertx.fileSystem().createTempDirectoryBlocking("x");
-//            String path = temp + File.separator + filename;
-//            vertx.fileSystem().writeFileBlocking(path, Buffer.buffer(text));
-//
-//            ArchiveEntry archive = tarArchive.createArchiveEntry(Paths.get(path), "app.ini");
-//            tarArchive.putArchiveEntry(archive);;
-//            tarArchive.finish();
-            getDockerClient().copyArchiveToContainerCmd(id).withRemotePath("/data")
-                    .withHostResource("/Users/marat/projects/camel-karavan/karavan-web/karavan-app/src/main/resources/gitea").exec();
-//        }
+    public void copyFiles(String containerId, String containerPath, Map<String, String> files) throws IOException {
+            String temp = vertx.fileSystem().createTempDirectoryBlocking(containerId);
+            files.forEach((fileName, code) -> addFile(temp, fileName, code));
+            dockerClient.copyArchiveToContainerCmd(containerId).withRemotePath(containerPath)
+                    .withDirChildrenOnly(true).withHostResource(temp).exec();
+    }
+
+    private void addFile(String temp, String fileName, String code) {
+        try {
+            String path = temp + File.separator + fileName;
+            vertx.fileSystem().writeFileBlocking(path, Buffer.buffer(code));
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
     }
 
     public void logContainer(String containerName, LogCallback callback) {
@@ -358,5 +338,15 @@ public class DockerService extends DockerServiceUtils {
             dockerClient = DockerClientImpl.getInstance(getDockerClientConfig(), getDockerHttpClient());
         }
         return dockerClient;
+    }
+
+    public int getMaxPortMapped(int port) {
+        return getDockerClient().listContainersCmd().withShowAll(true).exec().stream()
+                .map(c -> List.of(c.ports))
+                .flatMap(java.util.List::stream)
+                .filter(p -> Objects.equals(p.getPrivatePort(), port))
+                .map(ContainerPort::getPublicPort).filter(Objects::nonNull)
+                .mapToInt(Integer::intValue)
+                .max().orElse(port);
     }
 }

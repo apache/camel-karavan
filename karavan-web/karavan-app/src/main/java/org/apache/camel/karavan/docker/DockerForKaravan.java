@@ -50,7 +50,12 @@ public class DockerForKaravan {
     @Inject
     DockerService dockerService;
 
-    public void createDevmodeContainer(String projectId, String jBangOptions) throws InterruptedException {
+    public void runProjectInDevMode(String projectId, String jBangOptions, Map<Integer, Integer> ports, Map<String, String> files) throws Exception {
+        createDevmodeContainer(projectId, jBangOptions, ports);
+        dockerService.runContainer(projectId);
+        dockerService.copyFiles(projectId, "/code", files);
+    }
+    protected void createDevmodeContainer(String projectId, String jBangOptions, Map<Integer, Integer> ports) throws InterruptedException {
         LOGGER.infof("DevMode starting for %s with JBANG_OPTIONS=%s", projectId, jBangOptions);
 
         HealthCheck healthCheck = new HealthCheck().withTest(List.of("CMD", "curl", "-f", "http://localhost:8080/q/dev/health"))
@@ -61,7 +66,7 @@ public class DockerForKaravan {
                 : List.of();
 
         dockerService.createContainer(projectId, devmodeImage,
-                env, null, false, List.of(), healthCheck,
+                env, ports, healthCheck,
                 Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devmode.name(), LABEL_PROJECT_ID, projectId),
                 Map.of());
 
@@ -83,7 +88,7 @@ public class DockerForKaravan {
                             "INFINISPAN_USERNAME=" + infinispanUsername,
                             "INFINISPAN_PASSWORD=" + infinispanPassword
                     ),
-                    null, false, List.of(), new HealthCheck(),
+                    null, new HealthCheck(),
                     Map.of(LABEL_TYPE, ContainerStatus.ContainerType.internal.name()),
                     Map.of());
 

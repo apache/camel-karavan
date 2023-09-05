@@ -18,7 +18,10 @@ package org.apache.camel.karavan.api;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
-import org.apache.camel.karavan.docker.DockerForKaravan;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
@@ -26,15 +29,9 @@ import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.CamelService;
+import org.apache.camel.karavan.service.ProjectService;
 import org.apache.camel.karavan.shared.ConfigService;
-import org.apache.camel.karavan.shared.EventType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import java.util.Objects;
 
 import static org.apache.camel.karavan.shared.EventType.CONTAINER_STATUS;
 
@@ -57,7 +54,7 @@ public class DevModeResource {
     DockerService dockerService;
 
     @Inject
-    DockerForKaravan dockerForKaravan;
+    ProjectService projectService;
 
     @Inject
     EventBus eventBus;
@@ -66,32 +63,23 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{jBangOptions}")
-    public Response runProjectWithJBangOptions(Project project, @PathParam("jBangOptions") String jBangOptions) throws InterruptedException {
-        String containerName = project.getProjectId();
-        ContainerStatus status = infinispanService.getDevModeContainerStatus(project.getProjectId(), environment);
-        if (status == null) {
-            status = ContainerStatus.createDevMode(project.getProjectId(), environment);
-        }
-
-        if (!Objects.equals(status.getState(), ContainerStatus.State.running.name())){
-            status.setInTransit(true);
-            eventBus.send(EventType.CONTAINER_STATUS, JsonObject.mapFrom(status));
-
-            if (ConfigService.inKubernetes()) {
-                kubernetesService.runDevModeContainer(project, jBangOptions);
+    public Response runProjectWithJBangOptions(Project project, @PathParam("jBangOptions") String jBangOptions) {
+        try {
+            String containerName = projectService.runProjectWithJBangOptions(project, jBangOptions);
+            if (containerName != null) {
+                return Response.ok(containerName).build();
             } else {
-                dockerForKaravan.createDevmodeContainer(project.getProjectId(), jBangOptions);
-                dockerService.runContainer(project.getProjectId());
+                return Response.notModified().build();
             }
-            return Response.ok(containerName).build();
+        } catch (Exception e) {
+            return Response.serverError().entity(e).build();
         }
-        return Response.notModified().build();
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response runProject(Project project) throws InterruptedException {
+    public Response runProject(Project project) throws Exception {
         return runProjectWithJBangOptions(project, "");
     }
 
@@ -121,7 +109,7 @@ public class DevModeResource {
         return Response.accepted().build();
     }
 
-    private void setContainerStatusTransit(String name, String type){
+    private void setContainerStatusTransit(String name, String type) {
         ContainerStatus status = infinispanService.getContainerStatus(name, environment, name);
         if (status == null) {
             status = ContainerStatus.createByType(name, environment, ContainerStatus.ContainerType.valueOf(type));

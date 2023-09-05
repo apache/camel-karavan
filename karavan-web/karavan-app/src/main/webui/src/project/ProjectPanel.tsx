@@ -19,10 +19,12 @@ export function ProjectPanel () {
 
     useEffect(() => {
         onRefresh();
-    });
+    }, [project]);
 
     function onRefresh () {
-        ProjectService.refreshProjectData();
+        if (project.projectId) {
+            ProjectService.refreshProjectData(project.projectId);
+        }
     }
 
     function isBuildIn(): boolean {

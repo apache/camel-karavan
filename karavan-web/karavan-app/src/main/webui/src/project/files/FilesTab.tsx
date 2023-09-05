@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
     Badge,
     Button,
@@ -115,7 +115,7 @@ export function FilesTab () {
                             <Td modifier={"fitContent"}>
                                 {canDeleteFiles() &&
                                     <Button style={{padding: '0'}} variant={"plain"}
-                                            isDisabled={file.name === 'application.properties'}
+                                            isDisabled={['application.properties', 'project-compose.yaml'].includes(file.name)}
                                             onClick={e =>
                                                 useFileStore.setState({file: file, operation: "delete"})
                                     }>

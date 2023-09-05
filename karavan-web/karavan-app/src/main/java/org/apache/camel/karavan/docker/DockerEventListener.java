@@ -50,10 +50,12 @@ public class DockerEventListener implements ResultCallback<Event> {
         try {
             if (Objects.equals(event.getType(), EventType.CONTAINER)) {
                 Container container = dockerService.getContainer(event.getId());
-                onContainerEvent(event, container);
+                if (container != null) {
+                    onContainerEvent(event, container);
+                }
             }
         } catch (Exception exception) {
-            LOGGER.error(exception.getMessage());
+            exception.printStackTrace();
         }
     }
 

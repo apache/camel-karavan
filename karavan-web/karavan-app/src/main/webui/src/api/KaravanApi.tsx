@@ -257,8 +257,8 @@ export class KaravanApi {
         });
     }
 
-    static async getFiles(project: string, after: (files: ProjectFile[]) => void) {
-        instance.get('/api/file/' + project)
+    static async getFiles(projectId: string, after: (files: ProjectFile[]) => void) {
+        instance.get('/api/file/' + projectId)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);

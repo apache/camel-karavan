@@ -33,12 +33,10 @@ export function MainDataPoller () {
     }, [project, readiness]);
 
     function getData() {
-        console.log(readiness);
         KaravanApi.getReadiness((r: any) => {
             setReadiness(r);
         })
         if (readiness) {
-            console.log("getData");
             setLoading(true);
             KaravanApi.getConfiguration((config: AppConfig) => {
                 if (project.projectId === undefined) {

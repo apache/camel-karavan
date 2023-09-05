@@ -93,7 +93,7 @@ public class KaravanService {
             dockerService.startListeners();
 
             dockerForInfinispan.startInfinispan();
-            dockerForKaravan.startKaravanHeadlessContainer();
+//            dockerForKaravan.startKaravanHeadlessContainer();
             if (giteaInstall) {
                 dockerForGitea.startGitea();
                 giteaService.install();
