@@ -292,17 +292,20 @@ public class CodeService {
         List<ProjectFile> files =  infinispanService.getProjectFilesByName(PROJECT_COMPOSE_FILENAME).stream()
                 .filter(f -> !Objects.equals(f.getProjectId(), Project.Type.templates.name())).toList();
         if (!files.isEmpty()) {
-            return files.stream().map(f -> convertToDockerComposeService(f.getCode(), f.getProjectId()))
-                    .map(dcs -> {
-                        Optional<Integer> port = dcs.getPortsMap().entrySet().stream()
-                                .filter(e -> Objects.equals(e.getValue(), INTERNAL_PORT)).map(Map.Entry::getKey).findFirst();
-                        return port.orElse(INTERNAL_PORT);
-                    })
+            return files.stream().map(this::getProjectPort)
+                    .filter(Objects::nonNull)
                     .mapToInt(Integer::intValue)
                     .max().orElse(INTERNAL_PORT);
         } else {
             return INTERNAL_PORT;
         }
+    }
+
+    public Integer getProjectPort(ProjectFile composeFile) {
+        DockerComposeService dcs = convertToDockerComposeService(composeFile.getCode(), composeFile.getProjectId());
+        Optional<Integer> port = dcs.getPortsMap().entrySet().stream()
+                .filter(e -> Objects.equals(e.getValue(), INTERNAL_PORT)).map(Map.Entry::getKey).findFirst();
+        return port.orElse(null);
     }
 
 

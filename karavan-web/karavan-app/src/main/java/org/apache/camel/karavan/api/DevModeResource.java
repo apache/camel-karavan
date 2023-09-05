@@ -87,12 +87,12 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/reload/{projectId}")
     public Response reload(@PathParam("projectId") String projectId) {
-        if (ConfigService.inKubernetes()) {
+        if (infinispanService.isReady()) {
             camelService.reloadProjectCode(projectId);
+            return Response.ok().build();
         } else {
-            infinispanService.sendCodeReloadCommand(projectId);
+            return Response.noContent().build();
         }
-        return Response.ok().build();
     }
 
     @DELETE

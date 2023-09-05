@@ -138,6 +138,11 @@ public class ProjectService implements HealthCheck{
         return project;
     }
 
+    public Integer getProjectPort(String projectId) {
+        ProjectFile composeFile = infinispanService.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
+        return codeService.getProjectPort(composeFile);
+    }
+
     public void pullCommits() {
         if (readyToPull.get()) {
             LOGGER.info("Pull commits...");

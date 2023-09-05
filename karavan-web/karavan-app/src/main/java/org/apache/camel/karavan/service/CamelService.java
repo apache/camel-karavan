@@ -56,6 +56,9 @@ public class CamelService {
     @Inject
     KubernetesService kubernetesService;
 
+    @Inject
+    ProjectService projectService;
+
     @ConfigProperty(name = "karavan.environment")
     String environment;
 
@@ -74,26 +77,6 @@ public class CamelService {
         return webClient;
     }
 
-
-    public void loadCodeToDevMode(String projectId) {
-        LOGGER.info("DevMode reload code " + projectId);
-        ContainerStatus status = infinispanService.getContainerStatus(projectId, environment, projectId);
-        CamelStatus cs = infinispanService.getCamelStatus(projectId, environment, CamelStatus.Name.context.name());
-        if (status != null
-                && !Objects.equals(status.getCodeLoaded(), Boolean.TRUE)
-                && status.getContainerId() != null
-                && status.getState().equals(ContainerStatus.State.running.name())
-                && camelIsStarted(cs)) {
-            LOGGER.info("CAMEL STARTED -> SEND RELOAD");
-            if (ConfigService.inKubernetes()) {
-                reloadProjectCode(projectId);
-            } else {
-                infinispanService.sendCodeReloadCommand(projectId);
-            }
-        } else {
-
-        }
-    }
 
     private boolean camelIsStarted(CamelStatus camelStatus) {
         try {
@@ -143,12 +126,25 @@ public class CamelService {
     }
 
     public String getContainerAddress(String containerName) {
-        return "http://" + containerName + "." + kubernetesService.getNamespace() + ".svc.cluster.local";
+        if (ConfigService.inKubernetes()) {
+            return "http://" + containerName + "." + kubernetesService.getNamespace() + ".svc.cluster.local";
+        } else if (ConfigService.inDocker()) {
+            Integer port = projectService.getProjectPort(containerName);
+            return "http://" + containerName + ":" + port;
+        } else {
+            Integer port = projectService.getProjectPort(containerName);
+            return "http://localhost:" + port;
+        }
     }
 
     public void collectCamelStatuses() {
         if (infinispanService.isReady()) {
-            infinispanService.getContainerStatuses(environment).forEach(pod -> {
+            infinispanService.getContainerStatuses(environment).stream()
+                    .filter(cs ->
+                            cs.getType() == ContainerStatus.ContainerType.project
+                            || cs.getType() == ContainerStatus.ContainerType.devmode
+                    ).forEach(pod -> {
+                System.out.println(pod.getProjectId());
                 CamelStatusRequest csr = new CamelStatusRequest(pod.getProjectId(), pod.getContainerName());
                 eventBus.publish(CMD_COLLECT_CAMEL_STATUS, JsonObject.mapFrom(csr));
             });

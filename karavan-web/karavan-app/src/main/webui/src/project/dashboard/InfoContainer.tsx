@@ -42,7 +42,7 @@ export function InfoContainer (props: Props) {
     return (
         <DescriptionList isHorizontal>
             <DescriptionListGroup>
-                <DescriptionListTerm>Pod</DescriptionListTerm>
+                <DescriptionListTerm>Container</DescriptionListTerm>
                 <DescriptionListDescription>
                     {getPodInfoLabel(containerStatus.containerName)}
                 </DescriptionListDescription>

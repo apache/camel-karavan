@@ -19,17 +19,19 @@ package org.apache.camel.karavan.shared;
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.runtime.configuration.ConfigUtils;
 import io.quarkus.runtime.configuration.ProfileManager;
+import io.vertx.core.Vertx;
+import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
 @ApplicationScoped
 public class ConfigService {
-
-    public static final String HEADLESS_MODE = "headless";
 
     @ConfigProperty(name = "karavan.version")
     String version;
@@ -47,6 +49,8 @@ public class ConfigService {
     List<String> runtimes;
 
     private Configuration configuration;
+    private static Boolean inKubernetes;
+    private static Boolean inDocker;
 
     void onStart(@Observes StartupEvent ev) {
         configuration = new Configuration(
@@ -64,11 +68,17 @@ public class ConfigService {
     }
 
     public static boolean inKubernetes() {
-        return Objects.nonNull(System.getenv("KUBERNETES_SERVICE_HOST"));
+        if (inKubernetes == null) {
+            inKubernetes = Objects.nonNull(System.getenv("KUBERNETES_SERVICE_HOST"));
+        }
+        return inKubernetes;
     }
 
-    public static boolean isHeadless() {
-        return ConfigUtils.isProfileActive(HEADLESS_MODE);
+    public static boolean inDocker() {
+        if (inDocker == null) {
+            inDocker = Vertx.vertx().fileSystem().existsBlocking(".dockerenv");
+        }
+        return inDocker;
     }
 
     public static boolean isDevOrTest() {
