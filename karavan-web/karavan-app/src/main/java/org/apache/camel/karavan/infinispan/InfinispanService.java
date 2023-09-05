@@ -16,12 +16,8 @@
  */
 package org.apache.camel.karavan.infinispan;
 
-import io.quarkus.runtime.StartupEvent;
-import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.JsonObject;
-import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -76,7 +72,6 @@ public class InfinispanService implements HealthCheck {
     private RemoteCache<GroupedKey, ServiceStatus> serviceStatuses;
     private RemoteCache<GroupedKey, CamelStatus> camelStatuses;
     private RemoteCache<String, String> commits;
-    private RemoteCache<GroupedKey, String> codeReloadCommands;
     private final AtomicBoolean ready = new AtomicBoolean(false);
 
     private RemoteCacheManager cacheManager;
@@ -85,15 +80,12 @@ public class InfinispanService implements HealthCheck {
 
     private static final String DEFAULT_ENVIRONMENT = "dev";
 
-    public static final String CODE_RELOAD_COMMAND = "CODE_RELOAD_COMMAND";
-    protected static final String CODE_RELOAD_COMMAND_INTERNAL = "CODE_RELOAD_COMMAND_INTERNAL";
-
     @Retry(maxRetries = 100, delay = 2000)
     public void tryStart(boolean startCodeReloadListener) throws Exception {
-        start(startCodeReloadListener);
+        start();
     }
 
-    void start(boolean startCodeReloadListener) throws Exception {
+    void start() throws Exception {
         LOGGER.info("InfinispanService is starting in remote mode");
 
         ProtoStreamMarshaller marshaller = new ProtoStreamMarshaller();
@@ -112,23 +104,18 @@ public class InfinispanService implements HealthCheck {
 
         if (cacheManager.getConnectionCount() > 0 ) {
 
-            projects = getOrCreateCache(Project.CACHE, false);
-            files = getOrCreateCache(ProjectFile.CACHE, false);
-            containerStatuses = getOrCreateCache(ContainerStatus.CACHE, false);
-            pipelineStatuses = getOrCreateCache(PipelineStatus.CACHE, false);
-            deploymentStatuses = getOrCreateCache(DeploymentStatus.CACHE, false);
-            serviceStatuses = getOrCreateCache(ServiceStatus.CACHE, false);
-            camelStatuses = getOrCreateCache(CamelStatus.CACHE, false);
-            commits = getOrCreateCache("commits", false);
-            transits = getOrCreateCache("transits", false);
-            deploymentStatuses = getOrCreateCache(DeploymentStatus.CACHE, false);
-            codeReloadCommands = getOrCreateCache("code_reload_commands", true);
+            projects = getOrCreateCache(Project.CACHE);
+            files = getOrCreateCache(ProjectFile.CACHE);
+            containerStatuses = getOrCreateCache(ContainerStatus.CACHE);
+            pipelineStatuses = getOrCreateCache(PipelineStatus.CACHE);
+            deploymentStatuses = getOrCreateCache(DeploymentStatus.CACHE);
+            serviceStatuses = getOrCreateCache(ServiceStatus.CACHE);
+            camelStatuses = getOrCreateCache(CamelStatus.CACHE);
+            commits = getOrCreateCache("commits");
+            transits = getOrCreateCache("transits");
+            deploymentStatuses = getOrCreateCache(DeploymentStatus.CACHE);
 
             cacheManager.getCache(PROTOBUF_METADATA_CACHE_NAME).put("karavan.proto", getResourceFile("/proto/karavan.proto"));
-
-            if (startCodeReloadListener) {
-                cacheManager.getCache("code_reload_commands").addClientListener(new CodeReloadListener(eventBus));
-            }
 
             ready.set(true);
             LOGGER.info("InfinispanService is started in remote mode");
@@ -137,29 +124,13 @@ public class InfinispanService implements HealthCheck {
         }
     }
 
-    private <K, V> RemoteCache<K, V> getOrCreateCache(String name, boolean command) {
-        String config = getResourceFile(command ? "/cache/command-cache-config.xml" : "/cache/data-cache-config.xml");
+    private <K, V> RemoteCache<K, V> getOrCreateCache(String name) {
+        String config = getResourceFile("/cache/data-cache-config.xml");
         return cacheManager.administration().getOrCreateCache(name, new StringConfiguration(String.format(config, name)));
     }
 
     public boolean isReady() {
         return ready.get();
-    }
-
-
-    @ConsumeEvent(value = CODE_RELOAD_COMMAND_INTERNAL, blocking = true)
-    void resendCodeReloadCommand(JsonObject message) {
-        GroupedKey key = message.mapTo(GroupedKey.class);
-        deleteCodeReloadCommand(key);
-        eventBus.publish(CODE_RELOAD_COMMAND, key.getProjectId());
-    }
-
-    public void sendCodeReloadCommand(String projectId) {
-        codeReloadCommands.put(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT, UUID.randomUUID().toString()), projectId);
-    }
-
-    public void deleteCodeReloadCommand(GroupedKey key) {
-        codeReloadCommands.remove(key);
     }
 
     public List<Project> getProjects() {

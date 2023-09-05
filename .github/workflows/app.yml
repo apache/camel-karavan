@@ -3,7 +3,7 @@ name: Web application
 on:
   push:
     branches: [ main ]
-    paths: ['karavan-web/karavan-app/**', 'karavan-web/karavan-infinispan/**', 'karavan-core/**', 'karavan-designer/**']
+    paths: ['karavan-web/karavan-app/**', 'karavan-core/**', 'karavan-designer/**']
   workflow_dispatch:
   pull_request:
     branches: [ main ]
@@ -54,13 +54,6 @@ jobs:
       #  Install parent
       - name: Install parent
         working-directory: ./karavan/karavan-web
-        run: |
-          mvn install
-        if: ${{ github.ref == 'refs/heads/main' }}
-
-      #  Install Karavan infinispan module
-      - name: Install infinispan module
-        working-directory: ./karavan/karavan-web/karavan-infinispan
         run: |
           mvn install
         if: ${{ github.ref == 'refs/heads/main' }}

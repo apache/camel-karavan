@@ -34,13 +34,8 @@ public class DockerForKaravan {
 
     private static final Logger LOGGER = Logger.getLogger(DockerForKaravan.class.getName());
 
-    protected static final String KARAVAN_CONTAINER_NAME = "karavan-headless";
-
     @ConfigProperty(name = "karavan.devmode.image")
     String devmodeImage;
-
-    @ConfigProperty(name = "karavan.headless.image")
-    String headlessImage;
 
     @ConfigProperty(name = "karavan.infinispan.username")
     String infinispanUsername;
@@ -76,35 +71,5 @@ public class DockerForKaravan {
     public void createDevserviceContainer(DockerComposeService dockerComposeService) throws InterruptedException {
         LOGGER.infof("DevService starting for ", dockerComposeService.getContainer_name());
         dockerService.createContainerFromCompose(dockerComposeService, ContainerStatus.ContainerType.devservice);
-    }
-
-    public void startKaravanHeadlessContainer() {
-        try {
-            LOGGER.info("Karavan headless is starting...");
-
-            dockerService.createContainer(KARAVAN_CONTAINER_NAME, headlessImage,
-                    List.of(
-                            "INFINISPAN_HOSTS=infinispan:11222",
-                            "INFINISPAN_USERNAME=" + infinispanUsername,
-                            "INFINISPAN_PASSWORD=" + infinispanPassword
-                    ),
-                    null, new HealthCheck(),
-                    Map.of(LABEL_TYPE, ContainerStatus.ContainerType.internal.name()),
-                    Map.of());
-
-            dockerService.runContainer(KARAVAN_CONTAINER_NAME);
-            LOGGER.info("Karavan headless is started");
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
-    }
-
-    public void deleteKaravanHeadlessContainer() {
-        try {
-            dockerService.stopContainer(KARAVAN_CONTAINER_NAME);
-            dockerService.deleteContainer(KARAVAN_CONTAINER_NAME);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
     }
 }

@@ -27,11 +27,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.camel.karavan</groupId>
-            <artifactId>karavan-infinispan</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-reactive-messaging</artifactId>
         </dependency>
@@ -46,6 +41,10 @@
         <dependency>
             <groupId>io.smallrye.reactive</groupId>
             <artifactId>smallrye-mutiny-vertx-web-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-infinispan-client</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
