@@ -69,7 +69,7 @@ export function ProjectLogPanel () {
                 }} icon={height === "100%" ? <CollapseIcon/> : <ExpandIcon/>}/>
             </Tooltip>
             <Button variant="plain" onClick={() => {
-                setShowLog(false);
+                setShowLog(false, 'none');
                 setHeight(INITIAL_LOG_HEIGHT);
                 ProjectEventBus.sendLog('set', '')
             }} icon={<CloseIcon/>}/>

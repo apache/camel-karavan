@@ -96,8 +96,16 @@ public class GitService {
                 branch = new String(Base64.getDecoder().decode(secret.getData().get("git-branch").getBytes(StandardCharsets.UTF_8)));
             }
             return new GitConfig(uri, username, password, branch);
-        } else {
+        } else if (ConfigService.inDocker()) {
             String uri = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-repository", String.class);
+            String username = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-username", String.class);
+            String password = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-password", String.class);
+            return new GitConfig(uri, username, password, branch);
+        } else {
+            Boolean giteaInstall = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-install-gitea", Boolean.class);
+            String uri = giteaInstall
+                    ? "http://localhost:3000/karavan/karavan.git"
+                    : ConfigProvider.getConfig().getValue(propertiesPrefix + "git-repository", String.class);
             String username = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-username", String.class);
             String password = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-password", String.class);
             return new GitConfig(uri, username, password, branch);

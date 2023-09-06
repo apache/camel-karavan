@@ -57,7 +57,7 @@ export function TemplatesTableRow (props: Props) {
             <Td>
                 <Button style={{padding: '6px'}} variant={"link"} onClick={e => {
                     // setProject(project, "select");
-                    setShowLog(false);
+                    setShowLog(false, 'none');
                     // ProjectEventBus.selectProject(project);
                     navigate("/projects/"+ project.projectId);
                 }}>

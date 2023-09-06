@@ -61,7 +61,7 @@ export function BuildStatus (props: Props) {
 
     function build() {
         setIsBuilding(true);
-        setShowLog(false,'build', '')
+        setShowLog(false,'none')
         KaravanApi.buildProject(project, env, res => {
             if (res.status === 200 || res.status === 201) {
                 setIsBuilding(false);
