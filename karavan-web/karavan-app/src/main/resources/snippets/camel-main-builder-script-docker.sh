@@ -24,7 +24,7 @@ cd ${CHECKOUT_DIR}/${PROJECT_ID}
 jbang -Dcamel.jbang.version=${CAMEL_VERSION} camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR}
 
 export LAST_COMMIT=$(git rev-parse --short HEAD)
-export DATE=$(date '+%Y%m%d%H%M%S')
+export DATE=${TAG}
 
 mvn package jib:build \
   -Djib.allowInsecureRegistries=true \

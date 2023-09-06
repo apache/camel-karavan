@@ -19,6 +19,4 @@ package org.apache.camel.karavan.shared;
 public class EventType {
 
     public static final String CONTAINER_STATUS = "CONTAINER_STATUS";
-    public static final String DEVMODE_CONTAINER_READY = "DEVMODE_CONTAINER_READY";
-
 }

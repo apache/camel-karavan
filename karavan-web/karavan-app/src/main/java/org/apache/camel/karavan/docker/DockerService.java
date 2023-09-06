@@ -90,7 +90,7 @@ public class DockerService extends DockerServiceUtils {
         getDockerClient().listContainersCmd().withShowAll(true).exec().forEach(container -> {
             ContainerStatus containerStatus = getContainerStatus(container, environment);
             Statistics stats = getContainerStats(container.getId());
-            updateStatistics(containerStatus, container, stats);
+            updateStatistics(containerStatus, stats);
             result.add(containerStatus);
         });
         return result;

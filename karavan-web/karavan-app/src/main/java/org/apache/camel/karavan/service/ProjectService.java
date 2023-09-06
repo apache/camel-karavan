@@ -141,14 +141,14 @@ public class ProjectService implements HealthCheck {
             String templateName = project.getRuntime() + "-builder-script-docker.sh";
             String script = codeService.getTemplateText(templateName);
 
-            List<String> env = getEnvForBuild(project);
-
-            dockerForKaravan.runBuildProject(project.getProjectId(), script, files, env);
+            String tag = Instant.now().toString().substring(0, 19).replace(":", "-");
+            List<String> env = getEnvForBuild(project, tag);
+            dockerForKaravan.runBuildProject(project.getProjectId(), script, files, env, tag);
             return project.getProjectId();
         }
     }
 
-    private List<String> getEnvForBuild(Project project) {
+    private List<String> getEnvForBuild(Project project, String tag) {
         GitConfig gitConfig = gitService.getGitConfig();
         List<String> env = List.of(
                 "GIT_REPOSITORY=" + (installGitea ? gitConfig.getUri().replace("localhost", "gitea") : gitConfig.getUri()),
@@ -159,7 +159,9 @@ public class ProjectService implements HealthCheck {
                 "IMAGE_REGISTRY=" + (installRegistry ? "registry:5000" : registry),
                 "IMAGE_REGISTRY_USERNAME=" + username,
                 "IMAGE_REGISTRY_PASSWORD=" + password,
-                "IMAGE_GROUP=" + group
+                "IMAGE_GROUP=" + group,
+                "TAG=" + tag
+
         );
         return env;
     }
@@ -274,7 +276,6 @@ public class ProjectService implements HealthCheck {
         p.setLastCommit(commitId);
         p.setLastCommitTimestamp(lastUpdate);
         infinispanService.saveProject(p);
-        infinispanService.saveCommit(commitId, commit.getCommitTime());
         return p;
     }
 

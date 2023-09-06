@@ -53,7 +53,7 @@ public class DockerServiceUtils {
         return ContainerStatus.createWithId(projectId, name, environment, container.getId(), container.getImage(), ports, type, commands, container.getState(), created);
     }
 
-    protected void updateStatistics(ContainerStatus containerStatus, Container container, Statistics stats) {
+    protected void updateStatistics(ContainerStatus containerStatus, Statistics stats) {
         if (stats != null && stats.getMemoryStats() != null) {
             String memoryUsage = formatMemory(stats.getMemoryStats().getUsage());
             String memoryLimit = formatMemory(stats.getMemoryStats().getLimit());

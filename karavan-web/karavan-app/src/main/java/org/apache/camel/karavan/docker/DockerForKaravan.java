@@ -69,19 +69,20 @@ public class DockerForKaravan {
 
     }
 
-    public void runBuildProject(String projectId, String script, Map<String, String> files, List<String> env) throws Exception {
-        Container c = createBuildContainer(projectId, env);
+    public void runBuildProject(String projectId, String script, Map<String, String> files, List<String> env, String tag) throws Exception {
+        dockerService.deleteContainer(projectId + BUILDER_SUFFIX);
+        Container c = createBuildContainer(projectId, env, tag);
         dockerService.copyFiles(c.getId(), "/code", files);
         dockerService.copyExecFile(c.getId(), "/karavan", "build.sh", script);
         dockerService.runContainer(projectId);
     }
 
-    protected Container createBuildContainer(String projectId, List<String> env) throws InterruptedException {
+    protected Container createBuildContainer(String projectId, List<String> env, String tag) throws InterruptedException {
         LOGGER.infof("Starting Build Container for %s ", projectId);
 
         return dockerService.createContainer(projectId + BUILDER_SUFFIX, devmodeImage,
                 env, Map.of(), new HealthCheck(),
-                Map.of(LABEL_TYPE, ContainerStatus.ContainerType.build.name(), LABEL_PROJECT_ID, projectId),
+                Map.of(LABEL_TYPE, ContainerStatus.ContainerType.build.name(), LABEL_PROJECT_ID, projectId, LABEL_TAG, tag),
                 Map.of(), "/karavan/build.sh");
     }
 

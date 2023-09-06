@@ -2,32 +2,34 @@ package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.model.Container;
-import com.github.dockerjava.api.model.ContainerPort;
 import com.github.dockerjava.api.model.Event;
 import com.github.dockerjava.api.model.EventType;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.JsonObject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.io.Closeable;
 import java.io.IOException;
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.Optional;
 
 import static org.apache.camel.karavan.shared.Constants.*;
-import static org.apache.camel.karavan.shared.EventType.*;
 
 @ApplicationScoped
 public class DockerEventListener implements ResultCallback<Event> {
 
-    @ConfigProperty(name = "karavan.environment")
-    String environment;
+    @ConfigProperty(name = "karavan.image-registry")
+    String registry;
+    @ConfigProperty(name = "karavan.image-group")
+    String group;
+    @ConfigProperty(name = "karavan.image-registry-username")
+    Optional<String> username;
+    @ConfigProperty(name = "karavan.image-registry-password")
+    Optional<String> password;
 
     @Inject
     DockerService dockerService;
@@ -55,102 +57,20 @@ public class DockerEventListener implements ResultCallback<Event> {
                 }
             }
         } catch (Exception exception) {
-            exception.printStackTrace();
+            LOGGER.error(exception.getMessage());
         }
     }
 
-    public void onContainerEvent(Event event, Container container) {
-        String status = event.getStatus();
+    public void onContainerEvent(Event event, Container container) throws InterruptedException {
         if (infinispanService.isReady()) {
-            if (status.startsWith("health_status:")) {
-                if (inDevMode(container)) {
-                    onDevModeHealthEvent(container, event);
-                }
+            if ("exited".equalsIgnoreCase(container.getState())
+                    && Objects.equals(container.getLabels().get(LABEL_TYPE), ContainerStatus.ContainerType.build.name())) {
+                String tag = container.getLabels().get(LABEL_TAG);
+                String projectId = container.getLabels().get(LABEL_PROJECT_ID);
+                String image = registry + "/" + group + "/" + projectId + ":" + tag;
+                dockerService.pullImage(image);
             }
         }
-    }
-
-    public void onDeletedContainer(Container container) {
-        String name = container.getNames()[0].replace("/", "");
-        infinispanService.deleteContainerStatus(name, environment, name);
-        if (inDevMode(container)) {
-            infinispanService.deleteCamelStatuses(name, environment);
-        }
-    }
-
-    protected void onExistingContainer(Container container) {
-        if (infinispanService.isReady()) {
-            String name = container.getNames()[0].replace("/", "");
-            List<Integer> ports = Arrays.stream(container.getPorts()).map(ContainerPort::getPrivatePort).filter(Objects::nonNull).collect(Collectors.toList());
-            List<ContainerStatus.Command> commands = getContainerCommand(container.getState());
-            ContainerStatus.ContainerType type = getContainerType(container.getLabels());
-            String created = Instant.ofEpochSecond(container.getCreated()).toString();
-            String projectId = container.getLabels().getOrDefault(LABEL_PROJECT_ID, name);
-            ContainerStatus ci = infinispanService.getContainerStatus(projectId, environment, name);
-            if (ci == null) {
-                ci = ContainerStatus.createWithId(projectId, name, environment, container.getId(), container.getImage(), ports, type, commands, container.getState(), created);
-            } else {
-                ci.setContainerId(container.getId());
-                ci.setPorts(ports);
-                ci.setType(type);
-                ci.setCommands(commands);
-                ci.setCreated(created);
-                ci.setState(container.getState());
-                ci.setImage(container.getImage());
-            }
-            infinispanService.saveContainerStatus(ci);
-        }
-    }
-
-    public void onDevModeHealthEvent(Container container, Event event) {
-        String status = event.getStatus();
-        String health = status.replace("health_status: ", "");
-        LOGGER.infof("Container %s health status: %s", container.getNames()[0], health);
-        Map<String, Object> message = Map.of(
-                LABEL_PROJECT_ID, container.getLabels().get(LABEL_PROJECT_ID),
-                RELOAD_TRY_COUNT, 1
-        );
-        eventBus.publish(DEVMODE_CONTAINER_READY, JsonObject.mapFrom(message));
-    }
-
-    private boolean inDevMode(Container container) {
-        return Objects.equals(getContainerType(container.getLabels()), ContainerStatus.ContainerType.devmode);
-    }
-
-    private ContainerStatus.ContainerType getContainerType(Map<String, String> labels) {
-        String type = labels.get(LABEL_TYPE);
-        if (Objects.equals(type, ContainerStatus.ContainerType.devmode.name())) {
-            return ContainerStatus.ContainerType.devmode;
-        } else if (Objects.equals(type, ContainerStatus.ContainerType.devservice.name())) {
-            return ContainerStatus.ContainerType.devservice;
-        } else if (Objects.equals(type, ContainerStatus.ContainerType.project.name())) {
-            return ContainerStatus.ContainerType.project;
-        } else if (Objects.equals(type, ContainerStatus.ContainerType.internal.name())) {
-            return ContainerStatus.ContainerType.internal;
-        }
-        return ContainerStatus.ContainerType.unknown;
-    }
-
-    private List<ContainerStatus.Command> getContainerCommand(String state) {
-        List<ContainerStatus.Command> result = new ArrayList<>();
-        if (Objects.equals(state, ContainerStatus.State.created.name())) {
-            result.add(ContainerStatus.Command.run);
-            result.add(ContainerStatus.Command.delete);
-        } else if (Objects.equals(state, ContainerStatus.State.exited.name())) {
-            result.add(ContainerStatus.Command.run);
-            result.add(ContainerStatus.Command.delete);
-        } else if (Objects.equals(state, ContainerStatus.State.running.name())) {
-            result.add(ContainerStatus.Command.pause);
-            result.add(ContainerStatus.Command.stop);
-            result.add(ContainerStatus.Command.delete);
-        } else if (Objects.equals(state, ContainerStatus.State.paused.name())) {
-            result.add(ContainerStatus.Command.run);
-            result.add(ContainerStatus.Command.stop);
-            result.add(ContainerStatus.Command.delete);
-        } else if (Objects.equals(state, ContainerStatus.State.dead.name())) {
-            result.add(ContainerStatus.Command.delete);
-        }
-        return result;
     }
 
     @Override
