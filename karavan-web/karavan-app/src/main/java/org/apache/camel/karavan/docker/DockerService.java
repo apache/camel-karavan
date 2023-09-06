@@ -378,4 +378,9 @@ public class DockerService extends DockerServiceUtils {
                 .mapToInt(Integer::intValue)
                 .max().orElse(port);
     }
+
+    public List<String> getImages() {
+        return getDockerClient().listImagesCmd().withShowAll(true).exec().stream()
+                .map(image -> image.getRepoTags()[0]).toList();
+    }
 }

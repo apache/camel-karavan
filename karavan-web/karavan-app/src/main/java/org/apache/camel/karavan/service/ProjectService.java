@@ -38,10 +38,7 @@ import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -61,15 +58,6 @@ public class ProjectService implements HealthCheck {
     @ConfigProperty(name = "karavan.maven.cache")
     Optional<String> mavenCache;
 
-    @ConfigProperty(name = "karavan.image-registry")
-    String registry;
-    @ConfigProperty(name = "karavan.image-group")
-    String group;
-    @ConfigProperty(name = "karavan.image-registry-username")
-    Optional<String> username;
-    @ConfigProperty(name = "karavan.image-registry-password")
-    Optional<String> password;
-
     @Inject
     InfinispanService infinispanService;
 
@@ -78,6 +66,9 @@ public class ProjectService implements HealthCheck {
 
     @Inject
     DockerForKaravan dockerForKaravan;
+
+    @Inject
+    RegistryService registryService;
 
     @Inject
     GitService gitService;
@@ -148,20 +139,18 @@ public class ProjectService implements HealthCheck {
     }
 
     private List<String> getEnvForBuild(Project project, String tag) {
-        GitConfig gitConfig = gitService.getGitConfig();
-        List<String> env = List.of(
+        GitConfig gitConfig = gitService.getGitConfigForBuilder();
+        List<String> env = new ArrayList<>();
+        env.addAll(registryService.getEnvForBuild());
+        env.addAll(List.of(
                 "GIT_REPOSITORY=" + gitConfig.getUri(),
                 "GIT_USERNAME=" + gitConfig.getUsername(),
                 "GIT_PASSWORD=" + gitConfig.getPassword(),
                 "GIT_BRANCH=" + gitConfig.getBranch(),
                 "PROJECT_ID=" + project.getProjectId(),
-                "IMAGE_REGISTRY=" + registry,
-                "IMAGE_REGISTRY_USERNAME=" + username,
-                "IMAGE_REGISTRY_PASSWORD=" + password,
-                "IMAGE_GROUP=" + group,
                 "JBANG_REPO=~/.m2",
                 "TAG=" + tag
-        );
+        ));
         return env;
     }
 

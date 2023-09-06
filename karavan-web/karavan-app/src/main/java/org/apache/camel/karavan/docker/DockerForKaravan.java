@@ -22,13 +22,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.docker.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
+import org.apache.camel.karavan.service.RegistryService;
 import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.apache.camel.karavan.shared.Constants.*;
 
@@ -40,15 +40,11 @@ public class DockerForKaravan {
     @ConfigProperty(name = "karavan.devmode.image")
     String devmodeImage;
 
-    @ConfigProperty(name = "karavan.image-registry-install-registry")
-    boolean installRegistry;
-    @ConfigProperty(name = "karavan.image-registry")
-    String registry;
-    @ConfigProperty(name = "karavan.image-group")
-    String group;
-
     @Inject
     DockerService dockerService;
+
+    @Inject
+    RegistryService registryService;
 
     public void runProjectInDevMode(String projectId, String jBangOptions, Map<Integer, Integer> ports, Map<String, String> files) throws Exception {
         Container c = createDevmodeContainer(projectId, jBangOptions, ports);
@@ -96,11 +92,8 @@ public class DockerForKaravan {
     }
 
     public void syncImage(String projectId, String tag) throws InterruptedException {
-        String registryUrl = registry;
-        if (ConfigService.inDocker() && installRegistry) {
-            registryUrl = "localhost:5555";
-        }
-        String image = registryUrl + "/" + group + "/" + projectId + ":" + tag;
+        String image = registryService.getRegistryWithGroup() + "/" + projectId + ":" + tag;
+        System.out.println(image);
         dockerService.pullImage(image);
     }
 }
