@@ -19,7 +19,6 @@ import static org.apache.camel.karavan.service.CodeService.DEFAULT_CONTAINER_RES
 import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
 import static org.apache.camel.karavan.shared.Constants.RELOAD_TRY_COUNT;
 import static org.apache.camel.karavan.shared.EventType.CONTAINER_STATUS;
-import static org.apache.camel.karavan.shared.EventType.DEVMODE_CONTAINER_READY;
 
 public class PodEventHandler implements ResourceEventHandler<Pod> {
 
@@ -60,7 +59,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
                                 LABEL_PROJECT_ID, ps.getProjectId(),
                                 RELOAD_TRY_COUNT, 1
                         );
-                        eventBus.publish(DEVMODE_CONTAINER_READY, JsonObject.mapFrom(message));
+//                        eventBus.publish(DEVMODE_CONTAINER_READY, JsonObject.mapFrom(message));
                     }
                 }
             }

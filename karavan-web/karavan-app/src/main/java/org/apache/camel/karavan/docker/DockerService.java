@@ -45,6 +45,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
 import static org.apache.camel.karavan.shared.Constants.LABEL_TYPE;
 
 @ApplicationScoped
@@ -152,7 +153,7 @@ public class DockerService extends DockerServiceUtils {
             LOGGER.infof("Compose Service started for %s", compose.getContainer_name());
 
             return createContainer(compose.getContainer_name(), compose.getImage(),
-                    env, compose.getPortsMap(), healthCheck, Map.of(LABEL_TYPE, type.name()), Map.of());
+                    env, compose.getPortsMap(), healthCheck, Map.of(LABEL_TYPE, type.name()), Map.of(), NETWORK_NAME);
 
         } else {
             LOGGER.info("Compose Service already exists: " + containers.get(0).getId());
@@ -162,7 +163,7 @@ public class DockerService extends DockerServiceUtils {
 
     public Container createContainer(String name, String image, List<String> env, Map<Integer, Integer> ports,
                                      HealthCheck healthCheck, Map<String, String> labels,
-                                     Map<String, String> volumes, String... command) throws InterruptedException {
+                                     Map<String, String> volumes, String network, String... command) throws InterruptedException {
         List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
         if (containers.size() == 0) {
             pullImage(image);
@@ -181,11 +182,13 @@ public class DockerService extends DockerServiceUtils {
             if (command.length > 0) {
                 createContainerCmd.withCmd(command);
             }
-
+            if (Objects.equals(labels.get(LABEL_PROJECT_ID), ContainerStatus.ContainerType.build.name())) {
+                mounts.add(new Mount().withType(MountType.BIND).withSource("/var/run/docker.sock").withTarget("/var/run/docker.sock"));
+            }
             createContainerCmd.withHostConfig(new HostConfig()
                     .withPortBindings(portBindings)
                             .withMounts(mounts)
-                    .withNetworkMode(NETWORK_NAME));
+                    .withNetworkMode(network != null ? network : NETWORK_NAME));
 
             CreateContainerResponse response = createContainerCmd.exec();
             LOGGER.info("Container created: " + response.getId());
@@ -338,9 +341,9 @@ public class DockerService extends DockerServiceUtils {
         List<String> tags = images.stream()
                 .map(i -> Arrays.stream(i.getRepoTags()).collect(Collectors.toList()))
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .toList();
 
-        if (!images.stream().filter(i -> tags.contains(image)).findFirst().isPresent()) {
+        if (!images.stream().anyMatch(i -> tags.contains(image))) {
             ResultCallback.Adapter<PullResponseItem> pull = getDockerClient().pullImageCmd(image).start().awaitCompletion();
         }
     }

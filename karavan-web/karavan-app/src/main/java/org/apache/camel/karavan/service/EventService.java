@@ -40,9 +40,6 @@ public class EventService {
     }
 
     private void saveContainerStatus(ContainerStatus newStatus, ContainerStatus oldStatus) {
-        if (newStatus.getProjectId().equals("demo")) {
-            System.out.println(("oldStatus.getFinished = " + Objects.isNull(oldStatus.getFinished())));
-        }
         if ("exited".equalsIgnoreCase(newStatus.getState()) && Objects.isNull(oldStatus.getFinished())) {
             newStatus.setFinished(Instant.now().toString());
         } else if ("exited".equalsIgnoreCase(newStatus.getState()) && Objects.nonNull(oldStatus.getFinished())) {

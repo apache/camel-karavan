@@ -129,8 +129,7 @@ public class CamelService {
         if (ConfigService.inKubernetes()) {
             return "http://" + containerName + "." + kubernetesService.getNamespace() + ".svc.cluster.local";
         } else if (ConfigService.inDocker()) {
-            Integer port = projectService.getProjectPort(containerName);
-            return "http://" + containerName + ":" + port;
+            return "http://" + containerName + ":8080";
         } else {
             Integer port = projectService.getProjectPort(containerName);
             return "http://localhost:" + port;
@@ -155,13 +154,6 @@ public class CamelService {
     public void collectCamelStatuses(JsonObject data) {
         CamelStatusRequest dms = data.mapTo(CamelStatusRequest.class);
         String projectId = dms.getProjectId();
-        if (infinispanService.getCamelStatus(projectId, environment, CamelStatus.Name.context.name()) == null) {
-            Map<String, Object> message = Map.of(
-                    LABEL_PROJECT_ID, projectId,
-                    RELOAD_TRY_COUNT, 1
-            );
-            eventBus.publish(DEVMODE_CONTAINER_READY, JsonObject.mapFrom(message));
-        }
         Arrays.stream(CamelStatus.Name.values()).forEach(statusName -> {
             String containerName = dms.getContainerName();
             String status = getCamelStatus(containerName, statusName);

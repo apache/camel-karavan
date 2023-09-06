@@ -22,11 +22,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.docker.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
+import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.apache.camel.karavan.shared.Constants.*;
 
@@ -38,10 +40,12 @@ public class DockerForKaravan {
     @ConfigProperty(name = "karavan.devmode.image")
     String devmodeImage;
 
-    @ConfigProperty(name = "karavan.infinispan.username")
-    String infinispanUsername;
-    @ConfigProperty(name = "karavan.infinispan.password")
-    String infinispanPassword;
+    @ConfigProperty(name = "karavan.image-registry-install-registry")
+    boolean installRegistry;
+    @ConfigProperty(name = "karavan.image-registry")
+    String registry;
+    @ConfigProperty(name = "karavan.image-group")
+    String group;
 
     @Inject
     DockerService dockerService;
@@ -65,29 +69,38 @@ public class DockerForKaravan {
         return dockerService.createContainer(projectId, devmodeImage,
                 env, ports, healthCheck,
                 Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devmode.name(), LABEL_PROJECT_ID, projectId),
-                Map.of());
+                Map.of(), null);
 
     }
 
-    public void runBuildProject(String projectId, String script, Map<String, String> files, List<String> env, String tag) throws Exception {
+    public void runBuildProject(String projectId, String script, Map<String, String> files, List<String> env,  Map<String, String> volumes, String tag) throws Exception {
         dockerService.deleteContainer(projectId + BUILDER_SUFFIX);
-        Container c = createBuildContainer(projectId, env, tag);
+        Container c = createBuildContainer(projectId, env, volumes, tag);
         dockerService.copyFiles(c.getId(), "/code", files);
         dockerService.copyExecFile(c.getId(), "/karavan", "build.sh", script);
         dockerService.runContainer(projectId);
     }
 
-    protected Container createBuildContainer(String projectId, List<String> env, String tag) throws InterruptedException {
+    protected Container createBuildContainer(String projectId, List<String> env, Map<String, String> volumes, String tag) throws InterruptedException {
         LOGGER.infof("Starting Build Container for %s ", projectId);
 
         return dockerService.createContainer(projectId + BUILDER_SUFFIX, devmodeImage,
                 env, Map.of(), new HealthCheck(),
                 Map.of(LABEL_TYPE, ContainerStatus.ContainerType.build.name(), LABEL_PROJECT_ID, projectId, LABEL_TAG, tag),
-                Map.of(), "/karavan/build.sh");
+                volumes, null,"/karavan/build.sh");
     }
 
     public void createDevserviceContainer(DockerComposeService dockerComposeService) throws InterruptedException {
         LOGGER.infof("DevService starting for ", dockerComposeService.getContainer_name());
         dockerService.createContainerFromCompose(dockerComposeService, ContainerStatus.ContainerType.devservice);
+    }
+
+    public void syncImage(String projectId, String tag) throws InterruptedException {
+        String registryUrl = registry;
+        if (ConfigService.inDocker() && installRegistry) {
+            registryUrl = "localhost:5555";
+        }
+        String image = registryUrl + "/" + group + "/" + projectId + ":" + tag;
+        dockerService.pullImage(image);
     }
 }

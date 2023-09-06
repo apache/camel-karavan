@@ -13,7 +13,6 @@ then
   replacer=http://${GIT_USERNAME}:${GIT_PASSWORD}@
       prefix=http://
       url="${GIT_REPOSITORY/$prefix/$replacer}"
-      echo url
       git clone --depth 1 --branch ${GIT_BRANCH} $url ${CHECKOUT_DIR}
 else
     git clone --depth 1 --branch ${GIT_BRANCH} ${GIT_REPOSITORY} ${CHECKOUT_DIR}

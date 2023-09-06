@@ -22,20 +22,11 @@ import static org.apache.camel.karavan.shared.Constants.*;
 @ApplicationScoped
 public class DockerEventListener implements ResultCallback<Event> {
 
-    @ConfigProperty(name = "karavan.image-registry")
-    String registry;
-    @ConfigProperty(name = "karavan.image-group")
-    String group;
-    @ConfigProperty(name = "karavan.image-registry-username")
-    Optional<String> username;
-    @ConfigProperty(name = "karavan.image-registry-password")
-    Optional<String> password;
-
     @Inject
     DockerService dockerService;
 
     @Inject
-    EventBus eventBus;
+    DockerForKaravan dockerForKaravan;
 
     @Inject
     InfinispanService infinispanService;
@@ -67,8 +58,7 @@ public class DockerEventListener implements ResultCallback<Event> {
                     && Objects.equals(container.getLabels().get(LABEL_TYPE), ContainerStatus.ContainerType.build.name())) {
                 String tag = container.getLabels().get(LABEL_TAG);
                 String projectId = container.getLabels().get(LABEL_PROJECT_ID);
-                String image = registry + "/" + group + "/" + projectId + ":" + tag;
-                dockerService.pullImage(image);
+                dockerForKaravan.syncImage(projectId, tag);
             }
         }
     }

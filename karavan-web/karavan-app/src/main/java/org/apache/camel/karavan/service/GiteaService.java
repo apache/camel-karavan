@@ -24,6 +24,7 @@ import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.infinispan.model.GitConfig;
+import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.logging.Logger;
 
@@ -55,7 +56,7 @@ public class GiteaService {
     @Retry(maxRetries = 100, delay = 2000)
     public void install() throws Exception {
         LOGGER.info("Install Gitea");
-        HttpResponse<Buffer> result = getWebClient().postAbs("http://localhost:3000").timeout(1000)
+        HttpResponse<Buffer> result = getWebClient().postAbs(getGiteaBaseUrl()).timeout(1000)
                 .putHeader("Content-Type", "application/x-www-form-urlencoded")
                 .sendBuffer(Buffer.buffer(
                         "db_type=sqlite3&db_host=localhost%3A3306&db_user=root&db_passwd=&db_name=gitea" +
@@ -78,7 +79,7 @@ public class GiteaService {
     public void createRepository() throws Exception {
         LOGGER.info("Creating Gitea Repository");
         String token = generateToken();
-        HttpResponse<Buffer> result = getWebClient().postAbs("http://localhost:3000/api/v1/user/repos").timeout(500)
+        HttpResponse<Buffer> result = getWebClient().postAbs(getGiteaBaseUrl() + "/api/v1/user/repos").timeout(500)
                 .putHeader("Content-Type", "application/json")
                 .bearerTokenAuthentication(token)
                 .sendJsonObject(new JsonObject(Map.of(
@@ -109,7 +110,7 @@ public class GiteaService {
         }
         LOGGER.info("Creating Gitea User Token");
         GitConfig config = gitService.getGitConfig();
-        HttpResponse<Buffer> result = getWebClient().postAbs("http://localhost:3000/api/v1/users/" + config.getUsername() + "/tokens").timeout(500)
+        HttpResponse<Buffer> result = getWebClient().postAbs(getGiteaBaseUrl() + "/api/v1/users/" + config.getUsername() + "/tokens").timeout(500)
                 .putHeader("Content-Type", "application/json")
                 .putHeader("accept", "application/json")
                 .basicAuthentication(config.getUsername(), config.getPassword())
@@ -133,7 +134,7 @@ public class GiteaService {
         LOGGER.info("Deleting Gitea User Token");
         GitConfig config = gitService.getGitConfig();
         HttpResponse<Buffer> result = getWebClient()
-                .deleteAbs("http://localhost:3000/api/v1/users/" + config.getUsername() + "/tokens/" + token)
+                .deleteAbs(getGiteaBaseUrl() + "/api/v1/users/" + config.getUsername() + "/tokens/" + token)
                 .timeout(500)
                 .putHeader("Content-Type", "application/json")
                 .putHeader("accept", "application/json")
@@ -142,5 +143,9 @@ public class GiteaService {
         if (result.statusCode() == 204) {
             LOGGER.info("Deleted Gitea User Token");
         }
+    }
+
+    private String getGiteaBaseUrl(){
+        return ConfigService.inDocker() ? "http://gitea:3000" : "http://localhost:3000";
     }
 }

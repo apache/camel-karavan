@@ -16,7 +16,6 @@
  */
 package org.apache.camel.karavan.service;
 
-import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.docker.DockerForKaravan;
@@ -59,11 +58,8 @@ public class ProjectService implements HealthCheck {
     @ConfigProperty(name = "karavan.environment")
     String environment;
 
-    @ConfigProperty(name = "karavan.git-install-gitea")
-    boolean installGitea;
-
-    @ConfigProperty(name = "karavan.image-registry-install-registry")
-    boolean installRegistry;
+    @ConfigProperty(name = "karavan.maven.cache")
+    Optional<String> mavenCache;
 
     @ConfigProperty(name = "karavan.image-registry")
     String registry;
@@ -143,7 +139,10 @@ public class ProjectService implements HealthCheck {
 
             String tag = Instant.now().toString().substring(0, 19).replace(":", "-");
             List<String> env = getEnvForBuild(project, tag);
-            dockerForKaravan.runBuildProject(project.getProjectId(), script, files, env, tag);
+            Map<String, String> volumes = mavenCache
+                    .map(s -> Map.of(s, "/root/.m2"))
+                    .orElseGet(Map::of);
+            dockerForKaravan.runBuildProject(project.getProjectId(), script, files, env, volumes, tag);
             return project.getProjectId();
         }
     }
@@ -151,17 +150,17 @@ public class ProjectService implements HealthCheck {
     private List<String> getEnvForBuild(Project project, String tag) {
         GitConfig gitConfig = gitService.getGitConfig();
         List<String> env = List.of(
-                "GIT_REPOSITORY=" + (installGitea ? gitConfig.getUri().replace("localhost", "gitea") : gitConfig.getUri()),
+                "GIT_REPOSITORY=" + gitConfig.getUri(),
                 "GIT_USERNAME=" + gitConfig.getUsername(),
                 "GIT_PASSWORD=" + gitConfig.getPassword(),
                 "GIT_BRANCH=" + gitConfig.getBranch(),
                 "PROJECT_ID=" + project.getProjectId(),
-                "IMAGE_REGISTRY=" + (installRegistry ? "registry:5000" : registry),
+                "IMAGE_REGISTRY=" + registry,
                 "IMAGE_REGISTRY_USERNAME=" + username,
                 "IMAGE_REGISTRY_PASSWORD=" + password,
                 "IMAGE_GROUP=" + group,
+                "JBANG_REPO=~/.m2",
                 "TAG=" + tag
-
         );
         return env;
     }
