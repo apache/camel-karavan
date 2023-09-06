@@ -25,6 +25,7 @@ interface Props {
 export function BuildStatus (props: Props) {
 
     const [project] = useProjectStore((s) => [s.project], shallow);
+    const [setShowLog] = useLogStore((s) => [s.setShowLog], shallow);
     const [containers, deployments, camels, pipelineStatuses] =
         useStatusesStore((s) => [s.containers, s.deployments, s.camels, s.pipelineStatuses], shallow);
     const [isPushing, setIsPushing] = useState<boolean>(false);
@@ -60,6 +61,7 @@ export function BuildStatus (props: Props) {
 
     function build() {
         setIsBuilding(true);
+        setShowLog(false,'build', '')
         KaravanApi.buildProject(project, env, res => {
             if (res.status === 200 || res.status === 201) {
                 setIsBuilding(false);
@@ -72,7 +74,6 @@ export function BuildStatus (props: Props) {
     function rollout() {
         setIsRolling(true);
         KaravanApi.rolloutDeployment(project.projectId, env, res => {
-            console.log(res)
             if (res.status === 200 || res.status === 201) {
                 setIsRolling(false);
             } else {
@@ -165,11 +166,7 @@ export function BuildStatus (props: Props) {
                                         <Label icon={ready ? <UpIcon/> : <DownIcon/>} color={ready ? "green" : "red"}>
                                             <Button variant="link" className="labeled-button"
                                                     onClick={e => {
-                                                        useLogStore.setState({
-                                                            showLog: true,
-                                                            type: 'container',
-                                                            podName: pod.containerName
-                                                        });
+                                                        setShowLog(true,'container', pod.containerName);
                                                     }}>
                                                 {pod.containerName}
                                             </Button>

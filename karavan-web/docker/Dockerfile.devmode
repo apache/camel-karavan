@@ -21,7 +21,7 @@ RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
     && apk update && apk add git \
     && mkdir -p $CODE_DIR \
     && jbang trust add  --quiet  https://github.com/apache/camel \
-    && jbang app install camel@apache/camel
+    && jbang app install camel@apache/camel \
     && jbang config set cache-evict never
 
 EXPOSE 8080
