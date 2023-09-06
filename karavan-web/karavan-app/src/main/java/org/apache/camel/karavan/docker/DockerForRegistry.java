@@ -20,20 +20,14 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.service.CodeService;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
-public class DockerForInfinispan {
+public class DockerForRegistry {
 
-    private static final Logger LOGGER = Logger.getLogger(DockerForInfinispan.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DockerForRegistry.class.getName());
 
-    protected static final String INFINISPAN_CONTAINER_NAME = "infinispan";
-
-    @ConfigProperty(name = "karavan.infinispan.username")
-    String infinispanUsername;
-    @ConfigProperty(name = "karavan.infinispan.password")
-    String infinispanPassword;
+    protected static final String REGISTRY_CONTAINER_NAME = "registry";
 
     @Inject
     DockerService dockerService;
@@ -41,15 +35,13 @@ public class DockerForInfinispan {
     @Inject
     CodeService codeService;
 
-    public void startInfinispan() {
+    public void startRegistry() {
         try {
-            LOGGER.info("Infinispan is starting...");
-            var compose = codeService.getInternalDockerComposeService(INFINISPAN_CONTAINER_NAME);
-            compose.addEnvironment("USER", infinispanUsername);
-            compose.addEnvironment("PASS", infinispanPassword);
+            LOGGER.info("Registry is starting...");
+            var compose = codeService.getInternalDockerComposeService(REGISTRY_CONTAINER_NAME);
             dockerService.createContainerFromCompose(compose, ContainerStatus.ContainerType.internal);
-            dockerService.runContainer(INFINISPAN_CONTAINER_NAME);
-            LOGGER.info("Infinispan is started");
+            dockerService.runContainer(REGISTRY_CONTAINER_NAME);
+            LOGGER.info("Registry is started");
         } catch (Exception e) {
             LOGGER.error(e.getCause().getMessage());
         }

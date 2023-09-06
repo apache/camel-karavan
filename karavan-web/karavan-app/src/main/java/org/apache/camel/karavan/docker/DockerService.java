@@ -187,7 +187,6 @@ public class DockerService extends DockerServiceUtils {
                             .withMounts(mounts)
                     .withNetworkMode(NETWORK_NAME));
 
-
             CreateContainerResponse response = createContainerCmd.exec();
             LOGGER.info("Container created: " + response.getId());
             return getDockerClient().listContainersCmd().withShowAll(true)

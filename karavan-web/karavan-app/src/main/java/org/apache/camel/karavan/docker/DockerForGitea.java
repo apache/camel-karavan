@@ -17,11 +17,7 @@
 package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.command.ExecCreateCmdResponse;
-import com.github.dockerjava.api.command.HealthState;
 import com.github.dockerjava.api.model.Container;
-import io.quarkus.vertx.ConsumeEvent;
-import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.Json;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
@@ -31,17 +27,8 @@ import org.apache.camel.karavan.service.GitService;
 import org.apache.camel.karavan.service.GiteaService;
 import org.jboss.logging.Logger;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-
 @ApplicationScoped
 public class DockerForGitea {
-
-    public static final String GITEA_CREATE_INSTANCE_DELAY = "GITEA_CREATE_INSTANCE_DELAY";
-    public static final String GITEA_CREATE_INSTANCE = "GITEA_CREATE_INSTANCE";
 
     private static final Logger LOGGER = Logger.getLogger(DockerForGitea.class.getName());
 

@@ -24,10 +24,7 @@ import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.docker.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.infinispan.model.GitRepo;
-import org.apache.camel.karavan.infinispan.model.Project;
-import org.apache.camel.karavan.infinispan.model.ProjectFile;
+import org.apache.camel.karavan.infinispan.model.*;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.shared.ConfigService;
 import org.apache.camel.karavan.shared.EventType;
@@ -42,6 +39,7 @@ import org.jboss.logging.Logger;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +54,7 @@ import static org.apache.camel.karavan.service.CodeService.PROJECT_COMPOSE_FILEN
 @Default
 @Readiness
 @ApplicationScoped
-public class ProjectService implements HealthCheck{
+public class ProjectService implements HealthCheck {
 
     private static final Logger LOGGER = Logger.getLogger(ProjectService.class.getName());
 
@@ -89,15 +87,14 @@ public class ProjectService implements HealthCheck{
 
     @Override
     public HealthCheckResponse call() {
-        if(ready.get()) {
+        if (ready.get()) {
             return HealthCheckResponse.named("project").up().build();
-        }
-        else {
+        } else {
             return HealthCheckResponse.named("project").down().build();
         }
     }
 
-    public String runProjectWithJBangOptions(Project project, @PathParam("jBangOptions") String jBangOptions) throws Exception {
+    public String runProjectWithJBangOptions(Project project, String jBangOptions) throws Exception {
         String containerName = project.getProjectId();
         ContainerStatus status = infinispanService.getDevModeContainerStatus(project.getProjectId(), environment);
         if (status == null) {
@@ -111,7 +108,7 @@ public class ProjectService implements HealthCheck{
             if (ConfigService.inKubernetes()) {
                 kubernetesService.runDevModeContainer(project, jBangOptions);
             } else {
-                Map<String, String> files  = infinispanService.getProjectFiles(project.getProjectId()).stream()
+                Map<String, String> files = infinispanService.getProjectFiles(project.getProjectId()).stream()
                         .filter(f -> !Objects.equals(f.getName(), PROJECT_COMPOSE_FILENAME))
                         .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::getCode));
                 ProjectFile compose = infinispanService.getProjectFile(project.getProjectId(), PROJECT_COMPOSE_FILENAME);
@@ -124,10 +121,38 @@ public class ProjectService implements HealthCheck{
         }
     }
 
+    public String buildProject(Project project) throws Exception {
+        if (ConfigService.inKubernetes()) {
+            return kubernetesService.createPipelineRun(project);
+        } else {
+            Map<String, String> files = infinispanService.getProjectFiles(project.getProjectId()).stream()
+                    .filter(f -> !Objects.equals(f.getName(), PROJECT_COMPOSE_FILENAME))
+                    .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::getCode));
+            ProjectFile compose = infinispanService.getProjectFile(project.getProjectId(), PROJECT_COMPOSE_FILENAME);
+            DockerComposeService dcs = codeService.convertToDockerComposeService(compose.getCode(), project.getProjectId());
+
+            String templateName = project.getRuntime() + "-builder-script-docker.sh";
+            String script = codeService.getTemplateText(templateName);
+
+            GitConfig gitConfig = gitService.getGitConfig();
+            List<String> env = List.of(
+                    "GIT_REPOSITORY=" + gitConfig.getUri(),
+                    "GIT_USERNAME=" + gitConfig.getUsername(),
+                    "GIT_PASSWORD=" + gitConfig.getPassword(),
+                    "PROJECT_ID=" + project.getProjectId(),
+                    "IMAGE_REGISTRY=registry:5000",
+                    "IMAGE_GROUP=karavan"
+            );
+
+            dockerForKaravan.runBuildProject(project.getProjectId(), script, files);
+            return project.getProjectId();
+        }
+    }
+
     public Project save(Project project) throws Exception {
         boolean isNew = infinispanService.getProject(project.getProjectId()) == null;
         infinispanService.saveProject(project);
-        if (isNew){
+        if (isNew) {
             ProjectFile appProp = codeService.getApplicationProperties(project);
             infinispanService.saveProjectFile(appProp);
             if (!ConfigService.inKubernetes()) {
@@ -198,11 +223,11 @@ public class ProjectService implements HealthCheck{
                 String folderName = repo.getName();
                 if (folderName.equals(Project.Type.templates.name())) {
                     project = new Project(Project.Type.templates.name(), "Templates", "Templates", "", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.templates);
-                } else if (folderName.equals(Project.Type.kamelets.name())){
+                } else if (folderName.equals(Project.Type.kamelets.name())) {
                     project = new Project(Project.Type.kamelets.name(), "Custom Kamelets", "Custom Kamelets", "", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.kamelets);
-                } else if (folderName.equals(Project.Type.pipelines.name())){
+                } else if (folderName.equals(Project.Type.pipelines.name())) {
                     project = new Project(Project.Type.pipelines.name(), "Pipelines", "CI/CD Pipelines", "", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.pipelines);
-                } else if (folderName.equals(Project.Type.services.name())){
+                } else if (folderName.equals(Project.Type.services.name())) {
                     project = new Project(Project.Type.services.name(), "Services", "Development Services", "", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.services);
                 } else {
                     project = getProjectFromRepo(repo);
@@ -271,7 +296,7 @@ public class ProjectService implements HealthCheck{
     void addKameletsProject() {
         LOGGER.info("Add custom kamelets project if not exists");
         try {
-            Project kamelets  = infinispanService.getProject(Project.Type.kamelets.name());
+            Project kamelets = infinispanService.getProject(Project.Type.kamelets.name());
             if (kamelets == null) {
                 kamelets = new Project(Project.Type.kamelets.name(), "Custom Kamelets", "Custom Kamelets", "", "", Instant.now().toEpochMilli(), Project.Type.kamelets);
                 infinispanService.saveProject(kamelets);
@@ -285,7 +310,7 @@ public class ProjectService implements HealthCheck{
     void addTemplatesProject() {
         LOGGER.info("Add templates project if not exists");
         try {
-            Project templates  = infinispanService.getProject(Project.Type.templates.name());
+            Project templates = infinispanService.getProject(Project.Type.templates.name());
             if (templates == null) {
                 templates = new Project(Project.Type.templates.name(), "Templates", "Templates", "", "", Instant.now().toEpochMilli(), Project.Type.templates);
                 infinispanService.saveProject(templates);
@@ -304,7 +329,7 @@ public class ProjectService implements HealthCheck{
     void addServicesProject() {
         LOGGER.info("Add services project if not exists");
         try {
-            Project services  = infinispanService.getProject(Project.Type.services.name());
+            Project services = infinispanService.getProject(Project.Type.services.name());
             if (services == null) {
                 services = new Project(Project.Type.services.name(), "Services", "Development Services", "", "", Instant.now().toEpochMilli(), Project.Type.services);
                 infinispanService.saveProject(services);
@@ -323,7 +348,7 @@ public class ProjectService implements HealthCheck{
     void addPipelinesProject() {
         LOGGER.info("Add pipelines project if not exists");
         try {
-            Project pipelines  = infinispanService.getProject(Project.Type.pipelines.name());
+            Project pipelines = infinispanService.getProject(Project.Type.pipelines.name());
             if (pipelines == null) {
                 pipelines = new Project(Project.Type.pipelines.name(), "Pipelines", "CI/CD Pipelines", "", "", Instant.now().toEpochMilli(), Project.Type.pipelines);
                 infinispanService.saveProject(pipelines);
@@ -340,7 +365,7 @@ public class ProjectService implements HealthCheck{
     }
 
     public String getDevServiceCode() {
-        List <ProjectFile> files = infinispanService.getProjectFiles(Project.Type.services.name());
+        List<ProjectFile> files = infinispanService.getProjectFiles(Project.Type.services.name());
         Optional<ProjectFile> file = files.stream().filter(f -> f.getName().equals(DEV_SERVICES_FILENAME)).findFirst();
         return file.orElse(new ProjectFile()).getCode();
     }

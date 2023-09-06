@@ -24,7 +24,7 @@ import io.vertx.core.eventbus.EventBus;
 import jakarta.inject.Singleton;
 import org.apache.camel.karavan.docker.DockerForGitea;
 import org.apache.camel.karavan.docker.DockerForInfinispan;
-import org.apache.camel.karavan.docker.DockerForKaravan;
+import org.apache.camel.karavan.docker.DockerForRegistry;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
@@ -44,6 +44,9 @@ public class KaravanService {
     @ConfigProperty(name = "karavan.git-install-gitea")
     boolean giteaInstall;
 
+    @ConfigProperty(name = "karavan.image-registry-install-registry")
+    boolean registryInstall;
+
     @Inject
     KubernetesService kubernetesService;
 
@@ -54,7 +57,8 @@ public class KaravanService {
     DockerForGitea dockerForGitea;
 
     @Inject
-    DockerForKaravan dockerForKaravan;
+    DockerForRegistry dockerForRegistry;
+
     @Inject
     DockerForInfinispan dockerForInfinispan;
 
@@ -97,6 +101,9 @@ public class KaravanService {
                 dockerForGitea.startGitea();
                 giteaService.install();
                 dockerForGitea.createGiteaUser();
+            }
+            if (registryInstall) {
+                dockerForRegistry.startRegistry();
             }
         }
     }

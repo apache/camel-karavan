@@ -50,6 +50,7 @@ public class DockerForKaravan {
         dockerService.runContainer(projectId);
         dockerService.copyFiles(projectId, "/code", files);
     }
+
     protected void createDevmodeContainer(String projectId, String jBangOptions, Map<Integer, Integer> ports) throws InterruptedException {
         LOGGER.infof("DevMode starting for %s with JBANG_OPTIONS=%s", projectId, jBangOptions);
 
@@ -66,6 +67,95 @@ public class DockerForKaravan {
                 Map.of());
 
         LOGGER.infof("DevMode started for %s", projectId);
+    }
+
+    public void runBuildProject(String projectId, String script, Map<String, String> files) throws Exception {
+//        createBuildContainer(projectId, jBangOptions, ports);
+//        dockerService.runContainer(projectId);
+//        dockerService.copyFiles(projectId, "/code", files);
+
+
+        //        String scriptName = "camel-main-builder-script-docker.sh";
+//        String script = getResourceFile("/scripts/" + scriptName);
+//        try {
+//            CreateContainerResponse res = dockerClient.createContainerCmd("test")
+//                    .withName("xxx")
+//                    .withImage("ghcr.io/apache/camel-karavan-devmode:4.0.0-RC2")
+//                    .withCmd("/karavan/"+scriptName)
+//                    .withEnv("GIT_BRANCH=main",
+//                            "GIT_REPOSITORY=http://gitea:3000/karavan/karavan.git",
+//                            "GIT_USERNAME=karavan",
+//                            "GIT_PASSWORD=karavan",
+//                            "PROJECT_ID=zzzzz",
+//                            "CAMEL_VERSION=4.0.0",
+//                            "IMAGE_REGISTRY=registry:5000",
+//                            "IMAGE_GROUP=karavan")
+//                    .withHostConfig(new HostConfig().withNetworkMode("karavan")).exec();
+//
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
+//
+//        Container c = dockerClient.listContainersCmd().withShowAll(true).withNameFilter(Collections.singleton("xxx")).exec().get(0);
+//
+//        String temp = Vertx.vertx().fileSystem().createTempDirectoryBlocking("xxx");
+//        String path = temp + File.separator + scriptName;
+//        Vertx.vertx().fileSystem().writeFileBlocking(path, Buffer.buffer(script));
+//
+//        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//                TarArchiveOutputStream tarArchive = new TarArchiveOutputStream(byteArrayOutputStream)) {
+//            tarArchive.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
+//            tarArchive.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
+//
+//            TarArchiveEntry tarEntry = new TarArchiveEntry(new File(path));
+//            tarEntry.setName(scriptName);
+//            tarEntry.setMode(0700); //
+//            tarArchive.putArchiveEntry(tarEntry);
+//            IOUtils.write(Files.readAllBytes(Paths.get(path)), tarArchive);
+//            tarArchive.closeArchiveEntry();
+//            tarArchive.finish();
+//
+//            dockerClient.copyArchiveToContainerCmd(c.getId())
+//                    .withTarInputStream(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()))
+//                    .withRemotePath("/karavan").exec();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
+//        dockerClient.startContainerCmd(c.getId()).exec();
+    }
+
+
+    protected void createBuildContainer(String projectId, Map<Integer, Integer> ports) throws InterruptedException {
+        LOGGER.infof("Starting Build Container for %s ", projectId);
+
+        List<String> env = List.of(
+                "GIT_REPOSITORY=http://gitea:3000/karavan/karavan.git",
+                            "GIT_USERNAME=karavan",
+                            "GIT_PASSWORD=karavan",
+                            "PROJECT_ID=" + projectId,
+                            "CAMEL_VERSION=4.0.0",
+                            "IMAGE_REGISTRY=registry:5000",
+                            "IMAGE_GROUP=karavan"
+        );
+
+//                    .withCmd("/karavan/"+scriptName)
+//                    .withEnv("GIT_BRANCH=main",
+//                            "GIT_REPOSITORY=http://gitea:3000/karavan/karavan.git",
+//                            "GIT_USERNAME=karavan",
+//                            "GIT_PASSWORD=karavan",
+//                            "PROJECT_ID=zzzzz",
+//                            "CAMEL_VERSION=4.0.0",
+//                            "IMAGE_REGISTRY=registry:5000",
+//                            "IMAGE_GROUP=karavan")
+//                    .withHostConfig(new HostConfig().withNetworkMode("karavan")).exec();
+
+        dockerService.createContainer(projectId + "-builder", devmodeImage,
+                env, ports, new HealthCheck(),
+                Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devmode.name(), LABEL_PROJECT_ID, projectId),
+                Map.of());
+
+        LOGGER.infof("Build Container started for %s", projectId);
     }
 
     public void createDevserviceContainer(DockerComposeService dockerComposeService) throws InterruptedException {

@@ -7,21 +7,15 @@ services:
     restart: always
     ports:
       - "11222:11222"
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:11222/rest/v2/cache-managers/default/health/status" ]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 10s
 
   gitea:
     image: gitea/gitea:1.20.2-rootless
     restart: always
     ports:
       - "3000:3000"
-    healthcheck:
-      test: [ "CMD", "curl", "-fss", "127.0.0.1:3000/api/healthz" ]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 2s
+
+  registry:
+    image: registry:2
+    restart: always
+    ports:
+      - "5555:5000"

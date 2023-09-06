@@ -107,7 +107,7 @@ public class CodeService {
         return new ProjectFile(APPLICATION_PROPERTIES_FILENAME, code, project.getProjectId(), Instant.now().toEpochMilli());
     }
 
-    private String getTemplateText(String fileName) {
+    public String getTemplateText(String fileName) {
         try {
             List<ProjectFile> files = infinispanService.getProjectFiles(Project.Type.templates.name());
             return files.stream().filter(f -> f.getName().equalsIgnoreCase(fileName))

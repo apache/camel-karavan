@@ -12,11 +12,6 @@ services:
     environment:
       AMQ_USER: artemis
       AMQ_PASSWORD: artemis
-    healthcheck:
-      test: ["CMD-SHELL", "curl -u artemis:artemis http://artemis:8161/console/jolokia"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
