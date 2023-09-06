@@ -273,8 +273,8 @@ interface LogState {
     setCurrentLine: (currentLine: number) => void;
     showLog: boolean,
     setShowLog: (showLog: boolean) => void;
-    type: 'container' | 'pipeline' | 'none',
-    setType: (type: 'container' | 'pipeline' | 'none') => void,
+    type: 'container' | 'build' | 'none',
+    setType: (type: 'container' | 'build' | 'none') => void,
 }
 
 export const useLogStore = createWithEqualityFn<LogState>((set) => ({
@@ -304,7 +304,7 @@ export const useLogStore = createWithEqualityFn<LogState>((set) => ({
         set(() => ({showLog: showLog}));
     },
     type: "none",
-    setType: (type: 'container' | 'pipeline' | 'none') =>  {
+    setType: (type: 'container' | 'build' | 'none') =>  {
         set((state: LogState) => ({type: type}));
     },
 }), shallow)

@@ -59,11 +59,30 @@ public class ScheduledService {
     @Inject
     EventBus eventBus;
 
+    @Scheduled(every = "{karavan.container.statistics.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    void collectContainersStatistics() {
+        if (infinispanService.isReady()) {
+            List<ContainerStatus> statusesInDocker = dockerService.collectContainersStatistics();
+            statusesInDocker.forEach(containerStatus -> {
+                eventBus.send(EventType.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
+            });
+        }
+    }
+
     @Scheduled(every = "{karavan.container.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectContainersStatuses() {
         if (infinispanService.isReady()) {
             List<ContainerStatus> statusesInDocker = dockerService.collectContainersStatuses();
-            List<String> namesInDocker = statusesInDocker.stream().map(ContainerStatus::getContainerName).collect(Collectors.toList());
+            statusesInDocker.forEach(containerStatus -> {
+                eventBus.send(EventType.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
+            });
+            cleanContainersStatuses(statusesInDocker);
+        }
+    }
+
+    void cleanContainersStatuses(List<ContainerStatus> statusesInDocker) {
+        if (infinispanService.isReady()) {
+            List<String> namesInDocker = statusesInDocker.stream().map(ContainerStatus::getContainerName).toList();
             List<ContainerStatus> statusesInInfinispan = infinispanService.getContainerStatuses(environment);
             // clean deleted
             statusesInInfinispan.stream()
@@ -73,23 +92,12 @@ public class ScheduledService {
                         infinispanService.deleteContainerStatus(containerStatus);
                         infinispanService.deleteCamelStatuses(containerStatus.getProjectId(), containerStatus.getEnv());
                     });
-            // send statuses to save
-            statusesInDocker.forEach(containerStatus -> {
-                eventBus.send(EventType.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
-            });
         }
     }
 
 
     @Scheduled(every = "{karavan.camel.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectCamelStatuses() {
-        LOGGER.info("Collect info statuses");
         camelService.collectCamelStatuses();
     }
-
-    @Scheduled(every = "{karavan.git-pull-interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
-    void pullCommitsFromGit() {
-        projectService.pullCommits();
-    }
-
 }

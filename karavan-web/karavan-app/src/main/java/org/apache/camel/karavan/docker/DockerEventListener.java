@@ -85,9 +85,10 @@ public class DockerEventListener implements ResultCallback<Event> {
             List<ContainerStatus.Command> commands = getContainerCommand(container.getState());
             ContainerStatus.ContainerType type = getContainerType(container.getLabels());
             String created = Instant.ofEpochSecond(container.getCreated()).toString();
-            ContainerStatus ci = infinispanService.getContainerStatus(name, environment, name);
+            String projectId = container.getLabels().getOrDefault(LABEL_PROJECT_ID, name);
+            ContainerStatus ci = infinispanService.getContainerStatus(projectId, environment, name);
             if (ci == null) {
-                ci = ContainerStatus.createWithId(name, environment, container.getId(), container.getImage(), ports, type, commands, container.getState(), created);
+                ci = ContainerStatus.createWithId(projectId, name, environment, container.getId(), container.getImage(), ports, type, commands, container.getState(), created);
             } else {
                 ci.setContainerId(container.getId());
                 ci.setPorts(ports);

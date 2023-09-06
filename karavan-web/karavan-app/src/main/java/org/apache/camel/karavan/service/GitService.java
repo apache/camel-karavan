@@ -83,44 +83,6 @@ public class GitService {
         return gitForImport;
     }
 
-    public List<CommitInfo> getAllCommits() {
-        List<CommitInfo> result = new ArrayList<>();
-        try {
-            Git pollGit = getGitForImport();
-            if (pollGit != null) {
-                StreamSupport.stream(pollGit.log().all().call().spliterator(), false)
-                        .sorted(Comparator.comparingInt(RevCommit::getCommitTime))
-                        .forEach(commit -> result.add(new CommitInfo(commit.getName(), commit.getCommitTime())));
-            }
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
-        return result;
-    }
-
-    public List<CommitInfo> getCommitsAfterCommit(int commitTime) {
-        List<CommitInfo> result = new ArrayList<>();
-        try {
-            Git pollGit = getGitForImport();
-            if (pollGit != null) {
-                GitConfig gitConfig = getGitConfig();
-                CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
-                pull(pollGit, cred);
-                List<RevCommit> commits = StreamSupport.stream(pollGit.log().all().call().spliterator(), false)
-                        .filter(commit -> commit.getCommitTime() > commitTime)
-                        .sorted(Comparator.comparingInt(RevCommit::getCommitTime)).collect(Collectors.toList());
-                for (RevCommit commit: commits) {
-                    List<String> projects = new ArrayList<>(getChangedProjects(commit));
-                    List<GitRepo> repo = readProjectsFromRepository(pollGit, projects.toArray(new String[projects.size()]));
-                    result.add(new CommitInfo(commit.getName(), commit.getCommitTime(), repo));
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
-        return result;
-    }
-
     public GitConfig getGitConfig() {
         String propertiesPrefix = "karavan.";
         String branch = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-branch", String.class);

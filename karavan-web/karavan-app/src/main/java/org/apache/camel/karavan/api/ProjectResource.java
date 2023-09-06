@@ -16,16 +16,22 @@
  */
 package org.apache.camel.karavan.api;
 
+import jakarta.ws.rs.core.Response;
+import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.GroupedKey;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.infinispan.model.ProjectFile;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.GitService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.camel.karavan.service.ProjectService;
+import org.apache.camel.karavan.shared.ConfigService;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -35,11 +41,22 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static org.apache.camel.karavan.shared.Constants.BUILDER_SUFFIX;
+
 @Path("/api/project")
 public class ProjectResource {
 
+    @ConfigProperty(name = "karavan.environment")
+    String environment;
+
     @Inject
     InfinispanService infinispanService;
+
+    @Inject
+    KubernetesService kubernetesService;
+
+    @Inject
+    DockerService dockerService;
 
     @Inject
     GitService gitService;
@@ -83,6 +100,34 @@ public class ProjectResource {
         gitService.deleteProject(projectId, infinispanService.getProjectFiles(projectId));
         infinispanService.getProjectFiles(projectId).forEach(file -> infinispanService.deleteProjectFile(projectId, file.getName()));
         infinispanService.deleteProject(projectId);
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/build")
+    public Response build(Project project) throws Exception {
+        try {
+            projectService.buildProject(project);
+            return Response.ok().entity(project).build();
+        } catch (Exception e) {
+            return Response.serverError().entity(e.getMessage()).build();
+        }
+    }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/build/{env}/{buildName}")
+    public Response deleteBuild(@HeaderParam("username") String username,
+                       @PathParam("env") String env, @PathParam("buildName") String buildName) {
+        buildName = URLDecoder.decode(buildName, StandardCharsets.UTF_8);
+        if (ConfigService.inKubernetes()) {
+            kubernetesService.stopPipelineRun(buildName, kubernetesService.getNamespace());
+            return Response.ok().build();
+        } else {
+            dockerService.deleteContainer(buildName);
+            return Response.ok().build();
+        }
     }
 
     @POST

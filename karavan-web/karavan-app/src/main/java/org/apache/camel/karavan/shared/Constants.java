@@ -25,5 +25,5 @@ public class Constants {
 
     public static final String RELOAD_TRY_COUNT = "reloadTryCount";
 
-    public static final String HEALTHY_STATUS = "healthy";
+    public static final String BUILDER_SUFFIX = "-builder";
 }

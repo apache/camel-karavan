@@ -104,7 +104,7 @@ export function ContainerTableRow (props: Props) {
                 <Td colSpan={2}>
                     <ExpandableRowContent>
                         <Flex direction={{default: "column"}} cellPadding={"0px"}>
-                            {container.containerId}
+                            {container.containerId.substring(0, 10)+"..."}
                         </Flex>
                     </ExpandableRowContent>
                 </Td>

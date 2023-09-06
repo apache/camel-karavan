@@ -23,7 +23,8 @@ public class ContainerStatus {
         @ProtoEnumValue(number = 1, name = "devmode") devmode,
         @ProtoEnumValue(number = 2, name = "devservice") devservice,
         @ProtoEnumValue(number = 4, name = "project") project,
-        @ProtoEnumValue(number = 5, name = "unknown") unknown,
+        @ProtoEnumValue(number = 5, name = "build") build,
+        @ProtoEnumValue(number = 6, name = "unknown") unknown,
     }
 
     public enum Command {
@@ -55,16 +56,18 @@ public class ContainerStatus {
     @ProtoField(number = 10)
     String created;
     @ProtoField(number = 11)
-    List<Command> commands;
+    String finished;
     @ProtoField(number = 12)
-    String state;
+    List<Command> commands;
     @ProtoField(number = 13)
-    Boolean codeLoaded;
+    String state;
     @ProtoField(number = 14)
+    Boolean codeLoaded;
+    @ProtoField(number = 15)
     Boolean inTransit = false;
 
     @ProtoFactory
-    public ContainerStatus(String projectId, String containerName, String containerId, String image, List<Integer> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, List<Command> commands, String state, Boolean codeLoaded, Boolean inTransit) {
+    public ContainerStatus(String projectId, String containerName, String containerId, String image, List<Integer> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, Boolean codeLoaded, Boolean inTransit) {
         this.projectId = projectId;
         this.containerName = containerName;
         this.containerId = containerId;
@@ -75,6 +78,7 @@ public class ContainerStatus {
         this.memoryInfo = memoryInfo;
         this.cpuInfo = cpuInfo;
         this.created = created;
+        this.finished = finished;
         this.commands = commands;
         this.state = state;
         this.codeLoaded = codeLoaded;
@@ -102,16 +106,16 @@ public class ContainerStatus {
     }
 
     public static ContainerStatus createDevMode(String projectId, String env) {
-        return new ContainerStatus(projectId, projectId, null, null, null, env, ContainerType.devmode, null, null, null, List.of(Command.run), null, false, false);
+        return new ContainerStatus(projectId, projectId, null, null, null, env, ContainerType.devmode, null, null, null, null, List.of(Command.run), null, false, false);
     }
 
     public static ContainerStatus createByType(String name, String env, ContainerType type) {
-        return new ContainerStatus(name, name, null, null, null, env, type, null, null, null, List.of(Command.run), null, false, false);
+        return new ContainerStatus(name, name, null, null, null, env, type, null, null, null, null, List.of(Command.run), null, false, false);
     }
 
-    public static ContainerStatus createWithId(String name, String env, String containerId, String image, List<Integer> ports, ContainerType type, List<Command> commands, String status, String created) {
-        return new ContainerStatus(name, name, containerId, image, ports, env, type,
-                null, null, created,  commands, status, false, false);
+    public static ContainerStatus createWithId(String projectId, String containerName, String env, String containerId, String image, List<Integer> ports, ContainerType type, List<Command> commands, String status, String created) {
+        return new ContainerStatus(projectId, containerName, containerId, image, ports, env, type,
+                null, null, created, null,  commands, status, false, false);
     }
 
     public ContainerStatus() {
@@ -230,6 +234,14 @@ public class ContainerStatus {
         this.inTransit = inTransit;
     }
 
+    public String getFinished() {
+        return finished;
+    }
+
+    public void setFinished(String finished) {
+        this.finished = finished;
+    }
+
     @Override
     public String toString() {
         return "ContainerStatus{" +
@@ -243,10 +255,11 @@ public class ContainerStatus {
                 ", memoryInfo='" + memoryInfo + '\'' +
                 ", cpuInfo='" + cpuInfo + '\'' +
                 ", created='" + created + '\'' +
+                ", finished='" + finished + '\'' +
                 ", commands=" + commands +
                 ", state='" + state + '\'' +
                 ", codeLoaded=" + codeLoaded +
-                ", logging=" + inTransit +
+                ", inTransit=" + inTransit +
                 '}';
     }
 }

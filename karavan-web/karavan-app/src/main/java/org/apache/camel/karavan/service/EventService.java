@@ -11,6 +11,7 @@ import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
+import java.time.Instant;
 import java.util.Objects;
 
 import static org.apache.camel.karavan.shared.EventType.CONTAINER_STATUS;
@@ -79,10 +80,23 @@ public class EventService {
         if (infinispanService.isReady()) {
             ContainerStatus newStatus = data.mapTo(ContainerStatus.class);
             ContainerStatus oldStatus = infinispanService.getContainerStatus(newStatus.getProjectId(), newStatus.getEnv(), newStatus.getContainerName());
-            if (oldStatus == null || Objects.equals(oldStatus.getInTransit(), Boolean.FALSE)) {
+            if (oldStatus == null) {
+                infinispanService.saveContainerStatus(newStatus);
+            } else if (Objects.equals(oldStatus.getInTransit(), Boolean.FALSE)) {
+                if ("exited".equalsIgnoreCase(newStatus.getState()) && oldStatus.getFinished() == null) {
+                    newStatus.setFinished(Instant.now().toString());
+                }
+                if (newStatus.getCpuInfo() == null) {
+                    newStatus.setCpuInfo(oldStatus.getCpuInfo());
+                    newStatus.setMemoryInfo(oldStatus.getMemoryInfo());
+                }
                 infinispanService.saveContainerStatus(newStatus);
             } else if (Objects.equals(oldStatus.getInTransit(), Boolean.TRUE)) {
                 if (!Objects.equals(oldStatus.getState(), newStatus.getState())) {
+                    if (newStatus.getCpuInfo() == null) {
+                        newStatus.setCpuInfo(oldStatus.getCpuInfo());
+                        newStatus.setMemoryInfo(oldStatus.getMemoryInfo());
+                    }
                     infinispanService.saveContainerStatus(newStatus);
                 }
             }

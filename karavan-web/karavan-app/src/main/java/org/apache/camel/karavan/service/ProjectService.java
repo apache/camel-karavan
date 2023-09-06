@@ -19,8 +19,6 @@ package org.apache.camel.karavan.service;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.docker.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
@@ -61,8 +59,20 @@ public class ProjectService implements HealthCheck {
     @ConfigProperty(name = "karavan.environment")
     String environment;
 
-    @ConfigProperty(name = "karavan.git-pull-interval")
-    String gitPullInterval;
+    @ConfigProperty(name = "karavan.git-install-gitea")
+    boolean installGitea;
+
+    @ConfigProperty(name = "karavan.image-registry-install-registry")
+    boolean installRegistry;
+
+    @ConfigProperty(name = "karavan.image-registry")
+    String registry;
+    @ConfigProperty(name = "karavan.image-group")
+    String group;
+    @ConfigProperty(name = "karavan.image-registry-username")
+    Optional<String> username;
+    @ConfigProperty(name = "karavan.image-registry-password")
+    Optional<String> password;
 
     @Inject
     InfinispanService infinispanService;
@@ -83,7 +93,6 @@ public class ProjectService implements HealthCheck {
     EventBus eventBus;
 
     private AtomicBoolean ready = new AtomicBoolean(false);
-    private AtomicBoolean readyToPull = new AtomicBoolean(false);
 
     @Override
     public HealthCheckResponse call() {
@@ -128,25 +137,31 @@ public class ProjectService implements HealthCheck {
             Map<String, String> files = infinispanService.getProjectFiles(project.getProjectId()).stream()
                     .filter(f -> !Objects.equals(f.getName(), PROJECT_COMPOSE_FILENAME))
                     .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::getCode));
-            ProjectFile compose = infinispanService.getProjectFile(project.getProjectId(), PROJECT_COMPOSE_FILENAME);
-            DockerComposeService dcs = codeService.convertToDockerComposeService(compose.getCode(), project.getProjectId());
 
             String templateName = project.getRuntime() + "-builder-script-docker.sh";
             String script = codeService.getTemplateText(templateName);
 
-            GitConfig gitConfig = gitService.getGitConfig();
-            List<String> env = List.of(
-                    "GIT_REPOSITORY=" + gitConfig.getUri(),
-                    "GIT_USERNAME=" + gitConfig.getUsername(),
-                    "GIT_PASSWORD=" + gitConfig.getPassword(),
-                    "PROJECT_ID=" + project.getProjectId(),
-                    "IMAGE_REGISTRY=registry:5000",
-                    "IMAGE_GROUP=karavan"
-            );
+            List<String> env = getEnvForBuild(project);
 
-            dockerForKaravan.runBuildProject(project.getProjectId(), script, files);
+            dockerForKaravan.runBuildProject(project.getProjectId(), script, files, env);
             return project.getProjectId();
         }
+    }
+
+    private List<String> getEnvForBuild(Project project) {
+        GitConfig gitConfig = gitService.getGitConfig();
+        List<String> env = List.of(
+                "GIT_REPOSITORY=" + (installGitea ? gitConfig.getUri().replace("localhost", "gitea") : gitConfig.getUri()),
+                "GIT_USERNAME=" + gitConfig.getUsername(),
+                "GIT_PASSWORD=" + gitConfig.getPassword(),
+                "GIT_BRANCH=" + gitConfig.getBranch(),
+                "PROJECT_ID=" + project.getProjectId(),
+                "IMAGE_REGISTRY=" + (installRegistry ? "registry:5000" : registry),
+                "IMAGE_REGISTRY_USERNAME=" + username,
+                "IMAGE_REGISTRY_PASSWORD=" + password,
+                "IMAGE_GROUP=" + group
+        );
+        return env;
     }
 
     public Project save(Project project) throws Exception {
@@ -168,33 +183,6 @@ public class ProjectService implements HealthCheck {
         return codeService.getProjectPort(composeFile);
     }
 
-    public void pullCommits() {
-        if (readyToPull.get()) {
-            LOGGER.info("Pull commits...");
-            Tuple2<String, Integer> lastCommit = infinispanService.getLastCommit();
-            gitService.getCommitsAfterCommit(lastCommit.getItem2()).forEach(commitInfo -> {
-                if (!infinispanService.hasCommit(commitInfo.getCommitId())) {
-                    commitInfo.getRepos().forEach(repo -> {
-                        Project project = importProjectFromRepo(repo);
-                        kubernetesService.createPipelineRun(project);
-                    });
-                    infinispanService.saveCommit(commitInfo.getCommitId(), commitInfo.getTime());
-                }
-                infinispanService.saveLastCommit(commitInfo.getCommitId());
-            });
-        }
-    }
-
-    void importCommits() {
-        LOGGER.info("Import commits...");
-        gitService.getAllCommits().forEach(commitInfo -> {
-            System.out.println(commitInfo.getCommitId() + " " + Instant.ofEpochSecond(commitInfo.getTime()).toString());
-            infinispanService.saveCommit(commitInfo.getCommitId(), commitInfo.getTime());
-            infinispanService.saveLastCommit(commitInfo.getCommitId());
-        });
-        readyToPull.set(true);
-    }
-
     @Retry(maxRetries = 100, delay = 2000)
     public void tryStart() throws Exception {
         if (infinispanService.isReady() && gitService.checkGit()) {
@@ -204,9 +192,6 @@ public class ProjectService implements HealthCheck {
             addKameletsProject();
             addTemplatesProject();
             addServicesProject();
-            if (!Objects.equals("disabled", gitPullInterval.toLowerCase()) && !Objects.equals("off", gitPullInterval.toLowerCase())) {
-                importCommits();
-            }
             ready.set(true);
         } else {
             LOGGER.info("Projects are not ready");

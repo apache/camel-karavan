@@ -7,7 +7,6 @@ then
     replacer=https://${GIT_USERNAME}:${GIT_PASSWORD}@
     prefix=https://
     url="${GIT_REPOSITORY/$prefix/$replacer}"
-    echo url
     git clone --depth 1 --branch ${GIT_BRANCH} $url ${CHECKOUT_DIR}
 elif [[ ${GIT_REPOSITORY} == http* ]] ;
 then

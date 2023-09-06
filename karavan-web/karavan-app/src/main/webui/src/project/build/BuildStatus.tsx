@@ -31,11 +31,11 @@ export function BuildStatus (props: Props) {
     const [isBuilding, setIsBuilding] = useState<boolean>(false);
     const [isRolling, setIsRolling] = useState<boolean>(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
-    const [deleteEntityType, setDeleteEntityType] = useState<'pod' | 'deployment' | 'pipelinerun'>('pod');
+    const [deleteEntityType, setDeleteEntityType] = useState<'pod' | 'deployment' | 'build'>('pod');
     const [deleteEntityName, setDeleteEntityName] = useState<string>();
     const [deleteEntityEnv, setDeleteEntityEnv] = useState<string>();
 
-    function deleteEntity(type: 'pod' | 'deployment' | 'pipelinerun', name: string, environment: string) {
+    function deleteEntity(type: 'pod' | 'deployment' | 'build', name: string, environment: string) {
         switch (type) {
             case "deployment":
                 KaravanApi.deleteDeployment(environment, name, (res: any) => {
@@ -49,8 +49,8 @@ export function BuildStatus (props: Props) {
                     // onRefresh();
                 });
                 break;
-            case "pipelinerun":
-                KaravanApi.stopPipelineRun(environment, name, (res: any) => {
+            case "build":
+                KaravanApi.stopBuild(environment, name, (res: any) => {
                     // if (Array.isArray(res) && Array.from(res).length > 0)
                     // onRefresh();
                 });
@@ -60,7 +60,7 @@ export function BuildStatus (props: Props) {
 
     function build() {
         setIsBuilding(true);
-        KaravanApi.pipelineRun(project, env, res => {
+        KaravanApi.buildProject(project, env, res => {
             if (res.status === 200 || res.status === 201) {
                 setIsBuilding(false);
             } else {
@@ -151,7 +151,7 @@ export function BuildStatus (props: Props) {
     }
 
     function getPodsPanel(env: string) {
-        const podStatuses = containers.filter(d => d.projectId === project?.projectId);
+        const podStatuses = containers.filter(d => d.projectId === project?.projectId && d.type === 'project');
         return (
             <Flex justifyContent={{default: "justifyContentSpaceBetween"}}
                   alignItems={{default: "alignItemsFlexStart"}}>
@@ -221,18 +221,18 @@ export function BuildStatus (props: Props) {
                                    color={color}>
                                 {pipeline
                                     ? <Button className='labeled-button' variant="link" onClick={e =>
-                                        useLogStore.setState({showLog: true, type: 'pipeline', podName: pipeline})
+                                        useLogStore.setState({showLog: true, type: 'build', podName: pipeline})
                                     }>
                                         {pipeline}
                                     </Button>
-                                    : "No pipeline"}
-                                {isRunning && <Tooltip content={"Stop PipelineRun"}>
+                                    : "No builder"}
+                                {isRunning && <Tooltip content={"Stop build"}>
                                     <Button
                                         icon={<DeleteIcon/>}
                                         className="labeled-button"
                                         variant="link" onClick={e => {
                                         setShowDeleteConfirmation(true);
-                                        setDeleteEntityType("pipelinerun");
+                                        setDeleteEntityType("build");
                                         setDeleteEntityEnv(env);
                                         setDeleteEntityName(pipeline);
                                     }}></Button>
@@ -243,6 +243,56 @@ export function BuildStatus (props: Props) {
                                        color={color}>{lastPipelineRunTime + "s"}</Label>}
                         </LabelGroup>
                     </Tooltip>
+                </FlexItem>
+                <FlexItem>{env === "dev" && buildButton(env)}</FlexItem>
+            </Flex>
+        )
+    }
+
+    function getBuildState(env: string) {
+        const status = containers.filter(c => c.projectId === project.projectId).at(0);
+        const buildName = status?.containerName;
+        const state = status?.state;
+        let buildTime = 0;
+        if (status?.created) {
+            const start: Date = new Date(status.created);
+            const finish: Date = status.finished !== undefined && status.finished !== null ? new Date(status.finished) : new Date();
+            buildTime = Math.round((finish.getTime() - start.getTime()) / 1000);
+        }
+        const showTime = buildTime && buildTime > 0;
+        const isRunning = state === 'running';
+        const isExited = state === 'exited';
+        const color = isExited ? "grey" : (isRunning ? "blue" : "grey");
+        const icon = isExited ? <UpIcon className="not-spinner"/> : <DownIcon className="not-spinner"/>
+        return (
+            <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
+                <FlexItem>
+                    <LabelGroup numLabels={2}>
+                        <Label icon={isRunning ? <Spinner diameter="16px" className="spinner"/> : icon}
+                               color={color}>
+                            {buildName
+                                ? <Button className='labeled-button' variant="link" onClick={e =>
+                                    useLogStore.setState({showLog: true, type: 'build', podName: buildName})
+                                }>
+                                    {buildName}
+                                </Button>
+                                : "No builder"}
+                            {status !== undefined && <Tooltip content={"Delete build"}>
+                                <Button
+                                    icon={<DeleteIcon/>}
+                                    className="labeled-button"
+                                    variant="link" onClick={e => {
+                                    setShowDeleteConfirmation(true);
+                                    setDeleteEntityType("build");
+                                    setDeleteEntityEnv(env);
+                                    setDeleteEntityName(buildName);
+                                }}></Button>
+                            </Tooltip>}
+                        </Label>
+                        {buildName !== undefined && showTime === true && buildTime !== undefined &&
+                            <Label icon={<ClockIcon className="not-spinner"/>}
+                                   color={color}>{buildTime + "s"}</Label>}
+                    </LabelGroup>
                 </FlexItem>
                 <FlexItem>{env === "dev" && buildButton(env)}</FlexItem>
             </Flex>
@@ -267,7 +317,7 @@ export function BuildStatus (props: Props) {
                         onClick={e => setShowDeleteConfirmation(false)}>Cancel</Button>
             ]}
             onEscapePress={e => setShowDeleteConfirmation(false)}>
-            <div>{"Delete " + deleteEntity + " " + deleteEntityName + "?"}</div>
+            <div>{"Delete " + deleteEntityType + " " + deleteEntityName + "?"}</div>
         </Modal>)
     }
 
@@ -283,9 +333,9 @@ export function BuildStatus (props: Props) {
                         </DescriptionListDescription>
                     </DescriptionListGroup>
                     <DescriptionListGroup>
-                        <DescriptionListTerm>Pipeline</DescriptionListTerm>
+                        <DescriptionListTerm>Build container</DescriptionListTerm>
                         <DescriptionListDescription>
-                            {getPipelineState(env)}
+                            {getBuildState(env)}
                         </DescriptionListDescription>
                     </DescriptionListGroup>
                     <DescriptionListGroup>

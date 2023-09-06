@@ -58,6 +58,7 @@ public class CodeService {
 
     private static final Logger LOGGER = Logger.getLogger(CodeService.class.getName());
     public static final String APPLICATION_PROPERTIES_FILENAME = "application.properties";
+    public static final String BUILDER_SCRIPT_FILE_SUFFIX = "builder-script-";
     public static final String DEV_SERVICES_FILENAME = "devservices.yaml";
     public static final String PROJECT_COMPOSE_FILENAME = "project-compose.yaml";
     private static final String SNIPPETS_PATH = "/snippets/";
@@ -123,6 +124,7 @@ public class CodeService {
 
         List<String> files = new ArrayList<>(interfaces);
         files.addAll(targets.stream().map(target -> target + "-" + APPLICATION_PROPERTIES_FILENAME).toList());
+        files.addAll(targets.stream().map(target -> BUILDER_SCRIPT_FILE_SUFFIX + target + ".sh").toList());
 
         runtimes.forEach(runtime -> {
             files.forEach(file -> {
@@ -134,23 +136,6 @@ public class CodeService {
         });
 
         result.put(PROJECT_COMPOSE_FILENAME, getResourceFile(SNIPPETS_PATH + PROJECT_COMPOSE_FILENAME));
-        return result;
-    }
-
-    public Map<String, String> getPipelinesTemplates() {
-        Map<String, String> result = new HashMap<>();
-
-        List<String> files = new ArrayList<>(targets);
-        files.addAll(targets.stream().map(target -> target + ".yaml").collect(Collectors.toList()));
-
-        runtimes.forEach(runtime -> {
-            files.forEach(file -> {
-                String templateName = runtime + "-" + file;
-                String templatePath = "/pipelines/" + templateName;
-                String templateText = getResourceFile(templatePath);
-                result.put(templateName, templateText);
-            });
-        });
         return result;
     }
 

@@ -18,18 +18,13 @@ package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.model.*;
 import io.smallrye.mutiny.tuples.Tuple2;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.api.KameletResources;
-import org.apache.camel.karavan.docker.model.DockerComposeService;
 import org.apache.camel.karavan.docker.model.HealthCheckConfig;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.service.CodeService;
-import org.yaml.snakeyaml.Yaml;
 
-import jakarta.inject.Inject;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.Instant;
@@ -38,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
 import static org.apache.camel.karavan.shared.Constants.LABEL_TYPE;
 
 public class DockerServiceUtils {
@@ -47,17 +43,14 @@ public class DockerServiceUtils {
     protected static final DecimalFormat formatGiB = new DecimalFormat("0.00");
     protected static final Map<String, Tuple2<Long, Long>> previousStats = new ConcurrentHashMap<>();
 
-    @Inject
-    CodeService codeService;
-
-
     protected ContainerStatus getContainerStatus(Container container, String environment) {
         String name = container.getNames()[0].replace("/", "");
         List<Integer> ports = Arrays.stream(container.getPorts()).map(ContainerPort::getPrivatePort).filter(Objects::nonNull).collect(Collectors.toList());
         List<ContainerStatus.Command> commands = getContainerCommand(container.getState());
         ContainerStatus.ContainerType type = getContainerType(container.getLabels());
         String created = Instant.ofEpochSecond(container.getCreated()).toString();
-        return ContainerStatus.createWithId(name, environment, container.getId(), container.getImage(), ports, type, commands, container.getState(), created);
+        String projectId = container.getLabels().getOrDefault(LABEL_PROJECT_ID, name);
+        return ContainerStatus.createWithId(projectId, name, environment, container.getId(), container.getImage(), ports, type, commands, container.getState(), created);
     }
 
     protected void updateStatistics(ContainerStatus containerStatus, Container container, Statistics stats) {
@@ -141,6 +134,8 @@ public class DockerServiceUtils {
             return ContainerStatus.ContainerType.project;
         } else if (Objects.equals(type, ContainerStatus.ContainerType.internal.name())) {
             return ContainerStatus.ContainerType.internal;
+        } else if (Objects.equals(type, ContainerStatus.ContainerType.build.name())) {
+            return ContainerStatus.ContainerType.build;
         }
         return ContainerStatus.ContainerType.unknown;
     }

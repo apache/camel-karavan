@@ -78,6 +78,7 @@ export class ContainerStatus {
     memoryInfo: string = '';
     cpuInfo: string = '';
     created: string = '';
+    finished: string = '';
     image: string = '';
     ports: [] = [];
     commands: string [] = [];

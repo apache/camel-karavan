@@ -24,7 +24,6 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.core.InvocationBuilder;
-import com.github.dockerjava.core.util.CompressArchiveUtil;
 import com.github.dockerjava.transport.DockerHttpClient;
 import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;
 import io.vertx.core.Vertx;
@@ -33,16 +32,14 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.docker.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import java.io.*;
-import java.nio.file.LinkOption;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
@@ -82,21 +79,21 @@ public class DockerService extends DockerServiceUtils {
     public List<ContainerStatus> collectContainersStatuses() {
         List<ContainerStatus> result = new ArrayList<>();
         getDockerClient().listContainersCmd().withShowAll(true).exec().forEach(container -> {
-            ContainerStatus containerStatus = getContainerStatus(container);
-            Statistics stats = getContainerStats(container.getId());
-            updateStatistics(containerStatus, container, stats);
+            ContainerStatus containerStatus = getContainerStatus(container, environment);
             result.add(containerStatus);
         });
         return result;
     }
 
-    private ContainerStatus getContainerStatus(Container container) {
-        String name = container.getNames()[0].replace("/", "");
-        List<Integer> ports = Arrays.stream(container.getPorts()).map(ContainerPort::getPrivatePort).filter(Objects::nonNull).collect(Collectors.toList());
-        List<ContainerStatus.Command> commands = getContainerCommand(container.getState());
-        ContainerStatus.ContainerType type = getContainerType(container.getLabels());
-        String created = Instant.ofEpochSecond(container.getCreated()).toString();
-        return ContainerStatus.createWithId(name, environment, container.getId(), container.getImage(), ports, type, commands, container.getState(), created);
+    public List<ContainerStatus> collectContainersStatistics() {
+        List<ContainerStatus> result = new ArrayList<>();
+        getDockerClient().listContainersCmd().withShowAll(true).exec().forEach(container -> {
+            ContainerStatus containerStatus = getContainerStatus(container, environment);
+            Statistics stats = getContainerStats(container.getId());
+            updateStatistics(containerStatus, container, stats);
+            result.add(containerStatus);
+        });
+        return result;
     }
 
     public void startListeners() {
@@ -165,7 +162,7 @@ public class DockerService extends DockerServiceUtils {
 
     public Container createContainer(String name, String image, List<String> env, Map<Integer, Integer> ports,
                                      HealthCheck healthCheck, Map<String, String> labels,
-                                     Map<String, String> volumes) throws InterruptedException {
+                                     Map<String, String> volumes, String... command) throws InterruptedException {
         List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
         if (containers.size() == 0) {
             pullImage(image);
@@ -181,7 +178,10 @@ public class DockerService extends DockerServiceUtils {
                     mounts.add(new Mount().withType(MountType.BIND).withSource(hostPath).withTarget(containerPath));
                 });
             }
-//            createContainerCmd.withExposedPorts(exposedPorts);
+            if (command.length > 0) {
+                createContainerCmd.withCmd(command);
+            }
+
             createContainerCmd.withHostConfig(new HostConfig()
                     .withPortBindings(portBindings)
                             .withMounts(mounts)
@@ -244,11 +244,38 @@ public class DockerService extends DockerServiceUtils {
         dockerClient.execStartCmd(id).exec(callBack).awaitCompletion();
     }
 
-    public void copyFiles(String containerId, String containerPath, Map<String, String> files) throws IOException {
+    public void copyFiles(String containerId, String containerPath, Map<String, String> files) {
             String temp = vertx.fileSystem().createTempDirectoryBlocking(containerId);
             files.forEach((fileName, code) -> addFile(temp, fileName, code));
             dockerClient.copyArchiveToContainerCmd(containerId).withRemotePath(containerPath)
                     .withDirChildrenOnly(true).withHostResource(temp).exec();
+    }
+
+    public void copyExecFile(String containerId, String containerPath, String filename, String script) {
+        String temp = vertx.fileSystem().createTempDirectoryBlocking(containerId);
+        String path = temp + File.separator + filename;
+        vertx.fileSystem().writeFileBlocking(path, Buffer.buffer(script));
+
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                TarArchiveOutputStream tarArchive = new TarArchiveOutputStream(byteArrayOutputStream)) {
+            tarArchive.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
+            tarArchive.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
+
+            TarArchiveEntry tarEntry = new TarArchiveEntry(new File(path));
+            tarEntry.setName(filename);
+            tarEntry.setMode(0700);
+            tarArchive.putArchiveEntry(tarEntry);
+            IOUtils.write(Files.readAllBytes(Paths.get(path)), tarArchive);
+            tarArchive.closeArchiveEntry();
+            tarArchive.finish();
+
+            dockerClient.copyArchiveToContainerCmd(containerId)
+                    .withTarInputStream(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()))
+                    .withRemotePath(containerPath).exec();
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void addFile(String temp, String fileName, String code) {

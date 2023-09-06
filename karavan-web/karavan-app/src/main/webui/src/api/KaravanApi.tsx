@@ -257,6 +257,15 @@ export class KaravanApi {
         });
     }
 
+    static async buildProject(project: Project, environment: string, after: (res: AxiosResponse<any>) => void) {
+        instance.post('/api/project/build', project)
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    }
+
     static async getFiles(projectId: string, after: (files: ProjectFile[]) => void) {
         instance.get('/api/file/' + projectId)
             .then(res => {
@@ -382,8 +391,8 @@ export class KaravanApi {
         });
     }
 
-    static async stopPipelineRun(environment: string, pipelineRunName: string, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/infrastructure/pipelinerun/' + environment + "/" + pipelineRunName)
+    static async stopBuild(environment: string, buildName: string, after: (res: AxiosResponse<any>) => void) {
+        instance.delete('/api/project/build/' + environment + "/" + buildName)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -603,7 +612,7 @@ export class KaravanApi {
         });
     }
 
-    static async fetchData(type: 'container' | 'pipeline' | 'none', podName: string, controller: AbortController) {
+    static async fetchData(type: 'container' | 'build' | 'none', podName: string, controller: AbortController) {
         const fetchData = async () => {
             await fetchEventSource("/api/logwatch/" + type + "/" + podName, {
                 method: "GET",

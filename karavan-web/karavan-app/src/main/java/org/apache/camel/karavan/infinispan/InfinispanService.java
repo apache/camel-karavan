@@ -17,9 +17,7 @@
 package org.apache.camel.karavan.infinispan;
 
 import io.smallrye.mutiny.tuples.Tuple2;
-import io.vertx.core.eventbus.EventBus;
 import jakarta.enterprise.inject.Default;
-import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.apache.camel.karavan.infinispan.model.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -60,9 +58,6 @@ public class InfinispanService implements HealthCheck {
     @ConfigProperty(name = "karavan.infinispan.password")
     String infinispanPassword;
 
-    @Inject
-    EventBus eventBus;
-
     private RemoteCache<GroupedKey, Project> projects;
     private RemoteCache<GroupedKey, ProjectFile> files;
     private RemoteCache<GroupedKey, PipelineStatus> pipelineStatuses;
@@ -71,7 +66,6 @@ public class InfinispanService implements HealthCheck {
     private RemoteCache<GroupedKey, Boolean> transits;
     private RemoteCache<GroupedKey, ServiceStatus> serviceStatuses;
     private RemoteCache<GroupedKey, CamelStatus> camelStatuses;
-    private RemoteCache<String, String> commits;
     private final AtomicBoolean ready = new AtomicBoolean(false);
 
     private RemoteCacheManager cacheManager;
@@ -111,7 +105,6 @@ public class InfinispanService implements HealthCheck {
             deploymentStatuses = getOrCreateCache(DeploymentStatus.CACHE);
             serviceStatuses = getOrCreateCache(ServiceStatus.CACHE);
             camelStatuses = getOrCreateCache(CamelStatus.CACHE);
-            commits = getOrCreateCache("commits");
             transits = getOrCreateCache("transits");
             deploymentStatuses = getOrCreateCache(DeploymentStatus.CACHE);
 
@@ -348,25 +341,6 @@ public class InfinispanService implements HealthCheck {
             camelStatuses.remove(key);
         });
     }
-
-    public void saveCommit(String commitId, int time) {
-        commits.put(commitId, String.valueOf(time));
-    }
-
-    public void saveLastCommit(String commitId) {
-        commits.put("lastCommitId", commitId);
-    }
-
-    public Tuple2<String, Integer> getLastCommit() {
-        String lastCommitId = commits.get("lastCommitId");
-        String time = commits.get(lastCommitId);
-        return Tuple2.of(lastCommitId, Integer.parseInt(time));
-    }
-
-    public boolean hasCommit(String commitId) {
-        return commits.get(commitId) != null;
-    }
-
 
     public List<ContainerStatus> getLoadedDevModeStatuses() {
         QueryFactory queryFactory = Search.getQueryFactory(containerStatuses);
