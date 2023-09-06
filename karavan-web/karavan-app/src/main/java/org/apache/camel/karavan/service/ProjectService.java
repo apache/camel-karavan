@@ -93,9 +93,9 @@ public class ProjectService implements HealthCheck {
     @Override
     public HealthCheckResponse call() {
         if (ready.get()) {
-            return HealthCheckResponse.named("project").up().build();
+            return HealthCheckResponse.named("Projects").up().build();
         } else {
-            return HealthCheckResponse.named("project").down().build();
+            return HealthCheckResponse.named("Projects").down().build();
         }
     }
 

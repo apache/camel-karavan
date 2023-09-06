@@ -16,14 +16,13 @@
  */
 package org.apache.camel.karavan.api;
 
-import org.apache.camel.karavan.shared.ConfigService;
-
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.apache.camel.karavan.shared.ConfigService;
 
 @Path("/api/configuration")
 public class ConfigurationResource {

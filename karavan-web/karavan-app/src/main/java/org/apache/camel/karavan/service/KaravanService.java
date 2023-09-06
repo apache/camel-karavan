@@ -18,6 +18,7 @@ package org.apache.camel.karavan.service;
 
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.ShutdownEvent;
+import io.quarkus.runtime.Startup;
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.eventbus.EventBus;
@@ -30,14 +31,19 @@ import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.health.HealthCheck;
+import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.Liveness;
 import org.jboss.logging.Logger;
 
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import java.io.IOException;
 
+@Startup
+@Liveness
 @Singleton
-public class KaravanService {
+public class KaravanService implements HealthCheck {
 
     private static final Logger LOGGER = Logger.getLogger(KaravanService.class.getName());
 
@@ -77,6 +83,11 @@ public class KaravanService {
     private static final String START_KUBERNETES_LISTENERS = "START_KUBERNETES_LISTENERS";
     private static final String START_INTERNAL_DOCKER_SERVICES = "START_INTERNAL_DOCKER_SERVICES";
     private static final String START_SERVICES = "START_SERVICES";
+
+    @Override
+    public HealthCheckResponse call() {
+        return HealthCheckResponse.up("Karavan");
+    }
 
     void onStart(@Observes StartupEvent ev) throws Exception {
         if (!ConfigService.inKubernetes()) {

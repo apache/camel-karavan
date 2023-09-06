@@ -25,6 +25,7 @@ public class Configuration {
     private List<String> environments;
     private String runtime;
     private List<String> runtimes;
+    private List<Object> status;
 
     public Configuration() {
     }
@@ -84,5 +85,13 @@ public class Configuration {
 
     public void setRuntimes(List<String> runtimes) {
         this.runtimes = runtimes;
+    }
+
+    public List<Object> getStatus() {
+        return status;
+    }
+
+    public void setStatus(List<Object> status) {
+        this.status = status;
     }
 }

@@ -128,12 +128,12 @@ public class KubernetesService implements HealthCheck {
     public HealthCheckResponse call() {
         if (ConfigService.inKubernetes()) {
             if (informers.size() == INFORMERS) {
-                return HealthCheckResponse.named("kubernetes").withData("mode", "kubernetes").up().build();
+                return HealthCheckResponse.named("Kubernetes").up().build();
             } else {
-                return HealthCheckResponse.named("kubernetes").down().build();
+                return HealthCheckResponse.named("Kubernetes").down().build();
             }
         } else {
-            return HealthCheckResponse.named("kubernetes").withData("mode", "kubernetesless").up().build();
+            return HealthCheckResponse.named("Kubernetesless").up().build();
         }
     }
 

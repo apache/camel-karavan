@@ -85,7 +85,7 @@ export class KaravanApi {
     }
 
     static async getReadiness(after: (readiness: any) => void) {
-        axios.get('/q/health/ready', {headers: {'Accept': 'application/json'}})
+        axios.get('/public/readiness', {headers: {'Accept': 'application/json'}})
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);

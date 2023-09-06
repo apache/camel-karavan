@@ -1,7 +1,17 @@
-import {Routes, Route, Navigate} from 'react-router-dom';
+import {Navigate, Route, Routes} from 'react-router-dom';
 import React, {useEffect, useRef} from "react";
 import {KaravanApi} from "../api/KaravanApi";
-import {Bullseye, Flex, FlexItem, Page, Spinner} from "@patternfly/react-core";
+import {
+    Bullseye, capitalize,
+    Flex,
+    FlexItem,
+    Page,
+    ProgressStep,
+    ProgressStepper,
+    Spinner,
+    Tooltip,
+    TooltipPosition
+} from "@patternfly/react-core";
 import Icon from "../Logo";
 import {MainLogin} from "./MainLogin";
 import {DashboardPage} from "../dashboard/DashboardPage";
@@ -20,10 +30,10 @@ import {TemplatesPage} from "../templates/TemplatesPage";
 import {EventBus} from "../designer/utils/EventBus";
 import {Notification} from "../designer/utils/Notification";
 
-export function Main () {
+export function Main() {
 
-    const [config] = useAppConfigStore((state) => [state.config], shallow)
-    const { getData, getStatuses } = useMainHook();
+    const [config, readiness] = useAppConfigStore((s) => [s.config, s.readiness], shallow)
+    const {getData, getStatuses} = useMainHook();
 
     const initialized = useRef(false)
 
@@ -57,14 +67,50 @@ export function Main () {
         EventBus.sendAlert(title, text, variant)
     }
 
+    function showSpinner() {
+        return KaravanApi.authType === undefined || readiness === undefined;
+    }
+
+    function showStepper() {
+        return readiness !== undefined && readiness.status !== true;
+    }
+
+    function getStepper() {
+        const steps: any[] = Array.isArray(readiness.checks) ? readiness.checks : [];
+        return (
+            <Bullseye className="">
+                <ProgressStepper aria-label="Readiness progress" isCenterAligned isVertical >
+                    {steps.map(step => (
+                        <ProgressStep
+                            variant={step.status === 'UP' ? "success" : "info"}
+                            id={step.name}
+                            titleId={step.name}
+                            aria-label={step.name}
+                        >
+                            {step.name}
+                        </ProgressStep>
+                    ))}
+                </ProgressStepper>
+            </Bullseye>
+        )
+    }
+
+    function showMain() {
+        return !showStepper() && !showSpinner() && (KaravanApi.isAuthorized || KaravanApi.authType === 'public');
+    }
+
     return (
         <Page className="karavan">
-            {KaravanApi.authType === undefined &&
+            {showSpinner() &&
                 <Bullseye className="loading-page">
                     <Spinner className="spinner" diameter="140px" aria-label="Loading..."/>
-                    <div className="logo-placeholder">{Icon()}</div>
-                </Bullseye>}
-            {(KaravanApi.isAuthorized || KaravanApi.authType === 'public') &&
+                    <Tooltip content="Connecting to server..." position={TooltipPosition.bottom}>
+                        <div className="logo-placeholder">{Icon()}</div>
+                    </Tooltip>
+                </Bullseye>
+            }
+            {showStepper() && getStepper()}
+            {showMain() &&
                 <Flex direction={{default: "row"}} style={{width: "100%", height: "100%"}}
                       alignItems={{default: "alignItemsStretch"}} spaceItems={{default: 'spaceItemsNone'}}>
                     <FlexItem>

@@ -7,6 +7,7 @@ export class AppConfig {
     environments: string[] = [];
     runtime: string = '';
     runtimes: string[] = [];
+    status: any[] = [];
 }
 
 export enum ProjectType {

@@ -16,6 +16,8 @@
  */
 package org.apache.camel.karavan.api;
 
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.AuthService;
 
 import jakarta.inject.Inject;
@@ -24,12 +26,28 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.apache.camel.karavan.service.ProjectService;
+import org.apache.camel.karavan.shared.Configuration;
+import org.eclipse.microprofile.health.HealthCheckResponse;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Path("/public")
 public class AuthResource {
 
     @Inject
     AuthService authService;
+
+    @Inject
+    ProjectService projectService;
+
+    @Inject
+    KubernetesService kubernetesService;
+
+    @Inject
+    InfinispanService infinispanService;
 
     @GET
     @Path("/auth")
@@ -43,5 +61,20 @@ public class AuthResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response ssoConfig() throws Exception {
         return Response.ok(authService.getSsoConfig()).build();
+    }
+
+    @GET
+    @Path("/readiness")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getConfiguration() throws Exception {
+        List<HealthCheckResponse> list = List.of(
+                infinispanService.call(),
+                kubernetesService.call(),
+                projectService.call()
+        );
+        return Response.ok(Map.of(
+                "status", list.stream().allMatch(h -> Objects.equals(h.getStatus(), HealthCheckResponse.Status.UP)),
+                "checks", list
+        )).build();
     }
 }

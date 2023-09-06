@@ -385,9 +385,9 @@ public class InfinispanService implements HealthCheck {
     @Override
     public HealthCheckResponse call() {
         if (isReady()) {
-            return HealthCheckResponse.named("infinispan").up().build();
+            return HealthCheckResponse.named("Infinispan").up().build();
         } else {
-            return HealthCheckResponse.named("infinispan").down().build();
+            return HealthCheckResponse.named("Infinispan").down().build();
         }
     }
 }
