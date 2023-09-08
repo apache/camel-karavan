@@ -30,8 +30,8 @@ const outgoingDefinitions: string[] = ['ToDefinition', 'KameletDefinition', 'ToD
 export function DslConnections() {
 
     const [integration] = useIntegrationStore((state) => [state.integration], shallow)
-    const [width, height, top, left] = useDesignerStore((s) =>
-        [s.width, s.height, s.top, s.left], shallow)
+    const [width, height, top, left, hideLogDSL] = useDesignerStore((s) =>
+        [s.width, s.height, s.top, s.left, s.hideLogDSL], shallow)
     const [ steps, addStep, deleteStep, clearSteps] = useConnectionsStore((s) => [s.steps, s.addStep, s.deleteStep, s.clearSteps], shallow)
 
     useEffect(() => {

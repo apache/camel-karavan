@@ -133,19 +133,19 @@ export function KaravanDesigner (props: Props) {
                     <Tab eventKey='rest' title={getTab("REST", "REST services", "rest")}></Tab>
                     <Tab eventKey='beans' title={getTab("Beans", "Beans Configuration", "beans")}></Tab>
                 </Tabs>
-                {tab === 'routes' && <Tooltip content={"Hide Log elements"}>
-                    <Switch
-                        isReversed
-                        isChecked={hideLogDSL}
-                        onChange={(_, checked) => {
-                            setHideLogDSL(checked)
-                        }}
-                        aria-label={"Hide Log"}
-                        id="hideLogDSL"
-                        name="hideLogDSL"
-                        className={"hide-log"}
-                    />
-                </Tooltip>}
+                {/*{tab === 'routes' && <Tooltip content={"Hide Log elements"}>*/}
+                {/*    <Switch*/}
+                {/*        isReversed*/}
+                {/*        isChecked={hideLogDSL}*/}
+                {/*        onChange={(_, checked) => {*/}
+                {/*            setHideLogDSL(checked)*/}
+                {/*        }}*/}
+                {/*        aria-label={"Hide Log"}*/}
+                {/*        id="hideLogDSL"*/}
+                {/*        name="hideLogDSL"*/}
+                {/*        className={"hide-log"}*/}
+                {/*    />*/}
+                {/*</Tooltip>}*/}
             </div>
             {tab === 'routes' && <RouteDesigner/>}
             {tab === 'rest' && <RestDesigner/>}
