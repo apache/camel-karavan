@@ -528,6 +528,18 @@ export class KaravanApi {
         });
     }
 
+    static async deleteImage(imageName: string, after: () => void) {
+        instance.delete('/api/image/' + Buffer.from(imageName).toString('base64'))
+            .then(res => {
+                console.log(res.status)
+                if (res.status === 200) {
+                    after();
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    }
+
     static async getSecrets(after: (any: []) => void) {
         instance.get('/api/infrastructure/secrets')
             .then(res => {

@@ -393,5 +393,10 @@ public class DockerService extends DockerServiceUtils {
     }
 
     public void deleteImage(String imageName) {
+        Optional<Image> image = getDockerClient().listImagesCmd().withShowAll(true).exec().stream()
+                .filter(i -> Arrays.stream(i.getRepoTags()).anyMatch(s -> Objects.equals(s, imageName))).findFirst();
+        if (image.isPresent()) {
+            getDockerClient().removeImageCmd(image.get().getId()).exec();
+        }
     }
 }

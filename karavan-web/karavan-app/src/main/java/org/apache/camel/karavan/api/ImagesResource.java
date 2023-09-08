@@ -26,6 +26,7 @@ import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.service.ProjectService;
 import org.apache.camel.karavan.service.RegistryService;
+import org.jose4j.base64url.Base64;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -73,6 +74,8 @@ public class ImagesResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{imageName}")
     public Response deleteImage(@HeaderParam("username") String username, @PathParam("imageName") String imageName) {
+        imageName= new String(Base64.decode(imageName));
+        System.out.println(imageName);
         if (ConfigService.inKubernetes()) {
             return Response.ok().build();
         } else {
