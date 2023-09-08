@@ -30,7 +30,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.docker.model.DockerComposeService;
+import org.apache.camel.karavan.code.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -41,7 +41,6 @@ import org.jboss.logging.Logger;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 

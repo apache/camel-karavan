@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.infinispan.model;
+package org.apache.camel.karavan.git.model;
 
 public class GitRepoFile {
     private String name;

@@ -21,11 +21,12 @@ import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
 import {ProjectModel, ProjectProperty} from "karavan-core/lib/model/ProjectModel";
+import {BuildToolbar} from "./BuildToolbar";
 
 
 export function ProjectToolbar () {
 
-    const [project, isPushing] = useProjectStore((state) => [state.project, state.isPushing], shallow )
+    const [project, isPushing, tabIndex] = useProjectStore((s) => [s.project, s.isPushing, s.tabIndex], shallow )
     const [file, editAdvancedProperties, setEditAdvancedProperties, setAddProperty, mode, setMode]
         = useFileStore((state) =>
         [state.file, state.editAdvancedProperties, state.setEditAdvancedProperties, state.setAddProperty, state.mode, state.setMode], shallow )
@@ -108,6 +109,7 @@ export function ProjectToolbar () {
         return (<Toolbar id="toolbar-group-types">
             <ToolbarContent>
                 {isRunnable() && <DevModeToolbar/>}
+                {isBuild() && <BuildToolbar/>}
             </ToolbarContent>
         </Toolbar>)
     }
@@ -125,7 +127,11 @@ export function ProjectToolbar () {
     }
 
     function isRunnable(): boolean {
-        return !isKameletsProject() && !isTemplatesProject() && !isServicesProject();
+        return !isKameletsProject() && !isTemplatesProject() && !isServicesProject() && tabIndex !== 'build';
+    }
+
+    function isBuild(): boolean {
+        return !isKameletsProject() && !isTemplatesProject() && !isServicesProject() && tabIndex === 'build';
     }
 
     function allowAddFiles(): boolean {

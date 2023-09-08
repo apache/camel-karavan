@@ -12,13 +12,11 @@ import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.jboss.logging.Logger;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
-import static org.apache.camel.karavan.service.CodeService.DEFAULT_CONTAINER_RESOURCES;
+import static org.apache.camel.karavan.code.CodeService.DEFAULT_CONTAINER_RESOURCES;
 import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
-import static org.apache.camel.karavan.shared.Constants.RELOAD_TRY_COUNT;
-import static org.apache.camel.karavan.shared.EventType.CONTAINER_STATUS;
+import static org.apache.camel.karavan.service.ContainerStatusService.CONTAINER_STATUS;
 
 public class PodEventHandler implements ResourceEventHandler<Pod> {
 
@@ -55,10 +53,10 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
                 if (ps != null) {
                     eventBus.send(CONTAINER_STATUS, JsonObject.mapFrom(ps));
                     if (Objects.equals(ps.getState(), ContainerStatus.State.running.name())) {
-                        Map<String, Object> message = Map.of(
-                                LABEL_PROJECT_ID, ps.getProjectId(),
-                                RELOAD_TRY_COUNT, 1
-                        );
+//                        Map<String, Object> message = Map.of(
+//                                LABEL_PROJECT_ID, ps.getProjectId(),
+//                                RELOAD_TRY_COUNT, 1
+//                        );
 //                        eventBus.publish(DEVMODE_CONTAINER_READY, JsonObject.mapFrom(message));
                     }
                 }

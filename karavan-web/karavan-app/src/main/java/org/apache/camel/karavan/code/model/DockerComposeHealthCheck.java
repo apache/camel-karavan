@@ -1,8 +1,8 @@
-package org.apache.camel.karavan.docker.model;
+package org.apache.camel.karavan.code.model;
 
 import java.util.List;
 
-public class HealthCheckConfig {
+public class DockerComposeHealthCheck {
 
     private String interval;
     private Integer retries;
@@ -10,7 +10,7 @@ public class HealthCheckConfig {
     private String start_period;
     private List<String> test;
 
-    public HealthCheckConfig() {
+    public DockerComposeHealthCheck() {
     }
 
     public String getInterval() {

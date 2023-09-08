@@ -18,13 +18,16 @@ package org.apache.camel.karavan.service;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
+import org.apache.camel.karavan.code.CodeService;
+import org.apache.camel.karavan.code.DockerComposeConverter;
 import org.apache.camel.karavan.docker.DockerForKaravan;
-import org.apache.camel.karavan.docker.model.DockerComposeService;
+import org.apache.camel.karavan.code.model.DockerComposeService;
+import org.apache.camel.karavan.git.GitService;
+import org.apache.camel.karavan.git.model.GitConfig;
+import org.apache.camel.karavan.git.model.GitRepo;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.*;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.shared.ConfigService;
-import org.apache.camel.karavan.shared.EventType;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.Retry;
@@ -42,8 +45,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.service.CodeService.DEV_SERVICES_FILENAME;
-import static org.apache.camel.karavan.service.CodeService.PROJECT_COMPOSE_FILENAME;
+import static org.apache.camel.karavan.code.CodeService.DEV_SERVICES_FILENAME;
+import static org.apache.camel.karavan.code.CodeService.PROJECT_COMPOSE_FILENAME;
 
 @Default
 @Readiness
@@ -99,7 +102,7 @@ public class ProjectService implements HealthCheck {
 
         if (!Objects.equals(status.getState(), ContainerStatus.State.running.name())) {
             status.setInTransit(true);
-            eventBus.send(EventType.CONTAINER_STATUS, JsonObject.mapFrom(status));
+            eventBus.send(ContainerStatusService.CONTAINER_STATUS, JsonObject.mapFrom(status));
 
             if (ConfigService.inKubernetes()) {
                 kubernetesService.runDevModeContainer(project, jBangOptions);
@@ -108,7 +111,7 @@ public class ProjectService implements HealthCheck {
                         .filter(f -> !Objects.equals(f.getName(), PROJECT_COMPOSE_FILENAME))
                         .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::getCode));
                 ProjectFile compose = infinispanService.getProjectFile(project.getProjectId(), PROJECT_COMPOSE_FILENAME);
-                DockerComposeService dcs = codeService.convertToDockerComposeService(compose.getCode(), project.getProjectId());
+                DockerComposeService dcs = DockerComposeConverter.fromCode(compose.getCode(), project.getProjectId());
                 dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, dcs.getPortsMap(), files);
             }
             return containerName;
@@ -117,7 +120,7 @@ public class ProjectService implements HealthCheck {
         }
     }
 
-    public String buildProject(Project project) throws Exception {
+    public String buildProject(Project project, String tag) throws Exception {
         if (ConfigService.inKubernetes()) {
             return kubernetesService.createPipelineRun(project);
         } else {
@@ -128,7 +131,10 @@ public class ProjectService implements HealthCheck {
             String templateName = project.getRuntime() + "-builder-script-docker.sh";
             String script = codeService.getTemplateText(templateName);
 
-            String tag = Instant.now().toString().substring(0, 19).replace(":", "-");
+            tag = tag != null && !tag.isEmpty() && !tag.isBlank()
+                    ? tag
+                    : Instant.now().toString().substring(0, 19).replace(":", "-");
+
             List<String> env = getEnvForBuild(project, tag);
             Map<String, String> volumes = mavenCache
                     .map(s -> Map.of(s, "/root/.m2"))
@@ -152,6 +158,35 @@ public class ProjectService implements HealthCheck {
                 "TAG=" + tag
         ));
         return env;
+    }
+
+    public List<Project> getAllProjects(String type) {
+        if (infinispanService.isReady()) {
+            List<ProjectFile> files = infinispanService.getProjectFilesByName(PROJECT_COMPOSE_FILENAME);
+            return infinispanService.getProjects().stream()
+                    .filter(p -> type == null || Objects.equals(p.getType().name(), type))
+                    .sorted(Comparator.comparing(Project::getProjectId))
+                    .map(project -> {
+                        if (Objects.equals(project.getType(), Project.Type.normal)) {
+                            project.setImage(getImage(files, project.getProjectId()));
+                        }
+                        return project;
+                    })
+                    .collect(Collectors.toList());
+        } else {
+            return List.of();
+        }
+    }
+
+    private String getImage(List<ProjectFile> files, String projectId) {
+        Optional<ProjectFile> file = files.stream().filter(f -> Objects.equals(f.getProjectId(), projectId)).findFirst();
+        if (file.isPresent()) {
+            DockerComposeService service = DockerComposeConverter.fromCode(file.get().getCode(), projectId);
+            String image =  service.getImage();
+            return Objects.equals(image, projectId) ? null : image;
+        } else {
+            return null;
+        }
     }
 
     public Project save(Project project) throws Exception {
@@ -342,5 +377,17 @@ public class ProjectService implements HealthCheck {
         List<ProjectFile> files = infinispanService.getProjectFiles(Project.Type.services.name());
         Optional<ProjectFile> file = files.stream().filter(f -> f.getName().equals(DEV_SERVICES_FILENAME)).findFirst();
         return file.orElse(new ProjectFile()).getCode();
+    }
+
+    public void setProjectImage(String projectId, String imageName) {
+        ProjectFile file = infinispanService.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
+        if (file != null) {
+            DockerComposeService service = DockerComposeConverter.fromCode(file.getCode(), projectId);
+            service.setImage(imageName);
+            String code = DockerComposeConverter.toCode(service);
+            System.out.println(code);
+            file.setCode(code);
+            infinispanService.saveProjectFile(file);
+        }
     }
 }

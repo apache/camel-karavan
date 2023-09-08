@@ -19,7 +19,7 @@ package org.apache.camel.karavan.docker;
 import com.github.dockerjava.api.model.*;
 import io.smallrye.mutiny.tuples.Tuple2;
 import org.apache.camel.karavan.api.KameletResources;
-import org.apache.camel.karavan.docker.model.HealthCheckConfig;
+import org.apache.camel.karavan.code.model.DockerComposeHealthCheck;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 
 import java.io.BufferedReader;
@@ -62,7 +62,7 @@ public class DockerServiceUtils {
         }
     }
 
-    protected HealthCheck getHealthCheck(HealthCheckConfig config) {
+    protected HealthCheck getHealthCheck(DockerComposeHealthCheck config) {
         if (config != null) {
             HealthCheck healthCheck = new HealthCheck().withTest(config.getTest());
             if (config.getInterval() != null) {

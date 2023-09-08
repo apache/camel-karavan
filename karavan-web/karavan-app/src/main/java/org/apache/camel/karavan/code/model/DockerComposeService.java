@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.docker.model;
+package org.apache.camel.karavan.code.model;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -12,7 +12,7 @@ public class DockerComposeService {
     private List<String> expose;
     private List<String> depends_on;
     private Map<String,String> environment;
-    private HealthCheckConfig healthcheck;
+    private DockerComposeHealthCheck healthcheck;
 
     public DockerComposeService() {
     }
@@ -96,11 +96,11 @@ public class DockerComposeService {
         this.environment = environment;
     }
 
-    public HealthCheckConfig getHealthcheck() {
+    public DockerComposeHealthCheck getHealthcheck() {
         return healthcheck;
     }
 
-    public void setHealthcheck(HealthCheckConfig healthcheck) {
+    public void setHealthcheck(DockerComposeHealthCheck healthcheck) {
         this.healthcheck = healthcheck;
     }
 

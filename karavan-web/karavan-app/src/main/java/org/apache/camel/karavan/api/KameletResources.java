@@ -19,7 +19,7 @@ package org.apache.camel.karavan.api;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.infinispan.model.ProjectFile;
-import org.apache.camel.karavan.service.CodeService;
+import org.apache.camel.karavan.code.CodeService;
 import org.yaml.snakeyaml.Yaml;
 
 import jakarta.inject.Inject;
@@ -47,7 +47,7 @@ public class KameletResources {
         StringBuilder kamelets = new StringBuilder(codeService.getResourceFile("/kamelets/kamelets.yaml"));
         if (infinispanService.isReady()) {
             List<ProjectFile> custom = infinispanService.getProjectFiles(Project.Type.kamelets.name());
-            if (custom.size() > 0) {
+            if (!custom.isEmpty()) {
                 kamelets.append("\n---\n");
                 kamelets.append(custom.stream()
                         .map(ProjectFile::getCode)

@@ -30,7 +30,7 @@ export function MainDataPoller () {
         return () => {
             clearInterval(interval);
         };
-    }, [project]);
+    }, [project, readiness]);
 
     function getData() {
         KaravanApi.getReadiness((r: any) => {

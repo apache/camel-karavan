@@ -16,7 +16,7 @@
  */
 package org.apache.camel.karavan.api;
 
-import org.apache.camel.karavan.service.CodeService;
+import org.apache.camel.karavan.code.CodeService;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;

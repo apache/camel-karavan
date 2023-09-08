@@ -20,10 +20,9 @@ import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.HealthCheck;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.docker.model.DockerComposeService;
+import org.apache.camel.karavan.code.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.service.RegistryService;
-import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -93,7 +92,6 @@ public class DockerForKaravan {
 
     public void syncImage(String projectId, String tag) throws InterruptedException {
         String image = registryService.getRegistryWithGroup() + "/" + projectId + ":" + tag;
-        System.out.println(image);
         dockerService.pullImage(image);
     }
 }

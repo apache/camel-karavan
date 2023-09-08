@@ -27,7 +27,6 @@ import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.jboss.logging.Logger;
@@ -35,20 +34,14 @@ import org.jboss.logging.Logger;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-
-import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
-import static org.apache.camel.karavan.shared.Constants.RELOAD_TRY_COUNT;
-import static org.apache.camel.karavan.shared.EventType.*;
 
 @ApplicationScoped
 public class CamelService {
 
     private static final Logger LOGGER = Logger.getLogger(CamelService.class.getName());
     public static final String CMD_COLLECT_CAMEL_STATUS = "collect-camel-status";
-    public static final String CMD_DELETE_CAMEL_STATUS = "delete-camel-status";
 
     @Inject
     InfinispanService infinispanService;
@@ -96,7 +89,7 @@ public class CamelService {
             reloadRequest(projectId);
             ContainerStatus containerStatus = infinispanService.getDevModeContainerStatus(projectId, environment);
             containerStatus.setCodeLoaded(true);
-            eventBus.send(CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
+            eventBus.send(ContainerStatusService.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }
@@ -143,7 +136,6 @@ public class CamelService {
                             cs.getType() == ContainerStatus.ContainerType.project
                             || cs.getType() == ContainerStatus.ContainerType.devmode
                     ).forEach(pod -> {
-                System.out.println(pod.getProjectId());
                 CamelStatusRequest csr = new CamelStatusRequest(pod.getProjectId(), pod.getContainerName());
                 eventBus.publish(CMD_COLLECT_CAMEL_STATUS, JsonObject.mapFrom(csr));
             });

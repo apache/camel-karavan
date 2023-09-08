@@ -25,9 +25,10 @@ export class Project {
     runtime: string = '';
     lastCommit: string = '';
     lastCommitTimestamp: number = 0;
-    type: string = ProjectType.normal
+    type: string = ProjectType.normal;
+    image: string = '';
 
-    public constructor(projectId: string, name: string, description: string, runtime: string, lastCommit: string, type: string);
+    public constructor(projectId: string, name: string, description: string, runtime: string, lastCommit: string, type: string, image: string);
     public constructor(init?: Partial<Project>);
     public constructor(...args: any[]) {
         if (args.length === 1) {
@@ -41,6 +42,7 @@ export class Project {
             this.lastCommit = args[4];
             this.lastCommitTimestamp = args[5];
             this.type = args[6];
+            this.image = args[7];
             return;
         }
     }
@@ -141,6 +143,7 @@ export const ProjectFileTypes: ProjectFileType[] = [
     new ProjectFileType("JSON", "JSON", "json"),
     new ProjectFileType("YAML", "YAML", "yaml"),
     new ProjectFileType("LOG", "Log", "log"),
+    new ProjectFileType("SH", "Script", "sh"),
 ];
 
 

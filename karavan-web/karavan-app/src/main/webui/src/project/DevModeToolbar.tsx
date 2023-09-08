@@ -76,18 +76,18 @@ export function DevModeToolbar (props: Props) {
                 </Button>
             </Tooltip>
         </FlexItem>}
-        {config.infrastructure !== 'kubernetes' &&
-            <FlexItem>
-                <Tooltip content="Stop container" position={TooltipPosition.bottom}>
-                    <Button size="sm"
-                            isDisabled={!commands.includes('stop') || inTransit}
-                            variant={"control"}
-                            icon={<StopIcon/>}
-                            onClick={() => ProjectService.stopDevModeContainer(project)}>
-                    </Button>
-                </Tooltip>
-            </FlexItem>
-        }
+        {/*{config.infrastructure !== 'kubernetes' &&*/}
+        {/*    <FlexItem>*/}
+        {/*        <Tooltip content="Stop container" position={TooltipPosition.bottom}>*/}
+        {/*            <Button size="sm"*/}
+        {/*                    isDisabled={!commands.includes('stop') || inTransit}*/}
+        {/*                    variant={"control"}*/}
+        {/*                    icon={<StopIcon/>}*/}
+        {/*                    onClick={() => ProjectService.stopDevModeContainer(project)}>*/}
+        {/*            </Button>*/}
+        {/*        </Tooltip>*/}
+        {/*    </FlexItem>*/}
+        {/*}*/}
         <FlexItem>
             <Tooltip content="Delete container" position={TooltipPosition.bottom}>
                 <Button size="sm"

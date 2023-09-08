@@ -19,7 +19,7 @@ package org.apache.camel.karavan.docker;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.service.CodeService;
+import org.apache.camel.karavan.code.CodeService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -51,7 +51,7 @@ public class DockerForInfinispan {
             dockerService.runContainer(INFINISPAN_CONTAINER_NAME);
             LOGGER.info("Infinispan is started");
         } catch (Exception e) {
-            LOGGER.error(e.getCause().getMessage());
+            LOGGER.error(e.getMessage());
         }
     }
 }

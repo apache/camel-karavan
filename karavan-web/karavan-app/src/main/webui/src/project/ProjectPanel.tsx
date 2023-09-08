@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {
     Flex,
     FlexItem, Tabs, Tab
@@ -11,11 +11,11 @@ import {TraceTab} from "./trace/TraceTab";
 import {ProjectBuildTab} from "./build/ProjectBuildTab";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
+import {ImagesPanel} from "./build/ImagesPanel";
 
 export function ProjectPanel () {
 
-    const [tab, setTab] = useState<string | number>('files');
-    const [project] = useProjectStore((state) => [state.project], shallow )
+    const [project,tab, setTab] = useProjectStore((s) => [s.project, s.tabIndex, s.setTabIndex], shallow );
 
     useEffect(() => {
         onRefresh();
@@ -32,7 +32,6 @@ export function ProjectPanel () {
     }
 
     const buildIn = isBuildIn();
-    const isCustomKamelets = project.projectId === 'kamelets';
     return (
         <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
             <FlexItem className="project-tabs">
@@ -51,6 +50,7 @@ export function ProjectPanel () {
                         {tab === 'dashboard' && project && <DashboardTab/>}
                         {tab === 'trace' && project && <TraceTab/>}
                         {tab === 'build' && <ProjectBuildTab/>}
+                        {tab === 'build' && <ImagesPanel/>}
                     </>
                 }
             </FlexItem>

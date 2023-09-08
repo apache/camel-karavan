@@ -22,8 +22,9 @@ export function ProjectPage () {
     const [mode, setMode] = useState<"design" | "code">("design");
     const [key, setKey] = useState<string>('');
     const [projects] = useProjectsStore((state) => [state.projects], shallow)
-    const [project, setProject] = useProjectStore((state) => [state.project, state.setProject], shallow )
+    const [project, setProject] = useProjectStore((s) => [s.project, s.setProject], shallow )
     let { projectId } = useParams();
+    const [tab, setTab] = useState<string | number>('files');
 
     useEffect(() => {
         const p = projects.filter(project => project.projectId === projectId).at(0);

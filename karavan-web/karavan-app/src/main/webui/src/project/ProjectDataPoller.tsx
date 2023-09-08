@@ -8,8 +8,8 @@ import {shallow} from "zustand/shallow";
 export function ProjectDataPoller () {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow)
-    const [project, setMemory, setJvm, setContext, refreshTrace, setTrace] = useProjectStore((s) =>
-        [s.project, s.setMemory, s.setJvm, s.setContext, s.refreshTrace, s.setTrace], shallow);
+    const [project, setMemory, setJvm, setContext, refreshTrace, setTrace, setImages] = useProjectStore((s) =>
+        [s.project, s.setMemory, s.setJvm, s.setContext, s.refreshTrace, s.setTrace, s.setImages], shallow);
 
     useEffect(() => {
         const interval = setInterval(() => onRefreshStatus(), 1000);
@@ -41,6 +41,9 @@ export function ProjectDataPoller () {
                 setContext({});
             }
         })
+        KaravanApi.getImages(project.projectId, (res: any) => {
+            setImages(res)
+        });
         if (refreshTrace) {
             KaravanApi.getDevModeStatus(projectId, "trace", res => {
                 if (res.status === 200) {

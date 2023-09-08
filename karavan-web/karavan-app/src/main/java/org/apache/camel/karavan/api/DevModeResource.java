@@ -30,10 +30,10 @@ import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.CamelService;
 import org.apache.camel.karavan.service.ProjectService;
-import org.apache.camel.karavan.shared.ConfigService;
+import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import static org.apache.camel.karavan.shared.EventType.CONTAINER_STATUS;
+import static org.apache.camel.karavan.service.ContainerStatusService.CONTAINER_STATUS;
 
 @Path("/api/devmode")
 public class DevModeResource {

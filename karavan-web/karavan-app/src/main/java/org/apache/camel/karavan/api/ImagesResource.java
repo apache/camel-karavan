@@ -16,10 +16,14 @@
  */
 package org.apache.camel.karavan.api;
 
+import io.vertx.core.json.JsonObject;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.docker.DockerService;
+import org.apache.camel.karavan.infinispan.model.Project;
+import org.apache.camel.karavan.service.ProjectService;
 import org.apache.camel.karavan.service.RegistryService;
 
 import java.util.List;
@@ -33,6 +37,9 @@ public class ImagesResource {
     @Inject
     RegistryService registryService;
 
+    @Inject
+    ProjectService projectService;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{projectId}")
@@ -40,5 +47,18 @@ public class ImagesResource {
                                  @PathParam("projectId") String projectId) throws Exception {
         String pattern = registryService.getRegistryWithGroup() + "/" + projectId;
         return dockerService.getImages().stream().filter(s -> s.startsWith(pattern)).toList();
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{projectId}")
+    public Response build(JsonObject imageName, @PathParam("projectId") String projectId) throws Exception {
+        try {
+            projectService.setProjectImage(projectId, imageName.getString("imageName"));
+            return Response.ok().entity(imageName).build();
+        } catch (Exception e) {
+            return Response.serverError().entity(e.getMessage()).build();
+        }
     }
 }

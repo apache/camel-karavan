@@ -21,11 +21,9 @@ import io.smallrye.context.api.ManagedExecutorConfig;
 import io.smallrye.context.api.NamedInstance;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.docker.LogCallback;
-import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.shared.ConfigService;
+import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.context.ManagedExecutor;
-import org.eclipse.microprofile.context.ThreadContext;
 import org.jboss.logging.Logger;
 
 import jakarta.inject.Inject;
@@ -41,7 +39,6 @@ import jakarta.ws.rs.sse.SseEventSink;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Path("/api/logwatch")

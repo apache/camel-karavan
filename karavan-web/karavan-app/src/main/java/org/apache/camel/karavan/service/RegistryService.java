@@ -17,9 +17,6 @@
 package org.apache.camel.karavan.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import org.apache.camel.karavan.infinispan.model.GitConfig;
-import org.apache.camel.karavan.infinispan.model.Project;
-import org.apache.camel.karavan.shared.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 

@@ -20,18 +20,19 @@ import io.smallrye.mutiny.Multi;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
+import org.apache.camel.karavan.code.DockerComposeConverter;
 import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.docker.model.DockerComposeService;
+import org.apache.camel.karavan.code.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.DeploymentStatus;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.infinispan.model.ServiceStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.service.CodeService;
+import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.service.ProjectService;
-import org.apache.camel.karavan.shared.ConfigService;
+import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -44,7 +45,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.shared.EventType.CONTAINER_STATUS;
+import static org.apache.camel.karavan.service.ContainerStatusService.CONTAINER_STATUS;
 
 @Path("/api/infrastructure")
 public class InfrastructureResource {
@@ -199,7 +200,7 @@ public class InfrastructureResource {
                 if (command.getString("command").equalsIgnoreCase("run")) {
                     if (Objects.equals(type, ContainerStatus.ContainerType.devservice.name())) {
                         String code = projectService.getDevServiceCode();
-                        DockerComposeService dockerComposeService = codeService.convertToDockerComposeService(code, name);
+                        DockerComposeService dockerComposeService = DockerComposeConverter.fromCode(code, name);
                         if (dockerComposeService != null) {
                             dockerForKaravan.createDevserviceContainer(dockerComposeService);
                             dockerService.runContainer(dockerComposeService.getContainer_name());

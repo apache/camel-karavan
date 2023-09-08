@@ -19,29 +19,23 @@ package org.apache.camel.karavan.api;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.GroupedKey;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.service.CodeService;
-import org.apache.camel.karavan.service.GitService;
+import org.apache.camel.karavan.git.GitService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.camel.karavan.service.ProjectService;
-import org.apache.camel.karavan.shared.ConfigService;
+import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static org.apache.camel.karavan.shared.Constants.BUILDER_SUFFIX;
 
 @Path("/api/project")
 public class ProjectResource {
@@ -67,14 +61,7 @@ public class ProjectResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Project> getAll(@QueryParam("type") String type) {
-        if (infinispanService.isReady()) {
-            return infinispanService.getProjects().stream()
-                    .filter(p -> type == null || Objects.equals(p.getType().name(), type))
-                    .sorted(Comparator.comparing(Project::getProjectId))
-                    .collect(Collectors.toList());
-        } else {
-            return List.of();
-        }
+        return projectService.getAllProjects(type);
     }
 
     @GET
@@ -105,10 +92,10 @@ public class ProjectResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/build")
-    public Response build(Project project) throws Exception {
+    @Path("/build/{tag}")
+    public Response build(Project project, @PathParam("tag") String tag) throws Exception {
         try {
-            projectService.buildProject(project);
+            projectService.buildProject(project, tag);
             return Response.ok().entity(project).build();
         } catch (Exception e) {
             return Response.serverError().entity(e.getMessage()).build();

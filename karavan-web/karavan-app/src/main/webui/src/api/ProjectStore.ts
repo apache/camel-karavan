@@ -81,9 +81,13 @@ export const useProjectsStore = createWithEqualityFn<ProjectsState>((set) => ({
 interface ProjectState {
     isPushing: boolean,
     isRunning: boolean,
+    images: string [],
+    setImages: (images: string []) => void;
     project: Project;
     setProject: (project: Project, operation:  "create" | "select" | "delete"| "none" | "copy") => void;
     operation: "create" | "select" | "delete" | "none" | "copy";
+    tabIndex: string | number;
+    setTabIndex: (tabIndex: string | number) => void;
     setOperation: (o: "create" | "select" | "delete"| "none" | "copy") => void;
     memory: any,
     setMemory: (memory: any) => void;
@@ -99,7 +103,9 @@ interface ProjectState {
 
 export const useProjectStore = createWithEqualityFn<ProjectState>((set) => ({
     project: new Project(),
-    operation: "none",
+    images: [],
+    operation: 'none',
+    tabIndex: 'files',
     isPushing: false,
     isRunning: false,
     setProject: (project: Project, operation:  "create" | "select" | "delete"| "none" | "copy") => {
@@ -117,6 +123,18 @@ export const useProjectStore = createWithEqualityFn<ProjectState>((set) => ({
         set((state: ProjectState) => ({
             operation: o
         }));
+    },
+    setTabIndex: (tabIndex: string | number) => {
+        set((state: ProjectState) => ({
+            tabIndex: tabIndex
+        }));
+    },
+    setImages: (images: string[]) => {
+        set((state: ProjectState) => {
+            state.images.length = 0;
+            state.images.push(...images);
+            return {images: state.images};
+        });
     },
     memory: {},
     setMemory: (memory: boolean)  => {

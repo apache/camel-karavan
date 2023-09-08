@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.service;
+package org.apache.camel.karavan.code;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,8 +23,6 @@ import io.apicurio.datamodels.openapi.models.OasDocument;
 import io.quarkus.qute.Engine;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.CamelContext;
@@ -32,14 +30,14 @@ import org.apache.camel.generator.openapi.RestDslGenerator;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.karavan.api.KameletResources;
 import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.docker.model.DockerComposeService;
+import org.apache.camel.karavan.code.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.GitRepo;
-import org.apache.camel.karavan.infinispan.model.GitRepoFile;
+import org.apache.camel.karavan.git.model.GitRepo;
+import org.apache.camel.karavan.git.model.GitRepoFile;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.shared.ConfigService;
+import org.apache.camel.karavan.service.ConfigService;
 import org.jboss.logging.Logger;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -287,7 +285,7 @@ public class CodeService {
     }
 
     public Integer getProjectPort(ProjectFile composeFile) {
-        DockerComposeService dcs = convertToDockerComposeService(composeFile.getCode(), composeFile.getProjectId());
+        DockerComposeService dcs = DockerComposeConverter.fromCode(composeFile.getCode(), composeFile.getProjectId());
         Optional<Integer> port = dcs.getPortsMap().entrySet().stream()
                 .filter(e -> Objects.equals(e.getValue(), INTERNAL_PORT)).map(Map.Entry::getKey).findFirst();
         return port.orElse(null);
@@ -296,41 +294,8 @@ public class CodeService {
 
     public DockerComposeService getInternalDockerComposeService (String name) {
         String composeText = getResourceFile("/services/internal.yaml");
-        return convertToDockerComposeService(composeText, name);
+        return DockerComposeConverter.fromCode(composeText, name);
     }
 
-    public DockerComposeService convertToDockerComposeService(String code, String name) {
-        Yaml yaml = new Yaml();
-        Map<String, Object> obj = yaml.load(code);
-        JsonObject json = JsonObject.mapFrom(obj);
-        JsonObject services = json.getJsonObject("services");
-        if (services.containsKey(name)) {
-            JsonObject service = services.getJsonObject(name);
-            return convertToDockerComposeService(name, service);
-        } else {
-            Optional<JsonObject> j = services.fieldNames().stream()
-                    .map(services::getJsonObject)
-                    .filter(s -> s.getString("container_name").equalsIgnoreCase(name)).findFirst();
-            if (j.isPresent()) {
-                return convertToDockerComposeService(name, j.get());
-            }
-        }
-        return null;
-    }
 
-    public DockerComposeService convertToDockerComposeService(String name, JsonObject service) {
-        if (service.containsKey(ENVIRONMENT) && service.getValue(ENVIRONMENT) instanceof JsonArray) {
-            JsonObject env = new JsonObject();
-            service.getJsonArray(ENVIRONMENT).forEach(o -> {
-                String[] kv = o.toString().split("=");
-                env.put(kv[0], kv[1]);
-            });
-            service.put(ENVIRONMENT, env);
-        }
-        DockerComposeService ds = service.mapTo(DockerComposeService.class);
-        if (ds.getContainer_name() == null) {
-            ds.setContainer_name(name);
-        }
-        return ds;
-    }
 }

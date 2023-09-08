@@ -32,8 +32,21 @@ public class Project {
     Long lastCommitTimestamp;
     @ProtoField(number = 7)
     Type type;
+    @ProtoField(number = 8)
+    String image;
 
     @ProtoFactory
+    public Project(String projectId, String name, String description, String runtime, String lastCommit, Long lastCommitTimestamp, Type type, String image) {
+        this.projectId = projectId;
+        this.name = name;
+        this.description = description;
+        this.runtime = runtime;
+        this.lastCommit = lastCommit;
+        this.lastCommitTimestamp = lastCommitTimestamp;
+        this.type = type;
+        this.image = image;
+    }
+
     public Project(String projectId, String name, String description, String runtime, String lastCommit, Long lastCommitTimestamp, Type type) {
         this.projectId = projectId;
         this.name = name;
@@ -121,5 +134,13 @@ public class Project {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

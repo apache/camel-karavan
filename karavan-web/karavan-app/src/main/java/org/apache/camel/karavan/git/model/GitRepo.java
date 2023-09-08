@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.infinispan.model;
+package org.apache.camel.karavan.git.model;
 
 import java.util.List;
 

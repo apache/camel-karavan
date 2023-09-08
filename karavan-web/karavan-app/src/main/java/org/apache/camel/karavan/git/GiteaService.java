@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.service;
+package org.apache.camel.karavan.git;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.Vertx;
@@ -23,8 +23,8 @@ import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.infinispan.model.GitConfig;
-import org.apache.camel.karavan.shared.ConfigService;
+import org.apache.camel.karavan.git.model.GitConfig;
+import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.logging.Logger;
 

@@ -32,8 +32,8 @@ import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.infinispan.model.ProjectFile;
-import org.apache.camel.karavan.service.CodeService;
-import org.apache.camel.karavan.shared.ConfigService;
+import org.apache.camel.karavan.code.CodeService;
+import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -47,7 +47,7 @@ import jakarta.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.service.CodeService.APPLICATION_PROPERTIES_FILENAME;
+import static org.apache.camel.karavan.code.CodeService.APPLICATION_PROPERTIES_FILENAME;
 import static org.apache.camel.karavan.shared.Constants.*;
 
 @Default

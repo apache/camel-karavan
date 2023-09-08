@@ -11,12 +11,11 @@ import org.jboss.logging.Logger;
 import java.time.Instant;
 import java.util.Objects;
 
-import static org.apache.camel.karavan.shared.EventType.CONTAINER_STATUS;
-
 @ApplicationScoped
-public class EventService {
+public class ContainerStatusService {
 
-    private static final Logger LOGGER = Logger.getLogger(EventService.class.getName());
+    public static final String CONTAINER_STATUS = "CONTAINER_STATUS";
+    private static final Logger LOGGER = Logger.getLogger(ContainerStatusService.class.getName());
 
     @Inject
     InfinispanService infinispanService;

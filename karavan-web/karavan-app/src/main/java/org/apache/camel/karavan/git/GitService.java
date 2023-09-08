@@ -14,14 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.service;
+package org.apache.camel.karavan.git;
 
 import io.fabric8.kubernetes.api.model.Secret;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.Vertx;
+import org.apache.camel.karavan.git.model.GitConfig;
+import org.apache.camel.karavan.git.model.GitRepo;
+import org.apache.camel.karavan.git.model.GitRepoFile;
 import org.apache.camel.karavan.infinispan.model.*;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.shared.ConfigService;
+import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.FetchCommand;
@@ -56,8 +59,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @ApplicationScoped
 public class GitService {

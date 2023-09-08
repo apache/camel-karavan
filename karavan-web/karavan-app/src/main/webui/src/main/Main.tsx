@@ -2,13 +2,14 @@ import {Navigate, Route, Routes} from 'react-router-dom';
 import React, {useEffect, useRef} from "react";
 import {KaravanApi} from "../api/KaravanApi";
 import {
-    Bullseye, capitalize,
+    Bullseye,
     Flex,
     FlexItem,
     Page,
     ProgressStep,
     ProgressStepper,
     Spinner,
+    Text, TextContent, TextVariants,
     Tooltip,
     TooltipPosition
 } from "@patternfly/react-core";
@@ -29,6 +30,7 @@ import {MainDataPoller} from "./MainDataPoller";
 import {TemplatesPage} from "../templates/TemplatesPage";
 import {EventBus} from "../designer/utils/EventBus";
 import {Notification} from "../designer/utils/Notification";
+import CheckIcon from "@patternfly/react-icons/dist/esm/icons/check-icon";
 
 export function Main() {
 
@@ -76,21 +78,35 @@ export function Main() {
     }
 
     function getStepper() {
-        const steps: any[] = Array.isArray(readiness.checks) ? readiness.checks : [];
+        const steps: any[] = Array.isArray(readiness?.checks) ? readiness.checks : [];
         return (
             <Bullseye className="">
-                <ProgressStepper aria-label="Readiness progress" isCenterAligned isVertical >
-                    {steps.map(step => (
-                        <ProgressStep
-                            variant={step.status === 'UP' ? "success" : "info"}
-                            id={step.name}
-                            titleId={step.name}
-                            aria-label={step.name}
-                        >
-                            {step.name}
-                        </ProgressStep>
-                    ))}
-                </ProgressStepper>
+                <Flex direction={{default:"column"}} justifyContent={{default: "justifyContentCenter"}}>
+                    <FlexItem style={{textAlign: "center"}}>
+                        {Icon()}
+                        <TextContent>
+                            <Text component={TextVariants.h2}>
+                                Waiting for services
+                            </Text>
+                        </TextContent>
+                    </FlexItem>
+                    <FlexItem>
+                        <ProgressStepper aria-label="Readiness progress" isCenterAligned isVertical >
+                            {steps.map(step => (
+                                <ProgressStep
+                                    variant={step.status === 'UP' ? "success" : "info"}
+                                    isCurrent={step.status !== 'UP'}
+                                    icon={step.status !== 'UP' ? <Spinner isInline aria-label="Loading..."/> : undefined}
+                                    id={step.name}
+                                    titleId={step.name}
+                                    aria-label={step.name}
+                                >
+                                    {step.name}
+                                </ProgressStep>
+                            ))}
+                        </ProgressStepper>
+                    </FlexItem>
+                </Flex>
             </Bullseye>
         )
     }

@@ -153,6 +153,7 @@
 
 .karavan .project-page .pf-v5-c-description-list__group {
   min-height: 30px;
+  align-items: center;
 }
 
 .karavan .project-page .pf-v5-c-tabs__link,
@@ -189,10 +190,6 @@
 
 .karavan .project-page .project-tab-panel .pf-v5-c-panel__header {
   padding-bottom: 0;
-}
-
-.karavan .project-page .project-operations {
-  margin-bottom: 100px;
 }
 
 .karavan .project-log {
@@ -407,6 +404,14 @@
 .karavan .projects-page .labeled-button,
 .karavan .project-page .labeled-button {
   padding: 0 5px 0 5px;
+}
+
+.karavan .project-page .project-build-panel {
+  padding-bottom: 10px;
+}
+
+.karavan .project-page .project-images-panel {
+  padding-top: 0;
 }
 
 .projects-page tr:hover .project-action-buttons {

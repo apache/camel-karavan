@@ -21,10 +21,10 @@ import com.github.dockerjava.api.model.Container;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.infinispan.model.GitConfig;
-import org.apache.camel.karavan.service.CodeService;
-import org.apache.camel.karavan.service.GitService;
-import org.apache.camel.karavan.service.GiteaService;
+import org.apache.camel.karavan.git.model.GitConfig;
+import org.apache.camel.karavan.code.CodeService;
+import org.apache.camel.karavan.git.GitService;
+import org.apache.camel.karavan.git.GiteaService;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
@@ -73,18 +73,6 @@ public class DockerForGitea {
             dockerService.execStart(user.getId(), new LoggerCallback());
             LOGGER.info("Created Gitea User");
             giteaService.createRepository();
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
-    }
-
-    protected void checkGiteaInstance() {
-        try {
-            Container gitea = dockerService.getContainerByName(GITEA_CONTAINER_NAME);
-            ExecCreateCmdResponse user = dockerService.execCreate(gitea.getId(),
-                    "curl", "-Is", "localhost:3000/user/login");
-
-            dockerService.execStart(user.getId(), new GiteaCheckCallback(o -> createGiteaUser(), o -> checkGiteaInstance()));
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }

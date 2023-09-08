@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.shared;
+package org.apache.camel.karavan.service;
 
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.runtime.configuration.ConfigUtils;
 import io.quarkus.runtime.configuration.ProfileManager;
 import io.vertx.core.Vertx;
 import jakarta.inject.Inject;
+import org.apache.camel.karavan.shared.Configuration;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import jakarta.enterprise.context.ApplicationScoped;

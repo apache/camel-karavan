@@ -23,15 +23,12 @@ import org.apache.camel.karavan.docker.DockerForInfinispan;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.shared.ConfigService;
-import org.apache.camel.karavan.shared.EventType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ScheduledService {
@@ -64,7 +61,7 @@ public class ScheduledService {
         if (infinispanService.isReady()) {
             List<ContainerStatus> statusesInDocker = dockerService.collectContainersStatistics();
             statusesInDocker.forEach(containerStatus -> {
-                eventBus.send(EventType.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
+                eventBus.send(ContainerStatusService.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
             });
         }
     }
@@ -74,7 +71,7 @@ public class ScheduledService {
         if (infinispanService.isReady()) {
             List<ContainerStatus> statusesInDocker = dockerService.collectContainersStatuses();
             statusesInDocker.forEach(containerStatus -> {
-                eventBus.send(EventType.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
+                eventBus.send(ContainerStatusService.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
             });
             cleanContainersStatuses(statusesInDocker);
         }

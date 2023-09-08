@@ -257,8 +257,8 @@ export class KaravanApi {
         });
     }
 
-    static async buildProject(project: Project, environment: string, after: (res: AxiosResponse<any>) => void) {
-        instance.post('/api/project/build', project)
+    static async buildProject(project: Project, tag: string, after: (res: AxiosResponse<any>) => void) {
+        instance.post('/api/project/build/' + tag, project)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -364,6 +364,15 @@ export class KaravanApi {
 
     static async deleteDevModeContainer(name: string, deletePVC: boolean, after: (res: AxiosResponse<any>) => void) {
         instance.delete('/api/devmode/' +  name + "/" + deletePVC)
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    }
+
+    static async setProjectImage(projectId: string, imageName: string, after: (res: AxiosResponse<any>) => void) {
+        instance.post('/api/image/' + projectId, {imageName: imageName})
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -506,6 +515,17 @@ export class KaravanApi {
 
     static async getConfigMaps(after: (any: []) => void) {
         instance.get('/api/infrastructure/configmaps/')
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    static async getImages(projectId: string, after: (string: []) => void) {
+        instance.get('/api/image/' + projectId)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
