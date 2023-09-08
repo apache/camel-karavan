@@ -11,7 +11,7 @@ export class Healthcheck {
     }
 }
 
-export class DevService {
+export class DockerComposeService {
     container_name: string = '';
     image: string = '';
     restart: string = '';
@@ -20,29 +20,29 @@ export class DevService {
     environment: any = {};
     healthcheck?: Healthcheck;
 
-    public constructor(init?: Partial<DevService>) {
+    public constructor(init?: Partial<DockerComposeService>) {
         Object.assign(this, init);
     }
 }
 
-export class Services {
+export class DockerCompose {
     version: string = '';
-    services: DevService[] = [];
+    services: DockerComposeService[] = [];
 
-    public constructor(init?: Partial<Services>) {
+    public constructor(init?: Partial<DockerCompose>) {
         Object.assign(this, init);
     }
 }
 
 export class ServicesYaml {
 
-    static yamlToServices(code: string): Services {
+    static yamlToServices(code: string): DockerCompose {
         const obj = yaml.load(code);
         const fromYaml = JSON.parse(JSON.stringify(obj));
-        const result: Services = new Services({version: fromYaml.version});
+        const result: DockerCompose = new DockerCompose({version: fromYaml.version});
         Object.keys(fromYaml.services).forEach(key => {
             const o = fromYaml.services[key];
-            const service = new DevService(o);
+            const service = new DockerComposeService(o);
             if (!service.container_name) {
                 service.container_name = key;
             }

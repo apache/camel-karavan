@@ -1,5 +1,3 @@
-import {v4 as uuidv4} from "uuid";
-
 export class AppConfig {
     version: string = '';
     infrastructure: 'kubernetes' | 'docker' | 'local' = 'local';
@@ -26,9 +24,8 @@ export class Project {
     lastCommit: string = '';
     lastCommitTimestamp: number = 0;
     type: string = ProjectType.normal;
-    image: string = '';
 
-    public constructor(projectId: string, name: string, description: string, runtime: string, lastCommit: string, type: string, image: string);
+    public constructor(projectId: string, name: string, description: string, runtime: string, lastCommit: string, type: string);
     public constructor(init?: Partial<Project>);
     public constructor(...args: any[]) {
         if (args.length === 1) {
@@ -42,7 +39,6 @@ export class Project {
             this.lastCommit = args[4];
             this.lastCommitTimestamp = args[5];
             this.type = args[6];
-            this.image = args[7];
             return;
         }
     }

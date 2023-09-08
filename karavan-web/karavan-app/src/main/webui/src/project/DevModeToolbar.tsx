@@ -45,7 +45,7 @@ export function DevModeToolbar (props: Props) {
                 </Tooltip>
             </Label>
         </FlexItem>}
-        <FlexItem>
+        {!isRunning && <FlexItem>
             <Tooltip content="Verbose" position={TooltipPosition.bottom}>
                 <Switch aria-label="verbose"
                         id="verbose"
@@ -53,7 +53,7 @@ export function DevModeToolbar (props: Props) {
                          onChange={(_, checked) => setVerbose(checked)}
                 />
             </Tooltip>
-        </FlexItem>
+        </FlexItem>}
         {!isRunning && <FlexItem>
             <Tooltip content="Run in developer mode" position={TooltipPosition.bottom}>
                 <Button size="sm"

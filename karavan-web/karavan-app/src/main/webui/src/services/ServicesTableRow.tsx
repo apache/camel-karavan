@@ -8,7 +8,7 @@ import '../designer/karavan.css';
 import {ExpandableRowContent, Tbody, Td, Tr} from "@patternfly/react-table";
 import StopIcon from "@patternfly/react-icons/dist/js/icons/stop-icon";
 import PlayIcon from "@patternfly/react-icons/dist/esm/icons/play-icon";
-import {DevService} from "../api/ServiceModels";
+import {DockerComposeService} from "../api/ServiceModels";
 import {ContainerStatus} from "../api/ProjectModels";
 import PauseIcon from "@patternfly/react-icons/dist/esm/icons/pause-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
@@ -20,7 +20,7 @@ import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon
 
 interface Props {
     index: number
-    service: DevService
+    service: DockerComposeService
     container?: ContainerStatus
 }
 

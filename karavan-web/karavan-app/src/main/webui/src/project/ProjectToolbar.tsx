@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {
     Button,
-    Checkbox,
+    Checkbox, Divider,
     Flex,
     FlexItem,
     ToggleGroup,
@@ -139,12 +139,5 @@ export function ProjectToolbar () {
     }
 
     const isTemplates = isTemplatesProject();
-    return  (
-         <>
-            {/*{isTemplates && getTemplatesToolbar()}*/}
-            {/*{!isTemplates && getProjectToolbar()}*/}
-             {!isFile() && getProjectToolbar()}
-             {isFile() && getFileToolbar()}
-        </>
-    )
+    return  isFile() ? getFileToolbar() : getProjectToolbar()
 }

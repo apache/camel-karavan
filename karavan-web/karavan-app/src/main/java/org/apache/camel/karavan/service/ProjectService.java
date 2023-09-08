@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.service;
 
+import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.code.CodeService;
@@ -166,12 +167,6 @@ public class ProjectService implements HealthCheck {
             return infinispanService.getProjects().stream()
                     .filter(p -> type == null || Objects.equals(p.getType().name(), type))
                     .sorted(Comparator.comparing(Project::getProjectId))
-                    .map(project -> {
-                        if (Objects.equals(project.getType(), Project.Type.normal)) {
-                            project.setImage(getImage(files, project.getProjectId()));
-                        }
-                        return project;
-                    })
                     .collect(Collectors.toList());
         } else {
             return List.of();
@@ -379,15 +374,17 @@ public class ProjectService implements HealthCheck {
         return file.orElse(new ProjectFile()).getCode();
     }
 
-    public void setProjectImage(String projectId, String imageName) {
+    public void setProjectImage(String projectId, String imageName, boolean commit, String message) throws Exception {
         ProjectFile file = infinispanService.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
         if (file != null) {
             DockerComposeService service = DockerComposeConverter.fromCode(file.getCode(), projectId);
             service.setImage(imageName);
             String code = DockerComposeConverter.toCode(service);
-            System.out.println(code);
             file.setCode(code);
             infinispanService.saveProjectFile(file);
+            if (commit) {
+                commitAndPushProject(projectId, message);
+            }
         }
     }
 }

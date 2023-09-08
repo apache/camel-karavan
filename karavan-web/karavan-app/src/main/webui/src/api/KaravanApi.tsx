@@ -371,8 +371,8 @@ export class KaravanApi {
         });
     }
 
-    static async setProjectImage(projectId: string, imageName: string, after: (res: AxiosResponse<any>) => void) {
-        instance.post('/api/image/' + projectId, {imageName: imageName})
+    static async setProjectImage(projectId: string, imageName: string, commit: boolean, message: string, after: (res: AxiosResponse<any>) => void) {
+        instance.post('/api/image/' + projectId, {imageName: imageName, commit: commit, message: message})
             .then(res => {
                 after(res);
             }).catch(err => {

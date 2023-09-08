@@ -232,5 +232,8 @@ export class ProjectService {
         KaravanApi.getServices((any: []) => {
             InfrastructureAPI.setServices(any);
         });
+        KaravanApi.getImages(projectId, (images: []) => {
+            useProjectStore.setState({images: images})
+        });
     }
 }

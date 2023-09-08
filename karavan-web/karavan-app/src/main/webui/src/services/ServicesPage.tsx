@@ -33,14 +33,14 @@ import {useProjectStore, useStatusesStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
 import {Project, ProjectType} from "../api/ProjectModels";
 import {KaravanApi} from "../api/KaravanApi";
-import {DevService, Services, ServicesYaml} from "../api/ServiceModels";
+import {DockerComposeService, DockerCompose, ServicesYaml} from "../api/ServiceModels";
 import {shallow} from "zustand/shallow";
 import {ProjectLogPanel} from "../project/log/ProjectLogPanel";
 
 
 export function ServicesPage () {
 
-    const [services, setServices] = useState<Services>();
+    const [services, setServices] = useState<DockerCompose>();
     const [containers] = useStatusesStore((state) => [state.containers, state.setContainers], shallow);
     const [operation] = useState<'create' | 'delete' | 'none'>('none');
     const [loading] = useState<boolean>(false);
@@ -53,7 +53,7 @@ export function ServicesPage () {
         KaravanApi.getFiles(ProjectType.services, files => {
             const file = files.at(0);
             if (file) {
-                const services: Services = ServicesYaml.yamlToServices(file.code);
+                const services: DockerCompose = ServicesYaml.yamlToServices(file.code);
                 setServices(services);
             }
         })
@@ -117,7 +117,7 @@ export function ServicesPage () {
                         <Th key='action'></Th>
                     </Tr>
                 </Thead>
-                {services?.services.map((service: DevService, index: number) => (
+                {services?.services.map((service: DockerComposeService, index: number) => (
                     <ServicesTableRow key={service.container_name} index={index} service={service} container={getContainer(service.container_name)}/>
                 ))}
                 {services?.services.length === 0 && getEmptyState()}

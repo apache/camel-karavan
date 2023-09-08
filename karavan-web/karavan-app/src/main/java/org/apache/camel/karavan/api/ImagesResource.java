@@ -26,6 +26,7 @@ import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.service.ProjectService;
 import org.apache.camel.karavan.service.RegistryService;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Path("/api/image")
@@ -46,16 +47,19 @@ public class ImagesResource {
     public List<String> getImagesForProject(@HeaderParam("username") String username,
                                  @PathParam("projectId") String projectId) throws Exception {
         String pattern = registryService.getRegistryWithGroup() + "/" + projectId;
-        return dockerService.getImages().stream().filter(s -> s.startsWith(pattern)).toList();
+        return dockerService.getImages().stream().filter(s -> s.startsWith(pattern)).sorted(Comparator.reverseOrder()).toList();
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{projectId}")
-    public Response build(JsonObject imageName, @PathParam("projectId") String projectId) throws Exception {
+    public Response build(JsonObject data, @PathParam("projectId") String projectId) throws Exception {
         try {
-            projectService.setProjectImage(projectId, imageName.getString("imageName"));
+            String imageName = data.getString("imageName");
+            boolean commit = data.getBoolean("commit");
+            String message = data.getString("message");
+            projectService.setProjectImage(projectId, imageName, commit, message);
             return Response.ok().entity(imageName).build();
         } catch (Exception e) {
             return Response.serverError().entity(e.getMessage()).build();

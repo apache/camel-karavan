@@ -29,12 +29,13 @@ import FileSaver from "file-saver";
 import {CreateFileModal} from "./CreateFileModal";
 import {DeleteFileModal} from "./DeleteFileModal";
 import {UploadFileModal} from "./UploadFileModal";
+import {shallow} from "zustand/shallow";
 
 export function FilesTab () {
 
-    const {files} = useFilesStore();
-    const {project} = useProjectStore();
-    const {operation} = useFileStore();
+    const [files] = useFilesStore((s) => [s.files], shallow);
+    const [project] = useProjectStore((s) => [s.project], shallow);
+    const [operation] = useFileStore((s) => [s.operation], shallow);
 
     function getDate(lastUpdate: number): string {
         if (lastUpdate) {
