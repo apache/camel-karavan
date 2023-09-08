@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.service;
 
+import io.quarkus.scheduler.Scheduled;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.Vertx;
@@ -70,6 +71,19 @@ public class CamelService {
         return webClient;
     }
 
+    @Scheduled(every = "{karavan.camel.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    public void collectCamelStatuses() {
+        if (infinispanService.isReady()) {
+            infinispanService.getContainerStatuses(environment).stream()
+                    .filter(cs ->
+                            cs.getType() == ContainerStatus.ContainerType.project
+                                    || cs.getType() == ContainerStatus.ContainerType.devmode
+                    ).forEach(pod -> {
+                        CamelStatusRequest csr = new CamelStatusRequest(pod.getProjectId(), pod.getContainerName());
+                        eventBus.publish(CMD_COLLECT_CAMEL_STATUS, JsonObject.mapFrom(csr));
+                    });
+        }
+    }
 
     private boolean camelIsStarted(CamelStatus camelStatus) {
         try {
@@ -126,19 +140,6 @@ public class CamelService {
         } else {
             Integer port = projectService.getProjectPort(containerName);
             return "http://localhost:" + port;
-        }
-    }
-
-    public void collectCamelStatuses() {
-        if (infinispanService.isReady()) {
-            infinispanService.getContainerStatuses(environment).stream()
-                    .filter(cs ->
-                            cs.getType() == ContainerStatus.ContainerType.project
-                            || cs.getType() == ContainerStatus.ContainerType.devmode
-                    ).forEach(pod -> {
-                CamelStatusRequest csr = new CamelStatusRequest(pod.getProjectId(), pod.getContainerName());
-                eventBus.publish(CMD_COLLECT_CAMEL_STATUS, JsonObject.mapFrom(csr));
-            });
         }
     }
 

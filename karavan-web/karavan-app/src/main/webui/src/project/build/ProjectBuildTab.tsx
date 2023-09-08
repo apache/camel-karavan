@@ -14,7 +14,7 @@ export function ProjectBuildTab () {
             <div>
                 {/*{["dev", "test", "prod"].map(env =>*/}
                 {config.environments.map(env =>
-                    <BuildPanel env={env}/>
+                    <BuildPanel key={env} env={env}/>
                 )}
             </div>
         </PageSection>

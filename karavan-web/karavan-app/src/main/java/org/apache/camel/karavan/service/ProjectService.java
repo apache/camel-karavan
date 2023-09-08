@@ -387,4 +387,12 @@ public class ProjectService implements HealthCheck {
             }
         }
     }
+
+    public DockerComposeService getProjectDockerComposeService(String projectId) {
+        ProjectFile file = infinispanService.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
+        if (file != null) {
+            return DockerComposeConverter.fromCode(file.getCode(), projectId);
+        }
+        return null;
+    }
 }

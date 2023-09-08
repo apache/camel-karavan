@@ -103,6 +103,7 @@ public class DockerService extends DockerServiceUtils {
     public void stopListeners() throws IOException {
         dockerEventListener.close();
     }
+
     public void createNetwork() {
         if (!getDockerClient().listNetworksCmd().exec().stream()
                 .filter(n -> n.getName().equals(NETWORK_NAME))
@@ -124,7 +125,7 @@ public class DockerService extends DockerServiceUtils {
     }
 
     public Container getContainerByName(String name) {
-        List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
+        List<Container> containers = findContainer(name);
         return containers.size() > 0 ? containers.get(0) : null;
     }
 
@@ -142,7 +143,7 @@ public class DockerService extends DockerServiceUtils {
     }
 
     public Container createContainerFromCompose(DockerComposeService compose, ContainerStatus.ContainerType type) throws InterruptedException {
-        List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(compose.getContainer_name())).exec();
+        List<Container> containers = findContainer(compose.getContainer_name());
         if (containers.isEmpty()) {
             LOGGER.infof("Compose Service starting for %s", compose.getContainer_name());
 
@@ -160,10 +161,15 @@ public class DockerService extends DockerServiceUtils {
         }
     }
 
+    public List<Container> findContainer(String containerName) {
+        return getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(containerName)).exec()
+                .stream().filter(c -> Objects.equals(c.getNames()[0].replaceFirst("/", ""), containerName)).toList();
+    }
+
     public Container createContainer(String name, String image, List<String> env, Map<Integer, Integer> ports,
                                      HealthCheck healthCheck, Map<String, String> labels,
                                      Map<String, String> volumes, String network, String... command) throws InterruptedException {
-        List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
+        List<Container> containers = findContainer(name);
         if (containers.size() == 0) {
             pullImage(image);
 
@@ -186,7 +192,7 @@ public class DockerService extends DockerServiceUtils {
             }
             createContainerCmd.withHostConfig(new HostConfig()
                     .withPortBindings(portBindings)
-                            .withMounts(mounts)
+                    .withMounts(mounts)
                     .withNetworkMode(network != null ? network : NETWORK_NAME));
 
             CreateContainerResponse response = createContainerCmd.exec();
@@ -200,14 +206,17 @@ public class DockerService extends DockerServiceUtils {
     }
 
     public void runContainer(String name) {
-        List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
+        List<Container> containers = findContainer(name);
         if (containers.size() == 1) {
-            Container container = containers.get(0);
-            if (container.getState().equals("paused")) {
-                getDockerClient().unpauseContainerCmd(container.getId()).exec();
-            } else if (!container.getState().equals("running")) {
-                getDockerClient().startContainerCmd(container.getId()).exec();
-            }
+            runContainer(containers.get(0));
+        }
+    }
+
+    public void runContainer(Container container) {
+        if (container.getState().equals("paused")) {
+            getDockerClient().unpauseContainerCmd(container.getId()).exec();
+        } else if (!container.getState().equals("running")) {
+            getDockerClient().startContainerCmd(container.getId()).exec();
         }
     }
 
@@ -247,10 +256,10 @@ public class DockerService extends DockerServiceUtils {
     }
 
     public void copyFiles(String containerId, String containerPath, Map<String, String> files) {
-            String temp = vertx.fileSystem().createTempDirectoryBlocking(containerId);
-            files.forEach((fileName, code) -> addFile(temp, fileName, code));
-            dockerClient.copyArchiveToContainerCmd(containerId).withRemotePath(containerPath)
-                    .withDirChildrenOnly(true).withHostResource(temp).exec();
+        String temp = vertx.fileSystem().createTempDirectoryBlocking(containerId);
+        files.forEach((fileName, code) -> addFile(temp, fileName, code));
+        dockerClient.copyArchiveToContainerCmd(containerId).withRemotePath(containerPath)
+                .withDirChildrenOnly(true).withHostResource(temp).exec();
     }
 
     public void copyExecFile(String containerId, String containerPath, String filename, String script) {
@@ -259,7 +268,7 @@ public class DockerService extends DockerServiceUtils {
         vertx.fileSystem().writeFileBlocking(path, Buffer.buffer(script));
 
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                TarArchiveOutputStream tarArchive = new TarArchiveOutputStream(byteArrayOutputStream)) {
+             TarArchiveOutputStream tarArchive = new TarArchiveOutputStream(byteArrayOutputStream)) {
             tarArchive.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
             tarArchive.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
 
@@ -328,7 +337,7 @@ public class DockerService extends DockerServiceUtils {
     }
 
     public void deleteContainer(String name) {
-        List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
+        List<Container> containers = findContainer(name);
         if (containers.size() == 1) {
             Container container = containers.get(0);
             getDockerClient().removeContainerCmd(container.getId()).withForce(true).exec();
@@ -381,5 +390,8 @@ public class DockerService extends DockerServiceUtils {
     public List<String> getImages() {
         return getDockerClient().listImagesCmd().withShowAll(true).exec().stream()
                 .map(image -> image.getRepoTags()[0]).toList();
+    }
+
+    public void deleteImage(String imageName) {
     }
 }

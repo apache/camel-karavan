@@ -69,25 +69,21 @@ public class DockerForKaravan {
     }
 
     public void runBuildProject(String projectId, String script, Map<String, String> files, List<String> env,  Map<String, String> volumes, String tag) throws Exception {
-        dockerService.deleteContainer(projectId + BUILDER_SUFFIX);
-        Container c = createBuildContainer(projectId, env, volumes, tag);
+        String containerName = projectId + BUILDER_SUFFIX;
+        dockerService.deleteContainer(containerName);
+        Container c = createBuildContainer(containerName, projectId, env, volumes, tag);
         dockerService.copyFiles(c.getId(), "/code", files);
         dockerService.copyExecFile(c.getId(), "/karavan", "build.sh", script);
-        dockerService.runContainer(projectId);
+        dockerService.runContainer(c);
     }
 
-    protected Container createBuildContainer(String projectId, List<String> env, Map<String, String> volumes, String tag) throws InterruptedException {
-        LOGGER.infof("Starting Build Container for %s ", projectId);
+    protected Container createBuildContainer(String containerName, String projectId, List<String> env, Map<String, String> volumes, String tag) throws InterruptedException {
+        LOGGER.infof("Starting Build Container ", containerName);
 
-        return dockerService.createContainer(projectId + BUILDER_SUFFIX, devmodeImage,
+        return dockerService.createContainer(containerName, devmodeImage,
                 env, Map.of(), new HealthCheck(),
                 Map.of(LABEL_TYPE, ContainerStatus.ContainerType.build.name(), LABEL_PROJECT_ID, projectId, LABEL_TAG, tag),
                 volumes, null,"/karavan/build.sh");
-    }
-
-    public void createDevserviceContainer(DockerComposeService dockerComposeService) throws InterruptedException {
-        LOGGER.infof("DevService starting for ", dockerComposeService.getContainer_name());
-        dockerService.createContainerFromCompose(dockerComposeService, ContainerStatus.ContainerType.devservice);
     }
 
     public void syncImage(String projectId, String tag) throws InterruptedException {

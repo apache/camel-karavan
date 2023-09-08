@@ -412,7 +412,7 @@ export class KaravanApi {
     }
 
     static async getContainerLog(environment: string, name: string, after: (res: AxiosResponse<string>) => void) {
-        instance.get('/api/infrastructure/container/log/' + environment + "/" + name)
+        instance.get('/api/container/log/' + environment + "/" + name)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -434,7 +434,7 @@ export class KaravanApi {
     }
 
     static async getAllContainerStatuses(after: (statuses: ContainerStatus[]) => void) {
-        instance.get('/api/infrastructure/container')
+        instance.get('/api/container')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -484,19 +484,12 @@ export class KaravanApi {
         });
     }
 
-    static async getProjectPodStatuses(project: string, env: string, after: (statuses: ContainerStatus[]) => void) {
-        instance.get('/api/infrastructure/container/' + project + "/" + env)
-            .then(res => {
-                if (res.status === 200) {
-                    after(res.data);
-                }
-            }).catch(err => {
-            console.log(err);
-        });
-    }
-
-    static async manageContainer(environment: string, type: 'devmove' | 'devservice' | 'project' | 'internal' | 'unknown',  name: string, command: 'run' | 'pause' | 'stop', after: (res: AxiosResponse<any>) => void) {
-        instance.post('/api/infrastructure/container/' + environment + '/' + type + "/" + name, {command: command})
+    static async manageContainer(environment: string,
+                                 type: 'devmove' | 'devservice' | 'project' | 'internal' | 'build' | 'unknown',
+                                 name: string,
+                                 command: 'run' | 'pause' | 'stop' | 'delete',
+                                 after: (res: AxiosResponse<any>) => void) {
+        instance.post('/api/container/' + environment + '/' + type + "/" + name, {command: command})
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -504,8 +497,8 @@ export class KaravanApi {
         });
     }
 
-    static async deleteContainer(environment: string, type: 'devmove' | 'devservice' | 'project' | 'internal' | 'unknown', name: string, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/infrastructure/container/' + environment + '/' + type + "/" + name)
+    static async deleteContainer(environment: string, type: 'devmove' | 'devservice' | 'project' | 'internal' | 'build' | 'unknown', name: string, after: (res: AxiosResponse<any>) => void) {
+        instance.delete('/api/container/' + environment + '/' + type + "/" + name)
             .then(res => {
                 after(res);
             }).catch(err => {

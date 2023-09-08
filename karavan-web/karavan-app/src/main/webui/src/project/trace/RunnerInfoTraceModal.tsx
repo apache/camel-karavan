@@ -42,7 +42,6 @@ export function RunnerInfoTraceModal (props: Props) {
         return Array.from(new Set((props.nodes).map((item: any) => item?.routeId)));
     }
 
-    console.log(props.nodes)
     return (
         <Modal
             title={"Exchange: " + props.exchangeId}

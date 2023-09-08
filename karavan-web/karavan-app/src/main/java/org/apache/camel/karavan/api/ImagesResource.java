@@ -23,9 +23,12 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.model.Project;
+import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.service.ProjectService;
 import org.apache.camel.karavan.service.RegistryService;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
 
@@ -63,6 +66,18 @@ public class ImagesResource {
             return Response.ok().entity(imageName).build();
         } catch (Exception e) {
             return Response.serverError().entity(e.getMessage()).build();
+        }
+    }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{imageName}")
+    public Response deleteImage(@HeaderParam("username") String username, @PathParam("imageName") String imageName) {
+        if (ConfigService.inKubernetes()) {
+            return Response.ok().build();
+        } else {
+            dockerService.deleteImage(imageName);
+            return Response.ok().build();
         }
     }
 }

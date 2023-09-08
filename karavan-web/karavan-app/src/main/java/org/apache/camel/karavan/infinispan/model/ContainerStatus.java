@@ -4,6 +4,7 @@ import org.infinispan.protostream.annotations.ProtoEnumValue;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,8 +66,29 @@ public class ContainerStatus {
     Boolean codeLoaded;
     @ProtoField(number = 15)
     Boolean inTransit = false;
+    @ProtoField(number = 16)
+    String initDate;
 
     @ProtoFactory
+    public ContainerStatus(String projectId, String containerName, String containerId, String image, List<Integer> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, Boolean codeLoaded, Boolean inTransit, String initDate) {
+        this.projectId = projectId;
+        this.containerName = containerName;
+        this.containerId = containerId;
+        this.image = image;
+        this.ports = ports;
+        this.env = env;
+        this.type = type;
+        this.memoryInfo = memoryInfo;
+        this.cpuInfo = cpuInfo;
+        this.created = created;
+        this.finished = finished;
+        this.commands = commands;
+        this.state = state;
+        this.codeLoaded = codeLoaded;
+        this.inTransit = inTransit;
+        this.initDate = initDate;
+    }
+
     public ContainerStatus(String projectId, String containerName, String containerId, String image, List<Integer> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, Boolean codeLoaded, Boolean inTransit) {
         this.projectId = projectId;
         this.containerName = containerName;
@@ -83,6 +105,7 @@ public class ContainerStatus {
         this.state = state;
         this.codeLoaded = codeLoaded;
         this.inTransit = inTransit;
+        this.initDate = Instant.now().toString();
     }
 
     public ContainerStatus(String containerName, List<Command> commands, String projectId, String env, ContainerType type, String memoryInfo, String cpuInfo, String created) {
@@ -94,6 +117,7 @@ public class ContainerStatus {
         this.memoryInfo = memoryInfo;
         this.cpuInfo = cpuInfo;
         this.created = created;
+        this.initDate = Instant.now().toString();
     }
 
     public ContainerStatus(String containerName, List<Command> commands, String projectId, String env, ContainerType type, String created) {
@@ -103,6 +127,7 @@ public class ContainerStatus {
         this.env = env;
         this.created = created;
         this.type = type;
+        this.initDate = Instant.now().toString();
     }
 
     public static ContainerStatus createDevMode(String projectId, String env) {
@@ -240,6 +265,14 @@ public class ContainerStatus {
 
     public void setFinished(String finished) {
         this.finished = finished;
+    }
+
+    public String getInitDate() {
+        return initDate;
+    }
+
+    public void setInitDate(String initDate) {
+        this.initDate = initDate;
     }
 
     @Override
