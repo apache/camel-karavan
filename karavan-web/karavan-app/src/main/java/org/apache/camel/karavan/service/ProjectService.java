@@ -113,7 +113,10 @@ public class ProjectService implements HealthCheck {
                         .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::getCode));
                 ProjectFile compose = infinispanService.getProjectFile(project.getProjectId(), PROJECT_COMPOSE_FILENAME);
                 DockerComposeService dcs = DockerComposeConverter.fromCode(compose.getCode(), project.getProjectId());
-                dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, dcs.getPortsMap(), files);
+                Map<String, String> volumes = mavenCache
+                        .map(s -> Map.of(s, "/root/.m2"))
+                        .orElseGet(Map::of);
+                dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, dcs.getPortsMap(), files, volumes);
             }
             return containerName;
         } else {

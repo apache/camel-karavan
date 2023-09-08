@@ -149,9 +149,9 @@ export function ImagesPanel () {
                 <Thead>
                     <Tr>
                         <Th key='status' width={10}></Th>
-                        <Th key='image' width={30}>Image</Th>
+                        <Th key='image' width={20}>Image</Th>
                         <Th key='tag' width={10}>Tag</Th>
-                        <Th key='actions'></Th>
+                        <Th key='actions' width={10}></Th>
                     </Tr>
                 </Thead>
                 <Tbody>

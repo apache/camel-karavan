@@ -75,7 +75,6 @@ public class ImagesResource {
     @Path("/{imageName}")
     public Response deleteImage(@HeaderParam("username") String username, @PathParam("imageName") String imageName) {
         imageName= new String(Base64.decode(imageName));
-        System.out.println(imageName);
         if (ConfigService.inKubernetes()) {
             return Response.ok().build();
         } else {

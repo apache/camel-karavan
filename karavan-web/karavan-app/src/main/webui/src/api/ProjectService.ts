@@ -43,7 +43,7 @@ export class ProjectService {
 
     public static stopDevModeContainer(project: Project) {
         useDevModeStore.setState({status: 'wip'})
-        KaravanApi.manageContainer('dev', 'devmove', project.projectId, 'stop', res => {
+        KaravanApi.manageContainer('dev', 'devmode', project.projectId, 'stop', res => {
             useDevModeStore.setState({status: 'none'})
             if (res.status === 200) {
                 useLogStore.setState({showLog: false, type: 'container'})
@@ -55,7 +55,7 @@ export class ProjectService {
 
     public static pauseDevModeContainer(project: Project) {
         useDevModeStore.setState({status: 'wip'})
-        KaravanApi.manageContainer('dev', 'devmove', project.projectId, 'pause', res => {
+        KaravanApi.manageContainer('dev', 'devmode', project.projectId, 'pause', res => {
             useDevModeStore.setState({status: 'none'})
             if (res.status === 200) {
                 useLogStore.setState({showLog: false, type: 'container'})

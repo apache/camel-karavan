@@ -1,26 +1,29 @@
-import React, {useState} from 'react';
-import {Badge, Button, Flex, FlexItem, Label, Spinner, Switch, Tooltip, TooltipPosition} from '@patternfly/react-core';
+import React from 'react';
+import {Button, Flex, FlexItem, Label, Spinner, Tooltip, TooltipPosition} from '@patternfly/react-core';
 import '../designer/karavan.css';
-import RocketIcon from "@patternfly/react-icons/dist/esm/icons/rocket-icon";
-import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import {useAppConfigStore, useDevModeStore, useLogStore, useProjectStore, useStatusesStore} from "../api/ProjectStore";
-import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
-import UpIcon from "@patternfly/react-icons/dist/esm/icons/running-icon";
+import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
+import RunIcon from "@patternfly/react-icons/dist/esm/icons/play-icon";
+import {ProjectService} from "../api/ProjectService";
+import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
+import {KaravanApi} from "../api/KaravanApi";
+import {ProjectEventBus} from "../api/ProjectEventBus";
+import {EventBus} from "../designer/utils/EventBus";
+import StopIcon from "@patternfly/react-icons/dist/js/icons/stop-icon";
 
 interface Props {
     reloadOnly?: boolean
 }
 
-export function DevModeToolbar (props: Props) {
+export function ContainerPanel (props: Props) {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [status] = useDevModeStore((state) => [state.status], shallow)
     const [project] = useProjectStore((state) => [state.project], shallow)
     const [containers] = useStatusesStore((state) => [state.containers], shallow);
-    const [verbose, setVerbose] = useState(false);
     const [setShowLog] = useLogStore((s) => [s.setShowLog], shallow);
 
     const containerStatus = containers.filter(c => c.containerName === project.projectId).at(0);
@@ -30,13 +33,8 @@ export function DevModeToolbar (props: Props) {
     const isLoading = status === 'wip';
     const color = containerStatus?.state === 'running' ? "green" : "grey";
     const icon = isRunning ? <UpIcon/> : <DownIcon/>;
-    const inDevMode = containerStatus?.type === 'devmode';
 
     return (<Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
-        <FlexItem>
-            <Button style={{visibility:"hidden"}} size="sm" variant={"control"} icon={<DeleteIcon/>} onClick={() => {}}>
-            </Button>
-        </FlexItem>
         <FlexItem>
             {(inTransit || isLoading) && <Spinner size="lg" aria-label="spinner"/>}
         </FlexItem>
@@ -45,53 +43,56 @@ export function DevModeToolbar (props: Props) {
                 <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
                     <Button className='labeled-button' variant="link" isDisabled={!isRunning}
                             onClick={e =>
-                                setShowLog( true, 'container', containerStatus.containerName)}>
+                                setShowLog(true, 'container', containerStatus.containerName)}>
                         {containerStatus.containerName}
                     </Button>
                 </Tooltip>
-                <Badge isRead>{containerStatus.type}</Badge>
             </Label>
         </FlexItem>}
         {!isRunning && <FlexItem>
-            <Tooltip content="Verbose" position={TooltipPosition.bottom}>
-                <Switch aria-label="verbose"
-                        id="verbose"
-                        isChecked={verbose}
-                         onChange={(_, checked) => setVerbose(checked)}
-                />
-            </Tooltip>
-        </FlexItem>}
-        {!isRunning && <FlexItem>
-            <Tooltip content="Run in developer mode" position={TooltipPosition.bottom}>
+            <Tooltip content="Run container" position={TooltipPosition.bottom}>
                 <Button size="sm"
                         isDisabled={(!(commands.length === 0) && !commands.includes('run')) || inTransit}
                         variant={"primary"}
-                        icon={<RocketIcon/>}
-                        onClick={() => ProjectService.startDevModeContainer(project, verbose)}>
+                        icon={<RunIcon/>}
+                        onClick={() => {
+                            KaravanApi.manageContainer('dev', 'project', project.projectId, 'run', res => {
+                                setShowLog(false, 'container', undefined)
+                            });
+                        }}>
                     {"Run"}
                 </Button>
             </Tooltip>
         </FlexItem>}
-        {isRunning && inDevMode && <FlexItem>
-            <Tooltip content="Reload" position={TooltipPosition.bottom}>
-                <Button size="sm"
-                        isDisabled={inTransit}
-                        variant={"primary"}
-                        className="project-button"
-                        icon={<ReloadIcon/>}
-                        onClick={() => ProjectService.reloadDevModeCode(project)}>Reload
-                </Button>
-            </Tooltip>
-        </FlexItem>}
-        {inDevMode && <FlexItem>
+        {config.infrastructure !== 'kubernetes' &&
+            <FlexItem>
+                <Tooltip content="Stop container" position={TooltipPosition.bottom}>
+                    <Button size="sm"
+                            isDisabled={!commands.includes('stop') || inTransit}
+                            variant={"control"}
+                            icon={<StopIcon/>}
+                            onClick={() => {
+                                KaravanApi.manageContainer('dev', 'project', project.projectId, 'stop', res => {
+                                    setShowLog(false, 'container', undefined)
+                                });
+                            }}>
+                    </Button>
+                </Tooltip>
+            </FlexItem>
+        }
+        <FlexItem>
             <Tooltip content="Delete container" position={TooltipPosition.bottom}>
                 <Button size="sm"
                         isDisabled={!commands.includes('delete') || inTransit}
                         variant={"control"}
                         icon={<DeleteIcon/>}
-                        onClick={() => ProjectService.deleteDevModeContainer(project)}>
+                        onClick={() => {
+                            KaravanApi.manageContainer('dev', 'project', project.projectId, 'delete', res => {
+                                setShowLog(false, 'container', undefined)
+                            });
+                        }}>
                 </Button>
             </Tooltip>
-        </FlexItem>}
+        </FlexItem>
     </Flex>);
 }

@@ -45,13 +45,13 @@ public class DockerForKaravan {
     @Inject
     RegistryService registryService;
 
-    public void runProjectInDevMode(String projectId, String jBangOptions, Map<Integer, Integer> ports, Map<String, String> files) throws Exception {
-        Container c = createDevmodeContainer(projectId, jBangOptions, ports);
+    public void runProjectInDevMode(String projectId, String jBangOptions, Map<Integer, Integer> ports, Map<String, String> files, Map<String, String> volumes) throws Exception {
+        Container c = createDevmodeContainer(projectId, jBangOptions, ports, volumes);
         dockerService.runContainer(projectId);
         dockerService.copyFiles(c.getId(), "/code", files);
     }
 
-    protected Container createDevmodeContainer(String projectId, String jBangOptions, Map<Integer, Integer> ports) throws InterruptedException {
+    protected Container createDevmodeContainer(String projectId, String jBangOptions, Map<Integer, Integer> ports, Map<String, String> volumes) throws InterruptedException {
         LOGGER.infof("DevMode starting for %s with JBANG_OPTIONS=%s", projectId, jBangOptions);
 
         HealthCheck healthCheck = new HealthCheck().withTest(List.of("CMD", "curl", "-f", "http://localhost:8080/q/dev/health"))
@@ -64,7 +64,7 @@ public class DockerForKaravan {
         return dockerService.createContainer(projectId, devmodeImage,
                 env, ports, healthCheck,
                 Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devmode.name(), LABEL_PROJECT_ID, projectId),
-                Map.of(), null);
+                volumes, null);
 
     }
 

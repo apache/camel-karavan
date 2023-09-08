@@ -485,7 +485,7 @@ export class KaravanApi {
     }
 
     static async manageContainer(environment: string,
-                                 type: 'devmove' | 'devservice' | 'project' | 'internal' | 'build' | 'unknown',
+                                 type: 'devmode' | 'devservice' | 'project' | 'internal' | 'build' | 'unknown',
                                  name: string,
                                  command: 'run' | 'pause' | 'stop' | 'delete',
                                  after: (res: AxiosResponse<any>) => void) {
@@ -497,7 +497,7 @@ export class KaravanApi {
         });
     }
 
-    static async deleteContainer(environment: string, type: 'devmove' | 'devservice' | 'project' | 'internal' | 'build' | 'unknown', name: string, after: (res: AxiosResponse<any>) => void) {
+    static async deleteContainer(environment: string, type: 'devmode' | 'devservice' | 'project' | 'internal' | 'build' | 'unknown', name: string, after: (res: AxiosResponse<any>) => void) {
         instance.delete('/api/container/' + environment + '/' + type + "/" + name)
             .then(res => {
                 after(res);
@@ -531,7 +531,6 @@ export class KaravanApi {
     static async deleteImage(imageName: string, after: () => void) {
         instance.delete('/api/image/' + Buffer.from(imageName).toString('base64'))
             .then(res => {
-                console.log(res.status)
                 if (res.status === 200) {
                     after();
                 }
