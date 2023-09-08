@@ -44,6 +44,7 @@
     "zustand": "^4.4.1"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@svgr/webpack": "^7.0.0",
     "@types/dagre": "^0.7.48",
     "@types/react": "^18.2.0",
