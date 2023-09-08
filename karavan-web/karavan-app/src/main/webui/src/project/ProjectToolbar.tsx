@@ -109,7 +109,7 @@ export function ProjectToolbar () {
         return (<Toolbar id="toolbar-group-types">
             <ToolbarContent>
                 {isRunnable() && <DevModeToolbar/>}
-                {isBuild() && <BuildToolbar/>}
+                {isBuildContainer() && <BuildToolbar/>}
             </ToolbarContent>
         </Toolbar>)
     }
@@ -127,11 +127,11 @@ export function ProjectToolbar () {
     }
 
     function isRunnable(): boolean {
-        return !isKameletsProject() && !isTemplatesProject() && !isServicesProject() && tabIndex !== 'build';
+        return !isKameletsProject() && !isTemplatesProject() && !isServicesProject() && !['build', 'container'].includes(tabIndex.toString());
     }
 
-    function isBuild(): boolean {
-        return !isKameletsProject() && !isTemplatesProject() && !isServicesProject() && tabIndex === 'build';
+    function isBuildContainer(): boolean {
+        return !isKameletsProject() && !isTemplatesProject() && !isServicesProject() && ['build', 'container'].includes(tabIndex.toString());
     }
 
     function allowAddFiles(): boolean {

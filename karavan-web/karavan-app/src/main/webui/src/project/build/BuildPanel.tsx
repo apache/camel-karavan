@@ -16,13 +16,9 @@ import TagIcon from "@patternfly/react-icons/dist/esm/icons/tag-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
 import {useAppConfigStore, useLogStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
-import {ContainersPanel} from "./ContainersPanel";
+import {EventBus} from "../../designer/utils/EventBus";
 
-interface Props {
-    env: string,
-}
-
-export function BuildPanel (props: Props) {
+export function BuildPanel () {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [project] = useProjectStore((s) => [s.project], shallow);
@@ -32,31 +28,18 @@ export function BuildPanel (props: Props) {
     const [isPushing, setIsPushing] = useState<boolean>(false);
     const [isBuilding, setIsBuilding] = useState<boolean>(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
-    const [deleteEntityType, setDeleteEntityType] = useState<'pod' | 'deployment' | 'build'>('pod');
     const [deleteEntityName, setDeleteEntityName] = useState<string>();
-    const [deleteEntityEnv, setDeleteEntityEnv] = useState<string>();
-    const [tag, setTag] = useState<string>(new Date().toISOString().substring(0,19).replaceAll(':', '-'));
+    const [tag, setTag] = useState<string>(
+        new Date().toISOString().substring(0,19).replaceAll(':', '').replaceAll('-', '')
+    );
 
-    function deleteEntity(type: 'pod' | 'deployment' | 'build', name: string, environment: string) {
-        switch (type) {
-            case "deployment":
-                KaravanApi.deleteDeployment(environment, name, (res: any) => {
-                    // if (Array.isArray(res) && Array.from(res).length > 0)
-                    // onRefresh();
-                });
-                break;
-            case "pod":
-                KaravanApi.deleteContainer(environment, 'project', name, (res: any) => {
-                    // if (Array.isArray(res) && Array.from(res).length > 0)
-                    // onRefresh();
-                });
-                break;
-            case "build":
-                KaravanApi.stopBuild(environment, name, (res: any) => {
-                    // if (Array.isArray(res) && Array.from(res).length > 0)
-                    // onRefresh();
-                });
-                break;
+    function deleteEntity() {
+        if (deleteEntityName) {
+            KaravanApi.stopBuild('dev', deleteEntityName, (res: any) => {
+                if (res.status === 200) {
+                    EventBus.sendAlert("Build deleted", "Build deleted: " + deleteEntityName, 'info');
+                }
+            });
         }
     }
 
@@ -72,7 +55,7 @@ export function BuildPanel (props: Props) {
         });
     }
 
-    function buildButton(env: string) {
+    function buildButton() {
         const status = pipelineStatuses.filter(p => p.projectId === project.projectId).at(0);
         const isRunning = status?.result === 'Running';
         return (<Tooltip content="Start build" position={"left"}>
@@ -95,8 +78,6 @@ export function BuildPanel (props: Props) {
                     icon={<DeleteIcon/>}
                     onClick={e => {
                         setShowDeleteConfirmation(true);
-                        setDeleteEntityType("deployment");
-                        setDeleteEntityEnv(env);
                         setDeleteEntityName(project?.projectId);
                     }}>
                 {"Delete"}
@@ -166,8 +147,6 @@ export function BuildPanel (props: Props) {
                                         className="labeled-button"
                                         variant="link" onClick={e => {
                                         setShowDeleteConfirmation(true);
-                                        setDeleteEntityType("build");
-                                        setDeleteEntityEnv(env);
                                         setDeleteEntityName(pipeline);
                                     }}></Button>
                                 </Tooltip>}
@@ -178,12 +157,12 @@ export function BuildPanel (props: Props) {
                         </LabelGroup>
                     </Tooltip>
                 </FlexItem>
-                <FlexItem>{env === "dev" && buildButton(env)}</FlexItem>
+                <FlexItem>{buildButton()}</FlexItem>
             </Flex>
         )
     }
 
-    function getBuildState(env: string) {
+    function getBuildState() {
         const status = containers.filter(c => c.projectId === project.projectId && c.type === 'build').at(0);
         const buildName = status?.containerName;
         const state = status?.state;
@@ -202,9 +181,6 @@ export function BuildPanel (props: Props) {
             <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
                 <FlexItem>
                     <LabelGroup numLabels={3}>
-                        <Label isEditable={!isRunning} onEditComplete={(_, v) => setTag(v)}
-                               icon={<TagIcon className="not-spinner"/>}
-                               color={color}>{tag}</Label>
                         <Label icon={isRunning ? <Spinner diameter="16px" className="spinner"/> : icon}
                                color={color}>
                             {buildName
@@ -220,8 +196,6 @@ export function BuildPanel (props: Props) {
                                     className="labeled-button"
                                     variant="link" onClick={e => {
                                     setShowDeleteConfirmation(true);
-                                    setDeleteEntityType("build");
-                                    setDeleteEntityEnv(env);
                                     setDeleteEntityName(buildName);
                                 }}></Button>
                             </Tooltip>}
@@ -231,8 +205,21 @@ export function BuildPanel (props: Props) {
                                    color={color}>{buildTime + "s"}</Label>}
                     </LabelGroup>
                 </FlexItem>
-                <FlexItem>{env === "dev" && buildButton(env)}</FlexItem>
+                <FlexItem>{buildButton()}</FlexItem>
             </Flex>
+        )
+    }
+
+    function getBuildTag() {
+        const status = containers.filter(c => c.projectId === project.projectId && c.type === 'build').at(0);
+        const state = status?.state;
+        const isRunning = state === 'running';
+        const isExited = state === 'exited';
+        const color = isExited ? "grey" : (isRunning ? "blue" : "grey");
+        return (
+            <Label isEditable={!isRunning} onEditComplete={(_, v) => setTag(v)}
+                   icon={<TagIcon className="not-spinner"/>}
+                   color={color}>{tag}</Label>
         )
     }
 
@@ -244,8 +231,8 @@ export function BuildPanel (props: Props) {
             onClose={() => setShowDeleteConfirmation(false)}
             actions={[
                 <Button key="confirm" variant="primary" onClick={e => {
-                    if (deleteEntityEnv && deleteEntityName && deleteEntity) {
-                        deleteEntity(deleteEntityType, deleteEntityName, deleteEntityEnv);
+                    if (deleteEntityName && deleteEntity) {
+                        deleteEntity();
                         setShowDeleteConfirmation(false);
                     }
                 }}>Delete
@@ -254,39 +241,24 @@ export function BuildPanel (props: Props) {
                         onClick={e => setShowDeleteConfirmation(false)}>Cancel</Button>
             ]}
             onEscapePress={e => setShowDeleteConfirmation(false)}>
-            <div>{"Delete " + deleteEntityType + " " + deleteEntityName + "?"}</div>
+            <div>{"Delete build " + deleteEntityName + "?"}</div>
         </Modal>)
     }
 
-    const env = props.env;
     return (
         <Card className="project-status">
             <CardBody>
                 <DescriptionList isHorizontal horizontalTermWidthModifier={{default: '20ch'}}>
                     <DescriptionListGroup>
-                        <DescriptionListTerm>Environment</DescriptionListTerm>
+                        <DescriptionListTerm>Tag</DescriptionListTerm>
                         <DescriptionListDescription>
-                            <Badge className="badge">{env}</Badge>
+                            {getBuildTag()}
                         </DescriptionListDescription>
                     </DescriptionListGroup>
                     <DescriptionListGroup>
-                        <DescriptionListTerm>Build container with tag</DescriptionListTerm>
+                        <DescriptionListTerm>Build container</DescriptionListTerm>
                         <DescriptionListDescription>
-                            {getBuildState(env)}
-                        </DescriptionListDescription>
-                    </DescriptionListGroup>
-                    {config.infrastructure === 'kubernetes' &&
-                        <DescriptionListGroup>
-                        <DescriptionListTerm>Deployment</DescriptionListTerm>
-                        <DescriptionListDescription>
-                            {getReplicasPanel(env)}
-                        </DescriptionListDescription>
-                    </DescriptionListGroup>
-                    }
-                    <DescriptionListGroup>
-                        <DescriptionListTerm>Containers</DescriptionListTerm>
-                        <DescriptionListDescription>
-                            <ContainersPanel env={props.env}/>
+                            {getBuildState()}
                         </DescriptionListDescription>
                     </DescriptionListGroup>
                 </DescriptionList>

@@ -1,24 +1,19 @@
-import React from 'react';
-import {Button, Flex, FlexItem, Label, Spinner, Tooltip, TooltipPosition} from '@patternfly/react-core';
-import '../designer/karavan.css';
+import React, {useState} from 'react';
+import {Button, Flex, FlexItem, Modal, Spinner, Tooltip, TooltipPosition} from '@patternfly/react-core';
+import '../../designer/karavan.css';
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
-import {useAppConfigStore, useDevModeStore, useLogStore, useProjectStore, useStatusesStore} from "../api/ProjectStore";
+import {useAppConfigStore, useDevModeStore, useLogStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
-import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import RunIcon from "@patternfly/react-icons/dist/esm/icons/play-icon";
-import {ProjectService} from "../api/ProjectService";
-import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
-import {KaravanApi} from "../api/KaravanApi";
-import {ProjectEventBus} from "../api/ProjectEventBus";
-import {EventBus} from "../designer/utils/EventBus";
+import {KaravanApi} from "../../api/KaravanApi";
 import StopIcon from "@patternfly/react-icons/dist/js/icons/stop-icon";
 
+
 interface Props {
-    reloadOnly?: boolean
+    env: string,
 }
 
-export function ContainerPanel (props: Props) {
+export function ContainerButtons (props: Props) {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [status] = useDevModeStore((state) => [state.status], shallow)
@@ -26,29 +21,61 @@ export function ContainerPanel (props: Props) {
     const [containers] = useStatusesStore((state) => [state.containers], shallow);
     const [setShowLog] = useLogStore((s) => [s.setShowLog], shallow);
 
+    const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+    const [actionType, setActionType] = useState<'run' | 'stop' | 'delete'>('run');
+
     const containerStatus = containers.filter(c => c.containerName === project.projectId).at(0);
     const commands = containerStatus?.commands || ['run'];
     const isRunning = containerStatus?.state === 'running';
     const inTransit = containerStatus?.inTransit;
     const isLoading = status === 'wip';
-    const color = containerStatus?.state === 'running' ? "green" : "grey";
-    const icon = isRunning ? <UpIcon/> : <DownIcon/>;
+
+    function act() {
+        switch (actionType) {
+            case "run":
+                KaravanApi.manageContainer(props.env, 'project', project.projectId, 'run', res => {
+                    setShowLog(false, 'container', undefined)
+                });
+                break;
+            case "stop":
+                KaravanApi.manageContainer(props.env, 'project', project.projectId, 'stop', res => {
+                    setShowLog(false, 'container', undefined)
+                });
+                break;
+            case "delete":
+                KaravanApi.manageContainer(props.env, 'project', project.projectId, 'delete', res => {
+                    setShowLog(false, 'container', undefined)
+                });
+                break;
+        }
+    }
+
+    function getDeleteConfirmation() {
+        return (<Modal
+            className="modal-delete"
+            title="Confirmation"
+            isOpen={showConfirmation}
+            onClose={() => setShowConfirmation(false)}
+            actions={[
+                <Button key="confirm" variant="primary" onClick={e => {
+                    if (actionType && project.projectId) {
+                        act();
+                        setShowConfirmation(false);
+                    }
+                }}>Delete
+                </Button>,
+                <Button key="cancel" variant="link"
+                        onClick={e => setShowConfirmation(false)}>Cancel</Button>
+            ]}
+            onEscapePress={e => setShowConfirmation(false)}>
+            <div>{"Confirm " + actionType + " container?"}</div>
+        </Modal>)
+    }
 
     return (<Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
         <FlexItem>
             {(inTransit || isLoading) && <Spinner size="lg" aria-label="spinner"/>}
         </FlexItem>
-        {containerStatus?.containerId && <FlexItem>
-            <Label icon={icon} color={color}>
-                <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
-                    <Button className='labeled-button' variant="link" isDisabled={!isRunning}
-                            onClick={e =>
-                                setShowLog(true, 'container', containerStatus.containerName)}>
-                        {containerStatus.containerName}
-                    </Button>
-                </Tooltip>
-            </Label>
-        </FlexItem>}
         {!isRunning && <FlexItem>
             <Tooltip content="Run container" position={TooltipPosition.bottom}>
                 <Button size="sm"
@@ -56,9 +83,8 @@ export function ContainerPanel (props: Props) {
                         variant={"primary"}
                         icon={<RunIcon/>}
                         onClick={() => {
-                            KaravanApi.manageContainer('dev', 'project', project.projectId, 'run', res => {
-                                setShowLog(false, 'container', undefined)
-                            });
+                            setActionType('run');
+                            setShowConfirmation(true);
                         }}>
                     {"Run"}
                 </Button>
@@ -72,9 +98,8 @@ export function ContainerPanel (props: Props) {
                             variant={"control"}
                             icon={<StopIcon/>}
                             onClick={() => {
-                                KaravanApi.manageContainer('dev', 'project', project.projectId, 'stop', res => {
-                                    setShowLog(false, 'container', undefined)
-                                });
+                                setActionType('stop');
+                                setShowConfirmation(true);
                             }}>
                     </Button>
                 </Tooltip>
@@ -87,12 +112,12 @@ export function ContainerPanel (props: Props) {
                         variant={"control"}
                         icon={<DeleteIcon/>}
                         onClick={() => {
-                            KaravanApi.manageContainer('dev', 'project', project.projectId, 'delete', res => {
-                                setShowLog(false, 'container', undefined)
-                            });
+                            setActionType('delete');
+                            setShowConfirmation(true);
                         }}>
                 </Button>
             </Tooltip>
         </FlexItem>
+        {showConfirmation && getDeleteConfirmation()}
     </Flex>);
 }

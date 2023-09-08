@@ -12,6 +12,8 @@ import {ProjectBuildTab} from "./build/ProjectBuildTab";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import {ImagesPanel} from "./build/ImagesPanel";
+import {ContainerButtons} from "./container/ContainerButtons";
+import {ProjectContainerTab} from "./container/ProjectContainerTab";
 
 export function ProjectPanel () {
 
@@ -40,6 +42,7 @@ export function ProjectPanel () {
                     <Tab eventKey="dashboard" title="Dashboard"/>
                     <Tab eventKey="trace" title="Trace"/>
                     <Tab eventKey="build" title="Build"/>
+                    <Tab eventKey="container" title="Container"/>
                 </Tabs>}
             </FlexItem>
             <FlexItem>
@@ -51,6 +54,7 @@ export function ProjectPanel () {
                         {tab === 'trace' && project && <TraceTab/>}
                         {tab === 'build' && <ProjectBuildTab/>}
                         {tab === 'build' && <ImagesPanel/>}
+                        {tab === 'container' && <ProjectContainerTab/>}
                     </>
                 }
             </FlexItem>
