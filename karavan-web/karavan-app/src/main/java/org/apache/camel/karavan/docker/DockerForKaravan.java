@@ -87,7 +87,7 @@ public class DockerForKaravan {
     }
 
     public void syncImage(String projectId, String tag) throws InterruptedException {
-        String image = registryService.getRegistryWithGroup() + "/" + projectId + ":" + tag;
+        String image = registryService.getRegistryWithGroupForSync() + "/" + projectId + ":" + tag;
         dockerService.pullImage(image);
     }
 }

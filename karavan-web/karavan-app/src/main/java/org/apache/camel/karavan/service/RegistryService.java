@@ -52,6 +52,10 @@ public class RegistryService {
         return getRegistry() + "/" + group;
     }
 
+    public String getRegistryWithGroupForSync() {
+        return registry + "/" + group;
+    }
+
     public List<String> getEnvForBuild() {
         List<String> env = List.of(
                 "IMAGE_REGISTRY=" + registry,
