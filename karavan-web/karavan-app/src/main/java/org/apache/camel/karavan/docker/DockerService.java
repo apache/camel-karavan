@@ -30,6 +30,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.code.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -59,6 +60,9 @@ public class DockerService extends DockerServiceUtils {
 
     @Inject
     DockerEventListener dockerEventListener;
+
+    @Inject
+    CodeService codeService;
 
     @Inject
     Vertx vertx;
@@ -256,8 +260,7 @@ public class DockerService extends DockerServiceUtils {
     }
 
     public void copyFiles(String containerId, String containerPath, Map<String, String> files) {
-        String temp = vertx.fileSystem().createTempDirectoryBlocking(containerId);
-        files.forEach((fileName, code) -> addFile(temp, fileName, code));
+        String temp = codeService.saveProjectFilesInTemp(files);
         dockerClient.copyArchiveToContainerCmd(containerId).withRemotePath(containerPath)
                 .withDirChildrenOnly(true).withHostResource(temp).exec();
     }
@@ -286,15 +289,6 @@ public class DockerService extends DockerServiceUtils {
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
             e.printStackTrace();
-        }
-    }
-
-    private void addFile(String temp, String fileName, String code) {
-        try {
-            String path = temp + File.separator + fileName;
-            vertx.fileSystem().writeFileBlocking(path, Buffer.buffer(code));
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
         }
     }
 

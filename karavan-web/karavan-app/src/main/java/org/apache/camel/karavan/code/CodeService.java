@@ -23,6 +23,8 @@ import io.apicurio.datamodels.openapi.models.OasDocument;
 import io.quarkus.qute.Engine;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.CamelContext;
@@ -43,10 +45,7 @@ import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -76,6 +75,9 @@ public class CodeService {
     @Inject
     Engine engine;
 
+    @Inject
+    Vertx vertx;
+
     List<String> runtimes = List.of("quarkus", "spring-boot", "camel-main");
     List<String> targets = List.of("openshift", "kubernetes", "docker");
     List<String> interfaces = List.of("org.apache.camel.AggregationStrategy.java", "org.apache.camel.Processor.java");
@@ -104,6 +106,21 @@ public class CodeService {
         }
         String code =  instance.render();
         return new ProjectFile(APPLICATION_PROPERTIES_FILENAME, code, project.getProjectId(), Instant.now().toEpochMilli());
+    }
+
+    public String saveProjectFilesInTemp(Map<String, String> files) {
+        String temp = vertx.fileSystem().createTempDirectoryBlocking("temp");
+        files.forEach((fileName, code) -> addFile(temp, fileName, code));
+        return temp;
+    }
+
+    private void addFile(String temp, String fileName, String code) {
+        try {
+            String path = temp + File.separator + fileName;
+            vertx.fileSystem().writeFileBlocking(path, Buffer.buffer(code));
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
     }
 
     public String getTemplateText(String fileName) {

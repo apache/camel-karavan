@@ -27,6 +27,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
@@ -77,7 +78,7 @@ public class ConfigService {
 
     public static boolean inDocker() {
         if (inDocker == null) {
-            inDocker = Vertx.vertx().fileSystem().existsBlocking(".dockerenv");
+            inDocker = !inKubernetes() && Files.exists(Paths.get(".dockerenv"));
         }
         return inDocker;
     }

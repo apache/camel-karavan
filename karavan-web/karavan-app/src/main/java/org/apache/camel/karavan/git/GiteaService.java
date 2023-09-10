@@ -28,6 +28,8 @@ import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.logging.Logger;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -110,7 +112,8 @@ public class GiteaService {
         }
         LOGGER.info("Creating Gitea User Token");
         GitConfig config = gitService.getGitConfig();
-        HttpResponse<Buffer> result = getWebClient().postAbs(getGiteaBaseUrl() + "/api/v1/users/" + config.getUsername() + "/tokens").timeout(500)
+        String uri = getGiteaBaseUrl() + "/api/v1/users/" + config.getUsername() + "/tokens";
+        HttpResponse<Buffer> result = getWebClient().postAbs(uri).timeout(500)
                 .putHeader("Content-Type", "application/json")
                 .putHeader("accept", "application/json")
                 .basicAuthentication(config.getUsername(), config.getPassword())
@@ -123,6 +126,7 @@ public class GiteaService {
         } else if (result.statusCode() == 201) {
             JsonObject res = result.bodyAsJsonObject();
             token = res.getString("sha1");
+            LOGGER.info("Gitea User Token received");
             return token;
         } else {
             LOGGER.info("Error getting token");
@@ -145,7 +149,18 @@ public class GiteaService {
         }
     }
 
-    private String getGiteaBaseUrl(){
-        return ConfigService.inDocker() ? "http://gitea:3000" : "http://localhost:3000";
+    private String getGiteaBaseUrl() throws MalformedURLException {
+        if (ConfigService.inDocker()) {
+            return "http://gitea:3000";
+        } else if (ConfigService.inKubernetes()) {
+            String uri = gitService.getGitConfig().getUri();
+            URL url = new URL(uri);
+            String protocol = url.getProtocol();
+            String host = url.getHost();
+            int port = url.getPort();
+            return protocol + "://" + host + (port > 0 ? ":" + port : "");
+        } else {
+            return "http://localhost:3000";
+        }
     }
 }

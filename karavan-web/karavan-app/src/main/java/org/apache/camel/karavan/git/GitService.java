@@ -88,7 +88,6 @@ public class GitService {
         String propertiesPrefix = "karavan.";
         String branch = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-branch", String.class);
         if (ConfigService.inKubernetes()) {
-            LOGGER.info("inKubernetes " + kubernetesService.getNamespace());
             Secret secret = kubernetesService.getKaravanSecret();
             String uri = new String(Base64.getDecoder().decode(secret.getData().get("git-repository").getBytes(StandardCharsets.UTF_8)));
             String username = new String(Base64.getDecoder().decode(secret.getData().get("git-username").getBytes(StandardCharsets.UTF_8)));
@@ -443,7 +442,7 @@ public class GitService {
         return files;
     }
 
-    @Retry(maxRetries = 100, delay = 2000)
+//    @Retry(maxRetries = 100, delay = 2000)
     public boolean checkGit() throws Exception {
         LOGGER.info("Check git");
         GitConfig gitConfig = getGitConfig();

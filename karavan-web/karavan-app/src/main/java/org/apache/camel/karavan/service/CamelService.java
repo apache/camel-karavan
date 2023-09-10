@@ -27,14 +27,18 @@ import io.vertx.mutiny.ext.web.client.WebClient;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
+import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -43,6 +47,7 @@ public class CamelService {
 
     private static final Logger LOGGER = Logger.getLogger(CamelService.class.getName());
     public static final String CMD_COLLECT_CAMEL_STATUS = "collect-camel-status";
+    public static final String RELOAD_PROJECT_CODE = "RELOAD_PROJECT_CODE";
 
     @Inject
     InfinispanService infinispanService;
@@ -78,9 +83,11 @@ public class CamelService {
                     .filter(cs ->
                             cs.getType() == ContainerStatus.ContainerType.project
                                     || cs.getType() == ContainerStatus.ContainerType.devmode
-                    ).forEach(pod -> {
-                        CamelStatusRequest csr = new CamelStatusRequest(pod.getProjectId(), pod.getContainerName());
-                        eventBus.publish(CMD_COLLECT_CAMEL_STATUS, JsonObject.mapFrom(csr));
+                    ).forEach(cs -> {
+                        CamelStatusRequest csr = new CamelStatusRequest(cs.getProjectId(), cs.getContainerName());
+                        eventBus.publish(CMD_COLLECT_CAMEL_STATUS,
+                                JsonObject.mapFrom(Map.of("containerStatus", cs, "camelStatusRequest", csr))
+                        );
                     });
         }
     }
@@ -95,11 +102,12 @@ public class CamelService {
         }
     }
 
+    @ConsumeEvent(value = RELOAD_PROJECT_CODE, blocking = true, ordered = true)
     public void reloadProjectCode(String projectId) {
         LOGGER.info("Reload project code " + projectId);
         try {
-            infinispanService.getProjectFiles(projectId).forEach(projectFile ->
-                    putRequest(projectId, projectFile.getName(), projectFile.getCode(), 1000));
+            List<ProjectFile> files = infinispanService.getProjectFiles(projectId);
+            files.forEach(projectFile -> putRequest(projectId, projectFile.getName(), projectFile.getCode(), 1000));
             reloadRequest(projectId);
             ContainerStatus containerStatus = infinispanService.getDevModeContainerStatus(projectId, environment);
             containerStatus.setCodeLoaded(true);
@@ -134,7 +142,7 @@ public class CamelService {
 
     public String getContainerAddress(String containerName) {
         if (ConfigService.inKubernetes()) {
-            return "http://" + containerName + "." + kubernetesService.getNamespace() + ".svc.cluster.local";
+            return "http://" + containerName + "." + kubernetesService.getNamespace();
         } else if (ConfigService.inDocker()) {
             return "http://" + containerName + ":8080";
         } else {
@@ -145,7 +153,8 @@ public class CamelService {
 
     @ConsumeEvent(value = CMD_COLLECT_CAMEL_STATUS, blocking = true, ordered = true)
     public void collectCamelStatuses(JsonObject data) {
-        CamelStatusRequest dms = data.mapTo(CamelStatusRequest.class);
+        CamelStatusRequest dms = data.getJsonObject("camelStatusRequest").mapTo(CamelStatusRequest.class);
+        ContainerStatus containerStatus = data.getJsonObject("containerStatus").mapTo(ContainerStatus.class);
         String projectId = dms.getProjectId();
         Arrays.stream(CamelStatus.Name.values()).forEach(statusName -> {
             String containerName = dms.getContainerName();
@@ -153,8 +162,21 @@ public class CamelService {
             if (status != null) {
                 CamelStatus cs = new CamelStatus(projectId, containerName, statusName, status, environment);
                 infinispanService.saveCamelStatus(cs);
+                if (ConfigService.inKubernetes() && Objects.equals(statusName, CamelStatus.Name.context)) {
+                    checkReloadRequired(containerStatus);
+                }
             }
         });
+    }
+
+    private void checkReloadRequired(ContainerStatus cs) {
+        if (ConfigService.inKubernetes()) {
+            if (!Objects.equals(cs.getCodeLoaded(), true)
+                    && Objects.equals(cs.getState(), ContainerStatus.State.running.name())
+                    && Objects.equals(cs.getType(), ContainerStatus.ContainerType.devmode)) {
+                eventBus.publish(RELOAD_PROJECT_CODE, cs.getProjectId());
+            }
+        }
     }
 
     public String getCamelStatus(String podName, CamelStatus.Name statusName) {

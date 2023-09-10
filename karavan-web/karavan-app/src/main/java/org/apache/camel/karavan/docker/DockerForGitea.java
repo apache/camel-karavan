@@ -72,7 +72,6 @@ public class DockerForGitea {
                             "--admin");
             dockerService.execStart(user.getId(), new LoggerCallback());
             LOGGER.info("Created Gitea User");
-            giteaService.createRepository();
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }

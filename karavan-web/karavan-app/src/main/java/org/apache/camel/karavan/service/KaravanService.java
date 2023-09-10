@@ -80,7 +80,7 @@ public class KaravanService implements HealthCheck {
     @Inject
     ProjectService projectService;
 
-    private static final String START_KUBERNETES_LISTENERS = "START_KUBERNETES_LISTENERS";
+    private static final String START_KUBERNETES_SERVICES = "START_KUBERNETES_LISTENERS";
     private static final String START_INTERNAL_DOCKER_SERVICES = "START_INTERNAL_DOCKER_SERVICES";
     private static final String START_SERVICES = "START_SERVICES";
 
@@ -93,7 +93,7 @@ public class KaravanService implements HealthCheck {
         if (!ConfigService.inKubernetes()) {
             eventBus.publish(START_INTERNAL_DOCKER_SERVICES, null);
         } else {
-            eventBus.publish(START_KUBERNETES_LISTENERS, null);
+            eventBus.publish(START_KUBERNETES_SERVICES, null);
         }
         eventBus.publish(START_SERVICES, null);
     }
@@ -112,6 +112,7 @@ public class KaravanService implements HealthCheck {
                 dockerForGitea.startGitea();
                 giteaService.install();
                 dockerForGitea.createGiteaUser();
+                giteaService.createRepository();
             }
             if (registryInstall) {
                 dockerForRegistry.startRegistry();
@@ -119,9 +120,12 @@ public class KaravanService implements HealthCheck {
         }
     }
 
-    @ConsumeEvent(value = START_KUBERNETES_LISTENERS, blocking = true)
-    void startKubernetesListeners(String data) throws Exception {
+    @ConsumeEvent(value = START_KUBERNETES_SERVICES, blocking = true)
+    void startKubernetesServices(String data) throws Exception {
         LOGGER.info("Starting Karavan in Kubernetes");
+        if (giteaInstall) {
+            giteaService.createRepository();
+        }
         kubernetesService.startInformers(null);
     }
 

@@ -111,6 +111,7 @@ public class ProjectService implements HealthCheck {
                 Map<String, String> files = infinispanService.getProjectFiles(project.getProjectId()).stream()
                         .filter(f -> !Objects.equals(f.getName(), PROJECT_COMPOSE_FILENAME))
                         .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::getCode));
+
                 ProjectFile compose = infinispanService.getProjectFile(project.getProjectId(), PROJECT_COMPOSE_FILENAME);
                 DockerComposeService dcs = DockerComposeConverter.fromCode(compose.getCode(), project.getProjectId());
                 Map<String, String> volumes = mavenCache
@@ -206,7 +207,7 @@ public class ProjectService implements HealthCheck {
         return codeService.getProjectPort(composeFile);
     }
 
-    @Retry(maxRetries = 100, delay = 2000)
+//    @Retry(maxRetries = 100, delay = 2000)
     public void tryStart() throws Exception {
         if (infinispanService.isReady() && gitService.checkGit()) {
             if (infinispanService.getProjects().isEmpty()) {

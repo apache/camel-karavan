@@ -35,6 +35,7 @@ import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Readiness;
@@ -44,6 +45,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
+
+import java.io.ByteArrayInputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,7 +61,7 @@ import static org.apache.camel.karavan.shared.Constants.*;
 public class KubernetesService implements HealthCheck {
 
     private static final Logger LOGGER = Logger.getLogger(KubernetesService.class.getName());
-    protected static final int INFORMERS = 4;
+    protected static final int INFORMERS = 3;
     private static final String CAMEL_PREFIX = "camel";
     private static final String KARAVAN_PREFIX = "karavan";
     private static final String JBANG_CACHE_SUFFIX = "jbang-cache";
@@ -68,6 +73,9 @@ public class KubernetesService implements HealthCheck {
 
     @Inject
     InfinispanService infinispanService;
+
+    @Inject
+    CodeService codeService;
 
     @Produces
     public KubernetesClient kubernetesClient() {
@@ -107,10 +115,10 @@ public class KubernetesService implements HealthCheck {
             serviceInformer.addEventHandlerWithResyncPeriod(new ServiceEventHandler(infinispanService, this), 30 * 1000L);
             informers.add(serviceInformer);
 
-            SharedIndexInformer<PipelineRun> pipelineRunInformer = tektonClient().v1beta1().pipelineRuns().inNamespace(getNamespace())
-                    .withLabels(getRuntimeLabels()).inform();
-            pipelineRunInformer.addEventHandlerWithResyncPeriod(new PipelineRunEventHandler(infinispanService, this), 30 * 1000L);
-            informers.add(pipelineRunInformer);
+//            SharedIndexInformer<PipelineRun> pipelineRunInformer = tektonClient().v1beta1().pipelineRuns().inNamespace(getNamespace())
+//                    .withLabels(getRuntimeLabels()).inform();
+//            pipelineRunInformer.addEventHandlerWithResyncPeriod(new PipelineRunEventHandler(infinispanService, this), 30 * 1000L);
+//            informers.add(pipelineRunInformer);
 
             SharedIndexInformer<Pod> podRunInformer = kubernetesClient().pods().inNamespace(getNamespace())
                     .withLabels(getRuntimeLabels()).inform();
@@ -426,6 +434,7 @@ public class KubernetesService implements HealthCheck {
         labels.putAll(getRuntimeLabels());
         labels.putAll(getKaravanRunnerLabels(name));
         labels.put(LABEL_PROJECT_ID, projectId);
+        labels.put(LABEL_TYPE, ContainerStatus.ContainerType.devmode.name());
 
         ResourceRequirements resources = getResourceRequirements(containerResources);
 
@@ -448,10 +457,11 @@ public class KubernetesService implements HealthCheck {
                 .withResources(resources)
                 .withImagePullPolicy("Always")
                 .withEnv(new EnvVarBuilder().withName(ENV_VAR_JBANG_OPTIONS).withValue(jbangOptions).build())
-                .withVolumeMounts(
-                        new VolumeMountBuilder().withName(name).withMountPath("/karavan/.jbang/cache").build(),
-                        new VolumeMountBuilder().withName("maven-settings").withSubPath("maven-settings.xml")
-                                .withMountPath("/karavan-config-map/maven-settings.xml").build())
+//                .withVolumeMounts(
+//                        new VolumeMountBuilder().withName(name).withMountPath("/karavan/.jbang/cache").build()
+//                        new VolumeMountBuilder().withName("maven-settings").withSubPath("maven-settings.xml")
+//                                .withMountPath("/karavan-config-map/maven-settings.xml").build()
+//                )
                 .build();
 
         PodSpec spec = new PodSpecBuilder()

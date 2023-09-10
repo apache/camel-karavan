@@ -17,6 +17,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 
+import static org.apache.camel.karavan.service.CamelService.RELOAD_PROJECT_CODE;
+
 @ApplicationScoped
 public class ContainerStatusService {
 
@@ -36,7 +38,7 @@ public class ContainerStatusService {
 
     @Scheduled(every = "{karavan.container.statistics.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectContainersStatistics() {
-        if (infinispanService.isReady()) {
+        if (infinispanService.isReady() && !ConfigService.inKubernetes()) {
             List<ContainerStatus> statusesInDocker = dockerService.collectContainersStatistics();
             statusesInDocker.forEach(containerStatus -> {
                 eventBus.send(ContainerStatusService.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
@@ -46,17 +48,19 @@ public class ContainerStatusService {
 
     @Scheduled(every = "{karavan.container.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectContainersStatuses() {
-        if (infinispanService.isReady()) {
-            List<ContainerStatus> statusesInDocker = dockerService.collectContainersStatuses();
-            statusesInDocker.forEach(containerStatus -> {
-                eventBus.send(ContainerStatusService.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
-            });
-            cleanContainersStatuses(statusesInDocker);
+        if (infinispanService.isReady() && !ConfigService.inKubernetes()) {
+            if (!ConfigService.inKubernetes()) {
+                List<ContainerStatus> statusesInDocker = dockerService.collectContainersStatuses();
+                statusesInDocker.forEach(containerStatus -> {
+                    eventBus.send(ContainerStatusService.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
+                });
+                cleanContainersStatuses(statusesInDocker);
+            }
         }
     }
 
     void cleanContainersStatuses(List<ContainerStatus> statusesInDocker) {
-        if (infinispanService.isReady()) {
+        if (infinispanService.isReady() && !ConfigService.inKubernetes()) {
             List<String> namesInDocker = statusesInDocker.stream().map(ContainerStatus::getContainerName).toList();
             List<ContainerStatus> statusesInInfinispan = infinispanService.getContainerStatuses(environment);
             // clean deleted
