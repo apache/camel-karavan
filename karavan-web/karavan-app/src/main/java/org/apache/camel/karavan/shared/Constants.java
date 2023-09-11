@@ -20,8 +20,10 @@ public class Constants {
 
     public static final String ENV_VAR_JBANG_OPTIONS = "JBANG_OPTIONS";
 
+    public static final String LABEL_PART_OF = "app.kubernetes.io/part-of";
     public static final String LABEL_TYPE = "org.apache.camel.karavan/type";
     public static final String LABEL_PROJECT_ID = "org.apache.camel.karavan/projectId";
+    public static final String LABEL_PROJECT_RUNTIME = "org.apache.camel.karavan/projectRuntime";
     public static final String LABEL_TAG = "org.apache.camel.karavan/tag";
 
     public static final String BUILDER_SUFFIX = "-builder";

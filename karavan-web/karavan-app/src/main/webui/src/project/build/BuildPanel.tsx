@@ -23,8 +23,8 @@ export function BuildPanel () {
     const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [project] = useProjectStore((s) => [s.project], shallow);
     const [setShowLog] = useLogStore((s) => [s.setShowLog], shallow);
-    const [containers, deployments, camels, pipelineStatuses] =
-        useStatusesStore((s) => [s.containers, s.deployments, s.camels, s.pipelineStatuses], shallow);
+    const [containers, deployments, camels] =
+        useStatusesStore((s) => [s.containers, s.deployments, s.camels], shallow);
     const [isPushing, setIsPushing] = useState<boolean>(false);
     const [isBuilding, setIsBuilding] = useState<boolean>(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
@@ -56,8 +56,8 @@ export function BuildPanel () {
     }
 
     function buildButton() {
-        const status = pipelineStatuses.filter(p => p.projectId === project.projectId).at(0);
-        const isRunning = status?.result === 'Running';
+        const status = containers.filter(c => c.projectId === project.projectId && c.type === 'build').at(0);
+        const isRunning = status?.state === 'running';
         return (<Tooltip content="Start build" position={"left"}>
             <Button isLoading={isBuilding ? true : undefined}
                     isDisabled={isBuilding || isRunning || isPushing}
@@ -107,57 +107,6 @@ export function BuildPanel () {
                     {deploymentStatus === undefined && <Label icon={<DownIcon/>} color={"grey"}>No deployments</Label>}
                 </FlexItem>
                 <FlexItem>{env === "dev" && deleteDeploymentButton(env)}</FlexItem>
-            </Flex>
-        )
-    }
-
-    function getPipelineState(env: string) {
-        const status = pipelineStatuses.filter(p => p.projectId === project.projectId).at(0);
-        const pipeline = status?.pipelineName;
-        const pipelineResult = status?.result;
-        let lastPipelineRunTime = 0;
-        if (status?.startTime) {
-            const start: Date = new Date(status.startTime);
-            const finish: Date = status.completionTime !== undefined && status.completionTime !== null ? new Date(status.completionTime) : new Date();
-            lastPipelineRunTime = Math.round((finish.getTime() - start.getTime()) / 1000);
-        }
-        const showTime = lastPipelineRunTime && lastPipelineRunTime > 0;
-        const isRunning = pipelineResult === 'Running';
-        const isFailed = pipelineResult === 'Failed';
-        const isSucceeded = pipelineResult === 'Succeeded';
-        const color = isSucceeded ? "green" : (isFailed ? "red" : (isRunning ? "blue" : "grey"))
-        const icon = isSucceeded ? <UpIcon className="not-spinner"/> : <DownIcon className="not-spinner"/>
-        return (
-            <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
-                <FlexItem>
-                    <Tooltip content={pipelineResult} position={"right"}>
-                        <LabelGroup numLabels={2}>
-                            <Label icon={isRunning ? <Spinner diameter="16px" className="spinner"/> : icon}
-                                   color={color}>
-                                {pipeline
-                                    ? <Button className='labeled-button' variant="link" onClick={e =>
-                                        useLogStore.setState({showLog: true, type: 'build', podName: pipeline})
-                                    }>
-                                        {pipeline}
-                                    </Button>
-                                    : "No builder"}
-                                {isRunning && <Tooltip content={"Stop build"}>
-                                    <Button
-                                        icon={<DeleteIcon/>}
-                                        className="labeled-button"
-                                        variant="link" onClick={e => {
-                                        setShowDeleteConfirmation(true);
-                                        setDeleteEntityName(pipeline);
-                                    }}></Button>
-                                </Tooltip>}
-                            </Label>
-                            {pipeline !== undefined && showTime === true && lastPipelineRunTime !== undefined &&
-                                <Label icon={<ClockIcon className="not-spinner"/>}
-                                       color={color}>{lastPipelineRunTime + "s"}</Label>}
-                        </LabelGroup>
-                    </Tooltip>
-                </FlexItem>
-                <FlexItem>{buildButton()}</FlexItem>
             </Flex>
         )
     }

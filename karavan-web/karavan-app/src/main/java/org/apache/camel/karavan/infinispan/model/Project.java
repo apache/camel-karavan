@@ -14,8 +14,7 @@ public class Project {
         @ProtoEnumValue(number = 0, name = "templates") templates,
         @ProtoEnumValue (number = 1, name = "kamelets") kamelets,
         @ProtoEnumValue (number = 2, name = "services") services,
-        @ProtoEnumValue (number = 3, name = "pipelines") pipelines,
-        @ProtoEnumValue (number = 4, name = "normal") normal,
+        @ProtoEnumValue (number = 3, name = "normal") normal,
     }
 
     @ProtoField(number = 1)

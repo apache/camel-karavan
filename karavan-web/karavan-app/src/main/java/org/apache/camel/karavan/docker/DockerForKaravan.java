@@ -22,6 +22,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.code.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
+import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.service.RegistryService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -68,21 +69,25 @@ public class DockerForKaravan {
 
     }
 
-    public void runBuildProject(String projectId, String script, Map<String, String> files, List<String> env,  Map<String, String> volumes, String tag) throws Exception {
-        String containerName = projectId + BUILDER_SUFFIX;
+    public void runBuildProject(Project project, String script, List<String> env, Map<String, String> volumes, String tag) throws Exception {
+        String containerName = project.getProjectId() + BUILDER_SUFFIX;
         dockerService.deleteContainer(containerName);
-        Container c = createBuildContainer(containerName, projectId, env, volumes, tag);
-        dockerService.copyFiles(c.getId(), "/code", files);
+        Container c = createBuildContainer(containerName, project, env, volumes, tag);
         dockerService.copyExecFile(c.getId(), "/karavan", "build.sh", script);
         dockerService.runContainer(c);
     }
 
-    protected Container createBuildContainer(String containerName, String projectId, List<String> env, Map<String, String> volumes, String tag) throws InterruptedException {
+    protected Container createBuildContainer(String containerName, Project project, List<String> env, Map<String, String> volumes, String tag) throws InterruptedException {
         LOGGER.infof("Starting Build Container ", containerName);
 
         return dockerService.createContainer(containerName, devmodeImage,
                 env, Map.of(), new HealthCheck(),
-                Map.of(LABEL_TYPE, ContainerStatus.ContainerType.build.name(), LABEL_PROJECT_ID, projectId, LABEL_TAG, tag),
+                Map.of(
+                        LABEL_TYPE, ContainerStatus.ContainerType.build.name(),
+                        LABEL_PROJECT_ID, project.getProjectId(),
+                        LABEL_PROJECT_RUNTIME, project.getRuntime(),
+                        LABEL_TAG, tag
+                ),
                 volumes, null,"/karavan/build.sh");
     }
 

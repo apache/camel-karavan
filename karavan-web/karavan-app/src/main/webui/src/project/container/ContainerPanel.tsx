@@ -31,8 +31,8 @@ export function ContainerPanel (props: Props) {
 
     const [project] = useProjectStore((s) => [s.project], shallow);
     const [setShowLog] = useLogStore((s) => [s.setShowLog], shallow);
-    const [containers, deployments, camels, pipelineStatuses] =
-        useStatusesStore((s) => [s.containers, s.deployments, s.camels, s.pipelineStatuses], shallow);
+    const [containers, deployments, camels] =
+        useStatusesStore((s) => [s.containers, s.deployments, s.camels], shallow);
 
     function getButtons() {
         const env = props.env;

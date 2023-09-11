@@ -3,7 +3,6 @@ import {
     AppConfig,
     CamelStatus,
     DeploymentStatus,
-    PipelineStatus,
     ContainerStatus,
     Project,
     ProjectFile, ProjectType, ServiceStatus
@@ -164,20 +163,6 @@ export class KaravanApi {
                 if (res.status === 200) {
                     after(res.data);
                 }
-            }).catch(err => {
-            console.log(err);
-        });
-    }
-
-    static async getPipelineStatuses(env: string, after: (status: PipelineStatus[]) => void) {
-        instance.get('/api/status/pipeline/' + env)
-            .then(res => {
-                if (res.status === 200) {
-                    after(res.data);
-                } else if (res.status === 204) {
-                    after([]);
-                }
-
             }).catch(err => {
             console.log(err);
         });
@@ -377,26 +362,6 @@ export class KaravanApi {
                 after(res);
             }).catch(err => {
             after(err);
-        });
-    }
-
-    static async pipelineRun(project: Project, environment: string, after: (res: AxiosResponse<any>) => void) {
-        instance.post('/api/infrastructure/pipeline/' + environment, project)
-            .then(res => {
-                after(res);
-            }).catch(err => {
-            after(err);
-        });
-    }
-
-    static async getPipelineLog(environment: string, pipelineRunName: string, after: (res: AxiosResponse<any>) => void) {
-        instance.get('/api/infrastructure/pipeline/log/' + environment + "/" + pipelineRunName)
-            .then(res => {
-                if (res.status === 200) {
-                    after(res.data);
-                }
-            }).catch(err => {
-            console.log(err);
         });
     }
 

@@ -109,7 +109,7 @@ public class ProjectResource {
                        @PathParam("env") String env, @PathParam("buildName") String buildName) {
         buildName = URLDecoder.decode(buildName, StandardCharsets.UTF_8);
         if (ConfigService.inKubernetes()) {
-            kubernetesService.stopPipelineRun(buildName, kubernetesService.getNamespace());
+            kubernetesService.deletePod(buildName);
             return Response.ok().build();
         } else {
             dockerService.deleteContainer(buildName);

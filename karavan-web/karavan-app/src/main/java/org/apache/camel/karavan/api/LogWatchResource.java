@@ -70,7 +70,7 @@ public class LogWatchResource {
         managedExecutor.execute(() -> {
             LOGGER.info("LogWatch for " + name + " starting...");
             if (ConfigService.inKubernetes()) {
-                getKubernetesLogs(type, name, eventSink, sse);
+                getKubernetesLogs(name, eventSink, sse);
             } else {
                 getDockerLogs(type, name, eventSink, sse);
             }
@@ -94,11 +94,9 @@ public class LogWatchResource {
         }
     }
 
-    private void getKubernetesLogs(String type, String name, SseEventSink eventSink, Sse sse) {
+    private void getKubernetesLogs(String name, SseEventSink eventSink, Sse sse) {
         try (SseEventSink sink = eventSink) {
-            LogWatch logWatch = type.equals("container")
-                    ? kubernetesService.getContainerLogWatch(name)
-                    : kubernetesService.getPipelineRunLogWatch(name);
+            LogWatch logWatch = kubernetesService.getContainerLogWatch(name);
             BufferedReader reader = new BufferedReader(new InputStreamReader(logWatch.getOutput()));
             try {
                 for (String line; (line = reader.readLine()) != null && !sink.isClosed(); ) {

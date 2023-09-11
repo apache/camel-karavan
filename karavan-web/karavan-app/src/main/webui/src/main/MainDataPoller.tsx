@@ -3,11 +3,9 @@ import React, {useEffect, useState} from 'react';
 import {KaravanApi} from "../api/KaravanApi";
 import '../designer/karavan.css';
 import {
-    AppConfig,
     CamelStatus,
     ContainerStatus,
     DeploymentStatus,
-    PipelineStatus,
     Project,
     ServiceStatus
 } from "../api/ProjectModels";
@@ -19,9 +17,9 @@ export function MainDataPoller () {
     const [config, setLoading, readiness, setReadiness] = useAppConfigStore((s) =>
         [s.config, s.setLoading, s.readiness, s.setReadiness], shallow)
     const [projects, setProjects] = useProjectsStore((state) => [state.projects, state.setProjects], shallow)
-    const [deployments, services, containers, camels, setDeployments, setServices, setContainers, setCamels, setPipelineStatuses]
+    const [deployments, services, containers, camels, setDeployments, setServices, setContainers, setCamels]
         = useStatusesStore((s) => [s.deployments, s.services, s.containers, s.camels,
-        s.setDeployments, s.setServices, s.setContainers, s.setCamels, s.setPipelineStatuses], shallow);
+        s.setDeployments, s.setServices, s.setContainers, s.setCamels], shallow);
 
     const [project] = useProjectStore((state) => [state.project], shallow )
 
@@ -54,9 +52,6 @@ export function MainDataPoller () {
             });
             KaravanApi.getAllCamelStatuses(config.environment, (statuses: CamelStatus[]) => {
                 setCamels(statuses);
-            });
-            KaravanApi.getPipelineStatuses(config.environment, (status: PipelineStatus[]) => {
-                setPipelineStatuses(status);
             });
             setLoading(false);
         }

@@ -22,7 +22,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.DeploymentStatus;
-import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.infinispan.model.ServiceStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.ConfigService;
@@ -46,40 +45,6 @@ public class InfrastructureResource {
     String environment;
 
     private static final Logger LOGGER = Logger.getLogger(InfrastructureResource.class.getName());
-
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/pipeline/{env}")
-    public String createPipeline(@PathParam("env") String env, Project project) throws Exception {
-        Project p = infinispanService.getProject(project.getProjectId());
-        return kubernetesService.createPipelineRun(project);
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/pipeline/{env}/{name}")
-    public Response getPipeline(@PathParam("env") String env,
-                                @PathParam("name") String name) throws Exception {
-        return Response.ok(kubernetesService.getPipelineRun(name, kubernetesService.getNamespace())).build();
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/pipeline/log/{env}/{name}")
-    public Response getPipelineLog(@PathParam("env") String env,
-                                   @PathParam("name") String name) throws Exception {
-        return Response.ok(kubernetesService.getPipelineRunLog(name, kubernetesService.getNamespace())).build();
-    }
-
-    @DELETE
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/pipelinerun/{env}/{name}")
-    public Response stopPipelineRun(@PathParam("env") String env, @PathParam("name") String name) throws Exception {
-        kubernetesService.stopPipelineRun(name, kubernetesService.getNamespace());
-        return Response.ok().build();
-    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)

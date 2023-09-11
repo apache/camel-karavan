@@ -60,7 +60,6 @@ public class InfinispanService implements HealthCheck {
 
     private RemoteCache<GroupedKey, Project> projects;
     private RemoteCache<GroupedKey, ProjectFile> files;
-    private RemoteCache<GroupedKey, PipelineStatus> pipelineStatuses;
     private RemoteCache<GroupedKey, DeploymentStatus> deploymentStatuses;
     private RemoteCache<GroupedKey, ContainerStatus> containerStatuses;
     private RemoteCache<GroupedKey, Boolean> transits;
@@ -101,7 +100,6 @@ public class InfinispanService implements HealthCheck {
             projects = getOrCreateCache(Project.CACHE);
             files = getOrCreateCache(ProjectFile.CACHE);
             containerStatuses = getOrCreateCache(ContainerStatus.CACHE);
-            pipelineStatuses = getOrCreateCache(PipelineStatus.CACHE);
             deploymentStatuses = getOrCreateCache(DeploymentStatus.CACHE);
             serviceStatuses = getOrCreateCache(ServiceStatus.CACHE);
             camelStatuses = getOrCreateCache(CamelStatus.CACHE);
@@ -189,25 +187,6 @@ public class InfinispanService implements HealthCheck {
 
     public Project getProject(String projectId) {
         return projects.get(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT, projectId));
-    }
-
-    public PipelineStatus getPipelineStatus(String projectId, String environment) {
-        return pipelineStatuses.get(GroupedKey.create(projectId, environment, projectId));
-    }
-
-    public List<PipelineStatus> getPipelineStatuses(String environment) {
-        QueryFactory queryFactory = Search.getQueryFactory((RemoteCache<?, ?>) pipelineStatuses);
-        return queryFactory.<PipelineStatus>create("FROM karavan.PipelineStatus WHERE env = :env")
-                .setParameter("env", environment)
-                .execute().list();
-    }
-
-    public void savePipelineStatus(PipelineStatus status) {
-        pipelineStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getProjectId()), status);
-    }
-
-    public void deletePipelineStatus(PipelineStatus status) {
-        pipelineStatuses.remove(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getProjectId()));
     }
 
     public DeploymentStatus getDeploymentStatus(String projectId, String environment) {
@@ -367,7 +346,6 @@ public class InfinispanService implements HealthCheck {
         CompletableFuture.allOf(
                 deploymentStatuses.clearAsync(),
                 containerStatuses.clearAsync(),
-                pipelineStatuses.clearAsync(),
                 camelStatuses.clearAsync()
         ).join();
     }

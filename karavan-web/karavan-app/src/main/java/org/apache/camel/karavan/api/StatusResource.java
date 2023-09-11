@@ -39,20 +39,6 @@ public class StatusResource {
     @Inject
     InfinispanService infinispanService;
 
-    @Inject
-    EventBus bus;
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/pipeline/{env}")
-    public List<PipelineStatus> getPipelineStatuses(@PathParam("env") String env) {
-        if (infinispanService.isReady()) {
-            return infinispanService.getPipelineStatuses(env);
-        } else {
-            return List.of();
-        }
-    }
-
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment/{name}/{env}")

@@ -12,7 +12,6 @@ export enum ProjectType {
     templates ='templates',
     kamelets ='kamelets',
     services ='services',
-    pipelines ='pipelines',
     normal ='normal',
 }
 
@@ -94,14 +93,6 @@ export class CamelStatus {
     name: string = '';
     status: string = '';
     env: string = '';
-}
-
-export class PipelineStatus {
-    projectId: string = '';
-    pipelineName: string = '';
-    result: string = '';
-    startTime: string = '';
-    completionTime: string = '';
 }
 
 export class ProjectFile {

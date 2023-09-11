@@ -9,7 +9,6 @@ import org.infinispan.protostream.annotations.AutoProtoSchemaBuilder;
                 Project.class,
                 Project.Type.class,
                 ProjectFile.class,
-                PipelineStatus.class,
                 CamelStatus.class,
                 CamelStatus.Name.class,
                 DeploymentStatus.class,

@@ -23,13 +23,11 @@ const mode = new BehaviorSubject<"design" | "code">("design");
 const log = new Subject<["add" | "set", string]>();
 
 export class ShowLogCommand {
-    type: 'container' | 'pipeline'
     name: string
     environment: string
     show: boolean
 
-    constructor(type: "container" | "pipeline", name: string, environment: string, show: boolean) {
-        this.type = type;
+    constructor(name: string, environment: string, show: boolean) {
         this.name = name;
         this.environment = environment;
         this.show = show;

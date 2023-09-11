@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import {create} from 'zustand'
 import {
     AppConfig,
     DeploymentStatus,
@@ -24,7 +23,6 @@ import {
     ProjectFile,
     ServiceStatus,
     CamelStatus,
-    PipelineStatus
 } from "./ProjectModels";
 import {ProjectEventBus} from "./ProjectEventBus";
 import {unstable_batchedUpdates} from "react-dom";
@@ -246,8 +244,6 @@ interface StatusesState {
     setServices: (s: ServiceStatus[]) => void;
     setContainers: (c: ContainerStatus[]) => void;
     setCamels: (c: CamelStatus[]) => void;
-    pipelineStatuses: PipelineStatus[],
-    setPipelineStatuses: (pipelineStatus: PipelineStatus[]) => void;
 }
 
 export const useStatusesStore = createWithEqualityFn<StatusesState>((set) => ({
@@ -274,10 +270,6 @@ export const useStatusesStore = createWithEqualityFn<StatusesState>((set) => ({
         set((state: StatusesState) => ({
             camels: c,
         }));
-    },
-    pipelineStatuses: [],
-    setPipelineStatuses: (pipelineStatuses: PipelineStatus[])  => {
-        set({pipelineStatuses: pipelineStatuses})
     },
 }), shallow)
 

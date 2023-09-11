@@ -168,7 +168,7 @@ public class ContainerResource {
             setContainerStatusTransit(name, type);
             try {
                 if (ConfigService.inKubernetes()) {
-                    kubernetesService.deletePod(name, kubernetesService.getNamespace());
+                    kubernetesService.deletePod(name);
                 } else {
                     dockerService.deleteContainer(name);
                 }

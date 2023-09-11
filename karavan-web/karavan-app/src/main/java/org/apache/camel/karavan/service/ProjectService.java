@@ -16,7 +16,6 @@
  */
 package org.apache.camel.karavan.service;
 
-import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.code.CodeService;
@@ -31,7 +30,6 @@ import org.apache.camel.karavan.infinispan.model.*;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Readiness;
@@ -125,27 +123,20 @@ public class ProjectService implements HealthCheck {
         }
     }
 
-    public String buildProject(Project project, String tag) throws Exception {
+    public void buildProject(Project project, String tag) throws Exception {
+        String templateName = project.getRuntime() + "-builder-script-docker.sh";
+        String script = codeService.getTemplateText(templateName);
+
+        tag = tag != null && !tag.isEmpty() && !tag.isBlank()
+                ? tag
+                : Instant.now().toString().substring(0, 19).replace(":", "-");
+
+        List<String> env = getEnvForBuild(project, tag);
         if (ConfigService.inKubernetes()) {
-            return kubernetesService.createPipelineRun(project);
+            kubernetesService.runBuildProject(project, script, env, tag);
         } else {
-            Map<String, String> files = infinispanService.getProjectFiles(project.getProjectId()).stream()
-                    .filter(f -> !Objects.equals(f.getName(), PROJECT_COMPOSE_FILENAME))
-                    .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::getCode));
-
-            String templateName = project.getRuntime() + "-builder-script-docker.sh";
-            String script = codeService.getTemplateText(templateName);
-
-            tag = tag != null && !tag.isEmpty() && !tag.isBlank()
-                    ? tag
-                    : Instant.now().toString().substring(0, 19).replace(":", "-");
-
-            List<String> env = getEnvForBuild(project, tag);
-            Map<String, String> volumes = mavenCache
-                    .map(s -> Map.of(s, "/root/.m2"))
-                    .orElseGet(Map::of);
-            dockerForKaravan.runBuildProject(project.getProjectId(), script, files, env, volumes, tag);
-            return project.getProjectId();
+            Map<String, String> volumes = mavenCache.map(s -> Map.of(s, "/root/.m2")).orElseGet(Map::of);
+            dockerForKaravan.runBuildProject(project, script, env, volumes, tag);
         }
     }
 
@@ -181,7 +172,7 @@ public class ProjectService implements HealthCheck {
         Optional<ProjectFile> file = files.stream().filter(f -> Objects.equals(f.getProjectId(), projectId)).findFirst();
         if (file.isPresent()) {
             DockerComposeService service = DockerComposeConverter.fromCode(file.get().getCode(), projectId);
-            String image =  service.getImage();
+            String image = service.getImage();
             return Objects.equals(image, projectId) ? null : image;
         } else {
             return null;
@@ -207,7 +198,7 @@ public class ProjectService implements HealthCheck {
         return codeService.getProjectPort(composeFile);
     }
 
-//    @Retry(maxRetries = 100, delay = 2000)
+    //    @Retry(maxRetries = 100, delay = 2000)
     public void tryStart() throws Exception {
         if (infinispanService.isReady() && gitService.checkGit()) {
             if (infinispanService.getProjects().isEmpty()) {
@@ -234,8 +225,6 @@ public class ProjectService implements HealthCheck {
                     project = new Project(Project.Type.templates.name(), "Templates", "Templates", "", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.templates);
                 } else if (folderName.equals(Project.Type.kamelets.name())) {
                     project = new Project(Project.Type.kamelets.name(), "Custom Kamelets", "Custom Kamelets", "", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.kamelets);
-                } else if (folderName.equals(Project.Type.pipelines.name())) {
-                    project = new Project(Project.Type.pipelines.name(), "Pipelines", "CI/CD Pipelines", "", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.pipelines);
                 } else if (folderName.equals(Project.Type.services.name())) {
                     project = new Project(Project.Type.services.name(), "Services", "Development Services", "", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.services);
                 } else {
@@ -350,25 +339,6 @@ public class ProjectService implements HealthCheck {
             }
         } catch (Exception e) {
             LOGGER.error("Error during services project creation", e);
-        }
-    }
-
-    void addPipelinesProject() {
-        LOGGER.info("Add pipelines project if not exists");
-        try {
-            Project pipelines = infinispanService.getProject(Project.Type.pipelines.name());
-            if (pipelines == null) {
-                pipelines = new Project(Project.Type.pipelines.name(), "Pipelines", "CI/CD Pipelines", "", "", Instant.now().toEpochMilli(), Project.Type.pipelines);
-                infinispanService.saveProject(pipelines);
-
-                codeService.getTemplates().forEach((name, value) -> {
-                    ProjectFile file = new ProjectFile(name, value, Project.Type.pipelines.name(), Instant.now().toEpochMilli());
-                    infinispanService.saveProjectFile(file);
-                });
-                commitAndPushProject(Project.Type.pipelines.name(), "Add default pipelines");
-            }
-        } catch (Exception e) {
-            LOGGER.error("Error during pipelines project creation", e);
         }
     }
 
