@@ -16,8 +16,8 @@
  */
 package org.apache.camel.karavan.generator;
 
-import io.fabric8.camelk.v1alpha1.Kamelet;
 import org.apache.camel.kamelets.catalog.KameletsCatalog;
+import org.apache.camel.v1.Kamelet;
 
 import java.io.BufferedReader;
 import java.io.File;
