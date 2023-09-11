@@ -24,7 +24,6 @@
         <camel.version>4.0.0-RC1</camel.version>
         <camel-kamelet.version>4.0.0-RC1</camel-kamelet.version>
         <surefire-plugin.version>3.1.0</surefire-plugin.version>
-        <tekton.version>6.7.2</tekton.version>
         <jgit.version>2.3.2</jgit.version>
         <quinoa.version>1.2.4</quinoa.version>
         <resources-plugin.version>3.3.0</resources-plugin.version>
