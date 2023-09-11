@@ -9,17 +9,19 @@ LABEL "org.opencontainers.image.version"="4.0.0-RC2"
 ENV JBANG_VERSION=0.110.0
 ENV CAMEL_VERSION=4.0.0
 ENV KARAVAN="/karavan"
+ENV BUILDER_PATH="/builder"
 ENV JBANG_REPO="$KARAVAN/.jbang/cache/.m2"
 ENV JBANG_DIR="$KARAVAN/.jbang"
 ENV MAVEN_SETTINGS="/karavan-config-map/maven-settings.xml"
-ENV KAMELETS_DIR="/scripts/kamelets"
-ENV CHECKOUT_DIR="/scripts"
+ENV KAMELETS_DIR="/code/kamelets"
+ENV CHECKOUT_DIR="/code"
 ENV CODE_DIR="/code"
 ENV PATH="${PATH}:$KARAVAN/.jbang/bin"
 
 RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
     && apk update && apk add git \
     && mkdir -p $CODE_DIR \
+    && mkdir -p $BUILDER_PATH \
     && jbang trust add  --quiet  https://github.com/apache/camel \
     && jbang app install camel@apache/camel \
     && jbang config set cache-evict never
