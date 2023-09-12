@@ -27,7 +27,7 @@ export function ProjectContainerTab() {
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>
                                 <DescriptionListGroup>
-                                    <DescriptionListTerm>Containers</DescriptionListTerm>
+                                    <DescriptionListTerm>Deployment</DescriptionListTerm>
                                     <DescriptionListDescription>
                                         <DeploymentPanel key={env} env={env}/>
                                     </DescriptionListDescription>

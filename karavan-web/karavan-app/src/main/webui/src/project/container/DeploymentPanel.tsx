@@ -1,28 +1,19 @@
 import React, {useState} from 'react';
 import {
-    Badge,
     Button,
-    Card,
-    CardBody,
-    DescriptionList,
-    DescriptionListDescription,
-    DescriptionListGroup,
-    DescriptionListTerm,
     Flex,
     FlexItem,
     Label,
     LabelGroup, Modal,
     Tooltip,
-    TooltipPosition
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/running-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
-import {useAppConfigStore, useLogStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
+import {useAppConfigStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
-import {ContainerStatus} from "../../api/ProjectModels";
-import {ContainerButtons} from "./ContainerButtons";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
+import RolloutIcon from "@patternfly/react-icons/dist/esm/icons/process-automation-icon";
 import {KaravanApi} from "../../api/KaravanApi";
 import {EventBus} from "../../designer/utils/EventBus";
 
@@ -37,16 +28,25 @@ export function DeploymentPanel (props: Props) {
     const [ deployments] =
         useStatusesStore((s) => [s.deployments], shallow);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
-    const [deleteEntityName, setDeleteEntityName] = useState<string>();
+    const [showRolloutConfirmation, setShowRolloutConfirmation] = useState<boolean>(false);
 
-    function deleteEntity() {
-        if (deleteEntityName) {
-            KaravanApi.deleteDeployment(props.env, deleteEntityName, (res: any) => {
+    function deleteDeployment() {
+        if (project.projectId) {
+            KaravanApi.deleteDeployment(props.env, project.projectId, (res: any) => {
                 if (res.status === 200) {
-                    EventBus.sendAlert("Deployment deleted", "Deployment deleted: " + deleteEntityName, 'info');
+                    EventBus.sendAlert("Deployment deleted", "Deployment deleted: " + project.projectId, 'info');
                 }
             });
         }
+    }
+
+    function rolloutDeployment () {
+        KaravanApi.rolloutDeployment(project.projectId, props.env, res => {
+            console.log(res)
+            if (res.status === 200) {
+                EventBus.sendAlert("Rolled out", "Rolled out: " + project.projectId, 'info');
+            }
+        });
     }
 
     function getDeleteConfirmation() {
@@ -57,8 +57,8 @@ export function DeploymentPanel (props: Props) {
             onClose={() => setShowDeleteConfirmation(false)}
             actions={[
                 <Button key="confirm" variant="primary" onClick={e => {
-                    if (deleteEntityName) {
-                        deleteEntity();
+                    if (project.projectId) {
+                        deleteDeployment();
                         setShowDeleteConfirmation(false);
                     }
                 }}>Delete
@@ -67,20 +67,41 @@ export function DeploymentPanel (props: Props) {
                         onClick={e => setShowDeleteConfirmation(false)}>Cancel</Button>
             ]}
             onEscapePress={e => setShowDeleteConfirmation(false)}>
-            <div>{"Delete deployment " + deleteEntityName + "?"}</div>
+            <div>{"Delete deployment " + project.projectId + "?"}</div>
         </Modal>)
     }
 
-    function deleteDeploymentButton() {
-        return (<Tooltip content="Delete deployment" position={"left"}>
+    function getRolloutConfirmation() {
+        return (<Modal
+            className="modal-delete"
+            title="Confirmation"
+            isOpen={showDeleteConfirmation}
+            onClose={() => setShowDeleteConfirmation(false)}
+            actions={[
+                <Button key="confirm" variant="primary" onClick={e => {
+                    if (project.projectId) {
+                        rolloutDeployment();
+                        setShowRolloutConfirmation(false);
+                    }
+                }}>Delete
+                </Button>,
+                <Button key="cancel" variant="link"
+                        onClick={e => setShowRolloutConfirmation(false)}>Cancel</Button>
+            ]}
+            onEscapePress={e => setShowDeleteConfirmation(false)}>
+            <div>{"Rollout deployment " + project.projectId + "?"}</div>
+        </Modal>)
+    }
+
+    function rolloutButton() {
+        return (<Tooltip content="Rollout deployment" position={"left"}>
             <Button size="sm" variant="secondary"
                     className="project-button"
-                    icon={<DeleteIcon/>}
+                    icon={<RolloutIcon/>}
                     onClick={e => {
-                        setShowDeleteConfirmation(true);
-                        setDeleteEntityName(project?.projectId);
+                        setShowRolloutConfirmation(true);
                     }}>
-                {"Delete"}
+                {"Rollout"}
             </Button>
         </Tooltip>)
     }
@@ -102,11 +123,18 @@ export function DeploymentPanel (props: Props) {
                             <Label icon={<DownIcon/>} color={"red"}>{deploymentStatus.unavailableReplicas}</Label>
                         </Tooltip>
                     }
+                    <Button
+                        icon={<DeleteIcon/>}
+                        className="labeled-button"
+                        variant="link" onClick={e => {
+                        setShowDeleteConfirmation(true);
+                    }}></Button>
                 </LabelGroup>}
                 {deploymentStatus === undefined && <Label icon={<DownIcon/>} color={"grey"}>No deployments</Label>}
             </FlexItem>
-            <FlexItem>{props.env === "dev" && deleteDeploymentButton()}</FlexItem>
+            <FlexItem>{props.env === "dev" && rolloutButton()}</FlexItem>
             {showDeleteConfirmation && getDeleteConfirmation()}
+            {showRolloutConfirmation && getRolloutConfirmation()}
         </Flex>
     )
 }

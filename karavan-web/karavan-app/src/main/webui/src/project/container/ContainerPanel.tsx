@@ -39,7 +39,6 @@ export function ContainerPanel (props: Props) {
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
     const [deleteEntityName, setDeleteEntityName] = useState<string>();
 
-
     function deleteEntity() {
         if (deleteEntityName) {
             KaravanApi.stopBuild('dev', deleteEntityName, (res: any) => {
