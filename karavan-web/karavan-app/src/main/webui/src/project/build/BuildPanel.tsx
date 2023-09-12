@@ -34,13 +34,9 @@ export function BuildPanel () {
     );
 
     function deleteEntity() {
-        if (deleteEntityName) {
-            KaravanApi.stopBuild('dev', deleteEntityName, (res: any) => {
-                if (res.status === 200) {
-                    EventBus.sendAlert("Build deleted", "Build deleted: " + deleteEntityName, 'info');
-                }
-            });
-        }
+        KaravanApi.manageContainer(config.environment, 'project', project.projectId, 'delete', res => {
+            setShowLog(false, 'container', undefined)
+        });
     }
 
     function build() {
@@ -69,46 +65,6 @@ export function BuildPanel () {
                 {isBuilding ? "..." : "Build"}
             </Button>
         </Tooltip>)
-    }
-
-    function deleteDeploymentButton(env: string) {
-        return (<Tooltip content="Delete deployment" position={"left"}>
-            <Button size="sm" variant="secondary"
-                    className="project-button"
-                    icon={<DeleteIcon/>}
-                    onClick={e => {
-                        setShowDeleteConfirmation(true);
-                        setDeleteEntityName(project?.projectId);
-                    }}>
-                {"Delete"}
-            </Button>
-        </Tooltip>)
-    }
-
-    function getReplicasPanel(env: string) {
-        const deploymentStatus = deployments.find(d => d.name === project?.projectId);
-        const ok = (deploymentStatus && deploymentStatus?.readyReplicas > 0
-            && (deploymentStatus.unavailableReplicas === 0 || deploymentStatus.unavailableReplicas === undefined || deploymentStatus.unavailableReplicas === null)
-            && deploymentStatus?.replicas === deploymentStatus?.readyReplicas)
-        return (
-            <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
-                <FlexItem>
-                    {deploymentStatus && <LabelGroup numLabels={3}>
-                        <Tooltip content={"Ready Replicas / Replicas"} position={"left"}>
-                            <Label icon={ok ? <UpIcon/> : <DownIcon/>}
-                                   color={ok ? "green" : "grey"}>{"Replicas: " + deploymentStatus.readyReplicas + " / " + deploymentStatus.replicas}</Label>
-                        </Tooltip>
-                        {deploymentStatus.unavailableReplicas > 0 &&
-                            <Tooltip content={"Unavailable replicas"} position={"right"}>
-                                <Label icon={<DownIcon/>} color={"red"}>{deploymentStatus.unavailableReplicas}</Label>
-                            </Tooltip>
-                        }
-                    </LabelGroup>}
-                    {deploymentStatus === undefined && <Label icon={<DownIcon/>} color={"grey"}>No deployments</Label>}
-                </FlexItem>
-                <FlexItem>{env === "dev" && deleteDeploymentButton(env)}</FlexItem>
-            </Flex>
-        )
     }
 
     function getBuildState() {

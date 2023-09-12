@@ -63,14 +63,16 @@ public class ContainerStatus {
     @ProtoField(number = 13)
     String state;
     @ProtoField(number = 14)
-    Boolean codeLoaded;
+    String phase;
     @ProtoField(number = 15)
-    Boolean inTransit = false;
+    Boolean codeLoaded;
     @ProtoField(number = 16)
+    Boolean inTransit = false;
+    @ProtoField(number = 17)
     String initDate;
 
     @ProtoFactory
-    public ContainerStatus(String projectId, String containerName, String containerId, String image, List<Integer> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, Boolean codeLoaded, Boolean inTransit, String initDate) {
+    public ContainerStatus(String projectId, String containerName, String containerId, String image, List<Integer> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, String phase, Boolean codeLoaded, Boolean inTransit, String initDate) {
         this.projectId = projectId;
         this.containerName = containerName;
         this.containerId = containerId;
@@ -84,6 +86,7 @@ public class ContainerStatus {
         this.finished = finished;
         this.commands = commands;
         this.state = state;
+        this.phase = phase;
         this.codeLoaded = codeLoaded;
         this.inTransit = inTransit;
         this.initDate = initDate;
@@ -275,6 +278,14 @@ public class ContainerStatus {
         this.initDate = initDate;
     }
 
+    public String getPhase() {
+        return phase;
+    }
+
+    public void setPhase(String phase) {
+        this.phase = phase;
+    }
+
     @Override
     public String toString() {
         return "ContainerStatus{" +
@@ -291,8 +302,10 @@ public class ContainerStatus {
                 ", finished='" + finished + '\'' +
                 ", commands=" + commands +
                 ", state='" + state + '\'' +
+                ", status='" + phase + '\'' +
                 ", codeLoaded=" + codeLoaded +
                 ", inTransit=" + inTransit +
+                ", initDate='" + initDate + '\'' +
                 '}';
     }
 }

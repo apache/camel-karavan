@@ -39,7 +39,7 @@ export function ProjectsTableRow (props: Props) {
         return getEnvironments().map(e => {
             const env: string = e as string;
             const status = config.infrastructure === 'kubernetes'
-                ? deployments.find(d => d.name === name && d.env === env)
+                ? deployments.find(d => d.projectId === name && d.env === env)
                 : containers.find(d => d.containerName === name && d.env === env);
             return [env, status];
         });

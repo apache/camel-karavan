@@ -402,10 +402,10 @@ public class DockerService extends DockerServiceUtils {
                 .map(image -> image.getRepoTags()[0]).toList();
     }
 
-    public List<String> getImages(String registryUrl, String registryUsername, String registryPassword, String pattern) throws IOException {
+    public List<String> getImages(String registryUrl, String registryUsername, String registryPassword) throws IOException {
         List<String> result = new ArrayList<>();
-        DockerClient client =  getDockerClient(registryUrl, registryUsername, registryPassword);
-        getDockerClient().searchImagesCmd(pattern).exec().stream().map(searchItem -> searchItem.getName());
+        DockerClient client = getDockerClient(registryUrl, registryUsername, registryPassword);
+        client.listImagesCmd().withShowAll(true).exec().forEach(image -> result.add(image.getRepoTags()[0]));
         client.close();
         return result;
     }

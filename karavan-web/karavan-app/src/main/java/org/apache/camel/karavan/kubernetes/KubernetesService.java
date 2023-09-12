@@ -159,6 +159,7 @@ public class KubernetesService implements HealthCheck {
     private Map<String, String> getLabels(String name, Project project, ContainerStatus.ContainerType type) {
         Map<String, String> labels = new HashMap<>();
         labels.putAll(getRuntimeLabels());
+        labels.putAll(getPartOfLabels());
         labels.put("app.kubernetes.io/name", name);
         labels.put(LABEL_PROJECT_ID, project.getProjectId());
         labels.put(LABEL_PROJECT_RUNTIME, project.getRuntime());
@@ -170,8 +171,13 @@ public class KubernetesService implements HealthCheck {
 
     private Map<String, String> getRuntimeLabels() {
         Map<String, String> labels = new HashMap<>();
-        labels.put(LABEL_PART_OF, KARAVAN_PREFIX);
         labels.put(isOpenshift() ? "app.openshift.io/runtime" : "app.kubernetes.io/runtime", CAMEL_PREFIX);
+        return labels;
+    }
+
+    private Map<String, String> getPartOfLabels() {
+        Map<String, String> labels = new HashMap<>();
+        labels.put(LABEL_PART_OF, KARAVAN_PREFIX);
         return labels;
     }
 

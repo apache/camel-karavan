@@ -22,7 +22,6 @@ import SetIcon from "@patternfly/react-icons/dist/esm/icons/check-icon";
 import {KaravanApi} from "../../api/KaravanApi";
 import {ProjectService} from "../../api/ProjectService";
 import {ServicesYaml} from "../../api/ServiceModels";
-import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import {EventBus} from "../../designer/utils/EventBus";
 

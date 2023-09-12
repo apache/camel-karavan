@@ -44,7 +44,7 @@ export class Project {
 }
 
 export class DeploymentStatus {
-    name: string = '';
+    projectId: string = '';
     env: string = '';
     namespace: string = '';
     cluster: string = '';
@@ -69,6 +69,7 @@ export class ContainerStatus {
     containerName: string = '';
     containerId: string = '';
     state: string = '';
+    phase: string = '';
     deployment: string = '';
     projectId: string = '';
     env: string = '';

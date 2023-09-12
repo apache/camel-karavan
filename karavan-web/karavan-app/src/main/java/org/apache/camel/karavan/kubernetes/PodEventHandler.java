@@ -78,8 +78,10 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
     public ContainerStatus getPodStatus(Pod pod) {
         String deployment = pod.getMetadata().getLabels().get("app");
         String projectId = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_PROJECT_ID);
-        String type = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_TYPE);
-        ContainerStatus.ContainerType containerType = type != null ? ContainerStatus.ContainerType.valueOf(type) : ContainerStatus.ContainerType.unknown;
+        String type = pod.getMetadata().getLabels().get(LABEL_TYPE);
+        ContainerStatus.ContainerType containerType = deployment != null
+                ? ContainerStatus.ContainerType.project
+                : (type != null ? ContainerStatus.ContainerType.valueOf(type) : ContainerStatus.ContainerType.unknown);
         try {
             boolean ready = pod.getStatus().getConditions().stream().anyMatch(c -> c.getType().equals("Ready") && c.getStatus().equals("True"));
             boolean running = Objects.equals(pod.getStatus().getPhase(), "Running");
@@ -105,6 +107,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
                     requestCpu + " / " + limitCpu,
                     creationTimestamp);
             status.setContainerId(pod.getMetadata().getName());
+            status.setPhase(pod.getStatus().getPhase());
             if (ready) {
                 status.setState(ContainerStatus.State.running.name());
             } else if (failed) {

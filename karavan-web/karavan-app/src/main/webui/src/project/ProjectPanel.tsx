@@ -5,7 +5,7 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {FilesTab} from "./files/FilesTab";
-import {useProjectStore} from "../api/ProjectStore";
+import {useAppConfigStore, useProjectStore} from "../api/ProjectStore";
 import {DashboardTab} from "./dashboard/DashboardTab";
 import {TraceTab} from "./trace/TraceTab";
 import {ProjectBuildTab} from "./build/ProjectBuildTab";
@@ -17,6 +17,7 @@ import {ProjectContainerTab} from "./container/ProjectContainerTab";
 
 export function ProjectPanel () {
 
+    const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [project,tab, setTab] = useProjectStore((s) => [s.project, s.tabIndex, s.setTabIndex], shallow );
 
     useEffect(() => {
@@ -53,7 +54,7 @@ export function ProjectPanel () {
                         {tab === 'dashboard' && project && <DashboardTab/>}
                         {tab === 'trace' && project && <TraceTab/>}
                         {tab === 'build' && <ProjectBuildTab/>}
-                        {tab === 'build' && <ImagesPanel/>}
+                        {tab === 'build' && config.infrastructure !== 'kubernetes' && <ImagesPanel/>}
                         {tab === 'container' && <ProjectContainerTab/>}
                     </>
                 }

@@ -76,7 +76,7 @@ export function ContainerButtons (props: Props) {
         <FlexItem>
             {(inTransit || isLoading) && <Spinner size="lg" aria-label="spinner"/>}
         </FlexItem>
-        {!isRunning && <FlexItem>
+        {!isRunning && config.infrastructure !== 'kubernetes' && <FlexItem>
             <Tooltip content="Run container" position={TooltipPosition.bottom}>
                 <Button size="sm"
                         isDisabled={(!(commands.length === 0) && !commands.includes('run')) || inTransit}

@@ -34,7 +34,7 @@ import CheckIcon from "@patternfly/react-icons/dist/esm/icons/check-icon";
 
 export function Main() {
 
-    const [config, readiness] = useAppConfigStore((s) => [s.config, s.readiness], shallow)
+    const [readiness] = useAppConfigStore((s) => [s.readiness], shallow)
     const {getData, getStatuses} = useMainHook();
 
     const initialized = useRef(false)

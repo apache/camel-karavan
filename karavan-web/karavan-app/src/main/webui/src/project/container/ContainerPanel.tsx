@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
     Badge,
     Button,
@@ -11,17 +11,20 @@ import {
     Flex,
     FlexItem,
     Label,
-    LabelGroup,
+    LabelGroup, Modal,
     Tooltip,
     TooltipPosition
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/running-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
-import {useLogStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
+import {useAppConfigStore, useLogStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {ContainerStatus} from "../../api/ProjectModels";
 import {ContainerButtons} from "./ContainerButtons";
+import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
+import {KaravanApi} from "../../api/KaravanApi";
+import {EventBus} from "../../designer/utils/EventBus";
 
 interface Props {
     env: string,
@@ -29,62 +32,86 @@ interface Props {
 
 export function ContainerPanel (props: Props) {
 
+    const {config} = useAppConfigStore();
     const [project] = useProjectStore((s) => [s.project], shallow);
     const [setShowLog] = useLogStore((s) => [s.setShowLog], shallow);
-    const [containers, deployments, camels] =
-        useStatusesStore((s) => [s.containers, s.deployments, s.camels], shallow);
+    const [containers] = useStatusesStore((s) => [s.containers], shallow);
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
+    const [deleteEntityName, setDeleteEntityName] = useState<string>();
 
-    function getButtons() {
-        const env = props.env;
-        const conts = containers.filter(d => d.projectId === project?.projectId && d.type === 'project');
-        return (
-            <Flex justifyContent={{default: "justifyContentSpaceBetween"}}
-                  alignItems={{default: "alignItemsFlexStart"}}>
-                <FlexItem>
-                    {conts.length === 0 && <Label icon={<DownIcon/>} color={"grey"}>No pods</Label>}
-                    <LabelGroup numLabels={2} isVertical>
-                        {conts.map((pod: ContainerStatus) => {
-                                const ready = pod.state === 'running';
-                                return (
-                                    <Tooltip key={pod.containerName} content={pod.state} position={TooltipPosition.left}>
-                                        <Label icon={ready ? <UpIcon/> : <DownIcon/>} color={ready ? "green" : "grey"}>
-                                            <Button variant="link" className="labeled-button"
-                                                    onClick={e => {
-                                                        setShowLog(true, 'container', pod.containerName);
-                                                    }}>
-                                                {pod.containerName}
-                                            </Button>
-                                        </Label>
-                                    </Tooltip>
-                                )
-                            }
-                        )}
-                    </LabelGroup>
-                </FlexItem>
-                <FlexItem>{env === "dev" && <ContainerButtons env={env}/>}</FlexItem>
-            </Flex>
-        )
+
+    function deleteEntity() {
+        if (deleteEntityName) {
+            KaravanApi.stopBuild('dev', deleteEntityName, (res: any) => {
+                if (res.status === 200) {
+                    EventBus.sendAlert("Container deleted", "Container deleted: " + deleteEntityName, 'info');
+                }
+            });
+        }
+    }
+
+    function getDeleteConfirmation() {
+        return (<Modal
+            className="modal-delete"
+            title="Confirmation"
+            isOpen={showDeleteConfirmation}
+            onClose={() => setShowDeleteConfirmation(false)}
+            actions={[
+                <Button key="confirm" variant="primary" onClick={e => {
+                    if (deleteEntityName) {
+                        deleteEntity();
+                        setShowDeleteConfirmation(false);
+                    }
+                }}>Delete
+                </Button>,
+                <Button key="cancel" variant="link"
+                        onClick={e => setShowDeleteConfirmation(false)}>Cancel</Button>
+            ]}
+            onEscapePress={e => setShowDeleteConfirmation(false)}>
+            <div>{"Delete container " + deleteEntityName + "?"}</div>
+        </Modal>)
+    }
+
+    function getBadge(cs: ContainerStatus) {
+        return config.infrastructure === 'kubernetes'
+            ? <Badge isRead>{cs.phase}</Badge>
+            : <Badge isRead>{cs.state}</Badge>
     }
 
     const env = props.env;
+    const conts = containers.filter(d => d.projectId === project?.projectId && d.type === 'project');
     return (
-        <Card className="project-status">
-            <CardBody>
-                <DescriptionList isHorizontal horizontalTermWidthModifier={{default: '20ch'}}>
-                    <DescriptionListGroup>
-                        <DescriptionListTerm>Environment</DescriptionListTerm>
-                        <DescriptionListDescription>
-                            <Badge className="badge">{env}</Badge>
-                        </DescriptionListDescription>
-                    </DescriptionListGroup>
-                    <DescriptionListGroup>
-                        <DescriptionListTerm>Containers</DescriptionListTerm>
-                        <DescriptionListDescription>
-                            {getButtons()}
-                        </DescriptionListDescription>
-                    </DescriptionListGroup>
-                </DescriptionList>
-            </CardBody>
-        </Card>
+        <Flex justifyContent={{default: "justifyContentSpaceBetween"}}
+              alignItems={{default: "alignItemsFlexStart"}}>
+            <FlexItem>
+                {conts.length === 0 && <Label icon={<DownIcon/>} color={"grey"}>No pods</Label>}
+                <LabelGroup numLabels={10} isVertical>
+                    {conts.map((cs: ContainerStatus) => {
+                            const ready = cs.state === 'running';
+                            return (
+                                <Label icon={ready ? <UpIcon/> : <DownIcon/>} color={ready ? "green" : "grey"}>
+                                    <Button variant="link" className="labeled-button"
+                                            onClick={e => {
+                                                setShowLog(true, 'container', cs.containerName);
+                                            }}>
+                                        {cs.containerName}
+                                    </Button>
+                                    {getBadge(cs)}
+                                    <Button
+                                        icon={<DeleteIcon/>}
+                                        className="labeled-button"
+                                        variant="link" onClick={e => {
+                                        setShowDeleteConfirmation(true);
+                                        setDeleteEntityName(cs.containerName);
+                                    }}></Button>
+                                </Label>
+                            )
+                        }
+                    )}
+                </LabelGroup>
+            </FlexItem>
+            <FlexItem>{env === "dev" && config.infrastructure !== 'kubernetes' && <ContainerButtons env={env}/>}</FlexItem>
+            {showDeleteConfirmation && getDeleteConfirmation()}
+        </Flex>
     )
 }

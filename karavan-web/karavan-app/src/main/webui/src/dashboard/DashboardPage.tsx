@@ -94,7 +94,7 @@ export function DashboardPage () {
     function getDeploymentEnvironments(name: string): [string, boolean] [] {
         return selectedEnv.map(e => {
             const env: string = e as string;
-            const dep = deployments.find(d => d.name === name && d.env === env);
+            const dep = deployments.find(d => d.projectId === name && d.env === env);
             const deployed: boolean = dep !== undefined && dep.replicas > 0 && dep.replicas === dep.readyReplicas;
             return [env, deployed];
         });
@@ -103,7 +103,7 @@ export function DashboardPage () {
     function getDeploymentByEnvironments(name: string): [string, DeploymentStatus | undefined] [] {
         return selectedEnv.map(e => {
             const env: string = e as string;
-            const dep = deployments.find(d => d.name === name && d.env === env);
+            const dep = deployments.find(d => d.projectId === name && d.env === env);
             return [env, dep];
         });
     }
@@ -187,7 +187,9 @@ export function DashboardPage () {
     }
 
     function getKubernetesTable() {
-        const deps = Array.from(new Set(deployments.filter(d => d.name.toLowerCase().includes(filter)).map(d => d.name)));
+        const deps = Array.from(new Set(deployments
+            .filter(d => d?.projectId?.toLowerCase().includes(filter))
+            .map(d => d.projectId)));
         return (
             <Table aria-label="Projects" variant={TableVariant.compact}>
                 <Thead>
