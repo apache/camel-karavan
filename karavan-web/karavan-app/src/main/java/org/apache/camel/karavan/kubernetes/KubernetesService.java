@@ -24,6 +24,7 @@ import io.fabric8.kubernetes.client.dsl.LogWatch;
 import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.client.OpenShiftClient;
+import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
@@ -42,6 +43,7 @@ import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,11 +57,6 @@ public class KubernetesService implements HealthCheck {
 
     private static final Logger LOGGER = Logger.getLogger(KubernetesService.class.getName());
     protected static final int INFORMERS = 3;
-    private static final String CAMEL_PREFIX = "camel";
-    private static final String KARAVAN_PREFIX = "karavan";
-    private static final String JBANG_CACHE_SUFFIX = "jbang-cache";
-    private static final String M2_CACHE_SUFFIX = "m2-cache";
-    protected static final String PVC_MAVEN_SETTINGS = "maven-settings";
 
     @Inject
     EventBus eventBus;
@@ -91,24 +88,22 @@ public class KubernetesService implements HealthCheck {
             LOGGER.info("Starting Kubernetes Informers");
 
             Map<String, String> labels = getRuntimeLabels();
+            KubernetesClient client = kubernetesClient();
 
-            try (KubernetesClient client = kubernetesClient()) {
+            SharedIndexInformer<Deployment> deploymentInformer = client.apps().deployments().inNamespace(getNamespace())
+                    .withLabels(labels).inform();deploymentInformer.addEventHandlerWithResyncPeriod(new DeploymentEventHandler(infinispanService, this), 30 * 1000L);
+            informers.add(deploymentInformer);
 
-                SharedIndexInformer<Deployment> deploymentInformer = client.apps().deployments().inNamespace(getNamespace())
-                        .withLabels(labels).inform();
-                deploymentInformer.addEventHandlerWithResyncPeriod(new DeploymentEventHandler(infinispanService, this), 30 * 1000L);
-                informers.add(deploymentInformer);
+            SharedIndexInformer<Service> serviceInformer = client.services().inNamespace(getNamespace())
+                    .withLabels(labels).inform();
+            serviceInformer.addEventHandlerWithResyncPeriod(new ServiceEventHandler(infinispanService, this), 30 * 1000L);
+            informers.add(serviceInformer);
 
-                SharedIndexInformer<Service> serviceInformer = client.services().inNamespace(getNamespace())
-                        .withLabels(labels).inform();
-                serviceInformer.addEventHandlerWithResyncPeriod(new ServiceEventHandler(infinispanService, this), 30 * 1000L);
-                informers.add(serviceInformer);
+            SharedIndexInformer<Pod> podRunInformer = client.pods().inNamespace(getNamespace())
+                    .withLabels(labels).inform();
+            podRunInformer.addEventHandlerWithResyncPeriod(new PodEventHandler(infinispanService, this, eventBus), 30 * 1000L);
+            informers.add(podRunInformer);
 
-                SharedIndexInformer<Pod> podRunInformer = client.pods().inNamespace(getNamespace())
-                        .withLabels(labels).inform();
-                podRunInformer.addEventHandlerWithResyncPeriod(new PodEventHandler(infinispanService, this, eventBus), 30 * 1000L);
-                informers.add(podRunInformer);
-            }
             LOGGER.info("Started Kubernetes Informers");
         } catch (Exception e) {
             LOGGER.error("Error starting informers: " + e.getMessage());
@@ -228,6 +223,7 @@ public class KubernetesService implements HealthCheck {
                 .withTerminationGracePeriodSeconds(0L)
                 .withContainers(container)
                 .withRestartPolicy("Never")
+                .withServiceAccount(KARAVAN_PREFIX)
                 .withVolumes(
 //                        new VolumeBuilder().withName(name)
 //                                .withNewPersistentVolumeClaim(name, false).build(),
@@ -254,10 +250,10 @@ public class KubernetesService implements HealthCheck {
         }
     }
 
-    public LogWatch getContainerLogWatch(String podName) {
-        try (KubernetesClient client = kubernetesClient()) {
-            return client.pods().inNamespace(getNamespace()).withName(podName).tailingLines(100).watchLog();
-        }
+    public Tuple2<LogWatch, KubernetesClient> getContainerLogWatch(String podName) {
+        KubernetesClient client = kubernetesClient();
+        LogWatch logWatch = client.pods().inNamespace(getNamespace()).withName(podName).tailingLines(100).watchLog();
+        return Tuple2.of(logWatch, client);
     }
 
     private List<Condition> getCancelConditions(String reason) {
@@ -529,6 +525,21 @@ public class KubernetesService implements HealthCheck {
         try (KubernetesClient client = kubernetesClient()) {
             return client.secrets().inNamespace(getNamespace()).withName("karavan").get();
         }
+    }
+
+    public String getKaravanSecret(String key) {
+        try (KubernetesClient client = kubernetesClient()) {
+            Secret secret =  client.secrets().inNamespace(getNamespace()).withName("karavan").get();
+            Map<String, String> data = secret.getData();
+            return decodeSecret(data.get(key));
+        }
+    }
+
+    private String decodeSecret(String data) {
+        if (data != null){
+            return new String(Base64.getDecoder().decode(data.getBytes(StandardCharsets.UTF_8)));
+        }
+        return null;
     }
 
     public boolean isOpenshift() {

@@ -24,6 +24,7 @@ import org.apache.camel.karavan.git.model.GitRepo;
 import org.apache.camel.karavan.git.model.GitRepoFile;
 import org.apache.camel.karavan.infinispan.model.*;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.registry.RegistryConfig;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CloneCommand;
@@ -89,12 +90,11 @@ public class GitService {
         String branch = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-branch", String.class);
         if (ConfigService.inKubernetes()) {
             Secret secret = kubernetesService.getKaravanSecret();
-            String uri = new String(Base64.getDecoder().decode(secret.getData().get("git-repository").getBytes(StandardCharsets.UTF_8)));
-            String username = new String(Base64.getDecoder().decode(secret.getData().get("git-username").getBytes(StandardCharsets.UTF_8)));
-            String password = new String(Base64.getDecoder().decode(secret.getData().get("git-password").getBytes(StandardCharsets.UTF_8)));
-            if (secret.getData().containsKey("git-branch")) {
-                branch = new String(Base64.getDecoder().decode(secret.getData().get("git-branch").getBytes(StandardCharsets.UTF_8)));
-            }
+            String uri = kubernetesService.getKaravanSecret("git-repository");
+            String username = kubernetesService.getKaravanSecret("git-username");
+            String password = kubernetesService.getKaravanSecret("git-password");
+            String branchInSecret = kubernetesService.getKaravanSecret("git-branch");
+            branch = branchInSecret != null ? branchInSecret : branch;
             return new GitConfig(uri, username, password, branch);
         } else if (ConfigService.inDocker()) {
             String uri = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-repository", String.class);
@@ -112,17 +112,26 @@ public class GitService {
         }
     }
 
+    public List<String> getEnvForBuild() {
+        GitConfig gitConfig = getGitConfigForBuilder();
+        return List.of(
+                "GIT_REPOSITORY=" + gitConfig.getUri(),
+                "GIT_USERNAME=" + gitConfig.getUsername(),
+                "GIT_PASSWORD=" + gitConfig.getPassword(),
+                "GIT_BRANCH=" + gitConfig.getBranch());
+    }
+
     public GitConfig getGitConfigForBuilder() {
         String propertiesPrefix = "karavan.";
         String branch = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-branch", String.class);
         if (ConfigService.inKubernetes()) {
             LOGGER.info("inKubernetes " + kubernetesService.getNamespace());
             Secret secret = kubernetesService.getKaravanSecret();
-            String uri = new String(Base64.getDecoder().decode(secret.getData().get("git-repository").getBytes(StandardCharsets.UTF_8)));
-            String username = new String(Base64.getDecoder().decode(secret.getData().get("git-username").getBytes(StandardCharsets.UTF_8)));
-            String password = new String(Base64.getDecoder().decode(secret.getData().get("git-password").getBytes(StandardCharsets.UTF_8)));
+            String uri = kubernetesService.getKaravanSecret("git-repository");
+            String username = kubernetesService.getKaravanSecret("git-username");
+            String password = kubernetesService.getKaravanSecret("git-password");
             if (secret.getData().containsKey("git-branch")) {
-                branch = new String(Base64.getDecoder().decode(secret.getData().get("git-branch").getBytes(StandardCharsets.UTF_8)));
+                branch = kubernetesService.getKaravanSecret("git-branch");
             }
             return new GitConfig(uri, username, password, branch);
         } else {

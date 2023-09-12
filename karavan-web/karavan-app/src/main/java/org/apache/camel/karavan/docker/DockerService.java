@@ -350,13 +350,21 @@ public class DockerService extends DockerServiceUtils {
         }
     }
 
-    private DockerClientConfig getDockerClientConfig() {
-        return DefaultDockerClientConfig.createDefaultConfigBuilder().build();
+    private DockerClientConfig getDockerClientConfig(String registryUrl, String registryUsername, String registryPassword) {
+        DefaultDockerClientConfig.Builder builder =  DefaultDockerClientConfig.createDefaultConfigBuilder();
+        if (registryUrl != null) {
+            builder.withRegistryUrl(registryUrl);
+        }
+        if (registryUsername != null) {
+            builder.withRegistryUsername(registryUsername);
+        }
+        if (registryPassword != null) {
+            builder.withRegistryPassword(registryPassword);
+        }
+        return builder.build();
     }
 
-    private DockerHttpClient getDockerHttpClient() {
-        DockerClientConfig config = getDockerClientConfig();
-
+    private DockerHttpClient getDockerHttpClient(DockerClientConfig config) {
         return new ZerodepDockerHttpClient.Builder()
                 .dockerHost(config.getDockerHost())
                 .sslConfig(config.getSSLConfig())
@@ -366,9 +374,17 @@ public class DockerService extends DockerServiceUtils {
 
     public DockerClient getDockerClient() {
         if (dockerClient == null) {
-            dockerClient = DockerClientImpl.getInstance(getDockerClientConfig(), getDockerHttpClient());
+            DockerClientConfig config = getDockerClientConfig(null, null, null);
+            DockerHttpClient httpClient = getDockerHttpClient(config);
+            dockerClient = DockerClientImpl.getInstance(config, httpClient);
         }
         return dockerClient;
+    }
+
+    public DockerClient getDockerClient(String registryUrl, String registryUsername, String registryPassword) {
+        DockerClientConfig config = getDockerClientConfig(registryUrl, registryUsername, registryPassword);
+        DockerHttpClient httpClient = getDockerHttpClient(config);
+        return DockerClientImpl.getInstance(config, httpClient);
     }
 
     public int getMaxPortMapped(int port) {
@@ -384,6 +400,14 @@ public class DockerService extends DockerServiceUtils {
     public List<String> getImages() {
         return getDockerClient().listImagesCmd().withShowAll(true).exec().stream()
                 .map(image -> image.getRepoTags()[0]).toList();
+    }
+
+    public List<String> getImages(String registryUrl, String registryUsername, String registryPassword, String pattern) throws IOException {
+        List<String> result = new ArrayList<>();
+        DockerClient client =  getDockerClient(registryUrl, registryUsername, registryPassword);
+        getDockerClient().searchImagesCmd(pattern).exec().stream().map(searchItem -> searchItem.getName());
+        client.close();
+        return result;
     }
 
     public void deleteImage(String imageName) {

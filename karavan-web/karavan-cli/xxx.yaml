@@ -1,0 +1,695 @@
+---
+apiVersion: "v1"
+kind: "PersistentVolumeClaim"
+metadata:
+  labels:
+    app: "karavan-data"
+    app.kubernetes.io/part-of: "karavan"
+    app.kubernetes.io/name: "karavan-data"
+    app.kubernetes.io/version: "4.0.0-RC2"
+  name: "karavan-data"
+  namespace: "karavan"
+spec:
+  accessModes:
+  - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "10Gi"
+  volumeMode: "Filesystem"
+---
+apiVersion: "tekton.dev/v1beta1"
+kind: "Pipeline"
+metadata:
+  labels:
+    app: "karavan-pipeline-dev-camel-main"
+    app.kubernetes.io/part-of: "karavan"
+    app.kubernetes.io/name: "karavan-pipeline-dev-camel-main"
+    app.kubernetes.io/version: "4.0.0-RC2"
+  name: "karavan-pipeline-dev-camel-main"
+  namespace: "karavan"
+spec:
+  params:
+  - description: "ProjectId"
+    name: "PROJECT_ID"
+    type: "string"
+  tasks:
+  - name: "karavan-task-dev-camel-main"
+    params:
+    - name: "project"
+      value: "$(params.PROJECT_ID)"
+    taskRef:
+      kind: "Task"
+      name: "karavan-task-dev-camel-main"
+    workspaces:
+    - name: "maven-settings"
+      subPath: ""
+      workspace: "maven-settings"
+    - name: "karavan-m2-cache"
+      subPath: ""
+      workspace: "karavan-m2-cache"
+    - name: "karavan-jbang-cache"
+      subPath: ""
+      workspace: "karavan-jbang-cache"
+  workspaces:
+  - description: "Maven Settings"
+    name: "maven-settings"
+    optional: false
+  - description: "Maven Cache"
+    name: "karavan-m2-cache"
+    optional: false
+  - description: "JBang Cache"
+    name: "karavan-jbang-cache"
+    optional: false
+---
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "Role"
+metadata:
+  name: "deployer"
+  namespace: "karavan"
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - "secrets"
+  - "configmaps"
+  - "services"
+  - "persistentvolumes"
+  - "persistentvolumeclaims"
+  verbs:
+  - "*"
+- apiGroups:
+  - "networking.k8s.io"
+  resources:
+  - "ingresses"
+  verbs:
+  - "*"
+- apiGroups:
+  - "route.openshift.io"
+  resources:
+  - "routes"
+  verbs:
+  - "*"
+- apiGroups:
+  - "apps"
+  resources:
+  - "deployments"
+  verbs:
+  - "*"
+---
+apiVersion: "v1"
+kind: "ServiceAccount"
+metadata:
+  labels:
+    app: "karavan"
+    app.kubernetes.io/part-of: "karavan"
+    app.kubernetes.io/name: "karavan"
+    app.kubernetes.io/version: "4.0.0-RC2"
+  name: "karavan"
+  namespace: "karavan"
+---
+apiVersion: "v1"
+kind: "ServiceAccount"
+metadata:
+  labels:
+    app: "pipeline"
+    app.kubernetes.io/part-of: "karavan"
+    app.kubernetes.io/name: "pipeline"
+    app.kubernetes.io/version: "4.0.0-RC2"
+  name: "pipeline"
+  namespace: "karavan"
+---
+apiVersion: "tekton.dev/v1beta1"
+kind: "Task"
+metadata:
+  labels:
+    app: "karavan-task-dev-quarkus"
+    app.kubernetes.io/part-of: "karavan"
+    app.kubernetes.io/name: "karavan-task-dev-quarkus"
+    app.kubernetes.io/version: "4.0.0-RC2"
+  name: "karavan-task-dev-quarkus"
+  namespace: "karavan"
+spec:
+  params:
+  - description: "ProjectId"
+    name: "project"
+    type: "string"
+  steps:
+  - env:
+    - name: "GIT_REPOSITORY"
+      valueFrom:
+        secretKeyRef:
+          key: "git-repository"
+          name: "karavan"
+    - name: "GIT_USERNAME"
+      valueFrom:
+        secretKeyRef:
+          key: "git-username"
+          name: "karavan"
+    - name: "GIT_PASSWORD"
+      valueFrom:
+        secretKeyRef:
+          key: "git-password"
+          name: "karavan"
+    - name: "GIT_BRANCH"
+      valueFrom:
+        secretKeyRef:
+          key: "git-branch"
+          name: "karavan"
+    - name: "IMAGE_REGISTRY"
+      valueFrom:
+        secretKeyRef:
+          key: "image-registry"
+          name: "karavan"
+          optional: true
+    - name: "IMAGE_GROUP"
+      valueFrom:
+        secretKeyRef:
+          key: "image-group"
+          name: "karavan"
+          optional: true
+    - name: "IMAGE_REGISTRY_USERNAME"
+      valueFrom:
+        secretKeyRef:
+          key: "image-registry-username"
+          name: "karavan"
+          optional: true
+    - name: "IMAGE_REGISTRY_PASSWORD"
+      valueFrom:
+        secretKeyRef:
+          key: "image-registry-password"
+          name: "karavan"
+          optional: true
+    image: "ghcr.io/apache/camel-karavan-devmode:4.0.0-RC2"
+    imagePullPolicy: "Always"
+    name: "karavan-build-deploy"
+  workspaces:
+  - description: "Maven Settings"
+    mountPath: "/karavan-config-map"
+    name: "maven-settings"
+    optional: false
+    readOnly: false
+  - description: "Maven Cache"
+    mountPath: "/root/.m2"
+    name: "karavan-m2-cache"
+    optional: false
+    readOnly: false
+  - description: "JBang Cache"
+    mountPath: "/jbang/.jbang/cache"
+    name: "karavan-jbang-cache"
+    optional: false
+    readOnly: false
+---
+apiVersion: "tekton.dev/v1beta1"
+kind: "Task"
+metadata:
+  labels:
+    app: "karavan-task-dev-spring-boot"
+    app.kubernetes.io/part-of: "karavan"
+    app.kubernetes.io/name: "karavan-task-dev-spring-boot"
+    app.kubernetes.io/version: "4.0.0-RC2"
+  name: "karavan-task-dev-spring-boot"
+  namespace: "karavan"
+spec:
+  params:
+  - description: "ProjectId"
+    name: "project"
+    type: "string"
+  steps:
+  - env:
+    - name: "GIT_REPOSITORY"
+      valueFrom:
+        secretKeyRef:
+          key: "git-repository"
+          name: "karavan"
+    - name: "GIT_USERNAME"
+      valueFrom:
+        secretKeyRef:
+          key: "git-username"
+          name: "karavan"
+    - name: "GIT_PASSWORD"
+      valueFrom:
+        secretKeyRef:
+          key: "git-password"
+          name: "karavan"
+    - name: "GIT_BRANCH"
+      valueFrom:
+        secretKeyRef:
+          key: "git-branch"
+          name: "karavan"
+    - name: "IMAGE_REGISTRY"
+      valueFrom:
+        secretKeyRef:
+          key: "image-registry"
+          name: "karavan"
+          optional: true
+    - name: "IMAGE_GROUP"
+      valueFrom:
+        secretKeyRef:
+          key: "image-group"
+          name: "karavan"
+          optional: true
+    - name: "IMAGE_REGISTRY_USERNAME"
+      valueFrom:
+        secretKeyRef:
+          key: "image-registry-username"
+          name: "karavan"
+          optional: true
+    - name: "IMAGE_REGISTRY_PASSWORD"
+      valueFrom:
+        secretKeyRef:
+          key: "image-registry-password"
+          name: "karavan"
+          optional: true
+    image: "ghcr.io/apache/camel-karavan-devmode:4.0.0-RC2"
+    imagePullPolicy: "Always"
+    name: "karavan-build-deploy"
+    script: "#!/usr/bin/env bash\nCHECKOUT_DIR=\"/scripts\"\nKAMELETS_DIR=\"/scripts/kamelets\"\
+      \n\nif  [[ $GIT_REPOSITORY == https* ]] ;\nthen\n    replacer=https://$GIT_USERNAME:$GIT_PASSWORD@\n\
+      \    prefix=https://\n    url=\"${GIT_REPOSITORY/$prefix/$replacer}\"\n    git\
+      \ clone --depth 1 --branch ${GIT_BRANCH} $url ${CHECKOUT_DIR}\nelse\n    git\
+      \ clone --depth 1 --branch ${GIT_BRANCH} ${GIT_REPOSITORY} ${CHECKOUT_DIR}\n\
+      fi\n\ncd ${CHECKOUT_DIR}/$(inputs.params.project)\n\njbang -Dcamel.jbang.version=$CAMEL_VERSION\
+      \ camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR}\n\nexport LAST_COMMIT=$(git\
+      \ rev-parse --short HEAD)\nexport DATE=$(date '+%Y%m%d%H%M%S')\nexport TOKEN=$(cat\
+      \ /var/run/secrets/kubernetes.io/serviceaccount/token)\nexport NAMESPACE=$(cat\
+      \ /var/run/secrets/kubernetes.io/serviceaccount/namespace)\n\nmvn package k8s:build\
+      \ k8s:push k8s:resource k8s:apply \\\n  -Pkubernetes \\\n  -Djkube.namespace=${NAMESPACE}\
+      \ \\\n  -Djkube.docker.push.registry=${IMAGE_REGISTRY} \\\n  -Djkube.docker.username=${IMAGE_REGISTRY_USERNAME}\
+      \ \\\n  -Djkube.docker.password=${IMAGE_REGISTRY_PASSWORD} \\\n  -Djkube.generator.name=${IMAGE_REGISTRY}/${IMAGE_GROUP}/$(inputs.params.project):${DATE}\
+      \ \\\n  --settings=$MAVEN_SETTINGS"
+  workspaces:
+  - description: "Maven Settings"
+    mountPath: "/karavan-config-map"
+    name: "maven-settings"
+    optional: false
+    readOnly: false
+  - description: "Maven Cache"
+    mountPath: "/root/.m2"
+    name: "karavan-m2-cache"
+    optional: false
+    readOnly: false
+  - description: "JBang Cache"
+    mountPath: "/jbang/.jbang/cache"
+    name: "karavan-jbang-cache"
+    optional: false
+    readOnly: false
+---
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "Role"
+metadata:
+  name: "karavan"
+  namespace: "karavan"
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - "secrets"
+  - "configmaps"
+  verbs:
+  - "*"
+- apiGroups:
+  - ""
+  resources:
+  - "persistentvolumes"
+  - "persistentvolumeclaims"
+  verbs:
+  - "*"
+- apiGroups:
+  - "tekton.dev"
+  resources:
+  - "pipelineruns"
+  verbs:
+  - "*"
+- apiGroups:
+  - ""
+  resources:
+  - "pods"
+  - "services"
+  - "replicationcontrollers"
+  verbs:
+  - "*"
+- apiGroups:
+  - "route.openshift.io"
+  resources:
+  - "routes"
+  verbs:
+  - "*"
+- apiGroups:
+  - "apps"
+  resources:
+  - "deployments"
+  verbs:
+  - "*"
+---
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "RoleBinding"
+metadata:
+  name: "karavan-view"
+  namespace: "karavan"
+roleRef:
+  kind: "ClusterRole"
+  apiGroup: "rbac.authorization.k8s.io"
+  name: "view"
+subjects:
+- kind: "ServiceAccount"
+  apiGroup: ""
+  name: "karavan"
+  namespace: "karavan"
+---
+apiVersion: "v1"
+kind: "PersistentVolumeClaim"
+metadata:
+  labels:
+    app: "karavan-jbang-cache"
+    app.kubernetes.io/part-of: "karavan"
+    app.kubernetes.io/name: "karavan-jbang-cache"
+    app.kubernetes.io/version: "4.0.0-RC2"
+  name: "karavan-jbang-cache"
+  namespace: "karavan"
+spec:
+  accessModes:
+  - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "2Gi"
+  volumeMode: "Filesystem"
+---
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "RoleBinding"
+metadata:
+  name: "pipeline-deployer"
+  namespace: "karavan"
+roleRef:
+  kind: "Role"
+  apiGroup: "rbac.authorization.k8s.io"
+  name: "deployer"
+subjects:
+- kind: "ServiceAccount"
+  apiGroup: ""
+  name: "pipeline"
+  namespace: "karavan"
+---
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "RoleBinding"
+metadata:
+  name: "karavan"
+  namespace: "karavan"
+roleRef:
+  kind: "Role"
+  apiGroup: "rbac.authorization.k8s.io"
+  name: "karavan"
+subjects:
+- kind: "ServiceAccount"
+  apiGroup: ""
+  name: "karavan"
+  namespace: "karavan"
+---
+apiVersion: "tekton.dev/v1beta1"
+kind: "Pipeline"
+metadata:
+  labels:
+    app: "karavan-pipeline-dev-spring-boot"
+    app.kubernetes.io/part-of: "karavan"
+    app.kubernetes.io/name: "karavan-pipeline-dev-spring-boot"
+    app.kubernetes.io/version: "4.0.0-RC2"
+  name: "karavan-pipeline-dev-spring-boot"
+  namespace: "karavan"
+spec:
+  params:
+  - description: "ProjectId"
+    name: "PROJECT_ID"
+    type: "string"
+  tasks:
+  - name: "karavan-task-dev-spring-boot"
+    params:
+    - name: "project"
+      value: "$(params.PROJECT_ID)"
+    taskRef:
+      kind: "Task"
+      name: "karavan-task-dev-spring-boot"
+    workspaces:
+    - name: "maven-settings"
+      subPath: ""
+      workspace: "maven-settings"
+    - name: "karavan-m2-cache"
+      subPath: ""
+      workspace: "karavan-m2-cache"
+    - name: "karavan-jbang-cache"
+      subPath: ""
+      workspace: "karavan-jbang-cache"
+  workspaces:
+  - description: "Maven Settings"
+    name: "maven-settings"
+    optional: false
+  - description: "Maven Cache"
+    name: "karavan-m2-cache"
+    optional: false
+  - description: "JBang Cache"
+    name: "karavan-jbang-cache"
+    optional: false
+---
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  labels:
+    app: "karavan"
+    app.kubernetes.io/part-of: "karavan"
+    app.kubernetes.io/name: "karavan"
+    app.kubernetes.io/version: "4.0.0-RC2"
+  name: "karavan"
+  namespace: "karavan"
+spec:
+  ports:
+  - name: "http"
+    port: 80
+    protocol: "TCP"
+    targetPort: 8080
+  selector:
+    app: "karavan"
+  type: "ClusterIP"
+---
+apiVersion: "tekton.dev/v1beta1"
+kind: "Pipeline"
+metadata:
+  labels:
+    app: "karavan-pipeline-dev-quarkus"
+    app.kubernetes.io/part-of: "karavan"
+    app.kubernetes.io/name: "karavan-pipeline-dev-quarkus"
+    app.kubernetes.io/version: "4.0.0-RC2"
+  name: "karavan-pipeline-dev-quarkus"
+  namespace: "karavan"
+spec:
+  params:
+  - description: "ProjectId"
+    name: "PROJECT_ID"
+    type: "string"
+  tasks:
+  - name: "karavan-task-dev-quarkus"
+    params:
+    - name: "project"
+      value: "$(params.PROJECT_ID)"
+    taskRef:
+      kind: "Task"
+      name: "karavan-task-dev-quarkus"
+    workspaces:
+    - name: "maven-settings"
+      subPath: ""
+      workspace: "maven-settings"
+    - name: "karavan-m2-cache"
+      subPath: ""
+      workspace: "karavan-m2-cache"
+    - name: "karavan-jbang-cache"
+      subPath: ""
+      workspace: "karavan-jbang-cache"
+  workspaces:
+  - description: "Maven Settings"
+    name: "maven-settings"
+    optional: false
+  - description: "Maven Cache"
+    name: "karavan-m2-cache"
+    optional: false
+  - description: "JBang Cache"
+    name: "karavan-jbang-cache"
+    optional: false
+---
+apiVersion: "v1"
+kind: "PersistentVolumeClaim"
+metadata:
+  labels:
+    app: "karavan-m2-cache"
+    app.kubernetes.io/part-of: "karavan"
+    app.kubernetes.io/name: "karavan-m2-cache"
+    app.kubernetes.io/version: "4.0.0-RC2"
+  name: "karavan-m2-cache"
+  namespace: "karavan"
+spec:
+  accessModes:
+  - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "10Gi"
+  volumeMode: "Filesystem"
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  labels:
+    app.kubernetes.io/runtime: "quarkus"
+  name: "karavan"
+  namespace: "karavan"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "karavan"
+  template:
+    metadata:
+      labels:
+        app: "karavan"
+    spec:
+      containers:
+      - env:
+        - name: "KARAVAN_ENVIRONMENT"
+          value: "dev"
+        - name: "KARAVAN_RUNTIMES"
+          value: "camel-main,quarkus,spring-boot"
+        - name: "KARAVAN_CONTAINER_STATUS_INTERVAL"
+          value: "disabled"
+        - name: "KARAVAN_CONTAINER_INFINISPAN_INTERVAL"
+          value: "disabled"
+        - name: "KARAVAN_CAMEL_STATUS_INTERVAL"
+          value: "3s"
+        - name: "INFINISPAN_HOSTS"
+          value: "infinispan.karavan:11222"
+        - name: "INFINISPAN_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "password"
+              name: "infinispan-secret"
+              optional: false
+        - name: "KUBERNETES_NAMESPACE"
+          valueFrom:
+            fieldRef:
+              apiVersion: ""
+              fieldPath: "metadata.namespace"
+        - name: "QUARKUS_SCHEDULER_ENABLED"
+          value: "true"
+        - name: "KARAVAN_GIT_PULL_INTERVAL"
+          value: "off"
+        image: "ghcr.io/apache/camel-karavan:4.0.0-RC2"
+        imagePullPolicy: "Always"
+        name: "karavan"
+        ports:
+        - containerPort: 8080
+          name: "karavan"
+        resources:
+          requests:
+            memory: "512Mi"
+        volumeMounts:
+        - mountPath: "/deployments/karavan-data"
+          name: "karavan-data"
+        - mountPath: "/tmp"
+          name: "ephemeral"
+      serviceAccount: "karavan"
+      volumes:
+      - name: "karavan-data"
+        persistentVolumeClaim:
+          claimName: "karavan-data"
+          readOnly: false
+      - emptyDir: {}
+        name: "ephemeral"
+---
+apiVersion: "tekton.dev/v1beta1"
+kind: "Task"
+metadata:
+  labels:
+    app: "karavan-task-dev-camel-main"
+    app.kubernetes.io/part-of: "karavan"
+    app.kubernetes.io/name: "karavan-task-dev-camel-main"
+    app.kubernetes.io/version: "4.0.0-RC2"
+  name: "karavan-task-dev-camel-main"
+  namespace: "karavan"
+spec:
+  params:
+  - description: "ProjectId"
+    name: "project"
+    type: "string"
+  steps:
+  - env:
+    - name: "GIT_REPOSITORY"
+      valueFrom:
+        secretKeyRef:
+          key: "git-repository"
+          name: "karavan"
+    - name: "GIT_USERNAME"
+      valueFrom:
+        secretKeyRef:
+          key: "git-username"
+          name: "karavan"
+    - name: "GIT_PASSWORD"
+      valueFrom:
+        secretKeyRef:
+          key: "git-password"
+          name: "karavan"
+    - name: "GIT_BRANCH"
+      valueFrom:
+        secretKeyRef:
+          key: "git-branch"
+          name: "karavan"
+    - name: "IMAGE_REGISTRY"
+      valueFrom:
+        secretKeyRef:
+          key: "image-registry"
+          name: "karavan"
+          optional: true
+    - name: "IMAGE_GROUP"
+      valueFrom:
+        secretKeyRef:
+          key: "image-group"
+          name: "karavan"
+          optional: true
+    - name: "IMAGE_REGISTRY_USERNAME"
+      valueFrom:
+        secretKeyRef:
+          key: "image-registry-username"
+          name: "karavan"
+          optional: true
+    - name: "IMAGE_REGISTRY_PASSWORD"
+      valueFrom:
+        secretKeyRef:
+          key: "image-registry-password"
+          name: "karavan"
+          optional: true
+    image: "ghcr.io/apache/camel-karavan-devmode:4.0.0-RC2"
+    imagePullPolicy: "Always"
+    name: "karavan-build-deploy"
+    script: "#!/usr/bin/env bash\nCHECKOUT_DIR=\"/scripts\"\nKAMELETS_DIR=\"/scripts/kamelets\"\
+      \n\nif  [[ $GIT_REPOSITORY == https* ]] ;\nthen\n    replacer=https://$GIT_USERNAME:$GIT_PASSWORD@\n\
+      \    prefix=https://\n    url=\"${GIT_REPOSITORY/$prefix/$replacer}\"\n    git\
+      \ clone --depth 1 --branch ${GIT_BRANCH} $url ${CHECKOUT_DIR}\nelse\n    git\
+      \ clone --depth 1 --branch ${GIT_BRANCH} ${GIT_REPOSITORY} ${CHECKOUT_DIR}\n\
+      fi\n\ncd ${CHECKOUT_DIR}/$(inputs.params.project)\n\njbang -Dcamel.jbang.version=$CAMEL_VERSION\
+      \ camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR}\n\nexport LAST_COMMIT=$(git\
+      \ rev-parse --short HEAD)\nexport DATE=$(date '+%Y%m%d%H%M%S')\nexport TOKEN=$(cat\
+      \ /var/run/secrets/kubernetes.io/serviceaccount/token)\nexport NAMESPACE=$(cat\
+      \ /var/run/secrets/kubernetes.io/serviceaccount/namespace)\n\nmvn package jib:build\
+      \ k8s:resource k8s:apply \\\n  -Djkube.namespace=${NAMESPACE} \\\n  -Djib.allowInsecureRegistries=true\
+      \ \\\n  -Djib.to.image=${IMAGE_REGISTRY}/${IMAGE_GROUP}/$(inputs.params.project):${DATE}\
+      \ \\\n  -Djib.to.auth.username=${IMAGE_REGISTRY_USERNAME} \\\n  -Djib.to.auth.password=${IMAGE_REGISTRY_PASSWORD}\
+      \  \\\n  --settings=$MAVEN_SETTINGS"
+  workspaces:
+  - description: "Maven Settings"
+    mountPath: "/karavan-config-map"
+    name: "maven-settings"
+    optional: false
+    readOnly: false
+  - description: "Maven Cache"
+    mountPath: "/root/.m2"
+    name: "karavan-m2-cache"
+    optional: false
+    readOnly: false
+  - description: "JBang Cache"
+    mountPath: "/jbang/.jbang/cache"
+    name: "karavan-jbang-cache"
+    optional: false
+    readOnly: false

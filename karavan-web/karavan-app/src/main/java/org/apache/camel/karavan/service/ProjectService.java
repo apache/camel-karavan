@@ -28,6 +28,7 @@ import org.apache.camel.karavan.git.model.GitRepo;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.*;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.registry.RegistryService;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheck;
@@ -124,13 +125,10 @@ public class ProjectService implements HealthCheck {
     }
 
     public void buildProject(Project project, String tag) throws Exception {
-        String templateName = project.getRuntime() + "-builder-script-docker.sh";
-        String script = codeService.getTemplateText(templateName);
-
         tag = tag != null && !tag.isEmpty() && !tag.isBlank()
                 ? tag
                 : Instant.now().toString().substring(0, 19).replace(":", "-");
-
+        String script = codeService.getBuilderScript(project);
         List<String> env = getEnvForBuild(project, tag);
         if (ConfigService.inKubernetes()) {
             kubernetesService.runBuildProject(project, script, env, tag);
@@ -141,14 +139,10 @@ public class ProjectService implements HealthCheck {
     }
 
     private List<String> getEnvForBuild(Project project, String tag) {
-        GitConfig gitConfig = gitService.getGitConfigForBuilder();
         List<String> env = new ArrayList<>();
         env.addAll(registryService.getEnvForBuild());
+        env.addAll(gitService.getEnvForBuild());
         env.addAll(List.of(
-                "GIT_REPOSITORY=" + gitConfig.getUri(),
-                "GIT_USERNAME=" + gitConfig.getUsername(),
-                "GIT_PASSWORD=" + gitConfig.getPassword(),
-                "GIT_BRANCH=" + gitConfig.getBranch(),
                 "PROJECT_ID=" + project.getProjectId(),
                 "JBANG_REPO=~/.m2",
                 "TAG=" + tag

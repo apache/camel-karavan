@@ -14,9 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.service;
+package org.apache.camel.karavan.registry;
 
+import io.fabric8.kubernetes.api.model.Secret;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -39,31 +43,45 @@ public class RegistryService {
     @ConfigProperty(name = "karavan.image-registry-password")
     Optional<String> password;
 
+    @Inject
+    KubernetesService kubernetesService;
 
-    public String getRegistry() {
+    public RegistryConfig getRegistryConfig() {
         String registryUrl = registry;
-        if (!ConfigService.inDocker() && installRegistry) {
+        String imageGroup = group;
+        String registryUsername = username.orElse(null);
+        String registryPassword = password.orElse(null);
+        if (ConfigService.inKubernetes()) {
+            registryUrl = kubernetesService.getKaravanSecret("image-registry");
+            String i = kubernetesService.getKaravanSecret("image-group");
+            imageGroup = i != null ? i : group;
+            registryUsername = kubernetesService.getKaravanSecret("image-registry-username");
+            registryPassword = kubernetesService.getKaravanSecret("image-registry-password");
+        } else if (!ConfigService.inDocker() && installRegistry) {
             registryUrl = "localhost:5555";
         }
-        return registryUrl;
+        return new RegistryConfig(registryUrl, imageGroup, registryUsername, registryPassword);
     }
 
     public String getRegistryWithGroup() {
-        return getRegistry() + "/" + group;
+        return getRegistryConfig().getRegistry() + "/" + group;
     }
 
     public String getRegistryWithGroupForSync() {
+        if (ConfigService.inKubernetes()) {
+            return getRegistryConfig().getRegistry() + "/" + group;
+        }
         return registry + "/" + group;
     }
 
     public List<String> getEnvForBuild() {
-        List<String> env = List.of(
-                "IMAGE_REGISTRY=" + registry,
-                "IMAGE_REGISTRY_USERNAME=" + username,
-                "IMAGE_REGISTRY_PASSWORD=" + password,
-                "IMAGE_GROUP=" + group
+        RegistryConfig rc = getRegistryConfig();
+        return List.of(
+                "IMAGE_REGISTRY=" + rc.getRegistry(),
+                "IMAGE_REGISTRY_USERNAME=" + rc.getUsername(),
+                "IMAGE_REGISTRY_PASSWORD=" + rc.getPassword(),
+                "IMAGE_GROUP=" + rc.getGroup()
         );
-        return env;
     }
 
 }

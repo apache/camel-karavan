@@ -124,7 +124,8 @@ export function BuildPanel () {
         const showTime = buildTime && buildTime > 0;
         const isRunning = state === 'running';
         const isExited = state === 'exited';
-        const color = isExited ? "grey" : (isRunning ? "blue" : "grey");
+        const isFailed = state === 'failed';
+        const color = (isRunning ? "blue" : (isFailed ? "red" : "grey"));
         const icon = isExited ? <UpIcon className="not-spinner"/> : <DownIcon className="not-spinner"/>
         return (
             <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>

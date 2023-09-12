@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.apache.camel.karavan.code.CodeService.DEFAULT_CONTAINER_RESOURCES;
-import static org.apache.camel.karavan.service.CamelService.RELOAD_PROJECT_CODE;
 import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
 import static org.apache.camel.karavan.service.ContainerStatusService.CONTAINER_STATUS;
 import static org.apache.camel.karavan.shared.Constants.LABEL_TYPE;
@@ -82,7 +81,10 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
         String type = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_TYPE);
         ContainerStatus.ContainerType containerType = type != null ? ContainerStatus.ContainerType.valueOf(type) : ContainerStatus.ContainerType.unknown;
         try {
-            boolean ready = pod.getStatus().getConditions().stream().anyMatch(c -> c.getType().equals("Ready"));
+            boolean ready = pod.getStatus().getConditions().stream().anyMatch(c -> c.getType().equals("Ready") && c.getStatus().equals("True"));
+            boolean running = Objects.equals(pod.getStatus().getPhase(), "Running");
+            boolean failed = Objects.equals(pod.getStatus().getPhase(), "Failed");
+            boolean succeeded = Objects.equals(pod.getStatus().getPhase(), "Succeeded");
             String creationTimestamp = pod.getMetadata().getCreationTimestamp();
 
             ResourceRequirements defaultRR = kubernetesService.getResourceRequirements(DEFAULT_CONTAINER_RESOURCES);
@@ -105,6 +107,10 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             status.setContainerId(pod.getMetadata().getName());
             if (ready) {
                 status.setState(ContainerStatus.State.running.name());
+            } else if (failed) {
+                status.setState(ContainerStatus.State.dead.name());
+            } else if (succeeded) {
+                status.setState(ContainerStatus.State.exited.name());
             } else {
                 status.setState(ContainerStatus.State.created.name());
             }

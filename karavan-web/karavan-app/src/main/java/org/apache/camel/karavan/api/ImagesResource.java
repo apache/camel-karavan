@@ -22,14 +22,11 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.service.ProjectService;
-import org.apache.camel.karavan.service.RegistryService;
+import org.apache.camel.karavan.registry.RegistryService;
 import org.jose4j.base64url.Base64;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
 

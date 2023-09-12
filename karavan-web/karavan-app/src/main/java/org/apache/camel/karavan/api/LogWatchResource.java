@@ -16,9 +16,11 @@
  */
 package org.apache.camel.karavan.api;
 
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.LogWatch;
 import io.smallrye.context.api.ManagedExecutorConfig;
 import io.smallrye.context.api.NamedInstance;
+import io.smallrye.mutiny.tuples.Tuple2;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.docker.LogCallback;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
@@ -96,7 +98,8 @@ public class LogWatchResource {
 
     private void getKubernetesLogs(String name, SseEventSink eventSink, Sse sse) {
         try (SseEventSink sink = eventSink) {
-            LogWatch logWatch = kubernetesService.getContainerLogWatch(name);
+            Tuple2<LogWatch, KubernetesClient> request = kubernetesService.getContainerLogWatch(name);
+            LogWatch logWatch = request.getItem1();
             BufferedReader reader = new BufferedReader(new InputStreamReader(logWatch.getOutput()));
             try {
                 for (String line; (line = reader.readLine()) != null && !sink.isClosed(); ) {
@@ -106,6 +109,7 @@ public class LogWatchResource {
                 LOGGER.error(e.getMessage());
             }
             logWatch.close();
+            request.getItem2().close();
             sink.close();
             LOGGER.info("LogWatch for " + name + " closed");
         }

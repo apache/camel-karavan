@@ -61,8 +61,6 @@ public class CodeService {
     private static final String SNIPPETS_PATH = "/snippets/";
     private static final int INTERNAL_PORT = 8080;
 
-    protected static final String ENVIRONMENT = "environment";
-
     @Inject
     KubernetesService kubernetesService;
 
@@ -121,6 +119,14 @@ public class CodeService {
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
+    }
+
+    public String getBuilderScript(Project project) {
+        String target = ConfigService.inKubernetes()
+                ? (kubernetesService.isOpenshift() ? "openshift" : "kubernetes")
+                : "docker";
+        String templateName = project.getRuntime() + "-builder-script-" + target + ".sh";
+        return getTemplateText(templateName);
     }
 
     public String getTemplateText(String fileName) {

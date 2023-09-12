@@ -99,10 +99,12 @@ public class ContainerStatusService {
     }
 
     private void saveContainerStatus(ContainerStatus newStatus, ContainerStatus oldStatus) {
-        if ("exited".equalsIgnoreCase(newStatus.getState()) && Objects.isNull(oldStatus.getFinished())) {
-            newStatus.setFinished(Instant.now().toString());
-        } else if ("exited".equalsIgnoreCase(newStatus.getState()) && Objects.nonNull(oldStatus.getFinished())) {
-            return;
+        if (Objects.equals("exited", newStatus.getState()) || Objects.equals("dead", newStatus.getState())) {
+            if (Objects.isNull(oldStatus.getFinished())) {
+                newStatus.setFinished(Instant.now().toString());
+            } else if (Objects.nonNull(oldStatus.getFinished())) {
+                return;
+            }
         }
         if (newStatus.getCpuInfo() == null || newStatus.getCpuInfo().isEmpty()) {
             newStatus.setCpuInfo(oldStatus.getCpuInfo());

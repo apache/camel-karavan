@@ -20,10 +20,9 @@ import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.HealthCheck;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.code.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.Project;
-import org.apache.camel.karavan.service.RegistryService;
+import org.apache.camel.karavan.registry.RegistryService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 

@@ -83,7 +83,4 @@ public class ConfigService {
         return inDocker;
     }
 
-    public static boolean isDevOrTest() {
-        return ProfileManager.getLaunchMode().isDevOrTest();
-    }
 }
