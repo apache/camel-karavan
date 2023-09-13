@@ -27,5 +27,5 @@ export function MainToolbar(props: Props) {
                 </FlexItem>
             </Flex>
         </PageSection>
-    );
+    )
 }

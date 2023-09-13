@@ -131,7 +131,7 @@ public class KaravanService implements HealthCheck {
 
     @ConsumeEvent(value = START_SERVICES, blocking = true)
     void startServices(String data) throws Exception {
-        infinispanService.tryStart(false);
+        infinispanService.tryStart();
         projectService.tryStart();
     }
 

@@ -74,7 +74,7 @@ public class InfinispanService implements HealthCheck {
     private static final String DEFAULT_ENVIRONMENT = "dev";
 
     @Retry(maxRetries = 100, delay = 2000)
-    public void tryStart(boolean startCodeReloadListener) throws Exception {
+    public void tryStart() throws Exception {
         start();
     }
 
