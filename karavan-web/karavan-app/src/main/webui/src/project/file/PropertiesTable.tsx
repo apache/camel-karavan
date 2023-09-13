@@ -100,7 +100,7 @@ export function PropertiesTable () {
     }
 
     return (
-        <PageSection isFilled className="kamelets-page" padding={{default: file !== undefined ? 'noPadding' : 'padding'}}>
+        <PageSection isFilled className="scrollable-in" padding={{default: file !== undefined ? 'noPadding' : 'padding'}}>
             <PageSection padding={{default: "noPadding"}}>
                 {properties.length > 0 &&
                     <Table aria-label="Property table" variant='compact' borders={false}

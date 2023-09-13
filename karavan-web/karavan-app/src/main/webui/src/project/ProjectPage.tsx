@@ -1,13 +1,13 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {
     Flex,
     FlexItem,
-    PageSection,
+    PageSection, Tab, Tabs,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {ProjectToolbar} from "./ProjectToolbar";
 import {ProjectLogPanel} from "./log/ProjectLogPanel";
-import {Project, ProjectFileTypes} from "../api/ProjectModels";
+import {Project} from "../api/ProjectModels";
 import {useFileStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
 import {ProjectTitle} from "./ProjectTitle";
@@ -18,21 +18,19 @@ import {useParams} from "react-router-dom";
 import {KaravanApi} from "../api/KaravanApi";
 import {ProjectDataPoller} from "./ProjectDataPoller";
 
-export function ProjectPage () {
+export function ProjectPage() {
 
     const {file, operation} = useFileStore();
-    const [mode, setMode] = useState<"design" | "code">("design");
-    const [key, setKey] = useState<string>('');
     const [projects] = useProjectsStore((state) => [state.projects], shallow)
-    const [project, setProject] = useProjectStore((s) => [s.project, s.setProject], shallow )
-    let { projectId } = useParams();
-    const [tab, setTab] = useState<string | number>('files');
+    const [project, setProject, tab, setTab] = useProjectStore((s) => [s.project, s.setProject, s.tabIndex, s.setTabIndex], shallow);
+
+    let {projectId} = useParams();
 
     useEffect(() => {
         const p = projects.filter(project => project.projectId === projectId).at(0);
         if (p) {
             setProject(p, "select");
-        } else if (projectId){
+        } else if (projectId) {
             KaravanApi.getProject(projectId, project1 => setProject(project1, "select"));
         }
         return () => {
@@ -40,12 +38,35 @@ export function ProjectPage () {
         }
     }, []);
 
+    function isBuildIn(): boolean {
+        return ['kamelets', 'templates', 'services'].includes(project.projectId);
+    }
+
+    function showTabs(): boolean {
+        return !isBuildIn() && !showFilePanel;
+    }
+
+    const buildIn = isBuildIn();
+
     const showFilePanel = file !== undefined && operation === 'select';
     return (
-        <PageSection className="designer-page project-page" padding={{default: 'noPadding'}}>
-            <div className="tools-section">
+        <PageSection className="project-page" padding={{default: 'noPadding'}}>
+            <PageSection className="tools-section" padding={{default: 'noPadding'}}>
                 <MainToolbar title={<ProjectTitle/>} tools={<ProjectToolbar/>}/>
-            </div>
+            </PageSection>
+            <PageSection className="tools-section" padding={{default: 'noPadding'}}>
+                <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
+                    <FlexItem className="project-tabs">
+                        {showTabs() && <Tabs activeKey={tab} onSelect={(event, tabIndex) => setTab(tabIndex)}>
+                            <Tab eventKey="files" title="Files"/>
+                            <Tab eventKey="dashboard" title="Dashboard"/>
+                            <Tab eventKey="trace" title="Trace"/>
+                            <Tab eventKey="build" title="Build"/>
+                            <Tab eventKey="container" title="Container"/>
+                        </Tabs>}
+                    </FlexItem>
+                </Flex>
+            </PageSection>
             {showFilePanel && <FileEditor projectId={project.projectId}/>}
             {!showFilePanel && <ProjectPanel/>}
             <ProjectLogPanel/>

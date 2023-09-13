@@ -136,6 +136,26 @@
   font-size: 14px;
 }
 
+.karavan .project-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.karavan .project-page .scrollable-out {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.karavan .project-page .scrollable-in {
+  overflow: auto;
+  flex-shrink: unset;
+  flex-grow: 1;
+  background-color: var(--pf-v5-global--BackgroundColor--light-300);
+  margin-bottom: 50px;
+}
+
 .karavan .project-page .project-title .pf-v5-l-flex.pf-m-column > * {
   margin-bottom: 0;
 }
@@ -161,26 +181,26 @@
   font-size: 14px;
 }
 
-.karavan .project-page .project-development {
+.karavan .project-page .dashboard-card {
   margin-bottom: 16px;
 }
 
-.karavan .project-page .project-development .runner-toolbar {
+.karavan .project-page .dashboard-card .runner-toolbar {
   line-height: 24px;
   row-gap: 24px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
 }
-.karavan .project-page .project-development .runner-toolbar .row {
+.karavan .project-page .dashboard-card .runner-toolbar .row {
   line-height: 24px;
   height: 30px;
 }
 
-.karavan .project-page .project-development .pf-v5-c-panel__header {
+.karavan .project-page .dashboard-card .pf-v5-c-panel__header {
   padding: 0;
 }
-.karavan .project-page .project-development .pf-v5-c-panel__main {
+.karavan .project-page .dashboard-card .pf-v5-c-panel__main {
   max-height: 212px;
 }
 
@@ -266,8 +286,8 @@
   min-width: 0;
 }
 .karavan .project-page .project-properties .delete-button {
-  padding: 0 0 0 6px;
-  margin: 0;
+  padding: 0 0 0 0;
+  margin: 0 16px 0 0;
 }
 
 .karavan .project-page .pf-v5-c-label__icon {

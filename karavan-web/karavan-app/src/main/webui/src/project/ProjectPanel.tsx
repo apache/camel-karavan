@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {
     Flex,
-    FlexItem, Tabs, Tab
+    FlexItem, Tabs, Tab, PageSection, PageSectionVariants, Gallery
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {FilesTab} from "./files/FilesTab";
@@ -14,6 +14,8 @@ import {shallow} from "zustand/shallow";
 import {ImagesPanel} from "./build/ImagesPanel";
 import {ContainerButtons} from "./container/ContainerButtons";
 import {ProjectContainerTab} from "./container/ProjectContainerTab";
+import {KameletModal} from "../knowledgebase/kamelets/KameletModal";
+import {KameletCard} from "../knowledgebase/kamelets/KameletCard";
 
 export function ProjectPanel() {
 
@@ -27,6 +29,7 @@ export function ProjectPanel() {
     function onRefresh() {
         if (project.projectId) {
             ProjectService.refreshProjectData(project.projectId);
+            setTab('files')
         }
     }
 
@@ -36,25 +39,19 @@ export function ProjectPanel() {
 
     const buildIn = isBuildIn();
     return (
-        <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
-            <FlexItem className="project-tabs">
-                {!buildIn && <Tabs activeKey={tab} onSelect={(event, tabIndex) => setTab(tabIndex)}>
-                    <Tab eventKey="files" title="Files"/>
-                    <Tab eventKey="dashboard" title="Dashboard"/>
-                    <Tab eventKey="trace" title="Trace"/>
-                    <Tab eventKey="build" title="Build"/>
-                    <Tab eventKey="container" title="Container"/>
-                </Tabs>}
-            </FlexItem>
-            {buildIn && tab === 'files' && <FlexItem><FilesTab/></FlexItem>}
-            <FlexItem>
-                {!buildIn && tab === 'files' && <FlexItem><FilesTab/></FlexItem>}
-                {!buildIn && tab === 'dashboard' && project && <FlexItem><DashboardTab/></FlexItem>}
-                {!buildIn && tab === 'trace' && project && <FlexItem><TraceTab/></FlexItem>}
-                {!buildIn && tab === 'build' && <FlexItem><ProjectBuildTab/></FlexItem>}
-                {!buildIn && tab === 'build' && config.infrastructure !== 'kubernetes' && <FlexItem><ImagesPanel/></FlexItem>}
-                {!buildIn && tab === 'container' && <FlexItem><ProjectContainerTab/></FlexItem>}
-            </FlexItem>
-        </Flex>
+        <PageSection padding={{default: 'noPadding'}} className="scrollable-out">
+            <PageSection isFilled padding={{default: 'noPadding'}} className="scrollable-in">
+                <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
+                    {tab === 'files' && <FlexItem><FilesTab/></FlexItem>}
+                    {!buildIn && tab === 'dashboard' && project && <FlexItem><DashboardTab/></FlexItem>}
+                    {!buildIn && tab === 'trace' && project && <FlexItem><TraceTab/></FlexItem>}
+                    {!buildIn && tab === 'build' && <FlexItem><ProjectBuildTab/></FlexItem>}
+                    {!buildIn && tab === 'build' && config.infrastructure !== 'kubernetes' && <FlexItem><ImagesPanel/></FlexItem>}
+                    {!buildIn && tab === 'container' && <FlexItem><ProjectContainerTab/></FlexItem>}
+                </Flex>
+            </PageSection>
+        </PageSection>
+
+
     )
 }

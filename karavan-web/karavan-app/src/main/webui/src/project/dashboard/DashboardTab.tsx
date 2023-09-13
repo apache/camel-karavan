@@ -45,10 +45,16 @@ export function DashboardTab() {
     const camelContainers = containers
         .filter(c => c.projectId === project.projectId && ['devmode', 'project'].includes(c.type));
 
+    camelContainers.push(...camelContainers)
+    camelContainers.push(...camelContainers)
+    camelContainers.push(...camelContainers)
+    camelContainers.push(...camelContainers)
+    camelContainers.push(...camelContainers)
+
     return (
         <PageSection className="project-tab-panel" padding={{default: "padding"}}>
-            <Panel isScrollable>
-                {camelContainers.map((containerStatus, index) => <Card className="project-development">
+            {camelContainers.map((containerStatus, index) =>
+                <Card className="dashboard-card">
                     <CardBody>
                         <Flex direction={{default: "row"}}
                               justifyContent={{default: "justifyContentSpaceBetween"}}>
@@ -65,8 +71,8 @@ export function DashboardTab() {
                             </FlexItem>
                         </Flex>
                     </CardBody>
-                </Card>)}
-            </Panel>
+                </Card>
+            )}
             {camelContainers.length === 0 &&
                 <Card className="project-development">
                     <CardBody>
