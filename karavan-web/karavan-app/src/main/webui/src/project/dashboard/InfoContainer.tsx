@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+    Badge,
     DescriptionList,
     DescriptionListDescription,
     DescriptionListGroup,
@@ -18,7 +19,7 @@ interface Props {
 
 export function InfoContainer (props: Props) {
 
-    function getPodInfoLabel(info: string) {
+    function getPodInfoLabel(info: React.ReactNode) {
         return (
             <Label icon={getIcon()} color={getColor()}>
                 {info}
@@ -44,7 +45,12 @@ export function InfoContainer (props: Props) {
             <DescriptionListGroup>
                 <DescriptionListTerm>Container</DescriptionListTerm>
                 <DescriptionListDescription>
-                    {getPodInfoLabel(containerStatus.containerName)}
+                    {getPodInfoLabel(
+                        <>
+                            {containerStatus.containerName}
+                            <Badge isRead>{containerStatus.type}</Badge>
+                        </>
+                    )}
                 </DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>

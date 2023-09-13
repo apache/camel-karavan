@@ -19,9 +19,7 @@ package org.apache.camel.karavan.api;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.GroupedKey;
-import org.apache.camel.karavan.infinispan.model.Project;
-import org.apache.camel.karavan.infinispan.model.ProjectFile;
+import org.apache.camel.karavan.infinispan.model.*;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.git.GitService;
 import jakarta.inject.Inject;
@@ -35,6 +33,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Path("/api/project")
@@ -114,6 +113,40 @@ public class ProjectResource {
         } else {
             dockerService.deleteContainer(buildName);
             return Response.ok().build();
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/status/camel/{projectId}/{env}")
+    public Response getCamelStatusForProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
+        List<CamelStatus> statuses = infinispanService.getCamelStatusesByProjectAndEnv(projectId, env)
+                .stream().map(camelStatus -> {
+                    var stats = camelStatus.getStatuses().stream().filter(s -> !Objects.equals(s.getName(), CamelStatusValue.Name.trace)).toList();
+                    camelStatus.setStatuses(stats);
+                    return camelStatus;
+                }).toList();
+        if (statuses != null && !statuses.isEmpty()) {
+            return Response.ok(statuses).build();
+        } else {
+            return Response.noContent().build();
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/traces/{projectId}/{env}")
+    public Response getCamelTracesForProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
+        List<CamelStatus> statuses = infinispanService.getCamelStatusesByProjectAndEnv(projectId, env)
+                .stream().map(camelStatus -> {
+                    var stats = camelStatus.getStatuses().stream().filter(s -> Objects.equals(s.getName(), CamelStatusValue.Name.trace)).toList();
+                    camelStatus.setStatuses(stats);
+                    return camelStatus;
+                }).toList();
+        if (statuses != null && !statuses.isEmpty()) {
+            return Response.ok(statuses).build();
+        } else {
+            return Response.noContent().build();
         }
     }
 

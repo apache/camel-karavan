@@ -26,6 +26,7 @@ import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
+import org.apache.camel.karavan.infinispan.model.CamelStatusValue;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
@@ -36,10 +37,8 @@ import org.jboss.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @ApplicationScoped
@@ -92,16 +91,6 @@ public class CamelService {
         }
     }
 
-    private boolean camelIsStarted(CamelStatus camelStatus) {
-        try {
-            String status = camelStatus.getStatus();
-            JsonObject obj = new JsonObject(status);
-            return Objects.equals("Started", obj.getJsonObject("context").getString("state"));
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
     @ConsumeEvent(value = RELOAD_PROJECT_CODE, blocking = true, ordered = true)
     public void reloadProjectCode(String projectId) {
         LOGGER.info("Reload project code " + projectId);
@@ -120,7 +109,7 @@ public class CamelService {
     @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)
     public boolean putRequest(String containerName, String fileName, String body, int timeout) {
         try {
-            String url = getContainerAddress(containerName) + "/q/upload/" + fileName;
+            String url = getContainerAddressForReload(containerName) + "/q/upload/" + fileName;
             HttpResponse<Buffer> result = getWebClient().putAbs(url)
                     .timeout(timeout).sendBuffer(Buffer.buffer(body)).subscribeAsCompletionStage().toCompletableFuture().get();
             return result.statusCode() == 200;
@@ -131,7 +120,7 @@ public class CamelService {
     }
 
     public String reloadRequest(String containerName) {
-        String url = getContainerAddress(containerName) + "/q/dev/reload?reload=true";
+        String url = getContainerAddressForReload(containerName) + "/q/dev/reload?reload=true";
         try {
             return result(url, 1000);
         } catch (InterruptedException | ExecutionException e) {
@@ -140,7 +129,7 @@ public class CamelService {
         return null;
     }
 
-    public String getContainerAddress(String containerName) {
+    public String getContainerAddressForReload(String containerName) {
         if (ConfigService.inKubernetes()) {
             return "http://" + containerName + "." + kubernetesService.getNamespace();
         } else if (ConfigService.inDocker()) {
@@ -151,22 +140,46 @@ public class CamelService {
         }
     }
 
+    public String getContainerAddressForStatus(ContainerStatus containerStatus) {
+        if (ConfigService.inKubernetes()) {
+            String podIP = containerStatus.getPodIP().replace(".", "-");
+            return "http://" + podIP + "." + kubernetesService.getNamespace() + ".pod.cluster.local:8080";
+        } else if (ConfigService.inDocker()) {
+            return "http://" + containerStatus.getContainerName() + ":8080";
+        } else {
+            Integer port = projectService.getProjectPort(containerStatus.getContainerName());
+            return "http://localhost:" + port;
+        }
+    }
+
+    public String getCamelStatus(ContainerStatus containerStatus, CamelStatusValue.Name statusName) {
+        String url = getContainerAddressForStatus(containerStatus) + "/q/dev/" + statusName.name();
+        try {
+            return result(url, 500);
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.error(e.getMessage());
+        }
+        return null;
+    }
+
     @ConsumeEvent(value = CMD_COLLECT_CAMEL_STATUS, blocking = true, ordered = true)
     public void collectCamelStatuses(JsonObject data) {
         CamelStatusRequest dms = data.getJsonObject("camelStatusRequest").mapTo(CamelStatusRequest.class);
         ContainerStatus containerStatus = data.getJsonObject("containerStatus").mapTo(ContainerStatus.class);
         String projectId = dms.getProjectId();
-        Arrays.stream(CamelStatus.Name.values()).forEach(statusName -> {
-            String containerName = dms.getContainerName();
-            String status = getCamelStatus(containerName, statusName);
+        String containerName = dms.getContainerName();
+        List<CamelStatusValue> statuses = new ArrayList<>();
+        Arrays.stream(CamelStatusValue.Name.values()).forEach(statusName -> {
+            String status = getCamelStatus(containerStatus, statusName);
             if (status != null) {
-                CamelStatus cs = new CamelStatus(projectId, containerName, statusName, status, environment);
-                infinispanService.saveCamelStatus(cs);
-                if (ConfigService.inKubernetes() && Objects.equals(statusName, CamelStatus.Name.context)) {
+                statuses.add(new CamelStatusValue(statusName, status));
+                if (ConfigService.inKubernetes() && Objects.equals(statusName, CamelStatusValue.Name.context)) {
                     checkReloadRequired(containerStatus);
                 }
             }
         });
+        CamelStatus cs = new CamelStatus(projectId, containerName, statuses, environment);
+        infinispanService.saveCamelStatus(cs);
     }
 
     private void checkReloadRequired(ContainerStatus cs) {
@@ -177,16 +190,6 @@ public class CamelService {
                 eventBus.publish(RELOAD_PROJECT_CODE, cs.getProjectId());
             }
         }
-    }
-
-    public String getCamelStatus(String podName, CamelStatus.Name statusName) {
-        String url = getContainerAddress(podName) + "/q/dev/" + statusName.name();
-        try {
-            return result(url, 500);
-        } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error(e.getMessage());
-        }
-        return null;
     }
 
     @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)

@@ -15,16 +15,16 @@ import {ImagesPanel} from "./build/ImagesPanel";
 import {ContainerButtons} from "./container/ContainerButtons";
 import {ProjectContainerTab} from "./container/ProjectContainerTab";
 
-export function ProjectPanel () {
+export function ProjectPanel() {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow)
-    const [project,tab, setTab] = useProjectStore((s) => [s.project, s.tabIndex, s.setTabIndex], shallow );
+    const [project, tab, setTab] = useProjectStore((s) => [s.project, s.tabIndex, s.setTabIndex], shallow);
 
     useEffect(() => {
         onRefresh();
     }, [project]);
 
-    function onRefresh () {
+    function onRefresh() {
         if (project.projectId) {
             ProjectService.refreshProjectData(project.projectId);
         }
@@ -46,18 +46,14 @@ export function ProjectPanel () {
                     <Tab eventKey="container" title="Container"/>
                 </Tabs>}
             </FlexItem>
+            {buildIn && tab === 'files' && <FlexItem><FilesTab/></FlexItem>}
             <FlexItem>
-                {buildIn && tab === 'files' && <FilesTab/>}
-                {!buildIn &&
-                    <>
-                        {tab === 'files' && <FilesTab/>}
-                        {tab === 'dashboard' && project && <DashboardTab/>}
-                        {tab === 'trace' && project && <TraceTab/>}
-                        {tab === 'build' && <ProjectBuildTab/>}
-                        {tab === 'build' && config.infrastructure !== 'kubernetes' && <ImagesPanel/>}
-                        {tab === 'container' && <ProjectContainerTab/>}
-                    </>
-                }
+                {!buildIn && tab === 'files' && <FlexItem><FilesTab/></FlexItem>}
+                {!buildIn && tab === 'dashboard' && project && <FlexItem><DashboardTab/></FlexItem>}
+                {!buildIn && tab === 'trace' && project && <FlexItem><TraceTab/></FlexItem>}
+                {!buildIn && tab === 'build' && <FlexItem><ProjectBuildTab/></FlexItem>}
+                {!buildIn && tab === 'build' && config.infrastructure !== 'kubernetes' && <FlexItem><ImagesPanel/></FlexItem>}
+                {!buildIn && tab === 'container' && <FlexItem><ProjectContainerTab/></FlexItem>}
             </FlexItem>
         </Flex>
     )

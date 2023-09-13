@@ -33,8 +33,6 @@ import {useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
 import {Project, ProjectType} from "../api/ProjectModels";
 import {shallow} from "zustand/shallow";
-import {useParams} from "react-router-dom";
-import {KaravanApi} from "../api/KaravanApi";
 
 export function ProjectsPage () {
 

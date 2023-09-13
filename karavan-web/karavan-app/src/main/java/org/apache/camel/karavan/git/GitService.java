@@ -89,7 +89,6 @@ public class GitService {
         String propertiesPrefix = "karavan.";
         String branch = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-branch", String.class);
         if (ConfigService.inKubernetes()) {
-            Secret secret = kubernetesService.getKaravanSecret();
             String uri = kubernetesService.getKaravanSecret("git-repository");
             String username = kubernetesService.getKaravanSecret("git-username");
             String password = kubernetesService.getKaravanSecret("git-password");
@@ -451,7 +450,7 @@ public class GitService {
         return files;
     }
 
-//    @Retry(maxRetries = 100, delay = 2000)
+    @Retry(maxRetries = 100, delay = 2000)
     public boolean checkGit() throws Exception {
         LOGGER.info("Check git");
         GitConfig gitConfig = getGitConfig();

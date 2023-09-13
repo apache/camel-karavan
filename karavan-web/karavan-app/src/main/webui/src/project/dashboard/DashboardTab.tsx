@@ -17,7 +17,16 @@
 import React from 'react';
 import {
     Card,
-    CardBody, Flex, FlexItem, Divider, PageSection
+    CardBody,
+    Flex,
+    FlexItem,
+    Divider,
+    PageSection,
+    EmptyState,
+    EmptyStateVariant,
+    EmptyStateHeader,
+    EmptyStateIcon,
+    Bullseye, Panel
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {InfoContainer} from "./InfoContainer";
@@ -25,37 +34,51 @@ import {InfoContext} from "./InfoContext";
 import {InfoMemory} from "./InfoMemory";
 import {useProjectStore, useStatusesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
-import {ContainerStatus} from "../../api/ProjectModels";
+import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 
-export function DashboardTab () {
+export function DashboardTab() {
 
-    const [project, memory, jvm, context] = useProjectStore((state) =>
-        [state.project, state.memory, state.jvm, state.context], shallow);
+    const [project, camelStatuses] = useProjectStore((state) =>
+        [state.project, state.camelStatuses], shallow);
     const [containers] = useStatusesStore((state) => [state.containers], shallow);
 
-    const containerStatus = containers.filter(c => c.containerName === project.projectId).at(0);
-    const showConsole = containerStatus?.state === 'running'
+    const camelContainers = containers
+        .filter(c => c.projectId === project.projectId && ['devmode', 'project'].includes(c.type));
 
     return (
         <PageSection className="project-tab-panel" padding={{default: "padding"}}>
-            <Card className="project-development">
-                <CardBody>
-                    <Flex direction={{default: "row"}}
-                          justifyContent={{default: "justifyContentSpaceBetween"}}>
-                        <FlexItem flex={{default: "flex_1"}}>
-                            <InfoContainer containerStatus={containerStatus || new ContainerStatus()}/>
-                        </FlexItem>
-                        <Divider orientation={{default: "vertical"}}/>
-                        <FlexItem flex={{default: "flex_1"}}>
-                            <InfoMemory jvm={jvm} memory={memory} showConsole={showConsole}/>
-                        </FlexItem>
-                        <Divider orientation={{default: "vertical"}}/>
-                        <FlexItem flex={{default: "flex_1"}}>
-                            <InfoContext context={context} showConsole={showConsole}/>
-                        </FlexItem>
-                    </Flex>
-                </CardBody>
-            </Card>
+            <Panel isScrollable>
+                {camelContainers.map((containerStatus, index) => <Card className="project-development">
+                    <CardBody>
+                        <Flex direction={{default: "row"}}
+                              justifyContent={{default: "justifyContentSpaceBetween"}}>
+                            <FlexItem flex={{default: "flex_1"}}>
+                                <InfoContainer containerStatus={containerStatus}/>
+                            </FlexItem>
+                            <Divider orientation={{default: "vertical"}}/>
+                            <FlexItem flex={{default: "flex_1"}}>
+                                <InfoMemory containerStatus={containerStatus}/>
+                            </FlexItem>
+                            <Divider orientation={{default: "vertical"}}/>
+                            <FlexItem flex={{default: "flex_1"}}>
+                                <InfoContext containerStatus={containerStatus}/>
+                            </FlexItem>
+                        </Flex>
+                    </CardBody>
+                </Card>)}
+            </Panel>
+            {camelContainers.length === 0 &&
+                <Card className="project-development">
+                    <CardBody>
+                        <Bullseye>
+                            <EmptyState variant={EmptyStateVariant.sm}>
+                                <EmptyStateHeader titleText="No running containers"
+                                                  icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2"/>
+                            </EmptyState>
+                        </Bullseye>
+                    </CardBody>
+                </Card>
+            }
         </PageSection>
     )
 }

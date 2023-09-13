@@ -50,7 +50,7 @@ export function MainDataPoller () {
             KaravanApi.getAllContainerStatuses((statuses: ContainerStatus[]) => {
                 setContainers(statuses);
             });
-            KaravanApi.getAllCamelStatuses(config.environment, (statuses: CamelStatus[]) => {
+            KaravanApi.getAllCamelContextStatuses(config.environment, (statuses: CamelStatus[]) => {
                 setCamels(statuses);
             });
             setLoading(false);

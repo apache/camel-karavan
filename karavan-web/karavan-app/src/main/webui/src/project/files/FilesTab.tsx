@@ -6,7 +6,7 @@ import {
     EmptyState,
     EmptyStateVariant,
     EmptyStateIcon,
-    PageSection, PanelHeader, Panel, Tooltip, Label, EmptyStateHeader,
+    PageSection, PanelHeader, Panel, Tooltip, Label, EmptyStateHeader, PanelMain, PanelMainBody, Flex, FlexItem,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {
@@ -81,67 +81,69 @@ export function FilesTab () {
                     <FileToolbar/>
                 </PanelHeader>
             </Panel>
-            <Table aria-label="Files" variant={"compact"} className={"table"}>
-                <Thead>
-                    <Tr>
-                        <Th key='type' width={20}>Type</Th>
-                        <Th key='filename' width={40}>Filename</Th>
-                        <Th key='lastUpdate' width={30}>Updated</Th>
-                        <Th key='action'></Th>
-                    </Tr>
-                </Thead>
-                <Tbody>
-                    {files.map(file => {
-                        const type = getProjectFileType(file)
-                        return <Tr key={file.name}>
-                            <Td>
-                                <Badge>{type}</Badge>
-                            </Td>
-                            <Td>
-                                <Button style={{padding: '6px'}} variant={"link"}
-                                        onClick={e =>
-                                            useFileStore.setState({file: file, operation: "select"})
-                                }>
-                                    {file.name}
-                                </Button>
-                            </Td>
-                            <Td>
-                                {needCommit(file.lastUpdate) &&
-                                    <Tooltip content="Updated after last commit" position={"right"}>
-                                        <Label color="grey">{getDate(file.lastUpdate)}</Label>
-                                    </Tooltip>
-                                }
-                                {!needCommit(file.lastUpdate) && getDate(file.lastUpdate)}
-                            </Td>
-                            <Td modifier={"fitContent"}>
-                                {canDeleteFiles() &&
-                                    <Button style={{padding: '0'}} variant={"plain"}
-                                            isDisabled={['application.properties', 'project-compose.yaml'].includes(file.name)}
-                                            onClick={e =>
-                                                useFileStore.setState({file: file, operation: "delete"})
-                                    }>
-                                        <DeleteIcon/>
-                                    </Button>
-                                }
-                                <Tooltip content="Download source" position={"bottom-end"}>
-                                    <Button size="sm" variant="plain" icon={<DownloadIcon/>} onClick={e => download(file)}/>
-                                </Tooltip>
-                            </Td>
-                        </Tr>
-                    })}
-                    {files.length === 0 &&
+            <div style={{height:"100%", overflow:"auto"}}>
+                <Table aria-label="Files" variant={"compact"} className={"table"}>
+                    <Thead>
                         <Tr>
-                            <Td colSpan={8}>
-                                <Bullseye>
-                                    <EmptyState variant={EmptyStateVariant.sm}>
-                                        <EmptyStateHeader titleText="No results found" icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2" />
-                                    </EmptyState>
-                                </Bullseye>
-                            </Td>
+                            <Th key='type' width={20}>Type</Th>
+                            <Th key='filename' width={40}>Filename</Th>
+                            <Th key='lastUpdate' width={30}>Updated</Th>
+                            <Th key='action'></Th>
                         </Tr>
-                    }
-                </Tbody>
-            </Table>
+                    </Thead>
+                    <Tbody>
+                        {files.map(file => {
+                            const type = getProjectFileType(file)
+                            return <Tr key={file.name}>
+                                <Td>
+                                    <Badge>{type}</Badge>
+                                </Td>
+                                <Td>
+                                    <Button style={{padding: '6px'}} variant={"link"}
+                                            onClick={e =>
+                                                useFileStore.setState({file: file, operation: "select"})
+                                    }>
+                                        {file.name}
+                                    </Button>
+                                </Td>
+                                <Td>
+                                    {needCommit(file.lastUpdate) &&
+                                        <Tooltip content="Updated after last commit" position={"right"}>
+                                            <Label color="grey">{getDate(file.lastUpdate)}</Label>
+                                        </Tooltip>
+                                    }
+                                    {!needCommit(file.lastUpdate) && getDate(file.lastUpdate)}
+                                </Td>
+                                <Td modifier={"fitContent"}>
+                                    {canDeleteFiles() &&
+                                        <Button style={{padding: '0'}} variant={"plain"}
+                                                isDisabled={['application.properties', 'project-compose.yaml'].includes(file.name)}
+                                                onClick={e =>
+                                                    useFileStore.setState({file: file, operation: "delete"})
+                                        }>
+                                            <DeleteIcon/>
+                                        </Button>
+                                    }
+                                    <Tooltip content="Download source" position={"bottom-end"}>
+                                        <Button size="sm" variant="plain" icon={<DownloadIcon/>} onClick={e => download(file)}/>
+                                    </Tooltip>
+                                </Td>
+                            </Tr>
+                        })}
+                        {files.length === 0 &&
+                            <Tr>
+                                <Td colSpan={8}>
+                                    <Bullseye>
+                                        <EmptyState variant={EmptyStateVariant.sm}>
+                                            <EmptyStateHeader titleText="No results found" icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2" />
+                                        </EmptyState>
+                                    </Bullseye>
+                                </Td>
+                            </Tr>
+                        }
+                    </Tbody>
+                </Table>
+            </div>
             <CreateFileModal types={types}/>
             <UploadFileModal projectId={project.projectId} isOpen={operation === 'upload'} />
             <DeleteFileModal />

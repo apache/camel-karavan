@@ -10,21 +10,28 @@ import {
 import '../../designer/karavan.css';
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
+import {ContainerStatus} from "../../api/ProjectModels";
+import {useProjectStore} from "../../api/ProjectStore";
+import {shallow} from "zustand/shallow";
 
 
 interface Props {
-    context: any,
-    showConsole: boolean
+    containerStatus: ContainerStatus
 }
 
 export function InfoContext (props: Props) {
+    const [camelStatuses] = useProjectStore((state) => [state.camelStatuses], shallow);
+
+    const camelStatus = camelStatuses.filter(s => s.containerName === props.containerStatus.containerName).at(0);
+    const contextValue = camelStatus?.statuses?.filter(x => x.name === 'context').at(0);
+    const context = contextValue ? JSON.parse(contextValue?.status || '') : {};
 
     function getContextInfo() {
         return (
             <LabelGroup numLabels={3}>
                 <Tooltip content="Name" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.context?.context?.name}
+                        {context?.context?.name}
                     </Label>
                 </Tooltip>
             </LabelGroup>
@@ -36,7 +43,7 @@ export function InfoContext (props: Props) {
             <LabelGroup numLabels={3}>
                 <Tooltip content="Version" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.context?.context?.version}
+                        {context?.context?.version}
                     </Label>
                 </Tooltip>
             </LabelGroup>
@@ -48,17 +55,17 @@ export function InfoContext (props: Props) {
             <LabelGroup numLabels={3}>
                 <Tooltip content="State" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.context?.context?.state}
+                        {context?.context?.state}
                     </Label>
                 </Tooltip>
                 <Tooltip content="Phase" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.context?.context?.phase}
+                        {context?.context?.phase}
                     </Label>
                 </Tooltip>
                 <Tooltip content="Uptime" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.context?.context?.uptime}
+                        {context?.context?.uptime}
                     </Label>
                 </Tooltip>
             </LabelGroup>
@@ -70,17 +77,17 @@ export function InfoContext (props: Props) {
             <LabelGroup numLabels={3}>
                 <Tooltip content="Total" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.context?.context?.statistics?.exchangesTotal}
+                        {context?.context?.statistics?.exchangesTotal}
                     </Label>
                 </Tooltip>
                 <Tooltip content="Failed" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.context?.context?.statistics?.exchangesFailed}
+                        {context?.context?.statistics?.exchangesFailed}
                     </Label>
                 </Tooltip>
                 <Tooltip content="Inflight" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.context?.context?.statistics?.exchangesInflight}
+                        {context?.context?.statistics?.exchangesInflight}
                     </Label>
                 </Tooltip>
             </LabelGroup>
@@ -92,22 +99,22 @@ export function InfoContext (props: Props) {
             <LabelGroup numLabels={4}>
                 <Tooltip content="Min" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.context?.context?.statistics?.minProcessingTime}
+                        {context?.context?.statistics?.minProcessingTime}
                     </Label>
                 </Tooltip>
                 <Tooltip content="Mean" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.context?.context?.statistics?.meanProcessingTime}
+                        {context?.context?.statistics?.meanProcessingTime}
                     </Label>
                 </Tooltip>
                 <Tooltip content="Max" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.context?.context?.statistics?.maxProcessingTime}
+                        {context?.context?.statistics?.maxProcessingTime}
                     </Label>
                 </Tooltip>
                 <Tooltip content="Last" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.context?.context?.statistics?.lastProcessingTime}
+                        {context?.context?.statistics?.lastProcessingTime}
                     </Label>
                 </Tooltip>
             </LabelGroup>
@@ -123,7 +130,7 @@ export function InfoContext (props: Props) {
     }
 
     function getRunning(): boolean {
-        return props.context ? isRunning(props.context) : false;
+        return context ? isRunning(context) : false;
     }
 
 

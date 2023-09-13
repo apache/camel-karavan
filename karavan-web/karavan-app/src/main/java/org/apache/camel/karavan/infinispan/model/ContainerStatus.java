@@ -70,8 +70,31 @@ public class ContainerStatus {
     Boolean inTransit = false;
     @ProtoField(number = 17)
     String initDate;
+    @ProtoField(number = 18)
+    String podIP;
 
     @ProtoFactory
+    public ContainerStatus(String projectId, String containerName, String containerId, String image, List<Integer> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, String phase, Boolean codeLoaded, Boolean inTransit, String initDate, String podIP) {
+        this.projectId = projectId;
+        this.containerName = containerName;
+        this.containerId = containerId;
+        this.image = image;
+        this.ports = ports;
+        this.env = env;
+        this.type = type;
+        this.memoryInfo = memoryInfo;
+        this.cpuInfo = cpuInfo;
+        this.created = created;
+        this.finished = finished;
+        this.commands = commands;
+        this.state = state;
+        this.phase = phase;
+        this.codeLoaded = codeLoaded;
+        this.inTransit = inTransit;
+        this.initDate = initDate;
+        this.podIP = podIP;
+    }
+
     public ContainerStatus(String projectId, String containerName, String containerId, String image, List<Integer> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, String phase, Boolean codeLoaded, Boolean inTransit, String initDate) {
         this.projectId = projectId;
         this.containerName = containerName;
@@ -149,6 +172,13 @@ public class ContainerStatus {
     public ContainerStatus() {
     }
 
+    public String getPodIP() {
+        return podIP;
+    }
+
+    public void setPodIP(String podIP) {
+        this.podIP = podIP;
+    }
 
     public String getProjectId() {
         return projectId;
@@ -302,10 +332,11 @@ public class ContainerStatus {
                 ", finished='" + finished + '\'' +
                 ", commands=" + commands +
                 ", state='" + state + '\'' +
-                ", status='" + phase + '\'' +
+                ", phase='" + phase + '\'' +
                 ", codeLoaded=" + codeLoaded +
                 ", inTransit=" + inTransit +
                 ", initDate='" + initDate + '\'' +
+                ", podIP='" + podIP + '\'' +
                 '}';
     }
 }

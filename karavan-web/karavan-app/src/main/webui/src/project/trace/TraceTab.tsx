@@ -20,123 +20,104 @@ import {
     Button,
     EmptyState,
     EmptyStateIcon,
-    EmptyStateVariant, Flex, FlexItem,
+    EmptyStateVariant,
+    Flex,
+    FlexItem,
     Panel,
     PanelHeader,
     Text,
-    Switch, TextContent, TextVariants, PageSection, EmptyStateHeader,
+    Switch,
+    TextContent,
+    TextVariants,
+    PageSection,
+    EmptyStateHeader,
+    Card,
+    CardBody,
+    Divider,
+    Tabs,
+    Tab,
+    TabTitleText,
+    ToggleGroup, ToggleGroupItem,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {RunnerInfoTraceModal} from "./RunnerInfoTraceModal";
 import {
-	Tbody,
-	Td,
-	Th,
-	Thead,
-	Tr
+    Tbody,
+    Td,
+    Th,
+    Thead,
+    Tr
 } from '@patternfly/react-table';
 import {
-	Table
+    Table
 } from '@patternfly/react-table/deprecated';
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
-import {useProjectStore} from "../../api/ProjectStore";
+import {useProjectStore, useStatusesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
+import {InfoContainer} from "../dashboard/InfoContainer";
+import {InfoMemory} from "../dashboard/InfoMemory";
+import {InfoContext} from "../dashboard/InfoContext";
+import {TraceTable} from "./TraceTable";
 
 
-export function TraceTab () {
+export function TraceTab() {
 
-    const [refreshTrace, setRefreshTrace, trace] = useProjectStore((state) =>
-        [state.refreshTrace, state.setRefreshTrace, state.trace], shallow);
-    const [nodes, setNodes] = useState([{}]);
-    const [isOpen, setIsOpen] = useState<boolean>(false);
-    const [exchangeId, setExchangeId] = useState<string>('');
+    const [project, refreshTrace, setRefreshTrace, camelStatuses] = useProjectStore((state) =>
+        [state.project, state.refreshTrace, state.setRefreshTrace, state.camelStatuses], shallow);
+    const [containers] = useStatusesStore((state) => [state.containers], shallow);
+    const [containerName, setContainerName] = useState<string>();
 
-    function closeModal() {
-        setIsOpen(false);
-    }
-
-    function getNodes(exchangeId: string): any[] {
-        const traces: any[] = trace?.trace?.traces || [];
-        return traces
-            .filter(t => t.message?.exchangeId === exchangeId)
-            .sort((a, b) => a.uid > b.uid ? 1 : -1);
-    }
-
-    function getNode(exchangeId: string): any {
-        const traces: any[] = trace?.trace?.traces || [];
-        return traces
-            .filter(t => t.message?.exchangeId === exchangeId)
-            .sort((a, b) => a.uid > b.uid ? 1 : -1)
-            .at(0);
-    }
-
-    const traces: any[] = (trace?.trace?.traces || []).sort((a: any, b: any) => b.uid > a.uid ? 1 : -1);
-    const exchanges: any[] = Array.from(new Set((traces).map((item: any) => item?.message?.exchangeId)));
+    const camelContainers = containers
+        .filter(c => c.projectId === project.projectId && ['devmode', 'project'].includes(c.type));
     return (
         <PageSection className="project-tab-panel" padding={{default: "padding"}}>
-            {isOpen && <RunnerInfoTraceModal isOpen={isOpen} exchangeId={exchangeId} nodes={nodes} onClose={closeModal}/>}
             <Panel>
                 <PanelHeader>
-                    <Flex direction={{default: "row"}} justifyContent={{default:"justifyContentFlexEnd"}}>
+                    <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentSpaceBetween"}}>
                         <FlexItem>
-                            <TextContent>
-                                <Text component={TextVariants.h6}>Auto refresh</Text>
-                            </TextContent>
+                            <Flex direction={{default: "row"}}>
+                                <FlexItem>
+                                    <TextContent>
+                                        <Text component={TextVariants.h6}>Container</Text>
+                                    </TextContent>
+                                </FlexItem>
+                                <FlexItem>
+                                    <ToggleGroup>
+                                        {camelContainers.map((containerStatus, index) =>
+                                            <ToggleGroupItem
+                                                text={containerStatus.containerName}
+                                                isSelected={containerName === containerStatus.containerName}
+                                                onChange={(_, selected) => {
+                                                    if (selected) {
+                                                        setContainerName(containerStatus.containerName);
+                                                    }
+                                                }}
+                                            />
+                                        )}
+                                    </ToggleGroup>
+                                </FlexItem>
+                            </Flex>
                         </FlexItem>
                         <FlexItem>
-                            <Switch aria-label="refresh"
-                                    id="refresh"
-                                    isChecked={refreshTrace}
-                                     onChange={(_, checked) => setRefreshTrace(checked)}
-                            />
+                            <Flex direction={{default: "row"}}>
+                                <FlexItem>
+                                    <TextContent>
+                                        <Text component={TextVariants.h6}>Auto refresh</Text>
+                                    </TextContent>
+                                </FlexItem>
+                                <FlexItem>
+                                    <Switch aria-label="refresh"
+                                            id="refresh"
+                                            isChecked={refreshTrace}
+                                            onChange={(_, checked) => setRefreshTrace(checked)}
+                                    />
+                                </FlexItem>
+                            </Flex>
                         </FlexItem>
                     </Flex>
                 </PanelHeader>
             </Panel>
-            <Table aria-label="Files" variant={"compact"} className={"table"}>
-                <Thead>
-                    <Tr>
-                        <Th key='uid' width={30}>UID</Th>
-                        <Th key='exchangeId' width={40}>ExchangeId</Th>
-                        <Th key='timestamp' width={30}>Updated</Th>
-                    </Tr>
-                </Thead>
-                <Tbody>
-                    {exchanges.map(exchangeId => {
-                        const node = getNode(exchangeId);
-                        return <Tr key={node?.uid}>
-                            <Td>
-                                {node?.uid}
-                            </Td>
-                            <Td>
-                                <Button style={{padding: '0'}} variant={"link"}
-                                        onClick={e => {
-                                            setExchangeId(exchangeId);
-                                            setNodes(getNodes(exchangeId));
-                                            setIsOpen(true);
-                                        }}>
-                                    {exchangeId}
-                                </Button>
-                            </Td>
-                            <Td>
-                                {node ? new Date(node?.timestamp).toISOString() : ""}
-                            </Td>
-
-                        </Tr>
-                    })}
-                    {exchanges.length === 0 &&
-                        <Tr>
-                            <Td colSpan={8}>
-                                <Bullseye>
-                                    <EmptyState variant={EmptyStateVariant.sm}>
-                                        <EmptyStateHeader titleText="No results found" icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2" />
-                                    </EmptyState>
-                                </Bullseye>
-                            </Td>
-                        </Tr>
-                    }
-                </Tbody>
-            </Table>
+            <TraceTable containerName={containerName}/>
         </PageSection>
-    );
+    )
 }

@@ -108,6 +108,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
                     creationTimestamp);
             status.setContainerId(pod.getMetadata().getName());
             status.setPhase(pod.getStatus().getPhase());
+            status.setPodIP(pod.getStatus().getPodIP());
             if (ready) {
                 status.setState(ContainerStatus.State.running.name());
             } else if (failed) {

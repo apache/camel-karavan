@@ -24,6 +24,9 @@ export function ContainerTableRow (props: Props) {
 
     const container = props.container;
     const commands = container.commands;
+    const imageParts = container.image.split("@");
+    const image = imageParts[0];
+    const imageSha = imageParts[1];
     const ports = container.ports;
     const isRunning = container.state === 'running';
     const inTransit = container.inTransit;
@@ -48,7 +51,7 @@ export function ContainerTableRow (props: Props) {
                 <Td>
                     <Label color={color}>{container.containerName}</Label>
                 </Td>
-                <Td>{container.image}</Td>
+                <Td>{image}</Td>
                 <Td>
                     {isRunning && container.cpuInfo && <Label color={color}>{container.cpuInfo}</Label>}
                 </Td>

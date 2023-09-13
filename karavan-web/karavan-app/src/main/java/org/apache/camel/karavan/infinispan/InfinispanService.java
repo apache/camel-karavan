@@ -279,8 +279,8 @@ public class InfinispanService implements HealthCheck {
         containerStatuses.remove(GroupedKey.create(projectId, env, containerName));
     }
 
-    public CamelStatus getCamelStatus(String projectId, String env, String name) {
-        GroupedKey key = GroupedKey.create(projectId, env, name);
+    public CamelStatus getCamelStatus(String projectId, String env, String containerName) {
+        GroupedKey key = GroupedKey.create(projectId, env, containerName);
         return camelStatuses.get(key);
     }
 
@@ -288,15 +288,19 @@ public class InfinispanService implements HealthCheck {
         return camelStatuses.get(key);
     }
 
-    public List<CamelStatus> getCamelStatusesByEnv(String env, CamelStatus.Name name) {
+    public List<CamelStatus> getCamelStatusesByEnv(String env, CamelStatusValue.Name name) {
         QueryFactory queryFactory = Search.getQueryFactory(camelStatuses);
-        return queryFactory.<CamelStatus>create("FROM karavan.CamelStatus WHERE env = :env AND name = :name")
+        List<CamelStatus> statuses = queryFactory.<CamelStatus>create("FROM karavan.CamelStatus WHERE env = :env")
                 .setParameter("env", env)
-                .setParameter("name", name)
                 .execute().list();
+        return statuses.stream().map(cs -> {
+            var values = cs.getStatuses();
+            cs.setStatuses(values.stream().filter(v -> Objects.equals(v.getName(), name)).toList());
+            return cs;
+        }).toList();
     }
 
-    public List<CamelStatus> getCamelStatusesByProjectIdEnv(String projectId, String env) {
+    public List<CamelStatus> getCamelStatusesByProjectAndEnv(String projectId, String env) {
         QueryFactory queryFactory = Search.getQueryFactory(camelStatuses);
         return queryFactory.<CamelStatus>create("FROM karavan.CamelStatus WHERE projectId = :projectId AND env = :env")
                 .setParameter("projectId", projectId)
@@ -305,7 +309,7 @@ public class InfinispanService implements HealthCheck {
     }
 
     public void saveCamelStatus(CamelStatus status) {
-        GroupedKey key = GroupedKey.create(status.getProjectId(), status.getEnv(), status.getName().name());
+        GroupedKey key = GroupedKey.create(status.getProjectId(), status.getEnv(), status.getContainerName());
         camelStatuses.put(key, status);
     }
 
@@ -315,8 +319,13 @@ public class InfinispanService implements HealthCheck {
     }
 
     public void deleteCamelStatuses(String projectId, String env) {
-        Arrays.stream(CamelStatus.Name.values()).forEach(name -> {
-            GroupedKey key = GroupedKey.create(projectId, env, name.name());
+        QueryFactory queryFactory = Search.getQueryFactory(camelStatuses);
+        List<CamelStatus> statuses = queryFactory.<CamelStatus>create("FROM karavan.CamelStatus WHERE projectId = :projectId AND env = :env")
+                .setParameter("projectId", projectId)
+                .setParameter("env", env)
+                .execute().list();
+        statuses.forEach(s -> {
+            GroupedKey key = GroupedKey.create(projectId, env, s.getContainerName());
             camelStatuses.remove(key);
         });
     }

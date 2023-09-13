@@ -24,6 +24,7 @@ import io.fabric8.kubernetes.client.dsl.LogWatch;
 import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.client.OpenShiftClient;
+import io.quarkus.runtime.configuration.ProfileManager;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.infinispan.InfinispanService;
@@ -32,6 +33,7 @@ import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.service.ConfigService;
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -63,6 +65,8 @@ public class KubernetesService implements HealthCheck {
 
     @Inject
     InfinispanService infinispanService;
+
+    private String namespace;
 
     @Produces
     public KubernetesClient kubernetesClient() {
@@ -248,29 +252,10 @@ public class KubernetesService implements HealthCheck {
                 .build();
     }
 
-
-    public String getContainerLog(String podName, String namespace) {
-        try (KubernetesClient client = kubernetesClient()) {
-            String logText = client.pods().inNamespace(namespace).withName(podName).getLog(true);
-            return logText;
-        }
-    }
-
     public Tuple2<LogWatch, KubernetesClient> getContainerLogWatch(String podName) {
         KubernetesClient client = kubernetesClient();
         LogWatch logWatch = client.pods().inNamespace(getNamespace()).withName(podName).tailingLines(100).watchLog();
         return Tuple2.of(logWatch, client);
-    }
-
-    private List<Condition> getCancelConditions(String reason) {
-        List<Condition> cancelConditions = new ArrayList<>();
-        Condition taskRunCancelCondition = new Condition();
-        taskRunCancelCondition.setType("Succeeded");
-        taskRunCancelCondition.setStatus("False");
-        taskRunCancelCondition.setReason(reason);
-        taskRunCancelCondition.setMessage("Cancelled successfully.");
-        cancelConditions.add(taskRunCancelCondition);
-        return cancelConditions;
     }
 
     public void rolloutDeployment(String name, String namespace) {
@@ -297,43 +282,6 @@ public class KubernetesService implements HealthCheck {
             client.pods().inNamespace(getNamespace()).withName(name).delete();
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
-        }
-    }
-
-    public Deployment getDeployment(String name, String namespace) {
-        try (KubernetesClient client = kubernetesClient()) {
-            return client.apps().deployments().inNamespace(namespace).withName(name).get();
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage());
-            return null;
-        }
-    }
-
-    public boolean hasDeployment(String name, String namespace) {
-        try (KubernetesClient client = kubernetesClient()) {
-            Deployment deployment = client.apps().deployments().inNamespace(namespace).withName(name).get();
-            return deployment != null;
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage());
-            return false;
-        }
-    }
-
-    public List<String> getCamelDeployments(String namespace) {
-        try (KubernetesClient client = kubernetesClient()) {
-            return client.apps().deployments().inNamespace(namespace).withLabels(getRuntimeLabels()).list().getItems()
-                    .stream().map(deployment -> deployment.getMetadata().getName()).collect(Collectors.toList());
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage());
-            return List.of();
-        }
-    }
-
-    private String getPodReason(Pod pod) {
-        try {
-            return pod.getStatus().getContainerStatuses().get(0).getState().getWaiting().getReason();
-        } catch (Exception e) {
-            return "";
         }
     }
 
@@ -561,8 +509,11 @@ public class KubernetesService implements HealthCheck {
     }
 
     public String getNamespace() {
-        try (KubernetesClient client = kubernetesClient()) {
-            return client.getNamespace();
+        if (namespace == null) {
+            try (KubernetesClient client = kubernetesClient()) {
+                namespace = ProfileManager.getLaunchMode().isDevOrTest() ? "karavan" : client.getNamespace();
+            }
         }
+        return namespace;
     }
 }

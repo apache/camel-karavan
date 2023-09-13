@@ -87,14 +87,10 @@ interface ProjectState {
     tabIndex: string | number;
     setTabIndex: (tabIndex: string | number) => void;
     setOperation: (o: "create" | "select" | "delete"| "none" | "copy") => void;
-    memory: any,
-    setMemory: (memory: any) => void;
-    jvm: any,
-    setJvm: (jvm: any) => void;
-    context: any,
-    setContext: (context: any) => void;
-    trace: any,
-    setTrace: (trace: any) => void;
+    camelStatuses: CamelStatus[],
+    setCamelStatuses: (camelStatuses: CamelStatus[]) => void;
+    camelTraces: CamelStatus[],
+    setCamelTraces: (camelTraces: CamelStatus[]) => void;
     refreshTrace: boolean
     setRefreshTrace: (refreshTrace: boolean) => void;
 }
@@ -134,21 +130,21 @@ export const useProjectStore = createWithEqualityFn<ProjectState>((set) => ({
             return {images: state.images};
         });
     },
-    memory: {},
-    setMemory: (memory: boolean)  => {
-        set({memory: memory})
+    camelStatuses: [],
+    setCamelStatuses: (camelStatuses: CamelStatus[])  => {
+        set((state: ProjectState) => {
+            state.camelStatuses.length = 0;
+            state.camelStatuses.push(...camelStatuses);
+            return {camelStatuses: state.camelStatuses};
+        });
     },
-    jvm: {},
-    setJvm: (jvm: boolean)  => {
-        set({jvm: jvm})
-    },
-    context: {},
-    setContext: (context: boolean)  => {
-        set({context: context})
-    },
-    trace: {},
-    setTrace: (trace: boolean)  => {
-        set({trace: trace})
+    camelTraces: [],
+    setCamelTraces: (camelTraces: CamelStatus[])  => {
+        set((state: ProjectState) => {
+            state.camelTraces.length = 0;
+            state.camelTraces.push(...camelTraces);
+            return {camelTraces: state.camelTraces};
+        });
     },
     refreshTrace: false,
     setRefreshTrace: (refreshTrace: boolean)  => {

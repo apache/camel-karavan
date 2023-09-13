@@ -10,21 +10,30 @@ import {
 import '../../designer/karavan.css';
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
+import {ContainerStatus} from "../../api/ProjectModels";
+import {useProjectStore} from "../../api/ProjectStore";
+import {shallow} from "zustand/shallow";
 
 
 interface Props {
-    jvm: any,
-    memory: any,
-    showConsole: boolean
+    containerStatus: ContainerStatus
 }
 
 export function InfoMemory (props: Props) {
+
+    const [camelStatuses] = useProjectStore((state) => [state.camelStatuses], shallow);
+
+    const camelStatus = camelStatuses.filter(s => s.containerName === props.containerStatus.containerName).at(0);
+    const jvmValue = camelStatus?.statuses?.filter(x => x.name === 'jvm').at(0);
+    const memoryValue = camelStatus?.statuses?.filter(x => x.name === 'memory').at(0);
+    const jvm = jvmValue ? JSON.parse(jvmValue?.status || '') : {};
+    const memory = memoryValue ? JSON.parse(memoryValue?.status || '') : {};
 
     function getJvmInfo() {
         return (
             <LabelGroup numLabels={2}>
                 <Label icon={getIcon()} color={getColor()}>
-                    {props.jvm?.jvm?.vmVendor} {props.jvm?.jvm?.vmVersion}
+                    {jvm?.jvm?.vmVendor} {jvm?.jvm?.vmVersion}
                 </Label>
             </LabelGroup>
         )
@@ -35,17 +44,17 @@ export function InfoMemory (props: Props) {
             <LabelGroup numLabels={3}>
                 <Tooltip content="Init" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.memory?.memory?.heapMemoryInit}
+                        {memory?.memory?.heapMemoryInit}
                     </Label>
                 </Tooltip>
                 <Tooltip content="Max" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.memory?.memory?.heapMemoryMax}
+                        {memory?.memory?.heapMemoryMax}
                     </Label>
                 </Tooltip>
                 <Tooltip content="Used" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.memory?.memory?.heapMemoryUsed}
+                        {memory?.memory?.heapMemoryUsed}
                     </Label>
                 </Tooltip>
             </LabelGroup>
@@ -57,7 +66,7 @@ export function InfoMemory (props: Props) {
             <LabelGroup numLabels={2}>
                 <Tooltip content="Uptime" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.jvm?.jvm?.vmUptime}
+                        {jvm?.jvm?.vmUptime}
                     </Label>
                 </Tooltip>
             </LabelGroup>
@@ -69,7 +78,7 @@ export function InfoMemory (props: Props) {
             <LabelGroup numLabels={2}>
                 <Tooltip content="PID" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.jvm?.jvm?.pid}
+                        {jvm?.jvm?.pid}
                     </Label>
                 </Tooltip>
             </LabelGroup>
@@ -81,17 +90,17 @@ export function InfoMemory (props: Props) {
             <LabelGroup numLabels={3}>
                 <Tooltip content="Init" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.memory?.memory?.nonHeapMemoryInit}
+                        {memory?.memory?.nonHeapMemoryInit}
                     </Label>
                 </Tooltip>
                 <Tooltip content="Max" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.memory?.memory?.nonHeapMemoryMax}
+                        {memory?.memory?.nonHeapMemoryMax}
                     </Label>
                 </Tooltip>
                 <Tooltip content="Used" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {props.memory?.memory?.nonHeapMemoryUsed}
+                        {memory?.memory?.nonHeapMemoryUsed}
                     </Label>
                 </Tooltip>
             </LabelGroup>
@@ -107,7 +116,7 @@ export function InfoMemory (props: Props) {
     }
 
     function getRunning(): boolean {
-        return isRunning(props.jvm);
+        return isRunning(jvm);
     }
 
 

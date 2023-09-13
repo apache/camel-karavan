@@ -30,7 +30,6 @@ import {MainDataPoller} from "./MainDataPoller";
 import {TemplatesPage} from "../templates/TemplatesPage";
 import {EventBus} from "../designer/utils/EventBus";
 import {Notification} from "../designer/utils/Notification";
-import CheckIcon from "@patternfly/react-icons/dist/esm/icons/check-icon";
 
 export function Main() {
 

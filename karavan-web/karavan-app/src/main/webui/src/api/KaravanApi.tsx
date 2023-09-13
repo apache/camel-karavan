@@ -192,8 +192,8 @@ export class KaravanApi {
         });
     }
 
-    static async getAllCamelStatuses(env: string, after: (statuses: CamelStatus[]) => void) {
-        instance.get('/api/status/camel/' + env)
+    static async getAllCamelContextStatuses(env: string, after: (statuses: CamelStatus[]) => void) {
+        instance.get('/api/status/camel/context/' + env)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -329,8 +329,17 @@ export class KaravanApi {
         });
     }
 
-    static async getDevModeStatus(projectId: string, statusName: string, after: (res: AxiosResponse<CamelStatus>) => void) {
-        instance.get('/api/devmode/status/' + projectId + "/" + statusName)
+    static async getProjectCamelStatuses(projectId: string, env: string, after: (res: AxiosResponse<CamelStatus[]>) => void) {
+        instance.get('/api/project/status/camel/' + projectId + "/" + env)
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    }
+
+    static async getProjectCamelTraces(projectId: string, env: string, after: (res: AxiosResponse<CamelStatus[]>) => void) {
+        instance.get('/api/project/traces/' + projectId + "/" + env)
             .then(res => {
                 after(res);
             }).catch(err => {

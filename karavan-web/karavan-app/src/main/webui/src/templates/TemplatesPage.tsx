@@ -12,7 +12,7 @@ import {
     EmptyState,
     EmptyStateVariant,
     EmptyStateIcon,
-    EmptyStateHeader
+    EmptyStateHeader, Panel, PanelMain, PanelMainBody
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';

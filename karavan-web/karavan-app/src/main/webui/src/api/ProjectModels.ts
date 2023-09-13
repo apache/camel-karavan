@@ -91,9 +91,13 @@ export class ContainerStatus {
 export class CamelStatus {
     projectId: string = '';
     containerName: string = '';
+    statuses: CamelStatusValue[] = [];
+    env: string = '';
+}
+
+export class CamelStatusValue {
     name: string = '';
     status: string = '';
-    env: string = '';
 }
 
 export class ProjectFile {
