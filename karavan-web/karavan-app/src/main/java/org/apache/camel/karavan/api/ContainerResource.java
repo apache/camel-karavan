@@ -24,10 +24,8 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.code.DockerComposeConverter;
 import org.apache.camel.karavan.code.model.DockerComposeService;
-import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
@@ -57,16 +55,10 @@ public class ContainerResource {
     KubernetesService kubernetesService;
 
     @Inject
-    DockerForKaravan dockerForKaravan;
-
-    @Inject
     DockerService dockerService;
 
     @Inject
     ProjectService projectService;
-
-    @Inject
-    CodeService codeService;
 
     @ConfigProperty(name = "karavan.environment")
     String environment;

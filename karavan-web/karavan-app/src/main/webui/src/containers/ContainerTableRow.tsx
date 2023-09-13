@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {
     Button,
     Tooltip,
-    Flex, FlexItem, Label, Badge, Spinner
+    Flex, FlexItem, Label, Badge, Spinner, Modal
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {ExpandableRowContent, Tbody, Td, Tr} from "@patternfly/react-table";
@@ -21,6 +21,8 @@ interface Props {
 export function ContainerTableRow (props: Props) {
 
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
+    const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+    const [command, setCommand] = useState<'run' | 'pause' | 'stop' | 'delete'>();
 
     const container = props.container;
     const commands = container.commands;
@@ -30,8 +32,36 @@ export function ContainerTableRow (props: Props) {
     const isRunning = container.state === 'running';
     const inTransit = container.inTransit;
     const color = container.state === 'running' ? "green" : "grey";
+
+    function getConfirmation() {
+        return (<Modal
+            className="modal-delete"
+            title="Confirmation"
+            isOpen={showConfirmation}
+            onClose={() => setShowConfirmation(false)}
+            actions={[
+                <Button key="confirm" variant="primary" onClick={e => {
+                    if (command) {
+                        KaravanApi.manageContainer(container.env, container.type, container.containerName, command, res => {});
+                        setCommand(undefined);
+                        setShowConfirmation(false);
+                    }
+                }}>Delete
+                </Button>,
+                <Button key="cancel" variant="link"
+                        onClick={e => {
+                            setCommand(undefined);
+                            setShowConfirmation(false);
+                        }}>Cancel</Button>
+            ]}
+            onEscapePress={e => setShowConfirmation(false)}>
+            <div>{"Confirm " + commands + " container " + container.containerName + " ?"}</div>
+        </Modal>)
+    }
+
     return (
         <Tbody isExpanded={isExpanded}>
+            {showConfirmation && getConfirmation()}
             <Tr key={container.containerName}>
                 <Td expand={
                     container.containerName
@@ -69,7 +99,8 @@ export function ContainerTableRow (props: Props) {
                                 <Tooltip content={"Start container"} position={"bottom"}>
                                     <Button variant={"plain"} icon={<PlayIcon/>} isDisabled={!commands.includes('run') || inTransit}
                                             onClick={e => {
-                                                KaravanApi.manageContainer(container.env, container.type, container.containerName, 'run', res => {});
+                                                setCommand('run');
+                                                setShowConfirmation(true);
                                             }}></Button>
                                 </Tooltip>
                             </FlexItem>
@@ -77,7 +108,8 @@ export function ContainerTableRow (props: Props) {
                                 <Tooltip content={"Pause container"} position={"bottom"}>
                                     <Button variant={"plain"} icon={<PauseIcon/>} isDisabled={!commands.includes('pause') || inTransit}
                                             onClick={e => {
-                                                KaravanApi.manageContainer(container.env, container.type, container.containerName, 'pause', res => {});
+                                                setCommand('pause');
+                                                setShowConfirmation(true);
                                             }}></Button>
                                 </Tooltip>
                             </FlexItem>
@@ -85,7 +117,8 @@ export function ContainerTableRow (props: Props) {
                                 <Tooltip content={"Stop container"} position={"bottom"}>
                                     <Button variant={"plain"} icon={<StopIcon/>} isDisabled={!commands.includes('stop') || inTransit}
                                             onClick={e => {
-                                                KaravanApi.manageContainer(container.env, container.type, container.containerName, 'stop', res => {});
+                                                setCommand('stop');
+                                                setShowConfirmation(true);
                                             }}></Button>
                                 </Tooltip>
                             </FlexItem>
@@ -93,7 +126,8 @@ export function ContainerTableRow (props: Props) {
                                 <Tooltip content={"Delete container"} position={"bottom"}>
                                     <Button variant={"plain"} icon={<DeleteIcon/>} isDisabled={!commands.includes('delete') || inTransit}
                                             onClick={e => {
-                                                KaravanApi.deleteContainer(container.env, container.type, container.containerName, res => {});
+                                                setCommand('delete');
+                                                setShowConfirmation(true);
                                             }}></Button>
                                 </Tooltip>
                             </FlexItem>

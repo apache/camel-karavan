@@ -48,6 +48,7 @@ export function ProjectPanel() {
                     {!buildIn && tab === 'build' && <FlexItem><ProjectBuildTab/></FlexItem>}
                     {!buildIn && tab === 'build' && config.infrastructure !== 'kubernetes' && <FlexItem><ImagesPanel/></FlexItem>}
                     {!buildIn && tab === 'container' && <FlexItem><ProjectContainerTab/></FlexItem>}
+                    {!buildIn && tab === 'container' && config.infrastructure !== 'kubernetes' && <FlexItem><ImagesPanel/></FlexItem>}
                 </Flex>
             </PageSection>
         </PageSection>
