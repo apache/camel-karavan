@@ -60,13 +60,9 @@ public class RegistryService {
         return new RegistryConfig(registryUrl, imageGroup, registryUsername, registryPassword);
     }
 
-    public String getRegistryWithGroup() {
-        return getRegistryConfig().getRegistry() + "/" + group;
-    }
-
     public String getRegistryWithGroupForSync() {
         String registryUrl = registry;
-        if (!ConfigService.inDocker() && installRegistry) {
+        if (!ConfigService.inKubernetes() && installRegistry) {
             registryUrl = "localhost:5555";
         }
         return registryUrl + "/" + group;
