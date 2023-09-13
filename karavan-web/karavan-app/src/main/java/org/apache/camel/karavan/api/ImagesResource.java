@@ -48,12 +48,15 @@ public class ImagesResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{projectId}")
     public List<String> getImagesForProject(@HeaderParam("username") String username,
-                                 @PathParam("projectId") String projectId) throws IOException {
-        String pattern = registryService.getRegistryWithGroup() + "/" + projectId;
+                                 @PathParam("projectId") String projectId) {
+
+        RegistryConfig registryConfig = registryService.getRegistryConfig();
+        String pattern = registryConfig.getGroup() + "/" + projectId;
         if (ConfigService.inKubernetes()) {
             return List.of();
         } else {
-            return dockerService.getImages().stream().filter(s -> s.startsWith(pattern)).sorted(Comparator.reverseOrder()).toList();
+            return dockerService.getImages()
+                    .stream().filter(s -> s.contains(pattern)).sorted(Comparator.reverseOrder()).toList();
         }
     }
 

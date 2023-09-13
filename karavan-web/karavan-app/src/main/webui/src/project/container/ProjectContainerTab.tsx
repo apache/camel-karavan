@@ -26,12 +26,14 @@ export function ProjectContainerTab() {
                                         <Badge className="badge">{env}</Badge>
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>
-                                <DescriptionListGroup>
-                                    <DescriptionListTerm>Deployment</DescriptionListTerm>
-                                    <DescriptionListDescription>
-                                        <DeploymentPanel key={env} env={env}/>
-                                    </DescriptionListDescription>
-                                </DescriptionListGroup>
+                                {config.infrastructure === 'kubernetes' &&
+                                    <DescriptionListGroup>
+                                        <DescriptionListTerm>Deployment</DescriptionListTerm>
+                                        <DescriptionListDescription>
+                                            <DeploymentPanel key={env} env={env}/>
+                                        </DescriptionListDescription>
+                                    </DescriptionListGroup>
+                                }
                                 <DescriptionListGroup>
                                     <DescriptionListTerm>Containers</DescriptionListTerm>
                                     <DescriptionListDescription>

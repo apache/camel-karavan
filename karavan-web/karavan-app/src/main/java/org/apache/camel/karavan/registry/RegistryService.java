@@ -16,7 +16,6 @@
  */
 package org.apache.camel.karavan.registry;
 
-import io.fabric8.kubernetes.api.model.Secret;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
@@ -57,8 +56,6 @@ public class RegistryService {
             imageGroup = i != null ? i : group;
             registryUsername = kubernetesService.getKaravanSecret("image-registry-username");
             registryPassword = kubernetesService.getKaravanSecret("image-registry-password");
-        } else if (!ConfigService.inDocker() && installRegistry) {
-            registryUrl = "localhost:5555";
         }
         return new RegistryConfig(registryUrl, imageGroup, registryUsername, registryPassword);
     }
@@ -68,10 +65,11 @@ public class RegistryService {
     }
 
     public String getRegistryWithGroupForSync() {
-        if (ConfigService.inKubernetes()) {
-            return getRegistryConfig().getRegistry() + "/" + group;
+        String registryUrl = registry;
+        if (!ConfigService.inDocker() && installRegistry) {
+            registryUrl = "localhost:5555";
         }
-        return registry + "/" + group;
+        return registryUrl + "/" + group;
     }
 
     public List<String> getEnvForBuild() {

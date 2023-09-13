@@ -350,17 +350,8 @@ public class DockerService extends DockerServiceUtils {
         }
     }
 
-    private DockerClientConfig getDockerClientConfig(String registryUrl, String registryUsername, String registryPassword) {
+    private DockerClientConfig getDockerClientConfig() {
         DefaultDockerClientConfig.Builder builder =  DefaultDockerClientConfig.createDefaultConfigBuilder();
-        if (registryUrl != null) {
-            builder.withRegistryUrl(registryUrl);
-        }
-        if (registryUsername != null) {
-            builder.withRegistryUsername(registryUsername);
-        }
-        if (registryPassword != null) {
-            builder.withRegistryPassword(registryPassword);
-        }
         return builder.build();
     }
 
@@ -374,17 +365,11 @@ public class DockerService extends DockerServiceUtils {
 
     public DockerClient getDockerClient() {
         if (dockerClient == null) {
-            DockerClientConfig config = getDockerClientConfig(null, null, null);
+            DockerClientConfig config = getDockerClientConfig();
             DockerHttpClient httpClient = getDockerHttpClient(config);
             dockerClient = DockerClientImpl.getInstance(config, httpClient);
         }
         return dockerClient;
-    }
-
-    public DockerClient getDockerClient(String registryUrl, String registryUsername, String registryPassword) {
-        DockerClientConfig config = getDockerClientConfig(registryUrl, registryUsername, registryPassword);
-        DockerHttpClient httpClient = getDockerHttpClient(config);
-        return DockerClientImpl.getInstance(config, httpClient);
     }
 
     public int getMaxPortMapped(int port) {
@@ -400,14 +385,6 @@ public class DockerService extends DockerServiceUtils {
     public List<String> getImages() {
         return getDockerClient().listImagesCmd().withShowAll(true).exec().stream()
                 .map(image -> image.getRepoTags()[0]).toList();
-    }
-
-    public List<String> getImages(String registryUrl, String registryUsername, String registryPassword) throws IOException {
-        List<String> result = new ArrayList<>();
-        DockerClient client = getDockerClient(registryUrl, registryUsername, registryPassword);
-        client.listImagesCmd().withShowAll(true).exec().forEach(image -> result.add(image.getRepoTags()[0]));
-        client.close();
-        return result;
     }
 
     public void deleteImage(String imageName) {
