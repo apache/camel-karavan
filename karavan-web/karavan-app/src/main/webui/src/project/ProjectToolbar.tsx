@@ -1,35 +1,20 @@
 import React, {useEffect} from 'react';
 import {
-    Button,
-    Checkbox, Divider,
     Flex,
     FlexItem,
-    ToggleGroup,
-    ToggleGroupItem,
     Toolbar,
     ToolbarContent,
-    Tooltip
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
-import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
-import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {DevModeToolbar} from "./DevModeToolbar";
 import {useFileStore, useProjectStore} from "../api/ProjectStore";
-import {EventBus} from "../designer/utils/EventBus";
-import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
-import {ProjectModelApi} from "karavan-core/lib/api/ProjectModelApi";
-import {ProjectModel, ProjectProperty} from "karavan-core/lib/model/ProjectModel";
 import {BuildToolbar} from "./BuildToolbar";
 
+export function ProjectToolbar() {
 
-export function ProjectToolbar () {
-
-    const [project, isPushing, tabIndex] = useProjectStore((s) => [s.project, s.isPushing, s.tabIndex], shallow )
-    const [file, editAdvancedProperties, setEditAdvancedProperties, setAddProperty]
-        = useFileStore((state) =>
-        [state.file, state.editAdvancedProperties, state.setEditAdvancedProperties, state.setAddProperty], shallow )
+    const [project, tabIndex] = useProjectStore((s) => [s.project, s.tabIndex], shallow)
+    const [file] = useFileStore((state) => [state.file], shallow)
 
     useEffect(() => {
     }, [project, file]);
@@ -38,42 +23,22 @@ export function ProjectToolbar () {
         return file !== undefined;
     }
 
-    function isYaml(): boolean {
-        return file !== undefined && file.name.endsWith("yaml");
-    }
-
-    function isIntegration(): boolean {
-        return isYaml() && file?.code !== undefined && CamelDefinitionYaml.yamlIsIntegration(file.code);
-    }
-
-    function isProperties(): boolean {
-        return file !== undefined && file.name.endsWith("properties");
-    }
-
-    function isJava(): boolean {
-        return file !== undefined && file.name.endsWith("java");
-    }
-
-    function downloadImage () {
-        EventBus.sendCommand("downloadImage");
-    }
-
-
-
     function getFileToolbar() {
-        return <Toolbar id="toolbar-group-types">
-            <ToolbarContent>
-                <Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
-                    {isRunnable() && <DevModeToolbar reloadOnly={true}/>}
-
-                    {isIntegration() && <FlexItem>
-                        <Tooltip content="Download image" position={"bottom-end"}>
-                            <Button size="sm" variant="control" icon={<DownloadImageIcon/>} onClick={e => downloadImage()}/>
-                        </Tooltip>
-                    </FlexItem>}
-                </Flex>
-            </ToolbarContent>
-        </Toolbar>
+        return (
+            <Toolbar id="toolbar-group-types">
+                <ToolbarContent>
+                    <Flex className="" direction={{default: "row"}}
+                          justifyContent={{default: 'justifyContentSpaceBetween'}}
+                          alignItems={{default: "alignItemsCenter"}}>
+                        {isRunnable() &&
+                            <FlexItem align={{default: 'alignRight'}}>
+                                <DevModeToolbar reloadOnly={true}/>
+                            </FlexItem>
+                        }
+                    </Flex>
+                </ToolbarContent>
+            </Toolbar>
+        )
     }
 
     function getProjectToolbar() {
@@ -105,10 +70,5 @@ export function ProjectToolbar () {
         return !isKameletsProject() && !isTemplatesProject() && !isServicesProject() && ['build', 'container'].includes(tabIndex.toString());
     }
 
-    function allowAddFiles(): boolean {
-        return !isTemplatesProject() && !isServicesProject();
-    }
-
-    const isTemplates = isTemplatesProject();
-    return  isFile() ? getFileToolbar() : getProjectToolbar()
+    return isFile() ? getFileToolbar() : getProjectToolbar()
 }

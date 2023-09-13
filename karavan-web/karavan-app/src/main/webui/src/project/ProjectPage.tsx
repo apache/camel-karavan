@@ -17,6 +17,7 @@ import {shallow} from "zustand/shallow";
 import {useParams} from "react-router-dom";
 import {KaravanApi} from "../api/KaravanApi";
 import {ProjectDataPoller} from "./ProjectDataPoller";
+import {ImageDownloadToolbar} from "./ImageDownloadToolbar";
 
 export function ProjectPage() {
 
@@ -52,7 +53,7 @@ export function ProjectPage() {
     return (
         <PageSection className="project-page" padding={{default: 'noPadding'}}>
             <PageSection className="tools-section" padding={{default: 'noPadding'}}>
-                <MainToolbar title={<ProjectTitle/>} tools={<ProjectToolbar/>}/>
+                <MainToolbar title={<ProjectTitle/>} tools={<ProjectToolbar/>} toolsStart={<ImageDownloadToolbar/>}/>
             </PageSection>
             <PageSection className="tools-section" padding={{default: 'noPadding'}}>
                 <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
