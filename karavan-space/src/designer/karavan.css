@@ -1046,8 +1046,9 @@
 
 /*REST Page*/
 .karavan .rest-page {
-    flex: 1;
-    overflow: auto;
+    /*flex: 1;*/
+    /*overflow: auto;*/
+    /*height: 100%;*/
 }
 
 .karavan .rest-page .rest-page-columns {
@@ -1066,7 +1067,7 @@
 }
 
 .karavan .rest-page .flows {
-    width: 800px;
+    /*width: 800px;*/
     margin: 0 auto 80px auto;
 }
 
@@ -1167,7 +1168,7 @@
 .karavan .rest-page .rest-config-card .description,
 .karavan .rest-page .method-card .description {
     margin: auto 0 auto 0;
-    width: 670px;
+    min-width: 200px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

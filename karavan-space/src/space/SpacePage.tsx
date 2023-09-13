@@ -44,7 +44,6 @@ interface State {
     key: string,
     karavanDesignerRef: any,
     showUploadModal: boolean,
-    mode: "design" | "code",
 }
 
 export class SpacePage extends React.Component<Props, State> {
@@ -52,7 +51,6 @@ export class SpacePage extends React.Component<Props, State> {
     public state: State = {
         key: Math.random().toString(),
         karavanDesignerRef: React.createRef(),
-        mode: "design",
         showUploadModal: false
     }
 
@@ -97,6 +95,7 @@ export class SpacePage extends React.Component<Props, State> {
         const {name, yaml} = this.props;
         return (
             <KaravanDesigner
+                showCodeTab={true}
                 key={this.state.key}
                 dark={this.props.dark}
                 // ref={this.state.karavanDesignerRef}
@@ -113,27 +112,8 @@ export class SpacePage extends React.Component<Props, State> {
         )
     }
 
-    getEditor = () => {
-        const {name, yaml} = this.props;
-        return (
-            <Editor
-                height="100vh"
-                defaultLanguage="yaml"
-                theme={'light'}
-                value={yaml}
-                className={'code-editor'}
-                onChange={(value, ev) => {
-                    if (value) {
-                        this.save(name, value, false)
-                    }
-                }}
-            />
-        )
-    }
-
-
     render() {
-        const {mode, showUploadModal} = this.state;
+        const {showUploadModal} = this.state;
         return (
             <PageSection className="kamelet-section designer-page" padding={{default: 'noPadding'}}>
                 <PageSection className="tools-section" padding={{default: 'noPadding'}}
@@ -145,14 +125,6 @@ export class SpacePage extends React.Component<Props, State> {
                                     <TextContent className="header">
                                         <Text component="h2">Integration</Text>
                                     </TextContent>
-                                </FlexItem>
-                                <FlexItem>
-                                    <ToggleGroup>
-                                        <ToggleGroupItem text="Design" buttonId="design" isSelected={mode === "design"}
-                                                         onChange={(_event, s) => this.setState({mode: 'design'})} />
-                                        <ToggleGroupItem text="Code" buttonId="code" isSelected={mode === "code"}
-                                                         onChange={(_event, s) => this.setState({mode: 'code'})} />
-                                    </ToggleGroup>
                                 </FlexItem>
                             </Flex>
                         </FlexItem>
@@ -199,8 +171,7 @@ export class SpacePage extends React.Component<Props, State> {
                         </FlexItem>
                     </Flex>
                 </PageSection>
-                {mode === 'design' && this.getDesigner()}
-                {mode === 'code' && this.getEditor()}
+                {this.getDesigner()}
                 <UploadModal isOpen={showUploadModal} onClose={yaml => this.addYaml(yaml)}/>
             </PageSection>
         );

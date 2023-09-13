@@ -76,7 +76,7 @@ export class ToastMessage {
     id: string = ''
     text: string = ''
     title: string = ''
-    variant?: 'success' | 'danger' | 'warning' | 'info' | 'custom';
+    variant: 'success' | 'danger' | 'warning' | 'info' | 'custom';
 
     constructor(title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'custom') {
         this.id = uuidv4();
