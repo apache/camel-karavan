@@ -213,7 +213,8 @@ export class ProjectService {
             KaravanApi.getTemplatesFiles((files: ProjectFile[]) => {
                 files.filter(f => f.name.endsWith('java'))
                     .forEach(f => {
-                        TemplateApi.saveTemplate(f.name, f.code);
+                        const name = f.name.replace(".java", '');
+                        TemplateApi.saveTemplate(name, f.code);
                     })
             });
         });
