@@ -23,20 +23,16 @@ public class Configuration {
     private String infrastructure;
     private String environment;
     private List<String> environments;
-    private String runtime;
-    private List<String> runtimes;
     private List<Object> status;
 
     public Configuration() {
     }
 
-    public Configuration(String version, String infrastructure, String environment, List<String> environments, String runtime, List<String> runtimes) {
+    public Configuration(String version, String infrastructure, String environment, List<String> environments) {
         this.version = version;
         this.infrastructure = infrastructure;
         this.environment = environment;
         this.environments = environments;
-        this.runtime = runtime;
-        this.runtimes = runtimes;
     }
 
     public String getVersion() {
@@ -69,22 +65,6 @@ public class Configuration {
 
     public void setEnvironments(List<String> environments) {
         this.environments = environments;
-    }
-
-    public String getRuntime() {
-        return runtime;
-    }
-
-    public void setRuntime(String runtime) {
-        this.runtime = runtime;
-    }
-
-    public List<String> getRuntimes() {
-        return runtimes;
-    }
-
-    public void setRuntimes(List<String> runtimes) {
-        this.runtimes = runtimes;
     }
 
     public List<Object> getStatus() {

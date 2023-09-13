@@ -58,8 +58,7 @@ public class ProjectService implements HealthCheck {
     @ConfigProperty(name = "karavan.environment")
     String environment;
 
-    @ConfigProperty(name = "karavan.maven.cache")
-    Optional<String> mavenCache;
+
 
     @Inject
     InfinispanService infinispanService;
@@ -113,10 +112,7 @@ public class ProjectService implements HealthCheck {
 
                 ProjectFile compose = infinispanService.getProjectFile(project.getProjectId(), PROJECT_COMPOSE_FILENAME);
                 DockerComposeService dcs = DockerComposeConverter.fromCode(compose.getCode(), project.getProjectId());
-                Map<String, String> volumes = mavenCache
-                        .map(s -> Map.of(s, "/root/.m2"))
-                        .orElseGet(Map::of);
-                dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, dcs.getPortsMap(), files, volumes);
+                dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, dcs.getPortsMap(), files);
             }
             return containerName;
         } else {
@@ -128,13 +124,12 @@ public class ProjectService implements HealthCheck {
         tag = tag != null && !tag.isEmpty() && !tag.isBlank()
                 ? tag
                 : Instant.now().toString().substring(0, 19).replace(":", "-");
-        String script = codeService.getBuilderScript(project);
+        String script = codeService.getBuilderScript();
         List<String> env = getEnvForBuild(project, tag);
         if (ConfigService.inKubernetes()) {
             kubernetesService.runBuildProject(project, script, env, tag);
         } else {
-            Map<String, String> volumes = mavenCache.map(s -> Map.of(s, "/root/.m2")).orElseGet(Map::of);
-            dockerForKaravan.runBuildProject(project, script, env, volumes, tag);
+            dockerForKaravan.runBuildProject(project, script, env, tag);
         }
     }
 
@@ -216,11 +211,11 @@ public class ProjectService implements HealthCheck {
                 Project project;
                 String folderName = repo.getName();
                 if (folderName.equals(Project.Type.templates.name())) {
-                    project = new Project(Project.Type.templates.name(), "Templates", "Templates", "", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.templates);
+                    project = new Project(Project.Type.templates.name(), "Templates", "Templates", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.templates);
                 } else if (folderName.equals(Project.Type.kamelets.name())) {
-                    project = new Project(Project.Type.kamelets.name(), "Custom Kamelets", "Custom Kamelets", "", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.kamelets);
+                    project = new Project(Project.Type.kamelets.name(), "Custom Kamelets", "Custom Kamelets", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.kamelets);
                 } else if (folderName.equals(Project.Type.services.name())) {
-                    project = new Project(Project.Type.services.name(), "Services", "Development Services", "", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.services);
+                    project = new Project(Project.Type.services.name(), "Services", "Development Services", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.services);
                 } else {
                     project = getProjectFromRepo(repo);
                 }
@@ -268,8 +263,7 @@ public class ProjectService implements HealthCheck {
         String propertiesFile = codeService.getPropertiesFile(repo);
         String projectName = codeService.getProjectName(propertiesFile);
         String projectDescription = codeService.getProjectDescription(propertiesFile);
-        String runtime = codeService.getProjectRuntime(propertiesFile);
-        return new Project(folderName, projectName, projectDescription, runtime, repo.getCommitId(), repo.getLastCommitTimestamp());
+        return new Project(folderName, projectName, projectDescription, repo.getCommitId(), repo.getLastCommitTimestamp());
     }
 
     public Project commitAndPushProject(String projectId, String message) throws Exception {
@@ -289,7 +283,7 @@ public class ProjectService implements HealthCheck {
         try {
             Project kamelets = infinispanService.getProject(Project.Type.kamelets.name());
             if (kamelets == null) {
-                kamelets = new Project(Project.Type.kamelets.name(), "Custom Kamelets", "Custom Kamelets", "", "", Instant.now().toEpochMilli(), Project.Type.kamelets);
+                kamelets = new Project(Project.Type.kamelets.name(), "Custom Kamelets", "Custom Kamelets", "", Instant.now().toEpochMilli(), Project.Type.kamelets);
                 infinispanService.saveProject(kamelets);
                 commitAndPushProject(Project.Type.kamelets.name(), "Add custom kamelets");
             }
@@ -303,7 +297,7 @@ public class ProjectService implements HealthCheck {
         try {
             Project templates = infinispanService.getProject(Project.Type.templates.name());
             if (templates == null) {
-                templates = new Project(Project.Type.templates.name(), "Templates", "Templates", "", "", Instant.now().toEpochMilli(), Project.Type.templates);
+                templates = new Project(Project.Type.templates.name(), "Templates", "Templates", "", Instant.now().toEpochMilli(), Project.Type.templates);
                 infinispanService.saveProject(templates);
 
                 codeService.getTemplates().forEach((name, value) -> {
@@ -322,7 +316,7 @@ public class ProjectService implements HealthCheck {
         try {
             Project services = infinispanService.getProject(Project.Type.services.name());
             if (services == null) {
-                services = new Project(Project.Type.services.name(), "Services", "Development Services", "", "", Instant.now().toEpochMilli(), Project.Type.services);
+                services = new Project(Project.Type.services.name(), "Services", "Development Services", "", Instant.now().toEpochMilli(), Project.Type.services);
                 infinispanService.saveProject(services);
 
                 codeService.getServices().forEach((name, value) -> {

@@ -91,7 +91,7 @@ public class ContainerStatusService {
             } else if (Objects.equals(oldStatus.getInTransit(), Boolean.FALSE)) {
                 saveContainerStatus(newStatus, oldStatus);
             } else if (Objects.equals(oldStatus.getInTransit(), Boolean.TRUE)) {
-                if (!Objects.equals(oldStatus.getState(), newStatus.getState()) || newStatus.getCpuInfo().isEmpty()) {
+                if (!Objects.equals(oldStatus.getState(), newStatus.getState()) || newStatus.getCpuInfo() == null || newStatus.getCpuInfo().isEmpty()) {
                     saveContainerStatus(newStatus, oldStatus);
                 }
             }

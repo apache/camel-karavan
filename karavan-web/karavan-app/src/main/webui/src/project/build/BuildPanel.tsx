@@ -34,9 +34,13 @@ export function BuildPanel () {
     );
 
     function deleteEntity() {
-        KaravanApi.manageContainer(config.environment, 'project', project.projectId, 'delete', res => {
-            setShowLog(false, 'container', undefined)
-        });
+        const buildName = getBuildName();
+        if (buildName) {
+            KaravanApi.manageContainer(config.environment, 'build', buildName, 'delete', res => {
+                EventBus.sendAlert("Container deleted", "Container " + buildName + " deleted", 'info')
+                setShowLog(false, 'container', undefined)
+            });
+        }
     }
 
     function build() {
@@ -67,9 +71,18 @@ export function BuildPanel () {
         </Tooltip>)
     }
 
+    function getContainerStatus() {
+        return containers.filter(c => c.projectId === project.projectId && c.type === 'build').at(0);
+    }
+
+    function getBuildName() {
+        const status = getContainerStatus();
+        return status?.containerName;
+    }
+
     function getBuildState() {
-        const status = containers.filter(c => c.projectId === project.projectId && c.type === 'build').at(0);
-        const buildName = status?.containerName;
+        const status = getContainerStatus();
+        const buildName = getBuildName();
         const state = status?.state;
         let buildTime = 0;
         if (status?.created) {

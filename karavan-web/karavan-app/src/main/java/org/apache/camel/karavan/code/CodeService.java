@@ -55,9 +55,9 @@ public class CodeService {
 
     private static final Logger LOGGER = Logger.getLogger(CodeService.class.getName());
     public static final String APPLICATION_PROPERTIES_FILENAME = "application.properties";
-    public static final String BUILDER_SCRIPT_FILE_SUFFIX = "builder-script-";
+    public static final String BUILD_SCRIPT_FILENAME = "build.sh";
     public static final String DEV_SERVICES_FILENAME = "devservices.yaml";
-    public static final String PROJECT_COMPOSE_FILENAME = "project-compose.yaml";
+    public static final String PROJECT_COMPOSE_FILENAME = "docker-compose.yaml";
     private static final String SNIPPETS_PATH = "/snippets/";
     private static final int INTERNAL_PORT = 8080;
 
@@ -76,12 +76,11 @@ public class CodeService {
     @Inject
     Vertx vertx;
 
-    List<String> runtimes = List.of("quarkus", "spring-boot", "camel-main");
     List<String> targets = List.of("openshift", "kubernetes", "docker");
     List<String> interfaces = List.of("org.apache.camel.AggregationStrategy.java", "org.apache.camel.Processor.java");
 
     public static final Map<String, String> DEFAULT_CONTAINER_RESOURCES = Map.of(
-            "requests.memory", "512Mi",
+            "requests.memory", "256Mi",
             "requests.cpu", "500m",
             "limits.memory", "2048Mi",
             "limits.cpu", "2000m"
@@ -92,7 +91,7 @@ public class CodeService {
         if (ConfigService.inKubernetes()) {
             target = kubernetesService.isOpenshift() ? "openshift" : "kubernetes";
         }
-        String templateName = project.getRuntime() + "-" + target + "-" + APPLICATION_PROPERTIES_FILENAME;
+        String templateName = target + "-" + APPLICATION_PROPERTIES_FILENAME;
         String templateText = getTemplateText(templateName);
         Template result = engine.parse(templateText);
         TemplateInstance instance = result
@@ -121,11 +120,11 @@ public class CodeService {
         }
     }
 
-    public String getBuilderScript(Project project) {
+    public String getBuilderScript() {
         String target = ConfigService.inKubernetes()
                 ? (kubernetesService.isOpenshift() ? "openshift" : "kubernetes")
                 : "docker";
-        String templateName = project.getRuntime() + "-builder-script-" + target + ".sh";
+        String templateName = target + "-" + BUILD_SCRIPT_FILENAME;
         return getTemplateText(templateName);
     }
 
@@ -145,15 +144,12 @@ public class CodeService {
 
         List<String> files = new ArrayList<>(interfaces);
         files.addAll(targets.stream().map(target -> target + "-" + APPLICATION_PROPERTIES_FILENAME).toList());
-        files.addAll(targets.stream().map(target -> BUILDER_SCRIPT_FILE_SUFFIX + target + ".sh").toList());
+        files.addAll(targets.stream().map(target ->  target + "-" + BUILD_SCRIPT_FILENAME).toList());
 
-        runtimes.forEach(runtime -> {
-            files.forEach(file -> {
-                String templateName = runtime + "-" + file;
-                String templatePath = SNIPPETS_PATH + templateName;
-                String templateText = getResourceFile(templatePath);
-                result.put(templateName, templateText);
-            });
+        files.forEach(file -> {
+            String templatePath = SNIPPETS_PATH + file;
+            String templateText = getResourceFile(templatePath);
+            result.put(file, templateText);
         });
 
         result.put(PROJECT_COMPOSE_FILENAME, getResourceFile(SNIPPETS_PATH + PROJECT_COMPOSE_FILENAME));
@@ -202,33 +198,6 @@ public class CodeService {
         return mapper.convertValue(map, JsonNode.class);
     }
 
-    public static Map<String, String> getRunnerContainerResourcesMap(ProjectFile propertiesFile, boolean isOpenshift, boolean isQuarkus) {
-        if (!isQuarkus) {
-            return DEFAULT_CONTAINER_RESOURCES;
-        } else {
-            Map<String, String> result = new HashMap<>();
-            String patternPrefix = isOpenshift ? "quarkus.openshift.resources." : "quarkus.kubernetes.resources.";
-            String devPatternPrefix = "%dev." + patternPrefix;
-
-            List<String> lines = propertiesFile.getCode().lines().collect(Collectors.toList());
-
-            DEFAULT_CONTAINER_RESOURCES.forEach((key, value) -> {
-                Optional<String> dev = lines.stream().filter(l -> l.startsWith(devPatternPrefix + key)).findFirst();
-                if (dev.isPresent()) {
-                    result.put(key, CodeService.getValueForProperty(dev.get(), devPatternPrefix + key));
-                } else {
-                    Optional<String> prod = lines.stream().filter(l -> l.startsWith(patternPrefix + key)).findFirst();
-                    if (prod.isPresent()){
-                        result.put(key, CodeService.getValueForProperty(prod.get(), patternPrefix + key));
-                    } else {
-                        result.put(key, value);
-                    }
-                }
-            });
-            return result;
-        }
-    }
-
     public String getPropertiesFile(GitRepo repo) {
         try {
             for (GitRepoFile e : repo.getFiles()){
@@ -240,13 +209,6 @@ public class CodeService {
 
         }
         return null;
-    }
-
-    public String capitalize(String str) {
-        if(str == null || str.isEmpty()) {
-            return str;
-        }
-        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
     public static String getProperty(String file, String property) {
@@ -269,10 +231,6 @@ public class CodeService {
     public String getProjectName(String file) {
         String name = getProperty(file, "camel.jbang.project-name");
         return name != null && !name.isBlank() ? name : getProperty(file, "camel.karavan.project-name");
-    }
-
-    public String getProjectRuntime(String file) {
-        return getProperty(file, "camel.jbang.runtime");
     }
 
     public ProjectFile createInitialProjectCompose(Project project) {

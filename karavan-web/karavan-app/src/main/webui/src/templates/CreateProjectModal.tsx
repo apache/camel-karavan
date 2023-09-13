@@ -2,14 +2,12 @@ import React, {useState} from 'react';
 import {
     Button, Form, FormGroup, FormHelperText, HelperText, HelperTextItem,
     Modal,
-    ModalVariant, TextInput, ToggleGroup, ToggleGroupItem,
+    ModalVariant, TextInput
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {useAppConfigStore, useProjectStore} from "../api/ProjectStore";
+import {useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {Project} from "../api/ProjectModels";
-import {QuarkusIcon, SpringIcon, CamelIcon} from "../designer/utils/KaravanIcons";
 import {CamelUi} from "../designer/utils/CamelUi";
 
 
@@ -19,13 +17,10 @@ export function CreateProjectModal () {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [projectId, setProjectId] = useState('');
-    const {config} = useAppConfigStore();
-    const [runtime, setRuntime] = useState(config.runtime);
 
     function cleanValues() {
         setName("");
         setDescription("");
-        setRuntime(config.runtime);
         setProjectId("");
     }
 
@@ -35,7 +30,7 @@ export function CreateProjectModal () {
     }
 
     function confirmAndCloseModal() {
-        ProjectService.createProject(new Project({name: name, description: description, runtime: runtime, projectId: projectId}));
+        ProjectService.createProject(new Project({name: name, description: description, projectId: projectId}));
         useProjectStore.setState({operation: "none"});
         cleanValues();
     }
@@ -46,20 +41,6 @@ export function CreateProjectModal () {
         }
     }
 
-    function getIcon(runtime: string) {
-        if (runtime === 'quarkus') return QuarkusIcon();
-        else if (runtime === 'spring-boot') return SpringIcon();
-        else if (runtime === 'camel-main') return CamelIcon();
-    }
-
-    function getTitle(runtime: string) {
-        if (runtime === 'quarkus') return "Quarkus";
-        else if (runtime === 'spring-boot') return "Spring";
-        else if (runtime === 'camel-main') return "Camel";
-    }
-
-    const runtimes = config.runtimes;
-    const defaultRuntime = config.runtime;
     const isReady = projectId && name && description && !['templates', 'kamelets'].includes(projectId);
     return (
         <Modal
@@ -96,21 +77,6 @@ export function CreateProjectModal () {
                             <HelperTextItem>Unique project name</HelperTextItem>
                         </HelperText>
                     </FormHelperText>
-                </FormGroup>
-                <FormGroup label="Runtime" fieldId="runtime" isRequired>
-                    <ToggleGroup>
-                        {runtimes?.map((r: string) => (
-                            <ToggleGroupItem key={r} id={r} name={r}
-                                             aria-label="runtime"
-                                             isSelected={r === runtime}
-                                             text={getTitle(r)}
-                                             icon={getIcon(r)}
-                                              onChange={(_, checked) => {
-                                                 if (checked) setRuntime(r)
-                                             }}
-                            />
-                        ))}
-                    </ToggleGroup>
                 </FormGroup>
             </Form>
         </Modal>

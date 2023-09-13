@@ -9,7 +9,6 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {useAppConfigStore, useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {Project} from "../api/ProjectModels";
-import {QuarkusIcon, SpringIcon} from "../designer/utils/KaravanIcons";
 import {CamelUi} from "../designer/utils/CamelUi";
 
 
@@ -35,7 +34,7 @@ export function CreateServiceModal () {
     }
 
     function confirmAndCloseModal () {
-        ProjectService.createProject(new Project({name: name, description: description, runtime: runtime, projectId: projectId}));
+        ProjectService.createProject(new Project({name: name, description: description, projectId: projectId}));
         useProjectStore.setState({operation: "none"});
         cleanValues();
     }
@@ -46,7 +45,6 @@ export function CreateServiceModal () {
         }
     }
 
-    const runtimes = config.runtimes;
     const isReady = projectId && name && description && !['templates', 'kamelets'].includes(projectId);
     return (
         <Modal
@@ -83,21 +81,6 @@ export function CreateServiceModal () {
                             <HelperTextItem>Unique service name</HelperTextItem>
                         </HelperText>
                     </FormHelperText>
-                </FormGroup>
-                <FormGroup label="Runtime" fieldId="runtime" isRequired>
-                    {runtimes?.map((r: string) => (
-                        <Radio key={r} id={r} name={r} className="radio" aria-label="runtime"
-                               isChecked={r === runtime}
-                               onChange={(_, checked) => {
-                                   if (checked) setRuntime(r)
-                               }}
-                               body={
-                                   <div className="runtime-radio">
-                                       {r === 'quarkus' ? QuarkusIcon() : SpringIcon()}
-                                       <div className="runtime-label">{CamelUtil.capitalizeName(r)}</div>
-                                   </div>}
-                        />
-                    ))}
                 </FormGroup>
             </Form>
         </Modal>

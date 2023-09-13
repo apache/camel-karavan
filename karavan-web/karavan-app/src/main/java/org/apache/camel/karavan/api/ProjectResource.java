@@ -27,7 +27,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.camel.karavan.service.ProjectService;
 import org.apache.camel.karavan.service.ConfigService;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -38,9 +37,6 @@ import java.util.stream.Collectors;
 
 @Path("/api/project")
 public class ProjectResource {
-
-    @ConfigProperty(name = "karavan.environment")
-    String environment;
 
     @Inject
     InfinispanService infinispanService;
@@ -157,7 +153,6 @@ public class ProjectResource {
     public Project copy(@PathParam("sourceProject") String sourceProject, Project project) throws Exception {
 //        Save project
         Project s = infinispanService.getProject(sourceProject);
-        project.setRuntime(s.getRuntime());
         infinispanService.saveProject(project);
 //        Copy files
         Map<GroupedKey, ProjectFile> map = infinispanService.getProjectFilesMap(sourceProject).entrySet().stream()

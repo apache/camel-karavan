@@ -44,7 +44,7 @@ export function ImagesPanel () {
     }
 
     function getProjectImage(): string | undefined {
-        const file = files.filter(f => f.name === 'project-compose.yaml').at(0);
+        const file = files.filter(f => f.name === 'docker-compose.yaml').at(0);
         if (file) {
             const dc = ServicesYaml.yamlToServices(file.code);
             const dcs = dc.services.filter(s => s.container_name === project.projectId).at(0);

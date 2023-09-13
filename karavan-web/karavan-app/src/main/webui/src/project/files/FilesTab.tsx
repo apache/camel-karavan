@@ -117,7 +117,7 @@ export function FilesTab () {
                                 <Td modifier={"fitContent"}>
                                     {canDeleteFiles() &&
                                         <Button style={{padding: '0'}} variant={"plain"}
-                                                isDisabled={['application.properties', 'project-compose.yaml'].includes(file.name)}
+                                                isDisabled={['application.properties', 'docker-compose.yaml'].includes(file.name)}
                                                 onClick={e =>
                                                     useFileStore.setState({file: file, operation: "delete"})
                                         }>

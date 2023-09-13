@@ -24,30 +24,26 @@ public class Project {
     @ProtoField(number = 3)
     String description;
     @ProtoField(number = 4)
-    String runtime;
-    @ProtoField(number = 5)
     String lastCommit;
-    @ProtoField(number = 6)
+    @ProtoField(number = 5)
     Long lastCommitTimestamp;
-    @ProtoField(number = 7)
+    @ProtoField(number = 6)
     Type type;
 
     @ProtoFactory
-    public Project(String projectId, String name, String description, String runtime, String lastCommit, Long lastCommitTimestamp, Type type) {
+    public Project(String projectId, String name, String description, String lastCommit, Long lastCommitTimestamp, Type type) {
         this.projectId = projectId;
         this.name = name;
         this.description = description;
-        this.runtime = runtime;
         this.lastCommit = lastCommit;
         this.lastCommitTimestamp = lastCommitTimestamp;
         this.type = type;
     }
 
-    public Project(String projectId, String name, String description, String runtime, String lastCommit, Long lastCommitTimestamp) {
+    public Project(String projectId, String name, String description, String lastCommit, Long lastCommitTimestamp) {
         this.projectId = projectId;
         this.name = name;
         this.description = description;
-        this.runtime = runtime;
         this.lastCommit = lastCommit;
         this.lastCommitTimestamp = lastCommitTimestamp;
         this.type = Type.normal;
@@ -57,7 +53,6 @@ public class Project {
         this.projectId = projectId;
         this.name = name;
         this.description = description;
-        this.runtime = runtime;
         this.lastCommitTimestamp = Instant.now().toEpochMilli();
         this.type = Type.normal;
     }
@@ -88,14 +83,6 @@ public class Project {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getRuntime() {
-        return runtime;
-    }
-
-    public void setRuntime(String runtime) {
-        this.runtime = runtime;
     }
 
     public String getLastCommit() {

@@ -16,20 +16,7 @@
  */
 import React, {useState} from 'react';
 import '../designer/karavan.css';
-import {
-    Flex,
-    FlexItem,
-    PageSection,
-    Switch,
-    Tab,
-    Tabs,
-    Text,
-    TextContent,
-    TextInput,
-    Toolbar,
-    ToolbarContent,
-    ToolbarItem
-} from "@patternfly/react-core";
+import {Flex, FlexItem, PageSection, Switch, Tab, Tabs, Text, TextContent, TextInput, Toolbar, ToolbarContent, ToolbarItem} from "@patternfly/react-core";
 import {MainToolbar} from "../designer/MainToolbar";
 import {KameletsTab} from "./kamelets/KameletsTab";
 import {EipTab} from "./eip/EipTab";
@@ -88,9 +75,11 @@ export const KnowledgebasePage = (props: Props) => {
                     </FlexItem>
                 </Flex>
             </PageSection>
-            {tab === 'kamelets' && <KameletsTab dark={props.dark} filter={filter} customOnly={customOnly}/>}
-            {tab === 'eip' && <EipTab dark={props.dark} filter={filter}/>}
-            {tab === 'components' && <ComponentsTab dark={props.dark} filter={filter}/>}
+            <>
+                {tab === 'kamelets' && <KameletsTab dark={props.dark} filter={filter} customOnly={customOnly}/>}
+                {tab === 'eip' && <EipTab dark={props.dark} filter={filter}/>}
+                {tab === 'components' && <ComponentsTab dark={props.dark} filter={filter}/>}
+            </>
         </PageSection>
     )
 

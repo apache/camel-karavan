@@ -16,7 +16,6 @@ import {
     useProjectStore, useStatusesStore,
 } from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
-import {CamelIcon, QuarkusIcon, SpringIcon} from "../designer/utils/KaravanIcons";
 import {useNavigate} from "react-router-dom";
 
 interface Props {
@@ -45,21 +44,11 @@ export function ProjectsTableRow (props: Props) {
         });
     }
 
-    function getIcon(runtime: string) {
-        if (runtime === 'quarkus') return QuarkusIcon();
-        else if (runtime === 'spring-boot') return SpringIcon();
-        else if (runtime === 'camel-main') return CamelIcon();
-    }
-
     const project = props.project;
     const isBuildIn = ['kamelets', 'templates'].includes(project.projectId);
-    const badge = isBuildIn ? project.projectId.toUpperCase().charAt(0) : project.runtime.substring(0, 1).toUpperCase();
     const commit = project.lastCommit ? project.lastCommit?.substr(0, 7) : "...";
     return (
         <Tr key={project.projectId}>
-            <Td className="icon-td">
-                {getIcon(project.runtime)}
-            </Td>
             <Td>
                 <Button style={{padding: '6px'}} variant={"link"} onClick={e => {
                     // setProject(project, "select");

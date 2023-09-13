@@ -166,7 +166,6 @@ public class KubernetesService implements HealthCheck {
         labels.putAll(getPartOfLabels());
         labels.put("app.kubernetes.io/name", name);
         labels.put(LABEL_PROJECT_ID, project.getProjectId());
-        labels.put(LABEL_PROJECT_RUNTIME, project.getRuntime());
         if (type != null) {
             labels.put(LABEL_TYPE, type.name());
         }
@@ -353,9 +352,7 @@ public class KubernetesService implements HealthCheck {
             createPVC(name, labels);
             Pod old = client.pods().inNamespace(getNamespace()).withName(name).get();
             if (old == null) {
-                ProjectFile properties = infinispanService.getProjectFile(project.getProjectId(), APPLICATION_PROPERTIES_FILENAME);
-                Map<String, String> containerResources = CodeService
-                        .getRunnerContainerResourcesMap(properties, isOpenshift(), project.getRuntime().equals("quarkus"));
+                Map<String, String> containerResources = CodeService.DEFAULT_CONTAINER_RESOURCES;
                 Pod pod = getDevModePod(name, jBangOptions, containerResources, labels);
                 Pod result = client.resource(pod).createOrReplace();
                 LOGGER.info("Created pod " + result.getMetadata().getName());

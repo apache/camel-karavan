@@ -28,6 +28,7 @@ import org.jboss.logging.Logger;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.apache.camel.karavan.shared.Constants.*;
 
@@ -39,13 +40,17 @@ public class DockerForKaravan {
     @ConfigProperty(name = "karavan.devmode.image")
     String devmodeImage;
 
+    @ConfigProperty(name = "karavan.maven.cache")
+    Optional<String> mavenCache;
+
     @Inject
     DockerService dockerService;
 
     @Inject
     RegistryService registryService;
 
-    public void runProjectInDevMode(String projectId, String jBangOptions, Map<Integer, Integer> ports, Map<String, String> files, Map<String, String> volumes) throws Exception {
+    public void runProjectInDevMode(String projectId, String jBangOptions, Map<Integer, Integer> ports, Map<String, String> files) throws Exception {
+        Map<String, String> volumes = getMavenVolumes();
         Container c = createDevmodeContainer(projectId, jBangOptions, ports, volumes);
         dockerService.runContainer(projectId);
         dockerService.copyFiles(c.getId(), "/code", files);
@@ -68,8 +73,9 @@ public class DockerForKaravan {
 
     }
 
-    public void runBuildProject(Project project, String script, List<String> env, Map<String, String> volumes, String tag) throws Exception {
+    public void runBuildProject(Project project, String script, List<String> env, String tag) throws Exception {
         String containerName = project.getProjectId() + BUILDER_SUFFIX;
+        Map<String, String> volumes = getMavenVolumes();
         dockerService.deleteContainer(containerName);
         Container c = createBuildContainer(containerName, project, env, volumes, tag);
         dockerService.copyExecFile(c.getId(), "/karavan", "build.sh", script);
@@ -84,10 +90,13 @@ public class DockerForKaravan {
                 Map.of(
                         LABEL_TYPE, ContainerStatus.ContainerType.build.name(),
                         LABEL_PROJECT_ID, project.getProjectId(),
-                        LABEL_PROJECT_RUNTIME, project.getRuntime(),
                         LABEL_TAG, tag
                 ),
                 volumes, null,"/karavan/build.sh");
+    }
+
+    private Map<String,String> getMavenVolumes(){
+        return mavenCache.map(s -> Map.of(s, "/root/.m2")).orElseGet(Map::of);
     }
 
     public void syncImage(String projectId, String tag) throws InterruptedException {

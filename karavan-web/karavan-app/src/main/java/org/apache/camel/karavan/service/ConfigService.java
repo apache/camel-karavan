@@ -17,10 +17,6 @@
 package org.apache.camel.karavan.service;
 
 import io.quarkus.runtime.StartupEvent;
-import io.quarkus.runtime.configuration.ConfigUtils;
-import io.quarkus.runtime.configuration.ProfileManager;
-import io.vertx.core.Vertx;
-import jakarta.inject.Inject;
 import org.apache.camel.karavan.shared.Configuration;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -44,11 +40,6 @@ public class ConfigService {
     @ConfigProperty(name = "karavan.environments")
     List<String> environments;
 
-    @ConfigProperty(name = "karavan.default-runtime")
-    String runtime;
-
-    @ConfigProperty(name = "karavan.runtimes")
-    List<String> runtimes;
 
     private Configuration configuration;
     private static Boolean inKubernetes;
@@ -59,9 +50,7 @@ public class ConfigService {
                 version,
                  inKubernetes() ? "kubernetes" : "docker",
                  environment,
-                 environments,
-                 runtime,
-                 runtimes
+                 environments
         );
     }
 

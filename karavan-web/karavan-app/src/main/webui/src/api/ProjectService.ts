@@ -212,10 +212,8 @@ export class ProjectService {
             // ProjectEventBus.selectProject(project);
             KaravanApi.getTemplatesFiles((files: ProjectFile[]) => {
                 files.filter(f => f.name.endsWith('java'))
-                    .filter(f => f.name.startsWith(project.runtime))
                     .forEach(f => {
-                        const name = f.name.replace(project.runtime + '-', '').replace('.java', '');
-                        TemplateApi.saveTemplate(name, f.code);
+                        TemplateApi.saveTemplate(f.name, f.code);
                     })
             });
         });

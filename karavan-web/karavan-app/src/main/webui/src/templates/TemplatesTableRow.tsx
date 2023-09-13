@@ -25,7 +25,6 @@ export function TemplatesTableRow (props: Props) {
 
     const project = props.project;
     const isBuildIn = ['kamelets', 'templates'].includes(project.projectId);
-    const badge = isBuildIn ? project.projectId.toUpperCase().charAt(0) : project.runtime.substring(0, 1).toUpperCase();
     const commit = project.lastCommit ? project.lastCommit?.substr(0, 7) : "...";
     return (
         <Tr key={project.projectId}>

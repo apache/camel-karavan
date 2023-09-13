@@ -88,7 +88,6 @@ export function ProjectsPage () {
             <Table aria-label="Projects" variant={"compact"}>
                 <Thead>
                     <Tr>
-                        <Th key='type'>Runtime</Th>
                         <Th key='projectId'>Project ID</Th>
                         <Th key='name'>Name</Th>
                         <Th key='description'>Description</Th>
