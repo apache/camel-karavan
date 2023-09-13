@@ -17,13 +17,15 @@
 import React, {useEffect, useState} from 'react';
 import {
     Badge,
+    Button,
     PageSection,
     PageSectionVariants,
-    Switch,
     Tab,
     Tabs,
-    TabTitleIcon, TabTitleText,
+    TabTitleIcon,
+    TabTitleText,
     Tooltip,
+    TooltipPosition,
 } from '@patternfly/react-core';
 import './karavan.css';
 import {RouteDesigner} from "./route/RouteDesigner";
@@ -35,9 +37,11 @@ import {useDesignerStore, useIntegrationStore} from "./KaravanStore";
 import {shallow} from "zustand/shallow";
 import {getDesignerIcon} from "./utils/KaravanIcons";
 import {InfrastructureAPI} from "./utils/InfrastructureAPI";
-import {EventBus, IntegrationUpdate, ToastMessage} from "./utils/EventBus";
+import {EventBus, IntegrationUpdate} from "./utils/EventBus";
 import {RestDesigner} from "./rest/RestDesigner";
 import {BeansDesigner} from "./beans/BeansDesigner";
+import {CodeEditor} from "./editor/CodeEditor";
+import BellIcon from '@patternfly/react-icons/dist/esm/icons/bell-icon';
 
 interface Props {
     onSave: (filename: string, yaml: string, propertyOnly: boolean) => void
@@ -48,13 +52,14 @@ interface Props {
     dark: boolean
     hideLogDSL?: boolean
     tab?: string
+    showCodeTab: boolean
 }
 
-export function KaravanDesigner (props: Props) {
+export function KaravanDesigner(props: Props) {
 
     const [tab, setTab] = useState<string>('routes');
-    const [setDark, hideLogDSL, setHideLogDSL, setSelectedStep, reset] = useDesignerStore((s) =>
-        [s.setDark, s.hideLogDSL, s.setHideLogDSL, s.setSelectedStep, s.reset], shallow)
+    const [setDark, hideLogDSL, setHideLogDSL, setSelectedStep, reset, badge, message] = useDesignerStore((s) =>
+        [s.setDark, s.hideLogDSL, s.setHideLogDSL, s.setSelectedStep, s.reset, s.notificationBadge, s.notificationMessage], shallow)
     const [integration, setIntegration] = useIntegrationStore((s) =>
         [s.integration, s.setIntegration], shallow)
 
@@ -101,20 +106,23 @@ export function KaravanDesigner (props: Props) {
         return CamelDefinitionYaml.integrationToYaml(clone);
     }
 
-    function getTab(title: string, tooltip: string, icon: string) {
+    function getTab(title: string, tooltip: string, icon: string, showBadge: boolean = false) {
         const counts = CamelUi.getFlowCounts(integration);
         const count = counts.has(icon) && counts.get(icon) ? counts.get(icon) : undefined;
         const showCount = count && count > 0;
+        const color= showBadge && badge ? "red" : "initial";
         return (
-            <Tooltip position={"bottom"}
-                     content={<div>{tooltip}</div>}>
-                <div className="top-menu-item">
-                    <TabTitleIcon>{getDesignerIcon(icon)}</TabTitleIcon>
-                    <TabTitleText>{title}</TabTitleText>
-                    {showCount && <Badge isRead className="count">{counts.get(icon)}</Badge>}
-                </div>
-            </Tooltip>
-
+            <div className="top-menu-item" style={{color: color}}>
+                <TabTitleIcon>{getDesignerIcon(icon)}</TabTitleIcon>
+                <TabTitleText>{title}</TabTitleText>
+                {showCount && <Badge isRead className="count">{counts.get(icon)}</Badge>}
+                {showBadge && badge &&
+                    <Button variant="link"
+                         icon={<BellIcon color="red"/>}
+                         style={{visibility: (badge ? 'visible' : 'hidden'), padding: '0', margin: '0'}}
+                         onClick={event => EventBus.sendAlert(message[0], message[1], 'danger')}/>
+                }
+            </div>
         )
     }
 
@@ -132,6 +140,7 @@ export function KaravanDesigner (props: Props) {
                     <Tab eventKey='routes' title={getTab("Routes", "Integration flows", "routes")}></Tab>
                     <Tab eventKey='rest' title={getTab("REST", "REST services", "rest")}></Tab>
                     <Tab eventKey='beans' title={getTab("Beans", "Beans Configuration", "beans")}></Tab>
+                    {props.showCodeTab && <Tab eventKey='code' title={getTab("YAML", "YAML Code", "code", true)}></Tab>}
                 </Tabs>
                 {/*{tab === 'routes' && <Tooltip content={"Hide Log elements"}>*/}
                 {/*    <Switch*/}
@@ -150,6 +159,7 @@ export function KaravanDesigner (props: Props) {
             {tab === 'routes' && <RouteDesigner/>}
             {tab === 'rest' && <RestDesigner/>}
             {tab === 'beans' && <BeansDesigner/>}
+            {tab === 'code' && <CodeEditor/>}
         </PageSection>
     )
 }

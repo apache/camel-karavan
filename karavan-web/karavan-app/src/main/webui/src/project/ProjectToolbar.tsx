@@ -27,9 +27,9 @@ import {BuildToolbar} from "./BuildToolbar";
 export function ProjectToolbar () {
 
     const [project, isPushing, tabIndex] = useProjectStore((s) => [s.project, s.isPushing, s.tabIndex], shallow )
-    const [file, editAdvancedProperties, setEditAdvancedProperties, setAddProperty, mode, setMode]
+    const [file, editAdvancedProperties, setEditAdvancedProperties, setAddProperty]
         = useFileStore((state) =>
-        [state.file, state.editAdvancedProperties, state.setEditAdvancedProperties, state.setAddProperty, state.mode, state.setMode], shallow )
+        [state.file, state.editAdvancedProperties, state.setEditAdvancedProperties, state.setAddProperty], shallow )
 
     useEffect(() => {
     }, [project, file]);
@@ -58,42 +58,13 @@ export function ProjectToolbar () {
         EventBus.sendCommand("downloadImage");
     }
 
-    function addProperty() {
-        if (file) {
-            const project = file ? ProjectModelApi.propertiesToProject(file?.code) : ProjectModel.createNew();
-            const props = project.properties;
-            props.push(ProjectProperty.createNew("", ""));
-            file.code = ProjectModelApi.propertiesToString(props);
-            ProjectService.saveFile(file, true);
-            setAddProperty(Math.random().toString());
-        }
-    }
+
 
     function getFileToolbar() {
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
                 <Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
                     {isRunnable() && <DevModeToolbar reloadOnly={true}/>}
-                    {isIntegration() && <FlexItem>
-                        <ToggleGroup>
-                            <ToggleGroupItem text="Design" buttonId="design" isSelected={mode === "design"}
-                                             onChange={(_event, s) => setMode("design")}/>
-                            <ToggleGroupItem text="Code" buttonId="code" isSelected={mode === "code"}
-                                             onChange={(_event, s) => setMode("code")}/>
-                        </ToggleGroup>
-                    </FlexItem>}
-
-                    {isProperties() && <FlexItem>
-                        <Checkbox
-                            id="advanced"
-                            label="Edit advanced"
-                            isChecked={editAdvancedProperties}
-                             onChange={(_, checked) => setEditAdvancedProperties(checked)}
-                        />
-                    </FlexItem>}
-                    {isProperties() && <FlexItem>
-                        <Button size="sm" variant="primary" icon={<PlusIcon/>} onClick={e => addProperty()}>Add property</Button>
-                    </FlexItem>}
 
                     {isIntegration() && <FlexItem>
                         <Tooltip content="Download image" position={"bottom-end"}>

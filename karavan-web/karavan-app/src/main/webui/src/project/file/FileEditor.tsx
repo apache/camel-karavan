@@ -24,6 +24,9 @@ import {KaravanDesigner} from "../../designer/KaravanDesigner";
 import {ProjectService} from "../../api/ProjectService";
 import {PropertiesTable} from "./PropertiesTable";
 import {shallow} from "zustand/shallow";
+import {PropertiesToolbar} from "./PropertiesToolbar";
+import {Card, Panel} from "@patternfly/react-core";
+import {PropertiesPanel} from "./PropertiesPanel";
 
 interface Props {
     projectId: string
@@ -31,8 +34,7 @@ interface Props {
 
 export function FileEditor (props: Props) {
 
-    const [file, operation, mode] = useFileStore((state) =>
-        [state.file, state.operation, state.mode, state.setMode], shallow )
+    const [file, operation] = useFileStore((state) => [state.file, state.operation], shallow )
 
     function save (name: string, code: string) {
         if (file) {
@@ -50,6 +52,7 @@ export function FileEditor (props: Props) {
         return (
             file !== undefined &&
             <KaravanDesigner
+                showCodeTab={true}
                 dark={false}
                 filename={file.name}
                 yaml={file.code}
@@ -86,13 +89,13 @@ export function FileEditor (props: Props) {
     const isProperties = file !== undefined && file.name.endsWith("properties");
     const isScript = file !== undefined && file.name.endsWith("sh");
     const isCode = file !== undefined && (file.name.endsWith("java") || file.name.endsWith("groovy") || file.name.endsWith("json"));
-    const showDesigner = isYaml && isIntegration && mode === 'design';
-    const showEditor = isCode || (isYaml && !isIntegration) || (isYaml && mode === 'code') || isScript;
+    const showDesigner = isYaml && isIntegration;
+    const showEditor = isCode || (isYaml && !isIntegration) || (isYaml) || isScript;
     return (
         <>
             {showDesigner && getDesigner()}
             {showEditor && getEditor()}
-            {isProperties && file !== undefined && <PropertiesTable/>}
+            {isProperties && file !== undefined && <PropertiesPanel/>}
         </>
     )
 }

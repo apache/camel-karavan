@@ -22,13 +22,13 @@ import {
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {
-	Tbody,
-	Th,
-	Thead,
-	Tr
+    Tbody,
+    Th,
+    Thead,
+    Tr
 } from '@patternfly/react-table';
 import {
-	Table
+    Table
 } from '@patternfly/react-table/deprecated';
 
 import {ProjectModel, ProjectProperty} from "karavan-core/lib/model/ProjectModel";
@@ -38,7 +38,7 @@ import {shallow} from "zustand/shallow"
 import {PropertyField} from "./PropertyField";
 import {ProjectService} from "../../api/ProjectService";
 
-export function PropertiesTable () {
+export function PropertiesTable() {
 
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
     const [deleteId, setDeleteId] = useState<string | undefined>(undefined);
@@ -52,7 +52,7 @@ export function PropertiesTable () {
         setProperties(getProjectModel().properties)
     }, [addProperty]);
 
-    function save (props: ProjectProperty[]) {
+    function save(props: ProjectProperty[]) {
         if (file) {
             file.code = ProjectModelApi.propertiesToString(props);
             ProjectService.saveFile(file, true);
@@ -100,28 +100,28 @@ export function PropertiesTable () {
     }
 
     return (
-        <PageSection isFilled className="scrollable-in" padding={{default: file !== undefined ? 'noPadding' : 'padding'}}>
-            <PageSection padding={{default: "noPadding"}}>
-                {properties.length > 0 &&
-                    <Table aria-label="Property table" variant='compact' borders={false}
-                                     className="project-properties">
-                        <Thead>
-                            <Tr>
-                                <Th key='name'>Name</Th>
-                                <Th key='value'>Value</Th>
-                                <Th></Th>
-                            </Tr>
-                        </Thead>
-                        <Tbody>
-                            {properties.map((property, idx: number) => {
-                                const readOnly = (property.key.startsWith("camel.jbang") || property.key.startsWith("camel.karavan")) && !editAdvancedProperties;
-                                return (
-                                    <PropertyField property={property} readOnly={readOnly} changeProperty={changeProperty} onDelete={startDelete}/>
-                                )})}
-                        </Tbody>
-                    </Table>}
-                {showDeleteConfirmation && getDeleteConfirmation()}
-            </PageSection>
-        </PageSection>
+        <>
+            {properties.length > 0 &&
+                <Table aria-label="Property table" variant='compact' borders={false}
+                       className="project-properties">
+                    <Thead>
+                        <Tr>
+                            <Th key='name'>Name</Th>
+                            <Th key='value'>Value</Th>
+                            <Th></Th>
+                        </Tr>
+                    </Thead>
+                    <Tbody>
+                        {properties.map((property, idx: number) => {
+                            const readOnly = (property.key.startsWith("camel.jbang") || property.key.startsWith("camel.karavan")) && !editAdvancedProperties;
+                            return (
+                                <PropertyField property={property} readOnly={readOnly} changeProperty={changeProperty}
+                                               onDelete={startDelete}/>
+                            )
+                        })}
+                    </Tbody>
+                </Table>}
+            {showDeleteConfirmation && getDeleteConfirmation()}
+        </>
     )
 }

@@ -182,8 +182,6 @@ interface FileState {
     setEditAdvancedProperties: (editAdvancedProperties: boolean) => void;
     addProperty: string;
     setAddProperty: (addProperty: string) => void;
-    mode: "design" | "code",
-    setMode: (mode: "design" | "code") => void;
 }
 
 export const useFileStore = createWithEqualityFn<FileState>((set) => ({
@@ -191,10 +189,6 @@ export const useFileStore = createWithEqualityFn<FileState>((set) => ({
     operation: "none",
     editAdvancedProperties: false,
     addProperty: '',
-    mode: "design",
-    setMode: (mode: "design" | "code") => {
-        set(() => ({mode: mode}));
-    },
     setFile: (operation:  "create" | "select" | "delete"| "none" | "copy" | "upload", file?: ProjectFile) => {
         set((state: FileState) => ({
             file: file,
