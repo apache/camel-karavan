@@ -184,6 +184,7 @@ class App extends React.Component<Props, State> {
         }
         {loaded && page === "designer" &&
           <KaravanDesigner 
+          showCodeTab={false}
             key={key}
             filename={filename}
             yaml={yaml}
