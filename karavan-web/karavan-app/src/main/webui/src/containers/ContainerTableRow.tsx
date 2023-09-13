@@ -24,9 +24,8 @@ export function ContainerTableRow (props: Props) {
 
     const container = props.container;
     const commands = container.commands;
-    const imageParts = container.image.split("@");
-    const image = imageParts[0];
-    const imageSha = imageParts[1];
+    const imageParts = container.image?.split("@");
+    const image = imageParts?.length > -1 ? imageParts[0] : "";
     const ports = container.ports;
     const isRunning = container.state === 'running';
     const inTransit = container.inTransit;
@@ -107,7 +106,7 @@ export function ContainerTableRow (props: Props) {
                 <Td colSpan={2}>
                     <ExpandableRowContent>
                         <Flex direction={{default: "column"}} cellPadding={"0px"}>
-                            {container.containerId.substring(0, 10)+"..."}
+                            {container.containerId?.substring(0, 10)+"..."}
                         </Flex>
                     </ExpandableRowContent>
                 </Td>

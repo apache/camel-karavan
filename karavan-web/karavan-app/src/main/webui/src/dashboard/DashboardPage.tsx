@@ -13,7 +13,14 @@ import {
     ToolbarItem, Tooltip, EmptyStateHeader
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {CamelStatus, ContainerStatus, DeploymentStatus, Project, ServiceStatus} from "../api/ProjectModels";
+import {
+    CamelStatus,
+    CamelStatusValue,
+    ContainerStatus,
+    DeploymentStatus,
+    Project,
+    ServiceStatus
+} from "../api/ProjectModels";
 import {
 	TableVariant,
 	Tbody,
@@ -124,12 +131,17 @@ export function DashboardPage () {
         });
     }
 
-    function getCamelStatusByEnvironments(name: string): [string, CamelStatus | undefined] [] {
-        return selectedEnv.map(e => {
+    function getCamelStatusByEnvironments(containerName: string): [string, CamelStatusValue | undefined] [] {
+        console.log(camels)
+        console.log(selectedEnv)
+        const result =  selectedEnv.map(e => {
             const env: string = e as string;
-            const status = camels?.find(d => d.projectId === name && d.env === env);
-            return [env, status];
+            const status = camels?.find(d => d.containerName === containerName && d.env === env);
+            const statusValue = status ? status.statuses[0] : undefined;
+            return {env, statusValue};
         });
+        console.log(result)
+        return [];
     }
 
     function getProject(name: string): Project | undefined {
@@ -271,67 +283,67 @@ export function DashboardPage () {
             <Table aria-label="Projects" variant={TableVariant.compact}>
                 <Thead>
                     <Tr>
-                        <Th key='type'>Type</Th>
-                        <Th key='container'>Container</Th>
-                        <Th key='description'>Project Description</Th>
-                        <Th key='ports'>Ports</Th>
-                        <Th key='environment'>Environment</Th>
-                        <Th key='camel'>Camel Health</Th>
-                        {/*<Th key='action'></Th>*/}
+                        <Th key='container' width={20}>Container</Th>
+                        <Th key='description' width={30} isStickyColumn >Project Description</Th>
+                        {/*{config.environments.map((e, i) =>*/}
+                        {['dev', 'test', 'prod'].map((e, i) =>
+                            <Th key={e} textCenter hasLeftBorder width={10} >{e}</Th>
+                        )}
                     </Tr>
                 </Thead>
                 <Tbody>
                     {conts.map(container => (
                         <Tr key={container.containerName}>
-                            <Td style={{verticalAlign: "middle"}} modifier={"fitContent"}>
-                                <Badge className="badge">{container.type}</Badge>
-                            </Td>
                             <Td style={{verticalAlign: "middle"}}>
                                 <Label color={container.state === 'running' ? "green" : 'grey'}>
                                     {container.containerName}
+                                    <Badge isRead>{container.type}</Badge>
                                 </Label>
                             </Td>
-                            <Td style={{verticalAlign: "middle"}}>
+                            <Td isStickyColumn style={{verticalAlign: "middle"}}>
                                 <HelperText>
                                     <HelperTextItem>{getProject(container.containerName)?.description || "Camel project"}</HelperTextItem>
                                 </HelperText>
                             </Td>
-                            <Td>
-                                <Flex direction={{default: "column"}}>
-                                    {container.ports.map(port => (
-                                        <FlexItem className="badge-flex-item" key={port}>
-                                            <Badge className="badge" isRead={true}>{port}</Badge>
-                                        </FlexItem>
-                                    ))}
-                                </Flex>
-                            </Td>
-                            <Td>
-                                <Flex direction={{default: "column"}}>
+                            {/*<Td>*/}
+                            {/*    <Flex direction={{default: "column"}}>*/}
+                            {/*        {container.ports.map(port => (*/}
+                            {/*            <FlexItem className="badge-flex-item" key={port}>*/}
+                            {/*                <Badge className="badge" isRead={true}>{port}</Badge>*/}
+                            {/*            </FlexItem>*/}
+                            {/*        ))}*/}
+                            {/*    </Flex>*/}
+                            {/*</Td>*/}
+                            <Td hasLeftBorder>
+                                <Flex direction={{default: "column"}} style={{verticalAlign: "middle"}}>
                                     {getContainerByEnvironments(container.containerName).map(value => (
                                         <FlexItem className="badge-flex-item" key={value[0]}>
                                             <Label color={"green"}>
                                                 {value[1] ? value[1]?.env : ""}
+                                                <Label color={"green"}>
+                                                    {value[1] ? value[1]?.env : ""}
+                                                </Label>
                                             </Label>
                                         </FlexItem>
                                     ))}
                                 </Flex>
                             </Td>
-                            <Td modifier={"fitContent"}>
-                                <Flex direction={{default: "column"}}>
-                                    {getCamelStatusByEnvironments(container.containerName).map(value => {
-                                        // const color = value[1] ? (value[1].consumerStatus === "UP" ? "green" : "red") : "grey";
-                                        // let icon = undefined;
-                                        // if (value[1]?.consumerStatus === "UP") icon = <UpIcon/>
-                                        // if (value[1]?.consumerStatus === "DOWN") icon = <DownIcon/>
-                                        // const text = value[1] && value[1]?.contextVersion ? value[1]?.contextVersion : "???";
-                                        return <FlexItem key={value[0]}>
-                                            {/*<LabelGroup numLabels={4} className="camel-label-group">*/}
-                                            {/*    <Label color={color} className="table-label" icon={icon}>{text}</Label>*/}
-                                            {/*</LabelGroup>*/}
-                                        </FlexItem>
-                                    })}
-                                </Flex>
-                            </Td>
+                            {/*<Td modifier={"fitContent"}>*/}
+                            {/*    <Flex direction={{default: "column"}}>*/}
+                            {/*        {getCamelStatusByEnvironments(container.containerName).map(value => {*/}
+                            {/*            // const color = value[1] ? (value[1].consumerStatus === "UP" ? "green" : "red") : "grey";*/}
+                            {/*            // let icon = undefined;*/}
+                            {/*            // if (value[1]?.consumerStatus === "UP") icon = <UpIcon/>*/}
+                            {/*            // if (value[1]?.consumerStatus === "DOWN") icon = <DownIcon/>*/}
+                            {/*            // const text = value[1] && value[1]?.contextVersion ? value[1]?.contextVersion : "???";*/}
+                            {/*            return <FlexItem key={value[0]}>*/}
+                            {/*                /!*<LabelGroup numLabels={4} className="camel-label-group">*!/*/}
+                            {/*                /!*    <Label color={color} className="table-label" icon={icon}>{text}</Label>*!/*/}
+                            {/*                /!*</LabelGroup>*!/*/}
+                            {/*            </FlexItem>*/}
+                            {/*        })}*/}
+                            {/*    </Flex>*/}
+                            {/*</Td>*/}
                         </Tr>
                     ))}
                     {conts.length === 0 && getEmptyState()}

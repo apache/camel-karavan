@@ -133,7 +133,7 @@ export function Main() {
                     </FlexItem>
                     <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
                         <Routes>
-                            <Route path="/dashboard" element={<DashboardPage key={'dashboard'}/>}/>
+                            {/*<Route path="/dashboard" element={<DashboardPage key={'dashboard'}/>}/>*/}
                             <Route path="/projects" element={<ProjectsPage key={'projects'}/>}/>
                             <Route path="/projects/:projectId" element={<ProjectPage key={'project'}/>}/>
                             <Route path="/templates" element={<TemplatesPage key={'templates'}/>}/>

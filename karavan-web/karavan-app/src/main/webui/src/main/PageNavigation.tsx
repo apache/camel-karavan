@@ -43,7 +43,7 @@ export function PageNavigation () {
 
     function getMenu() : MenuItem[]  {
         const pages: MenuItem[] = [
-            new MenuItem("dashboard", "Dashboard", <DashboardIcon/>),
+            // new MenuItem("dashboard", "Dashboard", <DashboardIcon/>),
             new MenuItem("projects", "Projects", <ProjectsIcon/>),
             new MenuItem("templates", "Templates", <TemplatesIcon/>),
         ]
