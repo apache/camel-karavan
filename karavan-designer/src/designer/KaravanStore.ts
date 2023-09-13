@@ -152,6 +152,8 @@ export const useConnectionsStore = createWithEqualityFn<ConnectionsState>((set) 
 
 type DesignerState = {
     dark: boolean;
+    notificationBadge: boolean;
+    notificationMessage: [string, string];
     hideLogDSL: boolean;
     shiftKeyPressed: boolean;
     showDeleteConfirmation: boolean;
@@ -166,6 +168,8 @@ type DesignerState = {
     left: number,
 }
 const designerState: DesignerState = {
+    notificationBadge: false,
+    notificationMessage: ['', ''],
     dark: false,
     hideLogDSL: false,
     shiftKeyPressed: false,
@@ -192,6 +196,7 @@ type DesignerAction = {
     setClipboardSteps: (clipboardSteps: CamelElement[]) => void;
     setPosition: (width: number, height: number, top: number, left: number) => void;
     reset: () => void;
+    setNotification: (notificationBadge: boolean, notificationMessage: [string, string]) => void;
 }
 
 export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAction>((set) => ({
@@ -240,5 +245,8 @@ export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAct
     },
     reset: () => {
         set(designerState);
+    },
+    setNotification: (notificationBadge: boolean, notificationMessage: [string, string]) => {
+        set({notificationBadge: notificationBadge, notificationMessage: notificationMessage})
     }
 }), shallow)

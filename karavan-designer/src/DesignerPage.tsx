@@ -19,15 +19,14 @@ import {
     Toolbar,
     ToolbarContent,
     ToolbarItem,
-    PageSection, TextContent, Text, Flex, FlexItem, Button, Tooltip, ToggleGroup, ToggleGroupItem
+    PageSection, TextContent, Text, Flex, FlexItem, Button, Tooltip, ToggleGroup, ToggleGroupItem, Page
 } from '@patternfly/react-core';
 import './designer/karavan.css';
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
 import {KaravanDesigner} from "./designer/KaravanDesigner";
 import Editor from "@monaco-editor/react";
-import {EventBus, IntegrationUpdate} from "./designer/utils/EventBus";
-import {InfrastructureAPI} from "./designer/utils/InfrastructureAPI";
+import {EventBus} from "./designer/utils/EventBus";
 
 interface Props {
     name: string,
@@ -38,7 +37,6 @@ interface Props {
 
 export const DesignerPage = (props: Props) => {
 
-    const [mode, setMode] = useState<"design" | "code">('design');
     const [yaml, setYaml] = useState<string>(props.yaml);
 
     useEffect(() => {
@@ -51,7 +49,7 @@ export const DesignerPage = (props: Props) => {
         props.onSave(filename, yaml, propertyOnly);
     }
 
-    function download () {
+    function download() {
         const {name, yaml} = props;
         if (name && yaml) {
             const a = document.createElement('a');
@@ -61,15 +59,16 @@ export const DesignerPage = (props: Props) => {
         }
     }
 
-    function downloadImage () {
+    function downloadImage() {
         EventBus.sendCommand("downloadImage");
     }
 
-    function getDesigner () {
+    function getDesigner() {
         return (
             <KaravanDesigner
                 dark={props.dark}
                 filename={props.name}
+                showCodeTab={true}
                 yaml={yaml}
                 onSave={(filename, yaml, propertyOnly) => save(filename, yaml, propertyOnly)}
                 onGetCustomCode={name => {
@@ -77,23 +76,6 @@ export const DesignerPage = (props: Props) => {
                 }}
                 onSaveCustomCode={(name1, code) => {
                     console.log(name1, code)
-                }}
-            />
-        )
-    }
-
-    function getEditor () {
-        return (
-            <Editor
-                height="100vh"
-                defaultLanguage="yaml"
-                theme={'light'}
-                value={yaml}
-                className={'code-editor'}
-                onChange={(value, ev) => {
-                    if (value) {
-                        save(props.name, value, false)
-                    }
                 }}
             />
         )
@@ -113,14 +95,6 @@ export const DesignerPage = (props: Props) => {
                         <Toolbar id="toolbar-group-types">
                             <ToolbarContent>
                                 <ToolbarItem>
-                                    <ToggleGroup>
-                                        <ToggleGroupItem text="Design" buttonId="design" isSelected={mode === "design"}
-                                                         onChange={(_event, s) => setMode("design")} />
-                                        <ToggleGroupItem text="Code" buttonId="code" isSelected={mode === "code"}
-                                                         onChange={(_event, s) => setMode("code")} />
-                                    </ToggleGroup>
-                                </ToolbarItem>
-                                <ToolbarItem>
                                     <Tooltip content="Download YAML" position={"bottom"}>
                                         <Button variant="primary" icon={<DownloadIcon/>} onClick={e => download()}>
                                             YAML
@@ -129,7 +103,8 @@ export const DesignerPage = (props: Props) => {
                                 </ToolbarItem>
                                 <ToolbarItem>
                                     <Tooltip content="Download image" position={"bottom"}>
-                                        <Button variant="secondary" icon={<DownloadImageIcon/>} onClick={e => downloadImage()}>
+                                        <Button variant="secondary" icon={<DownloadImageIcon/>}
+                                                onClick={e => downloadImage()}>
                                             Image
                                         </Button>
                                     </Tooltip>
@@ -139,8 +114,7 @@ export const DesignerPage = (props: Props) => {
                     </FlexItem>
                 </Flex>
             </div>
-            {mode === 'design' && getDesigner()}
-            {mode === 'code'  && getEditor()}
+            {getDesigner()}
         </PageSection>
     )
 };

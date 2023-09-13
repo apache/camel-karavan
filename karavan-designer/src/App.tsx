@@ -16,10 +16,8 @@
  */
 import * as React from "react";
 import {
-    Alert,
-    AlertActionCloseButton, AlertGroup,
-    Bullseye, Button, Divider, Flex, FlexItem, Masthead, MastheadBrand, MastheadContent, MastheadMain, MastheadToggle,
-    Page, PageSidebar, PageSidebarBody, PageToggleButton, Spinner, Tooltip,
+    Bullseye, Button, Divider, Flex, FlexItem, Masthead,
+    Page, PageSidebar, PageSidebarBody, Spinner, Tooltip,
 } from "@patternfly/react-core";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
@@ -31,7 +29,7 @@ import {DesignerPage} from "./DesignerPage";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {KnowledgebasePage} from "./knowledgebase/KnowledgebasePage";
 import {Notification} from "./designer/utils/Notification";
-import {EventBus, ToastMessage} from "./designer/utils/EventBus";
+import {EventBus} from "./designer/utils/EventBus";
 
 class MenuItem {
     pageId: string = '';
@@ -103,7 +101,7 @@ class App extends React.Component<Props, State> {
     }
 
     save(filename: string, yaml: string, propertyOnly: boolean) {
-        console.log(yaml);
+        // console.log(yaml);
     }
 
     getSpinner() {
