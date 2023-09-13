@@ -45,12 +45,6 @@ export function DashboardTab() {
     const camelContainers = containers
         .filter(c => c.projectId === project.projectId && ['devmode', 'project'].includes(c.type));
 
-    camelContainers.push(...camelContainers)
-    camelContainers.push(...camelContainers)
-    camelContainers.push(...camelContainers)
-    camelContainers.push(...camelContainers)
-    camelContainers.push(...camelContainers)
-
     return (
         <PageSection className="project-tab-panel" padding={{default: "padding"}}>
             {camelContainers.map((containerStatus, index) =>
