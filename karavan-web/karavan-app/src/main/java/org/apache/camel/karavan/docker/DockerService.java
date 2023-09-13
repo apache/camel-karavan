@@ -156,8 +156,15 @@ public class DockerService extends DockerServiceUtils {
 
             LOGGER.infof("Compose Service started for %s", compose.getContainer_name());
 
+            RestartPolicy restartPolicy = RestartPolicy.noRestart();
+            if (Objects.equals(compose.getRestart(), RestartPolicy.onFailureRestart(10).getName())) {
+                restartPolicy = RestartPolicy.onFailureRestart(10);
+            } else if (Objects.equals(compose.getRestart(), RestartPolicy.alwaysRestart().getName())) {
+                restartPolicy = RestartPolicy.alwaysRestart();
+            }
+
             return createContainer(compose.getContainer_name(), compose.getImage(),
-                    env, compose.getPortsMap(), healthCheck, Map.of(LABEL_TYPE, type.name()), Map.of(), NETWORK_NAME);
+                    env, compose.getPortsMap(), healthCheck, Map.of(LABEL_TYPE, type.name()), Map.of(), NETWORK_NAME, restartPolicy);
 
         } else {
             LOGGER.info("Compose Service already exists: " + containers.get(0).getId());
@@ -172,7 +179,8 @@ public class DockerService extends DockerServiceUtils {
 
     public Container createContainer(String name, String image, List<String> env, Map<Integer, Integer> ports,
                                      HealthCheck healthCheck, Map<String, String> labels,
-                                     Map<String, String> volumes, String network, String... command) throws InterruptedException {
+                                     Map<String, String> volumes, String network, RestartPolicy restartPolicy,
+                                     String... command) throws InterruptedException {
         List<Container> containers = findContainer(name);
         if (containers.size() == 0) {
             pullImage(image);
@@ -195,6 +203,7 @@ public class DockerService extends DockerServiceUtils {
                 mounts.add(new Mount().withType(MountType.BIND).withSource("/var/run/docker.sock").withTarget("/var/run/docker.sock"));
             }
             createContainerCmd.withHostConfig(new HostConfig()
+                            .withRestartPolicy(restartPolicy)
                     .withPortBindings(portBindings)
                     .withMounts(mounts)
                     .withNetworkMode(network != null ? network : NETWORK_NAME));
@@ -249,10 +258,6 @@ public class DockerService extends DockerServiceUtils {
                 .withAttachStdout(true).withAttachStderr(true)
                 .withCmd(cmd)
                 .exec();
-    }
-
-    public void execStart(String id) throws InterruptedException {
-        getDockerClient().execStartCmd(id).start().awaitCompletion();
     }
 
     public void execStart(String id, ResultCallback.Adapter<Frame> callBack) throws InterruptedException {

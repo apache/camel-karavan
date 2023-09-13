@@ -18,6 +18,7 @@ package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.HealthCheck;
+import com.github.dockerjava.api.model.RestartPolicy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
@@ -69,7 +70,7 @@ public class DockerForKaravan {
         return dockerService.createContainer(projectId, devmodeImage,
                 env, ports, healthCheck,
                 Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devmode.name(), LABEL_PROJECT_ID, projectId),
-                volumes, null);
+                volumes, null, RestartPolicy.noRestart());
 
     }
 
@@ -92,7 +93,7 @@ public class DockerForKaravan {
                         LABEL_PROJECT_ID, project.getProjectId(),
                         LABEL_TAG, tag
                 ),
-                volumes, null,"/karavan/build.sh");
+                volumes, null,RestartPolicy.noRestart(), "/karavan/build.sh");
     }
 
     private Map<String,String> getMavenVolumes(){
