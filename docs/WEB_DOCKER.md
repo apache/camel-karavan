@@ -18,6 +18,7 @@
         -v /var/run/docker.sock:/var/run/docker.sock \
         ghcr.io/apache/camel-karavan:4.0.0-rc2
     ```
+3. Open http://localhost:8080
 
 ### Configuration variables
 1. For demo/evaluation purposes:
