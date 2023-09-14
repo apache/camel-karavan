@@ -1,4 +1,4 @@
-package org.apache.camel.karavan.cli;
+package org.apache.camel.karavan.installer;
 
 import picocli.CommandLine;
 
@@ -20,15 +20,11 @@ public class KaravanCommand implements Callable<Integer> {
     private String namespace;
     @CommandLine.Option(names = {"-e", "--environment"}, description = "Environment", defaultValue = Constants.DEFAULT_ENVIRONMENT)
     private String environment;
-    @CommandLine.Option(names = {"-r", "--runtimes"}, description = "Runtimes: camel-main, quarkus, spring-boot", defaultValue = Constants.DEFAULT_RUNTIMES)
-    private String runtimes;
     @CommandLine.Option(names = {"--auth"}, description = "Authentication: public, basic, oidc", defaultValue = Constants.DEFAULT_AUTH)
     private String auth;
     @CommandLine.Option(names = {"--node-port"}, description = "Node port", defaultValue = "0")
     private int nodePort;
-    @CommandLine.Option(names = {"--instances"}, description = "Instances. Default: 1", defaultValue = "1")
-    private int instances;
-    @CommandLine.Option(names = {"--image"}, description = "Karavan Base Image", defaultValue = Constants.KARAVAN_IMAGE)
+    @CommandLine.Option(names = {"--image"}, description = "Karavan Image", defaultValue = Constants.KARAVAN_IMAGE)
     private String baseImage;
     @CommandLine.Option(names = {"--builder-image"}, description = "Karavan Base Builder Image", defaultValue = Constants.DEFAULT_BUILD_IMAGE)
     private String baseBuilderImage;
@@ -47,16 +43,14 @@ public class KaravanCommand implements Callable<Integer> {
     private String oidcServerUrl;
     @CommandLine.Option(names = {"--oidc-frontend-url"}, description = "OIDC frontend URL")
     private String oidcFrontendUrl;
-    @CommandLine.Option(names = {"--git-repository"}, description = "Git repository")
+    @CommandLine.Option(names = {"--git-repository"}, description = "Git repository", defaultValue = Constants.DEFAULT_GIT_REPOSITORY)
     private String gitRepository;
-    @CommandLine.Option(names = {"--git-username"}, description = "Git username")
+    @CommandLine.Option(names = {"--git-username"}, description = "Git username", defaultValue = Constants.DEFAULT_GIT_USERNAME)
     private String gitUsername;
-    @CommandLine.Option(names = {"--git-password"}, description = "Git password")
+    @CommandLine.Option(names = {"--git-password"}, description = "Git password", defaultValue = Constants.DEFAULT_GIT_PASSWORD)
     private String gitPassword;
-    @CommandLine.Option(names = {"--git-branch"}, description = "Git branch", defaultValue = "main")
+    @CommandLine.Option(names = {"--git-branch"}, description = "Git branch", defaultValue = Constants.DEFAULT_GIT_BRANCH)
     private String gitBranch;
-    @CommandLine.Option(names = {"--git-pull"}, description = "Git pull interval. Default: off", defaultValue = "off")
-    private String gitPullInterval;
     @CommandLine.Option(names = {"--image-registry"}, description = "Image registry")
     private String imageRegistry;
     @CommandLine.Option(names = {"--image-group"}, description = "Image group", defaultValue = "karavan")
@@ -76,10 +70,16 @@ public class KaravanCommand implements Callable<Integer> {
     @CommandLine.Option(names = {"--nexus-proxy"}, description = "Deploy nexus proxy")
     private boolean nexusProxy;
 
-    @CommandLine.Option(names = { "-h", "--help" }, usageHelp = true, description = "Display help")
+    @CommandLine.Option(names = {"--install-gitea"}, description = "Install Gitea (for demo purposes)", defaultValue = "false")
+    private boolean installGitea;
+
+    @CommandLine.Option(names = {"--install-infinispan"}, description = "Install Infinispan", defaultValue = "true")
+    private boolean installInfinispan;
+
+    @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true, description = "Display help")
     private boolean helpRequested;
 
-    private Map<String,String> labels = new HashMap<>();
+    private Map<String, String> labels = new HashMap<>();
 
     public static void main(String... args) {
         CommandLine commandLine = new CommandLine(new KaravanCommand());
@@ -103,16 +103,27 @@ public class KaravanCommand implements Callable<Integer> {
     }
 
     public boolean gitConfigured() {
-        return gitRepository != null
-                && gitUsername != null
-                && gitPassword != null
-                && gitBranch != null;
+        return
+                installGitea
+                        || (gitRepository != null
+                        && !Constants.DEFAULT_GIT_PASSWORD.equals(gitPassword)
+                        && gitUsername !=null
+                        && gitBranch !=null
+                );
     }
 
     public boolean oidcConfigured() {
         return oidcSecret != null
                 && oidcServerUrl != null
                 && oidcFrontendUrl != null;
+    }
+
+    public boolean isInstallGitea() {
+        return installGitea;
+    }
+
+    public boolean isInstallInfinispan() {
+        return installInfinispan;
     }
 
     public boolean isAuthOidc() {
@@ -147,14 +158,6 @@ public class KaravanCommand implements Callable<Integer> {
         this.environment = environment;
     }
 
-    public String getRuntimes() {
-        return runtimes;
-    }
-
-    public void setRuntimes(String runtimes) {
-        this.runtimes = runtimes;
-    }
-
     public String getAuth() {
         return auth;
     }
@@ -169,14 +172,6 @@ public class KaravanCommand implements Callable<Integer> {
 
     public void setNodePort(int nodePort) {
         this.nodePort = nodePort;
-    }
-
-    public int getInstances() {
-        return instances;
-    }
-
-    public void setInstances(int instances) {
-        this.instances = instances;
     }
 
     public String getBaseImage() {
@@ -281,14 +276,6 @@ public class KaravanCommand implements Callable<Integer> {
 
     public void setGitBranch(String gitBranch) {
         this.gitBranch = gitBranch;
-    }
-
-    public String getGitPullInterval() {
-        return gitPullInterval;
-    }
-
-    public void setGitPullInterval(String gitPullInterval) {
-        this.gitPullInterval = gitPullInterval;
     }
 
     public String getImageRegistry() {

@@ -14,18 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.cli;
+package org.apache.camel.karavan.installer;
 
 public final class Constants {
     public static final String DEFAULT_NAMESPACE = "karavan";
     public static final String DEFAULT_ENVIRONMENT = "dev";
-    public static final String DEFAULT_RUNTIMES = "camel-main,quarkus,spring-boot";
     public static final String DEFAULT_AUTH = "public";
-    public static final String DEFAULT_GIT_PULL_INTERVAL = "off";
+
+    public static final String  DEFAULT_GIT_REPOSITORY = "http://gitea:3000/karavan/karavan.git";
+    public static final String  DEFAULT_GIT_USERNAME = "karavan";
+    public static final String  DEFAULT_GIT_PASSWORD = "karavan";
+    public static final String  DEFAULT_GIT_BRANCH = "main";
+
     public static final String DEFAULT_IMAGE_REGISTRY_OPENSHIFT = "image-registry.openshift-image-registry.svc:5000";
-    public static final String DEFAULT_IMAGE_REGISTRY_MINIKUBE = "registry.kube-system.svc.cluster.local";
-    public static final int DEFAULT_NODE_PORT = 0;
-    public static final int DEFAULT_INSTANCES = 1;
     public static final String DEFAULT_BUILD_IMAGE = "ghcr.io/apache/camel-karavan-devmode";
 
     public static final String KARAVAN_IMAGE = "ghcr.io/apache/camel-karavan";
@@ -34,28 +35,12 @@ public final class Constants {
     public static final String INFINISPAN_USERNAME = "admin";
     public static final String INFINISPAN_PASSWORD = "karavan";
 
-    public static final String CRD_GROUP = "camel.apache.org";
-    public static final String CRD_VERSION = "v1";
-    public static final String SHORT_NAME = "karavan";
     public static final String NAME = "karavan";
-    public static final String PLURAL_NAME = "karavans";
 
     public static final String SERVICEACCOUNT_KARAVAN = "karavan";
     public static final String ROLE_KARAVAN = "karavan";
-    public static final String ROLEBINDING_KARAVAN = "karavan";
-    public static final String ROLEBINDING_KARAVAN_VIEW = "karavan-view";
-    public static final String PVC_DATA = "karavan-data";
-    public static final String PVC_MAVEN_SETTINGS = "maven-settings";
-    public static final String PVC_M2_CACHE = "karavan-m2-cache";
-    public static final String PVC_JBANG_CACHE = "karavan-jbang-cache";
+    public static final String ROLEBINDING_KARAVAN = "karavan-role-binding";
+    public static final String ROLEBINDING_KARAVAN_VIEW = "karavan-cluster-role-binding";
 
-    public static final String INFINISPAN_NAME = "infinispan";
     public static final String INFINISPAN_SECRET_NAME = "infinispan-secret";
-
-    public static final String PIPELINE_DEV = "karavan-pipeline-dev-";
-    public static final String TASK_DEV = "karavan-task-dev-";
-
-    public static final String ROLE_PIPELINE_DEPLOYER = "deployer";
-    public static final String SERVICEACCOUNT_PIPELINE = "pipeline";
-    public static final String ROLEBINDING_PIPELINE_DEPLOYER = "pipeline-deployer";
 }

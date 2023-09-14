@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.cli;
+package org.apache.camel.karavan.installer;
 
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
@@ -24,23 +24,16 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.openshift.api.model.operatorhub.v1.Operator;
 import io.fabric8.openshift.client.OpenShiftClient;
-import io.fabric8.tekton.pipeline.v1beta1.Pipeline;
-import io.fabric8.tekton.pipeline.v1beta1.Task;
-import org.apache.camel.karavan.cli.resources.*;
+import org.apache.camel.karavan.installer.resources.*;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CommandUtils {
-    private static final Pipeline pipeline = new Pipeline();
-    private static final Task task = new Task();
 
     public static void installKaravan(KaravanCommand config) {
         try (KubernetesClient client = new KubernetesClientBuilder().build()) {
@@ -57,18 +50,6 @@ public class CommandUtils {
     }
 
     private static void install(KaravanCommand config, KubernetesClient client) {
-        // Check and install Tekton
-        if (!isTektonInstalled(client)) {
-            logError("Tekton is not installed");
-            if (isOpenShift(client)) {
-                logPoint("Please install Tekton Operator first");
-                System.exit(0);
-            }
-            installTekton(config, client);
-            disableAffinityAssistant(client);
-        }
-        log("Tekton is installed");
-
         // Create namespace
         if (client.namespaces().withName(config.getNamespace()).get() == null) {
             Namespace ns = new NamespaceBuilder().withNewMetadata().withName(config.getNamespace()).endMetadata().build();
@@ -79,13 +60,18 @@ public class CommandUtils {
         }
 
         // Check and install Infinispan
-        if (!isInfinispanInstalled(client)) {
+        if (!isInfinispanInstalled(client) && config.isInstallInfinispan()) {
             logError("Infinispan is not installed");
             if (isOpenShift(client)) {
                 logPoint("Please install Infinispan first");
                 System.exit(0);
             }
             installInfinispan(config, client);
+        }
+
+        // Check and install Gitea
+        if (config.isInstallGitea()) {
+            installGitea(config, client);
         }
 
         // Check secrets
@@ -112,22 +98,10 @@ public class CommandUtils {
         createOrReplace(KaravanConfigMap.getConfigMap(config), client);
         // Create Service Accounts
         createOrReplace(KaravanServiceAccount.getServiceAccount(config), client);
-        createOrReplace(KaravanServiceAccount.getServiceAccountPipeline(config), client);
         // Create Roles and role bindings
         createOrReplace(KaravanRole.getRole(config), client);
         createOrReplace(KaravanRole.getRoleBinding(config), client);
         createOrReplace(KaravanRole.getRoleBindingView(config), client);
-        createOrReplace(KaravanRole.getRoleDeployer(config), client);
-        createOrReplace(KaravanRole.getRoleBindingPipeline(config), client);
-        // Create PVC
-        createOrReplace(KaravanPvc.getPvcData(config), client);
-        createOrReplace(KaravanPvc.getPvcM2Cache(config), client);
-        createOrReplace(KaravanPvc.getPvcJbangCache(config), client);
-        // Create Tasks and Pipelines
-        Arrays.stream(config.getRuntimes().split(",")).forEach(runtime -> {
-            createOrReplace(KaravanTekton.getTask(config, runtime), client);
-            createOrReplace(KaravanTekton.getPipeline(config, runtime), client);
-        });
         // Create deployment
         createOrReplace(KaravanDeployment.getDeployment(config), client);
         // Create service
@@ -195,16 +169,6 @@ public class CommandUtils {
                 && condition.isPresent();
     }
 
-    public static boolean checkInfinispanReady(KaravanCommand config, KubernetesClient client) {
-        StatefulSet statefulSet = client.apps().statefulSets().inNamespace(config.getNamespace()).withName(Constants.INFINISPAN_NAME).get();
-        Integer replicas = statefulSet.getStatus().getReplicas();
-        Integer ready = statefulSet.getStatus().getReadyReplicas();
-        Integer available = statefulSet.getStatus().getAvailableReplicas();
-        return statefulSet.getStatus() != null
-                && Objects.equals(replicas, ready)
-                && Objects.equals(replicas, available);
-    }
-
     private static <T extends HasMetadata> void createOrReplace(T is, KubernetesClient client) {
         try {
             T result = client.resource(is).createOrReplace();
@@ -225,55 +189,17 @@ public class CommandUtils {
                 .create().forEach(hasMetadata -> System.out.print("\uD83D\uDC2B "));
         System.out.println();
         log("Infinispan is installed");
-        System.out.print("⏳ Infinispan is starting ");
-        while (!checkInfinispanReady(config, client)) {
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-
-            }
-            System.out.print("\uD83D\uDC2B ");
-        }
-        System.out.println();
-        log("Infinispan is started");
     }
 
-    private static void installTekton(KaravanCommand config, KubernetesClient client) {
-        System.out.print("⏳ Installing Tekton ");
-        client.load(CommandUtils.class.getResourceAsStream("/pipelines.yaml")).create().forEach(hasMetadata -> {
-            System.out.print("\uD83D\uDC2B ");
+    private static void installGitea(KaravanCommand config, KubernetesClient client) {
+        System.out.print("⏳ Installing Gitea ");
+        Arrays.stream(new String[] { "init.yaml", "config.yaml", "deployment.yaml", "service.yaml" }).forEach(s -> {
+            String yaml = getResourceFile("/gitea/" + s);
+            client.load(new ByteArrayInputStream(yaml.getBytes())).inNamespace(config.getNamespace())
+                    .create().forEach(hasMetadata -> System.out.print("\uD83D\uDC2B "));
         });
         System.out.println();
-        System.out.print("⏳ Installing Tekton Dashboard ");
-        client.load(CommandUtils.class.getResourceAsStream("/dashboard.yaml")).create().forEach(hasMetadata -> {
-            System.out.print("\uD83D\uDC2B ");
-        });
-        System.out.println();
-        log("Tekton is installed");
-    }
-
-    private static void disableAffinityAssistant(KubernetesClient client) {
-        log("⏳ Set disable-affinity-assistant equals 'true'");
-        ConfigMap configMap = client.configMaps().inNamespace("tekton-pipelines").withName("feature-flags").get();
-        Map<String, String> data = configMap.getData();
-        data.put("disable-affinity-assistant", "true");
-        configMap.setData(data);
-        client.resource(configMap).createOrReplace();
-    }
-
-    private static boolean isTektonInstalled(KubernetesClient client) {
-        APIResourceList kinds = client.getApiResources(pipeline.getApiVersion());
-        if (kinds != null && kinds.getResources().stream().anyMatch(res -> res.getKind().equalsIgnoreCase(pipeline.getKind())) &&
-                kinds.getResources().stream().anyMatch(res -> res.getKind().equalsIgnoreCase(task.getKind()))) {
-            if (isOpenShift(client)) {
-                Optional<Operator> oper = client.adapt(OpenShiftClient.class).operatorHub().operators().list().getItems().stream()
-                        .filter(sub -> sub.getMetadata().getName().contains("openshift-pipelines-operator")).findFirst();
-                return oper.isPresent();
-            } else {
-                return true;
-            }
-        }
-        return false;
+        log("Gitea is installed");
     }
 
     private static boolean isInfinispanInstalled(KubernetesClient client) {

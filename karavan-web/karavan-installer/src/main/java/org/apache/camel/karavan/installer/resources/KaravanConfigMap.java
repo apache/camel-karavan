@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.cli.resources;
+package org.apache.camel.karavan.installer.resources;
 
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
-import org.apache.camel.karavan.cli.Constants;
-import org.apache.camel.karavan.cli.KaravanCommand;
-import org.apache.camel.karavan.cli.ResourceUtils;
+import org.apache.camel.karavan.installer.Constants;
+import org.apache.camel.karavan.installer.KaravanCommand;
+import org.apache.camel.karavan.installer.ResourceUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

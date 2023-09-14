@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.cli.resources;
+package org.apache.camel.karavan.installer.resources;
 
 import io.fabric8.kubernetes.api.model.rbac.*;
-import org.apache.camel.karavan.cli.Constants;
-import org.apache.camel.karavan.cli.KaravanCommand;
+import org.apache.camel.karavan.installer.Constants;
+import org.apache.camel.karavan.installer.KaravanCommand;
 
 public class KaravanRole {
 
@@ -31,7 +31,6 @@ public class KaravanRole {
                 .withRules(
                         new PolicyRuleBuilder().withApiGroups("").withResources("secrets", "configmaps").withVerbs("*").build(),
                         new PolicyRuleBuilder().withApiGroups("").withResources("persistentvolumes", "persistentvolumeclaims").withVerbs("*").build(),
-                        new PolicyRuleBuilder().withApiGroups("tekton.dev").withResources("pipelineruns").withVerbs("*").build(),
                         new PolicyRuleBuilder().withApiGroups("").withResources("pods", "services", "replicationcontrollers").withVerbs("*").build(),
                         new PolicyRuleBuilder().withApiGroups("route.openshift.io").withResources("routes").withVerbs("*").build(),
                         new PolicyRuleBuilder().withApiGroups("apps").withResources("deployments").withVerbs("*").build()
@@ -58,34 +57,6 @@ public class KaravanRole {
                 .endMetadata()
                 .withNewRoleRef("rbac.authorization.k8s.io", "ClusterRole", "view")
                 .withSubjects(new Subject("", "ServiceAccount", Constants.SERVICEACCOUNT_KARAVAN, config.getNamespace()))
-                .build();
-    }
-
-//    Pipeline roles
-
-    public static Role getRoleDeployer(KaravanCommand config) {
-        return new RoleBuilder()
-                .withNewMetadata()
-                .withName(Constants.ROLE_PIPELINE_DEPLOYER)
-                .withNamespace(config.getNamespace())
-                .endMetadata()
-                .withRules(
-                        new PolicyRuleBuilder().withApiGroups("").withResources("secrets", "configmaps", "services", "persistentvolumes", "persistentvolumeclaims").withVerbs("*").build(),
-                        new PolicyRuleBuilder().withApiGroups("networking.k8s.io").withResources("ingresses").withVerbs("*").build(),
-                        new PolicyRuleBuilder().withApiGroups("route.openshift.io").withResources( "routes").withVerbs("*").build(),
-                        new PolicyRuleBuilder().withApiGroups("apps").withResources("deployments").withVerbs("*").build()
-                )
-                .build();
-    }
-
-    public static RoleBinding getRoleBindingPipeline(KaravanCommand config) {
-        return new RoleBindingBuilder()
-                .withNewMetadata()
-                .withName(Constants.ROLEBINDING_PIPELINE_DEPLOYER)
-                .withNamespace(config.getNamespace())
-                .endMetadata()
-                .withNewRoleRef("rbac.authorization.k8s.io", "Role", Constants.ROLE_PIPELINE_DEPLOYER)
-                .withSubjects(new Subject("", "ServiceAccount", Constants.SERVICEACCOUNT_PIPELINE, config.getNamespace()))
                 .build();
     }
 }

@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.cli;
+package org.apache.camel.karavan.installer;
 
 import io.fabric8.kubernetes.client.utils.Serialization;
-import org.apache.camel.karavan.cli.resources.*;
+import org.apache.camel.karavan.installer.resources.*;
 
 import java.util.*;
 
@@ -31,17 +31,10 @@ public class ResourceUtils {
         Map<String, String> result = new HashMap<>();
 
         result.put("sa-karavan", toYAML(KaravanServiceAccount.getServiceAccount(config)));
-        result.put("sa-pipeline", toYAML(KaravanServiceAccount.getServiceAccountPipeline(config)));
 
         result.put("role-karavan", toYAML(KaravanRole.getRole(config)));
         result.put("rb-karavan", toYAML(KaravanRole.getRoleBinding(config)));
         result.put("rb-karavan-view", toYAML(KaravanRole.getRoleBindingView(config)));
-        result.put("role-deployer", toYAML(KaravanRole.getRoleDeployer(config)));
-        result.put("rb-pipeline", toYAML(KaravanRole.getRoleBindingPipeline(config)));
-
-        result.put("pvc-data", toYAML(KaravanPvc.getPvcData(config)));
-        result.put("pvc-m2-cache", toYAML(KaravanPvc.getPvcM2Cache(config)));
-        result.put("pvc-jbang-cache", toYAML(KaravanPvc.getPvcJbangCache(config)));
 
         result.put("deployment", toYAML(KaravanDeployment.getDeployment(config)));
         result.put("service", toYAML(KaravanService.getService(config)));
@@ -49,11 +42,6 @@ public class ResourceUtils {
         if (config.isOpenShift()) {
             result.put("route", toYAML(KaravanService.getRoute(config)));
         }
-
-        Arrays.stream(config.getRuntimes().split(",")).forEach(runtime -> {
-            result.put("task-" + runtime, toYAML(KaravanTekton.getTask(config, runtime)));
-            result.put("pipeline-" + runtime, toYAML(KaravanTekton.getPipeline(config, runtime)));
-        });
         return result;
     }
 

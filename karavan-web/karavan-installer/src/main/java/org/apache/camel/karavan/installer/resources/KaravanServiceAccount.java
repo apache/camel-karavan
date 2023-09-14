@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.cli.resources;
+package org.apache.camel.karavan.installer.resources;
 
 import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
-import org.apache.camel.karavan.cli.Constants;
-import org.apache.camel.karavan.cli.KaravanCommand;
-import org.apache.camel.karavan.cli.ResourceUtils;
+import org.apache.camel.karavan.installer.Constants;
+import org.apache.camel.karavan.installer.KaravanCommand;
+import org.apache.camel.karavan.installer.ResourceUtils;
 
 import java.util.Map;
 
@@ -32,16 +32,6 @@ public class KaravanServiceAccount {
                 .withName(Constants.SERVICEACCOUNT_KARAVAN)
                 .withNamespace(config.getNamespace())
                 .withLabels(ResourceUtils.getLabels(Constants.SERVICEACCOUNT_KARAVAN, config.getVersion(), Map.of()))
-                .endMetadata()
-                .build();
-    }
-
-    public static ServiceAccount getServiceAccountPipeline(KaravanCommand config) {
-        return new ServiceAccountBuilder()
-                .withNewMetadata()
-                .withName(Constants.SERVICEACCOUNT_PIPELINE)
-                .withNamespace(config.getNamespace())
-                .withLabels(ResourceUtils.getLabels(Constants.SERVICEACCOUNT_PIPELINE, config.getVersion(), Map.of()))
                 .endMetadata()
                 .build();
     }

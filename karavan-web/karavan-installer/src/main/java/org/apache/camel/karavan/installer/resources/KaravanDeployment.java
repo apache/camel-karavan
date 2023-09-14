@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.cli.resources;
+package org.apache.camel.karavan.installer.resources;
 
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
-import org.apache.camel.karavan.cli.Constants;
-import org.apache.camel.karavan.cli.KaravanCommand;
+import org.apache.camel.karavan.installer.Constants;
+import org.apache.camel.karavan.installer.KaravanCommand;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.apache.camel.karavan.cli.Constants.INFINISPAN_SECRET_NAME;
-import static org.apache.camel.karavan.cli.Constants.NAME;
+import static org.apache.camel.karavan.installer.Constants.INFINISPAN_SECRET_NAME;
+import static org.apache.camel.karavan.installer.Constants.NAME;
 
 public class KaravanDeployment {
 
@@ -43,13 +43,10 @@ public class KaravanDeployment {
                 new EnvVar("KARAVAN_ENVIRONMENT", config.getEnvironment(), null)
         );
         envVarList.add(
-                new EnvVar("KARAVAN_RUNTIMES", config.getRuntimes(), null)
-        );
-        envVarList.add(
                 new EnvVar("KARAVAN_CONTAINER_STATUS_INTERVAL", "disabled", null)
         );
         envVarList.add(
-                new EnvVar("KARAVAN_CONTAINER_INFINISPAN_INTERVAL", "disabled", null)
+                new EnvVar("KARAVAN_CONTAINER_STATISTICS_INTERVAL", "disabled", null)
         );
         envVarList.add(
                 new EnvVar("KARAVAN_CAMEL_STATUS_INTERVAL", "3s", null)
@@ -81,17 +78,10 @@ public class KaravanDeployment {
                     new EnvVar("OIDC_SECRET", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("oidc-secret", "karavan", false)).build())
             );
         }
-        String gitPullInterval = config.getGitPullInterval();
-        if (Objects.isNull(gitPullInterval) || Objects.equals(gitPullInterval.trim(), "0")) {
+
+        if (config.isInstallGitea()) {
             envVarList.add(
-                    new EnvVar("QUARKUS_SCHEDULER_ENABLED", "false", null)
-            );
-        } else {
-            envVarList.add(
-                    new EnvVar("QUARKUS_SCHEDULER_ENABLED", "true", null)
-            );
-            envVarList.add(
-                    new EnvVar("KARAVAN_GIT_PULL_INTERVAL", gitPullInterval, null)
+                    new EnvVar("KARAVAN_GIT_INSTALL_GITEA", "true", null)
             );
         }
 
@@ -106,7 +96,7 @@ public class KaravanDeployment {
                 .endMetadata()
 
                 .withNewSpec()
-                .withReplicas(config.getInstances())
+                .withReplicas(1)
                 .withNewSelector()
                 .addToMatchLabels(Map.of("app", Constants.NAME))
                 .endSelector()
@@ -128,16 +118,8 @@ public class KaravanDeployment {
                 .endPort()
                 .withResources(new ResourceRequirementsBuilder().withRequests(
                         Map.of("memory", new Quantity("512Mi"))).build())
-                .withVolumeMounts(
-                        new VolumeMountBuilder().withName("karavan-data").withMountPath("/deployments/karavan-data").build(),
-                        new VolumeMountBuilder().withName("ephemeral").withMountPath("/tmp").build()
-                )
                 .endContainer()
-                .withServiceAccount(Constants.NAME)
-                .withVolumes(
-                        new VolumeBuilder().withName("karavan-data").withPersistentVolumeClaim(new PersistentVolumeClaimVolumeSource("karavan-data", false)).build(),
-                        new VolumeBuilder().withName("ephemeral").withEmptyDir(new EmptyDirVolumeSource()).build()
-                )
+                .withServiceAccount(Constants.SERVICEACCOUNT_KARAVAN)
                 .endSpec()
                 .endTemplate()
                 .endSpec()

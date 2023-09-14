@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.camel.karavan</groupId>
-    <artifactId>karavan-cli</artifactId>
-    <name>karavan-cli</name>
+    <artifactId>karavan-installer</artifactId>
+    <name>karavan-installer</name>
     <version>4.0.0-RC2</version>
     <packaging>jar</packaging>
 
@@ -24,8 +24,8 @@
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <kubernetes-client.version>6.7.1</kubernetes-client.version>
-        <picocli.version>4.7.3</picocli.version>
+        <kubernetes-client.version>6.7.2</kubernetes-client.version>
+        <picocli.version>4.7.4</picocli.version>
         <log4j-version>2.20.0</log4j-version>
         <slf4j-api-version>2.0.6</slf4j-api-version>
         <log4j2-version>2.20.0</log4j2-version>
@@ -45,11 +45,6 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>openshift-client</artifactId>
-            <version>${kubernetes-client.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>tekton-client</artifactId>
             <version>${kubernetes-client.version}</version>
         </dependency>
         <!-- logging -->
@@ -103,7 +98,7 @@
                 <configuration>
                     <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>org.apache.camel.karavan.cli.KaravanCommand</mainClass>
+                            <mainClass>org.apache.camel.karavan.installer.KaravanCommand</mainClass>
                             <manifestEntries>
                                 <Multi-Release>true</Multi-Release>
                             </manifestEntries>
