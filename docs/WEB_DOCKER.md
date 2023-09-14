@@ -11,8 +11,8 @@
     ```
 2. Start Karavan with demo features
     ```
-    docker run -it --rm  --name karavan \ 
-        --network karavan -p 8080:8080 \ 
+    docker run -it --rm  --name karavan \
+        --network karavan -p 8080:8080 \
         -e KARAVAN_GIT_INSTALL_GITEA=true \
         -e KARAVAN_IMAGE_REGISTRY_INSTALL=true \
         -v /var/run/docker.sock:/var/run/docker.sock \
