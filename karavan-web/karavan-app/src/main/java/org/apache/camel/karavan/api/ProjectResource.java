@@ -27,6 +27,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.camel.karavan.service.ProjectService;
 import org.apache.camel.karavan.service.ConfigService;
+import org.jboss.logging.Logger;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 
 @Path("/api/project")
 public class ProjectResource {
+    private static final Logger LOGGER = Logger.getLogger(ProjectResource.class.getName());
 
     @Inject
     InfinispanService infinispanService;
@@ -93,6 +95,7 @@ public class ProjectResource {
             projectService.buildProject(project, tag);
             return Response.ok().entity(project).build();
         } catch (Exception e) {
+            LOGGER.error(e.getMessage());
             return Response.serverError().entity(e.getMessage()).build();
         }
     }

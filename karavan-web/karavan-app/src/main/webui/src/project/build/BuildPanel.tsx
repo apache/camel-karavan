@@ -50,7 +50,8 @@ export function BuildPanel () {
             if (res.status === 200 || res.status === 201) {
                 setIsBuilding(false);
             } else {
-                // Todo notification
+                console.log(res);
+                EventBus.sendAlert("Error", (res as any)?.response?.data, 'danger')
             }
         });
     }

@@ -153,7 +153,7 @@ public class KubernetesService implements HealthCheck {
             if (old != null) {
                 client.resource(old).delete();
             }
-            Pod pod = getBuilderPod(project, containerName, env, labels);
+            Pod pod = getBuilderPod(containerName, env, labels);
             Pod result = client.resource(pod).serverSideApply();
 
             LOGGER.info("Created pod " + result.getMetadata().getName());
@@ -195,9 +195,8 @@ public class KubernetesService implements HealthCheck {
                 .build();
     }
 
-    private Pod getBuilderPod(Project project, String name, List<String> env, Map<String, String> labels) {
-        List<EnvVar> envVars = env.stream().map(s -> {
-            String[] parts = s.split("=");
+    private Pod getBuilderPod(String name, List<String> env, Map<String, String> labels) {
+        List<EnvVar> envVars = env.stream().map(s -> s.split("=")).filter(s -> s.length > 0).map(parts -> {
             String varName = parts[0];
             String varValue = parts[1];
             return new EnvVarBuilder().withName(varName).withValue(varValue).build();
@@ -232,7 +231,7 @@ public class KubernetesService implements HealthCheck {
                 .withTerminationGracePeriodSeconds(0L)
                 .withContainers(container)
                 .withRestartPolicy("Never")
-                .withServiceAccount(KARAVAN_PREFIX)
+                .withServiceAccount(KARAVAN_SERVICE_ACCOUNT)
                 .withVolumes(
 //                        new VolumeBuilder().withName(name)
 //                                .withNewPersistentVolumeClaim(name, false).build(),
