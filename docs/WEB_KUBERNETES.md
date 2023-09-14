@@ -1,12 +1,12 @@
-## Install Karavan Web Application with CLI
+## Install Karavan Web Application on Kubernetes
 
 ### Requirements
 1. minikube v1.30+ installed with `--driver=hyperkit`
 
-### Installation
+### Install on minikube
 1. Start minikube
     ```
-    minikube start --driver=hyperkit
+    minikube start
     ```
 2. Enable registry addon
     ```

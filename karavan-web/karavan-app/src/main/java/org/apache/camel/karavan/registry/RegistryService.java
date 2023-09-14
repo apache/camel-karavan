@@ -31,7 +31,7 @@ public class RegistryService {
 
     private static final Logger LOGGER = Logger.getLogger(RegistryService.class.getName());
 
-    @ConfigProperty(name = "karavan.image-registry-install-registry")
+    @ConfigProperty(name = "karavan.image-registry-install")
     boolean installRegistry;
     @ConfigProperty(name = "karavan.image-registry")
     String registry;

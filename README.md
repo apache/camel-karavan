@@ -9,40 +9,28 @@
 ![karavan-logo](images/karavan-logo-dark.png#gh-dark-mode-only)
 ![karavan-logo](images/karavan-logo-light.png#gh-light-mode-only)
 
-Karavan is an Integration Toolkit for Apache Camel, which makes integration easy and fun through the visualization of pipelines, integration with runtimes and package, image build and deploy to kubernetes out-of-the-box.
+Karavan is an Integration Toolkit for Apache Camel, which makes integration easy and fun through the visualization of pipelines, integration with runtimes and package, image build and deploy to Docker or Kubernetes out-of-the-box.
 
-![karavan-clouds](images/karavan-clouds.png)
+[<img src="images/introduction.png" width="50%">](https://www.youtube.com/watch?v=RA8sH3AH8Gg "Introduction")
 
-Integrations could be created using visual designer that includes Enterprise Integration Patterns DSL, REST API and Beans builder, all Camel Kamelets and Components. Karavan uses YAML to read/write integrations. Integrations could be run directly from Karavan UI using Camel JBang. Also they could exported in Maven project with preconfigured Camel Quarkus, Camel Spring-Boot or Camel Main runtime. Integration project output is a runnable uber-jar or an OCI image for local environment or a deployed application to a Kubernetes/OpenShift in any cloud provider.
-
-## Introduction
-
-https://user-images.githubusercontent.com/1379213/211049026-4496d054-d529-4917-837f-a59b6f2f84b1.mp4
+Integrations could be created using visual designer that includes Enterprise Integration Patterns DSL, REST API and Beans builder, all Camel Kamelets and Components. Karavan uses YAML to read/write integrations. Integrations could be run directly from Karavan or they could be exported in the Maven project with preconfigured Camel Quarkus, Camel Spring-Boot or Camel Main runtime. Integration project output is a runnable uber-jar or an OCI image for local environment or a deployed application to a Docker, Kubernetes or OpenShift in any cloud provider.
 
 ## Features
-### Mode
-* Web application
-* VS Code extension
-### Visual Designer for Integrations
-* Enterprise Integration Patterns DSL
-* REST DSL designer
-* OpenAPI to REST DSL generator
-* Beans and dependencies
-* 100+ Kamelets source/sink/action
-* 300+ Components consumer/producer
-* Read/Write yaml routes
-### Runtimes
-* [Camel JBang](https://camel.apache.org/manual/camel-jbang.html)
-* [Camel Quarkus](https://camel.apache.org/camel-quarkus)
-* [Camel Spring-Boot](https://camel.apache.org/camel-spring-boot)
-### Build and Deploy
-* Maven for local development
-* Tekton Pipelines for Kubernetes/OpenShift
-### Knowledgebase
-Build-in catalogues:
+### Visual Designer
 * Enterprise Integration Patterns
-* Kamelets
-* Components
+* REST API designer with OpenAPI to REST DSL generator
+* 300+ Components 
+* Custom Java code snippets
+
+### All in Git
+* Integration routes (YAML, Java)
+* Configuration (application.properties, docker-compose.yaml, deployment.yaml, etc)
+* Customizable build scripts 
+
+### Target deployment
+* [Docker](docs/WEB_DOCKER.md)
+* [Kubernetes](docs/WEB_KUBERNETES.md)
+* [Openshift](docs/WEB_OPENSHIFT.md)
 
 ## Documentation
 [Karavan documentation](docs/INDEX.md)

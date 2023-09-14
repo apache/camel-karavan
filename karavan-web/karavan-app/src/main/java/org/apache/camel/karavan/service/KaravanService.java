@@ -50,7 +50,7 @@ public class KaravanService implements HealthCheck {
     @ConfigProperty(name = "karavan.git-install-gitea")
     boolean giteaInstall;
 
-    @ConfigProperty(name = "karavan.image-registry-install-registry")
+    @ConfigProperty(name = "karavan.image-registry-install")
     boolean registryInstall;
 
     @Inject
