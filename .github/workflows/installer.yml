@@ -1,9 +1,9 @@
-name: Command-line interface 
+name: Installer
 
 on:
   push:
     branches: [ main ]
-    paths: ['karavan-web/karavan-cli/**']
+    paths: ['karavan-web/karavan-installer/**']
   workflow_dispatch:
   pull_request:
     branches: [ main ]
@@ -35,16 +35,16 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
       
-      #  Build Karavan cli
-      - name: Build Karavan cli
-        working-directory: ./karavan/karavan-web/karavan-cli
+      #  Build Karavan installer
+      - name: Build Karavan installer
+        working-directory: ./karavan/karavan-web/karavan-installer
         run: |
           mvn package
         if: ${{ github.ref == 'refs/heads/main' }}
 
-      - name: Karavan cli (upload)
+      - name: Karavan installer (upload)
         uses: actions/upload-artifact@v3
         with:
-          name: karavan-cli.jar
-          path: ./karavan/karavan-web/karavan-cli/target/karavan-cli-${{ env.TAG }}.jar
+          name: karavan-installer.jar
+          path: ./karavan/karavan-web/karavan-installer/target/karavan-installer-${{ env.TAG }}.jar
         if: ${{ github.ref == 'refs/heads/main' }}
