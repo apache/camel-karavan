@@ -1,0 +1,9 @@
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+          env:
+            - name: FOO
+              value: bar
+      serviceAccount: karavan

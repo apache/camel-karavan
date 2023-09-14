@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo
+  labels:
+    helm.sh/chart: gitea-9.4.0
+    app: demo
+    app.kubernetes.io/name: demo
+    app.kubernetes.io/instance: demo
+  annotations:
+    {}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: http
+      port: 3000
+      targetPort:
+  selector:
+    app.kubernetes.io/name: demo
+    app.kubernetes.io/instance: demo
