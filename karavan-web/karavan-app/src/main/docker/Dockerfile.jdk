@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17.0.8.1_1-jdk
+FROM eclipse-temurin:17-jdk
 RUN mkdir /opt/app
 COPY target/*-runner.jar /opt/app/karavan.jar
 ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"

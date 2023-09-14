@@ -1,0 +1,7 @@
+FROM eclipse-temurin:17-jdk-ubi9-minimal
+RUN mkdir /opt/app
+COPY target/*-runner.jar /opt/app/karavan.jar
+ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+EXPOSE 8080
+CMD ["java", "-jar", "/opt/app/karavan.jar"]
+
