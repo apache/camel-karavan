@@ -9,8 +9,8 @@ KaravanDesigner UI component
 Karavan Cloud Application
     * karavan-app
     Karavan Application to be installed into Kubernetes
-    * karavan-cli
-    Karavan CLI to install into Kubernetes
+    * karavan-installer
+    Karavan Installer to install into Kubernetes
     * karavan-operator
     Karavan Operator to install into Openshift
 5. karavan-vscode  

@@ -11,7 +11,7 @@ import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "install",
         mixinStandardHelpOptions = true,
-        description = "Karavan CLI")
+        description = "Karavan Installer")
 public class KaravanCommand implements Callable<Integer> {
 
     @CommandLine.Option(names = {"-v", "--version"}, required = true, description = "Karavan version", defaultValue = "4.0.0-RC2")

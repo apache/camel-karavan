@@ -16,17 +16,17 @@
     ```
     minikube dashboard
     ```
-4. Install Karavan using CLI
+4. Install Karavan using Installer
 
     Option 1:
     ```
-    mvn org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy -Dartifact=org.apache.camel.karavan:karavan-cli:4.0.0-RC2:jar -DoutputDirectory=. 
+    mvn org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy -Dartifact=org.apache.camel.karavan:karavan-installer:4.0.0-RC2:jar -DoutputDirectory=. 
 
-    java -jar karavan-cli-4.0.0-RC2.jar install --git-repository=$GIT_REPOSITORY --git-password=$GIT_TOKEN --git-username=$GIT_USERNAME  --node-port=30777
+    java -jar karavan-installer-4.0.0-RC2.jar install --git-repository=$GIT_REPOSITORY --git-password=$GIT_TOKEN --git-username=$GIT_USERNAME  --node-port=30777
     ```
     Option 2:
     ```
-    jbang org.apache.camel.karavan:karavan-cli:4.0.0-RC2 install --git-repository=$GIT_REPOSITORY --git-password=$GIT_TOKEN --git-username=$GIT_USERNAME  --node-port=30777
+    jbang org.apache.camel.karavan:karavan-installer:4.0.0-RC2 install --git-repository=$GIT_REPOSITORY --git-password=$GIT_TOKEN --git-username=$GIT_USERNAME  --node-port=30777
     ```
 5. Get karavan service URL
     ```

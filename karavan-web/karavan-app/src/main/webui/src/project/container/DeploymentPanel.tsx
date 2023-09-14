@@ -23,7 +23,6 @@ interface Props {
 
 export function DeploymentPanel (props: Props) {
 
-    const {config} = useAppConfigStore();
     const [project] = useProjectStore((s) => [s.project], shallow);
     const [ deployments] =
         useStatusesStore((s) => [s.deployments], shallow);
@@ -75,15 +74,15 @@ export function DeploymentPanel (props: Props) {
         return (<Modal
             className="modal-delete"
             title="Confirmation"
-            isOpen={showDeleteConfirmation}
-            onClose={() => setShowDeleteConfirmation(false)}
+            isOpen={showRolloutConfirmation}
+            onClose={() => setShowRolloutConfirmation(false)}
             actions={[
                 <Button key="confirm" variant="primary" onClick={e => {
                     if (project.projectId) {
                         rolloutDeployment();
                         setShowRolloutConfirmation(false);
                     }
-                }}>Delete
+                }}>Rollout
                 </Button>,
                 <Button key="cancel" variant="link"
                         onClick={e => setShowRolloutConfirmation(false)}>Cancel</Button>
