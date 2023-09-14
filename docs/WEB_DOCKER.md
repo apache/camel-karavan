@@ -13,9 +13,9 @@
     ```
     docker run -it --rm  --name karavan \ 
         --network karavan -p 8080:8080 \ 
-        -v /var/run/docker.sock:/var/run/docker.sock \
         -e KARAVAN_GIT_INSTALL_GITEA=true \
         -e KARAVAN_IMAGE_REGISTRY_INSTALL=true \
+        -v /var/run/docker.sock:/var/run/docker.sock \
         ghcr.io/apache/camel-karavan:4.0.0-rc2
     ```
 
