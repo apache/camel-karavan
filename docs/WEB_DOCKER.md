@@ -1,4 +1,4 @@
-## Karavan on Docker
+## Karavan in Docker
 
 ### Requirements
 1. Linux or MacOS

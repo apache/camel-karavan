@@ -1,3 +1,3 @@
-## Install Karavan Web Application on Openshift
+## Karavan in Openshift
 
 // TODO
