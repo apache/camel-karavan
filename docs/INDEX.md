@@ -1,6 +1,3 @@
-![karavan-logo](../images/karavan-logo-dark.png#gh-dark-mode-only)
-![karavan-logo](../images/karavan-logo-light.png#gh-light-mode-only)
-
 # Documentation
 
 ## User guide
