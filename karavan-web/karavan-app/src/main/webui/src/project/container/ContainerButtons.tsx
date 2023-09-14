@@ -50,7 +50,7 @@ export function ContainerButtons (props: Props) {
         }
     }
 
-    function getDeleteConfirmation() {
+    function getConfirmationModal() {
         return (<Modal
             className="modal-delete"
             title="Confirmation"
@@ -62,7 +62,7 @@ export function ContainerButtons (props: Props) {
                         act();
                         setShowConfirmation(false);
                     }
-                }}>Delete
+                }}>Confirm
                 </Button>,
                 <Button key="cancel" variant="link"
                         onClick={e => setShowConfirmation(false)}>Cancel</Button>
@@ -118,6 +118,6 @@ export function ContainerButtons (props: Props) {
                 </Button>
             </Tooltip>
         </FlexItem>
-        {showConfirmation && getDeleteConfirmation()}
+        {showConfirmation && getConfirmationModal()}
     </Flex>);
 }
