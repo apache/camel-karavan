@@ -33,6 +33,7 @@ import CloneIcon from "@patternfly/react-icons/dist/esm/icons/clone-icon";
 import {useDesignerStore, useIntegrationStore} from "../KaravanStore";
 import {shallow} from "zustand/shallow";
 import {usePropertiesHook} from "./usePropertiesHook";
+import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 
 interface Props {
     isRouteDesigner: boolean
@@ -52,7 +53,7 @@ export function DslProperties(props: Props) {
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState<boolean>(false);
 
     function getRouteHeader(): JSX.Element {
-        const title = selectedStep && CamelUi.getTitle(selectedStep)
+        const title = selectedStep && CamelDisplayUtil.getTitle(selectedStep)
         const description = selectedStep && CamelUi.getDescription(selectedStep);
         const descriptionLines: string [] = description ? description?.split("\n") : [""];
         return (
@@ -73,7 +74,7 @@ export function DslProperties(props: Props) {
     }
 
     function getClonableElementHeader(): JSX.Element {
-        const title = selectedStep && CamelUi.getTitle(selectedStep);
+        const title = selectedStep && CamelDisplayUtil.getTitle(selectedStep);
         const description = selectedStep?.dslName ? CamelMetadataApi.getCamelModelMetadataByClassName(selectedStep?.dslName)?.description : title;
         const descriptionLines: string [] = description ? description?.split("\n") : [""];
         return (

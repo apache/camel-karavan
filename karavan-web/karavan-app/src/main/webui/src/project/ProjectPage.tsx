@@ -60,6 +60,7 @@ export function ProjectPage() {
                     <FlexItem className="project-tabs">
                         {showTabs() && <Tabs activeKey={tab} onSelect={(event, tabIndex) => setTab(tabIndex)}>
                             <Tab eventKey="files" title="Files"/>
+                            <Tab eventKey="topology" title="Topology"/>
                             <Tab eventKey="dashboard" title="Dashboard"/>
                             <Tab eventKey="trace" title="Trace"/>
                             <Tab eventKey="build" title="Build"/>

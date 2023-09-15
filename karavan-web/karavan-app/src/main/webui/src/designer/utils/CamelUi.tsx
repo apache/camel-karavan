@@ -88,6 +88,8 @@ import {
     WorkflowIcon
 } from "./KaravanIcons";
 import React from "react";
+import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
+import {renderToStaticMarkup} from "react-dom/server";
 
 const StepElements: string[] = [
     "AggregateDefinition",
@@ -669,48 +671,23 @@ export class CamelUi {
         }
     }
 
-    static isElementInternalComponent = (element: CamelElement): boolean => {
-        const uri = (element as any).uri;
-        const component = ComponentApi.findByName(uri);
-        return component !== undefined && CamelUi.isComponentInternal(component.component.label);
-    }
-
-    static isComponentInternal = (label: string): boolean => {
-        const labels = label.split(",");
-        if (labels.includes('core') && (
-            labels.includes('transformation')
-            || labels.includes('testing')
-            || labels.includes('scheduling')
-            || labels.includes('monitoring')
-            || labels.includes('transformation')
-            || labels.includes('java')
-            || labels.includes('endpoint')
-            || labels.includes('script')
-            || labels.includes('validation')
-        )) {
-            return true;
-        } else if (label === 'transformation') {
-            return true;
-        }
-        return false;
-    }
-
     static getIconForElement = (element: CamelElement): JSX.Element => {
         const uri = (element as any).uri;
         const component = ComponentApi.findByName(uri);
         const k: KameletModel | undefined = CamelUtil.getKamelet(element);
         if (["FromDefinition", "KameletDefinition"].includes(element.dslName) && k !== undefined) {
             return k ? this.getIconFromSource(k.icon()) : CamelUi.getIconForDslName(element.dslName);
-        } else if ("FromDefinition" === element.dslName && component !== undefined && CamelUi.isComponentInternal(component.component.label)) {
+        } else if ("FromDefinition" === element.dslName && component !== undefined && TopologyUtils.isComponentInternal(component.component.label)) {
             return this.getIconForComponent(component?.component.title, component?.component.label);
         } else if (element.dslName === "ToDefinition" && (element as ToDefinition).uri?.startsWith("kamelet:")) {
             return k ? this.getIconFromSource(k.icon()) : CamelUi.getIconForDslName(element.dslName);
-        } else if (element.dslName === "ToDefinition" && component && CamelUi.isComponentInternal(component.component.label)) {
+        } else if (element.dslName === "ToDefinition" && component && TopologyUtils.isComponentInternal(component.component.label)) {
             return this.getIconForComponent(component?.component.title, component?.component.label);
         } else {
             return this.getIconForDslName(element.dslName);
         }
     }
+
     static getIconForDslName = (dslName: string): JSX.Element => {
         switch (dslName) {
             case 'AggregateDefinition':
@@ -761,15 +738,33 @@ export class CamelUi {
         const uri = (element as any).uri;
         const component = ComponentApi.findByName(uri);
         if (component) {
-            return CamelUi.getIconForComponent(component.component.title, component.component.label);
+            const reactElement = CamelUi.getIconForComponent(component.component.title, component.component.label);
+            const icon = 'data:image/svg+xml,' + encodeURI(renderToStaticMarkup((reactElement)))
+            return (
+                <svg className="icon">
+                    <image href={icon} className="icon"/>
+                </svg>
+            )
         } else if (["FromDefinition", "KameletDefinition"].includes(element.dslName)) {
             const icon = k ? k.icon() : externalIcon;
-            return <img src={icon} className="icon"/>
+            return  (
+                <svg className="icon">
+                    <image href={icon} className="icon"/>
+                </svg>
+            )
         } else if (element.dslName === "ToDefinition" && (element as ToDefinition).uri?.startsWith("kamelet:")) {
             const icon = k ? k.icon() : CamelUi.getIconSrcForName(element.dslName);
-            return <img src={icon} className="icon"/>
+            return  (
+                <svg className="icon">
+                    <image href={icon} className="icon"/>
+                </svg>
+            )
         } else {
-            return <img src={externalIcon} className="icon"/>;
+            return  (
+                <svg className="icon">
+                    <image href={externalIcon} className="icon"/>
+                </svg>
+            )
         }
     }
 

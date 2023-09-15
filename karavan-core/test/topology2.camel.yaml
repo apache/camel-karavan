@@ -1,0 +1,44 @@
+- route:
+    id: route-c67f
+    from:
+      uri: kamelet:timer-source
+      id: from-b418
+      parameters:
+        message: Hello
+      steps:
+        - log:
+            message: ${body}
+            id: log-a68a
+- route:
+    id: route-2cbd
+    from:
+      uri: kamelet:aws-cloudtrail-source
+      id: from-a3f6
+      parameters:
+        region: fff
+      steps:
+        - to:
+            uri: kamelet:google-pubsub-sink
+            id: to-c27f
+- route:
+    id: route-de2b
+    from:
+      uri: amqp
+      id: from-1e66
+      steps:
+        - to:
+            uri: direct
+            id: to-6a04
+            parameters:
+              name: xxxx
+- route:
+    id: route-ec4e
+    from:
+      uri: direct
+      id: from-e918
+      parameters:
+        name: xxx
+      steps:
+        - to:
+            uri: kamelet:kafka-not-secured-sink
+            id: to-a47b

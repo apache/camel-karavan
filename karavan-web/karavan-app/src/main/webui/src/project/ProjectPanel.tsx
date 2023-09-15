@@ -16,6 +16,7 @@ import {ContainerButtons} from "./container/ContainerButtons";
 import {ProjectContainerTab} from "./container/ProjectContainerTab";
 import {KameletModal} from "../knowledgebase/kamelets/KameletModal";
 import {KameletCard} from "../knowledgebase/kamelets/KameletCard";
+import {TopologyTab} from "./topology/TopologyTab";
 
 export function ProjectPanel() {
 
@@ -38,21 +39,22 @@ export function ProjectPanel() {
     }
 
     const buildIn = isBuildIn();
-    return (
-        <PageSection padding={{default: 'noPadding'}} className="scrollable-out">
+    const isTopology = tab === 'topology';
+    return isTopology
+        ? (<TopologyTab/>)
+        : (<PageSection padding={{default: 'noPadding'}} className="scrollable-out">
             <PageSection isFilled padding={{default: 'noPadding'}} className="scrollable-in">
                 <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
                     {tab === 'files' && <FlexItem><FilesTab/></FlexItem>}
                     {!buildIn && tab === 'dashboard' && project && <FlexItem><DashboardTab/></FlexItem>}
                     {!buildIn && tab === 'trace' && project && <FlexItem><TraceTab/></FlexItem>}
                     {!buildIn && tab === 'build' && <FlexItem><ProjectBuildTab/></FlexItem>}
-                    {!buildIn && tab === 'build' && config.infrastructure !== 'kubernetes' && <FlexItem><ImagesPanel/></FlexItem>}
+                    {!buildIn && tab === 'build' && config.infrastructure !== 'kubernetes' &&
+                        <FlexItem><ImagesPanel/></FlexItem>}
                     {!buildIn && tab === 'container' && <FlexItem><ProjectContainerTab/></FlexItem>}
-                    {!buildIn && tab === 'container' && config.infrastructure !== 'kubernetes' && <FlexItem><ImagesPanel/></FlexItem>}
+                    {!buildIn && tab === 'container' && config.infrastructure !== 'kubernetes' &&
+                        <FlexItem><ImagesPanel/></FlexItem>}
                 </Flex>
             </PageSection>
-        </PageSection>
-
-
-    )
+        </PageSection>)
 }

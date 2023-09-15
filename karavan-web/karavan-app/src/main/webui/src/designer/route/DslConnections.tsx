@@ -23,9 +23,9 @@ import {SagaDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {useConnectionsStore, useDesignerStore, useIntegrationStore} from "../KaravanStore";
 import {shallow} from "zustand/shallow";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
+import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
 
 const overlapGap: number = 40;
-const outgoingDefinitions: string[] = ['ToDefinition', 'KameletDefinition', 'ToDynamicDefinition', "PollEnrichDefinition", "EnrichDefinition", "WireTapDefinition", "SagaDefinition"];
 
 export function DslConnections() {
 
@@ -61,7 +61,7 @@ export function DslConnections() {
     function getIncomings() {
         let outs: [string, number][] = Array.from(steps.values())
             .filter(pos => ["FromDefinition"].includes(pos.step.dslName))
-            .filter(pos => !CamelUi.isElementInternalComponent(pos.step))
+            .filter(pos => !TopologyUtils.isElementInternalComponent(pos.step))
             .filter(pos => !(pos.step.dslName === 'FromDefinition' && CamelUi.hasInternalUri(pos.step)))
             .sort((pos1: DslPosition, pos2: DslPosition) => {
                 const y1 = pos1.headerRect.y + pos1.headerRect.height / 2;
@@ -135,10 +135,11 @@ export function DslConnections() {
 
 
     function getOutgoings(): [string, number][] {
+        const outgoingDefinitions = TopologyUtils.getOutgoingDefinitions();
         let outs: [string, number][] = Array.from(steps.values())
             .filter(pos => outgoingDefinitions.includes(pos.step.dslName))
             .filter(pos => pos.step.dslName !== 'KameletDefinition' || (pos.step.dslName === 'KameletDefinition' && !CamelUi.isActionKamelet(pos.step)))
-            .filter(pos => pos.step.dslName === 'ToDefinition' && !CamelUi.isActionKamelet(pos.step) && !CamelUi.isElementInternalComponent(pos.step))
+            .filter(pos => pos.step.dslName === 'ToDefinition' && !CamelUi.isActionKamelet(pos.step) && !TopologyUtils.isElementInternalComponent(pos.step))
             .filter(pos => !(outgoingDefinitions.includes(pos.step.dslName) && CamelUi.hasInternalUri(pos.step)))
             .filter(pos => pos.step.dslName !== 'SagaDefinition')
             .sort((pos1: DslPosition, pos2: DslPosition) => {
@@ -203,6 +204,7 @@ export function DslConnections() {
     }
 
     function getInternals(): [string, number, boolean][] {
+        const outgoingDefinitions = TopologyUtils.getOutgoingDefinitions();
         let outs: [string, number, boolean][] = Array.from(steps.values())
             .filter(pos => outgoingDefinitions.includes(pos.step.dslName) && CamelUi.hasInternalUri(pos.step))
             .sort((pos1: DslPosition, pos2: DslPosition) => {

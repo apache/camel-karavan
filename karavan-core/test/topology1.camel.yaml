@@ -1,0 +1,56 @@
+- route:
+    id: route-c67f1
+    description: Timer Scheduler
+    from:
+      uri: kamelet:timer-source
+      id: from-b4181
+      parameters:
+        message: Hello
+      steps:
+        - log:
+            message: ${body}
+            id: log-a68a1
+- route:
+    id: route-2cbd1
+    from:
+      uri: kamelet:aws-cloudtrail-source
+      id: from-a3f61
+      parameters:
+        region: fff
+      steps:
+        - to:
+            uri: kamelet:google-pubsub-sink
+            id: to-c27f1
+- route:
+    id: route-de2b1
+    from:
+      uri: amqp
+      id: from-1e661
+      steps:
+        - to:
+            uri: direct
+            id: to-6a041
+            parameters:
+              name: xxxx
+- route:
+    id: route-ec4e1
+    from:
+      uri: direct
+      id: from-e9181
+      parameters:
+        name: xxx
+      steps:
+        - to:
+            uri: kamelet:kafka-not-secured-sink
+            id: to-a47b1
+- rest:
+    id: rest-b499
+    get:
+      - to: direct:xxx
+        id: get-cb63
+    post:
+      - to: direct:xxx
+        id: post-07e4
+    put:
+      - to: direct:xxx
+        id: put-8271
