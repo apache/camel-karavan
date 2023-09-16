@@ -8,6 +8,7 @@ LABEL "org.opencontainers.image.version"="4.0.0-RC2"
 
 ENV JBANG_VERSION=0.110.0
 ENV CAMEL_VERSION=4.0.0
+ENV DOT_CAMEL="/.camel"
 ENV KARAVAN="/karavan"
 ENV BUILDER_PATH="/builder"
 ENV JBANG_REPO="$KARAVAN/.jbang/cache/.m2"
@@ -23,12 +24,14 @@ ENV PATH="${PATH}:$KARAVAN/.jbang/bin"
 
 RUN apt-get update && apt-get install git && apt-get clean
 RUN mkdir -p $CODE_DIR \
+    && mkdir -p $DOT_CAMEL \
     && mkdir -p $KARAVAN \
     && mkdir -p $BUILDER_PATH \
     && mkdir -p $JBANG_REPO \
     && mkdir -p $KAMELETS_DIR
 
 RUN chgrp -R 0 $KARAVAN && chmod -R g=u $KARAVAN
+RUN chgrp -R 0 $DOT_CAMEL && chmod -R g=u $DOT_CAMEL
 RUN chgrp -R 0 $BUILDER_PATH && chmod -R g=u $BUILDER_PATH
 RUN chgrp -R 0 $CODE_DIR && chmod -R g=u $CODE_DIR
 RUN chgrp -R 0 $CHECKOUT_DIR && chmod -R g=u $CHECKOUT_DIR
