@@ -10,13 +10,13 @@ ENV JBANG_VERSION=0.110.0
 ENV CAMEL_VERSION=4.0.0
 ENV DOT_CAMEL="/.camel"
 ENV KARAVAN="/karavan"
-ENV BUILDER_PATH="$KARAVAN/builder"
+ENV BUILDER_PATH="/builder"
 ENV JBANG_REPO="$KARAVAN/.jbang/cache/.m2"
 ENV JBANG_DIR="$KARAVAN/.jbang"
 ENV MAVEN_SETTINGS="/karavan-config-map/maven-settings.xml"
-ENV MAVEN_CONFIG="$KARAVAN/.m2"
-ENV CODE_DIR="$KARAVAN/code"
-ENV KAMELETS_DIR="$KARAVAN/code/kamelets"
+# ENV MAVEN_CONFIG="$KARAVAN/.m2"
+ENV CODE_DIR="/code"
+ENV KAMELETS_DIR="/$CODE_DIR/kamelets"
 ENV PATH="${PATH}:$KARAVAN/.jbang/bin"
 
 RUN apt-get update && apt-get install git && apt-get clean
@@ -35,5 +35,5 @@ RUN chgrp -R 0 $KARAVAN && chmod -R g+rwX $KARAVAN
 RUN chgrp -R 0 $DOT_CAMEL && chmod -R g+rwX $DOT_CAMEL
 
 EXPOSE 8080
-
+WORKDIR $CODE_DIR
 CMD jbang $JBANG_OPTIONS -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --source-dir=$CODE_DIR --console --local-kamelet-dir=$KAMELETS_DIR --maven-settings=$MAVEN_SETTINGS
