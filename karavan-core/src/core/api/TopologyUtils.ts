@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CamelMetadataApi} from '../model/CamelMetadata';
 import {
     DeleteDefinition,
     FromDefinition,
@@ -27,10 +26,8 @@ import {
 } from '../model/CamelDefinition';
 import {
     CamelElement,
-    CamelElementMeta,
     Integration,
 } from '../model/IntegrationDefinition';
-import { CamelDefinitionApi } from './CamelDefinitionApi';
 import {
     TopologyIncomingNode,
     TopologyOutgoingNode,
@@ -214,5 +211,41 @@ export class TopologyUtils {
             steps.forEach(step => TopologyUtils.findOutgoingInStep(step, result))
         }
         return result;
+    }
+
+
+
+    static getNodeIdByUriAndName(tins: TopologyIncomingNode[], uri: string, name: string): string | undefined {
+        if (uri && name) {
+            const node =  tins
+                .filter(r => r.from.uri === uri && r?.from?.parameters?.name === name).at(0);
+            if (node) {
+                return node.id;
+            }
+        }
+    }
+
+    static getNodeIdByUri(tins: TopologyIncomingNode[], uri: string): string | undefined {
+        const parts = uri.split(":");
+        if (parts.length > 1) {
+            return TopologyUtils.getNodeIdByUriAndName(tins, parts[0], parts[1])
+        }
+    }
+
+    static getRouteIdByUriAndName(tins: TopologyIncomingNode[], uri: string, name: string): string | undefined {
+        if (uri && name) {
+            const node =  tins
+                .filter(r => r.from.uri === uri && r?.from?.parameters?.name === name).at(0);
+            if (node) {
+                return 'route-' + node.routeId;
+            }
+        }
+    }
+
+    static getRouteIdByUri(tins: TopologyIncomingNode[], uri: string): string | undefined {
+        const parts = uri.split(":");
+        if (parts.length > 1) {
+            return TopologyUtils.getRouteIdByUriAndName(tins, parts[0], parts[1])
+        }
     }
 }
