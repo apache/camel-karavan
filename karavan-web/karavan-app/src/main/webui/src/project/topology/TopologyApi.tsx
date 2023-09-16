@@ -61,14 +61,16 @@ export function getRoutes(tins: TopologyRouteNode[]): NodeModel[] {
         const node: NodeModel = {
             id: tin.id,
             type: 'node',
-            // label: tin.title,
+            label: tin.title,
             width: NODE_DIAMETER,
             height: NODE_DIAMETER,
             shape: NodeShape.rect,
             status: NodeStatus.default,
             data: {
                 isAlternate: false,
-                icon: 'route'
+                icon: 'route',
+                routeId: tin.routeId,
+                fileName: tin.fileName,
             }
         }
         return node;

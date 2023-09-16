@@ -35,7 +35,7 @@ export function FilesTab () {
 
     const [files] = useFilesStore((s) => [s.files], shallow);
     const [project] = useProjectStore((s) => [s.project], shallow);
-    const [operation] = useFileStore((s) => [s.operation], shallow);
+    const [operation, setFile] = useFileStore((s) => [s.operation, s.setFile], shallow);
 
     function getDate(lastUpdate: number): string {
         if (lastUpdate) {
@@ -100,9 +100,9 @@ export function FilesTab () {
                                 </Td>
                                 <Td>
                                     <Button style={{padding: '6px'}} variant={"link"}
-                                            onClick={e =>
-                                                useFileStore.setState({file: file, operation: "select"})
-                                    }>
+                                            onClick={e => {
+                                                setFile('select', file);
+                                            }}>
                                         {file.name}
                                     </Button>
                                 </Td>

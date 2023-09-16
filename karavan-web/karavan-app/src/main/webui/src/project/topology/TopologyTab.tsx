@@ -13,22 +13,18 @@ import {
     VisualizationProvider,
     VisualizationSurface,
     DagreLayout,
-    ColaLayout,
-    ForceLayout,
-    ColaGroupsLayout,
-    GridLayout,
     SELECTION_EVENT,
-    TopologySideBar,
 } from '@patternfly/react-topology';
 import {customComponentFactory, getModel} from "./TopologyApi";
-import {useFilesStore, useProjectStore} from "../../api/ProjectStore";
+import {useFilesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
+import {useTopologyStore} from "./TopologyStore";
+import {TopologyPropertiesPanel} from "./TopologyPropertiesPanel";
 
 export const TopologyTab: React.FC = () => {
 
     const [files] = useFilesStore((s) => [s.files], shallow);
-    const [project] = useProjectStore((s) => [s.project], shallow);
-    const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
+    const [selectedIds, setSelectedIds] = useTopologyStore((s) => [s.selectedIds, s.setSelectedIds], shallow);
 
     const controller = React.useMemo(() => {
         const model = getModel(files);
@@ -36,7 +32,10 @@ export const TopologyTab: React.FC = () => {
         newController.registerLayoutFactory((_, graph) => new DagreLayout(graph));
         newController.registerComponentFactory(customComponentFactory);
 
-        newController.addEventListener(SELECTION_EVENT, setSelectedIds);
+        // newController.addEventListener(SELECTION_EVENT, setSelectedIds);
+        // newController.addEventListener(SELECTION_EVENT, args => {
+        //     console.log(args)
+        // });
         newController.addEventListener(GRAPH_LAYOUT_END_EVENT, () => {
             newController.getGraph().fit(80);
         });
@@ -50,20 +49,10 @@ export const TopologyTab: React.FC = () => {
         controller.fromModel(model, false);
     }, []);
 
-    const topologySideBar = (
-        <TopologySideBar
-            className="topology-sidebar"
-            show={selectedIds.length > 0}
-            onClose={() => setSelectedIds([])}
-        >
-            <div style={{ marginTop: 27, marginLeft: 20, height: '800px' }}>{selectedIds[0]}</div>
-        </TopologySideBar>
-    );
-
     return (
         <TopologyView
             viewToolbar={<ToolbarItem>{}</ToolbarItem>}
-            sideBar={topologySideBar}
+            sideBar={<TopologyPropertiesPanel/>}
             controlBar={
                 <TopologyControlBar
                     controlButtons={createTopologyControlButtons({
