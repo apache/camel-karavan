@@ -27,19 +27,9 @@ RUN mkdir -p $CODE_DIR \
     && mkdir -p $JBANG_REPO \
     && mkdir -p $KAMELETS_DIR
 
-ARG USERNAME=karavan
-ARG USER_UID=1001
-ARG USER_GID=$USER_UID
-
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME
-
-RUN chown -R 1001:1001 /karavan \   
-    && chown -R 1001:1001 /builder \
-    && chown -R 1001:1001 /code \   
-    && chown -R 1001:1001 /scripts    
-
-USER 1001
+RUN chgrp -R 0 $BUILDER_PATH && chmod -R g+rwX $BUILDER_PATH
+RUN chgrp -R 0 $CODE_DIR && chmod -R g+rwX $CODE_DIR
+RUN chgrp -R 0 $CHECKOUT_DIR && chmod -R g+rwX $CHECKOUT_DIR
 
 RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
     && jbang trust add  --quiet  https://github.com/apache/camel \
