@@ -219,10 +219,9 @@ public class KubernetesService implements HealthCheck {
                 .withPorts(port)
                 .withImagePullPolicy("Always")
                 .withEnv(envVars)
-                .withCommand("/bin/sh", "-c", "/builder/build.sh")
+                .withCommand("/bin/sh", "-c", "/karavan/builder/build.sh")
                 .withVolumeMounts(
-//                        new VolumeMountBuilder().withName(name).withMountPath("/karavan/.jbang/cache").build()
-                        new VolumeMountBuilder().withName("builder").withMountPath("/builder").withReadOnly(true).build()
+                        new VolumeMountBuilder().withName("builder").withMountPath("/karavan/builder").withReadOnly(true).build()
                 )
                 .build();
 
@@ -232,8 +231,6 @@ public class KubernetesService implements HealthCheck {
                 .withRestartPolicy("Never")
                 .withServiceAccount(KARAVAN_SERVICE_ACCOUNT)
                 .withVolumes(
-//                        new VolumeBuilder().withName(name)
-//                                .withNewPersistentVolumeClaim(name, false).build(),
                         new VolumeBuilder().withName("builder")
                                 .withConfigMap(new ConfigMapVolumeSourceBuilder().withName(name).withItems(
                                         new KeyToPathBuilder().withKey("build.sh").withPath("build.sh").build()
@@ -404,7 +401,6 @@ public class KubernetesService implements HealthCheck {
                 .withImagePullPolicy("Always")
                 .withEnv(new EnvVarBuilder().withName(ENV_VAR_JBANG_OPTIONS).withValue(jbangOptions).build())
 //                .withVolumeMounts(
-//                        new VolumeMountBuilder().withName(name).withMountPath("/karavan/.jbang/cache").build()
 //                        new VolumeMountBuilder().withName("maven-settings").withSubPath("maven-settings.xml")
 //                                .withMountPath("/karavan-config-map/maven-settings.xml").build()
 //                )

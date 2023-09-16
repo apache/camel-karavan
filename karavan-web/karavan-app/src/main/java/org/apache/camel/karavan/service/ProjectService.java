@@ -139,7 +139,6 @@ public class ProjectService implements HealthCheck {
         env.addAll(gitService.getEnvForBuild());
         env.addAll(List.of(
                 "PROJECT_ID=" + project.getProjectId(),
-                "JBANG_REPO=~/.m2",
                 "TAG=" + tag
         ));
         return env;

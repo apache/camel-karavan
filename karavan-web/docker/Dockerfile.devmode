@@ -26,13 +26,14 @@ RUN mkdir -p $DOT_CAMEL \
     && mkdir -p $BUILDER_PATH \
     && mkdir -p $JBANG_REPO
 
-RUN chgrp -R 0 $KARAVAN && chmod -R g+rwX $KARAVAN
-
 RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
     && jbang trust add  --quiet  https://github.com/apache/camel \
     && jbang app install camel@apache/camel \
     && jbang config set cache-evict never
 
+RUN chgrp -R 0 $KARAVAN && chmod -R g+rwX $KARAVAN
+RUN chgrp -R 0 $DOT_CAMEL && chmod -R g+rwX $DOT_CAMEL
+
 EXPOSE 8080
-USER 1001
+
 CMD jbang $JBANG_OPTIONS -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --source-dir=$CODE_DIR --console --local-kamelet-dir=$KAMELETS_DIR --maven-settings=$MAVEN_SETTINGS
