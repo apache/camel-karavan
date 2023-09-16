@@ -2,7 +2,9 @@ import {
     ComponentFactory,
     DefaultEdge,
     DefaultGroup,
+    EdgeAnimationSpeed,
     EdgeModel,
+    EdgeStyle,
     GraphComponent,
     Model,
     ModelKind,
@@ -98,7 +100,9 @@ export function getIncomingEdges(tins: TopologyIncomingNode[]): EdgeModel[] {
             id: 'edge-incoming-' + tin.routeId,
             type: 'edge',
             source: tin.id,
-            target: 'route-' + tin.routeId
+            target: 'route-' + tin.routeId,
+            edgeStyle: tin.type === 'external' ? EdgeStyle.dashedMd : EdgeStyle.solid,
+            animationSpeed: tin.type === 'external' ? EdgeAnimationSpeed.medium : EdgeAnimationSpeed.none
         }
         return node;
     });
@@ -110,7 +114,9 @@ export function getOutgoingEdges(tons: TopologyOutgoingNode[]): EdgeModel[] {
             id: 'edge-outgoing-' + tin.routeId + '-' + (tin.step as any).id,
             type: 'edge',
             source: 'route-' + tin.routeId,
-            target: tin.id
+            target: tin.id,
+            edgeStyle: tin.type === 'external' ? EdgeStyle.dashedMd : EdgeStyle.solid,
+            animationSpeed: tin.type === 'external' ? EdgeAnimationSpeed.medium : EdgeAnimationSpeed.none
         }
         return node;
     });
@@ -154,7 +160,9 @@ export function getRestEdges(rest: TopologyRestNode[], incomings: TopologyIncomi
                 id: 'incoming-' + tin.id + '-' + index,
                 type: 'edge',
                 source: tin.id,
-                target: target
+                target: target,
+                edgeStyle: EdgeStyle.dotted,
+                animationSpeed: EdgeAnimationSpeed.medium
             }
             if (target) result.push(node);
         })
