@@ -27,4 +27,5 @@ RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
     && jbang config set cache-evict never
 
 EXPOSE 8080
+USER 1001
 CMD jbang $JBANG_OPTIONS -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --source-dir=$CODE_DIR --console --local-kamelet-dir=$KAMELETS_DIR --maven-settings=$MAVEN_SETTINGS
