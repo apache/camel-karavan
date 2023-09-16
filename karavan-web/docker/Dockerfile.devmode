@@ -16,16 +16,27 @@ ENV MAVEN_SETTINGS="/karavan-config-map/maven-settings.xml"
 ENV KAMELETS_DIR="/code/kamelets"
 ENV CHECKOUT_DIR="/code"
 ENV CODE_DIR="/code"
+ENV CHECKOUT_DIR="/scripts"
+ENV KAMELETS_DIR="/scripts/kamelets"
 ENV PATH="${PATH}:$KARAVAN/.jbang/bin"
 
-RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
-    && apt-get update && apt-get install git \
-    && mkdir -p $CODE_DIR \
+RUN apt-get update && apt-get install git && apt-get clean
+RUN mkdir -p $CODE_DIR \
     && mkdir -p $BUILDER_PATH \
+    && mkdir -p $JBANG_REPO \
+    && mkdir -p $KAMELETS_DIR
+
+RUN chown -R 1001:1001 /karavan \   
+    && chown -R 1001:1001 /builder \
+    && chown -R 1001:1001 /code \   
+    && chown -R 1001:1001 /scripts    
+
+USER 1001
+
+RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
     && jbang trust add  --quiet  https://github.com/apache/camel \
     && jbang app install camel@apache/camel \
     && jbang config set cache-evict never
 
 EXPOSE 8080
-USER 1001
 CMD jbang $JBANG_OPTIONS -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --source-dir=$CODE_DIR --console --local-kamelet-dir=$KAMELETS_DIR --maven-settings=$MAVEN_SETTINGS
