@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {CSSProperties, useEffect, useMemo, useRef, useState} from 'react';
+import React, {CSSProperties, useMemo, useState} from 'react';
 import {
     Button,
     Flex,
@@ -377,7 +377,7 @@ export function DslElement(props: Props) {
         if (hideAddButton) return (<></>)
         else return (
             <Tooltip position={"bottom"}
-                     content={<div>{"Add step to " + CamelUi.getTitle(step)}</div>}>
+                     content={<div>{"Add step to " + CamelDisplayUtil.getTitle(step)}</div>}>
                 <button type="button" aria-label="Add" onClick={e => onOpenSelector(e)}
                         className={isAddStepButtonLeft() ? "add-button add-button-left" : "add-button add-button-bottom"}>
                     <AddIcon/>
@@ -388,7 +388,7 @@ export function DslElement(props: Props) {
 
     function getAddElementButton() {
         return (
-            <Tooltip position={"bottom"} content={<div>{"Add DSL element to " + CamelUi.getTitle(props.step)}</div>}>
+            <Tooltip position={"bottom"} content={<div>{"Add DSL element to " + CamelDisplayUtil.getTitle(props.step)}</div>}>
                 <button
                     type="button"
                     aria-label="Add"

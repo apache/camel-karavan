@@ -109,29 +109,29 @@ export class TopologyUtils {
         const result:TopologyRestNode[] = [];
         integration.forEach(i => {
             const filename = i.metadata.name;
-            const routeIds: string[] = [];
+            const uris: string[] = [];
             const routes = i.spec.flows?.filter(flow => flow.dslName === 'RestDefinition');
             routes?.forEach((rest: RestDefinition) => {
                 rest?.get?.forEach((d: GetDefinition) => {
-                    if (d.to) routeIds.push(d.to);
+                    if (d.to) uris.push(d.to);
                 });
                 rest?.post?.forEach((d: PostDefinition) => {
-                    if (d.to) routeIds.push(d.to);
+                    if (d.to) uris.push(d.to);
                 });
                 rest?.put?.forEach((d: PutDefinition) => {
-                    if (d.to) routeIds.push(d.to);
+                    if (d.to) uris.push(d.to);
                 });
                 rest?.delete?.forEach((d: DeleteDefinition) => {
-                    if (d.to) routeIds.push(d.to);
+                    if (d.to) uris.push(d.to);
                 });
                 rest?.patch?.forEach((d: PatchDefinition) => {
-                    if (d.to) routeIds.push(d.to);
+                    if (d.to) uris.push(d.to);
                 });
                 rest?.head?.forEach((d: HeadDefinition) => {
-                    if (d.to) routeIds.push(d.to);
+                    if (d.to) uris.push(d.to);
                 });
                 const title = 'REST: ' + (rest.description ? rest.description : rest.id);
-                result.push(new TopologyRestNode(rest.path || '', '' + rest.id, routeIds, title, filename))
+                result.push(new TopologyRestNode(rest.path || '', '' + rest.id, uris, title, filename))
             })
         })
         return result;

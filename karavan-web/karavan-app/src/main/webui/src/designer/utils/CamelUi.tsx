@@ -89,6 +89,7 @@ import {
 } from "./KaravanIcons";
 import React from "react";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
+import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {renderToStaticMarkup} from "react-dom/server";
 
 const StepElements: string[] = [
@@ -302,30 +303,6 @@ export class CamelUi {
         else return false;
     }
 
-    static hasInternalUri = (element: CamelElement): boolean => {
-        return this.hasDirectUri(element) || this.hasSedaUri(element);
-    }
-
-    static hasDirectUri = (element: CamelElement): boolean => {
-        return this.hasUriStartWith(element, 'direct');
-    }
-
-    static hasSedaUri = (element: CamelElement): boolean => {
-        return this.hasUriStartWith(element, 'seda');
-    }
-
-    static hasUriStartWith = (element: CamelElement, text: string): boolean => {
-        if ((element as any).uri && typeof (element as any).uri === 'string') {
-            return (element as any).uri.startsWith(text);
-        } else if (element.dslName === 'SagaDefinition') {
-            const completion = (element as SagaDefinition).completion || '';
-            const compensation = (element as SagaDefinition).compensation || '';
-            return completion.startsWith(text) || compensation.startsWith(text);
-        } else {
-            return false;
-        }
-    }
-
     static getInternalRouteUris = (integration: Integration, componentName: string, showComponentName: boolean = true): string[] => {
         const result: string[] = [];
         integration.spec.flows?.filter(f => f.dslName === 'RouteDefinition')
@@ -353,22 +330,6 @@ export class CamelUi {
         }
     }
 
-    static getTitle = (element: CamelElement): string => {
-        const k: KameletModel | undefined = CamelUtil.getKamelet(element);
-        if (k) {
-            return k.title();
-        } else if (element.dslName === 'RouteDefinition') {
-            const routeId = (element as RouteDefinition).id
-            return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
-        } else if ((element as any).uri && (['ToDefinition', 'FromDefinition'].includes(element.dslName))) {
-            const uri = (element as any).uri
-            return ComponentApi.getComponentTitleFromUri(uri) || '';
-        } else {
-            const title = CamelMetadataApi.getCamelModelMetadataByClassName(element.dslName);
-            return title ? title.title : CamelUtil.capitalizeName((element as any).stepName);
-        }
-    }
-
     static getDescription = (element: CamelElement): string => {
         const kamelet: KameletModel | undefined = CamelUtil.getKamelet(element);
         if (kamelet) {
@@ -378,7 +339,7 @@ export class CamelUi {
             return ComponentApi.getComponentDescriptionFromUri(uri) || '';
         } else {
             const description = CamelMetadataApi.getCamelModelMetadataByClassName(element.dslName)?.description;
-            return description ? description : CamelUi.getTitle(element);
+            return description ? description : CamelDisplayUtil.getTitle(element);
         }
     }
 
@@ -687,7 +648,6 @@ export class CamelUi {
             return this.getIconForDslName(element.dslName);
         }
     }
-
     static getIconForDslName = (dslName: string): JSX.Element => {
         switch (dslName) {
             case 'AggregateDefinition':

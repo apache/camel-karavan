@@ -21,14 +21,14 @@ import { FromDefinition } from './CamelDefinition';
 export class TopologyRestNode {
     path: string;
     id: string;
-    routeIds: string[];
+    uris: string[];
     title: string;
     fileName: string;
 
-    constructor(path: string, id: string, routeIds: string[], title: string, fileName: string) {
+    constructor(path: string, id: string, uris: string[], title: string, fileName: string) {
         this.path = path;
         this.id = id;
-        this.routeIds = routeIds;
+        this.uris = uris;
         this.title = title;
         this.fileName = fileName;
     }

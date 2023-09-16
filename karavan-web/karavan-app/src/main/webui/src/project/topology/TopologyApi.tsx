@@ -17,7 +17,12 @@ import {ProjectFile} from "../../api/ProjectModels";
 import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
-import {TopologyIncomingNode, TopologyOutgoingNode, TopologyRouteNode} from "karavan-core/lib/model/TopologyDefinition";
+import {
+    TopologyIncomingNode,
+    TopologyOutgoingNode,
+    TopologyRestNode,
+    TopologyRouteNode
+} from "karavan-core/lib/model/TopologyDefinition";
 
 const NODE_DIAMETER = 60;
 
@@ -52,7 +57,7 @@ export function getRoutes(tins: TopologyRouteNode[]): NodeModel[] {
         const node: NodeModel = {
             id: tin.id,
             type: 'node',
-            label: tin.title,
+            // label: tin.title,
             width: NODE_DIAMETER,
             height: NODE_DIAMETER,
             shape: NodeShape.rect,
@@ -111,6 +116,53 @@ export function getOutgoingEdges(tons: TopologyOutgoingNode[]): EdgeModel[] {
     });
 }
 
+export function getRest(tins: TopologyRestNode[]): NodeModel[] {
+    return tins.map(tin => {
+        return {
+            id: tin.id,
+            type: 'node',
+            label: tin.title,
+            width: NODE_DIAMETER,
+            height: NODE_DIAMETER,
+            shape: NodeShape.hexagon,
+            status: NodeStatus.default,
+            data: {
+                isAlternate: false,
+                icon: 'rest',
+            }
+        }
+    });
+}
+
+export function getNodeId(incomings: TopologyIncomingNode[], uri: string): string | undefined {
+    const parts = uri.split(":");
+    if (parts.length > 1) {
+        const node =  incomings
+            .filter(r => r.from.uri === parts[0] && r?.from?.parameters?.name === parts[1]).at(0);
+        if (node) {
+            return node.id;
+        }
+    }
+}
+
+export function getRestEdges(rest: TopologyRestNode[], incomings: TopologyIncomingNode[]): EdgeModel[] {
+    const result: EdgeModel[] = [];
+    rest.forEach(tin => {
+        tin.uris.forEach((uri, index) => {
+            const target = getNodeId(incomings, uri);
+            const node: EdgeModel = {
+                id: 'incoming-' + tin.id + '-' + index,
+                type: 'edge',
+                source: tin.id,
+                target: target
+            }
+            if (target) result.push(node);
+        })
+    });
+
+    return result;
+}
+
 export function getModel(files: ProjectFile[]): Model {
     const integrations = getIntegrations(files);
     const tins = TopologyUtils.findTopologyIncomingNodes(integrations);
@@ -138,12 +190,14 @@ export function getModel(files: ProjectFile[]): Model {
     nodes.push(...getIncomings(tins))
     nodes.push(...getRoutes(troutes))
     nodes.push(...getOutgoings(tons))
+    nodes.push(...getRest(trestns))
     nodes.push(...groups)
     // nodes.push(...groups2)
 
     const edges: EdgeModel[] = [];
     edges.push(...getIncomingEdges(tins));
     edges.push(...getOutgoingEdges(tons));
+    edges.push(...getRestEdges(trestns, tins));
 
     return {nodes: nodes, edges: edges, graph: {id: 'g1', type: 'graph', layout: 'Dagre'}};
 }

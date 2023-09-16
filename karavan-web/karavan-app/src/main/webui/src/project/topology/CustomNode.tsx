@@ -7,10 +7,10 @@ import {CamelUi} from "../../designer/utils/CamelUi";
 import './topology.css';
 
 function getIcon(data: any) {
-    if (data.icon === 'route') {
+    if (['route', 'rest'].includes(data.icon)) {
         return (
             <g transform={`translate(14, 14)`}>
-                {getDesignerIcon('routes')}
+                {getDesignerIcon(data.icon)}
             </g>
         )
     } else if (data.icon === 'element') {
