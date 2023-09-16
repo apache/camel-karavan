@@ -23,13 +23,15 @@ ENV PATH="${PATH}:$KARAVAN/.jbang/bin"
 
 RUN apt-get update && apt-get install git && apt-get clean
 RUN mkdir -p $CODE_DIR \
+    && mkdir -p $KARAVAN \
     && mkdir -p $BUILDER_PATH \
     && mkdir -p $JBANG_REPO \
     && mkdir -p $KAMELETS_DIR
 
-RUN chgrp -R 0 $BUILDER_PATH && chmod -R g+rwX $BUILDER_PATH
-RUN chgrp -R 0 $CODE_DIR && chmod -R g+rwX $CODE_DIR
-RUN chgrp -R 0 $CHECKOUT_DIR && chmod -R g+rwX $CHECKOUT_DIR
+RUN chgrp -R 0 $KARAVAN && chmod -R g=u $KARAVAN
+RUN chgrp -R 0 $BUILDER_PATH && chmod -R g=u $BUILDER_PATH
+RUN chgrp -R 0 $CODE_DIR && chmod -R g=u $CODE_DIR
+RUN chgrp -R 0 $CHECKOUT_DIR && chmod -R g=u $CHECKOUT_DIR
 
 RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
     && jbang trust add  --quiet  https://github.com/apache/camel \
