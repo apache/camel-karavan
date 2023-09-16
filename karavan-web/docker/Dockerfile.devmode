@@ -10,12 +10,12 @@ ENV JBANG_VERSION=0.110.0
 ENV CAMEL_VERSION=4.0.0
 ENV DOT_CAMEL="/.camel"
 ENV KARAVAN="/karavan"
-ENV BUILDER_PATH="/builder"
+ENV BUILDER_PATH="$KARAVAN/builder"
 ENV JBANG_REPO="$KARAVAN/.jbang/cache/.m2"
 ENV JBANG_DIR="$KARAVAN/.jbang"
 ENV MAVEN_SETTINGS="/karavan-config-map/maven-settings.xml"
 # ENV MAVEN_CONFIG="$KARAVAN/.m2"
-ENV CODE_DIR="/code"
+ENV CODE_DIR="$KARAVAN/code"
 ENV KAMELETS_DIR="/$CODE_DIR/kamelets"
 ENV PATH="${PATH}:$KARAVAN/.jbang/bin"
 
@@ -26,13 +26,14 @@ RUN mkdir -p $DOT_CAMEL \
     && mkdir -p $BUILDER_PATH \
     && mkdir -p $JBANG_REPO
 
+RUN chgrp -R 0 $KARAVAN && chmod -R g+rwX $KARAVAN
+RUN chgrp -R 0 $DOT_CAMEL && chmod -R g+rwX $DOT_CAMEL
+RUN chgrp -R 0 $HOME && chmod -R g+rwX $HOME
+
 RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
     && jbang trust add  --quiet  https://github.com/apache/camel \
     && jbang app install camel@apache/camel \
     && jbang config set cache-evict never
-
-RUN chgrp -R 0 $KARAVAN && chmod -R g+rwX $KARAVAN
-RUN chgrp -R 0 $DOT_CAMEL && chmod -R g+rwX $DOT_CAMEL
 
 EXPOSE 8080
 WORKDIR $CODE_DIR

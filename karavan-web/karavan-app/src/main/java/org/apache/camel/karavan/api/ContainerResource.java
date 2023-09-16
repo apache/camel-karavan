@@ -83,39 +83,46 @@ public class ContainerResource {
     @Path("/{env}/{type}/{name}")
     public Response manageContainer(@PathParam("env") String env, @PathParam("type") String type, @PathParam("name") String name, JsonObject command) throws Exception {
         if (infinispanService.isReady()) {
-            // set container statuses
-            setContainerStatusTransit(name, type);
-            // exec docker commands
-            if (command.containsKey("command")) {
-                if (command.getString("command").equalsIgnoreCase("run")) {
-                    if (Objects.equals(type, ContainerStatus.ContainerType.devservice.name())) {
-                        String code = projectService.getDevServiceCode();
-                        DockerComposeService dockerComposeService = DockerComposeConverter.fromCode(code, name);
-                        if (dockerComposeService != null) {
-                            dockerService.createContainerFromCompose(dockerComposeService, ContainerStatus.ContainerType.devmode);
-                            dockerService.runContainer(dockerComposeService.getContainer_name());
-                        }
-                    } else if (Objects.equals(type, ContainerStatus.ContainerType.project.name())) {
-                        DockerComposeService dockerComposeService = projectService.getProjectDockerComposeService(name);
-                        if (dockerComposeService != null) {
-                            dockerService.createContainerFromCompose(dockerComposeService, ContainerStatus.ContainerType.project);
-                            dockerService.runContainer(dockerComposeService.getContainer_name());
-                        }
-                    } else if (Objects.equals(type, ContainerStatus.ContainerType.devmode.name())) {
+            if (ConfigService.inKubernetes()) {
+                if (command.getString("command").equalsIgnoreCase("delete")) {
+                    kubernetesService.deletePod(name);
+                    return Response.ok().build();
+                }
+            } else {
+                // set container statuses
+                setContainerStatusTransit(name, type);
+                // exec docker commands
+                if (command.containsKey("command")) {
+                    if (command.getString("command").equalsIgnoreCase("run")) {
+                        if (Objects.equals(type, ContainerStatus.ContainerType.devservice.name())) {
+                            String code = projectService.getDevServiceCode();
+                            DockerComposeService dockerComposeService = DockerComposeConverter.fromCode(code, name);
+                            if (dockerComposeService != null) {
+                                dockerService.createContainerFromCompose(dockerComposeService, ContainerStatus.ContainerType.devmode);
+                                dockerService.runContainer(dockerComposeService.getContainer_name());
+                            }
+                        } else if (Objects.equals(type, ContainerStatus.ContainerType.project.name())) {
+                            DockerComposeService dockerComposeService = projectService.getProjectDockerComposeService(name);
+                            if (dockerComposeService != null) {
+                                dockerService.createContainerFromCompose(dockerComposeService, ContainerStatus.ContainerType.project);
+                                dockerService.runContainer(dockerComposeService.getContainer_name());
+                            }
+                        } else if (Objects.equals(type, ContainerStatus.ContainerType.devmode.name())) {
 //                        TODO: merge with DevMode service
 //                        dockerForKaravan.createDevmodeContainer(name, "");
 //                        dockerService.runContainer(name);
+                        }
+                        return Response.ok().build();
+                    } else if (command.getString("command").equalsIgnoreCase("stop")) {
+                        dockerService.stopContainer(name);
+                        return Response.ok().build();
+                    } else if (command.getString("command").equalsIgnoreCase("pause")) {
+                        dockerService.pauseContainer(name);
+                        return Response.ok().build();
+                    } else if (command.getString("command").equalsIgnoreCase("delete")) {
+                        dockerService.deleteContainer(name);
+                        return Response.ok().build();
                     }
-                    return Response.ok().build();
-                } else if (command.getString("command").equalsIgnoreCase("stop")) {
-                    dockerService.stopContainer(name);
-                    return Response.ok().build();
-                } else if (command.getString("command").equalsIgnoreCase("pause")) {
-                    dockerService.pauseContainer(name);
-                    return Response.ok().build();
-                } else if (command.getString("command").equalsIgnoreCase("delete")) {
-                    dockerService.deleteContainer(name);
-                    return Response.ok().build();
                 }
             }
         }
