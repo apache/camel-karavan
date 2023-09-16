@@ -26,7 +26,7 @@ RUN mkdir -p $DOT_CAMEL \
     && mkdir -p $BUILDER_PATH \
     && mkdir -p $JBANG_REPO
 
-RUN chgrp -R 0 $KARAVAN && chmod -R g=u $KARAVAN
+RUN chgrp -R 0 $KARAVAN && chmod -R g+rwX $KARAVAN
 
 RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
     && jbang trust add  --quiet  https://github.com/apache/camel \
