@@ -37,9 +37,8 @@ spec:
         version: "1.20.4"
         app.kubernetes.io/managed-by: Helm
     spec:
-      
-      securityContext:
-        fsGroup: 1000
+#      securityContext:
+#        fsGroup: 1000
       initContainers:
         - name: init-directories
           image: "gitea/gitea:1.20.4-rootless"
@@ -103,8 +102,8 @@ spec:
           image: "gitea/gitea:1.20.4-rootless"
           command: ["/usr/sbin/configure_gitea.sh"]
           imagePullPolicy: Always
-          securityContext:
-            runAsUser: 1000
+#          securityContext:
+#            runAsUser: 1000670000
           env:
             - name: GITEA_APP_INI
               value: /data/gitea/conf/app.ini

@@ -184,7 +184,6 @@ public class KubernetesService implements HealthCheck {
         return labels;
     }
 
-
     private ConfigMap getConfigMapForBuilder(String name, Map<String, String> labels) {
         return new ConfigMapBuilder()
                 .withMetadata(new ObjectMetaBuilder()

@@ -62,10 +62,6 @@ public class CommandUtils {
         // Check and install Infinispan
         if (!isInfinispanInstalled(client) && config.isInstallInfinispan()) {
             logError("Infinispan is not installed");
-            if (isOpenShift(client)) {
-                logPoint("Please install Infinispan first");
-                System.exit(0);
-            }
             installInfinispan(config, client);
         }
 
