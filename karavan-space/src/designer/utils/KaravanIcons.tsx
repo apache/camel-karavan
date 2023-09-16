@@ -292,8 +292,21 @@ export function getDesignerIcon(icon: string) {
             <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32"
                   height="32"/>
         </svg>)
+    if (icon === 'route') return (
+        <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
+            <title>{"category"}</title>
+            <path d="M27 22.141V18a2 2 0 0 0-2-2h-8v-4h2a2.002 2.002 0 0 0 2-2V4a2.002 2.002 0 0 0-2-2h-6a2.002 2.002 0 0 0-2 2v6a2.002 2.002 0 0 0 2 2h2v4H7a2 2 0 0 0-2 2v4.142a4 4 0 1 0 2 0V18h8v4.142a4 4 0 1 0 2 0V18h8v4.141a4 4 0 1 0 2 0ZM13 4h6l.001 6H13ZM8 26a2 2 0 1 1-2-2 2.002 2.002 0 0 1 2 2Zm10 0a2 2 0 1 1-2-2 2.003 2.003 0 0 1 2 2Zm8 2a2 2 0 1 1 2-2 2.002 2.002 0 0 1-2 2Z" />
+            <path
+                d="M0 0h32v32H0z"
+                data-name="&lt;Transparent Rectangle&gt;"
+                style={{
+                    fill: "none",
+                }}
+            />
+        </svg>
+    )
     if (icon === 'rest') return (
-        <svg className="top-icon" viewBox="0 0 32 32">
+        <svg className="top-icon" viewBox="0 0 32 32" width="32px" height="32px">
             <g className="layer">
                 <title>Layer 1</title>
                 <path
