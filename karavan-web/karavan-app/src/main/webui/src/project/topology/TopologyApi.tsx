@@ -1,18 +1,18 @@
 import {
     ComponentFactory,
     DefaultEdge,
-    DefaultGroup,
     EdgeAnimationSpeed,
     EdgeModel,
     EdgeStyle,
     GraphComponent,
+    LabelPosition,
     Model,
     ModelKind,
     NodeModel,
     NodeShape,
     NodeStatus,
     withDragNode,
-    withPanZoom
+    withPanZoom, withSelection
 } from '@patternfly/react-topology';
 import CustomNode from "./CustomNode";
 import {ProjectFile} from "../../api/ProjectModels";
@@ -25,6 +25,8 @@ import {
     TopologyRestNode,
     TopologyRouteNode
 } from "karavan-core/lib/model/TopologyDefinition";
+import CustomGroup from "./CustomGroup";
+import CustomEdge from "./CustomEdge";
 
 const NODE_DIAMETER = 60;
 
@@ -34,8 +36,8 @@ export function getIntegrations(files: ProjectFile[]): Integration[] {
     })
 }
 
-export function getIncomings(tins: TopologyIncomingNode[]): NodeModel[] {
-    return tins.map(tin => {
+export function getIncomingNodes(tins: TopologyIncomingNode[]): NodeModel[] {
+    return tins.filter(tin => tin.type === 'external').map(tin => {
         return {
             id: tin.id,
             type: 'node',
@@ -73,8 +75,8 @@ export function getRoutes(tins: TopologyRouteNode[]): NodeModel[] {
     });
 }
 
-export function getOutgoings(tons: TopologyOutgoingNode[]): NodeModel[] {
-    return tons.map(tin => {
+export function getOutgoingNodes(tons: TopologyOutgoingNode[]): NodeModel[] {
+    return tons.filter(tin => tin.type === 'external').map(tin => {
         const node: NodeModel = {
             id: tin.id,
             type: 'node',
@@ -95,7 +97,7 @@ export function getOutgoings(tons: TopologyOutgoingNode[]): NodeModel[] {
 }
 
 export function getIncomingEdges(tins: TopologyIncomingNode[]): EdgeModel[] {
-    return tins.map(tin => {
+    return tins.filter(tin => tin.type === 'external').map(tin => {
         const node: EdgeModel = {
             id: 'edge-incoming-' + tin.routeId,
             type: 'edge',
@@ -109,7 +111,7 @@ export function getIncomingEdges(tins: TopologyIncomingNode[]): EdgeModel[] {
 }
 
 export function getOutgoingEdges(tons: TopologyOutgoingNode[]): EdgeModel[] {
-    return tons.map(tin => {
+    return tons.filter(tin => tin.type === 'external').map(tin => {
         const node: EdgeModel = {
             id: 'edge-outgoing-' + tin.routeId + '-' + (tin.step as any).id,
             type: 'edge',
@@ -140,34 +142,43 @@ export function getRest(tins: TopologyRestNode[]): NodeModel[] {
     });
 }
 
-export function getNodeId(incomings: TopologyIncomingNode[], uri: string): string | undefined {
-    const parts = uri.split(":");
-    if (parts.length > 1) {
-        const node =  incomings
-            .filter(r => r.from.uri === parts[0] && r?.from?.parameters?.name === parts[1]).at(0);
-        if (node) {
-            return node.id;
-        }
-    }
-}
-
-export function getRestEdges(rest: TopologyRestNode[], incomings: TopologyIncomingNode[]): EdgeModel[] {
+export function getRestEdges(rest: TopologyRestNode[], tins: TopologyIncomingNode[]): EdgeModel[] {
     const result: EdgeModel[] = [];
     rest.forEach(tin => {
         tin.uris.forEach((uri, index) => {
-            const target = getNodeId(incomings, uri);
+            const target = TopologyUtils.getRouteIdByUri(tins, uri);
             const node: EdgeModel = {
                 id: 'incoming-' + tin.id + '-' + index,
                 type: 'edge',
                 source: tin.id,
                 target: target,
-                edgeStyle: EdgeStyle.dotted,
+                edgeStyle: EdgeStyle.solid,
                 animationSpeed: EdgeAnimationSpeed.medium
             }
             if (target) result.push(node);
         })
     });
+    return result;
+}
 
+export function getInternalEdges(tons: TopologyOutgoingNode[], tins: TopologyIncomingNode[]): EdgeModel[] {
+    const result: EdgeModel[] = [];
+    tons.filter(ton => ton.type === 'internal').forEach((ton, index) => {
+        const uri: string = (ton.step as any).uri;
+        if (uri.startsWith("direct") || uri.startsWith("seda")) {
+            const name = (ton.step as any).parameters.name;
+            const target = TopologyUtils.getRouteIdByUriAndName(tins, uri, name);
+                const node: EdgeModel = {
+                id: 'internal-' + ton.id + '-' + index,
+                type: 'edge',
+                source: 'route-' + ton.routeId,
+                target: target,
+                edgeStyle: EdgeStyle.solid,
+                animationSpeed: EdgeAnimationSpeed.medium
+            }
+            if (target) result.push(node);
+        }
+    });
     return result;
 }
 
@@ -181,8 +192,8 @@ export function getModel(files: ProjectFile[]): Model {
     const nodes: NodeModel[] = [];
     const groups: NodeModel[] = troutes.map(r => {
         const children = [r.id]
-        children.push(... tins.filter(i => i.routeId === r.routeId).map(i => i.id));
-        children.push(... tons.filter(i => i.routeId === r.routeId).map(i => i.id));
+        children.push(... tins.filter(i => i.routeId === r.routeId && i.type === 'external').map(i => i.id));
+        children.push(... tons.filter(i => i.routeId === r.routeId && i.type === 'external').map(i => i.id));
         return   {
             id: 'group-' + r.routeId,
             children: children,
@@ -195,17 +206,17 @@ export function getModel(files: ProjectFile[]): Model {
         }
     })
 
-    nodes.push(...getIncomings(tins))
-    nodes.push(...getRoutes(troutes))
-    nodes.push(...getOutgoings(tons))
     nodes.push(...getRest(trestns))
-    nodes.push(...groups)
-    // nodes.push(...groups2)
+    nodes.push(...getIncomingNodes(tins))
+    nodes.push(...getRoutes(troutes))
+    nodes.push(...getOutgoingNodes(tons))
+    // nodes.push(...groups)
 
     const edges: EdgeModel[] = [];
     edges.push(...getIncomingEdges(tins));
     edges.push(...getOutgoingEdges(tons));
     edges.push(...getRestEdges(trestns, tins));
+    edges.push(...getInternalEdges(tons, tins));
 
     return {nodes: nodes, edges: edges, graph: {id: 'g1', type: 'graph', layout: 'Dagre'}};
 }
@@ -213,16 +224,15 @@ export function getModel(files: ProjectFile[]): Model {
 export const customComponentFactory: ComponentFactory = (kind: ModelKind, type: string) => {
     switch (type) {
         case 'group':
-            return DefaultGroup;
+            return withSelection()(CustomGroup);
         default:
             switch (kind) {
                 case ModelKind.graph:
                     return withPanZoom()(GraphComponent);
                 case ModelKind.node:
-                    return withDragNode()(CustomNode);
-                // return CustomNode;
+                    return withDragNode()(withSelection()(CustomNode));
                 case ModelKind.edge:
-                    return DefaultEdge;
+                    return (withSelection()(CustomEdge));
                 default:
                     return undefined;
             }
