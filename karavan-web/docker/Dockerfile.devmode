@@ -1,4 +1,4 @@
-FROM maven:3.9.3-eclipse-temurin-17-alpine
+FROM maven:3.9.3-eclipse-temurin-17
 
 LABEL "org.opencontainers.image.title"="karavan"
 LABEL "org.opencontainers.image.description"="Apache Camel Karavan DevMode"
