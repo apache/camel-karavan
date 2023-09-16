@@ -11,7 +11,7 @@ ENV CAMEL_VERSION=4.0.0
 ENV DOT_CAMEL="/.camel"
 ENV KARAVAN="/karavan"
 ENV BUILDER_PATH="$KARAVAN/builder"
-ENV JBANG_REPO="$KARAVAN/.jbang/cache/.m2"
+ENV JBANG_REPO="/root/.m2"
 ENV JBANG_DIR="$KARAVAN/.jbang"
 ENV MAVEN_SETTINGS="/karavan-config-map/maven-settings.xml"
 # ENV MAVEN_CONFIG="$KARAVAN/.m2"
@@ -24,12 +24,13 @@ RUN mkdir -p $DOT_CAMEL \
     && mkdir -p $KARAVAN \
     && mkdir -p $CODE_DIR \
     && mkdir -p $BUILDER_PATH \
-    && mkdir -p $JBANG_REPO
+    && mkdir -p $JBANG_REPO \
+    && mkdir -p $JBANG_DIR
 
 RUN chgrp -R 0 $KARAVAN && chmod -R g+rwX $KARAVAN
 RUN chgrp -R 0 $DOT_CAMEL && chmod -R g+rwX $DOT_CAMEL
 RUN chgrp -R 0 $HOME && chmod -R g+rwX $HOME
-RUN chgrp -R 0 /root/.m2 && chmod -R g+rwX $/root/.m2
+RUN chgrp -R 0 /root/.m2 && chmod -R g+rwX /root/.m2
 
 RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
     && jbang trust add  --quiet  https://github.com/apache/camel \
