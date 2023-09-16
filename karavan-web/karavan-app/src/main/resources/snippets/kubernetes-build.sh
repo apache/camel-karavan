@@ -1,24 +1,22 @@
 #!/usr/bin/env bash
-CHECKOUT_DIR="/scripts"
-KAMELETS_DIR="/scripts/kamelets"
 
 if  [[ ${GIT_REPOSITORY} == https* ]] ;
 then
     replacer=https://${GIT_USERNAME}:${GIT_PASSWORD}@
     prefix=https://
     url="${GIT_REPOSITORY/$prefix/$replacer}"
-    git clone --depth 1 --branch ${GIT_BRANCH} $url ${CHECKOUT_DIR}
+    git clone --depth 1 --branch ${GIT_BRANCH} $url ${CODE_DIR}
 elif [[ ${GIT_REPOSITORY} == http* ]] ;
 then
   replacer=http://${GIT_USERNAME}:${GIT_PASSWORD}@
       prefix=http://
       url="${GIT_REPOSITORY/$prefix/$replacer}"
-      git clone --depth 1 --branch ${GIT_BRANCH} $url ${CHECKOUT_DIR}
+      git clone --depth 1 --branch ${GIT_BRANCH} $url ${CODE_DIR}
 else
-    git clone --depth 1 --branch ${GIT_BRANCH} ${GIT_REPOSITORY} ${CHECKOUT_DIR}
+    git clone --depth 1 --branch ${GIT_BRANCH} ${GIT_REPOSITORY} ${CODE_DIR}
 fi
 
-cd ${CHECKOUT_DIR}/${PROJECT_ID}
+cd ${CODE_DIR}/${PROJECT_ID}
 
 jbang -Dcamel.jbang.version=${CAMEL_VERSION} camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR}
 
