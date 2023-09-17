@@ -50,9 +50,13 @@ export function CreateFileModal (props: Props) {
         }
     }
 
+    function fileNameCheck (title: string) {
+        return title.replace(/[^0-9a-zA-Z.]+/gi, "-").toLowerCase();
+    }
+
     const extension = ProjectFileTypes.filter(value => value.name === fileType)[0].extension;
     const filename = (extension !== 'java')
-        ? CamelUi.nameFromTitle(name)
+        ? fileNameCheck(name)
         : CamelUi.javaNameFromTitle(name)
     return (
         <Modal
