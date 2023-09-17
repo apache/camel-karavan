@@ -29,6 +29,8 @@ RUN chgrp -R 0 $KARAVAN && chmod -R g+rwX $KARAVAN
 RUN chgrp -R 0 $DOT_CAMEL && chmod -R g+rwX $DOT_CAMEL
 RUN chgrp -R 0 $HOME && chmod -R g+rwX $HOME
 
+RUN git config --global --add safe.directory ${CODE_DIR}
+
 RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
     && jbang trust add  --quiet  https://github.com/apache/camel \
     && jbang app install camel@apache/camel \
