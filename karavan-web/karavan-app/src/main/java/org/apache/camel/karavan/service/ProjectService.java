@@ -125,15 +125,16 @@ public class ProjectService implements HealthCheck {
                 ? tag
                 : Instant.now().toString().substring(0, 19).replace(":", "-");
         String script = codeService.getBuilderScript();
-        List<String> env = getEnvForBuild(project, tag);
+        List<String> env = getProjectEnvForBuild(project, tag);
         if (ConfigService.inKubernetes()) {
             kubernetesService.runBuildProject(project, script, env, tag);
         } else {
+            env.addAll(getConnectionsEnvForBuild());
             dockerForKaravan.runBuildProject(project, script, env, tag);
         }
     }
 
-    private List<String> getEnvForBuild(Project project, String tag) {
+    private List<String> getProjectEnvForBuild(Project project, String tag) {
         List<String> env = new ArrayList<>();
         env.addAll(registryService.getEnvForBuild());
         env.addAll(gitService.getEnvForBuild());
@@ -141,6 +142,13 @@ public class ProjectService implements HealthCheck {
                 "PROJECT_ID=" + project.getProjectId(),
                 "TAG=" + tag
         ));
+        return env;
+    }
+
+    private List<String> getConnectionsEnvForBuild() {
+        List<String> env = new ArrayList<>();
+        env.addAll(registryService.getEnvForBuild());
+        env.addAll(gitService.getEnvForBuild());
         return env;
     }
 

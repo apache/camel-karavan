@@ -95,7 +95,8 @@ public class KubernetesService implements HealthCheck {
             KubernetesClient client = kubernetesClient();
 
             SharedIndexInformer<Deployment> deploymentInformer = client.apps().deployments().inNamespace(getNamespace())
-                    .withLabels(labels).inform();deploymentInformer.addEventHandlerWithResyncPeriod(new DeploymentEventHandler(infinispanService, this), 30 * 1000L);
+                    .withLabels(labels).inform();
+            deploymentInformer.addEventHandlerWithResyncPeriod(new DeploymentEventHandler(infinispanService, this), 30 * 1000L);
             informers.add(deploymentInformer);
 
             SharedIndexInformer<Service> serviceInformer = client.services().inNamespace(getNamespace())
@@ -195,11 +196,37 @@ public class KubernetesService implements HealthCheck {
     }
 
     private Pod getBuilderPod(String name, List<String> env, Map<String, String> labels) {
-        List<EnvVar> envVars = env.stream().map(s -> s.split("=")).filter(s -> s.length > 0).map(parts -> {
+        List<EnvVar> envVars = new ArrayList<>();
+        env.stream().map(s -> s.split("=")).filter(s -> s.length > 0).forEach(parts -> {
             String varName = parts[0];
             String varValue = parts[1];
-            return new EnvVarBuilder().withName(varName).withValue(varValue).build();
-        }).toList();
+            envVars.add(new EnvVarBuilder().withName(varName).withValue(varValue).build());
+        });
+
+        envVars.add(
+                new EnvVar("IMAGE_REGISTRY", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-registry", KARAVAN_SECRET_NAME, false)).build())
+        );
+        envVars.add(
+                new EnvVar("IMAGE_REGISTRY_USERNAME", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-registry-username", KARAVAN_SECRET_NAME, false)).build())
+        );
+        envVars.add(
+                new EnvVar("IMAGE_REGISTRY_PASSWORD", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-registry-password", KARAVAN_SECRET_NAME, false)).build())
+        );
+        envVars.add(
+                new EnvVar("IMAGE_GROUP", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-group", KARAVAN_SECRET_NAME, false)).build())
+        );
+        envVars.add(
+                new EnvVar("GIT_REPOSITORY", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-repository", KARAVAN_SECRET_NAME, false)).build())
+        );
+        envVars.add(
+                new EnvVar("GIT_USERNAME", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-username", KARAVAN_SECRET_NAME, false)).build())
+        );
+        envVars.add(
+                new EnvVar("GIT_PASSWORD", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-password", KARAVAN_SECRET_NAME, false)).build())
+        );
+        envVars.add(
+                new EnvVar("GIT_BRANCH", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-branch", KARAVAN_SECRET_NAME, false)).build())
+        );
 
         ObjectMeta meta = new ObjectMetaBuilder()
                 .withName(name)
@@ -474,14 +501,14 @@ public class KubernetesService implements HealthCheck {
 
     public String getKaravanSecret(String key) {
         try (KubernetesClient client = kubernetesClient()) {
-            Secret secret =  client.secrets().inNamespace(getNamespace()).withName("karavan").get();
+            Secret secret = client.secrets().inNamespace(getNamespace()).withName("karavan").get();
             Map<String, String> data = secret.getData();
             return decodeSecret(data.get(key));
         }
     }
 
     private String decodeSecret(String data) {
-        if (data != null){
+        if (data != null) {
             return new String(Base64.getDecoder().decode(data.getBytes(StandardCharsets.UTF_8)));
         }
         return null;

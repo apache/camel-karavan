@@ -22,12 +22,15 @@ jbang -Dcamel.jbang.version=${CAMEL_VERSION} camel@apache/camel export --local-k
 
 export LAST_COMMIT=$(git rev-parse --short HEAD)
 export DATE=${TAG}
+export CERT=$(cat /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt)
 export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 
-mvn package jib:build org.eclipse.jkube:openshift-maven-plugin:1.14.0:resource org.eclipse.jkube:openshift-maven-plugin:1.14.0:apply \
+sed -i 's/kubernetes-maven-plugin/openshift-maven-plugin/g' pom.xml
+
+mvn package jib:build oc:resource oc:apply \
   -Djkube.namespace=${NAMESPACE} \
   -Djib.allowInsecureRegistries=true \
   -Djib.to.image=${IMAGE_REGISTRY}/${IMAGE_GROUP}/${PROJECT_ID}:${DATE} \
-  -Djib.to.auth.username=${IMAGE_REGISTRY_USERNAME} \
-  -Djib.to.auth.password=${IMAGE_REGISTRY_PASSWORD}
+  -Djib.to.auth.username=${TOKEN} \
+  -Djib.to.auth.password=${TOKEN}
