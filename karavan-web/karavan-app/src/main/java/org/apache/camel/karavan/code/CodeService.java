@@ -58,6 +58,7 @@ public class CodeService {
     public static final String BUILD_SCRIPT_FILENAME = "build.sh";
     public static final String DEV_SERVICES_FILENAME = "devservices.yaml";
     public static final String PROJECT_COMPOSE_FILENAME = "docker-compose.yaml";
+    public static final String PROJECT_DEPLOYMENT_JKUBE_FILENAME = "deployment.jkube.yaml";
     private static final String SNIPPETS_PATH = "/snippets/";
     private static final int INTERNAL_PORT = 8080;
 
@@ -243,6 +244,11 @@ public class CodeService {
                 .data("projectImage", project.getProjectId());
         String code =  instance.render();
         return new ProjectFile(PROJECT_COMPOSE_FILENAME, code, project.getProjectId(), Instant.now().toEpochMilli());
+    }
+
+    public ProjectFile createInitialDeployment(Project project) {
+        String template = getTemplateText(PROJECT_DEPLOYMENT_JKUBE_FILENAME);
+        return new ProjectFile(PROJECT_DEPLOYMENT_JKUBE_FILENAME, template, project.getProjectId(), Instant.now().toEpochMilli());
     }
 
     private int getNextAvailablePort() {

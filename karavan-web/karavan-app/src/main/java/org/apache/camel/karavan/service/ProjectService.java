@@ -180,6 +180,9 @@ public class ProjectService implements HealthCheck {
             if (!ConfigService.inKubernetes()) {
                 ProjectFile projectCompose = codeService.createInitialProjectCompose(project);
                 infinispanService.saveProjectFile(projectCompose);
+            } else if (kubernetesService.isOpenshift()){
+                ProjectFile projectCompose = codeService.createInitialDeployment(project);
+                infinispanService.saveProjectFile(projectCompose);
             }
         }
         return project;
