@@ -135,14 +135,10 @@ public class ProjectService implements HealthCheck {
     }
 
     private List<String> getProjectEnvForBuild(Project project, String tag) {
-        List<String> env = new ArrayList<>();
-        env.addAll(registryService.getEnvForBuild());
-        env.addAll(gitService.getEnvForBuild());
-        env.addAll(List.of(
+        return new ArrayList<>(List.of(
                 "PROJECT_ID=" + project.getProjectId(),
                 "TAG=" + tag
         ));
-        return env;
     }
 
     private List<String> getConnectionsEnvForBuild() {
