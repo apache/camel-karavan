@@ -4,6 +4,6 @@ spec:
     spec:
       containers:
           env:
-            - name: FOO
-              value: bar
+            - name: _JAVA_OPTIONS
+              value: "-Duser.home=/app"
       serviceAccount: karavan
