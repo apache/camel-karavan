@@ -25,7 +25,7 @@ export DATE=${TAG}
 export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 
-mvn package jib:build oc:resource oc:apply \
+mvn package jib:build org.eclipse.jkube:openshift-maven-plugin:1.14.0:resource org.eclipse.jkube:openshift-maven-plugin:1.14.0:apply \
   -Djkube.namespace=${NAMESPACE} \
   -Djib.allowInsecureRegistries=true \
   -Djib.to.image=${IMAGE_REGISTRY}/${IMAGE_GROUP}/${PROJECT_ID}:${DATE} \

@@ -33,6 +33,7 @@ RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
     && jbang app install camel@apache/camel \
     && jbang config set cache-evict never
 
+git config --global --add safe.directory $CODE
 EXPOSE 8080
 WORKDIR $CODE
 CMD jbang $JBANG_OPTIONS -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --source-dir=$CODE_DIR --console --local-kamelet-dir=$KAMELETS_DIR
