@@ -6,32 +6,27 @@ LABEL "org.opencontainers.image.url"="https://camel.apache.org"
 LABEL "org.opencontainers.image.licenses"="Apache 2.0"
 LABEL "org.opencontainers.image.version"="4.0.0-RC2"
 
+RUN apt-get update && apt-get install git && apt-get clean
+
 ENV JBANG_VERSION=0.110.0
 ENV CAMEL_VERSION=4.0.0
-ENV DOT_CAMEL="/.camel"
 ENV KARAVAN="/karavan"
-ENV BUILDER_PATH="$KARAVAN/builder"
-ENV JBANG_REPO="$KARAVAN/.jbang/cache/.m2"
 ENV JBANG_DIR="$KARAVAN/.jbang"
-ENV MAVEN_SETTINGS="$KARAVAN/maven-settings.xml"
+ENV MAVEN_CONFIG="$KARAVAN/.m2"
+ENV JBANG_REPO=$MAVEN_CONFIG
+ENV BUILDER_PATH="$KARAVAN/builder"
 ENV CODE_DIR="$KARAVAN/code"
-ENV KAMELETS_DIR="/$CODE_DIR/kamelets"
-ENV PATH="${PATH}:$KARAVAN/.jbang/bin"
+ENV KAMELETS_DIR="$CODE_DIR/kamelets"
+ENV PATH="$PATH:$KARAVAN/.jbang/bin"
+ENV _JAVA_OPTIONS="-Duser.home=$KARAVAN"
 
-RUN apt-get update && apt-get install git && apt-get clean
-RUN mkdir -p $DOT_CAMEL \
-    && mkdir -p $KARAVAN \
+RUN mkdir -p $JBANG_REPO \
     && mkdir -p $CODE_DIR \
-    && mkdir -p $BUILDER_PATH \
-    && mkdir -p $JBANG_REPO
-
-COPY maven-settings.xml $KARAVAN/maven-settings.xml
+    && mkdir -p $BUILDER_PATH
 
 RUN chgrp -R 0 $KARAVAN && chmod -R g+rwX $KARAVAN
-RUN chgrp -R 0 $DOT_CAMEL && chmod -R g+rwX $DOT_CAMEL
-RUN chgrp -R 0 $HOME && chmod -R g+rwX $HOME
 
-RUN git config --global --add safe.directory ${CODE_DIR}
+USER 1001
 
 RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
     && jbang trust add  --quiet  https://github.com/apache/camel \
@@ -39,5 +34,5 @@ RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
     && jbang config set cache-evict never
 
 EXPOSE 8080
-WORKDIR $CODE_DIR
-CMD jbang $JBANG_OPTIONS -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --source-dir=$CODE_DIR --console --local-kamelet-dir=$KAMELETS_DIR --maven-settings=$MAVEN_SETTINGS
+WORKDIR $CODE
+CMD jbang $JBANG_OPTIONS -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --source-dir=$CODE_DIR --console --local-kamelet-dir=$KAMELETS_DIR

@@ -282,7 +282,7 @@ public class DockerService extends DockerServiceUtils {
 
             TarArchiveEntry tarEntry = new TarArchiveEntry(new File(path));
             tarEntry.setName(filename);
-            tarEntry.setMode(0700);
+            tarEntry.setMode(0755);
             tarArchive.putArchiveEntry(tarEntry);
             IOUtils.write(Files.readAllBytes(Paths.get(path)), tarArchive);
             tarArchive.closeArchiveEntry();
@@ -389,6 +389,7 @@ public class DockerService extends DockerServiceUtils {
 
     public List<String> getImages() {
         return getDockerClient().listImagesCmd().withShowAll(true).exec().stream()
+                .filter(image -> image != null && image.getRepoTags() != null && image.getRepoTags().length > 0)
                 .map(image -> image.getRepoTags()[0]).toList();
     }
 

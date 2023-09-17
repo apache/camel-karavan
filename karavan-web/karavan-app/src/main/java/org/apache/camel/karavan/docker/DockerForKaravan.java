@@ -97,7 +97,7 @@ public class DockerForKaravan {
     }
 
     private Map<String,String> getMavenVolumes(){
-        return mavenCache.map(s -> Map.of(s, "/root/.m2")).orElseGet(Map::of);
+        return mavenCache.map(s -> Map.of(s, "/karavan/.m2")).orElseGet(Map::of);
     }
 
     public void syncImage(String projectId, String tag) throws InterruptedException {
