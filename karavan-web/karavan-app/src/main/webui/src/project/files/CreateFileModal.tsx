@@ -38,7 +38,7 @@ export function CreateFileModal (props: Props) {
 
     function confirmAndCloseModal () {
         const extension = ProjectFileTypes.filter(value => value.name === fileType)[0].extension;
-        const filename = (extension !== 'java') ? CamelUi.nameFromTitle(name) : CamelUi.javaNameFromTitle(name);
+        const filename = (extension !== 'java') ? fileNameCheck(name) : CamelUi.javaNameFromTitle(name);
         const code = fileType === 'INTEGRATION'
             ? CamelDefinitionYaml.integrationToYaml(Integration.createNew(name, 'plain'))
             : '';
