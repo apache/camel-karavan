@@ -3,7 +3,6 @@ spec:
   template:
     spec:
       containers:
-          env:
+        - env:
             - name: _JAVA_OPTIONS
-              value: "-Duser.home=/app"
-      serviceAccount: karavan
+              value: "-Duser.home=/tmp"
