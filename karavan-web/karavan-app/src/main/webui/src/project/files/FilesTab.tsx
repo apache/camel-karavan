@@ -35,7 +35,7 @@ export function FilesTab () {
 
     const [files] = useFilesStore((s) => [s.files], shallow);
     const [project] = useProjectStore((s) => [s.project], shallow);
-    const [operation, setFile] = useFileStore((s) => [s.operation, s.setFile], shallow);
+    const [setFile] = useFileStore((s) => [s.setFile], shallow);
 
     function getDate(lastUpdate: number): string {
         if (lastUpdate) {
@@ -119,7 +119,7 @@ export function FilesTab () {
                                         <Button style={{padding: '0'}} variant={"plain"}
                                                 isDisabled={['application.properties', 'docker-compose.yaml'].includes(file.name)}
                                                 onClick={e =>
-                                                    useFileStore.setState({file: file, operation: "delete"})
+                                                    setFile('delete', file)
                                         }>
                                             <DeleteIcon/>
                                         </Button>
@@ -144,8 +144,8 @@ export function FilesTab () {
                     </Tbody>
                 </Table>
             </div>
-            <CreateFileModal types={types}/>
             <UploadFileModal projectId={project.projectId}/>
+            <CreateFileModal types={types}/>
             <DeleteFileModal />
         </PageSection>
     )

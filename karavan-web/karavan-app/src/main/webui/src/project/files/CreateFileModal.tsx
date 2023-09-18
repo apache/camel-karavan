@@ -14,6 +14,7 @@ import {useFileStore, useProjectStore} from "../../api/ProjectStore";
 import {ProjectFile, ProjectFileTypes} from "../../api/ProjectModels";
 import {CamelUi} from "../../designer/utils/CamelUi";
 import {ProjectService} from "../../api/ProjectService";
+import {shallow} from "zustand/shallow";
 
 interface Props {
     types: string[]
@@ -21,8 +22,8 @@ interface Props {
 
 export function CreateFileModal (props: Props) {
 
-    const {operation} = useFileStore();
-    const {project, setProject} = useProjectStore();
+    const [project] = useProjectStore((s) => [s.project], shallow);
+    const [operation, setFile] = useFileStore((s) => [s.operation, s.setFile], shallow);
     const [name, setName] = useState<string>( '');
     const [fileType, setFileType] = useState<string>(props.types.at(0) || 'INTEGRATION');
 
@@ -32,7 +33,7 @@ export function CreateFileModal (props: Props) {
     }
 
     function closeModal () {
-        useFileStore.setState({operation: "none"});
+        setFile("none");
         cleanValues();
     }
 
@@ -45,8 +46,12 @@ export function CreateFileModal (props: Props) {
         if (filename && extension) {
             const file = new ProjectFile(filename + '.' + extension, project.projectId, code, Date.now());
             ProjectService.createFile(file);
-            useFileStore.setState({operation: "none"});
             cleanValues();
+            if (code) {
+                setFile('select', file);
+            } else {
+                setFile("none");
+            }
         }
     }
 

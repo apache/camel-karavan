@@ -1,8 +1,5 @@
 import * as React from 'react';
 import {
-    ToolbarItem
-} from '@patternfly/react-core';
-import {
     action,
     createTopologyControlButtons,
     defaultControlButtonsOptions,
@@ -21,6 +18,7 @@ import {shallow} from "zustand/shallow";
 import {useTopologyStore} from "./TopologyStore";
 import {TopologyPropertiesPanel} from "./TopologyPropertiesPanel";
 import {useDesignerStore} from "../../designer/KaravanStore";
+import {TopologyToolbar} from "./TopologyToolbar";
 
 export const TopologyTab: React.FC = () => {
 
@@ -72,7 +70,8 @@ export const TopologyTab: React.FC = () => {
 
     return (
         <TopologyView
-            viewToolbar={<ToolbarItem>{}</ToolbarItem>}
+            className="topology-panel"
+            contextToolbar={<TopologyToolbar/>}
             sideBar={<TopologyPropertiesPanel/>}
             controlBar={
                 <TopologyControlBar

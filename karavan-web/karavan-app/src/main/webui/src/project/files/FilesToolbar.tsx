@@ -34,8 +34,8 @@ export function FileToolbar () {
     const [commitMessage, setCommitMessage] = useState('');
     const [project, isPushing] = useProjectStore((state) => [state.project, state.isPushing], shallow )
     const {files} = useFilesStore();
-    const [file, editAdvancedProperties, setEditAdvancedProperties, setAddProperty] = useFileStore((state) =>
-        [state.file, state.editAdvancedProperties, state.setEditAdvancedProperties, state.setAddProperty], shallow )
+    const [file, editAdvancedProperties, setEditAdvancedProperties, setAddProperty, setFile] = useFileStore((s) =>
+        [s.file, s.editAdvancedProperties, s.setEditAdvancedProperties, s.setAddProperty, s.setFile], shallow )
 
 
     useEffect(() => {
@@ -114,7 +114,7 @@ export function FileToolbar () {
             <Tooltip content="Commit and push to git" position={"bottom-end"}>
                 <Button isLoading={isPushing ? true : undefined}
                         size="sm"
-                        variant={needCommit() ? "primary" : "secondary"}
+                        variant={"secondary"}
                         className="project-button"
                         icon={!isPushing ? <PushIcon/> : <div></div>}
                         onClick={() => {
@@ -126,12 +126,12 @@ export function FileToolbar () {
             </Tooltip>
         </FlexItem>
         {canAddFiles() && <FlexItem>
-            <Button size="sm" variant={"secondary"} icon={<PlusIcon/>}
-                    onClick={e => useFileStore.setState({operation: "create"})}>Create</Button>
+            <Button size="sm" variant={"primary"} icon={<PlusIcon/>}
+                    onClick={e => setFile("create")}>Create</Button>
         </FlexItem>}
         {canAddFiles() && <FlexItem>
             <Button size="sm" variant="secondary" icon={<UploadIcon/>}
-                    onClick={e => useFileStore.setState({operation: "upload"})}>Upload</Button>
+                    onClick={e => setFile("upload")}>Upload</Button>
         </FlexItem>}
         {getCommitModal()}
     </Flex>

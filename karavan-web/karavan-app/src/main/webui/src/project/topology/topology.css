@@ -1,12 +1,16 @@
-.karavan .pf-v5-c-toolbar {
+.karavan .topology-panel .pf-v5-c-toolbar {
     padding-bottom: 0;
 }
 
-.karavan .properties-header {
+.karavan .topology-panel .pf-v5-c-toolbar .pf-v5-c-toolbar__group{
+    width: 100%
+}
+
+.karavan .topology-panel .properties-header {
     padding: 10px;
 }
 
-.karavan .common-node .icon {
+.karavan .topology-panel .common-node .icon {
     height: 32px;
     width: 32px;
 }
@@ -14,6 +18,11 @@
 .karavan .topology-sidebar .pf-topology-side-bar__header {
     margin-right: 0;
 }
+
+.karavan .topology-toolbar {
+    padding: 0;
+}
+
 .karavan .topology-sidebar {
     overflow: hidden;
 }
