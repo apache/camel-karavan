@@ -5,15 +5,12 @@ import {
 } from '@patternfly/react-core';
 import { useFileStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
-import {useTopologyStore} from "./TopologyStore";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CreateFileModal} from "../files/CreateFileModal";
 
 export const TopologyToolbar: React.FC = () => {
 
     const [setFile] = useFileStore((s) => [s.setFile], shallow);
-    const [selectedIds, setSelectedIds, setFileName] = useTopologyStore((s) =>
-        [s.selectedIds, s.setSelectedIds, s.setFileName], shallow);
 
     return (
         <ToolbarItem align={{default: "alignRight"}}>

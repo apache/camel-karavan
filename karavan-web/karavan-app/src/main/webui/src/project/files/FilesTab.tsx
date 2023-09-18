@@ -1,24 +1,21 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {
     Badge,
-    Button,
     Bullseye,
+    Button,
     EmptyState,
-    EmptyStateVariant,
+    EmptyStateHeader,
     EmptyStateIcon,
-    PageSection, PanelHeader, Panel, Tooltip, Label, EmptyStateHeader, PanelMain, PanelMainBody, Flex, FlexItem,
+    EmptyStateVariant,
+    Label,
+    PageSection,
+    Panel,
+    PanelHeader,
+    Tooltip
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {
-	Tbody,
-	Td,
-	Th,
-	Thead,
-	Tr
-} from '@patternfly/react-table';
-import {
-	Table
-} from '@patternfly/react-table/deprecated';
+import {Tbody, Td, Th, Thead, Tr} from '@patternfly/react-table';
+import {Table} from '@patternfly/react-table/deprecated';
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectStore";
