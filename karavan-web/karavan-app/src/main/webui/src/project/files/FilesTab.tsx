@@ -145,7 +145,7 @@ export function FilesTab () {
                 </Table>
             </div>
             <CreateFileModal types={types}/>
-            <UploadFileModal projectId={project.projectId} isOpen={operation === 'upload'} />
+            <UploadFileModal projectId={project.projectId}/>
             <DeleteFileModal />
         </PageSection>
     )

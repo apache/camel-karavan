@@ -90,7 +90,7 @@ export function FileEditor (props: Props) {
     const isScript = file !== undefined && file.name.endsWith("sh");
     const isCode = file !== undefined && (file.name.endsWith("java") || file.name.endsWith("groovy") || file.name.endsWith("json"));
     const showDesigner = isYaml && isIntegration;
-    const showEditor = isCode || (isYaml && !isIntegration) || (isYaml) || isScript;
+    const showEditor = !showDesigner;
     return (
         <>
             {showDesigner && getDesigner()}

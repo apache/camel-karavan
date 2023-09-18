@@ -132,6 +132,8 @@ export const ProjectFileTypes: ProjectFileType[] = [
     new ProjectFileType("YAML", "YAML", "yaml"),
     new ProjectFileType("LOG", "Log", "log"),
     new ProjectFileType("SH", "Script", "sh"),
+    new ProjectFileType("SQL", "SQL", "sql"),
+    new ProjectFileType("OTHER", "Other", "*"),
 ];
 
 
@@ -141,6 +143,7 @@ export function getProjectFileType (file: ProjectFile) {
     if (file.name.endsWith(".json")) return ProjectFileTypes.filter(p => p.name === "JSON").map(p => p.title)[0];
     if (file.name.endsWith(".yaml")) return ProjectFileTypes.filter(p => p.name === "YAML").map(p => p.title)[0];
     const extension = file.name.substring(file.name.lastIndexOf('.') + 1);
-    return ProjectFileTypes.filter(p => p.extension === extension).map(p => p.title)[0];
+    const types = ProjectFileTypes.filter(p => p.extension === extension);
+    return types.length >0 ? types.map(p => p.title)[0] : "Other";
 }
 

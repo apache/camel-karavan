@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     TextInput,
     Button, Modal, FormGroup, ModalVariant, Switch, Form, FileUpload, Radio
@@ -23,158 +23,152 @@ import '../../designer/karavan.css';
 import {ProjectFile} from "../../api/ProjectModels";
 import {KaravanApi} from "../../api/KaravanApi";
 import {useFileStore} from "../../api/ProjectStore";
-import {ProjectEventBus} from "../../api/ProjectEventBus";
 import {Accept, DropEvent, FileRejection} from "react-dropzone";
 import {EventBus} from "../../designer/utils/EventBus";
+import {shallow} from "zustand/shallow";
+import {ProjectService} from "../../api/ProjectService";
 
 interface Props {
     projectId: string,
-    isOpen: boolean,
 }
 
-interface State {
-    type: 'integration' | 'openapi'
-    data: string
-    filename: string
-    integrationName: string
-    isLoading: boolean
-    isRejected: boolean
-    generateRest: boolean
-    generateRoutes: boolean
-}
+export function UploadFileModal(props: Props) {
 
-export class UploadFileModal extends React.Component<Props, State> {
+    const [operation, setFile] = useFileStore((s) => [s.operation, s.setFile], shallow);
+    const [type, setType] = useState<'integration' | 'openapi' | 'other'>('integration');
+    const [filename, setFilename] = useState('');
+    const [integrationName, setIntegrationName] = useState('');
+    const [data, setData] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [isRejected, setIsRejected] = useState(false);
+    const [generateRest, setGenerateRest] = useState(true);
+    const [generateRoutes, setGenerateRoutes] = useState(true);
 
-    public state: State = {
-        type: 'integration',
-        data: '',
-        filename: '',
-        integrationName: '',
-        isLoading: false,
-        isRejected: false,
-        generateRest: true,
-        generateRoutes: true
-    };
+    useEffect(() => {
+        setFilename('')
+        setData('')
+        setType('integration')
+    }, []);
 
-    closeModal () {
-        useFileStore.setState({operation:"none"});
+    function closeModal () {
+        setFile("none")
     }
 
-    saveAndCloseModal () {
-        const state = this.state;
-        const file = new ProjectFile(state.filename, this.props.projectId, state.data, Date.now());
-        if (this.state.type === "integration"){
-            KaravanApi.postProjectFile(file, res => {
+    function saveAndCloseModal () {
+        const file = new ProjectFile(filename, props.projectId, data, Date.now());
+        console.log(file);
+        if (type === "openapi"){
+            KaravanApi.postOpenApi(file, generateRest, generateRoutes, integrationName, res => {
                 if (res.status === 200) {
-                    //TODO show notification
-                    this.closeModal();
+                    EventBus.sendAlert("File uploaded", "", "info")
+                    closeModal();
+                    ProjectService.refreshProjectData(props.projectId);
                 } else {
-                    this.closeModal();
+                    closeModal();
                     EventBus.sendAlert("Error", res.statusText, "warning")
                 }
             })
         } else {
-            KaravanApi.postOpenApi(file, state.generateRest, state.generateRoutes, state.integrationName, res => {
+            KaravanApi.postProjectFile(file, res => {
                 if (res.status === 200) {
-                    console.log(res) //TODO show notification
-                    this.closeModal();
+                    EventBus.sendAlert("File uploaded", "", "info")
+                    closeModal();
+                    ProjectService.refreshProjectData(props.projectId);
                 } else {
-                    this.closeModal();
+                    closeModal();
                     EventBus.sendAlert("Error", res.statusText, "warning")
                 }
             })
         }
     }
 
-    handleFileInputChange = (file: File) => this.setState({filename: file.name});
-    handleFileReadStarted = (fileHandle: File) => this.setState({isLoading: true});
-    handleFileReadFinished = (fileHandle: File) => this.setState({isLoading: false});
-    handleTextOrDataChange = (data: string) => this.setState({data: data});
-    handleFileRejected = (fileRejections: FileRejection[], event: DropEvent) => this.setState({isRejected: true});
-    handleClear = (event: React.MouseEvent<HTMLButtonElement>) => this.setState({
-        filename: '',
-        data: '',
-        isRejected: false
-    });
+    const handleFileInputChange = (file: File) => setFilename(file.name);
+    const handleFileReadStarted = (fileHandle: File) => setIsLoading(true);
+    const handleFileReadFinished = (fileHandle: File) => setIsLoading(false);
+    const handleTextOrDataChange = (data: string) => setData(data);
+    const handleFileRejected = (fileRejections: FileRejection[], event: DropEvent) => setIsRejected(true);
+    const handleClear = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setFilename('');
+        setData('');
+        setIsRejected(false);
+    };
 
 
-    render() {
-        const fileNotUploaded = (this.state.filename === '' || this.state.data === '');
-        const isDisabled = this.state.type === 'integration'
-            ? fileNotUploaded
-            : !(!fileNotUploaded && this.state.integrationName !== undefined && this.state.integrationName.endsWith(".yaml"));
-        const accept : Accept = this.state.type === 'integration'
-            ? {'application/yaml': ['.yaml', '.yml']}
-            :  {'application/yaml': ['.yaml', '.yml'], 'application/json': ['.json'], 'plain/text': ['.sql']};
-        return (
-            <Modal
-                title="Upload"
-                variant={ModalVariant.small}
-                isOpen={this.props.isOpen}
-                onClose={this.closeModal}
-                actions={[
-                    <Button key="confirm" variant="primary" onClick={this.saveAndCloseModal} isDisabled={isDisabled}>Save</Button>,
-                    <Button key="cancel" variant="secondary" onClick={this.closeModal}>Cancel</Button>
-                ]}
-            >
-                <Form>
-                    <FormGroup fieldId="type">
-                        <Radio value="Integration" label="Integration yaml" name="Integration" id="Integration" isChecked={this.state.type === 'integration'}
-                            onChange={(event, _) => this.setState({ type: _ ? 'integration': 'openapi' })}
-                        />{' '}
-                        <Radio value="OpenAPI" label="OpenAPI json/yaml" name="OpenAPI" id="OpenAPI" isChecked={this.state.type === 'openapi'}
-                            onChange={(event, _) => this.setState({ type: _ ? 'openapi' : 'integration' })}
-                        />
-                    </FormGroup>
-                    <FormGroup fieldId="upload">
-                        <FileUpload
-                            id="file-upload"
-                            value={this.state.data}
-                            filename={this.state.filename}
-                            type="text"
-                            hideDefaultPreview
-                            browseButtonText="Upload"
-                            isLoading={this.state.isLoading}
-                            onFileInputChange={(_event, fileHandle: File) => this.handleFileInputChange(fileHandle)}
-                            onDataChange={(_event, data) => this.handleTextOrDataChange(data)}
-                            onTextChange={(_event, text) => this.handleTextOrDataChange(text)}
-                            onReadStarted={(_event, fileHandle: File) => this.handleFileReadStarted(fileHandle)}
-                            onReadFinished={(_event, fileHandle: File) => this.handleFileReadFinished(fileHandle)}
-                            allowEditingUploadedText={false}
-                            onClearClick={this.handleClear}
-                            dropzoneProps={{accept: accept, onDropRejected: this.handleFileRejected}}
-                            validated={this.state.isRejected ? 'error' : 'default'}
-                        />
-                    </FormGroup>
-                    {this.state.type === 'openapi' && <FormGroup fieldId="generateRest">
-                        <Switch
-                            id="generate-rest"
-                            label="Generate REST DSL"
-                            labelOff="Do not generate REST DSL"
-                            isChecked={this.state.generateRest}
-                             onChange={(_, checked) => this.setState({generateRest: checked})}
-                        />
-                    </FormGroup>}
-                    {this.state.type === 'openapi' && this.state.generateRest && <FormGroup fieldId="generateRoutes">
-                        <Switch
-                            id="generate-routes"
-                            label="Generate Routes"
-                            labelOff="Do not generate Routes"
-                            isChecked={this.state.generateRoutes}
-                             onChange={(_, checked) => this.setState({generateRoutes: checked})}
-                        />
-                    </FormGroup>}
-                    {this.state.type === 'openapi' && this.state.generateRest && <FormGroup fieldId="integrationName" label="Integration name">
-                        <TextInput autoComplete="off"
-                            id="integrationName"
-                            type="text"
-                            placeholder="Integration file name with yaml extension"
-                            required
-                            onChange={(_, value) => this.setState({integrationName: value})}
-                        />
-                    </FormGroup>}
-                </Form>
-            </Modal>
-        )
-    }
+    const fileNotUploaded = (filename === '' || data === '');
+    const accept : Accept = type === 'integration'
+        ? {'application/yaml': ['.yaml', '.yml']}
+        :  {'application/yaml': ['.yaml', '.yml'], 'application/json': ['.json'], 'plain/text': ['.sql']};
+    return (
+        <Modal
+            title="Upload"
+            variant={ModalVariant.small}
+            isOpen={operation === 'upload'}
+            onClose={closeModal}
+            actions={[
+                <Button key="confirm" variant="primary" onClick={saveAndCloseModal} isDisabled={fileNotUploaded}>Save</Button>,
+                <Button key="cancel" variant="secondary" onClick={closeModal}>Cancel</Button>
+            ]}
+        >
+            <Form>
+                <FormGroup fieldId="type">
+                    <Radio value="Integration" label="Integration yaml" name="Integration" id="Integration" isChecked={type === 'integration'}
+                           onChange={(event, _) => setType(_ ? 'integration': 'openapi' )}
+                    />{' '}
+                    <Radio value="OpenAPI" label="OpenAPI json/yaml" name="OpenAPI" id="OpenAPI" isChecked={type === 'openapi'}
+                           onChange={(event, _) => setType( _ ? 'openapi' : 'integration' )}
+                    />
+                    <Radio value="Other" label="Other" name="Other" id="Other" isChecked={type === 'other'}
+                           onChange={(event, _) => setType( _ ? 'other' : 'integration' )}
+                    />
+                </FormGroup>
+                <FormGroup fieldId="upload">
+                    <FileUpload
+                        id="file-upload"
+                        value={data}
+                        filename={filename}
+                        type="text"
+                        hideDefaultPreview
+                        browseButtonText="Upload"
+                        isLoading={isLoading}
+                        onFileInputChange={(_event, fileHandle: File) => handleFileInputChange(fileHandle)}
+                        onDataChange={(_event, data) => handleTextOrDataChange(data)}
+                        onTextChange={(_event, text) => handleTextOrDataChange(text)}
+                        onReadStarted={(_event, fileHandle: File) => handleFileReadStarted(fileHandle)}
+                        onReadFinished={(_event, fileHandle: File) => handleFileReadFinished(fileHandle)}
+                        allowEditingUploadedText={false}
+                        onClearClick={handleClear}
+                        dropzoneProps={{accept: accept, onDropRejected: handleFileRejected}}
+                        validated={isRejected ? 'error' : 'default'}
+                    />
+                </FormGroup>
+                {type === 'openapi' && <FormGroup fieldId="generateRest">
+                    <Switch
+                        id="generate-rest"
+                        label="Generate REST DSL"
+                        labelOff="Do not generate REST DSL"
+                        isChecked={generateRest}
+                        onChange={(_, checked) => setGenerateRest(checked)}
+                    />
+                </FormGroup>}
+                {type === 'openapi' && generateRest && <FormGroup fieldId="generateRoutes">
+                    <Switch
+                        id="generate-routes"
+                        label="Generate Routes"
+                        labelOff="Do not generate Routes"
+                        isChecked={generateRoutes}
+                        onChange={(_, checked) => setGenerateRoutes(checked)}
+                    />
+                </FormGroup>}
+                {type === 'openapi' && generateRest && <FormGroup fieldId="integrationName" label="Integration name">
+                    <TextInput autoComplete="off"
+                               id="integrationName"
+                               type="text"
+                               placeholder="Integration file name with yaml extension"
+                               required
+                               onChange={(_, value) => setIntegrationName(value)}
+                    />
+                </FormGroup>}
+            </Form>
+        </Modal>
+    )
 };
