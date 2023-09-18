@@ -18,16 +18,17 @@ ENV BUILDER_PATH="$KARAVAN/builder"
 ENV CODE_DIR="$KARAVAN/code"
 ENV KAMELETS_DIR="$CODE_DIR/kamelets"
 ENV PATH="$PATH:$KARAVAN/.jbang/bin"
-ENV _JAVA_OPTIONS="-Duser.home=$KARAVAN"
 
 RUN mkdir -p $JBANG_REPO \
     && mkdir -p $CODE_DIR \
     && mkdir -p $BUILDER_PATH
 
-RUN chgrp -R 0 $KARAVAN && chmod -R g+rwX $KARAVAN
-RUN git config --global --add safe.directory $CODE_DIR
+RUN useradd -rm -d /karavan -s /bin/bash -g root -G sudo -u 1001 karavan
+RUN chown -R karavan $KARAVAN
 
-USER 1001
+RUN chgrp -R 0 $KARAVAN && chmod -R g+rwX $KARAVAN
+
+USER karavan
 
 RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
     && jbang trust add  --quiet  https://github.com/apache/camel \

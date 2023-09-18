@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ENV _JAVA_OPTIONS="-Duser.home=$KARAVAN"
 
 if  [[ ${GIT_REPOSITORY} == https* ]] ;
 then
