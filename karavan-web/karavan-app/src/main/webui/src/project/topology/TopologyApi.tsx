@@ -1,17 +1,14 @@
 import {
     ComponentFactory,
-    DefaultEdge,
     EdgeAnimationSpeed,
     EdgeModel,
     EdgeStyle,
     GraphComponent,
-    LabelPosition,
     Model,
     ModelKind,
     NodeModel,
     NodeShape,
     NodeStatus,
-    withDragNode,
     withPanZoom, withSelection
 } from '@patternfly/react-topology';
 import CustomNode from "./CustomNode";
@@ -241,7 +238,7 @@ export const customComponentFactory: ComponentFactory = (kind: ModelKind, type: 
                 case ModelKind.graph:
                     return withPanZoom()(GraphComponent);
                 case ModelKind.node:
-                    return withDragNode()(withSelection()(CustomNode));
+                    return (withSelection()(CustomNode));
                 case ModelKind.edge:
                     return (withSelection()(CustomEdge));
                 default:

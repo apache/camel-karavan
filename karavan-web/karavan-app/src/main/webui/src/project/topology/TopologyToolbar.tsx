@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {
     Button,
-    ToolbarItem
+    ToolbarItem, Tooltip
 } from '@patternfly/react-core';
 import { useFileStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
@@ -17,13 +17,15 @@ export const TopologyToolbar: React.FC = () => {
 
     return (
         <ToolbarItem align={{default: "alignRight"}}>
-            <Button size="sm"
-                    variant={"primary"}
-                    icon={<PlusIcon/>}
-                    onClick={e => setFile("create")}
-            >
-                Create
-            </Button>
+            <Tooltip content={"Add new integration"}>
+                <Button size="sm"
+                        variant={"primary"}
+                        icon={<PlusIcon/>}
+                        onClick={e => setFile("create")}
+                >
+                    Create
+                </Button>
+            </Tooltip>
             <CreateFileModal types={['INTEGRATION']}/>
         </ToolbarItem>
     )
