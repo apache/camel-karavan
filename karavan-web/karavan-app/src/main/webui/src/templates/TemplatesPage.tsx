@@ -56,7 +56,7 @@ export function TemplatesPage () {
 
     function title() {
         return <TextContent>
-            <Text component="h2">Projects</Text>
+            <Text component="h2">Templates</Text>
         </TextContent>
     }
 

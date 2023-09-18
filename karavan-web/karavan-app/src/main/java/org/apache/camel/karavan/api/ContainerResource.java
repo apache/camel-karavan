@@ -98,7 +98,7 @@ public class ContainerResource {
                             String code = projectService.getDevServiceCode();
                             DockerComposeService dockerComposeService = DockerComposeConverter.fromCode(code, name);
                             if (dockerComposeService != null) {
-                                dockerService.createContainerFromCompose(dockerComposeService, ContainerStatus.ContainerType.devmode);
+                                dockerService.createContainerFromCompose(dockerComposeService, ContainerStatus.ContainerType.devservice);
                                 dockerService.runContainer(dockerComposeService.getContainer_name());
                             }
                         } else if (Objects.equals(type, ContainerStatus.ContainerType.project.name())) {

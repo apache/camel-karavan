@@ -20,14 +20,12 @@ cd ${CODE_DIR}/${PROJECT_ID}
 
 jbang -Dcamel.jbang.version=${CAMEL_VERSION} camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR}
 
-export LAST_COMMIT=$(git rev-parse --short HEAD)
-export DATE=${TAG}
 export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 
 mvn package jib:build k8s:resource k8s:apply \
   -Djkube.namespace=${NAMESPACE} \
   -Djib.allowInsecureRegistries=true \
-  -Djib.to.image=${IMAGE_REGISTRY}/${IMAGE_GROUP}/${PROJECT_ID}:${DATE} \
+  -Djib.to.image=${IMAGE_REGISTRY}/${IMAGE_GROUP}/${PROJECT_ID}:${TAG} \
   -Djib.to.auth.username=${IMAGE_REGISTRY_USERNAME} \
   -Djib.to.auth.password=${IMAGE_REGISTRY_PASSWORD}
