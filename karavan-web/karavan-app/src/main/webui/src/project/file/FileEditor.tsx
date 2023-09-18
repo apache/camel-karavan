@@ -87,8 +87,6 @@ export function FileEditor (props: Props) {
     const isYaml = file !== undefined && file.name.endsWith("yaml");
     const isIntegration = isYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
     const isProperties = file !== undefined && file.name.endsWith("properties");
-    const isScript = file !== undefined && file.name.endsWith("sh");
-    const isCode = file !== undefined && (file.name.endsWith("java") || file.name.endsWith("groovy") || file.name.endsWith("json"));
     const showDesigner = isYaml && isIntegration;
     const showEditor = !showDesigner;
     return (

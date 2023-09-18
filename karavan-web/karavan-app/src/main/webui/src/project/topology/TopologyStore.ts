@@ -19,8 +19,10 @@ import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
 
 interface TopologyState {
-    selectedIds: string [],
-    setSelectedIds: (images: string []) => void;
+    selectedIds: string []
+    fileName?: string
+    setSelectedIds: (selectedIds: string []) => void
+    setFileName: (fileName?: string) => void
 }
 
 export const useTopologyStore = createWithEqualityFn<TopologyState>((set) => ({
@@ -30,6 +32,11 @@ export const useTopologyStore = createWithEqualityFn<TopologyState>((set) => ({
             state.selectedIds.length = 0;
             state.selectedIds.push(...selectedIds);
             return {selectedIds: state.selectedIds};
+        });
+    },
+    setFileName: (fileName?: string) => {
+        set((state: TopologyState) => {
+            return {fileName: fileName};
         });
     }
 }), shallow)

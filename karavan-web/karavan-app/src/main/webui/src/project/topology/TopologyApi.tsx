@@ -50,7 +50,9 @@ export function getIncomingNodes(tins: TopologyIncomingNode[]): NodeModel[] {
                 isAlternate: false,
                 badge: tin.type,
                 icon: 'element',
+                type: 'step',
                 step: tin.from,
+                fileName: tin.fileName
             }
         }
     });
@@ -68,7 +70,9 @@ export function getRoutes(tins: TopologyRouteNode[]): NodeModel[] {
             status: NodeStatus.default,
             data: {
                 isAlternate: false,
+                type: 'route',
                 icon: 'route',
+                step: tin.route,
                 routeId: tin.routeId,
                 fileName: tin.fileName,
             }
@@ -90,8 +94,10 @@ export function getOutgoingNodes(tons: TopologyOutgoingNode[]): NodeModel[] {
             data: {
                 isAlternate: false,
                 icon: 'element',
+                type: 'step',
                 step: tin.step,
-                badge: tin.type
+                badge: tin.type,
+                fileName: tin.fileName
             }
         }
         return node;
@@ -126,7 +132,7 @@ export function getOutgoingEdges(tons: TopologyOutgoingNode[]): EdgeModel[] {
     });
 }
 
-export function getRest(tins: TopologyRestNode[]): NodeModel[] {
+export function getRestNodes(tins: TopologyRestNode[]): NodeModel[] {
     return tins.map(tin => {
         return {
             id: tin.id,
@@ -139,6 +145,9 @@ export function getRest(tins: TopologyRestNode[]): NodeModel[] {
             data: {
                 isAlternate: false,
                 icon: 'rest',
+                type: 'rest',
+                step: tin.rest,
+                fileName: tin.fileName
             }
         }
     });
@@ -208,7 +217,7 @@ export function getModel(files: ProjectFile[]): Model {
         }
     })
 
-    nodes.push(...getRest(trestns))
+    nodes.push(...getRestNodes(trestns))
     nodes.push(...getIncomingNodes(tins))
     nodes.push(...getRoutes(troutes))
     nodes.push(...getOutgoingNodes(tons))

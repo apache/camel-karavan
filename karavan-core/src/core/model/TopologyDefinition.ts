@@ -16,7 +16,7 @@
  */
 
 import { CamelElement } from './IntegrationDefinition';
-import { FromDefinition } from './CamelDefinition';
+import { FromDefinition, RestDefinition, RouteDefinition } from './CamelDefinition';
 
 export class TopologyRestNode {
     path: string;
@@ -24,13 +24,15 @@ export class TopologyRestNode {
     uris: string[];
     title: string;
     fileName: string;
+    rest: RestDefinition;
 
-    constructor(path: string, id: string, uris: string[], title: string, fileName: string) {
+    constructor(path: string, id: string, uris: string[], title: string, fileName: string, rest: RestDefinition) {
         this.path = path;
         this.id = id;
         this.uris = uris;
         this.title = title;
         this.fileName = fileName;
+        this.rest = rest;
     }
 }
 
@@ -58,13 +60,15 @@ export class TopologyRouteNode {
     title: string;
     fileName: string;
     from: FromDefinition;
+    route: RouteDefinition
 
-    constructor(id: string, routeId: string, title: string, fileName: string, from: FromDefinition) {
+    constructor(id: string, routeId: string, title: string, fileName: string, from: FromDefinition, route: RouteDefinition) {
         this.id = id;
         this.routeId = routeId;
         this.title = title;
         this.fileName = fileName;
         this.from = from;
+        this.route = route;
     }
 }
 

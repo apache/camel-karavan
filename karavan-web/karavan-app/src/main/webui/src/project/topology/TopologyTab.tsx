@@ -13,18 +13,38 @@ import {
     VisualizationProvider,
     VisualizationSurface,
     DagreLayout,
-    SELECTION_EVENT,
+    SELECTION_EVENT, Model,
 } from '@patternfly/react-topology';
 import {customComponentFactory, getModel} from "./TopologyApi";
 import {useFilesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {useTopologyStore} from "./TopologyStore";
 import {TopologyPropertiesPanel} from "./TopologyPropertiesPanel";
+import {useDesignerStore} from "../../designer/KaravanStore";
 
 export const TopologyTab: React.FC = () => {
 
     const [files] = useFilesStore((s) => [s.files], shallow);
-    const [selectedIds, setSelectedIds] = useTopologyStore((s) => [s.selectedIds, s.setSelectedIds], shallow);
+    const [selectedIds, setSelectedIds, setFileName] = useTopologyStore((s) =>
+        [s.selectedIds, s.setSelectedIds, s.setFileName], shallow);
+    const [setSelectedStep] = useDesignerStore((s) => [s.setSelectedStep], shallow)
+
+    function setTopologySelected(model: Model, ids: string []) {
+        setSelectedIds(ids);
+        if (ids.length > 0) {
+            const node = model.nodes?.filter(node => node.id === ids[0]);
+            if (node && node.length > 0) {
+                const data = node[0].data;
+                setFileName(data.fileName)
+                if (data.step) {
+                    setSelectedStep(data.step)
+                } else {
+                    setSelectedStep(undefined);
+                    setFileName(undefined)
+                }
+            }
+        }
+    }
 
     const controller = React.useMemo(() => {
         const model = getModel(files);
@@ -32,7 +52,7 @@ export const TopologyTab: React.FC = () => {
         newController.registerLayoutFactory((_, graph) => new DagreLayout(graph));
         newController.registerComponentFactory(customComponentFactory);
 
-        // newController.addEventListener(SELECTION_EVENT, setSelectedIds);
+        newController.addEventListener(SELECTION_EVENT, args => setTopologySelected(model, args));
         // newController.addEventListener(SELECTION_EVENT, args => {
         //     console.log(args)
         // });
@@ -45,6 +65,7 @@ export const TopologyTab: React.FC = () => {
     }, []);
 
     React.useEffect(() => {
+        setSelectedIds([])
         const model = getModel(files);
         controller.fromModel(model, false);
     }, []);

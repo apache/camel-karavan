@@ -1,4 +1,32 @@
+.karavan .pf-v5-c-toolbar {
+    padding-bottom: 0;
+}
+
+.karavan .properties-header {
+    padding: 10px;
+}
+
 .karavan .common-node .icon {
     height: 32px;
     width: 32px;
+}
+
+.karavan .topology-sidebar .pf-topology-side-bar__header {
+    margin-right: 0;
+}
+.karavan .topology-sidebar {
+    overflow: hidden;
+}
+
+.karavan .topology-sidebar .pf-topology-side-bar__dismiss {
+    display: none;
+}
+
+.karavan .pf-topology-side-bar > .pf-topology-side-bar__header + * {
+    margin-top: 0;
+}
+
+.karavan .topology-sidebar .properties .pf-v5-c-form {
+    pointer-events: none;
+    opacity: 0.7;
 }

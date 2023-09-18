@@ -128,7 +128,7 @@ export class TopologyUtils {
                     if (d.to) uris.push(d.to);
                 });
                 const title = 'REST: ' + (rest.description ? rest.description : rest.id);
-                result.push(new TopologyRestNode(rest.path || '', '' + rest.id, uris, title, filename))
+                result.push(new TopologyRestNode(rest.path || '', '' + rest.id, uris, title, filename, rest))
             })
         })
         return result;
@@ -158,7 +158,7 @@ export class TopologyUtils {
             const routeElements = routes?.map(r => {
                 const id = 'route-' + r.id;
                 const title = '' + (r.description ? r.description : r.id)
-                return new TopologyRouteNode(id, r.id, title, filename, r.from);
+                return new TopologyRouteNode(id, r.id, title, filename, r.from, r);
             }) || [];
             result.push(...routeElements)
         })

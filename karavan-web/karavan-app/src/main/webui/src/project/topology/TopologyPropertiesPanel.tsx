@@ -19,16 +19,53 @@ import '../../designer/karavan.css';
 import {shallow} from "zustand/shallow";
 import {TopologySideBar} from "@patternfly/react-topology";
 import {useTopologyStore} from "./TopologyStore";
+import {DslProperties} from "../../designer/route/DslProperties";
+import {Button, Flex, FlexItem, Text, Tooltip, TooltipPosition} from "@patternfly/react-core";
+import CloseIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
+import {useFilesStore, useFileStore} from "../../api/ProjectStore";
 
 export function TopologyPropertiesPanel () {
-    const [selectedIds, setSelectedIds] = useTopologyStore((s) => [s.selectedIds, s.setSelectedIds], shallow);
+
+    const [setFile] = useFileStore((s) => [s.setFile], shallow);
+    const [files] = useFilesStore((s) => [s.files], shallow);
+    const [selectedIds, setSelectedIds, fileName] = useTopologyStore((s) =>
+        [s.selectedIds, s.setSelectedIds, s.fileName], shallow);
+
+
+    function getHeader() {
+        return (
+            <Flex className="properties-header" direction={{default: "row"}} justifyContent={{default: "justifyContentFlexStart"}}>
+                <FlexItem spacer={{ default: 'spacerNone' }}>
+                    <Text>Filename:</Text>
+                </FlexItem>
+                <FlexItem>
+                    <Button variant="link" onClick={event => {
+                        if (fileName) {
+                            const file = files.filter(f => f.name === fileName)?.at(0);
+                            if (file) {
+                                setFile('select', file);
+                            }
+                        }
+                    }}
+                    >{fileName}
+                    </Button>
+                </FlexItem>
+                <FlexItem align={{ default: 'alignRight' }}>
+                    <Tooltip content={"Close"} position={TooltipPosition.top}>
+                        <Button variant="link" icon={<CloseIcon/>} onClick={event => setSelectedIds([])}/>
+                    </Tooltip>
+                </FlexItem>
+            </Flex>
+        )
+    }
+
     return (
         <TopologySideBar
         className="topology-sidebar"
         show={selectedIds.length > 0}
-        onClose={() => setSelectedIds([])}
+        header={getHeader()}
     >
-        <div style={{ marginTop: 27, marginLeft: 20, height: '800px' }}>{selectedIds[0]}</div>
+        <DslProperties isRouteDesigner={false}/>
     </TopologySideBar>
     )
 }
