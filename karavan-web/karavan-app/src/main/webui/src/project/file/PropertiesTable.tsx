@@ -18,7 +18,6 @@ import React, {useEffect, useState} from 'react';
 import {
     Button,
     Modal,
-    PageSection,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {
@@ -48,9 +47,8 @@ export function PropertiesTable() {
         [state.file, state.editAdvancedProperties, state.addProperty, state.setAddProperty], shallow)
 
     useEffect(() => {
-        console.log("PropertiesTable useEffect");
         setProperties(getProjectModel().properties)
-    }, [addProperty]);
+    }, [addProperty,setDeleteId]);
 
     function save(props: ProjectProperty[]) {
         if (file) {
@@ -69,13 +67,11 @@ export function PropertiesTable() {
     }
 
     function startDelete(id: string) {
-        console.log("startDelete", id)
         setShowDeleteConfirmation(true);
         setDeleteId(id);
     }
 
     function confirmDelete() {
-        console.log("confirmDelete")
         const props = properties.filter(p => p.id !== deleteId);
         save(props);
         setShowDeleteConfirmation(false);
@@ -115,7 +111,10 @@ export function PropertiesTable() {
                         {properties.map((property, idx: number) => {
                             const readOnly = (property.key.startsWith("camel.jbang") || property.key.startsWith("camel.karavan")) && !editAdvancedProperties;
                             return (
-                                <PropertyField property={property} readOnly={readOnly} changeProperty={changeProperty}
+                                <PropertyField key={idx + property.key}
+                                               property={property}
+                                               readOnly={readOnly}
+                                               changeProperty={changeProperty}
                                                onDelete={startDelete}/>
                             )
                         })}
