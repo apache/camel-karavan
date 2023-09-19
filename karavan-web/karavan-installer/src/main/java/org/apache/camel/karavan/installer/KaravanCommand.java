@@ -14,7 +14,7 @@ import java.util.concurrent.Callable;
         description = "Karavan Installer")
 public class KaravanCommand implements Callable<Integer> {
 
-    @CommandLine.Option(names = {"-v", "--version"}, required = true, description = "Karavan version", defaultValue = "4.0.0-RC2")
+    @CommandLine.Option(names = {"-v", "--version"}, required = true, description = "Karavan version", defaultValue = "4.0.0")
     private String version;
     @CommandLine.Option(names = {"-n", "--namespace"}, description = "Namespace", defaultValue = Constants.DEFAULT_NAMESPACE)
     private String namespace;

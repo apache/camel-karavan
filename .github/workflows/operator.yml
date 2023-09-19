@@ -13,7 +13,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}-operator
   IMAGE_NAME_BUNDLE: ${{ github.repository }}-bundle
-  TAG: 4.0.0-RC2
+  TAG: 4.0.0
 
 jobs:
   build:

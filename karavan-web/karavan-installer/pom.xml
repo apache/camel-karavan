@@ -6,7 +6,7 @@
     <groupId>org.apache.camel.karavan</groupId>
     <artifactId>karavan-installer</artifactId>
     <name>karavan-installer</name>
-    <version>4.0.0-RC2</version>
+    <version>4.0.0</version>
     <packaging>jar</packaging>
 
     <!-- Required to publish to the repo -->

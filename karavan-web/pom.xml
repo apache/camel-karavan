@@ -6,7 +6,7 @@
 
     <groupId>org.apache.camel.karavan</groupId>
     <artifactId>karavan-web</artifactId>
-    <version>4.0.0-RC2</version>
+    <version>4.0.0</version>
     <packaging>pom</packaging>
 
     <properties>

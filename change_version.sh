@@ -3,14 +3,14 @@
 echo "Set Generator pom.xml version: $1";
 mvn versions:set -DnewVersion=$1 -f karavan-generator
 
+echo "Set Web pom.xml version: $1";
+mvn versions:set -DnewVersion=$1 -f karavan-web
+
 echo "Set Application pom.xml version: $1";
 mvn versions:set -DnewVersion=$1 -f karavan-web/karavan-app
 
-echo "Set Operator pom.xml version: $1";
-mvn versions:set -DnewVersion=$1 -f karavan-web/karavan-operator
-
-echo "Set Operator pom.xml version: $1";
-mvn versions:set -DnewVersion=$1 -f karavan-web/karavan-cli
+echo "Set Installer pom.xml version: $1";
+mvn versions:set -DnewVersion=$1 -f karavan-web/karavan-installer
 
 echo "Set Core package.json extension version: $1";
 yarn version --new-version $1 --no-commit --no-git-tag-version --cwd karavan-core
@@ -27,8 +27,6 @@ yarn version --new-version $1 --no-commit --no-git-tag-version --cwd karavan-vsc
 echo "Set VSCode extension package.json version: $1";
 yarn version --new-version $1 --no-commit --no-git-tag-version --cwd karavan-space
 
-echo "Set Github Workflow Builder TAG version: $1";
-sed -i.bak 's/TAG:.*/TAG: '"$1"'/g' .github/workflows/docker-builder.yml 
 echo "Set Github Workflow Runner TAG version: $1";
 sed -i.bak 's/TAG:.*/TAG: '"$1"'/g' .github/workflows/docker-devmode.yml 
 
@@ -39,7 +37,7 @@ echo "Set Github Workflow App TAG version: $1";
 sed -i.bak 's/TAG:.*/TAG: '"$1"'/g' .github/workflows/operator.yml  
 
 echo "Set Github Workflow App TAG version: $1";
-sed -i.bak 's/TAG:.*/TAG: '"$1"'/g' .github/workflows/cli.yml
+sed -i.bak 's/TAG:.*/TAG: '"$1"'/g' .github/workflows/installer.yml
 
 echo "Set application.properties karavan.version=$1";
 sed -i.bak 's/karavan.version.*/karavan.version='"$1"'/g' karavan-web/karavan-operator/src/main/resources/application.properties 

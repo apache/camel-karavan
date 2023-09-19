@@ -14,7 +14,7 @@ fi
 
 cd ${CHECKOUT_DIR}/$(inputs.params.project)
 
-entrypoint -Dcamel.jbang.version=4.0.0-RC2 camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR}
+entrypoint -Dcamel.jbang.version=4.0.0 camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR}
 
 export LAST_COMMIT=$(git rev-parse --short HEAD)
 export DATE=$(date '+%Y%m%d%H%M%S')
