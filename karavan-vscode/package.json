@@ -371,7 +371,7 @@
           },
           "default": [
             "# jkube properties",
-            "jkube.version=1.13.1",
+            "jkube.version=1.14.0",
             "jkube.build.strategy=s2i",
             "jkube.namespace=${NAMESPACE}",
             "jkube.generator.name=image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/$NAME:${DATE}",
@@ -392,7 +392,7 @@
           },
           "default": [
             "# jkube properties",
-            "jkube.version=1.13.1",
+            "jkube.version=1.14.0",
             "jkube.build.strategy=s2i",
             "jkube.namespace=${NAMESPACE}",
             "jkube.generator.name=image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/$NAME:${DATE}",
@@ -413,7 +413,7 @@
           },
           "default": [
             "# jkube properties",
-            "jkube.version=1.13.1",
+            "jkube.version=1.14.0",
             "jkube.build.strategy=docker",
             "jkube.namespace=default",
             "jkube.generator.name=default/$NAME:${DATE}",
@@ -437,7 +437,7 @@
             "label.runtime=app.kubernetes.io/runtime",
             "jib.from.image=gcr.io/distroless/java17@sha256:3a4ea21bd7b412b8b6ae61313b39337d8f03bb6844013810e8e4625d8c765edb",
             "jib.to.image=default/$NAME:${DATE}",
-            "jkube.version=1.13.1",
+            "jkube.version=1.14.0",
             "jkube.skip.build=true",
             "jkube.build.strategy=jib",
             "jkube.namespace=default",
