@@ -33,4 +33,4 @@ Integrations could be created using visual designer that includes Enterprise Int
 * [Openshift](docs/WEB_OPENSHIFT.md)
 
 ## Documentation
-[Karavan documentation](docs/INDEX.md)
+[Karavan documentation](docs/README.md)
