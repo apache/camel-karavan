@@ -4,7 +4,7 @@
   "displayName": "Karavan",
   "icon": "icons/karavan.png",
   "description": "Integration Toolkit for Apache Camel",
-  "version": "4.0.0-RC2",
+  "version": "4.0.0",
   "license": "Apache-2.0",
   "preview": false,
   "bugs": {
@@ -62,7 +62,7 @@
       "properties": {
         "camel.version": {
           "type": "string",
-          "default": "4.0.0-RC2",
+          "default": "4.0.0",
           "description": "Camel version",
           "scope": "machine",
           "order": 10
@@ -259,7 +259,7 @@
             "camel.karavan.project-description=$NAME",
             "camel.karavan.target=$TARGET",
             "camel.jbang.gav=$GAV",
-            "camel.jbang.camelSpringBootVersion=4.0.0-RC2",
+            "camel.jbang.camelSpringBootVersion=4.0.0",
             "camel.jbang.springBootVersion=3.1.2",
             "camel.jbang.runtime=$RUNTIME",
             "camel.jbang.exportDir=.export",
@@ -283,7 +283,7 @@
             "camel.karavan.project-description=$NAME",
             "camel.karavan.target=$TARGET",
             "camel.jbang.gav=$GAV",
-            "camel.jbang.version=4.0.0-RC2",
+            "camel.jbang.version=4.0.0",
             "camel.jbang.runtime=$RUNTIME",
             "camel.jbang.exportDir=.export",
             "camel.health.enabled=true",

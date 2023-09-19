@@ -1,7 +1,7 @@
 # Changelog
 
-## 4.0.0-RC2
-0. Camel 4.0.0-RC2
+## 4.0.0
+0. Camel 4.0.0
 1. Camel-main Runtime
 2. Kamelets 4.0.0-RC1
 3. Spring Boot 3.1.2
