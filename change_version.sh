@@ -34,15 +34,7 @@ echo "Set Github Workflow App TAG version: $1";
 sed -i.bak 's/TAG:.*/TAG: '"$1"'/g' .github/workflows/app.yml 
 
 echo "Set Github Workflow App TAG version: $1";
-sed -i.bak 's/TAG:.*/TAG: '"$1"'/g' .github/workflows/operator.yml  
-
-echo "Set Github Workflow App TAG version: $1";
 sed -i.bak 's/TAG:.*/TAG: '"$1"'/g' .github/workflows/installer.yml
-
-echo "Set application.properties karavan.version=$1";
-sed -i.bak 's/karavan.version.*/karavan.version='"$1"'/g' karavan-web/karavan-operator/src/main/resources/application.properties 
-sed -i.bak 's/quarkus.container-image.tag.*/quarkus.container-image.tag='"$1"'/g' karavan-web/karavan-operator/src/main/resources/application.properties 
-sed -i.bak 's/VERSION ?=.*/VERSION ?='"$1"'/g' karavan-web/karavan-operator/Makefile
 
 echo "Set application.properties karavan.version=$1";
 sed -i.bak 's/karavan.version.*/karavan.version='"$1"'/g' karavan-web/karavan-app/src/main/resources/application.properties 

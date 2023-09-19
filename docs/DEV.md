@@ -11,8 +11,6 @@ Karavan Cloud Application
     Karavan Application to be installed into Kubernetes
     * karavan-installer
     Karavan Installer to install into Kubernetes
-    * karavan-operator
-    Karavan Operator to install into Openshift
 5. karavan-vscode  
 VS Code extension based on Karavan Designer
 
