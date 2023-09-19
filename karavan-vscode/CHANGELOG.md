@@ -3,10 +3,8 @@
 ## 4.0.0
 0. Camel 4.0.0
 1. Camel-main Runtime
-2. Kamelets 4.0.0-RC1
-3. Spring Boot 3.1.2
-4. jkube 1.13.1
-5. Quarkus 3.2.3.Final
+2. Kamelets 4.0.0
+3. Jkube 1.14.0
 
 
 ## 3.21.0

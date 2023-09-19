@@ -23,7 +23,7 @@
 ### Configuration variables
 1. For demo/evaluation purposes:
 
-    Install Gitea Git repository ()
+    Install Gitea Git repository
     ```
     -e KARAVAN_GIT_INSTALL_GITEA=true
     ```
