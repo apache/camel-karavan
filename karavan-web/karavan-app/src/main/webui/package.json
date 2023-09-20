@@ -43,7 +43,7 @@
     "file-saver": "2.0.5",
     "html-to-image": "1.11.11",
     "karavan-core": "file:../../../../../karavan-core",
-    "keycloak-js": "21.1.1",
+    "keycloak-js": "22.0.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-router-dom": "^6.15.0",

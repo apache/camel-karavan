@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Form,
     FormGroup,
@@ -46,7 +46,6 @@ import {IntegrationHeader} from "../utils/IntegrationHeader";
 
 interface Props {
     integration: Integration
-    bean?: RegistryBeanDefinition
     dark: boolean
     onChange: (bean: RegistryBeanDefinition) => void
     onClone: (bean: RegistryBeanDefinition) => void
@@ -58,13 +57,17 @@ export function BeanProperties (props: Props) {
     const [infrastructureSelector, setInfrastructureSelector] = useState<boolean>(false);
     const [infrastructureSelectorProperty, setInfrastructureSelectorProperty] = useState<string | undefined>(undefined);
     const [infrastructureSelectorUuid, setInfrastructureSelectorUuid] = useState<string | undefined>(undefined);
-    const [properties, setProperties] =
-        useState<Map<string, [string, string, boolean]>>(props.bean?.properties ? preparePropertiesMap(props.bean?.properties) : new Map<string, [string, string, boolean]>());
+    const [properties, setProperties] = useState<Map<string, [string, string, boolean]>>(new Map<string, [string, string, boolean]>());
 
+    useEffect(()=> {
+        setProperties(preparePropertiesMap((selectedStep as RegistryBeanDefinition)?.properties))
+    }, [selectedStep?.uuid])
 
     function preparePropertiesMap (properties: any): Map<string, [string, string, boolean]>  {
         const result = new Map<string, [string, string, boolean]>();
-        Object.keys(properties).forEach((k, i, a) => result.set(uuidv4(), [k, properties[k], false]));
+        if (properties) {
+            Object.keys(properties).forEach((k, i, a) => result.set(uuidv4(), [k, properties[k], false]));
+        }
         return result;
     }
 
@@ -160,7 +163,6 @@ export function BeanProperties (props: Props) {
                 </Popover>
         )
     }
-
     function getBeanForm() {
         const bean = (selectedStep as RegistryBeanDefinition);
         return (

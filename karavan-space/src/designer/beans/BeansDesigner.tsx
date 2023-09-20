@@ -92,7 +92,6 @@ export function BeansDesigner () {
         return (
             <DrawerPanelContent isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'300px'}>
                 <BeanProperties integration={integration}
-                                bean={selectedStep}
                                 dark={dark}
                                 onChange={changeBean}
                                 onClone={changeBean}/>
