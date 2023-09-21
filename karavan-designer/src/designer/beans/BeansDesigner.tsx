@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    Button, Divider,
+    Button,
     Drawer,
     DrawerContent,
     DrawerContentBody,
@@ -117,10 +117,10 @@ export function BeansDesigner() {
                 <DrawerContent panelContent={getPropertiesPanel()}>
                     <DrawerContentBody>
                         <Gallery className="gallery"
-                            hasGutter
-                            maxWidths={{
-                                default: '100%',
-                            }}
+                                 hasGutter
+                                 maxWidths={{
+                                     default: '100%',
+                                 }}
                         >
                             {beans?.map((bean, index) => (
                                 <GalleryItem>
@@ -132,16 +132,16 @@ export function BeansDesigner() {
                                 </GalleryItem>
                             ))}
                             <GalleryItem>
-                                    <Flex direction={{default:"row"}} justifyContent={{default:"justifyContentCenter"}}>
-                                        <FlexItem>
-                                            <Button
-                                                variant={beans?.length === 0 ? "primary" : "secondary"}
-                                                data-click="ADD_REST"
-                                                icon={<PlusIcon/>}
-                                                onClick={e => createBean()}>Create bean
-                                            </Button>
-                                        </FlexItem>
-                                    </Flex>
+                                <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentCenter"}}>
+                                    <FlexItem>
+                                        <Button
+                                            variant={beans?.length === 0 ? "primary" : "secondary"}
+                                            data-click="ADD_REST"
+                                            icon={<PlusIcon/>}
+                                            onClick={e => createBean()}>Create bean
+                                        </Button>
+                                    </FlexItem>
+                                </Flex>
                             </GalleryItem>
                         </Gallery>
                     </DrawerContentBody>

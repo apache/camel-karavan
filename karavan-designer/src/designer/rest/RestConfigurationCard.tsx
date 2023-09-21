@@ -16,6 +16,7 @@
  */
 import React from 'react';
 import {Button} from '@patternfly/react-core';
+import './rest.css';
 import '../karavan.css';
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";

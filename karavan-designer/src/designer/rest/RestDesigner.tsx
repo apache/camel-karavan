@@ -16,15 +16,20 @@
  */
 import React from 'react';
 import {
-    Button, Drawer, DrawerContent, DrawerContentBody, DrawerPanelContent, Modal,
+    Button, Drawer, DrawerContent, DrawerContentBody, DrawerPanelContent, Flex, FlexItem, Gallery, GalleryItem, Modal,
     PageSection
 } from '@patternfly/react-core';
+import './rest.css';
 import '../karavan.css';
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {DslProperties} from "../route/DslProperties";
 import {RestCard} from "./RestCard";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
-import {RestConfigurationDefinition, RestContextRefDefinition, RestDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {
+    RestConfigurationDefinition,
+    RestContextRefDefinition,
+    RestDefinition
+} from "karavan-core/lib/model/CamelDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {RestMethodSelector} from "./RestMethodSelector";
@@ -42,39 +47,39 @@ export function RestDesigner() {
         [s.dark, s.selectedStep, s.showDeleteConfirmation, s.setShowDeleteConfirmation, s.setPosition, s.width, s.height, s.top, s.left, s.hideLogDSL, s.setSelectedStep], shallow)
 
     const [showSelector, setShowSelector] = useSelectorStore((s) => [s.showSelector, s.setShowSelector], shallow)
-    
-    function selectElement (element: CamelElement) {
+
+    function selectElement(element: CamelElement) {
         setSelectedStep(element);
     }
 
-    function unselectElement (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    function unselectElement(evt: React.MouseEvent<HTMLDivElement, MouseEvent>) {
         if ((evt.target as any).dataset.click === 'REST') {
             evt.stopPropagation()
             setSelectedStep(undefined);
         }
     }
 
-    function addRest (rest: RestDefinition) {
+    function addRest(rest: RestDefinition) {
         const clone = CamelUtil.cloneIntegration(integration);
         const i = CamelDefinitionApiExt.addRestToIntegration(clone, rest);
         setIntegration(i, false);
         setSelectedStep(rest);
     }
 
-    function createRest () {
+    function createRest() {
         addRest(new RestDefinition());
     }
 
-    function createRestConfiguration () {
+    function createRestConfiguration() {
         addRest(new RestConfigurationDefinition());
     }
 
-    function onShowDeleteConfirmation (element: CamelElement) {
+    function onShowDeleteConfirmation(element: CamelElement) {
         setSelectedStep(element);
         setShowDeleteConfirmation(true);
     }
 
-    function deleteElement () {
+    function deleteElement() {
         if (selectedStep) {
             let i;
             if (selectedStep.dslName === 'RestDefinition') i = CamelDefinitionApiExt.deleteRestFromIntegration(integration, selectedStep.uuid);
@@ -104,11 +109,11 @@ export function RestDesigner() {
         </Modal>)
     }
 
-    function closeMethodSelector () {
+    function closeMethodSelector() {
         setShowSelector(false);
     }
 
-    function onMethodSelect (method: DslMetaModel) {
+    function onMethodSelect(method: DslMetaModel) {
         if (selectedStep) {
             const clone = CamelUtil.cloneIntegration(integration);
             const m = CamelDefinitionApi.createStep(method.dsl, {});
@@ -119,8 +124,8 @@ export function RestDesigner() {
         }
     }
 
-    function cloneRest (rest: CamelElement) {
-        if (rest.dslName === 'RestDefinition'){
+    function cloneRest(rest: CamelElement) {
+        if (rest.dslName === 'RestDefinition') {
             const cloneRest = CamelUtil.cloneStep(rest);
             cloneRest.uuid = uuidv4();
             const cloneIntegration = CamelUtil.cloneIntegration(integration);
@@ -131,7 +136,7 @@ export function RestDesigner() {
             // could be only one RestConfigurationDefinition
         } else if (selectedStep) {
             const parentId = CamelDefinitionApiExt.findRestMethodParent(integration, rest);
-            if (parentId){
+            if (parentId) {
                 const cloneRest = CamelUtil.cloneStep(rest);
                 cloneRest.uuid = uuidv4();
                 const cloneIntegration = CamelUtil.cloneIntegration(integration);
@@ -142,7 +147,7 @@ export function RestDesigner() {
         }
     }
 
-    function selectMethod (element: CamelElement) {
+    function selectMethod(element: CamelElement) {
         setSelectedStep(element);
         setShowSelector(true);
     }
@@ -174,12 +179,12 @@ export function RestDesigner() {
         return (<>
             {data?.map((rest, index) =>
                 <RestCard key={rest.uuid + index}
-                                         selectedStep={selectedStep}
-                                         rest={rest}
-                                         integration={integration}
-                                         selectMethod={selectMethod}
-                                         selectElement={selectElement}
-                                         deleteElement={onShowDeleteConfirmation}
+                          selectedStep={selectedStep}
+                          rest={rest}
+                          integration={integration}
+                          selectMethod={selectMethod}
+                          selectElement={selectElement}
+                          deleteElement={onShowDeleteConfirmation}
                 />
             )}
         </>)
@@ -198,37 +203,46 @@ export function RestDesigner() {
     const configData = integration.spec.flows?.filter(f => f.dslName === 'RestConfigurationDefinition');
     const config = configData && Array.isArray(configData) ? configData[0] : undefined;
     return (
-        <PageSection className="rest-page" isFilled padding={{default: 'noPadding'}}>
-            <div className="rest-page-columns">
-                <Drawer isExpanded isInline>
-                    <DrawerContent panelContent={getPropertiesPanel()}>
-                        <DrawerContentBody>
-                            <div className="graph" data-click="REST" onClick={event => unselectElement(event)}>
-                                <div className="flows">
-                                    {config && getRestConfigurationCard(config)}
-                                    {data && getRestCards(data)}
-                                    <div className="add-rest">
+        <PageSection className="rest-designer" isFilled padding={{default: 'noPadding'}}>
+            <Drawer isExpanded isInline>
+                <DrawerContent panelContent={getPropertiesPanel()}>
+                    <DrawerContentBody>
+                        <Gallery className="gallery"
+                                 hasGutter
+                                 maxWidths={{
+                                     default: '100%',
+                                 }}
+                        >
+                            {config && getRestConfigurationCard(config)}
+                            {data && getRestCards(data)}
+                            <GalleryItem>
+                                <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentCenter"}}>
+                                    <FlexItem>
                                         <Button
                                             variant={data?.length === 0 ? "primary" : "secondary"}
                                             data-click="ADD_REST"
                                             icon={<PlusIcon/>}
                                             onClick={e => createRest()}>Create service
                                         </Button>
+                                    </FlexItem>
+                                    <FlexItem>
                                         {config === undefined &&
-                                            <Button
-                                                variant="secondary"
-                                                data-click="ADD_REST_REST_CONFIG"
-                                                icon={<PlusIcon/>}
-                                                onClick={e => createRestConfiguration()}>Create configuration
-                                            </Button>
+                                            <GalleryItem>
+                                                <Button
+                                                    variant="secondary"
+                                                    data-click="ADD_REST_REST_CONFIG"
+                                                    icon={<PlusIcon/>}
+                                                    onClick={e => createRestConfiguration()}>Create configuration
+                                                </Button>
+                                            </GalleryItem>
                                         }
-                                    </div>
-                                </div>
-                            </div>
-                        </DrawerContentBody>
-                    </DrawerContent>
-                </Drawer>
-            </div>
+                                    </FlexItem>
+                                </Flex>
+                            </GalleryItem>
+                        </Gallery>
+                    </DrawerContentBody>
+                </DrawerContent>
+            </Drawer>
             {getSelectorModal()}
             {getDeleteConfirmation()}
         </PageSection>
