@@ -433,8 +433,8 @@ export function DslConnections() {
         const stepsArray = Array.from(steps.values());
         return (
             <svg
-                style={{width: width, height: height + 80, position: "absolute", left: 0, top: 0}}
-                viewBox={"0 0 " + (width) + " " + (height + 80)}>
+                style={{width: width, height: height, position: "absolute", left: 0, top: 0}}
+                viewBox={"0 0 " + (width) + " " + (height)}>
                 <defs>
                     <marker id="arrowhead" markerWidth="9" markerHeight="6" refX="0" refY="3" orient="auto" className="arrow">
                         <polygon points="0 0, 9 3, 0 6"/>
@@ -450,7 +450,7 @@ export function DslConnections() {
     }
 
     return (
-        <div id="connections" className="connections" style={{ width: width, height: height + 80}}>
+        <div id="connections" className="connections" style={{ width: width, height: height}}>
             {getSvg()}
             {getIncomings().map(p => getIncomingIcons(p))}
             {getOutgoings().map(p => getOutgoingIcons(p))}
