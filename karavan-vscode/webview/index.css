@@ -443,3 +443,11 @@ color: var(--vscode-editor-foreground);
 .vscode-dark .dsl-modal .pf-v5-c-toggle-group .pf-v5-c-toggle-group__button.pf-m-selected {
   --pf-v5-c-toggle-group__button--BackgroundColor: var(--pf-v5-global--primary-color--200);
 }
+
+#root .karavan .bean-designer {
+  padding-bottom: 0;
+}
+
+#root .karavan .dsl-page .dsl-page-columns {
+  padding-bottom: 0;
+}
