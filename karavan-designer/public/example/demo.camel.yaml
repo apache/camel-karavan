@@ -7,6 +7,13 @@
         - log:
             message: ${body}
             id: log-8ec1
+        - choice:
+            when:
+              - expression: {}
+                id: when-ba60
+            otherwise:
+              id: otherwise-630f
+            id: choice-a534
         - log:
             message: ${body}
             id: log-beae
@@ -56,3 +63,27 @@
         - log:
             message: ${body}
             id: log-1919
+- rest:
+    id: rest-54e3
+- rest:
+    id: rest-b9dd
+- rest:
+    id: rest-b391
+- rest:
+    id: rest-e066
+- rest:
+    id: rest-5daa
+- rest:
+    id: rest-b193
+- rest:
+    id: rest-06e5
+- rest:
+    id: rest-268d
+- beans:
+    - {}
+    - {}
+    - {}
+    - {}
+    - {}
+    - {}
+    - {}
