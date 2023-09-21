@@ -90,8 +90,13 @@ export function RouteDesigner() {
 
     function getPropertiesPanel() {
         return (
-            <DrawerPanelContent style={{transform: "initial"}} isResizable hasNoBorder defaultSize={'400px'}
-                                maxSize={'800px'} minSize={'300px'}>
+            <DrawerPanelContent style={{transform: "initial"}}
+                                isResizable
+                                hasNoBorder
+                                defaultSize={'400px'}
+                                maxSize={'800px'}
+                                minSize={'400px'}
+            >
                 <DslProperties isRouteDesigner={true}/>
             </DrawerPanelContent>
         )

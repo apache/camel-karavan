@@ -18,6 +18,7 @@ import React from 'react';
 import {
     Button, Tooltip
 } from '@patternfly/react-core';
+import './rest.css';
 import '../karavan.css';
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {GetDefinition, RestDefinition} from "karavan-core/lib/model/CamelDefinition";

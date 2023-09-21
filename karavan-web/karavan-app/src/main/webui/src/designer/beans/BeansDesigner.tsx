@@ -16,9 +16,16 @@
  */
 import React from 'react';
 import {
-    Button, Drawer, DrawerContent, DrawerContentBody, DrawerPanelContent, Modal, PageSection
+    Button,
+    Drawer,
+    DrawerContent,
+    DrawerContentBody,
+    DrawerPanelContent, Flex, FlexItem, Gallery, GalleryItem,
+    Modal,
+    PageSection,
 } from '@patternfly/react-core';
 import '../karavan.css';
+import './bean.css';
 import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelUi} from "../utils/CamelUi";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
@@ -29,26 +36,26 @@ import {BeanCard} from "./BeanCard";
 import {useDesignerStore, useIntegrationStore} from "../KaravanStore";
 import {shallow} from "zustand/shallow";
 
-export function BeansDesigner () {
+export function BeansDesigner() {
 
     const [integration, setIntegration] = useIntegrationStore((s) => [s.integration, s.setIntegration], shallow)
     const [dark, selectedStep, showDeleteConfirmation, setShowDeleteConfirmation, setSelectedStep] = useDesignerStore((s) =>
         [s.dark, s.selectedStep, s.showDeleteConfirmation, s.setShowDeleteConfirmation, s.setSelectedStep], shallow)
 
 
-    function onShowDeleteConfirmation (bean: RegistryBeanDefinition) {
+    function onShowDeleteConfirmation(bean: RegistryBeanDefinition) {
         setSelectedStep(bean);
         setShowDeleteConfirmation(true);
     }
 
-    function deleteBean () {
+    function deleteBean() {
         const i = CamelDefinitionApiExt.deleteBeanFromIntegration(integration, selectedStep);
         setIntegration(i, false);
         setShowDeleteConfirmation(false);
         setSelectedStep(undefined);
     }
 
-    function changeBean (bean: RegistryBeanDefinition) {
+    function changeBean(bean: RegistryBeanDefinition) {
         const clone = CamelUtil.cloneIntegration(integration);
         const i = CamelDefinitionApiExt.addBeanToIntegration(clone, bean);
         setIntegration(i, false);
@@ -73,24 +80,28 @@ export function BeansDesigner () {
         </Modal>)
     }
 
-    function selectBean (bean?: RegistryBeanDefinition) {
+    function selectBean(bean?: RegistryBeanDefinition) {
         setSelectedStep(bean);
     }
 
-    function unselectBean (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    function unselectBean(evt: React.MouseEvent<HTMLDivElement, MouseEvent>) {
         if ((evt.target as any).dataset.click === 'BEANS') {
             evt.stopPropagation()
             setSelectedStep(undefined);
         }
     };
 
-    function createBean () {
+    function createBean() {
         changeBean(new RegistryBeanDefinition());
     }
 
     function getPropertiesPanel() {
         return (
-            <DrawerPanelContent isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'300px'}>
+            <DrawerPanelContent isResizable
+                                hasNoBorder
+                                defaultSize={'400px'}
+                                maxSize={'800px'}
+                                minSize={'400px'}>
                 <BeanProperties integration={integration}
                                 dark={dark}
                                 onChange={changeBean}
@@ -101,31 +112,41 @@ export function BeansDesigner () {
 
     const beans = CamelUi.getBeans(integration);
     return (
-        <PageSection className="rest-page" isFilled padding={{default: 'noPadding'}}>
-            <div className="rest-page-columns">
-                <Drawer isExpanded isInline>
-                    <DrawerContent panelContent={getPropertiesPanel()}>
-                        <DrawerContentBody>
-                            <div className="graph" data-click="REST"  onClick={event => unselectBean(event)}>
-                                <div className="flows">
-                                    {beans?.map((bean, index) => <BeanCard key={bean.uuid + index}
-                                                                  bean={bean}
-                                                                  selectElement={selectBean}
-                                                                  deleteElement={onShowDeleteConfirmation}/>)}
-                                    <div className="add-rest">
+        <PageSection className="bean-designer" isFilled padding={{default: 'noPadding'}}>
+            <Drawer isExpanded isInline>
+                <DrawerContent panelContent={getPropertiesPanel()}>
+                    <DrawerContentBody>
+                        <Gallery className="gallery"
+                                 hasGutter
+                                 maxWidths={{
+                                     default: '100%',
+                                 }}
+                        >
+                            {beans?.map((bean, index) => (
+                                <GalleryItem>
+                                    <BeanCard key={bean.uuid + index}
+                                              bean={bean}
+                                              selectElement={selectBean}
+                                              deleteElement={onShowDeleteConfirmation}
+                                    />
+                                </GalleryItem>
+                            ))}
+                            <GalleryItem>
+                                <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentCenter"}}>
+                                    <FlexItem>
                                         <Button
                                             variant={beans?.length === 0 ? "primary" : "secondary"}
                                             data-click="ADD_REST"
                                             icon={<PlusIcon/>}
                                             onClick={e => createBean()}>Create bean
                                         </Button>
-                                    </div>
-                                </div>
-                            </div>
-                        </DrawerContentBody>
-                    </DrawerContent>
-                </Drawer>
-            </div>
+                                    </FlexItem>
+                                </Flex>
+                            </GalleryItem>
+                        </Gallery>
+                    </DrawerContentBody>
+                </DrawerContent>
+            </Drawer>
             {getDeleteConfirmation()}
         </PageSection>
     )

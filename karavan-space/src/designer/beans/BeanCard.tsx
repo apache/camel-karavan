@@ -16,9 +16,9 @@
  */
 import React from 'react';
 import {
-    Button
+    Button, Flex, FlexItem
 } from '@patternfly/react-core';
-import '../karavan.css';
+import './bean.css';
 import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 import {useDesignerStore} from "../KaravanStore";
@@ -46,15 +46,18 @@ export function BeanCard (props: Props) {
 
     const bean = props.bean;
     return (
-        <div className={selectedStep?.uuid === bean.uuid ? "rest-card rest-card-selected" : "rest-card rest-card-unselected"} onClick={e => selectElement(e)}>
-            <div className="header">
-                <div className="title">Bean</div>
-                <div className="title">{bean.name}</div>
-                <div className="description">{bean.type}</div>
+        <Flex direction={{default: "row"}}
+              className={selectedStep?.uuid === bean.uuid ? "bean-card bean-card-selected" : "bean-card bean-card-unselected"}
+              onClick={e => selectElement(e)}
+        >
+            <FlexItem flex={{default:"flex_1"}} className="title">Bean</FlexItem>
+            <FlexItem flex={{default:"flex_2"}} className="title">{bean.name}</FlexItem>
+            <FlexItem flex={{default:"flex_3"}} align={{default: "alignRight"}} className="description">{bean.type}</FlexItem>
+            <FlexItem>
                 <Button variant="link" className="delete-button" onClick={e => onDelete(e)}>
                     <DeleteIcon/>
                 </Button>
-            </div>
-        </div>
+            </FlexItem>
+        </Flex>
     )
 }
