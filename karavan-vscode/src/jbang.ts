@@ -46,7 +46,7 @@ export async function camelJbangGenerate(rootPath: string, openApiFullPath: stri
 
 function prepareCommand(command: string): string {
     const version = workspace.getConfiguration().get("camel.version");
-    return "jbang -Dcamel.jbang.version=" + version + " camel@apache/camel " + command;
+    return "jbang \"-Dcamel.jbang.version=" + version + "\" camel@apache/camel " + command;
 }
 
 export function camelJbangRun() {
