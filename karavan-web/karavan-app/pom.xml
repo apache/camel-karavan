@@ -35,8 +35,8 @@
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.version>3.2.3.Final</quarkus.platform.version>
         <camel-quarkus.version>3.2.2</camel-quarkus.version>
-        <camel.version>4.0.0-RC1</camel.version>
-        <camel-kamelet.version>4.0.0-RC1</camel-kamelet.version>
+        <camel.version>4.0.1</camel.version>
+        <camel-kamelet.version>4.0.0</camel-kamelet.version>
         <surefire-plugin.version>3.1.0</surefire-plugin.version>
         <jgit.version>2.3.2</jgit.version>
         <quinoa.version>1.2.4</quinoa.version>
