@@ -19,13 +19,48 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
+    <groupId>org.apache.camel.karavan</groupId>
     <artifactId>karavan</artifactId>
-    <parent>
-        <groupId>org.apache.camel.karavan</groupId>
-        <artifactId>karavan-web</artifactId>
-        <version>4.0.0</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
+    <version>4.0.1</version>
+    
+    <properties>
+        <compiler-plugin.version>3.11.0</compiler-plugin.version>
+        <maven.compiler.parameters>true</maven.compiler.parameters>
+        <maven.compiler.source>17</maven.compiler.source>
+        <jandex-maven-plugin-version>3.1.1</jandex-maven-plugin-version>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
+        <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
+        <quarkus.platform.version>3.2.3.Final</quarkus.platform.version>
+        <camel-quarkus.version>3.2.2</camel-quarkus.version>
+        <camel.version>4.0.0-RC1</camel.version>
+        <camel-kamelet.version>4.0.0-RC1</camel-kamelet.version>
+        <surefire-plugin.version>3.1.0</surefire-plugin.version>
+        <jgit.version>2.3.2</jgit.version>
+        <quinoa.version>1.2.4</quinoa.version>
+        <resources-plugin.version>3.3.0</resources-plugin.version>
+        <kubernetes-client.version>6.7.1</kubernetes-client.version>
+
+        <docker-java.version>3.3.2</docker-java.version>
+
+        <maven-shade-plugin.version>3.4.1</maven-shade-plugin.version>
+        <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
+        <quarkus-sdk.version>5.1.1</quarkus-sdk.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${quarkus.platform.group-id}</groupId>
+                <artifactId>${quarkus.platform.artifact-id}</artifactId>
+                <version>${quarkus.platform.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
