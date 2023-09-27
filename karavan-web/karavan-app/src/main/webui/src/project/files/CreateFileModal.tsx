@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Button,
     Modal,
@@ -42,7 +42,13 @@ export function CreateFileModal (props: Props) {
     const [project] = useProjectStore((s) => [s.project], shallow);
     const [operation, setFile] = useFileStore((s) => [s.operation, s.setFile], shallow);
     const [name, setName] = useState<string>( '');
-    const [fileType, setFileType] = useState<string>(props.types.at(0) || 'INTEGRATION');
+    const [fileType, setFileType] = useState<string>();
+
+    useEffect(() => {
+        if (props.types.length > 0) {
+            setFileType(props.types[0]);
+        }
+    }, [props]);
 
     function cleanValues()  {
         setName("");
@@ -76,7 +82,7 @@ export function CreateFileModal (props: Props) {
         return title.replace(/[^0-9a-zA-Z.]+/gi, "-").toLowerCase();
     }
 
-    const extension = ProjectFileTypes.filter(value => value.name === fileType)[0].extension;
+    const extension = ProjectFileTypes.filter(value => value.name === fileType)[0]?.extension;
     const filename = (extension !== 'java')
         ? fileNameCheck(name)
         : CamelUi.javaNameFromTitle(name)
