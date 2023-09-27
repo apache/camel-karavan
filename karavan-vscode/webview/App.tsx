@@ -38,7 +38,7 @@ interface State {
   key: string
   loaded: boolean
   loadingMessages: string[]
-  interval?: NodeJS.Timer
+  interval?: NodeJS.Timeout
   scheduledYaml: string
   hasChanges: boolean
   page: "designer" | "knowledgebase"
