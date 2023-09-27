@@ -233,6 +233,10 @@ public class DockerService extends DockerServiceUtils {
         }
     }
 
+    public void execCommandInContainer(Container container, String... cmd) {
+        getDockerClient().execCreateCmd(container.getId()).withCmd(cmd).exec();
+    }
+
     public List<Container> listContainers(Boolean showAll) {
         return getDockerClient().listContainersCmd().withShowAll(showAll).exec();
     }
@@ -264,8 +268,9 @@ public class DockerService extends DockerServiceUtils {
         dockerClient.execStartCmd(id).exec(callBack).awaitCompletion();
     }
 
-    public void copyFiles(String containerId, String containerPath, Map<String, String> files) {
+    public void copyFiles(String containerId, String containerPath, Map<String, String> files) throws IOException {
         String temp = codeService.saveProjectFilesInTemp(files);
+        System.out.println(temp);
         dockerClient.copyArchiveToContainerCmd(containerId).withRemotePath(containerPath)
                 .withDirChildrenOnly(true).withHostResource(temp).exec();
     }

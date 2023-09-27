@@ -50,7 +50,8 @@ public class DockerForKaravan {
     @Inject
     RegistryService registryService;
 
-    public void runProjectInDevMode(String projectId, String jBangOptions, Map<Integer, Integer> ports, Map<String, String> files) throws Exception {
+    public void runProjectInDevMode(String projectId, String jBangOptions, Map<Integer, Integer> ports,
+                                    Map<String, String> files) throws Exception {
         Map<String, String> volumes = getMavenVolumes();
         Container c = createDevmodeContainer(projectId, jBangOptions, ports, volumes);
         dockerService.runContainer(projectId);

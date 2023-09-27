@@ -40,13 +40,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 
+import java.io.File;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.code.CodeService.DEV_SERVICES_FILENAME;
-import static org.apache.camel.karavan.code.CodeService.PROJECT_COMPOSE_FILENAME;
+import static org.apache.camel.karavan.code.CodeService.*;
 
 @Default
 @Readiness
@@ -109,6 +109,11 @@ public class ProjectService implements HealthCheck {
                 Map<String, String> files = infinispanService.getProjectFiles(project.getProjectId()).stream()
                         .filter(f -> !Objects.equals(f.getName(), PROJECT_COMPOSE_FILENAME))
                         .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::getCode));
+
+                infinispanService.getProjectFiles(Project.Type.kamelets.name())
+                        .forEach(file -> files.put(KAMELETS_FOLDER + File.separator + file.getName(), file.getCode()));
+
+                files.forEach((s, s2) -> System.out.println(s));
 
                 ProjectFile compose = infinispanService.getProjectFile(project.getProjectId(), PROJECT_COMPOSE_FILENAME);
                 DockerComposeService dcs = DockerComposeConverter.fromCode(compose.getCode(), project.getProjectId());

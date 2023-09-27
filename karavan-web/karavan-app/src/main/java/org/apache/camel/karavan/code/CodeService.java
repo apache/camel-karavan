@@ -46,6 +46,9 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -59,6 +62,7 @@ public class CodeService {
     public static final String DEV_SERVICES_FILENAME = "devservices.yaml";
     public static final String PROJECT_COMPOSE_FILENAME = "docker-compose.yaml";
     public static final String PROJECT_DEPLOYMENT_JKUBE_FILENAME = "deployment.jkube.yaml";
+    public static final String KAMELETS_FOLDER = "kamelets";
     private static final String SNIPPETS_PATH = "/snippets/";
     private static final int INTERNAL_PORT = 8080;
 
@@ -106,8 +110,12 @@ public class CodeService {
         return new ProjectFile(APPLICATION_PROPERTIES_FILENAME, code, project.getProjectId(), Instant.now().toEpochMilli());
     }
 
-    public String saveProjectFilesInTemp(Map<String, String> files) {
+    public String saveProjectFilesInTemp(Map<String, String> files) throws IOException {
         String temp = vertx.fileSystem().createTempDirectoryBlocking("temp");
+        Path kameplesPath = Paths.get(temp, KAMELETS_FOLDER);
+        if (!Files.exists(kameplesPath)) {
+            Files.createDirectories(kameplesPath);
+        }
         files.forEach((fileName, code) -> addFile(temp, fileName, code));
         return temp;
     }
@@ -118,6 +126,7 @@ public class CodeService {
             vertx.fileSystem().writeFileBlocking(path, Buffer.buffer(code));
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
+            e.printStackTrace();
         }
     }
 
