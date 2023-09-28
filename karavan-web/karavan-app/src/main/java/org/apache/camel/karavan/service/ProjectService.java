@@ -106,14 +106,7 @@ public class ProjectService implements HealthCheck {
             if (ConfigService.inKubernetes()) {
                 kubernetesService.runDevModeContainer(project, jBangOptions);
             } else {
-                Map<String, String> files = infinispanService.getProjectFiles(project.getProjectId()).stream()
-                        .filter(f -> !Objects.equals(f.getName(), PROJECT_COMPOSE_FILENAME))
-                        .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::getCode));
-
-                infinispanService.getProjectFiles(Project.Type.kamelets.name())
-                        .forEach(file -> files.put(KAMELETS_FOLDER + File.separator + file.getName(), file.getCode()));
-
-                files.forEach((s, s2) -> System.out.println(s));
+                Map<String, String> files = codeService.getProjectFiles(project.getProjectId(), true);
 
                 ProjectFile compose = infinispanService.getProjectFile(project.getProjectId(), PROJECT_COMPOSE_FILENAME);
                 DockerComposeService dcs = DockerComposeConverter.fromCode(compose.getCode(), project.getProjectId());

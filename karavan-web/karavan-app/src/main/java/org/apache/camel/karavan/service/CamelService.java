@@ -24,6 +24,7 @@ import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
+import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
 import org.apache.camel.karavan.infinispan.model.CamelStatusValue;
@@ -50,6 +51,9 @@ public class CamelService {
 
     @Inject
     InfinispanService infinispanService;
+
+    @Inject
+    CodeService codeService;
 
     @Inject
     KubernetesService kubernetesService;
@@ -95,8 +99,8 @@ public class CamelService {
     public void reloadProjectCode(String projectId) {
         LOGGER.info("Reload project code " + projectId);
         try {
-            List<ProjectFile> files = infinispanService.getProjectFiles(projectId);
-            files.forEach(projectFile -> putRequest(projectId, projectFile.getName(), projectFile.getCode(), 1000));
+            Map<String, String> files = codeService.getProjectFiles(projectId, true);
+            files.forEach((name, code) -> putRequest(projectId, name, code, 1000));
             reloadRequest(projectId);
             ContainerStatus containerStatus = infinispanService.getDevModeContainerStatus(projectId, environment);
             containerStatus.setCodeLoaded(true);

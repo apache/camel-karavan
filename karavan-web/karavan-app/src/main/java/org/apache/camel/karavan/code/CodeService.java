@@ -62,7 +62,6 @@ public class CodeService {
     public static final String DEV_SERVICES_FILENAME = "devservices.yaml";
     public static final String PROJECT_COMPOSE_FILENAME = "docker-compose.yaml";
     public static final String PROJECT_DEPLOYMENT_JKUBE_FILENAME = "deployment.jkube.yaml";
-    public static final String KAMELETS_FOLDER = "kamelets";
     private static final String SNIPPETS_PATH = "/snippets/";
     private static final int INTERNAL_PORT = 8080;
 
@@ -91,6 +90,18 @@ public class CodeService {
             "limits.cpu", "2000m"
     );
 
+    public Map<String, String> getProjectFiles(String projectId, Boolean withKamelets) {
+        Map<String, String> files = infinispanService.getProjectFiles(projectId).stream()
+                .filter(f -> !Objects.equals(f.getName(), PROJECT_COMPOSE_FILENAME))
+                .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::getCode));
+
+        if (withKamelets) {
+            infinispanService.getProjectFiles(Project.Type.kamelets.name())
+                    .forEach(file -> files.put(file.getName(), file.getCode()));
+        }
+        return files;
+    }
+
     public ProjectFile getApplicationProperties(Project project) {
         String target = "docker";
         if (ConfigService.inKubernetes()) {
@@ -110,12 +121,8 @@ public class CodeService {
         return new ProjectFile(APPLICATION_PROPERTIES_FILENAME, code, project.getProjectId(), Instant.now().toEpochMilli());
     }
 
-    public String saveProjectFilesInTemp(Map<String, String> files) throws IOException {
+    public String saveProjectFilesInTemp(Map<String, String> files) {
         String temp = vertx.fileSystem().createTempDirectoryBlocking("temp");
-        Path kameplesPath = Paths.get(temp, KAMELETS_FOLDER);
-        if (!Files.exists(kameplesPath)) {
-            Files.createDirectories(kameplesPath);
-        }
         files.forEach((fileName, code) -> addFile(temp, fileName, code));
         return temp;
     }
