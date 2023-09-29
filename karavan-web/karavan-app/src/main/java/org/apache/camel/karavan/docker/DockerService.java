@@ -309,7 +309,7 @@ public class DockerService extends DockerServiceUtils {
                 getDockerClient().logContainerCmd(container.getId())
                         .withStdOut(true)
                         .withStdErr(true)
-                        .withTimestamps(true)
+                        .withTimestamps(false)
                         .withFollowStream(true)
                         .withTailAll()
                         .exec(callback);
