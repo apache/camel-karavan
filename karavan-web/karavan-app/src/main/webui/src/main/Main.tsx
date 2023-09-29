@@ -110,6 +110,7 @@ export function Main() {
                         <ProgressStepper aria-label="Readiness progress" isCenterAligned isVertical >
                             {steps.map(step => (
                                 <ProgressStep
+                                    key={step.name}
                                     variant={step.status === 'UP' ? "success" : "info"}
                                     isCurrent={step.status !== 'UP'}
                                     icon={step.status !== 'UP' ? <Spinner isInline aria-label="Loading..."/> : undefined}
