@@ -3,7 +3,7 @@ name: Installer
 on:
   push:
     branches: [ main ]
-    paths: ['karavan-web/karavan-installer/**']
+    paths: ['karavan-web/karavan-installer/**', '.github/workflows/installer.yml']
   workflow_dispatch:
   pull_request:
     branches: [ main ]

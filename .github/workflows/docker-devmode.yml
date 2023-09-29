@@ -3,7 +3,7 @@ name: DevMode container image
 on:
   push:
     branches: [ main ]
-    paths: ['karavan-web/docker/Dockerfile.devmode']
+    paths: ['karavan-web/docker/Dockerfile.devmode', '.github/workflows/docker-devmode.yml']
   workflow_dispatch:
 
 env:

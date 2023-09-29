@@ -3,7 +3,7 @@ name: Web application
 on:
   push:
     branches: [ main ]
-    paths: ['karavan-web/karavan-app/**', 'karavan-core/**', 'karavan-designer/**']
+    paths: ['karavan-web/karavan-app/**', 'karavan-core/**', 'karavan-designer/**', '.github/workflows/app.yml']
   workflow_dispatch:
   pull_request:
     branches: [ main ]
