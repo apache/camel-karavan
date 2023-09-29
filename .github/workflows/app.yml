@@ -9,6 +9,7 @@ on:
     branches: [ main ]
 
 env:
+  REGISTRY: ${{ env.REGISTRY }}
   TAG: 4.0.1
 
 jobs:
@@ -59,7 +60,7 @@ jobs:
           -Dquarkus.quinoa.package-manager-install=false \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=true \
-          -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}:${{ env.TAG }} \
+          -Dquarkus.container-image.image=${{ env.REGISTRY }}/${GITHUB_REPOSITORY}:${{ env.TAG }} \
           -Dquarkus.container-image.username=${{ github.actor }} \
           -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }}
         if: ${{ github.ref == 'refs/heads/main' }}
@@ -72,7 +73,7 @@ jobs:
       #     -Dquarkus.quinoa.package-manager-install=false \
       #     -Dquarkus.container-image.build=true \
       #     -Dquarkus.container-image.push=true \
-      #     -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}-basic:${{ env.TAG }} \
+      #     -Dquarkus.container-image.image=${{ env.REGISTRY }}/${GITHUB_REPOSITORY}-basic:${{ env.TAG }} \
       #     -Dquarkus.container-image.username=${{ github.actor }} \
       #     -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }}
       #   if: ${{ github.ref == 'refs/heads/main' }}
@@ -85,7 +86,7 @@ jobs:
       #     -Dquarkus.quinoa.package-manager-install=false \
       #     -Dquarkus.container-image.build=true \
       #     -Dquarkus.container-image.push=true \
-      #     -Dquarkus.container-image.image=ghcr.io/${GITHUB_REPOSITORY}-oidc:${{ env.TAG }} \
+      #     -Dquarkus.container-image.image=${{ env.REGISTRY }}/${GITHUB_REPOSITORY}-oidc:${{ env.TAG }} \
       #     -Dquarkus.container-image.username=${{ github.actor }} \
       #     -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }}
       #   if: ${{ github.ref == 'refs/heads/main' }}
