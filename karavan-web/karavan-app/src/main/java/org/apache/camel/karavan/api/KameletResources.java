@@ -64,11 +64,7 @@ public class KameletResources {
         if (infinispanService.isReady()) {
             Yaml yaml = new Yaml();
             return infinispanService.getProjectFiles(Project.Type.kamelets.name()).stream()
-                    .map(projectFile -> {
-                        Map<String, LinkedHashMap> obj = yaml.load(projectFile.getCode());
-                        LinkedHashMap<String, Object> metadata = obj.get("metadata");
-                        return metadata.get("name").toString();
-                    })
+                    .map(projectFile -> projectFile.getName().replace(".kamelet.yaml", ""))
                     .collect(Collectors.toList());
         } else {
             return List.of();

@@ -17,16 +17,69 @@
 import { v4 as uuidv4 } from 'uuid';
 import { RegistryBeanDefinition } from './CamelDefinition';
 
+export class KameletDefinitionProperty {
+    title: string = '';
+    description: string = '';
+    type: 'string' | 'integer' | 'boolean' = 'string';
+    default?: any;
+    example?: any;
+    format?: string;
+    "x-descriptors"?: string[];
+    properties: any = {};
+
+    public constructor(init?: Partial<KameletDefinition>) {
+        Object.assign(this, init);
+    }
+}
+
+export class KameletDefinition {
+    title: string = '';
+    description: string = '';
+    required: string[] = [];
+    type: string = 'object';
+    properties: any = {};
+
+    public constructor(init?: Partial<KameletDefinition>) {
+        Object.assign(this, init);
+    }
+}
+
 export class Spec {
+    definition?: KameletDefinition;
+    types?: any;
     flows?: any[] = [];
+    template?: any;
+    dependencies?: string[];
 
     public constructor(init?: Partial<Spec>) {
         Object.assign(this, init);
     }
 }
 
+export class MetadataLabel {
+    "camel.apache.org/kamelet.type": "sink" | "source" | "action"
+
+    public constructor(init?: Partial<MetadataLabel>) {
+        Object.assign(this, init);
+    }
+}
+
+export class MetadataAnnotation {
+    "camel.apache.org/catalog.version"?: string;
+    "camel.apache.org/kamelet.icon"?: string;
+    "camel.apache.org/provider"?: string;
+    "camel.apache.org/kamelet.group"?: string;
+    "camel.apache.org/kamelet.namespace"?: string;
+
+    public constructor(init?: Partial<MetadataAnnotation>) {
+        Object.assign(this, init);
+    }
+}
+
 export class Metadata {
     name: string = '';
+    annotations?: MetadataAnnotation;
+    labels?: MetadataLabel[];
 
     public constructor(init?: Partial<Metadata>) {
         Object.assign(this, init);
@@ -34,8 +87,8 @@ export class Metadata {
 }
 
 export class Integration {
-    apiVersion: string = 'camel.apache.org/v1'; // camel.apache.org/v1alpha1
-    kind: string = 'Integration'; // Kamelet
+    apiVersion: string = 'camel.apache.org/v1';
+    kind: string = 'Integration' || 'Kamelet';
     metadata: Metadata = new Metadata();
     spec: Spec = new Spec();
     type: 'crd' | 'plain' | 'kamelet' = 'crd';
@@ -45,7 +98,10 @@ export class Integration {
     }
 
     static createNew(name?: string, type: 'crd' | 'plain' | 'kamelet' = 'plain'): Integration {
-        return new Integration({ type: type, metadata: new Metadata({ name: name }), spec: new Spec({ flows: [] }) });
+        return new Integration({ type: type,
+            metadata: new Metadata({ name: name }),
+            kind : type === 'kamelet' ? 'Kamelet' : 'Integration',
+            spec: new Spec({ flows: [] }) });
     }
 }
 

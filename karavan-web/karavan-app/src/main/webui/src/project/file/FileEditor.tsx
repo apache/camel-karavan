@@ -84,10 +84,11 @@ export function FileEditor (props: Props) {
         )
     }
 
-    const isYaml = file !== undefined && file.name.endsWith("yaml");
-    const isIntegration = isYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
+    const isCamelYaml = file !== undefined && file.name.endsWith(".camel.yaml");
+    const isKameletYaml = file !== undefined && file.name.endsWith(".kamelet.yaml");
+    const isIntegration = isCamelYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
     const isProperties = file !== undefined && file.name.endsWith("properties");
-    const showDesigner = isYaml && isIntegration;
+    const showDesigner = isCamelYaml && isIntegration;
     const showEditor = !showDesigner && !isProperties;
     return (
         <>

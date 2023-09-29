@@ -59,7 +59,7 @@ describe('Plain YAML to integration', () => {
         expect(i.spec.flows?.length).to.equal(1);
         expect(i.type).to.equal('plain');
         const yaml2 = CamelDefinitionYaml.integrationToYaml(i);
-        expect(yaml.replaceAll("\r\n", "\n")).to.equal(yaml2); // replace for Windows compatibility
+        expect(yaml.replace("\r\n", "\n")).to.equal(yaml2); // replace for Windows compatibility
     });
 
 });

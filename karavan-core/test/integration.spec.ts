@@ -39,6 +39,7 @@ describe('CRD YAML to Integration', () => {
             expect(t.uri).to.equal("log");
             expect(t.parameters.level).to.equal("OFF");
         }
+        console.log(CamelDefinitionYaml.integrationToYaml(i))
     });
 
     it('YAML <-> Object 2', () => {

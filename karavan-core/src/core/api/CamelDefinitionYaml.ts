@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 import * as yaml from 'js-yaml';
-import { Integration, CamelElement, Beans } from '../model/IntegrationDefinition';
-import { RouteDefinition, RegistryBeanDefinition, RouteConfigurationDefinition } from '../model/CamelDefinition';
+import { Beans, CamelElement, Integration } from '../model/IntegrationDefinition';
+import { RegistryBeanDefinition, RouteConfigurationDefinition, RouteDefinition } from '../model/CamelDefinition';
 import { CamelUtil } from './CamelUtil';
 import { CamelDefinitionYamlStep } from './CamelDefinitionYamlStep';
 
 export class CamelDefinitionYaml {
-    private constructor() {}
+    private constructor() {
+    }
 
     static integrationToYaml = (integration: Integration): string => {
         const clone: any = CamelUtil.cloneIntegration(integration);
@@ -32,14 +33,28 @@ export class CamelDefinitionYaml {
         if (integration.type === 'crd') {
             delete clone.type;
             const i = JSON.parse(JSON.stringify(clone, (key, value) => CamelDefinitionYaml.replacer(key, value), 3)); // fix undefined in string attributes
-            const text = CamelDefinitionYaml.yamlDump(i);
-            return text;
+            return CamelDefinitionYaml.yamlDump(i);
+        } else if (integration.type === 'kamelet') {
+            delete clone.type;
+            // turn array of flows to object properties in template for Kamelet
+            const template: any = {route: {}}
+            const route: RouteDefinition = clone.spec.flows.filter((f: any) => f.dslName === 'RouteDefinition')?.[0];
+            if (route) {
+                template.route = Object.assign(template.route, route);
+            }
+            const beans = clone.spec.flows.filter((f: any) => f.dslName === 'Beans')?.at(0)?.beans;
+            if (beans) {
+                template.beans = beans;
+            }
+            clone.spec.template = template;
+            delete clone.spec.flows;
+            const i = JSON.parse(JSON.stringify(clone, (key, value) => CamelDefinitionYaml.replacer(key, value, true), 3)); // fix undefined in string attributes
+            return CamelDefinitionYaml.yamlDump(i);
         } else {
             const f = JSON.parse(
                 JSON.stringify(clone.spec.flows, (key, value) => CamelDefinitionYaml.replacer(key, value), 3),
             );
-            const text = CamelDefinitionYaml.yamlDump(f);
-            return text;
+            return CamelDefinitionYaml.yamlDump(f);
         }
     };
 
@@ -109,7 +124,7 @@ export class CamelDefinitionYaml {
         return yaml.dump(integration, {
             noRefs: false,
             noArrayIndent: false,
-            sortKeys: function (a: any, b: any) {
+            sortKeys: function(a: any, b: any) {
                 if (a === 'steps') return 1;
                 else if (b === 'steps') return -1;
                 else return 0;
@@ -117,7 +132,7 @@ export class CamelDefinitionYaml {
         });
     };
 
-    static replacer = (key: string, value: any): any => {
+    static replacer = (key: string, value: any, isKamelet: boolean = false): any => {
         if (
             typeof value === 'object' &&
             (value.hasOwnProperty('stepName') || value.hasOwnProperty('inArray') || value.hasOwnProperty('inSteps'))
@@ -162,6 +177,10 @@ export class CamelDefinitionYaml {
                 delete newValue.inArray;
                 delete newValue.inSteps;
                 return newValue;
+            } else if (isKamelet && dslName === 'RouteDefinition') {
+                delete value?.dslName;
+                delete value?.stepName;
+                return value;
             } else {
                 delete newValue.inArray;
                 delete newValue.inSteps;
@@ -179,18 +198,37 @@ export class CamelDefinitionYaml {
         const integration: Integration = Integration.createNew(filename);
         const fromYaml: any = yaml.load(text);
         const camelized: any = CamelUtil.camelizeObject(fromYaml);
-        if (
-            camelized?.apiVersion &&
-            camelized.apiVersion.startsWith('camel.apache.org') &&
-            camelized.kind &&
-            camelized.kind === 'Integration'
-        ) {
-            integration.type = 'crd';
-            if (camelized?.metadata?.name) {
-                integration.metadata.name = camelized?.metadata?.name;
+        if (camelized?.apiVersion && camelized.apiVersion.startsWith('camel.apache.org') && camelized.kind) {
+            if (camelized?.metadata) {
+                integration.metadata = camelized?.metadata;
+            }
+            if (camelized?.spec) {
+                integration.spec.definition = camelized?.spec.definition;
+                integration.spec.dependencies = camelized?.spec.dependencies;
+                integration.spec.types = camelized?.spec.types;
             }
             const int: Integration = new Integration({ ...camelized });
-            integration.spec.flows?.push(...CamelDefinitionYaml.flowsToCamelElements(int.spec.flows || []));
+            if (camelized.kind === 'Integration') {
+                integration.type = 'crd';
+                integration.spec.flows?.push(...CamelDefinitionYaml.flowsToCamelElements(int.spec.flows || []));
+            } else if (camelized.kind === 'Kamelet') {
+                integration.type = 'kamelet';
+                integration.kind = 'Kamelet';
+                const flows: any[] = [];
+                // turn kamelet template object properties to array of flows
+                const beans = int.spec.template?.beans;
+                if (beans) {
+                    flows.push(new Beans({beans: beans}))
+                }
+                const from = int.spec.template?.from;
+                if (from) {
+                    flows.push(new RouteDefinition({from: from}))
+                } else {
+                    const route = int.spec.template?.route;
+                    flows.push(route);
+                }
+                integration.spec.flows?.push(...CamelDefinitionYaml.flowsToCamelElements(flows || []));
+            }
         } else if (Array.isArray(camelized)) {
             integration.type = 'plain';
             const flows: any[] = camelized;
@@ -200,18 +238,22 @@ export class CamelDefinitionYaml {
     };
 
     static yamlIsIntegration = (text: string): boolean => {
-        const fromYaml: any = yaml.load(text);
-        const camelized: any = CamelUtil.camelizeObject(fromYaml);
-        if (
-            camelized?.apiVersion &&
-            camelized.apiVersion.startsWith('camel.apache.org') &&
-            camelized.kind &&
-            camelized.kind === 'Integration'
-        ) {
-            return true;
-        } else if (Array.isArray(camelized)) {
-            return true;
-        } else {
+        try {
+            const fromYaml: any = yaml.load(text);
+            const camelized: any = CamelUtil.camelizeObject(fromYaml);
+            if (
+                camelized?.apiVersion &&
+                camelized.apiVersion.startsWith('camel.apache.org') &&
+                camelized.kind &&
+                camelized.kind === 'Integration'
+            ) {
+                return true;
+            } else if (Array.isArray(camelized)) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (e) {
             return false;
         }
     };
