@@ -29,7 +29,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
         <version.camel-core>4.0.1</version.camel-core>
-        <version.camel-kamelet>4.0.0</version.camel-kamelet>
+        <version.camel-kamelet>4.0.1</version.camel-kamelet>
         <camel.k.extension.version>6.7.2</camel.k.extension.version>
         <version.vertx>4.4.3</version.vertx>
     </properties>

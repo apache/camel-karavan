@@ -1408,7 +1408,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ]),
-    new ElementMeta('beans', 'BeansDefinition', 'Beans', "A groupping POJO (and related XML root element) that's historically associated with entire application (or its distinguished fragment). This class is not meant to be used with Camel Java DSL, but it's needed to generate XML Schema and MX parser methods.", 'configuration', [
+    new ElementMeta('beans', 'BeansDefinition', 'Beans', "A grouping POJO (and related XML root element) that's historically associated with entire application (or its distinguished fragment). This class is not meant to be used with Camel Java DSL, but it's needed to generate XML Schema and MX parser methods.", 'configuration', [
         new PropertyMeta('bean', 'Bean', "bean", 'RegistryBeanDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('restConfiguration', 'Rest Configuration', "restConfiguration", 'RestConfigurationDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('rest', 'Rest', "rest", 'RestDefinition', '', '', false, false, true, true, '', ''),
@@ -2231,6 +2231,7 @@ export const SensitiveKeys: string[] = [
     "secretkey",
     "webhookverifytoken",
     "privatekeypassword",
+    "secret",
     "login",
     "sourceblobaccesskey",
     "apipassword",
