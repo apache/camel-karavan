@@ -9,7 +9,7 @@ on:
     branches: [ main ]
 
 env:
-  REGISTRY: ${{ env.REGISTRY }}
+  REGISTRY: ghcr.io
   TAG: 4.0.1
 
 jobs:
