@@ -30,7 +30,6 @@ describe('Topology functions', () => {
         const tin = TopologyUtils.findTopologyIncomingNodes([i1, i2]);
         const trn = TopologyUtils.findTopologyRestNodes([i1, i2]);
         const ton = TopologyUtils.findTopologyOutgoingNodes([i1, i2]);
-        console.log(tin)
     });
 
 });

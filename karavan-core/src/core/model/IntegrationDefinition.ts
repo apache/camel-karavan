@@ -17,7 +17,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { RegistryBeanDefinition } from './CamelDefinition';
 
-export class KameletDefinitionProperty {
+export class DefinitionProperty {
     title: string = '';
     description: string = '';
     type: 'string' | 'integer' | 'boolean' = 'string';
@@ -25,27 +25,26 @@ export class KameletDefinitionProperty {
     example?: any;
     format?: string;
     "x-descriptors"?: string[];
-    properties: any = {};
 
-    public constructor(init?: Partial<KameletDefinition>) {
+    public constructor(init?: Partial<DefinitionProperty>) {
         Object.assign(this, init);
     }
 }
 
-export class KameletDefinition {
+export class Definition {
     title: string = '';
     description: string = '';
     required: string[] = [];
     type: string = 'object';
     properties: any = {};
 
-    public constructor(init?: Partial<KameletDefinition>) {
+    public constructor(init?: Partial<Definition>) {
         Object.assign(this, init);
     }
 }
 
 export class Spec {
-    definition?: KameletDefinition;
+    definition?: Definition;
     types?: any;
     flows?: any[] = [];
     template?: any;
@@ -56,30 +55,31 @@ export class Spec {
     }
 }
 
-export class MetadataLabel {
-    "camel.apache.org/kamelet.type": "sink" | "source" | "action"
+export class MetadataLabels {
+    "camel.apache.org/kamelet.type": "sink" | "source" | "action" = 'source'
 
-    public constructor(init?: Partial<MetadataLabel>) {
+    public constructor(init?: Partial<MetadataLabels>) {
         Object.assign(this, init);
     }
 }
 
-export class MetadataAnnotation {
-    "camel.apache.org/catalog.version"?: string;
-    "camel.apache.org/kamelet.icon"?: string;
-    "camel.apache.org/provider"?: string;
-    "camel.apache.org/kamelet.group"?: string;
-    "camel.apache.org/kamelet.namespace"?: string;
+export class MetadataAnnotations {
+    "camel.apache.org/kamelet.support.level:": string = 'Preview';
+    "camel.apache.org/catalog.version": string = '';
+    "camel.apache.org/kamelet.icon": string = '';
+    "camel.apache.org/provider": string = '';
+    "camel.apache.org/kamelet.group": string = '';
+    "camel.apache.org/kamelet.namespace": string = '';
 
-    public constructor(init?: Partial<MetadataAnnotation>) {
+    public constructor(init?: Partial<MetadataAnnotations>) {
         Object.assign(this, init);
     }
 }
 
 export class Metadata {
     name: string = '';
-    annotations?: MetadataAnnotation;
-    labels?: MetadataLabel[];
+    annotations?: MetadataAnnotations;
+    labels?: MetadataLabels;
 
     public constructor(init?: Partial<Metadata>) {
         Object.assign(this, init);
@@ -98,10 +98,18 @@ export class Integration {
     }
 
     static createNew(name?: string, type: 'crd' | 'plain' | 'kamelet' = 'plain'): Integration {
-        return new Integration({ type: type,
+        const i = new Integration({ type: type,
             metadata: new Metadata({ name: name }),
             kind : type === 'kamelet' ? 'Kamelet' : 'Integration',
             spec: new Spec({ flows: [] }) });
+
+        if (type === 'kamelet') {
+            i.metadata.annotations = new MetadataAnnotations({})
+            i.spec.definition = new Definition({})
+            i.spec.types = {}
+        }
+
+        return i;
     }
 }
 

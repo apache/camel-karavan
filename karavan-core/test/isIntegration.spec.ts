@@ -27,13 +27,19 @@ describe('Is Integration', () => {
     it('Is not integration', () => {
         const yaml = fs.readFileSync('test/is-not-integration.yaml',{encoding:'utf8', flag:'r'});
         const i = CamelDefinitionYaml.yamlIsIntegration(yaml);
-        expect(i).to.equal(false);
+        expect(i).to.equal('none');
     });
 
-    it('Is integration', () => {
+    it('Is integration CRD', () => {
         const yaml = fs.readFileSync('test/integration1.yaml',{encoding:'utf8', flag:'r'});
         const i = CamelDefinitionYaml.yamlIsIntegration(yaml);
-        expect(i).to.equal(true);
+        expect(i).to.equal('crd');
+    });
+
+    it('Is integration plain', () => {
+        const yaml = fs.readFileSync('test/plain1.yaml',{encoding:'utf8', flag:'r'});
+        const i = CamelDefinitionYaml.yamlIsIntegration(yaml);
+        expect(i).to.equal('plain');
     });
 
 });

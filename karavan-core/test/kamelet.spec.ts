@@ -14,29 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {expect} from 'chai';
 import * as fs from 'fs';
 import 'mocha';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
-import {
-    ChoiceDefinition,
-    ExpressionDefinition,
-    FilterDefinition, FromDefinition, LogDefinition,
-    ToDefinition,
-    WhenDefinition,
-} from '../src/core/model/CamelDefinition';
+import { FromDefinition, LogDefinition, } from '../src/core/model/CamelDefinition';
 import { RouteDefinition} from "../src/core/model/CamelDefinition";
-import { Beans, Integration, MetadataAnnotation } from '../src/core/model/IntegrationDefinition';
-import { KameletMetadata } from '../lib/model/KameletModels';
-import { RegistryBeanDefinition } from '../lib/model/CamelDefinition';
+import { Beans, Definition, Integration } from '../src/core/model/IntegrationDefinition';
+import { RegistryBeanDefinition } from '../src/core/model/CamelDefinition';
+import { MetadataAnnotations } from '../src/core/model/IntegrationDefinition';
 
 describe('Kamelet <=> YAML', () => {
 
     it('Yaml to Kamelet', () => {
         const yaml = fs.readFileSync('test/postgresql-source.kamelet.yaml',{encoding:'utf8', flag:'r'});
         const i = CamelDefinitionYaml.yamlToIntegration("postgresql-source.kamelet.yaml", yaml);
-        console.log(i)
-        console.log(CamelDefinitionYaml.integrationToYaml(i))
+        // console.log(i)
     });
 
     it('Kamelet to YAML with beans', () => {
@@ -50,7 +42,7 @@ describe('Kamelet <=> YAML', () => {
         b.beans.push(new RegistryBeanDefinition({name: "beanDS1", type: "String.class"}));
         b.beans.push(new RegistryBeanDefinition({name: "beanDS2", type: "String.class"}));
         i.spec.flows?.push(b);
-        const a = new MetadataAnnotation({"camel.apache.org/kamelet.group" : "hello world"})
+        const a = new MetadataAnnotations({"camel.apache.org/kamelet.group" : "hello world"})
         i.metadata.annotations = a
     });
 
@@ -60,6 +52,8 @@ describe('Kamelet <=> YAML', () => {
         const flow1 = new FromDefinition({uri: "direct1"});
         flow1.steps?.push(new LogDefinition({logName: 'log11', message: "hello11"}));
         i.spec.flows?.push(new RouteDefinition({from:flow1}));
+
+        console.log(CamelDefinitionYaml.integrationToYaml(i))
     });
 
 

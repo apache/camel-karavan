@@ -46,8 +46,7 @@ export function DslProperties(props: Props) {
 
     const {cloneElement, onDataFormatChange, onPropertyChange, onParametersChange, onExpressionChange} = usePropertiesHook(props.isRouteDesigner);
 
-    const [selectedStep, dark, setSelectedStep, setSelectedUuids] = useDesignerStore((s) =>
-        [s.selectedStep, s.dark, s.setSelectedStep, s.setSelectedUuids], shallow)
+    const [selectedStep, dark] = useDesignerStore((s) => [s.selectedStep, s.dark], shallow)
 
     const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState<boolean>(false);

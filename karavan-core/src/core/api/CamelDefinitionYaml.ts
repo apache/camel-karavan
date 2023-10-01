@@ -237,25 +237,24 @@ export class CamelDefinitionYaml {
         return integration;
     };
 
-    static yamlIsIntegration = (text: string): boolean => {
+    static yamlIsIntegration = (text: string): 'crd' | 'plain' | 'kamelet' | 'none' => {
         try {
             const fromYaml: any = yaml.load(text);
             const camelized: any = CamelUtil.camelizeObject(fromYaml);
-            if (
-                camelized?.apiVersion &&
-                camelized.apiVersion.startsWith('camel.apache.org') &&
-                camelized.kind &&
-                camelized.kind === 'Integration'
-            ) {
-                return true;
+            if (camelized?.apiVersion && camelized.apiVersion.startsWith('camel.apache.org') && camelized.kind) {
+                if (camelized.kind === 'Integration') {
+                    return 'crd';
+                } else if (camelized.kind === 'Kamelet') {
+                    return 'kamelet';
+                }
             } else if (Array.isArray(camelized)) {
-                return true;
+                return 'plain';
             } else {
-                return false;
+                return 'none';
             }
         } catch (e) {
-            return false;
         }
+        return 'none';
     };
     static flowsToCamelElements = (flows: any[]): any[] => {
         const rules: { [key: string]: (flow: any) => any } = {

@@ -51,7 +51,7 @@ interface Props {
     onClone: (bean: RegistryBeanDefinition) => void
 }
 
-export function BeanProperties (props: Props) {
+export function KameletProperties (props: Props) {
 
     const [selectedStep] = useDesignerStore((s) => [s.selectedStep], shallow);
     const [infrastructureSelector, setInfrastructureSelector] = useState<boolean>(false);
