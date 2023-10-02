@@ -70,7 +70,7 @@ class App extends React.Component<Props, State> {
             fetch("snippets/org.apache.camel.AggregationStrategy"),
             fetch("snippets/org.apache.camel.Processor"),
             // fetch("example/demo.camel.yaml")
-            fetch("example/postgresql-source.kamelet.yaml")
+            fetch("example/aws-s3-cdc-source.kamelet.yaml")
             // fetch("components/supported-components.json"),
         ]).then(responses =>
             Promise.all(responses.map(response => response.text()))
@@ -90,7 +90,7 @@ class App extends React.Component<Props, State> {
 
             if (data[4]) {
                 // this.setState({yaml: data[4], name: "demo.camel.yaml"})
-                this.setState({yaml: data[4], name: "postgresql-source.kamelet.yaml"})
+                this.setState({yaml: data[4], name: "aws-s3-cdc-source.kamelet.yaml"})
             }
 
             if (data[5]) {

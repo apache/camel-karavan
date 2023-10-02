@@ -19,7 +19,9 @@ import {
     Button,
     Card,
     CardBody,
-    CardTitle, Flex, FlexItem,
+    CardTitle,
+    Flex,
+    FlexItem,
     Form,
     FormGroup,
     Grid,
@@ -32,6 +34,9 @@ import {useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import {KameletDefinitionPropertyCard} from "./KameletDefinitionPropertyCard";
+import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
+import {DefinitionProperty} from "karavan-core/lib/model/IntegrationDefinition";
+import {Simulate} from "react-dom/test-utils";
 
 export function KameletDefinitionsPanel() {
 
@@ -66,6 +71,30 @@ export function KameletDefinitionsPanel() {
     }
 
     const properties = integration.spec.definition?.properties ? Object.keys(integration.spec.definition?.properties) : [];
+
+    function addNewProperty() {
+        const i = CamelUtil.cloneIntegration(integration);
+        if (i.spec.definition && integration.spec.definition?.properties) {
+            const propertyName = generatePropertyName();
+            i.spec.definition.properties = Object.assign({[propertyName]: new DefinitionProperty()}, integration.spec.definition.properties);
+            setIntegration(i, true);
+        }
+    }
+
+    function generatePropertyName(count: number = 0): string {
+        const prefix = 'property';
+        const propName = 'property' + count;
+        if (integration.spec.definition?.properties) {
+            const keys = Object.keys(integration.spec.definition?.properties);
+            if (keys.includes(propName)) {
+                return generatePropertyName(count + 1);
+            } else {
+                return propName;
+            }
+        }
+        return prefix;
+    }
+
     return (
         <>
             <Card isCompact ouiaId="DefinitionsCard">
@@ -86,7 +115,9 @@ export function KameletDefinitionsPanel() {
                     <Flex>
                         <FlexItem>Properties</FlexItem>
                         <FlexItem align={{default: "alignRight"}}>
-                            <Button variant={"link"} icon={<AddIcon/>}>Add property</Button>
+                            <Button variant={"link"} icon={<AddIcon/>} onClick={event => addNewProperty()}>
+                                Add property
+                            </Button>
                         </FlexItem>
                     </Flex>
                 </CardTitle>

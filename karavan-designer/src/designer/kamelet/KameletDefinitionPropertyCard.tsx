@@ -19,10 +19,18 @@ import {
     Button,
     Card,
     CardBody,
-    CardTitle, Flex, FlexItem,
-    FormGroup, FormSelect, FormSelectOption,
+    CardTitle,
+    Flex,
+    FlexItem,
+    FormGroup,
+    FormSelect,
+    FormSelectOption,
     Grid,
-    GridItem, Label, Modal, Switch,
+    GridItem,
+    Label,
+    LabelGroup,
+    Modal,
+    Switch,
     TextInput,
 } from '@patternfly/react-core';
 import '../karavan.css';
@@ -30,6 +38,8 @@ import './kamelet.css';
 import {useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {DefinitionProperty} from "karavan-core/lib/model/IntegrationDefinition";
+import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
+import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 
 interface Props {
     index: number
@@ -45,7 +55,7 @@ export function KameletDefinitionPropertyCard(props: Props) {
     const key = props.propKey;
     const required = integration.spec.definition?.required || [];
 
-    function setPropertyValue(field: string, value: string) {
+    function setPropertyValue(field: string, value: any) {
         if (integration.spec.definition?.properties) {
             (integration.spec.definition?.properties as any)[key][field] = value;
             setIntegration(integration, true);
@@ -83,8 +93,9 @@ export function KameletDefinitionPropertyCard(props: Props) {
                         aria-label="FormSelect Input"
                         ouiaId="BasicFormSelect"
                     >
-                        {['string', 'number', 'boolean'].map((option, index) => (
-                            <FormSelectOption key={option} isDisabled={false} id={key + field} name={key + field} value={option} label={option} />
+                        {['string', 'number', 'integer', 'boolean'].map((option, index) => (
+                            <FormSelectOption key={option} isDisabled={false} id={key + field} name={key + field}
+                                              value={option} label={option}/>
                         ))}
                     </FormSelect>
                 </FormGroup>
@@ -92,9 +103,106 @@ export function KameletDefinitionPropertyCard(props: Props) {
         )
     }
 
+    function sortEnum(source: string, dest: string) {
+        const i = CamelUtil.cloneIntegration(integration);
+        if (i.spec.definition && integration.spec.definition?.properties[key]) {
+            const enums: string [] = i.spec.definition.properties[key].enum;
+            console.log(enums)
+            if (enums && Array.isArray(enums)) {
+                console.log("isArray")
+                const from = enums.findIndex(e => source);
+                const to = enums.findIndex(e => dest);
+                if (from > -1 && to > -1) {
+                    console.log("exchange");
+                    [enums[from], enums[to]] = [enums[to], enums[from]];
+                    i.spec.definition.properties[key].enum = enums;
+                    console.log("i.spec.definition.properties[key].enum", i.spec.definition.properties[key].enum);
+                    setIntegration(i, true);
+                }
+            }
+        }
+    }
+
+    function addEnum() {
+        const i = CamelUtil.cloneIntegration(integration);
+        if (i.spec.definition && integration.spec.definition?.properties[key]) {
+            let enums: string [] = i.spec.definition.properties[key].enum;
+            if (enums && Array.isArray(enums)) {
+                enums.push("enum")
+            } else {
+                enums = ['enum'];
+            }
+            i.spec.definition.properties[key].enum = enums;
+            setIntegration(i, true);
+        }
+    }
+
+    function deleteEnum(val: string) {
+        const enumVal = getPropertyValue('enum');
+        const i = CamelUtil.cloneIntegration(integration);
+        if (enumVal && Array.isArray(enumVal) && i.spec.definition) {
+            const enums: string[] = [...enumVal];
+            setPropertyValue('enum', enums.filter(e => e !== val));
+        }
+    }
+
+    function renameEnum(index: number, newVal: string) {
+        const enumVal = getPropertyValue('enum');
+        const i = CamelUtil.cloneIntegration(integration);
+        if (enumVal && Array.isArray(enumVal) && i.spec.definition) {
+            const enums: string[] = [...enumVal];
+            enums[index] = newVal;
+            setPropertyValue('enum', enums);
+        }
+    }
+
+    function getPropertyEnumField(field: string, label: string, isRequired: boolean, span: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) {
+        const enumVal = getPropertyValue(field);
+        return (
+            <GridItem span={span}>
+                <FormGroup fieldId={key + field} isRequired={isRequired}>
+                    <LabelGroup
+                        categoryName={label}
+                        numLabels={enumVal?.length || 0}
+                        isEditable
+                        addLabelControl={
+                            <Button variant="link" icon={<AddIcon/>} onClick={event => addEnum()}>
+                                Add
+                            </Button>
+                        }
+                    >
+                        {enumVal && enumVal.map((val: string, index: number) => (
+                            <Label
+                                key={val}
+                                id={val}
+                                color="blue"
+                                isEditable
+                                onClose={() => deleteEnum(val)}
+                                onEditCancel={(_event, prevText) => {}}
+                                onEditComplete={(event, newText) => {
+                                    if (event.type === 'mousedown') {
+                                        renameEnum(index, val)
+                                    } else if (event.type === 'keydown' && (event as KeyboardEvent).key === 'Tab') {
+                                        renameEnum(index, newText)
+                                    } else if (event.type === 'keydown' && (event as KeyboardEvent).key === 'Enter') {
+                                        renameEnum(index, newText)
+                                    } else {
+                                        renameEnum(index, val)
+                                    }
+                                }}
+                            >
+                                {val}
+                            </Label>
+                        ))}
+                    </LabelGroup>
+                </FormGroup>
+            </GridItem>
+        )
+    }
+
     function renameProperty(newKey: string) {
         const oldKey = key;
-        newKey = newKey.replace(/[\W_]+/g,'');
+        newKey = newKey.replace(/[\W_]+/g, '');
         if (oldKey !== newKey) {
             if (integration.spec.definition?.properties) {
                 const o = (integration.spec.definition?.properties as any)
@@ -138,7 +246,6 @@ export function KameletDefinitionPropertyCard(props: Props) {
     }
 
     function setRequired(checked: boolean) {
-        console.log(required, key)
         const newRequired = [...required];
         if (checked && !newRequired.includes(key)) {
             newRequired.push(key);
@@ -146,7 +253,6 @@ export function KameletDefinitionPropertyCard(props: Props) {
             const index = newRequired.findIndex(r => r === key);
             newRequired.splice(index, 1);
         }
-        // console.log(newRequired)
         if (integration.spec.definition?.required) {
             integration.spec.definition.required.length = 0;
             integration.spec.definition.required.push(...newRequired)
@@ -212,6 +318,7 @@ export function KameletDefinitionPropertyCard(props: Props) {
                     {getPropertyField("format", "Format", false, 3)}
                     {getPropertyField("example", "Example", false, 6)}
                     {getPropertyField("default", "Default", false, 3)}
+                    {getPropertyValue('type') === 'string' && getPropertyEnumField("enum", "Enum", true, 12)}
                     {/*{getPropertyField("x-descriptors", "Descriptors", false, 12)}*/}
                 </Grid>
             </CardBody>

@@ -1,0 +1,219 @@
+apiVersion: camel.apache.org/v1
+kind: Kamelet
+metadata:
+  name: aws-s3-cdc-source
+  annotations:
+    camel.apache.org/kamelet.support.level: Preview
+    camel.apache.org/catalog.version: "4.1.0-SNAPSHOT"
+    camel.apache.org/kamelet.icon: >-
+      data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6c29kaXBvZGk9Imh0dHA6Ly9zb2RpcG9kaS5zb3VyY2Vmb3JnZS5uZXQvRFREL3NvZGlwb2RpLTAuZHRkIgogICB4bWxuczppbmtzY2FwZT0iaHR0cDovL3d3dy5pbmtzY2FwZS5vcmcvbmFtZXNwYWNlcy9pbmtzY2FwZSIKICAgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTAwIDEwMCIKICAgaGVpZ2h0PSI3Mi4xOTk5OTciCiAgIHZlcnNpb249IjEuMSIKICAgdmlld0JveD0iMCAwIDU5Ljg0OTk5OCA3Mi4xOTk5OTciCiAgIHdpZHRoPSI1OS44NDk5OTgiCiAgIHhtbDpzcGFjZT0icHJlc2VydmUiCiAgIGlkPSJzdmcxNDUiCiAgIHNvZGlwb2RpOmRvY25hbWU9ImRvd25sb2FkLnN2ZyIKICAgaW5rc2NhcGU6dmVyc2lvbj0iMS4wLjIgKGU4NmM4NzA4NzksIDIwMjEtMDEtMTUpIj48bWV0YWRhdGEKICAgICBpZD0ibWV0YWRhdGExNTEiPjxyZGY6UkRGPjxjYzpXb3JrCiAgICAgICAgIHJkZjphYm91dD0iIj48ZGM6Zm9ybWF0PmltYWdlL3N2Zyt4bWw8L2RjOmZvcm1hdD48ZGM6dHlwZQogICAgICAgICAgIHJkZjpyZXNvdXJjZT0iaHR0cDovL3B1cmwub3JnL2RjL2RjbWl0eXBlL1N0aWxsSW1hZ2UiIC8+PGRjOnRpdGxlPjwvZGM6dGl0bGU+PC9jYzpXb3JrPjwvcmRmOlJERj48L21ldGFkYXRhPjxkZWZzCiAgICAgaWQ9ImRlZnMxNDkiIC8+PHNvZGlwb2RpOm5hbWVkdmlldwogICAgIHBhZ2Vjb2xvcj0iI2ZmZmZmZiIKICAgICBib3JkZXJjb2xvcj0iIzY2NjY2NiIKICAgICBib3JkZXJvcGFjaXR5PSIxIgogICAgIG9iamVjdHRvbGVyYW5jZT0iMTAiCiAgICAgZ3JpZHRvbGVyYW5jZT0iMTAiCiAgICAgZ3VpZGV0b2xlcmFuY2U9IjEwIgogICAgIGlua3NjYXBlOnBhZ2VvcGFjaXR5PSIwIgogICAgIGlua3NjYXBlOnBhZ2VzaGFkb3c9IjIiCiAgICAgaW5rc2NhcGU6d2luZG93LXdpZHRoPSIxOTIwIgogICAgIGlua3NjYXBlOndpbmRvdy1oZWlnaHQ9IjEwMTYiCiAgICAgaWQ9Im5hbWVkdmlldzE0NyIKICAgICBzaG93Z3JpZD0iZmFsc2UiCiAgICAgZml0LW1hcmdpbi10b3A9IjAuMSIKICAgICBmaXQtbWFyZ2luLWxlZnQ9IjAuMSIKICAgICBmaXQtbWFyZ2luLXJpZ2h0PSIwLjEiCiAgICAgZml0LW1hcmdpbi1ib3R0b209IjAuMSIKICAgICBpbmtzY2FwZTp6b29tPSI4LjE5IgogICAgIGlua3NjYXBlOmN4PSIyOS45MjUiCiAgICAgaW5rc2NhcGU6Y3k9IjM2LjEiCiAgICAgaW5rc2NhcGU6d2luZG93LXg9IjAiCiAgICAgaW5rc2NhcGU6d2luZG93LXk9IjI3IgogICAgIGlua3NjYXBlOndpbmRvdy1tYXhpbWl6ZWQ9IjEiCiAgICAgaW5rc2NhcGU6Y3VycmVudC1sYXllcj0ic3ZnMTQ1IiAvPjxnCiAgICAgaWQ9IkFtYXpvbl9DbG91ZFNlYXJjaCIKICAgICB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMjAuMDc1LC0xMy45KSI+PGcKICAgICAgIGlkPSJnMTQyIj48cG9seWdvbgogICAgICAgICBmaWxsPSIjZDlhNzQxIgogICAgICAgICBwb2ludHM9IjIzLjk4NywzNi4yMDEgNTQuNDYyLDQwLjQ5NCA1NC40Niw1OS41MDYgMjMuOTg1LDYzLjc5MyAiCiAgICAgICAgIGlkPSJwb2x5Z29uMTIwIiAvPjxwb2x5Z29uCiAgICAgICAgIGZpbGw9IiM4NzY5MjkiCiAgICAgICAgIHBvaW50cz0iNTAuMDAzLDE0IDIwLjE3OSwyOC45MDggMjAuMTc5LDM3LjM0NCA1MC4wMDMsMjguMzk5ICIKICAgICAgICAgaWQ9InBvbHlnb24xMjIiIC8+PHBvbHlnb24KICAgICAgICAgZmlsbD0iIzg3NjkyOSIKICAgICAgICAgcG9pbnRzPSI0OS45OTcsODYgMjAuMTksNzEuMDk0IDIwLjE5LDYyLjY1NCA0OS45OTksNzEuNiAiCiAgICAgICAgIGlkPSJwb2x5Z29uMTI0IiAvPjxwb2x5Z29uCiAgICAgICAgIGZpbGw9IiNkOWE3NDEiCiAgICAgICAgIHBvaW50cz0iNTAuMDAzLDE0IDc5LjgyNSwyOC45MTQgNzkuODIzLDM3LjM1IDUwLjAwMywyOC4zOTkgIgogICAgICAgICBpZD0icG9seWdvbjEyNiIgLz48cG9seWdvbgogICAgICAgICBmaWxsPSIjZDlhNzQxIgogICAgICAgICBwb2ludHM9IjQ5Ljk5Nyw4NiA3OS44MDYsNzEuMDk5IDc5LjgwNiw2Mi42NiA0OS45OTksNzEuNiAiCiAgICAgICAgIGlkPSJwb2x5Z29uMTI4IiAvPjxwb2x5Z29uCiAgICAgICAgIGZpbGw9IiM4NzY5MjkiCiAgICAgICAgIHBvaW50cz0iMjAuMTc5LDI4LjkwOCAyMy45ODksMjcuMDA0IDIzLjk4NSw3Mi45OSAyMC4xNzUsNzEuMDg2ICIKICAgICAgICAgaWQ9InBvbHlnb24xMzAiIC8+PHBvbHlnb24KICAgICAgICAgZmlsbD0iIzg3NjkyOSIKICAgICAgICAgcG9pbnRzPSI1MC4wMDEsNDAuODMyIDM5LjAxOSw0Mi4yMjkgMzkuMDE3LDU3Ljc2MiA0OS45OTksNTkuMTYgIgogICAgICAgICBpZD0icG9seWdvbjEzMiIgLz48cG9seWdvbgogICAgICAgICBmaWxsPSIjODc2OTI5IgogICAgICAgICBwb2ludHM9IjM1LjA4Myw0Mi43MjkgMjcuOTU0LDQzLjYzNyAyNy45NTQsNTYuMzU0IDM1LjA4MSw1Ny4yNiAiCiAgICAgICAgIGlkPSJwb2x5Z29uMTM0IiAvPjxwb2x5Z29uCiAgICAgICAgIGZpbGw9IiM2MjRhMWUiCiAgICAgICAgIHBvaW50cz0iNzkuODIzLDM3LjM1IDU0LjQ4MSw0MC40OTYgMjMuOTg3LDM2LjIwMSA1MC4wMDMsMjguMzk5ICIKICAgICAgICAgaWQ9InBvbHlnb24xMzYiIC8+PHBvbHlnb24KICAgICAgICAgZmlsbD0iI2ZhZDc5MSIKICAgICAgICAgcG9pbnRzPSI3OS44MDYsNjIuNjYgNTQuNDYsNTkuNTA2IDIzLjk4NSw2My43OTMgNDkuOTk5LDcxLjYgIgogICAgICAgICBpZD0icG9seWdvbjEzOCIgLz48cG9seWdvbgogICAgICAgICBmaWxsPSIjZDlhNzQxIgogICAgICAgICBwb2ludHM9IjUwLjAwMSw0MC44MzIgNzkuODA4LDQ0LjYyOSA3OS44MDgsNTUuMzMgNDkuOTk5LDU5LjA5MiAiCiAgICAgICAgIGlkPSJwb2x5Z29uMTQwIiAvPjwvZz48L2c+PC9zdmc+Cg==
+    camel.apache.org/provider: Apache Software Foundation
+    camel.apache.org/kamelet.group: AWS S3 CDC
+    camel.apache.org/kamelet.namespace: "AWS"
+    camel.apache.org/keda.type: aws-s3-cdc-queue
+  labels:
+    camel.apache.org/kamelet.type: source
+spec:
+  definition:
+    title: AWS S3 CDC Source
+    description: >-
+      Receive data from AWS SQS subscribed to Eventbridge Bus reporting events related to an S3 bucket or multiple buckets.
+
+      Access Key/Secret Key are the basic method for authenticating to the AWS
+      SQS Service.
+
+      To use this Kamelet you'll need to set up Eventbridge on your bucket and subscribe Eventbridge bus to an SQS Queue.
+      
+      For doing this you'll need to enable Evenbridge notification on your bucket and creating a rule on Eventbridge console related to all the events on S3 bucket and pointing to the SQS Queue specified as parameter in this Kamelet.
+    required:
+      - accessKey
+      - secretKey
+      - queueNameOrArn
+      - region
+    type: object
+    properties:
+      queueNameOrArn:
+        title: Queue Name
+        description: The SQS Queue Name or ARN
+        type: string
+      deleteAfterRead:
+        title: Auto-delete Messages
+        description: Delete messages after consuming them
+        type: boolean
+        x-descriptors:
+          - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: true
+      accessKey:
+        title: Access Key
+        description: The access key obtained from AWS.
+        type: string
+        format: password
+        x-descriptors:
+          - 'urn:alm:descriptor:com.tectonic.ui:password'
+          - 'urn:camel:group:credentials'
+          - 'urn:keda:authentication:awsAccessKeyID'
+          - 'urn:keda:required'
+      secretKey:
+        title: Secret Key
+        description: The secret key obtained from AWS.
+        type: string
+        format: password
+        x-descriptors:
+          - 'urn:alm:descriptor:com.tectonic.ui:password'
+          - 'urn:camel:group:credentials'
+          - 'urn:keda:authentication:awsSecretAccessKey'
+          - 'urn:keda:required'
+      region:
+        title: AWS Region
+        description: The AWS region to access.
+        type: string
+        x-descriptors:
+          - 'urn:keda:metadata:awsRegion'
+          - 'urn:keda:required'
+        enum:
+          - ap-south-1
+          - eu-south-1
+          - us-gov-east-1
+          - me-central-1
+          - ca-central-1
+          - eu-central-1
+          - us-iso-west-1
+          - us-west-1
+          - us-west-2
+          - af-south-1
+          - eu-north-1
+          - eu-west-3
+          - eu-west-2
+          - eu-west-1
+          - ap-northeast-3
+          - ap-northeast-2
+          - ap-northeast-1
+          - me-south-1
+          - sa-east-1
+          - ap-east-1
+          - cn-north-1
+          - us-gov-west-1
+          - ap-southeast-1
+          - ap-southeast-2
+          - us-iso-east-1
+          - ap-southeast-3
+          - us-east-1
+          - us-east-2
+          - cn-northwest-1
+          - us-isob-east-1
+          - aws-global
+          - aws-cn-global
+          - aws-us-gov-global
+          - aws-iso-global
+          - aws-iso-b-global
+      autoCreateQueue:
+        title: Autocreate Queue
+        description: Setting the autocreation of the SQS queue.
+        type: boolean
+        x-descriptors:
+          - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: false
+      amazonAWSHost:
+        title: AWS Host
+        description: The hostname of the Amazon AWS cloud.
+        type: string
+        default: amazonaws.com
+      protocol:
+        title: Protocol
+        description: The underlying protocol used to communicate with SQS
+        type: string
+        example: http or https
+        default: https
+      queueURL:
+        title: Queue URL
+        description: The full SQS Queue URL (required if using KEDA)
+        type: string
+        x-descriptors:
+          - 'urn:keda:metadata:queueURL'
+          - 'urn:keda:required'
+      uriEndpointOverride:
+        title: Overwrite Endpoint URI
+        description: >-
+          The overriding endpoint URI. To use this option, you must also select
+          the `overrideEndpoint` option.
+        type: string
+      overrideEndpoint:
+        title: Endpoint Overwrite
+        description: >-
+          Select this option to override the endpoint URI. To use this option,
+          you must also provide a URI for the `uriEndpointOverride` option.
+        type: boolean
+        x-descriptors:
+          - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: false
+      delay:
+        title: Delay
+        description: The number of milliseconds before the next poll of the selected stream
+        type: integer
+        default: 500
+      greedy:
+        title: Greedy Scheduler
+        description: >-
+          If greedy is enabled, then the polling will happen immediately again,
+          if the previous run polled 1 or more messages.
+        type: boolean
+        x-descriptors:
+          - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: false
+      getObject:
+        title: Greedy Object in Bucket
+        description: >-
+          If getObject is enabled, then the file created in the bucket will be
+          get and returned as body, if not only the event will returned as body.
+        type: boolean
+        x-descriptors:
+          - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: false
+  dependencies:
+    - 'camel:core'
+    - 'camel:aws2-sqs'
+    - 'camel:aws2-s3'
+    - 'camel:jsonpath'
+    - 'camel:kamelet'
+    - 'camel:jackson'
+  template:
+    from:
+      uri: 'aws2-sqs:{{queueNameOrArn}}'
+      parameters:
+        autoCreateQueue: '{{autoCreateQueue}}'
+        secretKey: '{{?secretKey}}'
+        accessKey: '{{?accessKey}}'
+        region: '{{region}}'
+        deleteAfterRead: '{{deleteAfterRead}}'
+        amazonAWSHost: '{{?amazonAWSHost}}'
+        protocol: '{{?protocol}}'
+        uriEndpointOverride: '{{?uriEndpointOverride}}'
+        overrideEndpoint: '{{overrideEndpoint}}'
+        delay: '{{delay}}'
+        greedy: '{{greedy}}'
+      steps:
+        - choice:
+            precondition: true
+            when:
+              - simple: '${properties:getObject:true}'
+                steps:
+                  - unmarshal:
+                      json:
+                        library: Jackson
+                        unmarshalType: com.fasterxml.jackson.databind.JsonNode
+                  - set-property:
+                      name: s3-event-name
+                      jsonpath: $.detail.reason
+                  - choice:
+                      when:
+                        - simple: '${exchangeProperty.s3-event-name} == "PutObject"'
+                          steps:
+                            - set-property:
+                                name: aws-s3-name
+                                jsonpath: $.detail.object.key
+                            - set-property:
+                                name: aws-s3-bucket
+                                jsonpath: $.detail.bucket.name
+                            - toD: >-
+                                aws2-s3:${exchangeProperty.aws-s3-bucket}?accessKey={{accessKey}}&secretKey={{secretKey}}&region={{region}}&operation=getObject&keyName=${exchangeProperty.aws-s3-name}
+        - to: 'kamelet:sink'

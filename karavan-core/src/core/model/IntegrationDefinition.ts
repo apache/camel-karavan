@@ -25,6 +25,7 @@ export class DefinitionProperty {
     example?: any;
     format?: string;
     "x-descriptors"?: string[];
+    enum?: string[];
 
     public constructor(init?: Partial<DefinitionProperty>) {
         Object.assign(this, init);
