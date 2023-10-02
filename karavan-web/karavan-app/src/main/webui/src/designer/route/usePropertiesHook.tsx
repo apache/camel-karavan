@@ -23,7 +23,7 @@ import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {RouteToCreate} from "../utils/CamelUi";
-import {useDesignerStore, useIntegrationStore} from "../KaravanStore";
+import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 
 export function usePropertiesHook (isRouteDesigner: boolean = true) {

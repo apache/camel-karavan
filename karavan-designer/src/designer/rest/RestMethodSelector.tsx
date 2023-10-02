@@ -24,7 +24,7 @@ import {
 import '../karavan.css';
 import {CamelUi} from "../utils/CamelUi";
 import {DslMetaModel} from "../utils/DslMetaModel";
-import {useDesignerStore} from "../KaravanStore";
+import {useDesignerStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 
 interface Props {

@@ -33,7 +33,7 @@ import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelUi} from "./utils/CamelUi";
-import {useDesignerStore, useIntegrationStore} from "./KaravanStore";
+import {useDesignerStore, useIntegrationStore} from "./DesignerStore";
 import {shallow} from "zustand/shallow";
 import {getDesignerIcon} from "./utils/KaravanIcons";
 import {InfrastructureAPI} from "./utils/InfrastructureAPI";

@@ -20,7 +20,7 @@ import {
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {useRouteDesignerHook} from "./useRouteDesignerHook";
-import {useDesignerStore} from "../KaravanStore";
+import {useDesignerStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 
 export function DeleteConfirmation() {

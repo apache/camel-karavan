@@ -30,7 +30,7 @@ import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {DslElement} from "./DslElement";
 import {CamelUi} from "../utils/CamelUi";
 import {useRouteDesignerHook} from "./useRouteDesignerHook";
-import {useConnectionsStore, useDesignerStore, useIntegrationStore, useSelectorStore} from "../KaravanStore";
+import {useConnectionsStore, useDesignerStore, useIntegrationStore, useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import useResizeObserver from "./useResizeObserver";
 import {Command, EventBus} from "../utils/EventBus";

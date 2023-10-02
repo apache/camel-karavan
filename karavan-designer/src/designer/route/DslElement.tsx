@@ -31,7 +31,7 @@ import {EventBus} from "../utils/EventBus";
 import {ChildElement, CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
-import {useDesignerStore, useIntegrationStore} from "../KaravanStore";
+import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "./useRouteDesignerHook";
 

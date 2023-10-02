@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {Component} from 'react';
+import React from 'react';
 import {
     Button,
     Modal,
@@ -24,70 +24,49 @@ import {
     Badge, Flex, CardTitle,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {KameletModel, Property} from "karavan-core/lib/model/KameletModels";
-import {Table /* data-codemods */, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import {Property} from "karavan-core/lib/model/KameletModels";
+import {Table, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import {CamelUi} from "../../designer/utils/CamelUi";
+import {useKnowledgebaseStore} from "../KnowledgebaseStore";
+import {shallow} from "zustand/shallow";
 
-interface Props {
-    kamelet?: KameletModel,
-    isOpen: boolean;
-}
+export function KameletModal() {
 
-interface State {
-    isOpen: boolean;
-    kamelet?: KameletModel,
-}
+    const [kamelet, isModalOpen, setModalOpen] = useKnowledgebaseStore((s) =>
+        [s.kamelet, s.isModalOpen, s.setModalOpen], shallow)
 
-export class KameletModal extends Component<Props, State> {
-
-    public state: State = {
-        isOpen: this.props.isOpen,
-        kamelet: this.props.kamelet,
-    };
-
-    setModalOpen = (open: boolean) => {
-        this.setState({isOpen: false});
-    }
-
-    componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        if (prevState.isOpen !== this.props.isOpen) {
-            this.setState({isOpen: this.props.isOpen});
-        }
-    }
-
-    getKameletProperties = (properties: any): any[] => {
+    function getKameletProperties (properties: any): any[]  {
         return properties
             ? Array.from(new Map(Object.entries(properties)), ([name, value]) => (value))
             : [];
     }
 
-    render() {
-        return (
-            <Modal
-                aria-label={"Kamelet"}
-                width={'fit-content'}
-                maxLength={200}
-                title={this.state.kamelet?.spec.definition.title}
-                isOpen={this.state.isOpen}
-                onClose={() => this.setModalOpen(false)}
-                actions={[
-                    <div className="modal-footer">
-                        <ActionGroup className="deploy-buttons">
-                            <Button key="cancel" variant="primary"
-                                    onClick={e => this.setModalOpen(false)}>Close</Button>
-                        </ActionGroup>
-                    </div>
-                ]}
-            >
-                <Flex direction={{default: 'column'}} key={this.state.kamelet?.metadata.name}
-                      className="kamelet-modal-card">
-                    <CardHeader actions={{ actions: <><Badge className="badge"
-                                   isRead> {this.state.kamelet?.metadata.labels["camel.apache.org/kamelet.type"].toLowerCase()}</Badge></>, hasNoOffset: false, className: undefined}} >
-                        {this.state.kamelet && CamelUi.getIconFromSource(this.state.kamelet?.icon())}
-                        
-                    </CardHeader>
-                    <Text className="description">{this.state.kamelet?.spec.definition.description}</Text>
-                    {this.state.kamelet?.spec.definition.properties && this.state.kamelet?.spec.definition.properties.length !== 0 &&
+    return (
+        <Modal
+            aria-label={"Kamelet"}
+            width={'fit-content'}
+            maxLength={200}
+            title={kamelet?.spec.definition.title}
+            isOpen={isModalOpen}
+            onClose={() => setModalOpen(false)}
+            actions={[
+                <div className="modal-footer">
+                    <ActionGroup className="deploy-buttons">
+                        <Button key="cancel" variant="primary"
+                                onClick={e => setModalOpen(false)}>Close</Button>
+                    </ActionGroup>
+                </div>
+            ]}
+        >
+            <Flex direction={{default: 'column'}} key={kamelet?.metadata.name}
+                  className="kamelet-modal-card">
+                <CardHeader actions={{ actions: <><Badge className="badge"
+                                                         isRead> {kamelet?.metadata.labels["camel.apache.org/kamelet.type"].toLowerCase()}</Badge></>, hasNoOffset: false, className: undefined}} >
+                    {kamelet && CamelUi.getIconFromSource(kamelet?.icon())}
+
+                </CardHeader>
+                <Text className="description">{kamelet?.spec.definition.description}</Text>
+                {kamelet?.spec.definition.properties && kamelet?.spec.definition.properties.length !== 0 &&
                     <div>
                         <CardTitle>Properties</CardTitle>
                         <Table aria-label="Simple table" variant='compact'>
@@ -101,7 +80,7 @@ export class KameletModal extends Component<Props, State> {
                                 </Tr>
                             </Thead>
                             <Tbody>
-                                {this.getKameletProperties(this.state.kamelet?.spec.definition.properties).map((p: Property, idx: number) => (
+                                {getKameletProperties(kamelet?.spec.definition.properties).map((p: Property, idx: number) => (
                                     <Tr key={idx}>
                                         <Td key={`${idx}_title`}>{p.title}</Td>
                                         <Td key={`${idx}_type`}>{p.type}</Td>
@@ -113,9 +92,8 @@ export class KameletModal extends Component<Props, State> {
                             </Tbody>
                         </Table>
                     </div>
-                    }
-                </Flex>
-            </Modal>
-        );
-    }
+                }
+            </Flex>
+        </Modal>
+    )
 }

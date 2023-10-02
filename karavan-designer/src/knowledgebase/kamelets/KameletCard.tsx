@@ -22,49 +22,44 @@ import '../../designer/karavan.css';
 import {KameletModel} from "karavan-core/lib/model/KameletModels";
 import {CamelUi} from "../../designer/utils/CamelUi";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import {useKnowledgebaseStore} from "../KnowledgebaseStore";
+import {shallow} from "zustand/shallow";
 
 interface Props {
     kamelet: KameletModel,
-    onClickCard: any
 }
 
-interface State {
-    kamelet: KameletModel,
-}
+export function KameletCard(props: Props) {
 
-export class KameletCard extends React.Component<Props, State> {
+    const [setKamelet, setModalOpen] = useKnowledgebaseStore((s) =>
+        [s.setKamelet, s.setModalOpen], shallow)
 
-    public state: State = {
-        kamelet: this.props.kamelet
-    };
+    const kamelet = props.kamelet;
+    const isCustom = KameletApi.getCustomKameletNames().includes(kamelet.metadata.name);
 
-    click = (event: React.MouseEvent) => {
-        event.stopPropagation()
-        this.props.onClickCard.call(this, this.state.kamelet);
+    function click (event: React.MouseEvent) {
+        setKamelet(kamelet)
+        setModalOpen(true);
+
     }
-
-    render() {
-        const kamelet = this.state.kamelet;
-        const isCustom = KameletApi.getCustomKameletNames().includes(kamelet.metadata.name);
-        return (
-            <Card  isCompact key={kamelet.metadata.name} className="kamelet-card"
-                  onClick={event => this.click(event)}
-            >
-                <CardHeader className="header-labels">
-                    {isCustom && <Badge className="custom">custom</Badge>}
-                    <Badge isRead className="support-level labels">{kamelet.metadata.annotations["camel.apache.org/kamelet.support.level"]}</Badge>
-                </CardHeader>
-                <CardHeader>
-                    {CamelUi.getIconFromSource(kamelet.icon())}
-                    <CardTitle>{kamelet.spec.definition.title}</CardTitle>
-                </CardHeader>
-                <CardBody>{kamelet.spec.definition.description}</CardBody>
-                <CardFooter className="footer-labels">
-                    <Badge isRead className="labels">{kamelet.metadata.labels["camel.apache.org/kamelet.type"].toLowerCase()}</Badge>
-                    <Badge isRead className="version labels">{kamelet.metadata.annotations["camel.apache.org/catalog.version"].toLowerCase()}</Badge>
-                    {/*</div>*/}
-                </CardFooter>
-            </Card>
-        );
-    }
+    return (
+        <Card  isCompact key={kamelet.metadata.name} className="kamelet-card"
+               onClick={event => click(event)}
+        >
+            <CardHeader className="header-labels">
+                {isCustom && <Badge className="custom">custom</Badge>}
+                <Badge isRead className="support-level labels">{kamelet.metadata.annotations["camel.apache.org/kamelet.support.level"]}</Badge>
+            </CardHeader>
+            <CardHeader>
+                {CamelUi.getIconFromSource(kamelet.icon())}
+                <CardTitle>{kamelet.spec.definition.title}</CardTitle>
+            </CardHeader>
+            <CardBody>{kamelet.spec.definition.description}</CardBody>
+            <CardFooter className="footer-labels">
+                <Badge isRead className="labels">{kamelet.metadata.labels["camel.apache.org/kamelet.type"].toLowerCase()}</Badge>
+                <Badge isRead className="version labels">{kamelet.metadata.annotations["camel.apache.org/catalog.version"].toLowerCase()}</Badge>
+                {/*</div>*/}
+            </CardFooter>
+        </Card>
+    )
 };

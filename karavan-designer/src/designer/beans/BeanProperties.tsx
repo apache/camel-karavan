@@ -39,7 +39,7 @@ import {InfrastructureAPI} from "../utils/InfrastructureAPI";
 import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
-import {useDesignerStore} from "../KaravanStore";
+import {useDesignerStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {IntegrationHeader} from "../utils/IntegrationHeader";
 

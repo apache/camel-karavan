@@ -37,7 +37,7 @@ import {DslMetaModel} from "../utils/DslMetaModel";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {RestConfigurationCard} from "./RestConfigurationCard";
 import {v4 as uuidv4} from "uuid";
-import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../KaravanStore";
+import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 
 export function RestDesigner() {

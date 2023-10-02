@@ -30,7 +30,7 @@ import {CamelUi} from "../utils/CamelUi";
 import {CamelMetadataApi, DataFormats, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {IntegrationHeader} from "../utils/IntegrationHeader";
 import CloneIcon from "@patternfly/react-icons/dist/esm/icons/clone-icon";
-import {useDesignerStore, useIntegrationStore} from "../KaravanStore";
+import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {usePropertiesHook} from "./usePropertiesHook";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";

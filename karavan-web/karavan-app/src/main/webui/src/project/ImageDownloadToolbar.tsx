@@ -43,7 +43,7 @@ export function ImageDownloadToolbar() {
     }
 
     function isIntegration(): boolean {
-        return isYaml() && file?.code !== undefined && CamelDefinitionYaml.yamlIsIntegration(file.code);
+        return isYaml() && file?.code !== undefined && CamelDefinitionYaml.yamlIsIntegration(file.code) !== 'none';
     }
 
     function downloadImage() {

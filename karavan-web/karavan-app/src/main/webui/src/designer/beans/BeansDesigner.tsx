@@ -33,7 +33,7 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {BeanProperties} from "./BeanProperties";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {BeanCard} from "./BeanCard";
-import {useDesignerStore, useIntegrationStore} from "../KaravanStore";
+import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 
 export function BeansDesigner() {

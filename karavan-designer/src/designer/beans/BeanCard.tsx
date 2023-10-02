@@ -21,7 +21,7 @@ import {
 import './bean.css';
 import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
-import {useDesignerStore} from "../KaravanStore";
+import {useDesignerStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 
 interface Props {

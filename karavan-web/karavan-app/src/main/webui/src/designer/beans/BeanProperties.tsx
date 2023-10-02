@@ -39,7 +39,7 @@ import {InfrastructureAPI} from "../utils/InfrastructureAPI";
 import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
-import {useDesignerStore} from "../KaravanStore";
+import {useDesignerStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {IntegrationHeader} from "../utils/IntegrationHeader";
 
@@ -194,7 +194,8 @@ export function BeanProperties (props: Props) {
                         const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? <KubernetesIcon/> : <DockerIcon/>
                         return (
                             <div key={"key-" + i} className="bean-property">
-                                <TextInput placeholder="Bean Field Name" className="text-field" isRequired type="text" id="key" name="key" value={key}
+                                <TextInput placeholder="Bean Field Name" className="text-field" isRequired type="text" id={"key-" + i}
+                                           name={"key-" + i} value={key}
                                             onChange={(_, beanFieldName) => {
                                                 propertyChanged(i, beanFieldName, value, showPassword)
                                             }}/>
@@ -211,8 +212,8 @@ export function BeanProperties (props: Props) {
                                             type={isSecret && !showPassword ? "password" : "text"}
                                             className="text-field"
                                             isRequired
-                                            id="value"
-                                            name="value"
+                                            id={"value-" + i}
+                                            name={"value-" + i}
                                             value={value}
                                             onChange={(_, value) => {
                                                 propertyChanged(i, key, value, showPassword)

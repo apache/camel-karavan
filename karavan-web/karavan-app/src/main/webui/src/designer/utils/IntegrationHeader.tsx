@@ -16,26 +16,43 @@
  */
 import React from 'react';
 import {FormGroup, TextInput, Title} from "@patternfly/react-core";
-import {useIntegrationStore} from "../KaravanStore";
+import {useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 
 export function IntegrationHeader () {
 
     const [integration] = useIntegrationStore((state) => [state.integration], shallow)
 
+    const isKamelet = integration.type === 'kamelet';
+
+    function getKameletType(): string {
+        // const labels = integration.metadata.labels;
+        // if (labels && labels.l)
+        // "camel.apache.org/kamelet.type"
+        return '';
+    }
+
     return (
         <div className="headers">
-            <Title headingLevel="h1" size="md">Integration</Title>
+            {/*<Title headingLevel="h1" size="md">Integration</Title>*/}
             {/*<FormGroup label="Title" fieldId="title" isRequired>*/}
             {/*    <TextInput className="text-field" type="text" id="title" name="title" isReadOnly*/}
             {/*               value={*/}
             {/*                   CamelUi.titleFromName(this.props.integration.metadata.name)*/}
             {/*               }/>*/}
             {/*</FormGroup>*/}
+            <FormGroup label="Kind" fieldId="kind" isRequired>
+                <TextInput className="text-field" type="text" id="kind" name="kind"
+                           value={integration.kind} readOnlyVariant="default"/>
+            </FormGroup>
             <FormGroup label="Name" fieldId="name" isRequired>
                 <TextInput className="text-field" type="text" id="name" name="name"
                            value={integration.metadata.name} readOnlyVariant="default"/>
             </FormGroup>
+            {isKamelet && <FormGroup label="Kamelet type" fieldId="type" isRequired>
+                <TextInput className="text-field" type="text" id="type" name="type"
+                           value={integration.metadata.labels?.["camel.apache.org/kamelet.type"]} readOnlyVariant="default"/>
+            </FormGroup>}
         </div>
     )
 }

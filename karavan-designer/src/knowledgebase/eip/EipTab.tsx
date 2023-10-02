@@ -23,49 +23,37 @@ import '../../designer/karavan.css';
 import {EipCard} from "./EipCard";
 import {EipModal} from "./EipModal";
 import {CamelModelMetadata, ElementMeta} from "karavan-core/lib/model/CamelMetadata";
+import {useKnowledgebaseStore} from "../KnowledgebaseStore";
+import {shallow} from "zustand/shallow";
 
 interface Props {
     dark: boolean,
     filter: string,
 }
 
-interface State {
-    element?: ElementMeta;
-    isModalOpen: boolean;
-    repository: string,
-    path: string,
-    elements: ElementMeta[],
-}
+export function EipTab(props: Props) {
 
-export class EipTab extends React.Component<Props, State> {
+    const [isModalOpen] = useKnowledgebaseStore((s) =>
+        [s.isModalOpen], shallow)
 
-    public state: State = {
-        isModalOpen: false,
-        repository: '',
-        path: '',
-        elements: CamelModelMetadata.sort((a: ElementMeta,b: ElementMeta) => a.name > b.name ? 1 : -1),
-    };
 
-    select = (e: ElementMeta)=> {
-        this.setState({element: e, isModalOpen: true})
-    }
+    const {filter} = props;
+    const elements = CamelModelMetadata
+        .filter(c => c.name.toLowerCase().includes(filter.toLowerCase()))
+        .sort((a: ElementMeta, b: ElementMeta) => a.name > b.name ? 1 : -1);
 
-    render() {
-        const element = this.state.element;
-        const {filter} = this.props;
-        const elements = CamelModelMetadata.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()))
-        return (
-            <PageSection variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light} padding={{ default: 'noPadding' }} className="kamelet-section">
-                <EipModal key={element?.name + this.state.isModalOpen.toString()}
-                          isOpen={this.state.isModalOpen} element={element}/>
-                <PageSection isFilled className="kamelets-page" variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
-                    <Gallery hasGutter>
-                        {elements.map(c => (
-                            <EipCard key={c.name} element={c} onClickCard={this.select}/>
-                        ))}
-                    </Gallery>
-                </PageSection>
+    return (
+        <PageSection variant={props.dark ? PageSectionVariants.darker : PageSectionVariants.light}
+                     padding={{default: 'noPadding'}} className="kamelet-section">
+            {isModalOpen && <EipModal/>}
+            <PageSection isFilled className="kamelets-page"
+                         variant={props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
+                <Gallery hasGutter>
+                    {elements.map(c => (
+                        <EipCard key={c.name} element={c}/>
+                    ))}
+                </Gallery>
             </PageSection>
-        );
-    }
+        </PageSection>
+    )
 }

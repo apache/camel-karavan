@@ -66,7 +66,7 @@ import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
 import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
 import {ModalEditor} from "./ModalEditor";
 import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
-import {useDesignerStore, useIntegrationStore} from "../../KaravanStore";
+import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {DataFormatDefinition, ExpressionDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";

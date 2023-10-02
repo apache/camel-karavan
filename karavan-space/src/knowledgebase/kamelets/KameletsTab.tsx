@@ -22,9 +22,10 @@ import {
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {KameletCard} from "./KameletCard";
-import {KameletModel} from "karavan-core/lib/model/KameletModels";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {KameletModal} from "./KameletModal";
+import {useKnowledgebaseStore} from "../KnowledgebaseStore";
+import {shallow} from "zustand/shallow";
 
 interface Props {
     dark: boolean,
@@ -32,52 +33,32 @@ interface Props {
     customOnly: boolean,
 }
 
-interface State {
-    kamelet?: KameletModel;
-    isModalOpen: boolean;
-    repository: string,
-    path: string,
-    kamelets: KameletModel[],
+interface Props {
+    dark: boolean,
+    filter: string,
 }
 
-export class KameletsTab extends React.Component<Props, State> {
+export function KameletsTab(props: Props) {
 
-    public state: State = {
-        isModalOpen: false,
-        repository: '',
-        path: '',
-        kamelets: [],
-    };
+    const [isModalOpen] = useKnowledgebaseStore((s) =>
+        [s.isModalOpen], shallow)
 
-    componentDidMount() {
-        this.setState({kamelets: KameletApi.getKamelets()})
-    }
-
-    select = (k: KameletModel) => {
-        this.setState({kamelet: k, isModalOpen: true})
-    }
-
-    render() {
-        const {dark} = this.props;
-        const {kamelets, kamelet, isModalOpen} = this.state;
-        const {filter, customOnly} = this.props;
-        let kameletList = kamelets.filter(kamelet =>
-            kamelet.spec.definition.title.toLowerCase().includes(filter.toLowerCase()));
-        if (customOnly) kameletList = kameletList.filter(k => KameletApi.getCustomKameletNames().includes(k.metadata.name));
-        return (
-            <PageSection variant={dark ? PageSectionVariants.darker : PageSectionVariants.light}
-                         padding={{default: 'noPadding'}} className="kamelet-section">
-                <KameletModal key={kamelet?.metadata.name + isModalOpen.toString()}
-                              isOpen={isModalOpen} kamelet={kamelet}/>
-                <PageSection isFilled className="kamelets-page"
-                             variant={dark ? PageSectionVariants.darker : PageSectionVariants.light}>
-                    <Gallery hasGutter>
-                        {kameletList.map(k => (
-                            <KameletCard key={k.metadata.name} kamelet={k} onClickCard={this.select}/>
-                        ))}
-                    </Gallery>
-                </PageSection>
+    const {filter, customOnly, dark} = props;
+    let kameletList = KameletApi.getKamelets().filter(kamelet =>
+        kamelet.spec.definition.title.toLowerCase().includes(filter.toLowerCase()));
+    if (customOnly) kameletList = kameletList.filter(k => KameletApi.getCustomKameletNames().includes(k.metadata.name));
+    return (
+        <PageSection variant={dark ? PageSectionVariants.darker : PageSectionVariants.light}
+                     padding={{default: 'noPadding'}} className="kamelet-section">
+            {isModalOpen && <KameletModal/>}
+            <PageSection isFilled className="kamelets-page"
+                         variant={dark ? PageSectionVariants.darker : PageSectionVariants.light}>
+                <Gallery hasGutter>
+                    {kameletList.map(k => (
+                        <KameletCard key={k.metadata.name} kamelet={k}/>
+                    ))}
+                </Gallery>
             </PageSection>
-        );
-    }
+        </PageSection>
+    )
 }

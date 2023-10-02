@@ -22,60 +22,37 @@ import {
 import '../../designer/karavan.css';
 import {ComponentCard} from "./ComponentCard";
 import {ComponentModal} from "./ComponentModal";
-import {Component} from "karavan-core/lib/model/ComponentModels";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
+import {shallow} from "zustand/shallow";
+import {useKnowledgebaseStore} from "../KnowledgebaseStore";
 
 interface Props {
     dark: boolean,
     filter: string,
-    onRefresh?: () => Promise<void>
 }
 
-interface State {
-    component?: Component;
-    isModalOpen: boolean;
-    repository: string,
-    path: string,
-    components: Component[],
-}
+export function ComponentsTab(props: Props) {
 
-export class ComponentsTab extends React.Component<Props, State> {
+    const [isModalOpen] = useKnowledgebaseStore((s) =>
+        [s.isModalOpen], shallow)
 
-    public state: State = {
-        isModalOpen: false,
-        repository: '',
-        path: '',
-        components: [],
-    };
 
-    componentDidMount() {
-        this.setState({components: ComponentApi.getComponents()})
-    }
-
-    select = (c: Component)=> {
-        this.setState({component: c, isModalOpen: true})
-    }
-
-    render() {
-        const component = this.state.component;
-        const {filter} = this.props;
-        const components = ComponentApi.getComponents().filter(c => {
-            return c.component.name.toLowerCase().includes(filter.toLowerCase())
+    const {filter} = props;
+    const components = ComponentApi.getComponents().filter(c => {
+        return c.component.name.toLowerCase().includes(filter.toLowerCase())
             || c.component.title.toLowerCase().includes(filter.toLowerCase())
             || c.component.description.toLowerCase().includes(filter.toLowerCase())
-        }).sort((a, b) => (a.component.title?.toLowerCase() > b.component.title?.toLowerCase() ? 1 : -1)) ;
-        return (
-            <PageSection variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light} padding={{ default: 'noPadding' }} className="kamelet-section">
-                <ComponentModal key={component?.component.name + this.state.isModalOpen.toString()}
-                                isOpen={this.state.isModalOpen} component={component}/>
-                <PageSection isFilled className="kamelets-page" variant={this.props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
-                    <Gallery hasGutter>
-                        {components.map(c => (
-                            <ComponentCard key={c.component.name} component={c} onClickCard={this.select}/>
-                        ))}
-                    </Gallery>
-                </PageSection>
+    }).sort((a, b) => (a.component.title?.toLowerCase() > b.component.title?.toLowerCase() ? 1 : -1)) ;
+    return (
+        <PageSection variant={props.dark ? PageSectionVariants.darker : PageSectionVariants.light} padding={{ default: 'noPadding' }} className="kamelet-section">
+            {isModalOpen && <ComponentModal/>}
+            <PageSection isFilled className="kamelets-page" variant={props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
+                <Gallery hasGutter>
+                    {components.map(c => (
+                        <ComponentCard key={c.component.name} component={c}/>
+                    ))}
+                </Gallery>
             </PageSection>
-        );
-    }
-};
+        </PageSection>
+    )
+}

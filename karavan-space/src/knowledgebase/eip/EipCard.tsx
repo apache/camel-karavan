@@ -21,47 +21,42 @@ import {
 import '../../designer/karavan.css';
 import {CamelUi} from "../../designer/utils/CamelUi";
 import {ElementMeta} from "karavan-core/lib/model/CamelMetadata";
+import {useKnowledgebaseStore} from "../KnowledgebaseStore";
+import {shallow} from "zustand/shallow";
 
 interface Props {
     element: ElementMeta,
-    onClickCard: any
 }
 
-interface State {
-    element: ElementMeta,
-}
+export function EipCard(props: Props) {
 
-export class EipCard extends React.Component<Props, State> {
+    const [setElement, setModalOpen] = useKnowledgebaseStore((s) =>
+        [s.setElement, s.setModalOpen], shallow)
 
-    public state: State = {
-        element: this.props.element
-    };
+    const element = props.element;
 
-    click = (event: React.MouseEvent) => {
-        event.stopPropagation()
-        this.props.onClickCard.call(this, this.state.element);
+    function click (event: React.MouseEvent) {
+        setElement(element)
+        setModalOpen(true);
     }
 
-    render() {
-        const component = this.state.element;
-        return (
-            <Card  isCompact key={component.name} className="kamelet-card"
-                onClick={event => this.click(event)}
-            >
-                <CardHeader>
-                </CardHeader>
-                <CardHeader>
-                    {CamelUi.getIconForDslName(component.className)}
-                    <CardTitle>{component.title}</CardTitle>
-                </CardHeader>
-                <CardBody>{component.description}</CardBody>
-                <CardFooter className="footer-labels">
-                    <div>
-                        {component.labels.split(',').map((s: string,  i: number) => <Badge key={s + i} isRead
+    return (
+        <Card  isCompact key={element.name} className="kamelet-card"
+               onClick={event => click(event)}
+        >
+            <CardHeader>
+            </CardHeader>
+            <CardHeader>
+                {CamelUi.getIconForDslName(element.className)}
+                <CardTitle>{element.title}</CardTitle>
+            </CardHeader>
+            <CardBody>{element.description}</CardBody>
+            <CardFooter className="footer-labels">
+                <div>
+                    {element.labels.split(',').map((s: string,  i: number) => <Badge key={s + i} isRead
                                                                                      className="labels">{s}</Badge>)}
-                    </div>
-                </CardFooter>
-            </Card>
-        )
-    }
-};
+                </div>
+            </CardFooter>
+        </Card>
+    )
+}

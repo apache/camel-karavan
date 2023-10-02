@@ -25,7 +25,7 @@ import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {Command, EventBus} from "../utils/EventBus";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {toPng} from 'html-to-image';
-import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../KaravanStore";
+import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 
 export function useRouteDesignerHook () {

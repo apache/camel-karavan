@@ -33,7 +33,7 @@ import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelUi} from "./utils/CamelUi";
-import {useDesignerStore, useIntegrationStore} from "./KaravanStore";
+import {useDesignerStore, useIntegrationStore} from "./DesignerStore";
 import {shallow} from "zustand/shallow";
 import {getDesignerIcon} from "./utils/KaravanIcons";
 import {InfrastructureAPI} from "./utils/InfrastructureAPI";
@@ -42,6 +42,7 @@ import {RestDesigner} from "./rest/RestDesigner";
 import {BeansDesigner} from "./beans/BeansDesigner";
 import {CodeEditor} from "./editor/CodeEditor";
 import BellIcon from '@patternfly/react-icons/dist/esm/icons/bell-icon';
+import {KameletDesigner} from "./kamelet/KameletDesigner";
 
 interface Props {
     onSave: (filename: string, yaml: string, propertyOnly: boolean) => void
@@ -71,7 +72,9 @@ export function KaravanDesigner(props: Props) {
         InfrastructureAPI.setOnSave(props.onSave);
 
         setSelectedStep(undefined);
-        setIntegration(makeIntegration(props.yaml, props.filename), false);
+        const i = makeIntegration(props.yaml, props.filename);
+        setIntegration(i, false);
+        setTab(i.kind === 'Kamelet' ? 'kamelet' : 'routes')
         reset();
         setDark(props.dark);
         setHideLogDSL(props.hideLogDSL === true);
@@ -84,8 +87,10 @@ export function KaravanDesigner(props: Props) {
 
     function makeIntegration(yaml: string, filename: string): Integration {
         try {
-            if (yaml && CamelDefinitionYaml.yamlIsIntegration(yaml)) {
-                return CamelDefinitionYaml.yamlToIntegration(props.filename, props.yaml)
+            const type = CamelDefinitionYaml.yamlIsIntegration(yaml);
+            if (yaml && type !== 'none') {
+                const i = CamelDefinitionYaml.yamlToIntegration(props.filename, props.yaml)
+                return i;
             } else {
                 return Integration.createNew(filename, 'plain');
             }
@@ -126,6 +131,8 @@ export function KaravanDesigner(props: Props) {
         )
     }
 
+    const isKamelet = integration.type === 'kamelet';
+
     return (
         <PageSection variant={props.dark ? PageSectionVariants.darker : PageSectionVariants.light} className="page"
                      isFilled padding={{default: 'noPadding'}}>
@@ -137,8 +144,9 @@ export function KaravanDesigner(props: Props) {
                           setSelectedStep(undefined);
                       }}
                       style={{width: "100%"}}>
+                    {isKamelet && <Tab eventKey='kamelet' title={getTab("Definitions", "Kamelet Definitions", "kamelet")}></Tab>}
                     <Tab eventKey='routes' title={getTab("Routes", "Integration flows", "routes")}></Tab>
-                    <Tab eventKey='rest' title={getTab("REST", "REST services", "rest")}></Tab>
+                    {!isKamelet && <Tab eventKey='rest' title={getTab("REST", "REST services", "rest")}></Tab>}
                     <Tab eventKey='beans' title={getTab("Beans", "Beans Configuration", "beans")}></Tab>
                     {props.showCodeTab && <Tab eventKey='code' title={getTab("YAML", "YAML Code", "code", true)}></Tab>}
                 </Tabs>
@@ -156,6 +164,7 @@ export function KaravanDesigner(props: Props) {
                 {/*    />*/}
                 {/*</Tooltip>}*/}
             </div>
+            {tab === 'kamelet' && <KameletDesigner/>}
             {tab === 'routes' && <RouteDesigner/>}
             {tab === 'rest' && <RestDesigner/>}
             {tab === 'beans' && <BeansDesigner/>}

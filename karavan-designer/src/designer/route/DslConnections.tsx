@@ -20,7 +20,7 @@ import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {DslPosition, EventBus} from "../utils/EventBus";
 import {CamelUi} from "../utils/CamelUi";
 import {SagaDefinition} from "karavan-core/lib/model/CamelDefinition";
-import {useConnectionsStore, useDesignerStore, useIntegrationStore} from "../KaravanStore";
+import {useConnectionsStore, useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";

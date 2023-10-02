@@ -21,47 +21,42 @@ import {
 import '../../designer/karavan.css';
 import {CamelUi} from "../../designer/utils/CamelUi";
 import {Component} from "karavan-core/lib/model/ComponentModels";
+import {useKnowledgebaseStore} from "../KnowledgebaseStore";
+import {shallow} from "zustand/shallow";
 
 interface Props {
     component: Component,
-    onClickCard: any
 }
 
-interface State {
-    component: Component,
-}
+export function ComponentCard(props: Props) {
 
-export class ComponentCard extends React.Component<Props, State> {
+    const [setComponent, setModalOpen] = useKnowledgebaseStore((s) =>
+        [s.setComponent, s.setModalOpen], shallow)
 
-    public state: State = {
-        component: this.props.component
-    };
+    const component = props.component;
 
-    click = (event: React.MouseEvent) => {
-        event.stopPropagation()
-        this.props.onClickCard.call(this, this.state.component);
+    function click (event: React.MouseEvent) {
+        setComponent(component)
+        setModalOpen(true);
     }
 
-    render() {
-        const component = this.state.component;
-        return (
-            <Card isCompact key={component.component.name} className="kamelet-card"
-                onClick={event => this.click(event)}
-            >
-                <CardHeader className="header-labels">
-                    {component.component.supportType === 'Supported' && <Badge isRead className="support-type labels">{component.component.supportType}</Badge>}
-                    <Badge isRead className="support-level labels">{component.component.supportLevel}</Badge>
-                </CardHeader>
-                <CardHeader>
-                    {CamelUi.getIconForComponent(component.component.title, component.component.label)}
-                    <CardTitle>{component.component.title}</CardTitle>
-                </CardHeader>
-                <CardBody>{component.component.description}</CardBody>
-                <CardFooter className="footer-labels">
-                    <Badge isRead className="labels">{component.component.label}</Badge>
-                    <Badge isRead className="version labels">{component.component.version}</Badge>
-                </CardFooter>
-            </Card>
-        );
-    }
+    return (
+        <Card isCompact key={component.component.name} className="kamelet-card"
+              onClick={event => click(event)}
+        >
+            <CardHeader className="header-labels">
+                {component.component.supportType === 'Supported' && <Badge isRead className="support-type labels">{component.component.supportType}</Badge>}
+                <Badge isRead className="support-level labels">{component.component.supportLevel}</Badge>
+            </CardHeader>
+            <CardHeader>
+                {CamelUi.getIconForComponent(component.component.title, component.component.label)}
+                <CardTitle>{component.component.title}</CardTitle>
+            </CardHeader>
+            <CardBody>{component.component.description}</CardBody>
+            <CardFooter className="footer-labels">
+                <Badge isRead className="labels">{component.component.label}</Badge>
+                <Badge isRead className="version labels">{component.component.version}</Badge>
+            </CardFooter>
+        </Card>
+    )
 }

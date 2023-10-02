@@ -25,7 +25,7 @@ import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {Command, EventBus} from "../utils/EventBus";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {toPng} from 'html-to-image';
-import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../KaravanStore";
+import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 
 export function useRouteDesignerHook () {
@@ -77,15 +77,16 @@ export function useRouteDesignerHook () {
 
     const deleteElement = () =>  {
         EventBus.sendPosition("clean", new CamelElement(""), undefined, new DOMRect(), new DOMRect(), 0);
+        let i = integration;
         selectedUuids.forEach(uuidToDelete => {
-            const i = CamelDefinitionApiExt.deleteStepFromIntegration(integration, uuidToDelete);
-            setIntegration(i, false);
-            setShowSelector(false);
-            setShowDeleteConfirmation(false);
-            setDeleteMessage('');
-            setSelectedStep(undefined);
-            setSelectedUuids([]);
+             i = CamelDefinitionApiExt.deleteStepFromIntegration(i, uuidToDelete);
         });
+        setIntegration(i, false);
+        setShowSelector(false);
+        setShowDeleteConfirmation(false);
+        setDeleteMessage('');
+        setSelectedStep(undefined);
+        setSelectedUuids([]);
     }
 
     const selectElement = (element: CamelElement) =>  {

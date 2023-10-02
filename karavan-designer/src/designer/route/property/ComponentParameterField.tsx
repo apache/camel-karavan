@@ -49,7 +49,7 @@ import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {usePropertiesHook} from "../usePropertiesHook";
-import {useDesignerStore, useIntegrationStore} from "../../KaravanStore";
+import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 
 const prefix = "parameters";

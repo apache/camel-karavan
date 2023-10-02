@@ -30,7 +30,7 @@ import {CamelUi} from "../utils/CamelUi";
 import {CamelMetadataApi, DataFormats, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {IntegrationHeader} from "../utils/IntegrationHeader";
 import CloneIcon from "@patternfly/react-icons/dist/esm/icons/clone-icon";
-import {useDesignerStore, useIntegrationStore} from "../KaravanStore";
+import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {usePropertiesHook} from "./usePropertiesHook";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
@@ -46,8 +46,7 @@ export function DslProperties(props: Props) {
 
     const {cloneElement, onDataFormatChange, onPropertyChange, onParametersChange, onExpressionChange} = usePropertiesHook(props.isRouteDesigner);
 
-    const [selectedStep, dark, setSelectedStep, setSelectedUuids] = useDesignerStore((s) =>
-        [s.selectedStep, s.dark, s.setSelectedStep, s.setSelectedUuids], shallow)
+    const [selectedStep, dark] = useDesignerStore((s) => [s.selectedStep, s.dark], shallow)
 
     const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState<boolean>(false);

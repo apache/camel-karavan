@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {FormGroup, TextInput, Title} from "@patternfly/react-core";
-import {useIntegrationStore} from "../KaravanStore";
+import {useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 
 export function IntegrationHeader () {

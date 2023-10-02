@@ -24,72 +24,53 @@ import {
     Badge, Flex, CardTitle,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {Table /* data-codemods */, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
-import {Component} from "karavan-core/lib/model/ComponentModels";
+import {Table, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import {CamelUi} from "../../designer/utils/CamelUi";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
+import {useKnowledgebaseStore} from "../KnowledgebaseStore";
+import {shallow} from "zustand/shallow";
 
-interface Props {
-    component?: Component,
-    isOpen: boolean;
-}
+export function ComponentModal() {
 
-interface State {
-    isOpen: boolean;
-    component?: Component,
-}
+    const [component, isModalOpen, setModalOpen] = useKnowledgebaseStore((s) =>
+        [s.component, s.isModalOpen, s.setModalOpen], shallow)
 
-export class ComponentModal extends  React.Component<Props, State> {
-
-    public state: State = {
-        isOpen: this.props.isOpen,
-        component: this.props.component,
-    };
-
-    setModalOpen = (open: boolean) => {
-        this.setState({isOpen: false});
+    const props = new Map<string, ComponentProperty>();
+    if (component) {
+        ComponentApi.getComponentProperties(component?.component.name, "consumer").forEach(cp => props.set(cp.name, cp));
+        ComponentApi.getComponentProperties(component?.component.name, "producer").forEach(cp => props.set(cp.name, cp));
     }
+    return (
+        <Modal
+            aria-label={"Kamelet"}
+            width={'fit-content'}
+            maxLength={200}
+            title={component?.component.title}
+            isOpen={isModalOpen}
+            onClose={() => setModalOpen(false)}
+            actions={[
+                <div className="modal-footer">
+                    <ActionGroup className="deploy-buttons">
+                        <Button key="cancel" variant="primary"
+                                onClick={e => setModalOpen(false)}>Close</Button>
+                    </ActionGroup>
+                </div>
+            ]}
+        >
+            <Flex direction={{default: 'column'}} key={component?.component.name}
+                  className="kamelet-modal-card">
+                <CardHeader actions={{
+                    actions: <><Badge className="badge"
+                                      isRead> {component?.component.label}</Badge></>,
+                    hasNoOffset: false,
+                    className: undefined
+                }}>
+                    {component && CamelUi.getIconForComponent(component.component.title, component.component.label)}
 
-    componentDidUpdate = (prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) => {
-        if (prevState.isOpen !== this.props.isOpen) {
-            this.setState({isOpen: this.props.isOpen});
-        }
-    }
-
-    render() {
-        const component = this.state.component;
-        const props = new Map<string, ComponentProperty>();
-        if (component){
-            ComponentApi.getComponentProperties(component?.component.name, "consumer").forEach(cp => props.set(cp.name, cp));
-            ComponentApi.getComponentProperties(component?.component.name, "producer").forEach(cp => props.set(cp.name, cp));
-        }
-        return (
-            <Modal
-                aria-label={"Kamelet"}
-                width={'fit-content'}
-                maxLength={200}
-                title={component?.component.title}
-                isOpen={this.state.isOpen}
-                onClose={() => this.setModalOpen(false)}
-                actions={[
-                    <div className="modal-footer">
-                        <ActionGroup className="deploy-buttons">
-                            <Button key="cancel" variant="primary"
-                                    onClick={e => this.setModalOpen(false)}>Close</Button>
-                        </ActionGroup>
-                    </div>
-                ]}
-            >
-                <Flex direction={{default: 'column'}} key={component?.component.name}
-                      className="kamelet-modal-card">
-                    <CardHeader actions={{ actions: <><Badge className="badge"
-                                   isRead> {component?.component.label}</Badge></>, hasNoOffset: false, className: undefined}} >
-                        {component && CamelUi.getIconForComponent(component.component.title, component.component.label)}
-                        
-                    </CardHeader>
-                    <Text className="description">{component?.component.description}</Text>
-                    {props.size !== 0 &&
+                </CardHeader>
+                <Text className="description">{component?.component.description}</Text>
+                {props.size !== 0 &&
                     <div>
                         <CardTitle>Properties</CardTitle>
                         <Table aria-label="Simple table" variant='compact'>
@@ -110,10 +91,13 @@ export class ComponentModal extends  React.Component<Props, State> {
                                                 <div>{p.name}</div>
                                             </div>
                                         </Td>
-                                        <Td key={`${idx}_desc`}><div>
-                                            <div>{p.description}</div>
-                                            {p.defaultValue && p.defaultValue.toString().length > 0 && <div>{"Default value: " + p.defaultValue}</div>}
-                                        </div></Td>
+                                        <Td key={`${idx}_desc`}>
+                                            <div>
+                                                <div>{p.description}</div>
+                                                {p.defaultValue && p.defaultValue.toString().length > 0 &&
+                                                    <div>{"Default value: " + p.defaultValue}</div>}
+                                            </div>
+                                        </Td>
                                         <Td key={`${idx}_type`}>{p.type}</Td>
                                         <Td key={`${idx}_label`}>{p.label}</Td>
                                     </Tr>
@@ -121,9 +105,8 @@ export class ComponentModal extends  React.Component<Props, State> {
                             </Tbody>
                         </Table>
                     </div>
-                    }
-                </Flex>
-            </Modal>
-        )
-    }
+                }
+            </Flex>
+        </Modal>
+    )
 }

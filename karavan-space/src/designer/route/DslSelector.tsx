@@ -24,7 +24,7 @@ import {
 import '../karavan.css';
 import {CamelUi} from "../utils/CamelUi";
 import {DslMetaModel} from "../utils/DslMetaModel";
-import {useDesignerStore, useSelectorStore} from "../KaravanStore";
+import {useDesignerStore, useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "./useRouteDesignerHook";
 
