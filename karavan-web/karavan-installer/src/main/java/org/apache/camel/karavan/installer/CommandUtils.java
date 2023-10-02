@@ -60,7 +60,7 @@ public class CommandUtils {
         }
 
         // Check and install Infinispan
-        if (!isInfinispanInstalled(client) && config.isInstallInfinispan()) {
+        if (!isInfinispanInstalled(client, config) && config.isInstallInfinispan()) {
             logError("Infinispan is not installed");
             installInfinispan(config, client);
         }
@@ -198,9 +198,9 @@ public class CommandUtils {
         log("Gitea is installed");
     }
 
-    private static boolean isInfinispanInstalled(KubernetesClient client) {
-        Service service = client.services().withName("infinispan").get();
-        StatefulSet set = client.apps().statefulSets().withName("infinispan").get();
+    private static boolean isInfinispanInstalled(KubernetesClient client, KaravanCommand config) {
+        Service service = client.services().inNamespace(config.getNamespace()).withName("infinispan").get();
+        StatefulSet set = client.apps().statefulSets().inNamespace(config.getNamespace()).withName("infinispan").get();
         return service != null && set != null;
     }
 
