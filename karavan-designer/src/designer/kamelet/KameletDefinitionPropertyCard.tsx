@@ -175,7 +175,7 @@ export function KameletDefinitionPropertyCard(props: Props) {
                             <Label
                                 key={val}
                                 id={val}
-                                color="blue"
+                                color="grey"
                                 isEditable
                                 onClose={() => deleteEnum(val)}
                                 onEditCancel={(_event, prevText) => {}}

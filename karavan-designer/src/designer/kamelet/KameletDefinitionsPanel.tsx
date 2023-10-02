@@ -25,7 +25,7 @@ import {
     Form,
     FormGroup,
     Grid,
-    GridItem,
+    GridItem, TextArea,
     TextInput,
 } from '@patternfly/react-core';
 import '../karavan.css';
@@ -36,7 +36,7 @@ import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import {KameletDefinitionPropertyCard} from "./KameletDefinitionPropertyCard";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {DefinitionProperty} from "karavan-core/lib/model/IntegrationDefinition";
-import {Simulate} from "react-dom/test-utils";
+import {KameletDependenciesCard} from "./KameletDependenciesCard";
 
 export function KameletDefinitionsPanel() {
 
@@ -58,11 +58,23 @@ export function KameletDefinitionsPanel() {
         }
     }
 
-    function getElement(key: string, label: string, span: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) {
+    function getElementTextInput(key: string, label: string, span: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) {
         return (
             <GridItem span={span}>
                 <FormGroup label={label} fieldId={key} isRequired>
                     <TextInput className="text-field" type="text" id={key} name={key}
+                               onChange={(_, value) => setValue(key, value)}
+                               value={getValue(key)}/>
+                </FormGroup>
+            </GridItem>
+        )
+    }
+
+    function getElementTextArea(key: string, label: string, span: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) {
+        return (
+            <GridItem span={span}>
+                <FormGroup label={label} fieldId={key} isRequired>
+                    <TextArea type="text" id={key} name={key} autoResize
                                onChange={(_, value) => setValue(key, value)}
                                value={getValue(key)}/>
                 </FormGroup>
@@ -102,9 +114,9 @@ export function KameletDefinitionsPanel() {
                 <CardBody>
                     <Form>
                         <Grid hasGutter>
-                            {getElement('title', 'Title', 4)}
-                            {getElement('description', 'Description', 6)}
-                            {getElement('type', 'Type', 2)}
+                            {getElementTextInput('title', 'Title', 3)}
+                            {getElementTextArea('description', 'Description', 9)}
+                            {/*{getElementTextInput('type', 'Type', 2)}*/}
                         </Grid>
                     </Form>
                 </CardBody>
@@ -133,6 +145,8 @@ export function KameletDefinitionsPanel() {
                     </Form>
                 </CardBody>
             </Card>
+            <div style={{height: "20px"}}/>
+            <KameletDependenciesCard/>
         </>
 
     )
