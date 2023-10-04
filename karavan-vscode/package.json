@@ -470,10 +470,7 @@
       {
         "command": "karavan.open",
         "title": "Karavan: Open",
-        "icon": {
-          "light": "./icons/light/wand.svg",
-          "dark": "./icons/dark/wand.svg"
-        }
+        "icon": "$(wand)"
       },
       {
         "command": "karavan.open-file",
@@ -482,10 +479,7 @@
       {
         "command": "karavan.run-project-jbang",
         "title": "Karavan: JBang run",
-        "icon": {
-          "light": "./icons/light/rocket.svg",
-          "dark": "./icons/dark/rocket.svg"
-        }
+        "icon": "$(rocket)"
       },
       {
         "command": "karavan.run-project-runtime",
