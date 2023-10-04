@@ -28,7 +28,6 @@ describe('Kamelet <=> YAML', () => {
     it('Yaml to Kamelet', () => {
         const yaml = fs.readFileSync('test/postgresql-source.kamelet.yaml',{encoding:'utf8', flag:'r'});
         const i = CamelDefinitionYaml.yamlToIntegration("postgresql-source.kamelet.yaml", yaml);
-        // console.log(i)
     });
 
     it('Kamelet to YAML with beans', () => {
@@ -44,6 +43,8 @@ describe('Kamelet <=> YAML', () => {
         i.spec.flows?.push(b);
         const a = new MetadataAnnotations({"camel.apache.org/kamelet.group" : "hello world"})
         i.metadata.annotations = a
+
+        // console.log(CamelDefinitionYaml.integrationToYaml(i))
     });
 
     it('Kamelet to YAML without beans', () => {

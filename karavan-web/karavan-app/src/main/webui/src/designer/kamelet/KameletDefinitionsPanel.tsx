@@ -19,11 +19,13 @@ import {
     Button,
     Card,
     CardBody,
-    CardTitle, Flex, FlexItem,
+    CardTitle,
+    Flex,
+    FlexItem,
     Form,
     FormGroup,
     Grid,
-    GridItem,
+    GridItem, TextArea,
     TextInput,
 } from '@patternfly/react-core';
 import '../karavan.css';
@@ -32,6 +34,9 @@ import {useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import {KameletDefinitionPropertyCard} from "./KameletDefinitionPropertyCard";
+import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
+import {DefinitionProperty} from "karavan-core/lib/model/IntegrationDefinition";
+import {KameletDependenciesCard} from "./KameletDependenciesCard";
 
 export function KameletDefinitionsPanel() {
 
@@ -53,7 +58,7 @@ export function KameletDefinitionsPanel() {
         }
     }
 
-    function getElement(key: string, label: string, span: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) {
+    function getElementTextInput(key: string, label: string, span: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) {
         return (
             <GridItem span={span}>
                 <FormGroup label={label} fieldId={key} isRequired>
@@ -65,7 +70,43 @@ export function KameletDefinitionsPanel() {
         )
     }
 
+    function getElementTextArea(key: string, label: string, span: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) {
+        return (
+            <GridItem span={span}>
+                <FormGroup label={label} fieldId={key} isRequired>
+                    <TextArea type="text" id={key} name={key} autoResize
+                               onChange={(_, value) => setValue(key, value)}
+                               value={getValue(key)}/>
+                </FormGroup>
+            </GridItem>
+        )
+    }
+
     const properties = integration.spec.definition?.properties ? Object.keys(integration.spec.definition?.properties) : [];
+
+    function addNewProperty() {
+        const i = CamelUtil.cloneIntegration(integration);
+        if (i.spec.definition && integration.spec.definition?.properties) {
+            const propertyName = generatePropertyName();
+            i.spec.definition.properties = Object.assign({[propertyName]: new DefinitionProperty()}, integration.spec.definition.properties);
+            setIntegration(i, true);
+        }
+    }
+
+    function generatePropertyName(count: number = 0): string {
+        const prefix = 'property';
+        const propName = 'property' + count;
+        if (integration.spec.definition?.properties) {
+            const keys = Object.keys(integration.spec.definition?.properties);
+            if (keys.includes(propName)) {
+                return generatePropertyName(count + 1);
+            } else {
+                return propName;
+            }
+        }
+        return prefix;
+    }
+
     return (
         <>
             <Card isCompact ouiaId="DefinitionsCard">
@@ -73,9 +114,9 @@ export function KameletDefinitionsPanel() {
                 <CardBody>
                     <Form>
                         <Grid hasGutter>
-                            {getElement('title', 'Title', 4)}
-                            {getElement('description', 'Description', 6)}
-                            {getElement('type', 'Type', 2)}
+                            {getElementTextInput('title', 'Title', 3)}
+                            {getElementTextArea('description', 'Description', 9)}
+                            {/*{getElementTextInput('type', 'Type', 2)}*/}
                         </Grid>
                     </Form>
                 </CardBody>
@@ -86,7 +127,9 @@ export function KameletDefinitionsPanel() {
                     <Flex>
                         <FlexItem>Properties</FlexItem>
                         <FlexItem align={{default: "alignRight"}}>
-                            <Button variant={"link"} icon={<AddIcon/>}>Add property</Button>
+                            <Button variant={"link"} icon={<AddIcon/>} onClick={event => addNewProperty()}>
+                                Add property
+                            </Button>
                         </FlexItem>
                     </Flex>
                 </CardTitle>
@@ -102,6 +145,8 @@ export function KameletDefinitionsPanel() {
                     </Form>
                 </CardBody>
             </Card>
+            <div style={{height: "20px"}}/>
+            <KameletDependenciesCard/>
         </>
 
     )

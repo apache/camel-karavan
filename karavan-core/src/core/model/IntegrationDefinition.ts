@@ -32,6 +32,23 @@ export class DefinitionProperty {
     }
 }
 
+export class MediaType {
+    mediaType: string = '';
+
+    public constructor(init?: Partial<MediaType>) {
+        Object.assign(this, init);
+    }
+}
+
+export class Types {
+    in?: MediaType = new MediaType();
+    out?: MediaType = new MediaType();
+
+    public constructor(init?: Partial<Types>) {
+        Object.assign(this, init);
+    }
+}
+
 export class Definition {
     title: string = '';
     description: string = '';
@@ -46,7 +63,7 @@ export class Definition {
 
 export class Spec {
     definition?: Definition;
-    types?: any;
+    types?: Types;
     flows?: any[] = [];
     template?: any;
     dependencies?: string[];
@@ -107,7 +124,7 @@ export class Integration {
         if (type === 'kamelet') {
             i.metadata.annotations = new MetadataAnnotations({})
             i.spec.definition = new Definition({})
-            i.spec.types = {}
+            i.spec.types = new Types();
         }
 
         return i;
