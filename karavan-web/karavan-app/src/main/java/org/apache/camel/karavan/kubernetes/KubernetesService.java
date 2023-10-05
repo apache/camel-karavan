@@ -453,6 +453,7 @@ public class KubernetesService implements HealthCheck {
 
     private void createPVC(String podName, Map<String, String> labels) {
         try (KubernetesClient client = kubernetesClient()) {
+            PersistentVolumeClaim old = client.persistentVolumeClaims().inNamespace(getNamespace()).withName(podName).get();
             if (old == null) {
                 PersistentVolumeClaim pvc = new PersistentVolumeClaimBuilder()
                         .withNewMetadata()
