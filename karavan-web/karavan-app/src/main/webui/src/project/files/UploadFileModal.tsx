@@ -56,7 +56,6 @@ export function UploadFileModal(props: Props) {
 
     function saveAndCloseModal () {
         const file = new ProjectFile(filename, props.projectId, data, Date.now());
-        console.log(file);
         if (type === "openapi"){
             KaravanApi.postOpenApi(file, generateRest, generateRoutes, integrationName, res => {
                 if (res.status === 200) {

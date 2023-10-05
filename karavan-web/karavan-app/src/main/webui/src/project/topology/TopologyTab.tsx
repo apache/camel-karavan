@@ -34,8 +34,8 @@ import {useFilesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {useTopologyStore} from "./TopologyStore";
 import {TopologyPropertiesPanel} from "./TopologyPropertiesPanel";
-import {useDesignerStore} from "../../designer/KaravanStore";
 import {TopologyToolbar} from "./TopologyToolbar";
+import {useDesignerStore} from "../../designer/DesignerStore";
 
 export const TopologyTab: React.FC = () => {
 

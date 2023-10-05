@@ -23,6 +23,11 @@
     width: 100%
 }
 
+.karavan .topology-panel .properties {
+    padding: 16px;
+    overflow: auto;
+}
+
 .karavan .topology-panel .properties-header {
     padding: 10px;
 }
@@ -41,7 +46,6 @@
 }
 
 .karavan .topology-sidebar {
-    overflow: hidden;
 }
 
 .karavan .topology-sidebar .pf-topology-side-bar__dismiss {

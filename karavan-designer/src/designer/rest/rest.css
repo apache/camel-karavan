@@ -185,6 +185,7 @@
     margin-left: 6px;
     cursor: pointer;
     justify-content: space-between;
+    position: relative;
 }
 
 .karavan .rest-designer .rest-config-card,
@@ -238,8 +239,8 @@
 .karavan .rest-designer .rest-card .delete-button,
 .karavan .rest-designer .method-card .delete-button {
     position: absolute;
-    top: 3px;
-    right: 3px;
+    top: -7px;
+    right: -7px;
     line-height: 1;
     border: 0;
     padding: 0;
