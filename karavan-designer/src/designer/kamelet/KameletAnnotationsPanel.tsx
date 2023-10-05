@@ -75,8 +75,7 @@ export function KameletAnnotationsPanel() {
         return (
             <GridItem span={span}>
                 <FormGroup label={label} fieldId={key} isRequired>
-                    {/* eslint-disable-next-line react/jsx-no-undef */}
-                    <ToggleGroup aria-label={key}>
+                    <ToggleGroup aria-label={key} id={key} name={key}>
                         {values.map(value =>
                             <ToggleGroupItem
                                 key={value}

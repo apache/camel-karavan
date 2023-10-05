@@ -37,7 +37,7 @@ import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import {CamelUi, RouteToCreate} from "../../utils/CamelUi";
-import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
+import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {ToDefinition} from "karavan-core/lib/model/CamelDefinition";
 import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
 import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
@@ -49,7 +49,7 @@ import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {usePropertiesHook} from "../usePropertiesHook";
-import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
+import {useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 
 const prefix = "parameters";

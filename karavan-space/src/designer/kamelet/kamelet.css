@@ -23,6 +23,7 @@
     padding-bottom: 106px;
 }
 
+.karavan .kamelet-designer .pf-v5-c-drawer__content,
 .karavan .kamelet-designer .main {
     background-color: var(--pf-v5-global--BackgroundColor--light-300);
 }

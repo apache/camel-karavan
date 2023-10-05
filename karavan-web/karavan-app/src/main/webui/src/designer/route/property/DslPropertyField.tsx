@@ -88,7 +88,7 @@ export function DslPropertyField(props: Props) {
     const [integration] = useIntegrationStore((state) => [state.integration], shallow)
     const [dark] = useDesignerStore((s) => [s.dark], shallow)
 
-    const [isShowAdvanced, setIsShowAdvanced] = useState<Map<string, boolean>>(new Map<string, boolean>());
+    const [isShowAdvanced, setIsShowAdvanced] = useState<string[]>([]);
     const [arrayValues, setArrayValues] = useState<Map<string, string>>(new Map<string, string>());
     const [selectStatus, setSelectStatus] = useState<Map<string, boolean>>(new Map<string, boolean>());
     const [showEditor, setShowEditor] = useState<boolean>(false);
@@ -654,19 +654,23 @@ export function DslPropertyField(props: Props) {
             </div>
         )
     }
-
     function getExpandableComponentParameters(properties: ComponentProperty[], label: string) {
         const element = props.element;
+
         return (
             <ExpandableSection
                 toggleText={label}
                 onToggle={(_event, isExpanded) => {
                     setIsShowAdvanced(prevState => {
-                        prevState.set(label, !prevState.get(label));
+                        if (isExpanded && !isShowAdvanced.includes(label)) {
+                            prevState = [...prevState, label]
+                        } else {
+                            prevState = prevState.filter(s => s!== label);
+                        }
                         return prevState;
                     })
                 }}
-                isExpanded={isShowAdvanced.has(label) && isShowAdvanced.get(label)}>
+                isExpanded={isShowAdvanced.includes(label)}>
                 <div className="parameters">
                     {properties.map(kp =>
                         <ComponentParameterField

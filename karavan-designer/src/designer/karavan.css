@@ -343,6 +343,7 @@
     flex-direction: column;
     justify-content: space-between;
     margin-bottom: 20px;
+    padding-bottom: 30px;
 }
 
 .karavan .pf-v5-c-drawer__splitter {
