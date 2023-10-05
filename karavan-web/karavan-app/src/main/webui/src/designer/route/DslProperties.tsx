@@ -127,7 +127,6 @@ export function DslProperties(props: Props) {
         : getProperties().filter(p => !dataFormats.includes(p.name));
     const propertiesMain = properties.filter(p => !p.label.includes("advanced"));
     const propertiesAdvanced = properties.filter(p => p.label.includes("advanced"));
-    console.log(selectedStep)
     return (
         <div key={selectedStep ? selectedStep.uuid : 'integration'}
              className='properties'>

@@ -200,7 +200,7 @@ body, :root, #root, .karavan {
   border: none;
   background: var(--vscode-tab-inactiveBackground);
   color: var(--vscode-input-foreground);
-  margin-bottom: 0;
+  /* margin-bottom: 0; */
 }
 
 .vscode-dark .karavan .pf-v5-c-drawer__splitter {
