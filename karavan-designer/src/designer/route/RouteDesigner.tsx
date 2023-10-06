@@ -36,14 +36,16 @@ import useResizeObserver from "./useResizeObserver";
 import {Command, EventBus} from "../utils/EventBus";
 import useMutationsObserver from "./useDrawerMutationsObserver";
 import {DeleteConfirmation} from "./DeleteConfirmation";
+import {DslElementMoveModal} from "./DslElementMoveModal";
 
 export function RouteDesigner() {
 
     const {openSelector, createRouteConfiguration, onCommand, handleKeyDown, handleKeyUp, unselectElement} = useRouteDesignerHook();
 
     const [integration] = useIntegrationStore((state) => [state.integration], shallow)
-    const [showDeleteConfirmation, setPosition, width, height, top, left, hideLogDSL] = useDesignerStore((s) =>
-        [s.showDeleteConfirmation, s.setPosition, s.width, s.height, s.top, s.left, s.hideLogDSL], shallow)
+    const [showDeleteConfirmation, setPosition, width, height, top, left, hideLogDSL, showMoveConfirmation, setShowMoveConfirmation] =
+        useDesignerStore((s) =>
+        [s.showDeleteConfirmation, s.setPosition, s.width, s.height, s.top, s.left, s.hideLogDSL, s.showMoveConfirmation, s.setShowMoveConfirmation], shallow)
 
     const [showSelector] = useSelectorStore((s) => [s.showSelector], shallow)
 
@@ -161,6 +163,7 @@ export function RouteDesigner() {
             </div>
             {showSelector && <DslSelector/>}
             {showDeleteConfirmation && <DeleteConfirmation/>}
+            {showMoveConfirmation && <DslElementMoveModal/>}
         </div>
     )
 }

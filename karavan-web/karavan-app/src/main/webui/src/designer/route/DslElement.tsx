@@ -16,9 +16,6 @@
  */
 import React, {CSSProperties, useMemo, useState} from 'react';
 import {
-    Button,
-    Flex,
-    Modal, ModalVariant,
     Text, Tooltip,
 } from '@patternfly/react-core';
 import '../karavan.css';
@@ -49,13 +46,12 @@ export function DslElement(props: Props) {
 
     const [integration] = useIntegrationStore((s) => [s.integration, s.setIntegration], shallow)
 
-    const [selectedUuids, selectedStep, showMoveConfirmation, setShowMoveConfirmation, hideLogDSL] =
+    const [selectedUuids, setShowMoveConfirmation, hideLogDSL, setMoveElements] =
         useDesignerStore((s) =>
-            [s.selectedUuids, s.selectedStep, s.showMoveConfirmation, s.setShowMoveConfirmation, s.hideLogDSL], shallow)
+            [s.selectedUuids, s.setShowMoveConfirmation, s.hideLogDSL, s.setMoveElements], shallow)
     const [isDragging, setIsDragging] = useState<boolean>(false);
 
     const [isDraggedOver, setIsDraggedOver] = useState<boolean>(false);
-    const [moveElements, setMoveElements] = useState<[string | undefined, string | undefined]>([undefined, undefined]);
 
     function onOpenSelector(evt: React.MouseEvent, showSteps: boolean = true, isInsert: boolean = false) {
         evt.stopPropagation();
@@ -90,20 +86,6 @@ export function DslElement(props: Props) {
                 moveElement(sourceUuid, targetUuid, false);
             }
         }
-    }
-
-    function confirmMove(asChild: boolean) {
-        const sourceUuid = moveElements[0];
-        const targetUuid = moveElements[1];
-        if (sourceUuid && targetUuid && sourceUuid !== targetUuid) {
-            moveElement(sourceUuid, targetUuid, asChild);
-            cancelMove();
-        }
-    }
-
-    function cancelMove() {
-        setShowMoveConfirmation(false);
-        setMoveElements([undefined, undefined]);
     }
 
     function isElementSelected(): boolean {
@@ -388,7 +370,8 @@ export function DslElement(props: Props) {
 
     function getAddElementButton() {
         return (
-            <Tooltip position={"bottom"} content={<div>{"Add DSL element to " + CamelDisplayUtil.getTitle(props.step)}</div>}>
+            <Tooltip position={"bottom"}
+                     content={<div>{"Add DSL element to " + CamelDisplayUtil.getTitle(props.step)}</div>}>
                 <button
                     type="button"
                     aria-label="Add"
@@ -416,25 +399,6 @@ export function DslElement(props: Props) {
                 <button type="button" aria-label="Delete" onClick={e => onDeleteElement(e)} className="delete-button">
                     <DeleteIcon/></button>
             </Tooltip>
-        )
-    }
-
-    function getMoveConfirmation() {
-        return (
-            <Modal
-                aria-label="title"
-                className='move-modal'
-                isOpen={showMoveConfirmation}
-                variant={ModalVariant.small}
-            ><Flex direction={{default: "column"}}>
-                <div>Select move type:</div>
-                <Button key="place" variant="primary" onClick={event => confirmMove(false)}>Shift (target down)</Button>
-                <Button key="child" variant="secondary" onClick={event => confirmMove(true)}>Move as target
-                    step</Button>
-                <Button key="cancel" variant="tertiary" onClick={event => cancelMove()}>Cancel</Button>
-            </Flex>
-
-            </Modal>
         )
     }
 
@@ -487,7 +451,6 @@ export function DslElement(props: Props) {
         >
             {getElementHeader()}
             {getChildElements()}
-            {getMoveConfirmation()}
         </div>
     )
 }

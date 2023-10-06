@@ -41,8 +41,7 @@ interface Props {
 
 export function DslProperties(props: Props) {
 
-    const [integration, setIntegration] = useIntegrationStore((state) =>
-        [state.integration, state.setIntegration], shallow)
+    const [integration] = useIntegrationStore((state) => [state.integration], shallow)
 
     const {cloneElement, onDataFormatChange, onPropertyChange, onParametersChange, onExpressionChange} = usePropertiesHook(props.isRouteDesigner);
 

@@ -134,7 +134,8 @@ export function KaravanDesigner(props: Props) {
     const isKamelet = integration.type === 'kamelet';
 
     return (
-        <PageSection variant={props.dark ? PageSectionVariants.darker : PageSectionVariants.light} className="page"
+        <PageSection variant={props.dark ? PageSectionVariants.darker : PageSectionVariants.light}
+                     className="page"
                      isFilled padding={{default: 'noPadding'}}>
             <div className={"main-tabs-wrapper"}>
                 <Tabs className="main-tabs"

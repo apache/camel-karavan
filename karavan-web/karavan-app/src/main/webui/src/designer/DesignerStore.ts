@@ -166,7 +166,9 @@ type DesignerState = {
     height: number,
     top: number,
     left: number,
+    moveElements: [string | undefined, string | undefined]
 }
+
 const designerState: DesignerState = {
     notificationBadge: false,
     notificationMessage: ['', ''],
@@ -182,6 +184,7 @@ const designerState: DesignerState = {
     height: 0,
     top: 0,
     left: 0,
+    moveElements: [undefined, undefined]
 };
 
 type DesignerAction = {
@@ -197,6 +200,7 @@ type DesignerAction = {
     setPosition: (width: number, height: number, top: number, left: number) => void;
     reset: () => void;
     setNotification: (notificationBadge: boolean, notificationMessage: [string, string]) => void;
+    setMoveElements: (moveElements: [string | undefined, string | undefined]) => void;
 }
 
 export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAction>((set) => ({
@@ -248,5 +252,8 @@ export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAct
     },
     setNotification: (notificationBadge: boolean, notificationMessage: [string, string]) => {
         set({notificationBadge: notificationBadge, notificationMessage: notificationMessage})
+    },
+    setMoveElements: (moveElements: [string | undefined, string | undefined]) => {
+        set({moveElements: moveElements})
     }
 }), shallow)
