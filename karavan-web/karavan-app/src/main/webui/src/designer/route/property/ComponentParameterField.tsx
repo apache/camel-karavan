@@ -102,13 +102,15 @@ export function ComponentParameterField(props: Props) {
         return (
             <Select
                 id={id} name={id}
-                variant={SelectVariant.single}
+                variant={SelectVariant.typeahead}
                 aria-label={property.name}
                 onToggle={(_event, isExpanded) => {
                     openSelect(property.name, isExpanded)
                 }}
                 onSelect={(e, value, isPlaceholder) => parametersChanged(property.name, (!isPlaceholder ? value : undefined))}
                 selections={value}
+                isCreatable={true}
+                createText=""
                 isOpen={isSelectOpen(property.name)}
                 aria-labelledby={property.name}
                 direction={SelectDirection.down}

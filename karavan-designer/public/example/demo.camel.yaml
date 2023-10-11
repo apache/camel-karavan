@@ -1,4 +1,9 @@
 - route:
+    id: route-a7ac
+    from:
+      uri: sql
+      id: from-82ca
+- route:
     id: route-1a95
     from:
       uri: kamelet:aws-sqs-source
@@ -63,27 +68,3 @@
         - log:
             message: ${body}
             id: log-1919
-- rest:
-    id: rest-54e3
-- rest:
-    id: rest-b9dd
-- rest:
-    id: rest-b391
-- rest:
-    id: rest-e066
-- rest:
-    id: rest-5daa
-- rest:
-    id: rest-b193
-- rest:
-    id: rest-06e5
-- rest:
-    id: rest-268d
-- beans:
-    - {}
-    - {}
-    - {}
-    - {}
-    - {}
-    - {}
-    - {}
