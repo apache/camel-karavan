@@ -46,9 +46,9 @@ export function DslElement(props: Props) {
 
     const [integration] = useIntegrationStore((s) => [s.integration, s.setIntegration], shallow)
 
-    const [selectedUuids, setShowMoveConfirmation, hideLogDSL, setMoveElements] =
+    const [selectedUuids, selectedStep, showMoveConfirmation, setShowMoveConfirmation, hideLogDSL, setMoveElements] =
         useDesignerStore((s) =>
-            [s.selectedUuids, s.setShowMoveConfirmation, s.hideLogDSL, s.setMoveElements], shallow)
+            [s.selectedUuids, s.selectedStep, s.showMoveConfirmation, s.setShowMoveConfirmation, s.hideLogDSL, s.setMoveElements], shallow)
     const [isDragging, setIsDragging] = useState<boolean>(false);
 
     const [isDraggedOver, setIsDraggedOver] = useState<boolean>(false);
