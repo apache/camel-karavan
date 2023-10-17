@@ -30,16 +30,21 @@ import {
     SELECTION_EVENT, Model,
 } from '@patternfly/react-topology';
 import {customComponentFactory, getModel} from "./TopologyApi";
-import {useFilesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
-import {useTopologyStore} from "./TopologyStore";
+import {IntegrationFile, useTopologyStore} from "./TopologyStore";
 import {TopologyPropertiesPanel} from "./TopologyPropertiesPanel";
 import {TopologyToolbar} from "./TopologyToolbar";
-import {useDesignerStore} from "../../designer/DesignerStore";
+import {useDesignerStore} from "../designer/DesignerStore";
 
-export const TopologyTab: React.FC = () => {
 
-    const [files] = useFilesStore((s) => [s.files], shallow);
+interface Props {
+    files: IntegrationFile[],
+    onClickCreateButton: () => void
+    onSetFile: (fileName: string) => void
+}
+
+export function TopologyTab (props: Props) {
+
     const [selectedIds, setSelectedIds, setFileName] = useTopologyStore((s) =>
         [s.selectedIds, s.setSelectedIds, s.setFileName], shallow);
     const [setSelectedStep] = useDesignerStore((s) => [s.setSelectedStep], shallow)
@@ -62,7 +67,7 @@ export const TopologyTab: React.FC = () => {
     }
 
     const controller = React.useMemo(() => {
-        const model = getModel(files);
+        const model = getModel(props.files);
         const newController = new Visualization();
         newController.registerLayoutFactory((_, graph) => new DagreLayout(graph));
         newController.registerComponentFactory(customComponentFactory);
@@ -81,15 +86,15 @@ export const TopologyTab: React.FC = () => {
 
     React.useEffect(() => {
         setSelectedIds([])
-        const model = getModel(files);
+        const model = getModel(props.files);
         controller.fromModel(model, false);
     }, []);
 
     return (
         <TopologyView
             className="topology-panel"
-            contextToolbar={<TopologyToolbar/>}
-            sideBar={<TopologyPropertiesPanel/>}
+            contextToolbar={<TopologyToolbar onClickCreateButton={props.onClickCreateButton}/>}
+            sideBar={<TopologyPropertiesPanel onSetFile={props.onSetFile}/>}
             controlBar={
                 <TopologyControlBar
                     controlButtons={createTopologyControlButtons({
@@ -117,4 +122,4 @@ export const TopologyTab: React.FC = () => {
             </VisualizationProvider>
         </TopologyView>
     );
-};
+}

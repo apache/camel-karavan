@@ -16,17 +16,29 @@
  */
 
 import * as React from 'react';
+import {
+    Button,
+    ToolbarItem, Tooltip
+} from '@patternfly/react-core';
+import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 
-import './topology.css';
-import {DefaultEdge, DefaultGroup, observer} from '@patternfly/react-topology';
+interface Props {
+    onClickCreateButton: () => void
+}
 
-
-const CustomEdge: React.FC<any> = observer(({ element, ...rest }) => {
-    const data = element.getData();
+export function TopologyToolbar (props: Props) {
 
     return (
-        <DefaultEdge element={element} {...rest}>
-        </DefaultEdge>
+        <ToolbarItem align={{default: "alignRight"}}>
+            <Tooltip content={"Add new integration"}>
+                <Button size="sm"
+                        variant={"primary"}
+                        icon={<PlusIcon/>}
+                        onClick={e => props.onClickCreateButton()}
+                >
+                    Create
+                </Button>
+            </Tooltip>
+        </ToolbarItem>
     )
-})
-export default CustomEdge;
+}

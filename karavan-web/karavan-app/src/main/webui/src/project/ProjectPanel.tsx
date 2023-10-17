@@ -18,7 +18,7 @@
 import React, {useEffect} from 'react';
 import {
     Flex,
-    FlexItem, Tabs, Tab, PageSection, PageSectionVariants, Gallery
+    FlexItem, PageSection
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {FilesTab} from "./files/FilesTab";
@@ -29,11 +29,8 @@ import {ProjectBuildTab} from "./build/ProjectBuildTab";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import {ImagesPanel} from "./build/ImagesPanel";
-import {ContainerButtons} from "./container/ContainerButtons";
 import {ProjectContainerTab} from "./container/ProjectContainerTab";
-import {KameletModal} from "../knowledgebase/kamelets/KameletModal";
-import {KameletCard} from "../knowledgebase/kamelets/KameletCard";
-import {TopologyTab} from "./topology/TopologyTab";
+import {ProjectTopologyTab} from "./topology/ProjectTopologyTab";
 
 export function ProjectPanel() {
 
@@ -58,7 +55,7 @@ export function ProjectPanel() {
     const buildIn = isBuildIn();
     const isTopology = tab === 'topology';
     return isTopology
-        ? (<TopologyTab/>)
+        ? (<ProjectTopologyTab/>)
         : (<PageSection padding={{default: 'noPadding'}} className="scrollable-out">
             <PageSection isFilled padding={{default: 'noPadding'}} className="scrollable-in">
                 <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>

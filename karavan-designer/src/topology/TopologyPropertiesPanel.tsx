@@ -15,22 +15,22 @@
  * limitations under the License.
  */
 import React from 'react';
-import '../../designer/karavan.css';
+import '../designer/karavan.css';
 import {shallow} from "zustand/shallow";
 import {TopologySideBar} from "@patternfly/react-topology";
 import {useTopologyStore} from "./TopologyStore";
-import {DslProperties} from "../../designer/route/DslProperties";
+import {DslProperties} from "../designer/route/DslProperties";
 import {Button, Flex, FlexItem, Text, Tooltip, TooltipPosition} from "@patternfly/react-core";
 import CloseIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
-import {useFilesStore, useFileStore} from "../../api/ProjectStore";
 
-export function TopologyPropertiesPanel () {
+interface Props {
+    onSetFile: (fileName: string) => void
+}
 
-    const [setFile] = useFileStore((s) => [s.setFile], shallow);
-    const [files] = useFilesStore((s) => [s.files], shallow);
+export function TopologyPropertiesPanel (props: Props) {
+
     const [selectedIds, setSelectedIds, fileName] = useTopologyStore((s) =>
         [s.selectedIds, s.setSelectedIds, s.fileName], shallow);
-
 
     function getHeader() {
         return (
@@ -41,10 +41,7 @@ export function TopologyPropertiesPanel () {
                 <FlexItem>
                     <Button variant="link" onClick={event => {
                         if (fileName) {
-                            const file = files.filter(f => f.name === fileName)?.at(0);
-                            if (file) {
-                                setFile('select', file);
-                            }
+                            props.onSetFile(fileName);
                         }
                     }}
                     >{fileName}

@@ -29,7 +29,6 @@ import {
     withPanZoom, withSelection
 } from '@patternfly/react-topology';
 import CustomNode from "./CustomNode";
-import {ProjectFile} from "../../api/ProjectModels";
 import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
@@ -41,10 +40,11 @@ import {
 } from "karavan-core/lib/model/TopologyDefinition";
 import CustomGroup from "./CustomGroup";
 import CustomEdge from "./CustomEdge";
+import {IntegrationFile} from "./TopologyStore";
 
 const NODE_DIAMETER = 60;
 
-export function getIntegrations(files: ProjectFile[]): Integration[] {
+export function getIntegrations(files: IntegrationFile[]): Integration[] {
     return files.filter((file) => file.name.endsWith(".camel.yaml")).map((file) => {
         return CamelDefinitionYaml.yamlToIntegration(file.name, file.code);
     })
@@ -207,7 +207,7 @@ export function getInternalEdges(tons: TopologyOutgoingNode[], tins: TopologyInc
     return result;
 }
 
-export function getModel(files: ProjectFile[]): Model {
+export function getModel(files: IntegrationFile[]): Model {
     const integrations = getIntegrations(files);
     const tins = TopologyUtils.findTopologyIncomingNodes(integrations);
     const troutes = TopologyUtils.findTopologyRouteNodes(integrations);

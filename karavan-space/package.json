@@ -5,9 +5,10 @@
   "scripts": {
     "cp-designer": "cp -r ../karavan-designer/src/designer src",
     "cp-knowledgebase": "cp -r ../karavan-designer/src/knowledgebase src",
+    "cp-topology": "cp -r ../karavan-designer/src/topology src",
     "cp-public-kamelets": "cp -r ../karavan-designer/public/kamelets public",
     "cp-public-components": "cp -r ../karavan-designer/public/components public",
-    "copy": "npm run cp-designer && npm run cp-knowledgebase && npm run cp-public-components && npm run cp-public-kamelets",
+    "copy": "npm run cp-designer && npm run cp-knowledgebase && npm run cp-topology && npm run cp-public-components && npm run cp-public-kamelets",
     "start": "npm run copy && react-scripts start",
     "build": "npm run copy && react-scripts build",
     "prod": "npm run copy && react-scripts build --dest && rsync -a build/* ../resources/META-INF/resources"
@@ -31,25 +32,26 @@
     ]
   },
   "dependencies": {
-    "@monaco-editor/react": "4.5.0",
-    "@patternfly/patternfly": "^5.0.2",
-    "@patternfly/react-core": "^5.0.0",
-    "@patternfly/react-table": "^5.0.0",
+    "@monaco-editor/react": "4.6.0",
+    "@patternfly/patternfly": "^5.1.0",
+    "@patternfly/react-core": "^5.1.1",
+    "@patternfly/react-table": "^5.1.1",
+    "@patternfly/react-topology": "^5.1.0",
     "@types/js-yaml": "4.0.5",
     "@types/node": "18.15.3",
-    "@types/uuid": "9.0.1",
-    "axios": "1.4.0",
+    "@types/uuid": "9.0.5",
+    "axios": "1.5.1",
     "dagre": "0.8.5",
     "html-to-image": "1.11.11",
     "karavan-core": "file:../karavan-core",
     "netlify-auth-providers": "^1.0.0-alpha5",
-    "octokit": "^2.0.10",
+    "octokit": "^3.1.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-scripts": "5.0.1",
     "rxjs": "7.8.1",
-    "uuid": "9.0.0",
-    "zustand": "^4.4.1"
+    "uuid": "9.0.1",
+    "zustand": "^4.4.3"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",

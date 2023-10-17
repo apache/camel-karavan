@@ -19,8 +19,8 @@ import * as React from 'react';
 import {RegionsIcon} from '@patternfly/react-icons';
 
 import {DefaultNode, observer} from '@patternfly/react-topology';
-import {getDesignerIcon} from "../../designer/utils/KaravanIcons";
-import {CamelUi} from "../../designer/utils/CamelUi";
+import {getDesignerIcon} from "../designer/utils/KaravanIcons";
+import {CamelUi} from "../designer/utils/CamelUi";
 import './topology.css';
 
 function getIcon(data: any) {

@@ -15,28 +15,30 @@
  * limitations under the License.
  */
 
-import {createWithEqualityFn} from "zustand/traditional";
-import {shallow} from "zustand/shallow";
+import * as React from 'react';
+import {
+    Button,
+    ToolbarItem, Tooltip
+} from '@patternfly/react-core';
+import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 
-interface TopologyState {
-    selectedIds: string []
-    fileName?: string
-    setSelectedIds: (selectedIds: string []) => void
-    setFileName: (fileName?: string) => void
+interface Props {
+    onClickCreateButton: () => void
 }
 
-export const useTopologyStore = createWithEqualityFn<TopologyState>((set) => ({
-    selectedIds: [],
-    setSelectedIds: (selectedIds: string[]) => {
-        set((state: TopologyState) => {
-            state.selectedIds.length = 0;
-            state.selectedIds.push(...selectedIds);
-            return {selectedIds: state.selectedIds};
-        });
-    },
-    setFileName: (fileName?: string) => {
-        set((state: TopologyState) => {
-            return {fileName: fileName};
-        });
-    }
-}), shallow)
+export function TopologyToolbar (props: Props) {
+
+    return (
+        <ToolbarItem align={{default: "alignRight"}}>
+            <Tooltip content={"Add new integration"}>
+                <Button size="sm"
+                        variant={"primary"}
+                        icon={<PlusIcon/>}
+                        onClick={e => props.onClickCreateButton()}
+                >
+                    Create
+                </Button>
+            </Tooltip>
+        </ToolbarItem>
+    )
+}

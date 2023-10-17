@@ -16,31 +16,39 @@
  */
 
 import * as React from 'react';
-import {
-    Button,
-    ToolbarItem, Tooltip
-} from '@patternfly/react-core';
-import { useFileStore} from "../../api/ProjectStore";
+import {useFilesStore, useFileStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
-import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
+import {TopologyTab} from "../../topology/TopologyTab";
+import {useEffect} from "react";
+import {IntegrationFile} from "../../topology/TopologyStore";
 import {CreateFileModal} from "../files/CreateFileModal";
 
-export const TopologyToolbar: React.FC = () => {
+export const ProjectTopologyTab: React.FC = () => {
 
     const [setFile] = useFileStore((s) => [s.setFile], shallow);
+    const [files] = useFilesStore((s) => [s.files], shallow);
+
+    useEffect(() => {
+        // console.log(files.map(f => f.name));
+        // setFiles(files.map(f => new IntegrationFile(f.name, f.code)));
+    }, []);
+
+
+    function selectFile(fileName: string) {
+        const file = files.filter(f => f.name === fileName)?.at(0);
+        if (file) {
+            setFile('select', file);
+        }
+    }
 
     return (
-        <ToolbarItem align={{default: "alignRight"}}>
-            <Tooltip content={"Add new integration"}>
-                <Button size="sm"
-                        variant={"primary"}
-                        icon={<PlusIcon/>}
-                        onClick={e => setFile("create")}
-                >
-                    Create
-                </Button>
-            </Tooltip>
+        <>
+            <TopologyTab
+                files={files.map(f => new IntegrationFile(f.name, f.code))}
+                onClickCreateButton={() => setFile('create')}
+                onSetFile={(fileName) => selectFile(fileName)}
+            />
             <CreateFileModal types={['INTEGRATION']}/>
-        </ToolbarItem>
-    )
-}
+        </>
+    );
+};
