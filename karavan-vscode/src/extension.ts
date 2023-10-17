@@ -23,6 +23,7 @@ import * as path from "path";
 import * as jbang from "./jbang";
 import * as utils from "./utils";
 import * as exec from "./exec";
+import { TopologyView } from './topologyView';
 
 const KARAVAN_LOADED = "karavan:loaded";
 
@@ -46,16 +47,20 @@ export function activate(context: ExtensionContext) {
     window.registerTreeDataProvider('help', helpView);
     commands.registerCommand('karavan.openKnowledgebase', () => helpView.openKaravanWebView("knowledgebase"));
 
+    const topologyView = new TopologyView(context);
+    const topologyCommand = commands.registerCommand("karavan.topology", (...args: any[]) => {
+        topologyView.openKaravanWebView(args[0]?.fsPath);
+    });
+    context.subscriptions.push(topologyCommand);
+
     // Create new Integration YAML command
     const createYaml = commands.registerCommand("karavan.create-yaml", (...args: any[]) => {
-        console.log("args", args)
         designer.createIntegration("plain", args[0]?.fsPath)
     });
     context.subscriptions.push(createYaml);
 
     // Open integration in designer command
     const open = commands.registerCommand("karavan.open", (...args: any[]) => {
-        console.log("args", args)
         designer.karavanOpen(args[0].fsPath, args[0].tab);
     });
     context.subscriptions.push(open);
@@ -196,5 +201,3 @@ export async function exportAndRunProject(rootPath?: string, run?: boolean) {
 export function deactivate() {
     commands.executeCommand("setContext", KARAVAN_LOADED, false);
 }
-
-

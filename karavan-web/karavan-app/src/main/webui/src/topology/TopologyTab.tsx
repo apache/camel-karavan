@@ -41,6 +41,7 @@ interface Props {
     files: IntegrationFile[],
     onClickCreateButton: () => void
     onSetFile: (fileName: string) => void
+    hideToolbar: boolean
 }
 
 export function TopologyTab (props: Props) {
@@ -93,7 +94,7 @@ export function TopologyTab (props: Props) {
     return (
         <TopologyView
             className="topology-panel"
-            contextToolbar={<TopologyToolbar onClickCreateButton={props.onClickCreateButton}/>}
+            contextToolbar={!props.hideToolbar? <TopologyToolbar onClickCreateButton={props.onClickCreateButton}/> : undefined}
             sideBar={<TopologyPropertiesPanel onSetFile={props.onSetFile}/>}
             controlBar={
                 <TopologyControlBar

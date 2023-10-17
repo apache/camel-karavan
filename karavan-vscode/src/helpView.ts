@@ -48,7 +48,7 @@ export class HelpView implements vscode.TreeDataProvider<HelpItem> {
 			// Karavan webview
 			const panel = vscode.window.createWebviewPanel(
 				"karavan",
-				page.toUpperCase(),
+				utils.capitalize(page),
 				vscode.ViewColumn.One,
 				{
 					enableScripts: true,

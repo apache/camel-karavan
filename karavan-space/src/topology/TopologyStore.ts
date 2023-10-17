@@ -39,9 +39,7 @@ export const useTopologyStore = createWithEqualityFn<TopologyState>((set) => ({
     selectedIds: [],
     setSelectedIds: (selectedIds: string[]) => {
         set((state: TopologyState) => {
-            state.selectedIds.length = 0;
-            state.selectedIds.push(...selectedIds);
-            return {selectedIds: state.selectedIds};
+            return {selectedIds: selectedIds};
         });
     },
     setFileName: (fileName?: string) => {

@@ -36,11 +36,11 @@
   },
   "homepage": "https://github.com/apache/camel-karavan#readme",
   "dependencies": {
-    "@types/js-yaml": "^4.0.5",
-    "@types/uuid": "^8.3.4",
+    "@types/js-yaml": "^4.0.7",
+    "@types/uuid": "^9.0.5",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.1",
-    "uuid": "8.3.2"
+    "uuid": "9.0.1"
   },
   "devDependencies": {
     "@types/chai": "^4.3.0",

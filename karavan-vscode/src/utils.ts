@@ -189,6 +189,21 @@ export async function getCamelYamlFiles(baseDir: string) {
     return result;
 }
 
+export async function readCamelYamlFiles(dir: string) {
+    const result: any = {};
+    const files = await getCamelYamlFiles(dir);
+    for (let x in files){
+        const filename = files[x];
+        const readData = await readFile(path.resolve(filename));
+        const yaml = Buffer.from(readData).toString('utf8');
+        if (CamelDefinitionYaml.yamlIsIntegration(yaml)){
+            const basename = path.basename(filename);  
+            result[basename] = yaml;
+        }
+    }
+    return result;
+}
+
 export async function hasApplicationProperties(baseDir: string) {
     return (await getPropertyFiles(baseDir)).includes(baseDir + path.sep + 'application.properties');
 }

@@ -17,7 +17,6 @@
 import {Uri, window, commands, WebviewPanel, ExtensionContext, ViewColumn, WebviewPanelOnDidChangeViewStateEvent } from "vscode";
 import * as path from "path";
 import * as utils from "./utils";
-import * as jbang from "./jbang";
 import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
 import { Integration } from "core/model/IntegrationDefinition";
 import { getWebviewContent } from "./webviewContent";
@@ -116,7 +115,6 @@ export class DesignerView {
                             utils.save(message.relativePath, message.code);
                             break;
                         case 'saveCode':
-                            console.log("saveCode")
                             utils.saveCode(message.name, message.yamlFullPath, message.yamFileName, message.code);
                             break;
                         case 'getData':

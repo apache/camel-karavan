@@ -23,8 +23,10 @@ import vscode from "./vscode";
 import { KameletApi } from "core/api/KameletApi";
 import { ComponentApi } from "core/api/ComponentApi";
 import { TemplateApi } from "./core/api/TemplateApi";
-import {EventBus} from "./designer/utils/EventBus";
+import { EventBus } from "./designer/utils/EventBus";
 import { KnowledgebasePage } from "./knowledgebase/KnowledgebasePage";
+import { TopologyTab } from "./topology/TopologyTab";
+import { IntegrationFile } from "./topology/TopologyStore";
 
 interface Props {
   dark: boolean
@@ -41,10 +43,10 @@ interface State {
   interval?: NodeJS.Timeout
   scheduledYaml: string
   hasChanges: boolean
-  page: "designer" | "knowledgebase"
+  page: "designer" | "knowledgebase" | 'topology'
   active: boolean
   tab?: string
-  files: string
+  files: IntegrationFile[]
 }
 
 class App extends React.Component<Props, State> {
@@ -61,7 +63,7 @@ class App extends React.Component<Props, State> {
     hasChanges: false,
     page: "designer",
     active: false,
-    files: '',
+    files: [],
   };
 
   saveScheduledChanges = () => {
@@ -75,6 +77,13 @@ class App extends React.Component<Props, State> {
     window.addEventListener('message', this.onMessage, false);
     vscode.postMessage({ command: 'getData' });
     this.setState({ interval: setInterval(this.saveScheduledChanges, 2000) });
+    if (this.props.dark) {
+      const box = document.getElementsByTagName('html');
+      if (box != null && box.length > 0) {
+        box[0].classList.add('pf-v5-theme-dark');
+        // box.classList.remove('bg-yellow');
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -89,41 +98,48 @@ class App extends React.Component<Props, State> {
       case 'kamelets':
         KameletApi.saveKamelets(message.kamelets, true);
         this.setState((prevState: State) => {
-          prevState.loadingMessages.push("Kamelets loaded"); 
-          return {loadingMessages: prevState.loadingMessages}
+          prevState.loadingMessages.push("Kamelets loaded");
+          return { loadingMessages: prevState.loadingMessages }
         });
         break;
       case 'components':
         ComponentApi.saveComponents(message.components, true);
         this.setState((prevState: State) => {
-          prevState.loadingMessages.push("Components loaded"); 
-          return {loadingMessages: prevState.loadingMessages}
+          prevState.loadingMessages.push("Components loaded");
+          return { loadingMessages: prevState.loadingMessages }
         });
         break;
       case 'supportedComponents':
         ComponentApi.saveSupportedComponents(message.components);
         this.setState((prevState: State) => {
-          prevState.loadingMessages.push("Supported Components loaded"); 
-          return {loadingMessages: prevState.loadingMessages}
+          prevState.loadingMessages.push("Supported Components loaded");
+          return { loadingMessages: prevState.loadingMessages }
         });
-        break; 
+        break;
       case 'supportedOnly':
         ComponentApi.setSupportedOnly(true);
-        break;    
+        break;
+      case 'files':
+        this.saveIntegrationFiles(message.files);
+        this.setState((prevState: State) => {
+          prevState.loadingMessages.push("Integrations loaded");
+          return { loadingMessages: prevState.loadingMessages }
+        });
+        break;
       case 'templates':
         const templates = message.templates;
-        const map = new Map( Object.keys(templates).map(key => [key, templates[key]]));
+        const map = new Map(Object.keys(templates).map(key => [key, templates[key]]));
         TemplateApi.saveTemplates(map, true);
         this.setState((prevState: State) => {
-          prevState.loadingMessages.push("Templates loaded"); 
-          return {loadingMessages: prevState.loadingMessages}
+          prevState.loadingMessages.push("Templates loaded");
+          return { loadingMessages: prevState.loadingMessages }
         });
-        break;  
+        break;
       case 'javaCode':
         const javaCode = message.javaCode;
-        const javaCodeMap = new Map( Object.keys(javaCode).map(key => [key, javaCode[key]]));
+        const javaCodeMap = new Map(Object.keys(javaCode).map(key => [key, javaCode[key]]));
         TemplateApi.saveJavaCodes(javaCodeMap, true);
-        break;  
+        break;
       case 'open':
         if (this.state.filename === '' && this.state.key === '') {
           if (message.page !== "designer" && this.state.interval) clearInterval(this.state.interval);
@@ -170,36 +186,50 @@ class App extends React.Component<Props, State> {
     vscode.postMessage({ command: 'saveCode', name: name, yamlFullPath: this.state.fullPath, yamFileName: this.state.filename, code: code });
   }
 
+  saveIntegrationFiles(files: any) {
+    const f = Object.keys(files).map(key => new IntegrationFile(key, files[key]));
+    this.setState({ files: f });
+
+  }
+
   public render() {
-    const {loadingMessages, filename, key, yaml, page, loaded, tab} = this.state;
-    const {dark} = this.props;
+    const { loadingMessages, filename, key, yaml, page, loaded, tab } = this.state;
+    const { dark } = this.props;
     return (
       <Page className="karavan">
         {!loaded &&
           <PageSection variant={dark ? "dark" : "light"} className="loading-page">
-            <Spinner className="progress-stepper"  diameter="80px" aria-label="Loading..." />
+            <Spinner className="progress-stepper" diameter="80px" aria-label="Loading..." />
             {/* {loadingMessages.map(message => <Text component={TextVariants.h5}>{message}</Text>)} */}
             <Text component={TextVariants.h5}>Loading...</Text>
           </PageSection>
         }
         {loaded && page === "designer" &&
-          <KaravanDesigner 
-          showCodeTab={false}
+          <KaravanDesigner
+            showCodeTab={false}
             key={key}
             filename={filename}
             yaml={yaml}
             onSave={(filename, yaml, propertyOnly) => this.save(filename, yaml, propertyOnly)}
             tab={tab}
-            dark={dark} 
+            dark={dark}
             onSaveCustomCode={(name, code) => this.saveJavCode(name, code)}
             onGetCustomCode={(name, javaType) => {
-                let code = TemplateApi.getJavaCode(name);
-                if (code === undefined || code.length === 0) code = TemplateApi.generateCode(javaType, name);
-                return new Promise<string | undefined>(resolve => resolve(code))
+              let code = TemplateApi.getJavaCode(name);
+              if (code === undefined || code.length === 0) code = TemplateApi.generateCode(javaType, name);
+              return new Promise<string | undefined>(resolve => resolve(code))
             }}
-            />
+          />
         }
         {loaded && page === "knowledgebase" && <KnowledgebasePage dark={dark} />}
+        {loaded && page === "topology" &&
+          <TopologyTab
+            hideToolbar={true}
+            files={this.state.files}
+            onClickCreateButton={() => vscode.postMessage({ command: 'createIntegration' })}
+            onSetFile={(fileName) => vscode.postMessage({ command: 'openFile', fileName: fileName })}
+          />
+        }
       </Page>
     )
   }

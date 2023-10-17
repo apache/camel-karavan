@@ -44,6 +44,7 @@ export const ProjectTopologyTab: React.FC = () => {
     return (
         <>
             <TopologyTab
+                hideToolbar={false}
                 files={files.map(f => new IntegrationFile(f.name, f.code))}
                 onClickCreateButton={() => setFile('create')}
                 onSetFile={(fileName) => selectFile(fileName)}
@@ -51,4 +52,4 @@ export const ProjectTopologyTab: React.FC = () => {
             <CreateFileModal types={['INTEGRATION']}/>
         </>
     );
-};
+}

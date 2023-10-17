@@ -36,6 +36,7 @@ body, :root, #root, .karavan {
 
   --step-border-color: var(--pf-v5-global--active-color--200);
   --step-border-color-selected:var(--vscode-focusBorder);
+  padding: 0;
 }
 .karavan .properties .pf-v5-c-form-control > :is(input, select, textarea):focus {
   outline-color: var(--vscode-focusBorder);
@@ -467,4 +468,8 @@ color: var(--vscode-editor-foreground);
 
 #root .karavan .dsl-page .dsl-page-columns {
   padding-bottom: 0;
+}
+
+.vscode-dark .karavan .topology-panel .pf-topology__node .pf-topology__node__background {
+  fill: var(--pf-v5-global--palette--black-400); 
 }

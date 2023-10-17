@@ -458,6 +458,11 @@
     },
     "commands": [
       {
+        "command": "karavan.topology",
+        "title": "Karavan: Show Topology",
+        "icon": "$(type-hierarchy)"
+      },
+      {
         "command": "karavan.create-yaml",
         "title": "Karavan: Create Integration",
         "icon": "$(add)"
@@ -532,6 +537,11 @@
           "group": "karavan@2"
         },
         {
+          "command": "karavan.topology",
+          "when": "explorerResourceIsFolder || explorerResourceIsRoot || resourceFilename =~ /.camel.yaml$/",
+          "group": "karavan@1"
+        },
+        {
           "command": "karavan.create-application",
           "when": "explorerResourceIsFolder || explorerResourceIsRoot",
           "group": "karavan@3"
@@ -590,6 +600,11 @@
         }
       ],
       "view/title": [
+        {
+          "command": "karavan.topology",
+          "when": "view == integrations",
+          "group": "navigation@0"
+        },
         {
           "command": "karavan.create-yaml",
           "when": "view == integrations",
@@ -681,7 +696,7 @@
   },
   "scripts": {
     "copy-core": "cp -r ../karavan-core/src/core webview",
-    "copy-designer": "cp -r ../karavan-designer/src/designer webview && cp -r ../karavan-designer/src/knowledgebase webview",
+    "copy-designer": "cp -r ../karavan-designer/src/designer webview && cp -r ../karavan-designer/src/knowledgebase webview && cp -r ../karavan-designer/src/topology webview",
     "replace-import": "run-script-os",
     "replace-import:darwin": "find webview -type f -name '*.ts*' -exec sed -i '' 's!karavan-core/lib!core!g' {} +",
     "replace-import:linux": "find webview -type f -name '*.ts*' -exec sed -i 's!karavan-core/lib!core!g' {} +",
@@ -700,21 +715,22 @@
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. ../karavan-demo/hello-world/"
   },
   "dependencies": {
-    "@monaco-editor/react": "4.5.1",
-    "@patternfly/patternfly": "^5.0.2",
-    "@patternfly/react-core": "^5.0.0",
-    "@patternfly/react-table": "^5.0.0",
-    "@types/js-yaml": "4.0.5",
-    "@types/uuid": "9.0.1",
+    "@monaco-editor/react": "^4.6.0",
+    "@patternfly/patternfly": "^5.1.0",
+    "@patternfly/react-core": "^5.1.1",
+    "@patternfly/react-table": "^5.1.1",
+    "@patternfly/react-topology": "^5.1.0",
+    "@types/js-yaml": "4.0.7",
+    "@types/uuid": "9.0.5",
     "html-to-image": "1.11.11",
     "js-yaml": "^4.1.0",
     "path-browserify": "^1.0.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "rxjs": "7.8.0",
+    "rxjs": "7.8.1",
     "shelljs": "^0.8.5",
-    "uuid": "9.0.0",
-    "zustand": "^4.4.1"
+    "uuid": "9.0.1",
+    "zustand": "4.4.3"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
