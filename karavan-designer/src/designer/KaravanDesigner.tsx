@@ -35,7 +35,7 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelUi} from "./utils/CamelUi";
 import {useDesignerStore, useIntegrationStore} from "./DesignerStore";
 import {shallow} from "zustand/shallow";
-import {getDesignerIcon} from "./utils/KaravanIcons";
+import {getDesignerIcon} from "./icons/KaravanIcons";
 import {InfrastructureAPI} from "./utils/InfrastructureAPI";
 import {EventBus, IntegrationUpdate} from "./utils/EventBus";
 import {RestDesigner} from "./rest/RestDesigner";
