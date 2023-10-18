@@ -93,7 +93,7 @@ async function readFilesInDirByExtension(dir: string, extension: string): Promis
     for (let d in dirs) {
         const filename = dirs[d][0];
         if (filename !== undefined && filename.endsWith(extension)) {
-            const file = await readFile(dir + "/" + filename);
+            const file = await readFile(dir + path.sep + filename);
             const code = Buffer.from(file).toString('utf8');
             result.set(filename, code);
         }
@@ -165,9 +165,9 @@ export async function getAllFiles(dirPath, arrayOfFiles: string[]) {
         const filename = files[x][0];
         const type = files[x][1];
         if (type === FileType.Directory) {
-            arrayOfFiles = await getAllFiles(dirPath + "/" + filename, arrayOfFiles)
+            arrayOfFiles = await getAllFiles(dirPath + path.sep + filename, arrayOfFiles)
         } else {
-            arrayOfFiles.push(path.join(dirPath, "/", filename))
+            arrayOfFiles.push(path.join(dirPath, path.sep, filename))
         }
     }
     return arrayOfFiles
@@ -190,10 +190,13 @@ export async function getCamelYamlFiles(baseDir: string) {
 }
 
 export async function readCamelYamlFiles(dir: string) {
+    const exportFolder = await getExportFolder();
+    const fullExportFolder = dir + path.sep + exportFolder;
     const result: any = {};
     const files = await getCamelYamlFiles(dir);
-    for (let x in files){
-        const filename = files[x];
+    const camelFiles = exportFolder ? files.filter(f => !f.startsWith(fullExportFolder)) : files;
+    for (let x in camelFiles){
+        const filename = camelFiles[x];
         const readData = await readFile(path.resolve(filename));
         const yaml = Buffer.from(readData).toString('utf8');
         if (CamelDefinitionYaml.yamlIsIntegration(yaml)){
