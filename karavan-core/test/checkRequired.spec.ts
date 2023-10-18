@@ -21,15 +21,27 @@ import {
 } from "../src/core/model/CamelDefinition";
 import {CamelDefinitionApi} from "../src/core/api/CamelDefinitionApi";
 import {CamelUtil} from "../src/core/api/CamelUtil";
+import { SetHeaderDefinition } from '../lib/model/CamelDefinition';
 
 describe('Check required properties', () => {
 
-    it('Check DSL', () => {
+    it('Check Log DSL', () => {
         const log: LogDefinition = CamelDefinitionApi.createLogDefinition({});
         expect(CamelUtil.checkRequired(log)[0]).to.equal(false);
         log.message = '${body}'
         expect(CamelUtil.checkRequired(log)[0]).to.equal(true);
+    });
 
+    it('Check SetHeader DSL', () => {
+        const setHeader: SetHeaderDefinition = CamelDefinitionApi.createSetHeaderDefinition({});
+        setHeader.expression = new ExpressionDefinition({simple: new SimpleExpression({expression: '${body}'})})
+        const check = CamelUtil.checkRequired(setHeader);
+        expect(check[0]).to.equal(false);
+        setHeader.name = 'header1'
+        expect(CamelUtil.checkRequired(setHeader)[0]).to.equal(true);
+    });
+
+    it('Check Split DSL', () => {
         const split: SplitDefinition = CamelDefinitionApi.createSplitDefinition({});
         expect(CamelUtil.checkRequired(split)[0]).to.equal(false);
         split.expression = new ExpressionDefinition({simple: new SimpleExpression()})

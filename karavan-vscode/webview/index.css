@@ -168,9 +168,13 @@ body, :root, #root, .karavan {
   border-color: var(--pf-v5-global--Color--200);
 }
 
-.vscode-dark .step-element .header .text-bottom {
+.vscode-dark .karavan .step-element .header .text-bottom {
     background-color: rgb(var(--vscode-editor-background), 0.5);
     color: var(--vscode-editor-foreground);
+}
+
+.vscode-dark .karavan .step-element .header .header-text-required {
+  color: var(--pf-v5-global--danger-color--100);
 }
 
 .vscode-dark .karavan .step-element .add-button {

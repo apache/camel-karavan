@@ -252,7 +252,9 @@ export class CamelUtil {
                 result[0] = allSet;
             }
         }
-
+        if (result[1] && result[1].length > 0) {
+            result[0] = false;
+        }
         return result;
     };
 
