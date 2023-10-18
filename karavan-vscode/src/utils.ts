@@ -197,7 +197,7 @@ export async function readCamelYamlFiles(dir: string) {
         const readData = await readFile(path.resolve(filename));
         const yaml = Buffer.from(readData).toString('utf8');
         if (CamelDefinitionYaml.yamlIsIntegration(yaml)){
-            const basename = path.basename(filename);  
+            const basename = filename.replace(dir, '');
             result[basename] = yaml;
         }
     }
