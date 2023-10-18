@@ -25,7 +25,6 @@ import {
     RegistryBeanDefinition,
     RouteConfigurationDefinition,
     RouteDefinition,
-    SagaDefinition,
     ToDefinition
 } from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
@@ -35,7 +34,8 @@ import {
     ApiIcon,
     AwsIcon,
     AzureIcon,
-    BlockchainIcon, CassandraIcon,
+    BlockchainIcon,
+    CassandraIcon,
     ChatIcon,
     ChoiceIcon,
     CloudIcon,
@@ -57,7 +57,8 @@ import {
     Intercept,
     InterceptFrom,
     InterceptSendToEndpoint,
-    IotIcon, KafkaIcon,
+    IotIcon,
+    KafkaIcon,
     KubernetesIcon,
     MachineLearningIcon,
     MailIcon,
@@ -81,7 +82,8 @@ import {
     SplitIcon,
     SpringIcon,
     TerminalIcon,
-    TestingIcon, ToIcon,
+    TestingIcon,
+    ToIcon,
     TransformationIcon,
     ValidationIcon,
     WebserviceIcon,
@@ -90,7 +92,6 @@ import {
 import React from "react";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
-import {renderToStaticMarkup} from "react-dom/server";
 
 const StepElements: string[] = [
     "AggregateDefinition",
@@ -698,13 +699,7 @@ export class CamelUi {
         const uri = (element as any).uri;
         const component = ComponentApi.findByName(uri);
         if (component) {
-            const reactElement = CamelUi.getIconForComponent(component.component.title, component.component.label);
-            const icon = 'data:image/svg+xml,' + encodeURI(renderToStaticMarkup((reactElement)))
-            return (
-                <svg className="icon">
-                    <image href={icon} className="icon"/>
-                </svg>
-            )
+            return CamelUi.getIconForComponent(component.component.title, component.component.label)
         } else if (["FromDefinition", "KameletDefinition"].includes(element.dslName)) {
             const icon = k ? k.icon() : externalIcon;
             return  (

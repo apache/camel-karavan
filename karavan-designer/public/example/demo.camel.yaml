@@ -1,70 +1,20 @@
 - route:
-    id: route-a7ac
+    id: route-fbf9
     from:
-      uri: sql
-      id: from-82ca
-- route:
-    id: route-1a95
-    from:
-      uri: kamelet:aws-sqs-source
-      id: from-c57c
+      uri: kamelet:beer-source
+      id: from-9d5b
       steps:
-        - log:
-            message: ${body}
-            id: log-8ec1
-        - choice:
-            when:
-              - expression: {}
-                id: when-ba60
-            otherwise:
-              id: otherwise-630f
-            id: choice-a534
-        - log:
-            message: ${body}
-            id: log-beae
-        - dynamicRouter:
-            expression: {}
-            id: dynamicRouter-079a
+        - to:
+            uri: activemq
+            id: to-0fd2
+        - to:
+            uri: asterisk
+            id: to-b9ca
+        - to:
+            uri: aws2-ec2
+            id: to-3c6a
 - route:
-    id: route-4530
+    id: route-605c
     from:
-      uri: kamelet:azure-cosmosdb-source
-      id: from-ea00
-      steps:
-        - choice:
-            when:
-              - expression: {}
-                id: when-1755
-                steps:
-                  - loop:
-                      expression: {}
-                      id: loop-967a
-              - expression: {}
-                id: when-16be
-                steps:
-                  - log:
-                      message: ${body}
-                      id: log-fb70
-                  - pollEnrich:
-                      expression: {}
-                      id: pollEnrich-2f03
-            otherwise:
-              id: otherwise-331b
-              steps:
-                - log:
-                    message: ${body}
-                    id: log-29e1
-                - process:
-                    id: process-857f
-            id: choice-cc9a
-- route:
-    id: route-24d3
-    from:
-      uri: kamelet:cassandra-source
-      id: from-bf6e
-      steps:
-        - process:
-            id: process-2d45
-        - log:
-            message: ${body}
-            id: log-1919
+      uri: activemq
+      id: from-3131
