@@ -28,9 +28,9 @@ public final class KaravanGenerator {
             paths = new String[] {args[0]};
         }
         CamelDefinitionGenerator.generate();
-        CamelDefinitionApiGenerator.generate();
-        CamelDefinitionYamlStepGenerator.generate();
-        CamelMetadataGenerator.generate();
+//        CamelDefinitionApiGenerator.generate();
+//        CamelDefinitionYamlStepGenerator.generate();
+//        CamelMetadataGenerator.generate();
         KameletGenerator.generate(paths);
         CamelComponentsGenerator.generate(paths);
         System.exit(0);

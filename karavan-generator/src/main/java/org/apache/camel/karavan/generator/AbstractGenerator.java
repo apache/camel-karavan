@@ -54,16 +54,61 @@ public class AbstractGenerator {
         return new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("definitions");
     }
 
-    protected Map<String, String> getStepNames(){
-        // Prepare stepNames map
+    protected String getStepNameForClass (String className) {
+        if (className.equals("CatchDefinition")) {
+            className = "doCatch";
+        } else if (className.equals("ConvertBodyDefinition")) {
+            className = "convertBodyTo";
+        } else if (className.equals("FinallyDefinition")) {
+            className = "doFinally";
+        } else if (className.equals("SamplingDefinition")) {
+            className = "sample";
+        } else if (className.endsWith("Definition")) {
+            className = className.substring(0, className.length() - 10);
+        } else if (className.endsWith("DataFormat")){
+            return getDataFormatStepNameForClass().get(className);
+        } else if (className.endsWith("Expression")){
+            return getExpressionStepNameForClass().get(className);
+        }
+        return deCapitalize(className);
+    }
+
+    protected Map<String, String> getDataFormatStepNameForClass(){
+        Map<String, String> stepNames = new LinkedHashMap<>();
         JsonObject definitions = getDefinitions();
-        Map<String, String> stepNames = getProcessorStepName(new JsonObject(getCamelYamlDSL()).getJsonObject("items").getJsonObject("properties"));
-        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.ProcessorDefinition").getJsonObject("properties")));
-        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.language.ExpressionDefinition").getJsonObject("properties")));
-        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.language.ExpressionDefinition").getJsonObject("properties")));
-        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.dataformat.DataFormatsDefinition").getJsonObject("properties")));
+        JsonObject props = definitions.getJsonObject("org.apache.camel.model.dataformat.DataFormatsDefinition").getJsonObject("properties");
+        props.getMap().keySet().forEach(key -> {
+            String className = classSimple(props.getJsonObject(key).getString("$ref"));
+            stepNames.put(className, key);
+        });
         return stepNames;
     }
+
+    protected Map<String, String> getExpressionStepNameForClass(){
+        Map<String, String> stepNames = new LinkedHashMap<>();
+        JsonObject definitions = getDefinitions();
+        JsonArray props = definitions.getJsonObject("org.apache.camel.model.language.ExpressionDefinition").getJsonArray("anyOf").getJsonObject(0).getJsonArray("oneOf");
+        for (int i =0; i < props.size(); i++) {
+            JsonObject prop = props.getJsonObject(i);
+            String key = prop.getJsonObject("properties").getMap().keySet().iterator().next();
+            String fullClassName = prop.getJsonObject("properties").getJsonObject(key).getString("$ref");
+            String className = classSimple(fullClassName);
+            stepNames.put(className, key);
+            System.out.println(className + " : " + key);
+        }
+        return stepNames;
+    }
+
+//    protected Map<String, String> getStepNames(){
+//        // Prepare stepNames map
+//        JsonObject definitions = getDefinitions();
+//        Map<String, String> stepNames = getProcessorStepName(new JsonObject(getCamelYamlDSL()).getJsonObject("items").getJsonObject("properties"));
+//        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.ProcessorDefinition").getJsonObject("properties")));
+//        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.language.ExpressionDefinition").getJsonObject("properties")));
+//        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.language.ExpressionDefinition").getJsonObject("properties")));
+//        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.dataformat.DataFormatsDefinition").getJsonObject("properties")));
+//        return stepNames;
+//    }
 
     protected Map<String, JsonObject> getDslMetadata(){
         // Generate DSL Metadata
@@ -71,7 +116,7 @@ public class AbstractGenerator {
         JsonObject definitions = new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("definitions");
 
         // Prepare stepNames map
-        Map<String, String> stepNames = getStepNames();
+        Map<String, String> stepNames = getProcessorStepNameMap();
 
         Map<String, JsonObject> classProps = new HashMap<>();
         Map<String, Object> defsMap = new HashMap<>();
@@ -252,6 +297,50 @@ public class AbstractGenerator {
             String className = classSimple(ref);
             result.put(className, className.equals("ToDynamicDefinition") ? "toD" : name);
         });
+        return result;
+    }
+
+
+
+    protected Map<String, String> getProcessorStepNameMapForObject(String key, JsonObject jsonObject) {
+        Map<String, String> result = new HashMap<>();
+
+        jsonObject.fieldNames().forEach(k -> {
+            Object object = jsonObject.getValue(k);
+            if (object instanceof JsonObject) {
+                JsonObject value = jsonObject.getJsonObject(k);
+                result.putAll(getProcessorStepNameMapForObject(k, value));
+            } else if (object instanceof JsonArray) {
+                JsonArray value = jsonObject.getJsonArray(k);
+                result.putAll(getProcessorStepNameMapForArray(value));
+            } else if (object instanceof String && k.equals("$ref") && !object.toString().contains(".deserializers.")) {
+                String ref = jsonObject.getString(k);
+                String className = classSimple(ref);
+                result.put(className, key);
+            }
+        });
+        return result;
+    }
+
+    protected Map<String, String> getProcessorStepNameMapForArray(JsonArray jsonArray) {
+        Map<String, String> result = new HashMap<>();
+
+        jsonArray.forEach(object -> {
+            if (object instanceof JsonObject) {
+                result.putAll(getProcessorStepNameMapForObject(null, (JsonObject) object));
+            } else if (object instanceof JsonArray) {
+                result.putAll(getProcessorStepNameMapForArray((JsonArray) object));
+            }
+        });
+        return result;
+    }
+
+    protected Map<String, String> getProcessorStepNameMap() {
+        String camelYamlDSL = getCamelYamlDSL();
+        JsonObject definitions = new JsonObject(camelYamlDSL);
+
+        Map<String, String> result = new HashMap<>(getProcessorStepNameMapForObject(null, definitions));
+        result.put("ToDynamicDefinition", "toD");
         return result;
     }
 

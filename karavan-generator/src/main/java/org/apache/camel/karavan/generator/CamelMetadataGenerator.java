@@ -57,7 +57,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         camelModel.append("]\n\n");
 
         // Prepare stepNames map
-        Map<String, String> stepNames = getStepNames();
+        Map<String, String> stepNames = getProcessorStepNameMap();
 
         Map<String, JsonObject> classProps = new HashMap<>();
         // Generate DataFormatMetadata
