@@ -66,8 +66,9 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
         });
 
         // generate createStep function
-        Map<String, String> stepNames  = getProcessorStepName(new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("properties"));
-        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.ProcessorDefinition").getJsonObject("properties")));
+        Map<String, String> stepNames = getProcessorStepNameMap();
+//        Map<String, String> stepNames  = getProcessorStepName(new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("properties"));
+//        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.ProcessorDefinition").getJsonObject("properties")));
         StringBuilder cs = new StringBuilder(
                 "    static createStep = (name: string, body: any, clone: boolean = false): CamelElement => {\n" +
                 "       const newBody = CamelUtil.camelizeBody(name, body, clone);\n" +
@@ -85,8 +86,8 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
         camelModel.append(cs);
 
         // generate createExpression function
-        stepNames.clear();
-        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.language.ExpressionDefinition").getJsonObject("properties")));
+//        stepNames.clear();
+//        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.language.ExpressionDefinition").getJsonObject("properties")));
         StringBuilder ce = new StringBuilder(
                 "    static createExpression = (name: string, body: any): CamelElement => {\n" +
                         "       const newBody = CamelUtil.camelizeBody(name, body, false);\n" +
@@ -94,7 +95,9 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
                         "       delete newBody.dslName;\n" +
                         "       switch (name) { \n"
         );
-        stepNames.forEach((className, stepName) -> {
+        stepNames.entrySet().stream().filter(e-> e.getKey().endsWith("Expression")).forEach(e -> {
+            String className = e.getKey();
+            String stepName = e.getValue();
             String code = String.format("            case '%1$s': return CamelDefinitionApi.create%1$s(newBody);\n", className);
             ce.append(code);
         });
@@ -105,8 +108,8 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
         camelModel.append(ce);
 
         // generate createDataFormat function
-        stepNames.clear();
-        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.dataformat.DataFormatsDefinition").getJsonObject("properties")));
+//        stepNames.clear();
+//        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.dataformat.DataFormatsDefinition").getJsonObject("properties")));
         StringBuilder df = new StringBuilder(
                 "    static createDataFormat = (name: string, body: any): CamelElement => {\n" +
                         "       const newBody = CamelUtil.camelizeBody(name, body, false);\n" +
@@ -114,7 +117,10 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
                         "       delete newBody.dslName;\n" +
                         "       switch (name) { \n"
         );
-        stepNames.forEach((className, stepName) -> {
+        stepNames.entrySet().stream().filter(e-> e.getKey().endsWith("DataFormat")).forEach(e -> {
+            String className = e.getKey();
+            String stepName = e.getValue();
+//        stepNames.forEach((className, stepName) -> {
             String code = String.format("            case '%1$s': return CamelDefinitionApi.create%1$s(newBody);\n", className);
             df.append(code);
         });
@@ -132,44 +138,41 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
 
     private String generateModelApi(String classFullName, JsonObject obj) {
         String className = classSimple(classFullName);
+        String stepName = getStepNameForClass(className);
 
-        JsonObject properties = obj.containsKey("oneOf")
-                ? obj.getJsonArray("oneOf").getJsonObject(1).getJsonObject("properties")
-                : obj.getJsonObject("properties");
+        Map<String, JsonObject> properties = getClassProperties(obj);
 
         List<String> attrs = new ArrayList<>();
         AtomicBoolean hasId = new AtomicBoolean(false);
-        if (properties != null) {
-            properties.getMap().keySet().forEach(name -> {
-                JsonObject aValue = properties.getJsonObject(name);
-                if ("id".equals(name)) {
-                    hasId.set(true);
-                }
-                if (isAttributeRefArray(aValue) && name.equals("steps") && ! className.equals("ChoiceDefinition") && ! className.equals("SwitchDefinition") && ! className.equals("KameletDefinition")) {
-                    attrs.add("        def.steps = CamelDefinitionApi.createSteps(element?.steps);");
-                } else if (isAttributeRefArray(aValue) && !name.equals("steps")) {
-                    String code = String.format(
-                            "        def.%1$s = element && element?.%1$s ? element?.%1$s.map((x:any) => CamelDefinitionApi.create%2$s(x)) :[];"
-                            , name, getAttributeArrayClass(aValue));
-                    attrs.add(code);
-                } else if (isAttributeRef(aValue)
-                        && !getAttributeClass(aValue).equals("SagaActionUriDefinition") // SagaActionUriDefinition is exception
-                        && !getAttributeClass(aValue).equals("ToDefinition") // exception for ToDefinition (in REST Methods)
-                        && !getAttributeClass(aValue).equals("ToDynamicDefinition") // exception for ToDynamicDefinition (in REST Methods)
-                ) {
-                    String attributeClass = getAttributeClass(aValue);
-                    String template = attributeClass.equals("ExpressionDefinition")
-                            ? "        def.%1$s = CamelDefinitionApi.create%2$s(element.%1$s); \n"
-                            : "        if (element?.%1$s !== undefined) { \n" +
-                            "            def.%1$s = CamelDefinitionApi.create%2$s(element.%1$s); \n" +
-                            "        }";
-                    String code = String.format(template, name, getAttributeClass(aValue));
-                    attrs.add(code);
-                } else {
+        properties.keySet().stream().sorted(getComparator(stepName)).forEach(name -> {
+            JsonObject aValue = properties.get(name);
+            if ("id".equals(name)) {
+                hasId.set(true);
+            }
+            if (isAttributeRefArray(aValue) && name.equals("steps") && ! className.equals("ChoiceDefinition") && ! className.equals("SwitchDefinition") && ! className.equals("KameletDefinition")) {
+                attrs.add("        def.steps = CamelDefinitionApi.createSteps(element?.steps);");
+            } else if (isAttributeRefArray(aValue) && !name.equals("steps")) {
+                String code = String.format(
+                        "        def.%1$s = element && element?.%1$s ? element?.%1$s.map((x:any) => CamelDefinitionApi.create%2$s(x)) :[];"
+                        , name, getAttributeArrayClass(aValue));
+                attrs.add(code);
+            } else if (isAttributeRef(aValue)
+                    && !getAttributeClass(aValue).equals("SagaActionUriDefinition") // SagaActionUriDefinition is exception
+                    && !getAttributeClass(aValue).equals("ToDefinition") // exception for ToDefinition (in REST Methods)
+                    && !getAttributeClass(aValue).equals("ToDynamicDefinition") // exception for ToDynamicDefinition (in REST Methods)
+            ) {
+                String attributeClass = getAttributeClass(aValue);
+                String template = attributeClass.equals("ExpressionDefinition")
+                        ? "        def.%1$s = CamelDefinitionApi.create%2$s(element.%1$s); \n"
+                        : "        if (element?.%1$s !== undefined) { \n" +
+                        "            def.%1$s = CamelDefinitionApi.create%2$s(element.%1$s); \n" +
+                        "        }";
+                String code = String.format(template, name, getAttributeClass(aValue));
+                attrs.add(code);
+            } else {
 
-                }
-            });
-        }
+            }
+        });
         String stringToRequired = getStringToRequired(obj, className);
         String s2 = stringToRequired.isEmpty() ? "" : "\n" + stringToRequired;
         String s3 = attrs.size() > 0 ? "\n" + attrs.stream().collect(Collectors.joining("\n")) : "";

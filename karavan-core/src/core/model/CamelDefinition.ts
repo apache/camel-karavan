@@ -1516,18 +1516,18 @@ export class ToDefinition extends CamelElement {
 }
 
 export class ToDynamicDefinition extends CamelElement {
-    stepName?: string = 'toDynamic';
+    stepName?: string = 'toD';
+    uri: string = '';
+    pattern?: string;
+    cacheSize?: number;
+    ignoreInvalidEndpoint?: boolean;
     allowOptimisedComponents?: boolean;
     autoStartComponents?: boolean;
-    cacheSize?: number;
-    description?: string;
     disabled?: boolean;
-    id?: string = 'toDynamic-' + uuidv4().substring(0,4);
-    ignoreInvalidEndpoint?: boolean;
+    id?: string = 'toD-' + uuidv4().substring(0,4);
+    description?: string;
     inheritErrorHandler?: boolean;
     parameters?: any = {};
-    pattern?: string;
-    uri: string = '';
     public constructor(init?: Partial<ToDynamicDefinition>) {
         super('ToDynamicDefinition');
         Object.assign(this, init);

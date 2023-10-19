@@ -122,6 +122,8 @@ import {
     WhenSkipSendToEndpointDefinition,
     WireTapDefinition,
     ApplicationDefinition,
+    BeanConstructorDefinition,
+    BeanConstructorsDefinition,
     BeanPropertiesDefinition,
     BeanPropertyDefinition,
     BeansDefinition,
@@ -326,13 +328,6 @@ export class CamelDefinitionYamlStep {
                def.split = CamelDefinitionYamlStep.readSplitDefinition(element.split); 
             } 
         } 
-        if (element?.interceptSendToEndpoint !== undefined) { 
-            if (Array.isArray(element.interceptSendToEndpoint)) { 
-               def.interceptSendToEndpoint = CamelDefinitionYamlStep.readInterceptSendToEndpointDefinition(element.interceptSendToEndpoint[0]); 
-            } else { 
-               def.interceptSendToEndpoint = CamelDefinitionYamlStep.readInterceptSendToEndpointDefinition(element.interceptSendToEndpoint); 
-            } 
-        } 
         if (element?.loop !== undefined) { 
             if (Array.isArray(element.loop)) { 
                def.loop = CamelDefinitionYamlStep.readLoopDefinition(element.loop[0]); 
@@ -452,13 +447,6 @@ export class CamelDefinitionYamlStep {
                def.serviceCall = CamelDefinitionYamlStep.readServiceCallDefinition(element.serviceCall); 
             } 
         } 
-        if (element?.intercept !== undefined) { 
-            if (Array.isArray(element.intercept)) { 
-               def.intercept = CamelDefinitionYamlStep.readInterceptDefinition(element.intercept[0]); 
-            } else { 
-               def.intercept = CamelDefinitionYamlStep.readInterceptDefinition(element.intercept); 
-            } 
-        } 
         if (element?.whenSkipSendToEndpoint !== undefined) { 
             if (Array.isArray(element.whenSkipSendToEndpoint)) { 
                def.whenSkipSendToEndpoint = CamelDefinitionYamlStep.readWhenSkipSendToEndpointDefinition(element.whenSkipSendToEndpoint[0]); 
@@ -478,20 +466,6 @@ export class CamelDefinitionYamlStep {
                def.removeProperty = CamelDefinitionYamlStep.readRemovePropertyDefinition(element.removeProperty[0]); 
             } else { 
                def.removeProperty = CamelDefinitionYamlStep.readRemovePropertyDefinition(element.removeProperty); 
-            } 
-        } 
-        if (element?.interceptFrom !== undefined) { 
-            if (Array.isArray(element.interceptFrom)) { 
-               def.interceptFrom = CamelDefinitionYamlStep.readInterceptFromDefinition(element.interceptFrom[0]); 
-            } else { 
-               def.interceptFrom = CamelDefinitionYamlStep.readInterceptFromDefinition(element.interceptFrom); 
-            } 
-        } 
-        if (element?.onCompletion !== undefined) { 
-            if (Array.isArray(element.onCompletion)) { 
-               def.onCompletion = CamelDefinitionYamlStep.readOnCompletionDefinition(element.onCompletion[0]); 
-            } else { 
-               def.onCompletion = CamelDefinitionYamlStep.readOnCompletionDefinition(element.onCompletion); 
             } 
         } 
         if (element?.pausable !== undefined) { 
@@ -1329,7 +1303,6 @@ export class CamelDefinitionYamlStep {
                def.topic = CamelDefinitionYamlStep.readTopicLoadBalancerDefinition(element.topic); 
             } 
         } 
-        def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
         if (element?.weighted !== undefined) { 
             if (Array.isArray(element.weighted)) { 
                def.weighted = CamelDefinitionYamlStep.readWeightedLoadBalancerDefinition(element.weighted[0]); 
@@ -1337,6 +1310,7 @@ export class CamelDefinitionYamlStep {
                def.weighted = CamelDefinitionYamlStep.readWeightedLoadBalancerDefinition(element.weighted); 
             } 
         } 
+        def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
         if (element?.roundRobin !== undefined) { 
             if (Array.isArray(element.roundRobin)) { 
                def.roundRobin = CamelDefinitionYamlStep.readRoundRobinLoadBalancerDefinition(element.roundRobin[0]); 
@@ -1901,13 +1875,6 @@ export class CamelDefinitionYamlStep {
     static readResequenceDefinition = (element: any): ResequenceDefinition => {
         
         let def = element ? new ResequenceDefinition({...element}) : new ResequenceDefinition();
-        if (element?.streamConfig !== undefined) { 
-            if (Array.isArray(element.streamConfig)) { 
-               def.streamConfig = CamelDefinitionYamlStep.readStreamResequencerConfig(element.streamConfig[0]); 
-            } else { 
-               def.streamConfig = CamelDefinitionYamlStep.readStreamResequencerConfig(element.streamConfig); 
-            } 
-        } 
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
         } else {
@@ -1920,13 +1887,6 @@ export class CamelDefinitionYamlStep {
             }
         }
         def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
-        if (element?.batchConfig !== undefined) { 
-            if (Array.isArray(element.batchConfig)) { 
-               def.batchConfig = CamelDefinitionYamlStep.readBatchResequencerConfig(element.batchConfig[0]); 
-            } else { 
-               def.batchConfig = CamelDefinitionYamlStep.readBatchResequencerConfig(element.batchConfig); 
-            } 
-        } 
 
         return def;
     }
@@ -1976,9 +1936,6 @@ export class CamelDefinitionYamlStep {
     static readRouteConfigurationDefinition = (element: any): RouteConfigurationDefinition => {
         
         let def = element ? new RouteConfigurationDefinition({...element}) : new RouteConfigurationDefinition();
-        def.onCompletion = element && element?.onCompletion ? element?.onCompletion.map((x:any) => CamelDefinitionYamlStep.readOnCompletionDefinition(x.onCompletion)) :[]; 
-        def.interceptSendToEndpoint = element && element?.interceptSendToEndpoint ? element?.interceptSendToEndpoint.map((x:any) => CamelDefinitionYamlStep.readInterceptSendToEndpointDefinition(x.interceptSendToEndpoint)) :[]; 
-        def.intercept = element && element?.intercept ? element?.intercept.map((x:any) => CamelDefinitionYamlStep.readInterceptDefinition(x.intercept)) :[]; 
         if (element?.errorHandler !== undefined) { 
             if (Array.isArray(element.errorHandler)) { 
                def.errorHandler = CamelDefinitionYamlStep.readErrorHandlerDefinition(element.errorHandler[0]); 
@@ -1986,8 +1943,6 @@ export class CamelDefinitionYamlStep {
                def.errorHandler = CamelDefinitionYamlStep.readErrorHandlerDefinition(element.errorHandler); 
             } 
         } 
-        def.onException = element && element?.onException ? element?.onException.map((x:any) => CamelDefinitionYamlStep.readOnExceptionDefinition(x.onException)) :[]; 
-        def.interceptFrom = element && element?.interceptFrom ? element?.interceptFrom.map((x:any) => CamelDefinitionYamlStep.readInterceptFromDefinition(x.interceptFrom)) :[]; 
 
         return def;
     }
@@ -2739,6 +2694,21 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
+    static readBeanConstructorDefinition = (element: any): BeanConstructorDefinition => {
+        
+        let def = element ? new BeanConstructorDefinition({...element}) : new BeanConstructorDefinition();
+
+        return def;
+    }
+
+    static readBeanConstructorsDefinition = (element: any): BeanConstructorsDefinition => {
+        
+        let def = element ? new BeanConstructorsDefinition({...element}) : new BeanConstructorsDefinition();
+        def.constructor = element && element?.constructor ? element?.constructor.map((x:any) => CamelDefinitionYamlStep.readBeanConstructorDefinition(x)) :[]; 
+
+        return def;
+    }
+
     static readBeanPropertiesDefinition = (element: any): BeanPropertiesDefinition => {
         
         let def = element ? new BeanPropertiesDefinition({...element}) : new BeanPropertiesDefinition();
@@ -2980,41 +2950,6 @@ export class CamelDefinitionYamlStep {
         
         let def = element ? new ServiceCallConfigurationDefinition({...element}) : new ServiceCallConfigurationDefinition();
         def = ComponentApi.parseElementUri(def);
-        if (element?.defaultLoadBalancer !== undefined) { 
-            if (Array.isArray(element.defaultLoadBalancer)) { 
-               def.defaultLoadBalancer = CamelDefinitionYamlStep.readDefaultServiceCallServiceLoadBalancerConfiguration(element.defaultLoadBalancer[0]); 
-            } else { 
-               def.defaultLoadBalancer = CamelDefinitionYamlStep.readDefaultServiceCallServiceLoadBalancerConfiguration(element.defaultLoadBalancer); 
-            } 
-        } 
-        if (element?.expression !== undefined) { 
-            if (Array.isArray(element.expression)) { 
-               def.expression = CamelDefinitionYamlStep.readServiceCallExpressionConfiguration(element.expression[0]); 
-            } else { 
-               def.expression = CamelDefinitionYamlStep.readServiceCallExpressionConfiguration(element.expression); 
-            } 
-        } 
-        if (element?.kubernetesServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.kubernetesServiceDiscovery)) { 
-               def.kubernetesServiceDiscovery = CamelDefinitionYamlStep.readKubernetesServiceCallServiceDiscoveryConfiguration(element.kubernetesServiceDiscovery[0]); 
-            } else { 
-               def.kubernetesServiceDiscovery = CamelDefinitionYamlStep.readKubernetesServiceCallServiceDiscoveryConfiguration(element.kubernetesServiceDiscovery); 
-            } 
-        } 
-        if (element?.customServiceFilter !== undefined) { 
-            if (Array.isArray(element.customServiceFilter)) { 
-               def.customServiceFilter = CamelDefinitionYamlStep.readCustomServiceCallServiceFilterConfiguration(element.customServiceFilter[0]); 
-            } else { 
-               def.customServiceFilter = CamelDefinitionYamlStep.readCustomServiceCallServiceFilterConfiguration(element.customServiceFilter); 
-            } 
-        } 
-        if (element?.zookeeperServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.zookeeperServiceDiscovery)) { 
-               def.zookeeperServiceDiscovery = CamelDefinitionYamlStep.readZooKeeperServiceCallServiceDiscoveryConfiguration(element.zookeeperServiceDiscovery[0]); 
-            } else { 
-               def.zookeeperServiceDiscovery = CamelDefinitionYamlStep.readZooKeeperServiceCallServiceDiscoveryConfiguration(element.zookeeperServiceDiscovery); 
-            } 
-        } 
         if (element?.blacklistServiceFilter !== undefined) { 
             if (Array.isArray(element.blacklistServiceFilter)) { 
                def.blacklistServiceFilter = CamelDefinitionYamlStep.readBlacklistServiceCallServiceFilterConfiguration(element.blacklistServiceFilter[0]); 
@@ -3022,25 +2957,22 @@ export class CamelDefinitionYamlStep {
                def.blacklistServiceFilter = CamelDefinitionYamlStep.readBlacklistServiceCallServiceFilterConfiguration(element.blacklistServiceFilter); 
             } 
         } 
+        if (element?.expression !== undefined) { 
+            def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
         if (element?.passThroughServiceFilter !== undefined) { 
             if (Array.isArray(element.passThroughServiceFilter)) { 
                def.passThroughServiceFilter = CamelDefinitionYamlStep.readPassThroughServiceCallServiceFilterConfiguration(element.passThroughServiceFilter[0]); 
             } else { 
                def.passThroughServiceFilter = CamelDefinitionYamlStep.readPassThroughServiceCallServiceFilterConfiguration(element.passThroughServiceFilter); 
-            } 
-        } 
-        if (element?.cachingServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.cachingServiceDiscovery)) { 
-               def.cachingServiceDiscovery = CamelDefinitionYamlStep.readCachingServiceCallServiceDiscoveryConfiguration(element.cachingServiceDiscovery[0]); 
-            } else { 
-               def.cachingServiceDiscovery = CamelDefinitionYamlStep.readCachingServiceCallServiceDiscoveryConfiguration(element.cachingServiceDiscovery); 
-            } 
-        } 
-        if (element?.dnsServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.dnsServiceDiscovery)) { 
-               def.dnsServiceDiscovery = CamelDefinitionYamlStep.readDnsServiceCallServiceDiscoveryConfiguration(element.dnsServiceDiscovery[0]); 
-            } else { 
-               def.dnsServiceDiscovery = CamelDefinitionYamlStep.readDnsServiceCallServiceDiscoveryConfiguration(element.dnsServiceDiscovery); 
             } 
         } 
         if (element?.healthyServiceFilter !== undefined) { 
@@ -3057,25 +2989,11 @@ export class CamelDefinitionYamlStep {
                def.combinedServiceFilter = CamelDefinitionYamlStep.readCombinedServiceCallServiceFilterConfiguration(element.combinedServiceFilter); 
             } 
         } 
-        if (element?.consulServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.consulServiceDiscovery)) { 
-               def.consulServiceDiscovery = CamelDefinitionYamlStep.readConsulServiceCallServiceDiscoveryConfiguration(element.consulServiceDiscovery[0]); 
+        if (element?.customServiceFilter !== undefined) { 
+            if (Array.isArray(element.customServiceFilter)) { 
+               def.customServiceFilter = CamelDefinitionYamlStep.readCustomServiceCallServiceFilterConfiguration(element.customServiceFilter[0]); 
             } else { 
-               def.consulServiceDiscovery = CamelDefinitionYamlStep.readConsulServiceCallServiceDiscoveryConfiguration(element.consulServiceDiscovery); 
-            } 
-        } 
-        if (element?.staticServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.staticServiceDiscovery)) { 
-               def.staticServiceDiscovery = CamelDefinitionYamlStep.readStaticServiceCallServiceDiscoveryConfiguration(element.staticServiceDiscovery[0]); 
-            } else { 
-               def.staticServiceDiscovery = CamelDefinitionYamlStep.readStaticServiceCallServiceDiscoveryConfiguration(element.staticServiceDiscovery); 
-            } 
-        } 
-        if (element?.combinedServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.combinedServiceDiscovery)) { 
-               def.combinedServiceDiscovery = CamelDefinitionYamlStep.readCombinedServiceCallServiceDiscoveryConfiguration(element.combinedServiceDiscovery[0]); 
-            } else { 
-               def.combinedServiceDiscovery = CamelDefinitionYamlStep.readCombinedServiceCallServiceDiscoveryConfiguration(element.combinedServiceDiscovery); 
+               def.customServiceFilter = CamelDefinitionYamlStep.readCustomServiceCallServiceFilterConfiguration(element.customServiceFilter); 
             } 
         } 
 
@@ -3086,104 +3004,17 @@ export class CamelDefinitionYamlStep {
         if (element && typeof element === 'string') element = {name: element};
         let def = element ? new ServiceCallDefinition({...element}) : new ServiceCallDefinition();
         def = ComponentApi.parseElementUri(def);
-        if (element?.defaultLoadBalancer !== undefined) { 
-            if (Array.isArray(element.defaultLoadBalancer)) { 
-               def.defaultLoadBalancer = CamelDefinitionYamlStep.readDefaultServiceCallServiceLoadBalancerConfiguration(element.defaultLoadBalancer[0]); 
-            } else { 
-               def.defaultLoadBalancer = CamelDefinitionYamlStep.readDefaultServiceCallServiceLoadBalancerConfiguration(element.defaultLoadBalancer); 
-            } 
-        } 
         if (element?.expression !== undefined) { 
-            if (Array.isArray(element.expression)) { 
-               def.expression = CamelDefinitionYamlStep.readServiceCallExpressionConfiguration(element.expression[0]); 
-            } else { 
-               def.expression = CamelDefinitionYamlStep.readServiceCallExpressionConfiguration(element.expression); 
-            } 
-        } 
-        if (element?.kubernetesServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.kubernetesServiceDiscovery)) { 
-               def.kubernetesServiceDiscovery = CamelDefinitionYamlStep.readKubernetesServiceCallServiceDiscoveryConfiguration(element.kubernetesServiceDiscovery[0]); 
-            } else { 
-               def.kubernetesServiceDiscovery = CamelDefinitionYamlStep.readKubernetesServiceCallServiceDiscoveryConfiguration(element.kubernetesServiceDiscovery); 
-            } 
-        } 
-        if (element?.customServiceFilter !== undefined) { 
-            if (Array.isArray(element.customServiceFilter)) { 
-               def.customServiceFilter = CamelDefinitionYamlStep.readCustomServiceCallServiceFilterConfiguration(element.customServiceFilter[0]); 
-            } else { 
-               def.customServiceFilter = CamelDefinitionYamlStep.readCustomServiceCallServiceFilterConfiguration(element.customServiceFilter); 
-            } 
-        } 
-        if (element?.zookeeperServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.zookeeperServiceDiscovery)) { 
-               def.zookeeperServiceDiscovery = CamelDefinitionYamlStep.readZooKeeperServiceCallServiceDiscoveryConfiguration(element.zookeeperServiceDiscovery[0]); 
-            } else { 
-               def.zookeeperServiceDiscovery = CamelDefinitionYamlStep.readZooKeeperServiceCallServiceDiscoveryConfiguration(element.zookeeperServiceDiscovery); 
-            } 
-        } 
-        if (element?.blacklistServiceFilter !== undefined) { 
-            if (Array.isArray(element.blacklistServiceFilter)) { 
-               def.blacklistServiceFilter = CamelDefinitionYamlStep.readBlacklistServiceCallServiceFilterConfiguration(element.blacklistServiceFilter[0]); 
-            } else { 
-               def.blacklistServiceFilter = CamelDefinitionYamlStep.readBlacklistServiceCallServiceFilterConfiguration(element.blacklistServiceFilter); 
-            } 
-        } 
-        if (element?.passThroughServiceFilter !== undefined) { 
-            if (Array.isArray(element.passThroughServiceFilter)) { 
-               def.passThroughServiceFilter = CamelDefinitionYamlStep.readPassThroughServiceCallServiceFilterConfiguration(element.passThroughServiceFilter[0]); 
-            } else { 
-               def.passThroughServiceFilter = CamelDefinitionYamlStep.readPassThroughServiceCallServiceFilterConfiguration(element.passThroughServiceFilter); 
-            } 
-        } 
-        if (element?.cachingServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.cachingServiceDiscovery)) { 
-               def.cachingServiceDiscovery = CamelDefinitionYamlStep.readCachingServiceCallServiceDiscoveryConfiguration(element.cachingServiceDiscovery[0]); 
-            } else { 
-               def.cachingServiceDiscovery = CamelDefinitionYamlStep.readCachingServiceCallServiceDiscoveryConfiguration(element.cachingServiceDiscovery); 
-            } 
-        } 
-        if (element?.dnsServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.dnsServiceDiscovery)) { 
-               def.dnsServiceDiscovery = CamelDefinitionYamlStep.readDnsServiceCallServiceDiscoveryConfiguration(element.dnsServiceDiscovery[0]); 
-            } else { 
-               def.dnsServiceDiscovery = CamelDefinitionYamlStep.readDnsServiceCallServiceDiscoveryConfiguration(element.dnsServiceDiscovery); 
-            } 
-        } 
-        if (element?.healthyServiceFilter !== undefined) { 
-            if (Array.isArray(element.healthyServiceFilter)) { 
-               def.healthyServiceFilter = CamelDefinitionYamlStep.readHealthyServiceCallServiceFilterConfiguration(element.healthyServiceFilter[0]); 
-            } else { 
-               def.healthyServiceFilter = CamelDefinitionYamlStep.readHealthyServiceCallServiceFilterConfiguration(element.healthyServiceFilter); 
-            } 
-        } 
-        if (element?.combinedServiceFilter !== undefined) { 
-            if (Array.isArray(element.combinedServiceFilter)) { 
-               def.combinedServiceFilter = CamelDefinitionYamlStep.readCombinedServiceCallServiceFilterConfiguration(element.combinedServiceFilter[0]); 
-            } else { 
-               def.combinedServiceFilter = CamelDefinitionYamlStep.readCombinedServiceCallServiceFilterConfiguration(element.combinedServiceFilter); 
-            } 
-        } 
-        if (element?.consulServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.consulServiceDiscovery)) { 
-               def.consulServiceDiscovery = CamelDefinitionYamlStep.readConsulServiceCallServiceDiscoveryConfiguration(element.consulServiceDiscovery[0]); 
-            } else { 
-               def.consulServiceDiscovery = CamelDefinitionYamlStep.readConsulServiceCallServiceDiscoveryConfiguration(element.consulServiceDiscovery); 
-            } 
-        } 
-        if (element?.staticServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.staticServiceDiscovery)) { 
-               def.staticServiceDiscovery = CamelDefinitionYamlStep.readStaticServiceCallServiceDiscoveryConfiguration(element.staticServiceDiscovery[0]); 
-            } else { 
-               def.staticServiceDiscovery = CamelDefinitionYamlStep.readStaticServiceCallServiceDiscoveryConfiguration(element.staticServiceDiscovery); 
-            } 
-        } 
-        if (element?.combinedServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.combinedServiceDiscovery)) { 
-               def.combinedServiceDiscovery = CamelDefinitionYamlStep.readCombinedServiceCallServiceDiscoveryConfiguration(element.combinedServiceDiscovery[0]); 
-            } else { 
-               def.combinedServiceDiscovery = CamelDefinitionYamlStep.readCombinedServiceCallServiceDiscoveryConfiguration(element.combinedServiceDiscovery); 
-            } 
-        } 
+            def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
+        } else {
+            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
+            if (languageName){
+                const exp:any = {};
+                exp[languageName] = element[languageName]
+                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
+                delete (def as any)[languageName];
+            }
+        }
 
         return def;
     }
@@ -4454,8 +4285,8 @@ export class CamelDefinitionYamlStep {
         def.corsHeaders = element && element?.corsHeaders ? element?.corsHeaders.map((x:any) => CamelDefinitionYamlStep.readRestPropertyDefinition(x)) :[]; 
         def.dataFormatProperty = element && element?.dataFormatProperty ? element?.dataFormatProperty.map((x:any) => CamelDefinitionYamlStep.readRestPropertyDefinition(x)) :[]; 
         def.consumerProperty = element && element?.consumerProperty ? element?.consumerProperty.map((x:any) => CamelDefinitionYamlStep.readRestPropertyDefinition(x)) :[]; 
-        def.apiProperty = element && element?.apiProperty ? element?.apiProperty.map((x:any) => CamelDefinitionYamlStep.readRestPropertyDefinition(x)) :[]; 
         def.endpointProperty = element && element?.endpointProperty ? element?.endpointProperty.map((x:any) => CamelDefinitionYamlStep.readRestPropertyDefinition(x)) :[]; 
+        def.apiProperty = element && element?.apiProperty ? element?.apiProperty.map((x:any) => CamelDefinitionYamlStep.readRestPropertyDefinition(x)) :[]; 
         def.componentProperty = element && element?.componentProperty ? element?.componentProperty.map((x:any) => CamelDefinitionYamlStep.readRestPropertyDefinition(x)) :[]; 
 
         return def;
@@ -4467,9 +4298,8 @@ export class CamelDefinitionYamlStep {
         def.head = element && element?.head ? element?.head.map((x:any) => CamelDefinitionYamlStep.readHeadDefinition(x)) :[]; 
         def.patch = element && element?.patch ? element?.patch.map((x:any) => CamelDefinitionYamlStep.readPatchDefinition(x)) :[]; 
         def.post = element && element?.post ? element?.post.map((x:any) => CamelDefinitionYamlStep.readPostDefinition(x)) :[]; 
-        def.get = element && element?.get ? element?.get.map((x:any) => CamelDefinitionYamlStep.readGetDefinition(x)) :[]; 
         def.securityRequirements = element && element?.securityRequirements ? element?.securityRequirements.map((x:any) => CamelDefinitionYamlStep.readSecurityDefinition(x)) :[]; 
-        def.delete = element && element?.delete ? element?.delete.map((x:any) => CamelDefinitionYamlStep.readDeleteDefinition(x)) :[]; 
+        def.get = element && element?.get ? element?.get.map((x:any) => CamelDefinitionYamlStep.readGetDefinition(x)) :[]; 
         if (element?.securityDefinitions !== undefined) { 
             if (Array.isArray(element.securityDefinitions)) { 
                def.securityDefinitions = CamelDefinitionYamlStep.readRestSecuritiesDefinition(element.securityDefinitions[0]); 
@@ -4477,6 +4307,7 @@ export class CamelDefinitionYamlStep {
                def.securityDefinitions = CamelDefinitionYamlStep.readRestSecuritiesDefinition(element.securityDefinitions); 
             } 
         } 
+        def.delete = element && element?.delete ? element?.delete.map((x:any) => CamelDefinitionYamlStep.readDeleteDefinition(x)) :[]; 
         def.put = element && element?.put ? element?.put.map((x:any) => CamelDefinitionYamlStep.readPutDefinition(x)) :[]; 
 
         return def;
@@ -4962,71 +4793,66 @@ export class CamelDefinitionYamlStep {
         const name = Object.getOwnPropertyNames(body)[0];
         const newBody = CamelUtil.camelizeBody(name, body[name], clone);
         switch (name) { 
-            case 'setProperty': return CamelDefinitionYamlStep.readSetPropertyDefinition(newBody);
-            case 'to': return CamelDefinitionYamlStep.readToDefinition(newBody);
-            case 'doCatch': return CamelDefinitionYamlStep.readCatchDefinition(newBody);
-            case 'onFallback': return CamelDefinitionYamlStep.readOnFallbackDefinition(newBody);
-            case 'loadBalance': return CamelDefinitionYamlStep.readLoadBalanceDefinition(newBody);
-            case 'process': return CamelDefinitionYamlStep.readProcessDefinition(newBody);
-            case 'bean': return CamelDefinitionYamlStep.readBeanDefinition(newBody);
-            case 'transacted': return CamelDefinitionYamlStep.readTransactedDefinition(newBody);
-            case 'pollEnrich': return CamelDefinitionYamlStep.readPollEnrichDefinition(newBody);
-            case 'filter': return CamelDefinitionYamlStep.readFilterDefinition(newBody);
-            case 'pausable': return CamelDefinitionYamlStep.readPausableDefinition(newBody);
-            case 'setBody': return CamelDefinitionYamlStep.readSetBodyDefinition(newBody);
-            case 'claimCheck': return CamelDefinitionYamlStep.readClaimCheckDefinition(newBody);
-            case 'step': return CamelDefinitionYamlStep.readStepDefinition(newBody);
             case 'aggregate': return CamelDefinitionYamlStep.readAggregateDefinition(newBody);
-            case 'when': return CamelDefinitionYamlStep.readWhenDefinition(newBody);
-            case 'loop': return CamelDefinitionYamlStep.readLoopDefinition(newBody);
-            case 'stop': return CamelDefinitionYamlStep.readStopDefinition(newBody);
-            case 'resumable': return CamelDefinitionYamlStep.readResumableDefinition(newBody);
-            case 'removeProperty': return CamelDefinitionYamlStep.readRemovePropertyDefinition(newBody);
-            case 'split': return CamelDefinitionYamlStep.readSplitDefinition(newBody);
-            case 'multicast': return CamelDefinitionYamlStep.readMulticastDefinition(newBody);
-            case 'otherwise': return CamelDefinitionYamlStep.readOtherwiseDefinition(newBody);
-            case 'removeProperties': return CamelDefinitionYamlStep.readRemovePropertiesDefinition(newBody);
-            case 'saga': return CamelDefinitionYamlStep.readSagaDefinition(newBody);
-            case 'removeHeaders': return CamelDefinitionYamlStep.readRemoveHeadersDefinition(newBody);
-            case 'setExchangePattern': return CamelDefinitionYamlStep.readSetExchangePatternDefinition(newBody);
-            case 'intercept': return CamelDefinitionYamlStep.readInterceptDefinition(newBody);
-            case 'transform': return CamelDefinitionYamlStep.readTransformDefinition(newBody);
-            case 'routingSlip': return CamelDefinitionYamlStep.readRoutingSlipDefinition(newBody);
-            case 'doTry': return CamelDefinitionYamlStep.readTryDefinition(newBody);
+            case 'bean': return CamelDefinitionYamlStep.readBeanDefinition(newBody);
+            case 'doCatch': return CamelDefinitionYamlStep.readCatchDefinition(newBody);
+            case 'choice': return CamelDefinitionYamlStep.readChoiceDefinition(newBody);
+            case 'circuitBreaker': return CamelDefinitionYamlStep.readCircuitBreakerDefinition(newBody);
+            case 'claimCheck': return CamelDefinitionYamlStep.readClaimCheckDefinition(newBody);
+            case 'convertBodyTo': return CamelDefinitionYamlStep.readConvertBodyDefinition(newBody);
             case 'delay': return CamelDefinitionYamlStep.readDelayDefinition(newBody);
-            case 'script': return CamelDefinitionYamlStep.readScriptDefinition(newBody);
+            case 'dynamicRouter': return CamelDefinitionYamlStep.readDynamicRouterDefinition(newBody);
             case 'enrich': return CamelDefinitionYamlStep.readEnrichDefinition(newBody);
-            case 'onCompletion': return CamelDefinitionYamlStep.readOnCompletionDefinition(newBody);
-            case 'wireTap': return CamelDefinitionYamlStep.readWireTapDefinition(newBody);
-            case 'kamelet': return CamelDefinitionYamlStep.readKameletDefinition(newBody);
-            case 'interceptFrom': return CamelDefinitionYamlStep.readInterceptFromDefinition(newBody);
+            case 'filter': return CamelDefinitionYamlStep.readFilterDefinition(newBody);
             case 'doFinally': return CamelDefinitionYamlStep.readFinallyDefinition(newBody);
             case 'idempotentConsumer': return CamelDefinitionYamlStep.readIdempotentConsumerDefinition(newBody);
-            case 'removeHeader': return CamelDefinitionYamlStep.readRemoveHeaderDefinition(newBody);
-            case 'circuitBreaker': return CamelDefinitionYamlStep.readCircuitBreakerDefinition(newBody);
-            case 'rollback': return CamelDefinitionYamlStep.readRollbackDefinition(newBody);
-            case 'dynamicRouter': return CamelDefinitionYamlStep.readDynamicRouterDefinition(newBody);
-            case 'resequence': return CamelDefinitionYamlStep.readResequenceDefinition(newBody);
+            case 'kamelet': return CamelDefinitionYamlStep.readKameletDefinition(newBody);
+            case 'loadBalance': return CamelDefinitionYamlStep.readLoadBalanceDefinition(newBody);
             case 'log': return CamelDefinitionYamlStep.readLogDefinition(newBody);
-            case 'throttle': return CamelDefinitionYamlStep.readThrottleDefinition(newBody);
-            case 'recipientList': return CamelDefinitionYamlStep.readRecipientListDefinition(newBody);
+            case 'loop': return CamelDefinitionYamlStep.readLoopDefinition(newBody);
             case 'marshal': return CamelDefinitionYamlStep.readMarshalDefinition(newBody);
-            case 'policy': return CamelDefinitionYamlStep.readPolicyDefinition(newBody);
-            case 'serviceCall': return CamelDefinitionYamlStep.readServiceCallDefinition(newBody);
-            case 'unmarshal': return CamelDefinitionYamlStep.readUnmarshalDefinition(newBody);
-            case 'threads': return CamelDefinitionYamlStep.readThreadsDefinition(newBody);
-            case 'toD': return CamelDefinitionYamlStep.readToDynamicDefinition(newBody);
-            case 'convertBodyTo': return CamelDefinitionYamlStep.readConvertBodyDefinition(newBody);
+            case 'multicast': return CamelDefinitionYamlStep.readMulticastDefinition(newBody);
+            case 'onFallback': return CamelDefinitionYamlStep.readOnFallbackDefinition(newBody);
+            case 'otherwise': return CamelDefinitionYamlStep.readOtherwiseDefinition(newBody);
+            case 'pausable': return CamelDefinitionYamlStep.readPausableDefinition(newBody);
             case 'pipeline': return CamelDefinitionYamlStep.readPipelineDefinition(newBody);
-            case 'throwException': return CamelDefinitionYamlStep.readThrowExceptionDefinition(newBody);
-            case 'validate': return CamelDefinitionYamlStep.readValidateDefinition(newBody);
-            case 'interceptSendToEndpoint': return CamelDefinitionYamlStep.readInterceptSendToEndpointDefinition(newBody);
-            case 'choice': return CamelDefinitionYamlStep.readChoiceDefinition(newBody);
-            case 'whenSkipSendToEndpoint': return CamelDefinitionYamlStep.readWhenSkipSendToEndpointDefinition(newBody);
+            case 'policy': return CamelDefinitionYamlStep.readPolicyDefinition(newBody);
+            case 'pollEnrich': return CamelDefinitionYamlStep.readPollEnrichDefinition(newBody);
+            case 'process': return CamelDefinitionYamlStep.readProcessDefinition(newBody);
+            case 'recipientList': return CamelDefinitionYamlStep.readRecipientListDefinition(newBody);
+            case 'removeHeader': return CamelDefinitionYamlStep.readRemoveHeaderDefinition(newBody);
+            case 'removeHeaders': return CamelDefinitionYamlStep.readRemoveHeadersDefinition(newBody);
+            case 'removeProperties': return CamelDefinitionYamlStep.readRemovePropertiesDefinition(newBody);
+            case 'removeProperty': return CamelDefinitionYamlStep.readRemovePropertyDefinition(newBody);
+            case 'resequence': return CamelDefinitionYamlStep.readResequenceDefinition(newBody);
+            case 'resumable': return CamelDefinitionYamlStep.readResumableDefinition(newBody);
+            case 'rollback': return CamelDefinitionYamlStep.readRollbackDefinition(newBody);
+            case 'routingSlip': return CamelDefinitionYamlStep.readRoutingSlipDefinition(newBody);
+            case 'saga': return CamelDefinitionYamlStep.readSagaDefinition(newBody);
             case 'sample': return CamelDefinitionYamlStep.readSamplingDefinition(newBody);
+            case 'script': return CamelDefinitionYamlStep.readScriptDefinition(newBody);
+            case 'setBody': return CamelDefinitionYamlStep.readSetBodyDefinition(newBody);
+            case 'setExchangePattern': return CamelDefinitionYamlStep.readSetExchangePatternDefinition(newBody);
             case 'setHeader': return CamelDefinitionYamlStep.readSetHeaderDefinition(newBody);
+            case 'setProperty': return CamelDefinitionYamlStep.readSetPropertyDefinition(newBody);
             case 'sort': return CamelDefinitionYamlStep.readSortDefinition(newBody);
+            case 'split': return CamelDefinitionYamlStep.readSplitDefinition(newBody);
+            case 'step': return CamelDefinitionYamlStep.readStepDefinition(newBody);
+            case 'stop': return CamelDefinitionYamlStep.readStopDefinition(newBody);
+            case 'threads': return CamelDefinitionYamlStep.readThreadsDefinition(newBody);
+            case 'throttle': return CamelDefinitionYamlStep.readThrottleDefinition(newBody);
+            case 'throwException': return CamelDefinitionYamlStep.readThrowExceptionDefinition(newBody);
+            case 'to': return CamelDefinitionYamlStep.readToDefinition(newBody);
             case 'toD': return CamelDefinitionYamlStep.readToDynamicDefinition(newBody);
+            case 'transacted': return CamelDefinitionYamlStep.readTransactedDefinition(newBody);
+            case 'transform': return CamelDefinitionYamlStep.readTransformDefinition(newBody);
+            case 'doTry': return CamelDefinitionYamlStep.readTryDefinition(newBody);
+            case 'unmarshal': return CamelDefinitionYamlStep.readUnmarshalDefinition(newBody);
+            case 'validate': return CamelDefinitionYamlStep.readValidateDefinition(newBody);
+            case 'when': return CamelDefinitionYamlStep.readWhenDefinition(newBody);
+            case 'whenSkipSendToEndpoint': return CamelDefinitionYamlStep.readWhenSkipSendToEndpointDefinition(newBody);
+            case 'wireTap': return CamelDefinitionYamlStep.readWireTapDefinition(newBody);
+            case 'serviceCall': return CamelDefinitionYamlStep.readServiceCallDefinition(newBody);
             default: return new CamelElement('');
         }
     }
