@@ -44,12 +44,7 @@ export class CamelDefinitionApiExt {
         return integration.spec.flows?.filter(flow => !types.includes(flow.dslName)) ?? [];
     }
 
-    static addStepToIntegration = (
-        integration: Integration,
-        step: CamelElement,
-        parentId: string,
-        position?: number,
-    ): Integration => {
+    static addStepToIntegration = (integration: Integration, step: CamelElement, parentId: string, position?: number,): Integration => {
         if (step.dslName === 'RouteDefinition') {
             integration.spec.flows?.push(step as RouteDefinition);
         } else {
@@ -57,31 +52,17 @@ export class CamelDefinitionApiExt {
             CamelDefinitionApiExt.getFlowsNotOfTypes(integration, ['RouteConfigurationDefinition', 'RouteDefinition']).forEach(bean =>
                 flows.push(bean),
             );
-            const routes = CamelDefinitionApiExt.addStepToSteps(
-                CamelDefinitionApiExt.getFlowsOfType(integration, 'RouteDefinition'),
-                step,
-                parentId,
-                position,
-            );
+            const routes = CamelDefinitionApiExt.addStepToSteps(CamelDefinitionApiExt.getFlowsOfType(integration, 'RouteDefinition'), step, parentId, position,);
             flows.push(...routes);
             const routeConfigurations = CamelDefinitionApiExt.addStepToSteps(
-                CamelDefinitionApiExt.getFlowsOfType(integration, 'RouteConfigurationDefinition'),
-                step,
-                parentId,
-                position,
-            );
+                CamelDefinitionApiExt.getFlowsOfType(integration, 'RouteConfigurationDefinition'),step, parentId, position,);
             flows.push(...routeConfigurations);
             integration.spec.flows = flows;
         }
         return integration;
     }; 
 
-    static addStepToStep = (
-        step: CamelElement,
-        stepAdded: CamelElement,
-        parentId: string,
-        position: number = -1,
-    ): CamelElement => {
+    static addStepToStep = (step: CamelElement, stepAdded: CamelElement, parentId: string, position: number = -1,): CamelElement => {
         const result = CamelUtil.cloneStep(step);
         const children = CamelDefinitionApiExt.getElementChildrenDefinition(result.dslName);
         let added = false;
@@ -100,12 +81,7 @@ export class CamelDefinitionApiExt {
             } else {
                 const fieldValue = (result as any)[child.name];
                 if (child.multiple) {
-                    (result as any)[child.name] = CamelDefinitionApiExt.addStepToSteps(
-                        (result as any)[child.name],
-                        stepAdded,
-                        parentId,
-                        position,
-                    );
+                    (result as any)[child.name] = CamelDefinitionApiExt.addStepToSteps((result as any)[child.name], stepAdded, parentId, position,);
                 } else if (fieldValue) {
                     (result as any)[child.name] = CamelDefinitionApiExt.addStepToStep(fieldValue, stepAdded, parentId, position);
                 }
@@ -127,12 +103,7 @@ export class CamelDefinitionApiExt {
         return result;
     };
     
-    static addStepToSteps = (
-        steps: CamelElement[],
-        step: CamelElement,
-        parentId: string,
-        position?: number,
-    ): CamelElement[] => {
+    static addStepToSteps = (steps: CamelElement[], step: CamelElement, parentId: string, position?: number,): CamelElement[] => {
         const result: CamelElement[] = [];
         for (const element of steps) {
             const newStep = CamelDefinitionApiExt.addStepToStep(element, step, parentId, position);
@@ -169,12 +140,8 @@ export class CamelDefinitionApiExt {
         return result;
     };
 
-    static findElementInElements = (
-        steps: CamelElement[] | undefined,
-        uuid: string,
-        result: CamelElementMeta = new CamelElementMeta(undefined, undefined, undefined),
-        parentUuid?: string,
-    ): CamelElementMeta => {
+    static findElementInElements = (steps: CamelElement[] | undefined, uuid: string, result: CamelElementMeta = new CamelElementMeta(undefined, undefined, undefined),
+                                    parentUuid?: string,): CamelElementMeta => {
         if (result?.step !== undefined) {
             return result;
         }
@@ -225,23 +192,13 @@ export class CamelDefinitionApiExt {
         return hasId;
     };
 
-    static moveRouteElement = (
-        integration: Integration,
-        source: string,
-        target: string,
-        asChild: boolean,
-    ): Integration => {
+    static moveRouteElement = (integration: Integration, source: string, target: string, asChild: boolean,): Integration => {
         const sourceFindStep = CamelDefinitionApiExt.findElementMetaInIntegration(integration, source);
         const sourceStep = sourceFindStep.step;
         const sourceUuid = sourceStep?.uuid;
         const targetFindStep = CamelDefinitionApiExt.findElementMetaInIntegration(integration, target);
         const parentUuid = targetFindStep.parentUuid;
-        if (
-            sourceUuid &&
-            parentUuid &&
-            sourceStep &&
-            !CamelDefinitionApiExt.findElementPathUuids(integration, target).includes(source)
-        ) {
+        if (sourceUuid && parentUuid && sourceStep && !CamelDefinitionApiExt.findElementPathUuids(integration, target).includes(source)) {
             CamelDefinitionApiExt.deleteStepFromIntegration(integration, sourceUuid);
             if (asChild) {
                 return CamelDefinitionApiExt.addStepToIntegration(

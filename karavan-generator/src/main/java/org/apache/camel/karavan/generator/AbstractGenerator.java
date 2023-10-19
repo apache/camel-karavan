@@ -59,6 +59,8 @@ public class AbstractGenerator {
             className = "doCatch";
         } else if (className.equals("ConvertBodyDefinition")) {
             className = "convertBodyTo";
+         } else if (className.equals("TryDefinition")) {
+            className = "doTry";
         } else if (className.equals("FinallyDefinition")) {
             className = "doFinally";
         } else if (className.equals("ToDynamicDefinition")) {
@@ -372,8 +374,7 @@ public class AbstractGenerator {
         String camelYamlDSL = getCamelYamlDSL();
         JsonObject definitions = new JsonObject(camelYamlDSL);
 
-        Map<String, String> result = new LinkedHashMap<>(getProcessorStepNameMapForObject(null, definitions));
-        return result;
+        return new LinkedHashMap<>(getProcessorStepNameMapForObject(null, definitions));
     }
 
     protected Map<String, String> getProcessorDefinitionStepNameMap() {
@@ -389,8 +390,6 @@ public class AbstractGenerator {
 
         properties.getMap().forEach((key, o) -> {
             String ref = ((Map)o).get("$ref").toString();
-            System.out.println(ref);
-            System.out.println(key);
             String className = classSimple(ref);
             result.put(className, key);
         });

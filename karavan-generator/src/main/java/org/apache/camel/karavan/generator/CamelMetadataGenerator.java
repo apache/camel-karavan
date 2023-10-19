@@ -126,8 +126,9 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
             if (s.startsWith("org.apache.camel.model.") && s.endsWith("Definition")) {
                 String name = classSimple(s);
                 JsonObject obj = getDefinition(definitions, s);
-                JsonObject props = obj.containsKey("oneOf") ? obj.getJsonArray("oneOf").getJsonObject(1).getJsonObject("properties") : obj.getJsonObject("properties");
-                classProps.put(name, props);
+//                JsonObject props = obj.containsKey("oneOf") ? obj.getJsonArray("oneOf").getJsonObject(1).getJsonObject("properties") : obj.getJsonObject("properties");
+                Map<String, JsonObject> properties = getClassProperties(obj);
+                classProps.put(name, JsonObject.mapFrom(properties));
             }
         });
 
@@ -149,7 +150,6 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         code.append(String.format("export const %s: ElementMeta[] = [\n", className));
         classProps.entrySet().stream().filter(entry -> {
             if (entry.getValue() == null) {
-                System.out.println(entry.getKey());
                 return false;
             } else {
                 return true;

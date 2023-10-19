@@ -1564,12 +1564,12 @@ export class TransformDefinition extends CamelElement {
 }
 
 export class TryDefinition extends CamelElement {
-    stepName?: string = 'try';
-    description?: string;
+    stepName?: string = 'doTry';
     disabled?: boolean;
+    id?: string = 'doTry-' + uuidv4().substring(0,4);
+    description?: string;
     doCatch?: CatchDefinition[] = [];
     doFinally?: FinallyDefinition;
-    id?: string = 'try-' + uuidv4().substring(0,4);
     inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<TryDefinition>) {

@@ -30,7 +30,7 @@ public final class KaravanGenerator {
         CamelDefinitionGenerator.generate();
         CamelDefinitionApiGenerator.generate();
         CamelDefinitionYamlStepGenerator.generate();
-//        CamelMetadataGenerator.generate();
+        CamelMetadataGenerator.generate();
         KameletGenerator.generate(paths);
         CamelComponentsGenerator.generate(paths);
         System.exit(0);
