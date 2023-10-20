@@ -8,15 +8,15 @@ spec:
         from:
           uri: kamelet:http-secured-source
           steps:
-            - do-try:
+            - doTry:
                 steps:
                   - to: "log:when-a"
                   - to: "log:when-b"
-                do-catch:
+                doCatch:
                   - exception:
                       - "java.io.FileNotFoundException"
                       - "java.io.IOException"
-                    on-when:
+                    onWhen:
                       expression:
                         simple: "${body.size()} == 1"
                     steps:

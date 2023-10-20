@@ -1741,7 +1741,7 @@ export class BeanConstructorsDefinition extends CamelElement {
 }
 
 export class BeanPropertiesDefinition extends CamelElement {
-    stepName?: string = 'beanProperties';
+    stepName?: string = 'properties';
     property?: BeanPropertyDefinition[] = [];
     public constructor(init?: Partial<BeanPropertiesDefinition>) {
         super('BeanPropertiesDefinition');

@@ -67,6 +67,8 @@ public class AbstractGenerator {
             className = "toD";
         } else if (className.equals("SamplingDefinition")) {
             className = "sample";
+        } else if (className.equals("BeanPropertiesDefinition")) {
+            className = "properties";
         } else if (className.endsWith("Definition")) {
             className = className.substring(0, className.length() - 10);
         } else if (className.endsWith("DataFormat")){
@@ -373,7 +375,6 @@ public class AbstractGenerator {
     protected Map<String, String> getProcessorStepNameMap() {
         String camelYamlDSL = getCamelYamlDSL();
         JsonObject definitions = new JsonObject(camelYamlDSL);
-
         return new LinkedHashMap<>(getProcessorStepNameMapForObject(null, definitions));
     }
 

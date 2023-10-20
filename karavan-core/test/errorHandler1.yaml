@@ -21,7 +21,7 @@
       id: errorHandler-1
       deadLetterChannel:
         deadLetterUri: log:dlq
-        level: TRACE
         useOriginalMessage: true
+        level: TRACE
         id: deadLetterChannel-1
     id: routeConfiguration-1

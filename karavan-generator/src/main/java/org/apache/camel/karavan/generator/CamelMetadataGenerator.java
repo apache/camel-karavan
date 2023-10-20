@@ -150,6 +150,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         code.append(String.format("export const %s: ElementMeta[] = [\n", className));
         classProps.entrySet().stream().filter(entry -> {
             if (entry.getValue() == null) {
+//                System.out.println(entry.getKey());
                 return false;
             } else {
                 return true;
@@ -157,7 +158,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         }).forEach(entry -> {
             String name = entry.getKey();
             JsonObject properties = entry.getValue();
-            String stepName = stepNames.get(name);
+            String stepName = getStepNameForClass(name);
             String json = folder.equals("model") ? getMetaModel(stepName) : (folder.equals("language") ? getMetaLanguage(stepName) : getMetaDataFormat(stepName));
             if (json != null) {
                 JsonObject model = new JsonObject(json).getJsonObject("model");
