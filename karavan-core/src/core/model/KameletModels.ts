@@ -24,6 +24,7 @@ export class Property {
     example: string = '';
     'x-descriptors': string = '';
     value: string | number | boolean = '';
+    enum?: string[];
 }
 
 export class Definition {

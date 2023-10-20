@@ -73,7 +73,7 @@ export function BeanProperties (props: Props) {
 
     function onBeanPropertyUpdate ()  {
         if (selectedStep) {
-            const bean = CamelUtil.cloneBean(selectedStep);
+            const bean = CamelUtil.cloneBean(selectedStep as RegistryBeanDefinition);
             const beanProperties: any = {};
             properties.forEach((p: any) => beanProperties[p[0]] = p[1]);
             bean.properties = beanProperties;
@@ -83,7 +83,7 @@ export function BeanProperties (props: Props) {
 
     function beanFieldChanged (fieldId: string, value: string) {
         if (selectedStep) {
-            const bean = CamelUtil.cloneBean(selectedStep);
+            const bean = CamelUtil.cloneBean(selectedStep as RegistryBeanDefinition);
             (bean as any)[fieldId] = value;
             props.onChange(bean);
         }
@@ -137,7 +137,7 @@ export function BeanProperties (props: Props) {
 
     function cloneBean ()  {
         if (selectedStep) {
-            const bean = CamelUtil.cloneBean(selectedStep);
+            const bean = CamelUtil.cloneBean(selectedStep as RegistryBeanDefinition);
             bean.uuid = uuidv4();
             props.onClone(bean);
         }

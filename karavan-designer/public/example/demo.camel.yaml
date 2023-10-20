@@ -1,4 +1,9 @@
 - route:
+    id: route-612d
+    from:
+      uri: kamelet:aws-s3-cdc-source
+      id: from-e37e
+- route:
     id: route-605c
     from:
       uri: activemq

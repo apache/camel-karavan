@@ -49,6 +49,7 @@ export class KameletApi {
                     prop.format = value.format;
                     prop.example = value.example;
                     prop.type = value.type;
+                    prop.enum = value.enum;
                     if (value.default) prop.value = value.default;
                     prop['x-descriptors'] = value['x-descriptors'];
                     properties.push(prop);

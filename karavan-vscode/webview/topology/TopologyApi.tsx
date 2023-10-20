@@ -38,9 +38,9 @@ import {
     TopologyRestNode,
     TopologyRouteNode
 } from "core/model/TopologyDefinition";
-import CustomGroup from "./CustomGroup";
 import CustomEdge from "./CustomEdge";
 import {IntegrationFile} from "./TopologyStore";
+import CustomGroup from "./CustomGroup";
 
 const NODE_DIAMETER = 60;
 
@@ -62,7 +62,7 @@ export function getIncomingNodes(tins: TopologyIncomingNode[]): NodeModel[] {
             status: NodeStatus.default,
             data: {
                 isAlternate: false,
-                badge: tin.type,
+                badge: tin.connectorType,
                 icon: 'element',
                 type: 'step',
                 step: tin.from,
@@ -110,7 +110,7 @@ export function getOutgoingNodes(tons: TopologyOutgoingNode[]): NodeModel[] {
                 icon: 'element',
                 type: 'step',
                 step: tin.step,
-                badge: tin.type,
+                badge: tin.connectorType,
                 fileName: tin.fileName
             }
         }
@@ -144,6 +144,26 @@ export function getOutgoingEdges(tons: TopologyOutgoingNode[]): EdgeModel[] {
         }
         return node;
     });
+}
+
+export function getExternalEdges(tons: TopologyOutgoingNode[], tins: TopologyIncomingNode[]): EdgeModel[] {
+    const result: EdgeModel[]= [];
+    tons.filter(ton => ton.type === 'external').forEach((ton, index) => {
+        const uniqueUri = ton.uniqueUri;
+        if (uniqueUri) {
+            const target = TopologyUtils.getNodeIdByUniqueUri(tins, uniqueUri);
+            const node: EdgeModel = {
+                id: 'external-' + ton.id + '-' + index,
+                type: 'edge',
+                source: ton.id,
+                target: target,
+                edgeStyle: EdgeStyle.dotted,
+                animationSpeed: EdgeAnimationSpeed.slow
+            }
+            if (target) result.push(node);
+        }
+    });
+    return result;
 }
 
 export function getRestNodes(tins: TopologyRestNode[]): NodeModel[] {
@@ -217,8 +237,8 @@ export function getModel(files: IntegrationFile[]): Model {
     const nodes: NodeModel[] = [];
     const groups: NodeModel[] = troutes.map(r => {
         const children = [r.id]
-        children.push(... tins.filter(i => i.routeId === r.routeId && i.type === 'external').map(i => i.id));
-        children.push(... tons.filter(i => i.routeId === r.routeId && i.type === 'external').map(i => i.id));
+        children.push(...tins.filter(i => i.routeId === r.routeId && i.type === 'external').map(i => i.id));
+        children.push(...tons.filter(i => i.routeId === r.routeId && i.type === 'external').map(i => i.id));
         return   {
             id: 'group-' + r.routeId,
             children: children,
@@ -242,6 +262,7 @@ export function getModel(files: IntegrationFile[]): Model {
     edges.push(...getOutgoingEdges(tons));
     edges.push(...getRestEdges(trestns, tins));
     edges.push(...getInternalEdges(tons, tins));
+    edges.push(...getExternalEdges(tons,tins));
 
     return {nodes: nodes, edges: edges, graph: {id: 'g1', type: 'graph', layout: 'Dagre'}};
 }

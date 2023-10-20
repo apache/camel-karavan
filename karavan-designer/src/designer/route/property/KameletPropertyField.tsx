@@ -34,6 +34,8 @@ import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 import {usePropertiesHook} from "../usePropertiesHook";
+import {CamelUi} from "../../utils/CamelUi";
+import {Select, SelectDirection, SelectOption, SelectVariant} from "@patternfly/react-core/deprecated";
 
 interface Props {
     property: Property,
@@ -50,12 +52,22 @@ export function KameletPropertyField(props: Props) {
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [infrastructureSelector, setInfrastructureSelector] = useState<boolean>(false);
     const [infrastructureSelectorProperty, setInfrastructureSelectorProperty] = useState<string | undefined>(undefined);
+    const [selectStatus, setSelectStatus] = useState<Map<string, boolean>>(new Map<string, boolean>());
 
     const ref = useRef<any>(null);
 
     function parametersChanged (parameter: string, value: string | number | boolean | any, pathParameter?: boolean)  {
         onParametersChange(parameter, value, pathParameter);
         setSelectIsOpen(false);
+        setSelectStatus(new Map<string, boolean>([[parameter, false]]))
+    }
+
+    function openSelect(propertyName: string, isExpanded: boolean) {
+        setSelectStatus(new Map<string, boolean>([[propertyName, isExpanded]]))
+    }
+
+    function isSelectOpen(propertyName: string): boolean {
+        return selectStatus.has(propertyName) && selectStatus.get(propertyName) === true;
     }
 
     function selectInfrastructure (value: string)  {
@@ -98,7 +110,13 @@ export function KameletPropertyField(props: Props) {
         const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
         const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.id);
         const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? <KubernetesIcon/> : <DockerIcon/>
-        const showInfraSelectorButton = inInfrastructure && !showEditor && !noInfraSelectorButton
+        const showInfraSelectorButton = inInfrastructure && !showEditor && !noInfraSelectorButton;
+        const selectFromList: boolean = property.enum !== undefined && property?.enum?.length > 0;
+        const selectOptions: JSX.Element[] = [];
+        if (selectFromList && property.enum) {
+            selectOptions.push(...property.enum.map((value: string) =>
+                <SelectOption key={value} value={value ? value.trim() : value}/>));
+        }
         return <InputGroup>
             {showInfraSelectorButton  &&
                 <Tooltip position="bottom-end" content={"Select from " + capitalize(InfrastructureAPI.infrastructure)}>
@@ -106,21 +124,45 @@ export function KameletPropertyField(props: Props) {
                         {icon}
                     </Button>
                 </Tooltip>}
-            {(!showEditor || property.format === "password") &&
+            {selectFromList &&
+                <Select
+                    id={id} name={id}
+                    placeholderText="Select or type an URI"
+                    variant={SelectVariant.typeahead}
+                    aria-label={property.id}
+                    onToggle={(_event, isExpanded) => {
+                        openSelect(property.id, isExpanded)
+                    }}
+                    onSelect={(e, value, isPlaceholder) => {
+                        parametersChanged(property.id, value);
+                    }}
+                    selections={value}
+                    isOpen={isSelectOpen(property.id)}
+                    isCreatable={true}
+                    createText=""
+                    isInputFilterPersisted={true}
+                    aria-labelledby={property.id}
+                    direction={SelectDirection.down}>
+                    {selectOptions}
+                </Select>
+            }
+            {((!selectFromList && !showEditor) || property.format === "password") &&
                 <TextInput
                     ref={ref}
                     className="text-field" isRequired
                     type={property.format && !showPassword ? "password" : "text"}
                     id={id} name={id}
                     value={value}
-                    onChange={(e, value) => parametersChanged(property.id, value)}/>}
-            {showEditor && property.format !== "password" &&
+                    onChange={(e, value) => parametersChanged(property.id, value)}/>
+            }
+            {(!selectFromList && showEditor) && property.format !== "password" &&
                 <TextArea autoResize={true}
                           className="text-field" isRequired
                           type="text"
                           id={id} name={id}
                           value={value}
-                          onChange={(e, value) => parametersChanged(property.id, value)}/>}
+                          onChange={(e, value) => parametersChanged(property.id, value)}/>
+            }
             {property.format !== "password" &&
                 <Tooltip position="bottom-end" content={showEditor ? "Change to TextField" : "Change to Text Area"}>
                     <Button variant="control" onClick={e => setShowEditor(!showEditor)}>
