@@ -49,7 +49,7 @@ export function BeansDesigner() {
     }
 
     function deleteBean() {
-        const i = CamelDefinitionApiExt.deleteBeanFromIntegration(integration, selectedStep);
+        const i = CamelDefinitionApiExt.deleteBeanFromIntegration(integration, selectedStep as RegistryBeanDefinition);
         setIntegration(i, false);
         setShowDeleteConfirmation(false);
         setSelectedStep(undefined);

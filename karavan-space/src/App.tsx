@@ -23,14 +23,17 @@ import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {BlueprintIcon} from "@patternfly/react-icons";
 import KnowledgebaseIcon from "@patternfly/react-icons/dist/js/icons/book-open-icon";
+import TopologyIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
 import {KaravanIcon} from "./designer/utils/KaravanIcons";
 import './designer/karavan.css';
 import {SpacePage} from "./space/SpacePage";
 import {GithubModal} from "./space/GithubModal";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {KnowledgebasePage} from "./knowledgebase/KnowledgebasePage";
-import {EventBus, ToastMessage} from "./designer/utils/EventBus";
+import {EventBus} from "./designer/utils/EventBus";
 import {Notification} from "./designer/utils/Notification";
+import {TopologyTab} from "./topology/TopologyTab";
+import {IntegrationFile} from "./topology/TopologyStore";
 
 class MenuItem {
     pageId: string = '';
@@ -60,7 +63,7 @@ class App extends React.Component<Props, State> {
 
     public state: State = {
         pageId: "designer",
-        name: 'example.yaml',
+        name: 'example.camel.yaml',
         key: '',
         yaml: '',
         githubModalIsOpen: false
@@ -118,6 +121,7 @@ class App extends React.Component<Props, State> {
         const {pageId} = this.state;
         const pages: MenuItem[] = [
             new MenuItem("designer", "Designer", <BlueprintIcon/>),
+            new MenuItem("topology", "Topology", <TopologyIcon/>),
             new MenuItem("knowledgebase", "Knowledgebase", <KnowledgebaseIcon/>),
         ]
         return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height: "100%"}}
@@ -144,6 +148,10 @@ class App extends React.Component<Props, State> {
         </Flex>)
     }
 
+    getIntegrationFiles(): IntegrationFile[]{
+        return [new IntegrationFile("example.camel.yaml", this.state.yaml)];
+    }
+
     getDesigner() {
         const {name, yaml, pageId} = this.state;
         const dark = document.body.className.includes('vscode-dark');
@@ -160,6 +168,15 @@ class App extends React.Component<Props, State> {
             case "knowledgebase":
                 return (
                     <KnowledgebasePage dark={dark}/>
+                )
+            case "topology":
+                return (
+                    <TopologyTab
+                        files={this.getIntegrationFiles()}
+                        onSetFile={fileName => {}}
+                        onClickCreateButton={() => {}}
+                        hideToolbar={false}
+                    />
                 )
         }
     }

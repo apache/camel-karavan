@@ -68,7 +68,6 @@ export function TopologyTab (props: Props) {
     }
 
     const controller = React.useMemo(() => {
-        console.log(props.files)
         const model = getModel(props.files);
         const newController = new Visualization();
         newController.registerLayoutFactory((_, graph) => new DagreLayout(graph));

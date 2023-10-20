@@ -75,6 +75,7 @@ export function usePropertiesHook (isRouteDesigner: boolean = true) {
     }
 
     function onPropertyChange (fieldId: string, value: string | number | boolean | any, newRoute?: RouteToCreate){
+        value = value === '' ? undefined : value;
         if (selectedStep) {
             const clone = CamelUtil.cloneStep(selectedStep);
             (clone as any)[fieldId] = value;
@@ -99,7 +100,8 @@ export function usePropertiesHook (isRouteDesigner: boolean = true) {
     }
 
     function onParametersChange (parameter: string, value: string | number | boolean | any, pathParameter?: boolean, newRoute?: RouteToCreate)   {
-        if (selectedStep && selectedStep) {
+        value = value === '' ? undefined : value;
+        if (selectedStep) {
             const clone = (CamelUtil.cloneStep(selectedStep));
             const parameters: any = {...(clone as any).parameters};
             parameters[parameter] = value;
