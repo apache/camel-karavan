@@ -37,6 +37,8 @@ import {
 import { ComponentApi } from './ComponentApi';
 import { CamelDefinitionApiExt } from './CamelDefinitionApiExt';
 import { CamelDisplayUtil } from './CamelDisplayUtil';
+import { CamelMetadataApi } from '../model/CamelMetadata';
+import { CamelUtil } from './CamelUtil';
 
 const outgoingDefinitions: string[] = ['ToDefinition', 'KameletDefinition', 'ToDynamicDefinition', "PollEnrichDefinition", "EnrichDefinition", "WireTapDefinition", "SagaDefinition"];
 
@@ -56,6 +58,48 @@ export class TopologyUtils {
         const component = ComponentApi.findByName(uri);
         return component !== undefined &&
             (TopologyUtils.isComponentInternal(component.component.label) || TopologyUtils.hasInternalUri(element));
+    }
+
+    static getConnectorType = (element: CamelElement): 'component' | 'kamelet' => {
+        return CamelUtil.isKameletComponent(element) ? 'kamelet' : 'component';
+    }
+
+    static cutKameletUriSuffix = (uri: string): string => {
+        if (uri.endsWith("-sink")) {
+            return uri.substring(0, uri.length - 5);
+        } else if (uri.endsWith("-source")) {
+            return uri.substring(0, uri.length - 7);
+        } else if (uri.endsWith("-action")) {
+            return uri.substring(0, uri.length - 7);
+        } else {
+            return uri;
+        }
+    }
+
+    static getUniqueUri = (element: CamelElement): string => {
+        const uri:string = (element as any).uri || '';
+        let result = uri.startsWith("kamelet") ? TopologyUtils.cutKameletUriSuffix(uri).concat(":") : uri.concat(":");
+        const className = element.dslName;
+        if (className === 'FromDefinition' || className === 'ToDefinition') {
+            if (!CamelUtil.isKameletComponent(element)) {
+                const requiredProperties = CamelUtil.getComponentProperties(element).filter(p => p.required);
+                for (const property of requiredProperties) {
+                    const value = CamelDefinitionApiExt.getParametersValue(element, property.name, property.kind === 'path');
+                    if (value !== undefined && property.type === 'string' && value.trim().length > 0) {
+                        result = result + property.name + "=" + value + "&";
+                    }
+                }
+            } else {
+                const requiredProperties = CamelUtil.getKameletProperties(element, true);
+                for (const property of requiredProperties) {
+                    const value = CamelDefinitionApiExt.getParametersValue(element, property.id);
+                    if (value !== undefined && property.type === 'string' && value.trim().length > 0) {
+                        result = result + property.id + "=" + value + "&";
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     static isComponentInternal = (label: string): boolean => {
@@ -143,7 +187,9 @@ export class TopologyUtils {
                 const id = 'incoming-' + r.id;
                 const title = CamelDisplayUtil.getTitle(r.from);
                 const type = TopologyUtils.isElementInternalComponent(r.from) ? 'internal' : 'external';
-                return new TopologyIncomingNode(id, type, r.id, title, filename, r.from);
+                const connectorType = TopologyUtils.getConnectorType(r.from);
+                const uniqueUri = TopologyUtils.getUniqueUri(r.from);
+                return new TopologyIncomingNode(id, type, connectorType, r.id, title, filename, r.from, uniqueUri);
             }) || [];
             result.push(...routeElements)
         })
@@ -177,7 +223,9 @@ export class TopologyUtils {
                     const id = 'outgoing-' + route.id + '-' + e.id;
                     const title = CamelDisplayUtil.getTitle(e);
                     const type = TopologyUtils.isElementInternalComponent(e) ? 'internal' : 'external';
-                    result.push(new TopologyOutgoingNode(id, type, route.id, title, filename, e));
+                    const connectorType = TopologyUtils.getConnectorType(e);
+                    const uniqueUri = TopologyUtils.getUniqueUri(e);
+                    result.push(new TopologyOutgoingNode(id, type, connectorType, route.id, title, filename, e, uniqueUri));
                 })
             })
 
@@ -213,8 +261,6 @@ export class TopologyUtils {
         return result;
     }
 
-
-
     static getNodeIdByUriAndName(tins: TopologyIncomingNode[], uri: string, name: string): string | undefined {
         if (uri && name) {
             const node =  tins
@@ -239,6 +285,14 @@ export class TopologyUtils {
             if (node) {
                 return 'route-' + node.routeId;
             }
+        }
+    }
+
+    static getNodeIdByUniqueUri(tins: TopologyIncomingNode[], uniqueUri: string): string | undefined {
+        const node =  tins
+            .filter(r => r.uniqueUri === uniqueUri).at(0);
+        if (node) {
+            return node.id;
         }
     }
 

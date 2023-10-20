@@ -159,9 +159,15 @@ export class CamelUtil {
         }
     };
 
-    static getKameletProperties = (element: any): Property[] => {
+    static getKameletProperties = (element: any, requiredOnly: boolean = false): Property[] => {
         const kamelet = CamelUtil.getKamelet(element);
-        return kamelet ? KameletApi.getKameletProperties(kamelet?.metadata.name) : [];
+        const props:Property[] = kamelet ? KameletApi.getKameletProperties(kamelet?.metadata.name) : [];
+        if (requiredOnly) {
+            const required = kamelet?.spec.definition.required;
+            return props.filter(value => required?.includes(value.id));
+        } else {
+            return props;
+        }
     };
 
     static getKameletRequiredParameters = (element: any): string[] => {
@@ -229,11 +235,7 @@ export class CamelUtil {
             if (!CamelUtil.isKameletComponent(element)) {
                 const requiredProperties = CamelUtil.getComponentProperties(element).filter(p => p.required);
                 for (const property of requiredProperties) {
-                    const value = CamelDefinitionApiExt.getParametersValue(
-                        element,
-                        property.name,
-                        property.kind === 'path',
-                    );
+                    const value = CamelDefinitionApiExt.getParametersValue(element, property.name, property.kind === 'path');
                     if (value === undefined || (property.type === 'string' && value.trim().length === 0)) {
                         result[0] = false;
                         result[1].push(`${property.displayName} is required`);

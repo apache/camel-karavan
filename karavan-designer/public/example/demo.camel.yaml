@@ -1,20 +1,72 @@
 - route:
-    id: route-fbf9
-    from:
-      uri: kamelet:beer-source
-      id: from-9d5b
-      steps:
-        - to:
-            uri: activemq
-            id: to-0fd2
-        - to:
-            uri: asterisk
-            id: to-b9ca
-        - to:
-            uri: aws2-ec2
-            id: to-3c6a
-- route:
     id: route-605c
     from:
       uri: activemq
       id: from-3131
+      parameters:
+        destinationName: test
+      steps:
+        - marshal:
+            id: marshal-1452
+        - log:
+            message: ${body}
+            id: log-c8e7
+- route:
+    id: route-e4bb
+    from:
+      uri: kamelet:timer-source
+      id: from-dd68
+      parameters:
+        message: '1111'
+      steps:
+        - to:
+            uri: activemq
+            id: to-4fca
+            parameters:
+              destinationName: test
+- route:
+    id: route-0a30
+    from:
+      uri: amqp
+      id: from-ca7d
+      parameters:
+        destinationName: hello
+      steps:
+        - log:
+            message: ${body}
+            id: log-d0f4
+        - to:
+            uri: kamelet:kafka-not-secured-sink
+            id: to-c86f
+            parameters:
+              topic: topic1
+              bootstrapServers: localhost:9092
+- route:
+    id: route-e39c
+    from:
+      uri: kamelet:kafka-not-secured-source
+      id: from-d419
+      parameters:
+        bootstrapServers: localhost:9092
+        topic: topic1
+      steps:
+        - to:
+            uri: direct
+            id: to-7401
+            parameters:
+              name: hello
+- route:
+    id: route-be79
+    from:
+      uri: kamelet:kafka-not-secured-source
+      id: from-27e8
+      parameters:
+        bootstrapServers: localhost:9092
+        topic: topic2
+- route:
+    id: hello
+    from:
+      uri: direct
+      id: from-db43
+      parameters:
+        name: hello

@@ -690,11 +690,7 @@ export class CamelDefinitionApiExt {
         return [];
     };
 
-    static getParametersValue = (
-        element: CamelElement | undefined,
-        propertyName: string,
-        pathParameter?: boolean,
-    ): any => {
+    static getParametersValue = (element: CamelElement | undefined, propertyName: string, pathParameter?: boolean): any => {
         if (element && (element as any).parameters) {
             return (element as any).parameters[propertyName];
         }

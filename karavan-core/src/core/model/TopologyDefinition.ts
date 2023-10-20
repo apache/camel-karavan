@@ -39,18 +39,23 @@ export class TopologyRestNode {
 export class TopologyIncomingNode {
     id: string;
     type: 'internal' | 'external';
+    connectorType: 'component' | 'kamelet';
     routeId: string;
     title: string;
     fileName: string;
     from: FromDefinition;
-    
-    constructor(id: string, type: 'internal' | 'external', routeId: string, title: string, fileName: string, from: FromDefinition) {
+    uniqueUri?: string;
+
+
+    constructor(id: string, type: "internal" | "external", connectorType: "component" | "kamelet", routeId: string, title: string, fileName: string, from: FromDefinition, uniqueUri: string) {
         this.id = id;
         this.type = type;
+        this.connectorType = connectorType;
         this.routeId = routeId;
         this.title = title;
         this.fileName = fileName;
         this.from = from;
+        this.uniqueUri = uniqueUri;
     }
 }
 
@@ -75,17 +80,22 @@ export class TopologyRouteNode {
 export class TopologyOutgoingNode {
     id: string;
     type: 'internal' | 'external';
+    connectorType: 'component' | 'kamelet';
     routeId: string;
     title: string;
     fileName: string;
     step: CamelElement;
+    uniqueUri?: string;
 
-    constructor(id: string, type: 'internal' | 'external', routeId: string, title: string, fileName: string, step: CamelElement) {
+
+    constructor(id: string, type: "internal" | "external", connectorType: "component" | "kamelet", routeId: string, title: string, fileName: string, step: CamelElement, uniqueUri: string) {
         this.id = id;
-        this.type = type
+        this.type = type;
+        this.connectorType = connectorType;
         this.routeId = routeId;
         this.title = title;
         this.fileName = fileName;
         this.step = step;
+        this.uniqueUri = uniqueUri;
     }
 }
