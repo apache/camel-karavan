@@ -43,11 +43,16 @@ function getIcon(data: any) {
 const CustomNode: React.FC<any> = observer(({ element, ...rest }) => {
 
     const data = element.getData();
+    const badge:string = data.badge?.substring(0,1).toUpperCase();
 
     return (
         <DefaultNode
+            badge={badge}
+            showStatusDecorator
             className="common-node"
-            element={element} {...rest}
+            scaleLabel={false}
+            element={element}
+            {...rest}
         >
             {getIcon(data)}
         </DefaultNode>
