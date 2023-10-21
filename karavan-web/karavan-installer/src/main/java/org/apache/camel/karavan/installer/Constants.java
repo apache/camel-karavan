@@ -31,7 +31,7 @@ public final class Constants {
 
     public static final String KARAVAN_IMAGE = "ghcr.io/apache/camel-karavan";
 
-    public static final String INFINISPAN_IMAGE = "quay.io/infinispan/server:14.0.6.Final";
+    public static final String INFINISPAN_IMAGE = "quay.io/infinispan/server:14.0.17.Final";
     public static final String INFINISPAN_USERNAME = "admin";
     public static final String INFINISPAN_PASSWORD = "karavan";
 

@@ -3,7 +3,7 @@ version: '3.8'
 services:
 
   infinispan:
-    image: quay.io/infinispan/server:14.0.6.Final
+    image: quay.io/infinispan/server:14.0.17.Final
     restart: always
     ports:
       - "11222:11222"
