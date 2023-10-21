@@ -1,6 +1,12 @@
 # Changelog
 
 ## 4.0.0
+0. Camel 4.1.0
+1. Camel-main Runtime
+2. Kamelets 4.0.1
+3. Jkube 1.14.0
+
+## 4.0.0
 0. Camel 4.0.0
 1. Camel-main Runtime
 2. Kamelets 4.0.0

@@ -62,7 +62,7 @@
       "properties": {
         "camel.version": {
           "type": "string",
-          "default": "4.0.1",
+          "default": "4.1.0",
           "description": "Camel version",
           "scope": "machine",
           "order": 10
@@ -259,8 +259,8 @@
             "camel.karavan.project-description=$NAME",
             "camel.karavan.target=$TARGET",
             "camel.jbang.gav=$GAV",
-            "camel.jbang.camelSpringBootVersion=4.0.1",
-            "camel.jbang.springBootVersion=3.1.2",
+            "camel.jbang.camelSpringBootVersion=4.1.0",
+            "camel.jbang.springBootVersion=3.1.4",
             "camel.jbang.runtime=$RUNTIME",
             "camel.jbang.exportDir=.export",
             "management.endpoints.web.exposure.include=health",
@@ -283,7 +283,7 @@
             "camel.karavan.project-description=$NAME",
             "camel.karavan.target=$TARGET",
             "camel.jbang.gav=$GAV",
-            "camel.jbang.version=4.0.1",
+            "camel.jbang.version=4.1.0",
             "camel.jbang.runtime=$RUNTIME",
             "camel.jbang.exportDir=.export",
             "camel.health.enabled=true",
