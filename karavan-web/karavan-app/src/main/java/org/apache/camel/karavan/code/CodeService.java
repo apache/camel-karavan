@@ -18,8 +18,9 @@ package org.apache.camel.karavan.code;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.apicurio.datamodels.Library;
-import io.apicurio.datamodels.openapi.models.OasDocument;
+import io.apicurio.datamodels.models.openapi.OpenApiDocument;
 import io.quarkus.qute.Engine;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
@@ -196,23 +197,23 @@ public class CodeService {
     }
 
     public String generate(String fileName, String openApi, boolean generateRoutes) throws Exception {
-        final JsonNode node = fileName.endsWith("json") ? readNodeFromJson(openApi) : readNodeFromYaml(openApi);
-        OasDocument document = (OasDocument) Library.readDocument(node);
+        final ObjectNode node = fileName.endsWith("json") ? readNodeFromJson(openApi) : readNodeFromYaml(openApi);
+        OpenApiDocument document = (OpenApiDocument) Library.readDocument(node);
         try (CamelContext context = new DefaultCamelContext()) {
             return RestDslGenerator.toYaml(document).generate(context, generateRoutes);
         }
     }
 
-    private JsonNode readNodeFromJson(String openApi) throws Exception {
+    private ObjectNode readNodeFromJson(String openApi) throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
-        return mapper.readTree(openApi);
+        return (ObjectNode) mapper.readTree(openApi);
     }
 
-    private JsonNode readNodeFromYaml(String openApi) throws FileNotFoundException {
+    private ObjectNode readNodeFromYaml(String openApi) throws FileNotFoundException {
         final ObjectMapper mapper = new ObjectMapper();
         Yaml loader = new Yaml(new SafeConstructor(new LoaderOptions()));
         Map map = loader.load(openApi);
-        return mapper.convertValue(map, JsonNode.class);
+        return mapper.convertValue(map, ObjectNode.class);
     }
 
     public String getPropertiesFile(GitRepo repo) {
