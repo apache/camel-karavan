@@ -43,8 +43,8 @@ public class KaravanCommand implements Callable<Integer> {
     private int nodePort;
     @CommandLine.Option(names = {"--image"}, description = "Karavan Image", defaultValue = Constants.KARAVAN_IMAGE)
     private String baseImage;
-    @CommandLine.Option(names = {"--builder-image"}, description = "Karavan Base Builder Image", defaultValue = Constants.DEFAULT_BUILD_IMAGE)
-    private String baseBuilderImage;
+    @CommandLine.Option(names = {"--devmode-image"}, description = "Karavan DevMode Image", defaultValue = Constants.DEFAULT_DEVMODE_IMAGE)
+    private String devmodeImage;
     @CommandLine.Option(names = {"--file"}, description = "YAML file name", defaultValue = "karavan.yaml")
     private String file;
     @CommandLine.Option(names = {"--yaml"}, description = "Create YAML file. Do not apply")
@@ -112,7 +112,9 @@ public class KaravanCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         if (yaml) {
+            System.out.println("⭕  Preparing Karavan resources YAML");
             Files.writeString(Path.of(file), ResourceUtils.generateResources(this));
+            System.out.println("\uD83D\uDC4D Prepared Karavan resources YAML " + file);
         } else {
             CommandUtils.installKaravan(this);
         }
@@ -199,12 +201,12 @@ public class KaravanCommand implements Callable<Integer> {
         this.baseImage = baseImage;
     }
 
-    public String getBaseBuilderImage() {
-        return baseBuilderImage;
+    public String getDevmodeImage() {
+        return devmodeImage;
     }
 
-    public void setBaseBuilderImage(String baseBuilderImage) {
-        this.baseBuilderImage = baseBuilderImage;
+    public void setDevmodeImage(String devmodeImage) {
+        this.devmodeImage = devmodeImage;
     }
 
     public String getFile() {

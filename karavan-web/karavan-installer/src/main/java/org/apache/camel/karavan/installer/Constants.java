@@ -27,7 +27,7 @@ public final class Constants {
     public static final String  DEFAULT_GIT_BRANCH = "main";
 
     public static final String DEFAULT_IMAGE_REGISTRY_OPENSHIFT = "image-registry.openshift-image-registry.svc:5000";
-    public static final String DEFAULT_BUILD_IMAGE = "ghcr.io/apache/camel-karavan-devmode";
+    public static final String DEFAULT_DEVMODE_IMAGE = "ghcr.io/apache/camel-karavan-devmode";
 
     public static final String KARAVAN_IMAGE = "ghcr.io/apache/camel-karavan";
 
