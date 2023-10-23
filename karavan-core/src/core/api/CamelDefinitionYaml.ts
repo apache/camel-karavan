@@ -120,7 +120,7 @@ export class CamelDefinitionYaml {
         return result;
     };
 
-    static yamlDump = (integration: Integration): string => {
+    static yamlDump = (integration: any): string => {
         return yaml.dump(integration, {
             noRefs: false,
             noArrayIndent: false,

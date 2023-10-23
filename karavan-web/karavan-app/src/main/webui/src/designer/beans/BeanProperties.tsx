@@ -58,9 +58,11 @@ export function BeanProperties (props: Props) {
     const [infrastructureSelectorProperty, setInfrastructureSelectorProperty] = useState<string | undefined>(undefined);
     const [infrastructureSelectorUuid, setInfrastructureSelectorUuid] = useState<string | undefined>(undefined);
     const [properties, setProperties] = useState<Map<string, [string, string, boolean]>>(new Map<string, [string, string, boolean]>());
+    const [constructors, setConstructors] = useState<Map<string, [number, string, boolean]>>(new Map<string, [number, string, boolean]>());
 
     useEffect(()=> {
         setProperties(preparePropertiesMap((selectedStep as RegistryBeanDefinition)?.properties))
+        setConstructors(prepareConstructorsMap((selectedStep as RegistryBeanDefinition)?.constructors))
     }, [selectedStep?.uuid])
 
     function preparePropertiesMap (properties: any): Map<string, [string, string, boolean]>  {
@@ -71,12 +73,30 @@ export function BeanProperties (props: Props) {
         return result;
     }
 
+    function prepareConstructorsMap (constructors: any): Map<string, [number, string, boolean]>  {
+        const result = new Map<string, [number, string, boolean]>();
+        if (constructors) {
+            Object.keys(constructors).forEach((k, i, a) => result.set(uuidv4(), [parseInt(k), constructors[k], false]));
+        }
+        return result;
+    }
+
     function onBeanPropertyUpdate ()  {
         if (selectedStep) {
             const bean = CamelUtil.cloneBean(selectedStep as RegistryBeanDefinition);
             const beanProperties: any = {};
             properties.forEach((p: any) => beanProperties[p[0]] = p[1]);
             bean.properties = beanProperties;
+            props.onChange(bean);
+        }
+    }
+
+    function onBeanConstructorsUpdate ()  {
+        if (selectedStep) {
+            const bean = CamelUtil.cloneBean(selectedStep as RegistryBeanDefinition);
+            const beanConstructors: any = {};
+            constructors.forEach((p: any) => beanConstructors[p[0]] = p[1]);
+            bean.constructors = beanConstructors;
             props.onChange(bean);
         }
     }
@@ -97,12 +117,28 @@ export function BeanProperties (props: Props) {
         onBeanPropertyUpdate();
     }
 
+    function constructorChanged (uuid: string, key: number, value: string, showPassword: boolean)  {
+        setConstructors(prevState => {
+            prevState.set(uuid, [key, value, showPassword]);
+            return prevState;
+        });
+        onBeanConstructorsUpdate();
+    }
+
     function propertyDeleted (uuid: string)  {
         setProperties(prevState => {
             prevState.delete(uuid);
             return prevState;
         })
         onBeanPropertyUpdate();
+    }
+
+    function constructorDeleted (uuid: string)  {
+        setConstructors(prevState => {
+            prevState.delete(uuid);
+            return prevState;
+        })
+        onBeanConstructorsUpdate();
     }
 
     function selectInfrastructure (value: string)  {
@@ -163,26 +199,57 @@ export function BeanProperties (props: Props) {
                 </Popover>
         )
     }
-    function getBeanForm() {
-        const bean = (selectedStep as RegistryBeanDefinition);
+
+    function getBeanConstructors() {
         return (
-            <>
-                <div className="headers">
-                    <div className="top">
-                        <Title headingLevel="h1" size="md">Bean</Title>
-                        <Tooltip content="Clone bean" position="bottom">
-                            <Button variant="link" onClick={() => cloneBean()} icon={<CloneIcon/>}/>
-                        </Tooltip>
-                    </div>
-                </div>
-                <FormGroup label="Name" fieldId="name" isRequired labelIcon={getLabelIcon("Name", "Bean name used as a reference ex: myBean")}>
-                    <TextInput className="text-field" isRequired type="text" id="name" name="name" value={bean?.name}
-                                onChange={(_, value)=> beanFieldChanged("name", value)}/>
-                </FormGroup>
-                <FormGroup label="Type" fieldId="type" isRequired labelIcon={getLabelIcon("Type", "Bean class Canonical Name ex: org.demo.MyBean")}>
-                    <TextInput className="text-field" isRequired type="text" id="type" name="type" value={bean?.type}
-                        onChange={(_, value) => beanFieldChanged("type", value)}/>
-                </FormGroup>
+            <FormGroup label="Constructors" fieldId="constructors" className="bean-properties">
+                {Array.from(constructors.entries()).map((v, index, array) => {
+                    const i = v[0];
+                    const key = v[1][0];
+                    const value = v[1][1];
+                    const showPassword = v[1][2];
+                    const isSecret = false;
+                    return (
+                        <div key={"key-" + i} className="bean-property">
+                            <TextInput placeholder="Argument Index" className="text-field" isRequired type="text" id={"key-" + i}
+                                       name={"key-" + i} value={key}
+                                       onChange={(_, beanFieldName) => {
+                                           constructorChanged(i, parseInt(beanFieldName) , value, showPassword)
+                                       }}/>
+                            <InputGroup>
+                                <InputGroupItem isFill>
+                                    <TextInput
+                                        placeholder="Argument Value"
+                                        type={isSecret && !showPassword ? "password" : "text"}
+                                        className="text-field"
+                                        isRequired
+                                        id={"value-" + i}
+                                        name={"value-" + i}
+                                        value={value}
+                                        onChange={(_, value) => {
+                                            constructorChanged(i, key, value, showPassword)
+                                        }}/>
+                                </InputGroupItem>
+                                {isSecret && <Tooltip position="bottom-end" content={showPassword ? "Hide" : "Show"}>
+                                    <Button variant="control" onClick={e => constructorChanged(i, key, value, !showPassword)}>
+                                        {showPassword ? <ShowIcon/> : <HideIcon/>}
+                                    </Button>
+                                </Tooltip>}
+                            </InputGroup>
+                            <Button variant="link" className="delete-button" onClick={e => constructorDeleted(i)}>
+                                <DeleteIcon/>
+                            </Button>
+                        </div>
+                    )
+                })}
+                <Button variant="link" className="add-button" onClick={e => constructorChanged(uuidv4(), constructors.size, '', false)}>
+                    <AddIcon/>Add argument</Button>
+            </FormGroup>
+        )
+    }
+
+    function getBeanProperties() {
+        return (
                 <FormGroup label="Properties" fieldId="properties" className="bean-properties">
                     {Array.from(properties.entries()).map((v, index, array) => {
                         const i = v[0];
@@ -196,16 +263,16 @@ export function BeanProperties (props: Props) {
                             <div key={"key-" + i} className="bean-property">
                                 <TextInput placeholder="Bean Field Name" className="text-field" isRequired type="text" id={"key-" + i}
                                            name={"key-" + i} value={key}
-                                            onChange={(_, beanFieldName) => {
-                                                propertyChanged(i, beanFieldName, value, showPassword)
-                                            }}/>
+                                           onChange={(_, beanFieldName) => {
+                                               propertyChanged(i, beanFieldName, value, showPassword)
+                                           }}/>
                                 <InputGroup>
                                     {inInfrastructure &&
                                         <Tooltip position="bottom-end" content="Select value from Infrastructure">
-                                        <Button variant="control" onClick={e => openInfrastructureSelector(i, key)}>
-                                            {icon}
-                                        </Button>
-                                    </Tooltip>}
+                                            <Button variant="control" onClick={e => openInfrastructureSelector(i, key)}>
+                                                {icon}
+                                            </Button>
+                                        </Tooltip>}
                                     <InputGroupItem isFill>
                                         <TextInput
                                             placeholder="Bean Field Value"
@@ -232,6 +299,32 @@ export function BeanProperties (props: Props) {
                     <Button variant="link" className="add-button" onClick={e => propertyChanged(uuidv4(), '', '', false)}>
                         <AddIcon/>Add property</Button>
                 </FormGroup>
+        )
+    }
+
+
+    function getBeanForm() {
+        const bean = (selectedStep as RegistryBeanDefinition);
+        return (
+            <>
+                <div className="headers">
+                    <div className="top">
+                        <Title headingLevel="h1" size="md">Bean</Title>
+                        <Tooltip content="Clone bean" position="bottom">
+                            <Button variant="link" onClick={() => cloneBean()} icon={<CloneIcon/>}/>
+                        </Tooltip>
+                    </div>
+                </div>
+                <FormGroup label="Name" fieldId="name" isRequired labelIcon={getLabelIcon("Name", "Bean name used as a reference ex: myBean")}>
+                    <TextInput className="text-field" isRequired type="text" id="name" name="name" value={bean?.name}
+                                onChange={(_, value)=> beanFieldChanged("name", value)}/>
+                </FormGroup>
+                <FormGroup label="Type" fieldId="type" isRequired labelIcon={getLabelIcon("Type", "Bean class Canonical Name ex: org.demo.MyBean")}>
+                    <TextInput className="text-field" isRequired type="text" id="type" name="type" value={bean?.type}
+                        onChange={(_, value) => beanFieldChanged("type", value)}/>
+                </FormGroup>
+                {getBeanConstructors()}
+                {getBeanProperties()}
             </>
         )
     }

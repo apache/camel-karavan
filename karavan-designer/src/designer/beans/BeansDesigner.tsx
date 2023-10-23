@@ -123,9 +123,8 @@ export function BeansDesigner() {
                                  }}
                         >
                             {beans?.map((bean, index) => (
-                                <GalleryItem>
-                                    <BeanCard key={bean.uuid + index}
-                                              bean={bean}
+                                <GalleryItem key={bean.uuid + index}>
+                                    <BeanCard bean={bean}
                                               selectElement={selectBean}
                                               deleteElement={onShowDeleteConfirmation}
                                     />

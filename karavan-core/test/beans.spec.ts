@@ -14,17 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {expect} from 'chai';
+import { expect } from 'chai';
 import * as fs from 'fs';
 import 'mocha';
-import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
+import { CamelDefinitionYaml } from '../src/core/api/CamelDefinitionYaml';
+import { Integration } from '../lib/model/IntegrationDefinition';
+import { RegistryBeanDefinition } from '../src/core/model/CamelDefinition';
+import * as yaml from 'js-yaml';
 
 
 describe('bean configuration', () => {
 
     it('Read beans from plain YAML', () => {
-        const yaml = fs.readFileSync('test/beans1.yaml', {encoding: 'utf8', flag: 'r'});
-        const i = CamelDefinitionYaml.yamlToIntegration("beans.yaml", yaml);
+        const yaml = fs.readFileSync('test/beans1.yaml', { encoding: 'utf8', flag: 'r' });
+        const i = CamelDefinitionYaml.yamlToIntegration('beans.yaml', yaml);
         expect(i.metadata.name).to.equal('beans.yaml');
         expect(i.kind).to.equal('Integration');
         expect(i.spec.flows?.length).to.equal(3);
@@ -38,18 +41,38 @@ describe('bean configuration', () => {
     });
 
     it('Read beans from Integration', () => {
-        const yaml = fs.readFileSync('test/beans2.yaml',{encoding:'utf8', flag:'r'});
-        const i = CamelDefinitionYaml.yamlToIntegration("beans.yaml", yaml);
+        const yaml = fs.readFileSync('test/beans2.yaml', { encoding: 'utf8', flag: 'r' });
+        const i = CamelDefinitionYaml.yamlToIntegration('beans.yaml', yaml);
         expect(i.metadata.name).to.equal('Beans');
         expect(i.kind).to.equal('Integration');
         expect(i.spec.flows?.length).to.equal(3);
-        expect(i.type).to.equal("crd");
+        expect(i.type).to.equal('crd');
         if (i.spec.flows) {
             expect(i.spec.flows[2].beans[0].name).to.equal('myNested');
             expect(i.spec.flows[2].beans[0].type).to.equal('${MyBean.class.name}');
             expect(i.spec.flows[2].beans[0].properties['nested.foo']).to.equal('valueFoo');
             expect(i.spec.flows[2].beans[1].name).to.equal('myProps');
         }
+    });
+
+    class Val {
+
+    }
+
+    it('Bean constructor', () => {
+        const text = fs.readFileSync('test/beans3.yaml', { encoding: 'utf8', flag: 'r' });
+        const i = CamelDefinitionYaml.yamlToIntegration('beans.yaml', text);
+
+        const b = Integration.createNew('beans');
+        const bean = new RegistryBeanDefinition({
+            name: 'Name', type: 'Type', constructors: {
+                0: 'zero',
+                1: 'one',
+                2: 'two',
+            },
+        });
+        b.spec.flows?.push(bean);
+        // console.log(CamelDefinitionYaml.integrationToYaml(b))
     });
 
 });
