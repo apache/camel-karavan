@@ -27,6 +27,7 @@ import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {toPng} from 'html-to-image';
 import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
+import {v4 as uuidv4} from 'uuid';
 
 export function useRouteDesignerHook () {
 
@@ -224,7 +225,8 @@ export function useRouteDesignerHook () {
     function onDslSelect (dsl: DslMetaModel, parentId: string, position?: number | undefined) {
         switch (dsl.dsl) {
             case 'FromDefinition' :
-                const route = CamelDefinitionApi.createRouteDefinition({from: new FromDefinition({uri: dsl.uri})});
+                const nodePrefixId = isKamelet() ? integration.metadata.name : 'route-' + uuidv4().substring(0,3);
+                const route = CamelDefinitionApi.createRouteDefinition({from: new FromDefinition({uri: dsl.uri}), nodePrefixId: nodePrefixId});
                 addStep(route, parentId, position)
                 break;
             case 'ToDefinition' :
