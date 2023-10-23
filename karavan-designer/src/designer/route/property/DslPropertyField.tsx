@@ -169,7 +169,7 @@ export function DslPropertyField(props: Props) {
 
     function isUriReadOnly(property: PropertyMeta): boolean {
         const dslName: string = props.element?.dslName || '';
-        return property.name === 'uri' && !['ToDynamicDefinition', 'WireTapDefinition'].includes(dslName)
+        return property.name === 'uri' && !['ToDynamicDefinition', 'WireTapDefinition', 'InterceptFromDefinition'].includes(dslName)
     }
 
     function selectInfrastructure(value: string) {
