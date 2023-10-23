@@ -273,7 +273,8 @@ export class CamelUi {
     static getKameletDslMetaModel = (type: 'source' | "sink" | "action"): DslMetaModel[] => {
         return KameletApi.getKamelets().filter((k) => k.metadata.labels["camel.apache.org/kamelet.type"] === type)
             .map((k) => {
-                const descriptionLines = k.description().split("\n");
+                const descriptionLines = k.description().split("\n")
+                    .filter(line => line !== undefined && line.trim().length > 0);
                 const description = descriptionLines.at(0);
                 return new DslMetaModel({
                     dsl: type === 'source' ? "FromDefinition" : "ToDefinition",
