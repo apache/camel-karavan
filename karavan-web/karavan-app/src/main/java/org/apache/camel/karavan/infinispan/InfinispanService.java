@@ -16,12 +16,8 @@
  */
 package org.apache.camel.karavan.infinispan;
 
-import io.smallrye.mutiny.tuples.Tuple2;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Singleton;
-import jakarta.transaction.NotSupportedException;
-import jakarta.transaction.SystemException;
-import jakarta.transaction.TransactionManager;
 import org.apache.camel.karavan.infinispan.model.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.Retry;
@@ -35,6 +31,9 @@ import org.infinispan.client.hotrod.configuration.ClientIntelligence;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
 import org.infinispan.commons.configuration.StringConfiguration;
 import org.infinispan.commons.marshall.ProtoStreamMarshaller;
+import org.infinispan.protostream.ProtobufUtil;
+import org.infinispan.protostream.SerializationContext;
+import org.infinispan.protostream.config.Configuration;
 import org.infinispan.query.dsl.QueryFactory;
 import org.jboss.logging.Logger;
 
@@ -84,7 +83,10 @@ public class InfinispanService implements HealthCheck {
     void start() throws Exception {
         LOGGER.info("InfinispanService is starting in remote mode");
 
-        ProtoStreamMarshaller marshaller = new ProtoStreamMarshaller();
+        Configuration.Builder cfgBuilder = Configuration.builder().setLogOutOfSequenceWrites(false);
+        SerializationContext ctx = ProtobufUtil.newSerializationContext(cfgBuilder.build());
+
+        ProtoStreamMarshaller marshaller = new ProtoStreamMarshaller(ctx);
         marshaller.register(new KaravanSchemaImpl());
 
         ConfigurationBuilder builder = new ConfigurationBuilder();
@@ -154,9 +156,9 @@ public class InfinispanService implements HealthCheck {
 
     public ProjectFile getProjectFile(String projectId, String filename) {
         QueryFactory queryFactory = Search.getQueryFactory(files);
-        List<ProjectFile> list = queryFactory.<ProjectFile>create("FROM karavan.ProjectFile WHERE projectId = :projectId AND name = :name")
-                .setParameter("projectId", projectId)
+        List<ProjectFile> list = queryFactory.<ProjectFile>create("FROM karavan.ProjectFile WHERE name = :name AND projectId = :projectId")
                 .setParameter("name", filename)
+                .setParameter("projectId", projectId)
                 .execute().list();
         return list.size() > 0 ? list.get(0) : null;
     }
