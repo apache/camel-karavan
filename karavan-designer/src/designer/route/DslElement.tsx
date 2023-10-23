@@ -42,7 +42,7 @@ interface Props {
 export function DslElement(props: Props) {
 
     const headerRef = React.useRef<HTMLDivElement>(null);
-    const {selectElement, moveElement, onShowDeleteConfirmation, openSelector, isKamelet} = useRouteDesignerHook();
+    const {selectElement, moveElement, onShowDeleteConfirmation, openSelector, isKamelet, isSourceKamelet, isActionKamelet} = useRouteDesignerHook();
 
     const [integration] = useIntegrationStore((s) => [s.integration, s.setIntegration], shallow)
 
@@ -244,6 +244,8 @@ export function DslElement(props: Props) {
     function getHeaderText(step: CamelElement): string {
         if (isKamelet() && step.dslName === 'ToDefinition' && (step as any).uri === 'kamelet:sink') {
             return "Sink";
+        } else if (isKamelet() && step.dslName === 'FromDefinition' && (step as any).uri === 'kamelet:source') {
+            return "Source";
         } else {
             return (step as any).description ? (step as any).description : CamelUi.getElementTitle(props.step);
         }

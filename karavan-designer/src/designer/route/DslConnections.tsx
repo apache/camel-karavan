@@ -63,6 +63,7 @@ export function DslConnections() {
             .filter(pos => ["FromDefinition"].includes(pos.step.dslName))
             .filter(pos => !TopologyUtils.isElementInternalComponent(pos.step))
             .filter(pos => !(pos.step.dslName === 'FromDefinition' && TopologyUtils.hasInternalUri(pos.step)))
+            .filter(pos => !(pos.step.dslName === 'FromDefinition' && (pos.step as any).uri === 'kamelet:source'))
             .sort((pos1: DslPosition, pos2: DslPosition) => {
                 const y1 = pos1.headerRect.y + pos1.headerRect.height / 2;
                 const y2 = pos2.headerRect.y + pos2.headerRect.height / 2;

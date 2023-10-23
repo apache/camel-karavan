@@ -1,0 +1,185 @@
+# ---------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ---------------------------------------------------------------------------
+
+apiVersion: camel.apache.org/v1
+kind: Kamelet
+metadata:
+  name: aws-cloudwatch-sink
+  annotations:
+    camel.apache.org/kamelet.support.level: "Stable"
+    camel.apache.org/catalog.version: "4.0.1"
+    camel.apache.org/kamelet.icon: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjIwNyIgaGVpZ2h0PSIyNTAwIiB2aWV3Qm94PSIwIDAgMjU2IDI5MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCI+PHBhdGggZD0iTTI1NiAxOTkuMzA1bC0xMjcuOTU3LTE4Ljc5N0wwIDE5OS4zMjlsMTI4LjAxIDQ3LjQzOUwyNTYgMTk5LjMwNSIgZmlsbD0iI0I3Q0E5RCIvPjxwYXRoIGQ9Ik0yNS42MjEgMTk3LjExM2wyMS42MyA2Ljc2MSAxLjk3MS0yLjIzOFY1MC4yODRsLTEuOTcxLTIuNTg1LTIxLjYzIDguMjc0djE0MS4xNCIgZmlsbD0iIzRCNjEyQyIvPjxwYXRoIGQ9Ik0xMjMuODMyIDE5MC40MjNsLTc2LjU4MSAxMy40NTFWNDcuNzAzbDc2LjU4MSAxNy4yMjJ2MTI1LjQ5OCIgZmlsbD0iIzc1OUMzRSIvPjxwYXRoIGQ9Ik04OS42ODYgMjE2Ljg4OWwtMjkuODQ4LTkuMjAxVjE0LjkyOEw4OS42ODYuMDA0bDIuNjEyIDIuODQ1djIxMC44NThsLTIuNjEyIDMuMTgyIiBmaWxsPSIjNEI2MTJDIi8+PHBhdGggZD0iTTE5MS45NjcgMTkyLjg5NEw4OS42ODYgMjE2Ljg4OVYwbDEwMi4yODEgMzkuODY2djE1My4wMjgiIGZpbGw9IiM3NTlDM0UiLz48cGF0aCBkPSJNMTI3Ljk2NSAyNDQuNzE0TDAgMTk5LjMyOXYyNi4zMjRsMTI3Ljk2NSA2My45ODN2LTQ0LjkyMiIgZmlsbD0iIzRCNjEyQyIvPjxwYXRoIGQ9Ik0yNTYgMjI1LjYyMmwtMTI4LjAzNSA2NC4wMTR2LTQ0LjkyMkwyNTYgMTk5LjMwNXYyNi4zMTciIGZpbGw9IiM3NTlDM0UiLz48cGF0aCBkPSJNMjIwLjAzOSAxNTUuNjkyaC0zMS4wMjZsLTg4LjQ0NSA2LjAyNkwxMjggMTY2Ljc3NWw5Mi4wMzktMTEuMDgzIiBmaWxsPSIjQjdDQTlEIi8+PHBhdGggZD0iTTEwMC41NjggMjE5LjkwNmwyNy40MiA4LjIyNi43ODktLjg0OS0uMDIzLTYxLjg0OS0uNzg5LS43NTgtMjcuMzk3LTIuOTU4djU4LjE4OCIgZmlsbD0iIzRCNjEyQyIvPjxwYXRoIGQ9Ik0yMjAuMDM5IDE1NS42OTJsLTkyLjA3NCA4Ljk4LjAyMyA2My40NiA5Mi4wNTEtMjcuNzExdi00NC43MjkiIGZpbGw9IiM3NTlDM0UiLz48L3N2Zz4K"
+    camel.apache.org/provider: "Apache Software Foundation"
+    camel.apache.org/kamelet.group: "AWS Cloudwatch"
+    camel.apache.org/kamelet.namespace: "AWS"
+  labels:
+    camel.apache.org/kamelet.type: "sink"
+spec:
+  definition:
+    title: "AWS CloudWatch Metrics Sink"
+    description: |-
+      Send data to Amazon CloudWatch metrics.
+
+      The basic authentication method for the AWS CloudWatch metrics service is to specify an access key and a secret key. These parameters are optional because the Kamelet provides a default credentials provider.
+      
+      If you use the default credentials provider, the CloudWatch client loads the credentials through this provider and doesn't use the basic authentication method.
+      
+      You can set the following properties in the header:
+
+      `metric-name` / `ce-metricname` for the metric name.
+      `metric-value` / `ce-metricvalue` for the metric value.
+      `metric-unit` / `ce-metricunit` for the metric unit.
+      `metric-timestamp` / `ce-metrictimestamp` for the metric timestamp.
+      `metric-dimension-name` / `ce-metricdimensionname` for the dimension name.
+      `metric-dimension-value` / `ce-metricdimensionvalue` for the dimension value.
+    required:
+      - cwNamespace
+      - region
+    type: object
+    properties:
+      cwNamespace:
+        title: Cloud Watch Namespace
+        description: The CloudWatch metric namespace.
+        type: string
+      accessKey:
+        title: Access Key
+        description: The access key obtained from AWS.
+        type: string
+        format: password
+        x-descriptors:
+          - urn:alm:descriptor:com.tectonic.ui:password
+          - urn:camel:group:credentials
+      secretKey:
+        title: Secret Key
+        description: The secret key obtained from AWS.
+        type: string
+        format: password
+        x-descriptors:
+          - urn:alm:descriptor:com.tectonic.ui:password
+          - urn:camel:group:credentials
+      region:
+        title: AWS Region
+        description: The AWS region to access.
+        type: string
+        enum: ["ap-south-1", "eu-south-1", "us-gov-east-1", "me-central-1", "ca-central-1", "eu-central-1", "us-iso-west-1", "us-west-1", "us-west-2", "af-south-1", "eu-north-1", "eu-west-3", "eu-west-2", "eu-west-1", "ap-northeast-3", "ap-northeast-2", "ap-northeast-1", "me-south-1", "sa-east-1", "ap-east-1", "cn-north-1", "us-gov-west-1", "ap-southeast-1", "ap-southeast-2", "us-iso-east-1", "ap-southeast-3", "us-east-1", "us-east-2", "cn-northwest-1", "us-isob-east-1", "aws-global", "aws-cn-global", "aws-us-gov-global", "aws-iso-global", "aws-iso-b-global"]
+      useDefaultCredentialsProvider:
+        title: Default Credentials Provider
+        description: If true, the CloudWatch client loads credentials through a default credentials provider. If false, it uses the basic authentication method (access key and secret key).
+        type: boolean
+        x-descriptors:
+          - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: false
+      uriEndpointOverride:
+        title: Overwrite Endpoint URI
+        description: The overriding endpoint URI. To use this option, you must also select the `overrideEndpoint` option.
+        type: string
+      overrideEndpoint:
+        title: Endpoint Overwrite
+        description: Select this option to override the endpoint URI. To use this option, you must also provide a URI for the `uriEndpointOverride` option.
+        type: boolean
+        x-descriptors:
+          - 'urn:alm:descriptor:com.tectonic.ui:checkbox'
+        default: false
+  dependencies:
+    - "camel:core"
+    - "camel:aws2-cw"
+    - "camel:kamelet"
+  template:
+    from:
+      uri: kamelet:source
+      steps:
+        - choice:
+            when:
+              - simple: "${header[metric-name]}"
+                steps:
+                  - set-header:
+                      name: CamelAwsCwMetricName
+                      simple: "${header[metric-name]}"
+              - simple: "${header[ce-metricname]}"
+                steps:
+                  - set-header:
+                      name: CamelAwsCwMetricName
+                      simple: "${header[ce-metricname]}"
+        - choice:
+            when:
+              - simple: "${header[metric-value]}"
+                steps:
+                  - set-header:
+                      name: CamelAwsCwMetricValue
+                      simple: "${header[metric-value]}"
+              - simple: "${header[ce-metricvalue]}"
+                steps:
+                  - set-header:
+                      name: CamelAwsCwMetricValue
+                      simple: "${header[ce-metricvalue]}"
+        - choice:
+            when:
+              - simple: "${header[metric-unit]}"
+                steps:
+                  - set-header:
+                      name: CamelAwsCwMetricUnit
+                      simple: "${header[metric-unit]}"
+              - simple: "${header[ce-metricunit]}"
+                steps:
+                  - set-header:
+                      name: CamelAwsCwMetricUnit
+                      simple: "${header[ce-metricunit]}"
+        - choice:
+            when:
+              - simple: "${header[metric-timestamp]}"
+                steps:
+                  - set-header:
+                      name: CamelAwsCwMetricTimestamp
+                      simple: "${header[metric-timestamp]}"
+              - simple: "${header[ce-metrictimestamp]}"
+                steps:
+                  - set-header:
+                      name: CamelAwsCwMetricTimestamp
+                      simple: "${header[ce-metrictimestamp]}"
+        - choice:
+            when:
+              - simple: "${header[metric-dimension-name]}"
+                steps:
+                  - set-header:
+                      name: CamelAwsCwMetricDimensionName
+                      simple: "${header[metric-dimension-name]}"
+              - simple: "${header[ce-metricdimensionname]}"
+                steps:
+                  - set-header:
+                      name: CamelAwsCwMetricDimensionName
+                      simple: "${header[ce-metricdimensionname]}"
+        - choice:
+            when:
+              - simple: "${header[metric-dimension-value]}"
+                steps:
+                  - set-header:
+                      name: CamelAwsCwMetricDimensionValue
+                      simple: "${header[metric-dimension-value]}"
+              - simple: "${header[ce-metricdimensionvalue]}"
+                steps:
+                  - set-header:
+                      name: CamelAwsCwMetricDimensionValue
+                      simple: "${header[ce-metricdimensionvalue]}"
+        - to:
+            uri: "aws2-cw:{{cwNamespace}}"
+            parameters:
+              secretKey: "{{?secretKey}}"
+              accessKey: "{{?accessKey}}"
+              region: "{{region}}"
+              useDefaultCredentialsProvider: "{{useDefaultCredentialsProvider}}"
+              uriEndpointOverride: "{{?uriEndpointOverride}}"
+              overrideEndpoint: "{{overrideEndpoint}}"

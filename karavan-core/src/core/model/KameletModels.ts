@@ -49,7 +49,7 @@ export class KameletSpec {
 }
 
 export class Labels {
-    'camel.apache.org/kamelet.type': string | any = '';
+    'camel.apache.org/kamelet.type': "sink" | "source" | "action" = 'source';
 
     public constructor(init?: Partial<Labels>) {
         Object.assign(this, init);

@@ -82,7 +82,8 @@ class App extends React.Component<Props, State> {
             fetch("snippets/org.apache.camel.AggregationStrategy"),
             fetch("snippets/org.apache.camel.Processor"),
             // fetch("example/demo.camel.yaml")
-            fetch("example/aws-s3-cdc-source.kamelet.yaml")
+            fetch("example/aws-cloudwatch-sink.kamelet.yaml")
+            // fetch("example/aws-s3-cdc-source.kamelet.yaml")
             // fetch("components/supported-components.json"),
         ]).then(responses =>
             Promise.all(responses.map(response => response.text()))

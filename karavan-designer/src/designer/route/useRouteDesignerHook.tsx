@@ -19,7 +19,7 @@ import '../karavan.css';
 import {DslMetaModel} from "../utils/DslMetaModel";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {ChoiceDefinition, FromDefinition, LogDefinition, RouteConfigurationDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
-import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
+import {CamelElement, MetadataLabels} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {Command, EventBus} from "../utils/EventBus";
@@ -48,6 +48,30 @@ export function useRouteDesignerHook () {
 
     function isKamelet(): boolean {
         return integration.type === 'kamelet';
+    }
+
+    function isSourceKamelet(): boolean {
+        if (isKamelet()){
+            const m: MetadataLabels | undefined = integration.metadata.labels;
+            return m !== undefined && m["camel.apache.org/kamelet.type"] === 'source';
+        }
+        return false;
+    }
+
+    function isSinkKamelet(): boolean {
+        if (isKamelet()){
+            const m: MetadataLabels | undefined = integration.metadata.labels;
+            return m !== undefined && m["camel.apache.org/kamelet.type"] === 'sink';
+        }
+        return false;
+    }
+
+    function isActionKamelet(): boolean {
+        if (isKamelet()){
+            const m: MetadataLabels | undefined = integration.metadata.labels;
+            return m !== undefined && m["camel.apache.org/kamelet.type"] === 'action';
+        }
+        return false;
     }
 
     const onShowDeleteConfirmation = (id: string) => {
@@ -197,7 +221,7 @@ export function useRouteDesignerHook () {
         setSelectorTabIndex((parentId === undefined && parentDsl === undefined) ? 'kamelet' : 'eip');
     }
 
-    const onDslSelect = (dsl: DslMetaModel, parentId: string, position?: number | undefined) => {
+    function onDslSelect (dsl: DslMetaModel, parentId: string, position?: number | undefined) {
         switch (dsl.dsl) {
             case 'FromDefinition' :
                 const route = CamelDefinitionApi.createRouteDefinition({from: new FromDefinition({uri: dsl.uri})});
@@ -298,5 +322,6 @@ export function useRouteDesignerHook () {
     }
 
     return { deleteElement, selectElement, moveElement, onShowDeleteConfirmation, onDslSelect, openSelector,
-        createRouteConfiguration, onCommand, handleKeyDown, handleKeyUp, unselectElement, isKamelet}
+        createRouteConfiguration, onCommand, handleKeyDown, handleKeyUp, unselectElement, isKamelet, isSourceKamelet,
+        isActionKamelet, isSinkKamelet}
 }
