@@ -42,7 +42,7 @@ interface Props {
 export function DslElement(props: Props) {
 
     const headerRef = React.useRef<HTMLDivElement>(null);
-    const {selectElement, moveElement, onShowDeleteConfirmation, openSelector} = useRouteDesignerHook();
+    const {selectElement, moveElement, onShowDeleteConfirmation, openSelector, isKamelet} = useRouteDesignerHook();
 
     const [integration] = useIntegrationStore((s) => [s.integration, s.setIntegration], shallow)
 
@@ -241,9 +241,17 @@ export function DslElement(props: Props) {
         )
     }
 
+    function getHeaderText(step: CamelElement): string {
+        if (isKamelet() && step.dslName === 'ToDefinition' && (step as any).uri === 'kamelet:sink') {
+            return "Sink";
+        } else {
+            return (step as any).description ? (step as any).description : CamelUi.getElementTitle(props.step);
+        }
+    }
+
     function getHeaderTextWithTooltip(step: CamelElement) {
         const checkRequired = CamelUtil.checkRequired(step);
-        const title = (step as any).description ? (step as any).description : CamelUi.getElementTitle(props.step);
+        const title = getHeaderText(step);
         let className = hasWideChildrenElement() ? "text text-right" : "text text-bottom";
         if (!checkRequired[0]) className = className + " header-text-required";
         if (checkRequired[0]) {

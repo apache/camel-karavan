@@ -51,7 +51,7 @@ import {
     IgniteIcon,
     InfinispanIcon,
     IotIcon,
-    KafkaIcon,
+    KafkaIcon, KameletIcon,
     KubernetesIcon,
     MachineLearningIcon,
     MailIcon,
@@ -93,6 +93,7 @@ import {
 import React from "react";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
+import {getDesignerIcon} from "../icons/KaravanIcons";
 
 const StepElements: string[] = [
     "AggregateDefinition",
@@ -107,6 +108,7 @@ const StepElements: string[] = [
     // "ErrorHandlerDefinition",
     "FilterDefinition",
     "IdempotentConsumerDefinition",
+    "KameletDefinition",
     "LogDefinition",
     "LoopDefinition",
     "MarshalDefinition",
@@ -304,6 +306,10 @@ export class CamelUi {
         const kamelet = CamelUtil.getKamelet(element);
         if (kamelet) return kamelet.type() === 'action'
         else return false;
+    }
+
+    static isKameletSink = (element: CamelElement): boolean => {
+        return element.dslName === 'ToDefinition' && (element as any).uri === 'kamelet:sink';
     }
 
     static getInternalRouteUris = (integration: Integration, componentName: string, showComponentName: boolean = true): string[] => {
@@ -519,7 +525,7 @@ export class CamelUi {
         }
     }
 
-    static getIconForDsl = (dsl: DslMetaModel): JSX.Element => {
+    static getIconForDsl = (dsl: DslMetaModel): React.JSX.Element => {
         if (dsl.dsl && (dsl.dsl === "KameletDefinition" || dsl.navigation === 'kamelet')) {
             return this.getIconFromSource(CamelUi.getKameletIconByName(dsl.name));
         } else if ((dsl.dsl && dsl.dsl === "FromDefinition")
@@ -687,6 +693,8 @@ export class CamelUi {
                 return <ApiIcon/>;
             case 'HeadDefinition' :
                 return <ApiIcon/>;
+            case 'KameletDefinition' :
+                return <KameletIcon/>;
             default:
                 return this.getIconFromSource(CamelUi.getIconSrcForName(dslName))
         }

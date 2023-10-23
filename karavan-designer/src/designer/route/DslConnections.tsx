@@ -142,6 +142,7 @@ export function DslConnections() {
             .filter(pos => pos.step.dslName === 'ToDefinition' && !CamelUi.isActionKamelet(pos.step) && !TopologyUtils.isElementInternalComponent(pos.step))
             .filter(pos => !(outgoingDefinitions.includes(pos.step.dslName) && TopologyUtils.hasInternalUri(pos.step)))
             .filter(pos => pos.step.dslName !== 'SagaDefinition')
+            .filter(pos => !CamelUi.isKameletSink(pos.step))
             .sort((pos1: DslPosition, pos2: DslPosition) => {
                 const y1 = pos1.headerRect.y + pos1.headerRect.height / 2;
                 const y2 = pos2.headerRect.y + pos2.headerRect.height / 2;

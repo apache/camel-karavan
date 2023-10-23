@@ -46,6 +46,10 @@ export function useRouteDesignerHook () {
         }
     }
 
+    function isKamelet(): boolean {
+        return integration.type === 'kamelet';
+    }
+
     const onShowDeleteConfirmation = (id: string) => {
         let message: string;
         const uuidsToDelete:string [] = [id];
@@ -200,6 +204,9 @@ export function useRouteDesignerHook () {
                 addStep(route, parentId, position)
                 break;
             case 'ToDefinition' :
+                if (dsl.uri === undefined && isKamelet()) {
+                    dsl.uri = 'kamelet:sink';
+                }
                 const to = CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
                 addStep(to, parentId, position)
                 break;
@@ -291,5 +298,5 @@ export function useRouteDesignerHook () {
     }
 
     return { deleteElement, selectElement, moveElement, onShowDeleteConfirmation, onDslSelect, openSelector,
-        createRouteConfiguration, onCommand, handleKeyDown, handleKeyUp, unselectElement}
+        createRouteConfiguration, onCommand, handleKeyDown, handleKeyUp, unselectElement, isKamelet}
 }
