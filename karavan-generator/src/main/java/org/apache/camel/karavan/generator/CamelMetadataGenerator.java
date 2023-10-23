@@ -59,7 +59,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         // Prepare stepNames map
         Map<String, String> stepNames = getProcessorStepNameMap();
 
-        Map<String, JsonObject> classProps = new HashMap<>();
+        Map<String, JsonObject> classProps = new LinkedHashMap<>();
         // Generate DataFormatMetadata
         definitions.getMap().forEach((s, o) -> {
             if (s.startsWith("org.apache.camel.model.dataformat")) {
@@ -99,7 +99,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         camelModel.append(getMetadataCode("CamelLanguageMetadata", classProps, stepNames, "language"));
 
         // Generate DSL Metadata
-        Map<String, Object> defsMap = new HashMap<>();
+        Map<String, Object> defsMap = new LinkedHashMap<>();
         defsMap.putAll(definitions.getJsonObject("org.apache.camel.model.ProcessorDefinition").getJsonObject("properties").getMap());
         defsMap.putAll(new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("properties").getMap());
 
